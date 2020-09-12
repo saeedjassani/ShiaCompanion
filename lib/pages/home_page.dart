@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'dart:convert';
@@ -8,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:http/http.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
+import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/live_streaming.dart';
 import 'package:shia_companion/widgets/prayer_times.dart';
@@ -28,7 +31,9 @@ class _MyHomePageState extends State<MyHomePage> {
   DateTime today = DateTime.now();
 
   Location location = Location();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  List<UidTitleData> favsData;
   List<LiveStreamingData> holyShrine, liveChannel;
 
   List prayerTimes;
@@ -90,8 +95,9 @@ class _MyHomePageState extends State<MyHomePage> {
             LayoutBuilder(builder: (context, constraints) {
               return SingleChildScrollView(
                 child: ConstrainedBox(
-                  constraints:
-                      BoxConstraints(minWidth: constraints.maxWidth, minHeight: constraints.maxHeight),
+                  constraints: BoxConstraints(
+                      minWidth: constraints.maxWidth,
+                      minHeight: constraints.maxHeight),
                   child: IntrinsicHeight(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -100,7 +106,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             fit: FlexFit.loose,
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 32.0, horizontal: 16.0),
                                 child: Text(
                                   '$hadith',
                                   textAlign: TextAlign.center,
@@ -108,20 +115,48 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             )),
                         PrayerTimes(),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            child: ExpansionTile(
+                              title: Text("Favorites"),
+                              children: <Widget>[
+                                SizedBox(
+                                    height: 300,
+                                    child: ListView.separated(
+                                      separatorBuilder:
+                                          (BuildContext context, int index) =>
+                                              Divider(),
+                                      itemCount: favsData != null
+                                          ? favsData.length
+                                          : 0,
+                                      itemBuilder: (BuildContext c, int i) =>
+                                          buildZikrRow(c, favsData[i]),
+                                    ))
+                              ],
+                            ),
+                          ),
+                        ),
                         SizedBox(
                           height: 120,
                           width: screenWidth,
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
+                            padding:
+                                const EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: zikr.length,
-                              itemBuilder: (BuildContext c, int i) => buildBody(c, i),
+                              itemBuilder: (BuildContext c, int i) =>
+                                  buildBody(c, i),
                             ),
                           ),
                         ),
-                        holyShrine != null ? LiveStreaming(holyShrine) : Container(),
-                        liveChannel != null ? LiveStreaming(liveChannel) : Container(),
+                        holyShrine != null
+                            ? LiveStreaming(holyShrine)
+                            : Container(),
+                        liveChannel != null
+                            ? LiveStreaming(liveChannel)
+                            : Container(),
                       ],
                     ),
                   ),
@@ -140,7 +175,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void navigationTapped(int page) {
-    _pageController.animateToPage(page, duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    _pageController.animateToPage(page,
+        duration: const Duration(milliseconds: 300), curve: Curves.ease);
   }
 
   void initializeData() async {
@@ -168,7 +204,28 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
-    // Initialize Islamic Channels Data
+    user = _auth.currentUser;
+    // If user is logged in, initialize favorites
+    if (user != null) {
+      favsData = [];
+      DatabaseReference tasksReference = FirebaseDatabase.instance
+          .reference()
+          .child('new_favs')
+          .child(user.uid);
+      DataSnapshot snapshot = await tasksReference.once();
+      List values = json.decode(snapshot.value);
+      for (var obj in values) {
+        // TODO Fix startsWithKey - Example: G17 should show when G17|L4 is present
+        if (items.containsKey(obj["uid"])) {
+          favsData.add(UidTitleData(obj["uid"], obj["title"]));
+        }
+      }
+    } else {
+      key.currentState.showSnackBar(SnackBar(
+        content: Text("Please sign in to access favorites"),
+      ));
+    }
+
     setState(() {});
   }
 
@@ -178,18 +235,23 @@ class _MyHomePageState extends State<MyHomePage> {
     int max = 2382;
     rnd = Random();
     int h = min + rnd.nextInt(max - min);
-    hadith = await DefaultAssetBundle.of(context).loadString('assets/hadiths/$h');
+    hadith =
+        await DefaultAssetBundle.of(context).loadString('assets/hadiths/$h');
     setState(() {});
   }
 
   setupPreferences() async {
     // Get SharedPreferences
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    arabicFontSize = sharedPreferences.getDouble('ara_font_size') ?? arabicFontSize;
-    englishFontSize = sharedPreferences.getDouble('eng_font_size') ?? englishFontSize;
+    arabicFontSize =
+        sharedPreferences.getDouble('ara_font_size') ?? arabicFontSize;
+    englishFontSize =
+        sharedPreferences.getDouble('eng_font_size') ?? englishFontSize;
 
-    showTranslation = sharedPreferences.getBool('showTranslation') ?? showTranslation;
-    showTransliteration = sharedPreferences.getBool('showTransliteration') ?? showTransliteration;
+    showTranslation =
+        sharedPreferences.getBool('showTranslation') ?? showTranslation;
+    showTransliteration =
+        sharedPreferences.getBool('showTransliteration') ?? showTransliteration;
 
     hijriDate = sharedPreferences.getInt('adjust_hijri_date') ?? hijriDate;
     initializeData();
@@ -198,7 +260,8 @@ class _MyHomePageState extends State<MyHomePage> {
   buildBody(BuildContext c, int i) {
     return InkWell(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ItemList(tableCode[i])));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ItemList(tableCode[i])));
       },
       child: Container(
         margin: EdgeInsets.all(6.0),
@@ -216,7 +279,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Container(
           width: screenWidth,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: <Color>[Colors.black, Colors.white70]),
+            gradient:
+                LinearGradient(colors: <Color>[Colors.black, Colors.white70]),
           ),
           child: Text(
             zikr[i],
