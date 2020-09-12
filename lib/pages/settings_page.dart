@@ -1,13 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import 'about_page.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SettingsPage extends StatefulWidget {
-  // final RefreshArticles refreshArticles;
-  // final RefreshNotes refreshNotes;
-
   SettingsPage();
 
   @override
@@ -15,10 +15,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  // final GoogleSignIn _googleSignIn = GoogleSignIn();
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
-  // final RefreshArticles refreshArticles;
-  // final RefreshNotes refreshNotes;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   _SettingsPageState();
 
@@ -27,17 +25,18 @@ class _SettingsPageState extends State<SettingsPage> {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          // ListTile(
-          //   trailing:
-          //       Text(user.isAnonymous ? AppTranslations.of(context).text("guest") : "${user.displayName}"),
-          //   title: Text(AppTranslations.of(context).text("name")),
-          // ),
-          // Divider(),
+          ListTile(
+            title: Text(user == null
+                ? "Salamun Alaika!"
+                : "Salamun Alaika, ${user.displayName}!"),
+          ),
+          Divider(),
           ListTile(
             leading: Icon(Icons.info),
             title: Text("About Us"),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AboutPage()));
             },
           ),
           Divider(),
@@ -103,23 +102,22 @@ class _SettingsPageState extends State<SettingsPage> {
               saveBooleanPref('showTransliteration', showTransliteration);
             },
             value: showTransliteration,
-          )
-          // Divider(),
-          // !user.isAnonymous
-          //     ? ListTile(
-          //         leading: new Icon(Icons.power_settings_new),
-          //         title: new Text(AppTranslations.of(context).text("logout")),
-          //         onTap: () {
-          //           logOff();
-          //         },
-          //       )
-          //     : GoogleSignInButton(
-          //         text: selectedLanguage == "English" ? "Sign in with Google" : "گوگل کے ساتھ سائن ان کریں",
-          //         onPressed: () {
-          //           _signInWithGoogle();
-          //         },
-          //         darkMode: true, // default: false
-          //       ),
+          ),
+          Divider(),
+          user != null
+              ? ListTile(
+                  leading: new Icon(Icons.power_settings_new),
+                  title: new Text("Logout"),
+                  onTap: () {
+                    logOff();
+                  },
+                )
+              : GoogleSignInButton(
+                  onPressed: () {
+                    _signInWithGoogle();
+                  },
+                  // darkMode: true, // default: false
+                ),
         ],
       ),
     );
@@ -172,18 +170,18 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {});
   }
 
-  // void logOff() async {
-  //   try {
-  //     await _auth.signOut();
-  //     Navigator.of(context).pushReplacementNamed(LoginPage.tag);
-  //   } catch (e) {
-  //     debugPrint("Error : $e");
-  //   }
-  // }
+  void logOff() async {
+    try {
+      await _auth.signOut();
+      setState(() {});
+    } catch (e) {
+      debugPrint("Error : $e");
+    }
+  }
 
   _launchURL() async {
-    String url =
-        'mailto:developer110@hotmail.com?subject=' + Uri.encodeComponent("Shia Companion | Feedback");
+    String url = 'mailto:developer110@hotmail.com?subject=' +
+        Uri.encodeComponent("Shia Companion | Feedback");
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -193,60 +191,30 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  // void _signInWithGoogle() async {
-  //   try {
-  //     FirebaseUser firebaseUser = await _auth.currentUser();
-  //     if (firebaseUser != null && firebaseUser.isAnonymous) {
-  //       final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-  //       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-  //       final AuthCredential credential = GoogleAuthProvider.getCredential(
-  //         accessToken: googleAuth.accessToken,
-  //         idToken: googleAuth.idToken,
-  //       );
-  //       if (firebaseUser.isAnonymous) {
-  //         await firebaseUser.linkWithCredential(credential);
-  //       }
-
-  //       assert(user.email != null);
-  //       assert(user.displayName != null);
-  //       assert(!user.isAnonymous);
-  //       assert(await user.getIdToken() != null);
-
-  //       final FirebaseUser currentUser = await _auth.currentUser();
-  //       assert(user.uid == currentUser.uid);
-  //       setState(() {
-  //         if (user != null) {
-  //           user = currentUser;
-  //         }
-  //       });
-  //     } else if (firebaseUser != null && !firebaseUser.isAnonymous) {
-  //       logOff();
-  //     } else {
-  //       Navigator.of(context).pushReplacementNamed(LoginPage.tag);
-  //     }
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //     if (e.toString().contains('ERROR_CREDENTIAL_ALREADY_IN_USE,')) {
-  //       // todo add note clear notice
-
-  //       final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-  //       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-  //       final AuthCredential credential = GoogleAuthProvider.getCredential(
-  //         accessToken: googleAuth.accessToken,
-  //         idToken: googleAuth.idToken,
-  //       );
-  //       final FirebaseUser currentUser = (await _auth.signInWithCredential(credential)).user;
-  //       setState(() {
-  //         if (user != null) {
-  //           user = currentUser;
-  //           refreshNotes();
-  //         }
-  //       });
-  //     } else {
-  //       key.currentState.showSnackBar(new SnackBar(
-  //         content: new Text(AppTranslations.of(context).text("some_error")),
-  //       ));
-  //     }
-  //   }
-  // }
+  void _signInWithGoogle() async {
+    try {
+      User firebaseUser = _auth.currentUser;
+      if (firebaseUser == null) {
+        final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        final UserCredential authResult =
+            await _auth.signInWithCredential(credential);
+        setState(() {
+          user = authResult.user;
+        });
+      } else {
+        logOff();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      key.currentState.showSnackBar(new SnackBar(
+        content: new Text("Some error occured, please contact support"),
+      ));
+    }
+  }
 }

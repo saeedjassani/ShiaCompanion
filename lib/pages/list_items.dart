@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 
 import '../constants.dart';
-import 'item_page.dart';
 
 class ItemList extends StatefulWidget {
   final String item;
@@ -23,19 +22,22 @@ class _ItemListState extends State<ItemList> {
     String tableName = widget.item;
     if (widget.item == "D1") tableName = "D";
     tableName = tableName.replaceAll("[0-9].*", "").replaceAll("[A-Z].*~", "");
-    if (tableName.contains("|")) tableName = tableName.split("\\|")[0].replaceAll("[0-9].*", "");
+    if (tableName.contains("|"))
+      tableName = tableName.split("\\|")[0].replaceAll("[0-9].*", "");
 
     for (String s in items.keys) {
-      if (tableName == s.split("~")[0] || tableName == s.replaceAll(RegExp("[0-9].*"), "")) {
+      if (tableName == s.split("~")[0] ||
+          tableName == s.replaceAll(RegExp("[0-9].*"), "")) {
         print(s + " " + items[s]);
         workingItems.add(UidTitleData(s, items[s]));
       }
     }
+
+    // Populate Today's Recitations
     if (widget.item == "TR") {
-      workingItems.add(UidTitleData("E18", items["E18"]));
-      workingItems.add(UidTitleData("G6", items["G6"]));
-      // workingItems.add(UidTitleData("G4", items["G4"]));
-      // workingItems.add(UidTitleData("G4", items["G4"]));
+      workingItems.add(UidTitleData("E18", items["E18"])); // Dua e Ahad
+      workingItems.add(UidTitleData("G6", items["G6"])); // Ziyarat e Waritha
+      workingItems.add(UidTitleData("G4", items["G4"])); // Ziyarat e Ashura
       String tmp;
       DateTime today = DateTime.now();
       if (today.weekday == DateTime.friday) {
@@ -54,7 +56,8 @@ class _ItemListState extends State<ItemList> {
         tmp = "Q";
       }
       for (String s in items.keys) {
-        if (tmp == s.split("~")[0] || tmp == s.replaceAll(RegExp("[0-9].*"), "")) {
+        if (tmp == s.split("~")[0] ||
+            tmp == s.replaceAll(RegExp("[0-9].*"), "")) {
           print(s + " " + items[s]);
           workingItems.add(UidTitleData(s, items[s]));
         }
@@ -74,22 +77,9 @@ class _ItemListState extends State<ItemList> {
       body: ListView.separated(
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemCount: workingItems.length,
-        itemBuilder: (BuildContext c, int i) => buildBody(c, i),
+        itemBuilder: (BuildContext c, int i) =>
+            buildZikrRow(c, workingItems[i]),
       ),
-    );
-  }
-
-  buildBody(BuildContext c, int i) {
-    return ListTile(
-      onTap: () {
-        if (workingItems[i].getUId().contains("~")) {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ItemList(workingItems[i].getUId().split("~")[1])));
-        } else {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ItemPage(workingItems[i])));
-        }
-      },
-      title: Text(workingItems[i].title),
     );
   }
 }

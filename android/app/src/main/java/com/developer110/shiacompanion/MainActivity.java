@@ -1,4 +1,4 @@
-package com.example.shiacompanion;
+package com.developer110.shiacompanion;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
