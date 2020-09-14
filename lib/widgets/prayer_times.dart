@@ -40,17 +40,24 @@ class PrayerTimesState extends State<PrayerTimes> {
               itemBuilder: (BuildContext context, int index) {
                 var indexTimes = prayerTimes[index]['timings'];
                 var hijriObj = prayerTimes[index]['date']['hijri'];
-                String hijriDay = hijriObj['day'] + " " + hijriObj['month']['en'] + " " + hijriObj['year'];
+                String hijriDay = hijriObj['day'] +
+                    " " +
+                    hijriObj['month']['en'] +
+                    " " +
+                    hijriObj['year'];
                 return Card(
                   color: Colors.brown[100],
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
                         Center(
                           child: Text(
-                            prayerTimes[index]['date']['readable'] + " / " + hijriDay,
+                            prayerTimes[index]['date']['readable'] +
+                                " / " +
+                                hijriDay,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -61,12 +68,16 @@ class PrayerTimesState extends State<PrayerTimes> {
                             itemCount: indexTimes.length,
                             itemBuilder: (BuildContext context, int i) {
                               String key = indexTimes.keys.elementAt(i);
-                              if (key == "Asr" || key == "Isha" || key == "Imsak") return Container();
+                              if (key == "Asr" ||
+                                  key == "Isha" ||
+                                  key == "Imsak") return Container();
                               return Column(
                                 children: <Widget>[
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
                                       Text("$key"),
                                       Text(
@@ -110,7 +121,9 @@ class PrayerTimesState extends State<PrayerTimes> {
   double calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
     var c = cos;
-    var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a));
   }
 
@@ -126,10 +139,13 @@ class PrayerTimesState extends State<PrayerTimes> {
     } else {
       prayerTimes = json.decode(prayerTimesJson)['data'];
 
-      double lat1 = prayerTimes[0]['meta']['latitude'], long1 = prayerTimes[0]['meta']['longitude'];
+      double lat1 = prayerTimes[0]['meta']['latitude'],
+          long1 = prayerTimes[0]['meta']['longitude'];
 
       int month = prayerTimes[0]['date']['gregorian']['month']['number'];
-      if (calculateDistance(lat1, long1, currentLocation.latitude, currentLocation.longitude) > 20.0 ||
+      if (calculateDistance(lat1, long1, currentLocation.latitude,
+                  currentLocation.longitude) >
+              20.0 ||
           month != DateTime.now().month) {
         prayerTimesJson = await getPrayerTimesFromAPI();
         if (prayerTimesJson == null) return;

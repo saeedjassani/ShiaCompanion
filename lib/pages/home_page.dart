@@ -11,6 +11,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:http/http.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/live_streaming.dart';
 import 'package:shia_companion/widgets/prayer_times.dart';
@@ -76,6 +77,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: Text(
                   "Home",
                   style: TextStyle(color: Colors.white),
+                ),
+              ),
+              BottomNavigationBarItem(
+                icon: new Icon(
+                  Icons.calendar_today,
+                  color: Colors.white,
+                ),
+                title: new Text(
+                  "Calendar",
+                  style: new TextStyle(color: Colors.white),
                 ),
               ),
               BottomNavigationBarItem(
@@ -163,6 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               );
             }),
+            CalendarPage(),
             SettingsPage()
           ],
           controller: _pageController,
