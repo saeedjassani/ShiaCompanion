@@ -32,10 +32,12 @@ class _ItemPageState extends State<ItemPage> {
     fontFamily: "Qalam",
     fontSize: arabicFontSize,
   );
-  TextStyle transliStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
+  TextStyle transliStyle =
+      TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
 
   void initializeData() async {
-    String url = "https://alghazienterprises.com/sc/scripts/getItem.php?uid=${item.getFirstUId()}";
+    String url =
+        "https://alghazienterprises.com/sc/scripts/getItem.php?uid=${item.getFirstUId()}";
     debugPrint(url);
     var request = await get(url);
     String jsonString = request.body;
