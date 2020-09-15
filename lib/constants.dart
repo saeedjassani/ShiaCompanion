@@ -18,7 +18,6 @@ double englishFontSize = 14.0;
 bool showTranslation = true, showTransliteration = true;
 
 List<String> tableCode = [
-  "FAV",
   "TR",
   "F",
   "E",
@@ -28,7 +27,6 @@ List<String> tableCode = [
 ];
 
 List<String> zikr = [
-  "Favorites",
   "Today's Recitations",
   "Namaz",
   "Duas",
@@ -41,7 +39,6 @@ List<String> zikr = [
 ];
 
 List<String> zikrImages = [
-  "assets/images/najaf_min",
   "assets/images/taaqebaat_namaz",
   "assets/images/namaz_home_min",
   "assets/images/dua_home",

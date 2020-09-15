@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
 import 'dart:convert';
 import 'dart:math';
@@ -113,8 +115,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Flexible(
-                            fit: FlexFit.loose,
+                        SizedBox(
+                            height: 180.0,
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -241,14 +243,21 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
+  // 0 - 2340 General
+  // 2341 - 2375 Muharram
   getHadith() async {
-    Random rnd;
-    int min = 1;
-    int max = 2382;
-    rnd = Random();
-    int h = min + rnd.nextInt(max - min);
-    hadith =
-        await DefaultAssetBundle.of(context).loadString('assets/hadiths/$h');
+    HijriCalendar _today = HijriCalendar.now();
+    Random rnd = Random();
+    int min = 0, max = 2341;
+    if (_today.hMonth < 2 || (_today.hMonth == 2 && _today.hDay < 9)) {
+      min = 2341;
+      max = 2376;
+    }
+    int randomIndex = min + rnd.nextInt(max - min);
+    String hadithString =
+        await DefaultAssetBundle.of(context).loadString('assets/hadith.csv');
+    List csvTable = CsvToListConverter().convert(hadithString);
+    hadith = csvTable[randomIndex].toString();
     setState(() {});
   }
 
