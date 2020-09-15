@@ -34,7 +34,10 @@ class _LiveStreamingState extends State<LiveStreaming> {
           itemBuilder: (BuildContext c, int i) {
             return InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => VideoPlayer(data[i])));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => VideoPlayer(data[i])));
               },
               child: Container(
                 margin: EdgeInsets.all(6.0),
@@ -53,7 +56,8 @@ class _LiveStreamingState extends State<LiveStreaming> {
                 child: Container(
                   width: screenWidth,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: <Color>[Colors.black, Colors.white70]),
+                    gradient: LinearGradient(
+                        colors: <Color>[Colors.black, Colors.white70]),
                   ),
                   child: Text(
                     data[i].title,
