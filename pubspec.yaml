@@ -24,6 +24,7 @@ dependencies:
   flutter_calendar_carousel: ^1.4.12
   hijri: ^2.0.3
   date_format: ^1.0.8
+  csv: ^4.0.3
 
 dev_dependencies:
   flutter_test:
@@ -42,7 +43,7 @@ flutter:
   assets:
     - assets/
     - assets/images/
-    - assets/hadiths/
+    - assets/hadith.csv
 
   fonts:
     - family: Qalam

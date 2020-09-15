@@ -22,7 +22,10 @@ class _CalendarPageState extends State<CalendarPage> {
 
   DateTime _currentDate = DateTime.now();
 
-  var month1;
+  String month1 = formatDate(DateTime.now(), [M, ", ", yyyy]) +
+      " / " +
+      HijriCalendar.now().toFormat("MMMM, yyyy");
+  TextStyle smallText = new TextStyle(fontSize: 11.0);
 
   _CalendarPageState();
 
@@ -44,7 +47,6 @@ class _CalendarPageState extends State<CalendarPage> {
     }
 
     DateTime now = DateTime.now();
-    now = now.add(Duration());
     HijriCalendar _today = HijriCalendar.fromDate(now);
     eventString = _today.toFormat("dd MMMM, yyyy");
     var w = eventsMap[getStringFromDate(_today)];
@@ -69,6 +71,7 @@ class _CalendarPageState extends State<CalendarPage> {
               height: screenHeight * 0.58,
               selectedDateTime: _currentDate,
               daysHaveCircularBorder: false,
+              headerText: month1,
               headerTextStyle:
                   TextStyle(fontSize: screenWidth * 0.0375, color: Colors.blue),
               onCalendarChanged: (DateTime dateCal) {
@@ -116,6 +119,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       ? Colors.green[200]
                       : Colors.red[200];
                 }
+                // A RenderFlex overflow error occurs when the page is changed (Day views are shrinked, hence causing the error)
                 return Container(
                   color: dayColor,
                   padding: EdgeInsets.symmetric(horizontal: 4.0),
@@ -127,14 +131,14 @@ class _CalendarPageState extends State<CalendarPage> {
                         alignment: Alignment.bottomLeft,
                         child: Text(
                           day.day.toString(),
-                          // style: smallText,
+                          style: smallText,
                         ),
                       ),
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Text(
-                          hDate.hDay.toString(),
-                          // style: smallText,
+                          convertNumberToUrdu(hDate.hDay.toString()),
+                          style: smallText,
                         ),
                       ),
                     ],
@@ -159,4 +163,13 @@ class _CalendarPageState extends State<CalendarPage> {
     List<String> temp = dateTime.toString().split('/');
     return int.parse(temp[0]).toString() + '-' + int.parse(temp[1]).toString();
   }
+}
+
+String convertNumberToUrdu(String input) {
+  const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  for (int i = 0; i < english.length; i++) {
+    input = input.replaceAll(english[i], farsi[i]);
+  }
+  return input;
 }
