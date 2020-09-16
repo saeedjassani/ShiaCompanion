@@ -60,7 +60,6 @@ class PrayerTime {
      * (in angle or minutes)
      */
 
-  List<double> _prayerTimesCurrent;
   List<int> _offsets;
 
   PrayerTime() {
@@ -222,12 +221,6 @@ class PrayerTime {
     return _radiansToDegrees(val);
   }
 
-  // degree arctan
-  double _darctan(double x) {
-    double val = math.atan(x);
-    return _radiansToDegrees(val);
-  }
-
   // degree arctan2
   double _darctan2(double y, double x) {
     double val = math.atan2(y, x);
@@ -274,13 +267,13 @@ class PrayerTime {
 
     double B = 2 - A + (A / 4.0).floor();
 
-    double JD = (365.25 * (year + 4716)).floor() +
+    double jd = (365.25 * (year + 4716)).floor() +
         (30.6001 * (month + 1)).floor() +
         day +
         B -
         1524.5;
 
-    return JD;
+    return jd;
   }
 
   /*// convert a calendar date to julian date (second method)
@@ -313,12 +306,12 @@ class PrayerTime {
     // (2*g)];
     double e = 23.439 - (0.00000036 * D);
     double d = _darcsin(_dsin(e) * _dsin(L));
-    double RA = (_darctan2((_dcos(e) * _dsin(L)), (_dcos(L)))) / 15.0;
-    RA = _fixHour(RA);
-    double EqT = q / 15.0 - RA;
+    double ra = (_darctan2((_dcos(e) * _dsin(L)), (_dcos(L)))) / 15.0;
+    ra = _fixHour(ra);
+    double eqt = q / 15.0 - ra;
     List<double> sPosition = new List(2);
     sPosition[0] = d;
-    sPosition[1] = EqT;
+    sPosition[1] = eqt;
 
     return sPosition;
   }
@@ -347,9 +340,9 @@ class PrayerTime {
   double computeTime(double G, double t) {
     double D = sunDeclination(this.getJDate() + t);
     double Z = computeMidDay(t);
-    double Beg = -_dsin(G) - _dsin(D) * _dsin(this.getLat());
-    double Mid = _dcos(D) * _dcos(this.getLat());
-    double V = darccos(Beg / Mid) / 15.0;
+    double beg = -_dsin(G) - _dsin(D) * _dsin(this.getLat());
+    double mid = _dcos(D) * _dcos(this.getLat());
+    double V = darccos(beg / mid) / 15.0;
 
     return Z + (G > 90 ? -V : V);
   }
@@ -529,23 +522,23 @@ class PrayerTime {
   List<double> computeTimes(List<double> times) {
     List<double> t = dayPortion(times);
 
-    double Fajr =
+    double fajr =
         this.computeTime(180 - _methodParams[this.getCalcMethod()][0], t[0]);
 
-    double Sunrise = this.computeTime(180 - 0.833, t[1]);
+    double sunrise = this.computeTime(180 - 0.833, t[1]);
 
-    double Dhuhr = this.computeMidDay(t[2]);
-    double Asr = this.computeAsr((1 + this.getAsrJuristic()).toDouble(), t[3]);
-    double Sunset = this.computeTime(0.833, t[4]);
+    double dhuhr = this.computeMidDay(t[2]);
+    double asr = this.computeAsr((1 + this.getAsrJuristic()).toDouble(), t[3]);
+    double sunset = this.computeTime(0.833, t[4]);
 
-    double Maghrib =
+    double maghrib =
         this.computeTime(_methodParams[this.getCalcMethod()][2], t[5]);
-    double Isha =
+    double isha =
         this.computeTime(_methodParams[this.getCalcMethod()][4], t[6]);
 
-    List<double> CTimes = [Fajr, Sunrise, Dhuhr, Asr, Sunset, Maghrib, Isha];
+    List<double> cTimes = [fajr, sunrise, dhuhr, asr, sunset, maghrib, isha];
 
-    return CTimes;
+    return cTimes;
   }
 
   // compute prayer times at given julian date
@@ -611,33 +604,33 @@ class PrayerTime {
     double nightTime = timeDiff(times[4], times[1]); // sunset to sunrise
 
     // Adjust Fajr
-    double FajrDiff =
+    double fajrDiff =
         nightPortion(_methodParams[this.getCalcMethod()][0]) * nightTime;
 
-    if (times[0] == double.nan || timeDiff(times[0], times[1]) > FajrDiff) {
-      times[0] = times[1] - FajrDiff;
+    if (times[0] == double.nan || timeDiff(times[0], times[1]) > fajrDiff) {
+      times[0] = times[1] - fajrDiff;
     }
 
     // Adjust Isha
-    double IshaAngle = (_methodParams[this.getCalcMethod()][3] == 0)
+    double ishaAngle = (_methodParams[this.getCalcMethod()][3] == 0)
         ? _methodParams[this.getCalcMethod()][4]
         : 18;
-    double IshaDiff = this.nightPortion(IshaAngle) * nightTime;
+    double ishaDiff = this.nightPortion(ishaAngle) * nightTime;
 
     if (times[6] == double.nan ||
-        this.timeDiff(times[4], times[6]) > IshaDiff) {
-      times[6] = times[4] + IshaDiff;
+        this.timeDiff(times[4], times[6]) > ishaDiff) {
+      times[6] = times[4] + ishaDiff;
     }
 
     // Adjust Maghrib
-    double MaghribAngle = (_methodParams[this.getCalcMethod()][1] == 0)
+    double maghribAngle = (_methodParams[this.getCalcMethod()][1] == 0)
         ? _methodParams[(this.getCalcMethod())][2]
         : 4;
-    double MaghribDiff = nightPortion(MaghribAngle) * nightTime;
+    double maghribDiff = nightPortion(maghribAngle) * nightTime;
 
     if (times[5] == double.nan ||
-        this.timeDiff(times[4], times[5]) > MaghribDiff) {
-      times[5] = times[4] + MaghribDiff;
+        this.timeDiff(times[4], times[5]) > maghribDiff) {
+      times[5] = times[4] + maghribDiff;
     }
 
     return times;

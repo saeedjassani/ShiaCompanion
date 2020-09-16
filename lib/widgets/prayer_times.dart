@@ -159,7 +159,6 @@ class PrayerTimesState extends State<PrayerTimes> {
   void setNotifications() async {
     DateTime now = DateTime.now();
     now.add(Duration(days: 5));
-    for (var prayerTime in prayerTimes) {}
   }
 
   Future<String> getPrayerTimesFromAPI() async {

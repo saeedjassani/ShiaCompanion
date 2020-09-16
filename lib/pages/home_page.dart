@@ -16,7 +16,6 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/live_streaming.dart';
-import 'package:shia_companion/widgets/prayer_times.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'list_items.dart';
 
