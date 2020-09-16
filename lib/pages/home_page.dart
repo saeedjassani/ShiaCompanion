@@ -17,6 +17,7 @@ import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/live_streaming.dart';
 import 'package:shia_companion/widgets/prayer_times.dart';
+import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'list_items.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -121,13 +122,15 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 32.0, horizontal: 16.0),
-                                child: Text(
-                                  '$hadith',
-                                  textAlign: TextAlign.center,
+                                child: SingleChildScrollView(
+                                  child: Text(
+                                    '$hadith',
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
                               ),
                             )),
-                        PrayerTimes(),
+                        PrayerTimesCard(),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Card(
