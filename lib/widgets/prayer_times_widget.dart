@@ -1,13 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:http/http.dart';
 import 'package:location/location.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 
@@ -113,7 +109,6 @@ class PrayerTimesState extends State<PrayerTimesCard> {
   void setNotifications() async {
     DateTime now = DateTime.now();
     now.add(Duration(days: 5));
-    for (var prayerTime in prayerTimes) {}
   }
 
   Future<String> getPrayerTimesFromAPI() async {
