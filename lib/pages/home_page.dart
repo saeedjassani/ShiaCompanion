@@ -4,6 +4,7 @@ import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
 import 'dart:convert';
@@ -129,6 +130,41 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ),
                             )),
+                        // Card(
+                        //   child: Row(
+                        //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        //     crossAxisAlignment: CrossAxisAlignment.center,
+                        //     children: [
+                        //       Column(
+                        //         children: [
+                        //           Text("Fajr"),
+                        //           Divider(),
+                        //           Icon(Icons.wb_sunny),
+                        //           Divider(),
+                        //           Text("06:00 AM"),
+                        //         ],
+                        //       ),
+                        //       Column(
+                        //         children: [
+                        //           Text("Dhuhr"),
+                        //           Divider(),
+                        //           Icon(Icons.wb_sunny),
+                        //           Divider(),
+                        //           Text("06:00 AM"),
+                        //         ],
+                        //       ),
+                        //       Column(
+                        //         children: [
+                        //           Text("Maghrib"),
+                        //           Divider(),
+                        //           Icon(Icons.wb_sunny),
+                        //           Divider(),
+                        //           Text("06:00 AM"),
+                        //         ],
+                        //       )
+                        //     ],
+                        //   ),
+                        // ),
                         PrayerTimesCard(),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -196,6 +232,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void initializeData() async {
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('ic_launcher');
+    var initializationSettingsIOS = IOSInitializationSettings();
+    var initializationSettings = InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: selectNotification);
+
     // Initialize Item Data
     String url = "https://alghazienterprises.com/sc/scripts/getItems.php";
     var request = await get(url);
@@ -245,6 +290,13 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
+  Future selectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: ' + payload);
+    }
+    // TODO play with notification payload here
+  }
+
   // 0 - 2340 General
   // 2341 - 2375 Muharram
   getHadith() async {
@@ -259,12 +311,11 @@ class _MyHomePageState extends State<MyHomePage> {
     String hadithString =
         await DefaultAssetBundle.of(context).loadString('assets/hadith.csv');
     List csvTable = CsvToListConverter().convert(hadithString);
-    hadith = csvTable[randomIndex].toString();
+    hadith = csvTable[randomIndex][0];
     setState(() {});
   }
 
   setupPreferences() async {
-    // Get SharedPreferences
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     arabicFontSize =
         sharedPreferences.getDouble('ara_font_size') ?? arabicFontSize;
