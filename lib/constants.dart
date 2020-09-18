@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'data/uid_title_data.dart';
 import 'pages/item_page.dart';
@@ -16,7 +17,7 @@ double arabicFontSize = 28.0;
 double englishFontSize = 14.0;
 
 bool showTranslation = true, showTransliteration = true;
-
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 List<String> tableCode = [
   "TR",
   "F",

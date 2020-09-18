@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart';
 import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 
@@ -77,22 +79,29 @@ class PrayerTimesState extends State<PrayerTimesCard> {
     prayers.setAsrJuristic(prayers.getHanafi());
     prayers.setAdjustHighLats(prayers.getAdjustHighLats());
 
-    List<int> offsets = [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ]; // {Fajr,Sunrise,Dhuhr,Asr,Sunset,Maghrib,Isha}
-    prayers.tune(offsets);
+    _prayerNames = prayers.getTimeNames();
 
-    var currentTime = DateTime.now();
-    print(currentTime.timeZoneOffset.inHours.toDouble());
-    print(currentTime.timeZoneOffset.inMinutes.toDouble());
-    print(currentLocation.latitude);
-    print(currentLocation.longitude);
+    DateTime currentTime = DateTime.now();
+    // Get Notification set date
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String fp = sharedPreferences.getString('azan_notification');
+    DateTime dateTimeCreatedAt =
+        fp != null ? DateTime.parse(fp) : DateTime.now();
+    DateTime dateTimeNow = DateTime.now();
+    final differenceInDays = dateTimeCreatedAt.difference(dateTimeNow).inDays;
+    if (differenceInDays < 4) {
+      debugPrint("Setting Alarms since difference is $differenceInDays");
+      setUpNotifications(dateTimeCreatedAt);
+      sharedPreferences.setString(
+          'azan_notification',
+          dateTimeNow
+              .add(Duration(days: 5))
+              .toIso8601String()
+              .substring(0, 10));
+    } else {
+      debugPrint("Skipped setting alarms");
+    }
 
     setState(() {
       _prayerTimes = prayers.getPrayerTimes(
@@ -100,30 +109,71 @@ class PrayerTimesState extends State<PrayerTimesCard> {
           currentLocation.latitude,
           currentLocation.longitude,
           currentTime.timeZoneOffset.inMinutes / 60.0);
-      _prayerNames = prayers.getTimeNames();
     });
 
     setState(() {});
   }
 
-  void setNotifications() async {
+  void setUpNotifications(DateTime fromPrefs) {
+    PrayerTime prayers = new PrayerTime();
+
+    prayers.setTimeFormat(prayers.getTime24());
+    prayers.setCalcMethod(prayers.getJafari());
+    prayers.setAsrJuristic(prayers.getHanafi());
+    prayers.setAdjustHighLats(prayers.getAdjustHighLats());
+
     DateTime now = DateTime.now();
-    now.add(Duration(days: 5));
+    DateTime plusFive = now.add(Duration(days: 5));
+    for (int i = fromPrefs.difference(now).inDays;
+        i < plusFive.difference(fromPrefs).inDays;
+        i++) {
+      DateTime temp = now.add(Duration(days: i));
+      List<String> prayerTimes = prayers.getPrayerTimes(
+          temp,
+          currentLocation.latitude,
+          currentLocation.longitude,
+          temp.timeZoneOffset.inMinutes / 60.0);
+
+      schedulePrayerTimeNotification(
+          10 + i,
+          DateTime.parse(
+              "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[0]}"),
+          _prayerNames[0]);
+      schedulePrayerTimeNotification(
+          30 + i,
+          DateTime.parse(
+              "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[2]}"),
+          _prayerNames[2]);
+      schedulePrayerTimeNotification(
+          60 + i,
+          DateTime.parse(
+              "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[5]}"),
+          _prayerNames[5]);
+
+      debugPrint("Setting Alarms for ${temp.day}");
+    }
   }
 
-  Future<String> getPrayerTimesFromAPI() async {
-    String prayerTimesJson;
-    String url =
-        "https://api.aladhan.com/v1/calendar?latitude=${currentLocation.latitude}&longitude=${currentLocation.longitude}&method=0&month=${today.month}&year=${today.year}&midnightMode=1&tune=0,0,0,0,0,0,0,0,0&adjustment=$hijriDate";
-    debugPrint(url);
-    var request = await get(url);
-    if (request.statusCode == 200) {
-      prayerTimesJson = request.body;
-    } else {
-      key.currentState.showSnackBar(SnackBar(
-        content: Text("Unable to get prayer times"),
-      ));
-    }
-    return prayerTimesJson;
+  void schedulePrayerTimeNotification(
+      int id, DateTime dateTime, String title) async {
+    DateTime scheduledNotificationDateTime = dateTime;
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'prayerTimes',
+      'Prayer Times',
+      'Notifications for Prayer Times',
+      importance: Importance.High,
+      sound: RawResourceAndroidNotificationSound('slow_spring_board'),
+    );
+    IOSNotificationDetails iOSPlatformChannelSpecifics =
+        IOSNotificationDetails(sound: 'sharif.caf');
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.schedule(
+        id,
+        title,
+        "It's time for " + title.toLowerCase(),
+        scheduledNotificationDateTime,
+        platformChannelSpecifics);
   }
 }
