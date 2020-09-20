@@ -106,114 +106,69 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: PageView(
           children: <Widget>[
-            LayoutBuilder(builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                      minWidth: constraints.maxWidth,
-                      minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        SizedBox(
-                            height: 180.0,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 32.0, horizontal: 16.0),
-                                child: SingleChildScrollView(
-                                  child: Text(
-                                    '$hadith',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            )),
-                        // Card(
-                        //   child: Row(
-                        //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        //     crossAxisAlignment: CrossAxisAlignment.center,
-                        //     children: [
-                        //       Column(
-                        //         children: [
-                        //           Text("Fajr"),
-                        //           Divider(),
-                        //           Icon(Icons.wb_sunny),
-                        //           Divider(),
-                        //           Text("06:00 AM"),
-                        //         ],
-                        //       ),
-                        //       Column(
-                        //         children: [
-                        //           Text("Dhuhr"),
-                        //           Divider(),
-                        //           Icon(Icons.wb_sunny),
-                        //           Divider(),
-                        //           Text("06:00 AM"),
-                        //         ],
-                        //       ),
-                        //       Column(
-                        //         children: [
-                        //           Text("Maghrib"),
-                        //           Divider(),
-                        //           Icon(Icons.wb_sunny),
-                        //           Divider(),
-                        //           Text("06:00 AM"),
-                        //         ],
-                        //       )
-                        //     ],
-                        //   ),
-                        // ),
-                        PrayerTimesCard(),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                            child: ExpansionTile(
-                              title: Text("Favorites"),
-                              children: <Widget>[
-                                SizedBox(
-                                    height: 300,
-                                    child: ListView.separated(
-                                      separatorBuilder:
-                                          (BuildContext context, int index) =>
-                                              Divider(),
-                                      itemCount: favsData != null
-                                          ? favsData.length
-                                          : 0,
-                                      itemBuilder: (BuildContext c, int i) =>
-                                          buildZikrRow(c, favsData[i]),
-                                    ))
-                              ],
-                            ),
-                          ),
+            SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 32.0, horizontal: 16.0),
+                      child: SingleChildScrollView(
+                        child: Text(
+                          '$hadith',
+                          textAlign: TextAlign.center,
                         ),
-                        SizedBox(
-                          height: 120,
-                          width: screenWidth,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: zikr.length,
-                              itemBuilder: (BuildContext c, int i) =>
-                                  buildBody(c, i),
-                            ),
-                          ),
-                        ),
-                        holyShrine != null
-                            ? LiveStreaming(holyShrine)
-                            : Container(),
-                        liveChannel != null
-                            ? LiveStreaming(liveChannel)
-                            : Container(),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            }),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: PrayerTimesCard(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: ExpansionTile(
+                        title: Text("Favorites"),
+                        children: <Widget>[
+                          SizedBox(
+                              height: 300,
+                              child: ListView.separated(
+                                separatorBuilder:
+                                    (BuildContext context, int index) =>
+                                        Divider(),
+                                itemCount:
+                                    favsData != null ? favsData.length : 0,
+                                itemBuilder: (BuildContext c, int i) =>
+                                    buildZikrRow(c, favsData[i]),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 120,
+                    width: screenWidth,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
+                      child: Card(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: zikr.length,
+                          itemBuilder: (BuildContext c, int i) =>
+                              buildBody(c, i),
+                        ),
+                      ),
+                    ),
+                  ),
+                  holyShrine != null ? LiveStreaming(holyShrine) : Container(),
+                  liveChannel != null
+                      ? LiveStreaming(liveChannel)
+                      : Container(),
+                ],
+              ),
+            ),
             CalendarPage(),
             SettingsPage()
           ],
