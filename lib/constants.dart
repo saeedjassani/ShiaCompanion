@@ -73,3 +73,24 @@ ListTile buildZikrRow(BuildContext context, UidTitleData itemData) {
     title: Text(itemData.title),
   );
 }
+
+void scheduleNotification(
+    int id,
+    DateTime dateTime,
+    String title,
+    String description,
+    String channelID,
+    String channelTitle,
+    String channelDescription) async {
+  AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    channelID,
+    channelTitle,
+    channelDescription,
+  );
+  IOSNotificationDetails iOSPlatformChannelSpecifics = IOSNotificationDetails();
+  NotificationDetails platformChannelSpecifics = NotificationDetails(
+      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.schedule(
+      id, title, description, dateTime, platformChannelSpecifics);
+}

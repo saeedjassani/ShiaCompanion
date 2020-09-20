@@ -28,7 +28,7 @@ class _ItemListState extends State<ItemList> {
     for (String s in items.keys) {
       if (tableName == s.split("~")[0] ||
           tableName == s.replaceAll(RegExp("[0-9].*"), "")) {
-        print(s + " " + items[s]);
+        debugPrint(s + " " + items[s]);
         workingItems.add(UidTitleData(s, items[s]));
       }
     }
@@ -58,7 +58,7 @@ class _ItemListState extends State<ItemList> {
       for (String s in items.keys) {
         if (tmp == s.split("~")[0] ||
             tmp == s.replaceAll(RegExp("[0-9].*"), "")) {
-          print(s + " " + items[s]);
+          debugPrint(s + " " + items[s]);
           workingItems.add(UidTitleData(s, items[s]));
         }
       }

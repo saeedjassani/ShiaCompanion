@@ -28,45 +28,48 @@ class _LiveStreamingState extends State<LiveStreaming> {
       width: screenWidth,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: data.length,
-          itemBuilder: (BuildContext c, int i) {
-            return InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => VideoPlayer(data[i])));
-              },
-              child: Container(
-                margin: EdgeInsets.all(6.0),
-                padding: EdgeInsets.only(
-                  left: 2.0,
-                ),
-                constraints: BoxConstraints.expand(height: 150.0, width: 150.0),
-                alignment: Alignment.bottomLeft,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(data[i].img),
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(2.0),
-                ),
+        child: Card(
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: data.length,
+            itemBuilder: (BuildContext c, int i) {
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => VideoPlayer(data[i])));
+                },
                 child: Container(
-                  width: screenWidth,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: <Color>[Colors.black, Colors.white70]),
+                  margin: EdgeInsets.all(6.0),
+                  padding: EdgeInsets.only(
+                    left: 2.0,
                   ),
-                  child: Text(
-                    data[i].title,
-                    style: TextStyle(color: Colors.white),
+                  constraints:
+                      BoxConstraints.expand(height: 150.0, width: 150.0),
+                  alignment: Alignment.bottomLeft,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(data[i].img),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.circular(2.0),
+                  ),
+                  child: Container(
+                    width: screenWidth,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          colors: <Color>[Colors.black, Colors.white70]),
+                    ),
+                    child: Text(
+                      data[i].title,
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

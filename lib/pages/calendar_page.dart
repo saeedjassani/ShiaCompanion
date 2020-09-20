@@ -29,15 +29,6 @@ class _CalendarPageState extends State<CalendarPage> {
 
   _CalendarPageState();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   print("i am called");
-  //   _updateEventString().then(() {
-  //     setState(() {});
-  //   });
-  // }
-
   _updateEventString() async {
     String events = await rootBundle.loadString("assets/events.json");
 
