@@ -21,12 +21,12 @@ dependencies:
   flutter_swiper: ^1.1.6
   flutter_webview_plugin: ^0.3.11
   url_launcher: ^5.5.3
-  flutter_calendar_carousel: ^1.4.12
   hijri: ^2.0.3
   date_format: ^1.0.8
   csv: ^4.0.3
   firebase_crashlytics: ^0.1.4+1
   flutter_local_notifications: ^1.4.4+4
+  table_calendar: ^2.2.3
 
 dev_dependencies:
   flutter_test:
