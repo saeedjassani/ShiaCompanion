@@ -17,7 +17,6 @@ class PrayerTimesCard extends StatefulWidget {
 class PrayerTimesState extends State<PrayerTimesCard> {
   PrayerTimesState();
   List prayerTimes;
-  LocationData currentLocation;
   DateTime today = DateTime.now();
   List<String> _prayerTimes = [];
   List<String> _prayerNames = [];
@@ -102,20 +101,18 @@ class PrayerTimesState extends State<PrayerTimesCard> {
   }
 
   Future<void> calculatePrayerTimes() async {
-    PrayerTime prayers = new PrayerTime();
+    PrayerTime prayerTime = getPrayerTimeObject();
 
-    prayers.setTimeFormat(prayers.getTime12());
-    prayers.setCalcMethod(prayers.getJafari());
-    prayers.setAsrJuristic(prayers.getHanafi());
-    prayers.setAdjustHighLats(prayers.getAdjustHighLats());
-
-    _prayerNames = prayers.getTimeNames();
+    _prayerNames = prayerTime.getTimeNames();
 
     DateTime currentTime = DateTime.now();
     setUpNotifications();
+    print(currentTime);
+    print(currentLocation.latitude);
+    print(currentLocation.longitude);
 
     setState(() {
-      _prayerTimes = prayers.getPrayerTimes(
+      _prayerTimes = prayerTime.getPrayerTimes(
           currentTime,
           currentLocation.latitude,
           currentLocation.longitude,
@@ -124,12 +121,7 @@ class PrayerTimesState extends State<PrayerTimesCard> {
   }
 
   void setUpNotifications() {
-    PrayerTime prayers = PrayerTime();
-
-    prayers.setTimeFormat(prayers.getTime24());
-    prayers.setCalcMethod(prayers.getJafari());
-    prayers.setAsrJuristic(prayers.getHanafi());
-    prayers.setAdjustHighLats(prayers.getAdjustHighLats());
+    PrayerTime prayers = getPrayerTimeObject();
 
     DateTime now = DateTime.now();
     for (int i = 0; i < 12; i++) {

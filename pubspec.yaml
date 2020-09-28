@@ -51,6 +51,9 @@ flutter:
     - family: Qalam
       fonts:
         - asset: assets/fonts/qalam
+    - family: MeQuran
+      fonts:
+        - asset: assets/fonts/me_quran.ttf
   #  #
   # For details regarding fonts from package dependencies,
   # see https://flutter.io/custom-fonts/#from-packages

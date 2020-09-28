@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:location/location.dart';
+import 'package:shia_companion/utils/prayer_times.dart';
 
 import 'data/uid_title_data.dart';
 import 'pages/item_page.dart';
@@ -15,6 +17,22 @@ final String appName = "Shia Companion";
 int hijriDate = 0;
 double arabicFontSize = 28.0;
 double englishFontSize = 14.0;
+
+PrayerTime prayerTime;
+LocationData currentLocation;
+
+PrayerTime getPrayerTimeObject() {
+  if (prayerTime != null) return prayerTime;
+
+  prayerTime = PrayerTime();
+
+  prayerTime.setTimeFormat(prayerTime.getTime24());
+  prayerTime.setCalcMethod(prayerTime.getJafari());
+  prayerTime.setAsrJuristic(prayerTime.getHanafi());
+  prayerTime.setAdjustHighLats(prayerTime.getAdjustHighLats());
+
+  return prayerTime;
+}
 
 bool showTranslation = true, showTransliteration = true;
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;

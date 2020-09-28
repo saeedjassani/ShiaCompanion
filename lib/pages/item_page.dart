@@ -42,12 +42,6 @@ class _ItemPageState extends State<ItemPage> {
     var request = await get(url);
     String jsonString = request.body;
     itemData = json.decode(jsonString);
-    // itemData = {};
-    // itemData['data'] = """
-    //         "اَتٰۤى اَمۡرُ اللّٰهِ فَلَا تَسۡتَعۡجِلُوۡهُ‌ ؕ سُبۡحٰنَهٗ وَتَعٰلٰى عَمَّا  يُشۡرِكُوۡنَ‏ ﴿﻿۱﻿﴾  ",
-    //         "يُنَزِّلُ الۡمَلٰۤٮِٕكَةَ بِالرُّوۡحِ مِنۡ اَمۡرِهٖ عَلٰى مَنۡ يَّشَآءُ  مِنۡ عِبَادِهٖۤ اَنۡ اَنۡذِرُوۡۤا اَنَّهٗ لَاۤ اِلٰهَ اِلَّاۤ اَنَا فَاتَّقُوۡنِ‏ ﴿﻿۲﻿﴾  ",
-    // """;
-    // itemData['code'] = "0";
     setState(() {});
   }
 
