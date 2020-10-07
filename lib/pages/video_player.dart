@@ -17,6 +17,7 @@ class VideoPlayer extends StatefulWidget {
 class _VideoPlayerState extends State<VideoPlayer> {
   _VideoPlayerState();
 
+  // VlcPlayerController _videoViewController;
   @override
   void initState() {
     super.initState();
@@ -24,11 +25,15 @@ class _VideoPlayerState extends State<VideoPlayer> {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+    // _videoViewController = new VlcPlayerController(onInit: () {
+    //   _videoViewController.play();
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    // widget.url = "http://cdn.smartstream.video/smartstream-us/channelwinlive/channelwinlive/playlist.m3u8";
+    // widget.url.link =
+    //     "http://cdn.smartstream.video/smartstream-us/channelwinlive/channelwinlive/playlist.m3u8";
     if (widget.url.link.contains("/")) {
       return Scaffold(
           appBar: Platform.isIOS
@@ -36,9 +41,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   title: Text(widget.url.title),
                 )
               : null,
-          body: WebviewScaffold(
-            url: widget.url.link,
-          ));
+          body: Container());
     } else {
       return Scaffold(
           appBar: Platform.isIOS

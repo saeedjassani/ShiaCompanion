@@ -32,7 +32,7 @@ class PrayerTimesState extends State<PrayerTimesCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.brown[100],
+      color: Colors.brown[50],
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: ListView.separated(
@@ -51,25 +51,28 @@ class PrayerTimesState extends State<PrayerTimesCard> {
                       flex: 1,
                       child: Text(
                         "${_prayerNames[position]} :",
-                        style: TextStyle(fontWeight: FontWeight.bold),
                       )),
                   Expanded(
                     flex: 1,
                     child: Text(
                       "${_prayerTimes[position]}",
+                      textAlign: TextAlign.end,
                     ),
                   ),
                   prefs != null
-                      ? InkWell(
-                          onTap: () {
-                            inversePref(
-                                "${_prayerNames[position].toLowerCase()}_notification");
-                          },
-                          child: prefs.getBool(
-                                      "${_prayerNames[position].toLowerCase()}_notification") ??
-                                  false
-                              ? Icon(Icons.notifications_active)
-                              : Icon(Icons.notifications_off))
+                      ? Padding(
+                          padding: const EdgeInsets.only(left: 12.0),
+                          child: InkWell(
+                              onTap: () {
+                                inversePref(
+                                    "${_prayerNames[position].toLowerCase()}_notification");
+                              },
+                              child: prefs.getBool(
+                                          "${_prayerNames[position].toLowerCase()}_notification") ??
+                                      false
+                                  ? Icon(Icons.volume_up)
+                                  : Icon(Icons.block)),
+                        )
                       : Container(),
                 ],
               ),
@@ -107,9 +110,6 @@ class PrayerTimesState extends State<PrayerTimesCard> {
 
     DateTime currentTime = DateTime.now();
     setUpNotifications();
-    print(currentTime);
-    print(currentLocation.latitude);
-    print(currentLocation.longitude);
 
     setState(() {
       _prayerTimes = prayerTime.getPrayerTimes(
@@ -122,6 +122,7 @@ class PrayerTimesState extends State<PrayerTimesCard> {
 
   void setUpNotifications() {
     PrayerTime prayers = getPrayerTimeObject();
+    prayerTime.setTimeFormat(prayerTime.getTime24());
 
     DateTime now = DateTime.now();
     for (int i = 0; i < 12; i++) {

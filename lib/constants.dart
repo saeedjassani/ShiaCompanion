@@ -26,7 +26,7 @@ PrayerTime getPrayerTimeObject() {
 
   prayerTime = PrayerTime();
 
-  prayerTime.setTimeFormat(prayerTime.getTime24());
+  prayerTime.setTimeFormat(prayerTime.getTime12());
   prayerTime.setCalcMethod(prayerTime.getJafari());
   prayerTime.setAsrJuristic(prayerTime.getHanafi());
   prayerTime.setAdjustHighLats(prayerTime.getAdjustHighLats());
