@@ -34,6 +34,9 @@ PrayerTime getPrayerTimeObject() {
   return prayerTime;
 }
 
+TextStyle smallText = TextStyle(fontSize: 14);
+TextStyle boldText = TextStyle(fontWeight: FontWeight.bold);
+
 bool showTranslation = true, showTransliteration = true;
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 List<String> tableCode = [
@@ -92,6 +95,14 @@ ListTile buildZikrRow(BuildContext context, UidTitleData itemData) {
   );
 }
 
+initializeLocation() async {
+  try {
+    currentLocation = await Location().getLocation();
+  } catch (e) {
+    currentLocation = null;
+  }
+}
+
 void scheduleNotification(
     int id,
     DateTime dateTime,
@@ -110,5 +121,9 @@ void scheduleNotification(
   NotificationDetails platformChannelSpecifics = NotificationDetails(
       androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.schedule(
-      id, title, description, dateTime, platformChannelSpecifics);
+      id, title, description, dateTime, platformChannelSpecifics,
+      androidAllowWhileIdle: true);
+  await flutterLocalNotificationsPlugin.schedule(
+      id, title, description, dateTime, platformChannelSpecifics,
+      androidAllowWhileIdle: true);
 }
