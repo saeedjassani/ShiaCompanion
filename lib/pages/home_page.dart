@@ -70,6 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
         bottomNavigationBar: Theme(
           data: themeData,
           child: BottomNavigationBar(
+            showUnselectedLabels: false,
+            selectedItemColor: Colors.white,
             onTap: navigationTapped, //
             currentIndex: _page, //
             items: [
@@ -78,30 +80,22 @@ class _MyHomePageState extends State<MyHomePage> {
                   Icons.home,
                   color: Colors.white,
                 ),
-                title: Text(
-                  "Home",
-                  style: TextStyle(color: Colors.white),
-                ),
+                label: "Home",
               ),
               BottomNavigationBarItem(
-                icon: new Icon(
+                icon: Icon(
                   Icons.calendar_today,
                   color: Colors.white,
                 ),
-                title: new Text(
-                  "Calendar",
-                  style: new TextStyle(color: Colors.white),
-                ),
+                label: "Calendar",
               ),
               BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.settings,
-                    color: Colors.white,
-                  ),
-                  title: Text(
-                    "Preferences",
-                    style: TextStyle(color: Colors.white),
-                  ))
+                icon: Icon(
+                  Icons.settings,
+                  color: Colors.white,
+                ),
+                label: "Preferences",
+              )
             ],
           ),
         ),
@@ -197,6 +191,19 @@ class _MyHomePageState extends State<MyHomePage> {
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: selectNotification);
 
+    final List<PendingNotificationRequest> pendingNotificationRequests =
+        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+
+    print(pendingNotificationRequests.length);
+    bool needToSchedule = false;
+    pendingNotificationRequests.forEach((PendingNotificationRequest element) {
+      if (element.id == 786) {
+        //
+        // element.payload
+
+      }
+    });
+    print(pendingNotificationRequests[0].id);
     // Initialize Item Data
     String url = "https://alghazienterprises.com/sc/scripts/getItems.php";
     var request = await get(url);
@@ -242,6 +249,9 @@ class _MyHomePageState extends State<MyHomePage> {
         content: Text("Please sign in to access favorites"),
       ));
     }
+
+    // Initialize LocationData
+    await initializeLocation();
 
     setState(() {});
   }
