@@ -27,6 +27,7 @@ jobs:
         channel: 'stable' # 'dev', 'alpha', default to: 'stable'
         # flutter-version: '1.12.x' # you can also specify exact version of flutter
     
+    # - run: flutter  config --enable-web
     # Get flutter dependencies.
     - run: flutter pub get
     
@@ -55,12 +56,12 @@ jobs:
     #     path: build/app/outputs/apk/release/app-release.apk
 
     # build Flutter web version
-    - run: flutter build web
+    # - run: flutter build web
     # Handle the deploy process of your project to GitHub Pages.
     # https://github.com/JamesIves/github-pages-deploy-action
-    - uses: JamesIves/github-pages-deploy-action@releases/v3
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-        BASE_BRANCH: master
-        BRANCH: gh-pages
-        FOLDER: build/web
+    # - uses: JamesIves/github-pages-deploy-action@releases/v3
+    #   with:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+    #     BASE_BRANCH: master
+    #     BRANCH: gh-pages
+    #     FOLDER: build/web
