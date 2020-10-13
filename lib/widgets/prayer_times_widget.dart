@@ -1,9 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
@@ -127,64 +123,4 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
       ),
     );
   }
-
-  // void setUpNotifications() {
-  //   PrayerTime prayers = getPrayerTimeObject();
-  //   prayerTime.setTimeFormat(prayerTime.getTime24());
-
-  //   DateTime now = DateTime.now();
-  //   for (int i = 0; i < 12; i++) {
-  //     DateTime temp = now.add(Duration(days: i));
-  //     List<String> prayerTimes = prayers.getPrayerTimes(
-  //         temp,
-  //         currentLocation.latitude,
-  //         currentLocation.longitude,
-  //         temp.timeZoneOffset.inMinutes / 60.0);
-
-  //     _prayerNames.asMap().forEach((index, prayerName) =>
-  //         schedulePrayerTimeNotification(
-  //             (10 * (index + 1)) + i,
-  //             DateTime.parse(
-  //                 "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[index]}"),
-  //             prayerName,
-  //             prayerTimes[index]));
-  //   }
-  //   scheduleNotification(
-  //       786,
-  //       now.add(Duration(days: 11)),
-  //       'Open the app to continue getting Azan notifications',
-  //       "It seems you've not used the applications since last 12 days. Please open the app continue getting Azan notifications",
-  //       'prayerTimes',
-  //       'Prayer Times',
-  //       'Azan Notifications for Prayer Times');
-  // }
-
-  // void schedulePrayerTimeNotification(
-  //     int id, DateTime dateTime, String prayerName, String prayerTime) async {
-  //   if (dateTime.difference(DateTime.now()).isNegative ||
-  //       !prefs.getBool(prayerName.toLowerCase() + "_notification")) return;
-  //   AndroidNotificationDetails androidPlatformChannelSpecifics =
-  //       AndroidNotificationDetails(
-  //     'prayerTimes',
-  //     'Prayer Times',
-  //     'Azan Notifications for Prayer Times',
-  //     importance: Importance.High,
-  //     sound: RawResourceAndroidNotificationSound('sharif'),
-  //   );
-  //   IOSNotificationDetails iOSPlatformChannelSpecifics =
-  //       IOSNotificationDetails(sound: 'sharif.caf');
-  //   NotificationDetails platformChannelSpecifics = NotificationDetails(
-  //       androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-  //   await flutterLocalNotificationsPlugin.schedule(
-  //       id,
-  //       prayerTime + " : " + prayerName,
-  //       "It's time for " + prayerName.toLowerCase(),
-  //       dateTime,
-  //       platformChannelSpecifics);
-  // }
-
-  // void inversePref(String s) async {
-  //   await prefs.setBool(s, !prefs.getBool(s));
-  //   setState(() {});
-  // }
 }
