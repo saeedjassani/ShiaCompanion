@@ -119,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: PrayerTimesCard(),
+                    child: HomePrayerTimesCard(),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),

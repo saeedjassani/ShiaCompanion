@@ -8,14 +8,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 
-class PrayerTimesCard extends StatefulWidget {
-  PrayerTimesCard();
+class HomePrayerTimesCard extends StatefulWidget {
+  HomePrayerTimesCard();
 
   @override
   PrayerTimesState createState() => PrayerTimesState();
 }
 
-class PrayerTimesState extends State<PrayerTimesCard> {
+class PrayerTimesState extends State<HomePrayerTimesCard> {
   PrayerTimesState();
   List prayerTimes;
   DateTime today = DateTime.now();
@@ -49,7 +49,7 @@ class PrayerTimesState extends State<PrayerTimesCard> {
           children: [
             Text(
               _today.toFormat("dd MMMM yyyy"),
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: boldText,
             ),
             SizedBox(
               height: 4,

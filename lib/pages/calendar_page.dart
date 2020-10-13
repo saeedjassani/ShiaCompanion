@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:shia_companion/widgets/prayer_times_card.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../constants.dart';
@@ -50,6 +51,7 @@ class _CalendarPageState extends State<CalendarPage> {
     eventString = _today.toFormat("dd MMMM, yyyy");
     var w = eventsMap[getStringFromDate(_today)];
     if (w != null) eventString += "\n\n" + w['content'];
+    setState(() {});
   }
 
   @override
@@ -129,30 +131,14 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
               calendarController: _calendarController,
               onDaySelected: (date, events) {
-                HijriCalendar newDate = new HijriCalendar.fromDate(
-                    date.add(Duration(days: hijriDate)));
+                HijriCalendar newDate =
+                    HijriCalendar.fromDate(date.add(Duration(days: hijriDate)));
 
                 String tmpDate = getStringFromDate(newDate);
                 eventString = newDate.toFormat("dd MMMM, yyyy");
                 if (eventsMap != null && eventsMap[tmpDate] != null) {
-                  eventString +=
-                      "\n\n" + eventsMap[tmpDate]['content'] + "\n\n";
+                  eventString += "\n\n" + eventsMap[tmpDate]['content'];
                 }
-
-                if (currentLocation != null) {
-                  PrayerTime prayerTime = getPrayerTimeObject();
-                  List<String> _prayerNames = prayerTime.getTimeNames();
-                  List<String> _prayerTimes = prayerTime.getPrayerTimes(
-                      date,
-                      currentLocation.latitude,
-                      currentLocation.longitude,
-                      DateTime.now().timeZoneOffset.inMinutes / 60.0);
-
-                  _prayerNames.asMap().forEach((key, value) {
-                    eventString += value + " : " + _prayerTimes[key] + "\n";
-                  });
-                }
-
                 setState(() {});
               },
             ),
@@ -163,7 +149,12 @@ class _CalendarPageState extends State<CalendarPage> {
               eventString,
               textAlign: TextAlign.center,
             ),
-          )
+          ),
+          _calendarController.selectedDay != null
+              ? PrayerTimesCard(
+                  date: _calendarController.selectedDay,
+                )
+              : Container(),
         ],
       ),
     );
