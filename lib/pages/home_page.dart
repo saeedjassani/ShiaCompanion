@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -20,6 +18,7 @@ import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/live_streaming.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'list_items.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -185,33 +184,36 @@ class _MyHomePageState extends State<MyHomePage> {
     // Initialize LocationData
     await initializeLocation();
 
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    var initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_launcher');
-    var initializationSettingsIOS = IOSInitializationSettings();
-    var initializationSettings = InitializationSettings(
-        initializationSettingsAndroid, initializationSettingsIOS);
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: selectNotification);
+    if (!kIsWeb) {
+      flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+      var initializationSettingsAndroid =
+          AndroidInitializationSettings('ic_launcher');
+      var initializationSettingsIOS = IOSInitializationSettings();
+      var initializationSettings = InitializationSettings(
+          initializationSettingsAndroid, initializationSettingsIOS);
+      await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+          onSelectNotification: selectNotification);
 
-    final List<PendingNotificationRequest> pendingNotificationRequests =
-        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      final List<PendingNotificationRequest> pendingNotificationRequests =
+          await flutterLocalNotificationsPlugin.pendingNotificationRequests();
 
-    bool needToSchedule = true;
-    pendingNotificationRequests.forEach((PendingNotificationRequest element) {
-      if (element.id == 786 &&
-          element.payload.isNotEmpty &&
-          DateTime.now()
-                  .difference(DateTime.fromMillisecondsSinceEpoch(
-                      int.parse(element.payload)))
-                  .inDays <
-              -2) {
-        needToSchedule = false;
+      bool needToSchedule = true;
+      pendingNotificationRequests.forEach((PendingNotificationRequest element) {
+        if (element.id == 786 &&
+            element.payload.isNotEmpty &&
+            DateTime.now()
+                    .difference(DateTime.fromMillisecondsSinceEpoch(
+                        int.parse(element.payload)))
+                    .inDays <
+                -2) {
+          needToSchedule = false;
+        }
+      });
+      if (needToSchedule) {
+        setUpNotifications();
       }
-    });
-    if (needToSchedule) {
-      setUpNotifications();
     }
+
     // Initialize Item Data
     String url = "https://alghazienterprises.com/sc/scripts/getItems.php";
     var request = await get(url);
@@ -219,21 +221,19 @@ class _MyHomePageState extends State<MyHomePage> {
     items = json.decode(loadString);
 
     // Initialize Holy Shrines Data
-    if (Platform.isAndroid) {
-      url = "https://alghazienterprises.com/sc/scripts/getHolyShrines.php";
-      var response = await get(url);
-      if (response.statusCode == 200) {
-        List x = json.decode(response.body);
-        holyShrine = List();
-        x.forEach((f) => holyShrine.add(LiveStreamingData.fromJson(f)));
-      }
-      url = "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php";
-      response = await get(url);
-      if (response.statusCode == 200) {
-        List x = json.decode(response.body);
-        liveChannel = List();
-        x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
-      }
+    url = "https://alghazienterprises.com/sc/scripts/getHolyShrines.php";
+    var response = await get(url);
+    if (response.statusCode == 200) {
+      List x = json.decode(response.body);
+      holyShrine = List();
+      x.forEach((f) => holyShrine.add(LiveStreamingData.fromJson(f)));
+    }
+    url = "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php";
+    response = await get(url);
+    if (response.statusCode == 200) {
+      List x = json.decode(response.body);
+      liveChannel = List();
+      x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
     }
 
     user = _auth.currentUser;
