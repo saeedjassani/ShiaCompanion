@@ -4,7 +4,6 @@ import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/widgets/prayer_times_card.dart';
 import 'package:table_calendar/table_calendar.dart';
 

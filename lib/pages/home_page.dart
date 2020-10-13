@@ -182,6 +182,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void initializeData() async {
+    // Initialize LocationData
+    await initializeLocation();
+
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     var initializationSettingsAndroid =
         AndroidInitializationSettings('ic_launcher');
@@ -194,16 +197,21 @@ class _MyHomePageState extends State<MyHomePage> {
     final List<PendingNotificationRequest> pendingNotificationRequests =
         await flutterLocalNotificationsPlugin.pendingNotificationRequests();
 
-    print(pendingNotificationRequests.length);
-    bool needToSchedule = false;
+    bool needToSchedule = true;
     pendingNotificationRequests.forEach((PendingNotificationRequest element) {
-      if (element.id == 786) {
-        //
-        // element.payload
-
+      if (element.id == 786 &&
+          element.payload.isNotEmpty &&
+          DateTime.now()
+                  .difference(DateTime.fromMillisecondsSinceEpoch(
+                      int.parse(element.payload)))
+                  .inDays <
+              -2) {
+        needToSchedule = false;
       }
     });
-    print(pendingNotificationRequests[0].id);
+    if (needToSchedule) {
+      setUpNotifications();
+    }
     // Initialize Item Data
     String url = "https://alghazienterprises.com/sc/scripts/getItems.php";
     var request = await get(url);
@@ -250,9 +258,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ));
     }
 
-    // Initialize LocationData
-    await initializeLocation();
-
     setState(() {});
   }
 
@@ -282,7 +287,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   setupPreferences() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences = await SharedPreferences.getInstance();
     arabicFontSize =
         sharedPreferences.getDouble('ara_font_size') ?? arabicFontSize;
     englishFontSize =
@@ -294,6 +299,18 @@ class _MyHomePageState extends State<MyHomePage> {
         sharedPreferences.getBool('showTransliteration') ?? showTransliteration;
 
     hijriDate = sharedPreferences.getInt('adjust_hijri_date') ?? hijriDate;
+
+    // By default turn on Azan for Fajr, Dhuhr and Maghrib
+    if (sharedPreferences.getBool('fajr_notification') == null) {
+      sharedPreferences.setBool('fajr_notification', true);
+      sharedPreferences.setBool('dhuhr_notification', true);
+      sharedPreferences.setBool('maghrib_notification', true);
+      sharedPreferences.setBool('sunrise_notification', false);
+      sharedPreferences.setBool('asr_notification', false);
+      sharedPreferences.setBool('sunset_notification', false);
+      sharedPreferences.setBool('isha_notification', false);
+    }
+
     initializeData();
   }
 
