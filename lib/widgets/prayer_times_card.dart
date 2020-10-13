@@ -1,14 +1,12 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 
 class PrayerTimesCard extends StatefulWidget {
-  PrayerTimesCard();
+  final DateTime date;
+  PrayerTimesCard({this.date});
 
   @override
   PrayerTimesState createState() => PrayerTimesState();
@@ -16,108 +14,76 @@ class PrayerTimesCard extends StatefulWidget {
 
 class PrayerTimesState extends State<PrayerTimesCard> {
   PrayerTimesState();
-  List prayerTimes;
-  DateTime today = DateTime.now();
   List<String> _prayerTimes = [];
   List<String> _prayerNames = [];
   SharedPreferences prefs;
 
-  Location location = Location();
   @override
   void initState() {
     super.initState();
-    getLocation();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.brown[50],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: ListView.separated(
-          separatorBuilder: (BuildContext context, int index) => Divider(
-            height: 2,
-          ),
-          itemCount: _prayerTimes.length,
-          shrinkWrap: true,
-          itemBuilder: (context, position) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                      flex: 1,
-                      child: Text(
-                        "${_prayerNames[position]} :",
-                      )),
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      "${_prayerTimes[position]}",
-                      textAlign: TextAlign.end,
-                    ),
-                  ),
-                  prefs != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(left: 12.0),
-                          child: InkWell(
-                              onTap: () {
-                                inversePref(
-                                    "${_prayerNames[position].toLowerCase()}_notification");
-                              },
-                              child: prefs.getBool(
-                                          "${_prayerNames[position].toLowerCase()}_notification") ??
-                                      false
-                                  ? Icon(Icons.volume_up)
-                                  : Icon(Icons.block)),
-                        )
-                      : Container(),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  getLocation() async {
-    prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('fajr_notification') == null) {
-      prefs.setBool('fajr_notification', true);
-      prefs.setBool('dhuhr_notification', true);
-      prefs.setBool('maghrib_notification', true);
-      prefs.setBool('sunrise_notification', false);
-      prefs.setBool('asr_notification', false);
-      prefs.setBool('sunset_notification', false);
-      prefs.setBool('isha_notification', false);
-    }
-    try {
-      currentLocation = await location.getLocation();
-    } catch (e) {
-      debugPrint(e.toString());
-      currentLocation = null;
-    }
-    if (currentLocation != null) calculatePrayerTimes();
-  }
-
-  Future<void> calculatePrayerTimes() async {
+    DateTime currentTime = widget.date;
     PrayerTime prayerTime = getPrayerTimeObject();
-
     _prayerNames = prayerTime.getTimeNames();
 
-    DateTime currentTime = DateTime.now();
-    setUpNotifications();
-
-    setState(() {
-      _prayerTimes = prayerTime.getPrayerTimes(
-          currentTime,
-          currentLocation.latitude,
-          currentLocation.longitude,
-          currentTime.timeZoneOffset.inMinutes / 60.0);
-    });
+    _prayerTimes = currentLocation != null
+        ? prayerTime.getPrayerTimes(
+            currentTime,
+            currentLocation.latitude,
+            currentLocation.longitude,
+            DateTime.now().timeZoneOffset.inMinutes / 60.0)
+        : null;
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
+        separatorBuilder: (BuildContext context, int index) => Divider(
+          height: 2,
+        ),
+        itemCount: _prayerTimes.length,
+        shrinkWrap: true,
+        itemBuilder: (context, position) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                    flex: 1,
+                    child: Text(
+                      "${_prayerNames[position]} :",
+                    )),
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    "${_prayerTimes[position]}",
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+                prefs != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 12.0),
+                        child: InkWell(
+                            onTap: () {
+                              inversePref(
+                                  "${_prayerNames[position].toLowerCase()}_notification");
+                            },
+                            child: prefs.getBool(
+                                        "${_prayerNames[position].toLowerCase()}_notification") ??
+                                    false
+                                ? Icon(Icons.volume_up)
+                                : Icon(Icons.block)),
+                      )
+                    : Container(),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   void setUpNotifications() {
