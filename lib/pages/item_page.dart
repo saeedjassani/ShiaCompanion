@@ -95,7 +95,7 @@ class _ItemPageState extends State<ItemPage> {
                         : Container();
                   } else {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
+                      padding: const EdgeInsets.only(top: 8, bottom: 4.0),
                       child: Text(
                         str,
                       ),

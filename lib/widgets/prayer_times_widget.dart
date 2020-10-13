@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 
@@ -13,15 +12,6 @@ class HomePrayerTimesCard extends StatefulWidget {
 
 class PrayerTimesState extends State<HomePrayerTimesCard> {
   PrayerTimesState();
-  List prayerTimes;
-  DateTime today = DateTime.now();
-  List<String> _prayerTimes;
-  SharedPreferences prefs;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +19,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     HijriCalendar _today = HijriCalendar.fromDate(DateTime.now());
     PrayerTime prayerTime = getPrayerTimeObject();
 
-    _prayerTimes = currentLocation != null
+    List<String> _prayerTimes = currentLocation != null
         ? prayerTime.getPrayerTimes(
             currentTime,
             currentLocation.latitude,

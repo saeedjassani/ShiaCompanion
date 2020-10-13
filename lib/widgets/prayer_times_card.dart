@@ -12,16 +12,14 @@ class PrayerTimesCard extends StatefulWidget {
 
 class PrayerTimesState extends State<PrayerTimesCard> {
   PrayerTimesState();
-  List<String> _prayerTimes = [];
-  List<String> _prayerNames = [];
 
   @override
   Widget build(BuildContext context) {
     DateTime currentTime = widget.date;
     PrayerTime prayerTime = getPrayerTimeObject();
-    _prayerNames = prayerTime.getTimeNames();
+    List<String> _prayerNames = prayerTime.getTimeNames();
 
-    _prayerTimes = currentLocation != null
+    List<String> _prayerTimes = currentLocation != null
         ? prayerTime.getPrayerTimes(
             currentTime,
             currentLocation.latitude,

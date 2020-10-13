@@ -17,7 +17,7 @@ User user;
 final String appName = "Shia Companion";
 int hijriDate = 0;
 double arabicFontSize = 28.0;
-double englishFontSize = 14.0;
+double englishFontSize = 12.0;
 
 PrayerTime prayerTime;
 LocationData currentLocation;
