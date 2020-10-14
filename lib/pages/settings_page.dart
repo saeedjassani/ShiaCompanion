@@ -26,12 +26,6 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         children: <Widget>[
           ListTile(
-            title: Text(user == null
-                ? "Salamun Alaika!"
-                : "Salamun Alaika, ${user.displayName}!"),
-          ),
-          Divider(),
-          ListTile(
             leading: Icon(Icons.info),
             title: Text("About Us"),
             onTap: () {
