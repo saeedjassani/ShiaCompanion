@@ -185,7 +185,7 @@ void schedulePrayerTimeNotification(
       sound: RawResourceAndroidNotificationSound('sharif'),
     );
     IOSNotificationDetails iOSPlatformChannelSpecifics =
-        IOSNotificationDetails(sound: 'sharif.caf');
+        IOSNotificationDetails(sound: 'azan.caf');
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.schedule(
