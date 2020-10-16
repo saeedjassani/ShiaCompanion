@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -213,10 +214,17 @@ class _MyHomePageState extends State<MyHomePage> {
       setUpNotifications();
     }
     // Initialize Item Data
-    String url = "https://alghazienterprises.com/sc/scripts/getItems.php";
-    var request = await get(url);
-    String loadString = request.body;
-    items = json.decode(loadString);
+    String url;
+    if (kReleaseMode) {
+      String data =
+          await DefaultAssetBundle.of(context).loadString("assets/zikr.json");
+      items = json.decode(data);
+    } else {
+      url = "https://alghazienterprises.com/sc/scripts/getItems.php";
+      var request = await get(url);
+      String loadString = request.body;
+      items = json.decode(loadString);
+    }
 
     // Initialize Holy Shrines Data
     url = "https://alghazienterprises.com/sc/scripts/getHolyShrines.php";

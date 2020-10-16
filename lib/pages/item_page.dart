@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:http/http.dart';
@@ -36,11 +37,17 @@ class _ItemPageState extends State<ItemPage> {
       TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
 
   void initializeData() async {
-    String url =
-        "https://alghazienterprises.com/sc/scripts/getItem.php?uid=${item.getFirstUId()}";
-    debugPrint(url);
-    var request = await get(url);
-    String jsonString = request.body;
+    String jsonString = "";
+    if (kReleaseMode) {
+      jsonString = await DefaultAssetBundle.of(context)
+          .loadString("assets/zikr/${item.getFirstUId()}");
+    } else {
+      String url =
+          "https://alghazienterprises.com/sc/scripts/getItem.php?uid=${item.getFirstUId()}";
+      debugPrint(url);
+      var request = await get(url);
+      jsonString = request.body;
+    }
     itemData = json.decode(jsonString);
     setState(() {});
   }
