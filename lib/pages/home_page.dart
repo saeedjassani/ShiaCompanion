@@ -219,21 +219,19 @@ class _MyHomePageState extends State<MyHomePage> {
     items = json.decode(loadString);
 
     // Initialize Holy Shrines Data
-    if (Platform.isAndroid) {
-      url = "https://alghazienterprises.com/sc/scripts/getHolyShrines.php";
-      var response = await get(url);
-      if (response.statusCode == 200) {
-        List x = json.decode(response.body);
-        holyShrine = List();
-        x.forEach((f) => holyShrine.add(LiveStreamingData.fromJson(f)));
-      }
-      url = "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php";
-      response = await get(url);
-      if (response.statusCode == 200) {
-        List x = json.decode(response.body);
-        liveChannel = List();
-        x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
-      }
+    url = "https://alghazienterprises.com/sc/scripts/getHolyShrines.php";
+    var response = await get(url);
+    if (response.statusCode == 200) {
+      List x = json.decode(response.body);
+      holyShrine = List();
+      x.forEach((f) => holyShrine.add(LiveStreamingData.fromJson(f)));
+    }
+    url = "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php";
+    response = await get(url);
+    if (response.statusCode == 200) {
+      List x = json.decode(response.body);
+      liveChannel = List();
+      x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
     }
 
     user = _auth.currentUser;
