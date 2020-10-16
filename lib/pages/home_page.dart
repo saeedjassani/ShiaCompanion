@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
+import 'package:package_info/package_info.dart';
 import 'dart:convert';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -325,6 +326,7 @@ class _MyHomePageState extends State<MyHomePage> {
       sharedPreferences.setBool('isha_notification', false);
     }
 
+    WidgetsBinding.instance.addPostFrameCallback((_) => showAlertDialog());
     initializeData();
   }
 
@@ -364,4 +366,38 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Shader l = LinearGradient(colors: <Color>[Colors.black, Colors.white])
       .createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
+
+  showAlertDialog() async {
+    // set up the button
+    Widget okButton = FlatButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Azan notification added"),
+      content: Text(
+          "We have added Azan notifications to the app. By default, Fajr Dhuhr and Maghrib azan notifications are turned on. They can be turned off from calendar page in prayer times section."),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    int bnFromPref = sharedPreferences.getInt('buildNumber') ?? 0;
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    if (int.parse(packageInfo.buildNumber) > bnFromPref) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+      await sharedPreferences.setInt(
+          'buildNumber', int.parse(packageInfo.buildNumber));
+    }
+  }
 }
