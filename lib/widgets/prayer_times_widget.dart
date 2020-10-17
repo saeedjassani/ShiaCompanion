@@ -1,3 +1,4 @@
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:share/share.dart';
@@ -107,8 +108,13 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                                 size: 18,
                               ),
                               onPressed: () {
+                                String date = formatDate(DateTime.now(),
+                                        [dd, " ", M, " ", yyyy]) +
+                                    " (" +
+                                    _today.toFormat("dd MMMM yyyy") +
+                                    ")";
                                 Share.share(
-                                    'Fajr : ${_prayerTimes[0]}\nDhuhr : ${_prayerTimes[2]}\nMaghrib : ${_prayerTimes[4]}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                                    '$date\n\nFajr : ${_prayerTimes[0]}\nDhuhr : ${_prayerTimes[2]}\nMaghrib : ${_prayerTimes[4]}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
                                     sharePositionOrigin: Rect.fromLTWH(
                                         MediaQuery.of(context).size.width / 2,
                                         0,
