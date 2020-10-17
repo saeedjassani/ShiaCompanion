@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -18,7 +21,6 @@ import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/live_streaming.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'list_items.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -233,10 +235,17 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // Initialize Item Data
-    String url = "https://alghazienterprises.com/sc/scripts/getItems.php";
-    var request = await get(url);
-    String loadString = request.body;
-    items = json.decode(loadString);
+    String url;
+    if (kReleaseMode) {
+      String data =
+          await DefaultAssetBundle.of(context).loadString("assets/zikr.json");
+      items = json.decode(data);
+    } else {
+      url = "https://alghazienterprises.com/sc/scripts/getItems.php";
+      var request = await get(url);
+      String loadString = request.body;
+      items = json.decode(loadString);
+    }
 
     // Initialize Holy Shrines Data
     url = "https://alghazienterprises.com/sc/scripts/getHolyShrines.php";
