@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -387,9 +385,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("Azan notification added"),
+      title: Text("What's New"),
       content: Text(
-          "We have added Azan notifications to the app. By default, Fajr Dhuhr and Maghrib azan notifications are turned on. They can be turned off from calendar page in prayer times section."),
+          "1. Azan notification added. By default Fajr, Dhuhr and Magrib are turned on.\n2. Live Holy Shrines and Islamic Channels\n3. Islamic calendar with events."),
       actions: [
         okButton,
       ],
