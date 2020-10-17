@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:share/share.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
-  HomePrayerTimesCard();
+  final callback;
+  HomePrayerTimesCard(this.callback);
 
   @override
   PrayerTimesState createState() => PrayerTimesState();
@@ -29,7 +31,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     return Card(
       color: Colors.brown[50],
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -84,21 +86,35 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           FlatButton.icon(
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                               icon: Icon(
                                 Icons.exit_to_app,
                                 size: 18,
                               ),
-                              onPressed: () {},
+                              onPressed: () {
+                                widget.callback();
+                              },
                               label: Text(
                                 "All Prayers",
                                 style: smallText,
                               )),
                           FlatButton.icon(
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                               icon: Icon(
                                 Icons.share,
                                 size: 18,
                               ),
-                              onPressed: () {},
+                              onPressed: () {
+                                Share.share(
+                                    'Fajr : ${_prayerTimes[0]}\nDhuhr : ${_prayerTimes[2]}\nMaghrib : ${_prayerTimes[4]}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                                    sharePositionOrigin: Rect.fromLTWH(
+                                        MediaQuery.of(context).size.width / 2,
+                                        0,
+                                        2,
+                                        2)); // todo
+                              },
                               label: Text(
                                 "Share",
                                 style: smallText,
