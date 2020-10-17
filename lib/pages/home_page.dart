@@ -49,6 +49,14 @@ class _MyHomePageState extends State<MyHomePage> {
   );
   int _page = 0;
   PageController _pageController;
+  bool scrollToPrayerTimes = false;
+
+  callback() {
+    _page = 1;
+    scrollToPrayerTimes = true;
+    _pageController.animateToPage(_page,
+        duration: const Duration(milliseconds: 300), curve: Curves.ease);
+  }
 
   @override
   void initState() {
@@ -120,25 +128,34 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: HomePrayerTimesCard(),
+                    child: HomePrayerTimesCard(callback),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Card(
                       child: ExpansionTile(
+                        onExpansionChanged: (bool x) {
+                          if (user == null && x)
+                            key.currentState.showSnackBar(SnackBar(
+                              content:
+                                  Text("Please sign in to access favorites"),
+                            ));
+                        },
                         title: Text("Favorites"),
                         children: <Widget>[
-                          SizedBox(
-                              height: 300,
-                              child: ListView.separated(
-                                separatorBuilder:
-                                    (BuildContext context, int index) =>
-                                        Divider(),
-                                itemCount:
-                                    favsData != null ? favsData.length : 0,
-                                itemBuilder: (BuildContext c, int i) =>
-                                    buildZikrRow(c, favsData[i]),
-                              ))
+                          favsData != null
+                              ? SizedBox(
+                                  height: 300,
+                                  child: ListView.separated(
+                                    separatorBuilder:
+                                        (BuildContext context, int index) =>
+                                            Divider(),
+                                    itemCount:
+                                        favsData != null ? favsData.length : 0,
+                                    itemBuilder: (BuildContext c, int i) =>
+                                        buildZikrRow(c, favsData[i]),
+                                  ))
+                              : Container()
                         ],
                       ),
                     ),
@@ -165,19 +182,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
-            CalendarPage(),
+            CalendarPage(scrollToPrayerTimes),
             SettingsPage()
           ],
           controller: _pageController,
           onPageChanged: ((int page) {
             setState(() {
-              this._page = page;
+              _page = page;
             });
           }),
         ));
   }
 
   void navigationTapped(int page) {
+    scrollToPrayerTimes = false;
     _pageController.animateToPage(page,
         duration: const Duration(milliseconds: 300), curve: Curves.ease);
   }
@@ -186,33 +204,36 @@ class _MyHomePageState extends State<MyHomePage> {
     // Initialize LocationData
     await initializeLocation();
 
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    var initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_launcher');
-    var initializationSettingsIOS = IOSInitializationSettings();
-    var initializationSettings = InitializationSettings(
-        initializationSettingsAndroid, initializationSettingsIOS);
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: selectNotification);
+    if (!kIsWeb) {
+      flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+      var initializationSettingsAndroid =
+          AndroidInitializationSettings('ic_launcher');
+      var initializationSettingsIOS = IOSInitializationSettings();
+      var initializationSettings = InitializationSettings(
+          initializationSettingsAndroid, initializationSettingsIOS);
+      await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+          onSelectNotification: selectNotification);
 
-    final List<PendingNotificationRequest> pendingNotificationRequests =
-        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      final List<PendingNotificationRequest> pendingNotificationRequests =
+          await flutterLocalNotificationsPlugin.pendingNotificationRequests();
 
-    bool needToSchedule = true;
-    pendingNotificationRequests.forEach((PendingNotificationRequest element) {
-      if (element.id == 786 &&
-          element.payload.isNotEmpty &&
-          DateTime.now()
-                  .difference(DateTime.fromMillisecondsSinceEpoch(
-                      int.parse(element.payload)))
-                  .inDays <
-              -2) {
-        needToSchedule = false;
+      bool needToSchedule = true;
+      pendingNotificationRequests.forEach((PendingNotificationRequest element) {
+        if (element.id == 786 &&
+            element.payload.isNotEmpty &&
+            DateTime.now()
+                    .difference(DateTime.fromMillisecondsSinceEpoch(
+                        int.parse(element.payload)))
+                    .inDays <
+                -2) {
+          needToSchedule = false;
+        }
+      });
+      if (needToSchedule) {
+        setUpNotifications();
       }
-    });
-    if (needToSchedule) {
-      setUpNotifications();
     }
+
     // Initialize Item Data
     String url;
     if (kReleaseMode) {
@@ -258,10 +279,6 @@ class _MyHomePageState extends State<MyHomePage> {
           favsData.add(UidTitleData(obj["uid"], obj["title"]));
         }
       }
-    } else {
-      key.currentState.showSnackBar(SnackBar(
-        content: Text("Please sign in to access favorites"),
-      ));
     }
 
     setState(() {});
