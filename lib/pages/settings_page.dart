@@ -1,6 +1,9 @@
+import 'dart:io';
+
+import 'package:apple_sign_in/apple_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
+import 'package:flutter_auth_buttons/flutter_auth_buttons.dart' as authButton;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
@@ -98,20 +101,30 @@ class _SettingsPageState extends State<SettingsPage> {
             value: showTransliteration,
           ),
           Divider(),
-          user != null
-              ? ListTile(
-                  leading: new Icon(Icons.power_settings_new),
-                  title: new Text("Logout"),
-                  onTap: () {
-                    logOff();
-                  },
-                )
-              : GoogleSignInButton(
-                  onPressed: () {
-                    _signInWithGoogle();
-                  },
-                  // darkMode: true, // default: false
-                ),
+          // user != null
+          //     ? ListTile(
+          //         leading: new Icon(Icons.power_settings_new),
+          //         title: new Text("Logout"),
+          //         onTap: () {
+          //           logOff();
+          //         },
+          //       )
+          //     : Column(
+          //         children: [
+          //           authButton.GoogleSignInButton(
+          //             onPressed: () {
+          //               _signInWithGoogle();
+          //             },
+          //           ),
+          //           Platform.isIOS
+          //               ? AppleSignInButton(
+          //                   onPressed: () async {
+          //                     _signInWithApple();
+          //                   },
+          //                 )
+          //               : Container(),
+          //         ],
+          //       ),
         ],
       ),
     );
@@ -209,6 +222,52 @@ class _SettingsPageState extends State<SettingsPage> {
       key.currentState.showSnackBar(new SnackBar(
         content: new Text("Some error occured, please contact support"),
       ));
+    }
+  }
+
+  void _signInWithApple() async {
+    try {
+      User firebaseUser = _auth.currentUser;
+      if (firebaseUser == null) {
+        final AuthorizationResult appleResult =
+            await AppleSignIn.performRequests(
+                [AppleIdRequest(requestedScopes: [])]);
+
+        switch (appleResult.status) {
+          case AuthorizationStatus.authorized:
+            final AuthCredential credential =
+                OAuthProvider('apple.com').credential(
+              accessToken: String.fromCharCodes(
+                  appleResult.credential.authorizationCode),
+              idToken:
+                  String.fromCharCodes(appleResult.credential.identityToken),
+            );
+
+            UserCredential authResult =
+                await _auth.signInWithCredential(credential);
+            // setState(() {
+            user = authResult.user;
+            // });
+            break;
+
+          case AuthorizationStatus.error:
+            debugPrint(
+                "Sign in failed: ${appleResult.error.localizedDescription}");
+            key.currentState.showSnackBar(new SnackBar(
+              content: new Text("Apple Sign-In Failed"),
+            ));
+            break;
+
+          case AuthorizationStatus.cancelled:
+            debugPrint('User cancelled apple sign-in');
+            break;
+        }
+      } else {
+        logOff();
+      }
+    } catch (error) {
+      debugPrint(error);
+      return null;
     }
   }
 }
