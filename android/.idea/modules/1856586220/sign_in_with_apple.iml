@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":sign_in_with_apple" external.linked.project.path="$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="android-gradle" name="Android-Gradle">
+      <configuration>
+        <option name="GRADLE_PROJECT_PATH" value=":sign_in_with_apple" />
+        <option name="LAST_SUCCESSFUL_SYNC_AGP_VERSION" value="4.0.2" />
+        <option name="LAST_KNOWN_AGP_VERSION" value="4.0.2" />
+      </configuration>
+    </facet>
+    <facet type="android" name="Android">
+      <configuration>
+        <option name="SELECTED_BUILD_VARIANT" value="debug" />
+        <option name="ASSEMBLE_TASK_NAME" value="assembleDebug" />
+        <option name="COMPILE_JAVA_TASK_NAME" value="compileDebugSources" />
+        <afterSyncTasks>
+          <task>generateDebugSources</task>
+        </afterSyncTasks>
+        <option name="ALLOW_USER_CONFIGURATION" value="false" />
+        <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
+        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/main/res;file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/debug/res;file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/res/rs/debug" />
+        <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTest/res;file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/test/res;file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTestDebug/res;file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/testDebug/res;file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/res/rs/androidTest/debug" />
+        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
+        <option name="PROJECT_TYPE" value="1" />
+      </configuration>
+    </facet>
+    <facet type="kotlin-language" name="Kotlin">
+      <configuration version="3" platform="JVM 1.6" allPlatforms="JVM [1.6]" useProjectSettings="false">
+        <compilerSettings>
+          <option name="additionalArguments" value="-Xallow-no-source-files" />
+        </compilerSettings>
+        <compilerArguments>
+          <option name="destination" value="$MODULE_DIR$/../../../../build/sign_in_with_apple/tmp/kotlin-classes/debug" />
+          <option name="classpath" value="$USER_HOME$/.gradle/caches/transforms-2/files-2.1/69a2983c17a69e59d4a93d42c40150a2/jetified-flutter_embedding_debug-1.0.0-1d12d82d9cb54876f58044aa52198d53ec841c3d.jar:/Users/saeedjassani/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common-java8/2.2.0/cd3478503da69b1a7e0319bd2d1389943db9b364/lifecycle-common-java8-2.2.0.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/705c9811bc8ab7151ef5e344892945ef/browser-1.2.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/16cc8bc638f18fe05dd702079a7e55ef/fragment-1.1.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/c3475c2bb5116279818def5571b65cf1/viewpager-1.0.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/952109846a67dd9d3385f50e5b0af0e6/loader-1.0.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/bb296af007e77b50b116f28eecf5c0f4/jetified-activity-1.0.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/95f078cd72b3dccc7aec60210a649d46/customview-1.0.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/64fa930caad2363621daff19c7a0e58f/core-1.1.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/2483f9738f350752c4bb3205d21fa372/lifecycle-runtime-2.2.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/5a3b91c8557227a820f15c0ffae5fbea/jetified-savedstate-1.0.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/6abb66b532447115ace9930ab0bc6ec6/lifecycle-livedata-2.0.0-api.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/b2e13b3c63a629db61dc329eba81758b/lifecycle-livedata-core-2.0.0-api.jar:/Users/saeedjassani/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common/2.2.0/4ef09a745007778eef83b92f8f23987a8ea59496/lifecycle-common-2.2.0.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/a64060ccefef7012424576b90d0a99bf/core-runtime-2.0.0-api.jar:/Users/saeedjassani/.gradle/caches/modules-2/files-2.1/androidx.arch.core/core-common/2.1.0/b3152fc64428c9354344bd89848ecddc09b6f07e/core-common-2.1.0.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/a3d55f1bdf84d492e27d1a4d378b78f2/versionedparcelable-1.1.0-api.jar:/Users/saeedjassani/.gradle/caches/modules-2/files-2.1/androidx.collection/collection/1.1.0/1f27220b47669781457de0d600849a5de0e89909/collection-1.1.0.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/918df8e7f7bd0f47481d60d5dd9a260f/lifecycle-viewmodel-2.1.0-api.jar:/Users/saeedjassani/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation/1.1.0/e3a6fb2f40e3a3842e6b7472628ba4ce416ea4c8/annotation-1.1.0.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/5f9c13328ed6b18e1d9bb3912c96935a/jetified-kotlin-stdlib-jdk7-1.3.50.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/f46debb6c2a7d70920b2eefbbdd917f5/jetified-kotlin-stdlib-1.3.50.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/979e658bf323fed9f30f7b9629ba1a31/jetified-kotlin-stdlib-common-1.3.50.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/61c7d9f9a9c136f4eac84b1d4d679354/jetified-annotations-13.0.jar:/Users/saeedjassani/.gradle/caches/transforms-2/files-2.1/4bf57018f42e31b9f48baf7044bd8d06/jetified-listenablefuture-1.0.jar:/Users/saeedjassani/Library/Android/sdk/platforms/android-28/android.jar" />
+          <option name="noStdlib" value="true" />
+          <option name="noReflect" value="true" />
+          <option name="moduleName" value="sign_in_with_apple_debug" />
+          <option name="languageVersion" value="1.3" />
+          <option name="apiVersion" value="1.3" />
+          <option name="pluginOptions">
+            <array />
+          </option>
+          <option name="pluginClasspaths">
+            <array />
+          </option>
+          <option name="errors">
+            <ArgumentParseErrors />
+          </option>
+        </compilerArguments>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7">
+    <output url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/intermediates/javac/debug/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/intermediates/javac/debugUnitTest/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/aidl_source_output_dir/debug/out">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/aidl_source_output_dir/debug/out" isTestSource="false" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/aidl_source_output_dir/debugAndroidTest/out">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/aidl_source_output_dir/debugAndroidTest/out" isTestSource="true" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/ap_generated_sources/debug/out">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/ap_generated_sources/debug/out" isTestSource="false" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/ap_generated_sources/debugAndroidTest/out">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/ap_generated_sources/debugAndroidTest/out" isTestSource="true" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/ap_generated_sources/debugUnitTest/out">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/ap_generated_sources/debugUnitTest/out" isTestSource="true" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/renderscript_source_output_dir/debug/out">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/renderscript_source_output_dir/debug/out" isTestSource="false" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/renderscript_source_output_dir/debugAndroidTest/out">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/renderscript_source_output_dir/debugAndroidTest/out" isTestSource="true" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/res/rs/androidTest/debug">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/res/rs/androidTest/debug" type="java-test-resource" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/res/rs/debug">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/res/rs/debug" type="java-resource" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/source/buildConfig/androidTest/debug">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/source/buildConfig/androidTest/debug" isTestSource="true" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/source/buildConfig/debug">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/sign_in_with_apple/generated/source/buildConfig/debug" isTestSource="false" generated="true" />
+    </content>
+    <content url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android">
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/debug/res" type="java-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/debug/resources" type="java-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/debug/assets" type="java-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/debug/aidl" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/debug/java" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/debug/rs" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/debug/shaders" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTestDebug/res" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTestDebug/resources" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTestDebug/assets" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTestDebug/aidl" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTestDebug/java" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTestDebug/rs" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTestDebug/shaders" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/testDebug/res" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/testDebug/resources" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/testDebug/assets" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/testDebug/aidl" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/testDebug/java" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/testDebug/rs" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/testDebug/shaders" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/main/res" type="java-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/main/assets" type="java-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/main/aidl" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/main/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/main/rs" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/main/shaders" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTest/res" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTest/resources" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTest/assets" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTest/aidl" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTest/java" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTest/rs" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/androidTest/shaders" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/test/res" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/test/resources" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/test/assets" type="java-test-resource" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/test/aidl" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/test/rs" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sign_in_with_apple-2.5.4/android/src/test/shaders" isTestSource="true" />
+    </content>
+    <orderEntry type="jdk" jdkName="Android API 28 Platform" jdkType="Android SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Gradle: io.flutter:flutter_embedding_debug:1.0.0-1d12d82d9cb54876f58044aa52198d53ec841c3d@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-common-java8:2.2.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-common:2.2.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.arch.core:core-common:2.1.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.collection:collection:1.1.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.annotation:annotation:1.1.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.50@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.3.50@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.3.50@jar" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.guava:listenablefuture:1.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.browser:browser:1.2.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.fragment:fragment:1.1.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.viewpager:viewpager:1.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.loader:loader:1.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.activity:activity:1.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.customview:customview:1.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.core:core:1.1.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-runtime:2.2.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.savedstate:savedstate:1.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-livedata:2.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-livedata-core:2.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.arch.core:core-runtime:2.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.versionedparcelable:versionedparcelable:1.1.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-viewmodel:2.1.0@aar" level="project" />
+  </component>
+</module>

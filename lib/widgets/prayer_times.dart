@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,73 +35,7 @@ class PrayerTimesState extends State<PrayerTimes> {
     return prayerTimes != null
         ? SizedBox(
             height: 210.0,
-            child: Swiper(
-              itemBuilder: (BuildContext context, int index) {
-                var indexTimes = prayerTimes[index]['timings'];
-                var hijriObj = prayerTimes[index]['date']['hijri'];
-                String hijriDay = hijriObj['day'] +
-                    " " +
-                    hijriObj['month']['en'] +
-                    " " +
-                    hijriObj['year'];
-                return Card(
-                  color: Colors.brown[100],
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Center(
-                          child: Text(
-                            prayerTimes[index]['date']['readable'] +
-                                " / " +
-                                hijriDay,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Divider(),
-                        Flexible(
-                          fit: FlexFit.loose,
-                          child: ListView.builder(
-                            itemCount: indexTimes.length,
-                            itemBuilder: (BuildContext context, int i) {
-                              String key = indexTimes.keys.elementAt(i);
-                              if (key == "Asr" ||
-                                  key == "Isha" ||
-                                  key == "Imsak") return Container();
-                              return Column(
-                                children: <Widget>[
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Text("$key"),
-                                      Text(
-                                        "${indexTimes[key].substring(0, 6)}",
-                                      ),
-                                    ],
-                                  ),
-                                  Divider(),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-              scrollDirection: Axis.horizontal,
-              itemCount: prayerTimes.length,
-              index: ind,
-              viewportFraction: 0.8,
-              scale: 0.9,
-              loop: false,
-            ),
+            child: Container(),
           )
         : Container();
   }
