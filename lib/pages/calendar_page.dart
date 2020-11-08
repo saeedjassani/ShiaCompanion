@@ -53,7 +53,7 @@ class _CalendarPageState extends State<CalendarPage> {
     eventString = _today.toFormat("dd MMMM, yyyy");
     var w = eventsMap[getStringFromDate(_today)];
     if (w != null) eventString += "\n\n" + w['content'];
-    setState(() {});
+    if (this.mounted) setState(() {});
   }
 
   _scrollToEnd() async {

@@ -30,6 +30,8 @@ dependencies:
   package_info: ^0.4.3
   apple_sign_in: ^0.1.0
   webfeed: ^0.6.0
+  yaml: ^2.2.1
+  flutter_markdown: ^0.5.0
 
 dev_dependencies:
   flutter_test:

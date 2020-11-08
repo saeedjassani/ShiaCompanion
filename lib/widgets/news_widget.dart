@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shia_companion/data/live_streaming_data.dart';
-import 'package:shia_companion/pages/video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webfeed/domain/atom_feed.dart';
 import 'package:webfeed/domain/rss_feed.dart';
 import '../constants.dart';
 
@@ -35,9 +32,11 @@ class NewsWidgetState extends State<NewsWidget> {
               height: 300,
               child: ListView.separated(
                   separatorBuilder: (context, index) => Divider(),
-                  itemCount: 10,
+                  itemCount: widget.data.items.length,
                   itemBuilder: (c, i) {
                     return ListTile(
+                      // leading:
+                      //     Image.network(widget.data.items[i].media.text.value),
                       title: Text(widget.data.items[i].title),
                       subtitle: Text(widget.data.items[i].description),
                       onTap: () {
@@ -57,7 +56,7 @@ class NewsWidgetState extends State<NewsWidget> {
       await launch(url);
     } else {
       key.currentState.showSnackBar(new SnackBar(
-        content: new Text("No email app found"),
+        content: new Text("No web browser found"),
       ));
     }
   }
