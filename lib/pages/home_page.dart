@@ -18,7 +18,9 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/live_streaming.dart';
+import 'package:shia_companion/widgets/news_widget.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
+import 'package:webfeed/webfeed.dart';
 import 'list_items.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -42,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<LiveStreamingData> holyShrine, liveChannel;
 
   List prayerTimes;
+  var atomFeed;
 
   ThemeData themeData = ThemeData(
     canvasColor: Colors.brown,
@@ -174,6 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                   ),
+                  atomFeed != null ? NewsWidget(atomFeed) : Container(),
                   holyShrine != null ? LiveStreaming(holyShrine) : Container(),
                   liveChannel != null
                       ? LiveStreaming(liveChannel)
@@ -260,6 +264,12 @@ class _MyHomePageState extends State<MyHomePage> {
       List x = json.decode(response.body);
       liveChannel = List();
       x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
+    }
+
+    url = "https://en.abna24.com/rss";
+    response = await get(url);
+    if (response.statusCode == 200) {
+      atomFeed = RssFeed.parse(response.body); // for parsing Atom feed
     }
 
     user = _auth.currentUser;

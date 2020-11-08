@@ -29,6 +29,7 @@ dependencies:
   share: ^0.6.5
   package_info: ^0.4.3
   apple_sign_in: ^0.1.0
+  webfeed: ^0.6.0
 
 dev_dependencies:
   flutter_test:
