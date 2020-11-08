@@ -21,6 +21,7 @@ import 'package:shia_companion/widgets/live_streaming.dart';
 import 'package:shia_companion/widgets/news_widget.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:webfeed/webfeed.dart';
+import 'library_page.dart';
 import 'list_items.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -99,6 +100,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.white,
                 ),
                 label: "Calendar",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.library_books,
+                  color: Colors.white,
+                ),
+                label: "Library",
               ),
               BottomNavigationBarItem(
                 icon: Icon(
@@ -186,6 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             CalendarPage(scrollToPrayerTimes),
+            LibraryPage(),
             SettingsPage()
           ],
           controller: _pageController,
