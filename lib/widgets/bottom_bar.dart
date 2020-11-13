@@ -12,6 +12,7 @@ List<BottomNavigationBarItem> bottomBarItems = [
     icon: Icon(
       Icons.calendar_today,
       color: Colors.white,
+      key: ValueKey('calendar-icon'),
     ),
     label: "Calendar",
   ),
@@ -19,6 +20,7 @@ List<BottomNavigationBarItem> bottomBarItems = [
     icon: Icon(
       Icons.library_books,
       color: Colors.white,
+      key: ValueKey('library-icon'),
     ),
     label: "Library",
   ),
@@ -26,6 +28,7 @@ List<BottomNavigationBarItem> bottomBarItems = [
     icon: Icon(
       Icons.settings,
       color: Colors.white,
+      key: ValueKey('prefs-icon'),
     ),
     label: "Preferences",
   )
