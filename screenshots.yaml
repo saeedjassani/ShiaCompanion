@@ -6,3 +6,9 @@ devices:
     iPhone XS Max:
       frame: false
       orientation: Portrait
+    iPad Pro (12.9-inch) (3rd generation):
+      orientation: Portrait
+    iPhone 8 Plus:
+      frame: true
+      orientation: Portrait
+

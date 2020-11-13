@@ -385,7 +385,8 @@ class _MyHomePageState extends State<MyHomePage> {
     // show the dialog
     int bnFromPref = sharedPreferences.getInt('buildNumber') ?? 0;
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    if (int.parse(packageInfo.buildNumber) > bnFromPref) {
+    // Show What's New Dialog only when build number is greater or in release mode
+    if (int.parse(packageInfo.buildNumber) > bnFromPref && kReleaseMode) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
