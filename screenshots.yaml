@@ -1,0 +1,8 @@
+tests:
+  - test_driver/app.dart
+staging: /Users/builder/exported_artefacts
+devices:
+  ios:
+    iPhone XS Max:
+      frame: false
+      orientation: Portrait
