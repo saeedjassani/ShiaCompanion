@@ -17,6 +17,7 @@ import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
+import 'package:shia_companion/widgets/bottom_bar.dart';
 import 'package:shia_companion/widgets/live_streaming.dart';
 import 'package:shia_companion/widgets/news_widget.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
@@ -86,36 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
             selectedItemColor: Colors.white,
             onTap: navigationTapped, //
             currentIndex: _page, //
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
-                  color: Colors.white,
-                ),
-                label: "Home",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.calendar_today,
-                  color: Colors.white,
-                ),
-                label: "Calendar",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.library_books,
-                  color: Colors.white,
-                ),
-                label: "Library",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.settings,
-                  color: Colors.white,
-                ),
-                label: "Preferences",
-              )
-            ],
+            items: bottomBarItems,
           ),
         ),
         body: PageView(
@@ -247,36 +219,34 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // Initialize Item Data
-    String url;
     if (kReleaseMode) {
       String data =
           await DefaultAssetBundle.of(context).loadString("assets/zikr.json");
       items = json.decode(data);
     } else {
-      url = "https://alghazienterprises.com/sc/scripts/getItems.php";
-      var request = await get(url);
+      var request =
+          await get("https://alghazienterprises.com/sc/scripts/getItems.php");
       String loadString = request.body;
       items = json.decode(loadString);
     }
 
     // Initialize Holy Shrines Data
-    url = "https://alghazienterprises.com/sc/scripts/getHolyShrines.php";
-    var response = await get(url);
+    var response = await get(
+        "https://alghazienterprises.com/sc/scripts/getHolyShrines.php");
     if (response.statusCode == 200) {
       List x = json.decode(response.body);
       holyShrine = List();
       x.forEach((f) => holyShrine.add(LiveStreamingData.fromJson(f)));
     }
-    url = "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php";
-    response = await get(url);
+    response = await get(
+        "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php");
     if (response.statusCode == 200) {
       List x = json.decode(response.body);
       liveChannel = List();
       x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
     }
 
-    url = "https://en.abna24.com/rss";
-    response = await get(url);
+    response = await get("https://en.abna24.com/rss");
     if (response.statusCode == 200) {
       atomFeed = RssFeed.parse(response.body); // for parsing Atom feed
     }
