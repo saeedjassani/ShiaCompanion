@@ -112,36 +112,36 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: HomePrayerTimesCard(callback),
                   ),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: Card(
-                  //     child: ExpansionTile(
-                  //       onExpansionChanged: (bool x) {
-                  //         if (user == null && x)
-                  //           key.currentState.showSnackBar(SnackBar(
-                  //             content:
-                  //                 Text("Please sign in to access favorites"),
-                  //           ));
-                  //       },
-                  //       title: Text("Favorites"),
-                  //       children: <Widget>[
-                  //         favsData != null
-                  //             ? SizedBox(
-                  //                 height: 300,
-                  //                 child: ListView.separated(
-                  //                   separatorBuilder:
-                  //                       (BuildContext context, int index) =>
-                  //                           Divider(),
-                  //                   itemCount:
-                  //                       favsData != null ? favsData.length : 0,
-                  //                   itemBuilder: (BuildContext c, int i) =>
-                  //                       buildZikrRow(c, favsData[i]),
-                  //                 ))
-                  //             : Container()
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: ExpansionTile(
+                        onExpansionChanged: (bool x) {
+                          if (user == null && x)
+                            key.currentState.showSnackBar(SnackBar(
+                              content:
+                                  Text("Please sign in to access favorites"),
+                            ));
+                        },
+                        title: Text("Favorites", key: ValueKey('hadith-text')),
+                        children: <Widget>[
+                          favsData != null
+                              ? SizedBox(
+                                  height: 300,
+                                  child: ListView.separated(
+                                    separatorBuilder:
+                                        (BuildContext context, int index) =>
+                                            Divider(),
+                                    itemCount:
+                                        favsData != null ? favsData.length : 0,
+                                    itemBuilder: (BuildContext c, int i) =>
+                                        buildZikrRow(c, favsData[i]),
+                                  ))
+                              : Container()
+                        ],
+                      ),
+                    ),
+                  ),
                   SizedBox(
                     height: 120,
                     width: screenWidth,
