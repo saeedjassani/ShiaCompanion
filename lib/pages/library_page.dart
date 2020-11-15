@@ -35,7 +35,10 @@ class _LibraryPageState extends State<LibraryPage> {
     return ListView.separated(
         shrinkWrap: true,
         itemBuilder: (context, index) => ListTile(
-              title: Text(books[index].title),
+              title: Text(
+                books[index].title,
+                key: ValueKey("lib-key-$index"),
+              ),
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(

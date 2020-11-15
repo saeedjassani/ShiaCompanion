@@ -65,7 +65,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    getHadith();
     setupPreferences();
     _pageController = PageController(initialPage: 0);
   }
@@ -269,7 +268,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
-    setState(() {});
+    getHadith();
   }
 
   Future selectNotification(String payload) async {
@@ -282,7 +281,8 @@ class _MyHomePageState extends State<MyHomePage> {
   // 0 - 2340 General
   // 2341 - 2375 Muharram
   getHadith() async {
-    HijriCalendar _today = HijriCalendar.now();
+    HijriCalendar _today =
+        HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
     Random rnd = Random();
     int min = 0, max = 2341;
     if (_today.hMonth < 2 || (_today.hMonth == 2 && _today.hDay < 9)) {

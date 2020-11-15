@@ -41,6 +41,7 @@ class _LiveStreamingState extends State<LiveStreaming> {
                           builder: (context) => VideoPlayer(data[i])));
                 },
                 child: Container(
+                  key: ValueKey(data[i].title),
                   margin: EdgeInsets.all(6.0),
                   padding: EdgeInsets.only(
                     left: 2.0,

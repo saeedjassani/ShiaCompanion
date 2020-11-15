@@ -18,22 +18,21 @@ void main() {
       },
     );
     test('Increment counter', () async {
-      await driver.waitUntilNoTransientCallbacks();
+      await driver.waitFor(find.byValueKey("Mecca"));
       await screenshot(driver, config, 'home-page');
       expect(await driver.getText(textFinder), "Favorites");
 
       await driver.tap(calIcon);
-      await driver.waitUntilNoTransientCallbacks();
+      await driver.waitFor(find.byValueKey("cal-key"));
       await screenshot(driver, config, 'cal-page');
 
       await driver.tap(libIcon);
-      await driver.waitUntilNoTransientCallbacks();
+      await driver.waitFor(find.byValueKey("lib-key-0"));
       await screenshot(driver, config, 'lib-page');
 
       await driver.tap(prefIcon);
-      await driver.waitUntilNoTransientCallbacks();
       await screenshot(driver, config, 'pref-page');
-    });
+    }, timeout: Timeout.none);
     tearDownAll(() {
       if (driver != null) {
         driver.close();

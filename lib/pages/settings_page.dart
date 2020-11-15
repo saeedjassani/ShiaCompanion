@@ -132,22 +132,42 @@ class _SettingsPageState extends State<SettingsPage> {
 
   adjustHijriAlertDialog(BuildContext context) {
     List<Widget> options = [];
-    List<int> ints = [-3, -2, -1, 1, 2, 3];
+    List<int> ints = [-3, -2, -1, 0, 1, 2, 3];
+    int cur = sharedPreferences.getInt('adjust_hijri_date') ?? 0;
+    if (cur > 3 || cur < -3) {
+      cur = 0;
+    }
 
     for (int i = 0, n = ints.length; i < n; i++) {
       String option = "Adjust Hijri Date by ${ints[i]} days";
 
       options.add(SimpleDialogOption(
-        child: Text(option),
-        onPressed: () {
-          hijriDate += ints[i];
-          saveHijriDate();
-          Navigator.pop(context);
-        },
+        child: InkWell(
+          onTap: () {
+            hijriDate = ints[i];
+            saveHijriDate();
+            Navigator.pop(context);
+          },
+          child: Row(
+            children: [
+              Radio(
+                value: ints[i],
+                groupValue: cur,
+                onChanged: (int i) {
+                  hijriDate = i;
+                  saveHijriDate();
+                  Navigator.pop(context);
+                },
+              ),
+              Text(option)
+            ],
+          ),
+        ),
       ));
     }
 
     SimpleDialog dialog = SimpleDialog(
+      title: Text("Adjust Hijri Date"),
       children: options,
     );
     showDialog(
