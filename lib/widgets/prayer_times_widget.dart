@@ -19,7 +19,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   @override
   Widget build(BuildContext context) {
     DateTime currentTime = DateTime.now();
-    HijriCalendar _today = HijriCalendar.fromDate(DateTime.now());
+    HijriCalendar _today =
+        HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
     PrayerTime prayerTime = getPrayerTimeObject();
 
     List<String> _prayerTimes = currentLocation != null
@@ -78,7 +79,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                               SizedBox(
                                 height: 4,
                               ),
-                              Text(_prayerTimes[4]),
+                              Text(_prayerTimes[5]),
                             ],
                           ),
                         ],

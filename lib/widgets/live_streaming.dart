@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
+import 'package:shia_companion/pages/chewie_video_player.dart';
 import 'package:shia_companion/pages/video_player.dart';
 import '../constants.dart';
 
@@ -41,6 +42,7 @@ class _LiveStreamingState extends State<LiveStreaming> {
                           builder: (context) => VideoPlayer(data[i])));
                 },
                 child: Container(
+                  key: ValueKey(data[i].title),
                   margin: EdgeInsets.all(6.0),
                   padding: EdgeInsets.only(
                     left: 2.0,

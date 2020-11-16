@@ -1,14 +1,14 @@
 import 'dart:io';
-
 import 'package:apple_sign_in/apple_sign_in.dart';
+import 'package:apple_sign_in/apple_sign_in_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart' as authButton;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import 'about_page.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage();
@@ -100,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
             value: showTransliteration,
           ),
-          Divider(),
+          // Divider(),
           // user != null
           //     ? ListTile(
           //         leading: new Icon(Icons.power_settings_new),
@@ -132,22 +132,42 @@ class _SettingsPageState extends State<SettingsPage> {
 
   adjustHijriAlertDialog(BuildContext context) {
     List<Widget> options = [];
-    List<int> ints = [-3, -2, -1, 1, 2, 3];
+    List<int> ints = [-3, -2, -1, 0, 1, 2, 3];
+    int cur = sharedPreferences.getInt('adjust_hijri_date') ?? 0;
+    if (cur > 3 || cur < -3) {
+      cur = 0;
+    }
 
     for (int i = 0, n = ints.length; i < n; i++) {
       String option = "Adjust Hijri Date by ${ints[i]} days";
 
       options.add(SimpleDialogOption(
-        child: Text(option),
-        onPressed: () {
-          hijriDate += ints[i];
-          saveHijriDate();
-          Navigator.pop(context);
-        },
+        child: InkWell(
+          onTap: () {
+            hijriDate = ints[i];
+            saveHijriDate();
+            Navigator.pop(context);
+          },
+          child: Row(
+            children: [
+              Radio(
+                value: ints[i],
+                groupValue: cur,
+                onChanged: (int i) {
+                  hijriDate = i;
+                  saveHijriDate();
+                  Navigator.pop(context);
+                },
+              ),
+              Text(option)
+            ],
+          ),
+        ),
       ));
     }
 
     SimpleDialog dialog = SimpleDialog(
+      title: Text("Adjust Hijri Date"),
       children: options,
     );
     showDialog(
@@ -198,76 +218,76 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  void _signInWithGoogle() async {
-    try {
-      User firebaseUser = _auth.currentUser;
-      if (firebaseUser == null) {
-        final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
-        final AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-        final UserCredential authResult =
-            await _auth.signInWithCredential(credential);
-        setState(() {
-          user = authResult.user;
-        });
-      } else {
-        logOff();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-      key.currentState.showSnackBar(new SnackBar(
-        content: new Text("Some error occured, please contact support"),
-      ));
-    }
-  }
+  // void _signInWithGoogle() async {
+  //   try {
+  //     User firebaseUser = _auth.currentUser;
+  //     if (firebaseUser == null) {
+  //       final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+  //       final GoogleSignInAuthentication googleAuth =
+  //           await googleUser.authentication;
+  //       final AuthCredential credential = GoogleAuthProvider.credential(
+  //         accessToken: googleAuth.accessToken,
+  //         idToken: googleAuth.idToken,
+  //       );
+  //       final UserCredential authResult =
+  //           await _auth.signInWithCredential(credential);
+  //       setState(() {
+  //         user = authResult.user;
+  //       });
+  //     } else {
+  //       logOff();
+  //     }
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //     key.currentState.showSnackBar(new SnackBar(
+  //       content: new Text("Some error occured, please contact support"),
+  //     ));
+  //   }
+  // }
 
-  void _signInWithApple() async {
-    try {
-      User firebaseUser = _auth.currentUser;
-      if (firebaseUser == null) {
-        final AuthorizationResult appleResult =
-            await AppleSignIn.performRequests(
-                [AppleIdRequest(requestedScopes: [])]);
+  // void _signInWithApple() async {
+  //   try {
+  //     User firebaseUser = _auth.currentUser;
+  //     if (firebaseUser == null) {
+  //       final AuthorizationResult appleResult =
+  //           await AppleSignIn.performRequests(
+  //               [AppleIdRequest(requestedScopes: [])]);
 
-        switch (appleResult.status) {
-          case AuthorizationStatus.authorized:
-            final AuthCredential credential =
-                OAuthProvider('apple.com').credential(
-              accessToken: String.fromCharCodes(
-                  appleResult.credential.authorizationCode),
-              idToken:
-                  String.fromCharCodes(appleResult.credential.identityToken),
-            );
+  //       switch (appleResult.status) {
+  //         case AuthorizationStatus.authorized:
+  //           final AuthCredential credential =
+  //               OAuthProvider('apple.com').credential(
+  //             accessToken: String.fromCharCodes(
+  //                 appleResult.credential.authorizationCode),
+  //             idToken:
+  //                 String.fromCharCodes(appleResult.credential.identityToken),
+  //           );
 
-            UserCredential authResult =
-                await _auth.signInWithCredential(credential);
-            // setState(() {
-            user = authResult.user;
-            // });
-            break;
+  //           UserCredential authResult =
+  //               await _auth.signInWithCredential(credential);
+  //           // setState(() {
+  //           user = authResult.user;
+  //           // });
+  //           break;
 
-          case AuthorizationStatus.error:
-            debugPrint(
-                "Sign in failed: ${appleResult.error.localizedDescription}");
-            key.currentState.showSnackBar(new SnackBar(
-              content: new Text("Apple Sign-In Failed"),
-            ));
-            break;
+  //         case AuthorizationStatus.error:
+  //           debugPrint(
+  //               "Sign in failed: ${appleResult.error.localizedDescription}");
+  //           key.currentState.showSnackBar(new SnackBar(
+  //             content: new Text("Apple Sign-In Failed"),
+  //           ));
+  //           break;
 
-          case AuthorizationStatus.cancelled:
-            debugPrint('User cancelled apple sign-in');
-            break;
-        }
-      } else {
-        logOff();
-      }
-    } catch (error) {
-      debugPrint(error);
-      return null;
-    }
-  }
+  //         case AuthorizationStatus.cancelled:
+  //           debugPrint('User cancelled apple sign-in');
+  //           break;
+  //       }
+  //     } else {
+  //       logOff();
+  //     }
+  //   } catch (error) {
+  //     debugPrint(error);
+  //     return null;
+  //   }
+  // }
 }

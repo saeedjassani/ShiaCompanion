@@ -48,12 +48,12 @@ class _CalendarPageState extends State<CalendarPage> {
 
     eventsMap = json.decode(events);
 
-    DateTime now = DateTime.now();
+    DateTime now = DateTime.now().add(Duration(days: hijriDate));
     HijriCalendar _today = HijriCalendar.fromDate(now);
     eventString = _today.toFormat("dd MMMM, yyyy");
     var w = eventsMap[getStringFromDate(_today)];
     if (w != null) eventString += "\n\n" + w['content'];
-    setState(() {});
+    if (this.mounted) setState(() {});
   }
 
   _scrollToEnd() async {
@@ -83,8 +83,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   titleTextStyle: TextStyle(fontSize: 14),
                   titleTextBuilder: (date, locale) {
                     String month1;
-                    HijriCalendar newDate =
-                        HijriCalendar.fromDate(date.add(Duration()));
+                    HijriCalendar newDate = HijriCalendar.fromDate(
+                        date.add(Duration(days: hijriDate)));
                     month1 = formatDate(date, [M, ", ", yyyy]) +
                         " / " +
                         newDate.toFormat("MMMM, yyyy");
@@ -94,8 +94,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   centerHeaderTitle: true),
               builders: CalendarBuilders(
                 dayBuilder: (context, day, events) {
-                  HijriCalendar hDate =
-                      HijriCalendar.fromDate(day.add(Duration()));
+                  HijriCalendar hDate = HijriCalendar.fromDate(
+                      day.add(Duration(days: hijriDate)));
 
                   String tmpDate = getStringFromDate(hDate);
                   Color dayColor = Colors.transparent;
@@ -157,6 +157,7 @@ class _CalendarPageState extends State<CalendarPage> {
             padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
             child: Text(
               eventString,
+              key: ValueKey("cal-key"),
               textAlign: TextAlign.center,
             ),
           ),
