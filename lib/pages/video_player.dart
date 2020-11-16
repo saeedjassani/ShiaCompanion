@@ -37,7 +37,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                 )
               : null,
           body: WebviewScaffold(
-            url: widget.url.link.replaceAll("http:", "https:"),
+            url: widget.url.link,
           ));
     } else {
       return Scaffold(

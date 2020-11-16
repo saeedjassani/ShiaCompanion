@@ -111,36 +111,36 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: HomePrayerTimesCard(callback),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      child: ExpansionTile(
-                        onExpansionChanged: (bool x) {
-                          if (user == null && x)
-                            key.currentState.showSnackBar(SnackBar(
-                              content:
-                                  Text("Please sign in to access favorites"),
-                            ));
-                        },
-                        title: Text("Favorites", key: ValueKey('hadith-text')),
-                        children: <Widget>[
-                          favsData != null
-                              ? SizedBox(
-                                  height: 300,
-                                  child: ListView.separated(
-                                    separatorBuilder:
-                                        (BuildContext context, int index) =>
-                                            Divider(),
-                                    itemCount:
-                                        favsData != null ? favsData.length : 0,
-                                    itemBuilder: (BuildContext c, int i) =>
-                                        buildZikrRow(c, favsData[i]),
-                                  ))
-                              : Container()
-                        ],
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.all(8.0),
+                  //   child: Card(
+                  //     child: ExpansionTile(
+                  //       onExpansionChanged: (bool x) {
+                  //         if (user == null && x)
+                  //           key.currentState.showSnackBar(SnackBar(
+                  //             content:
+                  //                 Text("Please sign in to access favorites"),
+                  //           ));
+                  //       },
+                  //       title: Text("Favorites", key: ValueKey('hadith-text')),
+                  //       children: <Widget>[
+                  //         favsData != null
+                  //             ? SizedBox(
+                  //                 height: 300,
+                  //                 child: ListView.separated(
+                  //                   separatorBuilder:
+                  //                       (BuildContext context, int index) =>
+                  //                           Divider(),
+                  //                   itemCount:
+                  //                       favsData != null ? favsData.length : 0,
+                  //                   itemBuilder: (BuildContext c, int i) =>
+                  //                       buildZikrRow(c, favsData[i]),
+                  //                 ))
+                  //             : Container()
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(
                     height: 120,
                     width: screenWidth,
@@ -184,10 +184,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void initializeData() async {
-    print("in initialize data");
     // Initialize LocationData
     await initializeLocation();
-    print("go loaction");
 
     if (!kIsWeb) {
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -219,7 +217,6 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
-    print("done with noftif");
     // Initialize Item Data
     if (kReleaseMode) {
       String data =
@@ -232,7 +229,6 @@ class _MyHomePageState extends State<MyHomePage> {
       items = json.decode(loadString);
     }
 
-    print("done wtih items");
     // Initialize Holy Shrines Data
     var response = await get(
         "https://alghazienterprises.com/sc/scripts/getHolyShrines.php");
@@ -249,13 +245,11 @@ class _MyHomePageState extends State<MyHomePage> {
       x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
     }
 
-    print("donw tih live strea");
     response = await get("https://en.abna24.com/rss");
     if (response.statusCode == 200) {
       atomFeed = RssFeed.parse(response.body); // for parsing Atom feed
     }
 
-    print("donw ite news");
     user = _auth.currentUser;
     // If user is logged in, initialize favorites
     if (user != null) {
@@ -274,7 +268,6 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
-    print("about to get hadtih");
     getHadith();
   }
 
