@@ -79,7 +79,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                               SizedBox(
                                 height: 4,
                               ),
-                              Text(_prayerTimes[4]),
+                              Text(_prayerTimes[5]),
                             ],
                           ),
                         ],

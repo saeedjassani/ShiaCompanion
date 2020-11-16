@@ -4,18 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
+import 'package:video_player/video_player.dart';
 
-class VideoPlayer extends StatefulWidget {
+class CVideoPlayer extends StatefulWidget {
   final LiveStreamingData url;
 
-  VideoPlayer(this.url);
+  CVideoPlayer(this.url);
 
   @override
-  _VideoPlayerState createState() => new _VideoPlayerState();
+  _CVideoPlayerState createState() => new _CVideoPlayerState();
 }
 
-class _VideoPlayerState extends State<VideoPlayer> {
-  _VideoPlayerState();
+class _CVideoPlayerState extends State<CVideoPlayer> {
+  _CVideoPlayerState();
+  VideoPlayerController _controller;
 
   @override
   void initState() {
@@ -24,6 +26,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+    _controller = VideoPlayerController.network(
+        widget.url.link.replaceAll("http:", "https:"))
+      ..initialize().then((_) {
+        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+        setState(() {});
+      });
   }
 
   @override
@@ -36,8 +44,25 @@ class _VideoPlayerState extends State<VideoPlayer> {
                   title: Text(widget.url.title),
                 )
               : null,
-          body: WebviewScaffold(
-            url: widget.url.link.replaceAll("http:", "https:"),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                _controller.value.isPlaying
+                    ? _controller.pause()
+                    : _controller.play();
+              });
+            },
+            child: Icon(
+              _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+            ),
+          ),
+          body: Center(
+            child: _controller.value.initialized
+                ? AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: VideoPlayer(_controller),
+                  )
+                : Container(),
           ));
     } else {
       return Scaffold(
@@ -60,6 +85,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    _controller.dispose();
     super.dispose();
   }
 }
