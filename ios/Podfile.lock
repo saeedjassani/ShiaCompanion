@@ -73,8 +73,6 @@ PODS:
   - Flutter (1.0.0)
   - flutter_local_notifications (0.0.1):
     - Flutter
-  - flutter_native_timezone (0.0.1):
-    - Flutter
   - flutter_webview_plugin (0.0.1):
     - Flutter
   - google_sign_in (0.0.1):
@@ -130,6 +128,10 @@ PODS:
     - Flutter
   - url_launcher (0.0.1):
     - Flutter
+  - video_player (0.0.1):
+    - Flutter
+  - wakelock (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - apple_sign_in (from `.symlinks/plugins/apple_sign_in/ios`)
@@ -139,7 +141,6 @@ DEPENDENCIES:
   - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
-  - flutter_native_timezone (from `.symlinks/plugins/flutter_native_timezone/ios`)
   - flutter_webview_plugin (from `.symlinks/plugins/flutter_webview_plugin/ios`)
   - google_sign_in (from `.symlinks/plugins/google_sign_in/ios`)
   - location (from `.symlinks/plugins/location/ios`)
@@ -147,6 +148,8 @@ DEPENDENCIES:
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
+  - video_player (from `.symlinks/plugins/video_player/ios`)
+  - wakelock (from `.symlinks/plugins/wakelock/ios`)
 
 SPEC REPOS:
   trunk:
@@ -186,8 +189,6 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
-  flutter_native_timezone:
-    :path: ".symlinks/plugins/flutter_native_timezone/ios"
   flutter_webview_plugin:
     :path: ".symlinks/plugins/flutter_webview_plugin/ios"
   google_sign_in:
@@ -202,6 +203,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences/ios"
   url_launcher:
     :path: ".symlinks/plugins/url_launcher/ios"
+  video_player:
+    :path: ".symlinks/plugins/video_player/ios"
+  wakelock:
+    :path: ".symlinks/plugins/wakelock/ios"
 
 SPEC CHECKSUMS:
   AppAuth: 31bcec809a638d7bd2f86ea8a52bd45f6e81e7c7
@@ -222,7 +227,6 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 6f5f680e65dc374397a483c32d1799ba822a395b
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_local_notifications: 9e4738ce2471c5af910d961a6b7eadcf57c50186
-  flutter_native_timezone: e72ff1900460ff57cfd331d1758050c9269f3e99
   flutter_webview_plugin: ed9e8a6a96baf0c867e90e1bce2673913eeac694
   google_sign_in: 6bd214b9c154f881422f5fe27b66aaa7bbd580cc
   GoogleDataTransport: 9a8a16f79feffc7f42096743de2a7c4815e84020
@@ -239,7 +243,9 @@ SPEC CHECKSUMS:
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
+  video_player: 9cc823b1d9da7e8427ee591e8438bfbcde500e6e
+  wakelock: bfc7955c418d0db797614075aabbc58a39ab5107
 
 PODFILE CHECKSUM: 8e679eca47255a8ca8067c4c67aab20e64cb974d
 
-COCOAPODS: 1.9.2
+COCOAPODS: 1.10.0
