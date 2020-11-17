@@ -27,6 +27,7 @@ class _LibraryPageState extends State<LibraryPage> {
     for (var t in temp) {
       books.add(UidTitleData(t['slug'], t['title']));
     }
+    if (this.mounted)
     setState(() {});
   }
 

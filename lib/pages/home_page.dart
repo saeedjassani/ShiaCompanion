@@ -322,7 +322,7 @@ class _MyHomePageState extends State<MyHomePage> {
       sharedPreferences.setBool('isha_notification', false);
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => showAlertDialog());
+    // WidgetsBinding.instance.addPostFrameCallback((_) => showAlertDialog());
     initializeData();
   }
 
