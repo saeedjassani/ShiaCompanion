@@ -102,6 +102,7 @@ initializeLocation() async {
     currentLocation = await Location().getLocation();
   } catch (e) {
     currentLocation = null;
+    debugPrint(e);
   }
 }
 
