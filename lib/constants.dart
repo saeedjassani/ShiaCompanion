@@ -3,16 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:webfeed/webfeed.dart';
 
+import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
+import 'pages/chapter_list_page.dart';
 import 'pages/item_page.dart';
 import 'pages/list_items.dart';
+import 'pages/video_player.dart';
 
 double screenWidth = 0;
 double screenHeight = 0;
 
 User user;
+
+List<UniversalData> favsData;
 
 final String appName = "Shia Companion";
 int hijriDate = 0;
@@ -95,6 +102,33 @@ ListTile buildZikrRow(BuildContext context, UidTitleData itemData) {
     },
     title: Text(itemData.title),
   );
+}
+
+void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
+  switch (itemData.type) {
+    case 0:
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ItemPage(UidTitleData(itemData.uid, itemData.title))));
+      break;
+    case 1:
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ChapterListPage(itemData.uid, itemData.title)));
+      break;
+    case 2:
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => VideoPlayer(
+                  LiveStreamingData(itemData.uid, itemData.title, null))));
+      break;
+    default:
+  }
 }
 
 initializeLocation() async {
@@ -200,3 +234,6 @@ void schedulePrayerTimeNotification(
     await flutterLocalNotificationsPlugin.cancel(id);
   }
 }
+
+// Things Loaded in Splash Screen
+RssFeed atomFeed;
