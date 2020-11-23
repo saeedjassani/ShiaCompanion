@@ -54,13 +54,14 @@ class _ItemPageState extends State<ItemPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (itemData != null) content = generateCodeAndStrings1(itemData['data']);
+    if (itemData != null && itemData['data'] != null)
+      content = generateCodeAndStrings1(itemData['data']);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(item.title),
       ),
-      body: itemData != null
+      body: content != null
           ? Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListView.builder(

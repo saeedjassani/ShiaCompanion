@@ -15,7 +15,9 @@ import 'package:shia_companion/constants.dart';
 import 'package:http/http.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
+import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/bottom_bar.dart';
 import 'package:shia_companion/widgets/live_streaming.dart';
@@ -41,12 +43,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Location location = Location();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  DatabaseReference favsReference;
 
-  List<UidTitleData> favsData;
   List<LiveStreamingData> holyShrine, liveChannel;
 
   List prayerTimes;
-  var atomFeed;
 
   ThemeData themeData = ThemeData(
     canvasColor: Colors.brown,
@@ -111,36 +112,62 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: HomePrayerTimesCard(callback),
                   ),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: Card(
-                  //     child: ExpansionTile(
-                  //       onExpansionChanged: (bool x) {
-                  //         if (user == null && x)
-                  //           key.currentState.showSnackBar(SnackBar(
-                  //             content:
-                  //                 Text("Please sign in to access favorites"),
-                  //           ));
-                  //       },
-                  //       title: Text("Favorites", key: ValueKey('hadith-text')),
-                  //       children: <Widget>[
-                  //         favsData != null
-                  //             ? SizedBox(
-                  //                 height: 300,
-                  //                 child: ListView.separated(
-                  //                   separatorBuilder:
-                  //                       (BuildContext context, int index) =>
-                  //                           Divider(),
-                  //                   itemCount:
-                  //                       favsData != null ? favsData.length : 0,
-                  //                   itemBuilder: (BuildContext c, int i) =>
-                  //                       buildZikrRow(c, favsData[i]),
-                  //                 ))
-                  //             : Container()
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: ExpansionTile(
+                        onExpansionChanged: (bool x) {
+                          if (user == null && x)
+                            key.currentState.showSnackBar(SnackBar(
+                              content:
+                                  Text("Please sign in to access favorites"),
+                            ));
+                        },
+                        title: Text("Favorites", key: ValueKey('hadith-text')),
+                        children: <Widget>[
+                          favsData != null
+                              ? SizedBox(
+                                  height: 300,
+                                  child: ListView.separated(
+                                      separatorBuilder:
+                                          (BuildContext context, int index) =>
+                                              Divider(),
+                                      itemCount: favsData != null
+                                          ? favsData.length
+                                          : 0,
+                                      itemBuilder: (BuildContext c, int i) {
+                                        UniversalData itemData = favsData[i];
+                                        return ListTile(
+                                            onTap: () =>
+                                                handleUniversalDataClick(
+                                                    context, itemData),
+                                            title: Text(itemData.title),
+                                            trailing: InkWell(
+                                                onTap: () {
+                                                  favsData.contains(itemData)
+                                                      ? favsData
+                                                          .remove(itemData)
+                                                      : favsData.add(itemData);
+                                                  setState(() {});
+                                                },
+                                                child: favsData
+                                                        .contains(itemData)
+                                                    ? Icon(
+                                                        Icons.star,
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                      )
+                                                    : Icon(
+                                                        Icons.star_border,
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                      )));
+                                      }))
+                              : Container()
+                        ],
+                      ),
+                    ),
+                  ),
                   SizedBox(
                     height: 120,
                     width: screenWidth,
@@ -157,10 +184,61 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   atomFeed != null ? NewsWidget(atomFeed) : Container(),
-                  holyShrine != null ? LiveStreaming(holyShrine) : Container(),
-                  liveChannel != null
-                      ? LiveStreaming(liveChannel)
-                      : Container(),
+                  Card(
+                    color: Colors.brown[50],
+                    child: InkWell(
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LiveStreamingPage(0))),
+                        child: Padding(
+                          padding: const EdgeInsets.all(36.0),
+                          child: Text(
+                            "Latest Shia News",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        )),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Card(
+                        color: Colors.brown[50],
+                        child: InkWell(
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        LiveStreamingPage(0))),
+                            child: Padding(
+                              padding: const EdgeInsets.all(36.0),
+                              child: Text(
+                                "HOLY\n\nSHRINES",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            )),
+                      ),
+                      Card(
+                        color: Colors.brown[50],
+                        child: InkWell(
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        LiveStreamingPage(1))),
+                            child: Padding(
+                              padding: const EdgeInsets.all(36.0),
+                              child: Text(
+                                "ISLAMIC\n\nCHANNELS",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            )),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -230,40 +308,42 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // Initialize Holy Shrines Data
-    var response = await get(
-        "https://alghazienterprises.com/sc/scripts/getHolyShrines.php");
-    if (response.statusCode == 200) {
-      List x = json.decode(response.body);
-      holyShrine = List();
-      x.forEach((f) => holyShrine.add(LiveStreamingData.fromJson(f)));
-    }
-    response = await get(
-        "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php");
-    if (response.statusCode == 200) {
-      List x = json.decode(response.body);
-      liveChannel = List();
-      x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
-    }
-
-    response = await get("https://en.abna24.com/rss");
-    if (response.statusCode == 200) {
-      atomFeed = RssFeed.parse(response.body); // for parsing Atom feed
-    }
+    // var response = await get(
+    //     "https://alghazienterprises.com/sc/scripts/getHolyShrines.php");
+    // if (response.statusCode == 200) {
+    //   List x = json.decode(response.body);
+    //   holyShrine = List();
+    //   x.forEach((f) => holyShrine.add(LiveStreamingData.fromJson(f)));
+    // }
+    // response = await get(
+    //     "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php");
+    // if (response.statusCode == 200) {
+    //   List x = json.decode(response.body);
+    //   liveChannel = List();
+    //   x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
+    // }
 
     user = _auth.currentUser;
     // If user is logged in, initialize favorites
     if (user != null) {
       favsData = [];
-      DatabaseReference tasksReference = FirebaseDatabase.instance
+
+      DatabaseReference newFavsReference = FirebaseDatabase.instance
           .reference()
           .child('new_favs')
           .child(user.uid);
-      DataSnapshot snapshot = await tasksReference.once();
-      List values = json.decode(snapshot.value);
+      List values = json.decode((await newFavsReference.once()).value);
+
       for (var obj in values) {
-        // TODO Fix startsWithKey - Example: G17 should show when G17|L4 is present
-        if (items.containsKey(obj["uid"])) {
-          favsData.add(UidTitleData(obj["uid"], obj["title"]));
+        // Fix startsWithKey - Example: G17 should show when G17|L4 is present
+        // The above issue cannot be fixed. Instead, always the primary UID should be saved (L4 in the case above)
+        // TODO If type == 0 and items doen't contain UID remove it.
+        if (items.containsKey(obj["uid"]) && obj['type'] == 0) {
+          // Add Type 0 (Zikr) data only when it exists
+          favsData.add(UniversalData(obj["uid"], obj["title"], obj['type']));
+        } else {
+          // Library Data is already imported
+          favsData.add(UniversalData(obj["uid"], obj["title"], obj['type']));
         }
       }
     }
@@ -396,5 +476,11 @@ class _MyHomePageState extends State<MyHomePage> {
       await sharedPreferences.setInt(
           'buildNumber', int.parse(packageInfo.buildNumber));
     }
+  }
+
+  @override
+  void dispose() {
+    print("dispose was called");
+    super.dispose();
   }
 }

@@ -100,31 +100,31 @@ class _SettingsPageState extends State<SettingsPage> {
             },
             value: showTransliteration,
           ),
-          // Divider(),
-          // user != null
-          //     ? ListTile(
-          //         leading: new Icon(Icons.power_settings_new),
-          //         title: new Text("Logout"),
-          //         onTap: () {
-          //           logOff();
-          //         },
-          //       )
-          //     : Column(
-          //         children: [
-          //           authButton.GoogleSignInButton(
-          //             onPressed: () {
-          //               _signInWithGoogle();
-          //             },
-          //           ),
-          //           Platform.isIOS
-          //               ? AppleSignInButton(
-          //                   onPressed: () async {
-          //                     _signInWithApple();
-          //                   },
-          //                 )
-          //               : Container(),
-          //         ],
-          //       ),
+          Divider(),
+          user != null
+              ? ListTile(
+                  leading: new Icon(Icons.power_settings_new),
+                  title: new Text("Logout"),
+                  onTap: () {
+                    logOff();
+                  },
+                )
+              : Column(
+                  children: [
+                    authButton.GoogleSignInButton(
+                      onPressed: () {
+                        _signInWithGoogle();
+                      },
+                    ),
+                    Platform.isIOS
+                        ? authButton.AppleSignInButton(
+                            onPressed: () async {
+                              _signInWithApple();
+                            },
+                          )
+                        : Container(),
+                  ],
+                ),
         ],
       ),
     );
@@ -218,76 +218,82 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  // void _signInWithGoogle() async {
-  //   try {
-  //     User firebaseUser = _auth.currentUser;
-  //     if (firebaseUser == null) {
-  //       final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-  //       final GoogleSignInAuthentication googleAuth =
-  //           await googleUser.authentication;
-  //       final AuthCredential credential = GoogleAuthProvider.credential(
-  //         accessToken: googleAuth.accessToken,
-  //         idToken: googleAuth.idToken,
-  //       );
-  //       final UserCredential authResult =
-  //           await _auth.signInWithCredential(credential);
-  //       setState(() {
-  //         user = authResult.user;
-  //       });
-  //     } else {
-  //       logOff();
-  //     }
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //     key.currentState.showSnackBar(new SnackBar(
-  //       content: new Text("Some error occured, please contact support"),
-  //     ));
-  //   }
-  // }
+  void _signInWithGoogle() async {
+    try {
+      User firebaseUser = _auth.currentUser;
+      if (firebaseUser == null) {
+        final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        final UserCredential authResult =
+            await _auth.signInWithCredential(credential);
+        key.currentState.showSnackBar(new SnackBar(
+          content: new Text("Login Successful"),
+        ));
+        setState(() {
+          user = authResult.user;
+        });
+      } else {
+        logOff();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      key.currentState.showSnackBar(new SnackBar(
+        content: new Text("Some error occured, please contact support"),
+      ));
+    }
+  }
 
-  // void _signInWithApple() async {
-  //   try {
-  //     User firebaseUser = _auth.currentUser;
-  //     if (firebaseUser == null) {
-  //       final AuthorizationResult appleResult =
-  //           await AppleSignIn.performRequests(
-  //               [AppleIdRequest(requestedScopes: [])]);
+  void _signInWithApple() async {
+    try {
+      User firebaseUser = _auth.currentUser;
+      if (firebaseUser == null) {
+        final AuthorizationResult appleResult =
+            await AppleSignIn.performRequests(
+                [AppleIdRequest(requestedScopes: [])]);
 
-  //       switch (appleResult.status) {
-  //         case AuthorizationStatus.authorized:
-  //           final AuthCredential credential =
-  //               OAuthProvider('apple.com').credential(
-  //             accessToken: String.fromCharCodes(
-  //                 appleResult.credential.authorizationCode),
-  //             idToken:
-  //                 String.fromCharCodes(appleResult.credential.identityToken),
-  //           );
+        switch (appleResult.status) {
+          case AuthorizationStatus.authorized:
+            final AuthCredential credential =
+                OAuthProvider('apple.com').credential(
+              accessToken: String.fromCharCodes(
+                  appleResult.credential.authorizationCode),
+              idToken:
+                  String.fromCharCodes(appleResult.credential.identityToken),
+            );
 
-  //           UserCredential authResult =
-  //               await _auth.signInWithCredential(credential);
-  //           // setState(() {
-  //           user = authResult.user;
-  //           // });
-  //           break;
+            UserCredential authResult =
+                await _auth.signInWithCredential(credential);
+            key.currentState.showSnackBar(new SnackBar(
+              content: new Text("Login Successful"),
+            ));
+            setState(() {
+              user = authResult.user;
+            });
+            break;
 
-  //         case AuthorizationStatus.error:
-  //           debugPrint(
-  //               "Sign in failed: ${appleResult.error.localizedDescription}");
-  //           key.currentState.showSnackBar(new SnackBar(
-  //             content: new Text("Apple Sign-In Failed"),
-  //           ));
-  //           break;
+          case AuthorizationStatus.error:
+            debugPrint(
+                "Sign in failed: ${appleResult.error.localizedDescription}");
+            key.currentState.showSnackBar(new SnackBar(
+              content: new Text("Apple Sign-In Failed"),
+            ));
+            break;
 
-  //         case AuthorizationStatus.cancelled:
-  //           debugPrint('User cancelled apple sign-in');
-  //           break;
-  //       }
-  //     } else {
-  //       logOff();
-  //     }
-  //   } catch (error) {
-  //     debugPrint(error);
-  //     return null;
-  //   }
-  // }
+          case AuthorizationStatus.cancelled:
+            debugPrint('User cancelled apple sign-in');
+            break;
+        }
+      } else {
+        logOff();
+      }
+    } catch (error) {
+      debugPrint(error);
+      return null;
+    }
+  }
 }
