@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:webfeed/webfeed.dart';
 
@@ -12,6 +13,7 @@ import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
 import 'pages/item_page.dart';
 import 'pages/list_items.dart';
+import 'pages/news_page.dart';
 import 'pages/video_player.dart';
 
 double screenWidth = 0;
@@ -48,13 +50,18 @@ TextStyle boldText = TextStyle(fontWeight: FontWeight.bold);
 
 bool showTranslation = true, showTransliteration = true;
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-List<String> tableCode = [
-  "TR",
-  "F",
-  "E",
-  "G",
-  "A",
-  /*"C", "A", */ "H", /* "I", "B" */
+List tableCode = [
+  ItemList("TR"),
+  ItemList("F"),
+  ItemList("E"),
+  ItemList("G"),
+  ItemList("A"),
+  ItemList("H"),
+  // /*"C", "A", */ "H",
+  /* "I", "B" */
+  NewsPage(),
+  LiveStreamingPage(0),
+  LiveStreamingPage(1),
 ];
 
 List<String> zikr = [
@@ -67,6 +74,9 @@ List<String> zikr = [
   "Munajaats",
   // "Baaqeyaat As Saalehaat",
   // "Ziyarat of Hijaz, Iran & Iraq"
+  "Latest Shia News",
+  "Holy Shrines",
+  "Islamic Channels"
 ];
 
 List<String> zikrImages = [
@@ -234,6 +244,3 @@ void schedulePrayerTimeNotification(
     await flutterLocalNotificationsPlugin.cancel(id);
   }
 }
-
-// Things Loaded in Splash Screen
-RssFeed atomFeed;

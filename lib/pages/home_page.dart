@@ -14,18 +14,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:http/http.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
-import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/bottom_bar.dart';
-import 'package:shia_companion/widgets/live_streaming.dart';
-import 'package:shia_companion/widgets/news_widget.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
-import 'package:webfeed/webfeed.dart';
 import 'library_page.dart';
 import 'list_items.dart';
+import 'news_page.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -118,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: ExpansionTile(
                         onExpansionChanged: (bool x) {
                           if (user == null && x)
-                            key.currentState.showSnackBar(SnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content:
                                   Text("Please sign in to access favorites"),
                             ));
@@ -183,61 +180,32 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                   ),
-                  atomFeed != null ? NewsWidget(atomFeed) : Container(),
-                  Card(
-                    color: Colors.brown[50],
-                    child: InkWell(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LiveStreamingPage(0))),
-                        child: Padding(
-                          padding: const EdgeInsets.all(36.0),
-                          child: Text(
-                            "Latest Shia News",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        )),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Card(
-                        color: Colors.brown[50],
-                        child: InkWell(
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        LiveStreamingPage(0))),
-                            child: Padding(
-                              padding: const EdgeInsets.all(36.0),
-                              child: Text(
-                                "HOLY\n\nSHRINES",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            )),
-                      ),
-                      Card(
-                        color: Colors.brown[50],
-                        child: InkWell(
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        LiveStreamingPage(1))),
-                            child: Padding(
-                              padding: const EdgeInsets.all(36.0),
-                              child: Text(
-                                "ISLAMIC\n\nCHANNELS",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            )),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(), // new
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2),
+                      itemCount: tableCode.length,
+                      itemBuilder: (BuildContext c, int i) {
+                        return Card(
+                          color: Colors.brown[50],
+                          child: InkWell(
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => tableCode[i])),
+                              child: Center(
+                                child: Text(
+                                  zikr[i],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              )),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -306,22 +274,6 @@ class _MyHomePageState extends State<MyHomePage> {
       String loadString = request.body;
       items = json.decode(loadString);
     }
-
-    // Initialize Holy Shrines Data
-    // var response = await get(
-    //     "https://alghazienterprises.com/sc/scripts/getHolyShrines.php");
-    // if (response.statusCode == 200) {
-    //   List x = json.decode(response.body);
-    //   holyShrine = List();
-    //   x.forEach((f) => holyShrine.add(LiveStreamingData.fromJson(f)));
-    // }
-    // response = await get(
-    //     "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php");
-    // if (response.statusCode == 200) {
-    //   List x = json.decode(response.body);
-    //   liveChannel = List();
-    //   x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
-    // }
 
     user = _auth.currentUser;
     // If user is logged in, initialize favorites
