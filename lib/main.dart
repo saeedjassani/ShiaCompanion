@@ -11,11 +11,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  Response response = await get("https://en.abna24.com/rss");
-  if (response.statusCode == 200) {
-    atomFeed = RssFeed.parse(response.body); // for parsing Atom feed
-  }
-
   // FirebaseCrashlytics.instance.enableInDevMode = true;
   // Pass all uncaught errors from the framework to Crashlytics.
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
