@@ -59,9 +59,9 @@ List tableCode = [
   ItemList("H"),
   // /*"C", "A", */ "H",
   /* "I", "B" */
-  NewsPage(),
   LiveStreamingPage(0),
   LiveStreamingPage(1),
+  NewsPage(),
 ];
 
 List<String> zikr = [
@@ -74,21 +74,23 @@ List<String> zikr = [
   "Munajaats",
   // "Baaqeyaat As Saalehaat",
   // "Ziyarat of Hijaz, Iran & Iraq"
-  "Latest Shia News",
   "Holy Shrines",
-  "Islamic Channels"
+  "Islamic Channels",
+  "Latest Shia News",
 ];
 
 List<String> zikrImages = [
-  "assets/images/taaqebaat_namaz",
-  "assets/images/namaz_home_min",
-  "assets/images/dua_home",
-  "assets/images/najaf_min",
+  "assets/images/taaqebaat_namaz.jpg",
+  "assets/images/namaz_home_min.jpg",
+  "assets/images/dua_home.jpg",
+  "assets/images/najaf_min.jpg",
   // "assets/images/amaal",
-  "assets/images/surah_home",
-  "assets/images/munajat_home",
+  "assets/images/surah_home.jpg",
+  "assets/images/munajat_home.jpg",
   // "assets/images/taaqebaat_namaz",
-  // "assets/images/mashhad_min"
+  "assets/images/mashhad_min.jpg",
+  "assets/images/zainabia_channel.jpg",
+  "assets/images/sc_news.png",
 ];
 
 Map items = {};
@@ -239,7 +241,8 @@ void schedulePrayerTimeNotification(
         "It's time for " + prayerName.toLowerCase(),
         dateTime,
         platformChannelSpecifics,
-        androidAllowWhileIdle: true);
+        androidAllowWhileIdle: true,
+        payload: prayerTime);
   } else {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
