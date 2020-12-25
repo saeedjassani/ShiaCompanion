@@ -20,6 +20,7 @@ import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/bottom_bar.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
+import 'package:shia_companion/widgets/todays_recitation.dart';
 import 'library_page.dart';
 import 'list_items.dart';
 import 'news_page.dart';
@@ -46,9 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List prayerTimes;
 
-  ThemeData themeData = ThemeData(
-    canvasColor: Colors.brown,
-  );
   int _page = 0;
   PageController _pageController;
   bool scrollToPrayerTimes = false;
@@ -77,15 +75,14 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        bottomNavigationBar: Theme(
-          data: themeData,
-          child: BottomNavigationBar(
-            showUnselectedLabels: false,
-            selectedItemColor: Colors.white,
-            onTap: navigationTapped, //
-            currentIndex: _page, //
-            items: bottomBarItems,
-          ),
+        bottomNavigationBar: BottomNavigationBar(
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white,
+          onTap: navigationTapped, //
+          currentIndex: _page, //
+          items: bottomBarItems,
+          backgroundColor: Colors.brown,
+          type: BottomNavigationBarType.fixed,
         ),
         body: PageView(
           children: <Widget>[
@@ -165,21 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                   ),
-                  // SizedBox(
-                  //   height: 120,
-                  //   width: screenWidth,
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
-                  //     child: Card(
-                  //       child: ListView.builder(
-                  //         scrollDirection: Axis.horizontal,
-                  //         itemCount: zikr.length,
-                  //         itemBuilder: (BuildContext c, int i) =>
-                  //             buildBody(c, i),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
+                  TodaysRecitation(),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GridView.builder(
@@ -189,55 +172,49 @@ class _MyHomePageState extends State<MyHomePage> {
                           crossAxisCount: 2),
                       itemCount: tableCode.length,
                       itemBuilder: (BuildContext c, int i) {
-                        return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => tableCode[i]));
-                          },
-                          child: Container(
-                            margin: EdgeInsets.all(6.0),
-                            padding: EdgeInsets.only(
-                              left: 2.0,
-                            ),
-                            alignment: Alignment.bottomLeft,
-                            decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage(zikrImages[i]),
-                                  fit: BoxFit.cover,
-                                ),
-                                borderRadius: BorderRadius.circular(2.0)),
-                            child: Container(
-                              width: screenWidth,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(colors: <Color>[
-                                  Colors.black,
-                                  Colors.white70
-                                ]),
-                              ),
-                              child: Text(
-                                zikr[i],
-                                style: TextStyle(color: Colors.white),
+                        return Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Card(
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => tableCode[i]));
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Image.asset(
+                                    zikrImages[i],
+                                    fit: BoxFit.fill,
+                                    height: 120,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            zikr[i],
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         );
-                        // return Card(
-                        //   color: Colors.brown[50],
-                        //   child: InkWell(
-                        //       onTap: () => Navigator.push(
-                        //           context,
-                        //           MaterialPageRoute(
-                        //               builder: (context) => tableCode[i])),
-                        //       child: Center(
-                        //         child: Text(
-                        //           zikr[i],
-                        //           textAlign: TextAlign.center,
-                        //           style: TextStyle(fontWeight: FontWeight.bold),
-                        //         ),
-                        //       )),
-                        // );
                       },
                     ),
                   ),

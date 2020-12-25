@@ -51,7 +51,6 @@ TextStyle boldText = TextStyle(fontWeight: FontWeight.bold);
 bool showTranslation = true, showTransliteration = true;
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 List tableCode = [
-  ItemList("TR"),
   ItemList("F"),
   ItemList("E"),
   ItemList("G"),
@@ -65,7 +64,6 @@ List tableCode = [
 ];
 
 List<String> zikr = [
-  "Today's Recitations",
   "Namaz",
   "Duas",
   "Ziyarats",
@@ -80,7 +78,6 @@ List<String> zikr = [
 ];
 
 List<String> zikrImages = [
-  "assets/images/taaqebaat_namaz.jpg",
   "assets/images/namaz_home_min.jpg",
   "assets/images/dua_home.jpg",
   "assets/images/najaf_min.jpg",
