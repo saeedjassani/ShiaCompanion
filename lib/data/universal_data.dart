@@ -26,4 +26,8 @@ class UniversalData {
 
   @override
   int get hashCode => uid.hashCode ^ title.hashCode ^ type.hashCode;
+
+  Map toJson() {
+    return {'title': title, 'type': type, 'uid': uid};
+  }
 }
