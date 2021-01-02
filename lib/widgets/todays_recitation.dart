@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/pages/item_page.dart';
+import 'package:shia_companion/pages/list_items.dart';
 
 import '../constants.dart';
 
@@ -55,6 +57,24 @@ class TodaysRecitation extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  ListTile buildZikrRow(BuildContext context, UidTitleData itemData) {
+    return ListTile(
+      onTap: () {
+        if (itemData.getUId().contains("~")) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ItemList(itemData.getUId().split("~")[1])));
+        } else {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => ItemPage(itemData)));
+        }
+      },
+      title: Text(itemData.title),
     );
   }
 }

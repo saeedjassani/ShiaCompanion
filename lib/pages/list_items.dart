@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/data/universal_data.dart';
 
 import '../constants.dart';
+import 'item_page.dart';
 
 class ItemList extends StatefulWidget {
   final String item;
@@ -81,6 +83,44 @@ class _ItemListState extends State<ItemList> {
         itemBuilder: (BuildContext c, int i) =>
             buildZikrRow(c, workingItems[i]),
       ),
+    );
+  }
+
+  ListTile buildZikrRow(BuildContext context, UidTitleData uidTitleData) {
+    UniversalData itemData =
+        UniversalData(uidTitleData.uid, uidTitleData.title, 0);
+    return ListTile(
+      onTap: () {
+        if (uidTitleData.getUId().contains("~")) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ItemList(uidTitleData.getUId().split("~")[1])));
+        } else {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => ItemPage(uidTitleData)));
+        }
+      },
+      title: Text(itemData.title),
+      trailing: uidTitleData.getUId().contains("~")
+          ? Container()
+          : InkWell(
+              onTap: () {
+                favsData.contains(itemData)
+                    ? favsData.remove(itemData)
+                    : favsData.add(itemData);
+                setState(() {});
+              },
+              child: favsData.contains(itemData)
+                  ? Icon(
+                      Icons.star,
+                      color: Theme.of(context).primaryColor,
+                    )
+                  : Icon(
+                      Icons.star_border,
+                      color: Theme.of(context).primaryColor,
+                    )),
     );
   }
 }

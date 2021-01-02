@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   String hadith = '';
   LocationData currentLocation;
   DateTime today = DateTime.now();
@@ -44,6 +44,8 @@ class _MyHomePageState extends State<MyHomePage> {
   DatabaseReference favsReference;
 
   List<LiveStreamingData> holyShrine, liveChannel;
+  String intialFavs;
+  DatabaseReference newFavsReference;
 
   List prayerTimes;
 
@@ -61,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     setupPreferences();
     _pageController = PageController(initialPage: 0);
   }
@@ -291,11 +294,12 @@ class _MyHomePageState extends State<MyHomePage> {
     if (user != null) {
       favsData = [];
 
-      DatabaseReference newFavsReference = FirebaseDatabase.instance
+      newFavsReference = FirebaseDatabase.instance
           .reference()
           .child('new_favs')
           .child(user.uid);
-      List values = json.decode((await newFavsReference.once()).value);
+      intialFavs = (await newFavsReference.once()).value;
+      List values = json.decode(intialFavs);
 
       for (var obj in values) {
         // Fix startsWithKey - Example: G17 should show when G17|L4 is present
@@ -304,11 +308,12 @@ class _MyHomePageState extends State<MyHomePage> {
         if (items.containsKey(obj["uid"]) && obj['type'] == 0) {
           // Add Type 0 (Zikr) data only when it exists
           favsData.add(UniversalData(obj["uid"], obj["title"], obj['type']));
-        } else {
+        } else if (obj['type'] != 0) {
           // Library Data is already imported
           favsData.add(UniversalData(obj["uid"], obj["title"], obj['type']));
         }
       }
+      intialFavs = jsonEncode(favsData);
     }
 
     getHadith();
@@ -442,8 +447,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
-  void dispose() {
-    print("dispose was called");
+  void dispose() async {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.paused) {
+      if (intialFavs != jsonEncode(favsData)) {
+        await newFavsReference.set(jsonEncode(favsData));
+      }
+    }
   }
 }

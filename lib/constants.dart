@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
-import 'package:webfeed/webfeed.dart';
 
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
@@ -95,24 +94,6 @@ Map items = {};
 // HomePage key
 GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
 
-ListTile buildZikrRow(BuildContext context, UidTitleData itemData) {
-  return ListTile(
-    onTap: () {
-      if (itemData.getUId().contains("~")) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ItemList(itemData.getUId().split("~")[1])));
-      } else {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ItemPage(itemData)));
-      }
-    },
-    title: Text(itemData.title),
-  );
-}
-
 void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
   switch (itemData.type) {
     case 0:
@@ -198,18 +179,14 @@ void setUpNotifications() async {
             prayerTimes[index]));
   }
   AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    "prayerTimes",
-    "Prayer Times",
-    "Azan Notifications for Prayer Times",
-  );
+      AndroidNotificationDetails("general", "General", "General notifications");
   IOSNotificationDetails iOSPlatformChannelSpecifics = IOSNotificationDetails();
   NotificationDetails platformChannelSpecifics = NotificationDetails(
       androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.schedule(
       786,
       "Open the app to continue getting Azan notifications",
-      "It seems you've not used the applications since last 12 days. Please open the app continue getting Azan notifications",
+      "It seems you've not used the application in last 12 days. Please open the app to continue receive Azan notifications",
       now.add(Duration(days: 11)),
       platformChannelSpecifics,
       payload: now.add(Duration(days: 11)).millisecondsSinceEpoch.toString());
