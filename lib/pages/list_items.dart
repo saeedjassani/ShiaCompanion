@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
@@ -89,6 +90,12 @@ class _ItemListState extends State<ItemList> {
   ListTile buildZikrRow(BuildContext context, UidTitleData uidTitleData) {
     UniversalData itemData =
         UniversalData(uidTitleData.uid, uidTitleData.title, 0);
+    String title;
+    if (kReleaseMode) {
+      title = itemData.title;
+    } else {
+      title = itemData.uid + " " + itemData.title;
+    }
     return ListTile(
       onTap: () {
         if (uidTitleData.getUId().contains("~")) {
@@ -98,29 +105,30 @@ class _ItemListState extends State<ItemList> {
                   builder: (context) =>
                       ItemList(uidTitleData.getUId().split("~")[1])));
         } else {
+          print(uidTitleData.uid);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => ItemPage(uidTitleData)));
         }
       },
-      title: Text(itemData.title),
-      trailing: uidTitleData.getUId().contains("~")
-          ? Container()
-          : InkWell(
-              onTap: () {
-                favsData.contains(itemData)
-                    ? favsData.remove(itemData)
-                    : favsData.add(itemData);
-                setState(() {});
-              },
-              child: favsData.contains(itemData)
-                  ? Icon(
-                      Icons.star,
-                      color: Theme.of(context).primaryColor,
-                    )
-                  : Icon(
-                      Icons.star_border,
-                      color: Theme.of(context).primaryColor,
-                    )),
+      title: Text(title),
+      // trailing: uidTitleData.getUId().contains("~")
+      //     ? Container()
+      //     : InkWell(
+      //         onTap: () {
+      //           favsData.contains(itemData)
+      //               ? favsData.remove(itemData)
+      //               : favsData.add(itemData);
+      //           setState(() {});
+      //         },
+      //         child: favsData.contains(itemData)
+      //             ? Icon(
+      //                 Icons.star,
+      //                 color: Theme.of(context).primaryColor,
+      //               )
+      //             : Icon(
+      //                 Icons.star_border,
+      //                 color: Theme.of(context).primaryColor,
+      //               )),
     );
   }
 }
