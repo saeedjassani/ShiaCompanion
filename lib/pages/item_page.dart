@@ -38,11 +38,12 @@ class _ItemPageState extends State<ItemPage> {
     loadString = await DefaultAssetBundle.of(context)
         .loadString('assets/items/' + item.getFirstUId());
     itemData = json.decode(loadString);
-    if (itemData['english'] != '') {
+    if (itemData['english'] != null && itemData['english'] != '') {
       tabs.add(Tab(text: 'Translation'));
       children.add(SingleChildScrollView(child: Text(itemData['english'])));
     }
-    if (itemData['transliteration'] != '') {
+    if (itemData['transliteration'] != null &&
+        itemData['transliteration'] != '') {
       tabs.add(Tab(text: 'Transliteration'));
       children
           .add(SingleChildScrollView(child: Text(itemData['transliteration'])));
