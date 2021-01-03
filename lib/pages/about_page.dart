@@ -57,7 +57,7 @@ class _AboutPageState extends State<AboutPage> {
               ),
               ListTile(
                 title: Text(
-                  "\n\nPlease recite Surah Fateha for :\nMarhum Mohammad Raza Jassani\nMarhum Yusufali Bhojani\nand all other Marhumeen and Marhumaat",
+                  "\n\nPlease recite Surah Fateha for :\n\nMarhum Haji Mohammad Raza Jassani\nMarhum Haji Yusufali Bhojani\nMarhoom Haji Zahid Husain Mohammed Husain Ajani\nand other Marhumeen and Marhumaat",
                   textAlign: TextAlign.center,
                 ),
               ),

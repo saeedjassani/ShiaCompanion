@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1001420856250-85d35dv2ihntkpc0ic9lrc6tfusge4c1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.developer110.shiacompanion",
+            "certificate_hash": "7455f38dd63cfaa5d8a9332045f3c72ec1c7a75c"
+          }
+        },
+        {
           "client_id": "1001420856250-ppsqt4hvp4ba3f88f5q4le5k0d4701jq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -23,11 +31,11 @@
           }
         },
         {
-          "client_id": "1001420856250-85d35dv2ihntkpc0ic9lrc6tfusge4c1.apps.googleusercontent.com",
+          "client_id": "1001420856250-u5pjmdblk3v3k1h0ba5qgv7g9fcbtls2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.developer110.shiacompanion",
-            "certificate_hash": "7455f38dd63cfaa5d8a9332045f3c72ec1c7a75c"
+            "certificate_hash": "861a9558b3be5f279ee39fb26b81ba4d25a3ecd1"
           }
         },
         {
@@ -51,7 +59,8 @@
               "client_id": "1001420856250-clrf0hrb1jgpuv0avehouki158r6lccc.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.developer110.shiacompanion"
+                "bundle_id": "com.developer110.shiacompanion",
+                "app_store_id": "1492517189"
               }
             }
           ]
@@ -68,6 +77,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1001420856250-26dbel6vu7gachlntmo6decth4epcg6l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.developer110.shiacompanion.debug",
+            "certificate_hash": "03eb85cb72c9879fbce6b6ed8dc259e3b24525c8"
+          }
+        },
+        {
           "client_id": "1001420856250-2nvlc8fqo8ceglfmecb3mli5hdokotvm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -76,19 +93,19 @@
           }
         },
         {
-          "client_id": "1001420856250-r2o0lgn6f79n38f0ri3kfs823bgi8i2d.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.developer110.shiacompanion.debug",
-            "certificate_hash": "2750c4dd85ccb73055c60b03e8d871c0a77c2330"
-          }
-        },
-        {
           "client_id": "1001420856250-43uvb715v61cp9tntiegnrflsl57qkug.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.developer110.shiacompanion.debug",
             "certificate_hash": "c2f70bd9dfb7ff4109f6db4382ffff88b825d5bd"
+          }
+        },
+        {
+          "client_id": "1001420856250-r2o0lgn6f79n38f0ri3kfs823bgi8i2d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.developer110.shiacompanion.debug",
+            "certificate_hash": "2750c4dd85ccb73055c60b03e8d871c0a77c2330"
           }
         },
         {
@@ -112,7 +129,8 @@
               "client_id": "1001420856250-clrf0hrb1jgpuv0avehouki158r6lccc.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.developer110.shiacompanion"
+                "bundle_id": "com.developer110.shiacompanion",
+                "app_store_id": "1492517189"
               }
             }
           ]
