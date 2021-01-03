@@ -278,16 +278,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     }
 
     // Initialize Item Data
-    if (kReleaseMode) {
-      String data =
-          await DefaultAssetBundle.of(context).loadString("assets/zikr.json");
-      items = json.decode(data);
-    } else {
-      var request =
-          await get("https://alghazienterprises.com/sc/scripts/getItems.php");
-      String loadString = request.body;
-      items = json.decode(loadString);
-    }
+    // if (kReleaseMode) {
+    String data =
+        await DefaultAssetBundle.of(context).loadString("assets/items.json");
+    items = json.decode(data);
+    // } else {
+    //   var request =
+    //       await get("https://alghazienterprises.com/sc/scripts/getItems.php");
+    //   String loadString = request.body;
+    //   items = json.decode(loadString);
+    // }
 
     user = _auth.currentUser;
     // If user is logged in, initialize favorites
@@ -454,7 +454,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.paused && newFavsReference != null) {
       if (intialFavs != jsonEncode(favsData)) {
         await newFavsReference.set(jsonEncode(favsData));
       }
