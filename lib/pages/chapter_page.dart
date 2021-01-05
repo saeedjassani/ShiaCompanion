@@ -13,7 +13,7 @@ class ChapterPage extends StatefulWidget {
 }
 
 class _ChapterPageState extends State<ChapterPage> {
-  String chapterMarkdown = "";
+  String chapterMarkdown;
 
   @override
   void initState() {
@@ -36,7 +36,9 @@ class _ChapterPageState extends State<ChapterPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Markdown(data: chapterMarkdown),
+      body: chapterMarkdown != null
+          ? Markdown(data: chapterMarkdown)
+          : Center(child: CircularProgressIndicator()),
     );
   }
 }

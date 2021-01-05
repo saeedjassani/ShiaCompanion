@@ -24,9 +24,11 @@ class _ItemListState extends State<ItemList> {
     super.initState();
     String tableName = widget.item;
     if (widget.item == "D1") tableName = "D";
-    tableName = tableName.replaceAll("[0-9].*", "").replaceAll("[A-Z].*~", "");
+    tableName = tableName
+        .replaceAll(RegExp("[0-9].*"), "")
+        .replaceAll(RegExp("[A-Z].*~"), "");
     if (tableName.contains("|"))
-      tableName = tableName.split("\\|")[0].replaceAll("[0-9].*", "");
+      tableName = tableName.split("\\|")[0].replaceAll(RegExp("[0-9].*"), "");
 
     for (String s in items.keys) {
       if (tableName == s.split("~")[0] ||
@@ -41,7 +43,8 @@ class _ItemListState extends State<ItemList> {
       workingItems.add(UidTitleData("E18", items["E18"])); // Dua e Ahad
       workingItems.add(UidTitleData("G6", items["G6"])); // Ziyarat e Waritha
       workingItems.add(UidTitleData("G4", items["G4"])); // Ziyarat e Ashura
-      workingItems.add(UidTitleData("E37", items["E37"])); // Ziyarat e Ashura
+      workingItems
+          .add(UidTitleData("E37", items["E37"])); // Dua e Sanamay Quraish
       String tmp;
       DateTime today = DateTime.now();
       if (today.weekday == DateTime.friday) {
@@ -105,30 +108,29 @@ class _ItemListState extends State<ItemList> {
                   builder: (context) =>
                       ItemList(uidTitleData.getUId().split("~")[1])));
         } else {
-          print(uidTitleData.uid);
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => ItemPage(uidTitleData)));
         }
       },
       title: Text(title),
-      // trailing: uidTitleData.getUId().contains("~")
-      //     ? Container()
-      //     : InkWell(
-      //         onTap: () {
-      //           favsData.contains(itemData)
-      //               ? favsData.remove(itemData)
-      //               : favsData.add(itemData);
-      //           setState(() {});
-      //         },
-      //         child: favsData.contains(itemData)
-      //             ? Icon(
-      //                 Icons.star,
-      //                 color: Theme.of(context).primaryColor,
-      //               )
-      //             : Icon(
-      //                 Icons.star_border,
-      //                 color: Theme.of(context).primaryColor,
-      //               )),
+      trailing: uidTitleData.getUId().contains("~")
+          ? Container()
+          : InkWell(
+              onTap: () {
+                favsData.contains(itemData)
+                    ? favsData.remove(itemData)
+                    : favsData.add(itemData);
+                setState(() {});
+              },
+              child: favsData.contains(itemData)
+                  ? Icon(
+                      Icons.star,
+                      color: Theme.of(context).primaryColor,
+                    )
+                  : Icon(
+                      Icons.star_border,
+                      color: Theme.of(context).primaryColor,
+                    )),
     );
   }
 }
