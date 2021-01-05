@@ -10,7 +10,7 @@ class TodaysRecitation extends StatelessWidget {
   Widget build(BuildContext context) {
     List<UidTitleData> workingItems = [];
 
-    workingItems.add(UidTitleData("TR~D1", items["TR~D1"])); // Taqeebaate Namaz
+    workingItems.add(UidTitleData("~D1", items["~D1"])); // Taqeebaate Namaz
     workingItems.add(UidTitleData("E18", items["E18"])); // Dua e Ahad
     workingItems.add(UidTitleData("G6", items["G6"])); // Ziyarat e Waritha
     workingItems.add(UidTitleData("G4", items["G4"])); // Ziyarat e Ashura
@@ -36,6 +36,7 @@ class TodaysRecitation extends StatelessWidget {
     for (String s in items.keys) {
       if (tmp == s.split("~")[0] ||
           tmp == s.replaceAll(RegExp("[0-9].*"), "")) {
+        debugPrint(s + " " + items[s]);
         workingItems.add(UidTitleData(s, items[s]));
       }
     }
@@ -60,8 +61,8 @@ class TodaysRecitation extends StatelessWidget {
     );
   }
 
-  ListTile buildZikrRow(BuildContext context, UidTitleData itemData) {
-    return ListTile(
+  Widget buildZikrRow(BuildContext context, UidTitleData itemData) {
+    return InkWell(
       onTap: () {
         if (itemData.getUId().contains("~")) {
           Navigator.push(
@@ -74,7 +75,14 @@ class TodaysRecitation extends StatelessWidget {
               MaterialPageRoute(builder: (context) => ItemPage(itemData)));
         }
       },
-      title: Text(itemData.title),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(itemData.title),
+          ),
+        ],
+      ),
     );
   }
 }

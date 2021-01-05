@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:apple_sign_in/apple_sign_in.dart';
-import 'package:apple_sign_in/apple_sign_in_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart' as authButton;
@@ -73,7 +72,7 @@ class _SettingsPageState extends State<SettingsPage> {
             subtitle: Slider(
               min: 10.0,
               max: 24.0,
-              divisions: 12,
+              divisions: 14,
               onChanged: (newRating) {
                 englishFontSize = newRating.toInt().toDouble();
                 saveDoublePref('eng_font_size', englishFontSize);
@@ -81,24 +80,6 @@ class _SettingsPageState extends State<SettingsPage> {
               value: englishFontSize,
             ),
             trailing: Text(englishFontSize.toInt().toString()),
-          ),
-          Divider(),
-          SwitchListTile(
-            title: Text('Show Translation'),
-            onChanged: (bool b) {
-              showTranslation = b;
-              saveBooleanPref('showTranslation', showTranslation);
-            },
-            value: showTranslation,
-          ),
-          Divider(),
-          SwitchListTile(
-            title: Text('Show Transliteration'),
-            onChanged: (bool b) {
-              showTransliteration = b;
-              saveBooleanPref('showTransliteration', showTransliteration);
-            },
-            value: showTransliteration,
           ),
           Divider(),
           user != null

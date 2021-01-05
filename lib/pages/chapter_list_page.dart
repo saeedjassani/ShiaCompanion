@@ -43,19 +43,21 @@ class _ChapterListPageState extends State<ChapterListPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView.separated(
-          shrinkWrap: true,
-          itemBuilder: (context, index) => ListTile(
-                title: Text(chapters[index].title),
-                onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ChapterPage(
-                            widget.slug + "/" + chapters[index].uid,
-                            chapters[index].title))),
-              ),
-          separatorBuilder: (context, index) => Divider(),
-          itemCount: chapters.length),
+      body: chapters.length > 0
+          ? ListView.separated(
+              shrinkWrap: true,
+              itemBuilder: (context, index) => ListTile(
+                    title: Text(chapters[index].title),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ChapterPage(
+                                widget.slug + "/" + chapters[index].uid,
+                                chapters[index].title))),
+                  ),
+              separatorBuilder: (context, index) => Divider(),
+              itemCount: chapters.length)
+          : Center(child: CircularProgressIndicator()),
     );
   }
 }

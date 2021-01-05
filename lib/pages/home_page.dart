@@ -12,18 +12,15 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
-import 'package:http/http.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
-import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/bottom_bar.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/todays_recitation.dart';
 import 'library_page.dart';
 import 'list_items.dart';
-import 'news_page.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -113,13 +110,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     padding: const EdgeInsets.all(8.0),
                     child: Card(
                       child: ExpansionTile(
-                        onExpansionChanged: (bool x) {
-                          if (user == null && x)
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content:
-                                  Text("Please sign in to access favorites"),
-                            ));
-                        },
                         title: Text("Favorites", key: ValueKey('hadith-text')),
                         children: <Widget>[
                           favsData != null
@@ -244,6 +234,41 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void initializeData() async {
+    // Initialize Item Data
+    String data =
+        await DefaultAssetBundle.of(context).loadString("assets/items.json");
+    items = json.decode(data);
+
+    favsData = [];
+    String favsString = sharedPreferences.getString("new_favs");
+    if (favsString != null && favsString != "null") {
+      print(favsString);
+      List values = json.decode(favsString);
+      values.forEach((element) {
+        favsData.add(
+            UniversalData(element['uid'], element['title'], element['type']));
+      });
+    }
+
+    user = _auth.currentUser;
+    // If user is logged in, initialize favorites
+    if (user != null) {
+      newFavsReference = FirebaseDatabase.instance
+          .reference()
+          .child('new_favs')
+          .child(user.uid);
+      intialFavs = (await newFavsReference.once()).value;
+      List values = json.decode(intialFavs);
+
+      for (var element in values) {
+        UniversalData data =
+            UniversalData(element['uid'], element['title'], element['type']);
+        if (!favsData.contains(data)) favsData.add(data);
+      }
+      intialFavs = jsonEncode(favsData);
+    }
+
+    getHadith();
     // Initialize LocationData
     await initializeLocation();
 
@@ -276,47 +301,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         setUpNotifications();
       }
     }
-
-    // Initialize Item Data
-    // if (kReleaseMode) {
-    String data =
-        await DefaultAssetBundle.of(context).loadString("assets/items.json");
-    items = json.decode(data);
-    // } else {
-    //   var request =
-    //       await get("https://alghazienterprises.com/sc/scripts/getItems.php");
-    //   String loadString = request.body;
-    //   items = json.decode(loadString);
-    // }
-
-    user = _auth.currentUser;
-    // If user is logged in, initialize favorites
-    if (user != null) {
-      favsData = [];
-
-      newFavsReference = FirebaseDatabase.instance
-          .reference()
-          .child('new_favs')
-          .child(user.uid);
-      intialFavs = (await newFavsReference.once()).value;
-      List values = json.decode(intialFavs);
-
-      for (var obj in values) {
-        // Fix startsWithKey - Example: G17 should show when G17|L4 is present
-        // The above issue cannot be fixed. Instead, always the primary UID should be saved (L4 in the case above)
-        // TODO If type == 0 and items doen't contain UID remove it.
-        if (items.containsKey(obj["uid"]) && obj['type'] == 0) {
-          // Add Type 0 (Zikr) data only when it exists
-          favsData.add(UniversalData(obj["uid"], obj["title"], obj['type']));
-        } else if (obj['type'] != 0) {
-          // Library Data is already imported
-          favsData.add(UniversalData(obj["uid"], obj["title"], obj['type']));
-        }
-      }
-      intialFavs = jsonEncode(favsData);
-    }
-
-    getHadith();
+    setState(() {});
   }
 
   Future selectNotification(String payload) async {
@@ -346,6 +331,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   setupPreferences() async {
+    print("in set up pre");
     sharedPreferences = await SharedPreferences.getInstance();
     arabicFontSize =
         sharedPreferences.getDouble('ara_font_size') ?? arabicFontSize;
@@ -454,10 +440,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.paused && newFavsReference != null) {
-      if (intialFavs != jsonEncode(favsData)) {
+    if (state == AppLifecycleState.paused && favsData != null) {
+      await sharedPreferences.setString("new_favs", jsonEncode(favsData));
+      if (newFavsReference != null)
         await newFavsReference.set(jsonEncode(favsData));
-      }
     }
   }
 }

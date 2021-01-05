@@ -106,7 +106,8 @@ class _ItemPageState extends State<ItemPage> {
   }
 
   List<String> generateCodeAndStrings(String content) {
-    List<String> split = content.split("--"); //.replaceAll("\u200c", "")
+    List<String> split =
+        content.split("--"); //.replaceAll("\u200c", "") - Do not replace this.
     for (int i = 0, n = split.length; i < n; i++) {
       if (split[i].trim().isEmpty) continue;
       if (isArabic(split[i])) codes.add(i);
