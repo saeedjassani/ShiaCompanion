@@ -71,6 +71,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(
+      () {
+        if (newIndex > oldIndex) {
+          newIndex -= 1;
+        }
+        final UniversalData item = favsData.removeAt(oldIndex);
+        favsData.insert(newIndex, item);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
@@ -127,39 +139,41 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         title: Text("Favorites", key: ValueKey('hadith-text')),
                         children: <Widget>[
                           favsData != null
-                              ? ListView.separated(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  separatorBuilder:
-                                      (BuildContext context, int index) =>
-                                          Divider(),
-                                  itemCount:
-                                      favsData != null ? favsData.length : 0,
-                                  itemBuilder: (BuildContext c, int i) {
-                                    UniversalData itemData = favsData[i];
-                                    return ListTile(
-                                        onTap: () => handleUniversalDataClick(
-                                            context, itemData),
-                                        title: Text(itemData.title),
-                                        trailing: InkWell(
-                                            onTap: () {
-                                              favsData.contains(itemData)
-                                                  ? favsData.remove(itemData)
-                                                  : favsData.add(itemData);
-                                              setState(() {});
-                                            },
-                                            child: favsData.contains(itemData)
-                                                ? Icon(
-                                                    Icons.star,
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
-                                                  )
-                                                : Icon(
-                                                    Icons.star_border,
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
-                                                  )));
-                                  })
+                              ? SizedBox(
+                                  height: 300,
+                                  child: ReorderableListView(
+                                      onReorder: _onReorder,
+                                      children:
+                                          List.generate(favsData.length, (i) {
+                                        UniversalData itemData = favsData[i];
+                                        return ListTile(
+                                            key: Key(itemData.uid),
+                                            onTap: () =>
+                                                handleUniversalDataClick(
+                                                    context, itemData),
+                                            title: Text(itemData.title),
+                                            trailing: InkWell(
+                                                onTap: () {
+                                                  favsData.contains(itemData)
+                                                      ? favsData
+                                                          .remove(itemData)
+                                                      : favsData.add(itemData);
+                                                  setState(() {});
+                                                },
+                                                child: favsData
+                                                        .contains(itemData)
+                                                    ? Icon(
+                                                        Icons.star,
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                      )
+                                                    : Icon(
+                                                        Icons.star_border,
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                      )));
+                                      })),
+                                )
                               : Container()
                         ],
                       ),
