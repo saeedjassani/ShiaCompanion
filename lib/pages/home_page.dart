@@ -4,6 +4,7 @@ import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
@@ -41,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   DatabaseReference favsReference;
 
   List<LiveStreamingData> holyShrine, liveChannel;
-  String intialFavs;
+  String initialFavs;
   DatabaseReference newFavsReference;
 
   List prayerTimes;
@@ -57,12 +58,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         duration: const Duration(milliseconds: 300), curve: Curves.ease);
   }
 
+  loginCallback() async {
+    await setUpFavorites();
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     setupPreferences();
     _pageController = PageController(initialPage: 0);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
   @override
@@ -110,46 +116,50 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     padding: const EdgeInsets.all(8.0),
                     child: Card(
                       child: ExpansionTile(
+                        onExpansionChanged: (bool value) {
+                          if (value &&
+                              (favsData == null || favsData.length == 0)) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Please add some favorites first"),
+                            ));
+                          }
+                        },
                         title: Text("Favorites", key: ValueKey('hadith-text')),
                         children: <Widget>[
                           favsData != null
-                              ? SizedBox(
-                                  height: 300,
-                                  child: ListView.separated(
-                                      separatorBuilder:
-                                          (BuildContext context, int index) =>
-                                              Divider(),
-                                      itemCount: favsData != null
-                                          ? favsData.length
-                                          : 0,
-                                      itemBuilder: (BuildContext c, int i) {
-                                        UniversalData itemData = favsData[i];
-                                        return ListTile(
-                                            onTap: () =>
-                                                handleUniversalDataClick(
-                                                    context, itemData),
-                                            title: Text(itemData.title),
-                                            trailing: InkWell(
-                                                onTap: () {
-                                                  favsData.contains(itemData)
-                                                      ? favsData
-                                                          .remove(itemData)
-                                                      : favsData.add(itemData);
-                                                  setState(() {});
-                                                },
-                                                child: favsData
-                                                        .contains(itemData)
-                                                    ? Icon(
-                                                        Icons.star,
-                                                        color: Theme.of(context)
-                                                            .primaryColor,
-                                                      )
-                                                    : Icon(
-                                                        Icons.star_border,
-                                                        color: Theme.of(context)
-                                                            .primaryColor,
-                                                      )));
-                                      }))
+                              ? ListView.separated(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  separatorBuilder:
+                                      (BuildContext context, int index) =>
+                                          Divider(),
+                                  itemCount:
+                                      favsData != null ? favsData.length : 0,
+                                  itemBuilder: (BuildContext c, int i) {
+                                    UniversalData itemData = favsData[i];
+                                    return ListTile(
+                                        onTap: () => handleUniversalDataClick(
+                                            context, itemData),
+                                        title: Text(itemData.title),
+                                        trailing: InkWell(
+                                            onTap: () {
+                                              favsData.contains(itemData)
+                                                  ? favsData.remove(itemData)
+                                                  : favsData.add(itemData);
+                                              setState(() {});
+                                            },
+                                            child: favsData.contains(itemData)
+                                                ? Icon(
+                                                    Icons.star,
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                  )
+                                                : Icon(
+                                                    Icons.star_border,
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                  )));
+                                  })
                               : Container()
                         ],
                       ),
@@ -216,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             ),
             CalendarPage(scrollToPrayerTimes),
             LibraryPage(),
-            SettingsPage()
+            SettingsPage(loginCallback)
           ],
           controller: _pageController,
           onPageChanged: ((int page) {
@@ -238,37 +248,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     String data =
         await DefaultAssetBundle.of(context).loadString("assets/items.json");
     items = json.decode(data);
-
-    favsData = [];
-    String favsString = sharedPreferences.getString("new_favs");
-    if (favsString != null && favsString != "null") {
-      print(favsString);
-      List values = json.decode(favsString);
-      values.forEach((element) {
-        favsData.add(
-            UniversalData(element['uid'], element['title'], element['type']));
-      });
-    }
-
-    user = _auth.currentUser;
-    // If user is logged in, initialize favorites
-    if (user != null) {
-      newFavsReference = FirebaseDatabase.instance
-          .reference()
-          .child('new_favs')
-          .child(user.uid);
-      intialFavs = (await newFavsReference.once()).value;
-      List values = json.decode(intialFavs);
-
-      for (var element in values) {
-        UniversalData data =
-            UniversalData(element['uid'], element['title'], element['type']);
-        if (!favsData.contains(data)) favsData.add(data);
-      }
-      intialFavs = jsonEncode(favsData);
-    }
-
     getHadith();
+
+    await setUpFavorites();
+
     // Initialize LocationData
     await initializeLocation();
 
@@ -313,7 +296,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   // 0 - 2340 General
   // 2341 - 2375 Muharram
-  getHadith() async {
+  Future<void> getHadith() async {
     HijriCalendar _today =
         HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
     Random rnd = Random();
@@ -331,7 +314,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   setupPreferences() async {
-    print("in set up pre");
     sharedPreferences = await SharedPreferences.getInstance();
     arabicFontSize =
         sharedPreferences.getDouble('ara_font_size') ?? arabicFontSize;
@@ -444,6 +426,35 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       await sharedPreferences.setString("new_favs", jsonEncode(favsData));
       if (newFavsReference != null)
         await newFavsReference.set(jsonEncode(favsData));
+    }
+  }
+
+  Future<void> setUpFavorites() async {
+    favsData = [];
+    String favsString = sharedPreferences.getString("new_favs");
+    if (favsString != null && favsString != "null") {
+      List values = json.decode(favsString);
+      values.forEach((element) {
+        favsData.add(
+            UniversalData(element['uid'], element['title'], element['type']));
+      });
+    }
+
+    user = _auth.currentUser;
+    if (user != null) {
+      newFavsReference = FirebaseDatabase.instance
+          .reference()
+          .child('new_favs')
+          .child(user.uid);
+      initialFavs = (await newFavsReference.once()).value;
+      if (initialFavs != null) {
+        favsData = [];
+        List values = json.decode(initialFavs);
+        for (var element in values) {
+          favsData.add(
+              UniversalData(element['uid'], element['title'], element['type']));
+        }
+      }
     }
   }
 }

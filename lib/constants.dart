@@ -24,8 +24,8 @@ List<UniversalData> favsData;
 
 final String appName = "Shia Companion";
 int hijriDate = 0;
-double arabicFontSize = 28.0;
-double englishFontSize = 12.0;
+double arabicFontSize = 32.0;
+double englishFontSize = 16.0;
 
 PrayerTime prayerTime;
 LocationData currentLocation;

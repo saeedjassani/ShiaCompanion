@@ -46,15 +46,14 @@ class TodaysRecitation extends StatelessWidget {
         child: ExpansionTile(
           title: Text("Today's Recitations"),
           children: <Widget>[
-            SizedBox(
-                height: 300,
-                child: ListView.separated(
-                  separatorBuilder: (BuildContext context, int index) =>
-                      Divider(),
-                  itemCount: workingItems.length,
-                  itemBuilder: (BuildContext c, int i) =>
-                      buildZikrRow(c, workingItems[i]),
-                ))
+            ListView.separated(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              separatorBuilder: (BuildContext context, int index) => Divider(),
+              itemCount: workingItems.length,
+              itemBuilder: (BuildContext c, int i) =>
+                  buildZikrRow(c, workingItems[i]),
+            )
           ],
         ),
       ),

@@ -10,7 +10,8 @@ import '../constants.dart';
 import 'about_page.dart';
 
 class SettingsPage extends StatefulWidget {
-  SettingsPage();
+  final Function() loginCallback;
+  SettingsPage(this.loginCallback);
 
   @override
   _SettingsPageState createState() => new _SettingsPageState();
@@ -88,6 +89,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: new Text("Logout"),
                   onTap: () {
                     logOff();
+                    widget.loginCallback();
                   },
                 )
               : Column(
@@ -95,12 +97,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     authButton.GoogleSignInButton(
                       onPressed: () {
                         _signInWithGoogle();
+                        widget.loginCallback();
                       },
                     ),
                     Platform.isIOS
                         ? authButton.AppleSignInButton(
                             onPressed: () async {
                               _signInWithApple();
+                              widget.loginCallback();
                             },
                           )
                         : Container(),
@@ -181,6 +185,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void logOff() async {
     try {
       await _auth.signOut();
+      user = null;
       setState(() {});
     } catch (e) {
       debugPrint("Error : $e");
@@ -193,7 +198,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
-      key.currentState.showSnackBar(new SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
         content: new Text("No email app found"),
       ));
     }
@@ -212,7 +217,7 @@ class _SettingsPageState extends State<SettingsPage> {
         );
         final UserCredential authResult =
             await _auth.signInWithCredential(credential);
-        key.currentState.showSnackBar(new SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
           content: new Text("Login Successful"),
         ));
         setState(() {
@@ -223,7 +228,7 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       debugPrint(e.toString());
-      key.currentState.showSnackBar(new SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
         content: new Text("Some error occured, please contact support"),
       ));
     }
@@ -249,7 +254,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
             UserCredential authResult =
                 await _auth.signInWithCredential(credential);
-            key.currentState.showSnackBar(new SnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
               content: new Text("Login Successful"),
             ));
             setState(() {
@@ -260,7 +265,7 @@ class _SettingsPageState extends State<SettingsPage> {
           case AuthorizationStatus.error:
             debugPrint(
                 "Sign in failed: ${appleResult.error.localizedDescription}");
-            key.currentState.showSnackBar(new SnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
               content: new Text("Apple Sign-In Failed"),
             ));
             break;
