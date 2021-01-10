@@ -71,18 +71,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
-  void _onReorder(int oldIndex, int newIndex) {
-    setState(
-      () {
-        if (newIndex > oldIndex) {
-          newIndex -= 1;
-        }
-        final UniversalData item = favsData.removeAt(oldIndex);
-        favsData.insert(newIndex, item);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
@@ -139,41 +127,39 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         title: Text("Favorites", key: ValueKey('hadith-text')),
                         children: <Widget>[
                           favsData != null
-                              ? SizedBox(
-                                  height: 300,
-                                  child: ReorderableListView(
-                                      onReorder: _onReorder,
-                                      children:
-                                          List.generate(favsData.length, (i) {
-                                        UniversalData itemData = favsData[i];
-                                        return ListTile(
-                                            key: Key(itemData.uid),
-                                            onTap: () =>
-                                                handleUniversalDataClick(
-                                                    context, itemData),
-                                            title: Text(itemData.title),
-                                            trailing: InkWell(
-                                                onTap: () {
-                                                  favsData.contains(itemData)
-                                                      ? favsData
-                                                          .remove(itemData)
-                                                      : favsData.add(itemData);
-                                                  setState(() {});
-                                                },
-                                                child: favsData
-                                                        .contains(itemData)
-                                                    ? Icon(
-                                                        Icons.star,
-                                                        color: Theme.of(context)
-                                                            .primaryColor,
-                                                      )
-                                                    : Icon(
-                                                        Icons.star_border,
-                                                        color: Theme.of(context)
-                                                            .primaryColor,
-                                                      )));
-                                      })),
-                                )
+                              ? ListView.separated(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  separatorBuilder:
+                                      (BuildContext context, int index) =>
+                                          Divider(),
+                                  itemCount:
+                                      favsData != null ? favsData.length : 0,
+                                  itemBuilder: (BuildContext c, int i) {
+                                    UniversalData itemData = favsData[i];
+                                    return ListTile(
+                                        onTap: () => handleUniversalDataClick(
+                                            context, itemData),
+                                        title: Text(itemData.title),
+                                        trailing: InkWell(
+                                            onTap: () {
+                                              favsData.contains(itemData)
+                                                  ? favsData.remove(itemData)
+                                                  : favsData.add(itemData);
+                                              setState(() {});
+                                            },
+                                            child: favsData.contains(itemData)
+                                                ? Icon(
+                                                    Icons.star,
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                  )
+                                                : Icon(
+                                                    Icons.star_border,
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                  )));
+                                  })
                               : Container()
                         ],
                       ),
@@ -294,9 +280,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           needToSchedule = false;
         }
       });
-      if (needToSchedule) {
-        setUpNotifications();
-      }
+      // if (needToSchedule) {
+      setUpNotifications();
+      // } else {
+      // debugPrint("Azan notifications not scheduled");
+      // }
     }
     setState(() {});
   }
@@ -446,6 +434,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Future<void> setUpFavorites() async {
     favsData = [];
     String favsString = sharedPreferences.getString("new_favs");
+    print("favs string from pref is $favsString");
     if (favsString != null && favsString != "null") {
       List values = json.decode(favsString);
       values.forEach((element) {
@@ -461,6 +450,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           .child('new_favs')
           .child(user.uid);
       initialFavs = (await newFavsReference.once()).value;
+      print("favs string from fb is $initialFavs");
       if (initialFavs != null) {
         favsData = [];
         List values = json.decode(initialFavs);

@@ -6,6 +6,7 @@ import 'package:shia_companion/pages/list_items.dart';
 import '../constants.dart';
 
 class TodaysRecitation extends StatelessWidget {
+  // TODO Fix this widget rebuild everytime
   @override
   Widget build(BuildContext context) {
     List<UidTitleData> workingItems = [];
