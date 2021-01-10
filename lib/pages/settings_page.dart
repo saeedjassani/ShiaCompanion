@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:apple_sign_in/apple_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -89,7 +90,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: new Text("Logout"),
                   onTap: () {
                     logOff();
-                    widget.loginCallback();
                   },
                 )
               : Column(
@@ -182,10 +182,11 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {});
   }
 
-  void logOff() async {
+  Future<void> logOff() async {
     try {
       await _auth.signOut();
       user = null;
+      widget.loginCallback();
       setState(() {});
     } catch (e) {
       debugPrint("Error : $e");

@@ -212,13 +212,13 @@ void schedulePrayerTimeNotification(
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.schedule(
-        id,
-        prayerTime + " : " + prayerName,
-        "It's time for " + prayerName.toLowerCase(),
-        dateTime,
-        platformChannelSpecifics,
-        androidAllowWhileIdle: true,
-        payload: prayerTime);
+      id,
+      prayerTime + " : " + prayerName,
+      "It's time for " + prayerName.toLowerCase(),
+      dateTime,
+      platformChannelSpecifics,
+      androidAllowWhileIdle: true,
+    );
   } else {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
