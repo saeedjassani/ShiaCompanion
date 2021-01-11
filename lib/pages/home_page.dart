@@ -270,6 +270,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
       bool needToSchedule = true;
       pendingNotificationRequests.forEach((PendingNotificationRequest element) {
+        print("${element.id} ${element.title} is scheduled");
         if (element.id == 786 &&
             element.payload.isNotEmpty &&
             DateTime.now()
@@ -280,11 +281,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           needToSchedule = false;
         }
       });
-      // if (needToSchedule) {
-      setUpNotifications();
-      // } else {
-      // debugPrint("Azan notifications not scheduled");
-      // }
+      if (needToSchedule) {
+        setUpNotifications();
+      } else {
+        debugPrint("Azan notifications not scheduled");
+      }
     }
     setState(() {});
   }

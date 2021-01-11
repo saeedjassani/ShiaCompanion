@@ -219,6 +219,7 @@ void schedulePrayerTimeNotification(
       platformChannelSpecifics,
       androidAllowWhileIdle: true,
     );
+    print("Scheduled $id $prayerName");
   } else {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
