@@ -41,6 +41,9 @@ class TodaysRecitation extends StatelessWidget {
         workingItems.add(UidTitleData(s, items[s]));
       }
     }
+    workingItems.sort((a, b) {
+      return a.getId() > b.getId() ? 1 : -1;
+    });
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
