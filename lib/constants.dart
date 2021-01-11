@@ -174,7 +174,7 @@ void setUpNotifications() async {
     var _prayerNames = prayers.getTimeNames();
     _prayerNames.asMap().forEach((index, prayerName) =>
         schedulePrayerTimeNotification(
-            (10 * (index + 1)) + i,
+            (100 * (index + 1)) + i,
             DateTime.parse(
                 "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[index]}"),
             prayerName,
@@ -219,7 +219,6 @@ void schedulePrayerTimeNotification(
       platformChannelSpecifics,
       androidAllowWhileIdle: true,
     );
-    print("Scheduled $id $prayerName");
   } else {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
