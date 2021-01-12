@@ -29,6 +29,12 @@ class _SettingsPageState extends State<SettingsPage> {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
+          user != null
+              ? ListTile(
+                  title: Text("Name"),
+                  trailing: Text("${user.displayName}"),
+                )
+              : Container(),
           ListTile(
             leading: Icon(Icons.info),
             title: Text("About Us"),

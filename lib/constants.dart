@@ -7,6 +7,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 
+import 'package:date_format/date_format.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
@@ -159,6 +160,8 @@ void scheduleNotification(
 
 void setUpNotifications() async {
   debugPrint("Scheduling Azan Notifications");
+  await flutterLocalNotificationsPlugin.cancelAll();
+
   PrayerTime prayers = getPrayerTimeObject();
   prayerTime.setTimeFormat(prayerTime.getTime24());
 
@@ -213,7 +216,7 @@ void schedulePrayerTimeNotification(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.schedule(
       id,
-      prayerTime + " : " + prayerName,
+      formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
       "It's time for " + prayerName.toLowerCase(),
       dateTime,
       platformChannelSpecifics,
@@ -222,4 +225,20 @@ void schedulePrayerTimeNotification(
   } else {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
+}
+
+void testNotification() async {
+  AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails("general", "General", "General notifications");
+  IOSNotificationDetails iOSPlatformChannelSpecifics = IOSNotificationDetails();
+  NotificationDetails platformChannelSpecifics = NotificationDetails(
+      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.schedule(
+    999,
+    "Test",
+    "Test notification",
+    DateTime.now().add(Duration(minutes: 1)),
+    platformChannelSpecifics,
+    androidAllowWhileIdle: true,
+  );
 }

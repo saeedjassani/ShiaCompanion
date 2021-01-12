@@ -257,10 +257,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
     if (!kIsWeb) {
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      var initializationSettingsAndroid =
-          AndroidInitializationSettings('ic_launcher');
-      var initializationSettingsIOS = IOSInitializationSettings();
-      var initializationSettings = InitializationSettings(
+      AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('ic_notification');
+      IOSInitializationSettings initializationSettingsIOS =
+          IOSInitializationSettings();
+      InitializationSettings initializationSettings = InitializationSettings(
           initializationSettingsAndroid, initializationSettingsIOS);
       await flutterLocalNotificationsPlugin.initialize(initializationSettings,
           onSelectNotification: selectNotification);
@@ -270,7 +271,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
       bool needToSchedule = true;
       pendingNotificationRequests.forEach((PendingNotificationRequest element) {
-        print("${element.id} ${element.title} is scheduled");
+        debugPrint("${element.id} ${element.title} is scheduled");
         if (element.id == 786 &&
             element.payload.isNotEmpty &&
             DateTime.now()
