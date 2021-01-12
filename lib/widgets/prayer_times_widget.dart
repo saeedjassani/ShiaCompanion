@@ -22,6 +22,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     HijriCalendar _today =
         HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
     PrayerTime prayerTime = getPrayerTimeObject();
+    prayerTime.setTimeFormat(prayerTime.getTime12());
 
     List<String> _prayerTimes = currentLocation != null
         ? prayerTime.getPrayerTimes(

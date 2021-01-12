@@ -32,7 +32,8 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
+class _MyHomePageState extends State<MyHomePage>
+    with WidgetsBindingObserver, RouteAware {
   String hadith = '';
   LocationData currentLocation;
   DateTime today = DateTime.now();
@@ -133,8 +134,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                   separatorBuilder:
                                       (BuildContext context, int index) =>
                                           Divider(),
-                                  itemCount:
-                                      favsData != null ? favsData.length : 0,
+                                  itemCount: favsData.length,
                                   itemBuilder: (BuildContext c, int i) {
                                     UniversalData itemData = favsData[i];
                                     return ListTile(
@@ -421,6 +421,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   void dispose() async {
     WidgetsBinding.instance.removeObserver(this);
+    routeObserver.unsubscribe(this);
     super.dispose();
   }
 
@@ -430,13 +431,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       await sharedPreferences.setString("new_favs", jsonEncode(favsData));
       if (newFavsReference != null)
         await newFavsReference.set(jsonEncode(favsData));
+      debugPrint("Favorites updated");
     }
   }
 
   Future<void> setUpFavorites() async {
     favsData = [];
     String favsString = sharedPreferences.getString("new_favs");
-    print("favs string from pref is $favsString");
+    debugPrint("Prefs favs are $favsString");
     if (favsString != null && favsString != "null") {
       List values = json.decode(favsString);
       values.forEach((element) {
@@ -452,7 +454,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           .child('new_favs')
           .child(user.uid);
       initialFavs = (await newFavsReference.once()).value;
-      print("favs string from fb is $initialFavs");
+      debugPrint("Firebase favs are $initialFavs");
       if (initialFavs != null) {
         favsData = [];
         List values = json.decode(initialFavs);
@@ -462,5 +464,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         }
       }
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context));
+  }
+
+  @override
+  void didPopNext() {
+    setState(() {});
   }
 }

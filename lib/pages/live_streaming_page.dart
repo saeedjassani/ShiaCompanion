@@ -112,7 +112,7 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
     var response = await get(url);
     if (response.statusCode == 200) {
       List x = json.decode(response.body);
-      data = List();
+      data = [];
       x.forEach((f) => data.add(LiveStreamingData.fromJson(f)));
       setState(() {});
     }

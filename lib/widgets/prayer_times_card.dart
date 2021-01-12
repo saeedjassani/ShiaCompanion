@@ -17,6 +17,8 @@ class PrayerTimesState extends State<PrayerTimesCard> {
   Widget build(BuildContext context) {
     DateTime currentTime = widget.date;
     PrayerTime prayerTime = getPrayerTimeObject();
+    prayerTime.setTimeFormat(prayerTime.getTime12());
+
     List<String> _prayerNames = prayerTime.getTimeNames();
 
     List<String> _prayerTimes = currentLocation != null
