@@ -37,7 +37,6 @@ PrayerTime getPrayerTimeObject() {
 
   prayerTime = PrayerTime();
 
-  prayerTime.setTimeFormat(prayerTime.getTime12());
   prayerTime.setCalcMethod(prayerTime.getJafari());
   prayerTime.setAsrJuristic(prayerTime.getHanafi());
   prayerTime.setAdjustHighLats(prayerTime.getAdjustHighLats());
@@ -93,6 +92,7 @@ List<String> zikrImages = [
 ];
 
 Map items = {};
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 // HomePage key
 GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
@@ -163,7 +163,7 @@ void setUpNotifications() async {
   await flutterLocalNotificationsPlugin.cancelAll();
 
   PrayerTime prayers = getPrayerTimeObject();
-  prayerTime.setTimeFormat(prayerTime.getTime24());
+  prayers.setTimeFormat(prayers.getTime24());
 
   DateTime now = DateTime.now();
   for (int i = 0; i < 12; i++) {
@@ -229,8 +229,15 @@ void schedulePrayerTimeNotification(
 
 void testNotification() async {
   AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails("general", "General", "General notifications");
-  IOSNotificationDetails iOSPlatformChannelSpecifics = IOSNotificationDetails();
+      AndroidNotificationDetails(
+    'prayerTimes',
+    'Prayer Times',
+    'Azan Notifications for Prayer Times',
+    importance: Importance.High,
+    sound: RawResourceAndroidNotificationSound('sharif'),
+  );
+  IOSNotificationDetails iOSPlatformChannelSpecifics =
+      IOSNotificationDetails(sound: 'azan.caf');
   NotificationDetails platformChannelSpecifics = NotificationDetails(
       androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.schedule(

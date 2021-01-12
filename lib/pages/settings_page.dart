@@ -101,15 +101,15 @@ class _SettingsPageState extends State<SettingsPage> {
               : Column(
                   children: [
                     authButton.GoogleSignInButton(
-                      onPressed: () {
-                        _signInWithGoogle();
+                      onPressed: () async {
+                        await _signInWithGoogle();
                         widget.loginCallback();
                       },
                     ),
                     Platform.isIOS
                         ? authButton.AppleSignInButton(
                             onPressed: () async {
-                              _signInWithApple();
+                              await _signInWithApple();
                               widget.loginCallback();
                             },
                           )
@@ -211,7 +211,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  void _signInWithGoogle() async {
+  Future<void> _signInWithGoogle() async {
     try {
       User firebaseUser = _auth.currentUser;
       if (firebaseUser == null) {
@@ -241,7 +241,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  void _signInWithApple() async {
+  Future<void> _signInWithApple() async {
     try {
       User firebaseUser = _auth.currentUser;
       if (firebaseUser == null) {

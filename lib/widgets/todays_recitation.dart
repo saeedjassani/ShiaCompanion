@@ -67,7 +67,7 @@ class TodaysRecitation extends StatelessWidget {
   }
 
   Widget buildZikrRow(BuildContext context, UidTitleData itemData) {
-    return InkWell(
+    return ListTile(
       onTap: () {
         if (itemData.getUId().contains("~")) {
           Navigator.push(
@@ -80,14 +80,7 @@ class TodaysRecitation extends StatelessWidget {
               MaterialPageRoute(builder: (context) => ItemPage(itemData)));
         }
       },
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(itemData.title),
-          ),
-        ],
-      ),
+      title: Text(itemData.title),
     );
   }
 }

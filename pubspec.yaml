@@ -1,7 +1,7 @@
 name: shia_companion
 description: A new Flutter project.
 
-version: 2.1+1
+version: 2.5+46
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
