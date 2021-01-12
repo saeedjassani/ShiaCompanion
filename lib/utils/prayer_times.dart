@@ -96,7 +96,7 @@ class PrayerTime {
     this.setFloating(3); // floating point number
 
     // Time Names
-    _timeNames = new List<String>();
+    _timeNames = [];
     _timeNames.add("Fajr");
     _timeNames.add("Sunrise");
     _timeNames.add("Dhuhr");
@@ -115,14 +115,7 @@ class PrayerTime {
     // ------------------- Calc Method Parameters --------------------
 
     // Tuning offsets {fajr, sunrise, dhuhr, asr, sunset, maghrib, isha}
-    _offsets = new List<int>(7);
-    _offsets[0] = 0;
-    _offsets[1] = 0;
-    _offsets[2] = 0;
-    _offsets[3] = 0;
-    _offsets[4] = 0;
-    _offsets[5] = 0;
-    _offsets[6] = 0;
+    _offsets = List.filled(7, 0);
 
     /*
          *
@@ -309,7 +302,7 @@ class PrayerTime {
     double ra = (_darctan2((_dcos(e) * _dsin(L)), (_dcos(L)))) / 15.0;
     ra = _fixHour(ra);
     double eqt = q / 15.0 - ra;
-    List<double> sPosition = new List(2);
+    List<double> sPosition = List.filled(2, 0);
     sPosition[0] = d;
     sPosition[1] = eqt;
 
@@ -579,7 +572,7 @@ class PrayerTime {
 
   // convert times array to given time format
   List<String> adjustTimesFormat(List<double> times) {
-    List<String> result = new List<String>();
+    List<String> result = [];
     if (this.getTimeFormat() == this.getFloating()) {
       for (double time in times) {
         result.add(time.toString());

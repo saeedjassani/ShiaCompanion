@@ -46,12 +46,12 @@ class _LiveStreamingState extends State<LiveStreaming> {
                       UniversalData(data[i].link, data[i].title, 2);
                   if (favsData.contains(universalData)) {
                     favsData.remove(universalData);
-                    key.currentState.showSnackBar(SnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text("Removed from favorites"),
                     ));
                   } else {
                     favsData.add(universalData);
-                    key.currentState.showSnackBar(SnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text("Added to favorites"),
                     ));
                   }
