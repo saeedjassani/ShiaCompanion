@@ -4,6 +4,7 @@ import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
@@ -12,16 +13,13 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
-import 'package:http/http.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
-import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/widgets/bottom_bar.dart';
-import 'package:shia_companion/widgets/live_streaming.dart';
-import 'package:shia_companion/widgets/news_widget.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
-import 'package:webfeed/webfeed.dart';
+import 'package:shia_companion/widgets/todays_recitation.dart';
 import 'library_page.dart';
 import 'list_items.dart';
 
@@ -34,23 +32,22 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with WidgetsBindingObserver, RouteAware {
   String hadith = '';
   LocationData currentLocation;
   DateTime today = DateTime.now();
 
   Location location = Location();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  DatabaseReference favsReference;
 
-  List<UidTitleData> favsData;
   List<LiveStreamingData> holyShrine, liveChannel;
+  String initialFavs;
+  DatabaseReference newFavsReference;
 
   List prayerTimes;
-  var atomFeed;
 
-  ThemeData themeData = ThemeData(
-    canvasColor: Colors.brown,
-  );
   int _page = 0;
   PageController _pageController;
   bool scrollToPrayerTimes = false;
@@ -62,11 +59,17 @@ class _MyHomePageState extends State<MyHomePage> {
         duration: const Duration(milliseconds: 300), curve: Curves.ease);
   }
 
+  loginCallback() async {
+    await setUpFavorites();
+  }
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     setupPreferences();
     _pageController = PageController(initialPage: 0);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
   @override
@@ -79,15 +82,14 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        bottomNavigationBar: Theme(
-          data: themeData,
-          child: BottomNavigationBar(
-            showUnselectedLabels: false,
-            selectedItemColor: Colors.white,
-            onTap: navigationTapped, //
-            currentIndex: _page, //
-            items: bottomBarItems,
-          ),
+        bottomNavigationBar: BottomNavigationBar(
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white,
+          onTap: navigationTapped, //
+          currentIndex: _page, //
+          items: bottomBarItems,
+          backgroundColor: Colors.brown,
+          type: BottomNavigationBarType.fixed,
         ),
         body: PageView(
           children: <Widget>[
@@ -111,62 +113,120 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: HomePrayerTimesCard(callback),
                   ),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: Card(
-                  //     child: ExpansionTile(
-                  //       onExpansionChanged: (bool x) {
-                  //         if (user == null && x)
-                  //           key.currentState.showSnackBar(SnackBar(
-                  //             content:
-                  //                 Text("Please sign in to access favorites"),
-                  //           ));
-                  //       },
-                  //       title: Text("Favorites", key: ValueKey('hadith-text')),
-                  //       children: <Widget>[
-                  //         favsData != null
-                  //             ? SizedBox(
-                  //                 height: 300,
-                  //                 child: ListView.separated(
-                  //                   separatorBuilder:
-                  //                       (BuildContext context, int index) =>
-                  //                           Divider(),
-                  //                   itemCount:
-                  //                       favsData != null ? favsData.length : 0,
-                  //                   itemBuilder: (BuildContext c, int i) =>
-                  //                       buildZikrRow(c, favsData[i]),
-                  //                 ))
-                  //             : Container()
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-                  SizedBox(
-                    height: 120,
-                    width: screenWidth,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 8.0),
-                      child: Card(
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: zikr.length,
-                          itemBuilder: (BuildContext c, int i) =>
-                              buildBody(c, i),
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: ExpansionTile(
+                        onExpansionChanged: (bool value) {
+                          if (value &&
+                              (favsData == null || favsData.length == 0)) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Please add some favorites first"),
+                            ));
+                          }
+                        },
+                        title: Text("Favorites", key: ValueKey('hadith-text')),
+                        children: <Widget>[
+                          favsData != null
+                              ? ListView.separated(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  separatorBuilder:
+                                      (BuildContext context, int index) =>
+                                          Divider(),
+                                  itemCount: favsData.length,
+                                  itemBuilder: (BuildContext c, int i) {
+                                    UniversalData itemData = favsData[i];
+                                    return ListTile(
+                                        onTap: () => handleUniversalDataClick(
+                                            context, itemData),
+                                        title: Text(itemData.title),
+                                        trailing: InkWell(
+                                            onTap: () {
+                                              favsData.contains(itemData)
+                                                  ? favsData.remove(itemData)
+                                                  : favsData.add(itemData);
+                                              setState(() {});
+                                            },
+                                            child: favsData.contains(itemData)
+                                                ? Icon(
+                                                    Icons.star,
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                  )
+                                                : Icon(
+                                                    Icons.star_border,
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                  )));
+                                  })
+                              : Container()
+                        ],
                       ),
                     ),
                   ),
-                  atomFeed != null ? NewsWidget(atomFeed) : Container(),
-                  holyShrine != null ? LiveStreaming(holyShrine) : Container(),
-                  liveChannel != null
-                      ? LiveStreaming(liveChannel)
-                      : Container(),
+                  TodaysRecitation(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(), // new
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2),
+                      itemCount: tableCode.length,
+                      itemBuilder: (BuildContext c, int i) {
+                        return Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Card(
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => tableCode[i]));
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Image.asset(
+                                    zikrImages[i],
+                                    fit: BoxFit.fill,
+                                    height: 120,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            zikr[i],
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
             CalendarPage(scrollToPrayerTimes),
             LibraryPage(),
-            SettingsPage()
+            SettingsPage(loginCallback)
           ],
           controller: _pageController,
           onPageChanged: ((int page) {
@@ -184,15 +244,24 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void initializeData() async {
+    // Initialize Item Data
+    String data =
+        await DefaultAssetBundle.of(context).loadString("assets/items.json");
+    items = json.decode(data);
+    getHadith();
+
+    await setUpFavorites();
+
     // Initialize LocationData
     await initializeLocation();
 
     if (!kIsWeb) {
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      var initializationSettingsAndroid =
-          AndroidInitializationSettings('ic_launcher');
-      var initializationSettingsIOS = IOSInitializationSettings();
-      var initializationSettings = InitializationSettings(
+      AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('ic_notification');
+      IOSInitializationSettings initializationSettingsIOS =
+          IOSInitializationSettings();
+      InitializationSettings initializationSettings = InitializationSettings(
           initializationSettingsAndroid, initializationSettingsIOS);
       await flutterLocalNotificationsPlugin.initialize(initializationSettings,
           onSelectNotification: selectNotification);
@@ -202,6 +271,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       bool needToSchedule = true;
       pendingNotificationRequests.forEach((PendingNotificationRequest element) {
+        debugPrint("${element.id} ${element.title} is scheduled");
         if (element.id == 786 &&
             element.payload.isNotEmpty &&
             DateTime.now()
@@ -214,61 +284,11 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       if (needToSchedule) {
         setUpNotifications();
+      } else {
+        debugPrint("Azan notifications not scheduled");
       }
     }
-
-    // Initialize Item Data
-    if (kReleaseMode) {
-      String data =
-          await DefaultAssetBundle.of(context).loadString("assets/zikr.json");
-      items = json.decode(data);
-    } else {
-      var request =
-          await get("https://alghazienterprises.com/sc/scripts/getItems.php");
-      String loadString = request.body;
-      items = json.decode(loadString);
-    }
-
-    // Initialize Holy Shrines Data
-    var response = await get(
-        "https://alghazienterprises.com/sc/scripts/getHolyShrines.php");
-    if (response.statusCode == 200) {
-      List x = json.decode(response.body);
-      holyShrine = List();
-      x.forEach((f) => holyShrine.add(LiveStreamingData.fromJson(f)));
-    }
-    response = await get(
-        "https://alghazienterprises.com/sc/scripts/getIslamicChannels.php");
-    if (response.statusCode == 200) {
-      List x = json.decode(response.body);
-      liveChannel = List();
-      x.forEach((f) => liveChannel.add(LiveStreamingData.fromJson(f)));
-    }
-
-    response = await get("https://en.abna24.com/rss");
-    if (response.statusCode == 200) {
-      atomFeed = RssFeed.parse(response.body); // for parsing Atom feed
-    }
-
-    user = _auth.currentUser;
-    // If user is logged in, initialize favorites
-    if (user != null) {
-      favsData = [];
-      DatabaseReference tasksReference = FirebaseDatabase.instance
-          .reference()
-          .child('new_favs')
-          .child(user.uid);
-      DataSnapshot snapshot = await tasksReference.once();
-      List values = json.decode(snapshot.value);
-      for (var obj in values) {
-        // TODO Fix startsWithKey - Example: G17 should show when G17|L4 is present
-        if (items.containsKey(obj["uid"])) {
-          favsData.add(UidTitleData(obj["uid"], obj["title"]));
-        }
-      }
-    }
-
-    getHadith();
+    setState(() {});
   }
 
   Future selectNotification(String payload) async {
@@ -280,7 +300,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // 0 - 2340 General
   // 2341 - 2375 Muharram
-  getHadith() async {
+  Future<void> getHadith() async {
     HijriCalendar _today =
         HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
     Random rnd = Random();
@@ -396,5 +416,64 @@ class _MyHomePageState extends State<MyHomePage> {
       await sharedPreferences.setInt(
           'buildNumber', int.parse(packageInfo.buildNumber));
     }
+  }
+
+  @override
+  void dispose() async {
+    WidgetsBinding.instance.removeObserver(this);
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.paused && favsData != null) {
+      await sharedPreferences.setString("new_favs", jsonEncode(favsData));
+      if (newFavsReference != null)
+        await newFavsReference.set(jsonEncode(favsData));
+      debugPrint("Favorites updated");
+    }
+  }
+
+  Future<void> setUpFavorites() async {
+    favsData = [];
+    String favsString = sharedPreferences.getString("new_favs");
+    debugPrint("Prefs favs are $favsString");
+    if (favsString != null && favsString != "null") {
+      List values = json.decode(favsString);
+      values.forEach((element) {
+        favsData.add(
+            UniversalData(element['uid'], element['title'], element['type']));
+      });
+    }
+
+    user = _auth.currentUser;
+    if (user != null) {
+      newFavsReference = FirebaseDatabase.instance
+          .reference()
+          .child('new_favs')
+          .child(user.uid);
+      initialFavs = (await newFavsReference.once()).value;
+      debugPrint("Firebase favs are $initialFavs");
+      if (initialFavs != null) {
+        favsData = [];
+        List values = json.decode(initialFavs);
+        for (var element in values) {
+          favsData.add(
+              UniversalData(element['uid'], element['title'], element['type']));
+        }
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context));
+  }
+
+  @override
+  void didPopNext() {
+    setState(() {});
   }
 }

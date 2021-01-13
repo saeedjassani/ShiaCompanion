@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
-import 'package:shia_companion/pages/chewie_video_player.dart';
+import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/video_player.dart';
 import '../constants.dart';
 
@@ -40,6 +40,21 @@ class _LiveStreamingState extends State<LiveStreaming> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => VideoPlayer(data[i])));
+                },
+                onLongPress: () {
+                  UniversalData universalData =
+                      UniversalData(data[i].link, data[i].title, 2);
+                  if (favsData.contains(universalData)) {
+                    favsData.remove(universalData);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Removed from favorites"),
+                    ));
+                  } else {
+                    favsData.add(universalData);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Added to favorites"),
+                    ));
+                  }
                 },
                 child: Container(
                   key: ValueKey(data[i].title),

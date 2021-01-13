@@ -3,21 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 
+import 'package:date_format/date_format.dart';
+import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
+import 'pages/chapter_list_page.dart';
 import 'pages/item_page.dart';
 import 'pages/list_items.dart';
+import 'pages/news_page.dart';
+import 'pages/video_player.dart';
 
 double screenWidth = 0;
 double screenHeight = 0;
 
 User user;
 
+List<UniversalData> favsData;
+
 final String appName = "Shia Companion";
 int hijriDate = 0;
-double arabicFontSize = 28.0;
-double englishFontSize = 12.0;
+double arabicFontSize = 32.0;
+double englishFontSize = 16.0;
 
 PrayerTime prayerTime;
 LocationData currentLocation;
@@ -28,7 +37,6 @@ PrayerTime getPrayerTimeObject() {
 
   prayerTime = PrayerTime();
 
-  prayerTime.setTimeFormat(prayerTime.getTime12());
   prayerTime.setCalcMethod(prayerTime.getJafari());
   prayerTime.setAsrJuristic(prayerTime.getHanafi());
   prayerTime.setAdjustHighLats(prayerTime.getAdjustHighLats());
@@ -41,60 +49,79 @@ TextStyle boldText = TextStyle(fontWeight: FontWeight.bold);
 
 bool showTranslation = true, showTransliteration = true;
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-List<String> tableCode = [
-  "TR",
-  "F",
-  "E",
-  "G",
-  "A",
-  /*"C", "A", */ "H", /* "I", "B" */
+List tableCode = [
+  ItemList("F"),
+  ItemList("E"),
+  ItemList("G"),
+  ItemList("A"),
+  ItemList("C"),
+  ItemList("H"),
+  ItemList("I"),
+  ItemList("B"),
+  LiveStreamingPage(0),
+  LiveStreamingPage(1),
+  NewsPage(),
 ];
 
 List<String> zikr = [
-  "Today's Recitations",
   "Namaz",
   "Duas",
   "Ziyarats",
-  // "Amaal",
   "Surahs",
+  "Amaal",
   "Munajaats",
-  // "Baaqeyaat As Saalehaat",
-  // "Ziyarat of Hijaz, Iran & Iraq"
+  "Baaqeyaat As Saalehaat",
+  "Ziyarat of Hijaz, Iran & Iraq",
+  "Holy Shrines",
+  "Islamic Channels",
+  "Latest Shia News",
 ];
 
 List<String> zikrImages = [
-  "assets/images/taaqebaat_namaz",
-  "assets/images/namaz_home_min",
-  "assets/images/dua_home",
-  "assets/images/najaf_min",
-  // "assets/images/amaal",
-  "assets/images/surah_home",
-  "assets/images/munajat_home",
-  // "assets/images/taaqebaat_namaz",
-  // "assets/images/mashhad_min"
+  "assets/images/namaz_home_min.jpg",
+  "assets/images/dua_home.jpg",
+  "assets/images/najaf_min.jpg",
+  "assets/images/surah_home.jpg",
+  "assets/images/amaal.jpg",
+  "assets/images/munajat_home.jpg",
+  "assets/images/taaqebaat_namaz.jpg",
+  "assets/images/amaal.jpg",
+  "assets/images/mashhad_min.jpg",
+  "assets/images/zainabia_channel.jpg",
+  "assets/images/sc_news.png",
 ];
 
 Map items = {};
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 // HomePage key
 GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
 
-ListTile buildZikrRow(BuildContext context, UidTitleData itemData) {
-  return ListTile(
-    onTap: () {
-      if (itemData.getUId().contains("~")) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ItemList(itemData.getUId().split("~")[1])));
-      } else {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ItemPage(itemData)));
-      }
-    },
-    title: Text(itemData.title),
-  );
+void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
+  switch (itemData.type) {
+    case 0:
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ItemPage(UidTitleData(itemData.uid, itemData.title))));
+      break;
+    case 1:
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ChapterListPage(itemData.uid, itemData.title)));
+      break;
+    case 2:
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => VideoPlayer(
+                  LiveStreamingData(itemData.uid, itemData.title, null))));
+      break;
+    default:
+  }
 }
 
 initializeLocation() async {
@@ -133,8 +160,10 @@ void scheduleNotification(
 
 void setUpNotifications() async {
   debugPrint("Scheduling Azan Notifications");
+  await flutterLocalNotificationsPlugin.cancelAll();
+
   PrayerTime prayers = getPrayerTimeObject();
-  prayerTime.setTimeFormat(prayerTime.getTime24());
+  prayers.setTimeFormat(prayers.getTime24());
 
   DateTime now = DateTime.now();
   for (int i = 0; i < 12; i++) {
@@ -148,25 +177,21 @@ void setUpNotifications() async {
     var _prayerNames = prayers.getTimeNames();
     _prayerNames.asMap().forEach((index, prayerName) =>
         schedulePrayerTimeNotification(
-            (10 * (index + 1)) + i,
+            (100 * (index + 1)) + i,
             DateTime.parse(
                 "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[index]}"),
             prayerName,
             prayerTimes[index]));
   }
   AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    "prayerTimes",
-    "Prayer Times",
-    "Azan Notifications for Prayer Times",
-  );
+      AndroidNotificationDetails("general", "General", "General notifications");
   IOSNotificationDetails iOSPlatformChannelSpecifics = IOSNotificationDetails();
   NotificationDetails platformChannelSpecifics = NotificationDetails(
       androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.schedule(
       786,
       "Open the app to continue getting Azan notifications",
-      "It seems you've not used the applications since last 12 days. Please open the app continue getting Azan notifications",
+      "It seems you've not used the application in last 12 days. Please open the app to continue receive Azan notifications",
       now.add(Duration(days: 11)),
       platformChannelSpecifics,
       payload: now.add(Duration(days: 11)).millisecondsSinceEpoch.toString());
@@ -190,13 +215,37 @@ void schedulePrayerTimeNotification(
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.schedule(
-        id,
-        prayerTime + " : " + prayerName,
-        "It's time for " + prayerName.toLowerCase(),
-        dateTime,
-        platformChannelSpecifics,
-        androidAllowWhileIdle: true);
+      id,
+      formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
+      "It's time for " + prayerName.toLowerCase(),
+      dateTime,
+      platformChannelSpecifics,
+      androidAllowWhileIdle: true,
+    );
   } else {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
+}
+
+void testNotification() async {
+  AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'prayerTimes',
+    'Prayer Times',
+    'Azan Notifications for Prayer Times',
+    importance: Importance.High,
+    sound: RawResourceAndroidNotificationSound('sharif'),
+  );
+  IOSNotificationDetails iOSPlatformChannelSpecifics =
+      IOSNotificationDetails(sound: 'azan.caf');
+  NotificationDetails platformChannelSpecifics = NotificationDetails(
+      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.schedule(
+    999,
+    "Test",
+    "Test notification",
+    DateTime.now().add(Duration(minutes: 1)),
+    platformChannelSpecifics,
+    androidAllowWhileIdle: true,
+  );
 }

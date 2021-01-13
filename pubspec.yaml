@@ -1,10 +1,10 @@
 name: shia_companion
 description: A new Flutter project.
 
-version: 2.1+1
+version: 2.5+46
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -34,6 +34,7 @@ dependencies:
   screenshots: ^2.1.1
   chewie: ^0.12.0
   video_player: ^1.0.0
+  geocoder: ^0.2.1
 
 dev_dependencies:
   flutter_test:
@@ -67,6 +68,7 @@ flutter:
     - assets/images/
     - assets/zikr/
     - assets/hadith.csv
+    - assets/items/
 
   fonts:
     - family: Qalam

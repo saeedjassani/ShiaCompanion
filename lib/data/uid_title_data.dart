@@ -15,6 +15,7 @@ class UidTitleData {
     return uid;
   }
 
+  // Returns primary UID. L4 is returned when UID is G17|L4
   String getFirstUId() {
     if (uid.contains("|")) return uid.split("|")[1];
     return uid;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webfeed/domain/rss_feed.dart';
-import '../constants.dart';
 
 class NewsWidget extends StatefulWidget {
   final RssFeed data;
@@ -55,7 +54,7 @@ class NewsWidgetState extends State<NewsWidget> {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
-      key.currentState.showSnackBar(new SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
         content: new Text("No web browser found"),
       ));
     }
