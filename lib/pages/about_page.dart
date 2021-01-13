@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatefulWidget {
   @override
@@ -45,19 +46,22 @@ class _AboutPageState extends State<AboutPage> {
               ),
               ListTile(
                 title: Text(
-                  "We thank Almighty Allah and His beloved Fourteen Infallibles (a.s.) for Their help which made us able to share this humble work with the Momeneen.\n\n\nFor feedback, queries or suggestions contact :",
+                  "We thank Almighty Allah and His beloved Fourteen Infallibles (a.s.) for Their help which made us able to share this humble work with the Momeneen. We dedicate the app to them and the following Marhumeems:\n\nMarhum Haji Mohammad Raza Jassani\nMarhum Haji Yusufali Bhojani\nMarhoom Haji Zahid Husain Mohammed Husain Ajani\n\n\nPlease recite Surah Fateha for Marhumeen and Marhumaat\n\nFor feedback, queries or suggestions contact :",
                   textAlign: TextAlign.center,
                 ),
               ),
               ListTile(
+                onTap: () async {
+                  if (await canLaunch("mailto:developer110@hotmail.com")) {
+                    await launch("mailto:developer110@hotmail.com");
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("No e-mail app found")));
+                  }
+                },
                 title: Text(
                   "developer110@hotmail.com",
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              ListTile(
-                title: Text(
-                  "\n\nPlease recite Surah Fateha for :\n\nMarhum Haji Mohammad Raza Jassani\nMarhum Haji Yusufali Bhojani\nMarhoom Haji Zahid Husain Mohammed Husain Ajani\nand other Marhumeen and Marhumaat",
+                  style: TextStyle(color: Colors.blue),
                   textAlign: TextAlign.center,
                 ),
               ),
