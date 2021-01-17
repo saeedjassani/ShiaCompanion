@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:location/location.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:location/location.dart' as location;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/live_streaming_page.dart';
@@ -29,7 +30,7 @@ double arabicFontSize = 32.0;
 double englishFontSize = 16.0;
 
 PrayerTime prayerTime;
-LocationData currentLocation;
+location.LocationData currentLocation;
 SharedPreferences sharedPreferences;
 
 PrayerTime getPrayerTimeObject() {
@@ -126,7 +127,16 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
 
 initializeLocation() async {
   try {
-    currentLocation = await Location().getLocation();
+    currentLocation = await location.Location().getLocation();
+    if (currentLocation != null) {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(52.2165157, 6.9437819);
+      if (placemarks != null && placemarks.isNotEmpty) {
+        sharedPreferences.setDouble("lat", currentLocation.latitude);
+        sharedPreferences.setDouble("long", currentLocation.longitude);
+        print("Locality is " + placemarks[0].locality);
+      }
+    }
   } catch (e) {
     currentLocation = null;
     debugPrint(e);
@@ -160,7 +170,6 @@ void scheduleNotification(
 
 void setUpNotifications() async {
   debugPrint("Scheduling Azan Notifications");
-  await flutterLocalNotificationsPlugin.cancelAll();
 
   PrayerTime prayers = getPrayerTimeObject();
   prayers.setTimeFormat(prayers.getTime24());

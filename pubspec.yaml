@@ -34,7 +34,7 @@ dependencies:
   screenshots: ^2.1.1
   chewie: ^0.12.0
   video_player: ^1.0.0
-  geocoder: ^0.2.1
+  geocoding: ^1.0.5
 
 dev_dependencies:
   flutter_test:
