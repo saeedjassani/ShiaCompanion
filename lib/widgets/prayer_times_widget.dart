@@ -24,12 +24,9 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     PrayerTime prayerTime = getPrayerTimeObject();
     prayerTime.setTimeFormat(prayerTime.getTime12());
 
-    List<String> _prayerTimes = currentLocation != null
+    List<String> _prayerTimes = city != null
         ? prayerTime.getPrayerTimes(
-            currentTime,
-            currentLocation.latitude,
-            currentLocation.longitude,
-            currentTime.timeZoneOffset.inMinutes / 60.0)
+            currentTime, lat, long, currentTime.timeZoneOffset.inMinutes / 60.0)
         : null;
     return Card(
       color: Colors.brown[50],
@@ -50,6 +47,12 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Text(
+                        "Location: $city",
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

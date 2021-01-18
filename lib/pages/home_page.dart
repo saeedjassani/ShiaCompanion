@@ -331,6 +331,10 @@ class _MyHomePageState extends State<MyHomePage>
 
     hijriDate = sharedPreferences.getInt('adjust_hijri_date') ?? hijriDate;
 
+    city = sharedPreferences.getString("city");
+    lat = sharedPreferences.getDouble("lat");
+    long = sharedPreferences.getDouble("long");
+
     // By default turn on Azan for Fajr, Dhuhr and Maghrib
     if (sharedPreferences.getBool('fajr_notification') == null) {
       sharedPreferences.setBool('fajr_notification', true);
