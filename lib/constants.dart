@@ -30,7 +30,9 @@ double arabicFontSize = 32.0;
 double englishFontSize = 16.0;
 
 PrayerTime prayerTime;
-location.LocationData currentLocation;
+String city;
+double lat, long;
+
 SharedPreferences sharedPreferences;
 
 PrayerTime getPrayerTimeObject() {
@@ -127,18 +129,24 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
 
 initializeLocation() async {
   try {
-    currentLocation = await location.Location().getLocation();
+    location.LocationData currentLocation =
+        await location.Location().getLocation();
     if (currentLocation != null) {
+      lat = currentLocation.latitude;
+      long = currentLocation.longitude;
+
       List<Placemark> placemarks =
           await placemarkFromCoordinates(52.2165157, 6.9437819);
       if (placemarks != null && placemarks.isNotEmpty) {
+        city = placemarks[0].locality;
+
         sharedPreferences.setDouble("lat", currentLocation.latitude);
         sharedPreferences.setDouble("long", currentLocation.longitude);
-        print("Locality is " + placemarks[0].locality);
+        sharedPreferences.setString("city", placemarks[0].locality);
+        debugPrint("Locality is " + placemarks[0].locality);
       }
     }
   } catch (e) {
-    currentLocation = null;
     debugPrint(e);
   }
 }
@@ -163,9 +171,6 @@ void scheduleNotification(
   await flutterLocalNotificationsPlugin.schedule(
       id, title, description, dateTime, platformChannelSpecifics,
       androidAllowWhileIdle: true);
-  await flutterLocalNotificationsPlugin.schedule(
-      id, title, description, dateTime, platformChannelSpecifics,
-      androidAllowWhileIdle: true);
 }
 
 void setUpNotifications() async {
@@ -178,10 +183,7 @@ void setUpNotifications() async {
   for (int i = 0; i < 12; i++) {
     DateTime temp = now.add(Duration(days: i));
     List<String> prayerTimes = prayers.getPrayerTimes(
-        temp,
-        currentLocation.latitude,
-        currentLocation.longitude,
-        temp.timeZoneOffset.inMinutes / 60.0);
+        temp, lat, long, temp.timeZoneOffset.inMinutes / 60.0);
 
     var _prayerNames = prayers.getTimeNames();
     _prayerNames.asMap().forEach((index, prayerName) =>
@@ -216,7 +218,7 @@ void schedulePrayerTimeNotification(
       'prayerTimes',
       'Prayer Times',
       'Azan Notifications for Prayer Times',
-      importance: Importance.High,
+      importance: Importance.Max,
       sound: RawResourceAndroidNotificationSound('sharif'),
     );
     IOSNotificationDetails iOSPlatformChannelSpecifics =
