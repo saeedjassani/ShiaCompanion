@@ -269,7 +269,6 @@ class _MyHomePageState extends State<MyHomePage>
       await flutterLocalNotificationsPlugin.cancelAll();
       final List<PendingNotificationRequest> pendingNotificationRequests =
           await flutterLocalNotificationsPlugin.pendingNotificationRequests();
-      bool needToSchedule = true;
       pendingNotificationRequests.forEach((PendingNotificationRequest element) {
         debugPrint("${element.id} ${element.title} is scheduled");
         if (element.id == 786 &&
