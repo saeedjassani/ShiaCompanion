@@ -6,6 +6,7 @@ import 'package:location/location.dart' as location;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/live_streaming_page.dart';
+import 'package:shia_companion/pages/qibla_finder.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 
 import 'package:date_format/date_format.dart';
@@ -64,6 +65,7 @@ List tableCode = [
   LiveStreamingPage(0),
   LiveStreamingPage(1),
   NewsPage(),
+  QiblaFinder(),
 ];
 
 List<String> zikr = [
@@ -78,6 +80,7 @@ List<String> zikr = [
   "Holy Shrines",
   "Islamic Channels",
   "Latest Shia News",
+  "Qibla Finder",
 ];
 
 List<String> zikrImages = [
@@ -92,6 +95,7 @@ List<String> zikrImages = [
   "assets/images/mashhad_min.jpg",
   "assets/images/zainabia_channel.jpg",
   "assets/images/sc_news.png",
+  "assets/images/qibla_finder.png",
 ];
 
 Map items = {};
@@ -135,8 +139,7 @@ initializeLocation() async {
       lat = currentLocation.latitude;
       long = currentLocation.longitude;
 
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(52.2165157, 6.9437819);
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
       if (placemarks != null && placemarks.isNotEmpty) {
         city = placemarks[0].locality;
 
@@ -149,28 +152,6 @@ initializeLocation() async {
   } catch (e) {
     debugPrint(e);
   }
-}
-
-void scheduleNotification(
-    int id,
-    DateTime dateTime,
-    String title,
-    String description,
-    String channelID,
-    String channelTitle,
-    String channelDescription) async {
-  AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    channelID,
-    channelTitle,
-    channelDescription,
-  );
-  IOSNotificationDetails iOSPlatformChannelSpecifics = IOSNotificationDetails();
-  NotificationDetails platformChannelSpecifics = NotificationDetails(
-      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.schedule(
-      id, title, description, dateTime, platformChannelSpecifics,
-      androidAllowWhileIdle: true);
 }
 
 void setUpNotifications() async {
