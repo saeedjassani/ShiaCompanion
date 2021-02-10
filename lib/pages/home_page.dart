@@ -14,9 +14,11 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
+import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
+import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/widgets/bottom_bar.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/todays_recitation.dart';
@@ -81,6 +83,17 @@ class _MyHomePageState extends State<MyHomePage>
         key: key,
         appBar: AppBar(
           title: Text(widget.title),
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  showSearch(
+                      context: context,
+                      delegate: DataSearch(items.entries
+                          .map((entry) => UidTitleData(entry.key, entry.value))
+                          .toList()));
+                })
+          ],
         ),
         bottomNavigationBar: BottomNavigationBar(
           selectedItemColor: Colors.white,
