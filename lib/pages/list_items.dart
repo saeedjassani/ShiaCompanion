@@ -114,7 +114,7 @@ class _ItemListState extends State<ItemList> {
       },
       title: Text(title),
       trailing: uidTitleData.getUId().contains("~")
-          ? Container()
+          ? null
           : InkWell(
               onTap: () {
                 favsData.contains(itemData)
