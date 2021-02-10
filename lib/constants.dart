@@ -33,6 +33,7 @@ double englishFontSize = 16.0;
 PrayerTime prayerTime;
 String city;
 double lat, long;
+bool needToSchedule = true;
 
 SharedPreferences sharedPreferences;
 
@@ -143,10 +144,11 @@ initializeLocation() async {
       if (placemarks != null && placemarks.isNotEmpty) {
         city = placemarks[0].locality;
 
+        if (sharedPreferences.getString("city") != city) needToSchedule = true;
+
         sharedPreferences.setDouble("lat", currentLocation.latitude);
         sharedPreferences.setDouble("long", currentLocation.longitude);
         sharedPreferences.setString("city", placemarks[0].locality);
-        debugPrint("Locality is " + placemarks[0].locality);
       }
     }
   } catch (e) {
