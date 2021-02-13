@@ -8,7 +8,6 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/pages/qibla_finder.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
-
 import 'package:date_format/date_format.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
