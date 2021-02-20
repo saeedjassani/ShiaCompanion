@@ -71,6 +71,8 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 6.6)
     - PromisesObjC (~> 1.2)
   - Flutter (1.0.0)
+  - flutter_beep (0.0.1):
+    - Flutter
   - flutter_local_notifications (0.0.1):
     - Flutter
   - flutter_webview_plugin (0.0.1):
@@ -142,6 +144,7 @@ DEPENDENCIES:
   - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
   - Flutter (from `Flutter`)
+  - flutter_beep (from `.symlinks/plugins/flutter_beep/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_webview_plugin (from `.symlinks/plugins/flutter_webview_plugin/ios`)
   - geocoding (from `.symlinks/plugins/geocoding/ios`)
@@ -190,6 +193,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_database/ios"
   Flutter:
     :path: Flutter
+  flutter_beep:
+    :path: ".symlinks/plugins/flutter_beep/ios"
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   flutter_webview_plugin:
@@ -231,6 +236,7 @@ SPEC CHECKSUMS:
   FirebaseDatabase: 4e99c0c475d1ee0aa64ae2b53c93f80b7b60d7d9
   FirebaseInstallations: 6f5f680e65dc374397a483c32d1799ba822a395b
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  flutter_beep: 54fb393b22dfa0f0e4573c81b1c74dd71c4e5af8
   flutter_local_notifications: 9e4738ce2471c5af910d961a6b7eadcf57c50186
   flutter_webview_plugin: ed9e8a6a96baf0c867e90e1bce2673913eeac694
   geocoding: 32cfcdb16d38d907caaba65e2e42ad10d38bee58
