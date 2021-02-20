@@ -16,6 +16,7 @@ import 'pages/item_page.dart';
 import 'pages/list_items.dart';
 import 'pages/news_page.dart';
 import 'pages/video_player.dart';
+import 'widgets/tasbeeh_widget.dart';
 
 double screenWidth = 0;
 double screenHeight = 0;
@@ -66,6 +67,7 @@ List tableCode = [
   LiveStreamingPage(1),
   NewsPage(),
   QiblaFinder(),
+  TasbeehWidget(),
 ];
 
 List<String> zikr = [
@@ -81,6 +83,7 @@ List<String> zikr = [
   "Islamic Channels",
   "Latest Shia News",
   "Qibla Finder",
+  "Tasbeeh Counter",
 ];
 
 List<String> zikrImages = [
@@ -96,6 +99,7 @@ List<String> zikrImages = [
   "assets/images/zainabia_channel.jpg",
   "assets/images/sc_news.png",
   "assets/images/qibla_finder.png",
+  "assets/images/counter.png",
 ];
 
 Map items = {};
