@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '../constants.dart';
 
@@ -31,6 +32,7 @@ class _ItemPageState extends State<ItemPage> {
   @override
   void initState() {
     super.initState();
+    if (screenOn) Wakelock.enable();
     initializeData();
   }
 
@@ -54,6 +56,9 @@ class _ItemPageState extends State<ItemPage> {
   TextStyle arabicStyle = TextStyle(
     fontFamily: "Qalam",
     fontSize: arabicFontSize,
+  );
+  TextStyle transliStyle = TextStyle(
+    fontSize: englishFontSize,
   );
 
   @override
@@ -92,7 +97,10 @@ class _ItemPageState extends State<ItemPage> {
                             ),
                           );
                         } else {
-                          return Text(str);
+                          return Text(
+                            str,
+                            style: transliStyle,
+                          );
                         }
                       },
                     ),
@@ -103,6 +111,12 @@ class _ItemPageState extends State<ItemPage> {
             : Text(''),
       ),
     );
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    Wakelock.disable();
   }
 
   List<String> generateCodeAndStrings(String content) {

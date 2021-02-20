@@ -144,4 +144,10 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
       ),
     );
   }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    await sharedPreferences.setInt("count", counter);
+  }
 }

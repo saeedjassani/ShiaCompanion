@@ -29,6 +29,7 @@ final String appName = "Shia Companion";
 int hijriDate = 0;
 double arabicFontSize = 32.0;
 double englishFontSize = 16.0;
+bool screenOn;
 
 PrayerTime prayerTime;
 String city;

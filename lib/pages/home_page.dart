@@ -57,8 +57,7 @@ class _MyHomePageState extends State<MyHomePage>
   callback() {
     _page = 1;
     scrollToPrayerTimes = true;
-    _pageController.animateToPage(_page,
-        duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    _pageController.jumpToPage(_page);
   }
 
   loginCallback() async {
@@ -252,8 +251,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   void navigationTapped(int page) {
     scrollToPrayerTimes = false;
-    _pageController.animateToPage(page,
-        duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    _pageController.jumpToPage(page);
   }
 
   void initializeData() async {
@@ -335,6 +333,7 @@ class _MyHomePageState extends State<MyHomePage>
         sharedPreferences.getDouble('ara_font_size') ?? arabicFontSize;
     englishFontSize =
         sharedPreferences.getDouble('eng_font_size') ?? englishFontSize;
+    screenOn = sharedPreferences.getBool('keep_awake') ?? true;
 
     showTranslation =
         sharedPreferences.getBool('showTranslation') ?? showTranslation;
