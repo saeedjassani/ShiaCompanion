@@ -81,13 +81,24 @@ class _SettingsPageState extends State<SettingsPage> {
               min: 10.0,
               max: 24.0,
               divisions: 14,
-              onChanged: (newRating) {
-                englishFontSize = newRating.toInt().toDouble();
+              onChanged: (val) {
+                englishFontSize = val.toInt().toDouble();
                 saveDoublePref('eng_font_size', englishFontSize);
               },
               value: englishFontSize,
             ),
             trailing: Text(englishFontSize.toInt().toString()),
+          ),
+          Divider(),
+          SwitchListTile(
+            value: screenOn,
+            onChanged: (v) {
+              sharedPreferences.setBool("keep_awake", v);
+              setState(() {
+                screenOn = v;
+              });
+            },
+            title: Text("Keep screen on while reciting Zikr"),
           ),
           Divider(),
           user != null

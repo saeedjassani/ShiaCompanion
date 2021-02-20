@@ -36,6 +36,7 @@ dependencies:
   video_player: ^1.0.0
   geocoding: ^1.0.5
   flutter_beep: ^0.2.0
+  wakelock: ^0.2.1+1
 
 dev_dependencies:
   flutter_test:
