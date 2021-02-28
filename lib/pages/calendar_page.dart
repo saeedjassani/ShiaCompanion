@@ -140,7 +140,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 },
               ),
               calendarController: _calendarController,
-              onDaySelected: (date, events) {
+              onDaySelected: (date, events, holidays) {
                 HijriCalendar newDate =
                     HijriCalendar.fromDate(date.add(Duration(days: hijriDate)));
 

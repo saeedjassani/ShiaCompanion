@@ -17,6 +17,8 @@ import 'pages/list_items.dart';
 import 'pages/news_page.dart';
 import 'pages/video_player.dart';
 import 'widgets/tasbeeh_widget.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 double screenWidth = 0;
 double screenHeight = 0;
@@ -185,13 +187,17 @@ void setUpNotifications() async {
       AndroidNotificationDetails("general", "General", "General notifications");
   IOSNotificationDetails iOSPlatformChannelSpecifics = IOSNotificationDetails();
   NotificationDetails platformChannelSpecifics = NotificationDetails(
-      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.schedule(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.zonedSchedule(
       786,
       "Open the app to continue getting Azan notifications",
       "It seems you've not used the application in last 12 days. Please open the app to continue receive Azan notifications",
-      now.add(Duration(days: 11)),
+      tz.TZDateTime.now(tz.local).add(Duration(days: 11)),
       platformChannelSpecifics,
+      androidAllowWhileIdle: false,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.wallClockTime,
       payload: now.add(Duration(days: 11)).millisecondsSinceEpoch.toString());
 }
 
@@ -205,21 +211,23 @@ void schedulePrayerTimeNotification(
       'prayerTimes',
       'Prayer Times',
       'Azan Notifications for Prayer Times',
-      importance: Importance.Max,
+      importance: Importance.max,
       sound: RawResourceAndroidNotificationSound('sharif'),
     );
     IOSNotificationDetails iOSPlatformChannelSpecifics =
         IOSNotificationDetails(sound: 'azan.caf');
     NotificationDetails platformChannelSpecifics = NotificationDetails(
-        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.schedule(
-      id,
-      formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
-      "It's time for " + prayerName.toLowerCase(),
-      dateTime,
-      platformChannelSpecifics,
-      androidAllowWhileIdle: true,
-    );
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
+        "It's time for " + prayerName.toLowerCase(),
+        tz.TZDateTime.from(dateTime, tz.local),
+        platformChannelSpecifics,
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.wallClockTime);
   } else {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
@@ -231,19 +239,21 @@ void testNotification() async {
     'prayerTimes',
     'Prayer Times',
     'Azan Notifications for Prayer Times',
-    importance: Importance.High,
+    importance: Importance.max,
     sound: RawResourceAndroidNotificationSound('sharif'),
   );
   IOSNotificationDetails iOSPlatformChannelSpecifics =
       IOSNotificationDetails(sound: 'azan.caf');
   NotificationDetails platformChannelSpecifics = NotificationDetails(
-      androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.schedule(
-    999,
-    "Test",
-    "Test notification",
-    DateTime.now().add(Duration(minutes: 1)),
-    platformChannelSpecifics,
-    androidAllowWhileIdle: true,
-  );
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.zonedSchedule(
+      999,
+      "Test",
+      "Test notification",
+      tz.TZDateTime.now(tz.local).add(Duration(minutes: 1)),
+      platformChannelSpecifics,
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.wallClockTime);
 }
