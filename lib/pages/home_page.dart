@@ -6,9 +6,11 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
 import 'package:package_info/package_info.dart';
+import 'package:share/share.dart';
 import 'dart:convert';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +26,8 @@ import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/todays_recitation.dart';
 import 'library_page.dart';
 import 'list_items.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -113,10 +117,21 @@ class _MyHomePageState extends State<MyHomePage>
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 32.0, horizontal: 16.0),
-                      child: SingleChildScrollView(
-                        child: Text(
-                          '$hadith',
-                          textAlign: TextAlign.center,
+                      child: InkWell(
+                        onTap: () {
+                          Share.share(
+                              '$hadith\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                              sharePositionOrigin: Rect.fromLTWH(
+                                  MediaQuery.of(context).size.width / 2,
+                                  0,
+                                  2,
+                                  2));
+                        },
+                        child: SingleChildScrollView(
+                          child: Text(
+                            '$hadith',
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                     ),
@@ -267,13 +282,19 @@ class _MyHomePageState extends State<MyHomePage>
     await initializeLocation();
 
     if (!kIsWeb) {
+      tz.initializeTimeZones();
+      final String currentTimeZone =
+          await FlutterNativeTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(currentTimeZone));
+
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
       AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('ic_notification');
       IOSInitializationSettings initializationSettingsIOS =
           IOSInitializationSettings();
       InitializationSettings initializationSettings = InitializationSettings(
-          initializationSettingsAndroid, initializationSettingsIOS);
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS);
       await flutterLocalNotificationsPlugin.initialize(initializationSettings,
           onSelectNotification: selectNotification);
 
@@ -400,7 +421,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   showAlertDialog() async {
     // set up the button
-    Widget okButton = FlatButton(
+    Widget okButton = TextButton(
       child: Text("OK"),
       onPressed: () {
         Navigator.pop(context);
