@@ -13,27 +13,17 @@ class ItemData {
       audio;
 
   ItemData(
-      String title,
-      String content,
-      String code,
-      String uId,
-      String id,
-      String english,
-      String transliteration,
-      String fav,
-      String scroll,
-      String audio) {
-    this.title = title;
-    this.content = content;
-    this.code = code;
-    this.uId = uId;
-    this.id = id;
-    this.english = english;
-    this.transliteration = transliteration;
-    this.fav = fav;
-    this.scroll = scroll;
-    this.audio = audio;
-  }
+    this.title,
+    this.content,
+    this.code,
+    this.uId,
+    this.id,
+    this.english,
+    this.transliteration,
+    this.fav,
+    this.scroll,
+    this.audio,
+  );
 
   String getTransla() {
     return english;

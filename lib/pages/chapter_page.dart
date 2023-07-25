@@ -13,7 +13,7 @@ class ChapterPage extends StatefulWidget {
 }
 
 class _ChapterPageState extends State<ChapterPage> {
-  String chapterMarkdown;
+  String? chapterMarkdown;
 
   @override
   void initState() {
@@ -22,8 +22,8 @@ class _ChapterPageState extends State<ChapterPage> {
   }
 
   _updateEventString() async {
-    var response = await get(
-        "https://raw.githubusercontent.com/saeedjassani/shiavault-library/master/books/${widget.slug}.md");
+    var response = await get(Uri.parse(
+        "https://raw.githubusercontent.com/saeedjassani/shiavault-library/master/books/${widget.slug}.md"));
     if (response.statusCode == 200) {
       chapterMarkdown = response.body;
     }
@@ -37,7 +37,7 @@ class _ChapterPageState extends State<ChapterPage> {
         title: Text(widget.title),
       ),
       body: chapterMarkdown != null
-          ? Markdown(data: chapterMarkdown)
+          ? Markdown(data: chapterMarkdown!)
           : Center(child: CircularProgressIndicator()),
     );
   }

@@ -22,7 +22,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: appName,
       theme: ThemeData(primarySwatch: Colors.brown),
-      home: MyHomePage(title: appName),
+      home: MyHomePage(
+        title: appName,
+      ),
       navigatorObservers: [routeObserver],
     );
   }

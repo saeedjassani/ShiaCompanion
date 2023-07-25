@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/pages/item_page.dart';
 import 'package:shia_companion/pages/list_items.dart';
+import 'package:shia_companion/pages/zikr_page.dart';
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;
@@ -29,7 +30,7 @@ class DataSearch extends SearchDelegate<String> {
           progress: transitionAnimation,
         ),
         onPressed: () {
-          close(context, null);
+          close(context, '');
         });
   }
 
@@ -69,7 +70,7 @@ class DataSearch extends SearchDelegate<String> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => ItemPage(suggestionList[index])));
+                    builder: (context) => ZikrPage(suggestionList[index])));
           }
         },
         title: Text(suggestionList[index].title),

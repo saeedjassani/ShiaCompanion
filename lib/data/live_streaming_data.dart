@@ -1,16 +1,13 @@
 import 'dart:core';
 
 class LiveStreamingData {
-  String link, title, img;
+  String link, title;
+  String? img;
 
-  LiveStreamingData(String uid, String title, String img) {
-    this.link = uid;
-    this.title = title;
-  }
+  LiveStreamingData(this.link, this.title, {this.img});
 
-  LiveStreamingData.fromJson(var value) {
-    this.title = value['title'];
-    this.link = value['link'];
-    this.img = value['img'];
-  }
+  LiveStreamingData.fromJson(Map<String, dynamic> value)
+      : link = value['link'],
+        title = value['title'],
+        img = value['img'];
 }

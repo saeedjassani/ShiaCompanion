@@ -25,8 +25,8 @@ class _ChapterListPageState extends State<ChapterListPage> {
   }
 
   _updateEventString() async {
-    var response = await get(
-        "https://raw.githubusercontent.com/saeedjassani/shiavault-library/master/books/${widget.slug}/metadata.yml");
+    var response = await get(Uri.parse(
+        "https://raw.githubusercontent.com/saeedjassani/shiavault-library/master/books/${widget.slug}/metadata.yml"));
     if (response.statusCode == 200) {
       final mapData = loadYaml(response.body.split('---')[1].trim());
       List temp = mapData['chapters'];
