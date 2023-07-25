@@ -30,9 +30,7 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Shia Companion"),
-      ),
+      appBar: getAppBar(),
       body: data != null
           ? GridView.builder(
               gridDelegate:

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:shia_companion/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webfeed_revised/domain/rss_feed.dart';
 
@@ -20,9 +21,7 @@ class _NewsPageState extends State<NewsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Shia Companion"),
-      ),
+      appBar: getAppBar(),
       body: data != null
           ? ListView.separated(
               separatorBuilder: (context, index) => Divider(),
