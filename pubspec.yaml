@@ -1,46 +1,45 @@
 name: shia_companion
 description: A new Flutter project.
 
-version: 2.7+48
+version: 2.7.0+48
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: ^3.0.0
 
 dependencies:
+  adhan_dart: ^1.0.8
+  auth_buttons: ^3.0.0
+  csv: ^5.0.2
+  date_format: ^2.0.7
+  firebase_auth: ^4.6.0
+  firebase_crashlytics: ^3.3.0
+  firebase_database: ^10.2.0
   flutter:
     sdk: flutter
-  firebase_core: ^0.7.0
-  firebase_auth: ^0.20.1
-  firebase_database: ^6.0.0
-  google_sign_in: ^4.5.9
-  flutter_auth_buttons: ^0.10.0
-  location: ^3.2.4
-  http: ^0.12.2
-  shared_preferences: ^0.5.12+4
-  flutter_webview_plugin: ^0.3.11
-  url_launcher: ^5.7.10
-  hijri: ^2.0.3
-  date_format: ^1.0.9
-  csv: ^4.1.0
-  firebase_crashlytics: ^0.4.0+1
-  flutter_local_notifications: ^4.0.1
-  table_calendar: ^2.3.3
-  share: ^0.6.5
-  package_info: ^0.4.3
-  apple_sign_in: ^0.1.0
-  webfeed: ^0.6.0
-  yaml: ^2.2.1
-  flutter_markdown: ^0.5.0
-  video_player: ^1.0.0
-  geocoding: ^1.0.5
-  flutter_beep: ^0.2.0
-  wakelock: ^0.2.1+1
-  flutter_native_timezone: ^1.0.4
+  flutter_beep: ^1.0.0
+  flutter_local_notifications: ^14.0.0+2
+  geocoding: ^2.1.0
+  hijri: ^3.0.0
+  location: ^5.0.1
+  package_info: ^2.0.2
+  share_plus: ^6.3.4
+  shared_preferences: ^2.1.1
+  sign_in_with_apple: ^4.3.0
+  table_calendar: ^3.0.9
+  url_launcher: ^6.1.11
+  wakelock: ^0.6.2
+  webview_flutter: ^4.2.0
+  webfeed_revised: ^0.7.2
+  yaml: ^3.1.2
+  flutter_markdown: ^0.6.17
+  flutter_webview_plugin: ^0.4.0
+  intl: ^0.18.1
+  google_sign_in: ^6.1.4
+  the_apple_sign_in: ^1.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: "^0.7.3"
   flutter_driver:
     sdk: flutter
 # dependency_overrides:

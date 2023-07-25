@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:wakelock/wakelock.dart';
 
 import '../constants.dart';
+import '../utils/shared_preferences.dart';
 
 class ItemPage extends StatefulWidget {
   final UidTitleData item;
@@ -20,11 +21,11 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
   final UidTitleData item;
 
   Set<int> codes = Set();
-  TabController _tabController;
+  late TabController _tabController;
 
   _ItemPageState(this.item);
 
-  String loadString;
+  late String loadString;
   var itemData;
   List<Tab> tabs = [
     Tab(text: 'Arabic'),
@@ -35,7 +36,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    if (screenOn) Wakelock.enable();
+    if (SP.prefs.getBool('keep_awake') ?? true) Wakelock.enable();
     initializeData();
   }
 
@@ -75,99 +76,92 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => afterBuild(context));
-    List<String> content =
+    List<String>? content =
         itemData != null ? generateCodeAndStrings(itemData['content']) : null;
 
-    return _tabController != null
-        ? DefaultTabController(
-            length: tabs.length,
-            child: Scaffold(
-              appBar: AppBar(
-                title: Text(item.getTitle()),
-                bottom: tabs.length > 1
-                    ? TabBar(
-                        tabs: tabs,
-                        controller: _tabController,
-                      )
-                    : null,
-                actions: [
-                  IconButton(
-                      icon: Icon(sharedPreferences.containsKey(
-                              _tabController.index.toString() +
-                                  "scroll_" +
-                                  item.getUId())
-                          ? Icons.bookmark
-                          : Icons.bookmark_border),
-                      onPressed: () async {
-                        if (sharedPreferences.containsKey(
-                            _tabController.index.toString() +
-                                "scroll_" +
-                                item.getUId())) {
-                          sharedPreferences.remove(
-                              _tabController.index.toString() +
-                                  "scroll_" +
-                                  item.getUId());
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(item.getTitle()),
+          bottom: tabs.length > 1
+              ? TabBar(
+                  tabs: tabs,
+                  controller: _tabController,
+                )
+              : null,
+          actions: [
+            IconButton(
+                icon: Icon(SP.prefs.containsKey(
+                        _tabController.index.toString() +
+                            "scroll_" +
+                            item.getUId())
+                    ? Icons.bookmark
+                    : Icons.bookmark_border),
+                onPressed: () async {
+                  if (SP.prefs.containsKey(_tabController.index.toString() +
+                      "scroll_" +
+                      item.getUId())) {
+                    SP.prefs.remove(_tabController.index.toString() +
+                        "scroll_" +
+                        item.getUId());
+                  } else {
+                    await SP.prefs.setDouble(
+                        _tabController.index.toString() +
+                            "scroll_" +
+                            item.getUId(),
+                        _listController[_tabController.index].offset);
+                  }
+                  setState(() {});
+                }),
+            IconButton(
+                icon: Icon(Icons.share),
+                onPressed: () {
+                  String shareString =
+                      itemData["content"].replaceAll("--", "\n");
+                  Share.share(
+                      '${item.getTitle()}\n$shareString\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                      sharePositionOrigin: Rect.fromLTWH(
+                          MediaQuery.of(context).size.width / 2, 0, 2, 2));
+                })
+          ],
+        ),
+        body: itemData != null
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    ListView.builder(
+                      controller: _listController[0],
+                      itemCount: content?.length,
+                      itemBuilder: (BuildContext c, int i) {
+                        String? str = content?[i].trim();
+                        if (codes.contains(i)) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              str ?? "",
+                              style: arabicStyle,
+                              textAlign: TextAlign.center,
+                              textDirection: TextDirection.rtl,
+                            ),
+                          );
                         } else {
-                          await sharedPreferences.setDouble(
-                              _tabController.index.toString() +
-                                  "scroll_" +
-                                  item.getUId(),
-                              _listController[_tabController.index].offset);
+                          return Text(
+                            str ?? "",
+                            style: transliStyle,
+                          );
                         }
-                        setState(() {});
-                      }),
-                  IconButton(
-                      icon: Icon(Icons.share),
-                      onPressed: () {
-                        String shareString =
-                            itemData["content"].replaceAll("--", "\n");
-                        Share.share(
-                            '${item.getTitle()}\n$shareString\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
-                            sharePositionOrigin: Rect.fromLTWH(
-                                MediaQuery.of(context).size.width / 2,
-                                0,
-                                2,
-                                2));
-                      })
-                ],
-              ),
-              body: itemData != null
-                  ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          ListView.builder(
-                            controller: _listController[0],
-                            itemCount: content.length,
-                            itemBuilder: (BuildContext c, int i) {
-                              String str = content[i].trim();
-                              if (codes.contains(i)) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    str,
-                                    style: arabicStyle,
-                                    textAlign: TextAlign.center,
-                                    textDirection: TextDirection.rtl,
-                                  ),
-                                );
-                              } else {
-                                return Text(
-                                  str,
-                                  style: transliStyle,
-                                );
-                              }
-                            },
-                          ),
-                          ...children
-                        ],
-                      ),
-                    )
-                  : Text(''),
-            ),
-          )
-        : Container();
+                      },
+                    ),
+                    ...children
+                  ],
+                ),
+              )
+            : Text(''),
+      ),
+    );
   }
 
   @override
@@ -197,12 +191,12 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
   }
 
   void afterBuild(BuildContext context) async {
-    if (_tabController != null &&
-        _listController[_tabController.index].hasClients &&
-        sharedPreferences.containsKey(
+    if (_listController[_tabController.index].hasClients &&
+        SP.prefs.containsKey(
             _tabController.index.toString() + "scroll_" + item.getUId())) {
-      _listController[_tabController.index].jumpTo(sharedPreferences
-          .get(_tabController.index.toString() + "scroll_" + item.getUId()));
+      _listController[_tabController.index].jumpTo(SP.prefs.getDouble(
+              _tabController.index.toString() + "scroll_" + item.getUId()) ??
+          0.0);
     }
   }
 }

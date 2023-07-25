@@ -3,8 +3,10 @@ import 'package:flutter_beep/flutter_beep.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/pages/item_page.dart';
 import 'package:shia_companion/pages/list_items.dart';
+import 'package:shia_companion/pages/zikr_page.dart';
 
 import '../constants.dart';
+import '../utils/shared_preferences.dart';
 
 class TasbeehWidget extends StatefulWidget {
   @override
@@ -15,11 +17,11 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
   int counter = 0;
 
   bool isChecked = true;
-  TextEditingController controller1, controller2, controller3;
+  late TextEditingController controller1, controller2, controller3;
 
   @override
   void initState() {
-    counter = sharedPreferences.getInt("count") ?? 0;
+    counter = SP.prefs.getInt("count") ?? 0;
     controller1 = TextEditingController(text: "34");
     controller2 = TextEditingController(text: "67");
     controller3 = TextEditingController(text: "100");
@@ -54,9 +56,11 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
                   Checkbox(
                     value: isChecked,
                     onChanged: (v) {
-                      setState(() {
-                        isChecked = v;
-                      });
+                      if (v != null) {
+                        setState(() {
+                          isChecked = v;
+                        });
+                      }
                     },
                   ),
                   Text("Enable beep"),
@@ -92,7 +96,7 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
               Expanded(
                 child: Center(
                     child: Text("$counter",
-                        style: Theme.of(context).textTheme.headline2)),
+                        style: Theme.of(context).textTheme.displayMedium)),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -131,7 +135,7 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
                       ItemList(itemData.getUId().split("~")[1])));
         } else {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ItemPage(itemData)));
+              MaterialPageRoute(builder: (context) => ZikrPage(itemData)));
         }
       },
       child: Row(
@@ -148,6 +152,6 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
   @override
   void dispose() async {
     super.dispose();
-    await sharedPreferences.setInt("count", counter);
+    await SP.prefs.setInt("count", counter);
   }
 }

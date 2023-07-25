@@ -11,7 +11,7 @@ import '../constants.dart';
 
 class CalendarPage extends StatefulWidget {
   final bool shouldScroll;
-  CalendarPage(this.shouldScroll, {Key key}) : super(key: key);
+  CalendarPage(this.shouldScroll);
 
   @override
   _CalendarPageState createState() => new _CalendarPageState();
@@ -24,22 +24,19 @@ class _CalendarPageState extends State<CalendarPage> {
 
   TextStyle smallText = new TextStyle(fontSize: 11.0);
 
-  CalendarController _calendarController;
+  late ScrollController scrollController;
 
-  _CalendarPageState();
-  ScrollController scrollController;
+  DateTime? selectedDay;
 
   @override
   void initState() {
     super.initState();
     _updateEventString();
-    _calendarController = CalendarController();
     scrollController = ScrollController();
   }
 
   @override
   void dispose() {
-    _calendarController.dispose();
     super.dispose();
   }
 
@@ -72,16 +69,19 @@ class _CalendarPageState extends State<CalendarPage> {
           Container(
             margin: EdgeInsets.symmetric(horizontal: 12.0),
             child: TableCalendar(
+              firstDay: DateTime.utc(2000, 1, 11),
+              lastDay: DateTime.utc(2050, 12, 31),
+              focusedDay: DateTime.now(),
               calendarStyle: CalendarStyle(
                 outsideDaysVisible: false,
-                weekendStyle: TextStyle(),
+                weekendTextStyle: TextStyle(),
               ),
               daysOfWeekStyle: DaysOfWeekStyle(
                 weekendStyle: TextStyle(color: const Color(0xFF616161)),
               ),
               headerStyle: HeaderStyle(
                   titleTextStyle: TextStyle(fontSize: 14),
-                  titleTextBuilder: (date, locale) {
+                  titleTextFormatter: (date, locale) {
                     String month1;
                     HijriCalendar newDate = HijriCalendar.fromDate(
                         date.add(Duration(days: hijriDate)));
@@ -91,31 +91,25 @@ class _CalendarPageState extends State<CalendarPage> {
                     return month1;
                   },
                   formatButtonVisible: false,
-                  centerHeaderTitle: true),
-              builders: CalendarBuilders(
-                dayBuilder: (context, day, events) {
+                  titleCentered: true),
+              calendarBuilders: CalendarBuilders(
+                defaultBuilder: (context, day, events) {
                   HijriCalendar hDate = HijriCalendar.fromDate(
                       day.add(Duration(days: hijriDate)));
 
                   String tmpDate = getStringFromDate(hDate);
-                  Color dayColor = Colors.transparent;
+                  Color? dayColor = Colors.transparent;
 
-                  if (eventsMap != null && eventsMap[tmpDate] != null) {
+                  if (eventsMap[tmpDate] != null) {
                     dayColor = eventsMap[tmpDate]['color'] == 0
                         ? Colors.green[200]
                         : Colors.red[200];
                   }
-                  if (_calendarController.isToday(day) &&
-                      dayColor == Colors.transparent)
-                    dayColor = Colors.blue[200];
                   return Container(
                       margin: const EdgeInsets.all(2.0),
                       decoration: BoxDecoration(
                           color: dayColor,
-                          border: Border.all(
-                              color: _calendarController.isSelected(day)
-                                  ? Colors.blue
-                                  : Colors.grey)),
+                          border: Border.all(color: Colors.blue)),
                       padding: EdgeInsets.symmetric(horizontal: 4.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -139,17 +133,18 @@ class _CalendarPageState extends State<CalendarPage> {
                       ));
                 },
               ),
-              calendarController: _calendarController,
-              onDaySelected: (date, events, holidays) {
+              onDaySelected: (date, events) {
                 HijriCalendar newDate =
                     HijriCalendar.fromDate(date.add(Duration(days: hijriDate)));
 
                 String tmpDate = getStringFromDate(newDate);
                 eventString = newDate.toFormat("dd MMMM, yyyy");
-                if (eventsMap != null && eventsMap[tmpDate] != null) {
+                if (eventsMap[tmpDate] != null) {
                   eventString += "\n\n" + eventsMap[tmpDate]['content'];
                 }
-                setState(() {});
+                setState(() {
+                  selectedDay = date;
+                });
               },
             ),
           ),
@@ -161,9 +156,9 @@ class _CalendarPageState extends State<CalendarPage> {
               textAlign: TextAlign.center,
             ),
           ),
-          _calendarController.selectedDay != null
+          selectedDay != null
               ? PrayerTimesCard(
-                  date: _calendarController.selectedDay,
+                  date: selectedDay!,
                 )
               : Container(),
         ],

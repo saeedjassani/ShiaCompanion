@@ -1,8 +1,9 @@
+import 'package:adhan_dart/adhan_dart.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:share/share.dart';
-import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../constants.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
@@ -21,12 +22,9 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     DateTime currentTime = DateTime.now();
     HijriCalendar _today =
         HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
-    PrayerTime prayerTime = getPrayerTimeObject();
-    prayerTime.setTimeFormat(prayerTime.getTime12());
-
-    List<String> _prayerTimes = city != null
-        ? prayerTime.getPrayerTimes(
-            currentTime, lat, long, currentTime.timeZoneOffset.inMinutes / 60.0)
+    PrayerTimes? prayerTimes = lat != null
+        ? PrayerTimes(
+            Coordinates(lat, long), currentTime, CalculationMethod.Tehran())
         : null;
     return Card(
       color: Colors.brown[50],
@@ -42,7 +40,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
             SizedBox(
               height: 4,
             ),
-            _prayerTimes != null
+            prayerTimes?.fajr != null
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -63,7 +61,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                               SizedBox(
                                 height: 4,
                               ),
-                              Text(_prayerTimes[0]),
+                              Text(DateFormat('hh:mm')
+                                  .format(prayerTimes!.fajr!)),
                             ],
                           ),
                           Column(
@@ -73,7 +72,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                               SizedBox(
                                 height: 4,
                               ),
-                              Text(_prayerTimes[2]),
+                              Text(DateFormat('hh:mm')
+                                  .format(prayerTimes.dhuhr!)),
                             ],
                           ),
                           Column(
@@ -83,7 +83,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                               SizedBox(
                                 height: 4,
                               ),
-                              Text(_prayerTimes[5]),
+                              Text(DateFormat('hh:mm')
+                                  .format(prayerTimes.maghrib!)),
                             ],
                           ),
                         ],
@@ -91,9 +92,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          FlatButton.icon(
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                          TextButton.icon(
                               icon: Icon(
                                 Icons.exit_to_app,
                                 size: 18,
@@ -105,9 +104,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                                 "All Prayers",
                                 style: smallText,
                               )),
-                          FlatButton.icon(
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                          TextButton.icon(
                               icon: Icon(
                                 Icons.share,
                                 size: 18,
@@ -119,7 +116,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                                     _today.toFormat("dd MMMM yyyy") +
                                     ")";
                                 Share.share(
-                                    '$date\n\nFajr : ${_prayerTimes[0]}\nDhuhr : ${_prayerTimes[2]}\nMaghrib : ${_prayerTimes[4]}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                                    '$date\n\nFajr : ${DateFormat('hh:mm').format(prayerTimes.fajr!)}\nDhuhr : ${DateFormat('hh:mm').format(prayerTimes.dhuhr!)}\nMaghrib : ${DateFormat('hh:mm').format(prayerTimes.maghrib!)}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
                                     sharePositionOrigin: Rect.fromLTWH(
                                         MediaQuery.of(context).size.width / 2,
                                         0,

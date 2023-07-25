@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/pages/zikr_page.dart';
 
 import '../constants.dart';
 import 'item_page.dart';
@@ -45,7 +46,7 @@ class _ItemListState extends State<ItemList> {
       workingItems.add(UidTitleData("G4", items["G4"])); // Ziyarat e Ashura
       workingItems
           .add(UidTitleData("E37", items["E37"])); // Dua e Sanamay Quraish
-      String tmp;
+      String? tmp;
       DateTime today = DateTime.now();
       if (today.weekday == DateTime.friday) {
         tmp = "J";
@@ -109,7 +110,7 @@ class _ItemListState extends State<ItemList> {
                       ItemList(uidTitleData.getUId().split("~")[1])));
         } else {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ItemPage(uidTitleData)));
+              MaterialPageRoute(builder: (context) => ZikrPage(uidTitleData)));
         }
       },
       title: Text(title),
@@ -117,12 +118,12 @@ class _ItemListState extends State<ItemList> {
           ? null
           : InkWell(
               onTap: () {
-                favsData.contains(itemData)
-                    ? favsData.remove(itemData)
-                    : favsData.add(itemData);
+                favsData!.contains(itemData)
+                    ? favsData!.remove(itemData)
+                    : favsData!.add(itemData);
                 setState(() {});
               },
-              child: favsData.contains(itemData)
+              child: favsData!.contains(itemData)
                   ? Icon(
                       Icons.star,
                       color: Theme.of(context).primaryColor,

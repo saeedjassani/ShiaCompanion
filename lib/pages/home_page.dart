@@ -6,14 +6,12 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
 import 'package:package_info/package_info.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import 'dart:math';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
@@ -21,6 +19,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/utils/data_search.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/bottom_bar.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/todays_recitation.dart';
@@ -30,7 +29,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({required this.title});
 
   final String title;
 
@@ -41,27 +40,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with WidgetsBindingObserver, RouteAware {
   String hadith = '';
-  LocationData currentLocation;
+  LocationData? currentLocation;
   DateTime today = DateTime.now();
 
   Location location = Location();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  DatabaseReference favsReference;
+  DatabaseReference? favsReference;
 
-  List<LiveStreamingData> holyShrine, liveChannel;
-  String initialFavs;
-  DatabaseReference newFavsReference;
-
-  List prayerTimes;
+  List<LiveStreamingData>? holyShrine, liveChannel;
+  String? initialFavs;
+  DatabaseReference? newFavsReference;
 
   int _page = 0;
-  PageController _pageController;
+  PageController? _pageController;
   bool scrollToPrayerTimes = false;
 
   callback() {
     _page = 1;
     scrollToPrayerTimes = true;
-    _pageController.jumpToPage(_page);
+    _pageController?.jumpToPage(_page);
   }
 
   loginCallback() async {
@@ -83,7 +80,6 @@ class _MyHomePageState extends State<MyHomePage>
     screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-        key: key,
         appBar: AppBar(
           title: Text(widget.title),
           actions: <Widget>[
@@ -146,13 +142,13 @@ class _MyHomePageState extends State<MyHomePage>
                       child: ExpansionTile(
                         onExpansionChanged: (bool value) {
                           if (value &&
-                              (favsData == null || favsData.length == 0)) {
+                              (favsData == null || favsData!.length == 0)) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text("Please add some favorites first"),
                             ));
                           }
                         },
-                        title: Text("Favorites", key: ValueKey('hadith-text')),
+                        title: Text("Favorites"),
                         children: <Widget>[
                           favsData != null
                               ? ListView.separated(
@@ -161,21 +157,21 @@ class _MyHomePageState extends State<MyHomePage>
                                   separatorBuilder:
                                       (BuildContext context, int index) =>
                                           Divider(),
-                                  itemCount: favsData.length,
+                                  itemCount: favsData!.length,
                                   itemBuilder: (BuildContext c, int i) {
-                                    UniversalData itemData = favsData[i];
+                                    UniversalData itemData = favsData![i];
                                     return ListTile(
                                         onTap: () => handleUniversalDataClick(
                                             context, itemData),
                                         title: Text(itemData.title),
                                         trailing: InkWell(
                                             onTap: () {
-                                              favsData.contains(itemData)
-                                                  ? favsData.remove(itemData)
-                                                  : favsData.add(itemData);
+                                              favsData!.contains(itemData)
+                                                  ? favsData!.remove(itemData)
+                                                  : favsData!.add(itemData);
                                               setState(() {});
                                             },
-                                            child: favsData.contains(itemData)
+                                            child: favsData!.contains(itemData)
                                                 ? Icon(
                                                     Icons.star,
                                                     color: Theme.of(context)
@@ -266,7 +262,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   void navigationTapped(int page) {
     scrollToPrayerTimes = false;
-    _pageController.jumpToPage(page);
+    _pageController?.jumpToPage(page);
   }
 
   void initializeData() async {
@@ -283,31 +279,34 @@ class _MyHomePageState extends State<MyHomePage>
 
     if (!kIsWeb) {
       tz.initializeTimeZones();
-      final String currentTimeZone =
-          await FlutterNativeTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(currentTimeZone));
+      // final String currentTimeZone =
+      //     await FlutterNativeTimezone.getLocalTimezone();
+      // tz.setLocalLocation(tz.getLocation(currentTimeZone));
 
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
       AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('ic_notification');
-      IOSInitializationSettings initializationSettingsIOS =
-          IOSInitializationSettings();
+
+      DarwinInitializationSettings initializationSettingsIOS =
+          DarwinInitializationSettings();
       InitializationSettings initializationSettings = InitializationSettings(
           android: initializationSettingsAndroid,
           iOS: initializationSettingsIOS);
-      await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-          onSelectNotification: selectNotification);
+      await flutterLocalNotificationsPlugin?.initialize(
+        initializationSettings,
+      );
 
-      await flutterLocalNotificationsPlugin.cancelAll();
-      final List<PendingNotificationRequest> pendingNotificationRequests =
-          await flutterLocalNotificationsPlugin.pendingNotificationRequests();
-      pendingNotificationRequests.forEach((PendingNotificationRequest element) {
+      await flutterLocalNotificationsPlugin?.cancelAll();
+      final List<PendingNotificationRequest>? pendingNotificationRequests =
+          await flutterLocalNotificationsPlugin?.pendingNotificationRequests();
+      pendingNotificationRequests
+          ?.forEach((PendingNotificationRequest element) {
         debugPrint("${element.id} ${element.title} is scheduled");
         if (element.id == 786 &&
-            element.payload.isNotEmpty &&
+            element.payload != null &&
             DateTime.now()
                     .difference(DateTime.fromMillisecondsSinceEpoch(
-                        int.parse(element.payload)))
+                        int.parse(element.payload!)))
                     .inDays <
                 -2) {
           needToSchedule = false;
@@ -320,13 +319,6 @@ class _MyHomePageState extends State<MyHomePage>
       }
     }
     setState(() {});
-  }
-
-  Future selectNotification(String payload) async {
-    if (payload != null) {
-      debugPrint('notification payload: ' + payload);
-    }
-    // TODO play with notification payload here
   }
 
   // 0 - 2340 General
@@ -349,33 +341,29 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   setupPreferences() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    arabicFontSize =
-        sharedPreferences.getDouble('ara_font_size') ?? arabicFontSize;
-    englishFontSize =
-        sharedPreferences.getDouble('eng_font_size') ?? englishFontSize;
-    screenOn = sharedPreferences.getBool('keep_awake') ?? true;
+    await SP.init();
+    arabicFontSize = SP.prefs.getDouble('ara_font_size') ?? arabicFontSize;
+    englishFontSize = SP.prefs.getDouble('eng_font_size') ?? englishFontSize;
 
-    showTranslation =
-        sharedPreferences.getBool('showTranslation') ?? showTranslation;
+    showTranslation = SP.prefs.getBool('showTranslation') ?? showTranslation;
     showTransliteration =
-        sharedPreferences.getBool('showTransliteration') ?? showTransliteration;
+        SP.prefs.getBool('showTransliteration') ?? showTransliteration;
 
-    hijriDate = sharedPreferences.getInt('adjust_hijri_date') ?? hijriDate;
+    hijriDate = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
 
-    city = sharedPreferences.getString("city");
-    lat = sharedPreferences.getDouble("lat");
-    long = sharedPreferences.getDouble("long");
+    city = SP.prefs.getString("city");
+    lat = SP.prefs.getDouble("lat");
+    long = SP.prefs.getDouble("long");
 
     // By default turn on Azan for Fajr, Dhuhr and Maghrib
-    if (sharedPreferences.getBool('fajr_notification') == null) {
-      sharedPreferences.setBool('fajr_notification', true);
-      sharedPreferences.setBool('dhuhr_notification', true);
-      sharedPreferences.setBool('maghrib_notification', true);
-      sharedPreferences.setBool('sunrise_notification', false);
-      sharedPreferences.setBool('asr_notification', false);
-      sharedPreferences.setBool('sunset_notification', false);
-      sharedPreferences.setBool('isha_notification', false);
+    if (SP.prefs.getBool('fajr_notification') == null) {
+      SP.prefs.setBool('fajr_notification', true);
+      SP.prefs.setBool('dhuhr_notification', true);
+      SP.prefs.setBool('maghrib_notification', true);
+      SP.prefs.setBool('sunrise_notification', false);
+      SP.prefs.setBool('asr_notification', false);
+      SP.prefs.setBool('sunset_notification', false);
+      SP.prefs.setBool('isha_notification', false);
     }
 
     // WidgetsBinding.instance.addPostFrameCallback((_) => showAlertDialog());
@@ -439,7 +427,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
 
     // show the dialog
-    int bnFromPref = sharedPreferences.getInt('buildNumber') ?? 0;
+    int bnFromPref = SP.prefs.getInt('buildNumber') ?? 0;
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     // Show What's New Dialog only when build number is greater or in release mode
     if (int.parse(packageInfo.buildNumber) > bnFromPref && kReleaseMode) {
@@ -449,8 +437,7 @@ class _MyHomePageState extends State<MyHomePage>
           return alert;
         },
       );
-      await sharedPreferences.setInt(
-          'buildNumber', int.parse(packageInfo.buildNumber));
+      await SP.prefs.setInt('buildNumber', int.parse(packageInfo.buildNumber));
     }
   }
 
@@ -464,38 +451,36 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.paused && favsData != null) {
-      await sharedPreferences.setString("new_favs", jsonEncode(favsData));
+      await SP.prefs.setString("new_favs", jsonEncode(favsData));
       if (newFavsReference != null)
-        await newFavsReference.set(jsonEncode(favsData));
+        await newFavsReference?.set(jsonEncode(favsData));
       debugPrint("Favorites updated");
     }
   }
 
   Future<void> setUpFavorites() async {
     favsData = [];
-    String favsString = sharedPreferences.getString("new_favs");
+    String? favsString = SP.prefs.getString("new_favs");
     debugPrint("Prefs favs are $favsString");
     if (favsString != null && favsString != "null") {
       List values = json.decode(favsString);
       values.forEach((element) {
-        favsData.add(
+        favsData!.add(
             UniversalData(element['uid'], element['title'], element['type']));
       });
     }
 
     user = _auth.currentUser;
     if (user != null) {
-      newFavsReference = FirebaseDatabase.instance
-          .reference()
-          .child('new_favs')
-          .child(user.uid);
-      initialFavs = (await newFavsReference.once()).value;
+      newFavsReference =
+          FirebaseDatabase.instance.ref().child('new_favs').child(user!.uid);
+      initialFavs = (await newFavsReference!.once()).snapshot.value as String?;
       debugPrint("Firebase favs are $initialFavs");
       if (initialFavs != null) {
         favsData = [];
-        List values = json.decode(initialFavs);
+        List values = json.decode(initialFavs!);
         for (var element in values) {
-          favsData.add(
+          favsData!.add(
               UniversalData(element['uid'], element['title'], element['type']));
         }
       }
@@ -505,7 +490,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context));
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
   }
 
   @override

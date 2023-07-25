@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:apple_sign_in/apple_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_buttons/flutter_auth_buttons.dart' as authButton;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
+import '../utils/shared_preferences.dart';
 import 'about_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -32,7 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
           user != null
               ? ListTile(
                   title: Text("Name"),
-                  trailing: Text("${user.displayName}"),
+                  trailing: Text("${user?.displayName}"),
                 )
               : Container(),
           ListTile(
@@ -91,11 +92,10 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Divider(),
           SwitchListTile(
-            value: screenOn,
+            value: SP.prefs.getBool('keep_awake') ?? true,
             onChanged: (v) {
-              sharedPreferences.setBool("keep_awake", v);
               setState(() {
-                screenOn = v;
+                SP.prefs.setBool("keep_awake", v);
               });
             },
             title: Text("Keep screen on while reciting Zikr"),
@@ -111,14 +111,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 )
               : Column(
                   children: [
-                    authButton.GoogleSignInButton(
+                    ElevatedButton.icon(
+                      icon: Image.asset('assets/google_logo.png', height: 24.0),
+                      label: Text('Sign in with Google'),
                       onPressed: () async {
                         await _signInWithGoogle();
                         widget.loginCallback();
                       },
                     ),
                     Platform.isIOS
-                        ? authButton.AppleSignInButton(
+                        ? SignInWithAppleButton(
                             onPressed: () async {
                               await _signInWithApple();
                               widget.loginCallback();
@@ -135,7 +137,7 @@ class _SettingsPageState extends State<SettingsPage> {
   adjustHijriAlertDialog(BuildContext context) {
     List<Widget> options = [];
     List<int> ints = [-3, -2, -1, 0, 1, 2, 3];
-    int cur = sharedPreferences.getInt('adjust_hijri_date') ?? 0;
+    int cur = SP.prefs.getInt('adjust_hijri_date') ?? 0;
     if (cur > 3 || cur < -3) {
       cur = 0;
     }
@@ -155,10 +157,12 @@ class _SettingsPageState extends State<SettingsPage> {
               Radio(
                 value: ints[i],
                 groupValue: cur,
-                onChanged: (int i) {
-                  hijriDate = i;
-                  saveHijriDate();
-                  Navigator.pop(context);
+                onChanged: (int? i) {
+                  if (i != null) {
+                    hijriDate = i;
+                    saveHijriDate();
+                    Navigator.pop(context);
+                  }
                 },
               ),
               Text(option)
@@ -183,7 +187,7 @@ class _SettingsPageState extends State<SettingsPage> {
   saveHijriDate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('adjust_hijri_date', hijriDate);
-    await prefs.setString('prayerTimes', null);
+    await prefs.remove('prayerTimes');
     setState(() {});
   }
 
@@ -211,10 +215,10 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   _launchURL() async {
-    String url = 'mailto:developer110@hotmail.com?subject=' +
-        Uri.encodeComponent("Shia Companion | Feedback");
-    if (await canLaunch(url)) {
-      await launch(url);
+    Uri url = Uri.parse('mailto:developer110@hotmail.com?subject=' +
+        Uri.encodeComponent("Shia Companion | Feedback"));
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
         content: new Text("No email app found"),
@@ -224,14 +228,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _signInWithGoogle() async {
     try {
-      User firebaseUser = _auth.currentUser;
+      User? firebaseUser = _auth.currentUser;
       if (firebaseUser == null) {
-        final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        final GoogleSignInAuthentication? googleAuth =
+            await googleUser?.authentication;
         final AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
+          accessToken: googleAuth?.accessToken,
+          idToken: googleAuth?.idToken,
         );
         final UserCredential authResult =
             await _auth.signInWithCredential(credential);
@@ -254,10 +258,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _signInWithApple() async {
     try {
-      User firebaseUser = _auth.currentUser;
+      User? firebaseUser = _auth.currentUser;
       if (firebaseUser == null) {
         final AuthorizationResult appleResult =
-            await AppleSignIn.performRequests(
+            await TheAppleSignIn.performRequests(
                 [AppleIdRequest(requestedScopes: [])]);
 
         switch (appleResult.status) {
@@ -265,9 +269,9 @@ class _SettingsPageState extends State<SettingsPage> {
             final AuthCredential credential =
                 OAuthProvider('apple.com').credential(
               accessToken: String.fromCharCodes(
-                  appleResult.credential.authorizationCode),
+                  appleResult.credential!.authorizationCode!),
               idToken:
-                  String.fromCharCodes(appleResult.credential.identityToken),
+                  String.fromCharCodes(appleResult.credential!.identityToken!),
             );
 
             UserCredential authResult =
@@ -281,8 +285,8 @@ class _SettingsPageState extends State<SettingsPage> {
             break;
 
           case AuthorizationStatus.error:
-            debugPrint(
-                "Sign in failed: ${appleResult.error.localizedDescription}");
+            // debugPrint(
+            //     "Sign in failed: ${appleResult.error!.localizedDescription}");
             ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
               content: new Text("Apple Sign-In Failed"),
             ));
@@ -296,7 +300,7 @@ class _SettingsPageState extends State<SettingsPage> {
         logOff();
       }
     } catch (error) {
-      debugPrint(error);
+      // debugPrint(error);
       return null;
     }
   }

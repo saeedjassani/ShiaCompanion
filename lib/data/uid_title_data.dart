@@ -3,10 +3,7 @@ import 'dart:core';
 class UidTitleData {
   String uid, title;
 
-  UidTitleData(String uid, String title) {
-    this.uid = uid;
-    this.title = title;
-  }
+  UidTitleData(this.uid, this.title);
 
   // All UID must end with and integer which is used for sorting.
   // ~ in UID indicates that it is a List of Items

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/pages/item_page.dart';
 import 'package:shia_companion/pages/list_items.dart';
+import 'package:shia_companion/pages/zikr_page.dart';
 
 import '../constants.dart';
 
@@ -11,7 +12,7 @@ class TodaysRecitation extends StatelessWidget {
   Widget build(BuildContext context) {
     List<UidTitleData> workingItems = [];
 
-    String tmp;
+    String? tmp;
     DateTime today = DateTime.now();
     if (today.weekday == DateTime.friday) {
       tmp = "J";
@@ -38,14 +39,18 @@ class TodaysRecitation extends StatelessWidget {
     workingItems.sort((a, b) {
       return a.getId() > b.getId() ? 1 : -1;
     });
-    workingItems.insert(
-        0, UidTitleData("~D1", items["~D1"])); // Taqeebaate Namaz
-    workingItems.insert(1, UidTitleData("E18", items["E18"])); // Dua e Ahad
-    workingItems.insert(
-        2, UidTitleData("G6", items["G6"])); // Ziyarat e Waritha
-    workingItems.insert(3, UidTitleData("G4", items["G4"])); // Ziyarat e Ashura
-    workingItems.insert(
-        4, UidTitleData("E37", items["E37"])); // Dua e Sanamay Quraish
+    if (items.isNotEmpty) {
+      workingItems.insert(
+          0, UidTitleData("~D1", items["~D1"])); // Taqeebaate Namaz
+      workingItems.insert(1, UidTitleData("E18", items["E18"])); // Dua e Ahad
+      workingItems.insert(
+          2, UidTitleData("G6", items["G6"])); // Ziyarat e Waritha
+      workingItems.insert(
+          3, UidTitleData("G4", items["G4"])); // Ziyarat e Ashura
+      workingItems.insert(
+          4, UidTitleData("E37", items["E37"])); // Dua e Sanamay Quraish
+    }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -77,7 +82,7 @@ class TodaysRecitation extends StatelessWidget {
                       ItemList(itemData.getUId().split("~")[1])));
         } else {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ItemPage(itemData)));
+              MaterialPageRoute(builder: (context) => ZikrPage(itemData)));
         }
       },
       title: Text(itemData.title),

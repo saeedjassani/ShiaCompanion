@@ -52,12 +52,12 @@ class _LibraryPageState extends State<LibraryPage> {
                         ChapterListPage(books[index].uid, books[index].title))),
             trailing: InkWell(
                 onTap: () {
-                  favsData.contains(itemData)
-                      ? favsData.remove(itemData)
-                      : favsData.add(itemData);
+                  favsData!.contains(itemData)
+                      ? favsData!.remove(itemData)
+                      : favsData!.add(itemData);
                   setState(() {});
                 },
-                child: favsData.contains(itemData)
+                child: favsData!.contains(itemData)
                     ? Icon(
                         Icons.star,
                         color: Theme.of(context).primaryColor,

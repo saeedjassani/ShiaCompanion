@@ -44,13 +44,13 @@ class _LiveStreamingState extends State<LiveStreaming> {
                 onLongPress: () {
                   UniversalData universalData =
                       UniversalData(data[i].link, data[i].title, 2);
-                  if (favsData.contains(universalData)) {
-                    favsData.remove(universalData);
+                  if (favsData?.contains(universalData) == true) {
+                    favsData?.remove(universalData);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text("Removed from favorites"),
                     ));
                   } else {
-                    favsData.add(universalData);
+                    favsData?.add(universalData);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text("Added to favorites"),
                     ));
@@ -67,7 +67,7 @@ class _LiveStreamingState extends State<LiveStreaming> {
                   alignment: Alignment.bottomLeft,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(data[i].img),
+                      image: NetworkImage(data![i].img ?? ''),
                       fit: BoxFit.cover,
                     ),
                     borderRadius: BorderRadius.circular(2.0),

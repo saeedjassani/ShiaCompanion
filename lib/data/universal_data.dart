@@ -10,11 +10,7 @@ class UniversalData {
   String uid, title;
   int type;
 
-  UniversalData(String uid, String title, int type) {
-    this.uid = uid;
-    this.title = title;
-    this.type = type;
-  }
+  UniversalData(this.uid, this.title, this.type);
 
   @override
   bool operator ==(other) {

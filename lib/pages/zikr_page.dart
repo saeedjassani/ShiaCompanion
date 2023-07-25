@@ -6,23 +6,23 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:http/http.dart';
 import '../constants.dart';
 
-class ItemPage extends StatefulWidget {
+class ZikrPage extends StatefulWidget {
   final UidTitleData item;
 
-  ItemPage(this.item);
+  ZikrPage(this.item);
 
   @override
-  _ItemPageState createState() => new _ItemPageState(item);
+  _ZikrPageState createState() => new _ZikrPageState(item);
 }
 
-class _ItemPageState extends State<ItemPage> {
+class _ZikrPageState extends State<ZikrPage> {
   final UidTitleData item;
 
   Set<int> arabicCodes = Set(), transliCodes = Set(), translaCodes = Set();
 
-  _ItemPageState(this.item);
+  _ZikrPageState(this.item);
   var itemData;
-  List<String> content;
+  List<String>? content;
   @override
   void initState() {
     super.initState();
@@ -45,7 +45,7 @@ class _ItemPageState extends State<ItemPage> {
       String url =
           "https://alghazienterprises.com/sc/scripts/getItem.php?uid=${item.getFirstUId()}";
       debugPrint(url);
-      var request = await get(url);
+      var request = await get(Uri.parse(url));
       jsonString = request.body;
     }
     itemData = json.decode(jsonString);
@@ -65,9 +65,9 @@ class _ItemPageState extends State<ItemPage> {
           ? Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListView.builder(
-                itemCount: content.length,
+                itemCount: content!.length,
                 itemBuilder: (BuildContext c, int i) {
-                  String str = content[i].trim();
+                  String str = content![i].trim();
 
                   if (arabicCodes.contains(i)) {
                     return Padding(

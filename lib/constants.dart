@@ -3,19 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as location;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/pages/qibla_finder.dart';
-import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:date_format/date_format.dart';
+import 'package:shia_companion/pages/zikr_page.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
+import 'package:adhan_dart/adhan_dart.dart';
+
 import 'pages/item_page.dart';
 import 'pages/list_items.dart';
 import 'pages/news_page.dart';
 import 'pages/video_player.dart';
+import 'utils/shared_preferences.dart';
 import 'widgets/tasbeeh_widget.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -23,40 +25,24 @@ import 'package:timezone/timezone.dart' as tz;
 double screenWidth = 0;
 double screenHeight = 0;
 
-User user;
+User? user;
 
-List<UniversalData> favsData;
+List<UniversalData>? favsData;
 
 final String appName = "Shia Companion";
 int hijriDate = 0;
 double arabicFontSize = 32.0;
 double englishFontSize = 16.0;
-bool screenOn;
 
-PrayerTime prayerTime;
-String city;
-double lat, long;
+String? city;
+double? lat, long;
 bool needToSchedule = true;
 
-SharedPreferences sharedPreferences;
-
-PrayerTime getPrayerTimeObject() {
-  if (prayerTime != null) return prayerTime;
-
-  prayerTime = PrayerTime();
-
-  prayerTime.setCalcMethod(prayerTime.getJafari());
-  prayerTime.setAsrJuristic(prayerTime.getHanafi());
-  prayerTime.setAdjustHighLats(prayerTime.getAdjustHighLats());
-
-  return prayerTime;
-}
-
+FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 TextStyle smallText = TextStyle(fontSize: 14);
 TextStyle boldText = TextStyle(fontWeight: FontWeight.bold);
 
 bool showTranslation = true, showTransliteration = true;
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 List tableCode = [
   ItemList("F"),
   ItemList("E"),
@@ -108,9 +94,6 @@ List<String> zikrImages = [
 Map items = {};
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
-// HomePage key
-GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
-
 void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
   switch (itemData.type) {
     case 0:
@@ -118,7 +101,7 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  ItemPage(UidTitleData(itemData.uid, itemData.title))));
+                  ZikrPage(UidTitleData(itemData.uid, itemData.title))));
       break;
     case 1:
       Navigator.push(
@@ -132,7 +115,7 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
           context,
           MaterialPageRoute(
               builder: (context) => VideoPlayer(
-                  LiveStreamingData(itemData.uid, itemData.title, null))));
+                  LiveStreamingData(itemData.uid, itemData.title))));
       break;
     default:
   }
@@ -142,108 +125,119 @@ initializeLocation() async {
   try {
     location.LocationData currentLocation =
         await location.Location().getLocation();
-    if (currentLocation != null) {
-      lat = currentLocation.latitude;
-      long = currentLocation.longitude;
+    lat = currentLocation.latitude;
+    long = currentLocation.longitude;
 
-      List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
-      if (placemarks != null && placemarks.isNotEmpty) {
-        city = placemarks[0].locality;
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat!, long!);
+    if (placemarks.isNotEmpty) {
+      city = placemarks[0].locality;
 
-        if (sharedPreferences.getString("city") != city) needToSchedule = true;
+      if (SP.prefs.getString("city") != city) needToSchedule = true;
 
-        sharedPreferences.setDouble("lat", currentLocation.latitude);
-        sharedPreferences.setDouble("long", currentLocation.longitude);
-        sharedPreferences.setString("city", placemarks[0].locality);
-      }
+      SP.prefs.setDouble("lat", lat!);
+      SP.prefs.setDouble("long", long!);
+      SP.prefs.setString("city", city!);
     }
   } catch (e) {
-    debugPrint(e);
+    // debugPrint(e);
   }
+}
+
+List<DateTime> getPrayerTimes(PrayerTimes prayerTimes) {
+  return [
+    prayerTimes.fajr!,
+    prayerTimes.sunrise!,
+    prayerTimes.dhuhr!,
+    prayerTimes.asr!,
+    DateTime.now(),
+    prayerTimes.maghrib!,
+    prayerTimes.isha!
+  ];
+}
+
+List<String> getPrayerName() {
+  return ["Fajr", "Sunrise", "Dhuhr", "Asr", "Sunset", "Maghrib", "Isha"];
 }
 
 void setUpNotifications() async {
   debugPrint("Scheduling Azan Notifications");
 
-  PrayerTime prayers = getPrayerTimeObject();
-  prayers.setTimeFormat(prayers.getTime24());
-
   DateTime now = DateTime.now();
   for (int i = 0; i < 12; i++) {
     DateTime temp = now.add(Duration(days: i));
-    List<String> prayerTimes = prayers.getPrayerTimes(
-        temp, lat, long, temp.timeZoneOffset.inMinutes / 60.0);
+    PrayerTimes _prayerTimes =
+        PrayerTimes(Coordinates(lat, long), temp, CalculationMethod.Tehran());
+    List<DateTime> prayerTimes = getPrayerTimes(_prayerTimes);
 
-    var _prayerNames = prayers.getTimeNames();
-    _prayerNames.asMap().forEach((index, prayerName) =>
-        schedulePrayerTimeNotification(
-            (100 * (index + 1)) + i,
-            DateTime.parse(
-                "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[index]}"),
-            prayerName,
-            prayerTimes[index]));
+    List<String> _prayerNames = getPrayerName();
+    _prayerNames
+        .asMap()
+        .forEach((index, prayerName) => schedulePrayerTimeNotification(
+              (100 * (index + 1)) + i,
+              prayerTimes[index],
+              prayerName,
+            ));
   }
   AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails("general", "General", "General notifications");
-  IOSNotificationDetails iOSPlatformChannelSpecifics = IOSNotificationDetails();
+      AndroidNotificationDetails("general", "General");
+  DarwinNotificationDetails iOSPlatformChannelSpecifics =
+      DarwinNotificationDetails();
   NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.zonedSchedule(
+  await flutterLocalNotificationsPlugin?.zonedSchedule(
       786,
       "Open the app to continue getting Azan notifications",
       "It seems you've not used the application in last 12 days. Please open the app to continue receive Azan notifications",
       tz.TZDateTime.now(tz.local).add(Duration(days: 11)),
       platformChannelSpecifics,
-      androidAllowWhileIdle: false,
+      androidScheduleMode: AndroidScheduleMode.inexact,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.wallClockTime,
       payload: now.add(Duration(days: 11)).millisecondsSinceEpoch.toString());
 }
 
 void schedulePrayerTimeNotification(
-    int id, DateTime dateTime, String prayerName, String prayerTime) async {
-  if (dateTime.difference(DateTime.now()).isNegative ||
-      sharedPreferences == null) return;
-  if (sharedPreferences.getBool(prayerName.toLowerCase() + "_notification")) {
+    int id, DateTime dateTime, String prayerName) async {
+  if (dateTime.difference(DateTime.now()).isNegative) return;
+  if (SP.prefs.getBool(prayerName.toLowerCase() + "_notification") == true) {
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'prayerTimes',
       'Prayer Times',
-      'Azan Notifications for Prayer Times',
       importance: Importance.max,
       sound: RawResourceAndroidNotificationSound('sharif'),
     );
-    IOSNotificationDetails iOSPlatformChannelSpecifics =
-        IOSNotificationDetails(sound: 'azan.caf');
+    DarwinNotificationDetails iOSPlatformChannelSpecifics =
+        DarwinNotificationDetails(sound: 'azan.caf');
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: androidPlatformChannelSpecifics,
         iOS: iOSPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.zonedSchedule(
+    await flutterLocalNotificationsPlugin?.zonedSchedule(
         id,
         formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
         "It's time for " + prayerName.toLowerCase(),
         tz.TZDateTime.from(dateTime, tz.local),
         platformChannelSpecifics,
-        androidAllowWhileIdle: true,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.wallClockTime);
   } else {
-    await flutterLocalNotificationsPlugin.cancel(id);
+    await flutterLocalNotificationsPlugin?.cancel(id);
   }
 }
 
-void testNotification() async {
+void testNotification(
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
   AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
     'prayerTimes',
     'Prayer Times',
-    'Azan Notifications for Prayer Times',
     importance: Importance.max,
     sound: RawResourceAndroidNotificationSound('sharif'),
   );
-  IOSNotificationDetails iOSPlatformChannelSpecifics =
-      IOSNotificationDetails(sound: 'azan.caf');
+  DarwinNotificationDetails iOSPlatformChannelSpecifics =
+      DarwinNotificationDetails(sound: 'azan.caf');
   NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
@@ -253,7 +247,7 @@ void testNotification() async {
       "Test notification",
       tz.TZDateTime.now(tz.local).add(Duration(minutes: 1)),
       platformChannelSpecifics,
-      androidAllowWhileIdle: true,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.wallClockTime);
 }
