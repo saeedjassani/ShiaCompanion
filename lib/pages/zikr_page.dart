@@ -58,9 +58,7 @@ class _ZikrPageState extends State<ZikrPage> {
       content = generateCodeAndStrings1(itemData['data']);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(item.title),
-      ),
+      appBar: getAppBar(),
       body: content != null
           ? Padding(
               padding: const EdgeInsets.all(8.0),

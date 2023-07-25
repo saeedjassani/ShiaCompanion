@@ -251,3 +251,9 @@ void testNotification(
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.wallClockTime);
 }
+
+AppBar getAppBar() {
+  return AppBar(
+    title: Text(appName),
+  );
+}

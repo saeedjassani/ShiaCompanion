@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 
+import '../constants.dart';
+
 class VideoPlayer extends StatefulWidget {
   final LiveStreamingData url;
 
@@ -31,11 +33,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     // widget.url = "http://cdn.smartstream.video/smartstream-us/channelwinlive/channelwinlive/playlist.m3u8";
     if (widget.url.link.contains("/")) {
       return Scaffold(
-          appBar: Platform.isIOS
-              ? AppBar(
-                  title: Text(widget.url.title),
-                )
-              : null,
+          appBar: Platform.isIOS ? getAppBar() : null,
           body: WebviewScaffold(
             url: widget.url.link,
           ));

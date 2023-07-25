@@ -79,9 +79,7 @@ class _ItemListState extends State<ItemList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(appName),
-      ),
+      appBar: getAppBar(),
       body: ListView.separated(
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemCount: workingItems.length,

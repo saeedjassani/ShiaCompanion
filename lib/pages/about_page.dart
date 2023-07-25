@@ -11,9 +11,7 @@ class _AboutPageState extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(appName),
-      ),
+      appBar: getAppBar(),
       body: Container(
         padding: EdgeInsets.all(12.0),
         child: SingleChildScrollView(
