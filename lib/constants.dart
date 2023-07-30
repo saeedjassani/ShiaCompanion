@@ -13,13 +13,11 @@ import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
 import 'package:adhan_dart/adhan_dart.dart';
 
-import 'pages/item_page.dart';
 import 'pages/list_items.dart';
 import 'pages/news_page.dart';
 import 'pages/video_player.dart';
 import 'utils/shared_preferences.dart';
 import 'widgets/tasbeeh_widget.dart';
-import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 double screenWidth = 0;
@@ -134,9 +132,9 @@ initializeLocation() async {
 
       if (SP.prefs.getString("city") != city) needToSchedule = true;
 
-      SP.prefs.setDouble("lat", lat!);
-      SP.prefs.setDouble("long", long!);
-      SP.prefs.setString("city", city!);
+      await SP.prefs.setDouble("lat", lat!);
+      await SP.prefs.setDouble("long", long!);
+      await SP.prefs.setString("city", city!);
     }
   } catch (e) {
     // debugPrint(e);
@@ -256,4 +254,16 @@ AppBar getAppBar() {
   return AppBar(
     title: Text(appName),
   );
+}
+
+Icon getFavIcon(BuildContext context, UniversalData itemData) {
+  return favsData!.contains(itemData)
+      ? Icon(
+          Icons.star,
+          color: Theme.of(context).colorScheme.secondary,
+        )
+      : Icon(
+          Icons.star_border,
+          color: Theme.of(context).colorScheme.secondary,
+        );
 }

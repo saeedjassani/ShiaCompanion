@@ -41,32 +41,24 @@ class _LibraryPageState extends State<LibraryPage> {
           UniversalData itemData =
               UniversalData(books[index].uid, books[index].title, 1);
           return ListTile(
-            title: Text(
-              books[index].title,
-              key: ValueKey("lib-key-$index"),
-            ),
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        ChapterListPage(books[index].uid, books[index].title))),
-            trailing: InkWell(
+              title: Text(
+                books[index].title,
+                key: ValueKey("lib-key-$index"),
+              ),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ChapterListPage(
+                          books[index].uid, books[index].title))),
+              trailing: InkWell(
                 onTap: () {
                   favsData!.contains(itemData)
                       ? favsData!.remove(itemData)
                       : favsData!.add(itemData);
                   setState(() {});
                 },
-                child: favsData!.contains(itemData)
-                    ? Icon(
-                        Icons.star,
-                        color: Theme.of(context).primaryColor,
-                      )
-                    : Icon(
-                        Icons.star_border,
-                        color: Theme.of(context).primaryColor,
-                      )),
-          );
+                child: getFavIcon(context, itemData),
+              ));
         },
         separatorBuilder: (context, index) => Divider(),
         itemCount: books.length);

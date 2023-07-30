@@ -67,7 +67,7 @@ class _LiveStreamingState extends State<LiveStreaming> {
                   alignment: Alignment.bottomLeft,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(data![i].img ?? ''),
+                      image: NetworkImage(data[i].img ?? ''),
                       fit: BoxFit.cover,
                     ),
                     borderRadius: BorderRadius.circular(2.0),

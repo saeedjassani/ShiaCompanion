@@ -38,15 +38,15 @@ class _ZikrPageState extends State<ZikrPage> {
 
   void initializeData() async {
     String jsonString = "";
-    if (kReleaseMode) {
-      jsonString = await DefaultAssetBundle.of(context)
-          .loadString("assets/zikr/${item.getFirstUId()}");
-    } else {
+    if (kIsWeb || kDebugMode) {
       String url =
           "https://alghazienterprises.com/sc/scripts/getItem.php?uid=${item.getFirstUId()}";
       debugPrint(url);
-      var request = await get(Uri.parse(url));
+      Response request = await get(Uri.parse(url));
       jsonString = request.body;
+    } else {
+      jsonString = await DefaultAssetBundle.of(context)
+          .loadString("assets/zikr/${item.getFirstUId()}");
     }
     itemData = json.decode(jsonString);
     setState(() {});
@@ -58,7 +58,9 @@ class _ZikrPageState extends State<ZikrPage> {
       content = generateCodeAndStrings1(itemData['data']);
 
     return Scaffold(
-      appBar: getAppBar(),
+      appBar: AppBar(
+        title: Text(item.title),
+      ),
       body: content != null
           ? Padding(
               padding: const EdgeInsets.all(8.0),

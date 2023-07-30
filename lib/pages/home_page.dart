@@ -26,7 +26,6 @@ import 'package:shia_companion/widgets/todays_recitation.dart';
 import 'library_page.dart';
 import 'list_items.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({required this.title});
@@ -100,7 +99,6 @@ class _MyHomePageState extends State<MyHomePage>
           onTap: navigationTapped, //
           currentIndex: _page, //
           items: bottomBarItems,
-          backgroundColor: Colors.brown,
           type: BottomNavigationBarType.fixed,
         ),
         body: PageView(
@@ -171,17 +169,8 @@ class _MyHomePageState extends State<MyHomePage>
                                                   : favsData!.add(itemData);
                                               setState(() {});
                                             },
-                                            child: favsData!.contains(itemData)
-                                                ? Icon(
-                                                    Icons.star,
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
-                                                  )
-                                                : Icon(
-                                                    Icons.star_border,
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
-                                                  )));
+                                            child:
+                                                getFavIcon(context, itemData)));
                                   })
                               : Container()
                         ],
@@ -357,13 +346,13 @@ class _MyHomePageState extends State<MyHomePage>
 
     // By default turn on Azan for Fajr, Dhuhr and Maghrib
     if (SP.prefs.getBool('fajr_notification') == null) {
-      SP.prefs.setBool('fajr_notification', true);
-      SP.prefs.setBool('dhuhr_notification', true);
-      SP.prefs.setBool('maghrib_notification', true);
-      SP.prefs.setBool('sunrise_notification', false);
-      SP.prefs.setBool('asr_notification', false);
-      SP.prefs.setBool('sunset_notification', false);
-      SP.prefs.setBool('isha_notification', false);
+      await SP.prefs.setBool('fajr_notification', true);
+      await SP.prefs.setBool('dhuhr_notification', true);
+      await SP.prefs.setBool('maghrib_notification', true);
+      await SP.prefs.setBool('sunrise_notification', false);
+      await SP.prefs.setBool('asr_notification', false);
+      await SP.prefs.setBool('sunset_notification', false);
+      await SP.prefs.setBool('isha_notification', false);
     }
 
     // WidgetsBinding.instance.addPostFrameCallback((_) => showAlertDialog());

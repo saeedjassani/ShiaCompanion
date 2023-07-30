@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
+import '../utils/dark_mode.dart';
 import '../utils/shared_preferences.dart';
 import 'about_page.dart';
 
@@ -20,13 +21,13 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   _SettingsPageState();
 
   @override
   Widget build(BuildContext context) {
+    final darkModeProvider = Provider.of<DarkModeProvider>(context);
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -64,6 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ListTile(
             title: Text('Arabic Font Size'),
             subtitle: Slider(
+              activeColor: Theme.of(context).colorScheme.secondary,
               min: 20.0,
               max: 44.0,
               divisions: 12,
@@ -79,6 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ListTile(
             title: Text('English Font Size'),
             subtitle: Slider(
+              activeColor: Theme.of(context).colorScheme.secondary,
               min: 10.0,
               max: 24.0,
               divisions: 14,
@@ -92,11 +95,18 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Divider(),
           SwitchListTile(
+            value: darkModeProvider.isDarkMode,
+            onChanged: (value) {
+              darkModeProvider.toggleDarkMode();
+            },
+            title: Text("Dark mode"),
+          ),
+          Divider(),
+          SwitchListTile(
             value: SP.prefs.getBool('keep_awake') ?? true,
-            onChanged: (v) {
-              setState(() {
-                SP.prefs.setBool("keep_awake", v);
-              });
+            onChanged: (v) async {
+              await SP.prefs.setBool("keep_awake", v);
+              setState(() {});
             },
             title: Text("Keep screen on while reciting Zikr"),
           ),
@@ -112,14 +122,15 @@ class _SettingsPageState extends State<SettingsPage> {
               : Column(
                   children: [
                     ElevatedButton.icon(
-                      icon: Image.asset('assets/google_logo.png', height: 24.0),
+                      icon: Image.asset('assets/images/google_logo.jpg',
+                          height: 24.0),
                       label: Text('Sign in with Google'),
                       onPressed: () async {
                         await _signInWithGoogle();
                         widget.loginCallback();
                       },
                     ),
-                    Platform.isIOS
+                    !kIsWeb && Platform.isIOS
                         ? SignInWithAppleButton(
                             onPressed: () async {
                               await _signInWithApple();
@@ -185,21 +196,18 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   saveHijriDate() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('adjust_hijri_date', hijriDate);
-    await prefs.remove('prayerTimes');
+    await SP.prefs.setInt('adjust_hijri_date', hijriDate);
+    await SP.prefs.remove('prayerTimes');
     setState(() {});
   }
 
   saveBooleanPref(String key, bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(key, value);
+    await SP.prefs.setBool(key, value);
     setState(() {});
   }
 
   saveDoublePref(String key, double value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble(key, value);
+    await SP.prefs.setDouble(key, value);
     setState(() {});
   }
 
@@ -230,20 +238,15 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       User? firebaseUser = _auth.currentUser;
       if (firebaseUser == null) {
-        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-        final GoogleSignInAuthentication? googleAuth =
-            await googleUser?.authentication;
-        final AuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth?.accessToken,
-          idToken: googleAuth?.idToken,
-        );
-        final UserCredential authResult =
-            await _auth.signInWithCredential(credential);
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        final UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithPopup(googleProvider);
+
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
           content: new Text("Login Successful"),
         ));
         setState(() {
-          user = authResult.user;
+          user = userCredential.user;
         });
       } else {
         logOff();

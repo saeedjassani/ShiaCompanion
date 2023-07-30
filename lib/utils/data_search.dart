@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
-import 'package:shia_companion/pages/item_page.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/pages/zikr_page.dart';
 
