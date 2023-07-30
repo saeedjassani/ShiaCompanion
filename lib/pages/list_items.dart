@@ -5,7 +5,6 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/zikr_page.dart';
 
 import '../constants.dart';
-import 'item_page.dart';
 
 class ItemList extends StatefulWidget {
   final String item;
@@ -121,15 +120,7 @@ class _ItemListState extends State<ItemList> {
                     : favsData!.add(itemData);
                 setState(() {});
               },
-              child: favsData!.contains(itemData)
-                  ? Icon(
-                      Icons.star,
-                      color: Theme.of(context).primaryColor,
-                    )
-                  : Icon(
-                      Icons.star_border,
-                      color: Theme.of(context).primaryColor,
-                    )),
+              child: getFavIcon(context, itemData)),
     );
   }
 }

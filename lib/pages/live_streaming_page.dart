@@ -83,16 +83,7 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
                                     }
                                     setState(() {});
                                   },
-                                  child: favsData?.contains(universalData) ==
-                                          true
-                                      ? Icon(
-                                          Icons.star,
-                                          color: Theme.of(context).primaryColor,
-                                        )
-                                      : Icon(
-                                          Icons.star_border,
-                                          color: Theme.of(context).primaryColor,
-                                        ),
+                                  child: getFavIcon(context, universalData),
                                 ),
                               ],
                             ),

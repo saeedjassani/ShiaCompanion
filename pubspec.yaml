@@ -7,6 +7,7 @@ environment:
   sdk: ^3.0.0
 
 dependencies:
+  provider: ^6.0.5
   adhan_dart: ^1.0.8
   auth_buttons: ^3.0.0
   csv: ^5.0.2
@@ -34,7 +35,6 @@ dependencies:
   flutter_markdown: ^0.6.17
   flutter_webview_plugin: ^0.4.0
   intl: ^0.18.1
-  google_sign_in: ^6.1.4
   the_apple_sign_in: ^1.1.1
 
 dev_dependencies:

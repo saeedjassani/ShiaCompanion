@@ -27,7 +27,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
             Coordinates(lat, long), currentTime, CalculationMethod.Tehran())
         : null;
     return Card(
-      color: Colors.brown[50],
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
         child: Column(
