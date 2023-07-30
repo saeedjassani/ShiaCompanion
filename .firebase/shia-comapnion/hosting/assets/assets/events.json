@@ -1,0 +1,706 @@
+{
+   "1-7": {
+      "header": "1st Rajab",
+      "content": "Birth of Imam Mohammad Baqir(a.s.) – the 5th Holy Imam ‐ (57 A.H.)",
+      "link": "G65",
+      "linkText": "Ziyarat of Imam Mohammad Baqir (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "2-7": {
+      "header": "2nd Rajab",
+      "content": "Birth of Imam Ali Naqi al‐Hadi(a.s.) – the 10th Holy Imam ‐ (214 A.H.)",
+      "link": "G70",
+      "linkText": "Ziyarat of Imam Ali Naqi (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "3-7": {
+      "header": "3rd Rajab",
+      "content": "Martyrdom of Imam Ali Naqi al‐Hadi(a.s.) – the 10th Holy Imam ‐ (254 A.H.)",
+      "link": "G70",
+      "linkText": "Ziyarat of Imam Ali Naqi (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "5-7": {
+      "header": "5th Rajab",
+      "content": "Birth of Imam Ali Naqi al‐Hadi(a.s.) – the 10th Holy Imam ‐ (214 A.H.)",
+      "link": "G70",
+      "linkText": "Ziyarat of Imam Ali Naqi (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "10-7": {
+      "header": "10th Rajab",
+      "content": "Birth of Imam Mohammad Taqi al‐Jawwad(a.s.) – the 9th Holy Imam ‐ (195 A.H.)",
+      "link": "G69",
+      "linkText": "Ziyarat of Imam Mohammad Taqi (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "12-7": {
+      "header": "12th Rajab",
+      "content": "Death of Hazrat Abbas ibn‐e‐Abdul Muttalib(a.s.) – uncle of Prophet Mohammad(sawaw)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "13-7": {
+      "header": "13th Rajab",
+      "content": "Birth of Imam Ali(a.s.) – the 1st Holy Imam ‐ (30 Aamul Feel)",
+      "link": "G51",
+      "linkText": "Ziyarat of Imam Ali (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "15-7": {
+      "header": "15th Rajab",
+      "content": "Death of Hazrat Zainab bin‐e‐Ali(a.s.) – (62 A.H.)",
+      "link": "G73",
+      "linkText": "Ziyarat of Janabe Zainab (s.a.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "20-7": {
+      "header": "20th Rajab",
+      "content": "Birth of Hazrat Sakina bint‐al‐Hussain(a.s.) – (57 A.H.)",
+      "link": "G82",
+      "linkText": "Ziyarat of Janabe Sakina (s.a.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "24-7": {
+      "header": "24th Rajab",
+      "content": "Victory of Battle of Khaibar by Imam Ali (as) – (7 A.H.)",
+      "link": "http://www.sibtayn.com/en/index.php?option=com_content&view=article&id=6546:the-battle-of-khaybar&Itemid=519",
+      "linkText": "A brief history of Khaybar",
+      "linkType": 3,
+      "color": 1
+   },
+   "25-7": {
+      "header": "25th Rajab",
+      "content": "Martyrdom of Imam Moosa‐e‐Kazim(a.s.) – the 7th Holy Imam ‐ (183 A.H.)",
+      "link": "G67",
+      "linkText": "Ziyarat of Imam Musa e Kazim (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "26-7": {
+      "header": "26th Rajab",
+      "content": "Death of Hazrat Abu Talib(a.s.)",
+      "link": "G79",
+      "linkText": "Ziyarat of Janabe Abu Talib (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "27-7": {
+      "header": "27th Rajab",
+      "content": "Event of Mairaj – Ascension of Prophet Muhammad(sawaw) towards heavens",
+      "link": "X18",
+      "linkText": "Amaal of Mairaj",
+      "linkType": 2,
+      "color": 1
+   },
+   "28-7": {
+      "header": "28th Rajab",
+      "content": "Start of journey of Imam Hussain(a.s.) towards Karbala – (60 A.H.)",
+      "link": "https://www.imamreza.net/eng/imamreza.php?id=6515",
+      "linkText": "A brief history",
+      "linkType": 3,
+      "color": 0
+   },
+   "29-7": {
+      "header": "29th Rajab",
+      "content": "Battle of Tabooq – (9 A.H.)",
+      "link": "https://www.al-islam.org/the-message-ayatullah-jafar-subhani/chapter-53-battle-tabuk",
+      "linkText": "A brief history",
+      "linkType": 3,
+      "color": null
+   },
+   "1-8": {
+      "header": "1st Shabaan",
+      "content": "Birth of Hazrat Zainab bint‐e‐Ali(a.s.) ‐ (5 A.H.)",
+      "link": "G73",
+      "linkText": "Ziyarat of Janabe Zainab (s.a.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "3-8": {
+      "header": "3rd Shabaan",
+      "content": "Birth of Imam Hussain(a.s.) ‐ the 3rd Holy Imam ‐ (4 A.H.)",
+      "link": "G54",
+      "linkText": "Ziyarat of Imam Husain (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "4-8": {
+      "header": "4th Shabaan",
+      "content": "Birth of Hazrat Abbas(a.s.) ‐ (26 A.H.)",
+      "link": "G57",
+      "linkText": "Ziyarat of Hazrat Abbas (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "5-8": {
+      "header": "5th Shabaan",
+      "content": "Birth of Imam Ali Zain‐al‐Abideen(a.s.) ‐ the 4th Holy Imam ‐ (38 A.H.)",
+      "link": "G64",
+      "linkText": "Ziyarat of Imam Zainul Abideen (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "7-8": {
+      "header": "7th Shabaan",
+      "content": "Birth of Hazrat Qasim ibn‐e‐Hasan(a.s.) ‐ (48 A.H.)",
+      "link": "G56",
+      "linkText": "Ziyarat of Shohadaae Karbala (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "11-8": {
+      "header": "11th Shabaan",
+      "content": "Birth of Hazrat Ali Akbar(a.s.) ‐ (44 A.H.)",
+      "link": "G55",
+      "linkText": "Ziyarat of Janabe Ali Akbar (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "14-8": {
+      "header": "14th Shabaan",
+      "content": "Evening ‐ Aamal of Neema‐e‐Shabaan",
+      "link": "Y9",
+      "linkText": "Amaal of the Eve of 15th Shaban",
+      "linkType": 2,
+      "color": 1
+   },
+   "15-8": {
+      "header": "15th Shabaan",
+      "content": "Birth of Wali e Asr Imam Mahdi (atfs) ‐ the 12th Holy Imam ‐ (255 A.H.)",
+      "link": "G72",
+      "linkText": "Ziyarat of Imam e Zamana (a.t.f.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "7-9": {
+      "header": "7th Ramzan",
+      "content": "Death of Hazrat Abu Talib(a.s.)",
+      "link": "G79",
+      "linkText": "Ziyarat of Janabe Abu Talib (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "10-9": {
+      "header": "10th Ramzan",
+      "content": "Death of Hazrat Khadija(a.s.) ‐ wife of Prophet Mohammad (sawaw)",
+      "link": "http://seratonline.com/6664/the-mother-of-believers-hazrat-khadijah-s-a/",
+      "linkText": "The True Mother of Believers – Hazrat Khadijah (s.a.)",
+      "linkType": 3,
+      "color": 0
+   },
+   "11-9": {
+      "header": "11th Ramzan",
+      "content": "Moakhat ‐ Brotherhood among Ansar and Muhajireen ‐ (1 A.H.)",
+      "link": "http://www.theshiapedia.com/index.php?title=Brotherhood_of_Ansar_and_Muhajir",
+      "linkText": "A brief history",
+      "linkType": 3,
+      "color": null
+   },
+   "15-9": {
+      "header": "15th Ramzan",
+      "content": "Birth of Imam Hasan(a.s.) ‐ the 2nd Holy Imam ‐ (2 A.H.)",
+      "link": "G53",
+      "linkText": "Ziyarat of Imam Hasan (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "17-9": {
+      "header": "17th Ramzan",
+      "content": "Battle of Badr ‐ (2 A.H.)",
+      "link": "https://www.al-islam.org/articles/battle-badr",
+      "linkText": "A brief history",
+      "linkType": 3,
+      "color": null
+   },
+   "18-9": {
+      "header": "18th Ramzan",
+      "content": "Evening ‐ Probable night of Shab‐e‐Qadr ‐ the night of Power",
+      "link": "AA28",
+      "linkText": "Amaal of Shabe Qadr",
+      "linkType": 2,
+      "color": 0
+   },
+   "19-9": {
+      "header": "19th Ramzan",
+      "content": "Imam Ali(a.s.) injured by an attack by a munfiq ‐ (40 A.H.)",
+      "link": "http://www.ziaraat.org/ali.php",
+      "linkText": "A brief history on Imam Ali (a.s.)",
+      "linkType": 3,
+      "color": 0
+   },
+   "20-9": {
+      "header": "20th Ramzan",
+      "content": "Conquest of Makkah ‐ (8 A.H.)\n\n\nEvening ‐ Probable night of Shab‐e‐Qadr ‐ the night of power",
+      "link": "AA28",
+      "linkText": "Amaal of Shabe Qadr",
+      "linkType": 2,
+      "color": 0
+   },
+   "21-9": {
+      "header": "21st Ramzan",
+      "content": "Martyrdom of Imam Ali(a.s.) ‐ the 1st Holy Imam ‐ (40 A.H.)",
+      "link": "G51",
+      "linkText": "Ziyarat of Imam Ali (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "22-9": {
+      "header": "22nd Ramzan",
+      "content": "Evening ‐ Most probable night of Shab‐e‐Qadr ‐ the night of Power",
+      "link": "AA28",
+      "linkText": "Amaal of Shabe Qadr",
+      "linkType": 2,
+      "color": 1
+   },
+   "27-9": {
+      "header": "27th Ramzan",
+      "content": "Another probable night of Shab‐e‐Qadr ‐ the night of Power",
+      "link": "AA39",
+      "linkText": "Supplication for 27th night",
+      "linkType": 2,
+      "color": 1
+   },
+   "8-10": {
+      "header": "8th Shawwal",
+      "content": "Demolition of Jannatul Baqi by Aal e Saud.\nMay Allah (s.w.t.) curse those who harmed the Ahlul Bayt (a.s.).",
+      "link": "https://www.al-islam.org/history-shrines/history-cemetery-jannat-al-baqi",
+      "linkText": "History of Jannatul Baqi",
+      "linkType": 3,
+      "color": 0
+   },
+   "10-10": {
+      "header": "10th Shawwal",
+      "content": "Commencement of Ghaibat al-Kubra.\nMay Allah (s.w.t.) hasten the reappearance of Imam Mahdi (a.t.f.s.) and count us among his helpers and soldiers.",
+      "link": "http://www.duas.org/Ghaibat.htm",
+      "linkText": "Ghaibate Kubra",
+      "linkType": 3,
+      "color": 0
+   },
+   "17-10": {
+      "header": "17th Shawwal",
+      "content": "Battle of Uhud was fought.",
+      "link": "http://www.shia.org/ohud.html",
+      "linkText": "Know more about the battle of Uhud",
+      "linkType": 3,
+      "color": null
+   },
+   "25-10": {
+      "header": "25th Shawwal",
+      "content": "Martyrdom of Imam Jafar Sadiq (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam Sadiq (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",
+      "link": "G66",
+      "linkText": "Ziyarat of Imam Jafar e Sadiq (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "1-11": {
+      "header": "1st Zul Qadah",
+      "content": "Wiladat of Hazrat Fatima Masooma‐e‐Qum(a.s.) – (173 A.H.) ",
+      "link": "G78",
+      "linkText": "Ziyarat of Janabe Masoom e Qum (s.a.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "11-11": {
+      "header": "11th Zul Qadah",
+      "content": "Wiladat of Imam Ali Raza (a.s.)",
+      "link": "G68",
+      "linkText": "Ziyarat of Imam Ali Raza (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "23-11": {
+      "header": "23rd Zul Qadah",
+      "content": "Shahadat of Imam Ali Raza (a.s.)",
+      "link": "G68",
+      "linkText": "Ziyarat of Imam Ali Raza (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "25-11": {
+      "header": "25th Zul Qadah",
+      "content": "Dahwul Arz\n\nWiladat of Hazrat Ibrahim (a.s.) and Hazrat Isa (a.s.)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 1
+   },
+   "29-11": {
+      "header": "29th Zul Qadah",
+      "content": "Martyrdom of Imam Mohammad Taqi (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",
+      "link": "G69",
+      "linkText": "Ziyarat of Imam Mohammad Taqi (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "1-12": {
+      "header": "1st Zul Hijjah",
+      "content": "Wedding of Imam Ali (a.s.) and Janabe Fatema Zahra (s.a.)",
+      "link": "https://www.al-islam.org/restatement-history-islam-and-muslims-sayyid-ali-ashgar-razwy/marriage-fatima-zahra-and-ali-ibn-abi",
+      "linkText": "The Marriage of Fatima Zahra and Ali ibn Abi Talib",
+      "linkType": 3,
+      "color": 1
+   },
+   "5-12": {
+      "header": "5th Zul Hijjah",
+      "content": "Wafat of Hazrat Abu Zar e Gaffari (a.r.)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "7-12": {
+      "header": "7th Zul Hijjah",
+      "content": "Martyrdom of Imam Mohammad Baqir (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",
+      "link": "G65",
+      "linkText": "Ziyarat of Imam Mohammad Baqir (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "8-12": {
+      "header": "8th Zul Hijjah",
+      "content": "Imam Husain (a.s.) left Makkah towards karbala",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "9-12": {
+      "header": "9th Zul Hijjah",
+      "content": "Martyrdom: Hazrat Muslim Ibne Aqeel (a.s.) / Yaum-e-Arafat",
+      "link": "http://www.duas.org/zilhajj/arafa.htm",
+      "linkText": "Amaal of Arafah",
+      "linkType": 3,
+      "color": 0
+   },
+   "10-12": {
+      "header": "10th Zul Hijjah",
+      "content": "Eid ul Azha",
+      "link": "http://duas.org/iddzuha.htm",
+      "linkText": "Namaz e Eid",
+      "linkType": 3,
+      "color": 1
+   },
+   "14-12": {
+      "header": "14th Zul Hijjah",
+      "content": "Bagh-e-Fedak gifted by Hazrat Rasul-e-Khuda S.A.W. to Bibi Hazrat Fatema S.A.",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 1
+   },
+   "15-12": {
+      "header": "15th Zul Hijjah",
+      "content": "Wiladat e Imam Ali Naqi (a.s.)",
+      "link": "G70",
+      "linkText": "Ziyarat of Imam Ali Naqi (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "18-12": {
+      "header": "18th Zul Hijjah",
+      "content": "Eid e Ghadeer\nThe greatest Eid of Islam. On this day the religion of Islam was completed by annoucing the Mastership of Ameerul Momineen Ali (as) by Prophet Mohammad (saww).",
+      "link": "AC18",
+      "linkText": "Amaal of Eid e Ghadeer",
+      "linkType": 2,
+      "color": 1
+   },
+   "24-12": {
+      "header": "24th Zul Hijjah",
+      "content": "Eid e Mubahila - 9 A.H.",
+      "link": "AC21",
+      "linkText": "Amaal of Eid e Mubahila",
+      "linkType": 2,
+      "color": 1
+   },
+   "2-1": {
+      "header": "2nd Moharram",
+      "content": "Arrival of Imam Husain (a.s.) in Karbala",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "7-1": {
+      "header": "7th Moharram",
+      "content": "Access to water was blocked from the camp of Imam Hussain(a.s.) – the 3rd Holy Imam ‐ (61 A.H.)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "10-1": {
+      "header": "10th Moharram",
+      "content": "Ashoora ‐ Martyrdom of Imam Hussain(a.s.) and his companions ‐ (61 A.H.)",
+      "link": "R9",
+      "linkText": "Amaal of Ashura",
+      "linkType": 2,
+      "color": 0
+   },
+   "11-1": {
+      "header": "11th Moharram",
+      "content": "Prophet Mohammad(sawaw)’s family was shackled and taken away as prisoners",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "16-1": {
+      "header": "16th Moharram",
+      "content": "Change of direction of qibla from Bait‐al‐maqdas to Kaaba ‐ (2 A.H.)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "17-1": {
+      "header": "17th Moharram",
+      "content": "Attack of Abraha’s army on Khana‐e‐Kaaba (1 Aamul Feel)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "25-1": {
+      "header": "25th Moharram",
+      "content": "Martyrdom of Imam Ali Zain‐al‐Abideen(a.s.) – the 4th Holy Imam ‐ (95 A.H.)",
+      "link": "G64",
+      "linkText": "Ziyarat of Imam Zainul Abideen (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "1-2": {
+      "header": "1st Safar",
+      "content": "Battle of Siffin started – (36‐37 A.H.)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "7-2": {
+      "header": "7th Safar",
+      "content": "Birth of Imam Moosa al‐Kazim(a.s.) – the 7th Holy Imam ‐ (128 A.H.)",
+      "link": "G67",
+      "linkText": "Ziyarat of Imam Musa Kazim (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "10-2": {
+      "header": "10th Safar",
+      "content": "Martyrdom of Hazrat Sakina bint‐al‐Hussain(a.s.) – (61 A.H.)",
+      "link": "G82",
+      "linkText": "Ziyarat of Janabe Sakina (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "17-2": {
+      "header": "17th Safar",
+      "content": "Martyrdom of Imam Ali ibn‐e‐Moosa ar‐Riza(a.s.) – the 8th Holy Imam ‐ (203 A.H.)",
+      "link": "G68",
+      "linkText": "Ziyarat of Imam Ali Raza (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "19-2": {
+      "header": "19th Safar",
+      "content": "Abraha attacked Khana‐e‐Kaaba – (1 Aamul Feel)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   },
+   "20-2": {
+      "header": "20th Safar",
+      "content": "Arbaeen of martyrs of Karbala",
+      "link": "S7",
+      "linkText": "Ziyarah on the day of Arbaeen",
+      "linkType": 2,
+      "color": 0
+   },
+   "28-2": {
+      "header": "28th Safar",
+      "content": "Martyrdom of Holy Prophet (saww) ‐ (11 A.H.)\n\nMartyrdom of Imam Hasan(a.s.) – the 2nd Holy Imam ‐ (50 A.H.)",
+      "link": "G53",
+      "linkText": "Ziyarat of Imam Hasan (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "29-2": {
+      "header": "29th Safar",
+      "content": "Martyrdom of Imam Ali ibn‐e‐Moosa ar‐Riza(a.s.) – the 8th Holy Imam ‐ (203 A.H.)",
+      "link": "G68",
+      "linkText": "Ziyarat of Imam Ali Raza (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "1-3": {
+      "header": "1st Rabi al-Awwal",
+      "content": "Shahadate Janabe Mohsin (a.s.)\nHijrat e Madina - Start of Islamic Hijri calender\nMay Allah (s.w.t.) curse the killers of Janabe Mohsin (a.s.) (and those who set fire on the door of Lady Zahra (s.a.)) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",
+      "link": "https://www.al-islam.org/history-shrines/history-cemetery-jannat-al-baqi",
+      "linkText": "More on the event of 1st Rabi al-Awwal",
+      "linkType": 3,
+      "color": 0
+   },
+   "4-3": {
+      "header": "4th Rabi al-Awwal",
+      "content": "Shahadat of Hazrat Fatima Masooma‐e‐Qum(a.s.) – (201 A.H.) ",
+      "link": "G78",
+      "linkText": "Ziyarat of Janabe Masoom e Qum (s.a.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "8-3": {
+      "header": "8th Rabi al-Awwal",
+      "content": "Martyrdom of Imam Hasan Askari(a.s.) – the 11th Holy Imam ‐ (260 A.H.)\n\nBeginning of Ghaibat‐e‐Sughra of Imam Mohammad Mehdi(atfs) ‐ the 12th Holy Imam(a.s.)",
+      "link": "G22",
+      "linkText": "Ziyarat of Imam Hasan Askari (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "9-3": {
+      "header": "9th Rabi al-Awwal",
+      "content": "Eid‐e‐Zahra(s.a.)",
+      "link": "http://www.duas.org/eidzehra.htm",
+      "linkText": "Learn more about Eid e Zahra",
+      "linkType": 3,
+      "color": 1
+   },
+   "10-3": {
+      "header": "10th Rabi al-Awwal",
+      "content": "Death of Hazrat Abdul Mutallib(a.s.) – grand father of Prophet Muhammad(sawaw)\n\nMarriage of Prophet Muhammad (s.a.w.a.) and Hazrat Khadija (s.a.)",
+      "link": "G80",
+      "linkText": "Ziyarat of Hazrat Abdul Muttalib (a.s.)",
+      "linkType": 2,
+      "color": null
+   },
+   "14-3": {
+      "header": "14th Rabi al-Awwal",
+      "content": "Marg e Yazid (may Allah's curses be upon him) - 64 A.H.",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 1
+   },
+   "15-3": {
+      "header": "15th Rabi al-Awwal",
+      "content": "Building of Masjid‐e‐Quba ‐ the first Masjid in Islam – (1 A.H.)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": null
+   },
+   "17-3": {
+      "header": "17th Rabi al-Awwal",
+      "content": "Birth of Prophet Muhammad(sawaw) – (53 years before Hijra)\n\nBirth of Imam Jafer Sadiq(a.s.) – the 6th Holy Imam ‐ (82 A.H.)",
+      "link": "G15",
+      "linkText": "Ziyarat of Holy Prophet (s.a.w.a.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "25-3": {
+      "header": "25th Rabi al-Awwal",
+      "content": "Death of Hazrat Abu Talib(a.s.)",
+      "link": "G79",
+      "linkText": "Ziyarat of Hazrat Abu Talib (a.s.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "8-4": {
+      "header": "8th Rabi ul-Aakhar",
+      "content": "Birth of Imam Hasan Askari(a.s.) – the 11th Holy Imam ‐ (232 A.H.)",
+      "link": "G22",
+      "linkText": "Ziyarat of Imam Hasan Askari (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "10-4": {
+      "header": "10th Rabi ul-Aakhar",
+      "content": "Death of Hazrat Fatima Masooma‐e‐Qum(a.s.) – (201 A.H.) ",
+      "link": "G78",
+      "linkText": "Ziyarat of Janabe Masoom e Qum (s.a.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "5-5": {
+      "header": "5th Jamadi ul-Awwal",
+      "content": "Birth of Hazrat Zainab bint‐e‐Ali(a.s.) – (5 A.H.)",
+      "link": "G73",
+      "linkText": "Ziyarat of Janabe Zainab (s.a.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "13-5": {
+      "header": "13th Jamadi ul-Awwal",
+      "content": "Death of Hazrat Fatima Zahra(s.a.) – (11 A.H.)",
+      "link": "G52",
+      "linkText": "Ziyarat of Janabe Faatema Zahra (s.a.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "15-5": {
+      "header": "15th Jamadi ul-Awwal",
+      "content": "Birth of Imam Ali Zain‐al‐Abideen(a.s.) – the 4th Holy Imam ‐ (38 A.H.)",
+      "link": "G64",
+      "linkText": "Ziyarat of Imam Zainul Aabedein (a.s.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "17-5": {
+      "header": "17th Jamadi ul-Awwal",
+      "content": "Battle of Jamal – (36 A.H.)",
+      "link": "",
+      "linkText": "A brief history",
+      "linkType": 3,
+      "color": null
+   },
+   "3-6": {
+      "header": "3rd Jamadi ul-Akhar",
+      "content": "Death of Hazrat Fatima Zahra(s.a.) – (11 A.H.)",
+      "link": "G52",
+      "linkText": "Ziyarat of Janabe Faatema Zahra (s.a.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "10-6": {
+      "header": "10th Jamadi ul-Akhar",
+      "content": "Battle of Mauta and martyrdom of Hazra Jafer Tayyar(a.s.) – (3 A.H.)",
+      "link": "",
+      "linkText": "A brief history",
+      "linkType": 3,
+      "color": 0
+   },
+   "13-6": {
+      "header": "13th Jamadi ul-Akhar",
+      "content": "Death of Hazrat Umm‐ul‐Baneen – Mother of Hazrat Abbas(a.s.)",
+      "link": "G81",
+      "linkText": "Ziyarat of Janabe Ummul Baneen (s.a.)",
+      "linkType": 2,
+      "color": 0
+   },
+   "20-6": {
+      "header": "20th Jamadi ul-Akhar",
+      "content": "Birth of Hazrat Fatima Zahra(s.a.)",
+      "link": "G52",
+      "linkText": "Ziyarat of Janabe Faatema Zahra (s.a.)",
+      "linkType": 2,
+      "color": 1
+   },
+   "21-6": {
+      "header": "21st Jamadi ul-Akhar",
+      "content": "Death of Hazrat Umme Kulsum (s.a.)",
+      "link": "",
+      "linkText": "",
+      "linkType": null,
+      "color": 0
+   }
+}
