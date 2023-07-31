@@ -50,8 +50,9 @@ class _AboutPageState extends State<AboutPage> {
               ),
               ListTile(
                 onTap: () async {
-                  if (await canLaunch("mailto:developer110@hotmail.com")) {
-                    await launch("mailto:developer110@hotmail.com");
+                  Uri url = Uri.parse("mailto:developer110@hotmail.com");
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("No e-mail app found")));
