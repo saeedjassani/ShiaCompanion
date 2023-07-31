@@ -119,19 +119,28 @@ class _SettingsPageState extends State<SettingsPage> {
                     logOff();
                   },
                 )
-              : Column(
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ElevatedButton.icon(
-                      icon: Image.asset('assets/images/google_logo.jpg',
-                          height: 24.0),
-                      label: Text('Sign in with Google'),
-                      onPressed: () async {
-                        await _signInWithGoogle();
-                        widget.loginCallback();
-                      },
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: IconButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors
+                              .white, // Set your desired background color here
+                        ),
+                        icon: Image.asset('assets/images/google_logo.png',
+                            height: 24.0),
+                        onPressed: () async {
+                          await _signInWithGoogle();
+                          widget.loginCallback();
+                        },
+                      ),
                     ),
                     !kIsWeb && Platform.isIOS
                         ? SignInWithAppleButton(
+                            text: '',
                             onPressed: () async {
                               await _signInWithApple();
                               widget.loginCallback();
