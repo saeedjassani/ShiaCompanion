@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -112,12 +113,22 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Divider(),
           user != null
-              ? ListTile(
-                  leading: new Icon(Icons.power_settings_new),
-                  title: new Text("Logout"),
-                  onTap: () {
-                    logOff();
-                  },
+              ? Column(
+                  children: [
+                    ListTile(
+                      leading: new Icon(Icons.power_settings_new),
+                      title: new Text("Logout"),
+                      onTap: () {
+                        logOff();
+                      },
+                    ),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () => _showDeleteConfirmationDialog(context),
+                        child: Text('Delete My Account'),
+                      ),
+                    ),
+                  ],
                 )
               : Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -314,6 +325,74 @@ class _SettingsPageState extends State<SettingsPage> {
     } catch (error) {
       // debugPrint(error);
       return null;
+    }
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Account Deletion'),
+          content: Text(
+              'Are you sure you want to delete your account? This action cannot be undone.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => _deleteAccountAndData(context),
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Function to delete the account and associated data
+  void _deleteAccountAndData(BuildContext context) async {
+    try {
+      // Get the currently signed-in user
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Remove favorites from the database
+        DatabaseReference favoritesRef =
+            FirebaseDatabase.instance.ref().child('new_favs').child(user.uid);
+        await favoritesRef.remove();
+
+        // Delete the user account
+        await user.delete();
+
+        Navigator.of(context).pop();
+
+        // Show a success message or snackbar if needed
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Account deleted successfully.'),
+          ),
+        );
+
+        user = null;
+        widget.loginCallback();
+        setState(() {});
+      } else {
+        // User is not signed in, show an appropriate message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('User is not signed in.'),
+          ),
+        );
+      }
+    } catch (error) {
+      // Handle errors during deletion process
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting account: ${error.toString()}'),
+        ),
+      );
     }
   }
 }
