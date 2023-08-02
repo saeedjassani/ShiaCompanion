@@ -45,8 +45,8 @@ class _CalendarPageState extends State<CalendarPage> {
 
     eventsMap = json.decode(events);
 
-    DateTime now = DateTime.now().add(Duration(days: hijriDate));
-    HijriCalendar _today = HijriCalendar.fromDate(now);
+    selectedDay = DateTime.now().add(Duration(days: hijriDate));
+    HijriCalendar _today = HijriCalendar.fromDate(selectedDay!);
     eventString = _today.toFormat("dd MMMM, yyyy");
     var w = eventsMap[getStringFromDate(_today)];
     if (w != null) eventString += "\n\n" + w['content'];
@@ -71,7 +71,7 @@ class _CalendarPageState extends State<CalendarPage> {
             child: TableCalendar(
               firstDay: DateTime.utc(2000, 1, 11),
               lastDay: DateTime.utc(2050, 12, 31),
-              focusedDay: DateTime.now(),
+              focusedDay: selectedDay ?? DateTime.now(),
               calendarStyle: CalendarStyle(
                 outsideDaysVisible: false,
                 weekendTextStyle: TextStyle(),
@@ -93,7 +93,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   formatButtonVisible: false,
                   titleCentered: true),
               calendarBuilders: CalendarBuilders(
-                defaultBuilder: (context, day, events) {
+                prioritizedBuilder:
+                    (BuildContext context, DateTime day, events) {
                   HijriCalendar hDate = HijriCalendar.fromDate(
                       day.add(Duration(days: hijriDate)));
 
@@ -105,11 +106,18 @@ class _CalendarPageState extends State<CalendarPage> {
                         ? Colors.green[200]
                         : Colors.red[200];
                   }
+                  if (this.isToday(day) && dayColor == Colors.transparent) {
+                    dayColor = Colors.blue[200];
+                  }
                   return Container(
                       margin: const EdgeInsets.all(2.0),
                       decoration: BoxDecoration(
                           color: dayColor,
-                          border: Border.all(color: Colors.blue)),
+                          border: Border.all(
+                              width: selectedDay == day ? 2.0 : 1.0,
+                              color: selectedDay == day
+                                  ? Colors.blue
+                                  : Colors.grey)),
                       padding: EdgeInsets.symmetric(horizontal: 4.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -133,7 +141,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       ));
                 },
               ),
-              onDaySelected: (date, events) {
+              onDaySelected: (DateTime date, DateTime _) {
                 HijriCalendar newDate =
                     HijriCalendar.fromDate(date.add(Duration(days: hijriDate)));
 
@@ -142,9 +150,8 @@ class _CalendarPageState extends State<CalendarPage> {
                 if (eventsMap[tmpDate] != null) {
                   eventString += "\n\n" + eventsMap[tmpDate]['content'];
                 }
-                setState(() {
-                  selectedDay = date;
-                });
+                selectedDay = date;
+                setState(() {});
               },
             ),
           ),
@@ -169,6 +176,15 @@ class _CalendarPageState extends State<CalendarPage> {
   String getStringFromDate(HijriCalendar dateTime) {
     List<String> temp = dateTime.toString().split('/');
     return int.parse(temp[0]).toString() + '-' + int.parse(temp[1]).toString();
+  }
+
+  bool isToday(DateTime dateTime) {
+    DateTime now = DateTime.now();
+
+    // Compare day, month, and year components to check if it's today
+    return dateTime.day == now.day &&
+        dateTime.month == now.month &&
+        dateTime.year == now.year;
   }
 }
 
