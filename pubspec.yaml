@@ -25,7 +25,6 @@ dependencies:
   package_info: ^2.0.2
   share_plus: ^6.3.4
   shared_preferences: ^2.1.1
-  sign_in_with_apple: ^4.3.0
   table_calendar: ^3.0.9
   url_launcher: ^6.1.11
   wakelock: ^0.6.2
@@ -36,6 +35,7 @@ dependencies:
   flutter_webview_plugin: ^0.4.0
   intl: ^0.18.1
   the_apple_sign_in: ^1.1.1
+  google_sign_in: ^6.1.4
 
 dev_dependencies:
   flutter_test:
