@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
@@ -116,43 +116,38 @@ class _SettingsPageState extends State<SettingsPage> {
               ? Column(
                   children: [
                     ListTile(
-                      leading: new Icon(Icons.power_settings_new),
-                      title: new Text("Logout"),
+                      leading: Icon(Icons.power_settings_new),
+                      title: Text("Logout"),
                       onTap: () {
                         logOff();
                       },
                     ),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () => _showDeleteConfirmationDialog(context),
-                        child: Text('Delete My Account'),
-                      ),
+                    Divider(),
+                    ListTile(
+                      leading: Icon(Icons.delete_forever_outlined),
+                      onTap: () => _showDeleteConfirmationDialog(context),
+                      title: Text('Delete My Account'),
                     ),
                   ],
                 )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+              : Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: IconButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors
-                              .white, // Set your desired background color here
-                        ),
-                        icon: Image.asset('assets/images/google_logo.png',
-                            height: 24.0),
-                        onPressed: () async {
-                          await _signInWithGoogle();
-                          widget.loginCallback();
-                        },
-                      ),
+                    ListTile(
+                      leading: Image.asset('assets/images/google_logo.png',
+                          height: 24.0),
+                      title: Text('Sign in with Google'),
+                      onTap: () async {
+                        await _signInWithGoogle();
+                        widget.loginCallback();
+                      },
                     ),
+                    Divider(),
                     !kIsWeb && Platform.isIOS
-                        ? SignInWithAppleButton(
-                            text: '',
-                            onPressed: () async {
+                        ? ListTile(
+                            leading: Image.asset('assets/images/apple_logo.png',
+                                height: 24.0),
+                            title: Text('Sign in with Apple'),
+                            onTap: () async {
                               await _signInWithApple();
                               widget.loginCallback();
                             },
@@ -258,15 +253,28 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       User? firebaseUser = _auth.currentUser;
       if (firebaseUser == null) {
-        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        final UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithPopup(googleProvider);
+        UserCredential? authResult;
+        if (kIsWeb) {
+          final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+          authResult =
+              await FirebaseAuth.instance.signInWithPopup(googleProvider);
+        } else {
+          final GoogleSignIn googleSignIn = GoogleSignIn();
+          final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+          final GoogleSignInAuthentication? googleAuth =
+              await googleUser?.authentication;
+          final AuthCredential credential = GoogleAuthProvider.credential(
+            accessToken: googleAuth?.accessToken,
+            idToken: googleAuth?.idToken,
+          );
+          authResult = await _auth.signInWithCredential(credential);
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
           content: new Text("Login Successful"),
         ));
         setState(() {
-          user = userCredential.user;
+          user = authResult?.user;
         });
       } else {
         logOff();
@@ -308,8 +316,8 @@ class _SettingsPageState extends State<SettingsPage> {
             break;
 
           case AuthorizationStatus.error:
-            // debugPrint(
-            //     "Sign in failed: ${appleResult.error!.localizedDescription}");
+            debugPrint(
+                "Sign in failed: ${appleResult.error!.localizedDescription}");
             ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
               content: new Text("Apple Sign-In Failed"),
             ));
@@ -323,7 +331,7 @@ class _SettingsPageState extends State<SettingsPage> {
         logOff();
       }
     } catch (error) {
-      // debugPrint(error);
+      debugPrint(error.toString());
       return null;
     }
   }
