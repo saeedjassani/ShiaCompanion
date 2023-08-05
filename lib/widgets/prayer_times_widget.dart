@@ -1,9 +1,8 @@
-import 'package:adhan_dart/adhan_dart.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
@@ -22,9 +21,12 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     DateTime currentTime = DateTime.now();
     HijriCalendar _today =
         HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
-    PrayerTimes? prayerTimes = lat != null
-        ? PrayerTimes(
-            Coordinates(lat, long), currentTime, CalculationMethod.Tehran())
+    PrayerTime prayerTime = getPrayerTimeObject();
+    prayerTime.setTimeFormat(prayerTime.getTime12());
+
+    List<String>? _prayerTimes = city != null
+        ? prayerTime.getPrayerTimes(currentTime, lat!, long!,
+            currentTime.timeZoneOffset.inMinutes / 60.0)
         : null;
     return Card(
       child: Padding(
@@ -39,7 +41,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
             SizedBox(
               height: 4,
             ),
-            prayerTimes?.fajr != null
+            _prayerTimes != null
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -60,8 +62,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                               SizedBox(
                                 height: 4,
                               ),
-                              Text(DateFormat('hh:mm')
-                                  .format(prayerTimes!.fajr!)),
+                              Text(_prayerTimes[0]),
                             ],
                           ),
                           Column(
@@ -71,8 +72,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                               SizedBox(
                                 height: 4,
                               ),
-                              Text(DateFormat('hh:mm')
-                                  .format(prayerTimes.dhuhr!)),
+                              Text(_prayerTimes[2]),
                             ],
                           ),
                           Column(
@@ -82,8 +82,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                               SizedBox(
                                 height: 4,
                               ),
-                              Text(DateFormat('hh:mm')
-                                  .format(prayerTimes.maghrib!)),
+                              Text(_prayerTimes[5]),
                             ],
                           ),
                         ],
@@ -92,40 +91,43 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           TextButton.icon(
-                              icon: Icon(
-                                Icons.exit_to_app,
-                                size: 18,
-                              ),
-                              onPressed: () {
-                                widget.callback();
-                              },
-                              label: Text(
-                                "All Prayers",
-                                style: smallText,
-                              )),
+                            icon: Icon(
+                              Icons.exit_to_app,
+                              size: 18,
+                            ),
+                            onPressed: () {
+                              widget.callback();
+                            },
+                            label: Text(
+                              "All Prayers",
+                              style: smallText,
+                            ),
+                          ),
                           TextButton.icon(
-                              icon: Icon(
-                                Icons.share,
-                                size: 18,
-                              ),
-                              onPressed: () {
-                                String date = formatDate(DateTime.now(),
-                                        [dd, " ", M, " ", yyyy]) +
-                                    " (" +
-                                    _today.toFormat("dd MMMM yyyy") +
-                                    ")";
-                                Share.share(
-                                    '$date\n\nFajr : ${DateFormat('hh:mm').format(prayerTimes.fajr!)}\nDhuhr : ${DateFormat('hh:mm').format(prayerTimes.dhuhr!)}\nMaghrib : ${DateFormat('hh:mm').format(prayerTimes.maghrib!)}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
-                                    sharePositionOrigin: Rect.fromLTWH(
-                                        MediaQuery.of(context).size.width / 2,
-                                        0,
-                                        2,
-                                        2)); // todo
-                              },
-                              label: Text(
-                                "Share",
-                                style: smallText,
-                              )),
+                            icon: Icon(
+                              Icons.share,
+                              size: 18,
+                            ),
+                            onPressed: () {
+                              String date = formatDate(
+                                      DateTime.now(), [dd, " ", M, " ", yyyy]) +
+                                  " (" +
+                                  _today.toFormat("dd MMMM yyyy") +
+                                  ")";
+                              Share.share(
+                                '$date\n\nFajr : ${_prayerTimes[0]}\nDhuhr : ${_prayerTimes[2]}\nMaghrib : ${_prayerTimes[5]}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                                sharePositionOrigin: Rect.fromLTWH(
+                                    MediaQuery.of(context).size.width / 2,
+                                    0,
+                                    2,
+                                    2),
+                              );
+                            },
+                            label: Text(
+                              "Share",
+                              style: smallText,
+                            ),
+                          ),
                         ],
                       ),
                     ],
