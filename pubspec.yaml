@@ -8,7 +8,6 @@ environment:
 
 dependencies:
   provider: ^6.0.5
-  adhan_dart: ^1.0.8
   auth_buttons: ^3.0.0
   csv: ^5.0.2
   date_format: ^2.0.7
@@ -36,6 +35,9 @@ dependencies:
   intl: ^0.18.1
   the_apple_sign_in: ^1.1.1
   google_sign_in: ^6.1.4
+  flutter_native_timezone: ^2.0.0
+  timezone: ^0.9.2
+
 
 dev_dependencies:
   flutter_test:

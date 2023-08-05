@@ -6,6 +6,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
 import 'package:package_info/package_info.dart';
@@ -26,6 +27,7 @@ import 'package:shia_companion/widgets/todays_recitation.dart';
 import 'library_page.dart';
 import 'list_items.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({required this.title});
@@ -268,9 +270,9 @@ class _MyHomePageState extends State<MyHomePage>
 
     if (!kIsWeb) {
       tz.initializeTimeZones();
-      // final String currentTimeZone =
-      //     await FlutterNativeTimezone.getLocalTimezone();
-      // tz.setLocalLocation(tz.getLocation(currentTimeZone));
+      final String currentTimeZone =
+          await FlutterNativeTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(currentTimeZone));
 
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
       AndroidInitializationSettings initializationSettingsAndroid =

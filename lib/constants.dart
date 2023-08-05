@@ -11,7 +11,6 @@ import 'package:shia_companion/pages/zikr_page.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
-import 'package:adhan_dart/adhan_dart.dart';
 
 import 'pages/list_items.dart';
 import 'pages/news_page.dart';
@@ -19,6 +18,7 @@ import 'pages/video_player.dart';
 import 'utils/shared_preferences.dart';
 import 'widgets/tasbeeh_widget.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:shia_companion/utils/prayer_times.dart';
 
 double screenWidth = 0;
 double screenHeight = 0;
@@ -89,6 +89,20 @@ List<String> zikrImages = [
   "assets/images/counter.png",
 ];
 
+PrayerTime? prayerTime;
+
+PrayerTime getPrayerTimeObject() {
+  if (prayerTime != null) return prayerTime!;
+
+  prayerTime = PrayerTime();
+
+  prayerTime!.setCalcMethod(prayerTime!.getJafari());
+  prayerTime!.setAsrJuristic(prayerTime!.getHanafi());
+  prayerTime!.setAdjustHighLats(prayerTime!.getAdjustHighLats());
+
+  return prayerTime!;
+}
+
 Map items = {};
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
@@ -137,42 +151,28 @@ initializeLocation() async {
       await SP.prefs.setString("city", city!);
     }
   } catch (e) {
-    // debugPrint(e);
+    debugPrint(e.toString());
   }
-}
-
-List<DateTime> getPrayerTimes(PrayerTimes prayerTimes) {
-  return [
-    prayerTimes.fajr!,
-    prayerTimes.sunrise!,
-    prayerTimes.dhuhr!,
-    prayerTimes.asr!,
-    DateTime.now(),
-    prayerTimes.maghrib!,
-    prayerTimes.isha!
-  ];
-}
-
-List<String> getPrayerName() {
-  return ["Fajr", "Sunrise", "Dhuhr", "Asr", "Sunset", "Maghrib", "Isha"];
 }
 
 void setUpNotifications() async {
   debugPrint("Scheduling Azan Notifications");
 
   DateTime now = DateTime.now();
+  PrayerTime prayers = getPrayerTimeObject();
+  prayers.setTimeFormat(prayers.getTime24());
   for (int i = 0; i < 12; i++) {
     DateTime temp = now.add(Duration(days: i));
-    PrayerTimes _prayerTimes =
-        PrayerTimes(Coordinates(lat, long), temp, CalculationMethod.Tehran());
-    List<DateTime> prayerTimes = getPrayerTimes(_prayerTimes);
+    List<String> prayerTimes = prayers.getPrayerTimes(
+        temp, lat!, long!, temp.timeZoneOffset.inMinutes / 60.0);
 
-    List<String> _prayerNames = getPrayerName();
+    List<String> _prayerNames = prayers.getTimeNames();
     _prayerNames
         .asMap()
         .forEach((index, prayerName) => schedulePrayerTimeNotification(
               (100 * (index + 1)) + i,
-              prayerTimes[index],
+              DateTime.parse(
+                  "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[index]}"),
               prayerName,
             ));
   }
