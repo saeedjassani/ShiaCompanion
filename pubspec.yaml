@@ -7,6 +7,8 @@ environment:
   sdk: ^3.0.0
 
 dependencies:
+  flutter:
+    sdk: flutter
   provider: ^6.0.5
   auth_buttons: ^3.0.0
   csv: ^5.0.2
@@ -14,8 +16,6 @@ dependencies:
   firebase_auth: ^4.6.0
   firebase_crashlytics: ^3.3.0
   firebase_database: ^10.2.0
-  flutter:
-    sdk: flutter
   flutter_beep: ^1.0.0
   flutter_local_notifications: ^14.0.0+2
   geocoding: ^2.1.0
@@ -44,17 +44,6 @@ dev_dependencies:
     sdk: flutter
   flutter_driver:
     sdk: flutter
-# dependency_overrides:
-#   screenshots:
-#     git: https://github.com/trygvis/screenshots
-#   tool_base:
-#     git: https://github.com/speaking-in-code/tool_base
-#   tool_base_test:
-#     git: https://github.com/trygvis/tool_base_test
-#   tool_mobile:
-#     git: https://github.com/trygvis/tool_mobile
-#   fake_process_manager:
-#     git: https://github.com/trygvis/fake_process_manager
 
 flutter_icons:
   android: true
