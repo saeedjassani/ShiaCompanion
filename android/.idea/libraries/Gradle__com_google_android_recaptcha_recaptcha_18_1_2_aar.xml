@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.google.android.recaptcha:recaptcha:18.1.2@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/e2e8f78cad2dcb92bcee798d0953e7dd/transformed/jetified-recaptcha-18.1.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/e2e8f78cad2dcb92bcee798d0953e7dd/transformed/jetified-recaptcha-18.1.2/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.android.recaptcha/recaptcha/18.1.2/8d54f17bc224f610f825894c8042dbf16db0778f/recaptcha-18.1.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
