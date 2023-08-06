@@ -1,5 +1,7 @@
 /// Created by Anwar Alburai on 1/20/2023
 /// Email: anwar.dev.96@gmail.com
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:collection';
 import 'dart:math';
 
