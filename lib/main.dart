@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DarkModeProvider(),
+      create: (context) => DarkModeProvider(context),
       child:
           Consumer<DarkModeProvider>(builder: (context, darkModeProvider, _) {
         return MaterialApp(
