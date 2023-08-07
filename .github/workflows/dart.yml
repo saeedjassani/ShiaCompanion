@@ -50,6 +50,12 @@ jobs:
       - name: Run Widget Tests
         run: flutter test
 
+      - name: Clear CocoaPods cache and update specs
+        run: |
+          cd ios
+          pod cache clean --all
+          pod repo update
+
       - name: Update CocoaPods
         run: |
           cd ios
