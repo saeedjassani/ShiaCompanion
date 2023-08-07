@@ -27,7 +27,6 @@ dependencies:
   table_calendar: ^3.0.9
   url_launcher: ^6.1.11
   wakelock: ^0.6.2
-  webview_flutter: ^4.2.0
   webfeed_revised: ^0.7.2
   yaml: ^3.1.2
   flutter_markdown: ^0.6.17
