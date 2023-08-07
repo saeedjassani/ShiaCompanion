@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - main
-
+  workflow_dispatch:
+    
 jobs:
   build:
     # This job will run on ubuntu virtual machine
