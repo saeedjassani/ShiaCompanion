@@ -37,7 +37,7 @@ android {
 
     defaultConfig {
         applicationId "com.developer110.shiacompanion"
-        minSdkVersion 19
+        minSdkVersion 29
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
