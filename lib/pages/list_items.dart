@@ -92,10 +92,10 @@ class _ItemListState extends State<ItemList> {
     UniversalData itemData =
         UniversalData(uidTitleData.uid, uidTitleData.title, 0);
     String title;
-    if (kReleaseMode) {
-      title = itemData.title;
-    } else {
+    if (kDebugMode || kIsWeb) {
       title = itemData.uid + " " + itemData.title;
+    } else {
+      title = itemData.title;
     }
     return ListTile(
       onTap: () {
