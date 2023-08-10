@@ -59,7 +59,7 @@ jobs:
       - name: Update CocoaPods
         run: |
           cd ios
-          pod install --repo-update
+          pod update Firebase/CoreOnly
 
       - name: Commit and push changes
         run: |

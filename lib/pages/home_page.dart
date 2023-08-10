@@ -132,10 +132,12 @@ class _MyHomePageState extends State<MyHomePage>
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: HomePrayerTimesCard(callback),
-                  ),
+                  city != null
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: HomePrayerTimesCard(callback),
+                        )
+                      : Container(),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Card(
