@@ -182,6 +182,7 @@ captures/
 *.swp
 
 # Keystore files
+sc_new
 *.jks
 *.keystore
 
