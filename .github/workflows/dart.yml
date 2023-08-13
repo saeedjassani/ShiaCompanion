@@ -56,6 +56,19 @@ jobs:
           pod cache clean --all
           pod repo update
 
+      - name: Check for Changes
+        id: check-changes
+        run: |
+          git diff --exit-code || echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ios/Podfile.lock
+          git commit -m "Update Podfile.lock" -a
+          git push
+
       - name: Build iOS App
         run: flutter build ios --release --no-codesign
 
