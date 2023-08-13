@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -31,9 +32,15 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({required this.title});
+  MyHomePage({
+    required this.title,
+    required this.analytics,
+    required this.observer,
+  });
 
   final String title;
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -466,6 +473,7 @@ class _MyHomePageState extends State<MyHomePage>
 
     user = _auth.currentUser;
     if (user != null) {
+      widget.analytics.setUserId(id: user!.uid);
       newFavsReference =
           FirebaseDatabase.instance.ref().child('new_favs').child(user!.uid);
       initialFavs = (await newFavsReference!.once()).snapshot.value as String?;

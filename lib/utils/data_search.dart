@@ -1,11 +1,15 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/pages/zikr_page.dart';
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;
 
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   DataSearch(this.listWords);
 
   @override
@@ -36,6 +40,7 @@ class DataSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     // show some result based on the selection
+    analytics.logSearch(searchTerm: query); // Log the search event
     final suggestionList = listWords;
 
     return ListView.builder(
@@ -50,7 +55,7 @@ class DataSearch extends SearchDelegate<String> {
   Widget buildSuggestions(BuildContext context) {
     // show when someone searches for something
 
-    final suggestionList = query.isEmpty
+    final List<UidTitleData> suggestionList = query.isEmpty
         ? []
         : listWords
             .where((p) => p.title.contains(RegExp(query, caseSensitive: false)))
@@ -66,10 +71,10 @@ class DataSearch extends SearchDelegate<String> {
                     builder: (context) => ItemList(
                         suggestionList[index].getUId().split("~")[1])));
           } else {
-            Navigator.push(
+            handleUniversalDataClick(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => ZikrPage(suggestionList[index])));
+                UniversalData(
+                    suggestionList[index].uid, suggestionList[index].title, 0));
           }
         },
         title: Text(suggestionList[index].title),

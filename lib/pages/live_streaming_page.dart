@@ -44,12 +44,8 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
                   child: Card(
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VideoPlayer(data![i]),
-                          ),
-                        );
+                        handleUniversalDataClick(
+                            context, UniversalData.forLiveStream(data![i]));
                       },
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

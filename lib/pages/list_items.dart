@@ -109,19 +109,7 @@ class _ItemListState extends State<ItemList> {
                   builder: (context) =>
                       ItemList(uidTitleData.getUId().split("~")[1])));
         } else {
-          File file = File("assets/zikr/${uidTitleData.getFirstUId()}");
-
-          if (file.existsSync() || kIsWeb) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ZikrPage(uidTitleData)));
-          } else {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ItemPage(uidTitleData)));
-          }
+          handleUniversalDataClick(context, itemData);
         }
       },
       title: Text(title),

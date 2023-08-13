@@ -122,31 +122,6 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
     );
   }
 
-  Widget buildZikrRow(BuildContext context, UidTitleData itemData) {
-    return InkWell(
-      onTap: () {
-        if (itemData.getUId().contains("~")) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ItemList(itemData.getUId().split("~")[1])));
-        } else {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ZikrPage(itemData)));
-        }
-      },
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(itemData.title),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void dispose() async {
     super.dispose();

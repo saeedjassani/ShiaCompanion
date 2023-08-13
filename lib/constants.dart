@@ -1,9 +1,14 @@
+import 'dart:io';
+
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as location;
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/pages/item_page.dart';
 import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/pages/qibla_finder.dart';
 import 'package:date_format/date_format.dart';
@@ -108,29 +113,34 @@ Map items = {};
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
+  Widget? routeToPush;
+  String contentType = 'universal';
   switch (itemData.type) {
     case 0:
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ZikrPage(UidTitleData(itemData.uid, itemData.title))));
+      contentType = 'zikr';
+      UidTitleData uidTitleData = UidTitleData(itemData.uid, itemData.title);
+      if (kIsWeb) {
+        routeToPush = ZikrPage(uidTitleData);
+      } else {
+        routeToPush = ItemPage(uidTitleData);
+      }
       break;
     case 1:
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ChapterListPage(itemData.uid, itemData.title)));
+      contentType = 'library';
+      routeToPush = ChapterListPage(itemData.uid, itemData.title);
       break;
     case 2:
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => VideoPlayer(
-                  LiveStreamingData(itemData.uid, itemData.title))));
+      contentType = 'live-streaming';
+      routeToPush =
+          VideoPlayer(LiveStreamingData(itemData.uid, itemData.title));
       break;
     default:
+  }
+  FirebaseAnalytics.instance
+      .logSelectContent(contentType: contentType, itemId: itemData.title);
+  if (routeToPush != null) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => routeToPush!));
   }
 }
 
