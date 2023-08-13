@@ -20,6 +20,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/utils/data_search.dart';
+import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/bottom_bar.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
@@ -346,6 +347,7 @@ class _MyHomePageState extends State<MyHomePage>
     city = SP.prefs.getString("city");
     lat = SP.prefs.getDouble("lat");
     long = SP.prefs.getDouble("long");
+    arabicFont = await FontPreferences.getSelectedFont() ?? "Qalam";
 
     // By default turn on Azan for Fajr, Dhuhr and Maghrib
     if (SP.prefs.getBool('fajr_notification') == null) {

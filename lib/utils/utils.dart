@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 TextStyle whiteColor = new TextStyle(color: Colors.white);
 TextStyle whiteColor70 = new TextStyle(color: Colors.white70);
-TextStyle arabicStyle = new TextStyle(fontFamily: "Qalam", fontSize: 18.0);
 TextStyle smallText = new TextStyle(fontSize: 12.0);
 int day = 1;
 const String base = "https://mahditours.com/noor_diary/scripts/";

@@ -66,7 +66,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
   }
 
   TextStyle arabicStyle = TextStyle(
-    fontFamily: "Qalam",
+    fontFamily: arabicFont,
     fontSize: arabicFontSize,
   );
   TextStyle transliStyle = TextStyle(
