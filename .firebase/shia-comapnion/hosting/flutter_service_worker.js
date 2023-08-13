@@ -3,12 +3,14 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"assets/AssetManifest.bin": "5721d6af7777ed4245774ce4ff31bd0c",
-"assets/AssetManifest.json": "fdacdf9a65f102ab78609e6750c307e5",
+const RESOURCES = {"assets/AssetManifest.bin": "fe42dd6e026e8f12927e2ff78a2449cf",
+"assets/AssetManifest.json": "d63579ccf90f0bd4cf051ef694356325",
 "assets/assets/books.json": "0e9c159ad11b5ba5834a2f7e7615c9a0",
 "assets/assets/events.json": "7348d3f324cfe9eb6380373b7d44df8a",
 "assets/assets/fonts/me_quran.ttf": "a79b204e9c3055c77f0d81921bd881c2",
+"assets/assets/fonts/muhammadi.ttf": "650b92acf6cf9b0cef6a51673a66ec75",
 "assets/assets/fonts/qalam": "803bc3583def52239247438413bdf353",
+"assets/assets/fonts/uthmani.otf": "43269f118299246de0cf264e04ae2680",
 "assets/assets/hadith.csv": "face596d02577d27cbe91c750a78b392",
 "assets/assets/images/ahlulbayt_tv_logo.jpg": "0bf7d9ab130bb4ea9ce0505ad6109bde",
 "assets/assets/images/aljawadain.jpeg": "b5a1fade68c79dcb46912137abbc4e25",
@@ -1194,9 +1196,9 @@ const RESOURCES = {"assets/AssetManifest.bin": "5721d6af7777ed4245774ce4ff31bd0c
 "assets/assets/zikr/Z7": "6acf711c22f3609ab416128a1e9d0dbd",
 "assets/assets/zikr/Z8": "bff55ccf97699052dfe88a225687d908",
 "assets/assets/zikr.json": "71e27d531778a57f75b95ebc64cc6f7b",
-"assets/FontManifest.json": "9f8f77fa78795d66e0b031a3f98e450e",
-"assets/fonts/MaterialIcons-Regular.otf": "c301bc0dd9d06f8c2676aea4f89f1e9c",
-"assets/NOTICES": "e288e477729669c231e7831ca98a54b4",
+"assets/FontManifest.json": "32bf81cf0d8ac5d9cd66570ac67fc64e",
+"assets/fonts/MaterialIcons-Regular.otf": "4be26cf23b4b04d1ed54e1a3454c849c",
+"assets/NOTICES": "dd0540926c26d5b3368e0a3624597601",
 "assets/packages/auth_buttons/images/default/apple.svg": "55dba81be7ba24dd88dbf9cc81de95e8",
 "assets/packages/auth_buttons/images/default/email.svg": "3082146f3f124a005b10db6fe3109fe7",
 "assets/packages/auth_buttons/images/default/facebook.svg": "042d64dc3864e72dee8ed5a25b514b11",
@@ -1235,11 +1237,11 @@ const RESOURCES = {"assets/AssetManifest.bin": "5721d6af7777ed4245774ce4ff31bd0c
 "flutter.js": "6b515e434cea20006b3ef1726d2c8894",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"index.html": "ddfdd48ba8a2fbf59fad4dc63f9a3f00",
-"/": "ddfdd48ba8a2fbf59fad4dc63f9a3f00",
-"main.dart.js": "c811aeb78f495bc889730e3fe383cd25",
+"index.html": "695e4828c91679d9d29469a5358067c2",
+"/": "695e4828c91679d9d29469a5358067c2",
+"main.dart.js": "b12ca4b61f5beb97a1390c234f826a34",
 "manifest.json": "f807fb345a20f0561246c11b81123eac",
-"version.json": "a70fae73cbdf0fd71a475d786158091e"};
+"version.json": "4420a2635ad556a02a663f3739abf13b"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",

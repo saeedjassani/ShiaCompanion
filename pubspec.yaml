@@ -1,5 +1,5 @@
 name: shia_companion
-description: A new Flutter project.
+description: All the features needed by the lovers of Ahle Bayt (may Allah's peace and blessings be upon them) in one app
 
 version: 2.9.2+51
 
@@ -36,6 +36,7 @@ dependencies:
   google_sign_in: ^6.1.4
   flutter_timezone: ^1.0.7
   timezone: ^0.9.2
+  firebase_analytics: ^10.4.4
 
 
 dev_dependencies:

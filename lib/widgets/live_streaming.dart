@@ -36,10 +36,8 @@ class _LiveStreamingState extends State<LiveStreaming> {
             itemBuilder: (BuildContext c, int i) {
               return InkWell(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => VideoPlayer(data[i])));
+                  handleUniversalDataClick(
+                      context, UniversalData.forLiveStream(data[i]));
                 },
                 onLongPress: () {
                   UniversalData universalData =

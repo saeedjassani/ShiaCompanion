@@ -45,11 +45,7 @@ class _LibraryPageState extends State<LibraryPage> {
                 books[index].title,
                 key: ValueKey("lib-key-$index"),
               ),
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ChapterListPage(
-                          books[index].uid, books[index].title))),
+              onTap: () => handleUniversalDataClick(context, itemData),
               trailing: InkWell(
                 onTap: () {
                   favsData!.contains(itemData)

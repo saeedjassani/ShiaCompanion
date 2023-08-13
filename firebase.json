@@ -1,6 +1,7 @@
 {
   "hosting": {
     "source": ".",
+    "site": "shia-companion",
     "ignore": [
       "firebase.json",
       "**/.*",
