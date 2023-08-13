@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_beep/flutter_beep.dart';
-import 'package:shia_companion/data/uid_title_data.dart';
-import 'package:shia_companion/pages/list_items.dart';
-import 'package:shia_companion/pages/zikr_page.dart';
 
 import '../utils/shared_preferences.dart';
 
