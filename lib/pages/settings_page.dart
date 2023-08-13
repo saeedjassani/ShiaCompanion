@@ -10,6 +10,7 @@ import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../utils/dark_mode.dart';
+import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
 import 'about_page.dart';
 
@@ -103,6 +104,14 @@ class _SettingsPageState extends State<SettingsPage> {
             title: Text("Dark mode"),
           ),
           Divider(),
+          ListTile(
+            title: Text(
+              'Arabic Font',
+            ),
+            trailing: Text(arabicFont),
+            onTap: _showFontSelectionDialog,
+          ),
+          Divider(),
           SwitchListTile(
             value: SP.prefs.getBool('keep_awake') ?? true,
             onChanged: (v) async {
@@ -158,6 +167,75 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
+  }
+
+  void _onFontChanged(String? font) async {
+    if (font != null) {
+      setState(() {
+        arabicFont = font;
+      });
+      await FontPreferences.setSelectedFont(font);
+    }
+  }
+
+  Future<void> _showFontSelectionDialog() async {
+    String? newFont = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ListTile(
+                title: Text('Qalam'),
+                trailing: Text(
+                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                  style: TextStyle(fontFamily: 'Qalam'),
+                ),
+                onTap: () {
+                  Navigator.of(context).pop('Qalam');
+                },
+              ),
+              ListTile(
+                title: Text('MeQuran'),
+                trailing: Text(
+                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                  style: TextStyle(fontFamily: 'MeQuran'),
+                ),
+                onTap: () {
+                  Navigator.of(context).pop('MeQuran');
+                },
+              ),
+              ListTile(
+                title: Text('Muhammadi'),
+                trailing: Text(
+                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                  style: TextStyle(fontFamily: 'Muhammadi'),
+                ),
+                onTap: () {
+                  Navigator.of(context).pop('Muhammadi');
+                },
+              ),
+              ListTile(
+                title: Text('Uthmani'),
+                trailing: Text(
+                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                  style: TextStyle(fontFamily: 'Uthmani'),
+                ),
+                onTap: () {
+                  Navigator.of(context).pop('Uthmani');
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (newFont != null) {
+      _onFontChanged(newFont);
+    }
   }
 
   adjustHijriAlertDialog(BuildContext context) {

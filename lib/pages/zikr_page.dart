@@ -30,7 +30,7 @@ class _ZikrPageState extends State<ZikrPage> {
   }
 
   TextStyle arabicStyle = TextStyle(
-    fontFamily: "Qalam",
+    fontFamily: arabicFont,
     fontSize: arabicFontSize,
   );
   TextStyle transliStyle =

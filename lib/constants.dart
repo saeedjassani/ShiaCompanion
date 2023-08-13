@@ -35,6 +35,7 @@ double englishFontSize = 16.0;
 String? city;
 double? lat, long;
 bool needToSchedule = true;
+String arabicFont = "Qalam";
 
 FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 TextStyle smallText = TextStyle(fontSize: 14);

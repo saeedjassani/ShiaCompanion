@@ -67,6 +67,12 @@ flutter:
     - family: MeQuran
       fonts:
         - asset: assets/fonts/me_quran.ttf
+    - family: Muhammadi
+      fonts:
+        - asset: assets/fonts/muhammadi.ttf
+    - family: Uthmani
+      fonts:
+        - asset: assets/fonts/uthmani.otf
   #  #
   # For details regarding fonts from package dependencies,
   # see https://flutter.io/custom-fonts/#from-packages
