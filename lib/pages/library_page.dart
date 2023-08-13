@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
-import 'package:shia_companion/pages/chapter_list_page.dart';
 
 import '../constants.dart';
 

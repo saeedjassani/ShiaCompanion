@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
-import 'package:shia_companion/pages/video_player.dart';
 import '../constants.dart';
 
 class LiveStreaming extends StatefulWidget {

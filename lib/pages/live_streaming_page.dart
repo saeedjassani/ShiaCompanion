@@ -6,7 +6,6 @@ import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 
 import '../constants.dart';
-import 'video_player.dart';
 
 class LiveStreamingPage extends StatefulWidget {
   final int arg;
