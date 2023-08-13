@@ -62,6 +62,7 @@ jobs:
           git diff --exit-code || echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
 
       - name: Commit and push changes
+        if: env.CHANGES_DETECTED == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
