@@ -32,7 +32,7 @@ class _AboutPageState extends State<AboutPage> {
                   textAlign: TextAlign.center,
                 ),
                 subtitle: Text(
-                  "Version 1.0",
+                  "Version " + appVersion,
                   textAlign: TextAlign.center,
                 ),
               ),
