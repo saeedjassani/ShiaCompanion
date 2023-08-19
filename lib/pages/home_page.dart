@@ -10,7 +10,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import 'dart:math';
@@ -366,6 +366,9 @@ class _MyHomePageState extends State<MyHomePage>
       await SP.prefs.setBool('sunset_notification', false);
       await SP.prefs.setBool('isha_notification', false);
     }
+
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    appVersion = packageInfo.version;
 
     // WidgetsBinding.instance.addPostFrameCallback((_) => showAlertDialog());
     initializeData();

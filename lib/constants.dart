@@ -43,6 +43,7 @@ String arabicFont = "Qalam";
 FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 TextStyle smallText = TextStyle(fontSize: 14);
 TextStyle boldText = TextStyle(fontWeight: FontWeight.bold);
+String appVersion = '1.0';
 
 bool showTranslation = true, showTransliteration = true;
 List tableCode = [
