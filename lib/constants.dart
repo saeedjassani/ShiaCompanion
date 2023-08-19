@@ -1,6 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geocoding/geocoding.dart';
@@ -118,7 +117,7 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
     case 0:
       contentType = 'zikr';
       UidTitleData uidTitleData = UidTitleData(itemData.uid, itemData.title);
-      if (kIsWeb) {
+      if (SP.prefs.getBool('three_line') ?? false) {
         routeToPush = ZikrPage(uidTitleData);
       } else {
         routeToPush = ItemPage(uidTitleData);
