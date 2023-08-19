@@ -1,7 +1,7 @@
 name: shia_companion
 description: All the features needed by the lovers of Ahle Bayt (may Allah's peace and blessings be upon them) in one app
 
-version: 2.9.3+52
+version: 2.9.4+53
 
 environment:
   sdk: ^3.0.0
