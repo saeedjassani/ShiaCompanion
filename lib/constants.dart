@@ -276,3 +276,9 @@ Icon getFavIcon(BuildContext context, UniversalData itemData) {
           color: Theme.of(context).colorScheme.secondary,
         );
 }
+
+Future<void> trackScreen(String screenName) async {
+  await FirebaseAnalytics.instance.setCurrentScreen(
+    screenName: screenName,
+  );
+}

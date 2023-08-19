@@ -18,6 +18,7 @@ class _LibraryPageState extends State<LibraryPage> {
   @override
   void initState() {
     super.initState();
+    trackScreen('Library Page');
     _loadLibraryData();
   }
 

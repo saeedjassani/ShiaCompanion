@@ -28,6 +28,12 @@ class _SettingsPageState extends State<SettingsPage> {
   _SettingsPageState();
 
   @override
+  void initState() {
+    super.initState();
+    trackScreen('Settings Page');
+  }
+
+  @override
   Widget build(BuildContext context) {
     final darkModeProvider = Provider.of<DarkModeProvider>(context);
     return SingleChildScrollView(

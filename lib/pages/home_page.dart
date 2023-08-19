@@ -77,6 +77,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
+    trackScreen('Home Page');
     WidgetsBinding.instance.addObserver(this);
     setupPreferences();
     _pageController = PageController(initialPage: 0);

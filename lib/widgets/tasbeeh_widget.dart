@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_beep/flutter_beep.dart';
 
+import '../constants.dart';
 import '../utils/shared_preferences.dart';
 
 class TasbeehWidget extends StatefulWidget {
@@ -21,6 +22,7 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
     controller2 = TextEditingController(text: "67");
     controller3 = TextEditingController(text: "100");
     super.initState();
+    trackScreen('Tasbeeh Page');
   }
 
   @override

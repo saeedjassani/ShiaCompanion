@@ -26,6 +26,7 @@ class _ZikrPageState extends State<ZikrPage> {
   @override
   void initState() {
     super.initState();
+    trackScreen('Zikr Page');
     initializeData();
   }
 
