@@ -21,6 +21,7 @@ class _ItemListState extends State<ItemList> {
   @override
   void initState() {
     super.initState();
+    trackScreen('List Item Page');
     String tableName = widget.item;
     if (widget.item == "D1") tableName = "D";
     tableName = tableName

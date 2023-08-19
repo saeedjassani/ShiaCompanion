@@ -3,6 +3,7 @@ import 'package:http/http.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:yaml/yaml.dart';
 
+import '../constants.dart';
 import 'chapter_page.dart';
 
 class ChapterListPage extends StatefulWidget {
@@ -21,6 +22,7 @@ class _ChapterListPageState extends State<ChapterListPage> {
   @override
   void initState() {
     super.initState();
+    trackScreen('Chapter List Page');
     _updateEventString();
   }
 

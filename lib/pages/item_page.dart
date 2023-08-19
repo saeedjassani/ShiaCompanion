@@ -36,6 +36,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    trackScreen('Item Page');
     if (SP.prefs.getBool('keep_awake') ?? true) Wakelock.enable();
     initializeData();
   }

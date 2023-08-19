@@ -14,6 +14,7 @@ class _NewsPageState extends State<NewsPage> {
 
   @override
   void initState() {
+    trackScreen('News Page');
     getData();
     super.initState();
   }

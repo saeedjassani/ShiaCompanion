@@ -22,6 +22,7 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
 
   @override
   void initState() {
+    trackScreen('Live Streaming Page');
     getData();
     super.initState();
   }

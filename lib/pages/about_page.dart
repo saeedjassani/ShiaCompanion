@@ -9,6 +9,12 @@ class AboutPage extends StatefulWidget {
 
 class _AboutPageState extends State<AboutPage> {
   @override
+  void initState() {
+    super.initState();
+    trackScreen('About Page');
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: getAppBar(),

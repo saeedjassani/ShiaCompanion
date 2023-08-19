@@ -31,6 +31,7 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   void initState() {
     super.initState();
+    trackScreen('Calendar Page');
     _updateEventString();
     scrollController = ScrollController();
   }

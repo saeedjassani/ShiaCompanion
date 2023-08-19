@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:http/http.dart';
 
+import '../constants.dart';
+
 class ChapterPage extends StatefulWidget {
   final String slug;
   final String title;
@@ -18,6 +20,7 @@ class _ChapterPageState extends State<ChapterPage> {
   @override
   void initState() {
     super.initState();
+    trackScreen('Chapter Page');
     _updateEventString();
   }
 
