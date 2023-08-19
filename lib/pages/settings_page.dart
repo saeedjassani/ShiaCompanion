@@ -121,6 +121,17 @@ class _SettingsPageState extends State<SettingsPage> {
             title: Text("Keep screen on while reciting Zikr"),
           ),
           Divider(),
+          SwitchListTile(
+            value: SP.prefs.getBool('three_line') ?? false,
+            onChanged: (bool value) async {
+              await SP.prefs.setBool("three_line", value);
+              setState(() {});
+            },
+            title: Text("Three-line mode"),
+            subtitle: Text(
+                "This is experimental Zikr mode. Many duas might not load as we have limited data for three-line mode"),
+          ),
+          Divider(),
           user != null
               ? Column(
                   children: [
