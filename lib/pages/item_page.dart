@@ -138,7 +138,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
                       }),
                   Builder(builder: (context) {
                     return IconButton(
-                      icon: Icon(Icons.settings),
+                      icon: Icon(Icons.filter_list),
                       onPressed: () => Scaffold.of(context).openEndDrawer(),
                     );
                   }),
