@@ -7,6 +7,7 @@ import 'package:wakelock/wakelock.dart';
 
 import '../constants.dart';
 import '../utils/shared_preferences.dart';
+import '../widgets/zikr_settings.dart';
 
 class ItemPage extends StatefulWidget {
   final UidTitleData item;
@@ -22,6 +23,10 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
 
   Set<int> codes = Set();
   TabController? _tabController;
+
+  void refreshState() {
+    setState(() {});
+  }
 
   _ItemPageState(this.item);
 
@@ -130,9 +135,16 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
                                 0,
                                 2,
                                 2));
-                      })
+                      }),
+                  Builder(builder: (context) {
+                    return IconButton(
+                      icon: Icon(Icons.settings),
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    );
+                  }),
                 ],
               ),
+              endDrawer: ZikrSettingsPage(refreshState),
               body: itemData != null
                   ? Padding(
                       padding: const EdgeInsets.all(8.0),
