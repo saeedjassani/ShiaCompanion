@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:http/http.dart';
+import 'package:shia_companion/widgets/zikr_settings.dart';
 import '../constants.dart';
 
 class ZikrPage extends StatefulWidget {
@@ -39,16 +39,11 @@ class _ZikrPageState extends State<ZikrPage> {
 
   void initializeData() async {
     String jsonString = "";
-    if (kIsWeb || kDebugMode) {
-      String url =
-          "https://alghazienterprises.com/sc/scripts/getItem.php?uid=${item.getFirstUId()}";
-      debugPrint(url);
-      Response request = await get(Uri.parse(url));
-      jsonString = request.body;
-    } else {
-      jsonString = await DefaultAssetBundle.of(context)
-          .loadString("assets/zikr/${item.getFirstUId()}");
-    }
+    String url =
+        "https://alghazienterprises.com/sc/scripts/getItem.php?uid=${item.getFirstUId()}";
+    debugPrint(url);
+    Response request = await get(Uri.parse(url));
+    jsonString = request.body;
     itemData = json.decode(jsonString);
     setState(() {});
   }
@@ -61,7 +56,16 @@ class _ZikrPageState extends State<ZikrPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(item.title),
+        actions: [
+          Builder(builder: (context) {
+            return IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            );
+          }),
+        ],
       ),
+      endDrawer: ZikrSettingsPage(refreshState),
       body: content != null
           ? Padding(
               padding: const EdgeInsets.all(8.0),
@@ -115,6 +119,16 @@ class _ZikrPageState extends State<ZikrPage> {
             )
           : Center(child: CircularProgressIndicator()),
     );
+  }
+
+  void refreshState() {
+    arabicStyle = TextStyle(
+      fontFamily: arabicFont,
+      fontSize: arabicFontSize,
+    );
+    transliStyle =
+        TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
+    setState(() {});
   }
 
   List<String> generateCodeAndStrings(String content) {

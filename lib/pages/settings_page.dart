@@ -10,7 +10,6 @@ import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../utils/dark_mode.dart';
-import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
 import 'about_page.dart';
 
@@ -70,63 +69,6 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           Divider(),
-          ListTile(
-            title: Text('Arabic Font Size'),
-            subtitle: Slider(
-              activeColor: Theme.of(context).colorScheme.secondary,
-              min: 20.0,
-              max: 44.0,
-              divisions: 12,
-              onChanged: (newRating) {
-                arabicFontSize = newRating.toInt().toDouble();
-                saveDoublePref('ara_font_size', arabicFontSize);
-              },
-              value: arabicFontSize,
-            ),
-            trailing: Text(arabicFontSize.toInt().toString()),
-          ),
-          Divider(),
-          ListTile(
-            title: Text('English Font Size'),
-            subtitle: Slider(
-              activeColor: Theme.of(context).colorScheme.secondary,
-              min: 10.0,
-              max: 24.0,
-              divisions: 14,
-              onChanged: (val) {
-                englishFontSize = val.toInt().toDouble();
-                saveDoublePref('eng_font_size', englishFontSize);
-              },
-              value: englishFontSize,
-            ),
-            trailing: Text(englishFontSize.toInt().toString()),
-          ),
-          Divider(),
-          SwitchListTile(
-            value: darkModeProvider.isDarkMode,
-            onChanged: (value) {
-              darkModeProvider.toggleDarkMode();
-            },
-            title: Text("Dark mode"),
-          ),
-          Divider(),
-          ListTile(
-            title: Text(
-              'Arabic Font',
-            ),
-            trailing: Text(arabicFont),
-            onTap: _showFontSelectionDialog,
-          ),
-          Divider(),
-          SwitchListTile(
-            value: SP.prefs.getBool('keep_awake') ?? true,
-            onChanged: (v) async {
-              await SP.prefs.setBool("keep_awake", v);
-              setState(() {});
-            },
-            title: Text("Keep screen on while reciting Zikr"),
-          ),
-          Divider(),
           SwitchListTile(
             value: SP.prefs.getBool('three_line') ?? false,
             onChanged: (bool value) async {
@@ -136,6 +78,14 @@ class _SettingsPageState extends State<SettingsPage> {
             title: Text("Three-line mode"),
             subtitle: Text(
                 "This is experimental Zikr mode. Many duas might not load as we have limited data for three-line mode"),
+          ),
+          Divider(),
+          SwitchListTile(
+            value: darkModeProvider.isDarkMode,
+            onChanged: (value) {
+              darkModeProvider.toggleDarkMode();
+            },
+            title: Text("Dark mode"),
           ),
           Divider(),
           user != null
@@ -184,75 +134,6 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
-  }
-
-  void _onFontChanged(String? font) async {
-    if (font != null) {
-      setState(() {
-        arabicFont = font;
-      });
-      await FontPreferences.setSelectedFont(font);
-    }
-  }
-
-  Future<void> _showFontSelectionDialog() async {
-    String? newFont = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ListTile(
-                title: Text('Qalam'),
-                trailing: Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                  style: TextStyle(fontFamily: 'Qalam'),
-                ),
-                onTap: () {
-                  Navigator.of(context).pop('Qalam');
-                },
-              ),
-              ListTile(
-                title: Text('MeQuran'),
-                trailing: Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                  style: TextStyle(fontFamily: 'MeQuran'),
-                ),
-                onTap: () {
-                  Navigator.of(context).pop('MeQuran');
-                },
-              ),
-              ListTile(
-                title: Text('Muhammadi'),
-                trailing: Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                  style: TextStyle(fontFamily: 'Muhammadi'),
-                ),
-                onTap: () {
-                  Navigator.of(context).pop('Muhammadi');
-                },
-              ),
-              ListTile(
-                title: Text('Uthmani'),
-                trailing: Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                  style: TextStyle(fontFamily: 'Uthmani'),
-                ),
-                onTap: () {
-                  Navigator.of(context).pop('Uthmani');
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (newFont != null) {
-      _onFontChanged(newFont);
-    }
   }
 
   adjustHijriAlertDialog(BuildContext context) {
