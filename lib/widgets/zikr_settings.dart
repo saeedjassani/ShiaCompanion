@@ -75,7 +75,7 @@ class _ZikrSettingsPageState extends State<ZikrSettingsPage> {
             },
             title: Text("Keep screen on while reciting Zikr"),
           ),
-          Divider(),
+          ...showThreeLineSettings(),
         ],
       ),
     );
@@ -161,5 +161,35 @@ class _ZikrSettingsPageState extends State<ZikrSettingsPage> {
     await SP.prefs.setDouble(key, value);
     widget.callback();
     setState(() {});
+  }
+
+  showThreeLineSettings() {
+    if (SP.prefs.getBool('three_line') ?? false) {
+      return [
+        Divider(),
+        SwitchListTile(
+          value: SP.prefs.getBool('showTransliteration') ?? true,
+          onChanged: (v) async {
+            showTransliteration = v;
+            await SP.prefs.setBool("showTransliteration", v);
+            widget.callback();
+            setState(() {});
+          },
+          title: Text("Show Transliteration"),
+        ),
+        Divider(),
+        SwitchListTile(
+          value: SP.prefs.getBool('showTranslation') ?? true,
+          onChanged: (v) async {
+            showTranslation = v;
+            await SP.prefs.setBool("showTranslation", v);
+            widget.callback();
+            setState(() {});
+          },
+          title: Text("Show Translation"),
+        )
+      ];
+    }
+    return [];
   }
 }

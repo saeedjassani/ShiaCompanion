@@ -51,7 +51,7 @@ class _ZikrPageState extends State<ZikrPage> {
   @override
   Widget build(BuildContext context) {
     if (itemData != null && itemData['data'] != null)
-      content = generateCodeAndStrings1(itemData['data']);
+      content = populateArabicContent(itemData['data']);
 
     return Scaffold(
       appBar: AppBar(
@@ -59,7 +59,7 @@ class _ZikrPageState extends State<ZikrPage> {
         actions: [
           Builder(builder: (context) {
             return IconButton(
-              icon: Icon(Icons.settings),
+              icon: Icon(Icons.filter_list),
               onPressed: () => Scaffold.of(context).openEndDrawer(),
             );
           }),
@@ -78,7 +78,7 @@ class _ZikrPageState extends State<ZikrPage> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 4.0),
                       child: Text(
-                        str,
+                        formatArabicText(str),
                         style: arabicStyle,
                         textAlign: TextAlign.center,
                         textDirection: TextDirection.rtl,
@@ -131,19 +131,7 @@ class _ZikrPageState extends State<ZikrPage> {
     setState(() {});
   }
 
-  List<String> generateCodeAndStrings(String content) {
-    List<String> split = content.split("--");
-
-    for (int i = 0, n = split.length; i < n; i++) {
-      if (split[i].trim().isEmpty) continue;
-      if (isArabic(split[i])) {
-        arabicCodes.add(i);
-      }
-    }
-    return split;
-  }
-
-  List<String> generateCodeAndStrings1(String content) {
+  List<String> populateArabicContent(String content) {
     List<String> split = content.split("\n");
 
     for (int i = 0, n = split.length; i < n; i++) {
@@ -154,7 +142,7 @@ class _ZikrPageState extends State<ZikrPage> {
       }
     }
 
-    generateOtherCodes();
+    generateEnglishCodes();
 
     return split;
   }
@@ -170,7 +158,7 @@ class _ZikrPageState extends State<ZikrPage> {
     return false;
   }
 
-  void generateOtherCodes() {
+  void generateEnglishCodes() {
     String code = itemData['code'];
     if (code == "102") {
       arabicCodes.forEach((int i) {
@@ -190,6 +178,18 @@ class _ZikrPageState extends State<ZikrPage> {
       arabicCodes.forEach((int i) {
         translaCodes.add(i + 1);
       });
+    }
+  }
+
+  String formatArabicText(String str) {
+    if (arabicFont == 'Qalam') {
+      return str;
+    } else {
+      return str
+          .replaceAll("ی", "ي")
+          .replaceAll("ہ", "ه")
+          .replaceAll("ک", "ك")
+          .replaceAll("ۃ", "ة");
     }
   }
 }
