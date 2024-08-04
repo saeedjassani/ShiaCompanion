@@ -164,32 +164,29 @@ class _ZikrSettingsPageState extends State<ZikrSettingsPage> {
   }
 
   showThreeLineSettings() {
-    if (SP.prefs.getBool('three_line') ?? false) {
-      return [
-        Divider(),
-        SwitchListTile(
-          value: SP.prefs.getBool('showTransliteration') ?? true,
-          onChanged: (v) async {
-            showTransliteration = v;
-            await SP.prefs.setBool("showTransliteration", v);
-            widget.callback();
-            setState(() {});
-          },
-          title: Text("Show Transliteration"),
-        ),
-        Divider(),
-        SwitchListTile(
-          value: SP.prefs.getBool('showTranslation') ?? true,
-          onChanged: (v) async {
-            showTranslation = v;
-            await SP.prefs.setBool("showTranslation", v);
-            widget.callback();
-            setState(() {});
-          },
-          title: Text("Show Translation"),
-        )
-      ];
-    }
-    return [];
+    return [
+      Divider(),
+      SwitchListTile(
+        value: SP.prefs.getBool('showTransliteration') ?? true,
+        onChanged: (v) async {
+          showTransliteration = v;
+          await SP.prefs.setBool("showTransliteration", v);
+          widget.callback();
+          setState(() {});
+        },
+        title: Text("Show Transliteration"),
+      ),
+      Divider(),
+      SwitchListTile(
+        value: SP.prefs.getBool('showTranslation') ?? true,
+        onChanged: (v) async {
+          showTranslation = v;
+          await SP.prefs.setBool("showTranslation", v);
+          widget.callback();
+          setState(() {});
+        },
+        title: Text("Show Translation"),
+      )
+    ];
   }
 }

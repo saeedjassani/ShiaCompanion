@@ -59,7 +59,6 @@ flutter:
     - assets/images/
     - assets/zikr/
     - assets/hadith.csv
-    - assets/items/
 
   fonts:
     - family: Qalam
