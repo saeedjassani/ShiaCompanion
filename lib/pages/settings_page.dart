@@ -70,17 +70,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Divider(),
           SwitchListTile(
-            value: SP.prefs.getBool('three_line') ?? false,
-            onChanged: (bool value) async {
-              await SP.prefs.setBool("three_line", value);
-              setState(() {});
-            },
-            title: Text("Three-line mode"),
-            subtitle: Text(
-                "This is experimental Zikr mode. Many duas might not load as we have limited data for three-line mode"),
-          ),
-          Divider(),
-          SwitchListTile(
             value: darkModeProvider.isDarkMode,
             onChanged: (value) {
               darkModeProvider.toggleDarkMode();
