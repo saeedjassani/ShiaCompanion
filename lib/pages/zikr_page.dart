@@ -97,7 +97,7 @@ class _ZikrPageState extends State<ZikrPage> {
       content = populateArabicContent(zikrData?['data']);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Zikr'),
+        title: Text(widget.item.title),
         actions: [
           if (isAdmin && zikrData != null)
             IconButton(
