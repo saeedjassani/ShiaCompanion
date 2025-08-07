@@ -3,7 +3,7 @@
     "project_number": "1001420856250",
     "firebase_url": "https://shia-comapnion.firebaseio.com",
     "project_id": "shia-comapnion",
-    "storage_bucket": "shia-comapnion.appspot.com"
+    "storage_bucket": "shia-comapnion.firebasestorage.app"
   },
   "client": [
     {
