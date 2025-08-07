@@ -53,7 +53,7 @@ class DefaultFirebaseOptions {
     projectId: 'shia-comapnion',
     authDomain: 'shia-comapnion.firebaseapp.com',
     databaseURL: 'https://shia-comapnion.firebaseio.com',
-    storageBucket: 'shia-comapnion.appspot.com',
+    storageBucket: 'shia-comapnion.firebasestorage.app',
     measurementId: 'G-EBF2XT6WXG',
   );
 
@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1001420856250',
     projectId: 'shia-comapnion',
     databaseURL: 'https://shia-comapnion.firebaseio.com',
-    storageBucket: 'shia-comapnion.appspot.com',
+    storageBucket: 'shia-comapnion.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -72,9 +72,11 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1001420856250',
     projectId: 'shia-comapnion',
     databaseURL: 'https://shia-comapnion.firebaseio.com',
-    storageBucket: 'shia-comapnion.appspot.com',
-    androidClientId: '1001420856250-26dbel6vu7gachlntmo6decth4epcg6l.apps.googleusercontent.com',
-    iosClientId: '1001420856250-clrf0hrb1jgpuv0avehouki158r6lccc.apps.googleusercontent.com',
+    storageBucket: 'shia-comapnion.firebasestorage.app',
+    androidClientId:
+        '1001420856250-26dbel6vu7gachlntmo6decth4epcg6l.apps.googleusercontent.com',
+    iosClientId:
+        '1001420856250-clrf0hrb1jgpuv0avehouki158r6lccc.apps.googleusercontent.com',
     iosBundleId: 'com.developer110.shiacompanion',
   );
 }

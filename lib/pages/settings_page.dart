@@ -245,10 +245,14 @@ class _SettingsPageState extends State<SettingsPage> {
         logOff();
       }
     } catch (e) {
-      debugPrint(e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-        content: new Text("Some error occured, please contact support"),
-      ));
+      final message = e.toString();
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text("Something went wrong"),
+          content: Text("Error: $message\nPlease contact support."),
+        ),
+      );
     }
   }
 

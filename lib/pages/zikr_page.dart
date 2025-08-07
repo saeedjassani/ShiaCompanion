@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import '../constants.dart';
+import '../widgets/zikr_settings.dart';
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
@@ -99,13 +100,21 @@ class _ZikrPageState extends State<ZikrPage> {
       appBar: AppBar(
         title: Text(widget.item.title),
         actions: [
-          if (isAdmin && zikrData != null)
-            IconButton(
-              icon: Icon(isEditing ? Icons.close : Icons.edit),
-              onPressed: _toggleEdit,
-            )
+          isAdmin && zikrData != null
+              ? IconButton(
+                  icon: Icon(isEditing ? Icons.close : Icons.edit),
+                  onPressed: _toggleEdit,
+                )
+              : Container(),
+          Builder(builder: (BuildContext innerContext) {
+            return IconButton(
+              icon: Icon(Icons.filter_list),
+              onPressed: () => Scaffold.of(innerContext).openEndDrawer(),
+            );
+          }),
         ],
       ),
+      endDrawer: ZikrSettingsPage(refreshState),
       body: zikrData == null
           ? Center(child: CircularProgressIndicator())
           : Padding(
@@ -257,5 +266,15 @@ class _ZikrPageState extends State<ZikrPage> {
           .replaceAll("ک", "ك")
           .replaceAll("ۃ", "ة");
     }
+  }
+
+  void refreshState() {
+    arabicStyle = TextStyle(
+      fontFamily: arabicFont,
+      fontSize: arabicFontSize,
+    );
+    transliStyle =
+        TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
+    setState(() {});
   }
 }

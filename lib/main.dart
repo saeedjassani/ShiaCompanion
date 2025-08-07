@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'constants.dart';
 import 'pages/home_page.dart';
@@ -13,9 +14,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // FirebaseCrashlytics.instance.enableInDevMode = true;
+  // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   // Pass all uncaught errors from the framework to Crashlytics.
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+  if (!kIsWeb) {
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+    // You may also want to set collection enabled status here
+    // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+  }
   runApp(MyApp());
 }
 
