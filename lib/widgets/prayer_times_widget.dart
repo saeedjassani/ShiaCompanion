@@ -24,7 +24,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     PrayerTime prayerTime = getPrayerTimeObject();
     prayerTime.setTimeFormat(prayerTime.getTime12());
 
-    List<String>? _prayerTimes = city != null
+    List<String>? _prayerTimes = lat != null
         ? prayerTime.getPrayerTimes(currentTime, lat!, long!,
             currentTime.timeZoneOffset.inMinutes / 60.0)
         : null;

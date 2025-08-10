@@ -143,6 +143,8 @@ initializeLocation() async {
         await location.Location().getLocation();
     lat = currentLocation.latitude;
     long = currentLocation.longitude;
+    await SP.prefs.setDouble("lat", lat!);
+    await SP.prefs.setDouble("long", long!);
 
     List<Placemark> placemarks = await placemarkFromCoordinates(lat!, long!);
     if (placemarks.isNotEmpty) {
@@ -150,8 +152,6 @@ initializeLocation() async {
 
       if (SP.prefs.getString("city") != city) needToSchedule = true;
 
-      await SP.prefs.setDouble("lat", lat!);
-      await SP.prefs.setDouble("long", long!);
       await SP.prefs.setString("city", city!);
     }
   } catch (e) {

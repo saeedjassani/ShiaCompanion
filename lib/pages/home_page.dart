@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage>
                       ),
                     ),
                   ),
-                  city != null
+                  lat != null
                       ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: HomePrayerTimesCard(callback),
