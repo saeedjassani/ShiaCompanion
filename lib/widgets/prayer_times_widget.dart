@@ -46,9 +46,11 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Location: $city",
-                      ),
+                      city != null
+                          ? Text(
+                              "Location: $city",
+                            )
+                          : Container(),
                       SizedBox(
                         height: 4,
                       ),
