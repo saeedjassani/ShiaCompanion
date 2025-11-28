@@ -39,8 +39,16 @@ class TodaysRecitation extends StatelessWidget {
       return a.getId() > b.getId() ? 1 : -1;
     });
     if (items.isNotEmpty) {
-      workingItems.insert(
-          0, UidTitleData("~D1", items["~D1"])); // Taqeebaate Namaz
+      if (items.containsKey("~D1")) {
+        workingItems.insert(
+            0, UidTitleData("~D1", items["~D1"])); // Taqeebaate Namaz
+      }
+      if (items.containsKey("TR~D1")) {
+        workingItems.insert(
+            0,
+            UidTitleData(
+                "TR~D1", items["TR~D1"])); // Taqeebaate Namaz from firebase
+      }
       workingItems.insert(1, UidTitleData("E18", items["E18"])); // Dua e Ahad
       workingItems.insert(
           2, UidTitleData("G6", items["G6"])); // Ziyarat e Waritha

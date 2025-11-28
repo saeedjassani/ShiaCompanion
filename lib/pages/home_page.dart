@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:csv/csv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -267,11 +268,55 @@ class _MyHomePageState extends State<MyHomePage>
     _pageController?.jumpToPage(page);
   }
 
+  Future<void> _loadItemsFromFirebase() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('zikr').get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final Map<String, Map<String, dynamic>> allDocs = {
+          for (var doc in snapshot.docs) doc.id: doc.data()
+        };
+
+        final Map<String, String> fetchedItems = {};
+        allDocs.forEach((key, value) {
+          final hasData = value['data'] != null;
+          final isCategory = key.contains('~');
+          final isAlias = key.contains('|');
+
+          if (!(hasData || isCategory || isAlias)) {
+            return; // Skip items that do not meet the base criteria.
+          }
+
+          // This is the alias-specific exclusion from the Python script.
+          if (isAlias) {
+            final originalKey = key.split('|')[1];
+            final originalDoc = allDocs[originalKey];
+            if (originalDoc != null && originalDoc['data'] == null) {
+              return; // continue to next item in forEach
+            }
+          }
+
+          if (value['title'] == null) {
+            return; // Skip items without a title.
+          }
+
+          // Add the item to the index. Use a default empty string if 'title' is null.
+          fetchedItems[key] = value['title'];
+        });
+        items = fetchedItems;
+      }
+    } catch (e) {
+      debugPrint("Error fetching items from Firestore: $e");
+      String data =
+          await DefaultAssetBundle.of(context).loadString("assets/items.json");
+      items = json.decode(data);
+    }
+  }
+
   void initializeData() async {
     // Initialize Item Data
-    String data =
-        await DefaultAssetBundle.of(context).loadString("assets/items.json");
-    items = json.decode(data);
+    await _loadItemsFromFirebase();
     getHadith();
 
     await setUpFavorites();
