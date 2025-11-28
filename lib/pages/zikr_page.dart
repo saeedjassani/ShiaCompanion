@@ -96,113 +96,117 @@ class _ZikrPageState extends State<ZikrPage> {
   Widget build(BuildContext context) {
     if (zikrData != null && zikrData?['data'] != null)
       content = populateArabicContent(zikrData?['data']);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.item.title),
-        actions: [
-          isAdmin && zikrData != null
-              ? IconButton(
-                  icon: Icon(isEditing ? Icons.close : Icons.edit),
-                  onPressed: _toggleEdit,
-                )
-              : Container(),
-          Builder(builder: (BuildContext innerContext) {
-            return IconButton(
-              icon: Icon(Icons.filter_list),
-              onPressed: () => Scaffold.of(innerContext).openEndDrawer(),
-            );
-          }),
-        ],
-      ),
-      endDrawer: ZikrSettingsPage(refreshState),
-      body: zikrData == null
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: isEditing
-                  ? SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextField(
-                            controller: titleController,
-                            decoration: InputDecoration(labelText: 'Title'),
-                          ),
-                          TextField(
-                            controller: codeController,
-                            decoration: InputDecoration(
-                                helperMaxLines: 3,
-                                helperText:
-                                    'Blank for Only Arabic, 0 for Arabic, 1 for transliteration, 2 for translation. Example: 012 will have Arabic, transliteration, and translation. 02 for Arabic and translation only',
-                                labelText: 'Code'),
-                          ),
-                          TextField(
-                            controller: dataController,
-                            decoration: InputDecoration(labelText: 'Data'),
-                            maxLines: null,
-                          ),
-                          SizedBox(height: 16),
-                          TextButton.icon(
-                            label: Text('Save Changes'),
-                            icon: Icon(Icons.save),
-                            onPressed: _saveEdits,
-                          ),
-                        ],
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListView.builder(
-                        itemCount: content!.length,
-                        itemBuilder: (BuildContext c, int i) {
-                          String str = content![i].trim();
+    return SelectionArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.item.title),
+          actions: [
+            isAdmin && zikrData != null
+                ? IconButton(
+                    icon: Icon(isEditing ? Icons.close : Icons.edit),
+                    onPressed: _toggleEdit,
+                  )
+                : Container(),
+            Builder(builder: (BuildContext innerContext) {
+              return IconButton(
+                icon: Icon(Icons.filter_list),
+                onPressed: () => Scaffold.of(innerContext).openEndDrawer(),
+              );
+            }),
+          ],
+        ),
+        endDrawer: ZikrSettingsPage(refreshState),
+        body: zikrData == null
+            ? Center(child: CircularProgressIndicator())
+            : Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: isEditing
+                    ? SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextField(
+                              controller: titleController,
+                              decoration: InputDecoration(labelText: 'Title'),
+                            ),
+                            TextField(
+                              controller: codeController,
+                              decoration: InputDecoration(
+                                  helperMaxLines: 3,
+                                  helperText:
+                                      'Blank for Only Arabic, 0 for Arabic, 1 for transliteration, 2 for translation. Example: 012 will have Arabic, transliteration, and translation. 02 for Arabic and translation only',
+                                  labelText: 'Code'),
+                            ),
+                            TextField(
+                              controller: dataController,
+                              decoration: InputDecoration(labelText: 'Data'),
+                              maxLines: null,
+                            ),
+                            SizedBox(height: 16),
+                            TextButton.icon(
+                              label: Text('Save Changes'),
+                              icon: Icon(Icons.save),
+                              onPressed: _saveEdits,
+                            ),
+                          ],
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView.builder(
+                          itemCount: content!.length,
+                          itemBuilder: (BuildContext c, int i) {
+                            String str = content![i].trim();
 
-                          if (arabicCodes.contains(i)) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 4.0),
-                              child: Text(
-                                formatArabicText(str),
-                                style: arabicStyle,
-                                textAlign: TextAlign.center,
-                                textDirection: TextDirection.rtl,
-                              ),
-                            );
-                          } else if (transliCodes.contains(i)) {
-                            return showTransliteration
-                                ? Padding(
-                                    padding: const EdgeInsets.only(bottom: 4.0),
-                                    child: Text(
-                                      str.toUpperCase(),
-                                      style: transliStyle,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  )
-                                : Container();
-                          } else if (translaCodes.contains(i)) {
-                            return showTranslation
-                                ? Padding(
-                                    padding: const EdgeInsets.only(bottom: 4.0),
-                                    child: Text(
-                                      str,
-                                      textAlign: TextAlign.center,
-                                      style:
-                                          TextStyle(fontSize: englishFontSize),
-                                    ),
-                                  )
-                                : Container();
-                          } else {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8, bottom: 4.0),
-                              child: Text(
-                                str,
-                              ),
-                            );
-                          }
-                        },
+                            if (arabicCodes.contains(i)) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 4.0),
+                                child: Text(
+                                  formatArabicText(str),
+                                  style: arabicStyle,
+                                  textAlign: TextAlign.center,
+                                  textDirection: TextDirection.rtl,
+                                ),
+                              );
+                            } else if (transliCodes.contains(i)) {
+                              return showTransliteration
+                                  ? Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 4.0),
+                                      child: Text(
+                                        str.toUpperCase(),
+                                        style: transliStyle,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    )
+                                  : Container();
+                            } else if (translaCodes.contains(i)) {
+                              return showTranslation
+                                  ? Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 4.0),
+                                      child: Text(
+                                        str,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: englishFontSize),
+                                      ),
+                                    )
+                                  : Container();
+                            } else {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 8, bottom: 4.0),
+                                child: Text(
+                                  str,
+                                ),
+                              );
+                            }
+                          },
+                        ),
                       ),
-                    ),
-            ),
+              ),
+      ),
     );
   }
 
