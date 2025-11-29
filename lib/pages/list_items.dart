@@ -109,6 +109,17 @@ class _ItemListState extends State<ItemList> {
           handleUniversalDataClick(context, itemData);
         }
       },
+      onLongPress: () {
+        if (uidTitleData.getUId().contains("~")) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ItemList(uidTitleData.getUId().split("~")[1])));
+        } else {
+          handleUniversalDataClick(context, itemData, itemPage: true);
+        }
+      },
       title: Text(title),
       trailing: uidTitleData.getUId().contains("~")
           ? null

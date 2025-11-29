@@ -76,6 +76,21 @@ class DataSearch extends SearchDelegate<String> {
                     suggestionList[index].uid, suggestionList[index].title, 0));
           }
         },
+        onLongPress: () {
+          if (suggestionList[index].getUId().contains("~")) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ItemList(
+                        suggestionList[index].getUId().split("~")[1])));
+          } else {
+            handleUniversalDataClick(
+                context,
+                UniversalData(
+                    suggestionList[index].uid, suggestionList[index].title, 0),
+                itemPage: true);
+          }
+        },
         title: Text(suggestionList[index].title),
       ),
       itemCount: suggestionList.length,
