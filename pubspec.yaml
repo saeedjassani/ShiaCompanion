@@ -60,6 +60,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/zikr/
+    - assets/items/
     - assets/hadith.csv
 
   fonts:

@@ -175,6 +175,10 @@ class _MyHomePageState extends State<MyHomePage>
                                     return ListTile(
                                         onTap: () => handleUniversalDataClick(
                                             context, itemData),
+                                        onLongPress: () =>
+                                            handleUniversalDataClick(
+                                                context, itemData,
+                                                itemPage: true),
                                         title: Text(itemData.title),
                                         trailing: InkWell(
                                             onTap: () {

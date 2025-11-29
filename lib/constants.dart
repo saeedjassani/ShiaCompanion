@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as location;
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/pages/item_page.dart';
 import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/pages/qibla_finder.dart';
 import 'package:date_format/date_format.dart';
@@ -109,14 +110,15 @@ PrayerTime getPrayerTimeObject() {
 Map items = {};
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
-void handleUniversalDataClick(BuildContext context, UniversalData itemData) {
+void handleUniversalDataClick(BuildContext context, UniversalData itemData,
+    {bool itemPage = false}) {
   Widget? routeToPush;
   String contentType = 'universal';
   switch (itemData.type) {
     case 0:
       contentType = 'zikr';
       UidTitleData uidTitleData = UidTitleData(itemData.uid, itemData.title);
-      routeToPush = ZikrPage(uidTitleData);
+      routeToPush = itemPage ? ItemPage(uidTitleData) : ZikrPage(uidTitleData);
       break;
     case 1:
       contentType = 'library';

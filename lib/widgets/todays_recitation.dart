@@ -92,6 +92,19 @@ class TodaysRecitation extends StatelessWidget {
               context, UniversalData(itemData.uid, itemData.title, 0));
         }
       },
+      onLongPress: () {
+        if (itemData.getUId().contains("~")) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ItemList(itemData.getUId().split("~")[1])));
+        } else {
+          handleUniversalDataClick(
+              context, UniversalData(itemData.uid, itemData.title, 0),
+              itemPage: true);
+        }
+      },
       title: Text(itemData.title),
     );
   }
