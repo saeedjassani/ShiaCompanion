@@ -92,7 +92,7 @@ class _ItemListState extends State<ItemList> {
     UniversalData itemData =
         UniversalData(uidTitleData.uid, uidTitleData.title, 0);
     String title;
-    if (kDebugMode || kIsWeb) {
+    if (kDebugMode || isUserAdmin) {
       title = itemData.uid + " " + itemData.title;
     } else {
       title = itemData.title;
@@ -110,15 +110,8 @@ class _ItemListState extends State<ItemList> {
         }
       },
       onLongPress: () {
-        if (uidTitleData.getUId().contains("~")) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ItemList(uidTitleData.getUId().split("~")[1])));
-        } else {
+        if (isUserAdmin)
           handleUniversalDataClick(context, itemData, itemPage: true);
-        }
       },
       title: Text(title),
       trailing: uidTitleData.getUId().contains("~")

@@ -26,6 +26,7 @@ double screenWidth = 0;
 double screenHeight = 0;
 
 User? user;
+bool isUserAdmin = false;
 
 List<UniversalData>? favsData;
 

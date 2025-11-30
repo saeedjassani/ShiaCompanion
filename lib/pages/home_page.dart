@@ -175,10 +175,11 @@ class _MyHomePageState extends State<MyHomePage>
                                     return ListTile(
                                         onTap: () => handleUniversalDataClick(
                                             context, itemData),
-                                        onLongPress: () =>
-                                            handleUniversalDataClick(
+                                        onLongPress: () => isUserAdmin
+                                            ? handleUniversalDataClick(
                                                 context, itemData,
-                                                itemPage: true),
+                                                itemPage: true)
+                                            : null,
                                         title: Text(itemData.title),
                                         trailing: InkWell(
                                             onTap: () {
@@ -526,6 +527,12 @@ class _MyHomePageState extends State<MyHomePage>
 
     user = _auth.currentUser;
     if (user != null) {
+      final idTokenResult = await user?.getIdTokenResult(true);
+      final claims = idTokenResult?.claims;
+      if (claims != null && claims['admin'] == true) {
+        isUserAdmin = true;
+      }
+
       widget.analytics.setUserId(id: user!.uid);
       newFavsReference =
           FirebaseDatabase.instance.ref().child('new_favs').child(user!.uid);
