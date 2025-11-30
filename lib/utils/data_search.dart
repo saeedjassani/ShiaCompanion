@@ -52,8 +52,6 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    // show when someone searches for something
-
     final List<UidTitleData> suggestionList = query.isEmpty
         ? []
         : listWords
@@ -84,7 +82,10 @@ class DataSearch extends SearchDelegate<String> {
                     suggestionList[index].uid, suggestionList[index].title, 0),
                 itemPage: true);
         },
-        title: Text(suggestionList[index].title),
+        title: isUserAdmin
+            ? Text(
+                suggestionList[index].uid + " " + suggestionList[index].title)
+            : Text(suggestionList[index].title),
       ),
       itemCount: suggestionList.length,
     );
