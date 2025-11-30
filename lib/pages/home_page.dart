@@ -180,7 +180,11 @@ class _MyHomePageState extends State<MyHomePage>
                                                 context, itemData,
                                                 itemPage: true)
                                             : null,
-                                        title: Text(itemData.title),
+                                        title: isUserAdmin
+                                            ? Text(itemData.uid +
+                                                " " +
+                                                itemData.title)
+                                            : Text(itemData.title),
                                         trailing: InkWell(
                                             onTap: () {
                                               favsData!.contains(itemData)

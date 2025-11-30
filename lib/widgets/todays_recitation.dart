@@ -98,7 +98,9 @@ class TodaysRecitation extends StatelessWidget {
               context, UniversalData(itemData.uid, itemData.title, 0),
               itemPage: true);
       },
-      title: Text(itemData.title),
+      title: isUserAdmin
+          ? Text(itemData.uid + " " + itemData.title)
+          : Text(itemData.title),
     );
   }
 }
