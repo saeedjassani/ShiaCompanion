@@ -42,6 +42,14 @@ class _ZikrPageState extends State<ZikrPage> {
     _fetchZikrData();
   }
 
+  final ScrollController _controller = ScrollController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   Future<void> _checkAdmin() async {
     final user = _auth.currentUser;
     if (user != null) {
@@ -151,9 +159,10 @@ class _ZikrPageState extends State<ZikrPage> {
                           ],
                         ),
                       )
-                    : Padding(
-                        padding: const EdgeInsets.all(8.0),
+                    : Scrollbar(
+                        controller: _controller,
                         child: ListView.builder(
+                          controller: _controller,
                           itemCount: content!.length,
                           itemBuilder: (BuildContext c, int i) {
                             String str = content![i].trim();
