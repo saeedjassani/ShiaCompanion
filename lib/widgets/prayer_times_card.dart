@@ -22,7 +22,7 @@ class PrayerTimesState extends State<PrayerTimesCard> {
 
     List<String> _prayerNames = prayerTime.getTimeNames();
 
-    List<String>? _prayerTimes = city != null
+    List<String>? _prayerTimes = lat != null
         ? prayerTime.getPrayerTimes(currentTime, lat!, long!,
             DateTime.now().timeZoneOffset.inMinutes / 60.0)
         : null;
