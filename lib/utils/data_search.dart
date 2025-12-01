@@ -55,7 +55,9 @@ class DataSearch extends SearchDelegate<String> {
     final List<UidTitleData> suggestionList = query.isEmpty
         ? []
         : listWords
-            .where((p) => p.title.contains(RegExp(query, caseSensitive: false)))
+            .where((p) =>
+                p.title.contains(RegExp(query, caseSensitive: false)) &&
+                !p.uid.contains("|"))
             .toList();
 
     return ListView.builder(
