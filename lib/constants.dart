@@ -140,8 +140,15 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData,
   }
 }
 
-initializeLocation() async {
+initializeLocation({bool force = false}) async {
+  // If we are not forcing a refresh and we already have lat/long, just return.
+  if (!force && lat != null && long != null) {
+    return;
+  }
+
   try {
+    // On manual refresh, we want to show some feedback.
+    // For now, let's just print to debug, but you could use a state management solution.
     location.LocationData currentLocation =
         await location.Location().getLocation();
     lat = currentLocation.latitude;

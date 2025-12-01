@@ -62,6 +62,19 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Divider(),
           ListTile(
+            leading: Icon(Icons.location_on),
+            title: Text("Refresh Location"),
+            onTap: () async {
+              await initializeLocation(force: true);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Location has been refreshed."),
+              ));
+              setState(
+                  () {}); // To rebuild and show new location if needed elsewhere
+            },
+          ),
+          Divider(),
+          ListTile(
             leading: Icon(Icons.feedback),
             title: Text("Feedback"),
             onTap: () {
