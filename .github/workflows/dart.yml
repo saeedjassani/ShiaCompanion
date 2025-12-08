@@ -5,71 +5,67 @@ on:
     branches:
       - master
   workflow_dispatch:
-    
+
 jobs:
   build:
-    # This job will run on ubuntu virtual machine
     runs-on: macos-latest
 
     steps:
-      # Checkout the repository
+      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Setup Java environment in order to build the Android app.
+      # 2️⃣ Setup Java (use LTS version 17)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '12.x'
+          java-version: '17'
 
-      # Cache Flutter SDK to speed up the workflow
-      - name: Cache Flutter SDK
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
-
-      # Setup the flutter environment.
+      # 3️⃣ Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'beta' # 'dev', 'alpha', default to: 'stable'
-          # flutter-version: '1.12.x' # you can also specify the exact version of Flutter
+          channel: 'stable'  # more reliable than 'beta' for CI
+          cache: true        # built-in caching for Flutter SDK
 
-      # Get flutter dependencies.
-      - name: Get Flutter Dependencies
+      # 4️⃣ Get Flutter dependencies
+      - name: Get Flutter dependencies
         run: flutter pub get
 
-      # Statically analyze the Dart code for any errors.
-      - name: Static Code Analysis
-        run: flutter analyze .
+      # 5️⃣ Analyze code
+      - name: Static code analysis
+        run: flutter analyze
 
-      # Run widget tests for our flutter project.
-      - name: Run Widget Tests
-        run: flutter test
+      # 6️⃣ Run tests
+      - name: Run widget tests
+        run: flutter test --no-pub
 
-      - name: Clear CocoaPods cache and update specs
+      # 7️⃣ Prepare CocoaPods (for iOS builds)
+      - name: Install CocoaPods dependencies
+        working-directory: ios
         run: |
-          cd ios
-          pod cache clean --all
           pod repo update
+          pod install --verbose
 
-      - name: Check for Changes
+      # 8️⃣ Detect Podfile.lock changes (if any)
+      - name: Check for changes
         id: check-changes
         run: |
-          git diff --exit-code || echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
+          if [[ -n "$(git status ios/Podfile.lock --porcelain)" ]]; then
+            echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
+          fi
 
+      # 9️⃣ Commit & push Podfile.lock if changed
       - name: Commit and push changes
         if: env.CHANGES_DETECTED == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add ios/Podfile.lock
-          git commit -m "Update Podfile.lock" -a
+          git commit -m "Update Podfile.lock [skip ci]"
           git push
 
+      # 🔟 Build iOS app (no code signing)
       - name: Build iOS App
         run: flutter build ios --release --no-codesign
