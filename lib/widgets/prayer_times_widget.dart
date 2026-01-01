@@ -116,14 +116,15 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                                   " (" +
                                   _today.toFormat("dd MMMM yyyy") +
                                   ")";
-                              Share.share(
-                                '$date\n\nFajr : ${_prayerTimes[0]}\nDhuhr : ${_prayerTimes[2]}\nMaghrib : ${_prayerTimes[5]}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
-                                sharePositionOrigin: Rect.fromLTWH(
-                                    MediaQuery.of(context).size.width / 2,
-                                    0,
-                                    2,
-                                    2),
-                              );
+                              SharePlus.instance.share(
+                                ShareParams(
+                                  text: '$date\n\nFajr : ${_prayerTimes[0]}\nDhuhr : ${_prayerTimes[2]}\nMaghrib : ${_prayerTimes[5]}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                                  sharePositionOrigin: Rect.fromLTWH(
+                                      MediaQuery.of(context).size.width / 2,
+                                      0,
+                                      2,
+                                      2),
+                                ));
                             },
                             label: Text(
                               "Share",

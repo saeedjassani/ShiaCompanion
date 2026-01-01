@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../constants.dart';
 import '../utils/shared_preferences.dart';
@@ -42,7 +42,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     trackScreen('Item Page');
-    if (SP.prefs.getBool('keep_awake') ?? true) Wakelock.enable();
+    if (SP.prefs.getBool('keep_awake') ?? true) WakelockPlus.enable();
     initializeData();
   }
 
@@ -129,13 +129,15 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
                         onPressed: () {
                           String shareString =
                               itemData["content"].replaceAll("--", "\n");
-                          Share.share(
-                              '${item.getTitle()}\n$shareString\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
-                              sharePositionOrigin: Rect.fromLTWH(
-                                  MediaQuery.of(context).size.width / 2,
-                                  0,
-                                  2,
-                                  2));
+                          SharePlus.instance.share(
+                              ShareParams(
+                                text: '${item.getTitle()}\n$shareString\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                                sharePositionOrigin: Rect.fromLTWH(
+                                    MediaQuery.of(context).size.width / 2,
+                                    0,
+                                    2,
+                                    2),
+                              ));
                         }),
                     Builder(builder: (context) {
                       return IconButton(
@@ -189,7 +191,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
   @override
   void dispose() async {
     super.dispose();
-    Wakelock.disable();
+    WakelockPlus.disable();
   }
 
   List<String> generateCodeAndStrings(String content) {
