@@ -125,13 +125,15 @@ class _MyHomePageState extends State<MyHomePage>
                           vertical: 32.0, horizontal: 16.0),
                       child: InkWell(
                         onTap: () {
-                          Share.share(
-                              '$hadith\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
-                              sharePositionOrigin: Rect.fromLTWH(
-                                  MediaQuery.of(context).size.width / 2,
-                                  0,
-                                  2,
-                                  2));
+                          SharePlus.instance.share(
+                              ShareParams(
+                                text: '$hadith\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                                sharePositionOrigin: Rect.fromLTWH(
+                                    MediaQuery.of(context).size.width / 2,
+                                    0,
+                                    2,
+                                    2),
+                              ));
                         },
                         child: SingleChildScrollView(
                           child: Text(
@@ -335,7 +337,8 @@ class _MyHomePageState extends State<MyHomePage>
 
     if (!kIsWeb) {
       tz.initializeTimeZones();
-      final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
+      final _timeZone = await FlutterTimezone.getLocalTimezone();
+      final currentTimeZone = _timeZone.identifier;
       tz.setLocalLocation(tz.getLocation(currentTimeZone));
 
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();

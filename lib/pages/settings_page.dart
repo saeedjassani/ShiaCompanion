@@ -158,17 +158,13 @@ class _SettingsPageState extends State<SettingsPage> {
           },
           child: Row(
             children: [
-              Radio(
-                value: ints[i],
-                groupValue: cur,
-                onChanged: (int? i) {
-                  if (i != null) {
-                    hijriDate = i;
-                    saveHijriDate();
-                    Navigator.pop(context);
-                  }
-                },
+              Icon(
+                cur == ints[i]
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                size: 24,
               ),
+              SizedBox(width: 8),
               Text(option)
             ],
           ),
@@ -237,13 +233,22 @@ class _SettingsPageState extends State<SettingsPage> {
           authResult =
               await FirebaseAuth.instance.signInWithPopup(googleProvider);
         } else {
-          final GoogleSignIn googleSignIn = GoogleSignIn();
-          final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-          final GoogleSignInAuthentication? googleAuth =
-              await googleUser?.authentication;
+          final GoogleSignIn signIn = GoogleSignIn.instance;
+          GoogleSignInAccount? googleUser;
+
+          if (signIn.supportsAuthenticate()) {
+            // Interactive sign-in on platforms that support it
+            googleUser = await signIn.authenticate();
+          } else {
+            // Try lightweight authentication first, then fall back to interactive
+            googleUser = await signIn.attemptLightweightAuthentication() ??
+              await signIn.authenticate();
+          }
+
+          final GoogleSignInAuthentication googleAuth =
+              await googleUser.authentication;
           final AuthCredential credential = GoogleAuthProvider.credential(
-            accessToken: googleAuth?.accessToken,
-            idToken: googleAuth?.idToken,
+            idToken: googleAuth.idToken,
           );
           authResult = await _auth.signInWithCredential(credential);
         }

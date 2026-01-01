@@ -204,8 +204,6 @@ void setUpNotifications() async {
       tz.TZDateTime.now(tz.local).add(Duration(days: 11)),
       platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.inexact,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.wallClockTime,
       payload: now.add(Duration(days: 11)).millisecondsSinceEpoch.toString());
 }
 
@@ -231,9 +229,7 @@ void schedulePrayerTimeNotification(
         "It's time for " + prayerName.toLowerCase(),
         tz.TZDateTime.from(dateTime, tz.local),
         platformChannelSpecifics,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.wallClockTime);
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle);
   } else {
     await flutterLocalNotificationsPlugin?.cancel(id);
   }
@@ -259,9 +255,7 @@ void testNotification(
       "Test notification",
       tz.TZDateTime.now(tz.local).add(Duration(minutes: 1)),
       platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.wallClockTime);
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle);
 }
 
 AppBar getAppBar() {
@@ -283,7 +277,8 @@ Icon getFavIcon(BuildContext context, UniversalData itemData) {
 }
 
 Future<void> trackScreen(String screenName) async {
-  await FirebaseAnalytics.instance.setCurrentScreen(
-    screenName: screenName,
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'screen_view',
+    parameters: {'screen_name': screenName},
   );
 }
