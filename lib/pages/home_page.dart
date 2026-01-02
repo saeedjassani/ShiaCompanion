@@ -149,13 +149,26 @@ class _MyHomePageState extends State<MyHomePage>
                     padding: const EdgeInsets.all(8.0),
                     child: LayoutBuilder(builder: (context, constraints) {
                       // Use maxCrossAxisExtent so grid adapts to available width
+                      // Make the tiles smaller on narrow screens so more columns can fit
+                      double maxExtent;
+                      double spacing = 8.0;
+                      if (constraints.maxWidth < 360) {
+                        maxExtent = 140;
+                        spacing = 6.0;
+                      } else if (constraints.maxWidth < 600) {
+                        maxExtent = 160;
+                        spacing = 8.0;
+                      } else {
+                        maxExtent = 240;
+                        spacing = 8.0;
+                      }
                       return GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 240,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
+                          maxCrossAxisExtent: maxExtent,
+                          mainAxisSpacing: spacing,
+                          crossAxisSpacing: spacing,
                           childAspectRatio: constraints.maxWidth < 400 ? 0.95 : 0.9,
                         ),
                         itemCount: zikr.length,
