@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 
 import '../constants.dart';
@@ -31,25 +31,31 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    // widget.url = "http://cdn.smartstream.video/smartstream-us/channelwinlive/channelwinlive/playlist.m3u8";
     if (widget.url.link.contains("/")) {
+      final controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..loadRequest(Uri.parse(widget.url.link));
+
       return Scaffold(
           appBar: Platform.isIOS ? getAppBar() : null,
-          body: WebviewScaffold(
-            url: widget.url.link,
-          ));
+          body: WebViewWidget(controller: controller));
     } else {
+      final html = new Uri.dataFromString(
+              '<iframe src="http://www.youtube.com/embed/${widget.url.link}?autoplay=1&controls=0&rel=0" style="position:fixed; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"  frameborder="0" allowfullscreen></iframe>',
+              mimeType: 'text/html')
+          .toString();
+
+      final controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..loadRequest(Uri.parse(html));
+
       return Scaffold(
           appBar: Platform.isIOS
               ? AppBar(
                   title: Text(widget.url.title),
                 )
               : null,
-          body: WebviewScaffold(
-              url: new Uri.dataFromString(
-                      '<iframe src="http://www.youtube.com/embed/${widget.url.link}?autoplay=1&controls=0&rel=0" style="position:fixed; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"  frameborder="0" allowfullscreen></iframe>',
-                      mimeType: 'text/html')
-                  .toString()));
+          body: WebViewWidget(controller: controller));
     }
   }
 
