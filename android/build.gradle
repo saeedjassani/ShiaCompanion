@@ -14,6 +14,34 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
+// Ensure all Android library modules compile with the same (or higher) compileSdk as the app
+subprojects { project ->
+    if (project.plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.application')) {
+        def androidExt = project.extensions.findByName('android')
+        if (androidExt != null) {
+            try {
+                // Set default now; some plugins may override later
+                androidExt.compileSdk = 36
+            } catch (Exception ignored) {
+                try { androidExt.compileSdkVersion = 36 } catch (e) {}
+            }
+        }
+    }
+}
+
+// In case some library modules override their compileSdk later in their own build scripts,
+// ensure we force compileSdk after all projects are evaluated.
+gradle.projectsEvaluated {
+    rootProject.subprojects.each { project ->
+        if (project.plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.application')) {
+            def androidExt = project.extensions.findByName('android')
+            if (androidExt != null) {
+                try { androidExt.compileSdk = 36 } catch (e) { try { androidExt.compileSdkVersion = 36 } catch (e2) {} }
+            }
+        }
+    }
+}
+
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }

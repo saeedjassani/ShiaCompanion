@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class QiblaFinder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return WebviewScaffold(
-        appBar: AppBar(
-          title: Text("Qibla Finder"),
-        ),
-        url: "https://qiblafinder.withgoogle.com/");
+    final controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse('https://qiblafinder.withgoogle.com/'));
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Qibla Finder"),
+      ),
+      body: WebViewWidget(controller: controller),
+    );
   }
 }

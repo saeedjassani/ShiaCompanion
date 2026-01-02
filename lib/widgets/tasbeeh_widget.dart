@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_beep/flutter_beep.dart';
+import 'package:flutter/services.dart';
 
 import '../constants.dart';
 import '../utils/shared_preferences.dart';
@@ -38,7 +38,7 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
               (counter == int.parse(controller1.text) ||
                   counter == int.parse(controller2.text) ||
                   counter == int.parse(controller3.text))) {
-            FlutterBeep.beep();
+            SystemSound.play(SystemSoundType.click);
           }
           setState(() {});
         },
