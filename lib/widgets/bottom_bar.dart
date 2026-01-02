@@ -1,35 +1,3 @@
-import 'package:flutter/material.dart';
+// Bottom bar removed — no longer used. Kept as a placeholder file in case we want to reintroduce it later.
 
-List<BottomNavigationBarItem> bottomBarItems = [
-  BottomNavigationBarItem(
-    icon: Icon(
-      Icons.home,
-      color: Colors.white,
-    ),
-    label: "Home",
-  ),
-  BottomNavigationBarItem(
-    icon: Icon(
-      Icons.calendar_today,
-      color: Colors.white,
-      key: ValueKey('calendar-icon'),
-    ),
-    label: "Calendar",
-  ),
-  BottomNavigationBarItem(
-    icon: Icon(
-      Icons.library_books,
-      color: Colors.white,
-      key: ValueKey('library-icon'),
-    ),
-    label: "Library",
-  ),
-  BottomNavigationBarItem(
-    icon: Icon(
-      Icons.settings,
-      color: Colors.white,
-      key: ValueKey('prefs-icon'),
-    ),
-    label: "Preferences",
-  )
-];
+// If you'd like this file removed entirely from the repository, tell me and I will delete it.

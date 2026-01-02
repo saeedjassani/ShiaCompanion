@@ -6,8 +6,9 @@ import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as location;
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/item_page.dart';
-import 'package:shia_companion/pages/live_streaming_page.dart';
 import 'package:shia_companion/pages/qibla_finder.dart';
+import 'pages/calendar_page.dart';
+import 'pages/library_page.dart';
 import 'package:date_format/date_format.dart';
 import 'package:shia_companion/pages/zikr_page.dart';
 import 'data/live_streaming_data.dart';
@@ -17,6 +18,8 @@ import 'pages/chapter_list_page.dart';
 import 'pages/list_items.dart';
 import 'pages/news_page.dart';
 import 'pages/video_player.dart';
+import 'pages/favorites_page.dart';
+import 'pages/todays_recitation_page.dart';
 import 'utils/shared_preferences.dart';
 import 'widgets/tasbeeh_widget.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -47,35 +50,40 @@ String appVersion = '1.0';
 
 bool showTranslation = true, showTransliteration = true;
 List tableCode = [
+  FavoritesPage(),
+  TodaysRecitationPage(),
   ItemList("F"),
   ItemList("E"),
   ItemList("G"),
   ItemList("A"),
+  CalendarPage(false),
+  LibraryPage(),
   ItemList("C"),
   ItemList("H"),
   ItemList("I"),
   ItemList("B"),
-  LiveStreamingPage(0),
-  LiveStreamingPage(1),
   NewsPage(),
   QiblaFinder(),
   TasbeehWidget(),
 ];
 
 List<String> zikr = [
+  "Favorites",
+  "Today's Recitations",
   "Namaz",
   "Duas",
   "Ziyarats",
   "Surahs",
   "Amaal",
+  "Calendar",
+  "Library",
   "Munajaats",
   "Baaqeyaat As Saalehaat",
   "Ziyarat of Hijaz, Iran & Iraq",
-  "Holy Shrines",
-  "Islamic Channels",
   "Latest Shia News",
   "Qibla Finder",
   "Tasbeeh Counter",
+  "Preferences",
 ];
 
 List<String> zikrImages = [
@@ -87,11 +95,29 @@ List<String> zikrImages = [
   "assets/images/munajat_home.jpg",
   "assets/images/taaqebaat_namaz.jpg",
   "assets/images/amaal.jpg",
-  "assets/images/mashhad_min.jpg",
-  "assets/images/zainabia_channel.jpg",
   "assets/images/sc_news.png",
   "assets/images/qibla_finder.png",
   "assets/images/counter.png",
+];
+
+// Icon mapping used for responsive grid in Home Page. Picked from Material icons
+List<IconData> zikrIcons = [
+  Icons.favorite, // Favorites
+  Icons.book, // Today's Recitations
+  Icons.wb_sunny, // Namaz
+  Icons.menu_book, // Duas
+  Icons.mosque, // Ziyarats
+  Icons.menu_book, // Surahs
+  Icons.check_circle, // Amaal
+  Icons.calendar_today, // Calendar
+  Icons.library_books, // Library
+  Icons.menu_book, // Munajaats (Library book icon)
+  Icons.list_alt, // Baaqeyaat As Saalehaat
+  Icons.map, // Ziyarat of Hijaz, Iran & Iraq
+  Icons.article, // Latest Shia News
+  Icons.explore, // Qibla Finder
+  Icons.format_list_numbered, // Tasbeeh Counter
+  Icons.settings, // Preferences
 ];
 
 PrayerTime? prayerTime;

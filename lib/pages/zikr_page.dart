@@ -67,7 +67,7 @@ class _ZikrPageState extends State<ZikrPage> {
   }
 
   Future<void> _fetchZikrData() async {
-    final doc = await zikrCollection.doc(widget.item.uid).get();
+    final doc = await zikrCollection.doc(widget.item.getFirstUId()).get();
     if (doc.exists) {
       setState(() {
         zikrData = doc.data() as Map<String, dynamic>;
@@ -208,6 +208,7 @@ class _ZikrPageState extends State<ZikrPage> {
                                     const EdgeInsets.only(top: 8, bottom: 4.0),
                                 child: Text(
                                   str,
+                                  style: TextStyle(fontStyle: FontStyle.italic),
                                 ),
                               );
                             }

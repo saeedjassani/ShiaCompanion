@@ -41,13 +41,8 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
   </script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js');
-      });
-    }
-  </script>
+  <!-- Use flutter.js to bootstrap the service worker as recommended by Flutter docs -->
+  <script src="flutter.js" defer></script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
 

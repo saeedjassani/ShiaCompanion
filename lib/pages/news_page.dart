@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,6 +12,7 @@ class NewsPage extends StatefulWidget {
 
 class _NewsPageState extends State<NewsPage> {
   RssFeed? data;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -38,7 +40,12 @@ class _NewsPageState extends State<NewsPage> {
                   },
                 );
               })
-          : Center(child: CircularProgressIndicator()),
+          : _errorMessage != null
+              ? Center(child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text('Failed to load news: $_errorMessage', textAlign: TextAlign.center,),
+              ))
+              : Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -54,9 +61,24 @@ class _NewsPageState extends State<NewsPage> {
   }
 
   void getData() async {
-    Response response = await get(Uri.parse("https://en.abna24.com/rss"));
-    if (response.statusCode == 200) {
-      data = RssFeed.parse(response.body); // for parsing Atom feed
+    try {
+      String feedUrl = "https://en.abna24.com/rss";
+      if (kIsWeb) {
+        // Some RSS feeds do not include CORS headers. Use a public CORS proxy for web builds.
+        feedUrl = 'https://api.allorigins.win/raw?url=${Uri.encodeComponent(feedUrl)}';
+      }
+
+      Response response = await get(Uri.parse(feedUrl));
+      if (response.statusCode == 200) {
+        data = RssFeed.parse(response.body); // for parsing Atom feed
+        _errorMessage = null;
+        setState(() {});
+      } else {
+        _errorMessage = 'Failed to load news (status: ${response.statusCode})';
+        setState(() {});
+      }
+    } catch (e) {
+      _errorMessage = e.toString();
       setState(() {});
     }
   }

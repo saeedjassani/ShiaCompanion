@@ -24,9 +24,9 @@ import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
-import 'package:shia_companion/widgets/bottom_bar.dart';
+
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
-import 'package:shia_companion/widgets/todays_recitation.dart';
+
 import 'library_page.dart';
 import 'list_items.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -61,14 +61,16 @@ class _MyHomePageState extends State<MyHomePage>
   String? initialFavs;
   DatabaseReference? newFavsReference;
 
-  int _page = 0;
-  PageController? _pageController;
+
   bool scrollToPrayerTimes = false;
 
   callback() {
-    _page = 1;
+    // Navigate to calendar and scroll to prayer times when invoked from the home card
     scrollToPrayerTimes = true;
-    _pageController?.jumpToPage(_page);
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => CalendarPage(scrollToPrayerTimes)));
   }
 
   loginCallback() async {
@@ -81,7 +83,6 @@ class _MyHomePageState extends State<MyHomePage>
     trackScreen('Home Page');
     WidgetsBinding.instance.addObserver(this);
     setupPreferences();
-    _pageController = PageController(initialPage: 0);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
@@ -105,14 +106,7 @@ class _MyHomePageState extends State<MyHomePage>
                 })
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white,
-          onTap: navigationTapped, //
-          currentIndex: _page, //
-          items: bottomBarItems,
-          type: BottomNavigationBarType.fixed,
-        ),
+
         body: PageView(
           children: <Widget>[
             SingleChildScrollView(
@@ -150,113 +144,85 @@ class _MyHomePageState extends State<MyHomePage>
                           child: HomePrayerTimesCard(callback),
                         )
                       : Container(),
+                  SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      child: ExpansionTile(
-                        onExpansionChanged: (bool value) {
-                          if (value &&
-                              (favsData == null || favsData!.length == 0)) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text("Please add some favorites first"),
-                            ));
-                          }
-                        },
-                        title: Text("Favorites"),
-                        children: <Widget>[
-                          favsData != null
-                              ? ListView.separated(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  separatorBuilder:
-                                      (BuildContext context, int index) =>
-                                          Divider(),
-                                  itemCount: favsData!.length,
-                                  itemBuilder: (BuildContext c, int i) {
-                                    UniversalData itemData = favsData![i];
-                                    return ListTile(
-                                        onTap: () => handleUniversalDataClick(
-                                            context, itemData),
-                                        onLongPress: () => isUserAdmin
-                                            ? handleUniversalDataClick(
-                                                context, itemData,
-                                                itemPage: true)
-                                            : null,
-                                        title: isUserAdmin
-                                            ? Text(itemData.uid +
-                                                " " +
-                                                itemData.title)
-                                            : Text(itemData.title),
-                                        trailing: InkWell(
-                                            onTap: () {
-                                              favsData!.contains(itemData)
-                                                  ? favsData!.remove(itemData)
-                                                  : favsData!.add(itemData);
-                                              setState(() {});
-                                            },
-                                            child:
-                                                getFavIcon(context, itemData)));
-                                  })
-                              : Container()
-                        ],
-                      ),
-                    ),
-                  ),
-                  TodaysRecitation(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(), // new
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2),
-                      itemCount: tableCode.length,
-                      itemBuilder: (BuildContext c, int i) {
-                        return Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: Card(
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => tableCode[i]));
-                              },
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Image.asset(
-                                    zikrImages[i],
-                                    fit: BoxFit.fill,
-                                    height: 120,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                    child: LayoutBuilder(builder: (context, constraints) {
+                      // Use maxCrossAxisExtent so grid adapts to available width
+                      return GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 240,
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                          childAspectRatio: constraints.maxWidth < 400 ? 0.95 : 0.9,
+                        ),
+                        itemCount: zikr.length,
+                        itemBuilder: (BuildContext c, int i) {
+                          return Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: Card(
+                              child: InkWell(
+                                onTap: () {
+                                  if (i < tableCode.length) {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => tableCode[i]));
+                                  } else if (zikr[i] == 'Preferences') {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => SettingsPage(loginCallback)));
+                                  } else {
+                                    // No route defined for this tile
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                        content: Text("Coming soon")));
+                                  }
+                                },
+                                child: LayoutBuilder(builder: (context, tileConstraints) {
+                                  final double tileWidth = tileConstraints.maxWidth;
+                                  final double avatarRadius = (tileWidth * 0.18).clamp(18.0, 40.0);
+                                  final double iconSize = avatarRadius * 0.9;
+                                  final double fontSize = tileWidth > 140 ? 14 : 12;
+                                  final double verticalPadding = tileWidth > 140 ? 12 : 8;
+
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: verticalPadding, horizontal: 8.0),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        Flexible(
-                                          child: Text(
-                                            zikr[i],
-                                            overflow: TextOverflow.ellipsis,
+                                        CircleAvatar(
+                                          radius: avatarRadius,
+                                          backgroundColor:
+                                              Theme.of(context).primaryColor,
+                                          child: Icon(
+                                            zikrIcons[i],
+                                            size: iconSize,
+                                            color: Colors.white,
                                           ),
+                                        ),
+                                        SizedBox(height: tileWidth > 140 ? 10 : 6),
+                                        Text(
+                                          zikr[i],
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(fontSize: fontSize),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ],
+                                  );
+                                }),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      );
+                    }),
                   ),
                 ],
               ),
@@ -265,19 +231,11 @@ class _MyHomePageState extends State<MyHomePage>
             LibraryPage(),
             SettingsPage(loginCallback)
           ],
-          controller: _pageController,
-          onPageChanged: ((int page) {
-            setState(() {
-              _page = page;
-            });
-          }),
+
         ));
   }
 
-  void navigationTapped(int page) {
-    scrollToPrayerTimes = false;
-    _pageController?.jumpToPage(page);
-  }
+
 
   Future<void> _loadItemsFromFirebase() async {
     try {
@@ -444,23 +402,28 @@ class _MyHomePageState extends State<MyHomePage>
           left: 2.0,
         ),
         constraints: BoxConstraints.expand(height: 150.0, width: 150.0),
-        alignment: Alignment.bottomLeft,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(zikrImages[i] + ".jpg"),
-              fit: BoxFit.cover,
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(6.0),
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.05),
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              )
+            ]),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(zikrIcons[i], size: 48, color: Theme.of(context).primaryColor),
+            SizedBox(height: 8),
+            Text(
+              zikr[i],
+              style: TextStyle(fontSize: 14),
+              textAlign: TextAlign.center,
             ),
-            borderRadius: BorderRadius.circular(2.0)),
-        child: Container(
-          width: screenWidth,
-          decoration: BoxDecoration(
-            gradient:
-                LinearGradient(colors: <Color>[Colors.black, Colors.white70]),
-          ),
-          child: Text(
-            zikr[i],
-            style: TextStyle(color: Colors.white),
-          ),
+          ],
         ),
       ),
     );
