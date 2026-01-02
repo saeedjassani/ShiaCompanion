@@ -41,7 +41,27 @@ jobs:
       - name: Run widget tests
         run: flutter test --no-pub
 
-      # 7️⃣ Prepare CocoaPods (for iOS builds)
+      # 7️⃣ Build Android APK
+      - name: Set up Android SDK & accept licenses
+        run: |
+          # Ensure ANDROID_SDK_ROOT is set (default path on GitHub-hosted macOS runners)
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-/Users/runner/Library/Android/sdk}" >> $GITHUB_ENV
+          # Try to accept licenses via sdkmanager (if available)
+          if command -v sdkmanager >/dev/null 2>&1; then
+            yes | sdkmanager --licenses || true
+          elif [ -x "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
+            yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          fi
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      # 8️⃣ Prepare CocoaPods (for iOS builds)
       - name: Install CocoaPods dependencies
         working-directory: ios
         run: |
