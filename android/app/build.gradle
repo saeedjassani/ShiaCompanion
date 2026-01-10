@@ -64,10 +64,10 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     }
     signingConfigs {
         release {
-        //    keyAlias keystoreProperties['keyAlias']
-        //    keyPassword keystoreProperties['keyPassword']
-        //    storeFile file(keystoreProperties['storeFile'])
-        //    storePassword keystoreProperties['storePassword']
+           keyAlias keystoreProperties['keyAlias']
+           keyPassword keystoreProperties['keyPassword']
+           storeFile file(keystoreProperties['storeFile'])
+           storePassword keystoreProperties['storePassword']
         }
     }
 
