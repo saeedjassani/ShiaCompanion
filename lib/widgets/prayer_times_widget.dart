@@ -47,8 +47,32 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       city != null
-                          ? Text(
-                              "Location: $city",
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Location: $city",
+                                ),
+                                InkWell(
+                                  onTap: () async {
+                                    bool success = await initializeLocation(force: true);
+                                    if (mounted) {
+                                      setState(() {});
+                                      if (success) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text("Location updated")));
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text("Failed to update location")));
+                                      }
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: Icon(Icons.refresh, size: 18),
+                                  ),
+                                )
+                              ],
                             )
                           : Container(),
                       SizedBox(
@@ -135,7 +159,18 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                       ),
                     ],
                   )
-                : Text("Please check if location is allowed"),
+                : InkWell(
+                    onTap: () async {
+                      await initializeLocation(force: true);
+                      if (mounted) setState(() {});
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text("Enable location to display prayer times",
+                          textAlign: TextAlign.center),
+                    ),
+                  ),
           ],
         ),
       ),

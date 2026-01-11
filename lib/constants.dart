@@ -1,12 +1,13 @@
+import 'dart:convert';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as location;
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/item_page.dart';
 import 'package:shia_companion/pages/qibla_finder.dart';
+import 'package:http/http.dart' as http;
 import 'pages/calendar_page.dart';
 import 'pages/library_page.dart';
 import 'package:date_format/date_format.dart';
@@ -208,32 +209,41 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData,
   }
 }
 
-initializeLocation({bool force = false}) async {
+Future<bool> initializeLocation({bool force = false}) async {
   // If we are not forcing a refresh and we already have lat/long, just return.
   if (!force && lat != null && long != null) {
-    return;
+    return true;
   }
 
   try {
     // On manual refresh, we want to show some feedback.
-    // For now, let's just print to debug, but you could use a state management solution.
+    // TODO For now, let's just print to debug, but could use a state management solution.
     location.LocationData currentLocation =
         await location.Location().getLocation();
+    if (currentLocation.latitude == null || currentLocation.longitude == null) {
+      return false;
+    }
     lat = currentLocation.latitude;
     long = currentLocation.longitude;
     await SP.prefs.setDouble("lat", lat!);
     await SP.prefs.setDouble("long", long!);
 
-    List<Placemark> placemarks = await placemarkFromCoordinates(lat!, long!);
-    if (placemarks.isNotEmpty) {
-      city = placemarks[0].locality;
-
-      if (SP.prefs.getString("city") != city) needToSchedule = true;
-
-      await SP.prefs.setString("city", city!);
+    try {
+      final response = await http.get(Uri.parse(
+          "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$lat&longitude=$long&localityLanguage=en"));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        city = data['locality'] ?? data['city'] ?? data['principalSubdivision'];
+        if (SP.prefs.getString("city") != city) needToSchedule = true;
+        if (city != null) await SP.prefs.setString("city", city!);
+      }
+    } catch (e) {
+      debugPrint("Error getting city: $e");
     }
+    return true;
   } catch (e) {
     debugPrint(e.toString());
+    return false;
   }
 }
 
