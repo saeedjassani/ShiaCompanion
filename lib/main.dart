@@ -12,7 +12,25 @@ import 'pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Diagnostic: log existing Firebase apps and guard initialization to avoid crashes
+  // if the native side (iOS) auto-initialized Firebase before Dart runs.
+  try {
+    print('Existing Firebase apps before init: ${Firebase.apps.map((a) => a.name).toList()}');
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      print('Firebase initialized from Dart.');
+    } else {
+      print('Skipping Firebase.initializeApp(); existing apps: ${Firebase.apps.map((a) => a.name).toList()}');
+    }
+  } on FirebaseException catch (e) {
+    final msg = e.message ?? '';
+    // Ignore duplicate-app errors that can occur if Firebase was already configured natively.
+    if (msg.contains('already exists') || msg.contains('duplicate-app') || e.code == 'duplicate-app') {
+      print('Firebase initialization skipped (native auto-init detected): $e');
+    } else {
+      rethrow;
+    }
+  }
 
   // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   // Pass all uncaught errors from the framework to Crashlytics.
