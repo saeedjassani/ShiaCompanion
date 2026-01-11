@@ -23,6 +23,12 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
     controller3 = TextEditingController(text: "100");
     super.initState();
     trackScreen('Tasbeeh Page');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Tap anywhere to start")));
+      }
+    });
   }
 
   @override
