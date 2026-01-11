@@ -65,10 +65,16 @@ class _SettingsPageState extends State<SettingsPage> {
             leading: Icon(Icons.location_on),
             title: Text("Refresh Location"),
             onTap: () async {
-              await initializeLocation(force: true);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text("Location has been refreshed."),
-              ));
+              bool success = await initializeLocation(force: true);
+              if (success) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("Location has been refreshed."),
+                ));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("Failed to refresh location."),
+                ));
+              }
               setState(
                   () {}); // To rebuild and show new location if needed elsewhere
             },

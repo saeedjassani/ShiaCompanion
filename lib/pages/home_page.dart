@@ -217,12 +217,10 @@ class _MyHomePageState extends State<MyHomePage>
                       ),
                     ),
                   ),
-                  lat != null
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: HomePrayerTimesCard(callback),
-                        )
-                      : Container(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: HomePrayerTimesCard(callback),
+                  ),
                   SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
