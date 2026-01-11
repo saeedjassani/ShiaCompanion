@@ -140,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage>
                     }
                     await docRef.set({
                       'title': _title,
-                    });
+                    }, SetOptions(merge: true));
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Item added successfully')));
