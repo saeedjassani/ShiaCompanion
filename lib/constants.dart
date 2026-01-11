@@ -20,6 +20,7 @@ import 'pages/news_page.dart';
 import 'pages/video_player.dart';
 import 'pages/favorites_page.dart';
 import 'pages/todays_recitation_page.dart';
+import 'package:shia_companion/pages/settings_page.dart';
 import 'utils/shared_preferences.dart';
 import 'widgets/tasbeeh_widget.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -56,9 +57,9 @@ List tableCode = [
   ItemList("E"),
   ItemList("G"),
   ItemList("A"),
+  ItemList("R9"), // Amaal
   CalendarPage(false),
   LibraryPage(),
-  ItemList("C"),
   ItemList("H"),
   ItemList("I"),
   ItemList("B"),
@@ -66,6 +67,47 @@ List tableCode = [
   QiblaFinder(),
   TasbeehWidget(),
 ];
+
+// Helper to map a tile label to a freshly-built page instance.
+Widget getPage(String label, {Function()? loginCallback, bool scrollToPrayerTimes = false}) {
+  switch (label) {
+    case 'Favorites':
+      return FavoritesPage();
+    case "Today's Recitations":
+      return TodaysRecitationPage();
+    case 'Namaz':
+      return ItemList("F");
+    case 'Duas':
+      return ItemList("E");
+    case 'Ziyarats':
+      return ItemList("G");
+    case 'Surahs':
+      return ItemList("A");
+    case 'Amaal':
+      return ItemList("R9");
+    case 'Calendar':
+      return Scaffold(appBar: AppBar(title: Text('Calendar')), body: CalendarPage(scrollToPrayerTimes));
+    case 'Library':
+      return Scaffold(appBar: AppBar(title: Text('Library')), body: LibraryPage());
+    case 'Munajaats':
+      return ItemList("H");
+    case 'Baaqeyaat As Saalehaat':
+      return ItemList("I");
+    case 'Ziyarat of Hijaz, Iran & Iraq':
+      return ItemList("B");
+    case 'Latest Shia News':
+      return NewsPage();
+    case 'Qibla Finder':
+      return QiblaFinder();
+    case 'Tasbeeh Counter':
+      return TasbeehWidget();
+    case 'Preferences':
+      // SettingsPage expects a loginCallback; we pass it through when available
+      return Scaffold(appBar: AppBar(title: Text('Preferences')), body: SettingsPage(loginCallback ?? () {}));
+    default:
+      return Container();
+  }
+}
 
 List<String> zikr = [
   "Favorites",
