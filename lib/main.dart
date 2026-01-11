@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_web/webview_flutter_web.dart';
 
 import 'constants.dart';
 import 'pages/home_page.dart';
@@ -40,6 +42,7 @@ void main() async {
     // You may also want to set collection enabled status here
     // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   }
+  WebViewPlatform.instance = WebWebViewPlatform();
   runApp(MyApp());
 }
 

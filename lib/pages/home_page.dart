@@ -28,7 +28,6 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 
 import 'library_page.dart';
-import 'list_items.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -178,21 +177,17 @@ class _MyHomePageState extends State<MyHomePage>
                             child: Card(
                               child: InkWell(
                                 onTap: () {
-                                  if (i < tableCode.length) {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => tableCode[i]));
-                                  } else if (zikr[i] == 'Preferences') {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => SettingsPage(loginCallback)));
-                                  } else {
-                                    // No route defined for this tile
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                        content: Text("Coming soon")));
-                                  }
+                                  // Preferences is handled specially because it requires a callback
+                                  Widget page = getPage(zikr[i], loginCallback: loginCallback, scrollToPrayerTimes: false);
+                                    if (page is Container) {
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                          content: Text("Coming soon")));
+                                    } else {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => page));
+                                    }
                                 },
                                 child: LayoutBuilder(builder: (context, tileConstraints) {
                                   final double tileWidth = tileConstraints.maxWidth;
@@ -406,8 +401,13 @@ class _MyHomePageState extends State<MyHomePage>
   buildBody(BuildContext c, int i) {
     return InkWell(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ItemList(tableCode[i])));
+        Widget page = getPage(zikr[i], loginCallback: loginCallback, scrollToPrayerTimes: false);
+        if (page is Container) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Coming soon")));
+        } else {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+        }
       },
       child: Container(
         margin: EdgeInsets.all(6.0),
