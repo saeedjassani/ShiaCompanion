@@ -85,6 +85,81 @@ class _MyHomePageState extends State<MyHomePage>
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
+  void _showAddItemDialog() {
+    final _formKey = GlobalKey<FormState>();
+    String _uid = '';
+    String _title = '';
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Add New Item'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'UID (Document ID)',
+                      hintText: 'e.g. G100',
+                    ),
+                    validator: (value) =>
+                        value == null || value.isEmpty ? 'Required' : null,
+                    onSaved: (value) => _uid = value!,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Title'),
+                    validator: (value) =>
+                        value == null || value.isEmpty ? 'Required' : null,
+                    onSaved: (value) => _title = value!,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  try {
+                    final docRef =
+                        FirebaseFirestore.instance.collection('zikr').doc(_uid);
+                    final docSnap = await docRef.get();
+                    if (docSnap.exists) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('Error: Item $_uid already exists')));
+                      return;
+                    }
+                    await docRef.set({
+                      'title': _title,
+                    });
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Item added successfully')));
+                    await _loadItemsFromFirebase();
+                    setState(() {});
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: $e')));
+                  }
+                }
+              },
+              child: Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
@@ -94,6 +169,11 @@ class _MyHomePageState extends State<MyHomePage>
         appBar: AppBar(
           title: Text(widget.title),
           actions: <Widget>[
+            if (isUserAdmin)
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: _showAddItemDialog,
+              ),
             IconButton(
                 icon: Icon(Icons.search),
                 onPressed: () {
@@ -285,6 +365,7 @@ class _MyHomePageState extends State<MyHomePage>
       }
     } catch (e) {
       debugPrint("Error fetching items from Firestore: $e");
+      if (!mounted) return;
       String data =
           await DefaultAssetBundle.of(context).loadString("assets/items.json");
       items = json.decode(data);
