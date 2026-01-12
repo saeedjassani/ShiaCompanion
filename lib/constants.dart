@@ -59,7 +59,7 @@ List tableCode = [
   ItemList("E"),
   ItemList("G"),
   ItemList("A"),
-  ItemList("R9"), // Amaal
+  ItemList("C"), // Amaal
   CalendarPage(false),
   LibraryPage(),
   ItemList("H"),
