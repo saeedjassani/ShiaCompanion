@@ -52,23 +52,6 @@ TextStyle boldText = TextStyle(fontWeight: FontWeight.bold);
 String appVersion = '1.0';
 
 bool showTranslation = true, showTransliteration = true;
-List tableCode = [
-  FavoritesPage(),
-  TodaysRecitationPage(),
-  ItemList("F"),
-  ItemList("E"),
-  ItemList("G"),
-  ItemList("A"),
-  ItemList("C"), // Amaal
-  CalendarPage(false),
-  LibraryPage(),
-  ItemList("H"),
-  ItemList("I"),
-  ItemList("B"),
-  NewsPage(),
-  QiblaFinder(),
-  TasbeehWidget(),
-];
 
 // Helper to map a tile label to a freshly-built page instance.
 Widget getPage(String label, {Function()? loginCallback, bool scrollToPrayerTimes = false}) {
@@ -86,7 +69,7 @@ Widget getPage(String label, {Function()? loginCallback, bool scrollToPrayerTime
     case 'Surahs':
       return ItemList("A");
     case 'Amaal':
-      return ItemList("R9");
+      return ItemList("C");
     case 'Calendar':
       return Scaffold(appBar: AppBar(title: Text('Calendar')), body: CalendarPage(scrollToPrayerTimes));
     case 'Library':
