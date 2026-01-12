@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
@@ -126,7 +125,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                     Divider(),
-                    !kIsWeb && Platform.isIOS
+                    !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS
                         ? ListTile(
                             leading: Image.asset('assets/images/apple_logo.png',
                                 height: 24.0),
