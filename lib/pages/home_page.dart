@@ -21,6 +21,7 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
+import 'package:shia_companion/pages/zikr_page.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -142,12 +143,14 @@ class _MyHomePageState extends State<MyHomePage>
                       'title': _title,
                     }, SetOptions(merge: true));
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Item added successfully')));
-                    await _loadItemsFromFirebase();
                     // Manually update local list since we aren't fetching from server anymore
                     items[_uid] = _title;
                     setState(() {});
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ZikrPage(UidTitleData(_uid, _title))));
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Error: $e')));
