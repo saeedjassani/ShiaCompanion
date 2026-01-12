@@ -145,6 +145,8 @@ class _MyHomePageState extends State<MyHomePage>
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Item added successfully')));
                     await _loadItemsFromFirebase();
+                    // Manually update local list since we aren't fetching from server anymore
+                    items[_uid] = _title;
                     setState(() {});
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -169,11 +171,21 @@ class _MyHomePageState extends State<MyHomePage>
         appBar: AppBar(
           title: Text(widget.title),
           actions: <Widget>[
-            if (isUserAdmin)
+            if (isUserAdmin) ...[
               IconButton(
                 icon: Icon(Icons.add),
                 onPressed: _showAddItemDialog,
               ),
+              IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: () async {
+                  await _loadItemsFromFirebase();
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Index refreshed from Firebase')));
+                },
+              ),
+            ],
             IconButton(
                 icon: Icon(Icons.search),
                 onPressed: () {
@@ -323,6 +335,16 @@ class _MyHomePageState extends State<MyHomePage>
 
 
 
+  Future<void> _loadItemsFromAssets() async {
+    try {
+      String data =
+          await DefaultAssetBundle.of(context).loadString("assets/items.json");
+      items = json.decode(data);
+    } catch (e) {
+      debugPrint("Error loading items from assets: $e");
+    }
+  }
+
   Future<void> _loadItemsFromFirebase() async {
     try {
       final snapshot =
@@ -363,16 +385,13 @@ class _MyHomePageState extends State<MyHomePage>
       }
     } catch (e) {
       debugPrint("Error fetching items from Firestore: $e");
-      if (!mounted) return;
-      String data =
-          await DefaultAssetBundle.of(context).loadString("assets/items.json");
-      items = json.decode(data);
     }
   }
 
   void initializeData() async {
     // Initialize Item Data
-    await _loadItemsFromFirebase();
+    // Default to loading from assets to save quota. Admins can refresh manually.
+    await _loadItemsFromAssets();
     getHadith();
 
     await setUpFavorites();
