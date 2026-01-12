@@ -231,7 +231,14 @@ class _MyHomePageState extends State<MyHomePage>
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: HomePrayerTimesCard(callback),
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        textButtonTheme: TextButtonThemeData(
+                          style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+                        ),
+                      ),
+                      child: HomePrayerTimesCard(callback),
+                    ),
                   ),
                   SizedBox(height: 8),
                   Padding(

@@ -36,6 +36,7 @@ bool isUserAdmin = false;
 List<UniversalData>? favsData;
 
 final String appName = "Shia Companion";
+final Color appColor = Colors.brown;
 int hijriDate = 0;
 double arabicFontSize = 32.0;
 double englishFontSize = 16.0;
@@ -346,11 +347,11 @@ Icon getFavIcon(BuildContext context, UniversalData itemData) {
   return favsData!.contains(itemData)
       ? Icon(
           Icons.star,
-          color: Theme.of(context).colorScheme.secondary,
+          color: Theme.of(context).colorScheme.primary,
         )
       : Icon(
           Icons.star_border,
-          color: Theme.of(context).colorScheme.secondary,
+          color: Theme.of(context).colorScheme.primary,
         );
 }
 

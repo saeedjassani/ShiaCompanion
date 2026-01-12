@@ -62,18 +62,22 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: appName,
           theme: ThemeData(
-            primarySwatch: Colors.brown,
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
+            appBarTheme: AppBarTheme(
+              backgroundColor: Colors.brown,
+              foregroundColor: Colors.white,
+            ),
             bottomNavigationBarTheme:
                 BottomNavigationBarThemeData(backgroundColor: Colors.brown),
           ),
-          darkTheme: ThemeData.dark().copyWith(
-              colorScheme: ThemeData.dark().colorScheme.copyWith(
-                    primary: Colors.white,
-                    secondary:
-                        Colors.orange[100], // Set accent color for dark theme
-                  ),
-              textSelectionTheme:
-                  TextSelectionThemeData(selectionColor: Colors.white)),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.brown,
+              brightness: Brightness.dark,
+            ),
+          ),
           themeMode:
               darkModeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: MyHomePage(
