@@ -90,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage>
     final _formKey = GlobalKey<FormState>();
     String _uid = '';
     String _title = '';
+    String? _linkTargetUid;
 
     showDialog(
       context: context,
@@ -117,6 +118,13 @@ class _MyHomePageState extends State<MyHomePage>
                         value == null || value.isEmpty ? 'Required' : null,
                     onSaved: (value) => _title = value!,
                   ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Link Target UID (Optional)',
+                      hintText: 'e.g. A1',
+                    ),
+                    onSaved: (value) => _linkTargetUid = value,
+                  ),
                 ],
               ),
             ),
@@ -130,13 +138,19 @@ class _MyHomePageState extends State<MyHomePage>
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
+
+                  String finalUid = _uid;
+                  if (_linkTargetUid != null && _linkTargetUid!.isNotEmpty) {
+                    finalUid = '$_uid|$_linkTargetUid';
+                  }
+
                   try {
                     final docRef =
-                        FirebaseFirestore.instance.collection('zikr').doc(_uid);
+                        FirebaseFirestore.instance.collection('zikr').doc(finalUid);
                     final docSnap = await docRef.get();
                     if (docSnap.exists) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('Error: Item $_uid already exists')));
+                          content: Text('Error: Item $finalUid already exists')));
                       return;
                     }
                     await docRef.set({
@@ -144,13 +158,13 @@ class _MyHomePageState extends State<MyHomePage>
                     }, SetOptions(merge: true));
                     Navigator.pop(context);
                     // Manually update local list since we aren't fetching from server anymore
-                    items[_uid] = _title;
+                    items[finalUid] = _title;
                     setState(() {});
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                ZikrPage(UidTitleData(_uid, _title))));
+                                ZikrPage(UidTitleData(finalUid, _title))));
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Error: $e')));
