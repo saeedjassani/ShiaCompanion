@@ -7,7 +7,8 @@ import '../widgets/zikr_settings.dart';
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
-  ZikrPage(this.item);
+  final bool startEditing;
+  ZikrPage(this.item, {this.startEditing = false});
 
   @override
   _ZikrPageState createState() => _ZikrPageState();
@@ -38,6 +39,10 @@ class _ZikrPageState extends State<ZikrPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.startEditing) {
+      isEditing = true;
+      isAdmin = true;
+    }
     _checkAdmin();
     _fetchZikrData();
   }
@@ -163,7 +168,7 @@ class _ZikrPageState extends State<ZikrPage> {
                         controller: _controller,
                         child: ListView.builder(
                           controller: _controller,
-                          itemCount: content!.length,
+                          itemCount: content?.length ?? 0,
                           itemBuilder: (BuildContext c, int i) {
                             String str = content![i].trim();
 

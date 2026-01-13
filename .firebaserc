@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "shia-comapnion"
-  }
+  },
+  "targets": {
+    "shia-comapnion": {
+      "hosting": {
+        "shia-companion": [
+          "shia-companion"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

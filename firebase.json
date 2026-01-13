@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "shia-companion",
     "public": "build/web",
     "ignore": [
       "firebase.json",
