@@ -160,11 +160,17 @@ class _MyHomePageState extends State<MyHomePage>
                     // Manually update local list since we aren't fetching from server anymore
                     items[finalUid] = _title;
                     setState(() {});
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ZikrPage(UidTitleData(finalUid, _title))));
+                    if (_linkTargetUid == null || _linkTargetUid!.isEmpty) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ZikrPage(
+                                  UidTitleData(finalUid, _title),
+                                  startEditing: true)));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Item linked successfully')));
+                    }
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Error: $e')));
@@ -381,7 +387,7 @@ class _MyHomePageState extends State<MyHomePage>
 
         final Map<String, String> fetchedItems = {};
         allDocs.forEach((key, value) {
-          final hasData = value['data'] != null;
+          final hasData = value['data'] != null && value['data'].toString().isNotEmpty;
           final isCategory = key.contains('~');
           final isAlias = key.contains('|');
 
@@ -393,7 +399,8 @@ class _MyHomePageState extends State<MyHomePage>
           if (isAlias) {
             final originalKey = key.split('|')[1];
             final originalDoc = allDocs[originalKey];
-            if (originalDoc != null && originalDoc['data'] == null) {
+            if (originalDoc != null &&
+                (originalDoc['data'] == null || originalDoc['data'].toString().isEmpty)) {
               return; // continue to next item in forEach
             }
           }
