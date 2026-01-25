@@ -14,47 +14,33 @@ import 'pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Diagnostic: log existing Firebase apps and guard initialization to avoid crashes
-  // if the native side (iOS) auto-initialized Firebase before Dart runs.
-  try {
-    print('Existing Firebase apps before init: ${Firebase.apps.map((a) => a.name).toList()}');
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-      print('Firebase initialized from Dart.');
-    } else {
-      print('Skipping Firebase.initializeApp(); existing apps: ${Firebase.apps.map((a) => a.name).toList()}');
-    }
-  } on FirebaseException catch (e) {
-    final msg = e.message ?? '';
-    // Ignore duplicate-app errors that can occur if Firebase was already configured natively.
-    if (msg.contains('already exists') || msg.contains('duplicate-app') || e.code == 'duplicate-app') {
-      print('Firebase initialization skipped (native auto-init detected): $e');
-    } else {
-      rethrow;
-    }
-  }
 
-  // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-  // Pass all uncaught errors from the framework to Crashlytics.
+  // Initialize Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Set up Crashlytics for native platforms
   if (!kIsWeb) {
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-    // You may also want to set collection enabled status here
-    // await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   }
-  WebViewPlatform.instance = WebWebViewPlatform();
-  runApp(MyApp());
+
+  // Setup WebView for web platform
+  if (kIsWeb) {
+    WebViewPlatform.instance = WebWebViewPlatform();
+  }
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static FirebaseAnalyticsObserver observer =
-      FirebaseAnalyticsObserver(analytics: analytics);
+  const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    analytics.logAppOpen();
+    final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+    final FirebaseAnalyticsObserver observer =
+        FirebaseAnalyticsObserver(analytics: analytics);
+
     return ChangeNotifierProvider(
       create: (context) => DarkModeProvider(context),
       child:
@@ -85,7 +71,7 @@ class MyApp extends StatelessWidget {
             analytics: analytics,
             observer: observer,
           ),
-          navigatorObservers: [routeObserver],
+          navigatorObservers: [observer, routeObserver],
         );
       }),
     );
