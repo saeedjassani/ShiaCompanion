@@ -65,10 +65,9 @@ class _MyHomePageState extends State<MyHomePage>
   callback() {
     // Navigate to calendar and scroll to prayer times when invoked from the home card
     scrollToPrayerTimes = true;
-    Navigator.push(
+    pushPageRoute(
         context,
-        MaterialPageRoute(
-            builder: (context) => CalendarPage(scrollToPrayerTimes)));
+        CalendarPage(scrollToPrayerTimes));
   }
 
   loginCallback() async {
@@ -159,12 +158,11 @@ class _MyHomePageState extends State<MyHomePage>
                     items[finalUid] = _title;
                     setState(() {});
                     if (_linkTargetUid == null || _linkTargetUid!.isEmpty) {
-                      Navigator.push(
+                      pushPageRoute(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => ZikrPage(
-                                  UidTitleData(finalUid, _title),
-                                  startEditing: true)));
+                          ZikrPage(
+                              UidTitleData(finalUid, _title),
+                              startEditing: true));
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Item linked successfully')));
@@ -299,10 +297,7 @@ class _MyHomePageState extends State<MyHomePage>
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                       content: Text("Coming soon")));
                                 } else {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => page));
+                                  pushPageRoute(context, page);
                                 }
                             },
                             child: LayoutBuilder(builder: (context, tileConstraints) {
@@ -525,7 +520,7 @@ class _MyHomePageState extends State<MyHomePage>
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text("Coming soon")));
         } else {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+          pushPageRoute(context, page);
         }
       },
       child: Container(
