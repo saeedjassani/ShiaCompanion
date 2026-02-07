@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:location/location.dart' as location;
@@ -26,6 +27,7 @@ import 'utils/shared_preferences.dart';
 import 'widgets/tasbeeh_widget.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:flutter/cupertino.dart';
 
 double screenWidth = 0;
 double screenHeight = 0;
@@ -188,8 +190,7 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData,
   FirebaseAnalytics.instance
       .logSelectContent(contentType: contentType, itemId: itemData.title);
   if (routeToPush != null) {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => routeToPush!));
+    pushPageRoute(context, routeToPush!);
   }
 }
 
@@ -342,5 +343,15 @@ Future<void> trackScreen(String screenName) async {
   await FirebaseAnalytics.instance.logEvent(
     name: 'screen_view',
     parameters: {'screen_name': screenName},
+  );
+}
+
+// Platform-aware route push that supports back navigation
+void pushPageRoute(BuildContext context, Widget page) {
+  Navigator.push(
+    context,
+    kIsWeb
+        ? MaterialPageRoute(builder: (context) => page)
+        : CupertinoPageRoute(builder: (context) => page),
   );
 }

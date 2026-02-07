@@ -72,6 +72,7 @@ class MyApp extends StatelessWidget {
             observer: observer,
           ),
           navigatorObservers: [observer, routeObserver],
+          useInheritedMediaQuery: true,
         );
       }),
     );
