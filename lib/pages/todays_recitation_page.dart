@@ -21,11 +21,11 @@ class TodaysRecitationPage extends StatelessWidget {
       tmp = "L";
     } else if (today.weekday == DateTime.monday) {
       tmp = "M";
-    } else if (today.weekday == DateTime.thursday) {
+    } else if (today.weekday == DateTime.tuesday) {
       tmp = "N";
     } else if (today.weekday == DateTime.wednesday) {
       tmp = "O";
-    } else if (today.weekday == DateTime.tuesday) {
+    } else if (today.weekday == DateTime.thursday) {
       tmp = "Q";
     }
     for (String s in items.keys) {

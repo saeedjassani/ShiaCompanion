@@ -20,7 +20,6 @@ import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
-import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/pages/zikr_page.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
@@ -28,7 +27,6 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 
-import 'library_page.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -221,145 +219,137 @@ class _MyHomePageState extends State<MyHomePage>
           ],
         ),
 
-        body: PageView(
-          children: <Widget>[
-            SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 32.0, horizontal: 16.0),
-                      child: InkWell(
-                        onTap: () {
-                          SharePlus.instance.share(
-                              ShareParams(
-                                text: '$hadith\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
-                                sharePositionOrigin: Rect.fromLTWH(
-                                    MediaQuery.of(context).size.width / 2,
-                                    0,
-                                    2,
-                                    2),
-                              ));
-                        },
-                        child: SingleChildScrollView(
-                          child: Text(
-                            '$hadith',
-                            textAlign: TextAlign.center,
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 32.0, horizontal: 16.0),
+                  child: InkWell(
+                    onTap: () {
+                      SharePlus.instance.share(
+                          ShareParams(
+                            text: '$hadith\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                            sharePositionOrigin: Rect.fromLTWH(
+                                MediaQuery.of(context).size.width / 2,
+                                0,
+                                2,
+                                2),
+                          ));
+                    },
+                    child: SingleChildScrollView(
+                      child: Text(
+                        '$hadith',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    textButtonTheme: TextButtonThemeData(
+                      style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+                    ),
+                  ),
+                  child: HomePrayerTimesCard(callback),
+                ),
+              ),
+              SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: LayoutBuilder(builder: (context, constraints) {
+                  // Use maxCrossAxisExtent so grid adapts to available width
+                  // Make the tiles smaller on narrow screens so more columns can fit
+                  double maxExtent;
+                  double spacing = 8.0;
+                  if (constraints.maxWidth < 360) {
+                    maxExtent = 140;
+                    spacing = 6.0;
+                  } else if (constraints.maxWidth < 600) {
+                    maxExtent = 160;
+                    spacing = 8.0;
+                  } else {
+                    maxExtent = 240;
+                    spacing = 8.0;
+                  }
+                  return GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: maxExtent,
+                      mainAxisSpacing: spacing,
+                      crossAxisSpacing: spacing,
+                      childAspectRatio: constraints.maxWidth < 400 ? 0.95 : 0.9,
+                    ),
+                    itemCount: zikr.length,
+                    itemBuilder: (BuildContext c, int i) {
+                      return Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Card(
+                          child: InkWell(
+                            onTap: () {
+                              // Preferences is handled specially because it requires a callback
+                              Widget page = getPage(zikr[i], loginCallback: loginCallback, scrollToPrayerTimes: false);
+                                if (page is Container) {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                      content: Text("Coming soon")));
+                                } else {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => page));
+                                }
+                            },
+                            child: LayoutBuilder(builder: (context, tileConstraints) {
+                              final double tileWidth = tileConstraints.maxWidth;
+                              final double avatarRadius = (tileWidth * 0.18).clamp(18.0, 40.0);
+                              final double iconSize = avatarRadius * 0.9;
+                              final double fontSize = tileWidth > 140 ? 14 : 12;
+                              final double verticalPadding = tileWidth > 140 ? 12 : 8;
+        
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: verticalPadding, horizontal: 8.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: avatarRadius,
+                                      backgroundColor:
+                                          Theme.of(context).primaryColor,
+                                      child: Icon(
+                                        zikrIcons[i],
+                                        size: iconSize,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(height: tileWidth > 140 ? 10 : 6),
+                                    Text(
+                                      zikr[i],
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontSize: fontSize),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        textButtonTheme: TextButtonThemeData(
-                          style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
-                        ),
-                      ),
-                      child: HomePrayerTimesCard(callback),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: LayoutBuilder(builder: (context, constraints) {
-                      // Use maxCrossAxisExtent so grid adapts to available width
-                      // Make the tiles smaller on narrow screens so more columns can fit
-                      double maxExtent;
-                      double spacing = 8.0;
-                      if (constraints.maxWidth < 360) {
-                        maxExtent = 140;
-                        spacing = 6.0;
-                      } else if (constraints.maxWidth < 600) {
-                        maxExtent = 160;
-                        spacing = 8.0;
-                      } else {
-                        maxExtent = 240;
-                        spacing = 8.0;
-                      }
-                      return GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: maxExtent,
-                          mainAxisSpacing: spacing,
-                          crossAxisSpacing: spacing,
-                          childAspectRatio: constraints.maxWidth < 400 ? 0.95 : 0.9,
-                        ),
-                        itemCount: zikr.length,
-                        itemBuilder: (BuildContext c, int i) {
-                          return Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Card(
-                              child: InkWell(
-                                onTap: () {
-                                  // Preferences is handled specially because it requires a callback
-                                  Widget page = getPage(zikr[i], loginCallback: loginCallback, scrollToPrayerTimes: false);
-                                    if (page is Container) {
-                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                          content: Text("Coming soon")));
-                                    } else {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => page));
-                                    }
-                                },
-                                child: LayoutBuilder(builder: (context, tileConstraints) {
-                                  final double tileWidth = tileConstraints.maxWidth;
-                                  final double avatarRadius = (tileWidth * 0.18).clamp(18.0, 40.0);
-                                  final double iconSize = avatarRadius * 0.9;
-                                  final double fontSize = tileWidth > 140 ? 14 : 12;
-                                  final double verticalPadding = tileWidth > 140 ? 12 : 8;
-
-                                  return Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: verticalPadding, horizontal: 8.0),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        CircleAvatar(
-                                          radius: avatarRadius,
-                                          backgroundColor:
-                                              Theme.of(context).primaryColor,
-                                          child: Icon(
-                                            zikrIcons[i],
-                                            size: iconSize,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(height: tileWidth > 140 ? 10 : 6),
-                                        Text(
-                                          zikr[i],
-                                          textAlign: TextAlign.center,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(fontSize: fontSize),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              ),
-                            ),
-                          );
-                        },
                       );
-                    }),
-                  ),
-                ],
+                    },
+                  );
+                }),
               ),
-            ),
-            CalendarPage(scrollToPrayerTimes),
-            LibraryPage(),
-            SettingsPage(loginCallback)
-          ],
-
+            ],
+          ),
         ));
   }
 
