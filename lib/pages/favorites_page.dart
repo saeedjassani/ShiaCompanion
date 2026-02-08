@@ -19,6 +19,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
   @override
   void initState() {
     super.initState();
+    trackScreen('Favorites Page');
     _loadFavs();
   }
 
@@ -69,7 +70,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 UniversalData item = _favs![index];
                 return ListTile(
                   title: isUserAdmin ? Text(item.uid + ' ' + item.title) : Text(item.title),
-                  onTap: () => handleUniversalDataClick(context, item),
+                  onTap: () {
+                    trackItemViewed(item.uid, item.title, 'favorite');
+                    handleUniversalDataClick(context, item);
+                  },
                   onLongPress: () {
                     if (isUserAdmin) handleUniversalDataClick(context, item, itemPage: true);
                   },

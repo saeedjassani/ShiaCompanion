@@ -346,6 +346,48 @@ Future<void> trackScreen(String screenName) async {
   );
 }
 
+Future<void> trackItemViewed(String itemId, String itemTitle, String itemType) async {
+  await FirebaseAnalytics.instance.logViewItem(
+    items: [
+      AnalyticsEventItem(
+        itemId: itemId,
+        itemName: itemTitle,
+        itemCategory: itemType,
+      ),
+    ],
+  );
+}
+
+Future<void> trackFavoriteAdded(String itemId, String itemTitle, String itemType) async {
+  await FirebaseAnalytics.instance.logAddToWishlist(
+    items: [
+      AnalyticsEventItem(
+        itemId: itemId,
+        itemName: itemTitle,
+        itemCategory: itemType,
+      ),
+    ],
+  );
+}
+
+Future<void> trackFavoriteRemoved(String itemId, String itemTitle, String itemType) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'remove_from_wishlist',
+    parameters: {
+      'item_id': itemId,
+      'item_title': itemTitle,
+      'item_type': itemType,
+    },
+  );
+}
+
+Future<void> trackZikrStarted(String zikrId, String zikrTitle) async {
+  await FirebaseAnalytics.instance.logEvent(
+    name: 'zikr_started',
+    parameters: {
+      'zikr_id': zikrId,
+      'zikr_title': zikrTitle,
+    },
 // Platform-aware route push that supports back navigation
 void pushPageRoute(BuildContext context, Widget page) {
   Navigator.push(

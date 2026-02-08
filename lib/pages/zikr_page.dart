@@ -43,6 +43,7 @@ class _ZikrPageState extends State<ZikrPage> {
       isEditing = true;
       isAdmin = true;
     }
+    trackZikrStarted(widget.item.uid, widget.item.title);
     _checkAdmin();
     _fetchZikrData();
   }
