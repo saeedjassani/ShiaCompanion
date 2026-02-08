@@ -48,9 +48,13 @@ class _LibraryPageState extends State<LibraryPage> {
               onTap: () => handleUniversalDataClick(context, itemData),
               trailing: InkWell(
                 onTap: () {
-                  favsData!.contains(itemData)
-                      ? favsData!.remove(itemData)
-                      : favsData!.add(itemData);
+                  if (favsData!.contains(itemData)) {
+                    favsData!.remove(itemData);
+                    trackFavoriteRemoved(itemData.uid, itemData.title, 'chapter');
+                  } else {
+                    favsData!.add(itemData);
+                    trackFavoriteAdded(itemData.uid, itemData.title, 'chapter');
+                  }
                   setState(() {});
                 },
                 child: getFavIcon(context, itemData),
