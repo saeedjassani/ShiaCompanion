@@ -175,7 +175,7 @@ class _ZikrPageState extends State<ZikrPage> {
 
                             if (arabicCodes.contains(i)) {
                               return Padding(
-                                padding: const EdgeInsets.only(bottom: 4.0),
+                                padding: const EdgeInsets.only( top: 12.0),
                                 child: Text(
                                   formatArabicText(str),
                                   style: arabicStyle,
@@ -185,15 +185,11 @@ class _ZikrPageState extends State<ZikrPage> {
                               );
                             } else if (transliCodes.contains(i)) {
                               return showTransliteration
-                                  ? Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 4.0),
-                                      child: Text(
-                                        str.toUpperCase(),
-                                        style: transliStyle,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    )
+                                  ? Text(
+                                    str.toUpperCase(),
+                                    style: transliStyle,
+                                    textAlign: TextAlign.center,
+                                  )
                                   : Container();
                             } else if (translaCodes.contains(i)) {
                               return showTranslation
@@ -284,7 +280,8 @@ class _ZikrPageState extends State<ZikrPage> {
           .replaceAll("ی", "ي")
           .replaceAll("ہ", "ه")
           .replaceAll("ک", "ك")
-          .replaceAll("ۃ", "ة");
+          .replaceAll("ۃ", "ة")
+          .replaceAll('الله', 'اللّٰه');
     }
   }
 
