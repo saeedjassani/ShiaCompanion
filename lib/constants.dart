@@ -190,7 +190,7 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData,
   FirebaseAnalytics.instance
       .logSelectContent(contentType: contentType, itemId: itemData.title);
   if (routeToPush != null) {
-    pushPageRoute(context, routeToPush!);
+    pushPageRoute(context, routeToPush);
   }
 }
 
@@ -388,6 +388,8 @@ Future<void> trackZikrStarted(String zikrId, String zikrTitle) async {
       'zikr_id': zikrId,
       'zikr_title': zikrTitle,
     },
+  );
+}
 // Platform-aware route push that supports back navigation
 void pushPageRoute(BuildContext context, Widget page) {
   Navigator.push(
