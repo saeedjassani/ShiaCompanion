@@ -386,15 +386,14 @@ class _MyHomePageState extends State<MyHomePage>
             final originalDoc = allDocs[originalKey];
             if (originalDoc != null &&
                 (originalDoc['data'] == null || originalDoc['data'].toString().isEmpty)) {
-              return; // continue to next item in forEach
+              return;
             }
           }
 
           if (value['title'] == null) {
-            return; // Skip items without a title.
+            return; 
           }
 
-          // Add the item to the index. Use a default empty string if 'title' is null.
           fetchedItems[key] = value['title'];
         });
         items = fetchedItems;

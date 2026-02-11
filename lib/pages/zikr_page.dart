@@ -41,7 +41,6 @@ class _ZikrPageState extends State<ZikrPage> {
     super.initState();
     if (widget.startEditing) {
       isEditing = true;
-      isAdmin = true;
     }
     trackZikrStarted(widget.item.uid, widget.item.title);
     _checkAdmin();
@@ -132,7 +131,9 @@ class _ZikrPageState extends State<ZikrPage> {
         endDrawer: ZikrSettingsPage(refreshState),
         body: zikrData == null
             ? Center(child: CircularProgressIndicator())
-            : Padding(
+            : zikrData?['data'] == ''
+                ? Center(child: Text('Coming soon...'))
+                : Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: isEditing
                     ? SingleChildScrollView(
