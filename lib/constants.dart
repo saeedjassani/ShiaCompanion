@@ -46,7 +46,7 @@ double englishFontSize = 16.0;
 String? city;
 double? lat, long;
 bool needToSchedule = true;
-String arabicFont = "Muhammadi";
+String arabicFont = "Qalam";
 
 FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 TextStyle smallText = TextStyle(fontSize: 14);
@@ -62,6 +62,8 @@ Widget getPage(String label, {Function()? loginCallback, bool scrollToPrayerTime
       return FavoritesPage();
     case "Today's Recitations":
       return TodaysRecitationPage();
+    case 'Taqeebat e Namaz':
+      return ItemList("D");
     case 'Namaz':
       return ItemList("F");
     case 'Duas':
@@ -99,6 +101,7 @@ Widget getPage(String label, {Function()? loginCallback, bool scrollToPrayerTime
 List<String> zikr = [
   "Favorites",
   "Today's Recitations",
+  "Taqeebat e Namaz",
   "Namaz",
   "Duas",
   "Ziyarats",
@@ -108,31 +111,19 @@ List<String> zikr = [
   "Library",
   "Munajaats",
   "Baaqeyaat As Saalehaat",
-  "Ziyarat of Hijaz, Iran & Iraq",
   "Latest Shia News",
   "Qibla Finder",
   "Tasbeeh Counter",
   "Preferences",
 ];
 
-List<String> zikrImages = [
-  "assets/images/namaz_home_min.jpg",
-  "assets/images/dua_home.jpg",
-  "assets/images/najaf_min.jpg",
-  "assets/images/surah_home.jpg",
-  "assets/images/amaal.jpg",
-  "assets/images/munajat_home.jpg",
-  "assets/images/taaqebaat_namaz.jpg",
-  "assets/images/amaal.jpg",
-  "assets/images/sc_news.png",
-  "assets/images/qibla_finder.png",
-  "assets/images/counter.png",
-];
+
 
 // Icon mapping used for responsive grid in Home Page. Picked from Material icons
 List<IconData> zikrIcons = [
   Icons.favorite, // Favorites
   Icons.book, // Today's Recitations
+  Icons.bookmark, // Namaz
   Icons.wb_sunny, // Namaz
   Icons.menu_book, // Duas
   Icons.mosque, // Ziyarats
@@ -142,7 +133,6 @@ List<IconData> zikrIcons = [
   Icons.library_books, // Library
   Icons.menu_book, // Munajaats (Library book icon)
   Icons.list_alt, // Baaqeyaat As Saalehaat
-  Icons.map, // Ziyarat of Hijaz, Iran & Iraq
   Icons.article, // Latest Shia News
   Icons.explore, // Qibla Finder
   Icons.format_list_numbered, // Tasbeeh Counter

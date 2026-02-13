@@ -37,12 +37,6 @@ class TodaysRecitationPage extends StatelessWidget {
       return a.getId() > b.getId() ? 1 : -1;
     });
     if (items.isNotEmpty) {
-      if (items.containsKey("~D1")) {
-        workingItems.insert(0, UidTitleData("~D1", items["~D1"]));
-      }
-      if (items.containsKey("TR~D1")) {
-        workingItems.insert(0, UidTitleData("TR~D1", items["TR~D1"]));
-      }
       workingItems.insert(1, UidTitleData("E18", items["E18"]));
       workingItems.insert(2, UidTitleData("G6", items["G6"]));
       workingItems.insert(3, UidTitleData("G4", items["G4"]));

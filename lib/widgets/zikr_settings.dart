@@ -101,13 +101,13 @@ class _ZikrSettingsPageState extends State<ZikrSettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListTile(
-                title: Text('Muhammadi'),
+                title: Text('Qalam'),
                 trailing: Text(
                   'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                  style: TextStyle(fontFamily: 'Muhammadi'),
+                  style: TextStyle(fontFamily: 'Qalam'),
                 ),
                 onTap: () {
-                  Navigator.of(context).pop('Muhammadi');
+                  Navigator.of(context).pop('Qalam');
                 },
               ),
               ListTile(

@@ -30,9 +30,10 @@ class _ZikrPageState extends State<ZikrPage> {
   Set<int> arabicCodes = Set(), transliCodes = Set(), translaCodes = Set();
 
   TextStyle arabicStyle = TextStyle(
-    fontFamily: arabicFont,
-    fontSize: arabicFontSize,
-  );
+          fontFamily: arabicFont,
+          fontSize: arabicFontSize,
+          letterSpacing: 0
+        );
   TextStyle transliStyle =
       TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
 
@@ -134,91 +135,94 @@ class _ZikrPageState extends State<ZikrPage> {
             : zikrData?['data'] == ''
                 ? Center(child: Text('Coming soon...'))
                 : Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: isEditing
-                    ? SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextField(
-                              controller: titleController,
-                              decoration: InputDecoration(labelText: 'Title'),
+                    padding: const EdgeInsets.all(16.0),
+                    child: isEditing
+                        ? SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextField(
+                                  controller: titleController,
+                                  decoration:
+                                      InputDecoration(labelText: 'Title'),
+                                ),
+                                TextField(
+                                  controller: codeController,
+                                  decoration: InputDecoration(
+                                      helperMaxLines: 3,
+                                      helperText:
+                                          'Blank for Only Arabic, 0 for Arabic, 1 for transliteration, 2 for translation. Example: 012 will have Arabic, transliteration, and translation. 02 for Arabic and translation only',
+                                      labelText: 'Code'),
+                                ),
+                                TextField(
+                                  controller: dataController,
+                                  decoration:
+                                      InputDecoration(labelText: 'Data'),
+                                  maxLines: null,
+                                ),
+                                SizedBox(height: 16),
+                                TextButton.icon(
+                                  label: Text('Save Changes'),
+                                  icon: Icon(Icons.save),
+                                  onPressed: _saveEdits,
+                                ),
+                              ],
                             ),
-                            TextField(
-                              controller: codeController,
-                              decoration: InputDecoration(
-                                  helperMaxLines: 3,
-                                  helperText:
-                                      'Blank for Only Arabic, 0 for Arabic, 1 for transliteration, 2 for translation. Example: 012 will have Arabic, transliteration, and translation. 02 for Arabic and translation only',
-                                  labelText: 'Code'),
-                            ),
-                            TextField(
-                              controller: dataController,
-                              decoration: InputDecoration(labelText: 'Data'),
-                              maxLines: null,
-                            ),
-                            SizedBox(height: 16),
-                            TextButton.icon(
-                              label: Text('Save Changes'),
-                              icon: Icon(Icons.save),
-                              onPressed: _saveEdits,
-                            ),
-                          ],
-                        ),
-                      )
-                    : Scrollbar(
-                        controller: _controller,
-                        child: ListView.builder(
-                          controller: _controller,
-                          itemCount: content?.length ?? 0,
-                          itemBuilder: (BuildContext c, int i) {
-                            String str = content![i].trim();
+                          )
+                        : Scrollbar(
+                            controller: _controller,
+                            child: ListView.builder(
+                              controller: _controller,
+                              itemCount: content?.length ?? 0,
+                              itemBuilder: (BuildContext c, int i) {
+                                String str = content![i].trim();
 
-                            if (arabicCodes.contains(i)) {
-                              return Padding(
-                                padding: const EdgeInsets.only( top: 12.0),
-                                child: Text(
-                                  formatArabicText(str),
-                                  style: arabicStyle,
-                                  textAlign: TextAlign.center,
-                                  textDirection: TextDirection.rtl,
-                                ),
-                              );
-                            } else if (transliCodes.contains(i)) {
-                              return showTransliteration
-                                  ? Text(
-                                    str.toUpperCase(),
-                                    style: transliStyle,
-                                    textAlign: TextAlign.center,
-                                  )
-                                  : Container();
-                            } else if (translaCodes.contains(i)) {
-                              return showTranslation
-                                  ? Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 4.0),
-                                      child: Text(
-                                        str,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: englishFontSize),
-                                      ),
-                                    )
-                                  : Container();
-                            } else {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 8, bottom: 4.0),
-                                child: Text(
-                                  str,
-                                  style: TextStyle(fontStyle: FontStyle.italic),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-              ),
+                                if (arabicCodes.contains(i)) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 12.0),
+                                    child: Text(
+                                      formatArabicText(str),
+                                      style: arabicStyle,
+                                      textAlign: TextAlign.center,
+                                      textDirection: TextDirection.rtl,
+                                    ),
+                                  );
+                                } else if (transliCodes.contains(i)) {
+                                  return showTransliteration
+                                      ? Text(
+                                          str.toUpperCase(),
+                                          style: transliStyle,
+                                          textAlign: TextAlign.center,
+                                        )
+                                      : Container();
+                                } else if (translaCodes.contains(i)) {
+                                  return showTranslation
+                                      ? Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 4.0),
+                                          child: Text(
+                                            str,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                fontSize: englishFontSize),
+                                          ),
+                                        )
+                                      : Container();
+                                } else {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 8, bottom: 4.0),
+                                    child: Text(
+                                      str,
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                  ),
       ),
     );
   }
@@ -287,10 +291,7 @@ class _ZikrPageState extends State<ZikrPage> {
   }
 
   void refreshState() {
-    arabicStyle = TextStyle(
-      fontFamily: arabicFont,
-      fontSize: arabicFontSize,
-    );
+    arabicStyle = TextStyle(fontFamily: arabicFont, fontSize: arabicFontSize, letterSpacing: 0);
     transliStyle =
         TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
     setState(() {});
