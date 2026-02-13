@@ -71,7 +71,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 return ListTile(
                   title: isUserAdmin ? Text(item.uid + ' ' + item.title) : Text(item.title),
                   onTap: () {
-                    trackItemViewed(item.uid, item.title, 'favorite');
                     handleUniversalDataClick(context, item);
                   },
                   onLongPress: () {

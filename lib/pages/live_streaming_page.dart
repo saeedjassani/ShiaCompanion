@@ -74,10 +74,8 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
                                     if (favsData?.contains(universalData) ==
                                         true) {
                                       favsData?.remove(universalData);
-                                      trackFavoriteRemoved(universalData.uid, universalData.title, 'live_stream');
                                     } else {
                                       favsData?.add(universalData);
-                                      trackFavoriteAdded(universalData.uid, universalData.title, 'live_stream');
                                     }
                                     setState(() {});
                                   },
