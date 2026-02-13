@@ -68,7 +68,7 @@ class DataSearch extends SearchDelegate<String> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => ItemList(
-                        suggestionList[index].getUId().split("~")[1])));
+                        suggestionList[index].getUId().split("~")[1], suggestionList[index].title)));
           } else {
             handleUniversalDataClick(
                 context,

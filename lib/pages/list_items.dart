@@ -6,9 +6,9 @@ import 'package:shia_companion/data/universal_data.dart';
 import '../constants.dart';
 
 class ItemList extends StatefulWidget {
-  final String item;
+  final String item, title;
 
-  ItemList(this.item);
+  ItemList(this.item, this.title);
 
   @override
   _ItemListState createState() => new _ItemListState();
@@ -78,7 +78,9 @@ class _ItemListState extends State<ItemList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: getAppBar(),
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
       body: ListView.separated(
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemCount: workingItems.length,
@@ -104,7 +106,7 @@ class _ItemListState extends State<ItemList> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      ItemList(uidTitleData.getUId().split("~")[1])));
+                      ItemList(uidTitleData.getUId().split("~")[1], uidTitleData.title)));
         } else {
           handleUniversalDataClick(context, itemData);
         }
