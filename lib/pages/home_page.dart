@@ -8,7 +8,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -416,8 +415,7 @@ class _MyHomePageState extends State<MyHomePage>
 
     if (!kIsWeb) {
       tz.initializeTimeZones();
-      final _timeZone = await FlutterTimezone.getLocalTimezone();
-      final currentTimeZone = _timeZone.identifier;
+      final currentTimeZone = tz.local.name;
       tz.setLocalLocation(tz.getLocation(currentTimeZone));
 
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
