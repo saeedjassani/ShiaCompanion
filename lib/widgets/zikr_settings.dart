@@ -99,38 +99,18 @@ class _ZikrSettingsPageState extends State<ZikrSettingsPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ListTile(
-                title: Text('Qalam'),
+            children: FontPreferences.validFonts.map((font) {
+              return ListTile(
+                title: Text(font),
                 trailing: Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                  style: TextStyle(fontFamily: 'Qalam'),
+                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                  style: TextStyle(fontFamily: font),
                 ),
                 onTap: () {
-                  Navigator.of(context).pop('Qalam');
+                  Navigator.of(context).pop(font);
                 },
-              ),
-              ListTile(
-                title: Text('MeQuran'),
-                trailing: Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                  style: TextStyle(fontFamily: 'MeQuran'),
-                ),
-                onTap: () {
-                  Navigator.of(context).pop('MeQuran');
-                },
-              ),
-              ListTile(
-                title: Text('Uthmani'),
-                trailing: Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                  style: TextStyle(fontFamily: 'Uthmani'),
-                ),
-                onTap: () {
-                  Navigator.of(context).pop('Uthmani');
-                },
-              ),
-            ],
+              );
+            }).toList(),
           ),
         );
       },
