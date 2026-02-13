@@ -122,10 +122,8 @@ class _ItemListState extends State<ItemList> {
               onTap: () {
                 if (favsData!.contains(itemData)) {
                   favsData!.remove(itemData);
-                  trackFavoriteRemoved(itemData.uid, itemData.title, 'item');
                 } else {
                   favsData!.add(itemData);
-                  trackFavoriteAdded(itemData.uid, itemData.title, 'item');
                 }
                 setState(() {});
               },

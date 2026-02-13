@@ -50,10 +50,8 @@ class _LibraryPageState extends State<LibraryPage> {
                 onTap: () {
                   if (favsData!.contains(itemData)) {
                     favsData!.remove(itemData);
-                    trackFavoriteRemoved(itemData.uid, itemData.title, 'chapter');
                   } else {
                     favsData!.add(itemData);
-                    trackFavoriteAdded(itemData.uid, itemData.title, 'chapter');
                   }
                   setState(() {});
                 },
