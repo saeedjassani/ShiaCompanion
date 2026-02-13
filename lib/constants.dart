@@ -63,27 +63,25 @@ Widget getPage(String label, {Function()? loginCallback, bool scrollToPrayerTime
     case "Today's Recitations":
       return TodaysRecitationPage();
     case 'Taqeebat e Namaz':
-      return ItemList("D");
+      return ItemList("D", "Taqeebat e Namaz");
     case 'Namaz':
-      return ItemList("F");
+      return ItemList("F", "Namaz");
     case 'Duas':
-      return ItemList("E");
+      return ItemList("E", "Duas");
     case 'Ziyarats':
-      return ItemList("G");
+      return ItemList("G", "Ziyarats");
     case 'Surahs':
-      return ItemList("A");
+      return ItemList("A", "Surahs");
     case 'Amaal':
-      return ItemList("C");
+      return ItemList("C", "Amaal");
     case 'Calendar':
       return Scaffold(appBar: AppBar(title: Text('Calendar')), body: CalendarPage(scrollToPrayerTimes));
     case 'Library':
       return Scaffold(appBar: AppBar(title: Text('Library')), body: LibraryPage());
     case 'Munajaats':
-      return ItemList("H");
+      return ItemList("H", "Munajaats");
     case 'Baaqeyaat As Saalehaat':
-      return ItemList("I");
-    case 'Ziyarat of Hijaz, Iran & Iraq':
-      return ItemList("B");
+      return ItemList("I", "Baaqeyaat As Saalehaat");
     case 'Latest Shia News':
       return NewsPage();
     case 'Qibla Finder':

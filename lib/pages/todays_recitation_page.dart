@@ -29,7 +29,8 @@ class TodaysRecitationPage extends StatelessWidget {
       tmp = "Q";
     }
     for (String s in items.keys) {
-      if (tmp == s.split("~")[0] || tmp == s.replaceAll(RegExp("[0-9].*"), "")) {
+      if (tmp == s.split("~")[0] ||
+          tmp == s.replaceAll(RegExp("[0-9].*"), "")) {
         workingItems.add(UidTitleData(s, items[s]));
       }
     }
@@ -63,15 +64,26 @@ class TodaysRecitationPage extends StatelessWidget {
                 return ListTile(
                   onTap: () {
                     if (itemData.getUId().contains("~")) {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => ItemList(itemData.getUId().split("~")[1])));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ItemList(
+                                  itemData.getUId().split("~")[1],
+                                  itemData.title)));
                     } else {
-                      handleUniversalDataClick(context, UniversalData(itemData.uid, itemData.title, 0));
+                      handleUniversalDataClick(context,
+                          UniversalData(itemData.uid, itemData.title, 0));
                     }
                   },
                   onLongPress: () {
-                    if (isUserAdmin) handleUniversalDataClick(context, UniversalData(itemData.uid, itemData.title, 0), itemPage: true);
+                    if (isUserAdmin)
+                      handleUniversalDataClick(context,
+                          UniversalData(itemData.uid, itemData.title, 0),
+                          itemPage: true);
                   },
-                  title: isUserAdmin ? Text(itemData.uid + " " + itemData.title) : Text(itemData.title),
+                  title: isUserAdmin
+                      ? Text(itemData.uid + " " + itemData.title)
+                      : Text(itemData.title),
                 );
               },
             ),
