@@ -428,7 +428,7 @@ class _MyHomePageState extends State<MyHomePage>
           android: initializationSettingsAndroid,
           iOS: initializationSettingsIOS);
       await flutterLocalNotificationsPlugin?.initialize(
-        initializationSettings,
+        settings: initializationSettings,
       );
 
       await flutterLocalNotificationsPlugin?.cancelAll();

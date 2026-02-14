@@ -56,7 +56,8 @@ String appVersion = '1.0';
 bool showTranslation = true, showTransliteration = true;
 
 // Helper to map a tile label to a freshly-built page instance.
-Widget getPage(String label, {Function()? loginCallback, bool scrollToPrayerTimes = false}) {
+Widget getPage(String label,
+    {Function()? loginCallback, bool scrollToPrayerTimes = false}) {
   switch (label) {
     case 'Favorites':
       return FavoritesPage();
@@ -75,9 +76,12 @@ Widget getPage(String label, {Function()? loginCallback, bool scrollToPrayerTime
     case 'Amaal':
       return ItemList("C", "Amaal");
     case 'Calendar':
-      return Scaffold(appBar: AppBar(title: Text('Calendar')), body: CalendarPage(scrollToPrayerTimes));
+      return Scaffold(
+          appBar: AppBar(title: Text('Calendar')),
+          body: CalendarPage(scrollToPrayerTimes));
     case 'Library':
-      return Scaffold(appBar: AppBar(title: Text('Library')), body: LibraryPage());
+      return Scaffold(
+          appBar: AppBar(title: Text('Library')), body: LibraryPage());
     case 'Munajaats':
       return ItemList("H", "Munajaats");
     case 'Baaqeyaat As Saalehaat':
@@ -90,7 +94,9 @@ Widget getPage(String label, {Function()? loginCallback, bool scrollToPrayerTime
       return TasbeehWidget();
     case 'Preferences':
       // SettingsPage expects a loginCallback; we pass it through when available
-      return Scaffold(appBar: AppBar(title: Text('Preferences')), body: SettingsPage(loginCallback ?? () {}));
+      return Scaffold(
+          appBar: AppBar(title: Text('Preferences')),
+          body: SettingsPage(loginCallback ?? () {}));
     default:
       return Container();
   }
@@ -114,8 +120,6 @@ List<String> zikr = [
   "Tasbeeh Counter",
   "Preferences",
 ];
-
-
 
 // Icon mapping used for responsive grid in Home Page. Picked from Material icons
 List<IconData> zikrIcons = [
@@ -249,11 +253,11 @@ void setUpNotifications() async {
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin?.zonedSchedule(
-      786,
-      "Open the app to continue getting Azan notifications",
-      "It seems you've not used the application in last 12 days. Please open the app to continue receive Azan notifications",
-      tz.TZDateTime.now(tz.local).add(Duration(days: 11)),
-      platformChannelSpecifics,
+      id: 786,
+      title: "Open the app to continue getting Azan notifications",
+     body: "It seems you've not used the application in last 12 days. Please open the app to continue receive Azan notifications",
+      scheduledDate:  tz.TZDateTime.now(tz.local).add(Duration(days: 11)),
+      notificationDetails:  platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.inexact,
       payload: now.add(Duration(days: 11)).millisecondsSinceEpoch.toString());
 }
@@ -275,14 +279,15 @@ void schedulePrayerTimeNotification(
         android: androidPlatformChannelSpecifics,
         iOS: iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin?.zonedSchedule(
-        id,
-        formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
-        "It's time for " + prayerName.toLowerCase(),
-        tz.TZDateTime.from(dateTime, tz.local),
-        platformChannelSpecifics,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle);
+        id: id,
+        scheduledDate: tz.TZDateTime.from(dateTime, tz.local),
+        notificationDetails: platformChannelSpecifics,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        title:
+            formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
+        body: "It's time for " + prayerName.toLowerCase());
   } else {
-    await flutterLocalNotificationsPlugin?.cancel(id);
+    await flutterLocalNotificationsPlugin?.cancel(id: id);
   }
 }
 
@@ -301,12 +306,12 @@ void testNotification(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.zonedSchedule(
-      999,
-      "Test",
-      "Test notification",
-      tz.TZDateTime.now(tz.local).add(Duration(minutes: 1)),
-      platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle);
+      id: 999,
+      scheduledDate: tz.TZDateTime.now(tz.local).add(Duration(minutes: 1)),
+      notificationDetails: platformChannelSpecifics,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      title: "Test",
+      body: "Test notification");
 }
 
 AppBar getAppBar() {

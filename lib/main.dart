@@ -6,8 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_web/webview_flutter_web.dart';
+import 'package:shia_companion/utils/webview_registry.dart' if (dart.library.js_interop) 'package:shia_companion/utils/webview_registry_web.dart';
 
 import 'constants.dart';
 import 'pages/home_page.dart';
@@ -24,9 +23,7 @@ void main() async {
   }
 
   // Setup WebView for web platform
-  if (kIsWeb) {
-    WebViewPlatform.instance = WebWebViewPlatform();
-  }
+  registerWebViewWebImplementation();
 
   runApp(const MyApp());
 }
