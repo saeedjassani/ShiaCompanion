@@ -131,7 +131,7 @@ class _ZikrPageState extends State<ZikrPage> {
         endDrawer: ZikrSettingsPage(refreshState),
         body: zikrData == null
             ? Center(child: CircularProgressIndicator())
-            : (zikrData?['data'] == '' && !isEditing)
+            : zikrData?['data'] == ''
                 ? Center(child: Text('Coming soon...'))
                 : Padding(
                     padding: const EdgeInsets.all(16.0),
