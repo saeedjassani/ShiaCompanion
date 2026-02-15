@@ -15,7 +15,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseApp app = await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  debugPrint('Firebase initialized: ${app.name}');
 
   // Set up Crashlytics for native platforms
   if (!kIsWeb) {
