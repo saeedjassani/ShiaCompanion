@@ -352,7 +352,7 @@ class _MyHomePageState extends State<MyHomePage>
   Future<void> _loadItemsFromAssets() async {
     try {
       String data =
-          await DefaultAssetBundle.of(context).loadString("assets/zikr.json");
+          await DefaultAssetBundle.of(context).loadString("assets/items.json");
       items = json.decode(data);
     } catch (e) {
       debugPrint("Error loading items from assets: $e");
