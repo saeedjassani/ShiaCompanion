@@ -178,7 +178,7 @@ class _ZikrPageState extends State<ZikrPage> {
 
                                 if (arabicCodes.contains(i)) {
                                   return Padding(
-                                    padding: const EdgeInsets.only(top: 12.0),
+                                    padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
                                     child: Text(
                                       formatArabicText(str),
                                       style: arabicStyle,
@@ -213,8 +213,6 @@ class _ZikrPageState extends State<ZikrPage> {
                                         top: 8, bottom: 4.0),
                                     child: Text(
                                       str,
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic),
                                     ),
                                   );
                                 }

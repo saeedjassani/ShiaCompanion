@@ -113,50 +113,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                           ),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          TextButton.icon(
-                            icon: Icon(
-                              Icons.exit_to_app,
-                              size: 18,
-                            ),
-                            onPressed: () {
-                              widget.callback();
-                            },
-                            label: Text(
-                              "All Prayers",
-                              style: smallText,
-                            ),
-                          ),
-                          TextButton.icon(
-                            icon: Icon(
-                              Icons.share,
-                              size: 18,
-                            ),
-                            onPressed: () {
-                              String date = formatDate(
-                                      DateTime.now(), [dd, " ", M, " ", yyyy]) +
-                                  " (" +
-                                  _today.toFormat("dd MMMM yyyy") +
-                                  ")";
-                              SharePlus.instance.share(
-                                ShareParams(
-                                  text: '$date\n\nFajr : ${_prayerTimes[0]}\nDhuhr : ${_prayerTimes[2]}\nMaghrib : ${_prayerTimes[5]}\n \n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
-                                  sharePositionOrigin: Rect.fromLTWH(
-                                      MediaQuery.of(context).size.width / 2,
-                                      0,
-                                      2,
-                                      2),
-                                ));
-                            },
-                            label: Text(
-                              "Share",
-                              style: smallText,
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   )
                 : InkWell(
