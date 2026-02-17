@@ -186,10 +186,36 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData,
   }
 }
 
-Future<bool> initializeLocation({bool force = false}) async {
+Future<bool> initializeLocation({bool force = false, BuildContext? context}) async {
   // If we are not forcing a refresh and we already have lat/long, just return.
   if (!force && lat != null && long != null) {
     return true;
+  }
+
+  // Show explanation dialog on first setup
+  if (!force && context != null && lat == null && long == null) {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Enable Location for Prayer Times'),
+          content: Text(
+            'Prayer times are unique to your location. We need your location to provide accurate prayer times for your area.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text('Continue'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   try {
