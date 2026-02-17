@@ -1,7 +1,5 @@
-import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 

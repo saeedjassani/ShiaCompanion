@@ -411,7 +411,7 @@ class _MyHomePageState extends State<MyHomePage>
     await setUpFavorites();
 
     // Initialize LocationData
-    await initializeLocation();
+    await initializeLocation(context: context);
 
     if (!kIsWeb) {
       tz.initializeTimeZones();
