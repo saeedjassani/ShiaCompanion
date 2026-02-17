@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import '../constants.dart';
 import '../widgets/zikr_settings.dart';
+import '../widgets/zikr_counter.dart';
+// import 'zikr_counters_list_page.dart';
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
@@ -109,6 +111,11 @@ class _ZikrPageState extends State<ZikrPage> {
   Widget build(BuildContext context) {
     if (zikrData != null && zikrData?['data'] != null)
       content = populateArabicContent(zikrData?['data']);
+
+    // Counter overlay state
+    ValueNotifier<Offset> counterOffset = ValueNotifier(const Offset(20, 80));
+    ValueNotifier<bool> showCounter = ValueNotifier(false);
+
     return SelectionArea(
       child: Scaffold(
         appBar: AppBar(
@@ -129,97 +136,154 @@ class _ZikrPageState extends State<ZikrPage> {
           ],
         ),
         endDrawer: ZikrSettingsPage(refreshState),
-        body: zikrData == null
-            ? Center(child: CircularProgressIndicator())
-            : zikrData?['data'] == ''
-                ? Center(child: Text('Coming soon...'))
-                : Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: isEditing
-                        ? SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TextField(
-                                  controller: titleController,
-                                  decoration:
-                                      InputDecoration(labelText: 'Title'),
+        floatingActionButton: ValueListenableBuilder<bool>(
+          valueListenable: showCounter,
+          builder: (context, visible, _) => visible
+              ? const SizedBox.shrink()
+              : FloatingActionButton(
+                  onPressed: () => showCounter.value = true,
+                  tooltip: 'Show Counter',
+                  child: const Icon(Icons.exposure_plus_1),
+                ),
+        ),
+        body: Stack(
+          children: [
+            zikrData == null
+                ? const Center(child: CircularProgressIndicator())
+                : zikrData?['data'] == ''
+                    ? const Center(child: Text('Coming soon...'))
+                    : Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: isEditing
+                            ? SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    TextField(
+                                      controller: titleController,
+                                      decoration:
+                                          const InputDecoration(labelText: 'Title'),
+                                    ),
+                                    TextField(
+                                      controller: codeController,
+                                      decoration: const InputDecoration(
+                                          helperMaxLines: 3,
+                                          helperText:
+                                              'Blank for Only Arabic, 0 for Arabic, 1 for transliteration, 2 for translation. Example: 012 will have Arabic, transliteration, and translation. 02 for Arabic and translation only',
+                                          labelText: 'Code'),
+                                    ),
+                                    TextField(
+                                      controller: dataController,
+                                      decoration:
+                                          const InputDecoration(labelText: 'Data'),
+                                      maxLines: null,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    TextButton.icon(
+                                      label: const Text('Save Changes'),
+                                      icon: const Icon(Icons.save),
+                                      onPressed: _saveEdits,
+                                    ),
+                                  ],
                                 ),
-                                TextField(
-                                  controller: codeController,
-                                  decoration: InputDecoration(
-                                      helperMaxLines: 3,
-                                      helperText:
-                                          'Blank for Only Arabic, 0 for Arabic, 1 for transliteration, 2 for translation. Example: 012 will have Arabic, transliteration, and translation. 02 for Arabic and translation only',
-                                      labelText: 'Code'),
-                                ),
-                                TextField(
-                                  controller: dataController,
-                                  decoration:
-                                      InputDecoration(labelText: 'Data'),
-                                  maxLines: null,
-                                ),
-                                SizedBox(height: 16),
-                                TextButton.icon(
-                                  label: Text('Save Changes'),
-                                  icon: Icon(Icons.save),
-                                  onPressed: _saveEdits,
-                                ),
-                              ],
-                            ),
-                          )
-                        : Scrollbar(
-                            controller: _controller,
-                            child: ListView.builder(
-                              controller: _controller,
-                              itemCount: content?.length ?? 0,
-                              itemBuilder: (BuildContext c, int i) {
-                                String str = content![i].trim();
+                              )
+                            : Column(
+                                children: [
+                                  Expanded(
+                                    child: Scrollbar(
+                                      controller: _controller,
+                                      child: ListView.builder(
+                                        controller: _controller,
+                                        itemCount: content?.length ?? 0,
+                                        itemBuilder: (BuildContext c, int i) {
+                                          String str = content![i].trim();
 
-                                if (arabicCodes.contains(i)) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
-                                    child: Text(
-                                      formatArabicText(str),
-                                      style: arabicStyle,
-                                      textAlign: TextAlign.center,
-                                      textDirection: TextDirection.rtl,
+                                          if (arabicCodes.contains(i)) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
+                                              child: Text(
+                                                formatArabicText(str),
+                                                style: arabicStyle,
+                                                textAlign: TextAlign.center,
+                                                textDirection: TextDirection.rtl,
+                                              ),
+                                            );
+                                          } else if (transliCodes.contains(i)) {
+                                            return showTransliteration
+                                                ? Text(
+                                                    str.toUpperCase(),
+                                                    style: transliStyle,
+                                                    textAlign: TextAlign.center,
+                                                  )
+                                                : Container();
+                                          } else if (translaCodes.contains(i)) {
+                                            return showTranslation
+                                                ? Padding(
+                                                    padding: const EdgeInsets.only(
+                                                        bottom: 4.0),
+                                                    child: Text(
+                                                      str,
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                          fontSize: englishFontSize),
+                                                    ),
+                                                  )
+                                                : Container();
+                                          } else {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 8, bottom: 4.0),
+                                              child: Text(
+                                                str,
+                                              ),
+                                            );
+                                          }
+                                        },
+                                      ),
                                     ),
-                                  );
-                                } else if (transliCodes.contains(i)) {
-                                  return showTransliteration
-                                      ? Text(
-                                          str.toUpperCase(),
-                                          style: transliStyle,
-                                          textAlign: TextAlign.center,
-                                        )
-                                      : Container();
-                                } else if (translaCodes.contains(i)) {
-                                  return showTranslation
-                                      ? Padding(
-                                          padding: const EdgeInsets.only(
-                                              bottom: 4.0),
-                                          child: Text(
-                                            str,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                fontSize: englishFontSize),
-                                          ),
-                                        )
-                                      : Container();
-                                } else {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 8, bottom: 4.0),
-                                    child: Text(
-                                      str,
-                                    ),
-                                  );
-                                }
-                              },
+                                  ),
+                                ],
+                              ),
+                      ),
+            // Counter overlay
+            ValueListenableBuilder<bool>(
+              valueListenable: showCounter,
+              builder: (context, visible, _) {
+                if (!visible) return const SizedBox.shrink();
+                return ValueListenableBuilder<Offset>(
+                  valueListenable: counterOffset,
+                  builder: (context, offset, __) => Positioned(
+                    left: offset.dx,
+                    top: offset.dy,
+                    child: Draggable(
+                      feedback: Material(
+                        color: Colors.transparent,
+                        child: ZikrCounter(zikrId: widget.item.uid),
+                      ),
+                      childWhenDragging: const SizedBox.shrink(),
+                      onDragEnd: (details) {
+                        counterOffset.value = details.offset;
+                      },
+                      child: Stack(
+                        children: [
+                          ZikrCounter(zikrId: widget.item.uid),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: IconButton(
+                              icon: const Icon(Icons.close, size: 20),
+                              onPressed: () => showCounter.value = false,
                             ),
                           ),
+                        ],
+                      ),
+                    ),
                   ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
