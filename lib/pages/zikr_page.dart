@@ -150,7 +150,7 @@ class _ZikrPageState extends State<ZikrPage> {
           children: [
             zikrData == null
                 ? const Center(child: CircularProgressIndicator())
-                : zikrData?['data'] == ''
+                : zikrData?['data'] == '' && !isEditing
                     ? const Center(child: Text('Coming soon...'))
                     : Padding(
                         padding: const EdgeInsets.all(16.0),
