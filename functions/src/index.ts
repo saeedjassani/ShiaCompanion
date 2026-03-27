@@ -9,16 +9,22 @@ export const buildZikrIndex = functions.firestore
   .onDocumentWritten("zikr/{docId}", async (event) => {
     try {
       const snapshot = await db.collection("zikr").get();
-      const index: { [key: string]: { title: string; hasData: boolean } } = {};
+      const index: {
+        [key: string]: { title: string; hasData: boolean; order?: number };
+      } = {};
 
       snapshot.docs.forEach((doc) => {
         const data = doc.data();
         if (data.title) {
           const hasData = data.data && data.data.toString().trim();
-          index[doc.id] = {
+          const item: { title: string; hasData: boolean; order?: number } = {
             title: data.title,
-            hasData: !!hasData
+            hasData: !!hasData,
           };
+          if (typeof data.order === "number") {
+            item.order = data.order;
+          }
+          index[doc.id] = item;
         }
       });
 

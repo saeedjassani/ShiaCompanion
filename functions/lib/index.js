@@ -48,10 +48,14 @@ exports.buildZikrIndex = functions.firestore
             const data = doc.data();
             if (data.title) {
                 const hasData = data.data && data.data.toString().trim();
-                index[doc.id] = {
+                const item = {
                     title: data.title,
-                    hasData: !!hasData
+                    hasData: !!hasData,
                 };
+                if (typeof data.order === "number") {
+                    item.order = data.order;
+                }
+                index[doc.id] = item;
             }
         });
         // Write single index doc
