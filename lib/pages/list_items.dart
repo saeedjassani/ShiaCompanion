@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 
@@ -16,6 +17,7 @@ class ItemList extends StatefulWidget {
 
 class _ItemListState extends State<ItemList> {
   List<UidTitleData> workingItems = [];
+  String? _hoveredUid;
   _ItemListState();
 
   void _refreshWorkingItems() {
@@ -104,47 +106,112 @@ class _ItemListState extends State<ItemList> {
     );
   }
 
-  ListTile buildZikrRow(BuildContext context, UidTitleData uidTitleData) {
+  Future<void> _editParentTitle(UidTitleData uidTitleData) async {
+    final controller = TextEditingController(text: uidTitleData.title);
+    final updatedTitle = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Edit Title'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Title'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+
+    if (updatedTitle == null || updatedTitle.isEmpty) return;
+    if (updatedTitle == uidTitleData.title) return;
+
+    await FirebaseFirestore.instance
+        .collection('zikr')
+        .doc(uidTitleData.uid)
+        .set({'title': updatedTitle}, SetOptions(merge: true));
+
+    items[uidTitleData.uid] = updatedTitle;
+
+    if (!mounted) return;
+    setState(_refreshWorkingItems);
+  }
+
+  Widget buildZikrRow(BuildContext context, UidTitleData uidTitleData) {
     UniversalData itemData =
         UniversalData(uidTitleData.uid, uidTitleData.title, 0);
     String title;
+    final isParentZikr = uidTitleData.getUId().contains("~");
     if (kDebugMode || isUserAdmin) {
       title = itemData.uid + " " + itemData.title;
     } else {
       title = itemData.title;
     }
-    return ListTile(
-      onTap: () async {
-        if (uidTitleData.getUId().contains("~")) {
-          await Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ItemList(
-                      uidTitleData.getUId().split("~")[1],
-                      uidTitleData.title)));
-        } else {
-          await handleUniversalDataClick(context, itemData);
+    final canShowParentEdit = isUserAdmin && isParentZikr;
+
+    return MouseRegion(
+      onEnter: (_) {
+        if (canShowParentEdit) {
+          setState(() {
+            _hoveredUid = uidTitleData.uid;
+          });
         }
-        if (!mounted) return;
-        setState(_refreshWorkingItems);
       },
-      onLongPress: () {
-        if (isUserAdmin)
-          handleUniversalDataClick(context, itemData, itemPage: true);
+      onExit: (_) {
+        if (_hoveredUid == uidTitleData.uid) {
+          setState(() {
+            _hoveredUid = null;
+          });
+        }
       },
-      title: Text(title),
-      trailing: uidTitleData.getUId().contains("~")
-          ? null
-          : InkWell(
-              onTap: () {
-                if (favsData!.contains(itemData)) {
-                  favsData!.remove(itemData);
-                } else {
-                  favsData!.add(itemData);
-                }
-                setState(() {});
-              },
-              child: getFavIcon(context, itemData)),
+      child: ListTile(
+        onTap: () async {
+          if (isParentZikr) {
+            await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ItemList(
+                        uidTitleData.getUId().split("~")[1],
+                        uidTitleData.title)));
+          } else {
+            await handleUniversalDataClick(context, itemData);
+          }
+          if (!mounted) return;
+          setState(_refreshWorkingItems);
+        },
+        onLongPress: () {
+          if (isUserAdmin)
+            handleUniversalDataClick(context, itemData, itemPage: true);
+        },
+        title: Text(title),
+        trailing: isParentZikr
+            ? canShowParentEdit && (!kIsWeb || _hoveredUid == uidTitleData.uid)
+                ? IconButton(
+                    icon: const Icon(Icons.edit),
+                    tooltip: 'Edit Title',
+                    onPressed: () => _editParentTitle(uidTitleData),
+                  )
+                : null
+            : InkWell(
+                onTap: () {
+                  if (favsData!.contains(itemData)) {
+                    favsData!.remove(itemData);
+                  } else {
+                    favsData!.add(itemData);
+                  }
+                  setState(() {});
+                },
+                child: getFavIcon(context, itemData)),
+      ),
     );
   }
 }
