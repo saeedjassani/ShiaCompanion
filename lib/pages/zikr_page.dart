@@ -16,7 +16,7 @@ class ZikrPage extends StatefulWidget {
   _ZikrPageState createState() => _ZikrPageState();
 }
 
-class _ZikrPageState extends State<ZikrPage> with TickerProviderStateMixin {
+class _ZikrPageState extends State<ZikrPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference zikrCollection =
       FirebaseFirestore.instance.collection('zikr');
@@ -33,7 +33,8 @@ class _ZikrPageState extends State<ZikrPage> with TickerProviderStateMixin {
   final List<TextEditingController> tabControllers = [];
   final List<ScrollController> _tabScrollControllers = [];
   final RegExp _numericOrderPattern = RegExp(r'^-?\d+(\.\d+)?$');
-  TabController? _tabController;
+  final PageController _pageController = PageController();
+  int _selectedTabIndex = 0;
 
   TextStyle arabicStyle = TextStyle(
       fontFamily: arabicFont, fontSize: arabicFontSize, letterSpacing: 0);
@@ -63,7 +64,7 @@ class _ZikrPageState extends State<ZikrPage> with TickerProviderStateMixin {
     for (final controller in _tabScrollControllers) {
       controller.dispose();
     }
-    _tabController?.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -251,21 +252,23 @@ class _ZikrPageState extends State<ZikrPage> with TickerProviderStateMixin {
 
   void _syncTabState(int count) {
     if (count <= 0) {
-      _tabController?.dispose();
-      _tabController = null;
+      _selectedTabIndex = 0;
       _syncTabScrollControllers(0);
       return;
     }
 
-    if (_tabController == null || _tabController!.length != count) {
-      final previousIndex = _tabController?.index ?? 0;
-      _tabController?.dispose();
-      _tabController = TabController(
-        length: count,
-        vsync: this,
-        initialIndex: previousIndex.clamp(0, count - 1),
-        animationDuration: const Duration(milliseconds: 420),
-      );
+    final clampedIndex = _selectedTabIndex.clamp(0, count - 1);
+    final didClampIndex = clampedIndex != _selectedTabIndex;
+    if (didClampIndex) {
+      _selectedTabIndex = clampedIndex;
+    }
+
+    if (didClampIndex && _pageController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_pageController.hasClients) {
+          _pageController.jumpToPage(_selectedTabIndex);
+        }
+      });
     }
 
     _syncTabScrollControllers(count);
@@ -289,6 +292,21 @@ class _ZikrPageState extends State<ZikrPage> with TickerProviderStateMixin {
       return lines.first;
     }
     return 'Tab ${index + 1}';
+  }
+
+  Future<void> _animateToTab(int index) async {
+    if (!_pageController.hasClients) {
+      setState(() {
+        _selectedTabIndex = index;
+      });
+      return;
+    }
+
+    await _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 360),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Widget _buildTabContent(
@@ -544,95 +562,129 @@ class _ZikrPageState extends State<ZikrPage> with TickerProviderStateMixin {
                                   Expanded(
                                     child: Column(
                                       children: [
-                                        if (showTabHeaders &&
-                                            _tabController != null)
+                                        if (showTabHeaders)
                                           Container(
                                             width: double.infinity,
                                             margin: const EdgeInsets.only(
                                                 bottom: 20),
-                                            child: TabBar(
-                                              controller: _tabController,
-                                              isScrollable: true,
-                                              tabAlignment: TabAlignment.center,
-                                              dividerColor: Colors.transparent,
-                                              indicatorSize:
-                                                  TabBarIndicatorSize.tab,
-                                              splashBorderRadius:
-                                                  BorderRadius.circular(18),
-                                              labelStyle: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              unselectedLabelStyle:
-                                                  const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                              labelColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSecondaryContainer,
-                                              unselectedLabelColor:
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface
-                                                      .withValues(alpha: 0.72),
-                                              indicator: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondaryContainer,
-                                                borderRadius:
-                                                    BorderRadius.circular(18),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withValues(
-                                                            alpha: 0.08),
-                                                    blurRadius: 12,
-                                                    offset: const Offset(0, 4),
-                                                  ),
-                                                ],
-                                              ),
-                                              padding: EdgeInsets.zero,
-                                              labelPadding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                              ),
-                                              tabs: List.generate(
-                                                tabContents.length,
-                                                (index) => Tab(
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 18,
-                                                      vertical: 10,
+                                            child: LayoutBuilder(
+                                              builder: (context, constraints) {
+                                                return SingleChildScrollView(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  child: ConstrainedBox(
+                                                    constraints: BoxConstraints(
+                                                      minWidth:
+                                                          constraints.maxWidth,
                                                     ),
-                                                    child: Text(
-                                                      _getTabHeader(
-                                                        tabContents[index],
-                                                        index,
+                                                    child: Center(
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: List.generate(
+                                                          tabContents.length,
+                                                          (index) {
+                                                            final isSelected =
+                                                                index ==
+                                                                    _selectedTabIndex;
+                                                            return Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .only(
+                                                                right: index ==
+                                                                        tabContents.length -
+                                                                            1
+                                                                    ? 0
+                                                                    : 12,
+                                                              ),
+                                                              child: Material(
+                                                                color: isSelected
+                                                                    ? Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .secondaryContainer
+                                                                    : Theme.of(
+                                                                            context)
+                                                                        .colorScheme
+                                                                        .surfaceContainerHighest
+                                                                        .withValues(
+                                                                            alpha:
+                                                                                0.45),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            18),
+                                                                elevation:
+                                                                    isSelected
+                                                                        ? 2
+                                                                        : 0,
+                                                                child: InkWell(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              18),
+                                                                  onTap: () =>
+                                                                      _animateToTab(
+                                                                          index),
+                                                                  child:
+                                                                      Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .symmetric(
+                                                                      horizontal:
+                                                                          18,
+                                                                      vertical:
+                                                                          10,
+                                                                    ),
+                                                                    child: Text(
+                                                                      _getTabHeader(
+                                                                        tabContents[
+                                                                            index],
+                                                                        index,
+                                                                      ),
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        fontWeight: isSelected
+                                                                            ? FontWeight.w600
+                                                                            : FontWeight.w500,
+                                                                        color: isSelected
+                                                                            ? Theme.of(context).colorScheme.onSecondaryContainer
+                                                                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.78),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              ),
+                                                );
+                                              },
                                             ),
                                           ),
                                         Expanded(
-                                          child: _tabController == null
-                                              ? const SizedBox.shrink()
-                                              : TabBarView(
-                                                  controller: _tabController,
-                                                  children: List.generate(
-                                                    tabContents.length,
-                                                    (index) => _buildTabContent(
-                                                      tabContents[index],
-                                                      _tabScrollControllers[
-                                                          index],
-                                                      hideHeaderLine:
-                                                          showTabHeaders,
-                                                    ),
-                                                  ),
-                                                ),
+                                          child: PageView.builder(
+                                            controller: _pageController,
+                                            itemCount: tabContents.length,
+                                            onPageChanged: (index) {
+                                              setState(() {
+                                                _selectedTabIndex = index;
+                                              });
+                                            },
+                                            itemBuilder: (context, index) =>
+                                                _buildTabContent(
+                                              tabContents[index],
+                                              _tabScrollControllers[index],
+                                              hideHeaderLine: showTabHeaders,
+                                            ),
+                                            pageSnapping: true,
+                                            physics: const PageScrollPhysics(),
+                                          ),
                                         ),
                                       ],
                                     ),
