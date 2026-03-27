@@ -28,6 +28,7 @@ class _ZikrPageState extends State<ZikrPage> {
   TextEditingController? titleController;
   TextEditingController? codeController;
   TextEditingController? dataController;
+  TextEditingController? meritsController;
   TextEditingController? orderController;
   List<String>? content;
   Set<int> arabicCodes = Set(), transliCodes = Set(), translaCodes = Set();
@@ -56,6 +57,7 @@ class _ZikrPageState extends State<ZikrPage> {
     titleController?.dispose();
     codeController?.dispose();
     dataController?.dispose();
+    meritsController?.dispose();
     orderController?.dispose();
     super.dispose();
   }
@@ -84,6 +86,7 @@ class _ZikrPageState extends State<ZikrPage> {
         titleController = TextEditingController(text: zikrData?['title']);
         codeController = TextEditingController(text: zikrData?['code']);
         dataController = TextEditingController(text: zikrData?['data']);
+        meritsController = TextEditingController(text: zikrData?['merits']);
         final double? currentOrder = itemOrder[widget.item.uid];
         orderController = TextEditingController(
             text: currentOrder == null
@@ -117,6 +120,9 @@ class _ZikrPageState extends State<ZikrPage> {
         'title': titleController?.text,
         'code': codeController?.text,
         'data': dataController?.text,
+        'merits': (meritsController?.text.trim().isEmpty ?? true)
+            ? FieldValue.delete()
+            : meritsController?.text,
         'order': parsedOrder ?? FieldValue.delete(),
       });
       if (parsedOrder == null) {
@@ -129,8 +135,71 @@ class _ZikrPageState extends State<ZikrPage> {
         zikrData?['title'] = titleController?.text;
         zikrData?['code'] = codeController?.text;
         zikrData?['data'] = dataController?.text;
+        zikrData?['merits'] = meritsController?.text;
       });
     }
+  }
+
+  void _showMeritsSheet() {
+    final merits = meritsController?.text.trim() ?? '';
+    if (merits.isEmpty) return;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.55,
+        minChildSize: 0.35,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 44,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).dividerColor,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.auto_awesome,
+                        color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Merits',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                  children: [
+                    SelectableText(
+                      merits,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _deleteZikr() async {
@@ -170,6 +239,8 @@ class _ZikrPageState extends State<ZikrPage> {
   Widget build(BuildContext context) {
     if (zikrData != null && zikrData?['data'] != null)
       content = populateArabicContent(zikrData?['data']);
+    final merits = meritsController?.text.trim() ?? '';
+    final hasMerits = merits.isNotEmpty;
 
     // Counter overlay state
     ValueNotifier<Offset> counterOffset = ValueNotifier(const Offset(20, 80));
@@ -262,11 +333,44 @@ class _ZikrPageState extends State<ZikrPage> {
                                           labelText: 'Data'),
                                       maxLines: null,
                                     ),
+                                    TextField(
+                                      controller: meritsController,
+                                      decoration: const InputDecoration(
+                                          labelText: 'Merits'),
+                                      maxLines: null,
+                                    ),
                                   ],
                                 ),
                               )
                             : Column(
                                 children: [
+                                  if (hasMerits)
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 12),
+                                        child: TextButton.icon(
+                                          onPressed: _showMeritsSheet,
+                                          icon: const Icon(Icons.open_in_new),
+                                          label: const Text(
+                                            'Merits',
+                                            style: TextStyle(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                            ),
+                                          ),
+                                          style: TextButton.styleFrom(
+                                            padding: EdgeInsets.zero,
+                                            tapTargetSize: MaterialTapTargetSize
+                                                .shrinkWrap,
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            alignment: Alignment.centerLeft,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   Expanded(
                                     child: Scrollbar(
                                       controller: _controller,
