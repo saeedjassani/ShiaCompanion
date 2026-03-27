@@ -168,8 +168,8 @@ double getItemOrderValue(String uid) {
   return double.tryParse(digits) ?? 999999.0;
 }
 
-void handleUniversalDataClick(BuildContext context, UniversalData itemData,
-    {bool itemPage = false}) {
+Future<void> handleUniversalDataClick(BuildContext context, UniversalData itemData,
+    {bool itemPage = false}) async {
   Widget? routeToPush;
   String contentType = 'universal';
   switch (itemData.type) {
@@ -192,7 +192,7 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData,
   FirebaseAnalytics.instance
       .logSelectContent(contentType: contentType, itemId: itemData.title);
   if (routeToPush != null) {
-    pushPageRoute(context, routeToPush);
+    await pushPageRoute(context, routeToPush);
   }
 }
 
@@ -378,8 +378,8 @@ Future<void> trackScreen(String screenName) async {
 }
 
 // Platform-aware route push that supports back navigation
-void pushPageRoute(BuildContext context, Widget page) {
-  Navigator.push(
+Future<T?> pushPageRoute<T>(BuildContext context, Widget page) {
+  return Navigator.push<T>(
     context,
     kIsWeb
         ? MaterialPageRoute(builder: (context) => page)
