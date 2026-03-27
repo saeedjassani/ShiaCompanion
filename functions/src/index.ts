@@ -16,10 +16,12 @@ export const buildZikrIndex = functions.firestore
       snapshot.docs.forEach((doc) => {
         const data = doc.data();
         if (data.title) {
-          const hasData = data.data && data.data.toString().trim();
+          const hasPrimaryData = data.data && data.data.toString().trim();
+          const hasTabData = Array.isArray(data.tabs) &&
+            data.tabs.some((tab) => tab && tab.toString().trim());
           const item: { title: string; hasData: boolean; order?: number } = {
             title: data.title,
-            hasData: !!hasData,
+            hasData: !!hasPrimaryData || !!hasTabData,
           };
           if (typeof data.order === "number") {
             item.order = data.order;

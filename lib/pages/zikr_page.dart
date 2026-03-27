@@ -30,8 +30,8 @@ class _ZikrPageState extends State<ZikrPage> {
   TextEditingController? dataController;
   TextEditingController? meritsController;
   TextEditingController? orderController;
-  List<String>? content;
-  Set<int> arabicCodes = Set(), transliCodes = Set(), translaCodes = Set();
+  final List<TextEditingController> tabControllers = [];
+  final List<ScrollController> _tabScrollControllers = [];
   final RegExp _numericOrderPattern = RegExp(r'^-?\d+(\.\d+)?$');
 
   TextStyle arabicStyle = TextStyle(
@@ -49,16 +49,19 @@ class _ZikrPageState extends State<ZikrPage> {
     _fetchZikrData();
   }
 
-  final ScrollController _controller = ScrollController();
-
   @override
   void dispose() {
-    _controller.dispose();
     titleController?.dispose();
     codeController?.dispose();
     dataController?.dispose();
     meritsController?.dispose();
     orderController?.dispose();
+    for (final controller in tabControllers) {
+      controller.dispose();
+    }
+    for (final controller in _tabScrollControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -87,6 +90,17 @@ class _ZikrPageState extends State<ZikrPage> {
         codeController = TextEditingController(text: zikrData?['code']);
         dataController = TextEditingController(text: zikrData?['data']);
         meritsController = TextEditingController(text: zikrData?['merits']);
+        final rawTabs = zikrData?['tabs'];
+        if (rawTabs is List) {
+          for (final controller in tabControllers) {
+            controller.dispose();
+          }
+          tabControllers.clear();
+          for (final tab in rawTabs) {
+            tabControllers
+                .add(TextEditingController(text: tab?.toString() ?? ''));
+          }
+        }
         final double? currentOrder = itemOrder[widget.item.uid];
         orderController = TextEditingController(
             text: currentOrder == null
@@ -94,6 +108,7 @@ class _ZikrPageState extends State<ZikrPage> {
                 : (currentOrder % 1 == 0
                     ? currentOrder.toInt().toString()
                     : currentOrder.toString()));
+        _syncTabScrollControllers(_buildVisibleTabContents().length);
       });
     }
   }
@@ -107,6 +122,10 @@ class _ZikrPageState extends State<ZikrPage> {
   Future<void> _saveEdits() async {
     if (zikrData != null) {
       final rawOrder = orderController?.text.trim() ?? '';
+      final savedTabs = tabControllers
+          .map((controller) => controller.text)
+          .where((content) => content.trim().isNotEmpty)
+          .toList();
       if (rawOrder.isNotEmpty && !_numericOrderPattern.hasMatch(rawOrder)) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
@@ -123,6 +142,7 @@ class _ZikrPageState extends State<ZikrPage> {
         'merits': (meritsController?.text.trim().isEmpty ?? true)
             ? FieldValue.delete()
             : meritsController?.text,
+        'tabs': savedTabs.isEmpty ? FieldValue.delete() : savedTabs,
         'order': parsedOrder ?? FieldValue.delete(),
       });
       if (parsedOrder == null) {
@@ -136,8 +156,16 @@ class _ZikrPageState extends State<ZikrPage> {
         zikrData?['code'] = codeController?.text;
         zikrData?['data'] = dataController?.text;
         zikrData?['merits'] = meritsController?.text;
+        zikrData?['tabs'] = savedTabs;
+        _syncTabScrollControllers(_buildVisibleTabContents().length);
       });
     }
+  }
+
+  void _addTabField() {
+    setState(() {
+      tabControllers.add(TextEditingController());
+    });
   }
 
   void _showMeritsSheet() {
@@ -202,6 +230,97 @@ class _ZikrPageState extends State<ZikrPage> {
     );
   }
 
+  List<String> _buildVisibleTabContents() {
+    final primary = dataController?.text ?? zikrData?['data']?.toString() ?? '';
+    final extraTabs = <String>[];
+    final rawTabs = zikrData?['tabs'];
+
+    if (tabControllers.isNotEmpty) {
+      extraTabs.addAll(tabControllers.map((controller) => controller.text));
+    } else if (rawTabs is List) {
+      extraTabs.addAll(rawTabs.map((tab) => tab?.toString() ?? ''));
+    }
+
+    final visibleTabs = <String>[];
+    if (primary.trim().isNotEmpty ||
+        extraTabs.every((tab) => tab.trim().isEmpty)) {
+      visibleTabs.add(primary);
+    }
+    visibleTabs.addAll(extraTabs.where((tab) => tab.trim().isNotEmpty));
+    return visibleTabs;
+  }
+
+  void _syncTabScrollControllers(int count) {
+    while (_tabScrollControllers.length < count) {
+      _tabScrollControllers.add(ScrollController());
+    }
+    while (_tabScrollControllers.length > count) {
+      _tabScrollControllers.removeLast().dispose();
+    }
+  }
+
+  String _getTabHeader(String content, int index) {
+    final lines = content
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty);
+    if (lines.isNotEmpty) {
+      return lines.first;
+    }
+    return 'Tab ${index + 1}';
+  }
+
+  Widget _buildTabContent(String rawContent, ScrollController controller) {
+    final parsedContent = _parseContent(rawContent);
+
+    return Scrollbar(
+      controller: controller,
+      child: ListView.builder(
+        controller: controller,
+        itemCount: parsedContent.lines.length,
+        itemBuilder: (BuildContext context, int index) {
+          final str = parsedContent.lines[index].trim();
+
+          if (parsedContent.arabicCodes.contains(index)) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
+              child: Text(
+                formatArabicText(str),
+                style: arabicStyle,
+                textAlign: TextAlign.center,
+                textDirection: TextDirection.rtl,
+              ),
+            );
+          } else if (parsedContent.transliCodes.contains(index)) {
+            return showTransliteration
+                ? Text(
+                    str.toUpperCase(),
+                    style: transliStyle,
+                    textAlign: TextAlign.center,
+                  )
+                : Container();
+          } else if (parsedContent.translaCodes.contains(index)) {
+            return showTranslation
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: Text(
+                      str,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: englishFontSize),
+                    ),
+                  )
+                : Container();
+          } else {
+            return Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 4.0),
+              child: Text(str),
+            );
+          }
+        },
+      ),
+    );
+  }
+
   Future<void> _deleteZikr() async {
     final shouldDelete = await showDialog<bool>(
           context: context,
@@ -237,10 +356,12 @@ class _ZikrPageState extends State<ZikrPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (zikrData != null && zikrData?['data'] != null)
-      content = populateArabicContent(zikrData?['data']);
     final merits = meritsController?.text.trim() ?? '';
     final hasMerits = merits.isNotEmpty;
+    final tabContents = _buildVisibleTabContents();
+    _syncTabScrollControllers(tabContents.length);
+    final hasAnyContent =
+        tabContents.any((content) => content.trim().isNotEmpty);
 
     // Counter overlay state
     ValueNotifier<Offset> counterOffset = ValueNotifier(const Offset(20, 80));
@@ -292,7 +413,7 @@ class _ZikrPageState extends State<ZikrPage> {
           children: [
             zikrData == null
                 ? const Center(child: CircularProgressIndicator())
-                : zikrData?['data'] == '' && !isEditing
+                : !hasAnyContent && !isEditing
                     ? const Center(child: Text('Coming soon...'))
                     : Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -339,6 +460,27 @@ class _ZikrPageState extends State<ZikrPage> {
                                           labelText: 'Merits'),
                                       maxLines: null,
                                     ),
+                                    const SizedBox(height: 12),
+                                    OutlinedButton.icon(
+                                      onPressed: _addTabField,
+                                      icon: const Icon(Icons.add),
+                                      label: const Text('Add Tab'),
+                                    ),
+                                    for (int i = 0;
+                                        i < tabControllers.length;
+                                        i++)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 16),
+                                        child: TextField(
+                                          controller: tabControllers[i],
+                                          decoration: InputDecoration(
+                                            labelText: 'Tab ${i + 1}',
+                                            helperText:
+                                                'First line becomes the tab title',
+                                          ),
+                                          maxLines: null,
+                                        ),
+                                      ),
                                   ],
                                 ),
                               )
@@ -372,60 +514,61 @@ class _ZikrPageState extends State<ZikrPage> {
                                       ),
                                     ),
                                   Expanded(
-                                    child: Scrollbar(
-                                      controller: _controller,
-                                      child: ListView.builder(
-                                        controller: _controller,
-                                        itemCount: content?.length ?? 0,
-                                        itemBuilder: (BuildContext c, int i) {
-                                          String str = content![i].trim();
-
-                                          if (arabicCodes.contains(i)) {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 12.0, bottom: 4.0),
-                                              child: Text(
-                                                formatArabicText(str),
-                                                style: arabicStyle,
-                                                textAlign: TextAlign.center,
-                                                textDirection:
-                                                    TextDirection.rtl,
+                                    child: DefaultTabController(
+                                      length: tabContents.length,
+                                      child: Column(
+                                        children: [
+                                          if (tabContents.length > 1)
+                                            Container(
+                                              width: double.infinity,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 16),
+                                              child: TabBar(
+                                                isScrollable: true,
+                                                dividerColor:
+                                                    Colors.transparent,
+                                                splashBorderRadius:
+                                                    BorderRadius.circular(999),
+                                                labelColor: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimaryContainer,
+                                                unselectedLabelColor:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                indicator: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primaryContainer,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          999),
+                                                ),
+                                                labelPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 6),
+                                                tabs: List.generate(
+                                                  tabContents.length,
+                                                  (index) => Tab(
+                                                    text: _getTabHeader(
+                                                        tabContents[index],
+                                                        index),
+                                                  ),
+                                                ),
                                               ),
-                                            );
-                                          } else if (transliCodes.contains(i)) {
-                                            return showTransliteration
-                                                ? Text(
-                                                    str.toUpperCase(),
-                                                    style: transliStyle,
-                                                    textAlign: TextAlign.center,
-                                                  )
-                                                : Container();
-                                          } else if (translaCodes.contains(i)) {
-                                            return showTranslation
-                                                ? Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            bottom: 4.0),
-                                                    child: Text(
-                                                      str,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              englishFontSize),
-                                                    ),
-                                                  )
-                                                : Container();
-                                          } else {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 8, bottom: 4.0),
-                                              child: Text(
-                                                str,
+                                            ),
+                                          Expanded(
+                                            child: TabBarView(
+                                              children: List.generate(
+                                                tabContents.length,
+                                                (index) => _buildTabContent(
+                                                  tabContents[index],
+                                                  _tabScrollControllers[index],
+                                                ),
                                               ),
-                                            );
-                                          }
-                                        },
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -475,8 +618,9 @@ class _ZikrPageState extends State<ZikrPage> {
     );
   }
 
-  List<String> populateArabicContent(String content) {
-    List<String> split = content.split("\n");
+  _ParsedZikrContent _parseContent(String content) {
+    final split = content.split('\n');
+    final arabicCodes = <int>{};
 
     for (int i = 0, n = split.length; i < n; i++) {
       split[i] = split[i].trim();
@@ -486,9 +630,12 @@ class _ZikrPageState extends State<ZikrPage> {
       }
     }
 
-    generateEnglishCodes();
-
-    return split;
+    return _ParsedZikrContent(
+      lines: split,
+      arabicCodes: arabicCodes,
+      transliCodes: _generateEnglishCodes(arabicCodes, true),
+      translaCodes: _generateEnglishCodes(arabicCodes, false),
+    );
   }
 
   bool isArabic(String s) {
@@ -502,27 +649,23 @@ class _ZikrPageState extends State<ZikrPage> {
     return false;
   }
 
-  void generateEnglishCodes() {
+  Set<int> _generateEnglishCodes(Set<int> arabicCodes, bool transliteration) {
+    final englishCodes = <int>{};
     String code = zikrData?['code'];
     if (code == "102") {
-      arabicCodes.forEach((int i) {
-        transliCodes.add(i - 1);
-      });
-      arabicCodes.forEach((int i) {
-        translaCodes.add(i + 1);
-      });
+      for (final i in arabicCodes) {
+        englishCodes.add(transliteration ? i - 1 : i + 1);
+      }
     } else if (code == "012") {
-      arabicCodes.forEach((int i) {
-        transliCodes.add(i + 1);
-      });
-      arabicCodes.forEach((int i) {
-        translaCodes.add(i + 2);
-      });
-    } else if (code == "02") {
-      arabicCodes.forEach((int i) {
-        translaCodes.add(i + 1);
-      });
+      for (final i in arabicCodes) {
+        englishCodes.add(transliteration ? i + 1 : i + 2);
+      }
+    } else if (code == "02" && !transliteration) {
+      for (final i in arabicCodes) {
+        englishCodes.add(i + 1);
+      }
     }
+    return englishCodes;
   }
 
   String formatArabicText(String str) {
@@ -545,4 +688,18 @@ class _ZikrPageState extends State<ZikrPage> {
         TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
     setState(() {});
   }
+}
+
+class _ParsedZikrContent {
+  final List<String> lines;
+  final Set<int> arabicCodes;
+  final Set<int> transliCodes;
+  final Set<int> translaCodes;
+
+  const _ParsedZikrContent({
+    required this.lines,
+    required this.arabicCodes,
+    required this.transliCodes,
+    required this.translaCodes,
+  });
 }
