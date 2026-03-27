@@ -16,7 +16,7 @@ class ZikrPage extends StatefulWidget {
   _ZikrPageState createState() => _ZikrPageState();
 }
 
-class _ZikrPageState extends State<ZikrPage> {
+class _ZikrPageState extends State<ZikrPage> with TickerProviderStateMixin {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference zikrCollection =
       FirebaseFirestore.instance.collection('zikr');
@@ -33,6 +33,7 @@ class _ZikrPageState extends State<ZikrPage> {
   final List<TextEditingController> tabControllers = [];
   final List<ScrollController> _tabScrollControllers = [];
   final RegExp _numericOrderPattern = RegExp(r'^-?\d+(\.\d+)?$');
+  TabController? _tabController;
 
   TextStyle arabicStyle = TextStyle(
       fontFamily: arabicFont, fontSize: arabicFontSize, letterSpacing: 0);
@@ -62,6 +63,7 @@ class _ZikrPageState extends State<ZikrPage> {
     for (final controller in _tabScrollControllers) {
       controller.dispose();
     }
+    _tabController?.dispose();
     super.dispose();
   }
 
@@ -108,7 +110,7 @@ class _ZikrPageState extends State<ZikrPage> {
                 : (currentOrder % 1 == 0
                     ? currentOrder.toInt().toString()
                     : currentOrder.toString()));
-        _syncTabScrollControllers(_buildVisibleTabContents().length);
+        _syncTabState(_buildVisibleTabContents().length);
       });
     }
   }
@@ -157,7 +159,7 @@ class _ZikrPageState extends State<ZikrPage> {
         zikrData?['data'] = dataController?.text;
         zikrData?['merits'] = meritsController?.text;
         zikrData?['tabs'] = savedTabs;
-        _syncTabScrollControllers(_buildVisibleTabContents().length);
+        _syncTabState(_buildVisibleTabContents().length);
       });
     }
   }
@@ -247,6 +249,27 @@ class _ZikrPageState extends State<ZikrPage> {
     return visibleTabs;
   }
 
+  void _syncTabState(int count) {
+    if (count <= 0) {
+      _tabController?.dispose();
+      _tabController = null;
+      _syncTabScrollControllers(0);
+      return;
+    }
+
+    if (_tabController == null || _tabController!.length != count) {
+      final previousIndex = _tabController?.index ?? 0;
+      _tabController?.dispose();
+      _tabController = TabController(
+        length: count,
+        vsync: this,
+        initialIndex: previousIndex.clamp(0, count - 1),
+      );
+    }
+
+    _syncTabScrollControllers(count);
+  }
+
   void _syncTabScrollControllers(int count) {
     while (_tabScrollControllers.length < count) {
       _tabScrollControllers.add(ScrollController());
@@ -267,8 +290,15 @@ class _ZikrPageState extends State<ZikrPage> {
     return 'Tab ${index + 1}';
   }
 
-  Widget _buildTabContent(String rawContent, ScrollController controller) {
-    final parsedContent = _parseContent(rawContent);
+  Widget _buildTabContent(
+    String rawContent,
+    ScrollController controller, {
+    required bool hideHeaderLine,
+  }) {
+    final parsedContent = _parseContent(
+      rawContent,
+      hideHeaderLine: hideHeaderLine,
+    );
 
     return Scrollbar(
       controller: controller,
@@ -356,9 +386,10 @@ class _ZikrPageState extends State<ZikrPage> {
     final merits = meritsController?.text.trim() ?? '';
     final hasMerits = merits.isNotEmpty;
     final tabContents = _buildVisibleTabContents();
-    _syncTabScrollControllers(tabContents.length);
+    _syncTabState(tabContents.length);
     final hasAnyContent =
         tabContents.any((content) => content.trim().isNotEmpty);
+    final showTabHeaders = tabContents.length > 1;
 
     // Counter overlay state
     ValueNotifier<Offset> counterOffset = ValueNotifier(const Offset(20, 80));
@@ -510,62 +541,110 @@ class _ZikrPageState extends State<ZikrPage> {
                                       ),
                                     ),
                                   Expanded(
-                                    child: DefaultTabController(
-                                      length: tabContents.length,
-                                      child: Column(
-                                        children: [
-                                          if (tabContents.length > 1)
-                                            Container(
-                                              width: double.infinity,
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 16),
-                                              child: TabBar(
-                                                isScrollable: true,
-                                                dividerColor:
-                                                    Colors.transparent,
-                                                splashBorderRadius:
-                                                    BorderRadius.circular(999),
-                                                labelColor: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimaryContainer,
-                                                unselectedLabelColor:
-                                                    Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
-                                                indicator: BoxDecoration(
-                                                  color: Theme.of(context)
+                                    child: Column(
+                                      children: [
+                                        if (showTabHeaders &&
+                                            _tabController != null)
+                                          Container(
+                                            width: double.infinity,
+                                            margin: const EdgeInsets.only(
+                                                bottom: 18),
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest
+                                                  .withValues(alpha: 0.32),
+                                              borderRadius:
+                                                  BorderRadius.circular(24),
+                                            ),
+                                            child: TabBar(
+                                              controller: _tabController,
+                                              isScrollable: true,
+                                              tabAlignment: TabAlignment.start,
+                                              dividerColor: Colors.transparent,
+                                              indicatorSize:
+                                                  TabBarIndicatorSize.tab,
+                                              splashBorderRadius:
+                                                  BorderRadius.circular(18),
+                                              labelStyle: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              unselectedLabelStyle:
+                                                  const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              labelColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSecondaryContainer,
+                                              unselectedLabelColor:
+                                                  Theme.of(context)
                                                       .colorScheme
-                                                      .primaryContainer,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          999),
-                                                ),
-                                                labelPadding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 6),
-                                                tabs: List.generate(
-                                                  tabContents.length,
-                                                  (index) => Tab(
-                                                    text: _getTabHeader(
+                                                      .onSurface
+                                                      .withValues(alpha: 0.72),
+                                              indicator: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondaryContainer,
+                                                borderRadius:
+                                                    BorderRadius.circular(18),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                            alpha: 0.08),
+                                                    blurRadius: 12,
+                                                    offset: const Offset(0, 4),
+                                                  ),
+                                                ],
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                              labelPadding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 4,
+                                              ),
+                                              tabs: List.generate(
+                                                tabContents.length,
+                                                (index) => Tab(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      horizontal: 14,
+                                                      vertical: 10,
+                                                    ),
+                                                    child: Text(
+                                                      _getTabHeader(
                                                         tabContents[index],
-                                                        index),
+                                                        index,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          Expanded(
-                                            child: TabBarView(
-                                              children: List.generate(
-                                                tabContents.length,
-                                                (index) => _buildTabContent(
-                                                  tabContents[index],
-                                                  _tabScrollControllers[index],
-                                                ),
-                                              ),
-                                            ),
                                           ),
-                                        ],
-                                      ),
+                                        Expanded(
+                                          child: _tabController == null
+                                              ? const SizedBox.shrink()
+                                              : TabBarView(
+                                                  controller: _tabController,
+                                                  physics:
+                                                      const BouncingScrollPhysics(),
+                                                  children: List.generate(
+                                                    tabContents.length,
+                                                    (index) => _buildTabContent(
+                                                      tabContents[index],
+                                                      _tabScrollControllers[
+                                                          index],
+                                                      hideHeaderLine:
+                                                          showTabHeaders,
+                                                    ),
+                                                  ),
+                                                ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -614,8 +693,14 @@ class _ZikrPageState extends State<ZikrPage> {
     );
   }
 
-  _ParsedZikrContent _parseContent(String content) {
+  _ParsedZikrContent _parseContent(
+    String content, {
+    required bool hideHeaderLine,
+  }) {
     final split = content.split('\n');
+    if (hideHeaderLine && split.isNotEmpty) {
+      split.removeAt(0);
+    }
     final arabicCodes = <int>{};
 
     for (int i = 0, n = split.length; i < n; i++) {
