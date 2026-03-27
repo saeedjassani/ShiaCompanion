@@ -58,15 +58,12 @@ class _MyHomePageState extends State<MyHomePage>
   String? initialFavs;
   DatabaseReference? newFavsReference;
 
-
   bool scrollToPrayerTimes = false;
 
   callback() {
     // Navigate to calendar and scroll to prayer times when invoked from the home card
     scrollToPrayerTimes = true;
-    pushPageRoute(
-        context,
-        CalendarPage(scrollToPrayerTimes));
+    pushPageRoute(context, CalendarPage(scrollToPrayerTimes));
   }
 
   loginCallback() async {
@@ -141,12 +138,14 @@ class _MyHomePageState extends State<MyHomePage>
                   }
 
                   try {
-                    final docRef =
-                        FirebaseFirestore.instance.collection('zikr').doc(finalUid);
+                    final docRef = FirebaseFirestore.instance
+                        .collection('zikr')
+                        .doc(finalUid);
                     final docSnap = await docRef.get();
                     if (docSnap.exists) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('Error: Item $finalUid already exists')));
+                          content:
+                              Text('Error: Item $finalUid already exists')));
                       return;
                     }
                     await docRef.set({
@@ -159,16 +158,15 @@ class _MyHomePageState extends State<MyHomePage>
                     if (_linkTargetUid == null || _linkTargetUid!.isEmpty) {
                       pushPageRoute(
                           context,
-                          ZikrPage(
-                              UidTitleData(finalUid, _title),
+                          ZikrPage(UidTitleData(finalUid, _title),
                               startEditing: true));
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Item linked successfully')));
                     }
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e')));
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text('Error: $e')));
                   }
                 }
               },
@@ -194,15 +192,6 @@ class _MyHomePageState extends State<MyHomePage>
                 icon: Icon(Icons.add),
                 onPressed: _showAddItemDialog,
               ),
-              IconButton(
-                icon: Icon(Icons.refresh),
-                onPressed: () async {
-                  await _loadItemsFromFirebase();
-                  setState(() {});
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Index refreshed from Firebase')));
-                },
-              ),
             ],
             IconButton(
                 icon: Icon(Icons.search),
@@ -215,7 +204,6 @@ class _MyHomePageState extends State<MyHomePage>
                 })
           ],
         ),
-
         body: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -226,15 +214,12 @@ class _MyHomePageState extends State<MyHomePage>
                       vertical: 32.0, horizontal: 16.0),
                   child: InkWell(
                     onTap: () {
-                      SharePlus.instance.share(
-                          ShareParams(
-                            text: '$hadith\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
-                            sharePositionOrigin: Rect.fromLTWH(
-                                MediaQuery.of(context).size.width / 2,
-                                0,
-                                2,
-                                2),
-                          ));
+                      SharePlus.instance.share(ShareParams(
+                        text:
+                            '$hadith\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                        sharePositionOrigin: Rect.fromLTWH(
+                            MediaQuery.of(context).size.width / 2, 0, 2, 2),
+                      ));
                     },
                     child: SingleChildScrollView(
                       child: Text(
@@ -250,7 +235,9 @@ class _MyHomePageState extends State<MyHomePage>
                 child: Theme(
                   data: Theme.of(context).copyWith(
                     textButtonTheme: TextButtonThemeData(
-                      style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+                      style: TextButton.styleFrom(
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
                   child: HomePrayerTimesCard(callback),
@@ -291,21 +278,26 @@ class _MyHomePageState extends State<MyHomePage>
                           child: InkWell(
                             onTap: () {
                               // Preferences is handled specially because it requires a callback
-                              Widget page = getPage(zikr[i], loginCallback: loginCallback, scrollToPrayerTimes: false);
-                                if (page is Container) {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                      content: Text("Coming soon")));
-                                } else {
-                                  pushPageRoute(context, page);
-                                }
+                              Widget page = getPage(zikr[i],
+                                  loginCallback: loginCallback,
+                                  scrollToPrayerTimes: false);
+                              if (page is Container) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Coming soon")));
+                              } else {
+                                pushPageRoute(context, page);
+                              }
                             },
-                            child: LayoutBuilder(builder: (context, tileConstraints) {
+                            child: LayoutBuilder(
+                                builder: (context, tileConstraints) {
                               final double tileWidth = tileConstraints.maxWidth;
-                              final double avatarRadius = (tileWidth * 0.18).clamp(18.0, 40.0);
+                              final double avatarRadius =
+                                  (tileWidth * 0.18).clamp(18.0, 40.0);
                               final double iconSize = avatarRadius * 0.9;
                               final double fontSize = tileWidth > 140 ? 14 : 12;
-                              final double verticalPadding = tileWidth > 140 ? 12 : 8;
-        
+                              final double verticalPadding =
+                                  tileWidth > 140 ? 12 : 8;
+
                               return Padding(
                                 padding: EdgeInsets.symmetric(
                                     vertical: verticalPadding, horizontal: 8.0),
@@ -347,8 +339,6 @@ class _MyHomePageState extends State<MyHomePage>
         ));
   }
 
-
-
   Future<void> _loadItemsFromAssets() async {
     try {
       String data =
@@ -361,51 +351,42 @@ class _MyHomePageState extends State<MyHomePage>
 
   Future<void> _loadItemsFromFirebase() async {
     try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('zikr').get();
+      final doc = await FirebaseFirestore.instance.doc('zikr_meta/index').get();
+      if (doc.exists && doc['items'] != null) {
+        final rawItems = doc['items'];
+        items = {};
 
-      if (snapshot.docs.isNotEmpty) {
-        final Map<String, Map<String, dynamic>> allDocs = {
-          for (var doc in snapshot.docs) doc.id: doc.data()
-        };
+        // Filter items based on admin status
+        rawItems.forEach((key, value) {
+          final title = value is Map ? value['title'] : value;
+          final hasData = value is Map ? value['hasData'] ?? false : false;
 
-        final Map<String, String> fetchedItems = {};
-        allDocs.forEach((key, value) {
-          final hasData = value['data'] != null && value['data'].toString().isNotEmpty;
-          final isCategory = key.contains('~');
-          final isAlias = key.contains('|');
-
-          if (!(hasData || isCategory || isAlias)) {
-            return; // Skip items that do not meet the base criteria.
+          // Show all items to admins, only items with data to users
+          if (isUserAdmin || hasData) {
+            items[key] = title;
           }
-
-          // This is the alias-specific exclusion from the Python script.
-          if (isAlias) {
-            final originalKey = key.split('|')[1];
-            final originalDoc = allDocs[originalKey];
-            if (originalDoc != null &&
-                (originalDoc['data'] == null || originalDoc['data'].toString().isEmpty)) {
-              return;
-            }
-          }
-
-          if (value['title'] == null) {
-            return; 
-          }
-
-          fetchedItems[key] = value['title'];
         });
-        items = fetchedItems;
       }
     } catch (e) {
-      debugPrint("Error fetching items from Firestore: $e");
+      debugPrint("Error loading zikr index: $e");
     }
   }
 
   void initializeData() async {
-    // Initialize Item Data
-    // Default to loading from assets to save quota. Admins can refresh manually.
-    await _loadItemsFromAssets();
+    user = _auth.currentUser;
+    if (user != null) {
+      final idTokenResult = await user?.getIdTokenResult(true);
+      final claims = idTokenResult?.claims;
+      if (claims != null && claims['admin'] == true) {
+        isUserAdmin = true;
+      }
+    }
+    // Load index from Firebase (free tier friendly - single read per app launch)
+    await _loadItemsFromFirebase();
+    // Fall back to assets if Firebase fails
+    if (items.isEmpty) {
+      await _loadItemsFromAssets();
+    }
     getHadith();
 
     await setUpFavorites();
@@ -512,10 +493,11 @@ class _MyHomePageState extends State<MyHomePage>
   buildBody(BuildContext c, int i) {
     return InkWell(
       onTap: () {
-        Widget page = getPage(zikr[i], loginCallback: loginCallback, scrollToPrayerTimes: false);
+        Widget page = getPage(zikr[i],
+            loginCallback: loginCallback, scrollToPrayerTimes: false);
         if (page is Container) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text("Coming soon")));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text("Coming soon")));
         } else {
           pushPageRoute(context, page);
         }
@@ -619,13 +601,7 @@ class _MyHomePageState extends State<MyHomePage>
       });
     }
 
-    user = _auth.currentUser;
     if (user != null) {
-      final idTokenResult = await user?.getIdTokenResult(true);
-      final claims = idTokenResult?.claims;
-      if (claims != null && claims['admin'] == true) {
-        isUserAdmin = true;
-      }
 
       widget.analytics.setUserId(id: user!.uid);
       newFavsReference =
