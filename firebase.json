@@ -1,4 +1,12 @@
 {
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs24",
+      "ignore": ["node_modules", ".git"]
+    }
+  ],
   "hosting": {
     "target": "shia-companion",
     "public": "build/web",
