@@ -147,6 +147,12 @@ class _ZikrPageState extends State<ZikrPage> {
         appBar: AppBar(
           title: Text(widget.item.title),
           actions: [
+            if (isAdmin && zikrData != null && isEditing)
+              IconButton(
+                icon: const Icon(Icons.done),
+                tooltip: 'Save Changes',
+                onPressed: _saveEdits,
+              ),
             isAdmin && zikrData != null
                 ? IconButton(
                     icon: Icon(isEditing ? Icons.close : Icons.edit),
@@ -216,12 +222,6 @@ class _ZikrPageState extends State<ZikrPage> {
                                       decoration: const InputDecoration(
                                           labelText: 'Data'),
                                       maxLines: null,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    TextButton.icon(
-                                      label: const Text('Save Changes'),
-                                      icon: const Icon(Icons.save),
-                                      onPressed: _saveEdits,
                                     ),
                                   ],
                                 ),
