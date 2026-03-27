@@ -156,7 +156,17 @@ PrayerTime getPrayerTimeObject() {
 }
 
 Map items = {};
+Map<String, double> itemOrder = {};
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
+double getItemOrderValue(String uid) {
+  final custom = itemOrder[uid];
+  if (custom != null) return custom;
+  final left = uid.split("|").first;
+  final digits =
+      left.replaceAll(RegExp("[A-Z].*~"), "").replaceAll(RegExp("[A-Z]"), "");
+  return double.tryParse(digits) ?? 999999.0;
+}
 
 void handleUniversalDataClick(BuildContext context, UniversalData itemData,
     {bool itemPage = false}) {
@@ -186,7 +196,8 @@ void handleUniversalDataClick(BuildContext context, UniversalData itemData,
   }
 }
 
-Future<bool> initializeLocation({bool force = false, BuildContext? context}) async {
+Future<bool> initializeLocation(
+    {bool force = false, BuildContext? context}) async {
   // If we are not forcing a refresh and we already have lat/long, just return.
   if (!force && lat != null && long != null) {
     return true;
@@ -281,9 +292,10 @@ void setUpNotifications() async {
   await flutterLocalNotificationsPlugin?.zonedSchedule(
       id: 786,
       title: "Open the app to continue getting Azan notifications",
-     body: "It seems you've not used the application in last 12 days. Please open the app to continue receive Azan notifications",
-      scheduledDate:  tz.TZDateTime.now(tz.local).add(Duration(days: 11)),
-      notificationDetails:  platformChannelSpecifics,
+      body:
+          "It seems you've not used the application in last 12 days. Please open the app to continue receive Azan notifications",
+      scheduledDate: tz.TZDateTime.now(tz.local).add(Duration(days: 11)),
+      notificationDetails: platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.inexact,
       payload: now.add(Duration(days: 11)).millisecondsSinceEpoch.toString());
 }

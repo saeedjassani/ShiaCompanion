@@ -28,14 +28,13 @@ class _ZikrPageState extends State<ZikrPage> {
   TextEditingController? titleController;
   TextEditingController? codeController;
   TextEditingController? dataController;
+  TextEditingController? orderController;
   List<String>? content;
   Set<int> arabicCodes = Set(), transliCodes = Set(), translaCodes = Set();
+  final RegExp _numericOrderPattern = RegExp(r'^-?\d+(\.\d+)?$');
 
   TextStyle arabicStyle = TextStyle(
-          fontFamily: arabicFont,
-          fontSize: arabicFontSize,
-          letterSpacing: 0
-        );
+      fontFamily: arabicFont, fontSize: arabicFontSize, letterSpacing: 0);
   TextStyle transliStyle =
       TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
 
@@ -54,6 +53,10 @@ class _ZikrPageState extends State<ZikrPage> {
   @override
   void dispose() {
     _controller.dispose();
+    titleController?.dispose();
+    codeController?.dispose();
+    dataController?.dispose();
+    orderController?.dispose();
     super.dispose();
   }
 
@@ -81,6 +84,13 @@ class _ZikrPageState extends State<ZikrPage> {
         titleController = TextEditingController(text: zikrData?['title']);
         codeController = TextEditingController(text: zikrData?['code']);
         dataController = TextEditingController(text: zikrData?['data']);
+        final double? currentOrder = itemOrder[widget.item.uid];
+        orderController = TextEditingController(
+            text: currentOrder == null
+                ? ''
+                : (currentOrder % 1 == 0
+                    ? currentOrder.toInt().toString()
+                    : currentOrder.toString()));
       });
     }
   }
@@ -93,11 +103,27 @@ class _ZikrPageState extends State<ZikrPage> {
 
   Future<void> _saveEdits() async {
     if (zikrData != null) {
+      final rawOrder = orderController?.text.trim() ?? '';
+      if (rawOrder.isNotEmpty && !_numericOrderPattern.hasMatch(rawOrder)) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Order must be a number (examples: -2, 5, 5.5) or left blank'),
+        ));
+        return;
+      }
+      final parsedOrder = rawOrder.isEmpty ? null : double.parse(rawOrder);
+
       await zikrCollection.doc(widget.item.uid).update({
         'title': titleController?.text,
         'code': codeController?.text,
         'data': dataController?.text,
+        'order': parsedOrder ?? FieldValue.delete(),
       });
+      if (parsedOrder == null) {
+        itemOrder.remove(widget.item.uid);
+      } else {
+        itemOrder[widget.item.uid] = parsedOrder;
+      }
       setState(() {
         isEditing = false;
         zikrData?['title'] = titleController?.text;
@@ -161,8 +187,8 @@ class _ZikrPageState extends State<ZikrPage> {
                                   children: [
                                     TextField(
                                       controller: titleController,
-                                      decoration:
-                                          const InputDecoration(labelText: 'Title'),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Title'),
                                     ),
                                     TextField(
                                       controller: codeController,
@@ -173,9 +199,22 @@ class _ZikrPageState extends State<ZikrPage> {
                                           labelText: 'Code'),
                                     ),
                                     TextField(
+                                      controller: orderController,
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                        signed: true,
+                                      ),
+                                      decoration: const InputDecoration(
+                                        labelText: 'Order',
+                                        helperText:
+                                            'Custom list order for this zikr',
+                                      ),
+                                    ),
+                                    TextField(
                                       controller: dataController,
-                                      decoration:
-                                          const InputDecoration(labelText: 'Data'),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Data'),
                                       maxLines: null,
                                     ),
                                     const SizedBox(height: 16),
@@ -200,12 +239,14 @@ class _ZikrPageState extends State<ZikrPage> {
 
                                           if (arabicCodes.contains(i)) {
                                             return Padding(
-                                              padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
+                                              padding: const EdgeInsets.only(
+                                                  top: 12.0, bottom: 4.0),
                                               child: Text(
                                                 formatArabicText(str),
                                                 style: arabicStyle,
                                                 textAlign: TextAlign.center,
-                                                textDirection: TextDirection.rtl,
+                                                textDirection:
+                                                    TextDirection.rtl,
                                               ),
                                             );
                                           } else if (transliCodes.contains(i)) {
@@ -219,13 +260,16 @@ class _ZikrPageState extends State<ZikrPage> {
                                           } else if (translaCodes.contains(i)) {
                                             return showTranslation
                                                 ? Padding(
-                                                    padding: const EdgeInsets.only(
-                                                        bottom: 4.0),
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            bottom: 4.0),
                                                     child: Text(
                                                       str,
-                                                      textAlign: TextAlign.center,
+                                                      textAlign:
+                                                          TextAlign.center,
                                                       style: TextStyle(
-                                                          fontSize: englishFontSize),
+                                                          fontSize:
+                                                              englishFontSize),
                                                     ),
                                                   )
                                                 : Container();
@@ -352,7 +396,8 @@ class _ZikrPageState extends State<ZikrPage> {
   }
 
   void refreshState() {
-    arabicStyle = TextStyle(fontFamily: arabicFont, fontSize: arabicFontSize, letterSpacing: 0);
+    arabicStyle = TextStyle(
+        fontFamily: arabicFont, fontSize: arabicFontSize, letterSpacing: 0);
     transliStyle =
         TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
     setState(() {});

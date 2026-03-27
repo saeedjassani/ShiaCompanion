@@ -343,7 +343,18 @@ class _MyHomePageState extends State<MyHomePage>
     try {
       String data =
           await DefaultAssetBundle.of(context).loadString("assets/items.json");
-      items = json.decode(data);
+      final decoded = json.decode(data);
+      items = {};
+      itemOrder = {};
+      decoded.forEach((key, value) {
+        if (value is Map) {
+          items[key] = value['title'] ?? '';
+          final order = value['order'];
+          if (order is num) itemOrder[key] = order.toDouble();
+        } else {
+          items[key] = value;
+        }
+      });
     } catch (e) {
       debugPrint("Error loading items from assets: $e");
     }
@@ -355,15 +366,18 @@ class _MyHomePageState extends State<MyHomePage>
       if (doc.exists && doc['items'] != null) {
         final rawItems = doc['items'];
         items = {};
+        itemOrder = {};
 
         // Filter items based on admin status
         rawItems.forEach((key, value) {
           final title = value is Map ? value['title'] : value;
-          final hasData = value is Map ? value['hasData'] ?? false : false;
+          final hasData = value is Map ? value['hasData'] ?? false : true;
+          final order = value is Map ? value['order'] : null;
 
           // Show all items to admins, only items with data to users
           if (isUserAdmin || hasData) {
             items[key] = title;
+            if (order is num) itemOrder[key] = order.toDouble();
           }
         });
       }
@@ -602,7 +616,6 @@ class _MyHomePageState extends State<MyHomePage>
     }
 
     if (user != null) {
-
       widget.analytics.setUserId(id: user!.uid);
       newFavsReference =
           FirebaseDatabase.instance.ref().child('new_favs').child(user!.uid);

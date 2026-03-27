@@ -71,7 +71,16 @@ class _ItemListState extends State<ItemList> {
       }
     }
     workingItems.sort((a, b) {
-      return a.getId() > b.getId() ? 1 : -1;
+      final double aOrder = getItemOrderValue(a.getUId());
+      final double bOrder = getItemOrderValue(b.getUId());
+      if (aOrder != bOrder) {
+        return aOrder.compareTo(bOrder);
+      }
+      final int byId = a.getId().compareTo(b.getId());
+      if (byId != 0) {
+        return byId;
+      }
+      return a.getUId().compareTo(b.getUId());
     });
   }
 
@@ -105,8 +114,9 @@ class _ItemListState extends State<ItemList> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) =>
-                      ItemList(uidTitleData.getUId().split("~")[1], uidTitleData.title)));
+                  builder: (context) => ItemList(
+                      uidTitleData.getUId().split("~")[1],
+                      uidTitleData.title)));
         } else {
           handleUniversalDataClick(context, itemData);
         }
