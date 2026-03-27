@@ -290,6 +290,20 @@ class _ZikrPageState extends State<ZikrPage> with TickerProviderStateMixin {
     return 'Tab ${index + 1}';
   }
 
+  void _handleTabSwipe(DragEndDetails details, int tabCount) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (_tabController == null || tabCount < 2 || velocity.abs() < 150) {
+      return;
+    }
+
+    final currentIndex = _tabController!.index;
+    if (velocity < 0 && currentIndex < tabCount - 1) {
+      _tabController!.animateTo(currentIndex + 1);
+    } else if (velocity > 0 && currentIndex > 0) {
+      _tabController!.animateTo(currentIndex - 1);
+    }
+  }
+
   Widget _buildTabContent(
     String rawContent,
     ScrollController controller, {
@@ -541,110 +555,114 @@ class _ZikrPageState extends State<ZikrPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   Expanded(
-                                    child: Column(
-                                      children: [
-                                        if (showTabHeaders &&
-                                            _tabController != null)
-                                          Container(
-                                            width: double.infinity,
-                                            margin: const EdgeInsets.only(
-                                                bottom: 18),
-                                            padding: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerHighest
-                                                  .withValues(alpha: 0.32),
-                                              borderRadius:
-                                                  BorderRadius.circular(24),
-                                            ),
-                                            child: TabBar(
-                                              controller: _tabController,
-                                              isScrollable: true,
-                                              tabAlignment: TabAlignment.start,
-                                              dividerColor: Colors.transparent,
-                                              indicatorSize:
-                                                  TabBarIndicatorSize.tab,
-                                              splashBorderRadius:
-                                                  BorderRadius.circular(18),
-                                              labelStyle: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              unselectedLabelStyle:
-                                                  const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                              labelColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSecondaryContainer,
-                                              unselectedLabelColor:
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface
-                                                      .withValues(alpha: 0.72),
-                                              indicator: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondaryContainer,
-                                                borderRadius:
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.translucent,
+                                      onHorizontalDragEnd: (details) =>
+                                          _handleTabSwipe(
+                                        details,
+                                        tabContents.length,
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          if (showTabHeaders &&
+                                              _tabController != null)
+                                            Container(
+                                              width: double.infinity,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 18),
+                                              child: TabBar(
+                                                controller: _tabController,
+                                                isScrollable: true,
+                                                tabAlignment:
+                                                    TabAlignment.start,
+                                                dividerColor:
+                                                    Colors.transparent,
+                                                indicatorSize:
+                                                    TabBarIndicatorSize.tab,
+                                                splashBorderRadius:
                                                     BorderRadius.circular(18),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
+                                                labelStyle: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                unselectedLabelStyle:
+                                                    const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                labelColor: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSecondaryContainer,
+                                                unselectedLabelColor:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface
                                                         .withValues(
-                                                            alpha: 0.08),
-                                                    blurRadius: 12,
-                                                    offset: const Offset(0, 4),
-                                                  ),
-                                                ],
-                                              ),
-                                              padding: EdgeInsets.zero,
-                                              labelPadding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 4,
-                                              ),
-                                              tabs: List.generate(
-                                                tabContents.length,
-                                                (index) => Tab(
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 14,
-                                                      vertical: 10,
+                                                            alpha: 0.72),
+                                                indicator: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondaryContainer,
+                                                  borderRadius:
+                                                      BorderRadius.circular(18),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withValues(
+                                                              alpha: 0.08),
+                                                      blurRadius: 12,
+                                                      offset:
+                                                          const Offset(0, 4),
                                                     ),
-                                                    child: Text(
-                                                      _getTabHeader(
-                                                        tabContents[index],
-                                                        index,
+                                                  ],
+                                                ),
+                                                padding: EdgeInsets.zero,
+                                                labelPadding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 4,
+                                                ),
+                                                tabs: List.generate(
+                                                  tabContents.length,
+                                                  (index) => Tab(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                        horizontal: 14,
+                                                        vertical: 10,
+                                                      ),
+                                                      child: Text(
+                                                        _getTabHeader(
+                                                          tabContents[index],
+                                                          index,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        Expanded(
-                                          child: _tabController == null
-                                              ? const SizedBox.shrink()
-                                              : TabBarView(
-                                                  controller: _tabController,
-                                                  physics:
-                                                      const BouncingScrollPhysics(),
-                                                  children: List.generate(
-                                                    tabContents.length,
-                                                    (index) => _buildTabContent(
-                                                      tabContents[index],
-                                                      _tabScrollControllers[
-                                                          index],
-                                                      hideHeaderLine:
-                                                          showTabHeaders,
+                                          Expanded(
+                                            child: _tabController == null
+                                                ? const SizedBox.shrink()
+                                                : TabBarView(
+                                                    controller: _tabController,
+                                                    physics:
+                                                        const BouncingScrollPhysics(),
+                                                    children: List.generate(
+                                                      tabContents.length,
+                                                      (index) =>
+                                                          _buildTabContent(
+                                                        tabContents[index],
+                                                        _tabScrollControllers[
+                                                            index],
+                                                        hideHeaderLine:
+                                                            showTabHeaders,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                        ),
-                                      ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
