@@ -201,9 +201,6 @@ class _ZikrPageState extends State<ZikrPage> {
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
                 child: Row(
                   children: [
-                    Icon(Icons.auto_awesome,
-                        color: Theme.of(context).colorScheme.primary),
-                    const SizedBox(width: 10),
                     Text(
                       'Merits',
                       style: Theme.of(context).textTheme.titleLarge,
@@ -449,15 +446,15 @@ class _ZikrPageState extends State<ZikrPage> {
                                       ),
                                     ),
                                     TextField(
-                                      controller: dataController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Data'),
-                                      maxLines: null,
-                                    ),
-                                    TextField(
                                       controller: meritsController,
                                       decoration: const InputDecoration(
                                           labelText: 'Merits'),
+                                      maxLines: null,
+                                    ),
+                                    TextField(
+                                      controller: dataController,
+                                      decoration: const InputDecoration(
+                                          labelText: 'Data'),
                                       maxLines: null,
                                     ),
                                     const SizedBox(height: 12),
@@ -494,7 +491,6 @@ class _ZikrPageState extends State<ZikrPage> {
                                             const EdgeInsets.only(bottom: 12),
                                         child: TextButton.icon(
                                           onPressed: _showMeritsSheet,
-                                          icon: const Icon(Icons.open_in_new),
                                           label: const Text(
                                             'Merits',
                                             style: TextStyle(
