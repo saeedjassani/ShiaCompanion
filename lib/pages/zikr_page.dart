@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import '../constants.dart';
 import '../widgets/zikr_settings.dart';
@@ -309,6 +310,30 @@ class _ZikrPageState extends State<ZikrPage> {
     );
   }
 
+  void _shareCurrentZikr() {
+    final tabContents = _buildVisibleTabContents();
+    if (tabContents.isEmpty) return;
+
+    final selectedIndex = _selectedTabIndex.clamp(0, tabContents.length - 1);
+    final currentContent = tabContents[selectedIndex].trim();
+    final title = titleController?.text.trim().isNotEmpty == true
+        ? titleController!.text.trim()
+        : widget.item.title;
+
+    SharePlus.instance.share(
+      ShareParams(
+        text:
+            '$title\n$currentContent\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+        sharePositionOrigin: Rect.fromLTWH(
+          MediaQuery.of(context).size.width / 2,
+          0,
+          2,
+          2,
+        ),
+      ),
+    );
+  }
+
   Widget _buildTabContent(
     String rawContent,
     ScrollController controller, {
@@ -430,6 +455,12 @@ class _ZikrPageState extends State<ZikrPage> {
                 icon: const Icon(Icons.done),
                 tooltip: 'Save Changes',
                 onPressed: _saveEdits,
+              ),
+            if (zikrData != null)
+              IconButton(
+                icon: const Icon(Icons.share),
+                tooltip: 'Share',
+                onPressed: _shareCurrentZikr,
               ),
             isAdmin && zikrData != null
                 ? IconButton(
