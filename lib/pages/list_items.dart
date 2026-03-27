@@ -18,10 +18,8 @@ class _ItemListState extends State<ItemList> {
   List<UidTitleData> workingItems = [];
   _ItemListState();
 
-  @override
-  void initState() {
-    super.initState();
-    trackScreen('List Item Page');
+  void _refreshWorkingItems() {
+    workingItems = [];
     String tableName = widget.item;
     if (widget.item == "D1") tableName = "D";
     tableName = tableName
@@ -85,6 +83,13 @@ class _ItemListState extends State<ItemList> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    trackScreen('List Item Page');
+    _refreshWorkingItems();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -109,17 +114,19 @@ class _ItemListState extends State<ItemList> {
       title = itemData.title;
     }
     return ListTile(
-      onTap: () {
+      onTap: () async {
         if (uidTitleData.getUId().contains("~")) {
-          Navigator.push(
+          await Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => ItemList(
                       uidTitleData.getUId().split("~")[1],
                       uidTitleData.title)));
         } else {
-          handleUniversalDataClick(context, itemData);
+          await handleUniversalDataClick(context, itemData);
         }
+        if (!mounted) return;
+        setState(_refreshWorkingItems);
       },
       onLongPress: () {
         if (isUserAdmin)

@@ -133,6 +133,39 @@ class _ZikrPageState extends State<ZikrPage> {
     }
   }
 
+  Future<void> _deleteZikr() async {
+    final shouldDelete = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Delete Zikr?'),
+            content: Text(
+              'This will permanently delete "${titleController?.text ?? widget.item.title}".',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!shouldDelete) return;
+
+    await zikrCollection.doc(widget.item.uid).delete();
+    items.remove(widget.item.uid);
+    itemOrder.remove(widget.item.uid);
+
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (zikrData != null && zikrData?['data'] != null)
@@ -147,6 +180,12 @@ class _ZikrPageState extends State<ZikrPage> {
         appBar: AppBar(
           title: Text(widget.item.title),
           actions: [
+            if (isAdmin && zikrData != null && isEditing)
+              IconButton(
+                icon: const Icon(Icons.delete),
+                tooltip: 'Delete Zikr',
+                onPressed: _deleteZikr,
+              ),
             if (isAdmin && zikrData != null && isEditing)
               IconButton(
                 icon: const Icon(Icons.done),
