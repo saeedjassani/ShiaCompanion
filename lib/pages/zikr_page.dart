@@ -35,6 +35,7 @@ class _ZikrPageState extends State<ZikrPage> {
   TextEditingController? orderController;
   final List<TextEditingController> tabControllers = [];
   final List<ScrollController> _tabScrollControllers = [];
+  final List<GlobalKey> _tabHeaderKeys = [];
   final RegExp _numericOrderPattern = RegExp(r'^-?\d+(\.\d+)?$');
   final PageController _pageController = PageController();
   List<String> _slugAliases = const [];
@@ -349,6 +350,7 @@ class _ZikrPageState extends State<ZikrPage> {
   void _syncTabState(int count) {
     if (count <= 0) {
       _selectedTabIndex = 0;
+      _syncTabHeaderKeys(0);
       _syncTabScrollControllers(0);
       return;
     }
@@ -367,7 +369,17 @@ class _ZikrPageState extends State<ZikrPage> {
       });
     }
 
+    _syncTabHeaderKeys(count);
     _syncTabScrollControllers(count);
+  }
+
+  void _syncTabHeaderKeys(int count) {
+    while (_tabHeaderKeys.length < count) {
+      _tabHeaderKeys.add(GlobalKey());
+    }
+    while (_tabHeaderKeys.length > count) {
+      _tabHeaderKeys.removeLast();
+    }
   }
 
   void _syncTabScrollControllers(int count) {
@@ -377,6 +389,33 @@ class _ZikrPageState extends State<ZikrPage> {
     while (_tabScrollControllers.length > count) {
       _tabScrollControllers.removeLast().dispose();
     }
+  }
+
+  void _centerSelectedTab(
+      {Duration duration = const Duration(milliseconds: 360)}) {
+    if (!mounted ||
+        _selectedTabIndex < 0 ||
+        _selectedTabIndex >= _tabHeaderKeys.length) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          _selectedTabIndex < 0 ||
+          _selectedTabIndex >= _tabHeaderKeys.length) {
+        return;
+      }
+
+      final currentContext = _tabHeaderKeys[_selectedTabIndex].currentContext;
+      if (currentContext == null) return;
+
+      Scrollable.ensureVisible(
+        currentContext,
+        alignment: 0.5,
+        duration: duration,
+        curve: Curves.easeOutCubic,
+      );
+    });
   }
 
   String _getTabHeader(String content, int index) {
@@ -395,6 +434,7 @@ class _ZikrPageState extends State<ZikrPage> {
       setState(() {
         _selectedTabIndex = index;
       });
+      _centerSelectedTab(duration: Duration.zero);
       return;
     }
 
@@ -733,6 +773,9 @@ class _ZikrPageState extends State<ZikrPage> {
                                                                 index ==
                                                                     _selectedTabIndex;
                                                             return Padding(
+                                                              key:
+                                                                  _tabHeaderKeys[
+                                                                      index],
                                                               padding:
                                                                   EdgeInsets
                                                                       .only(
@@ -820,6 +863,7 @@ class _ZikrPageState extends State<ZikrPage> {
                                               setState(() {
                                                 _selectedTabIndex = index;
                                               });
+                                              _centerSelectedTab();
                                             },
                                             itemBuilder: (context, index) =>
                                                 _buildTabContent(
