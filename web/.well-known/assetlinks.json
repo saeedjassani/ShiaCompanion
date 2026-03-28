@@ -1,0 +1,26 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.developer110.shiacompanion",
+      "sha256_cert_fingerprints": [
+        "43:C1:82:8B:EC:8F:7F:D4:05:D3:BD:C7:7E:F1:7C:94:B2:4A:F2:8B:F5:AB:E5:E6:E8:E6:71:5A:7C:E3:32:B9"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.developer110.shiacompanion.debug",
+      "sha256_cert_fingerprints": [
+        "BD:8A:13:46:F2:F3:BE:89:8C:30:CE:22:4B:33:F0:2D:31:E6:B7:3B:83:81:8F:69:E5:A6:7B:FE:5F:29:4C:1A"
+      ]
+    }
+  }
+]

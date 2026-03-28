@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app_links/app_links.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
@@ -19,8 +20,10 @@ import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
+import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/zikr_page.dart';
 import 'package:shia_companion/utils/data_search.dart';
+import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
@@ -57,6 +60,12 @@ class _MyHomePageState extends State<MyHomePage>
   List<LiveStreamingData>? holyShrine, liveChannel;
   String? initialFavs;
   DatabaseReference? newFavsReference;
+  final AppLinks _appLinks = AppLinks();
+  StreamSubscription<Uri>? _linkSubscription;
+  DeepLinkTarget? _pendingDeepLink;
+  bool _itemsLoaded = false;
+  String? _lastDeepLinkKey;
+  DateTime? _lastDeepLinkAt;
 
   bool scrollToPrayerTimes = false;
 
@@ -75,8 +84,73 @@ class _MyHomePageState extends State<MyHomePage>
     super.initState();
     trackScreen('Home Page');
     WidgetsBinding.instance.addObserver(this);
+    _setupDeepLinks();
     setupPreferences();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+  }
+
+  Future<void> _setupDeepLinks() async {
+    _queueDeepLink(parseDeepLinkUri(Uri.base));
+
+    if (kIsWeb) return;
+
+    final initialLink = await _appLinks.getInitialLink();
+    if (initialLink != null) {
+      _queueDeepLink(parseDeepLinkUri(initialLink));
+    }
+
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      _queueDeepLink(parseDeepLinkUri(uri));
+    });
+  }
+
+  void _queueDeepLink(DeepLinkTarget? target) {
+    if (target == null) return;
+
+    final now = DateTime.now();
+    if (_lastDeepLinkKey == target.key &&
+        _lastDeepLinkAt != null &&
+        now.difference(_lastDeepLinkAt!) < const Duration(seconds: 2)) {
+      return;
+    }
+
+    _lastDeepLinkKey = target.key;
+    _lastDeepLinkAt = now;
+    _pendingDeepLink = target;
+    _resolvePendingDeepLink();
+  }
+
+  void _resolvePendingDeepLink() {
+    if (!_itemsLoaded || _pendingDeepLink == null || !mounted) return;
+
+    final target = _pendingDeepLink!;
+    _pendingDeepLink = null;
+
+    if (target.type != 0 || target.segments.isEmpty) {
+      _openDeepLinkNotFound(target.key);
+      return;
+    }
+
+    final uid = target.segments.first;
+    final title = items[uid];
+    if (title is! String || title.isEmpty) {
+      _openDeepLinkNotFound(uid);
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      pushPageRoute(context, ZikrPage(UidTitleData(uid, title)));
+    });
+  }
+
+  void _openDeepLinkNotFound(String target) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => DeepLinkNotFoundPage(target: target),
+      ));
+    });
   }
 
   void _showAddItemDialog() {
@@ -448,6 +522,8 @@ class _MyHomePageState extends State<MyHomePage>
         debugPrint("Azan notifications not scheduled");
       }
     }
+    _itemsLoaded = true;
+    _resolvePendingDeepLink();
     setState(() {});
   }
 
@@ -590,6 +666,7 @@ class _MyHomePageState extends State<MyHomePage>
   void dispose() async {
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
+    _linkSubscription?.cancel();
     super.dispose();
   }
 
