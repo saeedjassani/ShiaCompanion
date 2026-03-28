@@ -19,6 +19,7 @@ class _ItemListState extends State<ItemList> {
   List<UidTitleData> workingItems = [];
   String? _hoveredUid;
   _ItemListState();
+  TextEditingController? controller;
 
   void _refreshWorkingItems() {
     workingItems = [];
@@ -92,6 +93,12 @@ class _ItemListState extends State<ItemList> {
   }
 
   @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -107,7 +114,7 @@ class _ItemListState extends State<ItemList> {
   }
 
   Future<void> _editTitle(UidTitleData uidTitleData) async {
-    final controller = TextEditingController(text: uidTitleData.title);
+    controller = TextEditingController(text: uidTitleData.title);
     final updatedTitle = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -124,13 +131,12 @@ class _ItemListState extends State<ItemList> {
           ),
           TextButton(
             onPressed: () =>
-                Navigator.pop(dialogContext, controller.text.trim()),
+                Navigator.pop(dialogContext, controller?.text.trim()),
             child: const Text('Save'),
           ),
         ],
       ),
     );
-    controller.dispose();
 
     if (updatedTitle == null || updatedTitle.isEmpty) return;
     if (updatedTitle == uidTitleData.title) return;
