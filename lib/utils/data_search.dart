@@ -11,6 +11,60 @@ class DataSearch extends SearchDelegate<String> {
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   DataSearch(this.listWords);
 
+  List<UidTitleData> _filteredResults() {
+    if (query.isEmpty) {
+      return [];
+    }
+
+    return listWords
+        .where((entry) =>
+            entry.title.contains(RegExp(query, caseSensitive: false)) &&
+            !entry.uid.contains("|"))
+        .toList();
+  }
+
+  Widget _buildSearchTile(BuildContext context, UidTitleData entry) {
+    final itemData = UniversalData(entry.uid, entry.title, 0);
+    final isParentZikr = entry.getUId().contains("~");
+
+    return StatefulBuilder(
+      builder: (context, setTileState) => ListTile(
+        onTap: () {
+          if (entry.getUId().contains("~")) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ItemList(entry.getUId().split("~")[1], entry.title)));
+          } else {
+            handleUniversalDataClick(context, itemData);
+          }
+        },
+        onLongPress: () {
+          if (isUserAdmin) {
+            handleUniversalDataClick(context, itemData, itemPage: true);
+          }
+        },
+        title: isUserAdmin
+            ? Text('${entry.uid} ${entry.title}')
+            : Text(entry.title),
+        trailing: !isParentZikr
+            ? InkWell(
+                onTap: () {
+                  if (favsData!.contains(itemData)) {
+                    favsData!.remove(itemData);
+                  } else {
+                    favsData!.add(itemData);
+                  }
+                  setTileState(() {});
+                },
+                child: getFavIcon(context, itemData),
+              )
+            : null,
+      ),
+    );
+  }
+
   @override
   List<Widget> buildActions(BuildContext context) {
     //Actions for app bar
@@ -40,55 +94,22 @@ class DataSearch extends SearchDelegate<String> {
   Widget buildResults(BuildContext context) {
     // show some result based on the selection
     analytics.logSearch(searchTerm: query); // Log the search event
-    final suggestionList = listWords;
+    final suggestionList = _filteredResults();
 
     return ListView.builder(
-      itemBuilder: (context, index) => ListTile(
-        title: Text(listWords[index].title),
-      ),
+      itemBuilder: (context, index) =>
+          _buildSearchTile(context, suggestionList[index]),
       itemCount: suggestionList.length,
     );
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final List<UidTitleData> suggestionList = query.isEmpty
-        ? []
-        : listWords
-            .where((p) =>
-                p.title.contains(RegExp(query, caseSensitive: false)) &&
-                !p.uid.contains("|"))
-            .toList();
+    final List<UidTitleData> suggestionList = _filteredResults();
 
     return ListView.builder(
-      itemBuilder: (context, index) => ListTile(
-        onTap: () {
-          if (suggestionList[index].getUId().contains("~")) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ItemList(
-                        suggestionList[index].getUId().split("~")[1], suggestionList[index].title)));
-          } else {
-            handleUniversalDataClick(
-                context,
-                UniversalData(
-                    suggestionList[index].uid, suggestionList[index].title, 0));
-          }
-        },
-        onLongPress: () {
-          if (isUserAdmin)
-            handleUniversalDataClick(
-                context,
-                UniversalData(
-                    suggestionList[index].uid, suggestionList[index].title, 0),
-                itemPage: true);
-        },
-        title: isUserAdmin
-            ? Text(
-                suggestionList[index].uid + " " + suggestionList[index].title)
-            : Text(suggestionList[index].title),
-      ),
+      itemBuilder: (context, index) =>
+          _buildSearchTile(context, suggestionList[index]),
       itemCount: suggestionList.length,
     );
   }
