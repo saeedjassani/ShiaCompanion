@@ -106,7 +106,7 @@ class _ItemListState extends State<ItemList> {
     );
   }
 
-  Future<void> _editParentTitle(UidTitleData uidTitleData) async {
+  Future<void> _editTitle(UidTitleData uidTitleData) async {
     final controller = TextEditingController(text: uidTitleData.title);
     final updatedTitle = await showDialog<String>(
       context: context,
@@ -182,11 +182,12 @@ class _ItemListState extends State<ItemList> {
     } else {
       title = itemData.title;
     }
-    final canShowParentEdit = isUserAdmin && isParentZikr;
+    final canShowTitleEdit = kIsWeb && isUserAdmin;
+    final showHoverEdit = canShowTitleEdit && _hoveredUid == uidTitleData.uid;
 
     return MouseRegion(
       onEnter: (_) {
-        if (canShowParentEdit) {
+        if (canShowTitleEdit) {
           setState(() {
             _hoveredUid = uidTitleData.uid;
           });
@@ -219,24 +220,25 @@ class _ItemListState extends State<ItemList> {
             handleUniversalDataClick(context, itemData, itemPage: true);
         },
         title: Text(title),
-        trailing: isParentZikr
-            ? canShowParentEdit && (!kIsWeb || _hoveredUid == uidTitleData.uid)
-                ? IconButton(
-                    icon: const Icon(Icons.edit),
-                    tooltip: 'Edit Title',
-                    onPressed: () => _editParentTitle(uidTitleData),
+        trailing: showHoverEdit
+            ? IconButton(
+                icon: const Icon(Icons.edit),
+                tooltip: 'Edit Title',
+                onPressed: () => _editTitle(uidTitleData),
+              )
+            : !isParentZikr
+                ? InkWell(
+                    onTap: () {
+                      if (favsData!.contains(itemData)) {
+                        favsData!.remove(itemData);
+                      } else {
+                        favsData!.add(itemData);
+                      }
+                      setState(() {});
+                    },
+                    child: getFavIcon(context, itemData),
                   )
-                : null
-            : InkWell(
-                onTap: () {
-                  if (favsData!.contains(itemData)) {
-                    favsData!.remove(itemData);
-                  } else {
-                    favsData!.add(itemData);
-                  }
-                  setState(() {});
-                },
-                child: getFavIcon(context, itemData)),
+                : null,
       ),
     );
   }
