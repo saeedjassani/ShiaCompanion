@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^6.0.5
+  app_links: ^6.4.0
   auth_buttons: ^3.0.0
   csv: ^6.0.0
   date_format: ^2.0.7

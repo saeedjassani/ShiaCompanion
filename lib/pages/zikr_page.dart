@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/utils/deep_links.dart';
 import '../constants.dart';
 import '../widgets/zikr_settings.dart';
 import '../widgets/zikr_counter.dart';
@@ -319,11 +320,14 @@ class _ZikrPageState extends State<ZikrPage> {
     final title = titleController?.text.trim().isNotEmpty == true
         ? titleController!.text.trim()
         : widget.item.title;
+    final deepLink = buildDeepLinkUrl(
+      type: 0,
+      segments: [widget.item.uid],
+    );
 
     SharePlus.instance.share(
       ShareParams(
-        text:
-            '$title\n$currentContent\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+        text: '$title\n$currentContent\n\nOpen in Shia Companion: $deepLink',
         sharePositionOrigin: Rect.fromLTWH(
           MediaQuery.of(context).size.width / 2,
           0,
