@@ -135,12 +135,38 @@ class _ItemListState extends State<ItemList> {
     if (updatedTitle == null || updatedTitle.isEmpty) return;
     if (updatedTitle == uidTitleData.title) return;
 
-    await FirebaseFirestore.instance
-        .collection('zikr')
-        .doc(uidTitleData.uid)
-        .set({'title': updatedTitle}, SetOptions(merge: true));
+    final docRef =
+        FirebaseFirestore.instance.collection('zikr').doc(uidTitleData.uid);
+    final docSnap = await docRef.get();
+    final docData = docSnap.data();
+    final rawSlugAliases = docData?['slugAliases'];
+    final existingSlug = normalizeSlug(docData?['slug']?.toString() ?? '');
+    final existingAliases = normalizeSlugAliases(
+      rawSlugAliases is Iterable ? rawSlugAliases : null,
+      exclude: existingSlug,
+    );
+    final updates = <String, dynamic>{
+      'title': updatedTitle,
+    };
+
+    if (existingSlug.isEmpty) {
+      updates['slug'] = makeUniqueSlug(
+        buildSlugSeed(uid: uidTitleData.uid, title: updatedTitle),
+        currentUid: uidTitleData.uid,
+      );
+      if (existingAliases.isNotEmpty) {
+        updates['slugAliases'] = existingAliases;
+      }
+    }
+
+    await docRef.set(updates, SetOptions(merge: true));
 
     items[uidTitleData.uid] = updatedTitle;
+    setLocalSlugData(
+      uidTitleData.uid,
+      slug: existingSlug.isEmpty ? updates['slug']?.toString() : existingSlug,
+      aliases: existingAliases,
+    );
 
     if (!mounted) return;
     setState(_refreshWorkingItems);

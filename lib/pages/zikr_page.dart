@@ -28,6 +28,7 @@ class _ZikrPageState extends State<ZikrPage> {
   String? userId;
   Map<String, dynamic>? zikrData;
   TextEditingController? titleController;
+  TextEditingController? slugController;
   TextEditingController? codeController;
   TextEditingController? dataController;
   TextEditingController? meritsController;
@@ -36,6 +37,7 @@ class _ZikrPageState extends State<ZikrPage> {
   final List<ScrollController> _tabScrollControllers = [];
   final RegExp _numericOrderPattern = RegExp(r'^-?\d+(\.\d+)?$');
   final PageController _pageController = PageController();
+  List<String> _slugAliases = const [];
   int _selectedTabIndex = 0;
 
   TextStyle arabicStyle = TextStyle(
@@ -56,6 +58,7 @@ class _ZikrPageState extends State<ZikrPage> {
   @override
   void dispose() {
     titleController?.dispose();
+    slugController?.dispose();
     codeController?.dispose();
     dataController?.dispose();
     meritsController?.dispose();
@@ -89,12 +92,20 @@ class _ZikrPageState extends State<ZikrPage> {
   Future<void> _fetchZikrData() async {
     final doc = await zikrCollection.doc(widget.item.getFirstUId()).get();
     if (doc.exists) {
+      final data = doc.data() as Map<String, dynamic>;
+      final currentSlug = normalizeSlug(data['slug']?.toString() ?? '');
+      final currentAliases = normalizeSlugAliases(
+        data['slugAliases'] is Iterable ? data['slugAliases'] : null,
+        exclude: currentSlug,
+      );
       setState(() {
-        zikrData = doc.data() as Map<String, dynamic>;
+        zikrData = data;
         titleController = TextEditingController(text: zikrData?['title']);
+        slugController = TextEditingController(text: currentSlug);
         codeController = TextEditingController(text: zikrData?['code']);
         dataController = TextEditingController(text: zikrData?['data']);
         meritsController = TextEditingController(text: zikrData?['merits']);
+        _slugAliases = currentAliases;
         final rawTabs = zikrData?['tabs'];
         if (rawTabs is List) {
           for (final controller in tabControllers) {
@@ -118,19 +129,64 @@ class _ZikrPageState extends State<ZikrPage> {
     }
   }
 
+  void _resetControllersFromCurrentData() {
+    final currentSlug = normalizeSlug(zikrData?['slug']?.toString() ?? '');
+    titleController?.text = zikrData?['title']?.toString() ?? '';
+    slugController?.text = currentSlug;
+    codeController?.text = zikrData?['code']?.toString() ?? '';
+    dataController?.text = zikrData?['data']?.toString() ?? '';
+    meritsController?.text = zikrData?['merits']?.toString() ?? '';
+    final currentOrder = itemOrder[widget.item.uid];
+    orderController?.text = currentOrder == null
+        ? ''
+        : (currentOrder % 1 == 0
+            ? currentOrder.toInt().toString()
+            : currentOrder.toString());
+    final rawSlugAliases = zikrData?['slugAliases'];
+    _slugAliases = normalizeSlugAliases(
+      rawSlugAliases is Iterable ? rawSlugAliases : null,
+      exclude: currentSlug,
+    );
+
+    for (final controller in tabControllers) {
+      controller.dispose();
+    }
+    tabControllers.clear();
+    final rawTabs = zikrData?['tabs'];
+    if (rawTabs is List) {
+      for (final tab in rawTabs) {
+        tabControllers.add(TextEditingController(text: tab?.toString() ?? ''));
+      }
+    }
+    _syncTabState(_buildVisibleTabContents().length);
+  }
+
   void _toggleEdit() {
     setState(() {
+      if (isEditing) {
+        _resetControllersFromCurrentData();
+      }
       isEditing = !isEditing;
     });
   }
 
   Future<void> _saveEdits() async {
     if (zikrData != null) {
+      final trimmedTitle = titleController?.text.trim() ?? '';
       final rawOrder = orderController?.text.trim() ?? '';
       final savedTabs = tabControllers
           .map((controller) => controller.text)
           .where((content) => content.trim().isNotEmpty)
           .toList();
+      final existingSlug = normalizeSlug(zikrData?['slug']?.toString() ?? '');
+      final enteredSlug = slugController?.text.trim() ?? '';
+      final normalizedEnteredSlug = normalizeSlug(enteredSlug);
+      if (enteredSlug.isNotEmpty && normalizedEnteredSlug.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Slug must contain letters or numbers'),
+        ));
+        return;
+      }
       if (rawOrder.isNotEmpty && !_numericOrderPattern.hasMatch(rawOrder)) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
@@ -139,9 +195,36 @@ class _ZikrPageState extends State<ZikrPage> {
         return;
       }
       final parsedOrder = rawOrder.isEmpty ? null : double.parse(rawOrder);
+      final nextSlug = enteredSlug.isNotEmpty
+          ? normalizedEnteredSlug
+          : existingSlug.isNotEmpty
+              ? existingSlug
+              : makeUniqueSlug(
+                  buildSlugSeed(
+                    uid: widget.item.uid,
+                    title: trimmedTitle,
+                  ),
+                  currentUid: widget.item.uid,
+                );
+      if (!isSlugAvailable(nextSlug, currentUid: widget.item.uid)) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Slug is already in use. Please choose another one.'),
+        ));
+        return;
+      }
+      final nextSlugAliases = normalizeSlugAliases(
+        [
+          ..._slugAliases,
+          if (existingSlug.isNotEmpty && existingSlug != nextSlug) existingSlug,
+        ],
+        exclude: nextSlug,
+      );
 
       await zikrCollection.doc(widget.item.uid).update({
         'title': titleController?.text,
+        'slug': nextSlug,
+        'slugAliases':
+            nextSlugAliases.isEmpty ? FieldValue.delete() : nextSlugAliases,
         'code': codeController?.text,
         'data': dataController?.text,
         'merits': (meritsController?.text.trim().isEmpty ?? true)
@@ -155,13 +238,24 @@ class _ZikrPageState extends State<ZikrPage> {
       } else {
         itemOrder[widget.item.uid] = parsedOrder;
       }
+      items[widget.item.uid] = titleController?.text ?? widget.item.title;
+      widget.item.title = titleController?.text ?? widget.item.title;
+      setLocalSlugData(
+        widget.item.uid,
+        slug: nextSlug,
+        aliases: nextSlugAliases,
+      );
       setState(() {
         isEditing = false;
         zikrData?['title'] = titleController?.text;
+        zikrData?['slug'] = nextSlug;
+        zikrData?['slugAliases'] = nextSlugAliases;
         zikrData?['code'] = codeController?.text;
         zikrData?['data'] = dataController?.text;
         zikrData?['merits'] = meritsController?.text;
         zikrData?['tabs'] = savedTabs;
+        slugController?.text = nextSlug;
+        _slugAliases = nextSlugAliases;
         _syncTabState(_buildVisibleTabContents().length);
       });
     }
@@ -320,9 +414,9 @@ class _ZikrPageState extends State<ZikrPage> {
     final title = titleController?.text.trim().isNotEmpty == true
         ? titleController!.text.trim()
         : widget.item.title;
-    final deepLink = buildDeepLinkUrl(
-      type: 0,
-      segments: [widget.item.uid],
+    final deepLink = buildZikrDeepLinkUrl(
+      uid: widget.item.uid,
+      slug: itemSlugs[widget.item.uid],
     );
 
     SharePlus.instance.share(
@@ -424,6 +518,7 @@ class _ZikrPageState extends State<ZikrPage> {
     await zikrCollection.doc(widget.item.uid).delete();
     items.remove(widget.item.uid);
     itemOrder.remove(widget.item.uid);
+    removeLocalSlugData(widget.item.uid);
 
     if (!mounted) return;
     Navigator.pop(context);
@@ -434,6 +529,13 @@ class _ZikrPageState extends State<ZikrPage> {
     final merits = meritsController?.text.trim() ?? '';
     final hasMerits = merits.isNotEmpty;
     final tabContents = _buildVisibleTabContents();
+    final pageTitle = isEditing
+        ? (titleController?.text.trim().isNotEmpty == true
+            ? titleController!.text.trim()
+            : widget.item.title)
+        : (zikrData?['title']?.toString().trim().isNotEmpty == true
+            ? zikrData!['title'].toString().trim()
+            : widget.item.title);
     _syncTabState(tabContents.length);
     final hasAnyContent =
         tabContents.any((content) => content.trim().isNotEmpty);
@@ -446,7 +548,7 @@ class _ZikrPageState extends State<ZikrPage> {
     return SelectionArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.item.title),
+          title: Text(pageTitle),
           actions: [
             if (isAdmin && zikrData != null && isEditing)
               IconButton(
@@ -508,6 +610,14 @@ class _ZikrPageState extends State<ZikrPage> {
                                       controller: titleController,
                                       decoration: const InputDecoration(
                                           labelText: 'Title'),
+                                    ),
+                                    TextField(
+                                      controller: slugController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Slug',
+                                        helperText:
+                                            'Canonical URL path. Leave blank to auto-generate once; old slugs keep working.',
+                                      ),
                                     ),
                                     TextField(
                                       controller: codeController,

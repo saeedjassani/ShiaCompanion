@@ -66,6 +66,8 @@ class _MyHomePageState extends State<MyHomePage>
   bool _itemsLoaded = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
+  final CollectionReference<Map<String, dynamic>> _zikrCollection =
+      FirebaseFirestore.instance.collection('zikr');
 
   bool scrollToPrayerTimes = false;
 
@@ -120,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage>
     _resolvePendingDeepLink();
   }
 
-  void _resolvePendingDeepLink() {
+  Future<void> _resolvePendingDeepLink() async {
     if (!_itemsLoaded || _pendingDeepLink == null || !mounted) return;
 
     final target = _pendingDeepLink!;
@@ -131,17 +133,97 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
-    final uid = target.segments.first;
-    final title = items[uid];
-    if (title is! String || title.isEmpty) {
-      _openDeepLinkNotFound(uid);
+    final resolvedItem = await _resolveDeepLinkItem(target);
+    if (!mounted) return;
+    if (resolvedItem == null) {
+      _openDeepLinkNotFound(target.segments.join('/'));
       return;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      pushPageRoute(context, ZikrPage(UidTitleData(uid, title)));
+      pushPageRoute(context, ZikrPage(resolvedItem));
     });
+  }
+
+  Future<UidTitleData?> _resolveDeepLinkItem(DeepLinkTarget target) async {
+    if (target.segments.isEmpty) return null;
+
+    final primarySegment = target.segments.first;
+    if (items.containsKey(primarySegment)) {
+      final title = items[primarySegment];
+      if (title is String && title.isNotEmpty) {
+        return UidTitleData(primarySegment, title);
+      }
+    }
+
+    final cachedUid = slugToItemUid[primarySegment];
+    if (cachedUid != null) {
+      final title = items[cachedUid];
+      if (title is String && title.isNotEmpty) {
+        return UidTitleData(cachedUid, title);
+      }
+    }
+
+    return _fetchDeepLinkItemFromFirestore(primarySegment);
+  }
+
+  Future<UidTitleData?> _fetchDeepLinkItemFromFirestore(String segment) async {
+    final directUidSnapshot = await _zikrCollection.doc(segment).get();
+    final directUidItem = _buildDeepLinkItemFromSnapshot(directUidSnapshot);
+    if (directUidItem != null) {
+      return directUidItem;
+    }
+
+    final slugSnapshot =
+        await _zikrCollection.where('slug', isEqualTo: segment).limit(1).get();
+    if (slugSnapshot.docs.isNotEmpty) {
+      final slugItem = _buildDeepLinkItemFromSnapshot(slugSnapshot.docs.first);
+      if (slugItem != null) {
+        return slugItem;
+      }
+    }
+
+    final aliasSnapshot = await _zikrCollection
+        .where('slugAliases', arrayContains: segment)
+        .limit(1)
+        .get();
+    if (aliasSnapshot.docs.isEmpty) return null;
+
+    return _buildDeepLinkItemFromSnapshot(aliasSnapshot.docs.first);
+  }
+
+  UidTitleData? _buildDeepLinkItemFromSnapshot(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    if (!snapshot.exists) return null;
+
+    final data = snapshot.data();
+    if (data == null) return null;
+
+    final title = data['title']?.toString().trim() ?? '';
+    if (title.isEmpty) return null;
+
+    final hasPrimaryData = data['data']?.toString().trim().isNotEmpty == true;
+    final rawTabs = data['tabs'];
+    final hasTabData = rawTabs is List &&
+        rawTabs.any((tab) => tab?.toString().trim().isNotEmpty == true);
+    if (!isUserAdmin && !hasPrimaryData && !hasTabData) {
+      return null;
+    }
+
+    final uid = snapshot.id;
+    items[uid] = title;
+    final order = data['order'];
+    if (order is num) {
+      itemOrder[uid] = order.toDouble();
+    }
+    setLocalSlugData(
+      uid,
+      slug: data['slug']?.toString(),
+      aliases: data['slugAliases'] is Iterable ? data['slugAliases'] : null,
+    );
+    return UidTitleData(uid, title);
   }
 
   void _openDeepLinkNotFound(String target) {
@@ -226,7 +308,7 @@ class _MyHomePageState extends State<MyHomePage>
                       'title': _title,
                     }, SetOptions(merge: true));
                     Navigator.pop(context);
-                    // Manually update local list since we aren't fetching from server anymore
+                    // Manually update local list since we aren't fetching from server anymore.
                     items[finalUid] = _title;
                     setState(() {});
                     if (_linkTargetUid == null || _linkTargetUid!.isEmpty) {
@@ -420,6 +502,7 @@ class _MyHomePageState extends State<MyHomePage>
       final decoded = json.decode(data);
       items = {};
       itemOrder = {};
+      clearLocalSlugMaps();
       decoded.forEach((key, value) {
         if (value is Map) {
           items[key] = value['title'] ?? '';
@@ -441,19 +524,33 @@ class _MyHomePageState extends State<MyHomePage>
         final rawItems = doc['items'];
         items = {};
         itemOrder = {};
+        clearLocalSlugMaps();
+        final visibleUids = <String>{};
 
         // Filter items based on admin status
         rawItems.forEach((key, value) {
           final title = value is Map ? value['title'] : value;
           final hasData = value is Map ? value['hasData'] ?? false : true;
           final order = value is Map ? value['order'] : null;
+          final slug = value is Map ? value['slug'] : null;
+          final slugAliases = value is Map ? value['slugAliases'] : null;
 
           // Show all items to admins, only items with data to users
           if (isUserAdmin || hasData) {
             items[key] = title;
+            visibleUids.add(key.toString());
             if (order is num) itemOrder[key] = order.toDouble();
+            setLocalSlugData(
+              key.toString(),
+              slug: slug?.toString(),
+              aliases: slugAliases is Iterable ? slugAliases : null,
+            );
           }
         });
+        final rawSlugLookup = doc.data()?['slugLookup'];
+        if (rawSlugLookup is Map) {
+          applySlugLookupMap(rawSlugLookup, visibleUids);
+        }
       }
     } catch (e) {
       debugPrint("Error loading zikr index: $e");
