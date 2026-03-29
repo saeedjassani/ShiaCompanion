@@ -6,7 +6,6 @@ import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 
 import '../constants.dart';
-import '../services/favorites_manager.dart';
 
 class LiveStreamingPage extends StatefulWidget {
   final int arg;
@@ -38,8 +37,6 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
               itemCount: data!.length,
               itemBuilder: (BuildContext c, int i) {
-                UniversalData universalData =
-                    UniversalData(data![i].link, data![i].title, 2);
                 return Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: Card(
@@ -60,24 +57,10 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 2.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    data![i].title,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    FavoritesManager.instance.toggleFavorite(universalData);
-                                    setState(() {});
-                                  },
-                                  child: getFavIcon(context, universalData),
-                                ),
-                              ],
+                            child: Text(
+                              data![i].title,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ],

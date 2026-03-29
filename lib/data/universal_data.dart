@@ -6,7 +6,7 @@ import 'package:shia_companion/data/uid_title_data.dart';
 /*  Used to store favorites, deep links, etc.
     Type 0: Zikr Data
     Type 1: Library Data
-    Type 2: Holy Shrines/Islamic Channels 
+    Type 2: Holy Shrines/Islamic Channels (navigation only)
 */
 
 class UniversalData {
