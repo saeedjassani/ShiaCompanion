@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
-// No persistent storage needed
 
-class ZikrCounter extends StatefulWidget {
-  final String zikrId;
-  ZikrCounter({Key? key, required this.zikrId}) : super(key: key);
+class ZikrCounter extends StatelessWidget {
+  final int count;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
+  final VoidCallback onReset;
 
-  @override
-  State<ZikrCounter> createState() => _ZikrCounterState();
-}
-
-class _ZikrCounterState extends State<ZikrCounter> {
-  int count = 0;
-
-  void _resetCount() {
-    setState(() {
-      count = 0;
-    });
-  }
+  const ZikrCounter({
+    super.key,
+    required this.count,
+    required this.onIncrement,
+    required this.onDecrement,
+    required this.onReset,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,25 +31,15 @@ class _ZikrCounterState extends State<ZikrCounter> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.remove),
-                  onPressed: count > 0
-                      ? () {
-                          setState(() {
-                            count--;
-                          });
-                        }
-                      : null,
+                  onPressed: count > 0 ? onDecrement : null,
                 ),
                 IconButton(
                   icon: const Icon(Icons.add),
-                  onPressed: () {
-                    setState(() {
-                      count++;
-                    });
-                  },
+                  onPressed: onIncrement,
                 ),
                 IconButton(
                   icon: const Icon(Icons.refresh),
-                  onPressed: _resetCount,
+                  onPressed: onReset,
                 ),
               ],
             ),
