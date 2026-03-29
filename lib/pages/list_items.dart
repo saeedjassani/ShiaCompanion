@@ -5,6 +5,7 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 
 import '../constants.dart';
+import '../services/favorites_manager.dart';
 
 class ItemList extends StatefulWidget {
   final String item, title;
@@ -238,11 +239,7 @@ class _ItemListState extends State<ItemList> {
                     ),
                   InkWell(
                     onTap: () {
-                      if (favsData!.contains(itemData)) {
-                        favsData!.remove(itemData);
-                      } else {
-                        favsData!.add(itemData);
-                      }
+                      FavoritesManager.instance.toggleFavorite(itemData);
                       setState(() {});
                     },
                     child: getFavIcon(context, itemData),

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
@@ -18,10 +17,10 @@ import 'dart:math';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
-import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/zikr_page.dart';
+import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
@@ -55,11 +54,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   Location location = Location();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  DatabaseReference? favsReference;
 
   List<LiveStreamingData>? holyShrine, liveChannel;
-  String? initialFavs;
-  DatabaseReference? newFavsReference;
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
   DeepLinkTarget? _pendingDeepLink;
@@ -78,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   loginCallback() async {
-    await setUpFavorites();
+    FavoritesManager.instance.setupRealtimeListener();
   }
 
   @override
@@ -574,7 +570,9 @@ class _MyHomePageState extends State<MyHomePage>
     }
     getHadith();
 
-    await setUpFavorites();
+    // Initialize favorites (from SharedPreferences if logged out, Firestore if logged in)
+    favsData = [];
+    await FavoritesManager.instance.loadFavorites();
 
     // Initialize LocationData
     await initializeLocation(context: context);
@@ -764,46 +762,8 @@ class _MyHomePageState extends State<MyHomePage>
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
+    FavoritesManager.instance.dispose();
     super.dispose();
-  }
-
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.paused && favsData != null) {
-      await SP.prefs.setString("new_favs", jsonEncode(favsData));
-      if (newFavsReference != null)
-        await newFavsReference?.set(jsonEncode(favsData));
-      debugPrint("Favorites updated");
-    }
-  }
-
-  Future<void> setUpFavorites() async {
-    favsData = [];
-    String? favsString = SP.prefs.getString("new_favs");
-    debugPrint("Prefs favs are $favsString");
-    if (favsString != null && favsString != "null") {
-      List values = json.decode(favsString);
-      values.forEach((element) {
-        favsData!.add(
-            UniversalData(element['uid'], element['title'], element['type']));
-      });
-    }
-
-    if (user != null) {
-      widget.analytics.setUserId(id: user!.uid);
-      newFavsReference =
-          FirebaseDatabase.instance.ref().child('new_favs').child(user!.uid);
-      initialFavs = (await newFavsReference!.once()).snapshot.value as String?;
-      debugPrint("Firebase favs are $initialFavs");
-      if (initialFavs != null) {
-        favsData = [];
-        List values = json.decode(initialFavs!);
-        for (var element in values) {
-          favsData!.add(
-              UniversalData(element['uid'], element['title'], element['type']));
-        }
-      }
-    }
   }
 
   @override
