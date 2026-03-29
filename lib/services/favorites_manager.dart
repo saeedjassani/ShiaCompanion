@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -25,36 +24,21 @@ class FavoritesManager {
   static const String _guestStorageKey = 'favorites_guest';
   static const String _legacySharedStorageKey = 'favorites';
   static const String _legacyLifecycleStorageKey = 'new_favs';
-  static const String _preferencesCollection = 'preferences';
-  static const String _favoritesDocId = 'favorites';
-  static const String _legacyFavoritesCollection = 'favorites';
   static const String _legacyRealtimeFavoritesPath = 'new_favs';
-  static const String _holyShrinesUrl =
-      'https://alghazienterprises.com/sc/scripts/getHolyShrines.php';
-  static const String _islamicChannelsUrl =
-      'https://alghazienterprises.com/sc/scripts/getIslamicChannels.php';
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseDatabase _database = FirebaseDatabase.instance;
 
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
-  Map<String, String>? _libraryTitleLookup;
-  Map<String, String>? _liveStreamTitleLookup;
+  Map<String, String>? _bookTitleLookup;
 
   DocumentReference<Map<String, dynamic>> _favoritesDoc(String userId) {
     return _firestore
         .collection('users')
         .doc(userId)
-        .collection(_preferencesCollection)
-        .doc(_favoritesDocId);
-  }
-
-  CollectionReference<Map<String, dynamic>> _legacyFavoritesRef(String userId) {
-    return _firestore
-        .collection('users')
-        .doc(userId)
-        .collection(_legacyFavoritesCollection);
+        .collection('preferences')
+        .doc('favorites');
   }
 
   DatabaseReference _legacyRealtimeFavoritesRef(String userId) {
@@ -82,21 +66,24 @@ class FavoritesManager {
       return;
     }
 
-    final syncSnapshot = await _loadUserSyncSnapshot(user.uid);
+    final remoteFavorites = await _loadRemoteFavorites(user.uid);
+    final userCachedFavorites = _loadFavoritesFromStorageKey(
+      _userStorageKey(user.uid),
+    );
+    final legacyRealtimeFavorites =
+        await _loadLegacyRealtimeFavorites(user.uid);
     final mergedFavorites = _mergeFavorites([
-      ...syncSnapshot.userCachedFavorites,
-      ...syncSnapshot.remoteFavorites,
-      ...syncSnapshot.legacyFirestoreFavorites,
-      ...syncSnapshot.legacyRealtimeFavorites,
+      ...userCachedFavorites,
+      ...remoteFavorites,
+      ...legacyRealtimeFavorites,
       ...guestFavorites,
     ]);
     final resolvedFavorites = await _resolveTitles(
       mergedFavorites,
       fallbacks: [
-        ...syncSnapshot.userCachedFavorites,
-        ...syncSnapshot.remoteFavorites,
-        ...syncSnapshot.legacyFirestoreFavorites,
-        ...syncSnapshot.legacyRealtimeFavorites,
+        ...userCachedFavorites,
+        ...remoteFavorites,
+        ...legacyRealtimeFavorites,
         ...guestFavorites,
       ],
     );
@@ -105,37 +92,17 @@ class FavoritesManager {
     await _saveUserFavoritesToSharedPreferences(user.uid, resolvedFavorites);
 
     final remoteAlreadyUpToDate =
-        _haveSameFavoriteKeys(syncSnapshot.remoteFavorites, mergedFavorites);
+        _haveSameFavoriteKeys(remoteFavorites, mergedFavorites);
     if (!remoteAlreadyUpToDate) {
       await _saveRemoteFavoritesForUser(user.uid, resolvedFavorites);
     }
 
-    if (guestFavorites.isNotEmpty ||
-        syncSnapshot.legacyFirestoreFavorites.isNotEmpty ||
-        syncSnapshot.legacyRealtimeFavorites.isNotEmpty) {
+    if (guestFavorites.isNotEmpty || legacyRealtimeFavorites.isNotEmpty) {
       await _clearGuestFavorites();
-      await _deleteLegacyFirestoreFavorites(user.uid);
       await _deleteLegacyRealtimeFavorites(user.uid);
     }
 
     setupRealtimeListener();
-  }
-
-  Future<_FavoritesSyncSnapshot> _loadUserSyncSnapshot(String userId) async {
-    final remoteFavorites = await _loadRemoteFavorites(userId);
-    final userCachedFavorites = _loadFavoritesFromStorageKey(
-      _userStorageKey(userId),
-    );
-    final legacyFirestoreFavorites =
-        await _loadLegacyFirestoreFavorites(userId);
-    final legacyRealtimeFavorites = await _loadLegacyRealtimeFavorites(userId);
-
-    return _FavoritesSyncSnapshot(
-      remoteFavorites: remoteFavorites,
-      userCachedFavorites: userCachedFavorites,
-      legacyFirestoreFavorites: legacyFirestoreFavorites,
-      legacyRealtimeFavorites: legacyRealtimeFavorites,
-    );
   }
 
   Future<List<UniversalData>> _loadGuestFavorites() async {
@@ -183,6 +150,7 @@ class FavoritesManager {
         final type = value['type'] is int
             ? value['type'] as int
             : int.tryParse(value['type']?.toString() ?? '') ?? 0;
+        if (!_isSupportedFavoriteType(type)) return null;
         return UniversalData(uid, title, type);
       }));
     } catch (e) {
@@ -249,42 +217,9 @@ class FavoritesManager {
     }));
   }
 
-  Future<List<UniversalData>> _loadLegacyFirestoreFavorites(
+  Future<List<UniversalData>> _loadLegacyRealtimeFavorites(
     String userId,
   ) async {
-    try {
-      final snapshot = await _legacyFavoritesRef(userId).get();
-      return _sanitizeFavorites(snapshot.docs.map((doc) {
-        final data = doc.data();
-        return UniversalData(
-          doc.id,
-          data['title']?.toString() ?? '',
-          data['type'] as int? ?? 0,
-        );
-      }));
-    } catch (e) {
-      debugPrint(
-        'FavoritesManager: Error loading legacy Firestore favorites: $e',
-      );
-      return const [];
-    }
-  }
-
-  Future<void> _deleteLegacyFirestoreFavorites(String userId) async {
-    try {
-      final snapshot = await _legacyFavoritesRef(userId).get();
-      for (final doc in snapshot.docs) {
-        await doc.reference.delete();
-      }
-    } catch (e) {
-      debugPrint(
-        'FavoritesManager: Error deleting legacy Firestore favorites: $e',
-      );
-    }
-  }
-
-  Future<List<UniversalData>> _loadLegacyRealtimeFavorites(
-      String userId) async {
     try {
       final snapshot = await _legacyRealtimeFavoritesRef(userId).get();
       final rawValue = snapshot.value;
@@ -310,6 +245,10 @@ class FavoritesManager {
     }
   }
 
+  bool _isSupportedFavoriteType(int type) {
+    return type == 0 || type == 1;
+  }
+
   List<UniversalData> _sanitizeFavorites(Iterable<dynamic> source) {
     final favorites = <UniversalData>[];
     final seenKeys = <String>{};
@@ -317,7 +256,8 @@ class FavoritesManager {
     for (final entry in source) {
       if (entry is! UniversalData) continue;
       final normalized = _normalizeFavorite(entry);
-      if (normalized.canonicalUid.isEmpty ||
+      if (!_isSupportedFavoriteType(normalized.type) ||
+          normalized.canonicalUid.isEmpty ||
           !seenKeys.add(normalized.favoriteKey)) {
         continue;
       }
@@ -368,13 +308,9 @@ class FavoritesManager {
       fallbackTitles[normalized.favoriteKey] = title;
     }
 
-    final needsLibraryTitles = favorites.any((entry) => entry.type == 1);
-    final needsLiveStreamTitles = favorites.any((entry) => entry.type == 2);
-    final libraryTitles = needsLibraryTitles
-        ? await _loadLibraryTitleLookup()
-        : const <String, String>{};
-    final liveStreamTitles = needsLiveStreamTitles
-        ? await _loadLiveStreamTitleLookup()
+    final needsBookTitles = favorites.any((entry) => entry.type == 1);
+    final bookTitles = needsBookTitles
+        ? await _loadBookTitleLookup()
         : const <String, String>{};
 
     return favorites.map((entry) {
@@ -383,8 +319,7 @@ class FavoritesManager {
           fallbackTitles[normalized.favoriteKey] ?? normalized.title.trim();
       final resolvedTitle = switch (normalized.type) {
         0 => items[normalized.canonicalUid]?.toString().trim(),
-        1 => libraryTitles[normalized.canonicalUid]?.trim(),
-        2 => liveStreamTitles[normalized.canonicalUid]?.trim(),
+        1 => bookTitles[normalized.canonicalUid]?.trim(),
         _ => null,
       };
 
@@ -400,15 +335,15 @@ class FavoritesManager {
     }).toList();
   }
 
-  Future<Map<String, String>> _loadLibraryTitleLookup() async {
-    if (_libraryTitleLookup != null) return _libraryTitleLookup!;
+  Future<Map<String, String>> _loadBookTitleLookup() async {
+    if (_bookTitleLookup != null) return _bookTitleLookup!;
 
     try {
       final encodedBooks = await rootBundle.loadString('assets/books.json');
       final parsed = jsonDecode(encodedBooks);
       if (parsed is! List) return const {};
 
-      _libraryTitleLookup = {
+      _bookTitleLookup = {
         for (final entry in parsed)
           if (entry is Map &&
               entry['slug']?.toString().trim().isNotEmpty == true &&
@@ -416,39 +351,11 @@ class FavoritesManager {
             entry['slug'].toString(): entry['title'].toString(),
       };
     } catch (e) {
-      debugPrint('FavoritesManager: Error loading library titles: $e');
-      _libraryTitleLookup = {};
+      debugPrint('FavoritesManager: Error loading book titles: $e');
+      _bookTitleLookup = {};
     }
 
-    return _libraryTitleLookup!;
-  }
-
-  Future<Map<String, String>> _loadLiveStreamTitleLookup() async {
-    if (_liveStreamTitleLookup != null) return _liveStreamTitleLookup!;
-
-    final lookup = <String, String>{};
-    try {
-      for (final url in const [_holyShrinesUrl, _islamicChannelsUrl]) {
-        final response = await http.get(Uri.parse(url));
-        if (response.statusCode != 200) continue;
-
-        final parsed = jsonDecode(response.body);
-        if (parsed is! List) continue;
-
-        for (final entry in parsed) {
-          if (entry is! Map) continue;
-          final link = entry['link']?.toString().trim() ?? '';
-          final title = entry['title']?.toString().trim() ?? '';
-          if (link.isEmpty || title.isEmpty) continue;
-          lookup[link] = title;
-        }
-      }
-    } catch (e) {
-      debugPrint('FavoritesManager: Error loading live stream titles: $e');
-    }
-
-    _liveStreamTitleLookup = lookup;
-    return _liveStreamTitleLookup!;
+    return _bookTitleLookup!;
   }
 
   void setupRealtimeListener() {
@@ -576,7 +483,6 @@ class FavoritesManager {
   Future<void> deleteAllFavorites(String userId) async {
     try {
       await _favoritesDoc(userId).delete();
-      await _deleteLegacyFirestoreFavorites(userId);
       await _deleteLegacyRealtimeFavorites(userId);
       await SP.prefs.remove(_userStorageKey(userId));
 
@@ -595,18 +501,4 @@ class FavoritesManager {
     _listener?.cancel();
     debugPrint('FavoritesManager: Disposed listener');
   }
-}
-
-class _FavoritesSyncSnapshot {
-  final List<UniversalData> remoteFavorites;
-  final List<UniversalData> userCachedFavorites;
-  final List<UniversalData> legacyFirestoreFavorites;
-  final List<UniversalData> legacyRealtimeFavorites;
-
-  const _FavoritesSyncSnapshot({
-    required this.remoteFavorites,
-    required this.userCachedFavorites,
-    required this.legacyFirestoreFavorites,
-    required this.legacyRealtimeFavorites,
-  });
 }

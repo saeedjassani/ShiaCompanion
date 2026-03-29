@@ -34,6 +34,7 @@ function normalizeFavoriteEntry(value) {
 
   const rawType = Number(value.type ?? 0);
   const type = Number.isFinite(rawType) ? rawType : 0;
+  if (type !== 0 && type !== 1) return null;
   const uid = canonicalizeFavoriteUid(value.uid, type);
   if (!uid) return null;
 
