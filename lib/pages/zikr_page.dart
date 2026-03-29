@@ -953,7 +953,7 @@ class _ZikrPageState extends State<ZikrPage> {
   bool isArabic(String s) {
     for (int i = 0, n = s.length; i < n && i < 35;) {
       int c = s.codeUnitAt(i);
-      if (c >= 0x0600 && c <= 0x06E0) {
+      if (c >= 0x0600 && c <= 0x06FF) {
         return true;
       }
       i += c.bitLength;
