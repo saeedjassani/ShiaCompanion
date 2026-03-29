@@ -63,7 +63,7 @@ export const buildZikrIndex = functions.firestore
             order?: number;
           } = {
             title: data.title,
-            hasData: !!hasPrimaryData || !!hasTabData,
+            hasData: !!hasPrimaryData || !!hasTabData || doc.id.includes("~") || doc.id.includes("|"),
           };
           if (slug) {
             item.slug = slug;
