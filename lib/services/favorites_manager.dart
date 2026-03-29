@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -21,11 +22,13 @@ class FavoritesManager {
 
   static FavoritesManager get instance => _instance;
 
-  static const String _localStorageKey = 'favorites';
-  static const String _legacyLocalStorageKey = 'new_favs';
+  static const String _guestStorageKey = 'favorites_guest';
+  static const String _legacySharedStorageKey = 'favorites';
+  static const String _legacyLifecycleStorageKey = 'new_favs';
   static const String _preferencesCollection = 'preferences';
   static const String _favoritesDocId = 'favorites';
   static const String _legacyFavoritesCollection = 'favorites';
+  static const String _legacyRealtimeFavoritesPath = 'new_favs';
   static const String _holyShrinesUrl =
       'https://alghazienterprises.com/sc/scripts/getHolyShrines.php';
   static const String _islamicChannelsUrl =
@@ -33,6 +36,7 @@ class FavoritesManager {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseDatabase _database = FirebaseDatabase.instance;
 
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   Map<String, String>? _libraryTitleLookup;
@@ -53,58 +57,117 @@ class FavoritesManager {
         .collection(_legacyFavoritesCollection);
   }
 
+  DatabaseReference _legacyRealtimeFavoritesRef(String userId) {
+    return _database.ref().child(_legacyRealtimeFavoritesPath).child(userId);
+  }
+
+  String _userStorageKey(String userId) => 'favorites_user_$userId';
+
   Future<void> loadFavorites() async {
-    final localFavorites = await _loadLocalFavorites();
+    final guestFavorites = await _loadGuestFavorites();
     final user = _auth.currentUser;
 
     _listener?.cancel();
 
     if (user == null) {
-      final resolvedLocal = await _resolveTitles(
-        localFavorites,
-        fallbacks: localFavorites,
+      final resolvedGuestFavorites = await _resolveTitles(
+        guestFavorites,
+        fallbacks: guestFavorites,
       );
-      favsData = resolvedLocal;
-      await _saveFavoritesToSharedPreferences(resolvedLocal);
+      favsData = resolvedGuestFavorites;
+      await _saveGuestFavorites(resolvedGuestFavorites);
       debugPrint(
-        'FavoritesManager: Loaded ${resolvedLocal.length} favorites from SharedPreferences',
+        'FavoritesManager: Loaded ${resolvedGuestFavorites.length} guest favorites',
       );
       return;
     }
 
-    final remoteFavorites = await _loadRemoteFavorites(user.uid);
-    final mergedFavorites = _mergeFavorites(remoteFavorites, localFavorites);
+    final syncSnapshot = await _loadUserSyncSnapshot(user.uid);
+    final mergedFavorites = _mergeFavorites([
+      ...syncSnapshot.userCachedFavorites,
+      ...syncSnapshot.remoteFavorites,
+      ...syncSnapshot.legacyFirestoreFavorites,
+      ...syncSnapshot.legacyRealtimeFavorites,
+      ...guestFavorites,
+    ]);
     final resolvedFavorites = await _resolveTitles(
       mergedFavorites,
-      fallbacks: [...remoteFavorites, ...localFavorites],
+      fallbacks: [
+        ...syncSnapshot.userCachedFavorites,
+        ...syncSnapshot.remoteFavorites,
+        ...syncSnapshot.legacyFirestoreFavorites,
+        ...syncSnapshot.legacyRealtimeFavorites,
+        ...guestFavorites,
+      ],
     );
 
     favsData = resolvedFavorites;
-    await _saveFavoritesToSharedPreferences(resolvedFavorites);
+    await _saveUserFavoritesToSharedPreferences(user.uid, resolvedFavorites);
 
-    if (!_haveSameFavoriteKeys(remoteFavorites, mergedFavorites)) {
+    final remoteAlreadyUpToDate =
+        _haveSameFavoriteKeys(syncSnapshot.remoteFavorites, mergedFavorites);
+    if (!remoteAlreadyUpToDate) {
       await _saveRemoteFavoritesForUser(user.uid, resolvedFavorites);
+    }
+
+    if (guestFavorites.isNotEmpty ||
+        syncSnapshot.legacyFirestoreFavorites.isNotEmpty ||
+        syncSnapshot.legacyRealtimeFavorites.isNotEmpty) {
+      await _clearGuestFavorites();
+      await _deleteLegacyFirestoreFavorites(user.uid);
+      await _deleteLegacyRealtimeFavorites(user.uid);
     }
 
     setupRealtimeListener();
   }
 
-  Future<List<UniversalData>> _loadLocalFavorites() async {
-    final currentEncoded = SP.prefs.getString(_localStorageKey);
-    final legacyEncoded = SP.prefs.getString(_legacyLocalStorageKey);
-    final currentFavorites = _decodeLocalFavorites(currentEncoded);
-    final legacyFavorites = _decodeLocalFavorites(legacyEncoded);
-    final mergedFavorites = _mergeFavorites(currentFavorites, legacyFavorites);
+  Future<_FavoritesSyncSnapshot> _loadUserSyncSnapshot(String userId) async {
+    final remoteFavorites = await _loadRemoteFavorites(userId);
+    final userCachedFavorites = _loadFavoritesFromStorageKey(
+      _userStorageKey(userId),
+    );
+    final legacyFirestoreFavorites =
+        await _loadLegacyFirestoreFavorites(userId);
+    final legacyRealtimeFavorites = await _loadLegacyRealtimeFavorites(userId);
 
-    if (legacyEncoded != null) {
-      await _saveFavoritesToSharedPreferences(mergedFavorites);
-      await SP.prefs.remove(_legacyLocalStorageKey);
+    return _FavoritesSyncSnapshot(
+      remoteFavorites: remoteFavorites,
+      userCachedFavorites: userCachedFavorites,
+      legacyFirestoreFavorites: legacyFirestoreFavorites,
+      legacyRealtimeFavorites: legacyRealtimeFavorites,
+    );
+  }
+
+  Future<List<UniversalData>> _loadGuestFavorites() async {
+    final guestFavorites = _loadFavoritesFromStorageKey(_guestStorageKey);
+    final legacySharedFavorites = _loadFavoritesFromStorageKey(
+      _legacySharedStorageKey,
+    );
+    final legacyLifecycleFavorites = _loadFavoritesFromStorageKey(
+      _legacyLifecycleStorageKey,
+    );
+    final mergedFavorites = _mergeFavorites([
+      ...guestFavorites,
+      ...legacySharedFavorites,
+      ...legacyLifecycleFavorites,
+    ]);
+
+    if (SP.prefs.containsKey(_legacySharedStorageKey) ||
+        SP.prefs.containsKey(_legacyLifecycleStorageKey)) {
+      await _saveGuestFavorites(mergedFavorites);
+      await SP.prefs.remove(_legacySharedStorageKey);
+      await SP.prefs.remove(_legacyLifecycleStorageKey);
     }
 
     return mergedFavorites;
   }
 
-  List<UniversalData> _decodeLocalFavorites(String? encoded) {
+  List<UniversalData> _loadFavoritesFromStorageKey(String storageKey) {
+    final encoded = SP.prefs.getString(storageKey);
+    return _decodeFavorites(encoded);
+  }
+
+  List<UniversalData> _decodeFavorites(String? encoded) {
     if (encoded == null || encoded.isEmpty || encoded == 'null') {
       return const [];
     }
@@ -123,31 +186,49 @@ class FavoritesManager {
         return UniversalData(uid, title, type);
       }));
     } catch (e) {
-      debugPrint('FavoritesManager: Error decoding local favorites: $e');
+      debugPrint('FavoritesManager: Error decoding favorites: $e');
       return const [];
     }
   }
 
-  Future<void> _saveFavoritesToSharedPreferences(
+  Future<void> _saveFavoritesToStorageKey(
+    String storageKey,
     List<UniversalData> favorites,
   ) async {
     try {
+      if (favorites.isEmpty) {
+        await SP.prefs.remove(storageKey);
+        return;
+      }
+
       await SP.prefs.setString(
-        _localStorageKey,
+        storageKey,
         jsonEncode(_sanitizeFavorites(favorites)),
       );
     } catch (e) {
-      debugPrint('FavoritesManager: Error saving to SharedPreferences: $e');
+      debugPrint('FavoritesManager: Error saving favorites to $storageKey: $e');
     }
+  }
+
+  Future<void> _saveGuestFavorites(List<UniversalData> favorites) {
+    return _saveFavoritesToStorageKey(_guestStorageKey, favorites);
+  }
+
+  Future<void> _saveUserFavoritesToSharedPreferences(
+    String userId,
+    List<UniversalData> favorites,
+  ) {
+    return _saveFavoritesToStorageKey(_userStorageKey(userId), favorites);
+  }
+
+  Future<void> _clearGuestFavorites() async {
+    await SP.prefs.remove(_guestStorageKey);
   }
 
   Future<List<UniversalData>> _loadRemoteFavorites(String userId) async {
     try {
       final snapshot = await _favoritesDoc(userId).get();
-      final remoteFavorites =
-          _decodeRemoteFavorites(snapshot.data()?['entries']);
-      final legacyFavorites = await _loadLegacyFirestoreFavorites(userId);
-      return _mergeFavorites(remoteFavorites, legacyFavorites);
+      return _decodeRemoteFavorites(snapshot.data()?['entries']);
     } catch (e) {
       debugPrint('FavoritesManager: Error loading remote favorites: $e');
       return const [];
@@ -169,7 +250,8 @@ class FavoritesManager {
   }
 
   Future<List<UniversalData>> _loadLegacyFirestoreFavorites(
-      String userId) async {
+    String userId,
+  ) async {
     try {
       final snapshot = await _legacyFavoritesRef(userId).get();
       return _sanitizeFavorites(snapshot.docs.map((doc) {
@@ -182,8 +264,49 @@ class FavoritesManager {
       }));
     } catch (e) {
       debugPrint(
-          'FavoritesManager: Error loading legacy Firestore favorites: $e');
+        'FavoritesManager: Error loading legacy Firestore favorites: $e',
+      );
       return const [];
+    }
+  }
+
+  Future<void> _deleteLegacyFirestoreFavorites(String userId) async {
+    try {
+      final snapshot = await _legacyFavoritesRef(userId).get();
+      for (final doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+    } catch (e) {
+      debugPrint(
+        'FavoritesManager: Error deleting legacy Firestore favorites: $e',
+      );
+    }
+  }
+
+  Future<List<UniversalData>> _loadLegacyRealtimeFavorites(
+      String userId) async {
+    try {
+      final snapshot = await _legacyRealtimeFavoritesRef(userId).get();
+      final rawValue = snapshot.value;
+      if (rawValue is! String) return const [];
+      return _decodeFavorites(rawValue);
+    } catch (e) {
+      debugPrint(
+        'FavoritesManager: Error loading legacy RTDB favorites: $e',
+      );
+      return const [];
+    }
+  }
+
+  Future<void> _deleteLegacyRealtimeFavorites(String userId) async {
+    try {
+      final snapshot = await _legacyRealtimeFavoritesRef(userId).get();
+      if (!snapshot.exists) return;
+      await _legacyRealtimeFavoritesRef(userId).remove();
+    } catch (e) {
+      debugPrint(
+        'FavoritesManager: Error deleting legacy RTDB favorites: $e',
+      );
     }
   }
 
@@ -213,11 +336,8 @@ class FavoritesManager {
     return UniversalData(canonicalUid, resolvedTitle, item.type);
   }
 
-  List<UniversalData> _mergeFavorites(
-    Iterable<UniversalData> primary,
-    Iterable<UniversalData> secondary,
-  ) {
-    return _sanitizeFavorites([...primary, ...secondary]);
+  List<UniversalData> _mergeFavorites(Iterable<UniversalData> source) {
+    return _sanitizeFavorites(source);
   }
 
   bool _haveSameFavoriteKeys(
@@ -240,7 +360,7 @@ class FavoritesManager {
     final fallbackTitles = <String, String>{};
     for (final entry in [
       ...fallbacks,
-      ...(favsData ?? const <UniversalData>[])
+      ...(favsData ?? const <UniversalData>[]),
     ]) {
       final normalized = _normalizeFavorite(entry);
       final title = normalized.title.trim();
@@ -351,7 +471,8 @@ class FavoritesManager {
         );
 
         favsData = resolvedFavorites;
-        await _saveFavoritesToSharedPreferences(resolvedFavorites);
+        await _saveUserFavoritesToSharedPreferences(
+            user.uid, resolvedFavorites);
         debugPrint(
           'FavoritesManager: Updated favsData with ${resolvedFavorites.length} items from Firestore',
         );
@@ -388,15 +509,17 @@ class FavoritesManager {
     ]);
 
     favsData = nextFavorites;
-    await _saveFavoritesToSharedPreferences(nextFavorites);
 
     final user = _auth.currentUser;
     if (user == null) {
+      await _saveGuestFavorites(nextFavorites);
       debugPrint(
-          'FavoritesManager: Added favorite ${normalizedItem.canonicalUid} (local)');
+        'FavoritesManager: Added favorite ${normalizedItem.canonicalUid} (guest)',
+      );
       return;
     }
 
+    await _saveUserFavoritesToSharedPreferences(user.uid, nextFavorites);
     try {
       await _saveRemoteFavoritesForUser(user.uid, nextFavorites);
       debugPrint(
@@ -415,16 +538,17 @@ class FavoritesManager {
     )..remove(normalizedItem);
 
     favsData = nextFavorites;
-    await _saveFavoritesToSharedPreferences(nextFavorites);
 
     final user = _auth.currentUser;
     if (user == null) {
+      await _saveGuestFavorites(nextFavorites);
       debugPrint(
-        'FavoritesManager: Removed favorite ${normalizedItem.canonicalUid} (local)',
+        'FavoritesManager: Removed favorite ${normalizedItem.canonicalUid} (guest)',
       );
       return;
     }
 
+    await _saveUserFavoritesToSharedPreferences(user.uid, nextFavorites);
     try {
       await _saveRemoteFavoritesForUser(user.uid, nextFavorites);
       debugPrint(
@@ -452,15 +576,12 @@ class FavoritesManager {
   Future<void> deleteAllFavorites(String userId) async {
     try {
       await _favoritesDoc(userId).delete();
-
-      final legacySnapshot = await _legacyFavoritesRef(userId).get();
-      for (final doc in legacySnapshot.docs) {
-        await doc.reference.delete();
-      }
+      await _deleteLegacyFirestoreFavorites(userId);
+      await _deleteLegacyRealtimeFavorites(userId);
+      await SP.prefs.remove(_userStorageKey(userId));
 
       if (_auth.currentUser?.uid == userId) {
         favsData = [];
-        await _saveFavoritesToSharedPreferences(const []);
       }
 
       debugPrint('FavoritesManager: Deleted all favorites for user $userId');
@@ -474,4 +595,18 @@ class FavoritesManager {
     _listener?.cancel();
     debugPrint('FavoritesManager: Disposed listener');
   }
+}
+
+class _FavoritesSyncSnapshot {
+  final List<UniversalData> remoteFavorites;
+  final List<UniversalData> userCachedFavorites;
+  final List<UniversalData> legacyFirestoreFavorites;
+  final List<UniversalData> legacyRealtimeFavorites;
+
+  const _FavoritesSyncSnapshot({
+    required this.remoteFavorites,
+    required this.userCachedFavorites,
+    required this.legacyFirestoreFavorites,
+    required this.legacyRealtimeFavorites,
+  });
 }

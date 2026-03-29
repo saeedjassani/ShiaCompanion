@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import '../constants.dart';
 import '../widgets/zikr_settings.dart';
@@ -40,6 +41,10 @@ class _ZikrPageState extends State<ZikrPage> {
   final PageController _pageController = PageController();
   List<String> _slugAliases = const [];
   int _selectedTabIndex = 0;
+  late final String _counterSessionId;
+  late final ValueNotifier<Offset> _counterOffset;
+  late final ValueNotifier<bool> _showCounter;
+  late final ValueNotifier<int> _counterCount;
 
   TextStyle arabicStyle = TextStyle(
       fontFamily: arabicFont, fontSize: arabicFontSize, letterSpacing: 0);
@@ -49,6 +54,12 @@ class _ZikrPageState extends State<ZikrPage> {
   @override
   void initState() {
     super.initState();
+    _counterSessionId = widget.item.getFirstUId();
+    final counterState =
+        ZikrCounterSessionStore.instance.read(_counterSessionId);
+    _counterOffset = ValueNotifier(counterState.offset);
+    _showCounter = ValueNotifier(counterState.isVisible);
+    _counterCount = ValueNotifier(counterState.count);
     if (widget.startEditing) {
       isEditing = true;
     }
@@ -70,8 +81,52 @@ class _ZikrPageState extends State<ZikrPage> {
     for (final controller in _tabScrollControllers) {
       controller.dispose();
     }
+    _counterOffset.dispose();
+    _showCounter.dispose();
+    _counterCount.dispose();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _persistCounterSession({
+    int? count,
+    bool? isVisible,
+    Offset? offset,
+  }) {
+    final nextState =
+        ZikrCounterSessionStore.instance.read(_counterSessionId).copyWith(
+              count: count ?? _counterCount.value,
+              isVisible: isVisible ?? _showCounter.value,
+              offset: offset ?? _counterOffset.value,
+            );
+    ZikrCounterSessionStore.instance.write(_counterSessionId, nextState);
+  }
+
+  void _setCounterVisibility(bool isVisible) {
+    _showCounter.value = isVisible;
+    _persistCounterSession(isVisible: isVisible);
+  }
+
+  void _updateCounterOffset(Offset offset) {
+    _counterOffset.value = offset;
+    _persistCounterSession(offset: offset);
+  }
+
+  void _setCounterCount(int count) {
+    _counterCount.value = count;
+    _persistCounterSession(count: count);
+  }
+
+  Widget _buildCounterCard() {
+    return ValueListenableBuilder<int>(
+      valueListenable: _counterCount,
+      builder: (context, count, _) => ZikrCounter(
+        count: count,
+        onIncrement: () => _setCounterCount(count + 1),
+        onDecrement: count > 0 ? () => _setCounterCount(count - 1) : () {},
+        onReset: () => _setCounterCount(0),
+      ),
+    );
   }
 
   Future<void> _checkAdmin() async {
@@ -581,10 +636,6 @@ class _ZikrPageState extends State<ZikrPage> {
         tabContents.any((content) => content.trim().isNotEmpty);
     final showTabHeaders = tabContents.length > 1;
 
-    // Counter overlay state
-    ValueNotifier<Offset> counterOffset = ValueNotifier(const Offset(20, 80));
-    ValueNotifier<bool> showCounter = ValueNotifier(false);
-
     return SelectionArea(
       child: Scaffold(
         appBar: AppBar(
@@ -624,11 +675,11 @@ class _ZikrPageState extends State<ZikrPage> {
         ),
         endDrawer: ZikrSettingsPage(refreshState),
         floatingActionButton: ValueListenableBuilder<bool>(
-          valueListenable: showCounter,
+          valueListenable: _showCounter,
           builder: (context, visible, _) => visible
               ? const SizedBox.shrink()
               : FloatingActionButton(
-                  onPressed: () => showCounter.value = true,
+                  onPressed: () => _setCounterVisibility(true),
                   tooltip: 'Show Counter',
                   child: const Icon(Icons.exposure_plus_1),
                 ),
@@ -883,32 +934,32 @@ class _ZikrPageState extends State<ZikrPage> {
                       ),
             // Counter overlay
             ValueListenableBuilder<bool>(
-              valueListenable: showCounter,
+              valueListenable: _showCounter,
               builder: (context, visible, _) {
                 if (!visible) return const SizedBox.shrink();
                 return ValueListenableBuilder<Offset>(
-                  valueListenable: counterOffset,
+                  valueListenable: _counterOffset,
                   builder: (context, offset, __) => Positioned(
                     left: offset.dx,
                     top: offset.dy,
                     child: Draggable(
                       feedback: Material(
                         color: Colors.transparent,
-                        child: ZikrCounter(zikrId: widget.item.uid),
+                        child: _buildCounterCard(),
                       ),
                       childWhenDragging: const SizedBox.shrink(),
                       onDragEnd: (details) {
-                        counterOffset.value = details.offset;
+                        _updateCounterOffset(details.offset);
                       },
                       child: Stack(
                         children: [
-                          ZikrCounter(zikrId: widget.item.uid),
+                          _buildCounterCard(),
                           Positioned(
                             right: 0,
                             top: 0,
                             child: IconButton(
                               icon: const Icon(Icons.close, size: 20),
-                              onPressed: () => showCounter.value = false,
+                              onPressed: () => _setCounterVisibility(false),
                             ),
                           ),
                         ],
