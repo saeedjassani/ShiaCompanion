@@ -226,14 +226,17 @@ class _ItemListState extends State<ItemList> {
             handleUniversalDataClick(context, itemData, itemPage: true);
         },
         title: Text(title),
-        trailing: showHoverEdit
-            ? IconButton(
-                icon: const Icon(Icons.edit),
-                tooltip: 'Edit Title',
-                onPressed: () => _editTitle(uidTitleData),
-              )
-            : !isParentZikr
-                ? InkWell(
+        trailing: !isParentZikr
+            ? Wrap(
+                spacing: 0,
+                children: [
+                  if (showHoverEdit)
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      tooltip: 'Edit Title',
+                      onPressed: () => _editTitle(uidTitleData),
+                    ),
+                  InkWell(
                     onTap: () {
                       if (favsData!.contains(itemData)) {
                         favsData!.remove(itemData);
@@ -243,6 +246,14 @@ class _ItemListState extends State<ItemList> {
                       setState(() {});
                     },
                     child: getFavIcon(context, itemData),
+                  ),
+                ],
+              )
+            : showHoverEdit
+                ? IconButton(
+                    icon: const Icon(Icons.edit),
+                    tooltip: 'Edit Title',
+                    onPressed: () => _editTitle(uidTitleData),
                   )
                 : null,
       ),
