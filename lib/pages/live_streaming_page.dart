@@ -6,6 +6,7 @@ import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 
 import '../constants.dart';
+import '../services/favorites_manager.dart';
 
 class LiveStreamingPage extends StatefulWidget {
   final int arg;
@@ -71,12 +72,7 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    if (favsData?.contains(universalData) ==
-                                        true) {
-                                      favsData?.remove(universalData);
-                                    } else {
-                                      favsData?.add(universalData);
-                                    }
+                                    FavoritesManager.instance.toggleFavorite(universalData);
                                     setState(() {});
                                   },
                                   child: getFavIcon(context, universalData),

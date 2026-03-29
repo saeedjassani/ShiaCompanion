@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -10,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../utils/dark_mode.dart';
 import '../utils/shared_preferences.dart';
+import '../services/favorites_manager.dart';
 import 'about_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -358,10 +358,8 @@ class _SettingsPageState extends State<SettingsPage> {
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
-        // Remove favorites from the database
-        DatabaseReference favoritesRef =
-            FirebaseDatabase.instance.ref().child('new_favs').child(user.uid);
-        await favoritesRef.remove();
+        // Remove favorites from Firestore
+        await FavoritesManager.instance.deleteAllFavorites(user.uid);
 
         // Delete the user account
         await user.delete();
