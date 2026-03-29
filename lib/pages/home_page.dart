@@ -73,8 +73,10 @@ class _MyHomePageState extends State<MyHomePage>
     pushPageRoute(context, CalendarPage(scrollToPrayerTimes));
   }
 
-  loginCallback() async {
-    FavoritesManager.instance.setupRealtimeListener();
+  Future<void> loginCallback() async {
+    await FavoritesManager.instance.loadFavorites();
+    if (!mounted) return;
+    setState(() {});
   }
 
   @override

@@ -57,7 +57,8 @@ bool showTranslation = true, showTransliteration = true;
 
 // Helper to map a tile label to a freshly-built page instance.
 Widget getPage(String label,
-    {Function()? loginCallback, bool scrollToPrayerTimes = false}) {
+    {Future<void> Function()? loginCallback,
+    bool scrollToPrayerTimes = false}) {
   switch (label) {
     case 'Favorites':
       return FavoritesPage();
@@ -96,7 +97,7 @@ Widget getPage(String label,
       // SettingsPage expects a loginCallback; we pass it through when available
       return Scaffold(
           appBar: AppBar(title: Text('Preferences')),
-          body: SettingsPage(loginCallback ?? () {}));
+          body: SettingsPage(loginCallback ?? () async {}));
     default:
       return Container();
   }
@@ -229,9 +230,7 @@ List<String> normalizeSlugAliases(
 
   for (final value in values ?? const []) {
     final alias = normalizeSlug(value?.toString() ?? '');
-    if (alias.isEmpty ||
-        alias == normalizedExclude ||
-        !seen.add(alias)) {
+    if (alias.isEmpty || alias == normalizedExclude || !seen.add(alias)) {
       continue;
     }
     aliases.add(alias);
@@ -283,7 +282,8 @@ void setLocalSlugData(
   }
 }
 
-void applySlugLookupMap(Map<dynamic, dynamic>? rawLookup, Set<String> allowedUids) {
+void applySlugLookupMap(
+    Map<dynamic, dynamic>? rawLookup, Set<String> allowedUids) {
   if (rawLookup == null) return;
 
   rawLookup.forEach((rawSlug, rawUid) {

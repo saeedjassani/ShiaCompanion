@@ -13,7 +13,7 @@ import '../services/favorites_manager.dart';
 import 'about_page.dart';
 
 class SettingsPage extends StatefulWidget {
-  final Function() loginCallback;
+  final Future<void> Function() loginCallback;
   SettingsPage(this.loginCallback);
 
   @override
@@ -121,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: Text('Sign in with Google'),
                       onTap: () async {
                         await _signInWithGoogle();
-                        widget.loginCallback();
+                        await widget.loginCallback();
                       },
                     ),
                     Divider(),
@@ -132,7 +132,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             title: Text('Sign in with Apple'),
                             onTap: () async {
                               await _signInWithApple();
-                              widget.loginCallback();
+                              await widget.loginCallback();
                             },
                           )
                         : Container(),
@@ -209,7 +209,7 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       await _auth.signOut();
       user = null;
-      widget.loginCallback();
+      await widget.loginCallback();
       setState(() {});
     } catch (e) {
       debugPrint("Error : $e");
@@ -247,7 +247,7 @@ class _SettingsPageState extends State<SettingsPage> {
           } else {
             // Try lightweight authentication first, then fall back to interactive
             googleUser = await signIn.attemptLightweightAuthentication() ??
-              await signIn.authenticate();
+                await signIn.authenticate();
           }
 
           final GoogleSignInAuthentication googleAuth =
@@ -374,7 +374,7 @@ class _SettingsPageState extends State<SettingsPage> {
         );
 
         user = null;
-        widget.loginCallback();
+        await widget.loginCallback();
         setState(() {});
       } else {
         // User is not signed in, show an appropriate message
