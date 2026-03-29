@@ -76,6 +76,17 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   onLongPress: () {
                     if (isUserAdmin) handleUniversalDataClick(context, item, itemPage: true);
                   },
+                  trailing: InkWell(
+                    onTap: () async {
+                      if (favsData!.contains(item)) {
+                        favsData!.remove(item);
+                      } else {
+                        favsData!.add(item);
+                      }
+                      setState(() {});
+                    },
+                    child: getFavIcon(context, item),
+                  ),
                 );
               },
             ),
