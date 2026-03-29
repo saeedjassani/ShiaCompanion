@@ -15,19 +15,26 @@ class UniversalData {
 
   UniversalData(this.uid, this.title, this.type);
 
+  String get canonicalUid {
+    final normalizedUid = uid.trim();
+    if (type != 0) return normalizedUid;
+    return UidTitleData(normalizedUid, title).getFirstUId().trim();
+  }
+
+  String get favoriteKey => '$type:$canonicalUid';
+
   @override
   bool operator ==(other) {
     return (other is UniversalData) &&
-        other.uid == uid &&
-        other.title == title &&
+        other.canonicalUid == canonicalUid &&
         other.type == type;
   }
 
   @override
-  int get hashCode => uid.hashCode ^ title.hashCode ^ type.hashCode;
+  int get hashCode => canonicalUid.hashCode ^ type.hashCode;
 
   Map toJson() {
-    return {'title': title, 'type': type, 'uid': uid};
+    return {'title': title, 'type': type, 'uid': canonicalUid};
   }
 
   static UniversalData forUidTitleData(UidTitleData data) {
