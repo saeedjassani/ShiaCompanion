@@ -60,6 +60,7 @@ class _MyHomePageState extends State<MyHomePage>
   StreamSubscription<Uri>? _linkSubscription;
   DeepLinkTarget? _pendingDeepLink;
   bool _itemsLoaded = false;
+  bool _isPublishingIndex = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
   final CollectionReference<Map<String, dynamic>> _zikrCollection =
@@ -332,6 +333,38 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  Future<void> _publishZikrIndex() async {
+    if (_isPublishingIndex) return;
+
+    setState(() {
+      _isPublishingIndex = true;
+    });
+
+    try {
+      await FirebaseFirestore.instance
+          .doc('zikr_meta/publish_requests/index')
+          .set({
+        'requestedAt': FieldValue.serverTimestamp(),
+        'requestedBy': _auth.currentUser?.uid,
+      }, SetOptions(merge: true));
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+            'Publish requested. Changes will go live after the index rebuild finishes.'),
+      ));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Publish failed: $e')));
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _isPublishingIndex = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
@@ -343,7 +376,19 @@ class _MyHomePageState extends State<MyHomePage>
           actions: <Widget>[
             if (isUserAdmin) ...[
               IconButton(
-                icon: Icon(Icons.add),
+                icon: _isPublishingIndex
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.publish),
+                tooltip: 'Publish changes',
+                onPressed: _isPublishingIndex ? null : _publishZikrIndex,
+              ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                tooltip: 'Add item',
                 onPressed: _showAddItemDialog,
               ),
             ],

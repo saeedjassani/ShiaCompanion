@@ -29,78 +29,86 @@ function normalizeSlugAliases(values: unknown, exclude?: string): string[] {
     });
 }
 
-// Rebuilds zikr index whenever a zikr document changes
-export const buildZikrIndex = functions.firestore
-  .onDocumentWritten("zikr/{docId}", async (event) => {
-    try {
-      const snapshot = await db.collection("zikr").get();
-      const index: {
-        [key: string]: {
-          title: string;
-          slug?: string;
-          slugAliases?: string[];
-          hasData: boolean;
-          order?: number;
-        };
-      } = {};
-      const slugLookup: {[key: string]: string} = {};
+async function rebuildZikrIndex(): Promise<number> {
+  const snapshot = await db.collection("zikr").get();
+  const index: {
+    [key: string]: {
+      title: string;
+      slug?: string;
+      slugAliases?: string[];
+      hasData: boolean;
+      order?: number;
+    };
+  } = {};
+  const slugLookup: {[key: string]: string} = {};
 
-      const sortedDocs = [...snapshot.docs].sort((a, b) => a.id.localeCompare(b.id));
-      sortedDocs.forEach((doc) => {
-        const data = doc.data();
-        if (data.title) {
-          const hasPrimaryData = data.data && data.data.toString().trim();
-          const hasTabData = Array.isArray(data.tabs) &&
-            data.tabs.some((tab) => tab && tab.toString().trim());
-          const slug = slugifyTitle(data.slug?.toString() ?? "");
-          const slugAliases = normalizeSlugAliases(data.slugAliases, slug);
+  const sortedDocs = [...snapshot.docs].sort((a, b) => a.id.localeCompare(b.id));
+  sortedDocs.forEach((doc) => {
+    const data = doc.data();
+    if (data.title) {
+      const hasPrimaryData = data.data && data.data.toString().trim();
+      const hasTabData = Array.isArray(data.tabs) &&
+        data.tabs.some((tab) => tab && tab.toString().trim());
+      const slug = slugifyTitle(data.slug?.toString() ?? "");
+      const slugAliases = normalizeSlugAliases(data.slugAliases, slug);
 
-          const item: {
-            title: string;
-            slug?: string;
-            slugAliases?: string[];
-            hasData: boolean;
-            order?: number;
-          } = {
-            title: data.title,
-            hasData: !!hasPrimaryData || !!hasTabData || doc.id.includes("~") || doc.id.includes("|"),
-          };
-          if (slug) {
-            item.slug = slug;
-            if (slugLookup[slug] && slugLookup[slug] !== doc.id) {
-              console.warn(`Duplicate slug "${slug}" for ${doc.id}; keeping ${slugLookup[slug]}`);
-            } else {
-              slugLookup[slug] = doc.id;
-            }
-          }
-          if (slugAliases.length > 0) {
-            item.slugAliases = slugAliases;
-            slugAliases.forEach((alias) => {
-              if (slugLookup[alias] && slugLookup[alias] !== doc.id) {
-                console.warn(
-                  `Duplicate slug alias "${alias}" for ${doc.id}; keeping ${slugLookup[alias]}`,
-                );
-                return;
-              }
-              slugLookup[alias] = doc.id;
-            });
-          }
-          if (typeof data.order === "number") {
-            item.order = data.order;
-          }
-          index[doc.id] = item;
+      const item: {
+        title: string;
+        slug?: string;
+        slugAliases?: string[];
+        hasData: boolean;
+        order?: number;
+      } = {
+        title: data.title,
+        hasData: !!hasPrimaryData || !!hasTabData || doc.id.includes("~") || doc.id.includes("|"),
+      };
+      if (slug) {
+        item.slug = slug;
+        if (slugLookup[slug] && slugLookup[slug] !== doc.id) {
+          console.warn(`Duplicate slug "${slug}" for ${doc.id}; keeping ${slugLookup[slug]}`);
+        } else {
+          slugLookup[slug] = doc.id;
         }
-      });
+      }
+      if (slugAliases.length > 0) {
+        item.slugAliases = slugAliases;
+        slugAliases.forEach((alias) => {
+          if (slugLookup[alias] && slugLookup[alias] !== doc.id) {
+            console.warn(
+              `Duplicate slug alias "${alias}" for ${doc.id}; keeping ${slugLookup[alias]}`,
+            );
+            return;
+          }
+          slugLookup[alias] = doc.id;
+        });
+      }
+      if (typeof data.order === "number") {
+        item.order = data.order;
+      }
+      index[doc.id] = item;
+    }
+  });
 
-      // Write single index doc
-      await db.doc("zikr_meta/index").set({
-        items: index,
-        slugLookup,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        itemCount: Object.keys(index).length,
-      });
+  await db.doc("zikr_meta/index").set({
+    items: index,
+    slugLookup,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    itemCount: Object.keys(index).length,
+  });
 
-      console.log(`Index rebuilt: ${Object.keys(index).length} items`);
+  return Object.keys(index).length;
+}
+
+// Rebuilds the public zikr index only when an admin explicitly requests publish.
+export const buildZikrIndex = functions.firestore
+  .onDocumentWritten("zikr_meta/publish_requests/index", async (event) => {
+    if (!event.data?.after.exists) {
+      return;
+    }
+
+    try {
+      const itemCount = await rebuildZikrIndex();
+      console.log(`Index rebuilt: ${itemCount} items`);
     } catch (error) {
       console.error("Error building index:", error);
       throw error;
