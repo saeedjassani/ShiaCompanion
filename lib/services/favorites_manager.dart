@@ -25,6 +25,8 @@ class FavoritesManager {
   static const String _legacySharedStorageKey = 'favorites';
   static const String _legacyLifecycleStorageKey = 'new_favs';
   static const String _legacyRealtimeFavoritesPath = 'new_favs';
+  static const String _favoritesCollection = 'favorites';
+  static const String _favoritesDocId = 'index';
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -37,8 +39,8 @@ class FavoritesManager {
     return _firestore
         .collection('users')
         .doc(userId)
-        .collection('preferences')
-        .doc('favorites');
+        .collection(_favoritesCollection)
+        .doc(_favoritesDocId);
   }
 
   DatabaseReference _legacyRealtimeFavoritesRef(String userId) {
