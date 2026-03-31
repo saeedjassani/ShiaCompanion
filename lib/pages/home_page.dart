@@ -164,6 +164,10 @@ class _MyHomePageState extends State<MyHomePage>
       }
     }
 
+    if (!isUserAdmin) {
+      return null;
+    }
+
     return _fetchDeepLinkItemFromFirestore(primarySegment);
   }
 
@@ -541,22 +545,32 @@ class _MyHomePageState extends State<MyHomePage>
   Future<void> _loadItemsFromAssets() async {
     try {
       String data =
-          await DefaultAssetBundle.of(context).loadString("assets/items.json");
+          await DefaultAssetBundle.of(context).loadString("assets/zikr.json");
       final decoded = json.decode(data);
       items = {};
       itemOrder = {};
       clearLocalSlugMaps();
       decoded.forEach((key, value) {
         if (value is Map) {
-          items[key] = value['title'] ?? '';
+          final title = value['title']?.toString() ?? '';
+          if (title.isEmpty) return;
+          items[key] = title;
           final order = value['order'];
           if (order is num) itemOrder[key] = order.toDouble();
+          setLocalSlugData(
+            key.toString(),
+            slug: value['slug']?.toString(),
+            aliases:
+                value['slugAliases'] is Iterable ? value['slugAliases'] : null,
+          );
         } else {
-          items[key] = value;
+          final title = value?.toString() ?? '';
+          if (title.isEmpty) return;
+          items[key] = title;
         }
       });
     } catch (e) {
-      debugPrint("Error loading items from assets: $e");
+      debugPrint("Error loading zikr index from assets: $e");
     }
   }
 
@@ -609,9 +623,11 @@ class _MyHomePageState extends State<MyHomePage>
         isUserAdmin = true;
       }
     }
-    // Load index from Firebase (free tier friendly - single read per app launch)
-    await _loadItemsFromFirebase();
-    // Fall back to assets if Firebase fails
+    if (isUserAdmin) {
+      await _loadItemsFromFirebase();
+    } else {
+      await _loadItemsFromAssets();
+    }
     if (items.isEmpty) {
       await _loadItemsFromAssets();
     }

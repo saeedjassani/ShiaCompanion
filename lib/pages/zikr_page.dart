@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -63,8 +65,7 @@ class _ZikrPageState extends State<ZikrPage> {
     if (widget.startEditing) {
       isEditing = true;
     }
-    _checkAdmin();
-    _fetchZikrData();
+    _initializePageData();
   }
 
   @override
@@ -145,44 +146,81 @@ class _ZikrPageState extends State<ZikrPage> {
     }
   }
 
-  Future<void> _fetchZikrData() async {
-    final doc = await zikrCollection.doc(widget.item.getFirstUId()).get();
-    if (doc.exists) {
-      final data = doc.data() as Map<String, dynamic>;
-      final currentSlug = normalizeSlug(data['slug']?.toString() ?? '');
-      final currentAliases = normalizeSlugAliases(
-        data['slugAliases'] is Iterable ? data['slugAliases'] : null,
-        exclude: currentSlug,
-      );
-      setState(() {
-        zikrData = data;
-        titleController = TextEditingController(text: zikrData?['title']);
-        slugController = TextEditingController(text: currentSlug);
-        codeController = TextEditingController(text: zikrData?['code']);
-        dataController = TextEditingController(text: zikrData?['data']);
-        meritsController = TextEditingController(text: zikrData?['merits']);
-        _slugAliases = currentAliases;
-        final rawTabs = zikrData?['tabs'];
-        if (rawTabs is List) {
-          for (final controller in tabControllers) {
-            controller.dispose();
-          }
-          tabControllers.clear();
-          for (final tab in rawTabs) {
-            tabControllers
-                .add(TextEditingController(text: tab?.toString() ?? ''));
-          }
+  Future<void> _initializePageData() async {
+    await _checkAdmin();
+    await _fetchZikrData();
+  }
+
+  void _applyZikrData(Map<String, dynamic> data) {
+    final currentSlug = normalizeSlug(data['slug']?.toString() ?? '');
+    final currentAliases = normalizeSlugAliases(
+      data['slugAliases'] is Iterable ? data['slugAliases'] : null,
+      exclude: currentSlug,
+    );
+    setState(() {
+      zikrData = data;
+      titleController = TextEditingController(text: zikrData?['title']);
+      slugController = TextEditingController(text: currentSlug);
+      codeController = TextEditingController(text: zikrData?['code']);
+      dataController = TextEditingController(text: zikrData?['data']);
+      meritsController = TextEditingController(text: zikrData?['merits']);
+      _slugAliases = currentAliases;
+      final rawTabs = zikrData?['tabs'];
+      if (rawTabs is List) {
+        for (final controller in tabControllers) {
+          controller.dispose();
         }
-        final double? currentOrder = itemOrder[widget.item.uid];
-        orderController = TextEditingController(
-            text: currentOrder == null
-                ? ''
-                : (currentOrder % 1 == 0
-                    ? currentOrder.toInt().toString()
-                    : currentOrder.toString()));
-        _syncTabState(_buildVisibleTabContents().length);
-      });
+        tabControllers.clear();
+        for (final tab in rawTabs) {
+          tabControllers
+              .add(TextEditingController(text: tab?.toString() ?? ''));
+        }
+      }
+      final double? currentOrder = itemOrder[widget.item.uid];
+      orderController = TextEditingController(
+          text: currentOrder == null
+              ? ''
+              : (currentOrder % 1 == 0
+                  ? currentOrder.toInt().toString()
+                  : currentOrder.toString()));
+      _syncTabState(_buildVisibleTabContents().length);
+    });
+  }
+
+  Future<bool> _loadZikrDataFromAssets() async {
+    try {
+      final raw = await DefaultAssetBundle.of(context)
+          .loadString('assets/zikr/${widget.item.getFirstUId()}');
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return false;
+      }
+
+      _applyZikrData(Map<String, dynamic>.from(decoded));
+      return true;
+    } catch (e) {
+      debugPrint('Error loading zikr from assets: $e');
+      return false;
     }
+  }
+
+  Future<void> _loadZikrDataFromFirestore() async {
+    final doc = await zikrCollection.doc(widget.item.getFirstUId()).get();
+    if (!doc.exists) {
+      return;
+    }
+
+    final data = doc.data() as Map<String, dynamic>;
+    _applyZikrData(data);
+  }
+
+  Future<void> _fetchZikrData() async {
+    if (!isAdmin) {
+      await _loadZikrDataFromAssets();
+      return;
+    }
+
+    await _loadZikrDataFromFirestore();
   }
 
   void _resetControllersFromCurrentData() {
