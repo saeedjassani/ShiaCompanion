@@ -3,8 +3,8 @@ const path = require('path');
 const admin = require('firebase-admin');
 
 const USERS_COLLECTION = 'users';
-const PREFERENCES_COLLECTION = 'preferences';
-const FAVORITES_DOC_ID = 'favorites';
+const FAVORITES_COLLECTION = 'favorites';
+const FAVORITES_DOC_ID = 'index';
 const RTDB_FAVORITES_PATH = 'new_favs';
 const DRY_RUN = process.argv.includes('--dry-run');
 
@@ -131,7 +131,7 @@ async function main() {
     const docRef = db
       .collection(USERS_COLLECTION)
       .doc(userId)
-      .collection(PREFERENCES_COLLECTION)
+      .collection(FAVORITES_COLLECTION)
       .doc(FAVORITES_DOC_ID);
 
     const existingSnapshot = await docRef.get();
