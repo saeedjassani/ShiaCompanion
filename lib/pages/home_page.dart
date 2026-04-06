@@ -378,7 +378,9 @@ class _MyHomePageState extends State<MyHomePage>
 
   Future<Timestamp?> _getZikrIndexUpdatedAt() async {
     try {
-      final doc = await FirebaseFirestore.instance.doc('zikr_meta/index').get();
+      final doc = await FirebaseFirestore.instance
+          .doc('zikr_meta/index')
+          .get(const GetOptions(source: Source.server));
       final data = doc.data();
       final updatedAt = data?['updatedAt'];
       return updatedAt is Timestamp ? updatedAt : null;
@@ -614,7 +616,9 @@ class _MyHomePageState extends State<MyHomePage>
 
   Future<void> _loadItemsFromFirebase() async {
     try {
-      final doc = await FirebaseFirestore.instance.doc('zikr_meta/index').get();
+      final doc = await FirebaseFirestore.instance
+          .doc('zikr_meta/index')
+          .get(const GetOptions(source: Source.server));
       if (doc.exists && doc['items'] != null) {
         final rawItems = doc['items'];
         items = {};
@@ -646,6 +650,10 @@ class _MyHomePageState extends State<MyHomePage>
         if (rawSlugLookup is Map) {
           applySlugLookupMap(rawSlugLookup, visibleUids);
         }
+      } else {
+        items = {};
+        itemOrder = {};
+        clearLocalSlugMaps();
       }
     } catch (e) {
       debugPrint("Error loading zikr index: $e");
