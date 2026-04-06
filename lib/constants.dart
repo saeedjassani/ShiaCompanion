@@ -55,6 +55,10 @@ String appVersion = '1.0';
 
 bool showTranslation = true, showTransliteration = true;
 
+bool shouldUseLiveLocation() {
+  return SP.prefs.getBool('use_live_location') ?? false;
+}
+
 // Helper to map a tile label to a freshly-built page instance.
 Widget getPage(String label,
     {Future<void> Function()? loginCallback,

@@ -77,9 +77,35 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future<void> loginCallback() async {
+    await _refreshSessionState();
     await FavoritesManager.instance.loadFavorites();
     if (!mounted) return;
     setState(() {});
+  }
+
+  Future<void> _refreshSessionState() async {
+    user = _auth.currentUser;
+    isUserAdmin = false;
+
+    if (user != null) {
+      final idTokenResult = await user?.getIdTokenResult(true);
+      final claims = idTokenResult?.claims;
+      if (claims != null && claims['admin'] == true) {
+        isUserAdmin = true;
+      }
+    }
+
+    if (isUserAdmin) {
+      await _loadItemsFromFirebase();
+    } else {
+      await _loadItemsFromAssets();
+    }
+
+    if (items.isEmpty) {
+      await _loadItemsFromAssets();
+    }
+    _itemsLoaded = true;
+    _resolvePendingDeepLink();
   }
 
   @override
@@ -677,22 +703,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void initializeData() async {
-    user = _auth.currentUser;
-    if (user != null) {
-      final idTokenResult = await user?.getIdTokenResult(true);
-      final claims = idTokenResult?.claims;
-      if (claims != null && claims['admin'] == true) {
-        isUserAdmin = true;
-      }
-    }
-    if (isUserAdmin) {
-      await _loadItemsFromFirebase();
-    } else {
-      await _loadItemsFromAssets();
-    }
-    if (items.isEmpty) {
-      await _loadItemsFromAssets();
-    }
+    await _refreshSessionState();
     getHadith();
 
     // Initialize favorites (from SharedPreferences if logged out, Firestore if logged in)
@@ -700,7 +711,10 @@ class _MyHomePageState extends State<MyHomePage>
     await FavoritesManager.instance.loadFavorites();
 
     // Initialize LocationData
-    await initializeLocation(context: context);
+    await initializeLocation(
+      force: shouldUseLiveLocation(),
+      context: shouldUseLiveLocation() ? null : context,
+    );
 
     if (!kIsWeb) {
       tz.initializeTimeZones();
@@ -742,8 +756,6 @@ class _MyHomePageState extends State<MyHomePage>
         debugPrint("Azan notifications not scheduled");
       }
     }
-    _itemsLoaded = true;
-    _resolvePendingDeepLink();
     setState(() {});
   }
 

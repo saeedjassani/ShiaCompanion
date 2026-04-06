@@ -15,12 +15,26 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   PrayerTimesState();
 
   @override
+  void initState() {
+    super.initState();
+    if (shouldUseLiveLocation()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final success = await initializeLocation(force: true);
+        if (mounted && success) {
+          setState(() {});
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     DateTime currentTime = DateTime.now();
     HijriCalendar _today =
         HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
     PrayerTime prayerTime = getPrayerTimeObject();
     prayerTime.setTimeFormat(prayerTime.getTime12());
+    final useLiveLocation = shouldUseLiveLocation();
 
     List<String>? _prayerTimes = lat != null
         ? prayerTime.getPrayerTimes(currentTime, lat!, long!,
@@ -51,25 +65,31 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                                 Text(
                                   "Location: $city",
                                 ),
-                                InkWell(
-                                  onTap: () async {
-                                    bool success = await initializeLocation(force: true);
-                                    if (mounted) {
-                                      setState(() {});
-                                      if (success) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Location updated")));
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Failed to update location")));
+                                if (!useLiveLocation)
+                                  InkWell(
+                                    onTap: () async {
+                                      bool success =
+                                          await initializeLocation(force: true);
+                                      if (mounted) {
+                                        setState(() {});
+                                        if (success) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      "Location updated")));
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      "Failed to update location")));
+                                        }
                                       }
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Icon(Icons.refresh, size: 18),
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Icon(Icons.refresh, size: 18),
+                                    ),
                                   ),
-                                )
                               ],
                             )
                           : Container(),
@@ -121,7 +141,10 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(24.0),
-                      child: Text("Enable location to display prayer times",
+                      child: Text(
+                          useLiveLocation
+                              ? "Fetching live location to display prayer times"
+                              : "Enable location to display prayer times",
                           textAlign: TextAlign.center),
                     ),
                   ),
