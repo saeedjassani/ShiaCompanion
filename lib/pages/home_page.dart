@@ -345,17 +345,24 @@ class _MyHomePageState extends State<MyHomePage>
     });
 
     try {
-      await FirebaseFirestore.instance
-          .doc('zikr_meta/publish_requests')
-          .set({
+      final previousUpdatedAt = await _getZikrIndexUpdatedAt();
+      await FirebaseFirestore.instance.doc('zikr_meta/publish_requests').set({
         'requestedAt': FieldValue.serverTimestamp(),
         'requestedBy': _auth.currentUser?.uid,
       }, SetOptions(merge: true));
 
+      final rebuildCompleted =
+          await _waitForZikrIndexRebuild(previousUpdatedAt);
+      if (rebuildCompleted && isUserAdmin) {
+        await _loadItemsFromFirebase();
+      }
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text(
-            'Publish requested. Changes will go live after the index rebuild finishes.'),
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(rebuildCompleted
+            ? 'Publish finished. Admin index refreshed.'
+            : 'Publish requested. Rebuild is taking longer than expected.'),
       ));
     } catch (e) {
       if (!mounted) return;
@@ -367,6 +374,37 @@ class _MyHomePageState extends State<MyHomePage>
         _isPublishingIndex = false;
       });
     }
+  }
+
+  Future<Timestamp?> _getZikrIndexUpdatedAt() async {
+    try {
+      final doc = await FirebaseFirestore.instance.doc('zikr_meta/index').get();
+      final data = doc.data();
+      final updatedAt = data?['updatedAt'];
+      return updatedAt is Timestamp ? updatedAt : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool> _waitForZikrIndexRebuild(Timestamp? previousUpdatedAt) async {
+    final deadline = DateTime.now().add(const Duration(seconds: 15));
+
+    while (DateTime.now().isBefore(deadline)) {
+      await Future.delayed(const Duration(seconds: 1));
+      final currentUpdatedAt = await _getZikrIndexUpdatedAt();
+      if (currentUpdatedAt == null) {
+        continue;
+      }
+
+      if (previousUpdatedAt == null ||
+          currentUpdatedAt.millisecondsSinceEpoch >
+              previousUpdatedAt.millisecondsSinceEpoch) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @override
