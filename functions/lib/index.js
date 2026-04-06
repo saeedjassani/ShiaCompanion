@@ -117,12 +117,40 @@ exports.buildZikrIndex = functions.firestore
     if (!event.data?.after.exists) {
         return;
     }
+    const afterData = event.data.after.data();
+    const beforeData = event.data.before.exists ? event.data.before.data() : null;
+    const requestId = afterData?.requestId?.toString() ?? "";
+    const previousRequestId = beforeData?.requestId?.toString() ?? "";
+    if (!requestId || requestId == previousRequestId) {
+        return;
+    }
+    const requestRef = event.data.after.ref;
     try {
+        await requestRef.set({
+            status: "running",
+            startedAt: admin.firestore.FieldValue.serverTimestamp(),
+            error: admin.firestore.FieldValue.delete(),
+            processedRequestId: admin.firestore.FieldValue.delete(),
+            itemCount: admin.firestore.FieldValue.delete(),
+        }, { merge: true });
         const itemCount = await rebuildZikrIndex();
         console.log(`Index rebuilt: ${itemCount} items`);
+        await requestRef.set({
+            status: "success",
+            completedAt: admin.firestore.FieldValue.serverTimestamp(),
+            processedRequestId: requestId,
+            itemCount,
+            error: admin.firestore.FieldValue.delete(),
+        }, { merge: true });
     }
     catch (error) {
         console.error("Error building index:", error);
+        await requestRef.set({
+            status: "error",
+            completedAt: admin.firestore.FieldValue.serverTimestamp(),
+            processedRequestId: requestId,
+            error: error instanceof Error ? error.message : String(error),
+        }, { merge: true });
         throw error;
     }
 });
