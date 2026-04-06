@@ -346,7 +346,7 @@ class _MyHomePageState extends State<MyHomePage>
 
     try {
       await FirebaseFirestore.instance
-          .doc('zikr_meta/publish_requests/index')
+          .doc('zikr_meta/publish_requests')
           .set({
         'requestedAt': FieldValue.serverTimestamp(),
         'requestedBy': _auth.currentUser?.uid,
