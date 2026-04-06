@@ -353,7 +353,7 @@ class _MyHomePageState extends State<MyHomePage>
 
       final rebuildCompleted =
           await _waitForZikrIndexRebuild(previousUpdatedAt);
-      if (rebuildCompleted && isUserAdmin) {
+      if (isUserAdmin) {
         await _loadItemsFromFirebase();
       }
 
@@ -615,6 +615,11 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future<void> _loadItemsFromFirebase() async {
+    if (isUserAdmin) {
+      await _loadAdminItemsFromZikr();
+      return;
+    }
+
     try {
       final doc = await FirebaseFirestore.instance
           .doc('zikr_meta/index')
@@ -657,6 +662,44 @@ class _MyHomePageState extends State<MyHomePage>
       }
     } catch (e) {
       debugPrint("Error loading zikr index: $e");
+    }
+  }
+
+  Future<void> _loadAdminItemsFromZikr() async {
+    try {
+      final snapshot = await _zikrCollection.get(
+        const GetOptions(source: Source.server),
+      );
+
+      items = {};
+      itemOrder = {};
+      clearLocalSlugMaps();
+
+      final sortedDocs = [...snapshot.docs]
+        ..sort((a, b) => a.id.compareTo(b.id));
+
+      for (final doc in sortedDocs) {
+        final data = doc.data();
+        final title = data['title']?.toString().trim() ?? '';
+        if (title.isEmpty) {
+          continue;
+        }
+
+        items[doc.id] = title;
+
+        final order = data['order'];
+        if (order is num) {
+          itemOrder[doc.id] = order.toDouble();
+        }
+
+        setLocalSlugData(
+          doc.id,
+          slug: data['slug']?.toString(),
+          aliases: data['slugAliases'] is Iterable ? data['slugAliases'] : null,
+        );
+      }
+    } catch (e) {
+      debugPrint("Error loading admin zikr index: $e");
     }
   }
 
