@@ -15,19 +15,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   PrayerTimesState();
 
   @override
-  void initState() {
-    super.initState();
-    if (shouldUseLiveLocation()) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final success = await initializeLocation(force: true);
-        if (mounted && success) {
-          setState(() {});
-        }
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     DateTime currentTime = DateTime.now();
     HijriCalendar _today =
