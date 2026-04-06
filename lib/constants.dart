@@ -56,6 +56,7 @@ String appVersion = '1.0';
 bool showTranslation = true, showTransliteration = true;
 
 bool shouldUseLiveLocation() {
+  if (!SP.isInitialized) return false;
   return SP.prefs.getBool('use_live_location') ?? false;
 }
 
