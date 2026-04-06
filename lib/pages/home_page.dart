@@ -31,6 +31,8 @@ import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+enum _PublishStatus { success, error, timeout }
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({
     required this.title,
@@ -345,24 +347,29 @@ class _MyHomePageState extends State<MyHomePage>
     });
 
     try {
-      final previousUpdatedAt = await _getZikrIndexUpdatedAt();
+      final requestId =
+          '${DateTime.now().millisecondsSinceEpoch}-${_auth.currentUser?.uid ?? 'admin'}';
       await FirebaseFirestore.instance.doc('zikr_meta/publish_requests').set({
+        'requestId': requestId,
+        'status': 'requested',
         'requestedAt': FieldValue.serverTimestamp(),
         'requestedBy': _auth.currentUser?.uid,
       }, SetOptions(merge: true));
 
-      final rebuildCompleted =
-          await _waitForZikrIndexRebuild(previousUpdatedAt);
-      if (isUserAdmin) {
+      final publishStatus = await _waitForPublishCompletion(requestId);
+      if (publishStatus == _PublishStatus.success && isUserAdmin) {
         await _loadItemsFromFirebase();
       }
 
       if (!mounted) return;
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(rebuildCompleted
-            ? 'Publish finished. Admin index refreshed.'
-            : 'Publish requested. Rebuild is taking longer than expected.'),
+        content: Text(switch (publishStatus) {
+          _PublishStatus.success => 'Publish finished. Admin index refreshed.',
+          _PublishStatus.error => 'Publish failed. Check Cloud Function logs.',
+          _PublishStatus.timeout =>
+            'Publish requested. Rebuild is taking longer than expected.',
+        }),
       ));
     } catch (e) {
       if (!mounted) return;
@@ -376,37 +383,46 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  Future<Timestamp?> _getZikrIndexUpdatedAt() async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .doc('zikr_meta/index')
-          .get(const GetOptions(source: Source.server));
-      final data = doc.data();
-      final updatedAt = data?['updatedAt'];
-      return updatedAt is Timestamp ? updatedAt : null;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<bool> _waitForZikrIndexRebuild(Timestamp? previousUpdatedAt) async {
-    final deadline = DateTime.now().add(const Duration(seconds: 15));
+  Future<_PublishStatus> _waitForPublishCompletion(String requestId) async {
+    final deadline = DateTime.now().add(const Duration(seconds: 20));
 
     while (DateTime.now().isBefore(deadline)) {
       await Future.delayed(const Duration(seconds: 1));
-      final currentUpdatedAt = await _getZikrIndexUpdatedAt();
-      if (currentUpdatedAt == null) {
-        continue;
-      }
-
-      if (previousUpdatedAt == null ||
-          currentUpdatedAt.millisecondsSinceEpoch >
-              previousUpdatedAt.millisecondsSinceEpoch) {
-        return true;
+      final status = await _getPublishStatus(requestId);
+      if (status != null) {
+        return status;
       }
     }
 
-    return false;
+    return _PublishStatus.timeout;
+  }
+
+  Future<_PublishStatus?> _getPublishStatus(String requestId) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .doc('zikr_meta/publish_requests')
+          .get(const GetOptions(source: Source.server));
+      final data = doc.data();
+      if (data == null) {
+        return null;
+      }
+
+      final processedRequestId = data['processedRequestId']?.toString() ?? '';
+      if (processedRequestId != requestId) {
+        return null;
+      }
+
+      final status = data['status']?.toString() ?? '';
+      if (status == 'success') {
+        return _PublishStatus.success;
+      }
+      if (status == 'error') {
+        return _PublishStatus.error;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
@@ -615,11 +631,6 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future<void> _loadItemsFromFirebase() async {
-    if (isUserAdmin) {
-      await _loadAdminItemsFromZikr();
-      return;
-    }
-
     try {
       final doc = await FirebaseFirestore.instance
           .doc('zikr_meta/index')
@@ -662,44 +673,6 @@ class _MyHomePageState extends State<MyHomePage>
       }
     } catch (e) {
       debugPrint("Error loading zikr index: $e");
-    }
-  }
-
-  Future<void> _loadAdminItemsFromZikr() async {
-    try {
-      final snapshot = await _zikrCollection.get(
-        const GetOptions(source: Source.server),
-      );
-
-      items = {};
-      itemOrder = {};
-      clearLocalSlugMaps();
-
-      final sortedDocs = [...snapshot.docs]
-        ..sort((a, b) => a.id.compareTo(b.id));
-
-      for (final doc in sortedDocs) {
-        final data = doc.data();
-        final title = data['title']?.toString().trim() ?? '';
-        if (title.isEmpty) {
-          continue;
-        }
-
-        items[doc.id] = title;
-
-        final order = data['order'];
-        if (order is num) {
-          itemOrder[doc.id] = order.toDouble();
-        }
-
-        setLocalSlugData(
-          doc.id,
-          slug: data['slug']?.toString(),
-          aliases: data['slugAliases'] is Iterable ? data['slugAliases'] : null,
-        );
-      }
-    } catch (e) {
-      debugPrint("Error loading admin zikr index: $e");
     }
   }
 
