@@ -21,6 +21,8 @@ class _ItemListState extends State<ItemList> {
   String? _hoveredUid;
   _ItemListState();
   TextEditingController? controller;
+  final CollectionReference<Map<String, dynamic>> _zikrCollection =
+      FirebaseFirestore.instance.collection('zikr');
 
   void _refreshWorkingItems() {
     workingItems = [];
@@ -179,6 +181,58 @@ class _ItemListState extends State<ItemList> {
     setState(_refreshWorkingItems);
   }
 
+  Future<void> _deleteZikr(UidTitleData uidTitleData) async {
+    final canonicalUid = uidTitleData.getFirstUId();
+    final snapshot = await _zikrCollection.get();
+    final docsToDelete = snapshot.docs.where((doc) {
+      final docUid = doc.id;
+      if (docUid == canonicalUid) {
+        return true;
+      }
+      if (!docUid.contains('|')) {
+        return docUid == uidTitleData.uid;
+      }
+      return docUid.split('|').last.trim() == canonicalUid;
+    }).toList();
+
+    final aliasCount = docsToDelete.length > 1 ? docsToDelete.length - 1 : 0;
+    final shouldDelete = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Delete Zikr?'),
+            content: Text(
+              aliasCount > 0
+                  ? 'This will permanently delete "${uidTitleData.title}" and $aliasCount linked alias item(s).'
+                  : 'This will permanently delete "${uidTitleData.title}".',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!shouldDelete) return;
+
+    for (final doc in docsToDelete) {
+      await doc.reference.delete();
+      items.remove(doc.id);
+      itemOrder.remove(doc.id);
+      removeLocalSlugData(doc.id);
+    }
+
+    if (!mounted) return;
+    setState(_refreshWorkingItems);
+  }
+
   Widget buildZikrRow(BuildContext context, UidTitleData uidTitleData) {
     UniversalData itemData =
         UniversalData(uidTitleData.uid, uidTitleData.title, 0);
@@ -237,6 +291,12 @@ class _ItemListState extends State<ItemList> {
                       tooltip: 'Edit Title',
                       onPressed: () => _editTitle(uidTitleData),
                     ),
+                  if (showHoverEdit)
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      tooltip: 'Delete Zikr',
+                      onPressed: () => _deleteZikr(uidTitleData),
+                    ),
                   InkWell(
                     onTap: () {
                       FavoritesManager.instance.toggleFavorite(itemData);
@@ -247,10 +307,20 @@ class _ItemListState extends State<ItemList> {
                 ],
               )
             : showHoverEdit
-                ? IconButton(
-                    icon: const Icon(Icons.edit),
-                    tooltip: 'Edit Title',
-                    onPressed: () => _editTitle(uidTitleData),
+                ? Wrap(
+                    spacing: 0,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        tooltip: 'Edit Title',
+                        onPressed: () => _editTitle(uidTitleData),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        tooltip: 'Delete Zikr',
+                        onPressed: () => _deleteZikr(uidTitleData),
+                      ),
+                    ],
                   )
                 : null,
       ),
