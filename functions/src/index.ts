@@ -101,7 +101,7 @@ async function rebuildZikrIndex(): Promise<number> {
 
 // Rebuilds the public zikr index only when an admin explicitly requests publish.
 export const buildZikrIndex = functions.firestore
-  .onDocumentWritten("zikr_meta/publish_requests/index", async (event) => {
+  .onDocumentWritten("zikr_meta/publish_requests", async (event) => {
     if (!event.data?.after.exists) {
       return;
     }
