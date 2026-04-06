@@ -60,25 +60,49 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           Divider(),
-          ListTile(
-            leading: Icon(Icons.location_on),
-            title: Text("Refresh Location"),
-            onTap: () async {
-              bool success = await initializeLocation(force: true);
-              if (success) {
+          SwitchListTile(
+            secondary: const Icon(Icons.my_location),
+            title: const Text("Always use live location"),
+            subtitle: Text(shouldUseLiveLocation()
+                ? "Prayer times will fetch your current location on app open."
+                : "Reuse stored location until you refresh it manually."),
+            value: shouldUseLiveLocation(),
+            onChanged: (value) async {
+              await SP.prefs.setBool('use_live_location', value);
+              if (value) {
+                final success = await initializeLocation(force: true);
+                if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text("Location has been refreshed."),
-                ));
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text("Failed to refresh location."),
+                  content: Text(success
+                      ? "Live location enabled."
+                      : "Failed to fetch live location."),
                 ));
               }
-              setState(
-                  () {}); // To rebuild and show new location if needed elsewhere
+              setState(() {});
             },
           ),
           Divider(),
+          if (!shouldUseLiveLocation()) ...[
+            ListTile(
+              leading: Icon(Icons.location_on),
+              title: Text("Refresh Location"),
+              onTap: () async {
+                bool success = await initializeLocation(force: true);
+                if (!mounted) return;
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Location has been refreshed."),
+                  ));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Failed to refresh location."),
+                  ));
+                }
+                setState(() {});
+              },
+            ),
+            Divider(),
+          ],
           ListTile(
             leading: Icon(Icons.feedback),
             title: Text("Feedback"),

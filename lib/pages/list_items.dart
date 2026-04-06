@@ -231,6 +231,11 @@ class _ItemListState extends State<ItemList> {
 
     if (!mounted) return;
     setState(_refreshWorkingItems);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleted successfully. Publish to see changes.'),
+      ),
+    );
   }
 
   Widget buildZikrRow(BuildContext context, UidTitleData uidTitleData) {
