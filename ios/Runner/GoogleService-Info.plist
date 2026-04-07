@@ -19,7 +19,7 @@
 	<key>PROJECT_ID</key>
 	<string>shia-comapnion</string>
 	<key>STORAGE_BUCKET</key>
-	<string>shia-comapnion.appspot.com</string>
+	<string>shia-comapnion.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>

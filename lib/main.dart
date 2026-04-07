@@ -14,8 +14,7 @@ import 'pages/home_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  FirebaseApp app = await Firebase.initializeApp(
+  final FirebaseApp app = await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   debugPrint('Firebase initialized: ${app.name}');
@@ -42,7 +41,7 @@ class MyApp extends StatelessWidget {
         FirebaseAnalyticsObserver(analytics: analytics);
 
     return ChangeNotifierProvider(
-      create: (context) => DarkModeProvider(context),
+      create: (context) => DarkModeProvider(),
       child:
           Consumer<DarkModeProvider>(builder: (context, darkModeProvider, _) {
         return MaterialApp(
