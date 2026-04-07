@@ -4,4 +4,16 @@
     <loc>https://shia-companion.web.app/</loc>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://shia-companion.web.app/privacy.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shia-companion.web.app/delete-account</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shia-companion.web.app/delete_account.html</loc>
+    <priority>0.7</priority>
+  </url>
 </urlset>

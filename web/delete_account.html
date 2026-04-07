@@ -1,30 +1,224 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Shia Companion - Account Deletion</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delete Account | Shia Companion</title>
+  <meta name="description" content="Delete your Shia Companion account and synced favorites using the web app or in-app settings.">
+  <style>
+    :root {
+      --bg: #f5efe6;
+      --surface: #fffdf9;
+      --surface-strong: #efe1cf;
+      --text: #2a2118;
+      --muted: #6a5748;
+      --accent: #774826;
+      --accent-dark: #583113;
+      --border: rgba(119, 72, 38, 0.15);
+      --shadow: 0 24px 60px rgba(68, 43, 24, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Georgia", "Times New Roman", serif;
+      background:
+        radial-gradient(circle at top right, rgba(204, 170, 127, 0.36), transparent 32%),
+        linear-gradient(180deg, #fbf8f3 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    a {
+      color: var(--accent-dark);
+    }
+
+    .shell {
+      width: min(920px, calc(100% - 32px));
+      margin: 40px auto 56px;
+    }
+
+    .panel {
+      background: rgba(255, 253, 249, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--surface-strong);
+      color: var(--accent-dark);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    h1,
+    h2 {
+      margin: 0 0 12px;
+      line-height: 1.2;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      margin-top: 18px;
+    }
+
+    p,
+    li {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1.02rem;
+    }
+
+    .steps,
+    .details {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .card {
+      padding: 18px;
+      border-radius: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .button.primary {
+      background: var(--accent);
+      color: #fff8f0;
+    }
+
+    .button.secondary {
+      border: 1px solid var(--border);
+      color: var(--accent-dark);
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    ol,
+    ul {
+      padding-left: 22px;
+      margin: 0;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 24px;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(100% - 20px, 920px);
+        margin-top: 20px;
+      }
+
+      .panel {
+        padding: 24px 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Account Deletion for Shia Companion</h1>
-    <p>Welcome to the account deletion page for Shia Companion. If you wish to delete your account and associated data, please follow the steps below:</p>
-    
-    <ol>
-        <li>Open the Shia Companion app on your device.</li>
-        <li>Navigate to the Settings page.</li>
-        <li>Find the "Delete Account" option.</li>
-        <li>Click on the "Delete Account" button to initiate the account deletion process.</li>
-        <li>You will be asked to confirm your decision to delete your account and associated data.</li>
-        <li>Once confirmed, your account and all related data will be permanently deleted from our servers.</li>
-    </ol>
+  <main class="shell">
+    <section class="panel">
+      <div class="tag">Shia Companion</div>
+      <h1>Account Deletion</h1>
+      <p>
+        You can delete your Shia Companion account and synced favorites through the web app or directly inside the app settings.
+      </p>
+      <div class="actions">
+        <a class="button primary" href="https://shia-companion.web.app/delete-account">Open Deletion Page</a>
+        <a class="button secondary" href="https://shia-companion.web.app/privacy.html">View Privacy Policy</a>
+      </div>
+    </section>
 
-    <p>Please note the following:</p>
-    <ul>
-        <li>We will delete all personal information associated with your account, such as your name, email, and any other provided details.</li>
-        <li>Your saved favorites and any other user-specific data will be deleted and cannot be recovered.</li>
-        <li>We may retain some non-personal, anonymous data for analytical purposes, but this data will not be linked to your account or personally identifiable information.</li>
-    </ul>
+    <section class="panel">
+      <h2>Fastest Option</h2>
+      <div class="steps">
+        <article class="card">
+          <h3>1. Open the web deletion page</h3>
+          <p>Visit <a href="https://shia-companion.web.app/delete-account">https://shia-companion.web.app/delete-account</a>.</p>
+        </article>
+        <article class="card">
+          <h3>2. Sign in</h3>
+          <p>If you are not already signed in, use the sign-in button on that page.</p>
+        </article>
+        <article class="card">
+          <h3>3. Confirm deletion</h3>
+          <p>Use the Delete My Account action to permanently remove the account and synced favorites.</p>
+        </article>
+      </div>
+    </section>
 
-    <p>If you have any concerns or questions about the account deletion process, please contact our support team at support@shiacompanion.com.</p>
+    <section class="panel">
+      <h2>In-App Option</h2>
+      <ol>
+        <li>Open Shia Companion.</li>
+        <li>Go to <strong>Preferences</strong>.</li>
+        <li>Sign in if needed.</li>
+        <li>Tap <strong>Delete My Account</strong>.</li>
+        <li>Confirm the deletion prompt.</li>
+      </ol>
+    </section>
 
-    <p>Thank you for using Shia Companion.</p>
+    <section class="panel">
+      <h2>What Gets Deleted</h2>
+      <div class="details">
+        <article class="card">
+          <h3>Deleted</h3>
+          <ul>
+            <li>Your Shia Companion account sign-in record.</li>
+            <li>Your synced favorites tied to that account.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>May be retained</h3>
+          <ul>
+            <li>Anonymous or aggregated analytics data.</li>
+            <li>Crash diagnostics that can no longer be linked back to your account.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Need Help?</h2>
+      <p>
+        If you cannot access the account you want deleted, email
+        <a href="mailto:developer110@hotmail.com">developer110@hotmail.com</a>
+        and include the email address associated with the account.
+      </p>
+    </section>
+
+    <p class="footer">Shia Companion</p>
+  </main>
 </body>
 </html>

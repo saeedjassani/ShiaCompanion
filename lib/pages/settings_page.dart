@@ -2,14 +2,13 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
+import '../services/account_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/shared_preferences.dart';
-import '../services/favorites_manager.dart';
 import 'about_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -231,7 +230,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> logOff() async {
     try {
-      await _auth.signOut();
+      await AccountService.signOut();
       user = null;
       await widget.loginCallback();
       setState(() {});
@@ -256,37 +255,13 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       User? firebaseUser = _auth.currentUser;
       if (firebaseUser == null) {
-        UserCredential? authResult;
-        if (kIsWeb) {
-          final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-          authResult =
-              await FirebaseAuth.instance.signInWithPopup(googleProvider);
-        } else {
-          final GoogleSignIn signIn = GoogleSignIn.instance;
-          GoogleSignInAccount? googleUser;
-
-          if (signIn.supportsAuthenticate()) {
-            // Interactive sign-in on platforms that support it
-            googleUser = await signIn.authenticate();
-          } else {
-            // Try lightweight authentication first, then fall back to interactive
-            googleUser = await signIn.attemptLightweightAuthentication() ??
-                await signIn.authenticate();
-          }
-
-          final GoogleSignInAuthentication googleAuth =
-              await googleUser.authentication;
-          final AuthCredential credential = GoogleAuthProvider.credential(
-            idToken: googleAuth.idToken,
-          );
-          authResult = await _auth.signInWithCredential(credential);
-        }
+        final authResult = await AccountService.signInWithGoogle();
 
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
           content: new Text("Login Successful"),
         ));
         setState(() {
-          user = authResult?.user;
+          user = authResult.user;
         });
       } else {
         logOff();
@@ -378,38 +353,25 @@ class _SettingsPageState extends State<SettingsPage> {
   // Function to delete the account and associated data
   void _deleteAccountAndData(BuildContext context) async {
     try {
-      // Get the currently signed-in user
-      User? user = FirebaseAuth.instance.currentUser;
+      await AccountService.deleteCurrentAccountAndData();
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Account deleted successfully.'),
+        ),
+      );
 
-      if (user != null) {
-        // Remove favorites from Firestore
-        await FavoritesManager.instance.deleteAllFavorites(user.uid);
-
-        // Delete the user account
-        await user.delete();
-
-        Navigator.of(context).pop();
-
-        // Show a success message or snackbar if needed
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Account deleted successfully.'),
-          ),
-        );
-
-        user = null;
-        await widget.loginCallback();
-        setState(() {});
-      } else {
-        // User is not signed in, show an appropriate message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('User is not signed in.'),
-          ),
-        );
-      }
+      user = null;
+      await widget.loginCallback();
+      setState(() {});
+    } on AccountActionException catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+        ),
+      );
     } catch (error) {
-      // Handle errors during deletion process
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error deleting account: ${error.toString()}'),

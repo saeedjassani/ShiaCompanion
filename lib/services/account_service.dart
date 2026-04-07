@@ -1,0 +1,104 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+import 'favorites_manager.dart';
+
+class AccountActionException implements Exception {
+  final String message;
+
+  const AccountActionException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class AccountService {
+  AccountService._();
+
+  static final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  static Future<UserCredential> signInWithGoogle() async {
+    if (kIsWeb) {
+      final googleProvider = GoogleAuthProvider();
+      return FirebaseAuth.instance.signInWithPopup(googleProvider);
+    }
+
+    final signIn = GoogleSignIn.instance;
+    GoogleSignInAccount? googleUser;
+
+    if (signIn.supportsAuthenticate()) {
+      googleUser = await signIn.authenticate();
+    } else {
+      googleUser = await signIn.attemptLightweightAuthentication() ??
+          await signIn.authenticate();
+    }
+
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      idToken: googleAuth.idToken,
+    );
+    return _auth.signInWithCredential(credential);
+  }
+
+  static Future<void> signOut() {
+    return _auth.signOut();
+  }
+
+  static Future<void> deleteCurrentAccountAndData() async {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      throw const AccountActionException('User is not signed in.');
+    }
+
+    try {
+      await FavoritesManager.instance.deleteAllFavorites(currentUser.uid);
+      await _deleteUserWithFallbackReauth(currentUser);
+    } on AccountActionException {
+      rethrow;
+    } on FirebaseAuthException catch (error) {
+      throw AccountActionException(_messageForAuthError(error));
+    } catch (error) {
+      throw AccountActionException('Error deleting account: $error');
+    }
+  }
+
+  static Future<void> _deleteUserWithFallbackReauth(User user) async {
+    try {
+      await user.delete();
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'requires-recent-login' &&
+          kIsWeb &&
+          _supportsGooglePopupReauth(user)) {
+        await user.reauthenticateWithPopup(GoogleAuthProvider());
+        final refreshedUser = _auth.currentUser;
+        if (refreshedUser == null) {
+          throw const AccountActionException(
+            'Your session expired. Please sign in again and retry deletion.',
+          );
+        }
+        await refreshedUser.delete();
+        return;
+      }
+      throw AccountActionException(_messageForAuthError(error));
+    }
+  }
+
+  static bool _supportsGooglePopupReauth(User user) {
+    return user.providerData
+        .any((provider) => provider.providerId == 'google.com');
+  }
+
+  static String _messageForAuthError(FirebaseAuthException error) {
+    switch (error.code) {
+      case 'requires-recent-login':
+        return 'For security, please sign in again and then retry deleting your account.';
+      case 'popup-closed-by-user':
+        return 'Sign-in window closed before the action finished.';
+      case 'network-request-failed':
+        return 'Network error. Please check your connection and try again.';
+      default:
+        return error.message ?? 'Something went wrong. Please try again.';
+    }
+  }
+}
