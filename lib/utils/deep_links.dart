@@ -10,6 +10,26 @@ class DeepLinkTarget {
   String get key => '$type/${segments.join('/')}';
 }
 
+String buildDeepLinkPath({
+  required int type,
+  required List<String> segments,
+}) {
+  final encodedSegments = segments.map(Uri.encodeComponent).join('/');
+  return '/$type/$encodedSegments';
+}
+
+String buildZikrDeepLinkPath({
+  required String uid,
+  String? slug,
+}) {
+  final normalizedSlug = slug?.trim();
+  if (normalizedSlug != null && normalizedSlug.isNotEmpty) {
+    return '/zikr/${Uri.encodeComponent(normalizedSlug)}';
+  }
+
+  return buildDeepLinkPath(type: 0, segments: [uid]);
+}
+
 DeepLinkTarget? parseDeepLinkUri(Uri uri) {
   final segments = _extractSegments(uri);
   if (segments.isEmpty) return null;
@@ -54,18 +74,18 @@ String buildDeepLinkUrl({
   required int type,
   required List<String> segments,
 }) {
-  final encodedSegments = segments.map(Uri.encodeComponent).join('/');
-  return 'https://shia-companion.web.app/#/$type/$encodedSegments';
+  return 'https://shia-companion.web.app${buildDeepLinkPath(
+    type: type,
+    segments: segments,
+  )}';
 }
 
 String buildZikrDeepLinkUrl({
   required String uid,
   String? slug,
 }) {
-  final normalizedSlug = slug?.trim();
-  if (normalizedSlug != null && normalizedSlug.isNotEmpty) {
-    return 'https://shia-companion.web.app/zikr/${Uri.encodeComponent(normalizedSlug)}';
-  }
-
-  return buildDeepLinkUrl(type: 0, segments: [uid]);
+  return 'https://shia-companion.web.app${buildZikrDeepLinkPath(
+    uid: uid,
+    slug: slug,
+  )}';
 }
