@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
@@ -5,7 +6,12 @@ import '../utils/shared_preferences.dart';
 
 class PrayerTimesCard extends StatefulWidget {
   final DateTime date;
-  PrayerTimesCard({required this.date});
+  final bool showNotificationControls;
+
+  PrayerTimesCard({
+    required this.date,
+    this.showNotificationControls = true,
+  });
 
   @override
   PrayerTimesState createState() => PrayerTimesState();
@@ -55,24 +61,25 @@ class PrayerTimesState extends State<PrayerTimesCard> {
                           textAlign: TextAlign.end,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 12.0),
-                        child: InkWell(
-                          onTap: () {
-                            inversePref(
-                                "${_prayerNames[position].toLowerCase()}_notification");
-                            setUpNotifications();
-                          },
-                          child: Icon(
-                            SP.prefs.getBool(
-                                        "${_prayerNames[position].toLowerCase()}_notification") ??
-                                    false
-                                ? Icons.volume_up
-                                : Icons.block,
-                            size: 20,
+                      if (widget.showNotificationControls && !kIsWeb)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12.0),
+                          child: InkWell(
+                            onTap: () {
+                              inversePref(
+                                  "${_prayerNames[position].toLowerCase()}_notification");
+                              setUpNotifications();
+                            },
+                            child: Icon(
+                              SP.prefs.getBool(
+                                          "${_prayerNames[position].toLowerCase()}_notification") ??
+                                      false
+                                  ? Icons.volume_up
+                                  : Icons.block,
+                              size: 20,
+                            ),
                           ),
-                        ),
-                      )
+                        )
                     ],
                   ),
                 );
