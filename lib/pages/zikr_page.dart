@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/utils/deep_links.dart';
+import 'package:shia_companion/utils/web_route_sync.dart';
 import '../constants.dart';
 import '../widgets/zikr_settings.dart';
 import '../widgets/zikr_counter.dart';
@@ -21,13 +23,15 @@ class ZikrPage extends StatefulWidget {
   _ZikrPageState createState() => _ZikrPageState();
 }
 
-class _ZikrPageState extends State<ZikrPage> {
+class _ZikrPageState extends State<ZikrPage> with RouteAware {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference zikrCollection =
       FirebaseFirestore.instance.collection('zikr');
+  final GlobalKey _counterStackKey = GlobalKey();
 
   bool isAdmin = false;
   bool isEditing = false;
+  bool _isCurrentRoute = false;
   String? userId;
   Map<String, dynamic>? zikrData;
   TextEditingController? titleController;
@@ -41,6 +45,8 @@ class _ZikrPageState extends State<ZikrPage> {
   final List<GlobalKey> _tabHeaderKeys = [];
   final RegExp _numericOrderPattern = RegExp(r'^-?\d+(\.\d+)?$');
   final PageController _pageController = PageController();
+  PageRoute? _pageRoute;
+  Uri? _previousBrowserUri;
   List<String> _slugAliases = const [];
   int _selectedTabIndex = 0;
   late final String _counterSessionId;
@@ -70,6 +76,9 @@ class _ZikrPageState extends State<ZikrPage> {
 
   @override
   void dispose() {
+    if (_pageRoute != null) {
+      routeObserver.unsubscribe(this);
+    }
     titleController?.dispose();
     slugController?.dispose();
     codeController?.dispose();
@@ -87,6 +96,19 @@ class _ZikrPageState extends State<ZikrPage> {
     _counterCount.dispose();
     _pageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute && route != _pageRoute) {
+      if (_pageRoute != null) {
+        routeObserver.unsubscribe(this);
+      }
+      _pageRoute = route;
+      routeObserver.subscribe(this, route);
+    }
   }
 
   void _persistCounterSession({
@@ -128,6 +150,74 @@ class _ZikrPageState extends State<ZikrPage> {
         onReset: () => _setCounterCount(0),
       ),
     );
+  }
+
+  String _currentWebRoutePath() {
+    final controllerSlug = normalizeSlug(slugController?.text.trim() ?? '');
+    final dataSlug = normalizeSlug(zikrData?['slug']?.toString() ?? '');
+    final cachedSlug = itemSlugs[widget.item.uid];
+
+    return buildZikrDeepLinkPath(
+      uid: widget.item.uid,
+      slug: controllerSlug.isNotEmpty
+          ? controllerSlug
+          : dataSlug.isNotEmpty
+              ? dataSlug
+              : cachedSlug,
+    );
+  }
+
+  void _scheduleCurrentWebRouteSync({bool replace = false}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_isCurrentRoute) return;
+      syncWebRoutePath(_currentWebRoutePath(), replace: replace);
+    });
+  }
+
+  Offset _clampCounterOffset(
+    Offset offset,
+    BoxConstraints constraints,
+  ) {
+    const edgePadding = 12.0;
+    final maxLeft = math.max(
+      edgePadding,
+      constraints.maxWidth - ZikrCounter.panelWidth - edgePadding,
+    );
+    final maxTop = math.max(
+      edgePadding,
+      constraints.maxHeight - ZikrCounter.panelHeight - edgePadding,
+    );
+
+    return Offset(
+      offset.dx.clamp(edgePadding, maxLeft).toDouble(),
+      offset.dy.clamp(edgePadding, maxTop).toDouble(),
+    );
+  }
+
+  Offset _resolveCounterOffset(BoxConstraints constraints, Offset offset) {
+    if (offset.dx >= 0 && offset.dy >= 0) {
+      return _clampCounterOffset(offset, constraints);
+    }
+
+    return _clampCounterOffset(
+      Offset(
+        constraints.maxWidth - ZikrCounter.panelWidth - 16,
+        constraints.maxHeight - ZikrCounter.panelHeight - 20,
+      ),
+      constraints,
+    );
+  }
+
+  void _handleCounterDragEnd(
+    DraggableDetails details,
+    BoxConstraints constraints,
+  ) {
+    final renderBox =
+        _counterStackKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final localOffset = renderBox.globalToLocal(details.offset);
+    _updateCounterOffset(_clampCounterOffset(localOffset, constraints));
   }
 
   Future<void> _checkAdmin() async {
@@ -185,6 +275,7 @@ class _ZikrPageState extends State<ZikrPage> {
                   : currentOrder.toString()));
       _syncTabState(_buildVisibleTabContents().length);
     });
+    _scheduleCurrentWebRouteSync(replace: true);
   }
 
   Future<bool> _loadZikrDataFromAssets() async {
@@ -352,6 +443,7 @@ class _ZikrPageState extends State<ZikrPage> {
         _slugAliases = nextSlugAliases;
         _syncTabState(_buildVisibleTabContents().length);
       });
+      _scheduleCurrentWebRouteSync(replace: true);
     }
   }
 
@@ -565,6 +657,33 @@ class _ZikrPageState extends State<ZikrPage> {
     );
   }
 
+  @override
+  void didPush() {
+    _isCurrentRoute = true;
+    _previousBrowserUri ??= Uri.base;
+    _scheduleCurrentWebRouteSync();
+  }
+
+  @override
+  void didPopNext() {
+    _isCurrentRoute = true;
+    _scheduleCurrentWebRouteSync(replace: true);
+  }
+
+  @override
+  void didPushNext() {
+    _isCurrentRoute = false;
+  }
+
+  @override
+  void didPop() {
+    _isCurrentRoute = false;
+    final previousBrowserUri = _previousBrowserUri;
+    if (previousBrowserUri != null) {
+      syncWebRouteUri(previousBrowserUri, replace: true);
+    }
+  }
+
   Widget _buildTabContent(
     String rawContent,
     ScrollController controller, {
@@ -722,292 +841,317 @@ class _ZikrPageState extends State<ZikrPage> {
                   child: const Icon(Icons.exposure_plus_1),
                 ),
         ),
-        body: Stack(
-          children: [
-            zikrData == null
-                ? const Center(child: CircularProgressIndicator())
-                : !hasAnyContent && !isEditing
-                    ? const Center(child: Text('Coming soon...'))
-                    : Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: isEditing
-                            ? SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    TextField(
-                                      controller: titleController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Title'),
-                                    ),
-                                    TextField(
-                                      controller: slugController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Slug',
-                                        helperText:
-                                            'Canonical URL path. Leave blank to auto-generate once; old slugs keep working.',
+        body: LayoutBuilder(
+          builder: (context, bodyConstraints) => Stack(
+            key: _counterStackKey,
+            children: [
+              zikrData == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : !hasAnyContent && !isEditing
+                      ? const Center(child: Text('Coming soon...'))
+                      : Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: isEditing
+                              ? SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      TextField(
+                                        controller: titleController,
+                                        decoration: const InputDecoration(
+                                            labelText: 'Title'),
                                       ),
-                                    ),
-                                    TextField(
-                                      controller: codeController,
-                                      decoration: const InputDecoration(
-                                          helperMaxLines: 3,
+                                      TextField(
+                                        controller: slugController,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Slug',
                                           helperText:
-                                              'Blank for Only Arabic, 0 for Arabic, 1 for transliteration, 2 for translation. Example: 012 will have Arabic, transliteration, and translation. 02 for Arabic and translation only',
-                                          labelText: 'Code'),
-                                    ),
-                                    TextField(
-                                      controller: orderController,
-                                      keyboardType:
-                                          const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                        signed: true,
-                                      ),
-                                      decoration: const InputDecoration(
-                                        labelText: 'Order',
-                                        helperText:
-                                            'Custom list order for this zikr',
-                                      ),
-                                    ),
-                                    TextField(
-                                      controller: meritsController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Merits'),
-                                      maxLines: null,
-                                    ),
-                                    TextField(
-                                      controller: dataController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Data'),
-                                      maxLines: null,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    OutlinedButton.icon(
-                                      onPressed: _addTabField,
-                                      icon: const Icon(Icons.add),
-                                      label: const Text('Add Tab'),
-                                    ),
-                                    for (int i = 0;
-                                        i < tabControllers.length;
-                                        i++)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 16),
-                                        child: TextField(
-                                          controller: tabControllers[i],
-                                          decoration: InputDecoration(
-                                            labelText: 'Tab ${i + 1}',
-                                            helperText:
-                                                'First line becomes the tab title',
-                                          ),
-                                          maxLines: null,
+                                              'Canonical URL path. Leave blank to auto-generate once; old slugs keep working.',
                                         ),
                                       ),
-                                  ],
-                                ),
-                              )
-                            : Column(
-                                children: [
-                                  if (hasMerits)
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 12),
-                                        child: TextButton.icon(
-                                          onPressed: _showMeritsSheet,
-                                          label: const Text(
-                                            'Merits',
-                                            style: TextStyle(
-                                              decoration:
-                                                  TextDecoration.underline,
+                                      TextField(
+                                        controller: codeController,
+                                        decoration: const InputDecoration(
+                                            helperMaxLines: 3,
+                                            helperText:
+                                                'Blank for Only Arabic, 0 for Arabic, 1 for transliteration, 2 for translation. Example: 012 will have Arabic, transliteration, and translation. 02 for Arabic and translation only',
+                                            labelText: 'Code'),
+                                      ),
+                                      TextField(
+                                        controller: orderController,
+                                        keyboardType: const TextInputType
+                                            .numberWithOptions(
+                                          decimal: true,
+                                          signed: true,
+                                        ),
+                                        decoration: const InputDecoration(
+                                          labelText: 'Order',
+                                          helperText:
+                                              'Custom list order for this zikr',
+                                        ),
+                                      ),
+                                      TextField(
+                                        controller: meritsController,
+                                        decoration: const InputDecoration(
+                                            labelText: 'Merits'),
+                                        maxLines: null,
+                                      ),
+                                      TextField(
+                                        controller: dataController,
+                                        decoration: const InputDecoration(
+                                            labelText: 'Data'),
+                                        maxLines: null,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      OutlinedButton.icon(
+                                        onPressed: _addTabField,
+                                        icon: const Icon(Icons.add),
+                                        label: const Text('Add Tab'),
+                                      ),
+                                      for (int i = 0;
+                                          i < tabControllers.length;
+                                          i++)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 16),
+                                          child: TextField(
+                                            controller: tabControllers[i],
+                                            decoration: InputDecoration(
+                                              labelText: 'Tab ${i + 1}',
+                                              helperText:
+                                                  'First line becomes the tab title',
+                                            ),
+                                            maxLines: null,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                )
+                              : Column(
+                                  children: [
+                                    if (hasMerits)
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 12),
+                                          child: TextButton.icon(
+                                            onPressed: _showMeritsSheet,
+                                            label: const Text(
+                                              'Merits',
+                                              style: TextStyle(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                              ),
+                                            ),
+                                            style: TextButton.styleFrom(
+                                              padding: EdgeInsets.zero,
+                                              tapTargetSize:
+                                                  MaterialTapTargetSize
+                                                      .shrinkWrap,
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              alignment: Alignment.centerLeft,
                                             ),
                                           ),
-                                          style: TextButton.styleFrom(
-                                            padding: EdgeInsets.zero,
-                                            tapTargetSize: MaterialTapTargetSize
-                                                .shrinkWrap,
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            alignment: Alignment.centerLeft,
-                                          ),
                                         ),
                                       ),
-                                    ),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        if (showTabHeaders)
-                                          Container(
-                                            width: double.infinity,
-                                            margin: const EdgeInsets.only(
-                                                bottom: 20),
-                                            child: LayoutBuilder(
-                                              builder: (context, constraints) {
-                                                return SingleChildScrollView(
-                                                  scrollDirection:
-                                                      Axis.horizontal,
-                                                  child: ConstrainedBox(
-                                                    constraints: BoxConstraints(
-                                                      minWidth:
-                                                          constraints.maxWidth,
-                                                    ),
-                                                    child: Center(
-                                                      child: Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: List.generate(
-                                                          tabContents.length,
-                                                          (index) {
-                                                            final isSelected =
-                                                                index ==
-                                                                    _selectedTabIndex;
-                                                            return Padding(
-                                                              key:
-                                                                  _tabHeaderKeys[
-                                                                      index],
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .only(
-                                                                right: index ==
-                                                                        tabContents.length -
-                                                                            1
-                                                                    ? 0
-                                                                    : 12,
-                                                              ),
-                                                              child: Material(
-                                                                color: isSelected
-                                                                    ? Theme.of(
-                                                                            context)
-                                                                        .colorScheme
-                                                                        .secondaryContainer
-                                                                    : Theme.of(
-                                                                            context)
-                                                                        .colorScheme
-                                                                        .surfaceContainerHighest
-                                                                        .withValues(
-                                                                            alpha:
-                                                                                0.45),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            18),
-                                                                elevation:
-                                                                    isSelected
-                                                                        ? 2
-                                                                        : 0,
-                                                                child: InkWell(
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          if (showTabHeaders)
+                                            Container(
+                                              width: double.infinity,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 20),
+                                              child: LayoutBuilder(
+                                                builder:
+                                                    (context, constraints) {
+                                                  return SingleChildScrollView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    child: ConstrainedBox(
+                                                      constraints:
+                                                          BoxConstraints(
+                                                        minWidth: constraints
+                                                            .maxWidth,
+                                                      ),
+                                                      child: Center(
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children:
+                                                              List.generate(
+                                                            tabContents.length,
+                                                            (index) {
+                                                              final isSelected =
+                                                                  index ==
+                                                                      _selectedTabIndex;
+                                                              return Padding(
+                                                                key:
+                                                                    _tabHeaderKeys[
+                                                                        index],
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .only(
+                                                                  right: index ==
+                                                                          tabContents.length -
+                                                                              1
+                                                                      ? 0
+                                                                      : 12,
+                                                                ),
+                                                                child: Material(
+                                                                  color: isSelected
+                                                                      ? Theme.of(
+                                                                              context)
+                                                                          .colorScheme
+                                                                          .secondaryContainer
+                                                                      : Theme.of(
+                                                                              context)
+                                                                          .colorScheme
+                                                                          .surfaceContainerHighest
+                                                                          .withValues(
+                                                                              alpha: 0.45),
                                                                   borderRadius:
                                                                       BorderRadius
                                                                           .circular(
                                                                               18),
-                                                                  onTap: () =>
-                                                                      _animateToTab(
-                                                                          index),
+                                                                  elevation:
+                                                                      isSelected
+                                                                          ? 2
+                                                                          : 0,
                                                                   child:
-                                                                      Padding(
-                                                                    padding:
-                                                                        const EdgeInsets
-                                                                            .symmetric(
-                                                                      horizontal:
-                                                                          18,
-                                                                      vertical:
-                                                                          10,
-                                                                    ),
-                                                                    child: Text(
-                                                                      _getTabHeader(
-                                                                        tabContents[
-                                                                            index],
-                                                                        index,
+                                                                      InkWell(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            18),
+                                                                    onTap: () =>
+                                                                        _animateToTab(
+                                                                            index),
+                                                                    child:
+                                                                        Padding(
+                                                                      padding:
+                                                                          const EdgeInsets
+                                                                              .symmetric(
+                                                                        horizontal:
+                                                                            18,
+                                                                        vertical:
+                                                                            10,
                                                                       ),
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            15,
-                                                                        fontWeight: isSelected
-                                                                            ? FontWeight.w600
-                                                                            : FontWeight.w500,
-                                                                        color: isSelected
-                                                                            ? Theme.of(context).colorScheme.onSecondaryContainer
-                                                                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.78),
+                                                                      child:
+                                                                          Text(
+                                                                        _getTabHeader(
+                                                                          tabContents[
+                                                                              index],
+                                                                          index,
+                                                                        ),
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          fontWeight: isSelected
+                                                                              ? FontWeight.w600
+                                                                              : FontWeight.w500,
+                                                                          color: isSelected
+                                                                              ? Theme.of(context).colorScheme.onSecondaryContainer
+                                                                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.78),
+                                                                        ),
                                                                       ),
                                                                     ),
                                                                   ),
                                                                 ),
-                                                              ),
-                                                            );
-                                                          },
+                                                              );
+                                                            },
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
-                                                  ),
-                                                );
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          Expanded(
+                                            child: PageView.builder(
+                                              controller: _pageController,
+                                              itemCount: tabContents.length,
+                                              onPageChanged: (index) {
+                                                setState(() {
+                                                  _selectedTabIndex = index;
+                                                });
+                                                _centerSelectedTab();
                                               },
+                                              itemBuilder: (context, index) =>
+                                                  _buildTabContent(
+                                                tabContents[index],
+                                                _tabScrollControllers[index],
+                                                hideHeaderLine: showTabHeaders,
+                                              ),
+                                              pageSnapping: true,
+                                              physics:
+                                                  const PageScrollPhysics(),
                                             ),
                                           ),
-                                        Expanded(
-                                          child: PageView.builder(
-                                            controller: _pageController,
-                                            itemCount: tabContents.length,
-                                            onPageChanged: (index) {
-                                              setState(() {
-                                                _selectedTabIndex = index;
-                                              });
-                                              _centerSelectedTab();
-                                            },
-                                            itemBuilder: (context, index) =>
-                                                _buildTabContent(
-                                              tabContents[index],
-                                              _tabScrollControllers[index],
-                                              hideHeaderLine: showTabHeaders,
-                                            ),
-                                            pageSnapping: true,
-                                            physics: const PageScrollPhysics(),
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                      ),
-            // Counter overlay
-            ValueListenableBuilder<bool>(
-              valueListenable: _showCounter,
-              builder: (context, visible, _) {
-                if (!visible) return const SizedBox.shrink();
-                return ValueListenableBuilder<Offset>(
-                  valueListenable: _counterOffset,
-                  builder: (context, offset, __) => Positioned(
-                    left: offset.dx,
-                    top: offset.dy,
-                    child: Draggable(
-                      feedback: Material(
-                        color: Colors.transparent,
-                        child: _buildCounterCard(),
-                      ),
-                      childWhenDragging: const SizedBox.shrink(),
-                      onDragEnd: (details) {
-                        _updateCounterOffset(details.offset);
-                      },
-                      child: Stack(
-                        children: [
-                          _buildCounterCard(),
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: IconButton(
-                              icon: const Icon(Icons.close, size: 20),
-                              onPressed: () => _setCounterVisibility(false),
-                            ),
+                                  ],
+                                ),
+                        ),
+              // Counter overlay
+              ValueListenableBuilder<bool>(
+                valueListenable: _showCounter,
+                builder: (context, visible, _) {
+                  if (!visible) return const SizedBox.shrink();
+                  return ValueListenableBuilder<Offset>(
+                    valueListenable: _counterOffset,
+                    builder: (context, offset, __) {
+                      final resolvedOffset =
+                          _resolveCounterOffset(bodyConstraints, offset);
+                      return Positioned(
+                        left: resolvedOffset.dx,
+                        top: resolvedOffset.dy,
+                        child: LongPressDraggable(
+                          feedback: Material(
+                            color: Colors.transparent,
+                            child: _buildCounterCard(),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+                          childWhenDragging: Opacity(
+                            opacity: 0.18,
+                            child: _buildCounterCard(),
+                          ),
+                          onDragEnd: (details) =>
+                              _handleCounterDragEnd(details, bodyConstraints),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              _buildCounterCard(),
+                              Positioned(
+                                right: 10,
+                                top: 10,
+                                child: Material(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
+                                  shape: const CircleBorder(),
+                                  child: IconButton(
+                                    icon: const Icon(Icons.close, size: 18),
+                                    tooltip: 'Hide counter',
+                                    onPressed: () =>
+                                        _setCounterVisibility(false),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

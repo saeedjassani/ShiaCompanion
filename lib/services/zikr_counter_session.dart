@@ -8,7 +8,7 @@ class ZikrCounterSessionState {
   const ZikrCounterSessionState({
     this.count = 0,
     this.isVisible = false,
-    this.offset = const Offset(20, 80),
+    this.offset = const Offset(-1, -1),
   });
 
   ZikrCounterSessionState copyWith({
