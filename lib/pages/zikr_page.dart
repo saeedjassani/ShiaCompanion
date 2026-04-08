@@ -838,7 +838,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               : FloatingActionButton(
                   onPressed: () => _setCounterVisibility(true),
                   tooltip: 'Show Counter',
-                  child: const Icon(Icons.exposure_plus_1),
+                  child: const Icon(tasbeehCounterIcon),
                 ),
         ),
         body: LayoutBuilder(
@@ -857,6 +857,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: OutlinedButton.icon(
+                                          onPressed: _addTabField,
+                                          icon: const Icon(Icons.add),
+                                          label: const Text('Add Tab'),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
                                       TextField(
                                         controller: titleController,
                                         decoration: const InputDecoration(
@@ -902,12 +911,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                         decoration: const InputDecoration(
                                             labelText: 'Data'),
                                         maxLines: null,
-                                      ),
-                                      const SizedBox(height: 12),
-                                      OutlinedButton.icon(
-                                        onPressed: _addTabField,
-                                        icon: const Icon(Icons.add),
-                                        label: const Text('Add Tab'),
                                       ),
                                       for (int i = 0;
                                           i < tabControllers.length;

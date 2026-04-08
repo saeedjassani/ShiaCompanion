@@ -1,945 +1,1057 @@
 {
-  "A10": "6: Al-An'aam الأنعام",
-  "A100": "96: Al-Alaq العلق",
-  "A101": "97: Al-Qadr القدر",
-  "A102": "98: Al-Bayyina البينة",
-  "A103": "99: al-Zalzalah الزلزلة",
-  "A104": "100: Al-Aadiyaat العاديات",
-  "A105": "101: Al-Qaari'a القارعة",
-  "A106": "102: At-Takaasor التكاثر",
-  "A107": "103: Al-Asr العصر",
-  "A108": "104: Al-Humaza الهمزة",
-  "A109": "105: Al-Fil الفيل",
-  "A11": "7: Al-A'raaf الأعراف",
-  "A110": "106: Quraish قريش",
-  "A111": "107: al-Maao’on الماعون",
-  "A112": "108: Al-Kawthar الكوثر",
-  "A113": "109: Al-Kaaferoon الكافرون",
-  "A114": "110: An-Nasr النصر",
-  "A115": "111: Al-Masad المسد",
-  "A116": "112: Al-Ikhlaas الإخلاص",
-  "A117": "113: Al-Falaq الفلق",
-  "A118": "114: An-Naas الناس",
-  "A12": "8: Al-Anfaal الأنفال",
-  "A13": "9: At-Tawba التوبة",
-  "A14": "10: Yunus يونس",
-  "A15": "11: Hud هود",
-  "A16": "12: Yusuf يوسف",
-  "A17": "13: Ar-Ra'd الرعد",
-  "A18": "14: Ibrahim ابراهيم",
-  "A19": "15: Al-Hijr الحجر",
-  "A2": "Dua after reciting Holy Quran",
-  "A20": "16: An-Nahl النحل",
-  "A21": "17: Al-Israa الإسراء",
-  "A22": "18: Al-Kahf الكهف",
-  "A23": "19: Maryam مريم",
-  "A24": "20: Taa-Haa طه",
-  "A25": "21: Al-Anbiyaa الأنبياء",
-  "A26": "22: Al-Hajj الحج",
-  "A27": "23: Al-Muminoon المؤمنون",
-  "A28": "24: An-Noor النور",
-  "A29": "25: Al-Furqaan الفرقان",
-  "A3": "Dua Khatme Quran",
-  "A30": "26: Ash-Shu'araa الشعراء",
-  "A31": "27: An-Naml النمل",
-  "A32": "28: Al-Qasas القصص",
-  "A33": "29: Al-Ankaboot العنكبوت",
-  "A34": "30: Ar-Room الروم",
-  "A35": "31: Luqman لقمان",
-  "A36": "32: As-Sajda السجدة",
-  "A37": "33: Al-Ahzaab الأحزاب",
-  "A38": "34: Saba سبإ",
-  "A39": "35: Faatir فاطر",
-  "A4": "Ayat al Kursi",
-  "A40": "36: Yaseen يس",
-  "A41": "37: As-Saaffaat الصافات",
-  "A42": "38: Saad ص",
-  "A43": "39: Az-Zumar الزمر",
-  "A44": "40: Al-Ghaafir غافر",
-  "A45": "41: Fussilat فصلت",
-  "A46": "42: Ash-Shura الشورى",
-  "A47": "43: Az-Zukhruf الزخرف",
-  "A48": "44: Ad-Dukhaan الدخان",
-  "A49": "45: Al-Jaathiya الجاثية",
-  "A5": "1: Al-Faatehah الفاتحة",
-  "A50": "46: Al-Ahqaf الأحقاف",
-  "A51": "47: Muhammad محمد",
-  "A52": "48: Al-Fath الفتح",
-  "A53": "49: Al-Hujuraat الحجرات",
-  "A54": "50: Qaaf ق",
-  "A55": "51: Adh-Dhaariyat الذاريات",
-  "A56": "52: At-Tur الطور",
-  "A57": "53: An-Najm النجم",
-  "A58": "54: Al-Qamar القمر",
-  "A59": "55: Ar-Rahmaan الرحمن",
-  "A6": "2 : Al-Baqarah البقرة",
-  "A60": "56: Al-Waaqia الواقعة",
-  "A61": "57: Al-Hadid الحديد",
-  "A62": "58: Al-Mujaadila المجادلة",
-  "A63": "59: Al-Hashr الحشر",
-  "A64": "60: Al-Mumtahana الممتحنة",
-  "A65": "61: As-Saff الصف",
-  "A66": "62: Al-Jumu'a الجمعة",
-  "A67": "63: Al-Munaafiqoon المنافقون",
-  "A68": "64: At-Taghaabun التغابن",
-  "A69": "65: al-Talaaq الطلاق",
-  "A7": "3: Aal-e-Imraan آل عمران",
-  "A70": "66: At-Tahrim التحريم",
-  "A71": "67: Al-Mulk الملك",
-  "A72": "68: Al-Qalam القلم",
-  "A73": "69: Al-Haaqqa الحاقة",
-  "A74": "70: Al-Ma'aarij المعارج",
-  "A75": "71: Nooh نوح",
-  "A76": "72: Al-Jinn الجن",
-  "A77": "73: Al-Muzzammil المزمل",
-  "A78": "74: Al-Muddaththir المدثر",
-  "A79": "75: Al-Qiyaama القيامة",
-  "A8": "4: An-Nisaa النساء",
-  "A80": "76: Al-Insaan الانسان",
-  "A81": "77: Al-Mursalaat المرسلات",
-  "A82": "78: An-Naba النبإ",
-  "A83": "79: An-Naazi'aat النازعات",
-  "A84": "80: Abasa عبس",
-  "A85": "81: At-Takwir التكوير",
-  "A86": "82: Al-Infitaar الإنفطار",
-  "A87": "83: Al-Mutaffifin المطففين",
-  "A88": "84: Al-Inshiqaaq الإنشقاق",
-  "A89": "85: Al-Burooj البروج",
-  "A9": "5: Al-Maaida المائدة",
-  "A90": "86: At-Taariq الطارق",
-  "A91": "87: Al-A'laa الأعلى",
-  "A92": "88: Al-Ghaashiya الغاشية",
-  "A93": "89: Al-Fajr الفجر",
-  "A94": "90: Al-Balad البلد",
-  "A95": "91: Ash-Shams الشمس",
-  "A96": "92: Al-Lail الليل",
-  "A97": "93: Ad-Dhuhaa الضحى",
-  "A98": "94: Ash-Sharh (Insherah) الشرح",
-  "A99": "95: At-Tin التين",
-  "AA1": "Holy Prophet's Sermon in the Holy Month of Ramadhan",
-  "AA10": "Dua al Iftitah",
-  "AA11": "Dua al Baha",
-  "AA12": "Dua Abu Hamzah al Thumali",
-  "AA13": "Dua Ya Uddati",
-  "AA14": "Dua e Sahar يَامَفْزَعِيْ عِنْدَ كُرْبَتِي",
-  "AA15": "Aamal & Duas to be recited in every night of Ramadhan",
-  "AA16": "Aamal-e-Sehar in the Holy Month of Ramadhan",
-  "AA17": "Tasbeehat at the time of Sehar",
-  "AA18": "Aamal & Duas for the days of Ramadhan",
-  "AA19": "Tasbeehat & Salawat for every day in Ramadhan",
-  "AA2": "Recitation Of The Holy Qur’an In Ramadan",
-  "AA20": "First Night of Ramadhan",
-  "AA21": "Dua No. 43 of Sahifa al Kamilah",
-  "AA22": "Other Aamal of The First Night",
-  "AA23": "The 1st Day of Ramadhan",
-  "AA24": "The 6th Of Ramadan",
-  "AA25": "The 13th Night of Ramadhan",
-  "AA26": "The 15th Night of Ramadhan",
-  "AA27": "The 17th Night of Ramadhan",
-  "AA28": "Aamal of Shab Qadr",
-  "AA29": "Common Aamal at each of the three Qadr Nights",
-  "AA3": "Aamal to be performed only during Night",
-  "AA30": "19th Night of Ramadhan",
-  "AA31": "Aamal of the 21st Night of Ramadhan",
-  "AA32": "Aamal of the last ten Nights of Ramadhan",
-  "AA33": "Dua on the 22nd Night of Ramadhan",
-  "AA34": "23rd Night of Ramadhan",
-  "AA35": "Dua for the 23rd Night of Ramadhan",
-  "AA36": "Dua for the 24th Night of Ramadhan",
-  "AA37": "Dua for the 25th Night of Ramadhan",
-  "AA38": "Dua for the 26th Night of Ramadhan",
-  "AA39": "27th Night of Ramadan",
-  "AA4": "One Thousand Unit Prayers",
-  "AA40": "Dua for the 27th Night of Ramadhan",
-  "AA41": "Dua for the 28th Night of Ramadhan",
-  "AA42": "Dua for the 29th Night of Ramadhan",
-  "AA43": "Last Night of Ramadhan",
-  "AA44": "Dua for the 30th Night of Ramadhan",
-  "AA45": "30th of Ramadhan",
-  "AA46": "Prayers for the nights of Ramadhan",
-  "AA47": "Farewell Prayer of Ramadhan",
-  "AA5": "Dua after every obligatory Prayers (1) اَللّٰهُمَّ ارْزُقْنيْ حَجَّ بَيْتِكَ الْحَرَامِ",
-  "AA6": "Dua after every obligatory Prayers (2) يَا عَلِيُّ يَا عَظِيْمُ",
-  "AA7": "Dua after every obligatory Prayers (3) اَللّٰهُمَّ اَدْخِلْ عَلٰٓى اَهْلِ الْقُبُوْرِ",
-  "AA9": "Dua al Hajj",
-  "AA~Z8": "Everyday short duas in the month of Ramadhan",
-  "AB1": "Zilqad",
-  "AB2": "11th, 15th & 23rd of Zilqad",
-  "AB3": "Night & Day of 25th Zilqad (The Spreading of the earth)",
-  "AB4": "The Last Day Of Zilqad",
-  "AC1": "Ziyarah on the Day of Ghadeer",
-  "AC10": "Aamal of the Night of Arafat",
-  "AC11": "Aamal of the Day of Arafat (9th Zilhaj)",
-  "AC12": "Dua of Imam al Husayn on the Day of Arafah",
-  "AC13": "Comprehensive Ziyarat especially on the Day of Arafah Can be recited at any Shrine",
-  "AC14": "The Night & Day of Eid al Adha (Qurban)",
-  "AC15": "The Day of Eid al Adha (Qurban)",
-  "AC16": "The Fifteenth Of Zilhajj",
-  "AC17": "Aamal of the Night of Eid E Ghadeer",
-  "AC18": "Aamal of the Day of Eid E Ghadeer",
-  "AC19": "Namaz on the Day of Ghadeer",
-  "AC2": "Another Ziyarah on the Day of Ghadeer",
-  "AC20": "Seegah of Brotherhood (Ukhuwwat) on the Day of Ghadeer",
-  "AC21": "The Day of Mubahelah",
-  "AC22": "The Twenty-Fifth Of Dhu’l-Hijjah",
-  "AC23": "The Last Day of Zilhaj",
-  "AC3": "Ziyarah on the Id AlFitr and Id Al Adha days",
-  "AC4": "Ziyarah on the day of Arafat",
-  "AC5": "Zilhaj",
-  "AC6": "2 Unit Prayer for first 10 nights of Zilhaj و واعد ناموسی",
-  "AC7": "1st Day of Zilhaj",
-  "AC8": "The Seventh Of Dhu’l-Hijjah",
-  "AC9": "The Eighth Of Dhu’l-Hijjah",
-  "AD1": "1st Night of Shawwal",
-  "AD2": "Prayers & Du'as of Night of Eid ul Fitr",
-  "AD3": "Aamal for the day of Eid ul Fitr",
-  "AD4": "Eid Prayer",
-  "AD5": "The Sermon on the Eid ul Fitr",
-  "AE1": "News of Safi the Servant of Imam al Hadi (a) and his journey to Mashhad",
-  "AE10": "Imam Al Reza's Journey To Khurasan",
-  "AE11": "Visitation of a king to the shrine of Imam Al Reza (a)",
-  "AE12": "Miracles Shown in Imam Al Reza's Holy Shrine",
-  "AE13": "Poetic verses composed by Al Jami praising Al Reza",
-  "AE14": "Visiting Lady Fatimah Al Masumah in Qum",
-  "AE15": "Ziyarah of Lady Fatimah Al Ma’sumah",
-  "AE16": "Short Biography of ‘Abd Al ’Azim Al Hasani",
-  "AE17": "Ziyarah of Abd Al Azim Al Hasani",
-  "AE18": "The Shrine of Hamzah - the Son of Imam Al Kazim",
-  "AE2": "Merits and Methods of Visiting Imam Ali Ibn Moosa Al Reza",
-  "AE3": "Method of Visiting Imam Al Reza",
-  "AE4": "Dua after Ziyarah of Imam Al Reza's tomb",
-  "AE5": "Al Ziyarah al Jawadiyyah",
-  "AE6": "Another Ziyarah of Imam al Rida",
-  "AE7": "Another Ziyarah of Imam al Rida",
-  "AE8": "Bidding Farewell To Imam Al Reza",
-  "AE9": "Granting of requests at Imam Al Reza's Tomb",
-  "AF~AG3": "Karbala al-Muqaddasah",
-  "AF~AH4": "Kazmayn",
-  "AF~AI2": "Kufa",
-  "AF~AJ6": "Madaeen",
-  "AF~AK1": "Najaf al-Ashraf",
-  "AF~AL7": "Samarrah",
-  "AF~AM5": "Baghdad",
-  "AF~AN8": "Balad",
-  "AG1": "Merits of Visiting Imam Al Husayn (a)",
-  "AG10": "Third Ziyarah of Imam Husayn (a)",
-  "AG11": "Fourth Ziyarah of Imam Husayn (a)",
-  "AG12": "Fifth Ziyarah of Imam Husayn (a)",
-  "AG13": "Sixth Ziyarah of Imam Husayn (a)",
-  "AG14": "Seventh Ziyarah (Ziyarah Warith)",
-  "AG15": "Explanations about the additions in Ziyarah Warith)",
-  "AG16": "Fabricated Supplications",
-  "AG17": "Denunciation of the presence of unworthy things in books of hadees and duas",
-  "AG18": "Ziyarah of Al Abbas Ibn Ali",
-  "AG19": "Stature and Position of Al Abbas",
-  "AG2": "Etiquettes to be observed during Journey to Imam Husayn's (a) tomb and inside his Holy Shrine",
-  "AG20": "Visiting Imam Husayn (a) on Special Occasions",
-  "AG21": "Merits And Etiquettes of the Soil of Imam Husayn's (a) Tomb",
-  "AG4": "Salawat on Imam Husayn (a)",
-  "AG5": "Recommended acts in the shrine of Imam Husayn (a)",
-  "AG6": "Bidding Farewell (Wida) to Imam Husayn (a)",
-  "AG7": "Method of visiting the Holy Shrines of Imam Husayn (a) & Al Abbas (a)",
-  "AG8": "First Ziyarah of Imam Husayn (a)",
-  "AG9": "Second Ziyarah of Imam Husayn (a)",
-  "AH1": "Mertis and Method of Visiting Kazimayn",
-  "AH10": "Bidding farewell to Imam al Kazim (a) and Imam al Jawad (a)",
-  "AH11": "Story of Ali Al Baghdadi",
-  "AH2": "Ziyarah of Imam Al Kazim (a)",
-  "AH3": "Another Ziyarah of Imam al-Kazim (a)",
-  "AH4": "Salawat upon Imam Al Kazim (a)",
-  "AH5": "Ziyarah of Imam Al Jawad",
-  "AH6": "Another Ziyarah of Imam al-Jawad",
-  "AH7": "Invocation of blessings upon imam al-Jawad",
-  "AH8": "Another Ziyarah of Imam al-Jawad - 1",
-  "AH9": "Ziyarah which is common to Imam Al Kazim And Imam Al Jawad",
-  "AI1": "Merits of Al Kufah City",
-  "AI10|H17": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)",
-  "AI11": "Devotional Acts at Imam al-Sadiq’s Bench",
-  "AI12": "Prayer for fulfillment of desires at Al Kufah Mosque",
-  "AI13": "The Ziyarah of Muslim Ibn Aqil",
-  "AI14": "The Ziyarah of Hani Ibn Urwah",
-  "AI15": "Aamal of Masjid Al Sahla",
-  "AI16": "Aamal of Masjid Zayd",
-  "AI17": "Zayd and Sasah",
-  "AI2": "Merits of Masjid al-Kufah",
-  "AI3": "Aamal of Masjid Al Kufah",
-  "AI4": "Aamal In The Seat of Judgment (Dakkat al Qaza) And The Place of the wash-tub (Bayt al Tasht)",
-  "AI5": "Prayers And Supplications in the Center of The Mosque",
-  "AI6": "Aamal at the Seventh Column (Sutoon)",
-  "AI7": "Aamal at the Fifth Column (Sutoon)",
-  "AI8": "Aamal at the Third Column (Sutoon)",
-  "AI9": "Aamal at Bab Al Faraj",
-  "AJ1": "Merits of visiting the tomb of Salman",
-  "AJ2": "Method of Ziyarah of Salman",
-  "AJ3": "Offering Prayer at Taq Kasra",
-  "AJ4": "Visting the tomb of Hudhayfah Al Yamani",
-  "AK1": "Merits and Method of Visiting the Tomb of Imam Ali - Ameerul Momeneen",
-  "AK10": "Fourth Ziyarah",
-  "AK11": "Fifth Ziyarah",
-  "AK12": "Sixth Ziyarah",
-  "AK13": "Seventh Ziyarah",
-  "AK14": "Visitation of Imam Zayn al Abidin (a) for the Ziyarah of Imam Ali (a)",
-  "AK15": "Bidding Farewell To Imam Ali (a)",
-  "AK16": "Timed Forms of Ziyarah",
-  "AK17": "Ziyarat on The Holy Prophet's Birthday",
-  "AK18": "The Holy Prophet And Imam Ali",
-  "AK19": "Ziyarat on the Day & Night of Be'asat (Proclamation)",
-  "AK2": "Apperance of the Grave of Ameerul Momeneen (a) during the time of Haroon",
-  "AK3": "The incident of Ahmah as narrated by Mujeerul Jarrad",
-  "AK4": "Method of visiting Ameerul Momeneen's (a)Tomb",
-  "AK5": "First Ziyarah",
-  "AK6": "Duas after the ziyarah of H. Ali (a.s) and after the recitation of nafilah prayers in Najaf Ashraf",
-  "AK7": "Ziyarah of the Head of Imam Husayn (a) in the tomb of Imam Ali(a) and Masjid al Hannanah",
-  "AK8": "Second Ziyarah; Ziyarah of Aminullah (The Trustee of Allah)",
-  "AK9": "Third Ziyarah",
-  "AL1": "Ziyarah of Imam ‘Ali Al Naqi and Imam Al Hasan Al ’Askari",
-  "AL10": "The Tomb of Imam Husayn Ibn Ali Ibn Muhammad",
-  "AL11": "Etiquettes at the Holy Sardab",
-  "AL12|G1": "Ziyarat e Aale Yaseen",
-  "AL13": "Another form of Ziyarah (1)",
-  "AL14|G5": "Ziyarat al Haqq al Jadeed",
-  "AL15": "Salawat upon Imam Al Mahdi",
-  "AL16": "Other Rites at the Sardaab",
-  "AL17": "Ziyarat of Imam Mahdi (a.t.f.s.) after the Fajr Prayers (Allaahumma Balligh)",
-  "AL18|E18": "Dua e Ahad",
-  "AL2": "The Holy Shrine of the Two Imams",
-  "AL3": "Other Ziyarah",
-  "AL4": "Permission to Enter Holy Place of Imam Ali Al Naqi Al Hadi",
-  "AL5": "Ziyarah of Imam Ali Al Naqi Al Hadi",
-  "AL6": "Ziyarah of Imam Al Hasan Al Askari",
-  "AL7": "Bidding Farewell to the Two Imams",
-  "AL8": "Ziyarah of the Mother of Imam Al Qaem (a)",
-  "AL9": "Ziyarah of Lady Hakimah; Daughter of Imam Muhammad Al Jawad",
-  "AM1": "Visiting and offering Prayers in Masjid Burasa",
-  "AM2": "Visitation to Naeb Khaas (Special Deputies of Imam Mahdi (a)",
-  "AM3": "Ziyarah of the four Emissaries",
-  "AM4": "Visiting the Tomb of Shaykh Al Kulayni",
-  "AN1": "Ziyarah of Sayyid Muhammad, the Son of Imam Ali Al Hadi",
-  "AP1": "Ziyarah of The Holy Prophet, Lady Fatimah Al-Zahra and The Imams in Al Baqi Cemetery",
-  "AP10": "Part of Poetry of Shaykh Al Azari (r)",
-  "AP11": "Ziyarah of Ibrahim, son of the Holy prophet (s)",
-  "AP12": "The revered Mosques in Al Madinah",
-  "AP13": "Bidding Farewell (Wida) to the Holy Prophet (s)",
-  "AP14": "Recommended deeds in the Holy city of Madinah",
-  "AP2": "Method of Ziyarah of Holy Prophet (s) in Madinah",
-  "AP3": "Aamal e Rouza e Munawwara",
-  "AP4": "Ziyarah of Lady Fatimah Al-Zahra'",
-  "AP5": "Visiting The Holy Prophet from a Distance",
-  "AP6": "Ziyarah of Holy Prophet (s) and The Holy Infallibles on Friday from a Distance",
-  "AP7": "Merits of greeting The Holy Prophet (s)",
-  "AP8": "Ziyarah of The Imams in Al Baqi : Al Hasan Al Mujtaba, Ali Zayn Al Abidin, Muhammad Al Baqir, And Jafar Al Sadiq",
-  "AP9": "Bidding Farewell to the Imams in Al Baqi",
-  "AQ1": "Visiting The Tomb of Lady Fatimah Bint Asad - Imam Ali’s Mother",
-  "AQ2": "Visiting The Tomb of Hamzah at Uhud",
-  "AQ3": "Merits of Visiting the Tombs of the Martyrs in the Battle of Uhud",
-  "AQ4": "Visiting the tombs of the Martyrs in the battle of Uhud",
-  "AR~AP1": "Madina al-Munawwarah",
-  "AR~AQ2": "Makkah al-Mukarramah",
-  "AS1": "Dua No. 1",
-  "B1": "Etiquettes of Travel",
-  "B2": "Etiquettes of Journey",
-  "B3": "Etiquettes of Ziyarah",
-  "B4": "Verbal harassment to a female pilgrim talking with Na Mahram",
-  "B5": "Asking Permission for Entering The Holy Shrines (Izn Dukhool)",
-  "B6": "Another Izn Dukhool",
-  "B~AE7": "Iran",
-  "B~AF8": "Iraq",
-  "B~AR9": "Hijaz",
-  "C15": "General Aamal of each Months",
-  "C16": "Aamal of the day of Navroz",
-  "C~AA5": "Ramadhan",
-  "C~AB7": "Dhul Qadah",
-  "C~AC8": "Dhul Hijjah",
-  "C~AD6": "Shawwal",
-  "C~R9": "Muharram",
-  "C~S10": "Safar",
-  "C~T11": "Rabi al-Awwal",
-  "C~U12": "Rabi al-Thani",
-  "C~V13": "Jamadi al-Awwal",
-  "C~W14": "Jamadi al-Akhir",
-  "C~X3": "Rajab",
-  "C~Y4": "Shaban",
-  "D1": "General Taqibaat",
-  "D10": "Taqeebaat e Namaz e Isha (1)",
-  "D11": "Taqeebaat e Namaz e Isha (2)",
-  "D12": "Dua After Namaz For Seeking Sustenance",
-  "D2": "Dua to be recited after Namaz-e-Subh",
-  "D3": "Taqibaat-e-Namaz-e-Fajr",
-  "D4": "Nafilah Fajr",
-  "D5": "Taqibaat-e-Namaz-e-Zohr",
-  "D6": "Nafilah Zuhr",
-  "D7": "Taqibaat e Namaz e Asr",
-  "D8": "Taqibaat & Nafilah of Asr",
-  "D9": "Taqibaat-e-Namaz-e-Maghrib",
-  "E1": "Ziyarat-e-Isteghasa-e-Imam-e-Zamana (a.t.f.s.) الکامل التام",
-  "E10": "Dua Asharat",
-  "E100": "Dua of Exaltation",
-  "E101": "Dua of Imam Husayn (a) on the day of Ashura بِحَقِّ يٰسٓ وَالْقُرْاٰنِ الْحَكِيْمِ",
-  "E102": "Dua of Mother for her child who is ailing.",
-  "E103": "Dua of Prostration of thanksgiving",
-  "E104": "Dua of Takbir",
-  "E105": "Dua of the Noon (Zuhr)",
-  "E106": "Dua Shaybah Al Hudhali",
-  "E107": "Dua taught by Jibrael to the Holy Prophet (s)",
-  "E108": "Dua to rememeber the things that Satan makes you forget",
-  "E109": "Dua when intending to leave the Mosque",
-  "E11": "Dua Yastasheer",
-  "E110": "Dua when someone Sees the Dead",
-  "E111": "Dua when you see a Diseased or Defected Person",
-  "E112": "Duas at Daybreak and Sunset",
-  "E113": "Everyday Supplications",
-  "E114": "Hirz Zayn al Abidin (a)",
-  "E115": "Imam Baqir's (a) dua",
-  "E116": "Imam al-Hasan’s supplication",
-  "E117": "Imam al-Husayn’s supplication",
-  "E118": "Imam Zayn al-’Abidin’s supplication",
-  "E119": "Imam al-Baqir’s supplication",
-  "E12": "Dua of Imam Mehdi اَللّٰهُمَّ ادْفَعْ عَنْ وَلِيِّكَ۔۔۔",
-  "E120": "Imam al-Sadiq’s supplication",
-  "E121": "Imam al-Kazim’s supplication",
-  "E122": "Imam al-Reza’s supplication",
-  "E123": "Imam al-Jawad’s supplication",
-  "E124": "Imam al-Hadi’s supplication",
-  "E125": "Imam al-’Askari’s supplication",
-  "E126": "Imam al-Mahdi’s Supplication",
-  "E127": "Salawat upon The Holy Infallibles",
-  "E128": "Salawat upon the Holy Prophet",
-  "E129": "Salawat upon the Commander of the Faithful",
-  "E13": "Dua Sayfi al Sagir (Dua Qamoos)",
-  "E130": "Salawat upon Lady Fatimah",
-  "E131": "Salawat upon Al Hasan and Al Husayn",
-  "E132": "Salawat upon Imam ‘Ali Ibn Al Husayn",
-  "E133": "Salawat upon Imam Muhammad Ibn ‘Ali",
-  "E134": "Salawat upon Imam Ja’far Ibn Muhammad",
-  "E135": "Salawat upon Imam Musa Ibn Ja’far",
-  "E136": "Salawat upon Imam ‘Ali Ibn Musa",
-  "E137": "Salawat upon Imam Muhammad Ibn ‘Ali Al-Jawad",
-  "E138": "Salawat upon Imam ‘Ali Ibn Muhammad Al Hadi",
-  "E139": "Salawat upon Imam Al Hasan Al ’Askari",
-  "E14": "Hadees-e-Kisaa",
-  "E140": "Salawat upon The Awaited Imam",
-  "E141": "Isteghfar e Maujiz e Aasaa",
-  "E142": "Merits of reciting the Dua اعددت لکل هول",
-  "E143": "Prayer for fulfillment of desires",
-  "E144": "Salawat Abul Hasan al-Zarrab al-Isfahani",
-  "E145": "Supplication for Release from Prison",
-  "E146": "Supplications at Sunrise & Sunset",
-  "E147": "Supplicatory Prayers for Healing",
-  "E148": "Thanksgiving Prostration - Sajdah al Shukr",
-  "E149": "The Holy Infallibles And The Days Of The Week",
-  "E15": "Dua e Hazeen",
-  "E150": "The Holy Prophet's (s) dua",
-  "E151": "The Noon Obligatory Prayer اللهم رب هذه الدعوة التامه",
-  "E152": "True incident of fulfillment of desires",
-  "E153": "Dua e Noor Kabir",
-  "E16": "Dua during the Occultation of Imam Mahdi (a.t.f.s.) - SHORT اَللّٰهُمَّ عَرِّفْنِىْ نَفْسَكَ",
-  "E17": "Dua during the Occultation of Imam Mahdi (a) - LONG اَللّٰهُمَّ عَرِّفْنِيْ نَفْسَكَ",
-  "E18": "Dua e Ahad",
-  "E19": "Dua-e-Faraj اَللّٰهُمَّ كُنْ لِوَلِيِّكَ",
-  "E2": "Ayah Isme Aazam",
-  "E20": "Dua e Faraj - Ilahi Azomal Bala اِلٰهِيْ عَظُمَ الْبَلَاۤءُ",
-  "E21": "Dua-e-Ghareeq",
-  "E22": "Dua-e-Hifz-e-Eemaan رَضِيْتُ بِاللّٰهِ رَبًّا",
-  "E23": "Dua e Hifz e Imaan (another)",
-  "E24": "Dua Tawassul",
-  "E25": "Another Dua Tawassul",
-  "E26": "Dua Simat",
-  "E27": "Dua Mashlool",
-  "E28": "Dua Mujeer",
-  "E29": "Dua Jawshan al Kabir",
-  "E3": "Dua Aaliyah al Mazameen Dua to be recited after the Ziyarah of every Masoomeen (a)",
-  "E30": "Dua Jawshan al Sagir",
-  "E31": "Dua Kumayl",
-  "E32": "Dua e Ne'mul Badal",
-  "E33": "Dua-e-Noor",
-  "E34": "Dua e Nudbah",
-  "E35": "Dua e Sabah",
-  "E36": "Dua e Sad Subhan (Dua e Sahifa)",
-  "E37": "Dua e Sanamay Quraish",
-  "E38": "Dua Faraj (Release from Grief) يَا عِمَادَ مَنْ لَا عِمَادَ لَهُ",
-  "E39": "Dua for Ailments and Illnesses",
-  "E4": "Dua Adilah",
-  "E40": "Dua for delaying death (Ajal)",
-  "E41": "Dua for Fending Off Distress, Grief, and Fear",
-  "E42": "Dua for fulfillment of wishes",
-  "E43": "Dua for getting Male Child",
-  "E44": "Dua for Glorifying Allah (s.w.t.)",
-  "E45": "Dua for immediate fulfillment",
-  "E46": "Dua for Istikharah fom Holy Quran",
-  "E47": "Dua for Longevity",
-  "E48": "Dua for one's brother in faith while in prostration",
-  "E49": "Dua for Pardoning of sins",
-  "E5": "Dua al-Hujjah اِلٰهِيْ بِحَقِّ مَنْ نَاجَاكَ",
-  "E50": "Dua for Protection of the house from damage & theft",
-  "E51": "Dua for protection of valubales and precious things (that are concealed)",
-  "E52": "Dua for rejuvenating the Hearts",
-  "E53": "Dua for Release from Grief",
-  "E54": "Dua for relief from poverty & ailments",
-  "E55": "Dua for repaying the Debts",
-  "E56": "Dua for repayment of debts",
-  "E57": "Dua for repayment of debts 1",
-  "E58": "Dua for Repelling the Evil of Iblis",
-  "E59": "Dua for Restoration of Health",
-  "E6": "Dua al-Mahd (a.t.f.s.)i اللهم ارزقنا توفیق الطاعه",
-  "E60": "Dua for safety from all beasts, evils of Satan, thieves & demons",
-  "E61": "Dua for safety from Fire & al Evil throughout the day",
-  "E62": "Dua for safety from illness and ailments",
-  "E63": "Dua for seeking forgiveness which leads to more knowledge & more Fortune",
-  "E64": "Dua for Sustenance",
-  "E65": "Dua for the Deceased",
-  "E66": "Duas for each hour of the Day",
-  "E67": "Dua for the First Hour",
-  "E68": "Dua for the Second Hour",
-  "E69": "Dua for the Third Hour",
-  "E7": "Dua Allahumma Asleh اَللّٰهُمَّ أَصْلِحْ عَبْدَكَ",
-  "E70": "Dua for the Fourth Hour",
-  "E71": "Dua for the Fifth Hour",
-  "E72": "Dua for the Sixth Hour",
-  "E73": "Dua for the Seventh Hour",
-  "E74": "Dua for the Eighth Hour",
-  "E75": "Dua for the Nineth Hour",
-  "E76": "Dua for the Tenth Hour",
-  "E77": "Dua for the Eleventh Hour",
-  "E78": "Dua for the Twelfth Hour",
-  "E79": "Dua for the one who wishes to see the Prophet (s) or Holy Imams (a) or one of the Dead or one of his Parents",
-  "E8": "Dua Alqamah",
-  "E80": "Comprehensive dua for the world & Hereafter",
-  "E81": "Dua & Medicine for Good Memory",
-  "E82": "An effective daily prayer",
-  "E83": "Another Dua for Ailing Diseases",
-  "E84": "A famous Dua for Sustenance",
-  "E85": "A Proven dua",
-  "E86": "Dua for whoever wants to see his request in the dream",
-  "E87": "Dua in the Mornings and Evenings",
-  "E88": "Dua Maknoon and its merits",
-  "E89": "Dua at Bedtime and at the time of waking up",
-  "E9": "Dua Amaan (The Supplication for Security)",
-  "E90": "Dua Before and After Ritual Prayers",
-  "E91": "Dua before going to Sleep",
-  "E92": "Dua before leaving the house",
-  "E93": "Dua before reading a book",
-  "E94": "Dua between Sunset and Bedtime",
-  "E95": "Dua Muqatil ibn Sulayman",
-  "E96": "Dua for Solving Difficulties",
-  "E97": "Dua of Ailing Diseases",
-  "E98": "Dua of Circumcision (Khatna)",
-  "E99": "Dua of Covenant with Almighty Allah (s.w.t)",
-  "F1": "Merits of Namaz e Shab",
-  "F10": "Namaz e Maghferat e Waaledain",
-  "F11": "Namaz of Jafar e Tayyar",
-  "F12": "Namaz Hadiyah Masoomeen (a)",
-  "F13": "Namaz of Holy Prophet(s)",
-  "F14": "Namaz of Lady Fatimah Zehra (s.a.)",
-  "F15": "Namaz of Imam Ali (a.s.)",
-  "F16": "Namaz of Imam al-Hasan (a)",
-  "F17": "Namaz of Imam al-Husayn (a)",
-  "F18": "Namaz of Imam zayn al-’Abidin (a)",
-  "F19": "Namaz of Imam al-Baqir (a)",
-  "F2": "Namaz-e-Shab",
-  "F20": "Namaz of Imam al-Sadiq (a)",
-  "F21": "Namaz of Imam al-Kazim (a)",
-  "F22": "Namaz of Imam al-Reza (a)",
-  "F23": "Namaz of Imam al-Jawad (a)",
-  "F24": "Namaz of Imam al-Hadi (a)",
-  "F25": "Namaz of Imam al-’Askari (a)",
-  "F26": "Namaz of Imam Mahdi (a.t.f.s)",
-  "F3": "Namaz e Shab (Short)",
-  "F30|O2": "Namaz on Wednesdays",
-  "F34": "Namaz for fulfillment of needs (1)",
-  "F35": "Namaz for fulfillment of needs (2)",
-  "F36": "Namaz for fulfillment of needs (3)",
-  "F37": "Namaz for fulfillment of needs (4)",
-  "F38": "Namaz for fulfillment of needs (5)",
-  "F39": "Namaz for more Sustenance",
-  "F4": "Namaz e Aayaat",
-  "F40": "Another Namaz for more Sustenance",
-  "F41": "Namaz of Imam Al-Mahdi (a) at the Jamkaran Mosque",
-  "F42": "Namaz (to dispel) Fear of Oppressors",
-  "F43": "Namaz at Seeing a non-Muslims",
-  "F44": "Namaz for Fending Off Evil Self Inspirations",
-  "F45": "Namaz for Forgiveness",
-  "F46": "Namaz for Gaining Intelligence and Good Memory",
-  "F47": "Namaz for Seeking (divine) help.",
-  "F48": "Namaz for Seeking Allah's help In the name of Lady Fatimah (S)",
-  "F49": "Namaz For Seeking Allah's help in The Name of The Prophet (s) and Imam Ali (a)",
-  "F5": "Namaz-e-Ghofaylah",
-  "F50": "Namaz for Settling Needs",
-  "F51": "Namaz for Settling the Debts and Saving from Despotic Rulers",
-  "F52": "Namaz for Settling the Needs",
-  "F53": "Namaz for Settling urgent Needs",
-  "F54": "Namaz for Solving Difficulties",
-  "F55": "Namaz for Travel",
-  "F56": "Namaz for the removal of difficulties.",
-  "F57": "Namaz of Imam Kazim (a) to ward of evil",
-  "F58": "Namaz of Imam Muhammad Taqi (a) to ward of evil",
-  "F59": "Namaz of Imam Sadiq (a) to ward of evil",
-  "F6": "Namaz e Kamilah",
-  "F60": "Namaz of Pardon",
-  "F61": "Namaz of the Hungry",
-  "F62": "Namaz of Will",
-  "F63": "Namaz on Friday night & the nights befor Eid Al Adha for fulfillment of needs",
-  "F64": "Namaz for Settling of Debts",
-  "F65": "Namaz of The Bedouin (Salat Al-Rabi)",
-  "F7": "Namaz e Mayyat",
-  "F8": "Namaz e Nawafil",
-  "F9": "Namaz e Wahshat Namaz for the Night of Burial",
-  "G1": "Ziyaarat-e-Aal-e-Yaaseen",
-  "G10": "Ziyarat e Taziyah Condolence to Holy Prophet (s) and His Immaculate progeny",
-  "G11": "Ziyarat e Nahiya",
-  "G12": "Ziyaarat-e-Jaamea'h Sagheerah",
-  "G13": "Ziyarat e Jamiah Kabeerah",
-  "G14": "Ziyarah of Imam Husayn (a) at the Qadr Nights",
-  "G15": "Saturday - Ziyarah of Holy Prophet (s.a.w.a.)",
-  "G16|L3": "Sunday - Ziyarah of Ameerul Momineen (a)",
-  "G17|L4": "Sunday - Ziyarah of Lady Fatimah al Zahra (s)",
-  "G18|M3": "Monday - Ziyarah of Imam al Hasan(a)",
-  "G19|M4": "Monday - Ziyarah of Imam al Husayn (a)",
-  "G2": "Ziyarat-e-Ameenullah",
-  "G20": "Tuesday - Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a)",
-  "G21|O3": "Wednesday - Ziyarah of Imam Musa al Kazim, Ali al Rida, Muhammad al Taqi, Ali al Naqi (a)",
-  "G22|Q3": "Thursday - Ziyarah of Imam Hasan al Askari (a)",
-  "G23|J3": "Friday - Ziyarah of Imam al Mahdi (a.t.f.s.)",
-  "G24": "Story of Sayyid Al Rashti",
-  "G25": "The Comprehensive Ziyarat Can be recited at any Shrine",
-  "G26": "Supplications after the Ziyarat",
-  "G27": "Visiting the Tombs of The Prophets",
-  "G28": "Visiting the Tombs of descendants of the Holy Imams (a)",
-  "G29": "Visiting the Graves of the Faithful Believers",
-  "G3": "Ziyarat e Arbaeen The 20th of Safar",
-  "G30": "The comprehensive Ziyarat of the Imams (a)",
-  "G31": "Bidding Farewell to the Holy Imams",
-  "G32": "Etiquettes of Ziyarat of Niyabat (proxy/representative)",
-  "G4": "Ziyarat e Ashura",
-  "G5": "Ziyarat al Haqq al Jadeed",
-  "G50": "Ziyarat e Hazrat Rasul e Khuda",
-  "G51": "Ziyarate Ameerul Momeneen Hazrat Ali (a.s.)",
-  "G52": "Ziyaarat-e-Janab-e-Faatemah Zahra (s.a.)",
-  "G53": "Ziyarate Imam Hasan (a.s.)",
-  "G54": "Ziyarat-e-Imam Husain (a.s.)",
-  "G55": "Ziyarate Hazrat Ali Akbar (a.s.)",
-  "G56": "Ziyarate Shohadaa-e-Karbala (a.s.)",
-  "G57": "Ziyarate Hazrat Abbas (a.s.)",
-  "G58": "Ziyarate Janabe Habib ibn Mazahir (a.s.)",
-  "G59": "Ziyarate Janabe Hur (a.s.)",
-  "G6": "Ziyarat e Waritha",
-  "G60": "Ziyarate Janabe Muslim (a.s.)",
-  "G61": "Ziyarate Janabe Hani ibn Urwah (a.s.)",
-  "G62": "Ziyarate Farzandane Janabe Muslim (a.s.)",
-  "G63": "Ziyarate Janabe Salman e Farsi (a.s.)",
-  "G64": "Ziyarate Imam Zainul Aabedeen (a.s.)",
-  "G65": "Ziyarate Imam Mohammad Baqir (a.s.)",
-  "G66": "Ziyarate Imam Jafar Sadiq (a.s.)",
-  "G67": "Ziyarate Imam Musa Kazim (a.s.)",
-  "G68": "Ziyarate Imam Ali Raza (a.s.)",
-  "G69": "Ziyarate Imam Mohammad Taqi (a.s.)",
-  "G7": "Ziyarat-e-Hazrat Abbas (a.s.)",
-  "G70": "Ziyarate Imam Ali Naqi (a.s.)",
-  "G71": "Ziyarate Imam Hasan Askari (a.s.)",
-  "G72": "Ziyarat-e-Imam-e-Zamana (a.t.f.s.)",
-  "G73": "Ziyarate Janabe Zainab (a.s.)",
-  "G74": "Ziyarat e Imam Husain (a) ",
-  "G75": "Ziyarat e Imam Husain (a) on the Day of Arafah ",
-  "G76": "Ziyarat After Namaz",
-  "G77": "Ziyarat of Imam Al Hujjah (a.t.f.s.) ",
-  "G78": "Ziyarat of H. Masooma-e-Qum (s.a.) ",
-  "G79": "Ziyarat of Hazrat Abu Talib (a.s.)",
-  "G8": "Ziyarat-e-Hazrat Imam Reza (a.s.)",
-  "G80": "Ziyarat of Hazrat Abdul Muttalib (a.s.)",
-  "G81": "Ziyarat of Janabe Ummul Baneen (s.a.)",
-  "G82": "Ziyarat of Janabe Sakina (s.a.)",
-  "G83": "Ziyaarat-e-Aashoora Gair Ma'roofah",
-  "G9": "Ziyarat-e-Hazrat Imam-e-Zamana (a.t.f.s.)",
-  "H1": "1st Whispered Prayer of the Repenters - Munajaat al Taebeen",
-  "H10": "10th Whispered Prayer of Those Asking for Mediation - Munajaat al Mutawassileen",
-  "H11": "11th Whispered Prayer of the Utterly Poor - Munajaat al Muftaqireen",
-  "H12": "12th Whispered Prayer of the Knowers - Munajaat al Aarifeen",
-  "H13": "13th Whispered Prayer of the Rememberers - Munajaat al Dhakireen",
-  "H14": "14th Whispered Prayer of Those Who Hold Fast - Munajaat al Motasimeen",
-  "H15": "15th Whispered Prayer of the Abstainers - Munajaat al Zahideen",
-  "H16": "Imam Ali's Whispered Prayer - Munajat Manzoom",
-  "H17": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)",
-  "H18": "(1) Munajaat for Guidance (to the best)",
-  "H19": "(2) Munajaat for True Repentance",
-  "H2": "2nd Whispered Prayer of the Complainers - Munajaat al Shakeen",
-  "H20": "(3) Munajaat for Help in Travel",
-  "H21": "(4) Munajaat for Sustenance",
-  "H22": "(5) Munajaat for Seeking Protection",
-  "H23": "(6) Munajaat for acceptance of repentance",
-  "H24": "(7) Munajaat for Hajj",
-  "H25": "(8) Munajaat for safety from persecution",
-  "H26": "(9) Munajaat for Thanksgiving",
-  "H27": "(10) Munajaat for Granting of Requests",
-  "H3": "3rd Whispered Prayer of the Fearful - Munajaat al Khaefeen",
-  "H4": "4th Whispered Prayer of the Hopefuls - Munajaat al Rajeen",
-  "H5": "5th Whispered Prayer of the Beseechers - Munajaat al Raghebeen",
-  "H6": "6th Whispered Prayer of the Thankful - Munajaat al Shakereen",
-  "H7": "7th Whispered Prayer of the Obedient to Allah - Munajaat al Mutieena Lillah",
-  "H8": "8th Whispered Prayer of the Devotees - Munajaat al Murideen",
-  "H9": "9th Whispered Prayer of the Lovers - Munajaat al Muhibbeen",
-  "I1": "Aamal Between Dawn & Sunrise",
-  "I10": "Tasbih Az Zahra",
-  "I100": "Medicine for Dyspnoea (Difficulty in Breathing)",
-  "I101": "Instruction of Isa Ibn Mariyam (a) for the ailment of Pale Face & Dark Eyes",
-  "I102": "Aqiqah (Ritual sacrifice for the newborns)",
-  "I103": "Manners of Aqiqah",
-  "I104": "Tafa\"Ul and Istikharah",
-  "I105": "Numerical Istikharah",
-  "I106": "Appearing Istikharah for Others",
-  "I107": "Affection & Inclination towards Non Believers",
-  "I108": "Prohibition on Shaving Beard",
-  "I109": "Prohibition on Inclination towards the Wrongdoers",
-  "I11": "Rosary made of the turbat of Imam Al Husayn (a)",
-  "I110": "Importance of Writing Bismillah on the House Door",
-  "I111": "Importance of reciting of Qulho wallaho Ahad",
-  "I112": "Importance of a ring of Aqeeq and looking at it in the morning and while praying",
-  "I113": "Things to be kept in mind for Good Memory",
-  "I114": "Etiquettes and Supplications pertaining to Death",
-  "I115": "Writing of Will before death",
-  "I116": "The Inscription that should be written and kept with the Dead",
-  "I117": "Brief Manners & Talqeen to be recited near Dead",
-  "I118": "Preparing the Shroud (Kafan) of Dead",
-  "I119": "The Ritual Bathing (Ghusl) of The Deceased",
-  "I12": "Merits of reciting Ayah Kursi (2: 255), Ayah Al Shahadah, Ayah Al Mulk after every Namaz",
-  "I120": "Shrouding the Dead Body",
-  "I121": "Carrying The Dead",
-  "I122": "Testimony from 40 Faithful Believers",
-  "I123": "Manners of Carrying the Dead Person",
-  "I124": "Burial",
-  "I125": "Laws concerning Burial",
-  "I126": "Prompting The Dead",
-  "I13": "Merits of reciting Ayah Kursi after every Namaz",
-  "I14": "Merits of Tasbihaat e Arbah",
-  "I15": "Virtues of the \"Effective Veneration\"",
-  "I16": "Merits of reciting Surah Tawheed after every Namaz",
-  "I17": "Merits of Surah Qadr and reciting it 76 times in the day",
-  "I18": "Merit of reciting Bismillah along with La Haula Wa La Quwwata",
-  "I19": "Prostration of Thanksgiving (Sajda Al-Shukr)",
-  "I2": "Etiquettes of Going to Toilet",
-  "I20": "Prostration of Imam Mosa Al Kazim (a) and some of his Companions",
-  "I21": "Etiquettes of The Noon (Zuhr) Prayer",
-  "I22": "Etiquettes of the Sunset (Maghrib) Prayers",
-  "I23": "Etiquettes of The (Isha) Evening Prayers",
-  "I24": "Etiquettes of Bedtime",
-  "I25": "Fear of Scorpion",
-  "I26": "Fear of Wet Dreams",
-  "I27": "Etiquettes of applying Kohl (Surmah)",
-  "I28": "Salawat of immense rewards",
-  "I29": "Letter of Yusha the son of Nun",
-  "I3": "Cleansing the Teeth",
-  "I30": "Dedication To The Dead",
-  "I31": "Recitations for Fending Off Evil Self Inspirations",
-  "I32": "Prayer of Istikharah with Sheets",
-  "I33": "Istikharah",
-  "I34": "Istikharah with Rosary (Tasbeeh)attributed to Imam Mehdi (a)",
-  "I35": "Istikharah of the author of Al-Jawahir",
-  "I36": "The time of Istikharah",
-  "I37": "Etiquettes of Praying for fulfillment of needs",
-  "I38": "Taweez against Headache & Ear ache",
-  "I39": "Taweez against Migraine",
-  "I4": "Ritual Ablution (Wuzu)",
-  "I40": "Taweez against Deafness",
-  "I41": "Taweez against Mouthache",
-  "I42": "Taweez against Toothache",
-  "I43": "Taweez for Chest Pains",
-  "I44": "Taweez for Curing of Coughing & against Stomach Pains",
-  "I45": "Taweez against Colitis",
-  "I46": "Taweez against Warts",
-  "I47": "Taweez against all Tumors",
-  "I48": "Taweez against Dystocia",
-  "I49": "Taweez against Bewitchery",
-  "I5": "Etiquettes of attending Mosques",
-  "I50": "Taweez against Fever",
-  "I51": "Taweez against Mange, Furuncle & Herpes",
-  "I52": "Taweez against Private Parts Pains",
-  "I53": "Taweez against Knee Pains",
-  "I54": "Taweez against Eye aches",
-  "I55": "Suffering from Nosebleed",
-  "I56": "Taweez for Neutralizing Sorcery",
-  "I57": "Taweez for Fending Off Devils and Sorcerers",
-  "I58": "Ayah Al Sakharah",
-  "I59": "Harmel",
-  "I6": "Etiquettes of Prayers",
-  "I60": "Taweez against Evil Eyes",
-  "I61": "Taweez against Satan's Evil Insinuations",
-  "I62": "Taweez against Thieves",
-  "I63": "Taweez against Scorpions and Serpents",
-  "I64": "Repelling The Evils of Jinn & Horrifying Authorities",
-  "I65": "Emphasis on sending Gifts to the Dead",
-  "I66": "Acquiring lesson from the Dead",
-  "I67": "Tawassul with Holy Prophet (s) and H. Ali (s)",
-  "I68": "Evil-Repelling Prayers and Supplicatory Amulets",
-  "I69": "Protection from fleas & beasts",
-  "I7": "Other Etiquettes of Namaz",
-  "I70": "Brief Supplications for this World and other worldly desires",
-  "I71": "The all inclusive Supplicatory Prayer یا من اظهر الجمیل",
-  "I72": "Lightening fast Prayer (for worldly desires)",
-  "I73": "Incident of Abd al Rahman bin Sayyabah and the will of Imam Sadiq (a)",
-  "I74": "Hirz e J.Fatimah (sa)",
-  "I75": "Hirz e Imam Zain-ul-Abedeen (a)",
-  "I76": "Hirz e Imam Jafar Al Sadiq (a)",
-  "I77": "Hirz e Imam Musa Al Kazim (a)",
-  "I78": "Pocket Taweez",
-  "I79": "Imam Al Rida's Taweez",
-  "I8": "Merits of Takibaat",
-  "I80": "Hirz e Imam Al Jawad (a)",
-  "I81": "Hirz e Imam Ali Al Naqi (a)",
-  "I82": "Hirz e Imam Al Hasan Al Askari (a)",
-  "I83": "Hirz e Imam Al Mahdi (a)",
-  "I84": "Imam Husayn's dua in prayers",
-  "I85": "Holy Prophet's prayer for security",
-  "I86": "Ten duas for fufillment of petitions (requests)",
-  "I87": "Special Qualities of some the Qur'anic Chapters And Verses",
-  "I88": "Special Features of Surah Qadr, Tawheed & Ayah Al Kursi",
-  "I89": "Unique charateristics of Surah Tawheed & 100 Ayahs from Quran",
-  "I9": "Etiquettes of Takibaat",
-  "I90": "Unique charateristics of Surah Ikhlas & some other Small Surahs",
-  "I91": "Quranic Verses for safety from burning & drowning",
-  "I92": "Quranic Verse for controlling the riding animal (mount)",
-  "I93": "Quranic Verse from safety from wild beasts",
-  "I94": "Verses to restore the lost things",
-  "I95": "Verse for Security against Thieves",
-  "I96": "Merits of Surah Zilzal",
-  "I97": "Some Merits of other Surahs & verses",
-  "I98": "Things taught by Holy Prophet (s) to Lady Fatimah (a)",
-  "I99": "Three devotional acts before going to sleep",
-  "J1": "Merits & Rituals of Friday Night & Day",
-  "J2|E34": "Dua e Nudbah",
-  "J3": "Ziyarah of Imam al Mahdi (a.t.f.s.) on Friday",
-  "J4": "The Supplication of Friday",
-  "J5|E144": "Salawat Abul Hasan al Darrab al Isfahani",
-  "J6": "Recommended Rites of Friday",
-  "J7": "Aamaal of Zohr Prayers on Friday",
-  "J8": "Aamal of Asr on Friday",
-  "J9": "Namaz on Fridays",
-  "K1": "The Supplication of Saturday",
-  "K2": "Namaz on Saturdays",
-  "K3": "Ziyarah of Holy Prophet (s.a.w.a.) on Saturday",
-  "L1": "The Supplication of Sunday",
-  "L2": "Namaz of Sundays",
-  "L3": "Ziyarah of Ameerul Momineen (a.s.) on Sunday",
-  "L4": "Ziyarah of Lady Faatemah al-Zahra (s.a.) on Sunday",
-  "M1": "The Supplication of Monday",
-  "M2": "Namaz on Mondays",
-  "M3": "Ziyarah of Imam al-Hasan (a.s.) on Monday",
-  "M4": "Ziyarah of Imam al-Husayn (a.s.) on Monday",
-  "N1": "The Supplication of Tuesday",
-  "N2": "Namaz of Tuesdays",
-  "N3": "Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a) on Tuesday",
-  "N4|E24": "Dua Tawassul",
-  "O1": "The Supplication of Wednesday",
-  "O2": "Namaz on Wednesdays",
-  "O3": "Ziyarah of Imam Musa al Kazim, Ali al Rida, Muhammad al Taqi, Ali al Naqi (a) on Wednesday",
-  "P1": "Importance of Shabe Jumuah",
-  "P10": "Recite the Dua اَللّٰہُمَّ یَا شَاہِدَ کُلِّ نَجْوٰی",
-  "P11": "Recite 10 times يَا دَائِمَ الْفَضْلِ عَلَى",
-  "P12": "Some recommended acts",
-  "P13": "Recite 100 times between Nafilah Fajr and Namaz of Fajr سُبْحَانَ رَبِّيَ الْعَظِيْمِ",
-  "P14": "Recite the Dua اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَّآلِه، وَهَبْ لِيَ",
-  "P15": "Recitations near Friday Dawn (Fajr)",
-  "P16": "Prayer of Imam Mahdi on eve of Friday (Shab e Jumuah)",
-  "P2": "Reciting Subhanallah",
-  "P3": "Recite Salwat with وَ عَجِّلْ فَرَجَهُمْ وَ اَهْلِكْ",
-  "P4": "Reciting Istegfaar اَسْتَغْفِرُ اللهَ الَّذِيْ",
-  "P5": "Recommendation of reciting some Surahs of the Holy Quran",
-  "P6": "The Namaaz of Ameer al-Momineen (a.s.)",
-  "P7": "Recite the Dua in Nafilah اَللّٰهُمَّ اِنِّيْ اَسْاَلُكَ بِوَجْهِكَ",
-  "P8": "Recite 7 times اَللّٰهُمَّ اَنْتَ رَبِّيْ",
-  "P9": "Recite the Dua اَللّٰهُمَّ مَنْ تَعَبَّاَ",
-  "Q1": "The Supplication of Thursday",
-  "Q2": "Namaz on Thursdays",
-  "Q3": "Ziyarah of Imam Hasan al Askari (a) on Thursday",
-  "Q4|E31": "Dua Kumayl",
-  "R1": "Aamal for the 1st Day & Night of the Month of Muharram",
-  "R10": "Ziyarah of Condolence to Holy Prophet (s) and His Immaculate progeny",
-  "R11": "Ziyarah on the day of Ashura",
-  "R12|E8": "Dua Alqamah",
-  "R13": "Safwan's Discourse on the Merit of Ziyarah of Ashura",
-  "R14": "More Confirmations",
-  "R15": "Second Ziyarah on day of Ashura; lesser known version",
-  "R2": "The First Night Of Muharram",
-  "R3": "The First Day Of Muharram",
-  "R4": "The Third Of Muharram",
-  "R5": "The Ninth Of Muharram",
-  "R6": "The 10th Night Of Muharram (Shabe Ashura)",
-  "R7": "The 10th of Muharram (The Day of Ashura)",
-  "R8": "Forgeries of the Enemies of Imam Husayn (a)",
-  "R9": "Aamal of Ashura",
-  "S1": "The Month of Safar",
-  "S2": "The First Day Of Safar",
-  "S3": "The Third Of Safar",
-  "S4": "The Seventh Of Safar",
-  "S5": "20th Safar (Arbaeen - 40th Day)",
-  "S6": "28th of Safar",
-  "S7": "Ziyarah on the day of Arbaeen; The Twentieth of Safar",
-  "S8": "The Last Day Of Safar",
-  "T1": "1st, 8th & 9th of Rabi al Awwal",
-  "T2": "Aamal from 12th to 17th nights of Rabi al Awwal",
-  "T3": "17th of Rabi al Awwal (Birthday of Holy Prophet (s))",
-  "TR~D1": "Taqeebaat e Namaz",
-  "U1": "Aamal of the Month of Rabi al Saani",
-  "V1": "13th, 14th, And 15th Of Jumadi Al Ula",
-  "W1": "3rd Jamadi al Akhirah (Martyrdom of Lady Fatimah al-Zahra (s))",
-  "W2": "20th Jamadi al Akhirah (Birthday of Lady Fatima al-Zahra (s))",
-  "W3": "Aamal in Jamadi al Akhirah",
-  "X1": "Importance of the month of Rajab and it's Aamaal",
-  "X10": "(d) Fifteenth of Rajab (Namaz e Salman)",
-  "X11": "(e) Thirteenth of Rajab",
-  "X12": "(f) Fifteenth of Rajab",
-  "X13": "Ziyarah on the 15th of Rajab",
-  "X14": "(g) Aamal & Dua of Umme Dawood",
-  "X15": "(h) Aamal of Laylat al Mab'as (27th Night)",
-  "X16": "Kalaam Ibn Battutah",
-  "X17": "(i) Remaining Aamal of Laylat al Mab'as",
-  "X18": "(j) Aamal of the Day of Mab'as (27th Day)",
-  "X2": "General Aamaal in Rajab",
-  "X3": "Daily supplications of Rajab",
-  "X4": "Ziyarah Rajabiyah (الحمد الله الذی اشهدنا)",
-  "X5": "Miscellaneous Aamaal for the Month of Rajab",
-  "X6": "(a) First night of Friday (Laylat al Raghaaeb)",
-  "X7": "(b) First Night of Rajab",
-  "X8": "(c) First Day of Rajab",
-  "X9": "Ziyarah of Imam Husayn (a) on The 1st of Rajab",
-  "Y1": "Importance of the Month of Shaban",
-  "Y10": "Fifteenth day of Shaban",
-  "Y11": "Ziyarah on the 15th of Shaban",
-  "Y12": "Last Night of Shaban",
-  "Y2": "General Aamal in Shaban",
-  "Y3": "Daily Salawat of Shaban",
-  "Y4": "Munajaat al Shabaniyyah",
-  "Y5": "First Night of Shaban",
-  "Y6": "First Day of Shaban",
-  "Y7": "Third of Shaban",
-  "Y8": "Thirteenth Night Of Shaban",
-  "Y9": "Fifteenth Night of Shaban",
-  "Z1": "Short Duas for the Days of Ramadhan",
-  "Z10": "9th Day",
-  "Z11": "10th Day",
-  "Z12": "11th Day",
-  "Z13": "12th Day",
-  "Z14": "13th Day",
-  "Z15": "14th Day",
-  "Z16": "15th Day",
-  "Z17": "16th Day",
-  "Z18": "17th Day",
-  "Z19": "18th Day",
-  "Z2": "1st Day",
-  "Z20": "19th Day",
-  "Z21": "20th Day",
-  "Z22": "21st Day",
-  "Z23": "22nd Day",
-  "Z24": "23rd Day",
-  "Z25": "24th Day",
-  "Z26": "25th Day",
-  "Z27": "26th Day",
-  "Z28": "27th Day",
-  "Z29": "28th Day",
-  "Z3": "2nd Day",
-  "Z30": "29th Day",
-  "Z31": "30th Day",
-  "Z4": "3rd Day",
-  "Z5": "4th Day",
-  "Z6": "5th Day",
-  "Z7": "6th Day",
-  "Z8": "7th Day",
-  "Z9": "8th Day"
+  "A10": {
+    "title": "6: Al-An'aam الأنعام"
+  },
+  "A100": {
+    "title": "96: Al-Alaq العلق"
+  },
+  "A101": {
+    "title": "97: Al-Qadr القدر"
+  },
+  "A102": {
+    "title": "98: Al-Bayyina البينة"
+  },
+  "A103": {
+    "title": "99: al-Zalzalah الزلزلة"
+  },
+  "A104": {
+    "title": "100: Al-Aadiyaat العاديات"
+  },
+  "A105": {
+    "title": "101: Al-Qaari'a القارعة"
+  },
+  "A106": {
+    "title": "102: At-Takaasor التكاثر"
+  },
+  "A107": {
+    "title": "103: Al-Asr العصر"
+  },
+  "A108": {
+    "title": "104: Al-Humaza الهمزة"
+  },
+  "A109": {
+    "title": "105: Al-Fil الفيل"
+  },
+  "A11": {
+    "title": "7: Al-A'raaf الأعراف"
+  },
+  "A110": {
+    "title": "106: Quraish قريش"
+  },
+  "A111": {
+    "title": "107: al-Maao’on الماعون"
+  },
+  "A112": {
+    "title": "108: Al-Kawthar الكوثر"
+  },
+  "A113": {
+    "title": "109: Al-Kaaferoon الكافرون"
+  },
+  "A114": {
+    "title": "110: An-Nasr النصر"
+  },
+  "A115": {
+    "title": "111: Al-Masad المسد"
+  },
+  "A116": {
+    "title": "112: Al-Ikhlaas الإخلاص"
+  },
+  "A117": {
+    "title": "113: Al-Falaq الفلق"
+  },
+  "A118": {
+    "title": "114: An-Naas الناس",
+    "slug": "114-an-naas"
+  },
+  "A12": {
+    "title": "8: Al-Anfaal الأنفال"
+  },
+  "A13": {
+    "title": "9: At-Tawba التوبة"
+  },
+  "A14": {
+    "title": "10: Yunus يونس"
+  },
+  "A15": {
+    "title": "11: Hud هود"
+  },
+  "A16": {
+    "title": "12: Yusuf يوسف"
+  },
+  "A17": {
+    "title": "13: Ar-Ra'd الرعد"
+  },
+  "A18": {
+    "title": "14: Ibrahim ابراهيم"
+  },
+  "A19": {
+    "title": "15: Al-Hijr الحجر"
+  },
+  "A20": {
+    "title": "16: An-Nahl النحل"
+  },
+  "A21": {
+    "title": "17: Al-Israa الإسراء"
+  },
+  "A22": {
+    "title": "18: Al-Kahf الكهف"
+  },
+  "A23": {
+    "title": "19: Maryam مريم"
+  },
+  "A24": {
+    "title": "20: Taa-Haa طه"
+  },
+  "A25": {
+    "title": "21: Al-Anbiyaa الأنبياء"
+  },
+  "A26": {
+    "title": "22: Al-Hajj الحج"
+  },
+  "A27": {
+    "title": "23: Al-Muminoon المؤمنون"
+  },
+  "A28": {
+    "title": "24: An-Noor النور"
+  },
+  "A29": {
+    "title": "25: Al-Furqaan الفرقان"
+  },
+  "A30": {
+    "title": "26: Ash-Shu'araa الشعراء"
+  },
+  "A31": {
+    "title": "27: An-Naml النمل"
+  },
+  "A32": {
+    "title": "28: Al-Qasas القصص"
+  },
+  "A33": {
+    "title": "29: Al-Ankaboot العنكبوت"
+  },
+  "A34": {
+    "title": "30: Ar-Room الروم"
+  },
+  "A35": {
+    "title": "31: Luqman لقمان"
+  },
+  "A36": {
+    "title": "32: As-Sajda السجدة"
+  },
+  "A37": {
+    "title": "33: Al-Ahzaab الأحزاب"
+  },
+  "A38": {
+    "title": "34: Saba سبإ"
+  },
+  "A39": {
+    "title": "35: Faatir فاطر"
+  },
+  "A4": {
+    "title": "Ayat al Kursi"
+  },
+  "A40": {
+    "title": "36: Yaseen يس"
+  },
+  "A41": {
+    "title": "37: As-Saaffaat الصافات"
+  },
+  "A42": {
+    "title": "38: Saad ص"
+  },
+  "A43": {
+    "title": "39: Az-Zumar الزمر"
+  },
+  "A44": {
+    "title": "40: Al-Ghaafir غافر"
+  },
+  "A45": {
+    "title": "41: Fussilat فصلت"
+  },
+  "A46": {
+    "title": "42: Ash-Shura الشورى"
+  },
+  "A47": {
+    "title": "43: Az-Zukhruf الزخرف"
+  },
+  "A48": {
+    "title": "44: Ad-Dukhaan الدخان"
+  },
+  "A49": {
+    "title": "45: Al-Jaathiya الجاثية"
+  },
+  "A5": {
+    "title": "1: Al-Faatehah الفاتحة",
+    "slug": "1-al-faatehah"
+  },
+  "A50": {
+    "title": "46: Al-Ahqaf الأحقاف"
+  },
+  "A51": {
+    "title": "47: Muhammad محمد"
+  },
+  "A52": {
+    "title": "48: Al-Fath الفتح"
+  },
+  "A53": {
+    "title": "49: Al-Hujuraat الحجرات"
+  },
+  "A54": {
+    "title": "50: Qaaf ق"
+  },
+  "A55": {
+    "title": "51: Adh-Dhaariyat الذاريات"
+  },
+  "A56": {
+    "title": "52: At-Tur الطور"
+  },
+  "A57": {
+    "title": "53: An-Najm النجم"
+  },
+  "A58": {
+    "title": "54: Al-Qamar القمر"
+  },
+  "A59": {
+    "title": "55: Ar-Rahmaan الرحمن"
+  },
+  "A6": {
+    "title": "2 : Al-Baqarah البقرة"
+  },
+  "A60": {
+    "title": "56: Al-Waaqia الواقعة"
+  },
+  "A61": {
+    "title": "57: Al-Hadid الحديد"
+  },
+  "A62": {
+    "title": "58: Al-Mujaadila المجادلة"
+  },
+  "A63": {
+    "title": "59: Al-Hashr الحشر"
+  },
+  "A64": {
+    "title": "60: Al-Mumtahana الممتحنة"
+  },
+  "A65": {
+    "title": "61: As-Saff الصف"
+  },
+  "A66": {
+    "title": "62: Al-Jumu'a الجمعة"
+  },
+  "A67": {
+    "title": "63: Al-Munaafiqoon المنافقون"
+  },
+  "A68": {
+    "title": "64: At-Taghaabun التغابن"
+  },
+  "A69": {
+    "title": "65: al-Talaaq الطلاق"
+  },
+  "A7": {
+    "title": "3: Aal-e-Imraan آل عمران"
+  },
+  "A70": {
+    "title": "66: At-Tahrim التحريم"
+  },
+  "A71": {
+    "title": "67: Al-Mulk الملك"
+  },
+  "A72": {
+    "title": "68: Al-Qalam القلم"
+  },
+  "A73": {
+    "title": "69: Al-Haaqqa الحاقة"
+  },
+  "A74": {
+    "title": "70: Al-Ma'aarij المعارج"
+  },
+  "A75": {
+    "title": "71: Nooh نوح"
+  },
+  "A76": {
+    "title": "72: Al-Jinn الجن"
+  },
+  "A77": {
+    "title": "73: Al-Muzzammil المزمل"
+  },
+  "A78": {
+    "title": "74: Al-Muddaththir المدثر"
+  },
+  "A79": {
+    "title": "75: Al-Qiyaama القيامة"
+  },
+  "A8": {
+    "title": "4: An-Nisaa النساء"
+  },
+  "A80": {
+    "title": "76: Al-Insaan الانسان"
+  },
+  "A81": {
+    "title": "77: Al-Mursalaat المرسلات"
+  },
+  "A82": {
+    "title": "78: An-Naba النبإ"
+  },
+  "A83": {
+    "title": "79: An-Naazi'aat النازعات"
+  },
+  "A84": {
+    "title": "80: Abasa عبس"
+  },
+  "A85": {
+    "title": "81: At-Takwir التكوير"
+  },
+  "A86": {
+    "title": "82: Al-Infitaar الإنفطار"
+  },
+  "A87": {
+    "title": "83: Al-Mutaffifin المطففين"
+  },
+  "A88": {
+    "title": "84: Al-Inshiqaaq الإنشقاق"
+  },
+  "A89": {
+    "title": "85: Al-Burooj البروج"
+  },
+  "A9": {
+    "title": "5: Al-Maaida المائدة"
+  },
+  "A90": {
+    "title": "86: At-Taariq الطارق"
+  },
+  "A91": {
+    "title": "87: Al-A'laa الأعلى"
+  },
+  "A92": {
+    "title": "88: Al-Ghaashiya الغاشية"
+  },
+  "A93": {
+    "title": "89: Al-Fajr الفجر"
+  },
+  "A94": {
+    "title": "90: Al-Balad البلد"
+  },
+  "A95": {
+    "title": "91: Ash-Shams الشمس"
+  },
+  "A96": {
+    "title": "92: Al-Lail الليل"
+  },
+  "A97": {
+    "title": "93: Ad-Dhuhaa الضحى"
+  },
+  "A98": {
+    "title": "94: Ash-Sharh (Insherah) الشرح"
+  },
+  "A99": {
+    "title": "95: At-Tin التين"
+  },
+  "AA1": {
+    "title": "Holy Prophet (s.a.w.a.)'s Sermon in the Holy Month of Ramazan"
+  },
+  "AA10": {
+    "title": "Dua-e-Iftetaah"
+  },
+  "AA12": {
+    "title": "Dua-e-Abu Hamzah Sumali"
+  },
+  "AA16": {
+    "title": "Aamal-e-Sahar in the Holy Month of Ramazan",
+    "slug": "aamal-e-sahar-in-the-holy-month-of-ramazan"
+  },
+  "AA2": {
+    "title": "Recitation Of The Holy Qur’an In Ramazan"
+  },
+  "AA3": {
+    "title": "Aamal to be performed only during Night"
+  },
+  "AA4": {
+    "title": "One Thousand Unit Prayers"
+  },
+  "AA5": {
+    "title": "Duas after every obligatory Prayers"
+  },
+  "AA~Z8": {
+    "title": "Everyday short duas in the month of Ramazan"
+  },
+  "AB1": {
+    "title": "Zilqad"
+  },
+  "AB2": {
+    "title": "11th, 15th & 23rd of Zilqad"
+  },
+  "AB3": {
+    "title": "Night & Day of 25th Zilqad (The Spreading of the earth)"
+  },
+  "AB4": {
+    "title": "The Last Day Of Zilqad"
+  },
+  "AC1": {
+    "title": "Ziyarah on the Day of Ghadeer"
+  },
+  "AC10": {
+    "title": "Aamaal of the Night of Arafat",
+    "slug": "aamaal-of-the-night-of-arafat"
+  },
+  "AC3": {
+    "title": "Ziyarah on the Id al-Fitr and Id al-Azha days",
+    "slug": "ziyarah-on-the-id-al-fitr-and-id-al-azha-days"
+  },
+  "AC5": {
+    "title": "Zilhajj",
+    "slug": "zilhajj"
+  },
+  "AC7": {
+    "title": "1st Day of Zilhajj",
+    "slug": "1st-day-of-zilhajj",
+    "slugAliases": [
+      "1st-day-of-zilhaj"
+    ]
+  },
+  "AC8": {
+    "title": "The 7th Day Of Zilhajj",
+    "slug": "the-7th-day-of-zilhajj"
+  },
+  "AC9": {
+    "title": "The 8th Day Of Zilhajj",
+    "slug": "the-8th-day-of-zilhajj"
+  },
+  "AD4": {
+    "title": "Eid Prayer"
+  },
+  "AF~AG3": {
+    "title": "Karbala al-Muqaddasah"
+  },
+  "AF~AH4": {
+    "title": "Kazmayn"
+  },
+  "AF~AI2": {
+    "title": "Kufa"
+  },
+  "AF~AJ6": {
+    "title": "Madaeen"
+  },
+  "AF~AK1": {
+    "title": "Najaf al-Ashraf"
+  },
+  "AF~AL7": {
+    "title": "Samarrah"
+  },
+  "AF~AM5": {
+    "title": "Baghdad"
+  },
+  "AF~AN8": {
+    "title": "Balad"
+  },
+  "AI10|H17": {
+    "title": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)"
+  },
+  "AK8": {
+    "title": "Second Ziyarah; Ziyarah of Aminullah (The Trustee of Allah)"
+  },
+  "AL12|G1": {
+    "title": "Ziyarat e Aale Yaseen"
+  },
+  "AL14|G5": {
+    "title": "Ziyarat al Haqq al Jadeed"
+  },
+  "AL17": {
+    "title": "Ziyarat of Imam Mahdi (a.t.f.s.) after the Fajr Prayers (Allaahumma Balligh)",
+    "slug": "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh-2"
+  },
+  "AL18|E18": {
+    "title": "Dua e Ahad"
+  },
+  "AR~AP1": {
+    "title": "Madina al-Munawwarah"
+  },
+  "AR~AQ2": {
+    "title": "Makkah al-Mukarramah"
+  },
+  "AS1": {
+    "title": "Dua No. 1"
+  },
+  "B~AE7": {
+    "title": "Iran"
+  },
+  "B~AF8": {
+    "title": "Iraq"
+  },
+  "B~AR9": {
+    "title": "Hijaz"
+  },
+  "C~AA5": {
+    "title": "Mahe Ramazan"
+  },
+  "C~AB7": {
+    "title": "Zilqad"
+  },
+  "C~AC8": {
+    "title": "Zilhajj"
+  },
+  "C~AD6": {
+    "title": "Shawwal"
+  },
+  "C~R9": {
+    "title": "Moharram",
+    "slug": "muharram"
+  },
+  "C~S10": {
+    "title": "Safar"
+  },
+  "C~T11": {
+    "title": "Rabi al-Awwal"
+  },
+  "C~U12": {
+    "title": "Rabi al-Saani"
+  },
+  "C~V13": {
+    "title": "Jamadi al-Awwal"
+  },
+  "C~W14": {
+    "title": "Jamadi al-Akhir"
+  },
+  "C~X3": {
+    "title": "Rajab"
+  },
+  "C~Y4": {
+    "title": "Shaban"
+  },
+  "D1": {
+    "title": "General Taqibaat"
+  },
+  "D10": {
+    "title": "Taqeebaat e Namaz e Isha",
+    "slug": "taqeebaat-e-namaz-e-isha-1"
+  },
+  "D12": {
+    "title": "Dua After Namaz For Seeking Sustenance"
+  },
+  "D2": {
+    "title": "Dua to be recited after Namaz-e-Subh"
+  },
+  "D3": {
+    "title": "Taqibaat-e-Namaz-e-Fajr",
+    "slug": "taqibaat-e-namaz-e-fajr"
+  },
+  "D4": {
+    "title": "Nafilah Fajr"
+  },
+  "D5": {
+    "title": "Taqibaat-e-Namaz-e-Zohr"
+  },
+  "D6": {
+    "title": "Nafilah Zuhr",
+    "slug": "nafilah-zuhr"
+  },
+  "D7": {
+    "title": "Taqibaat e Namaz e Asr"
+  },
+  "D8": {
+    "title": "Nafilah Asr",
+    "slug": "nafilah-of-asr"
+  },
+  "D9": {
+    "title": "Taqibaat-e-Namaz-e-Maghrib"
+  },
+  "E1": {
+    "title": "al-Isteghasa الکامل التام",
+    "slug": "ziyarat-e-isteghasa-e-imam-e-zamana-a-t-f-s"
+  },
+  "E11": {
+    "title": "Dua Yastasheer"
+  },
+  "E14": {
+    "title": "Hadees-e-Kisaa"
+  },
+  "E144": {
+    "title": "Salawat Abul Hasan al-Zarrab al-Isfahani"
+  },
+  "E15": {
+    "title": "Dua e Hazeen"
+  },
+  "E153": {
+    "title": "Dua e Noor Kabir"
+  },
+  "E154": {
+    "title": "Dua-e-Ehtejaab [The Supplication of Concealment]",
+    "slug": "dua-e-ehtejaab-the-supplication-of-concealment"
+  },
+  "E16": {
+    "title": "Dua during the Occultation of Imam Mahdi (a.t.f.s.) - SHORT اَللّٰهُمَّ عَرِّفْنِىْ نَفْسَكَ"
+  },
+  "E18": {
+    "title": "Dua e Ahad",
+    "slug": "dua-e-ahad"
+  },
+  "E19": {
+    "title": "Dua-e-Faraj اَللّٰهُمَّ كُنْ لِوَلِيِّكَ"
+  },
+  "E20": {
+    "title": "Dua e Faraj - Ilahi Azomal Bala اِلٰهِيْ عَظُمَ الْبَلَاۤءُ"
+  },
+  "E21": {
+    "title": "Dua-e-Ghareeq"
+  },
+  "E22": {
+    "title": "Dua-e-Hifz-e-Eemaan رَضِيْتُ بِاللّٰهِ رَبًّا"
+  },
+  "E24": {
+    "title": "Dua Tawassul"
+  },
+  "E26": {
+    "title": "Dua Simat"
+  },
+  "E27": {
+    "title": "Dua Mashlool"
+  },
+  "E28": {
+    "title": "Dua Mujeer"
+  },
+  "E29": {
+    "title": "Dua Jawshan al Kabir"
+  },
+  "E30": {
+    "title": "Dua Jawshan al Sagir"
+  },
+  "E31": {
+    "title": "Dua Kumayl"
+  },
+  "E33": {
+    "title": "Dua-e-Noor"
+  },
+  "E34": {
+    "title": "Dua e Nudbah"
+  },
+  "E35": {
+    "title": "Dua e Sabah"
+  },
+  "E36": {
+    "title": "Dua e Sad Subhan (Dua e Sahifa)"
+  },
+  "E37": {
+    "title": "Dua e Sanamay Quraish"
+  },
+  "E5": {
+    "title": "Dua al-Hujjah اِلٰهِيْ بِحَقِّ مَنْ نَاجَاكَ"
+  },
+  "E6": {
+    "title": "Dua al-Mahd (a.t.f.s.)i اللهم ارزقنا توفیق الطاعه"
+  },
+  "E7": {
+    "title": "Dua Allahumma Asleh اَللّٰهُمَّ أَصْلِحْ عَبْدَكَ"
+  },
+  "E8": {
+    "title": "Dua Alqamah",
+    "slug": "dua-alqama"
+  },
+  "F2": {
+    "title": "Namaz-e-Shab"
+  },
+  "F27|L2": {
+    "title": "Namaz of Sundays"
+  },
+  "F29|N2": {
+    "title": "Namaz of Tuesdays"
+  },
+  "F3": {
+    "title": "Namaz e Shab (Short)"
+  },
+  "F30|O2": {
+    "title": "Namaz on Wednesdays"
+  },
+  "F31|Q2": {
+    "title": "Namaz on Thursdays",
+    "slug": "namaz-on-thursdays"
+  },
+  "F32|J9": {
+    "title": "Namaz on Fridays",
+    "slug": "namaz-on-fridays"
+  },
+  "F33|K2": {
+    "title": "Namaz on Saturdays"
+  },
+  "F5": {
+    "title": "Namaz-e-Ghofaylah",
+    "order": 1
+  },
+  "G0~B": {
+    "title": "Ziyarat of Hijaz, Iran & Iraq"
+  },
+  "G1": {
+    "title": "Ziyaarat-e-Aal-e-Yaaseen"
+  },
+  "G11": {
+    "title": "Ziyarat e Nahiya"
+  },
+  "G12": {
+    "title": "Ziyaarat-e-Jaamea'h Sagheerah"
+  },
+  "G13": {
+    "title": "Ziyarat e Jamiah Kabeerah"
+  },
+  "G15": {
+    "title": "Saturday - Ziyarah of Holy Prophet (s.a.w.a.)"
+  },
+  "G16|L3": {
+    "title": "Sunday - Ziyarah of Ameerul Momineen (a)"
+  },
+  "G18|M3": {
+    "title": "Monday - Ziyarah of Imam al-Hasan(a.s.)",
+    "slug": "monday-ziyarah-of-imam-al-hasan-a-s"
+  },
+  "G2": {
+    "title": "Ziyarat-e-Ameenullah"
+  },
+  "G21|O3": {
+    "title": "Wednesday - Ziyarah of Imam Musa al Kazim, Ali al Rida, Muhammad al Taqi, Ali al Naqi (a)"
+  },
+  "G22|Q3": {
+    "title": "Thursday - Ziyarah of Imam Hasan al Askari (a)"
+  },
+  "G23|J3": {
+    "title": "Friday - Ziyarah of Imam al Mahdi (a.t.f.s.)"
+  },
+  "G4": {
+    "title": "Ziyarat e Ashura",
+    "order": 0,
+    "slug": "ziyarat-e-ashura"
+  },
+  "G5": {
+    "title": "Ziyarat al Haqq al Jadeed"
+  },
+  "G50": {
+    "title": "Ziyarat e Hazrat Rasul e Khuda"
+  },
+  "G51": {
+    "title": "Ziyarate Ameerul Momeneen Hazrat Ali (a.s.)"
+  },
+  "G52": {
+    "title": "Ziyaarat-e-Janab-e-Faatemah Zahra (s.a.)"
+  },
+  "G53": {
+    "title": "Ziyarate Imam Hasan (a.s.)"
+  },
+  "G54": {
+    "title": "Ziyarat-e-Imam Husain (a.s.)"
+  },
+  "G55": {
+    "title": "Ziyarate Hazrat Ali Akbar (a.s.)"
+  },
+  "G56": {
+    "title": "Ziyarate Shohadaa-e-Karbala (a.s.)"
+  },
+  "G57": {
+    "title": "Ziyarate Hazrat Abbas (a.s.)"
+  },
+  "G58": {
+    "title": "Ziyarate Janabe Habib ibn Mazahir (a.s.)"
+  },
+  "G59": {
+    "title": "Ziyarate Janabe Hur (a.s.)"
+  },
+  "G6": {
+    "title": "Ziyarat e Waaresa",
+    "slug": "ziyarat-e-waaresa"
+  },
+  "G60": {
+    "title": "Ziyarate Janabe Muslim (a.s.)"
+  },
+  "G61": {
+    "title": "Ziyarate Janabe Hani ibn Urwah (a.s.)"
+  },
+  "G62": {
+    "title": "Ziyarate Farzandane Janabe Muslim (a.s.)"
+  },
+  "G63": {
+    "title": "Ziyarate Janabe Salman e Farsi (a.s.)"
+  },
+  "G64": {
+    "title": "Ziyarate Imam Zainul Aabedeen (a.s.)"
+  },
+  "G65": {
+    "title": "Ziyarate Imam Mohammad Baqir (a.s.)"
+  },
+  "G66": {
+    "title": "Ziyarate Imam Jafar Sadiq (a.s.)"
+  },
+  "G67": {
+    "title": "Ziyarate Imam Musa Kazim (a.s.)"
+  },
+  "G68": {
+    "title": "Ziyarate Imam Ali Raza (a.s.)"
+  },
+  "G69": {
+    "title": "Ziyarate Imam Mohammad Taqi (a.s.)"
+  },
+  "G7": {
+    "title": "Ziyarat-e-Hazrat Abbas (a.s.)"
+  },
+  "G70": {
+    "title": "Ziyarate Imam Ali Naqi (a.s.)"
+  },
+  "G71": {
+    "title": "Ziyarate Imam Hasan Askari (a.s.)"
+  },
+  "G72": {
+    "title": "Ziyarat-e-Imam-e-Zamana (a.t.f.s.)"
+  },
+  "G73": {
+    "title": "Ziyarate Janabe Zainab (a.s.)"
+  },
+  "G75": {
+    "title": "Ziyarat-e-Imam Husain (a.s.) on the Day of Arafah",
+    "slug": "ziyarat-e-imam-husain-a-s-on-the-day-of-arafah"
+  },
+  "G78": {
+    "title": "Ziyarat of H. Masooma-e-Qum (s.a.)"
+  },
+  "G79": {
+    "title": "Ziyarat of Hazrat Abu Talib (a.s.)"
+  },
+  "G8": {
+    "title": "Ziyarat-e-Hazrat Imam Reza (a.s.)"
+  },
+  "G80": {
+    "title": "Ziyarat of Hazrat Abdul Muttalib (a.s.)"
+  },
+  "G81": {
+    "title": "Ziyarat of Janabe Ummul Baneen (s.a.)"
+  },
+  "G82": {
+    "title": "Ziyarat of Janabe Sakina (s.a.)"
+  },
+  "G83": {
+    "title": "Ziyaarat-e-Aashoora Gair Ma'roofah",
+    "slug": "ziyaarat-e-aashoora-gair-ma-roofah"
+  },
+  "G84|AL17": {
+    "title": "Ziyarat of Imam Mahdi (a.t.f.s.) after the Fajr Prayers (Allaahumma Balligh)",
+    "slug": "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh"
+  },
+  "G9": {
+    "title": "Ziyarat-e-Hazrat Imam-e-Zamana (a.t.f.s.)"
+  },
+  "H1": {
+    "title": "1st Whispered Prayer of the Repenters - Munajaat al Taebeen"
+  },
+  "H10": {
+    "title": "10th Whispered Prayer of Those Asking for Mediation - Munajaat al Mutawassileen"
+  },
+  "H11": {
+    "title": "11th Whispered Prayer of the Utterly Poor - Munajaat al Muftaqireen"
+  },
+  "H12": {
+    "title": "12th Whispered Prayer of the Knowers - Munajaat al Aarifeen"
+  },
+  "H13": {
+    "title": "13th Whispered Prayer of the Rememberers - Munajaat al Dhakireen"
+  },
+  "H14": {
+    "title": "14th Whispered Prayer of Those Who Hold Fast - Munajaat al Motasimeen"
+  },
+  "H15": {
+    "title": "15th Whispered Prayer of the Abstainers - Munajaat al Zahideen"
+  },
+  "H17": {
+    "title": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)"
+  },
+  "H2": {
+    "title": "2nd Whispered Prayer of the Complainers - Munajaat al Shakeen"
+  },
+  "H3": {
+    "title": "3rd Whispered Prayer of the Fearful - Munajaat al Khaefeen"
+  },
+  "H4": {
+    "title": "4th Whispered Prayer of the Hopefuls - Munajaat al Rajeen"
+  },
+  "H5": {
+    "title": "5th Whispered Prayer of the Beseechers - Munajaat al Raghebeen"
+  },
+  "H6": {
+    "title": "6th Whispered Prayer of the Thankful - Munajaat al Shakereen"
+  },
+  "H7": {
+    "title": "7th Whispered Prayer of the Obedient to Allah - Munajaat al Mutieena Lillah"
+  },
+  "H8": {
+    "title": "8th Whispered Prayer of the Devotees - Munajaat al Murideen"
+  },
+  "H9": {
+    "title": "9th Whispered Prayer of the Lovers - Munajaat al Muhibbeen"
+  },
+  "I1": {
+    "title": "Aamal Between Dawn & Sunrise"
+  },
+  "I2": {
+    "title": "Etiquettes of Going to Toilet"
+  },
+  "I4": {
+    "title": "Ritual Ablution (Wuzu)"
+  },
+  "I5": {
+    "title": "Etiquettes of attending Mosques"
+  },
+  "J1": {
+    "title": "Merits & Rituals of Friday Night & Day"
+  },
+  "J2|E34": {
+    "title": "Dua e Nudbah"
+  },
+  "J3": {
+    "title": "Ziyarah of Imam al Mahdi (a.t.f.s.) on Friday"
+  },
+  "J4": {
+    "title": "The Supplication of Friday"
+  },
+  "J5|E144": {
+    "title": "Salawat Abul Hasan al Darrab al Isfahani"
+  },
+  "J7": {
+    "title": "Aamaal of Zohr Prayers on Friday"
+  },
+  "J9": {
+    "title": "Namaz on Fridays"
+  },
+  "K1": {
+    "title": "The Supplication of Saturday"
+  },
+  "K2": {
+    "title": "Namaz on Saturdays"
+  },
+  "K3": {
+    "title": "Ziyarah of Holy Prophet (s.a.w.a.) on Saturday"
+  },
+  "L1": {
+    "title": "The Supplication of Sunday"
+  },
+  "L2": {
+    "title": "Namaz of Sundays",
+    "slug": "namaz-of-sundays"
+  },
+  "L3": {
+    "title": "Ziyarat of Sunday",
+    "slug": "ziyarat-of-sunday"
+  },
+  "M1": {
+    "title": "The Supplication of Monday"
+  },
+  "M3": {
+    "title": "Ziyarat on Monday",
+    "slug": "ziyarah-of-imam-al-hasan-a-s-on-monday"
+  },
+  "N1": {
+    "title": "The Supplication of Tuesday"
+  },
+  "N2": {
+    "title": "Namaz of Tuesdays"
+  },
+  "N3": {
+    "title": "Ziyarah on Tuesday",
+    "slug": "ziyarah-on-tuesday"
+  },
+  "N4|E24": {
+    "title": "Dua Tawassul",
+    "slug": "dua-tawassul"
+  },
+  "O1": {
+    "title": "The Supplication of Wednesday"
+  },
+  "O2": {
+    "title": "Namaz on Wednesdays"
+  },
+  "O3": {
+    "title": "Ziyarah of Wednesday",
+    "slug": "ziyarah-of-wednesday"
+  },
+  "Q1": {
+    "title": "The Supplication of Thursday"
+  },
+  "Q2": {
+    "title": "Namaz on Thursdays"
+  },
+  "Q3": {
+    "title": "Ziyarah of Imam Hasan al Askari (a) on Thursday"
+  },
+  "Q4|E154": {
+    "title": "Dua-e-Ehtejaab (The Supplication of Concealment)"
+  },
+  "Q4|E31": {
+    "title": "Dua Kumayl"
+  },
+  "R11": {
+    "title": "Ziyarah on the day of Ashura"
+  },
+  "R12|E8": {
+    "title": "Dua Alqamah"
+  },
+  "R5": {
+    "title": "The Ninth Of Muharram"
+  },
+  "R6": {
+    "title": "The 10th Night Of Muharram (Shabe Ashura)"
+  },
+  "R7": {
+    "title": "The 10th of Muharram (The Day of Ashura)"
+  },
+  "R9": {
+    "title": "Aamal of Ashura"
+  },
+  "S7": {
+    "title": "Ziyarah on the day of Arbaeen; The Twentieth of Safar"
+  },
+  "TR~D1": {
+    "title": "Taqeebaat e Namaz"
+  },
+  "V1": {
+    "title": "13th, 14th, And 15th Of Jumadi Al Ula"
+  },
+  "X1": {
+    "title": "Importance of the month of Rajab and it's Aamaal"
+  },
+  "X2": {
+    "title": "General Aamaal in Rajab"
+  },
+  "X3": {
+    "title": "Daily supplications of Rajab"
+  },
+  "X4": {
+    "title": "Ziyarah Rajabiyah (الحمد الله الذی اشهدنا)"
+  },
+  "X5": {
+    "title": "Miscellaneous Aamaal for the Month of Rajab"
+  },
+  "X6": {
+    "title": "(a) First night of Friday (Laylat al Raghaaeb)"
+  },
+  "X7": {
+    "title": "(b) First Night of Rajab"
+  },
+  "Y3": {
+    "title": "Daily Salawat of Shaban"
+  },
+  "Y4": {
+    "title": "Munajaat al Shabaniyyah"
+  },
+  "Z1": {
+    "title": "Short Duas for the Days of Ramazan"
+  },
+  "Z2": {
+    "title": "1st Day"
+  },
+  "Z3": {
+    "title": "2nd Day"
+  },
+  "Z4": {
+    "title": "3rd Day"
+  },
+  "Z5": {
+    "title": "4th Day"
+  },
+  "Z7": {
+    "title": "6th Day"
+  },
+  "Z8": {
+    "title": "7th Day"
+  }
 }

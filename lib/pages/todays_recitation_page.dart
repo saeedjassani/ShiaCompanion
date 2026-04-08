@@ -8,6 +8,18 @@ import '../constants.dart';
 class TodaysRecitationPage extends StatelessWidget {
   const TodaysRecitationPage({super.key});
 
+  void _insertIfAvailable(
+    List<UidTitleData> workingItems,
+    int index,
+    String uid,
+  ) {
+    final title = items[uid];
+    if (title is! String || title.trim().isEmpty) return;
+    if (workingItems.any((item) => item.uid == uid)) return;
+    workingItems.insert(
+        index.clamp(0, workingItems.length), UidTitleData(uid, title));
+  }
+
   List<UidTitleData> _buildList() {
     List<UidTitleData> workingItems = [];
 
@@ -38,10 +50,10 @@ class TodaysRecitationPage extends StatelessWidget {
       return a.getId() > b.getId() ? 1 : -1;
     });
     if (items.isNotEmpty) {
-      workingItems.insert(1, UidTitleData("E18", items["E18"]));
-      workingItems.insert(2, UidTitleData("G6", items["G6"]));
-      workingItems.insert(3, UidTitleData("G4", items["G4"]));
-      workingItems.insert(4, UidTitleData("E37", items["E37"]));
+      _insertIfAvailable(workingItems, 1, "E18");
+      _insertIfAvailable(workingItems, 2, "G6");
+      _insertIfAvailable(workingItems, 3, "G4");
+      _insertIfAvailable(workingItems, 4, "E37");
     }
     return workingItems;
   }
