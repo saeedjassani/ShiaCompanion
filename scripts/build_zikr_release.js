@@ -1,6 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const admin = require('firebase-admin');
+const {
+  normalizeZikrText,
+  normalizeZikrTextList,
+} = require('./zikr_text_normalization');
 
 const ZIKR_COLLECTION = 'zikr';
 const INDEX_OUTPUT_PATH = path.join(__dirname, '..', 'assets', 'zikr.json');
@@ -110,19 +114,18 @@ function buildContentPayload(data) {
     payload.code = code;
   }
 
-  const zikrData = `${data?.data ?? ''}`;
+  const zikrData = normalizeZikrText(data?.data);
   if (zikrData.trim()) {
     payload.data = zikrData;
   }
 
-  const merits = `${data?.merits ?? ''}`;
+  const merits = normalizeZikrText(data?.merits);
   if (merits.trim()) {
     payload.merits = merits;
   }
 
   if (Array.isArray(data?.tabs)) {
-    const tabs = data.tabs
-      .map((tab) => `${tab ?? ''}`)
+    const tabs = normalizeZikrTextList(data.tabs)
       .filter((tab) => tab.trim().length > 0);
     if (tabs.length > 0) {
       payload.tabs = tabs;
@@ -140,14 +143,22 @@ function sortObjectByKey(input) {
   return output;
 }
 
+function listGeneratedFiles(directoryPath) {
+  if (!fs.existsSync(directoryPath)) return [];
+
+  return fs.readdirSync(directoryPath).filter((fileName) => {
+    if (fileName.startsWith('.')) return false;
+    return fs.statSync(path.join(directoryPath, fileName)).isFile();
+  });
+}
+
 function removeStaleFiles(contentIds) {
   if (!fs.existsSync(CONTENT_OUTPUT_DIR)) return;
 
   const expected = new Set(contentIds);
-  for (const fileName of fs.readdirSync(CONTENT_OUTPUT_DIR)) {
-    if (fileName.startsWith('.')) continue;
+  for (const fileName of listGeneratedFiles(CONTENT_OUTPUT_DIR)) {
     if (expected.has(fileName)) continue;
-    fs.unlinkSync(path.join(CONTENT_OUTPUT_DIR, fileName));
+    fs.rmSync(path.join(CONTENT_OUTPUT_DIR, fileName), {force: true});
   }
 }
 
@@ -205,6 +216,7 @@ async function main() {
   }
 
   fs.mkdirSync(CONTENT_OUTPUT_DIR, {recursive: true});
+  removeStaleFiles(contentFiles.keys());
   fs.writeFileSync(
     INDEX_OUTPUT_PATH,
     `${JSON.stringify(sortObjectByKey(index), null, 2)}\n`,
@@ -218,8 +230,6 @@ async function main() {
       'utf8',
     );
   }
-
-  removeStaleFiles(contentFiles.keys());
 
   console.log(`Wrote ${Object.keys(index).length} index entries to ${INDEX_OUTPUT_PATH}`);
   console.log(`Wrote ${contentFiles.size} zikr files to ${CONTENT_OUTPUT_DIR}`);

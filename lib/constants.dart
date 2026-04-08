@@ -39,6 +39,7 @@ List<UniversalData>? favsData;
 
 final String appName = "Shia Companion";
 final Color appColor = Colors.brown;
+const IconData tasbeehCounterIcon = Icons.exposure_plus_1;
 int hijriDate = 0;
 double arabicFontSize = 32.0;
 double englishFontSize = 16.0;
@@ -143,7 +144,7 @@ List<IconData> zikrIcons = [
   Icons.list_alt, // Baaqeyaat As Saalehaat
   Icons.article, // Latest Shia News
   Icons.explore, // Qibla Finder
-  Icons.format_list_numbered, // Tasbeeh Counter
+  tasbeehCounterIcon, // Tasbeeh Counter
   Icons.settings, // Preferences
 ];
 

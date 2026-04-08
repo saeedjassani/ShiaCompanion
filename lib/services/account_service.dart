@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../firebase_auth_config.dart';
+import '../firebase_options.dart';
 import 'favorites_manager.dart';
 
 class AccountActionException implements Exception {
@@ -17,12 +19,15 @@ class AccountService {
   AccountService._();
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
+  static Future<void>? _googleSignInInitialization;
 
   static Future<UserCredential> signInWithGoogle() async {
     if (kIsWeb) {
       final googleProvider = GoogleAuthProvider();
       return FirebaseAuth.instance.signInWithPopup(googleProvider);
     }
+
+    await _ensureGoogleSignInInitialized();
 
     final signIn = GoogleSignIn.instance;
     GoogleSignInAccount? googleUser;
@@ -39,6 +44,19 @@ class AccountService {
       idToken: googleAuth.idToken,
     );
     return _auth.signInWithCredential(credential);
+  }
+
+  static Future<void> _ensureGoogleSignInInitialized() {
+    return _googleSignInInitialization ??= GoogleSignIn.instance.initialize(
+      clientId: switch (defaultTargetPlatform) {
+        TargetPlatform.iOS => DefaultFirebaseOptions.ios.iosClientId,
+        _ => null,
+      },
+      serverClientId: switch (defaultTargetPlatform) {
+        TargetPlatform.android => FirebaseAuthConfig.googleServerClientId,
+        _ => null,
+      },
+    );
   }
 
   static Future<void> signOut() {
