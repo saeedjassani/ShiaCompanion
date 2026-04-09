@@ -734,7 +734,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           } else {
             return Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 4.0),
-              child: Text(str),
+              child: Text(str, style: TextStyle(fontStyle: FontStyle.italic)),
             );
           }
         },
