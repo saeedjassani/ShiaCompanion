@@ -34,6 +34,28 @@ function normalizeSlug(value) {
     .replace(/^-|-$/g, '');
 }
 
+function slugifyTitle(title) {
+  return normalizeSlug(title);
+}
+
+function slugifyUid(uid) {
+  return `${uid ?? ''}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function buildSlugSeed({uid, title, rawSlug}) {
+  const preferredSlug = normalizeSlug(rawSlug);
+  if (preferredSlug) return preferredSlug;
+
+  const titleSlug = slugifyTitle(title);
+  if (titleSlug) return titleSlug;
+
+  return slugifyUid(uid);
+}
+
 function normalizeSlugAliases(values, exclude = '') {
   if (!Array.isArray(values)) return [];
 
@@ -48,6 +70,29 @@ function normalizeSlugAliases(values, exclude = '') {
     aliases.push(alias);
   }
   return aliases;
+}
+
+function isSlugAvailable(slugOwners, slug, currentUid) {
+  const owner = slugOwners.get(slug);
+  return owner == null || owner === currentUid;
+}
+
+function makeUniqueSlug(slugOwners, baseSlug, currentUid) {
+  const normalizedBase = normalizeSlug(baseSlug);
+  const fallbackBase = normalizedBase || (currentUid == null ? 'zikr' : slugifyUid(currentUid));
+
+  if (isSlugAvailable(slugOwners, fallbackBase, currentUid)) {
+    return fallbackBase;
+  }
+
+  let suffix = 2;
+  while (true) {
+    const candidate = `${fallbackBase}-${suffix}`;
+    if (isSlugAvailable(slugOwners, candidate, currentUid)) {
+      return candidate;
+    }
+    suffix += 1;
+  }
 }
 
 function hasPrimaryData(data) {
@@ -116,7 +161,7 @@ function parentHasVisibleChildren(uid, includedUids) {
   return false;
 }
 
-function buildIndexEntry(data) {
+function buildIndexEntry(data, resolvedSlugData) {
   const entry = {
     title: `${data?.title ?? ''}`.trim(),
   };
@@ -125,12 +170,12 @@ function buildIndexEntry(data) {
     entry.order = data.order;
   }
 
-  const slug = normalizeSlug(data?.slug);
+  const slug = resolvedSlugData.slug;
   if (slug) {
     entry.slug = slug;
   }
 
-  const slugAliases = normalizeSlugAliases(data?.slugAliases, slug);
+  const slugAliases = resolvedSlugData.slugAliases;
   if (slugAliases.length > 0) {
     entry.slugAliases = slugAliases;
   }
@@ -171,6 +216,55 @@ function buildContentPayload(data) {
   }
 
   return payload;
+}
+
+function buildResolvedSlugData(includedUids, allDocs) {
+  const slugOwners = new Map();
+  const resolvedByUid = new Map();
+
+  for (const uid of [...includedUids].sort()) {
+    const data = allDocs.get(uid);
+    const explicitSlug = normalizeSlug(data?.slug);
+    const explicitAliases = normalizeSlugAliases(data?.slugAliases, explicitSlug);
+
+    if (explicitSlug) {
+      slugOwners.set(explicitSlug, uid);
+    }
+    for (const alias of explicitAliases) {
+      if (!slugOwners.has(alias)) {
+        slugOwners.set(alias, uid);
+      }
+    }
+
+    resolvedByUid.set(uid, {
+      slug: explicitSlug,
+      slugAliases: explicitAliases,
+    });
+  }
+
+  for (const uid of [...includedUids].sort()) {
+    const data = allDocs.get(uid);
+    const resolved = resolvedByUid.get(uid);
+    if (resolved?.slug) continue;
+
+    const generatedSlug = makeUniqueSlug(
+      slugOwners,
+      buildSlugSeed({
+        uid,
+        title: `${data?.title ?? ''}`.trim(),
+        rawSlug: data?.slug,
+      }),
+      uid,
+    );
+
+    slugOwners.set(generatedSlug, uid);
+    resolvedByUid.set(uid, {
+      slug: generatedSlug,
+      slugAliases: resolved?.slugAliases ?? [],
+    });
+  }
+
+  return resolvedByUid;
 }
 
 function sortObjectByKey(input) {
@@ -244,11 +338,15 @@ async function main() {
     }
   }
 
+  const resolvedSlugData = buildResolvedSlugData(includedUids, allDocs);
   const index = {};
   const contentFiles = new Map();
   for (const uid of [...includedUids].sort()) {
     const data = allDocs.get(uid);
-    index[uid] = buildIndexEntry(data);
+    index[uid] = buildIndexEntry(data, resolvedSlugData.get(uid) ?? {
+      slug: '',
+      slugAliases: [],
+    });
 
     if (shouldWriteContentFile(uid, data)) {
       contentFiles.set(uid, buildContentPayload(data));
