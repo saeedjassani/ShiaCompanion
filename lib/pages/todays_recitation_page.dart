@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
+import 'package:shia_companion/services/favorites_manager.dart';
 
 import '../constants.dart';
 
@@ -73,17 +74,19 @@ class TodaysRecitationPage extends StatelessWidget {
               itemCount: workingItems.length,
               itemBuilder: (BuildContext c, int i) {
                 var itemData = workingItems[i];
+                final favoriteData =
+                    UniversalData(itemData.uid, itemData.title, 0);
                 return ListTile(
-                  onTap: () {
+                  onTap: () async {
                     if (itemData.getUId().contains("~")) {
-                      Navigator.push(
+                      await Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => ItemList(
                                   itemData.getUId().split("~")[1],
                                   itemData.title)));
                     } else {
-                      handleUniversalDataClick(context,
+                      await handleUniversalDataClick(context,
                           UniversalData(itemData.uid, itemData.title, 0));
                     }
                   },
@@ -96,6 +99,18 @@ class TodaysRecitationPage extends StatelessWidget {
                   title: isUserAdmin
                       ? Text(itemData.uid + " " + itemData.title)
                       : Text(itemData.title),
+                  trailing: itemData.getUId().contains("~")
+                      ? null
+                      : StatefulBuilder(
+                          builder: (context, setTileState) => InkWell(
+                            onTap: () async {
+                              await FavoritesManager.instance
+                                  .toggleFavorite(favoriteData);
+                              setTileState(() {});
+                            },
+                            child: getFavIcon(context, favoriteData),
+                          ),
+                        ),
                 );
               },
             ),

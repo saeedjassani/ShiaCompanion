@@ -1130,15 +1130,21 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                             children: [
                               _buildCounterCard(),
                               Positioned(
-                                right: 10,
-                                top: 10,
+                                right: 8,
+                                top: 8,
                                 child: Material(
                                   color: Theme.of(context)
                                       .colorScheme
                                       .surfaceContainerHighest,
                                   shape: const CircleBorder(),
                                   child: IconButton(
-                                    icon: const Icon(Icons.close, size: 18),
+                                    padding: const EdgeInsets.all(6),
+                                    constraints: const BoxConstraints(
+                                      minWidth: 32,
+                                      minHeight: 32,
+                                    ),
+                                    visualDensity: VisualDensity.compact,
+                                    icon: const Icon(Icons.close, size: 16),
                                     tooltip: 'Hide counter',
                                     onPressed: () =>
                                         _setCounterVisibility(false),
