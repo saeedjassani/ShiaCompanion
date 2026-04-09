@@ -100,7 +100,7 @@ class PrayerTime {
     timeNames = [
       "Fajr",
       "Sunrise",
-      "Dhuhr",
+      "Zuhr",
       "Asr",
       "Sunset",
       "Maghrib",

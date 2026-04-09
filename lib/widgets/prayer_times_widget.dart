@@ -99,7 +99,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                           Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Dhuhr"),
+                              Text("Zuhr"),
                               SizedBox(
                                 height: 4,
                               ),
