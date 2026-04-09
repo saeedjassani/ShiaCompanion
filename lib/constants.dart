@@ -80,8 +80,8 @@ Widget getPage(String label,
       return ItemList("G", "Ziyarats");
     case 'Surahs':
       return ItemList("A", "Surahs");
-    case 'Amaal':
-      return ItemList("C", "Amaal");
+    case 'Aamaal':
+      return ItemList("C", "Aamaal");
     case 'Calendar':
       return Scaffold(
           appBar: AppBar(title: Text('Calendar')),
@@ -93,8 +93,6 @@ Widget getPage(String label,
       return ItemList("H", "Munajaats");
     case 'Baaqeyaat As Saalehaat':
       return ItemList("I", "Baaqeyaat As Saalehaat");
-    case 'Latest Shia News':
-      return NewsPage();
     case 'Qibla Finder':
       return QiblaFinder();
     case 'Tasbeeh Counter':
@@ -117,12 +115,11 @@ List<String> zikr = [
   "Duas",
   "Ziyarats",
   "Surahs",
-  "Amaal",
+  "Aamaal",
   "Calendar",
   "Library",
   "Munajaats",
   "Baaqeyaat As Saalehaat",
-  "Latest Shia News",
   "Qibla Finder",
   "Tasbeeh Counter",
   "Preferences",
@@ -142,7 +139,6 @@ List<IconData> zikrIcons = [
   Icons.library_books, // Library
   Icons.menu_book, // Munajaats (Library book icon)
   Icons.list_alt, // Baaqeyaat As Saalehaat
-  Icons.article, // Latest Shia News
   Icons.explore, // Qibla Finder
   tasbeehCounterIcon, // Tasbeeh Counter
   Icons.settings, // Preferences

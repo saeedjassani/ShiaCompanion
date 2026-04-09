@@ -1205,7 +1205,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   Set<int> _generateEnglishCodes(Set<int> arabicCodes, bool transliteration) {
     final englishCodes = <int>{};
-    String code = zikrData?['code'];
+    String? code = zikrData?['code'];
     if (code == "102") {
       for (final i in arabicCodes) {
         englishCodes.add(transliteration ? i - 1 : i + 1);
