@@ -78,6 +78,44 @@ function shouldIncludeInIndex(uid, data, allDocs) {
   return hasRenderableContent(data) || uid.includes('~') || uid.includes('|');
 }
 
+function getListTableName(itemUid) {
+  let tableName = `${itemUid ?? ''}`.trim();
+  if (tableName === 'D1') tableName = 'D';
+
+  tableName = tableName
+    .replace(/[0-9].*/, '')
+    .replace(/[A-Z].*~/, '');
+
+  if (tableName.includes('|')) {
+    tableName = tableName
+      .split('|')[0]
+      .replace(/[0-9].*/, '');
+  }
+
+  return tableName;
+}
+
+function parentHasVisibleChildren(uid, includedUids) {
+  if (!uid.includes('~')) return true;
+
+  const childSeed = uid.split('~')[1]?.trim();
+  const tableName = getListTableName(childSeed);
+  if (!tableName) return false;
+
+  for (const candidateUid of includedUids) {
+    if (candidateUid === uid) continue;
+
+    if (
+      tableName === candidateUid.split('~')[0] ||
+      tableName === candidateUid.replace(/[0-9].*/, '')
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function buildIndexEntry(data) {
   const entry = {
     title: `${data?.title ?? ''}`.trim(),
@@ -183,15 +221,33 @@ async function main() {
     allDocs.set(doc.id, doc.data());
   });
 
-  const index = {};
-  const contentFiles = new Map();
-
+  const includedUids = new Set();
   for (const uid of [...allDocs.keys()].sort()) {
     const data = allDocs.get(uid);
-    if (!shouldIncludeInIndex(uid, data, allDocs)) {
-      continue;
+    if (shouldIncludeInIndex(uid, data, allDocs)) {
+      includedUids.add(uid);
     }
+  }
 
+  let prunedParentCount = 0;
+  let removedParentInPass = true;
+  while (removedParentInPass) {
+    removedParentInPass = false;
+
+    for (const uid of [...includedUids]) {
+      if (!uid.includes('~')) continue;
+      if (parentHasVisibleChildren(uid, includedUids)) continue;
+
+      includedUids.delete(uid);
+      prunedParentCount += 1;
+      removedParentInPass = true;
+    }
+  }
+
+  const index = {};
+  const contentFiles = new Map();
+  for (const uid of [...includedUids].sort()) {
+    const data = allDocs.get(uid);
     index[uid] = buildIndexEntry(data);
 
     if (shouldWriteContentFile(uid, data)) {
@@ -205,6 +261,7 @@ async function main() {
         {
           indexCount: Object.keys(index).length,
           contentFileCount: contentFiles.size,
+          prunedParentCount,
           indexOutputPath: INDEX_OUTPUT_PATH,
           contentOutputDir: CONTENT_OUTPUT_DIR,
         },
@@ -233,6 +290,7 @@ async function main() {
 
   console.log(`Wrote ${Object.keys(index).length} index entries to ${INDEX_OUTPUT_PATH}`);
   console.log(`Wrote ${contentFiles.size} zikr files to ${CONTENT_OUTPUT_DIR}`);
+  console.log(`Pruned ${prunedParentCount} empty parent index entries`);
 }
 
 main().catch((error) => {
