@@ -1,13 +1,15 @@
 [
   {
     "relation": [
-      "delegate_permission/common.handle_all_urls"
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
     ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.developer110.shiacompanion",
       "sha256_cert_fingerprints": [
-        "43:C1:82:8B:EC:8F:7F:D4:05:D3:BD:C7:7E:F1:7C:94:B2:4A:F2:8B:F5:AB:E5:E6:E8:E6:71:5A:7C:E3:32:B9"
+        "43:C1:82:8B:EC:8F:7F:D4:05:D3:BD:C7:7E:F1:7C:94:B2:4A:F2:8B:F5:AB:E5:E6:E8:E6:71:5A:7C:E3:32:B9",
+        "F2:C7:5A:0B:C6:60:6D:89:CA:FA:E0:31:ED:27:25:8F:9A:F1:62:10:83:86:75:C8:B3:ED:02:32:78:1F:BA:E1"
       ]
     }
   },
