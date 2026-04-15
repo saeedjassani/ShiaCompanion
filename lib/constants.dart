@@ -116,7 +116,7 @@ List<String> zikr = [
   "Ziyarats",
   "Surahs",
   "Aamaal",
-  "Calendar",
+  "Calendar & Prayer Times",
   "Library",
   "Munajaat",
   "Baaqeyaat As Saalehaat",
@@ -352,7 +352,7 @@ Future<bool> initializeLocation(
         return AlertDialog(
           title: Text('Enable Location for Prayer Times'),
           content: Text(
-            'Prayer times are unique to your location. We need your location to provide accurate prayer times for your area.',
+            'Prayer times are unique to your location. We use your location while you are using the app so we can provide accurate prayer times for your area.',
           ),
           actions: [
             TextButton(
