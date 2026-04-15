@@ -631,11 +631,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   void _shareCurrentZikr() {
-    final tabContents = _buildVisibleTabContents();
-    if (tabContents.isEmpty) return;
-
-    final selectedIndex = _selectedTabIndex.clamp(0, tabContents.length - 1);
-    final currentContent = tabContents[selectedIndex].trim();
     final title = titleController?.text.trim().isNotEmpty == true
         ? titleController!.text.trim()
         : widget.item.title;
@@ -646,7 +641,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
     SharePlus.instance.share(
       ShareParams(
-        text: '$title\n$currentContent\n\nOpen in Shia Companion: $deepLink',
+        text: '$title\n$deepLink',
         sharePositionOrigin: Rect.fromLTWH(
           MediaQuery.of(context).size.width / 2,
           0,

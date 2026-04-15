@@ -734,10 +734,11 @@ class _MyHomePageState extends State<MyHomePage>
       await flutterLocalNotificationsPlugin?.initialize(
         settings: initializationSettings,
       );
+      await _requestNotificationPermissions();
 
-      await flutterLocalNotificationsPlugin?.cancelAll();
       final List<PendingNotificationRequest>? pendingNotificationRequests =
           await flutterLocalNotificationsPlugin?.pendingNotificationRequests();
+      needToSchedule = true;
       pendingNotificationRequests
           ?.forEach((PendingNotificationRequest element) {
         debugPrint("${element.id} ${element.title} is scheduled");
@@ -752,6 +753,7 @@ class _MyHomePageState extends State<MyHomePage>
         }
       });
       if (needToSchedule) {
+        await flutterLocalNotificationsPlugin?.cancelAll();
         setUpNotifications();
       } else {
         debugPrint("Azan notifications not scheduled");
@@ -811,6 +813,24 @@ class _MyHomePageState extends State<MyHomePage>
 
     // WidgetsBinding.instance.addPostFrameCallback((_) => showAlertDialog());
     initializeData();
+  }
+
+  Future<void> _requestNotificationPermissions() async {
+    if (flutterLocalNotificationsPlugin == null) return;
+
+    final iosImplementation =
+        flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>();
+    await iosImplementation?.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    final androidImplementation =
+        flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    await androidImplementation?.requestNotificationsPermission();
   }
 
   buildBody(BuildContext c, int i) {

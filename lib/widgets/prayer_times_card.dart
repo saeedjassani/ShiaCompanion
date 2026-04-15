@@ -65,14 +65,16 @@ class PrayerTimesState extends State<PrayerTimesCard> {
                         Padding(
                           padding: const EdgeInsets.only(left: 12.0),
                           child: InkWell(
-                            onTap: () {
-                              inversePref(
-                                  "${_prayerNames[position].toLowerCase()}_notification");
+                            onTap: () async {
+                              await inversePref(
+                                  notificationPreferenceKeyForPrayer(
+                                      _prayerNames[position]));
                               setUpNotifications();
                             },
                             child: Icon(
                               SP.prefs.getBool(
-                                          "${_prayerNames[position].toLowerCase()}_notification") ??
+                                          notificationPreferenceKeyForPrayer(
+                                              _prayerNames[position])) ??
                                       false
                                   ? Icons.volume_up
                                   : Icons.block,
@@ -89,10 +91,14 @@ class PrayerTimesState extends State<PrayerTimesCard> {
         : Container();
   }
 
-  void inversePref(String s) async {
+  Future<void> inversePref(String s) async {
     bool? value = SP.prefs.getBool(s);
     if (value != null) {
-      await SP.prefs.setBool(s, !value);
+      final nextValue = !value;
+      if (nextValue) {
+        await requestExactPrayerAlarmPermissionIfNeeded();
+      }
+      await SP.prefs.setBool(s, nextValue);
       setState(() {});
     }
   }

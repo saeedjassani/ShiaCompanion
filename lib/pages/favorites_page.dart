@@ -13,6 +13,13 @@ class _FavoritesPageState extends State<FavoritesPage> {
   void initState() {
     super.initState();
     trackScreen('Favorites Page');
+    _ensureFavoritesLoaded();
+  }
+
+  Future<void> _ensureFavoritesLoaded() async {
+    await FavoritesManager.instance.loadFavorites();
+    if (!mounted) return;
+    setState(() {});
   }
 
   @override
@@ -27,12 +34,15 @@ class _FavoritesPageState extends State<FavoritesPage> {
               itemBuilder: (context, index) {
                 UniversalData item = favsData![index];
                 return ListTile(
-                  title: isUserAdmin ? Text(item.uid + ' ' + item.title) : Text(item.title),
+                  title: isUserAdmin
+                      ? Text(item.uid + ' ' + item.title)
+                      : Text(item.title),
                   onTap: () {
                     handleUniversalDataClick(context, item);
                   },
                   onLongPress: () {
-                    if (isUserAdmin) handleUniversalDataClick(context, item, itemPage: true);
+                    if (isUserAdmin)
+                      handleUniversalDataClick(context, item, itemPage: true);
                   },
                   trailing: InkWell(
                     onTap: () {
