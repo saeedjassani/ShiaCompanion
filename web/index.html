@@ -36,6 +36,77 @@
   <!-- Use flutter.js to bootstrap the service worker as recommended by Flutter docs -->
   <script src="flutter.js" defer></script>
   <script src="main.dart.js" type="application/javascript"></script>
+  <script>
+    (function () {
+      const path = window.location.pathname || '/';
+      const isContentPath = path !== '/' && path !== '/index.html';
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      const redirectKey = 'shia-companion-open-app-' + path;
+
+      if (!isContentPath || !isAndroid) {
+        return;
+      }
+
+      function getIntentUrl() {
+        const fallbackUrl = window.location.href;
+        return (
+          'intent://' +
+          window.location.host +
+          path +
+          window.location.search +
+          window.location.hash +
+          '#Intent;scheme=https;package=com.developer110.shiacompanion;S.browser_fallback_url=' +
+          encodeURIComponent(fallbackUrl) +
+          ';end'
+        );
+      }
+
+      function openAndroidApp() {
+        window.location.href = getIntentUrl();
+      }
+
+      function createOpenAppBanner() {
+        const banner = document.createElement('button');
+        banner.type = 'button';
+        banner.textContent = 'Open in app';
+        banner.setAttribute(
+          'style',
+          'position:fixed;top:16px;right:16px;z-index:9999;border:0;border-radius:999px;padding:12px 18px;background:#5d4037;color:#fff;font:600 14px system-ui,-apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 10px 25px rgba(0,0,0,.18);cursor:pointer;'
+        );
+        banner.addEventListener('click', openAndroidApp);
+        document.addEventListener('DOMContentLoaded', function () {
+          document.body.appendChild(banner);
+        });
+      }
+
+      async function maybeOpenInstalledApp() {
+        createOpenAppBanner();
+
+        if (
+          typeof navigator.getInstalledRelatedApps !== 'function' ||
+          sessionStorage.getItem(redirectKey) === '1'
+        ) {
+          return;
+        }
+
+        try {
+          const relatedApps = await navigator.getInstalledRelatedApps();
+          const hasAndroidApp = relatedApps.some(function (app) {
+            return app.id === 'com.developer110.shiacompanion';
+          });
+
+          if (hasAndroidApp) {
+            sessionStorage.setItem(redirectKey, '1');
+            openAndroidApp();
+          }
+        } catch (_) {
+          // Ignore detection failures and keep the web page usable.
+        }
+      }
+
+      maybeOpenInstalledApp();
+    })();
+  </script>
 </body>
 
 </html>

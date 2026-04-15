@@ -18,7 +18,6 @@ import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
 
 import 'pages/list_items.dart';
-import 'pages/news_page.dart';
 import 'pages/video_player.dart';
 import 'pages/favorites_page.dart';
 import 'pages/todays_recitation_page.dart';
@@ -48,6 +47,7 @@ String? city;
 double? lat, long;
 bool needToSchedule = true;
 String arabicFont = "Qalam";
+bool canScheduleExactPrayerNotifications = false;
 
 FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 TextStyle smallText = TextStyle(fontSize: 14);
@@ -118,7 +118,7 @@ List<String> zikr = [
   "Aamaal",
   "Calendar",
   "Library",
-  "Munajaats",
+  "Munajaat",
   "Baaqeyaat As Saalehaat",
   "Qibla Finder",
   "Tasbeeh Counter",
@@ -443,7 +443,8 @@ void setUpNotifications() async {
 void schedulePrayerTimeNotification(
     int id, DateTime dateTime, String prayerName) async {
   if (dateTime.difference(DateTime.now()).isNegative) return;
-  if (SP.prefs.getBool(prayerName.toLowerCase() + "_notification") == true) {
+  if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
+      true) {
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'prayerTimes',
@@ -460,7 +461,9 @@ void schedulePrayerTimeNotification(
         id: id,
         scheduledDate: tz.TZDateTime.from(dateTime, tz.local),
         notificationDetails: platformChannelSpecifics,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidScheduleMode: canScheduleExactPrayerNotifications
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle,
         title:
             formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
         body: "It's time for " + prayerName.toLowerCase());
@@ -487,9 +490,32 @@ void testNotification(
       id: 999,
       scheduledDate: tz.TZDateTime.now(tz.local).add(Duration(minutes: 1)),
       notificationDetails: platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: canScheduleExactPrayerNotifications
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       title: "Test",
       body: "Test notification");
+}
+
+String notificationPreferenceKeyForPrayer(String prayerName) {
+  final normalizedName = prayerName.trim().toLowerCase();
+  if (normalizedName == 'dhuhr' || normalizedName == 'zuhr') {
+    return 'dhuhr_notification';
+  }
+  return '${normalizedName}_notification';
+}
+
+Future<bool> requestExactPrayerAlarmPermissionIfNeeded() async {
+  final androidImplementation =
+      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+  if (androidImplementation == null) {
+    return canScheduleExactPrayerNotifications;
+  }
+
+  canScheduleExactPrayerNotifications =
+      await androidImplementation.requestExactAlarmsPermission() ?? false;
+  return canScheduleExactPrayerNotifications;
 }
 
 AppBar getAppBar() {
