@@ -734,6 +734,7 @@ class _MyHomePageState extends State<MyHomePage>
         settings: initializationSettings,
       );
       await _requestNotificationPermissions();
+      await requestExactPrayerAlarmPermissionIfNeeded();
 
       final List<PendingNotificationRequest>? pendingNotificationRequests =
           await flutterLocalNotificationsPlugin?.pendingNotificationRequests();
