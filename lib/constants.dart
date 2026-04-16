@@ -82,7 +82,7 @@ Widget getPage(String label,
       return ItemList("A", "Surahs");
     case 'Aamaal':
       return ItemList("C", "Aamaal");
-    case 'Calendar':
+    case 'Calendar & Prayer Times':
       return Scaffold(
           appBar: AppBar(title: Text('Calendar')),
           body: CalendarPage(scrollToPrayerTimes));
@@ -525,7 +525,7 @@ AppBar getAppBar() {
 }
 
 Icon getFavIcon(BuildContext context, UniversalData itemData) {
-  return favsData!.contains(itemData)
+  return (favsData ?? const <UniversalData>[]).contains(itemData)
       ? Icon(
           Icons.star,
           color: Theme.of(context).colorScheme.primary,

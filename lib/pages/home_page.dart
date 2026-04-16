@@ -708,7 +708,6 @@ class _MyHomePageState extends State<MyHomePage>
     getHadith();
 
     // Initialize favorites (from SharedPreferences if logged out, Firestore if logged in)
-    favsData = [];
     await FavoritesManager.instance.loadFavorites();
 
     // Initialize LocationData

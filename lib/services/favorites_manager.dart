@@ -10,7 +10,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
-class FavoritesManager {
+class FavoritesManager extends ChangeNotifier {
   static final FavoritesManager _instance = FavoritesManager._internal();
 
   factory FavoritesManager() {
@@ -34,6 +34,12 @@ class FavoritesManager {
 
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   Map<String, String>? _bookTitleLookup;
+  Future<void>? _loadFavoritesFuture;
+  bool _isLoading = false;
+  bool _hasLoadedFavorites = false;
+
+  bool get isLoading => _isLoading;
+  bool get hasLoadedFavorites => _hasLoadedFavorites;
 
   DocumentReference<Map<String, dynamic>> _favoritesDoc(String userId) {
     return _firestore
@@ -50,6 +56,29 @@ class FavoritesManager {
   String _userStorageKey(String userId) => 'favorites_user_$userId';
 
   Future<void> loadFavorites() async {
+    if (_loadFavoritesFuture != null) {
+      return _loadFavoritesFuture!;
+    }
+
+    final completer = Completer<void>();
+    _loadFavoritesFuture = completer.future;
+    _setLoading(true);
+
+    try {
+      await _loadFavoritesInternal();
+      _hasLoadedFavorites = true;
+      notifyListeners();
+      completer.complete();
+    } catch (e, stackTrace) {
+      completer.completeError(e, stackTrace);
+      rethrow;
+    } finally {
+      _loadFavoritesFuture = null;
+      _setLoading(false);
+    }
+  }
+
+  Future<void> _loadFavoritesInternal() async {
     final guestFavorites = await _loadGuestFavorites();
     final user = _auth.currentUser;
 
@@ -60,7 +89,7 @@ class FavoritesManager {
         guestFavorites,
         fallbacks: guestFavorites,
       );
-      favsData = resolvedGuestFavorites;
+      _updateFavoritesData(resolvedGuestFavorites);
       await _saveGuestFavorites(resolvedGuestFavorites);
       debugPrint(
         'FavoritesManager: Loaded ${resolvedGuestFavorites.length} guest favorites',
@@ -68,10 +97,21 @@ class FavoritesManager {
       return;
     }
 
-    final remoteFavorites = await _loadRemoteFavorites(user.uid);
     final userCachedFavorites = _loadFavoritesFromStorageKey(
       _userStorageKey(user.uid),
     );
+    if (userCachedFavorites.isNotEmpty) {
+      final resolvedCachedFavorites = await _resolveTitles(
+        userCachedFavorites,
+        fallbacks: [
+          ...userCachedFavorites,
+          ...guestFavorites,
+        ],
+      );
+      _updateFavoritesData(resolvedCachedFavorites);
+    }
+
+    final remoteFavorites = await _loadRemoteFavorites(user.uid);
     final legacyRealtimeFavorites =
         await _loadLegacyRealtimeFavorites(user.uid);
     final mergedFavorites = _mergeFavorites([
@@ -90,7 +130,7 @@ class FavoritesManager {
       ],
     );
 
-    favsData = resolvedFavorites;
+    _updateFavoritesData(resolvedFavorites);
     await _saveUserFavoritesToSharedPreferences(user.uid, resolvedFavorites);
 
     final remoteAlreadyUpToDate =
@@ -105,6 +145,17 @@ class FavoritesManager {
     }
 
     setupRealtimeListener();
+  }
+
+  void _setLoading(bool value) {
+    if (_isLoading == value) return;
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  void _updateFavoritesData(List<UniversalData> nextFavorites) {
+    favsData = nextFavorites;
+    notifyListeners();
   }
 
   Future<List<UniversalData>> _loadGuestFavorites() async {
@@ -379,7 +430,7 @@ class FavoritesManager {
           fallbacks: favsData ?? const <UniversalData>[],
         );
 
-        favsData = resolvedFavorites;
+        _updateFavoritesData(resolvedFavorites);
         await _saveUserFavoritesToSharedPreferences(
             user.uid, resolvedFavorites);
         debugPrint(
@@ -417,7 +468,7 @@ class FavoritesManager {
       normalizedItem,
     ]);
 
-    favsData = nextFavorites;
+    _updateFavoritesData(nextFavorites);
 
     final user = _auth.currentUser;
     if (user == null) {
@@ -446,7 +497,7 @@ class FavoritesManager {
       favsData ?? const <UniversalData>[],
     )..remove(normalizedItem);
 
-    favsData = nextFavorites;
+    _updateFavoritesData(nextFavorites);
 
     final user = _auth.currentUser;
     if (user == null) {
@@ -489,7 +540,7 @@ class FavoritesManager {
       await SP.prefs.remove(_userStorageKey(userId));
 
       if (_auth.currentUser?.uid == userId) {
-        favsData = [];
+        _updateFavoritesData([]);
       }
 
       debugPrint('FavoritesManager: Deleted all favorites for user $userId');
@@ -502,5 +553,6 @@ class FavoritesManager {
   void dispose() {
     _listener?.cancel();
     debugPrint('FavoritesManager: Disposed listener');
+    super.dispose();
   }
 }
