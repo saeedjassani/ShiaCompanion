@@ -756,7 +756,7 @@
   },
   "E34": {
     "title": "Dua e Nudbah",
-    "slug": "dua-e-nudbah"
+    "slug": "dua-e-nudbah-2"
   },
   "E35": {
     "title": "Dua e Sabah",
@@ -785,6 +785,10 @@
   "E8": {
     "title": "Dua Alqamah",
     "slug": "dua-alqama"
+  },
+  "F11": {
+    "title": "Namaz of Jafar-e-Tayyaar",
+    "slug": "namaz-of-jafar-e-tayyaar"
   },
   "F2": {
     "title": "Namaz-e-Shab",
@@ -1112,25 +1116,37 @@
     "title": "Merits & Rituals of Friday Night & Day",
     "slug": "merits-rituals-of-friday-night-day"
   },
+  "J11|F11": {
+    "title": "Namaz of Jafar e Tayyar",
+    "slug": "namaz-of-jafar-e-tayyar"
+  },
   "J2|E34": {
-    "title": "Dua e Nudbah",
-    "slug": "dua-e-nudbah-2"
+    "title": "Dua-e-Nudbah",
+    "slug": "dua-e-nudbah"
   },
   "J3": {
-    "title": "Ziyarah of Imam al Mahdi (a.t.f.s.) on Friday",
-    "slug": "ziyarah-of-imam-al-mahdi-a-t-f-s-on-friday"
+    "title": "Ziyarat on Friday",
+    "slug": "ziyarat-on-friday"
   },
   "J4": {
     "title": "The Supplication of Friday",
     "slug": "the-supplication-of-friday"
   },
   "J5|E144": {
-    "title": "Salawat Abul Hasan al Darrab al Isfahani",
-    "slug": "salawat-abul-hasan-al-darrab-al-isfahani"
+    "title": "Salawaat Abul Hasan al-Zarraab al-Isfahani",
+    "slug": "salawaat-abul-hasan-al-zarraab-al-isfahani"
+  },
+  "J6": {
+    "title": "Recommended Rites of Friday",
+    "slug": "recommended-rites-of-friday"
   },
   "J7": {
     "title": "Aamaal of Zohr Prayers on Friday",
     "slug": "aamaal-of-zohr-prayers-on-friday"
+  },
+  "J8": {
+    "title": "Aamal of Asr on Friday",
+    "slug": "aamal-of-asr-on-friday"
   },
   "J9": {
     "title": "Namaz on Fridays",
@@ -1145,8 +1161,8 @@
     "slug": "namaz-on-saturdays-2"
   },
   "K3": {
-    "title": "Ziyarah of Holy Prophet (s.a.w.a.) on Saturday",
-    "slug": "ziyarah-of-holy-prophet-s-a-w-a-on-saturday"
+    "title": "Ziyarah on Saturday",
+    "slug": "ziyarah-on-saturday"
   },
   "L1": {
     "title": "The Supplication of Sunday",
