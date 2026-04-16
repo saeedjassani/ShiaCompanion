@@ -18,42 +18,58 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   Future<void> _ensureFavoritesLoaded() async {
     await FavoritesManager.instance.loadFavorites();
-    if (!mounted) return;
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final favoritesManager = FavoritesManager.instance;
+
     return Scaffold(
       appBar: AppBar(title: Text('Favorites')),
-      body: favsData == null || favsData!.isEmpty
-          ? Center(child: Text('No favorites yet.'))
-          : ListView.separated(
-              itemCount: favsData!.length,
-              separatorBuilder: (_, __) => Divider(),
-              itemBuilder: (context, index) {
-                UniversalData item = favsData![index];
-                return ListTile(
-                  title: isUserAdmin
-                      ? Text(item.uid + ' ' + item.title)
-                      : Text(item.title),
+      body: ListenableBuilder(
+        listenable: favoritesManager,
+        builder: (context, _) {
+          final favorites = favsData;
+          final shouldShowLoading = favoritesManager.isLoading &&
+              (!favoritesManager.hasLoadedFavorites ||
+                  favorites == null ||
+                  favorites.isEmpty);
+
+          if (shouldShowLoading) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (favorites == null || favorites.isEmpty) {
+            return Center(child: Text('No favorites yet.'));
+          }
+
+          return ListView.separated(
+            itemCount: favorites.length,
+            separatorBuilder: (_, __) => Divider(),
+            itemBuilder: (context, index) {
+              UniversalData item = favorites[index];
+              return ListTile(
+                title: isUserAdmin
+                    ? Text(item.uid + ' ' + item.title)
+                    : Text(item.title),
+                onTap: () {
+                  handleUniversalDataClick(context, item);
+                },
+                onLongPress: () {
+                  if (isUserAdmin)
+                    handleUniversalDataClick(context, item, itemPage: true);
+                },
+                trailing: InkWell(
                   onTap: () {
-                    handleUniversalDataClick(context, item);
+                    FavoritesManager.instance.toggleFavorite(item);
                   },
-                  onLongPress: () {
-                    if (isUserAdmin)
-                      handleUniversalDataClick(context, item, itemPage: true);
-                  },
-                  trailing: InkWell(
-                    onTap: () {
-                      FavoritesManager.instance.toggleFavorite(item);
-                      setState(() {});
-                    },
-                    child: getFavIcon(context, item),
-                  ),
-                );
-              },
-            ),
+                  child: getFavIcon(context, item),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
