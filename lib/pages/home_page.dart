@@ -726,18 +726,19 @@ class _MyHomePageState extends State<MyHomePage>
       AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('ic_notification');
 
-      // Create notification channel for Android 8+ with custom sound
+      // Create notification channel for Android 8+
       if (Platform.isAndroid) {
         final androidPlugin = flutterLocalNotificationsPlugin
             ?.resolvePlatformSpecificImplementation<
                 AndroidFlutterLocalNotificationsPlugin>();
 
-        // Create channel with custom sound
+        // Create channel with sharif sound
+        // For Android 8+, channel configuration determines notification behavior
         await androidPlugin?.createNotificationChannel(
           AndroidNotificationChannel(
             'prayerTimes',
             'Prayer Times',
-            description: 'Notifications for prayer times',
+            description: 'Prayer time notifications with azaan sound',
             importance: Importance.max,
             sound: RawResourceAndroidNotificationSound('sharif'),
           ),

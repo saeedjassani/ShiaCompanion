@@ -404,7 +404,7 @@ Future<bool> initializeLocation(
   }
 }
 
-void setUpNotifications() async {
+Future<void> setUpNotifications() async {
   debugPrint("Scheduling Azan Notifications");
 
   final selectedAzaanId = (SP.isInitialized ? SP.prefs.getString('azaan_preference') : null) ?? 'azaan';
@@ -447,37 +447,49 @@ void setUpNotifications() async {
 }
 
 /// Prepares custom audio file for notification playback
-/// On iOS: Copies file to app documents and uses file:// URL
+/// On iOS: Handles restricted file locations and copies to app documents
 /// On Android: Converts file path to file:// URI
 Future<dynamic> prepareCustomAudioForNotification(String filePath) async {
   try {
-    final file = File(filePath);
+    debugPrint('Preparing audio file: $filePath');
 
-    if (!await file.exists()) {
-      debugPrint('Custom audio file not found: $filePath');
-      return null;
-    }
-
+    // On iOS, file picker might return security-restricted paths
+    // We need to handle this carefully
     if (Platform.isIOS) {
-      // For iOS: Copy to app documents directory and use file:// URL
       try {
-        final appDocDir = await getApplicationDocumentsDirectory();
-        final fileName = file.path.split('/').last;
-        final targetPath = '${appDocDir.path}/$fileName';
+        final file = File(filePath);
 
-        // Copy file to documents directory (overwrite if exists)
-        final copiedFile = await file.copy(targetPath);
+        // Try to read file first to check accessibility
+        final exists = await file.exists();
+        if (!exists) {
+          debugPrint('iOS: File does not exist: $filePath');
+          return 'file://$filePath'; // Fallback - let iOS handle it
+        }
 
-        // Return file:// URL for iOS notification
-        return 'file://${copiedFile.path}';
-      } catch (ioException) {
-        debugPrint('iOS file copy failed: $ioException');
-        // Fallback: try using the original path
-        // iOS notifications might work with file:// URLs directly
+        // Try to copy to documents directory
+        try {
+          final appDocDir = await getApplicationDocumentsDirectory();
+          final fileName = file.path.split('/').last;
+          final targetPath = '${appDocDir.path}/$fileName';
+
+          debugPrint('iOS: Copying file to documents: $targetPath');
+          final copiedFile = await file.copy(targetPath);
+          final documentUrl = 'file://${copiedFile.path}';
+          debugPrint('iOS: File copied successfully to: $documentUrl');
+          return documentUrl;
+        } catch (copyError) {
+          // If copy fails, try using original path as file:// URL
+          debugPrint('iOS: Copy failed ($copyError), using original path');
+          return 'file://$filePath';
+        }
+      } catch (e) {
+        debugPrint('iOS: Error handling file: $e');
+        // Last resort fallback
         return 'file://$filePath';
       }
     } else if (Platform.isAndroid) {
       // For Android: Use file:// URI format
+      debugPrint('Android: Using file URI');
       return 'file://$filePath';
     }
   } catch (e) {
@@ -502,60 +514,34 @@ void schedulePrayerTimeNotification(
     DarwinNotificationDetails iosDetails;
 
     if (azaan.id == 'system_default') {
-      // Use system default notification sound
+      // Use azaan sound (sharif) for all Android notifications
       androidDetails = AndroidNotificationDetails(
         'prayerTimes',
         'Prayer Times',
         importance: Importance.max,
+        sound: RawResourceAndroidNotificationSound('sharif'),
         playSound: true,
         enableVibration: true,
       );
       iosDetails = DarwinNotificationDetails();
     } else if (azaan.id == 'custom') {
-      // Use custom file path
-      final customPath = getCustomAudioFilePath();
-      if (customPath != null && customPath.isNotEmpty) {
-        final preparedAudio = await prepareCustomAudioForNotification(customPath);
-
-        if (preparedAudio != null) {
-          androidDetails = AndroidNotificationDetails(
-            'prayerTimes',
-            'Prayer Times',
-            importance: Importance.max,
-            sound: UriAndroidNotificationSound(preparedAudio),
-            playSound: true,
-            enableVibration: true,
-          );
-          iosDetails = DarwinNotificationDetails(sound: preparedAudio);
-        } else {
-          // Fallback to system default if file prep fails
-          androidDetails = AndroidNotificationDetails(
-            'prayerTimes',
-            'Prayer Times',
-            importance: Importance.max,
-            playSound: true,
-            enableVibration: true,
-          );
-          iosDetails = DarwinNotificationDetails();
-        }
-      } else {
-        // Fallback to system default if no custom file
-        androidDetails = AndroidNotificationDetails(
-          'prayerTimes',
-          'Prayer Times',
-          importance: Importance.max,
-          playSound: true,
-          enableVibration: true,
-        );
-        iosDetails = DarwinNotificationDetails();
-      }
+      // Use azaan sound (sharif) for all Android notifications (ignore custom for now)
+      androidDetails = AndroidNotificationDetails(
+        'prayerTimes',
+        'Prayer Times',
+        importance: Importance.max,
+        sound: RawResourceAndroidNotificationSound('sharif'),
+        playSound: true,
+        enableVibration: true,
+      );
+      iosDetails = DarwinNotificationDetails();
     } else {
       // Use azaan (sharif)
       androidDetails = AndroidNotificationDetails(
         'prayerTimes',
         'Prayer Times',
         importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound(azaan.androidFile ?? 'sharif'),
+        sound: RawResourceAndroidNotificationSound('sharif'),
         playSound: true,
         enableVibration: true,
       );
@@ -592,49 +578,27 @@ void testNotification(
   DarwinNotificationDetails iosDetails;
 
   if (azaan.id == 'system_default') {
+    // Use azaan sound (sharif) for all Android notifications
     androidDetails = AndroidNotificationDetails(
       'prayerTimes',
       'Prayer Times',
       importance: Importance.max,
+      sound: RawResourceAndroidNotificationSound('sharif'),
       playSound: true,
       enableVibration: true,
     );
     iosDetails = DarwinNotificationDetails();
   } else if (azaan.id == 'custom') {
-    final customPath = getCustomAudioFilePath();
-    if (customPath != null && customPath.isNotEmpty) {
-      final preparedAudio = await prepareCustomAudioForNotification(customPath);
-
-      if (preparedAudio != null) {
-        androidDetails = AndroidNotificationDetails(
-          'prayerTimes',
-          'Prayer Times',
-          importance: Importance.max,
-          sound: UriAndroidNotificationSound(preparedAudio),
-          playSound: true,
-          enableVibration: true,
-        );
-        iosDetails = DarwinNotificationDetails(sound: preparedAudio);
-      } else {
-        androidDetails = AndroidNotificationDetails(
-          'prayerTimes',
-          'Prayer Times',
-          importance: Importance.max,
-          playSound: true,
-          enableVibration: true,
-        );
-        iosDetails = DarwinNotificationDetails();
-      }
-    } else {
-      androidDetails = AndroidNotificationDetails(
-        'prayerTimes',
-        'Prayer Times',
-        importance: Importance.max,
-        playSound: true,
-        enableVibration: true,
-      );
-      iosDetails = DarwinNotificationDetails();
-    }
+    // Use azaan sound (sharif) for all Android notifications (ignore custom for now)
+    androidDetails = AndroidNotificationDetails(
+      'prayerTimes',
+      'Prayer Times',
+      importance: Importance.max,
+      sound: RawResourceAndroidNotificationSound('sharif'),
+      playSound: true,
+      enableVibration: true,
+    );
+    iosDetails = DarwinNotificationDetails();
   } else {
     androidDetails = AndroidNotificationDetails(
       'prayerTimes',
