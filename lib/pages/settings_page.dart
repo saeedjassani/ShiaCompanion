@@ -73,8 +73,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Divider(),
           ListTile(
             leading: Icon(Icons.play_arrow),
-            title: Text("Test Notification"),
-            subtitle: Text("Play sound in 1 minute"),
+            title: Text("Test Azaan Notification"),
             onTap: () {
               _testNotification();
             },
@@ -264,6 +263,16 @@ class _SettingsPageState extends State<SettingsPage> {
         final filePath = file.path;
         final fileName = file.path.split('/').last;
 
+        // Verify file exists and is readable
+        if (!await file.exists()) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: Audio file not found')),
+            );
+          }
+          return;
+        }
+
         await saveCustomAudioFilePath(filePath);
         await saveAzaanPreference('custom');
         setUpNotifications();
@@ -282,7 +291,7 @@ class _SettingsPageState extends State<SettingsPage> {
       debugPrint('Error picking audio file: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: Unable to pick file')),
+          SnackBar(content: Text('Error: Unable to pick file. Please try again.')),
         );
       }
     }

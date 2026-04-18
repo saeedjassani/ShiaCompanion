@@ -19,7 +19,7 @@ class AzaanOption {
 
 /// Predefined azaan options available to users
 class AzaanOptions {
-  // Azaan option
+  // Azaan option (traditional - default)
   static const AzaanOption azaan = AzaanOption(
     id: 'azaan',
     name: 'Azaan',
@@ -28,11 +28,11 @@ class AzaanOptions {
     description: 'Traditional azaan notification',
   );
 
-  // Default notification sound (system default - silent)
-  static const AzaanOption silent = AzaanOption(
-    id: 'silent',
-    name: 'Silent',
-    description: 'No notification sound',
+  // System default notification sound
+  static const AzaanOption systemDefault = AzaanOption(
+    id: 'system_default',
+    name: 'System Default',
+    description: 'Use your device\'s default notification sound',
   );
 
   // Custom audio file (will be configured by user)
@@ -46,7 +46,7 @@ class AzaanOptions {
   /// All available azaan options
   static const List<AzaanOption> all = [
     azaan,
-    silent,
+    systemDefault,
     custom,
   ];
 
