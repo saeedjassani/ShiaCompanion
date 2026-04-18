@@ -62,23 +62,29 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           Divider(),
-          ListTile(
-            leading: Icon(Icons.volume_up),
-            title: Text("Notification Sound"),
-            subtitle: Text(_getCurrentAzaanName()),
-            onTap: () {
-              _showAzaanSelectionDialog(context);
-            },
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.play_arrow),
-            title: Text("Test Azaan Notification"),
-            onTap: () {
-              _testNotification();
-            },
-          ),
-          Divider(),
+          !kIsWeb
+              ? Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.volume_up),
+                      title: Text("Notification Sound"),
+                      subtitle: Text(_getCurrentAzaanName()),
+                      onTap: () {
+                        _showAzaanSelectionDialog(context);
+                      },
+                    ),
+                    Divider(),
+                    ListTile(
+                      leading: Icon(Icons.play_arrow),
+                      title: Text("Test Azaan Notification"),
+                      onTap: () {
+                        _testNotification();
+                      },
+                    ),
+                    Divider(),
+                  ],
+                )
+              : Container(),
           SwitchListTile(
             secondary: const Icon(Icons.my_location),
             title: const Text("Always use live location"),
@@ -291,7 +297,8 @@ class _SettingsPageState extends State<SettingsPage> {
       debugPrint('Error picking audio file: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: Unable to pick file. Please try again.')),
+          SnackBar(
+              content: Text('Error: Unable to pick file. Please try again.')),
         );
       }
     }
@@ -299,8 +306,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showAzaanSelectionDialog(BuildContext context) {
     List<Widget> options = [];
-    final currentAzaanId =
-        SP.prefs.getString('azaan_preference') ?? 'azaan';
+    final currentAzaanId = SP.prefs.getString('azaan_preference') ?? 'azaan';
 
     for (final azaan in AzaanOptions.all) {
       options.add(SimpleDialogOption(
