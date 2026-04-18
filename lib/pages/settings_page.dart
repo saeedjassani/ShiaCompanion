@@ -62,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           Divider(),
-          !kIsWeb
+          defaultTargetPlatform == TargetPlatform.iOS
               ? Column(
                   children: [
                     ListTile(
@@ -281,7 +281,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
         await saveCustomAudioFilePath(filePath);
         await saveAzaanPreference('custom');
-        setUpNotifications();
+        // IMPORTANT: Await the notification setup to catch any errors
+        await setUpNotifications();
 
         if (mounted) {
           setState(() {});
