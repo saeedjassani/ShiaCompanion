@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:location/location.dart' as location;
+import 'package:path_provider/path_provider.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/pages/item_page.dart';
@@ -444,6 +446,48 @@ void setUpNotifications() async {
       payload: now.add(Duration(days: 11)).millisecondsSinceEpoch.toString());
 }
 
+/// Prepares custom audio file for notification playback
+/// On iOS: Copies file to app documents and uses file:// URL
+/// On Android: Converts file path to file:// URI
+Future<dynamic> prepareCustomAudioForNotification(String filePath) async {
+  try {
+    final file = File(filePath);
+
+    if (!await file.exists()) {
+      debugPrint('Custom audio file not found: $filePath');
+      return null;
+    }
+
+    if (Platform.isIOS) {
+      // For iOS: Copy to app documents directory and use file:// URL
+      try {
+        final appDocDir = await getApplicationDocumentsDirectory();
+        final fileName = file.path.split('/').last;
+        final targetPath = '${appDocDir.path}/$fileName';
+
+        // Copy file to documents directory (overwrite if exists)
+        final copiedFile = await file.copy(targetPath);
+
+        // Return file:// URL for iOS notification
+        return 'file://${copiedFile.path}';
+      } catch (ioException) {
+        debugPrint('iOS file copy failed: $ioException');
+        // Fallback: try using the original path
+        // iOS notifications might work with file:// URLs directly
+        return 'file://$filePath';
+      }
+    } else if (Platform.isAndroid) {
+      // For Android: Use file:// URI format
+      return 'file://$filePath';
+    }
+  } catch (e) {
+    debugPrint('Error preparing custom audio: $e');
+    return null;
+  }
+
+  return null;
+}
+
 void schedulePrayerTimeNotification(
     int id, DateTime dateTime, String prayerName, {String? azaanId}) async {
   if (dateTime.difference(DateTime.now()).isNegative) return;
@@ -471,15 +515,29 @@ void schedulePrayerTimeNotification(
       // Use custom file path
       final customPath = getCustomAudioFilePath();
       if (customPath != null && customPath.isNotEmpty) {
-        androidDetails = AndroidNotificationDetails(
-          'prayerTimes',
-          'Prayer Times',
-          importance: Importance.max,
-          sound: UriAndroidNotificationSound(customPath),
-          playSound: true,
-          enableVibration: true,
-        );
-        iosDetails = DarwinNotificationDetails(sound: customPath);
+        final preparedAudio = await prepareCustomAudioForNotification(customPath);
+
+        if (preparedAudio != null) {
+          androidDetails = AndroidNotificationDetails(
+            'prayerTimes',
+            'Prayer Times',
+            importance: Importance.max,
+            sound: UriAndroidNotificationSound(preparedAudio),
+            playSound: true,
+            enableVibration: true,
+          );
+          iosDetails = DarwinNotificationDetails(sound: preparedAudio);
+        } else {
+          // Fallback to system default if file prep fails
+          androidDetails = AndroidNotificationDetails(
+            'prayerTimes',
+            'Prayer Times',
+            importance: Importance.max,
+            playSound: true,
+            enableVibration: true,
+          );
+          iosDetails = DarwinNotificationDetails();
+        }
       } else {
         // Fallback to system default if no custom file
         androidDetails = AndroidNotificationDetails(
@@ -545,15 +603,28 @@ void testNotification(
   } else if (azaan.id == 'custom') {
     final customPath = getCustomAudioFilePath();
     if (customPath != null && customPath.isNotEmpty) {
-      androidDetails = AndroidNotificationDetails(
-        'prayerTimes',
-        'Prayer Times',
-        importance: Importance.max,
-        sound: UriAndroidNotificationSound(customPath),
-        playSound: true,
-        enableVibration: true,
-      );
-      iosDetails = DarwinNotificationDetails(sound: customPath);
+      final preparedAudio = await prepareCustomAudioForNotification(customPath);
+
+      if (preparedAudio != null) {
+        androidDetails = AndroidNotificationDetails(
+          'prayerTimes',
+          'Prayer Times',
+          importance: Importance.max,
+          sound: UriAndroidNotificationSound(preparedAudio),
+          playSound: true,
+          enableVibration: true,
+        );
+        iosDetails = DarwinNotificationDetails(sound: preparedAudio);
+      } else {
+        androidDetails = AndroidNotificationDetails(
+          'prayerTimes',
+          'Prayer Times',
+          importance: Importance.max,
+          playSound: true,
+          enableVibration: true,
+        );
+        iosDetails = DarwinNotificationDetails();
+      }
     } else {
       androidDetails = AndroidNotificationDetails(
         'prayerTimes',
