@@ -405,7 +405,7 @@ Future<bool> initializeLocation(
 void setUpNotifications() async {
   debugPrint("Scheduling Azan Notifications");
 
-  final selectedAzaanId = (SP.isInitialized ? SP.prefs.getString('azaan_preference') : null) ?? 'traditional';
+  final selectedAzaanId = (SP.isInitialized ? SP.prefs.getString('azaan_preference') : null) ?? 'azaan';
 
   DateTime now = DateTime.now();
   PrayerTime prayers = getPrayerTimeObject();
@@ -457,13 +457,13 @@ void schedulePrayerTimeNotification(
     AndroidNotificationDetails androidDetails;
     DarwinNotificationDetails iosDetails;
 
-    if (azaan.id == 'silent') {
-      // Use system default notification sound (silent)
+    if (azaan.id == 'system_default') {
+      // Use system default notification sound
       androidDetails = AndroidNotificationDetails(
         'prayerTimes',
         'Prayer Times',
         importance: Importance.max,
-        playSound: false,
+        playSound: true,
         enableVibration: true,
       );
       iosDetails = DarwinNotificationDetails();
@@ -481,12 +481,12 @@ void schedulePrayerTimeNotification(
         );
         iosDetails = DarwinNotificationDetails(sound: customPath);
       } else {
-        // Fallback to default if no custom file
+        // Fallback to system default if no custom file
         androidDetails = AndroidNotificationDetails(
           'prayerTimes',
           'Prayer Times',
           importance: Importance.max,
-          playSound: false,
+          playSound: true,
           enableVibration: true,
         );
         iosDetails = DarwinNotificationDetails();
@@ -533,12 +533,12 @@ void testNotification(
   AndroidNotificationDetails androidDetails;
   DarwinNotificationDetails iosDetails;
 
-  if (azaan.id == 'silent') {
+  if (azaan.id == 'system_default') {
     androidDetails = AndroidNotificationDetails(
       'prayerTimes',
       'Prayer Times',
       importance: Importance.max,
-      playSound: false,
+      playSound: true,
       enableVibration: true,
     );
     iosDetails = DarwinNotificationDetails();
@@ -559,7 +559,7 @@ void testNotification(
         'prayerTimes',
         'Prayer Times',
         importance: Importance.max,
-        playSound: false,
+        playSound: true,
         enableVibration: true,
       );
       iosDetails = DarwinNotificationDetails();
@@ -579,9 +579,10 @@ void testNotification(
   NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidDetails, iOS: iosDetails);
 
+  // Schedule for 2 seconds in the future to ensure it fires
   await flutterLocalNotificationsPlugin.zonedSchedule(
       id: 999,
-      scheduledDate: tz.TZDateTime.now(tz.local),
+      scheduledDate: tz.TZDateTime.now(tz.local).add(Duration(seconds: 2)),
       notificationDetails: platformChannelSpecifics,
       androidScheduleMode: canScheduleExactPrayerNotifications
           ? AndroidScheduleMode.exactAllowWhileIdle
