@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:location/location.dart' as location;
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/pages/item_page.dart';
 import 'package:shia_companion/pages/qibla_finder.dart';
 import 'package:http/http.dart' as http;
@@ -404,6 +405,8 @@ Future<bool> initializeLocation(
 void setUpNotifications() async {
   debugPrint("Scheduling Azan Notifications");
 
+  final selectedAzaanId = (SP.isInitialized ? SP.prefs.getString('azaan_preference') : null) ?? 'traditional';
+
   DateTime now = DateTime.now();
   PrayerTime prayers = getPrayerTimeObject();
   prayers.setTimeFormat(prayers.getTime24());
@@ -420,6 +423,7 @@ void setUpNotifications() async {
               DateTime.parse(
                   "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[index]}"),
               prayerName,
+              azaanId: selectedAzaanId,
             ));
   }
   AndroidNotificationDetails androidPlatformChannelSpecifics =
@@ -441,22 +445,68 @@ void setUpNotifications() async {
 }
 
 void schedulePrayerTimeNotification(
-    int id, DateTime dateTime, String prayerName) async {
+    int id, DateTime dateTime, String prayerName, {String? azaanId}) async {
   if (dateTime.difference(DateTime.now()).isNegative) return;
   if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
       true) {
-    AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'prayerTimes',
-      'Prayer Times',
-      importance: Importance.max,
-      sound: RawResourceAndroidNotificationSound('sharif'),
-    );
-    DarwinNotificationDetails iOSPlatformChannelSpecifics =
-        DarwinNotificationDetails(sound: 'azan.caf');
+    final azaan = azaanId != null
+        ? (AzaanOptions.getById(azaanId) ?? getSelectedAzaan())
+        : getSelectedAzaan();
+
+    // Build notification with appropriate sound
+    AndroidNotificationDetails androidDetails;
+    DarwinNotificationDetails iosDetails;
+
+    if (azaan.id == 'silent') {
+      // Use system default notification sound (silent)
+      androidDetails = AndroidNotificationDetails(
+        'prayerTimes',
+        'Prayer Times',
+        importance: Importance.max,
+        playSound: false,
+        enableVibration: true,
+      );
+      iosDetails = DarwinNotificationDetails();
+    } else if (azaan.id == 'custom') {
+      // Use custom file path
+      final customPath = getCustomAudioFilePath();
+      if (customPath != null && customPath.isNotEmpty) {
+        androidDetails = AndroidNotificationDetails(
+          'prayerTimes',
+          'Prayer Times',
+          importance: Importance.max,
+          sound: UriAndroidNotificationSound(customPath),
+          playSound: true,
+          enableVibration: true,
+        );
+        iosDetails = DarwinNotificationDetails(sound: customPath);
+      } else {
+        // Fallback to default if no custom file
+        androidDetails = AndroidNotificationDetails(
+          'prayerTimes',
+          'Prayer Times',
+          importance: Importance.max,
+          playSound: false,
+          enableVibration: true,
+        );
+        iosDetails = DarwinNotificationDetails();
+      }
+    } else {
+      // Use azaan (sharif)
+      androidDetails = AndroidNotificationDetails(
+        'prayerTimes',
+        'Prayer Times',
+        importance: Importance.max,
+        sound: RawResourceAndroidNotificationSound(azaan.androidFile ?? 'sharif'),
+        playSound: true,
+        enableVibration: true,
+      );
+      iosDetails = DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
+    }
+
     NotificationDetails platformChannelSpecifics = NotificationDetails(
-        android: androidPlatformChannelSpecifics,
-        iOS: iOSPlatformChannelSpecifics);
+        android: androidDetails, iOS: iosDetails);
+
     await flutterLocalNotificationsPlugin?.zonedSchedule(
         id: id,
         scheduledDate: tz.TZDateTime.from(dateTime, tz.local),
@@ -473,22 +523,65 @@ void schedulePrayerTimeNotification(
 }
 
 void testNotification(
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
-  AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    'prayerTimes',
-    'Prayer Times',
-    importance: Importance.max,
-    sound: RawResourceAndroidNotificationSound('sharif'),
-  );
-  DarwinNotificationDetails iOSPlatformChannelSpecifics =
-      DarwinNotificationDetails(sound: 'azan.caf');
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+    {String? azaanId}) async {
+  final azaan = azaanId != null
+      ? (AzaanOptions.getById(azaanId) ?? getSelectedAzaan())
+      : getSelectedAzaan();
+
+  // Build notification with appropriate sound
+  AndroidNotificationDetails androidDetails;
+  DarwinNotificationDetails iosDetails;
+
+  if (azaan.id == 'silent') {
+    androidDetails = AndroidNotificationDetails(
+      'prayerTimes',
+      'Prayer Times',
+      importance: Importance.max,
+      playSound: false,
+      enableVibration: true,
+    );
+    iosDetails = DarwinNotificationDetails();
+  } else if (azaan.id == 'custom') {
+    final customPath = getCustomAudioFilePath();
+    if (customPath != null && customPath.isNotEmpty) {
+      androidDetails = AndroidNotificationDetails(
+        'prayerTimes',
+        'Prayer Times',
+        importance: Importance.max,
+        sound: UriAndroidNotificationSound(customPath),
+        playSound: true,
+        enableVibration: true,
+      );
+      iosDetails = DarwinNotificationDetails(sound: customPath);
+    } else {
+      androidDetails = AndroidNotificationDetails(
+        'prayerTimes',
+        'Prayer Times',
+        importance: Importance.max,
+        playSound: false,
+        enableVibration: true,
+      );
+      iosDetails = DarwinNotificationDetails();
+    }
+  } else {
+    androidDetails = AndroidNotificationDetails(
+      'prayerTimes',
+      'Prayer Times',
+      importance: Importance.max,
+      sound: RawResourceAndroidNotificationSound(azaan.androidFile ?? 'sharif'),
+      playSound: true,
+      enableVibration: true,
+    );
+    iosDetails = DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
+  }
+
   NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: iOSPlatformChannelSpecifics);
+      android: androidDetails, iOS: iosDetails);
+
   await flutterLocalNotificationsPlugin.zonedSchedule(
       id: 999,
-      scheduledDate: tz.TZDateTime.now(tz.local).add(Duration(minutes: 1)),
+      scheduledDate: tz.TZDateTime.now(tz.local),
       notificationDetails: platformChannelSpecifics,
       androidScheduleMode: canScheduleExactPrayerNotifications
           ? AndroidScheduleMode.exactAllowWhileIdle
@@ -516,6 +609,36 @@ Future<bool> requestExactPrayerAlarmPermissionIfNeeded() async {
   canScheduleExactPrayerNotifications =
       await androidImplementation.requestExactAlarmsPermission() ?? false;
   return canScheduleExactPrayerNotifications;
+}
+
+/// Get the currently selected azaan option
+AzaanOption getSelectedAzaan() {
+  if (!SP.isInitialized) return AzaanOptions.getDefault();
+
+  final azaanId = SP.prefs.getString('azaan_preference');
+  final azaan = azaanId != null ? AzaanOptions.getById(azaanId) : null;
+  return azaan ?? AzaanOptions.getDefault();
+}
+
+/// Get custom audio file path (if user selected custom)
+String? getCustomAudioFilePath() {
+  if (!SP.isInitialized) return null;
+
+  final azaanId = SP.prefs.getString('azaan_preference');
+  if (azaanId == 'custom') {
+    return SP.prefs.getString('azaan_custom_file_path');
+  }
+  return null;
+}
+
+/// Save the user's azaan preference
+Future<void> saveAzaanPreference(String azaanId) async {
+  await SP.prefs.setString('azaan_preference', azaanId);
+}
+
+/// Save custom audio file path
+Future<void> saveCustomAudioFilePath(String filePath) async {
+  await SP.prefs.setString('azaan_custom_file_path', filePath);
 }
 
 AppBar getAppBar() {

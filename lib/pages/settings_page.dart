@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
+import '../models/azaan_option.dart';
 import '../services/account_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/shared_preferences.dart';
@@ -56,6 +59,24 @@ class _SettingsPageState extends State<SettingsPage> {
             title: Text("Adjust Hijri Date"),
             onTap: () {
               adjustHijriAlertDialog(context);
+            },
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.volume_up),
+            title: Text("Notification Sound"),
+            subtitle: Text(_getCurrentAzaanName()),
+            onTap: () {
+              _showAzaanSelectionDialog(context);
+            },
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.play_arrow),
+            title: Text("Test Notification"),
+            subtitle: Text("Play sound in 1 minute"),
+            onTap: () {
+              _testNotification();
             },
           ),
           Divider(),
@@ -216,6 +237,147 @@ class _SettingsPageState extends State<SettingsPage> {
     await SP.prefs.setInt('adjust_hijri_date', hijriDate);
     await SP.prefs.remove('prayerTimes');
     setState(() {});
+  }
+
+  String _getCurrentAzaanName() {
+    final azaanId = SP.prefs.getString('azaan_preference') ?? 'azaan';
+    final azaan = AzaanOptions.getById(azaanId);
+    if (azaan?.id == 'custom') {
+      final customPath = SP.prefs.getString('azaan_custom_file_path');
+      if (customPath != null && customPath.isNotEmpty) {
+        final fileName = customPath.split('/').last;
+        return 'Custom: $fileName';
+      }
+      return 'Custom Audio';
+    }
+    return azaan?.name ?? 'Azaan';
+  }
+
+  Future<void> _pickCustomAudioFile() async {
+    try {
+      FilePickerResult? result = await FilePicker.pickFiles(
+        type: FileType.audio,
+      );
+
+      if (result != null) {
+        File file = File(result.files.single.path!);
+        final filePath = file.path;
+        final fileName = file.path.split('/').last;
+
+        await saveCustomAudioFilePath(filePath);
+        await saveAzaanPreference('custom');
+        setUpNotifications();
+
+        if (mounted) {
+          setState(() {});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Selected: $fileName'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error picking audio file: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: Unable to pick file')),
+        );
+      }
+    }
+  }
+
+  void _showAzaanSelectionDialog(BuildContext context) {
+    List<Widget> options = [];
+    final currentAzaanId =
+        SP.prefs.getString('azaan_preference') ?? 'azaan';
+
+    for (final azaan in AzaanOptions.all) {
+      options.add(SimpleDialogOption(
+        child: InkWell(
+          onTap: () async {
+            if (azaan.id == 'custom') {
+              // Show file picker for custom audio
+              Navigator.pop(context);
+              await _pickCustomAudioFile();
+            } else {
+              // Save standard option preference
+              await saveAzaanPreference(azaan.id);
+              setUpNotifications();
+              Navigator.pop(context);
+              if (mounted) {
+                setState(() {});
+              }
+            }
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    currentAzaanId == azaan.id
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    size: 24,
+                  ),
+                  SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        azaan.name,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4),
+                      SizedBox(
+                        width: 250,
+                        child: Text(
+                          azaan.description,
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ));
+    }
+
+    SimpleDialog dialog = SimpleDialog(
+      title: Text("Notification Sound"),
+      children: options,
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return dialog;
+      },
+    );
+  }
+
+  Future<void> _testNotification() async {
+    if (flutterLocalNotificationsPlugin == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Notification system not initialized')),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Test notification scheduled in 1 minute'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    testNotification(flutterLocalNotificationsPlugin!);
   }
 
   saveBooleanPref(String key, bool value) async {
