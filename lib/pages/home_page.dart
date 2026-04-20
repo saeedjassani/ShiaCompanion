@@ -20,7 +20,7 @@ import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
-import 'package:shia_companion/pages/zikr_page.dart';
+import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
@@ -633,6 +633,7 @@ class _MyHomePageState extends State<MyHomePage>
       final decoded = json.decode(data);
       items = {};
       itemOrder = {};
+      itemMetadata = {};
       clearLocalSlugMaps();
       decoded.forEach((key, value) {
         if (value is Map) {
@@ -641,6 +642,10 @@ class _MyHomePageState extends State<MyHomePage>
           items[key] = title;
           final order = value['order'];
           if (order is num) itemOrder[key] = order.toDouble();
+          final day = value['day'];
+          if (day != null) {
+            itemMetadata[key] = {'day': day};
+          }
           setLocalSlugData(
             key.toString(),
             slug: value['slug']?.toString(),
@@ -667,6 +672,7 @@ class _MyHomePageState extends State<MyHomePage>
         final rawItems = doc['items'];
         items = {};
         itemOrder = {};
+        itemMetadata = {};
         clearLocalSlugMaps();
         final visibleUids = <String>{};
 
@@ -677,12 +683,16 @@ class _MyHomePageState extends State<MyHomePage>
           final order = value is Map ? value['order'] : null;
           final slug = value is Map ? value['slug'] : null;
           final slugAliases = value is Map ? value['slugAliases'] : null;
+          final day = value is Map ? value['day'] : null;
 
           // Show all items to admins, only items with data to users
           if (isUserAdmin || hasData) {
             items[key] = title;
             visibleUids.add(key.toString());
             if (order is num) itemOrder[key] = order.toDouble();
+            if (day != null) {
+              itemMetadata[key] = {'day': day};
+            }
             setLocalSlugData(
               key.toString(),
               slug: slug?.toString(),

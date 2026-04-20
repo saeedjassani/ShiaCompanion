@@ -1,6 +1,5 @@
 const CHARACTER_REPLACEMENTS = new Map([
-  ['ہ', 'ه'],
-  ['ک', 'ك'],
+  ['ـ', ''],
 ]);
 
 function normalizeZikrText(value) {

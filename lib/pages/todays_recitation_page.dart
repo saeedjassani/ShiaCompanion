@@ -3,6 +3,7 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
+import 'package:shia_companion/utils/lunar_date_matcher.dart';
 
 import '../constants.dart';
 
@@ -23,6 +24,12 @@ class TodaysRecitationPage extends StatelessWidget {
 
   List<UidTitleData> _buildList() {
     List<UidTitleData> workingItems = [];
+
+    // Add lunar date matched zikrs first
+    final lunarMatchedUids = getTodaysZikrs(itemMetadata);
+    for (final uid in lunarMatchedUids) {
+      _insertIfAvailable(workingItems, workingItems.length, uid);
+    }
 
     String? tmp;
     DateTime today = DateTime.now();
