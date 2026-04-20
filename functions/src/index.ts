@@ -38,6 +38,7 @@ async function rebuildZikrIndex(): Promise<number> {
       slugAliases?: string[];
       hasData: boolean;
       order?: number;
+      day?: string | string[];
     };
   } = {};
   const slugLookup: {[key: string]: string} = {};
@@ -58,6 +59,7 @@ async function rebuildZikrIndex(): Promise<number> {
         slugAliases?: string[];
         hasData: boolean;
         order?: number;
+        day?: string | string[];
       } = {
         title: data.title,
         hasData: !!hasPrimaryData || !!hasTabData || doc.id.includes("~") || doc.id.includes("|"),
@@ -84,6 +86,9 @@ async function rebuildZikrIndex(): Promise<number> {
       }
       if (typeof data.order === "number") {
         item.order = data.order;
+      }
+      if (data.day) {
+        item.day = data.day;
       }
       index[doc.id] = item;
     }

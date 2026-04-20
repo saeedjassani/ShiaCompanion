@@ -15,7 +15,7 @@ import 'package:http/http.dart' as http;
 import 'pages/calendar_page.dart';
 import 'pages/library_page.dart';
 import 'package:date_format/date_format.dart';
-import 'package:shia_companion/pages/zikr_page.dart';
+import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
@@ -166,6 +166,7 @@ Map<String, double> itemOrder = {};
 Map<String, String> itemSlugs = {};
 Map<String, List<String>> itemSlugAliases = {};
 Map<String, String> slugToItemUid = {};
+Map<String, dynamic> itemMetadata = {};
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 String normalizeSlug(String value) {

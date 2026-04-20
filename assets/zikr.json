@@ -496,8 +496,8 @@
     "slug": "everyday-short-duas-in-the-month-of-ramazan"
   },
   "AB1": {
-    "title": "Zilqad",
-    "slug": "zilqad"
+    "title": "Zilqad - Sunday Namaz",
+    "slug": "zilqad-sunday-namaz"
   },
   "AB2": {
     "title": "11th, 15th & 23rd of Zilqad",
@@ -518,6 +518,10 @@
   "AC10": {
     "title": "Aamaal of the Night of Arafah",
     "slug": "aamaal-of-the-night-of-arafat"
+  },
+  "AC11": {
+    "title": "Aamal of the Day of Arafat (9th Zilhajj)",
+    "slug": "aamal-of-the-day-of-arafat-9th-zilhajj"
   },
   "AC3": {
     "title": "Ziyarah on the Id al-Fitr and Id al-Azha days",
@@ -596,7 +600,7 @@
   },
   "C~AB7": {
     "title": "Zilqad",
-    "slug": "zilqad-2"
+    "slug": "zilqad"
   },
   "C~AC8": {
     "title": "Zilhajj",
