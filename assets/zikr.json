@@ -56,8 +56,8 @@
     "slug": "107-al-maao-on"
   },
   "A112": {
-    "title": "108: Al-Kawthar الكوثر",
-    "slug": "108-al-kawthar"
+    "title": "108: Al-Kawsar الكوثر",
+    "slug": "108-al-kawsar"
   },
   "A113": {
     "title": "109: Al-Kaaferoon الكافرون",
@@ -292,8 +292,8 @@
     "slug": "56-al-waaqia"
   },
   "A61": {
-    "title": "57: Al-Hadid الحديد",
-    "slug": "57-al-hadid"
+    "title": "57: Al-Hadeed الحديد",
+    "slug": "57-al-hadeed"
   },
   "A62": {
     "title": "58: Al-Mujaadila المجادلة",
@@ -520,8 +520,12 @@
     "slug": "aamaal-of-the-night-of-arafat"
   },
   "AC11": {
-    "title": "Aamal of the Day of Arafat (9th Zilhajj)",
+    "title": "Aamaal of the Day of Arafah (9th Zilhajj)",
     "slug": "aamal-of-the-day-of-arafat-9th-zilhajj"
+  },
+  "AC12": {
+    "title": "Dua of Imam Husayn (a.s.) on the Day of Arafah",
+    "slug": "dua-of-imam-husayn-a-s-on-the-day-of-arafah"
   },
   "AC3": {
     "title": "Ziyarah on the Id al-Fitr and Id al-Azha days",
@@ -530,6 +534,10 @@
   "AC5": {
     "title": "Zilhajj",
     "slug": "zilhajj"
+  },
+  "AC6": {
+    "title": "Salat of وَ وَاعَدْنَا",
+    "slug": "salat-of"
   },
   "AC7": {
     "title": "1st Day of Zilhajj",
@@ -714,6 +722,10 @@
     "title": "Dua-e-Faraj اَللّٰهُمَّ كُنْ لِوَلِيِّكَ",
     "slug": "dua-e-faraj"
   },
+  "E2": {
+    "title": "Ayah Isme Aazam - The Verses of the Greatest Name",
+    "slug": "ayah-isme-aazam-the-verses-of-the-greatest-name"
+  },
   "E20": {
     "title": "Dua e Faraj - Ilahi Azomal Bala اِلٰهِيْ عَظُمَ الْبَلَاۤءُ",
     "slug": "dua-e-faraj-ilahi-azomal-bala"
@@ -754,6 +766,10 @@
     "title": "Dua Kumayl",
     "slug": "dua-kumayl"
   },
+  "E32": {
+    "title": "Dua e Ne'mul Badal",
+    "slug": "dua-e-ne-mul-badal"
+  },
   "E33": {
     "title": "Dua-e-Noor",
     "slug": "dua-e-noor"
@@ -774,9 +790,33 @@
     "title": "Dua e Sanamay Quraish",
     "slug": "dua-e-sanamay-quraish"
   },
+  "E39": {
+    "title": "Dua for Ailments and Illnesses",
+    "slug": "dua-for-ailments-and-illnesses"
+  },
+  "E44": {
+    "title": "Dua for Glorifying Allah (s.w.t.)",
+    "slug": "dua-for-glorifying-allah-s-w-t"
+  },
+  "E46": {
+    "title": "Dua for Istikharah fom Holy Quran",
+    "slug": "dua-for-istikharah-fom-holy-quran"
+  },
   "E5": {
     "title": "Dua al-Hujjah اِلٰهِيْ بِحَقِّ مَنْ نَاجَاكَ",
     "slug": "dua-al-hujjah"
+  },
+  "E52": {
+    "title": "Dua for rejuvenating the Hearts",
+    "slug": "dua-for-rejuvenating-the-hearts"
+  },
+  "E54": {
+    "title": "Dua for relief from poverty & ailments",
+    "slug": "dua-for-relief-from-poverty-ailments"
+  },
+  "E58": {
+    "title": "Dua for Repelling the Evil of Iblis",
+    "slug": "dua-for-repelling-the-evil-of-iblis"
   },
   "E6": {
     "title": "Dua al-Mahd (a.t.f.s.)i اللهم ارزقنا توفیق الطاعه",
@@ -789,6 +829,14 @@
   "E8": {
     "title": "Dua Alqamah",
     "slug": "dua-alqama"
+  },
+  "E85": {
+    "title": "A Proven dua",
+    "slug": "a-proven-dua"
+  },
+  "E9": {
+    "title": "Dua Amaan (The Supplication for Security)",
+    "slug": "dua-amaan-the-supplication-for-security"
   },
   "F11": {
     "title": "Namaz of Jafar-e-Tayyaar",
@@ -816,7 +864,7 @@
   },
   "F30|O2": {
     "title": "Namaz on Wednesdays",
-    "slug": "namaz-on-wednesdays"
+    "slug": "namaz-on-wednesdays-2"
   },
   "F31|Q2": {
     "title": "Namaz on Thursdays",
@@ -834,6 +882,10 @@
     "title": "Namaz-e-Ghofaylah",
     "order": 1,
     "slug": "namaz-e-ghofaylah"
+  },
+  "F9": {
+    "title": "Namaz e Wahshat Namaz for the Night of Burial",
+    "slug": "namaz-e-wahshat-namaz-for-the-night-of-burial"
   },
   "G0~B": {
     "title": "Ziyarat of Hijaz, Iran & Iraq",
@@ -889,8 +941,8 @@
     "slug": "ziyarat-e-ashura"
   },
   "G5": {
-    "title": "Ziyarat al Haqq al Jadeed",
-    "slug": "ziyarat-al-haqq-al-jadeed-2"
+    "title": "Ziyaarat al-Haqq al-Jadeed",
+    "slug": "ziyaarat-al-haqq-al-jadeed"
   },
   "G50": {
     "title": "Ziyarat e Hazrat Rasul e Khuda",
@@ -1214,7 +1266,7 @@
   },
   "O2": {
     "title": "Namaz on Wednesdays",
-    "slug": "namaz-on-wednesdays-2"
+    "slug": "namaz-on-wednesdays"
   },
   "O3": {
     "title": "Ziyarah of Wednesday",
