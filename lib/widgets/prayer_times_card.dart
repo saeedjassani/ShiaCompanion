@@ -69,7 +69,7 @@ class PrayerTimesState extends State<PrayerTimesCard> {
                               await inversePref(
                                   notificationPreferenceKeyForPrayer(
                                       _prayerNames[position]));
-                              setUpNotifications();
+                              await setUpNotifications();
                             },
                             child: Icon(
                               SP.prefs.getBool(
