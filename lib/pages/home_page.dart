@@ -784,7 +784,7 @@ class _MyHomePageState extends State<MyHomePage>
       });
       if (needToSchedule) {
         await flutterLocalNotificationsPlugin?.cancelAll();
-        setUpNotifications();
+        await setUpNotifications();
       } else {
         debugPrint("Azan notifications not scheduled");
       }

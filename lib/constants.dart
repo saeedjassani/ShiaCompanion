@@ -405,30 +405,81 @@ Future<bool> initializeLocation(
   }
 }
 
+bool areAnyPrayerNotificationsEnabled(List<String> prayerNames) {
+  for (final prayerName in prayerNames) {
+    if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
+        true) {
+      return true;
+    }
+  }
+  return false;
+}
+
+Iterable<int> prayerNotificationIds(
+    {int days = 12, int prayerCount = 7}) sync* {
+  for (int dayOffset = 0; dayOffset < days; dayOffset++) {
+    for (int prayerIndex = 0; prayerIndex < prayerCount; prayerIndex++) {
+      yield (100 * (prayerIndex + 1)) + dayOffset;
+    }
+  }
+}
+
+Future<void> cancelPrayerNotifications({bool includeReminder = true}) async {
+  final plugin = flutterLocalNotificationsPlugin;
+  if (plugin == null) return;
+
+  final notificationIds = prayerNotificationIds().toList();
+  if (includeReminder) {
+    notificationIds.add(786);
+  }
+
+  await Future.wait(notificationIds.map((id) => plugin.cancel(id: id)));
+}
+
 Future<void> setUpNotifications() async {
   debugPrint("Scheduling Azan Notifications");
 
-  final selectedAzaanId = (SP.isInitialized ? SP.prefs.getString('azaan_preference') : null) ?? 'azaan';
+  final plugin = flutterLocalNotificationsPlugin;
+  if (plugin == null) return;
+
+  final selectedAzaanId =
+      (SP.isInitialized ? SP.prefs.getString('azaan_preference') : null) ??
+          'azaan';
+  final prayerNames = getPrayerTimeObject().getTimeNames();
+
+  await cancelPrayerNotifications();
+
+  if (lat == null || long == null) {
+    debugPrint("Skipping Azan notifications: location unavailable");
+    return;
+  }
+
+  if (!areAnyPrayerNotificationsEnabled(prayerNames)) {
+    debugPrint("Skipping Azan notifications: all prayers disabled");
+    return;
+  }
 
   DateTime now = DateTime.now();
   PrayerTime prayers = getPrayerTimeObject();
   prayers.setTimeFormat(prayers.getTime24());
+  final List<Future<void>> schedulingTasks = [];
   for (int i = 0; i < 12; i++) {
     DateTime temp = now.add(Duration(days: i));
     List<String> prayerTimes = prayers.getPrayerTimes(
         temp, lat!, long!, temp.timeZoneOffset.inMinutes / 60.0);
 
     List<String> _prayerNames = prayers.getTimeNames();
-    _prayerNames
-        .asMap()
-        .forEach((index, prayerName) => schedulePrayerTimeNotification(
-              (100 * (index + 1)) + i,
-              DateTime.parse(
-                  "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[index]}"),
-              prayerName,
-              azaanId: selectedAzaanId,
-            ));
+    _prayerNames.asMap().forEach((index, prayerName) {
+      schedulingTasks.add(schedulePrayerTimeNotification(
+        (100 * (index + 1)) + i,
+        DateTime.parse(
+            "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[index]}"),
+        prayerName,
+        azaanId: selectedAzaanId,
+      ));
+    });
   }
+  await Future.wait(schedulingTasks);
   AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails("general", "General");
   DarwinNotificationDetails iOSPlatformChannelSpecifics =
@@ -436,7 +487,7 @@ Future<void> setUpNotifications() async {
   NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin?.zonedSchedule(
+  await plugin.zonedSchedule(
       id: 786,
       title: "Open the app to continue getting Azan notifications",
       body:
@@ -501,8 +552,9 @@ Future<dynamic> prepareCustomAudioForNotification(String filePath) async {
   return null;
 }
 
-void schedulePrayerTimeNotification(
-    int id, DateTime dateTime, String prayerName, {String? azaanId}) async {
+Future<void> schedulePrayerTimeNotification(
+    int id, DateTime dateTime, String prayerName,
+    {String? azaanId}) async {
   if (dateTime.difference(DateTime.now()).isNegative) return;
   if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
       true) {
@@ -546,11 +598,12 @@ void schedulePrayerTimeNotification(
         playSound: true,
         enableVibration: true,
       );
-      iosDetails = DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
+      iosDetails =
+          DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
     }
 
-    NotificationDetails platformChannelSpecifics = NotificationDetails(
-        android: androidDetails, iOS: iosDetails);
+    NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
 
     await flutterLocalNotificationsPlugin?.zonedSchedule(
         id: id,
@@ -567,7 +620,7 @@ void schedulePrayerTimeNotification(
   }
 }
 
-void testNotification(
+Future<void> testNotification(
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
     {String? azaanId}) async {
   final azaan = azaanId != null
@@ -612,8 +665,8 @@ void testNotification(
     iosDetails = DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
   }
 
-  NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidDetails, iOS: iosDetails);
+  NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidDetails, iOS: iosDetails);
 
   // Schedule for 2 seconds in the future to ensure it fires
   await flutterLocalNotificationsPlugin.zonedSchedule(

@@ -320,7 +320,7 @@ class _SettingsPageState extends State<SettingsPage> {
             } else {
               // Save standard option preference
               await saveAzaanPreference(azaan.id);
-              setUpNotifications();
+              await setUpNotifications();
               Navigator.pop(context);
               if (mounted) {
                 setState(() {});
