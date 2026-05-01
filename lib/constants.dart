@@ -103,7 +103,7 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
       azaanId == 'custom' ? SP.prefs.getString('azaan_custom_file_path') : null;
 
   return [
-    'v1',
+    'v2',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'lat:${_scheduleLocationKey(lat)}',
     'long:${_scheduleLocationKey(long)}',
@@ -505,13 +505,28 @@ Future<bool> initializeLocation(
 }
 
 bool areAnyPrayerNotificationsEnabled(List<String> prayerNames) {
+  return enabledPrayerNotificationCount(prayerNames) > 0;
+}
+
+int enabledPrayerNotificationCount(List<String> prayerNames) {
+  var enabledCount = 0;
   for (final prayerName in prayerNames) {
     if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
         true) {
-      return true;
+      enabledCount++;
     }
   }
-  return false;
+  return enabledCount;
+}
+
+int prayerNotificationScheduleDays(int enabledPrayerCount) {
+  const defaultScheduleDays = 12;
+  if (!Platform.isIOS || enabledPrayerCount <= 0) return defaultScheduleDays;
+
+  // iOS keeps only 64 pending notifications. Reserve one slot for the reminder.
+  const maxIosPrayerNotifications = 63;
+  final iosDays = maxIosPrayerNotifications ~/ enabledPrayerCount;
+  return iosDays.clamp(1, defaultScheduleDays).toInt();
 }
 
 Iterable<int> prayerNotificationIds(
@@ -546,6 +561,8 @@ Future<void> setUpNotifications() async {
       (SP.isInitialized ? SP.prefs.getString('azaan_preference') : null) ??
           'azaan';
   final prayerNames = getPrayerTimeObject().getTimeNames();
+  final enabledPrayerCount = enabledPrayerNotificationCount(prayerNames);
+  final scheduleDays = prayerNotificationScheduleDays(enabledPrayerCount);
   final scheduleFingerprint = buildPrayerNotificationScheduleFingerprint();
 
   await cancelPrayerNotifications();
@@ -556,7 +573,7 @@ Future<void> setUpNotifications() async {
     return;
   }
 
-  if (!areAnyPrayerNotificationsEnabled(prayerNames)) {
+  if (enabledPrayerCount == 0) {
     debugPrint("Skipping Azan notifications: all prayers disabled");
     await SP.prefs.setString(
         prayerNotificationScheduleFingerprintKey, scheduleFingerprint);
@@ -567,7 +584,7 @@ Future<void> setUpNotifications() async {
   PrayerTime prayers = getPrayerTimeObject();
   prayers.setTimeFormat(prayers.getTime24());
   final List<Future<void>> schedulingTasks = [];
-  for (int i = 0; i < 12; i++) {
+  for (int i = 0; i < scheduleDays; i++) {
     DateTime temp = now.add(Duration(days: i));
     List<String> prayerTimes = prayers.getPrayerTimes(
         temp, lat!, long!, temp.timeZoneOffset.inMinutes / 60.0);
@@ -595,11 +612,12 @@ Future<void> setUpNotifications() async {
       id: 786,
       title: "Open the app to continue getting Azan notifications",
       body:
-          "It seems you've not used the application in last 12 days. Please open the app to continue receive Azan notifications",
-      scheduledDate: tz.TZDateTime.now(tz.local).add(Duration(days: 11)),
+          "It seems you've not used the application in last $scheduleDays days. Please open the app to continue receive Azan notifications",
+      scheduledDate:
+          tz.TZDateTime.now(tz.local).add(Duration(days: scheduleDays - 1)),
       notificationDetails: platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.inexact,
-      payload: now.add(Duration(days: 11)).toIso8601String());
+      payload: now.add(Duration(days: scheduleDays - 1)).toIso8601String());
   await SP.prefs
       .setString(prayerNotificationScheduleFingerprintKey, scheduleFingerprint);
 }
