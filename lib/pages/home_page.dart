@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
@@ -730,25 +729,6 @@ class _MyHomePageState extends State<MyHomePage>
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
       AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('ic_notification');
-
-      // Create notification channel for Android 8+
-      if (Platform.isAndroid) {
-        final androidPlugin = flutterLocalNotificationsPlugin
-            ?.resolvePlatformSpecificImplementation<
-                AndroidFlutterLocalNotificationsPlugin>();
-
-        // Create channel with sharif sound
-        // For Android 8+, channel configuration determines notification behavior
-        await androidPlugin?.createNotificationChannel(
-          AndroidNotificationChannel(
-            'prayerTimes',
-            'Prayer Times',
-            description: 'Prayer time notifications with azaan sound',
-            importance: Importance.max,
-            sound: RawResourceAndroidNotificationSound('sharif'),
-          ),
-        );
-      }
 
       DarwinInitializationSettings initializationSettingsIOS =
           DarwinInitializationSettings();

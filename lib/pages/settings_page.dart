@@ -62,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           Divider(),
-          defaultTargetPlatform == TargetPlatform.iOS
+          !kIsWeb
               ? Column(
                   children: [
                     ListTile(
@@ -388,12 +388,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Test notification scheduled in 1 minute'),
+        content: Text('Test notification scheduled in a few seconds'),
         duration: Duration(seconds: 2),
       ),
     );
 
-    testNotification(flutterLocalNotificationsPlugin!);
+    await testNotification(flutterLocalNotificationsPlugin!);
   }
 
   saveBooleanPref(String key, bool value) async {

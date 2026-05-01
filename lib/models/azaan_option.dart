@@ -19,13 +19,22 @@ class AzaanOption {
 
 /// Predefined azaan options available to users
 class AzaanOptions {
-  // Azaan option (traditional - default)
+  // Short notification sound used historically on iOS.
+  static const AzaanOption takbir = AzaanOption(
+    id: 'takbir',
+    name: 'Takbir Only',
+    androidFile: 'takbir',
+    iosFile: 'azan.caf',
+    description: 'Short takbir notification sound',
+  );
+
+  // Full azaan option (traditional Android default).
   static const AzaanOption azaan = AzaanOption(
     id: 'azaan',
-    name: 'Azaan',
+    name: 'Full Azan',
     androidFile: 'sharif',
     iosFile: 'azan.caf',
-    description: 'Traditional azaan notification',
+    description: 'Full azan on Android; short alert on iOS',
   );
 
   // System default notification sound
@@ -45,6 +54,7 @@ class AzaanOptions {
 
   /// All available azaan options
   static const List<AzaanOption> all = [
+    takbir,
     azaan,
     systemDefault,
     custom,
@@ -62,5 +72,3 @@ class AzaanOptions {
   /// Get default azaan option
   static AzaanOption getDefault() => azaan;
 }
-
-
