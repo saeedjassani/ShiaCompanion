@@ -4,6 +4,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:location/location.dart' as location;
 import 'package:path_provider/path_provider.dart';
@@ -27,6 +28,7 @@ import 'pages/todays_recitation_page.dart';
 import 'package:shia_companion/pages/settings_page.dart';
 import 'utils/shared_preferences.dart';
 import 'widgets/tasbeeh_widget.dart';
+import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:flutter/cupertino.dart';
@@ -51,6 +53,7 @@ double? lat, long;
 bool needToSchedule = true;
 String arabicFont = "Qalam";
 bool canScheduleExactPrayerNotifications = false;
+bool _notificationTimeZoneInitialized = false;
 
 FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 TextStyle smallText = TextStyle(fontSize: 14);
@@ -62,6 +65,90 @@ bool showTranslation = true, showTransliteration = true;
 bool shouldUseLiveLocation() {
   if (!SP.isInitialized) return false;
   return SP.prefs.getBool('use_live_location') ?? false;
+}
+
+const String prayerNotificationScheduleFingerprintKey =
+    'prayer_notification_schedule_fingerprint';
+
+Future<void> initializeNotificationTimeZone() async {
+  if (kIsWeb) return;
+
+  if (!_notificationTimeZoneInitialized) {
+    tz_data.initializeTimeZones();
+    _notificationTimeZoneInitialized = true;
+  }
+
+  try {
+    final localTimezone = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(localTimezone.identifier));
+  } catch (e) {
+    debugPrint('Unable to resolve local timezone, using ${tz.local.name}: $e');
+  }
+}
+
+String _scheduleDateKey(DateTime dateTime) =>
+    dateTime.toIso8601String().substring(0, 10);
+
+String _scheduleLocationKey(double? value) =>
+    value == null ? 'unknown' : value.toStringAsFixed(4);
+
+String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
+  final prayerNames = getPrayerTimeObject().getTimeNames();
+  final enabledPrayerKeys = prayerNames.map((prayerName) {
+    final key = notificationPreferenceKeyForPrayer(prayerName);
+    return '$key:${SP.prefs.getBool(key) == true ? 1 : 0}';
+  }).join(',');
+  final azaanId = SP.prefs.getString('azaan_preference') ?? 'azaan';
+  final customAudioPath =
+      azaanId == 'custom' ? SP.prefs.getString('azaan_custom_file_path') : null;
+
+  return [
+    'v1',
+    'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
+    'lat:${_scheduleLocationKey(lat)}',
+    'long:${_scheduleLocationKey(long)}',
+    'tz:${tz.local.name}',
+    'azaan:$azaanId',
+    'custom:${customAudioPath ?? ''}',
+    'prayers:$enabledPrayerKeys',
+  ].join('|');
+}
+
+bool _hasFreshScheduleReminder(List<PendingNotificationRequest>? pending) {
+  if (pending == null) return false;
+
+  for (final request in pending) {
+    if (request.id != 786 || request.payload == null) continue;
+
+    final reminderDate = DateTime.tryParse(request.payload!) ??
+        DateTime.fromMillisecondsSinceEpoch(
+          int.tryParse(request.payload!) ?? 0,
+        );
+    if (reminderDate.difference(DateTime.now()).inDays > 2) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool shouldRefreshPrayerNotificationSchedule(
+    List<PendingNotificationRequest>? pending) {
+  if (!SP.isInitialized) return true;
+
+  final expectedFingerprint = buildPrayerNotificationScheduleFingerprint();
+  final storedFingerprint =
+      SP.prefs.getString(prayerNotificationScheduleFingerprintKey);
+  if (storedFingerprint != expectedFingerprint) {
+    return true;
+  }
+
+  if (lat == null || long == null) return false;
+
+  final prayerNames = getPrayerTimeObject().getTimeNames();
+  if (!areAnyPrayerNotificationsEnabled(prayerNames)) return false;
+
+  return !_hasFreshScheduleReminder(pending);
 }
 
 // Helper to map a tile label to a freshly-built page instance.
@@ -381,8 +468,17 @@ Future<bool> initializeLocation(
     if (currentLocation.latitude == null || currentLocation.longitude == null) {
       return false;
     }
+    final previousLat = lat;
+    final previousLong = long;
     lat = currentLocation.latitude;
     long = currentLocation.longitude;
+    final locationChanged = previousLat == null ||
+        previousLong == null ||
+        (previousLat - lat!).abs() > 0.0001 ||
+        (previousLong - long!).abs() > 0.0001;
+    if (locationChanged) {
+      needToSchedule = true;
+    }
     await SP.prefs.setDouble("lat", lat!);
     await SP.prefs.setDouble("long", long!);
 
@@ -397,6 +493,9 @@ Future<bool> initializeLocation(
       }
     } catch (e) {
       debugPrint("Error getting city: $e");
+    }
+    if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
+      await setUpNotifications();
     }
     return true;
   } catch (e) {
@@ -441,21 +540,26 @@ Future<void> setUpNotifications() async {
 
   final plugin = flutterLocalNotificationsPlugin;
   if (plugin == null) return;
+  await initializeNotificationTimeZone();
 
   final selectedAzaanId =
       (SP.isInitialized ? SP.prefs.getString('azaan_preference') : null) ??
           'azaan';
   final prayerNames = getPrayerTimeObject().getTimeNames();
+  final scheduleFingerprint = buildPrayerNotificationScheduleFingerprint();
 
   await cancelPrayerNotifications();
 
   if (lat == null || long == null) {
     debugPrint("Skipping Azan notifications: location unavailable");
+    await SP.prefs.remove(prayerNotificationScheduleFingerprintKey);
     return;
   }
 
   if (!areAnyPrayerNotificationsEnabled(prayerNames)) {
     debugPrint("Skipping Azan notifications: all prayers disabled");
+    await SP.prefs.setString(
+        prayerNotificationScheduleFingerprintKey, scheduleFingerprint);
     return;
   }
 
@@ -495,7 +599,9 @@ Future<void> setUpNotifications() async {
       scheduledDate: tz.TZDateTime.now(tz.local).add(Duration(days: 11)),
       notificationDetails: platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.inexact,
-      payload: now.add(Duration(days: 11)).millisecondsSinceEpoch.toString());
+      payload: now.add(Duration(days: 11)).toIso8601String());
+  await SP.prefs
+      .setString(prayerNotificationScheduleFingerprintKey, scheduleFingerprint);
 }
 
 /// Prepares custom audio file for notification playback
@@ -623,6 +729,7 @@ Future<void> schedulePrayerTimeNotification(
 Future<void> testNotification(
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
     {String? azaanId}) async {
+  await initializeNotificationTimeZone();
   final azaan = azaanId != null
       ? (AzaanOptions.getById(azaanId) ?? getSelectedAzaan())
       : getSelectedAzaan();
