@@ -30,9 +30,6 @@ import 'package:shia_companion/utils/web_route_sync.dart';
 
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
-
 enum _PublishStatus { success, error, timeout }
 
 class MyHomePage extends StatefulWidget {
@@ -728,9 +725,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
 
     if (!kIsWeb) {
-      tz.initializeTimeZones();
-      final currentTimeZone = tz.local.name;
-      tz.setLocalLocation(tz.getLocation(currentTimeZone));
+      await initializeNotificationTimeZone();
 
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
       AndroidInitializationSettings initializationSettingsAndroid =
@@ -768,22 +763,13 @@ class _MyHomePageState extends State<MyHomePage>
 
       final List<PendingNotificationRequest>? pendingNotificationRequests =
           await flutterLocalNotificationsPlugin?.pendingNotificationRequests();
-      needToSchedule = true;
       pendingNotificationRequests
           ?.forEach((PendingNotificationRequest element) {
         debugPrint("${element.id} ${element.title} is scheduled");
-        if (element.id == 786 &&
-            element.payload != null &&
-            DateTime.now()
-                    .difference(DateTime.fromMillisecondsSinceEpoch(
-                        int.parse(element.payload!)))
-                    .inDays <
-                -2) {
-          needToSchedule = false;
-        }
       });
+      needToSchedule =
+          shouldRefreshPrayerNotificationSchedule(pendingNotificationRequests);
       if (needToSchedule) {
-        await flutterLocalNotificationsPlugin?.cancelAll();
         await setUpNotifications();
       } else {
         debugPrint("Azan notifications not scheduled");
