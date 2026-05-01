@@ -103,7 +103,7 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
       azaanId == 'custom' ? SP.prefs.getString('azaan_custom_file_path') : null;
 
   return [
-    'v2',
+    'v3',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'lat:${_scheduleLocationKey(lat)}',
     'long:${_scheduleLocationKey(long)}',
@@ -664,9 +664,19 @@ Future<dynamic> prepareCustomAudioForNotification(String filePath) async {
         return 'file://$filePath';
       }
     } else if (Platform.isAndroid) {
-      // For Android: Use file:// URI format
-      debugPrint('Android: Using file URI');
-      return 'file://$filePath';
+      final file = File(filePath);
+      if (!await file.exists()) {
+        debugPrint('Android: File does not exist: $filePath');
+        return null;
+      }
+
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final fileName = file.path.split('/').last;
+      final targetPath = '${appDocDir.path}/azaan_$fileName';
+      final copiedFile = await file.copy(targetPath);
+      final fileUri = Uri.file(copiedFile.path).toString();
+      debugPrint('Android: Copied custom sound to: $fileUri');
+      return fileUri;
     }
   } catch (e) {
     debugPrint('Error preparing custom audio: $e');
@@ -674,6 +684,92 @@ Future<dynamic> prepareCustomAudioForNotification(String filePath) async {
   }
 
   return null;
+}
+
+String _stableHash(String input) {
+  var hash = 0x811c9dc5;
+  for (final codeUnit in input.codeUnits) {
+    hash ^= codeUnit;
+    hash = (hash * 0x01000193) & 0xffffffff;
+  }
+  return hash.toRadixString(16).padLeft(8, '0');
+}
+
+String _androidPrayerChannelId(AzaanOption azaan, {String? customSoundUri}) {
+  switch (azaan.id) {
+    case 'takbir':
+      return 'prayer_takbir_v1';
+    case 'system_default':
+      return 'prayer_system_default_v1';
+    case 'custom':
+      return 'prayer_custom_${_stableHash(customSoundUri ?? 'missing')}_v1';
+    case 'azaan':
+    default:
+      return 'prayer_full_azaan_v1';
+  }
+}
+
+String _androidPrayerChannelName(AzaanOption azaan) {
+  switch (azaan.id) {
+    case 'takbir':
+      return 'Prayer Times - Takbir';
+    case 'system_default':
+      return 'Prayer Times - System Default';
+    case 'custom':
+      return 'Prayer Times - Custom Sound';
+    case 'azaan':
+    default:
+      return 'Prayer Times - Full Azan';
+  }
+}
+
+Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
+    AzaanOption azaan) async {
+  AndroidNotificationSound? sound;
+  String? customSoundUri;
+
+  if (azaan.id == 'system_default') {
+    sound = null;
+  } else if (azaan.id == 'custom') {
+    final customAudioPath = getCustomAudioFilePath();
+    if (customAudioPath != null && customAudioPath.isNotEmpty) {
+      customSoundUri =
+          await prepareCustomAudioForNotification(customAudioPath) as String?;
+      if (customSoundUri != null && customSoundUri.isNotEmpty) {
+        sound = UriAndroidNotificationSound(customSoundUri);
+      }
+    }
+  } else {
+    sound = RawResourceAndroidNotificationSound(azaan.androidFile ?? 'sharif');
+  }
+
+  return AndroidNotificationDetails(
+    _androidPrayerChannelId(azaan, customSoundUri: customSoundUri),
+    _androidPrayerChannelName(azaan),
+    channelDescription: 'Prayer time notifications',
+    importance: Importance.max,
+    priority: Priority.high,
+    sound: sound,
+    playSound: true,
+    enableVibration: true,
+  );
+}
+
+DarwinNotificationDetails _iosPrayerNotificationDetails(AzaanOption azaan) {
+  if (azaan.id == 'system_default' || azaan.id == 'custom') {
+    return DarwinNotificationDetails();
+  }
+
+  return DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
+}
+
+Future<NotificationDetails> prayerNotificationDetails(AzaanOption azaan) async {
+  return NotificationDetails(
+    android: Platform.isAndroid
+        ? await _androidPrayerNotificationDetails(azaan)
+        : null,
+    iOS: Platform.isIOS ? _iosPrayerNotificationDetails(azaan) : null,
+  );
 }
 
 Future<void> schedulePrayerTimeNotification(
@@ -686,48 +782,7 @@ Future<void> schedulePrayerTimeNotification(
         ? (AzaanOptions.getById(azaanId) ?? getSelectedAzaan())
         : getSelectedAzaan();
 
-    // Build notification with appropriate sound
-    AndroidNotificationDetails androidDetails;
-    DarwinNotificationDetails iosDetails;
-
-    if (azaan.id == 'system_default') {
-      // Use azaan sound (sharif) for all Android notifications
-      androidDetails = AndroidNotificationDetails(
-        'prayerTimes',
-        'Prayer Times',
-        importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound('sharif'),
-        playSound: true,
-        enableVibration: true,
-      );
-      iosDetails = DarwinNotificationDetails();
-    } else if (azaan.id == 'custom') {
-      // Use azaan sound (sharif) for all Android notifications (ignore custom for now)
-      androidDetails = AndroidNotificationDetails(
-        'prayerTimes',
-        'Prayer Times',
-        importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound('sharif'),
-        playSound: true,
-        enableVibration: true,
-      );
-      iosDetails = DarwinNotificationDetails();
-    } else {
-      // Use azaan (sharif)
-      androidDetails = AndroidNotificationDetails(
-        'prayerTimes',
-        'Prayer Times',
-        importance: Importance.max,
-        sound: RawResourceAndroidNotificationSound('sharif'),
-        playSound: true,
-        enableVibration: true,
-      );
-      iosDetails =
-          DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
-    }
-
-    NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    final platformChannelSpecifics = await prayerNotificationDetails(azaan);
 
     await flutterLocalNotificationsPlugin?.zonedSchedule(
         id: id,
@@ -752,46 +807,7 @@ Future<void> testNotification(
       ? (AzaanOptions.getById(azaanId) ?? getSelectedAzaan())
       : getSelectedAzaan();
 
-  // Build notification with appropriate sound
-  AndroidNotificationDetails androidDetails;
-  DarwinNotificationDetails iosDetails;
-
-  if (azaan.id == 'system_default') {
-    // Use azaan sound (sharif) for all Android notifications
-    androidDetails = AndroidNotificationDetails(
-      'prayerTimes',
-      'Prayer Times',
-      importance: Importance.max,
-      sound: RawResourceAndroidNotificationSound('sharif'),
-      playSound: true,
-      enableVibration: true,
-    );
-    iosDetails = DarwinNotificationDetails();
-  } else if (azaan.id == 'custom') {
-    // Use azaan sound (sharif) for all Android notifications (ignore custom for now)
-    androidDetails = AndroidNotificationDetails(
-      'prayerTimes',
-      'Prayer Times',
-      importance: Importance.max,
-      sound: RawResourceAndroidNotificationSound('sharif'),
-      playSound: true,
-      enableVibration: true,
-    );
-    iosDetails = DarwinNotificationDetails();
-  } else {
-    androidDetails = AndroidNotificationDetails(
-      'prayerTimes',
-      'Prayer Times',
-      importance: Importance.max,
-      sound: RawResourceAndroidNotificationSound(azaan.androidFile ?? 'sharif'),
-      playSound: true,
-      enableVibration: true,
-    );
-    iosDetails = DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
-  }
-
-  NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidDetails, iOS: iosDetails);
+  final platformChannelSpecifics = await prayerNotificationDetails(azaan);
 
   // Schedule for 2 seconds in the future to ensure it fires
   await flutterLocalNotificationsPlugin.zonedSchedule(
