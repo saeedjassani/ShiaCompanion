@@ -639,11 +639,11 @@
     "slug": "shaban"
   },
   "D1": {
-    "title": "General Taqibaat",
-    "slug": "general-taqibaat"
+    "title": "General Ta'qeebaat",
+    "slug": "general-ta-qeebaat"
   },
   "D10": {
-    "title": "Taqeebaat e Namaz e Isha",
+    "title": "Ta'qeebaat e Namaz e Isha",
     "slug": "taqeebaat-e-namaz-e-isha-1"
   },
   "D12": {
@@ -659,15 +659,15 @@
     "slug": "taqibaat-e-namaz-e-fajr"
   },
   "D4": {
-    "title": "Nafilah Fajr",
-    "slug": "nafilah-fajr"
+    "title": "Naafelah Fajr - The Supererogatory Dawn Prayer",
+    "slug": "nafilah-fajr-the-supererogatory-dawn-prayer"
   },
   "D5": {
     "title": "Taqibaat-e-Namaz-e-Zohr",
     "slug": "taqibaat-e-namaz-e-zohr"
   },
   "D6": {
-    "title": "Nafilah Zuhr",
+    "title": "Naafelah Zohr",
     "slug": "nafilah-zuhr"
   },
   "D7": {
@@ -675,16 +675,20 @@
     "slug": "taqibaat-e-namaz-e-asr"
   },
   "D8": {
-    "title": "Nafilah Asr",
+    "title": "Naafelah Asr",
     "slug": "nafilah-of-asr"
   },
   "D9": {
-    "title": "Taqibaat-e-Namaz-e-Maghrib",
-    "slug": "taqibaat-e-namaz-e-maghrib"
+    "title": "Ta'qeebaat-e-Namaz-e-Maghrib",
+    "slug": "ta-qeebaat-e-namaz-e-maghrib"
   },
   "E1": {
     "title": "al-Isteghasa الکامل التام",
     "slug": "ziyarat-e-isteghasa-e-imam-e-zamana-a-t-f-s"
+  },
+  "E107": {
+    "title": "Dua taught by Jibrael to the Holy Prophet (s)",
+    "slug": "dua-taught-by-jibrael-to-the-holy-prophet-s"
   },
   "E11": {
     "title": "Dua Yastasheer",
@@ -755,8 +759,8 @@
     "slug": "dua-mujeer"
   },
   "E29": {
-    "title": "Dua Jawshan al Kabir",
-    "slug": "dua-jawshan-al-kabir"
+    "title": "Dua Jawshan al-Kabeer",
+    "slug": "dua-jawshan-al-kabeer"
   },
   "E30": {
     "title": "Dua Jawshan al Sagir",
@@ -822,6 +826,15 @@
     "title": "Dua al-Mahd (a.t.f.s.)i اللهم ارزقنا توفیق الطاعه",
     "slug": "dua-al-mahd-a-t-f-s-i"
   },
+  "E60": {
+    "title": "Dua for safety from all beasts, evils of Satan, thieves & demons",
+    "slug": "dua-for-safety-from-all-beasts-evils-of-satan-thieves-demons"
+  },
+  "E61": {
+    "title": "Dua for safety from Fire & al Evil throughout the day",
+    "order": 12,
+    "slug": "dua-for-safety-from-fire-al-evil-throughout-the-day"
+  },
   "E7": {
     "title": "Dua Allahumma Asleh اَللّٰهُمَّ أَصْلِحْ عَبْدَكَ",
     "slug": "dua-allahumma-asleh"
@@ -829,6 +842,11 @@
   "E8": {
     "title": "Dua Alqamah",
     "slug": "dua-alqama"
+  },
+  "E80": {
+    "title": "Comprehensive dua for the world & Hereafter",
+    "order": 12,
+    "slug": "comprehensive-dua-for-the-world-hereafter"
   },
   "E85": {
     "title": "A Proven dua",
@@ -908,8 +926,8 @@
     "slug": "ziyarat-e-jamiah-kabeerah"
   },
   "G15": {
-    "title": "Saturday - Ziyarah of Holy Prophet (s.a.w.a.)",
-    "slug": "saturday-ziyarah-of-holy-prophet-s-a-w-a"
+    "title": "Ziyarat of Saturday",
+    "slug": "ziyarat-of-saturday"
   },
   "G16|L3": {
     "title": "Sunday - Ziyarah of Ameerul Momineen (a)",
@@ -1156,17 +1174,49 @@
     "title": "Aamal Between Dawn & Sunrise",
     "slug": "aamal-between-dawn-sunrise"
   },
+  "I10": {
+    "title": "General Ta'qeebaat - 1",
+    "slug": "tasbih-az-zahra"
+  },
+  "I11": {
+    "title": "Rosary made of the turbat of Imam al-Husayn (a.s.)",
+    "slug": "rosary-made-of-the-turbat-of-imam-husayn-a-s"
+  },
+  "I14": {
+    "title": "General Ta'qeebaat-2",
+    "slug": "general-ta-qeebaat-10-15"
+  },
   "I2": {
     "title": "Etiquettes of Going to Toilet",
     "slug": "etiquettes-of-going-to-toilet"
   },
+  "I3": {
+    "title": "Cleansing the Teeth",
+    "slug": "cleansing-the-teeth"
+  },
   "I4": {
-    "title": "Ritual Ablution (Wuzu)",
+    "title": "The Ritual Ablution (Wuzu)",
     "slug": "ritual-ablution-wuzu"
   },
   "I5": {
     "title": "Etiquettes of attending Mosques",
     "slug": "etiquettes-of-attending-mosques"
+  },
+  "I6": {
+    "title": "Pre-Prayer Supplications",
+    "slug": "etiquettes-of-prayers"
+  },
+  "I7": {
+    "title": "Other Etiquettes of Namaz",
+    "slug": "other-etiquettes-of-namaz"
+  },
+  "I9": {
+    "title": "Etiquettes of Taaqeebaat",
+    "slug": "etiquettes-of-taaqibaat"
+  },
+  "I98": {
+    "title": "Things taught by Holy Prophet (s.a.w.a.) to Lady Fatimah (s.a.)",
+    "slug": "things-taught-by-holy-prophet-s-to-lady-fatimah-a"
   },
   "J1": {
     "title": "Merits & Rituals of Friday Night & Day",
@@ -1217,7 +1267,7 @@
     "slug": "namaz-on-saturdays-2"
   },
   "K3": {
-    "title": "Ziyarah on Saturday",
+    "title": "Ziyarat on Saturday",
     "slug": "ziyarah-on-saturday"
   },
   "L1": {
@@ -1253,7 +1303,7 @@
     "slug": "namaz-of-tuesdays-2"
   },
   "N3": {
-    "title": "Ziyarah on Tuesday",
+    "title": "Ziyarat on Tuesday",
     "slug": "ziyarah-on-tuesday"
   },
   "N4|E24": {
@@ -1269,7 +1319,7 @@
     "slug": "namaz-on-wednesdays"
   },
   "O3": {
-    "title": "Ziyarah of Wednesday",
+    "title": "Ziyarat of Wednesday",
     "slug": "ziyarah-of-wednesday"
   },
   "Q1": {
@@ -1281,8 +1331,8 @@
     "slug": "namaz-on-thursdays-2"
   },
   "Q3": {
-    "title": "Ziyarah of Imam Hasan al Askari (a) on Thursday",
-    "slug": "ziyarah-of-imam-hasan-al-askari-a-on-thursday"
+    "title": "Ziyarat on Thursday",
+    "slug": "ziyarat-on-thursday"
   },
   "Q4|E154": {
     "title": "Dua-e-Ehtejaab (The Supplication of Concealment)",
