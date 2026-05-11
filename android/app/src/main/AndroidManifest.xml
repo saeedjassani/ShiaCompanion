@@ -25,7 +25,7 @@
         android:label="Shia Companion"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name="io.flutter.embedding.android.FlutterActivity"
+            android:name="com.developer110.shia_companion.MainActivity"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density"

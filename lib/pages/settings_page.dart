@@ -8,11 +8,11 @@ import 'package:provider/provider.dart';
 import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
-import '../models/azaan_option.dart';
 import '../services/account_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/shared_preferences.dart';
 import 'about_page.dart';
+import 'scheduled_notifications_page.dart';
 
 class SettingsPage extends StatefulWidget {
   final Future<void> Function() loginCallback;
@@ -82,6 +82,22 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                     Divider(),
+                    if (isUserAdmin) ...[
+                      ListTile(
+                        leading: Icon(Icons.notifications_active),
+                        title: Text("Scheduled Notifications"),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ScheduledNotificationsPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      Divider(),
+                    ],
                   ],
                 )
               : Container(),
@@ -245,17 +261,16 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   String _getCurrentAzaanName() {
-    final azaanId = SP.prefs.getString('azaan_preference') ?? 'azaan';
-    final azaan = AzaanOptions.getById(azaanId);
-    if (azaan?.id == 'custom') {
-      final customPath = SP.prefs.getString('azaan_custom_file_path');
+    final azaan = getSelectedAzaan();
+    if (azaan.id == 'custom') {
+      final customPath = SP.prefs.getString(azaanCustomFilePathKey);
       if (customPath != null && customPath.isNotEmpty) {
         final fileName = customPath.split('/').last;
         return 'Custom: $fileName';
       }
       return 'Custom Audio';
     }
-    return azaan?.name ?? 'Azaan';
+    return azaan.name;
   }
 
   Future<void> _pickCustomAudioFile() async {
@@ -307,9 +322,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showAzaanSelectionDialog(BuildContext context) {
     List<Widget> options = [];
-    final currentAzaanId = SP.prefs.getString('azaan_preference') ?? 'azaan';
+    final currentAzaanId = getSelectedAzaan().id;
 
-    for (final azaan in AzaanOptions.all) {
+    for (final azaan in getAvailableAzaanOptions()) {
       options.add(SimpleDialogOption(
         child: InkWell(
           onTap: () async {

@@ -4,6 +4,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:location/location.dart' as location;
@@ -62,9 +63,55 @@ String appVersion = '1.0';
 
 bool showTranslation = true, showTransliteration = true;
 
+const MethodChannel _notificationAudioChannel =
+    MethodChannel('shia_companion/notification_audio');
+const String azaanPreferenceKey = 'azaan_preference';
+const String azaanCustomFilePathKey = 'azaan_custom_file_path';
+const String _azaanCustomNotificationUriKey = 'azaan_custom_notification_uri';
+const String _azaanCustomNotificationSourcePathKey =
+    'azaan_custom_notification_source_path';
+const String _androidPrayerChannelMigrationKey =
+    'android_prayer_notification_channel_migration';
+const int _androidPrayerChannelMigrationVersion = 2;
+const String _androidPrayerChannelVersion = 'v2';
+
 bool shouldUseLiveLocation() {
   if (!SP.isInitialized) return false;
   return SP.prefs.getBool('use_live_location') ?? false;
+}
+
+String defaultAzaanPreferenceId() {
+  if (!kIsWeb && Platform.isIOS) return AzaanOptions.takbir.id;
+  return AzaanOptions.azaan.id;
+}
+
+bool isAzaanOptionAvailableOnCurrentPlatform(AzaanOption option) {
+  if (!kIsWeb && Platform.isIOS && option.id == AzaanOptions.azaan.id) {
+    return false;
+  }
+  return true;
+}
+
+List<AzaanOption> getAvailableAzaanOptions() {
+  return AzaanOptions.all
+      .where(isAzaanOptionAvailableOnCurrentPlatform)
+      .toList(growable: false);
+}
+
+AzaanOption resolveAzaanOptionForCurrentPlatform(String? azaanId) {
+  final fallback =
+      AzaanOptions.getById(defaultAzaanPreferenceId()) ?? AzaanOptions.takbir;
+  final azaan = azaanId != null ? AzaanOptions.getById(azaanId) : null;
+
+  if (azaan == null || !isAzaanOptionAvailableOnCurrentPlatform(azaan)) {
+    return fallback;
+  }
+
+  return azaan;
+}
+
+String resolveAzaanPreferenceIdForCurrentPlatform(String? azaanId) {
+  return resolveAzaanOptionForCurrentPlatform(azaanId).id;
 }
 
 const String prayerNotificationScheduleFingerprintKey =
@@ -98,12 +145,13 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
     final key = notificationPreferenceKeyForPrayer(prayerName);
     return '$key:${SP.prefs.getBool(key) == true ? 1 : 0}';
   }).join(',');
-  final azaanId = SP.prefs.getString('azaan_preference') ?? 'azaan';
+  final azaanId = resolveAzaanPreferenceIdForCurrentPlatform(
+      SP.prefs.getString(azaanPreferenceKey));
   final customAudioPath =
-      azaanId == 'custom' ? SP.prefs.getString('azaan_custom_file_path') : null;
+      azaanId == 'custom' ? SP.prefs.getString(azaanCustomFilePathKey) : null;
 
   return [
-    'v3',
+    'v5',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'lat:${_scheduleLocationKey(lat)}',
     'long:${_scheduleLocationKey(long)}',
@@ -461,10 +509,29 @@ Future<bool> initializeLocation(
   }
 
   try {
+    final locationService = location.Location();
+    var serviceEnabled = await locationService.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await locationService.requestService();
+      if (!serviceEnabled) {
+        debugPrint("Location service is disabled");
+        return false;
+      }
+    }
+
+    var permissionStatus = await locationService.hasPermission();
+    if (permissionStatus == location.PermissionStatus.denied) {
+      permissionStatus = await locationService.requestPermission();
+    }
+    if (permissionStatus != location.PermissionStatus.granted &&
+        permissionStatus != location.PermissionStatus.grantedLimited) {
+      debugPrint("Location permission not granted: $permissionStatus");
+      return false;
+    }
+
     // On manual refresh, we want to show some feedback.
     // TODO For now, let's just print to debug, but could use a state management solution.
-    location.LocationData currentLocation =
-        await location.Location().getLocation();
+    location.LocationData currentLocation = await locationService.getLocation();
     if (currentLocation.latitude == null || currentLocation.longitude == null) {
       return false;
     }
@@ -556,10 +623,10 @@ Future<void> setUpNotifications() async {
   final plugin = flutterLocalNotificationsPlugin;
   if (plugin == null) return;
   await initializeNotificationTimeZone();
+  await refreshLegacyAndroidPrayerNotificationChannelsIfNeeded();
 
-  final selectedAzaanId =
-      (SP.isInitialized ? SP.prefs.getString('azaan_preference') : null) ??
-          'azaan';
+  final selectedAzaanId = resolveAzaanPreferenceIdForCurrentPlatform(
+      SP.isInitialized ? SP.prefs.getString(azaanPreferenceKey) : null);
   final prayerNames = getPrayerTimeObject().getTimeNames();
   final enabledPrayerCount = enabledPrayerNotificationCount(prayerNames);
   final scheduleDays = prayerNotificationScheduleDays(enabledPrayerCount);
@@ -624,7 +691,7 @@ Future<void> setUpNotifications() async {
 
 /// Prepares custom audio file for notification playback
 /// On iOS: Handles restricted file locations and copies to app documents
-/// On Android: Converts file path to file:// URI
+/// On Android: Registers a MediaStore content URI for notification channels
 Future<dynamic> prepareCustomAudioForNotification(String filePath) async {
   try {
     debugPrint('Preparing audio file: $filePath');
@@ -670,6 +737,12 @@ Future<dynamic> prepareCustomAudioForNotification(String filePath) async {
         return null;
       }
 
+      final mediaStoreUri = await _registerAndroidNotificationSound(filePath);
+      if (mediaStoreUri != null && mediaStoreUri.isNotEmpty) {
+        debugPrint('Android: Registered custom sound URI: $mediaStoreUri');
+        return mediaStoreUri;
+      }
+
       final appDocDir = await getApplicationDocumentsDirectory();
       final fileName = file.path.split('/').last;
       final targetPath = '${appDocDir.path}/azaan_$fileName';
@@ -681,6 +754,37 @@ Future<dynamic> prepareCustomAudioForNotification(String filePath) async {
   } catch (e) {
     debugPrint('Error preparing custom audio: $e');
     return null;
+  }
+
+  return null;
+}
+
+Future<String?> _registerAndroidNotificationSound(String filePath) async {
+  if (!SP.isInitialized) return null;
+
+  final cachedSource =
+      SP.prefs.getString(_azaanCustomNotificationSourcePathKey);
+  final cachedUri = SP.prefs.getString(_azaanCustomNotificationUriKey);
+  if (cachedSource == filePath && cachedUri != null && cachedUri.isNotEmpty) {
+    return cachedUri;
+  }
+
+  try {
+    final uri = await _notificationAudioChannel.invokeMethod<String>(
+      'registerNotificationSound',
+      {'path': filePath},
+    );
+    if (uri != null && uri.isNotEmpty) {
+      await SP.prefs.setString(_azaanCustomNotificationSourcePathKey, filePath);
+      await SP.prefs.setString(_azaanCustomNotificationUriKey, uri);
+    }
+    return uri;
+  } on MissingPluginException catch (e) {
+    debugPrint('Android custom sound helper is unavailable: $e');
+  } on PlatformException catch (e) {
+    debugPrint('Android custom sound registration failed: ${e.message}');
+  } catch (e) {
+    debugPrint('Android custom sound registration failed: $e');
   }
 
   return null;
@@ -698,14 +802,57 @@ String _stableHash(String input) {
 String _androidPrayerChannelId(AzaanOption azaan, {String? customSoundUri}) {
   switch (azaan.id) {
     case 'takbir':
-      return 'prayer_takbir_v1';
+      return 'prayer_takbir_$_androidPrayerChannelVersion';
     case 'system_default':
-      return 'prayer_system_default_v1';
+      return 'prayer_system_default_$_androidPrayerChannelVersion';
     case 'custom':
-      return 'prayer_custom_${_stableHash(customSoundUri ?? 'missing')}_v1';
+      return 'prayer_custom_${_stableHash(customSoundUri ?? 'missing')}_$_androidPrayerChannelVersion';
     case 'azaan':
     default:
-      return 'prayer_full_azaan_v1';
+      return 'prayer_full_azaan_$_androidPrayerChannelVersion';
+  }
+}
+
+Future<void> refreshLegacyAndroidPrayerNotificationChannelsIfNeeded() async {
+  if (!Platform.isAndroid || !SP.isInitialized) return;
+
+  final previousMigration =
+      SP.prefs.getInt(_androidPrayerChannelMigrationKey) ?? 0;
+  if (previousMigration >= _androidPrayerChannelMigrationVersion) return;
+
+  final androidImplementation =
+      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+  if (androidImplementation == null) return;
+
+  final legacyChannelIds = <String>{
+    'prayerTimes',
+    'prayer_full_azaan_v1',
+    'prayer_takbir_v1',
+    'prayer_system_default_v1',
+  };
+
+  try {
+    final channels = await androidImplementation.getNotificationChannels();
+    for (final channel in channels ?? const <AndroidNotificationChannel>[]) {
+      if (channel.id.startsWith('prayer_custom_') &&
+          channel.id.endsWith('_v1')) {
+        legacyChannelIds.add(channel.id);
+      }
+    }
+
+    for (final channelId in legacyChannelIds) {
+      await androidImplementation.deleteNotificationChannel(
+        channelId: channelId,
+      );
+    }
+
+    await SP.prefs.setInt(
+      _androidPrayerChannelMigrationKey,
+      _androidPrayerChannelMigrationVersion,
+    );
+  } catch (e) {
+    debugPrint('Unable to refresh Android prayer notification channels: $e');
   }
 }
 
@@ -779,7 +926,7 @@ Future<void> schedulePrayerTimeNotification(
   if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
       true) {
     final azaan = azaanId != null
-        ? (AzaanOptions.getById(azaanId) ?? getSelectedAzaan())
+        ? resolveAzaanOptionForCurrentPlatform(azaanId)
         : getSelectedAzaan();
 
     final platformChannelSpecifics = await prayerNotificationDetails(azaan);
@@ -793,7 +940,8 @@ Future<void> schedulePrayerTimeNotification(
             : AndroidScheduleMode.inexactAllowWhileIdle,
         title:
             formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
-        body: "It's time for " + prayerName.toLowerCase());
+        body: "It's time for " + prayerName.toLowerCase(),
+        payload: dateTime.toIso8601String());
   } else {
     await flutterLocalNotificationsPlugin?.cancel(id: id);
   }
@@ -804,7 +952,7 @@ Future<void> testNotification(
     {String? azaanId}) async {
   await initializeNotificationTimeZone();
   final azaan = azaanId != null
-      ? (AzaanOptions.getById(azaanId) ?? getSelectedAzaan())
+      ? resolveAzaanOptionForCurrentPlatform(azaanId)
       : getSelectedAzaan();
 
   final platformChannelSpecifics = await prayerNotificationDetails(azaan);
@@ -844,32 +992,37 @@ Future<bool> requestExactPrayerAlarmPermissionIfNeeded() async {
 
 /// Get the currently selected azaan option
 AzaanOption getSelectedAzaan() {
-  if (!SP.isInitialized) return AzaanOptions.getDefault();
+  if (!SP.isInitialized) return resolveAzaanOptionForCurrentPlatform(null);
 
-  final azaanId = SP.prefs.getString('azaan_preference');
-  final azaan = azaanId != null ? AzaanOptions.getById(azaanId) : null;
-  return azaan ?? AzaanOptions.getDefault();
+  return resolveAzaanOptionForCurrentPlatform(
+      SP.prefs.getString(azaanPreferenceKey));
 }
 
 /// Get custom audio file path (if user selected custom)
 String? getCustomAudioFilePath() {
   if (!SP.isInitialized) return null;
 
-  final azaanId = SP.prefs.getString('azaan_preference');
+  final azaanId = SP.prefs.getString(azaanPreferenceKey);
   if (azaanId == 'custom') {
-    return SP.prefs.getString('azaan_custom_file_path');
+    return SP.prefs.getString(azaanCustomFilePathKey);
   }
   return null;
 }
 
 /// Save the user's azaan preference
 Future<void> saveAzaanPreference(String azaanId) async {
-  await SP.prefs.setString('azaan_preference', azaanId);
+  await SP.prefs.setString(
+      azaanPreferenceKey, resolveAzaanPreferenceIdForCurrentPlatform(azaanId));
 }
 
 /// Save custom audio file path
 Future<void> saveCustomAudioFilePath(String filePath) async {
-  await SP.prefs.setString('azaan_custom_file_path', filePath);
+  final previousPath = SP.prefs.getString(azaanCustomFilePathKey);
+  await SP.prefs.setString(azaanCustomFilePathKey, filePath);
+  if (previousPath != filePath) {
+    await SP.prefs.remove(_azaanCustomNotificationUriKey);
+    await SP.prefs.remove(_azaanCustomNotificationSourcePathKey);
+  }
 }
 
 AppBar getAppBar() {

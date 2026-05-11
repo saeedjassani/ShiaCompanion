@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage>
   DeepLinkTarget? _pendingDeepLink;
   bool _itemsLoaded = false;
   bool _isPublishingIndex = false;
+  bool _isRefreshingLiveLocation = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
   final CollectionReference<Map<String, dynamic>> _zikrCollection =
@@ -758,6 +759,21 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {});
   }
 
+  Future<void> _refreshLiveLocationIfNeeded() async {
+    if (_isRefreshingLiveLocation ||
+        !SP.isInitialized ||
+        !shouldUseLiveLocation()) {
+      return;
+    }
+
+    _isRefreshingLiveLocation = true;
+    final success = await initializeLocation(force: true);
+    _isRefreshingLiveLocation = false;
+
+    if (!mounted) return;
+    if (success) setState(() {});
+  }
+
   // 0 - 2340 General
   // 2341 - 2375 Muharram
   Future<void> getHadith() async {
@@ -924,6 +940,13 @@ class _MyHomePageState extends State<MyHomePage>
   void didChangeDependencies() {
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshLiveLocationIfNeeded();
+    }
   }
 
   @override
