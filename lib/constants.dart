@@ -291,7 +291,7 @@ PrayerTime getPrayerTimeObject() {
 
   prayerTime!.setCalcMethod(prayerTime!.getJafari());
   prayerTime!.setAsrJuristic(prayerTime!.getHanafi());
-  prayerTime!.setAdjustHighLats(prayerTime!.getAdjustHighLats());
+  prayerTime!.setAdjustHighLats(prayerTime!.getAngleBased());
 
   return prayerTime!;
 }
@@ -519,19 +519,27 @@ Future<bool> initializeLocation(
       }
     }
 
-    var permissionStatus = await locationService.hasPermission();
-    if (permissionStatus == location.PermissionStatus.denied) {
-      permissionStatus = await locationService.requestPermission();
-    }
-    if (permissionStatus != location.PermissionStatus.granted &&
-        permissionStatus != location.PermissionStatus.grantedLimited) {
-      debugPrint("Location permission not granted: $permissionStatus");
-      return false;
+    if (!kIsWeb) {
+      var permissionStatus = await locationService.hasPermission();
+      if (permissionStatus == location.PermissionStatus.denied) {
+        permissionStatus = await locationService.requestPermission();
+      }
+      if (permissionStatus != location.PermissionStatus.granted &&
+          permissionStatus != location.PermissionStatus.grantedLimited) {
+        debugPrint("Location permission not granted: $permissionStatus");
+        return false;
+      }
     }
 
     // On manual refresh, we want to show some feedback.
     // TODO For now, let's just print to debug, but could use a state management solution.
-    location.LocationData currentLocation = await locationService.getLocation();
+    location.LocationData currentLocation;
+    try {
+      currentLocation = await locationService.getLocation();
+    } catch (e) {
+      debugPrint("Web location access failed: $e");
+      return false;
+    }
     if (currentLocation.latitude == null || currentLocation.longitude == null) {
       return false;
     }
