@@ -1,5 +1,14 @@
 import '../../constants.dart';
 
+class ZikrLineSegment {
+  final String text;
+  final String? href;
+
+  const ZikrLineSegment({required this.text, this.href});
+
+  bool get hasHref => href != null && href!.trim().isNotEmpty;
+}
+
 class _ParsedZikrContent {
   final List<String> lines;
   final Set<int> arabicCodes;
@@ -51,6 +60,28 @@ class ZikrContentParser {
       i += c.bitLength;
     }
     return false;
+  }
+
+  static final RegExp _markdownLinkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
+
+  static List<ZikrLineSegment> parseLineSegments(String line) {
+    final segments = <ZikrLineSegment>[];
+    var currentIndex = 0;
+    for (final match in _markdownLinkPattern.allMatches(line)) {
+      if (match.start > currentIndex) {
+        segments.add(ZikrLineSegment(
+          text: line.substring(currentIndex, match.start),
+        ));
+      }
+      final linkText = match.group(1) ?? '';
+      final href = match.group(2) ?? '';
+      segments.add(ZikrLineSegment(text: linkText, href: href));
+      currentIndex = match.end;
+    }
+    if (currentIndex < line.length) {
+      segments.add(ZikrLineSegment(text: line.substring(currentIndex)));
+    }
+    return segments;
   }
 
   static Set<int> _generateEnglishCodes(
