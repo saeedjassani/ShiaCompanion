@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../constants.dart';
 import 'zikr_content_parser.dart';
@@ -9,6 +10,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
   final bool hasMerits;
   final VoidCallback onShowMerits;
   final String? code;
+  final Future<void> Function(String href) onLinkTap;
 
   const ZikrContentViewerWidget({
     Key? key,
@@ -17,6 +19,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     required this.onTabChanged,
     required this.hasMerits,
     required this.onShowMerits,
+    required this.onLinkTap,
     this.code,
   }) : super(key: key);
 
@@ -30,6 +33,31 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   late List<ScrollController> _tabScrollControllers;
   late List<GlobalKey> _tabHeaderKeys;
   late int _selectedTabIndex;
+
+  TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
+    final linkStyle = baseStyle.copyWith(
+      color: Theme.of(context).colorScheme.primary,
+      decoration: TextDecoration.underline,
+    );
+
+    final segments = ZikrContentParser.parseLineSegments(rawLine);
+    return TextSpan(
+      style: baseStyle,
+      children: segments.map((segment) {
+        if (!segment.hasHref) {
+          return TextSpan(text: segment.text);
+        }
+        return TextSpan(
+          text: segment.text,
+          style: linkStyle,
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              widget.onLinkTap(segment.href!);
+            },
+        );
+      }).toList(),
+    );
+  }
 
   @override
   void initState() {
@@ -198,25 +226,25 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           }
 
           // Adjust content index for merits button
-          final contentIndex =
-              showMeritsButton ? index - 1 : index;
+          final contentIndex = showMeritsButton ? index - 1 : index;
           final str = parsedContent.lines[contentIndex].trim();
 
           if (parsedContent.arabicCodes.contains(contentIndex)) {
             return Padding(
               padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
-              child: Text(
-                ZikrContentParser.formatArabicText(str),
-                style: arabicStyle,
+              child: Text.rich(
+                _buildTextSpanForLine(
+                  ZikrContentParser.formatArabicText(str),
+                  arabicStyle,
+                ),
                 textAlign: TextAlign.center,
                 textDirection: TextDirection.rtl,
               ),
             );
           } else if (parsedContent.transliCodes.contains(contentIndex)) {
             return showTransliteration
-                ? Text(
-                    str.toUpperCase(),
-                    style: transliStyle,
+                ? Text.rich(
+                    _buildTextSpanForLine(str.toUpperCase(), transliStyle),
                     textAlign: TextAlign.center,
                   )
                 : Container();
@@ -224,17 +252,24 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             return showTranslation
                 ? Padding(
                     padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text(
-                      str,
+                    child: Text.rich(
+                      _buildTextSpanForLine(
+                        str,
+                        TextStyle(fontSize: englishFontSize),
+                      ),
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: englishFontSize),
                     ),
                   )
                 : Container();
           } else {
             return Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 4.0),
-              child: Text(str, style: TextStyle(fontStyle: FontStyle.italic)),
+              child: Text.rich(
+                _buildTextSpanForLine(
+                  str,
+                  const TextStyle(fontStyle: FontStyle.italic),
+                ),
+              ),
             );
           }
         },

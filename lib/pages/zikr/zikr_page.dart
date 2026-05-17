@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/utils/deep_links.dart';
@@ -603,6 +604,86 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
+  String? _lookupInternalItemUid(String segment) {
+    if (segment.isEmpty) return null;
+
+    if (items.containsKey(segment)) {
+      return segment;
+    }
+
+    final mappedUid = slugToItemUid[segment];
+    if (mappedUid != null) {
+      return mappedUid;
+    }
+
+    return null;
+  }
+
+  String? _findInternalUid(String href) {
+    final trimmed = href.trim();
+    if (trimmed.isEmpty) return null;
+
+    final direct = _lookupInternalItemUid(trimmed);
+    if (direct != null) return direct;
+
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null) return null;
+
+    if (uri.hasScheme) {
+      final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
+      if (pathSegments.length == 2 && pathSegments[0] == 'zikr') {
+        return _lookupInternalItemUid(pathSegments[1]);
+      }
+      return null;
+    }
+
+    var path = uri.path;
+    if (path.isNotEmpty) {
+      final pathSegments = path.split('/').where((s) => s.isNotEmpty).toList();
+      if (pathSegments.length == 2 && pathSegments[0] == 'zikr') {
+        return _lookupInternalItemUid(pathSegments[1]);
+      }
+      if (pathSegments.length == 1) {
+        return _lookupInternalItemUid(pathSegments[0]);
+      }
+    }
+
+    final fragment = uri.fragment;
+    if (fragment.isNotEmpty) {
+      final fragSegments =
+          fragment.split('/').where((s) => s.isNotEmpty).toList();
+      if (fragSegments.length == 2 && fragSegments[0] == 'zikr') {
+        return _lookupInternalItemUid(fragSegments[1]);
+      }
+      if (fragSegments.length == 1) {
+        return _lookupInternalItemUid(fragSegments[0]);
+      }
+    }
+
+    return null;
+  }
+
+  Future<void> _handleZikrLinkTap(String href) async {
+    if (href.trim().isEmpty) return;
+
+    final internalUid = _findInternalUid(href);
+    if (internalUid != null) {
+      final title = items[internalUid]?.toString() ?? internalUid;
+      await pushPageRoute(context, ZikrPage(UidTitleData(internalUid, title)));
+      return;
+    }
+
+    var uri = Uri.tryParse(href);
+    if (uri == null) return;
+    if (!uri.hasScheme) {
+      uri = Uri.parse('https://$href');
+    }
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   void didPush() {
     _isCurrentRoute = true;
@@ -724,6 +805,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                         onTabChanged: (_) {},
                                         hasMerits: hasMerits,
                                         onShowMerits: _showMeritsSheet,
+                                        onLinkTap: _handleZikrLinkTap,
                                         code: zikrData?['code']?.toString(),
                                       ),
                                     ),
