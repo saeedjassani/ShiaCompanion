@@ -497,7 +497,7 @@ class PrayerTime {
       times[6] = times[5] + mParams[4] / 60;
     }
 
-    if (this.getAdjustHighLats() != this.getNone()) {
+    if (this.getAdjustHighLats() != this.getNone() && this.getLat().abs() > 48.5) {
       times = adjustHighLatTimes(times);
     }
 
