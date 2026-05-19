@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="favorites_widget_description">Shows saved Shia Companion favorites.</string>
+    <string name="recitation_widget_description">Shows daily recitations.</string>
+    <string name="prayer_widget_description">Shows the upcoming prayer time.</string>
+</resources>
