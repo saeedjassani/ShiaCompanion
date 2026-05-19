@@ -1,0 +1,322 @@
+import SwiftUI
+import WidgetKit
+
+private let appGroupID = "group.com.developer110.shiacompanion"
+
+private enum WidgetKeys {
+    static let favoritesTitle = "sc_favorites_title"
+    static let favoritesSubtitle = "sc_favorites_subtitle"
+    static let favoriteItem1 = "sc_favorites_item_1"
+    static let favoriteItem2 = "sc_favorites_item_2"
+    static let favoriteItem3 = "sc_favorites_item_3"
+
+    static let recitationTitle = "sc_recitation_title"
+    static let recitationSubtitle = "sc_recitation_subtitle"
+    static let recitationItem1 = "sc_recitation_item_1"
+    static let recitationItem2 = "sc_recitation_item_2"
+    static let recitationItem3 = "sc_recitation_item_3"
+
+    static let prayerTitle = "sc_prayer_title"
+    static let prayerName = "sc_prayer_name"
+    static let prayerTime = "sc_prayer_time"
+    static let prayerDate = "sc_prayer_date"
+    static let prayerLocation = "sc_prayer_location"
+    static let prayerSchedule = "sc_prayer_schedule"
+}
+
+private extension UserDefaults {
+    static var widgetData: UserDefaults? {
+        UserDefaults(suiteName: appGroupID)
+    }
+
+    func widgetString(_ key: String, fallback: String) -> String {
+        let value = string(forKey: key)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return value?.isEmpty == false ? value! : fallback
+    }
+}
+
+struct WidgetListEntry: TimelineEntry {
+    let date: Date
+    let title: String
+    let subtitle: String
+    let items: [String]
+}
+
+struct FavoritesProvider: TimelineProvider {
+    func placeholder(in context: Context) -> WidgetListEntry {
+        WidgetListEntry(
+            date: Date(),
+            title: "Favorites",
+            subtitle: "Open app to add favorites",
+            items: ["No favorites yet"]
+        )
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (WidgetListEntry) -> Void) {
+        completion(loadEntry())
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<WidgetListEntry>) -> Void) {
+        completion(Timeline(entries: [loadEntry()], policy: .after(Date().addingTimeInterval(3600))))
+    }
+
+    private func loadEntry() -> WidgetListEntry {
+        let defaults = UserDefaults.widgetData
+        let items = [
+            defaults?.widgetString(WidgetKeys.favoriteItem1, fallback: "No favorites yet") ?? "No favorites yet",
+            defaults?.widgetString(WidgetKeys.favoriteItem2, fallback: "") ?? "",
+            defaults?.widgetString(WidgetKeys.favoriteItem3, fallback: "") ?? ""
+        ].filter { !$0.isEmpty }
+
+        return WidgetListEntry(
+            date: Date(),
+            title: defaults?.widgetString(WidgetKeys.favoritesTitle, fallback: "Favorites") ?? "Favorites",
+            subtitle: defaults?.widgetString(
+                WidgetKeys.favoritesSubtitle,
+                fallback: "Open app to add favorites"
+            ) ?? "Open app to add favorites",
+            items: items
+        )
+    }
+}
+
+struct RecitationProvider: TimelineProvider {
+    func placeholder(in context: Context) -> WidgetListEntry {
+        WidgetListEntry(
+            date: Date(),
+            title: "Today's Recitations",
+            subtitle: "",
+            items: ["Open app to refresh"]
+        )
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (WidgetListEntry) -> Void) {
+        completion(loadEntry())
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<WidgetListEntry>) -> Void) {
+        completion(Timeline(entries: [loadEntry()], policy: .after(Date().addingTimeInterval(3600))))
+    }
+
+    private func loadEntry() -> WidgetListEntry {
+        let defaults = UserDefaults.widgetData
+        let items = [
+            defaults?.widgetString(WidgetKeys.recitationItem1, fallback: "Open app to refresh") ?? "Open app to refresh",
+            defaults?.widgetString(WidgetKeys.recitationItem2, fallback: "") ?? "",
+            defaults?.widgetString(WidgetKeys.recitationItem3, fallback: "") ?? ""
+        ].filter { !$0.isEmpty }
+
+        return WidgetListEntry(
+            date: Date(),
+            title: defaults?.widgetString(
+                WidgetKeys.recitationTitle,
+                fallback: "Today's Recitations"
+            ) ?? "Today's Recitations",
+            subtitle: defaults?.widgetString(WidgetKeys.recitationSubtitle, fallback: "") ?? "",
+            items: items
+        )
+    }
+}
+
+struct PrayerWidgetEntry: TimelineEntry {
+    let date: Date
+    let title: String
+    let name: String
+    let time: String
+    let dateLabel: String
+    let location: String
+    let nextRefresh: Date
+}
+
+private struct PrayerScheduleEntry {
+    let date: Date
+    let name: String
+    let time: String
+    let dateLabel: String
+}
+
+struct PrayerProvider: TimelineProvider {
+    func placeholder(in context: Context) -> PrayerWidgetEntry {
+        PrayerWidgetEntry(
+            date: Date(),
+            title: "Upcoming Prayer",
+            name: "Prayer Times",
+            time: "Set location",
+            dateLabel: "Open app",
+            location: "Location needed",
+            nextRefresh: Date().addingTimeInterval(1800)
+        )
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (PrayerWidgetEntry) -> Void) {
+        completion(loadEntry())
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<PrayerWidgetEntry>) -> Void) {
+        let entry = loadEntry()
+        completion(Timeline(entries: [entry], policy: .after(entry.nextRefresh)))
+    }
+
+    private func loadEntry() -> PrayerWidgetEntry {
+        let defaults = UserDefaults.widgetData
+        let schedule = parseSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
+        let now = Date()
+        let nextPrayer = schedule.first { $0.date > now }
+        let nextRefresh = nextPrayer?.date.addingTimeInterval(60) ?? Date().addingTimeInterval(1800)
+
+        return PrayerWidgetEntry(
+            date: now,
+            title: defaults?.widgetString(WidgetKeys.prayerTitle, fallback: "Upcoming Prayer") ?? "Upcoming Prayer",
+            name: nextPrayer?.name ?? defaults?.widgetString(WidgetKeys.prayerName, fallback: "Prayer Times") ?? "Prayer Times",
+            time: nextPrayer?.time ?? defaults?.widgetString(WidgetKeys.prayerTime, fallback: "Set location") ?? "Set location",
+            dateLabel: nextPrayer?.dateLabel ?? defaults?.widgetString(WidgetKeys.prayerDate, fallback: "Open app") ?? "Open app",
+            location: defaults?.widgetString(WidgetKeys.prayerLocation, fallback: "Location needed") ?? "Location needed",
+            nextRefresh: nextRefresh
+        )
+    }
+
+    private func parseSchedule(_ rawSchedule: String) -> [PrayerScheduleEntry] {
+        rawSchedule
+            .split(separator: ";")
+            .compactMap { rawEntry in
+                let parts = rawEntry.split(separator: "|", maxSplits: 3).map(String.init)
+                guard parts.count == 4, let epochMillis = Double(parts[0]) else {
+                    return nil
+                }
+
+                return PrayerScheduleEntry(
+                    date: Date(timeIntervalSince1970: epochMillis / 1000.0),
+                    name: parts[1],
+                    time: parts[2],
+                    dateLabel: parts[3]
+                )
+            }
+            .sorted { $0.date < $1.date }
+    }
+}
+
+struct WidgetListView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: WidgetListEntry
+
+    var body: some View {
+        let visibleItems = Array(entry.items.prefix(family == .systemSmall ? 2 : 3))
+
+        VStack(alignment: .leading, spacing: 4) {
+            Text(entry.title)
+                .font(.headline)
+                .foregroundColor(.primaryText)
+                .lineLimit(1)
+            if !entry.subtitle.isEmpty {
+                Text(entry.subtitle)
+                    .font(.caption)
+                    .foregroundColor(.secondaryText)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 4)
+            ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
+                Text(item)
+                    .font(.caption)
+                    .foregroundColor(.bodyText)
+                    .lineLimit(1)
+            }
+        }
+        .widgetCard()
+    }
+}
+
+struct PrayerWidgetView: View {
+    let entry: PrayerWidgetEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(entry.title)
+                .font(.caption.weight(.semibold))
+                .foregroundColor(.secondaryText)
+                .lineLimit(1)
+            Text(entry.name)
+                .font(.headline)
+                .foregroundColor(.primaryText)
+                .lineLimit(1)
+            Text(entry.time)
+                .font(.title2.weight(.bold))
+                .foregroundColor(.bodyText)
+                .minimumScaleFactor(0.75)
+                .lineLimit(1)
+            Text(entry.dateLabel)
+                .font(.caption)
+                .foregroundColor(.secondaryText)
+                .lineLimit(1)
+            Spacer(minLength: 2)
+            Text(entry.location)
+                .font(.caption2)
+                .foregroundColor(.secondaryText)
+                .lineLimit(1)
+        }
+        .widgetCard()
+    }
+}
+
+private extension View {
+    func widgetCard() -> some View {
+        self
+            .padding(14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(Color.widgetBackground)
+    }
+}
+
+private extension Color {
+    static let widgetBackground = Color(red: 1.0, green: 0.97, blue: 0.93)
+    static let primaryText = Color(red: 0.24, green: 0.17, blue: 0.12)
+    static let bodyText = Color(red: 0.30, green: 0.22, blue: 0.16)
+    static let secondaryText = Color(red: 0.48, green: 0.38, blue: 0.30)
+}
+
+struct FavoritesWidget: Widget {
+    let kind = "FavoritesWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: FavoritesProvider()) { entry in
+            WidgetListView(entry: entry)
+        }
+        .configurationDisplayName("Favorites")
+        .description("Saved Shia Companion favorites.")
+        .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
+struct TodaysRecitationWidget: Widget {
+    let kind = "TodaysRecitationWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: RecitationProvider()) { entry in
+            WidgetListView(entry: entry)
+        }
+        .configurationDisplayName("Today's Recitations")
+        .description("Daily recitations from Shia Companion.")
+        .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
+struct UpcomingPrayerWidget: Widget {
+    let kind = "UpcomingPrayerWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: PrayerProvider()) { entry in
+            PrayerWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Upcoming Prayer")
+        .description("The next prayer time for your saved location.")
+        .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
+@main
+struct ShiaCompanionWidgets: WidgetBundle {
+    var body: some Widget {
+        FavoritesWidget()
+        TodaysRecitationWidget()
+        UpcomingPrayerWidget()
+    }
+}

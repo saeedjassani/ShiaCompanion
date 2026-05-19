@@ -9,6 +9,7 @@ import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../services/account_service.dart';
+import '../services/home_screen_widget_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/shared_preferences.dart';
 import 'about_page.dart';
@@ -112,6 +113,10 @@ class _SettingsPageState extends State<SettingsPage> {
               await SP.prefs.setBool('use_live_location', value);
               if (value) {
                 final success = await initializeLocation(force: true);
+                if (success) {
+                  await HomeScreenWidgetService.instance
+                      .publishUpcomingPrayer();
+                }
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text(success
@@ -129,6 +134,10 @@ class _SettingsPageState extends State<SettingsPage> {
               title: Text("Refresh Location"),
               onTap: () async {
                 bool success = await initializeLocation(force: true);
+                if (success) {
+                  await HomeScreenWidgetService.instance
+                      .publishUpcomingPrayer();
+                }
                 if (!mounted) return;
                 if (success) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -257,6 +266,7 @@ class _SettingsPageState extends State<SettingsPage> {
   saveHijriDate() async {
     await SP.prefs.setInt('adjust_hijri_date', hijriDate);
     await SP.prefs.remove('prayerTimes');
+    await HomeScreenWidgetService.instance.publishTodaysRecitations();
     setState(() {});
   }
 
