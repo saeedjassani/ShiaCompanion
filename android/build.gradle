@@ -21,9 +21,9 @@ subprojects { project ->
         if (androidExt != null) {
             try {
                 // Set default now; some plugins may override later
-                androidExt.compileSdk = 33
+                androidExt.compileSdk = 36
             } catch (Exception ignored) {
-                try { androidExt.compileSdkVersion = 33 } catch (e) {}
+                try { androidExt.compileSdkVersion = 36 } catch (e) {}
             }
         }
     }
@@ -36,7 +36,7 @@ gradle.projectsEvaluated {
         if (project.plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.application')) {
             def androidExt = project.extensions.findByName('android')
             if (androidExt != null) {
-                try { androidExt.compileSdk = 33 } catch (e) { try { androidExt.compileSdkVersion = 33 } catch (e2) {} }
+                try { androidExt.compileSdk = 36 } catch (e) { try { androidExt.compileSdkVersion = 36 } catch (e2) {} }
             }
         }
     }
