@@ -1,7 +1,6 @@
 #include "AppDelegate.h"
 #include "GeneratedPluginRegistrant.h"
 
-@import WidgetKit;
 // @import Firebase;
 @implementation AppDelegate
 
@@ -37,9 +36,6 @@
     }
 
     if ([@"refreshWidgets" isEqualToString:call.method]) {
-      if (@available(iOS 14.0, *)) {
-        [[WidgetCenter sharedWidgetCenter] reloadAllTimelines];
-      }
       result(nil);
       return;
     }
