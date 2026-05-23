@@ -5,14 +5,24 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
+import androidx.glance.appwidget.updateAll
+import com.developer110.shiacompanion.widgets.FavoritesWidget
+import com.developer110.shiacompanion.widgets.TodaysRecitationWidget
+import com.developer110.shiacompanion.widgets.UpcomingPrayerWidget
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.util.Locale
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity: FlutterActivity() {
     private val notificationAudioChannel = "shia_companion/notification_audio"
+    private val homeWidgetsChannel = "shia_companion/home_widgets"
+    private val widgetPreferencesName = "shia_companion_widgets"
+    private val mainScope = CoroutineScope(Dispatchers.Main)
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -50,6 +60,53 @@ class MainActivity: FlutterActivity() {
                             error.localizedMessage,
                             null
                         )
+                    }
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            homeWidgetsChannel
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "saveWidgetData" -> {
+                    val values = call.arguments as? Map<*, *>
+                    if (values == null) {
+                        result.error(
+                            "invalid_arguments",
+                            "Widget data must be a map of string keys and values.",
+                            null
+                        )
+                        return@setMethodCallHandler
+                    }
+
+                    val editor = applicationContext
+                        .getSharedPreferences(widgetPreferencesName, MODE_PRIVATE)
+                        .edit()
+                    values.forEach { (key, value) ->
+                        if (key is String && value != null) {
+                            editor.putString(key, value.toString())
+                        }
+                    }
+                    editor.apply()
+                    result.success(null)
+                }
+                "refreshWidgets" -> {
+                    mainScope.launch {
+                        try {
+                            FavoritesWidget().updateAll(applicationContext)
+                            TodaysRecitationWidget().updateAll(applicationContext)
+                            UpcomingPrayerWidget().updateAll(applicationContext)
+                            result.success(null)
+                        } catch (error: Exception) {
+                            result.error(
+                                "refresh_failed",
+                                error.localizedMessage,
+                                null
+                            )
+                        }
                     }
                 }
                 else -> result.notImplemented()

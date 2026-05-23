@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 class FavoritesManager extends ChangeNotifier {
@@ -155,6 +156,7 @@ class FavoritesManager extends ChangeNotifier {
 
   void _updateFavoritesData(List<UniversalData> nextFavorites) {
     favsData = nextFavorites;
+    HomeScreenWidgetService.instance.publishFavoritesSoon();
     notifyListeners();
   }
 

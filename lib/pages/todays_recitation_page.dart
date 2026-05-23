@@ -3,72 +3,16 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
-import 'package:shia_companion/utils/lunar_date_matcher.dart';
+import 'package:shia_companion/utils/todays_recitation.dart';
 
 import '../constants.dart';
 
 class TodaysRecitationPage extends StatelessWidget {
   const TodaysRecitationPage({super.key});
 
-  void _insertIfAvailable(
-    List<UidTitleData> workingItems,
-    int index,
-    String uid,
-  ) {
-    final title = items[uid];
-    if (title is! String || title.trim().isEmpty) return;
-    if (workingItems.any((item) => item.uid == uid)) return;
-    workingItems.insert(
-        index.clamp(0, workingItems.length), UidTitleData(uid, title));
-  }
-
-  List<UidTitleData> _buildList() {
-    List<UidTitleData> workingItems = [];
-
-    // Add lunar date matched zikrs first
-    final lunarMatchedUids = getTodaysZikrs(itemMetadata);
-    for (final uid in lunarMatchedUids) {
-      _insertIfAvailable(workingItems, workingItems.length, uid);
-    }
-
-    String? tmp;
-    DateTime today = DateTime.now();
-    if (today.weekday == DateTime.friday) {
-      tmp = "J";
-    } else if (today.weekday == DateTime.saturday) {
-      tmp = "K";
-    } else if (today.weekday == DateTime.sunday) {
-      tmp = "L";
-    } else if (today.weekday == DateTime.monday) {
-      tmp = "M";
-    } else if (today.weekday == DateTime.tuesday) {
-      tmp = "N";
-    } else if (today.weekday == DateTime.wednesday) {
-      tmp = "O";
-    } else if (today.weekday == DateTime.thursday) {
-      tmp = "Q";
-    }
-    for (String s in items.keys) {
-      if (tmp == s.split("~")[0] ||
-          tmp == s.replaceAll(RegExp("[0-9].*"), "")) {
-        workingItems.add(UidTitleData(s, items[s]));
-      }
-    }
-    workingItems.sort((a, b) {
-      return a.getId() > b.getId() ? 1 : -1;
-    });
-    if (items.isNotEmpty) {
-      _insertIfAvailable(workingItems, 1, "E18");
-      _insertIfAvailable(workingItems, 2, "G6");
-      _insertIfAvailable(workingItems, 3, "G4");
-      _insertIfAvailable(workingItems, 4, "E37");
-    }
-    return workingItems;
-  }
-
   @override
   Widget build(BuildContext context) {
-    List<UidTitleData> workingItems = _buildList();
+    List<UidTitleData> workingItems = buildTodaysRecitationItems();
 
     return Scaffold(
       appBar: AppBar(title: Text("Today's Recitations")),
