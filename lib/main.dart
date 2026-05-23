@@ -117,6 +117,16 @@ class MyApp extends StatelessWidget {
             }
             return null;
           },
+          onUnknownRoute: (settings) {
+            return MaterialPageRoute(
+              builder: (_) => MyHomePage(
+                title: appName,
+                analytics: analytics,
+                observer: observer,
+              ),
+              settings: const RouteSettings(name: '/'),
+            );
+          },
           navigatorObservers: [observer, routeObserver],
         );
       }),

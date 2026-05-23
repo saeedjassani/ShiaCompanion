@@ -310,7 +310,16 @@ private extension View {
         self
             .padding(14)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(Color.widgetBackground)
+            .widgetBackground()
+    }
+
+    @ViewBuilder
+    func widgetBackground() -> some View {
+        if #available(iOSApplicationExtension 17.0, *) {
+            self.containerBackground(Color.widgetBackground, for: .widget)
+        } else {
+            self.background(Color.widgetBackground)
+        }
     }
 }
 
