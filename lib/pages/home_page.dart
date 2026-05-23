@@ -21,7 +21,6 @@ import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
-import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
@@ -79,7 +78,6 @@ class _MyHomePageState extends State<MyHomePage>
   Future<void> loginCallback() async {
     await _refreshSessionState();
     await FavoritesManager.instance.loadFavorites();
-    await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
     setState(() {});
   }
@@ -758,7 +756,6 @@ class _MyHomePageState extends State<MyHomePage>
         debugPrint("Azan notifications not scheduled");
       }
     }
-    await HomeScreenWidgetService.instance.publishAll();
     setState(() {});
   }
 
@@ -774,10 +771,7 @@ class _MyHomePageState extends State<MyHomePage>
     _isRefreshingLiveLocation = false;
 
     if (!mounted) return;
-    if (success) {
-      await HomeScreenWidgetService.instance.publishUpcomingPrayer();
-      setState(() {});
-    }
+    if (success) setState(() {});
   }
 
   // 0 - 2340 General

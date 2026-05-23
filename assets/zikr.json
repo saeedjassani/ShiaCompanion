@@ -88,7 +88,7 @@
     "slug": "8-al-anfaal"
   },
   "A13": {
-    "title": "9: At-Tawba التوبة",
+    "title": "9: al-Tawbah التوبة",
     "slug": "9-at-tawba"
   },
   "A14": {
@@ -372,7 +372,7 @@
     "slug": "75-al-qiyaama"
   },
   "A8": {
-    "title": "4: An-Nisaa النساء",
+    "title": "4: al-Nisaa النساء",
     "slug": "4-an-nisaa"
   },
   "A80": {
@@ -513,6 +513,7 @@
   },
   "AC1": {
     "title": "Ziyarah on the Day of Ghadeer",
+    "order": 15,
     "slug": "ziyarah-on-the-day-of-ghadeer"
   },
   "AC10": {
@@ -521,18 +522,60 @@
   },
   "AC11": {
     "title": "Aamaal of the Day of Arafah (9th Zilhajj)",
+    "order": 7,
     "slug": "aamal-of-the-day-of-arafat-9th-zilhajj"
   },
   "AC12": {
     "title": "Dua of Imam Husayn (a.s.) on the Day of Arafah",
+    "order": 8,
     "slug": "dua-of-imam-husayn-a-s-on-the-day-of-arafah"
+  },
+  "AC13": {
+    "title": "Comprehensive Ziyarat especially on the Day of Arafah Can be recited at any Shrine",
+    "order": 9,
+    "slug": "comprehensive-ziyarat-especially-on-the-day-of-arafah-can-be-recited-at-any-shrine"
+  },
+  "AC14": {
+    "title": "The Night & Day of Eid al-Azhaa (Qurban)",
+    "order": 10,
+    "slug": "the-night-day-of-eid-al-adha-qurban"
+  },
+  "AC15": {
+    "title": "The Day of Eid al-Azhaa (Qurban)",
+    "order": 11,
+    "slug": "the-day-of-eid-al-adha-qurban"
+  },
+  "AC16": {
+    "title": "The Fifteenth Of Zilhajj",
+    "order": 12,
+    "slug": "the-fifteenth-of-zilhajj"
+  },
+  "AC17": {
+    "title": "Aamaal of the Night of Eid-e-Ghadeer",
+    "order": 13,
+    "slug": "aamal-of-the-night-of-eid-e-ghadeer"
+  },
+  "AC18": {
+    "title": "Aamaal of the Day of Eid-e-Ghadeer",
+    "order": 14,
+    "slug": "aamal-of-the-day-of-eid-e-ghadeer"
+  },
+  "AC2": {
+    "title": "Another Ziyarah on the Day of Ghadeer",
+    "order": 16,
+    "slug": "another-ziyarah-on-the-day-of-ghadeer"
   },
   "AC3": {
     "title": "Ziyarah on the Id al-Fitr and Id al-Azha days",
     "slug": "ziyarah-on-the-id-al-fitr-and-id-al-azha-days"
   },
+  "AC4": {
+    "title": "Ziyarah on the day of Arafat",
+    "slug": "ziyarah-on-the-day-of-arafat"
+  },
   "AC5": {
     "title": "Zilhajj",
+    "order": 1,
     "slug": "zilhajj"
   },
   "AC6": {
@@ -541,6 +584,7 @@
   },
   "AC7": {
     "title": "1st Day of Zilhajj",
+    "order": 2,
     "slug": "1st-day-of-zilhajj",
     "slugAliases": [
       "1st-day-of-zilhaj"
@@ -548,10 +592,12 @@
   },
   "AC8": {
     "title": "The 7th Day Of Zilhajj",
+    "order": 4,
     "slug": "the-7th-day-of-zilhajj"
   },
   "AC9": {
     "title": "The 8th Day Of Zilhajj",
+    "order": 5,
     "slug": "the-8th-day-of-zilhajj"
   },
   "AD4": {
@@ -655,7 +701,7 @@
     "slug": "dua-to-be-recited-after-namaz-e-subh"
   },
   "D3": {
-    "title": "Taqibaat-e-Namaz-e-Fajr",
+    "title": "Ta'qeebaat-e-Namaz-e-Fajr",
     "slug": "taqibaat-e-namaz-e-fajr"
   },
   "D4": {
@@ -1174,10 +1220,6 @@
     "title": "Aamal Between Dawn & Sunrise",
     "slug": "aamal-between-dawn-sunrise"
   },
-  "I10": {
-    "title": "General Ta'qeebaat - 1",
-    "slug": "tasbih-az-zahra"
-  },
   "I11": {
     "title": "Rosary made of the turbat of Imam al-Husayn (a.s.)",
     "slug": "rosary-made-of-the-turbat-of-imam-husayn-a-s"
@@ -1185,6 +1227,10 @@
   "I14": {
     "title": "General Ta'qeebaat-2",
     "slug": "general-ta-qeebaat-10-15"
+  },
+  "I17": {
+    "title": "Ta'qeebaat of the Dawn (Fajr) Prayers",
+    "slug": "ta-qeebaat-of-the-dawn-fajr-prayers"
   },
   "I19": {
     "title": "Thanksgiving Prostration (Sajdah al-Shukr)",
@@ -1201,6 +1247,22 @@
   "I21": {
     "title": "Etiquettes of Noon (Zohr) Prayer",
     "slug": "etiquettes-of-noon-zohr-prayer"
+  },
+  "I21.5": {
+    "title": "Etiquettes of Asr Prayer",
+    "slug": "etiquettes-of-asr-prayer"
+  },
+  "I22": {
+    "title": "Etiquettes of the Sunset (Maghrib) Prayers",
+    "slug": "etiquettes-of-the-sunset-maghrib-prayers"
+  },
+  "I23": {
+    "title": "Etiquettes of The Evening (Isha) Prayers",
+    "slug": "etiquettes-of-the-evening-isha-prayers"
+  },
+  "I24": {
+    "title": "Etiquettes of Bedtime",
+    "slug": "etiquettes-of-bedtime"
   },
   "I3": {
     "title": "Cleansing the Teeth",
@@ -1222,9 +1284,13 @@
     "title": "Other Etiquettes of Namaz",
     "slug": "other-etiquettes-of-namaz"
   },
-  "I9": {
+  "I8": {
     "title": "Etiquettes of Taaqeebaat",
-    "slug": "etiquettes-of-taaqibaat"
+    "slug": "etiquettes-of-taaqeebaat"
+  },
+  "I9": {
+    "title": "General Ta'qeebaat-1",
+    "slug": "general-ta-qeebaat-1"
   },
   "I98": {
     "title": "Things taught by Holy Prophet (s.a.w.a.) to Lady Fatimah (s.a.)",
