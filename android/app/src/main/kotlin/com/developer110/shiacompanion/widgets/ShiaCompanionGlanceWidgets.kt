@@ -25,9 +25,9 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.color.ColorProvider
 
 private const val WIDGET_PREFS = "shia_companion_widgets"
 
@@ -56,10 +56,22 @@ private const val KEY_PRAYER_DATE = "sc_prayer_date"
 private const val KEY_PRAYER_LOCATION = "sc_prayer_location"
 private const val KEY_PRAYER_SCHEDULE = "sc_prayer_schedule"
 
-private val backgroundColor = ColorProvider(0xFFFFF7ED.toInt())
-private val primaryTextColor = ColorProvider(0xFF3D2B1F.toInt())
-private val bodyTextColor = ColorProvider(0xFF4C3829.toInt())
-private val secondaryTextColor = ColorProvider(0xFF7A604C.toInt())
+private val backgroundColor = ColorProvider(
+    day = androidx.compose.ui.graphics.Color(0xFF6D4C41),
+    night = androidx.compose.ui.graphics.Color(0xFF241B17)
+)
+private val primaryTextColor = ColorProvider(
+    day = androidx.compose.ui.graphics.Color(0xFFFFF8F1),
+    night = androidx.compose.ui.graphics.Color(0xFFFFF3E7)
+)
+private val bodyTextColor = ColorProvider(
+    day = androidx.compose.ui.graphics.Color(0xFFF7E4D3),
+    night = androidx.compose.ui.graphics.Color(0xFFE9D5C4)
+)
+private val secondaryTextColor = ColorProvider(
+    day = androidx.compose.ui.graphics.Color(0xFFE4C7B3),
+    night = androidx.compose.ui.graphics.Color(0xFFBFA898)
+)
 
 class FavoritesWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
