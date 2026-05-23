@@ -143,7 +143,7 @@ private fun WidgetListContent(
         }
     }
 
-    WidgetSurface {
+    WidgetSurface(clickable = false) {
         Text(
             text = data.text(titleKey, titleFallback),
             style = TextStyle(
@@ -183,7 +183,7 @@ private fun PrayerWidgetContent() {
     val data = context.widgetData()
     val prayer = data.nextPrayer()
 
-    WidgetSurface {
+    WidgetSurface(clickable = true) {
         Text(
             text = data.text(KEY_PRAYER_TITLE, "Upcoming Prayer"),
             style = TextStyle(
@@ -226,15 +226,26 @@ private fun PrayerWidgetContent() {
 }
 
 @Composable
-private fun WidgetSurface(content: @Composable ColumnScope.() -> Unit) {
+private fun WidgetSurface(
+    clickable: Boolean,
+    content: @Composable ColumnScope.() -> Unit
+) {
     val context = LocalContext.current
+    val modifier = GlanceModifier
+        .fillMaxSize()
+        .background(backgroundColor)
+        .cornerRadius(14.dp)
+        .let {
+            if (clickable) {
+                it.clickable(actionStartActivity(context.openAppIntent()))
+            } else {
+                it
+            }
+        }
+        .padding(14.dp)
+
     Column(
-        modifier = GlanceModifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .cornerRadius(14.dp)
-            .clickable(actionStartActivity(context.openAppIntent()))
-            .padding(14.dp),
+        modifier = modifier,
         verticalAlignment = Alignment.Top,
         horizontalAlignment = Alignment.Start,
         content = content
