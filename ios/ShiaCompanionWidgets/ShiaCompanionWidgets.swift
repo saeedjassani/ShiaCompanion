@@ -269,6 +269,7 @@ struct WidgetListView: View {
                 .font(.caption2.weight(.semibold))
                 .foregroundColor(.secondaryText)
         }
+        .frame(height: 24)
     }
 }
 
