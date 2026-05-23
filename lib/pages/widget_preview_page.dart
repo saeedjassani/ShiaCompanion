@@ -216,20 +216,25 @@ class _ListWidgetPreview extends StatelessWidget {
             ),
           const Spacer(),
           for (final item in visibleItems.take(3))
-            InkWell(
-              onTap: item.url.isEmpty
-                  ? null
-                  : () => launchUrl(Uri.parse(item.url)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
+            SizedBox(
+              height: 30,
+              child: InkWell(
+                onTap: item.url.isEmpty
+                    ? null
+                    : () => launchUrl(Uri.parse(item.url)),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Text(
                         item.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 12, color: palette.bodyText),
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.1,
+                          color: palette.bodyText,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 4),

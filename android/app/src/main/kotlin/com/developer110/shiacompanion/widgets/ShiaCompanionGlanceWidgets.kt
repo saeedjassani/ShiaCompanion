@@ -202,7 +202,7 @@ private fun WidgetListContent(
                 ?: GlanceModifier
             Text(
                 text = "› ${item.title}",
-                modifier = modifier,
+                modifier = modifier.height(24.dp),
                 style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
                 maxLines = 1
             )
