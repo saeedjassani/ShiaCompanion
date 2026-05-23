@@ -249,6 +249,7 @@ struct WidgetListView: View {
                     Link(destination: url) {
                         widgetItemText(item.title)
                     }
+                    .buttonStyle(.plain)
                 } else {
                     widgetItemText(item.title)
                 }
@@ -307,10 +308,26 @@ private extension View {
 }
 
 private extension Color {
-    static let widgetBackground = Color(red: 1.0, green: 0.97, blue: 0.93)
-    static let primaryText = Color(red: 0.24, green: 0.17, blue: 0.12)
-    static let bodyText = Color(red: 0.30, green: 0.22, blue: 0.16)
-    static let secondaryText = Color(red: 0.48, green: 0.38, blue: 0.30)
+    static let widgetBackground = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.14, green: 0.11, blue: 0.09, alpha: 1.0)
+            : UIColor(red: 0.43, green: 0.30, blue: 0.25, alpha: 1.0)
+    })
+    static let primaryText = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 1.0, green: 0.95, blue: 0.91, alpha: 1.0)
+            : UIColor(red: 1.0, green: 0.97, blue: 0.94, alpha: 1.0)
+    })
+    static let bodyText = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.91, green: 0.84, blue: 0.77, alpha: 1.0)
+            : UIColor(red: 0.97, green: 0.89, blue: 0.83, alpha: 1.0)
+    })
+    static let secondaryText = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.75, green: 0.66, blue: 0.60, alpha: 1.0)
+            : UIColor(red: 0.89, green: 0.78, blue: 0.70, alpha: 1.0)
+    })
 }
 
 struct FavoritesWidget: Widget {

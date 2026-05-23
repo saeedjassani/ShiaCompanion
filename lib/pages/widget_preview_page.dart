@@ -195,6 +195,7 @@ class _ListWidgetPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final visibleItems = items.where((item) => item.title.isNotEmpty).toList();
+    final palette = _WidgetPalette.of(context);
     return _WidgetShell(
       width: width,
       height: height,
@@ -211,7 +212,7 @@ class _ListWidgetPreview extends StatelessWidget {
               subtitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF7A604C)),
+              style: TextStyle(fontSize: 12, color: palette.secondaryText),
             ),
           const Spacer(),
           for (final item in visibleItems.take(3))
@@ -225,8 +226,7 @@ class _ListWidgetPreview extends StatelessWidget {
                   item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style:
-                      const TextStyle(fontSize: 12, color: Color(0xFF4C3829)),
+                  style: TextStyle(fontSize: 12, color: palette.bodyText),
                 ),
               ),
             ),
@@ -257,6 +257,7 @@ class _PrayerWidgetPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = _WidgetPalette.of(context);
     return _WidgetShell(
       width: width,
       height: height,
@@ -266,10 +267,8 @@ class _PrayerWidgetPreview extends StatelessWidget {
           Text(title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF7A604C))),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)
+                  .copyWith(color: palette.secondaryText)),
           Text(name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -283,12 +282,12 @@ class _PrayerWidgetPreview extends StatelessWidget {
           Text(dateLabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF7A604C))),
+              style: TextStyle(fontSize: 12, color: palette.secondaryText)),
           const Spacer(),
           Text(location,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF7A604C))),
+              style: TextStyle(fontSize: 11, color: palette.secondaryText)),
         ],
       ),
     );
@@ -308,19 +307,57 @@ class _WidgetShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = _WidgetPalette.of(context);
     return Container(
       width: width,
       height: height,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF7ED),
+        color: palette.background,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE9D9C6)),
+        border: Border.all(color: palette.border),
       ),
       child: DefaultTextStyle(
-        style: const TextStyle(color: Color(0xFF3D2B1F)),
+        style: TextStyle(color: palette.primaryText),
         child: child,
       ),
+    );
+  }
+}
+
+class _WidgetPalette {
+  const _WidgetPalette({
+    required this.background,
+    required this.border,
+    required this.primaryText,
+    required this.bodyText,
+    required this.secondaryText,
+  });
+
+  final Color background;
+  final Color border;
+  final Color primaryText;
+  final Color bodyText;
+  final Color secondaryText;
+
+  static _WidgetPalette of(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    if (dark) {
+      return const _WidgetPalette(
+        background: Color(0xFF241B17),
+        border: Color(0xFF3A2B24),
+        primaryText: Color(0xFFFFF3E7),
+        bodyText: Color(0xFFE9D5C4),
+        secondaryText: Color(0xFFBFA898),
+      );
+    }
+
+    return const _WidgetPalette(
+      background: Color(0xFF6D4C41),
+      border: Color(0xFF8D6E63),
+      primaryText: Color(0xFFFFF8F1),
+      bodyText: Color(0xFFF7E4D3),
+      secondaryText: Color(0xFFE4C7B3),
     );
   }
 }
