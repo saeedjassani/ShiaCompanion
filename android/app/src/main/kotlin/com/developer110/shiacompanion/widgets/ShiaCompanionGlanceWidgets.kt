@@ -1,8 +1,12 @@
 package com.developer110.shiacompanion.widgets
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -14,6 +18,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.updateAll
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -28,8 +33,13 @@ import androidx.glance.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.color.ColorProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private const val WIDGET_PREFS = "shia_companion_widgets"
+private const val ACTION_REFRESH_PRAYER_WIDGET =
+    "com.developer110.shiacompanion.widgets.REFRESH_PRAYER_WIDGET"
 
 private const val KEY_FAVORITES_TITLE = "sc_favorites_title"
 private const val KEY_FAVORITES_SUBTITLE = "sc_favorites_subtitle"
@@ -131,6 +141,17 @@ class UpcomingPrayerWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = UpcomingPrayerWidget()
 }
 
+class PrayerWidgetRefreshReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != ACTION_REFRESH_PRAYER_WIDGET) return
+
+        CoroutineScope(Dispatchers.Main).launch {
+            UpcomingPrayerWidget().updateAll(context.applicationContext)
+            scheduleNextPrayerWidgetRefresh(context.applicationContext)
+        }
+    }
+}
+
 @Composable
 private fun WidgetListContent(
     titleKey: String,
@@ -180,7 +201,7 @@ private fun WidgetListContent(
                 ?.let { GlanceModifier.clickable(actionStartActivity(context.openUrlIntent(it))) }
                 ?: GlanceModifier
             Text(
-                text = item.title,
+                text = "› ${item.title}",
                 modifier = modifier,
                 style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
                 maxLines = 1
@@ -266,6 +287,35 @@ private fun WidgetSurface(
 
 private fun Context.widgetData() = getSharedPreferences(WIDGET_PREFS, Context.MODE_PRIVATE)
 
+fun scheduleNextPrayerWidgetRefresh(context: Context) {
+    val nextPrayer = context.widgetData().nextPrayerEpochMillis() ?: return
+    val triggerAt = nextPrayer + 60_000L
+    if (triggerAt <= System.currentTimeMillis()) return
+
+    val intent = Intent(context, PrayerWidgetRefreshReceiver::class.java).apply {
+        action = ACTION_REFRESH_PRAYER_WIDGET
+    }
+    val flags = PendingIntent.FLAG_UPDATE_CURRENT or (
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+        )
+    val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, flags)
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+    try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerAt,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+        }
+    } catch (_: SecurityException) {
+        alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+    }
+}
+
 private data class WidgetItem(
     val title: String,
     val url: String
@@ -339,4 +389,17 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
         dateLabel = text(KEY_PRAYER_DATE, "Open app"),
         location = location
     )
+}
+
+private fun android.content.SharedPreferences.nextPrayerEpochMillis(): Long? {
+    val now = System.currentTimeMillis()
+    return getString(KEY_PRAYER_SCHEDULE, "")
+        ?.split(';')
+        ?.mapNotNull { rawEntry ->
+            val parts = rawEntry.split('|', limit = 4)
+            if (parts.size != 4) return@mapNotNull null
+            parts[0].toLongOrNull()
+        }
+        ?.filter { it > now }
+        ?.minOrNull()
 }

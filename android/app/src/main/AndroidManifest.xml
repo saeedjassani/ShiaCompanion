@@ -101,5 +101,8 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/prayer_widget_info" />
         </receiver>
+        <receiver
+            android:name="com.developer110.shiacompanion.widgets.PrayerWidgetRefreshReceiver"
+            android:exported="false" />
     </application>
 </manifest>

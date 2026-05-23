@@ -222,11 +222,23 @@ class _ListWidgetPreview extends StatelessWidget {
                   : () => launchUrl(Uri.parse(item.url)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Text(
-                  item.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: palette.bodyText),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: palette.bodyText),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right,
+                      size: 14,
+                      color: palette.secondaryText,
+                    ),
+                  ],
                 ),
               ),
             ),
