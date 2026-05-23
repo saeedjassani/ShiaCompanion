@@ -153,6 +153,12 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             Divider(),
           ],
+          ExpansionTile(
+            leading: Icon(Icons.widgets),
+            title: Text("Upcoming prayer widget"),
+            children: _buildUpcomingPrayerWidgetOptions(),
+          ),
+          Divider(),
           ListTile(
             leading: Icon(Icons.feedback),
             title: Text("Feedback"),
@@ -268,6 +274,27 @@ class _SettingsPageState extends State<SettingsPage> {
     await SP.prefs.remove('prayerTimes');
     await HomeScreenWidgetService.instance.publishTodaysRecitations();
     setState(() {});
+  }
+
+  List<Widget> _buildUpcomingPrayerWidgetOptions() {
+    final prayerNames = getPrayerTimeObject().getTimeNames();
+    return prayerNames
+        .map(
+          (prayerName) => SwitchListTile(
+            title: Text(prayerName),
+            value: HomeScreenWidgetService.shouldIncludePrayer(prayerName),
+            onChanged: (value) async {
+              await SP.prefs.setBool(
+                HomeScreenWidgetService.prayerFilterPreferenceKey(prayerName),
+                value,
+              );
+              await HomeScreenWidgetService.instance.publishUpcomingPrayer();
+              if (!mounted) return;
+              setState(() {});
+            },
+          ),
+        )
+        .toList();
   }
 
   String _getCurrentAzaanName() {

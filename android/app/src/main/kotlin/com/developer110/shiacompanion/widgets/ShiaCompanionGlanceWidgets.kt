@@ -1,12 +1,14 @@
 package com.developer110.shiacompanion.widgets
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
-import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -26,7 +28,6 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.developer110.shia_companion.MainActivity
 
 private const val WIDGET_PREFS = "shia_companion_widgets"
 
@@ -35,12 +36,18 @@ private const val KEY_FAVORITES_SUBTITLE = "sc_favorites_subtitle"
 private const val KEY_FAVORITE_ITEM_1 = "sc_favorites_item_1"
 private const val KEY_FAVORITE_ITEM_2 = "sc_favorites_item_2"
 private const val KEY_FAVORITE_ITEM_3 = "sc_favorites_item_3"
+private const val KEY_FAVORITE_URL_1 = "sc_favorites_url_1"
+private const val KEY_FAVORITE_URL_2 = "sc_favorites_url_2"
+private const val KEY_FAVORITE_URL_3 = "sc_favorites_url_3"
 
 private const val KEY_RECITATION_TITLE = "sc_recitation_title"
 private const val KEY_RECITATION_SUBTITLE = "sc_recitation_subtitle"
 private const val KEY_RECITATION_ITEM_1 = "sc_recitation_item_1"
 private const val KEY_RECITATION_ITEM_2 = "sc_recitation_item_2"
 private const val KEY_RECITATION_ITEM_3 = "sc_recitation_item_3"
+private const val KEY_RECITATION_URL_1 = "sc_recitation_url_1"
+private const val KEY_RECITATION_URL_2 = "sc_recitation_url_2"
+private const val KEY_RECITATION_URL_3 = "sc_recitation_url_3"
 
 private const val KEY_PRAYER_TITLE = "sc_prayer_title"
 private const val KEY_PRAYER_NAME = "sc_prayer_name"
@@ -65,6 +72,7 @@ class FavoritesWidget : GlanceAppWidget() {
                 subtitleKey = KEY_FAVORITES_SUBTITLE,
                 subtitleFallback = "Open app to add favorites",
                 itemKeys = listOf(KEY_FAVORITE_ITEM_1, KEY_FAVORITE_ITEM_2, KEY_FAVORITE_ITEM_3),
+                itemUrlKeys = listOf(KEY_FAVORITE_URL_1, KEY_FAVORITE_URL_2, KEY_FAVORITE_URL_3),
                 firstItemFallback = "No favorites yet"
             )
         }
@@ -86,6 +94,7 @@ class TodaysRecitationWidget : GlanceAppWidget() {
                 subtitleKey = KEY_RECITATION_SUBTITLE,
                 subtitleFallback = "",
                 itemKeys = listOf(KEY_RECITATION_ITEM_1, KEY_RECITATION_ITEM_2, KEY_RECITATION_ITEM_3),
+                itemUrlKeys = listOf(KEY_RECITATION_URL_1, KEY_RECITATION_URL_2, KEY_RECITATION_URL_3),
                 firstItemFallback = "Open app to refresh"
             )
         }
@@ -117,12 +126,21 @@ private fun WidgetListContent(
     subtitleKey: String,
     subtitleFallback: String,
     itemKeys: List<String>,
+    itemUrlKeys: List<String>,
     firstItemFallback: String
 ) {
     val context = LocalContext.current
     val data = context.widgetData()
     val items = itemKeys.mapIndexedNotNull { index, key ->
-        data.text(key, if (index == 0) firstItemFallback else "").takeIf { it.isNotBlank() }
+        val title = data.text(key, if (index == 0) firstItemFallback else "")
+        if (title.isBlank()) {
+            null
+        } else {
+            WidgetItem(
+                title = title,
+                url = data.text(itemUrlKeys[index], "")
+            )
+        }
     }
 
     WidgetSurface {
@@ -145,8 +163,13 @@ private fun WidgetListContent(
         }
         Spacer(GlanceModifier.height(8.dp))
         items.take(3).forEach { item ->
+            val modifier = item.url
+                .takeIf { it.isNotBlank() }
+                ?.let { GlanceModifier.clickable(actionStartActivity(context.openUrlIntent(it))) }
+                ?: GlanceModifier
             Text(
-                text = item,
+                text = item.title,
+                modifier = modifier,
                 style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
                 maxLines = 1
             )
@@ -204,12 +227,13 @@ private fun PrayerWidgetContent() {
 
 @Composable
 private fun WidgetSurface(content: @Composable ColumnScope.() -> Unit) {
+    val context = LocalContext.current
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
             .background(backgroundColor)
             .cornerRadius(14.dp)
-            .clickable(actionStartActivity<MainActivity>())
+            .clickable(actionStartActivity(context.openAppIntent()))
             .padding(14.dp),
         verticalAlignment = Alignment.Top,
         horizontalAlignment = Alignment.Start,
@@ -218,6 +242,27 @@ private fun WidgetSurface(content: @Composable ColumnScope.() -> Unit) {
 }
 
 private fun Context.widgetData() = getSharedPreferences(WIDGET_PREFS, Context.MODE_PRIVATE)
+
+private data class WidgetItem(
+    val title: String,
+    val url: String
+)
+
+private fun Context.openUrlIntent(url: String): Intent {
+    return Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+        setPackage(packageName)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+}
+
+private fun Context.openAppIntent(): Intent {
+    return packageManager.getLaunchIntentForPackage(packageName)?.apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    } ?: Intent(Intent.ACTION_MAIN).apply {
+        setPackage(packageName)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+}
 
 private fun android.content.SharedPreferences.text(key: String, fallback: String): String {
     return getString(key, fallback)?.takeIf { it.isNotBlank() } ?: fallback

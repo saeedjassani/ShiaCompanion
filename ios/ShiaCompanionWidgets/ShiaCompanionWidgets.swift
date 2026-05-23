@@ -9,12 +9,18 @@ private enum WidgetKeys {
     static let favoriteItem1 = "sc_favorites_item_1"
     static let favoriteItem2 = "sc_favorites_item_2"
     static let favoriteItem3 = "sc_favorites_item_3"
+    static let favoriteUrl1 = "sc_favorites_url_1"
+    static let favoriteUrl2 = "sc_favorites_url_2"
+    static let favoriteUrl3 = "sc_favorites_url_3"
 
     static let recitationTitle = "sc_recitation_title"
     static let recitationSubtitle = "sc_recitation_subtitle"
     static let recitationItem1 = "sc_recitation_item_1"
     static let recitationItem2 = "sc_recitation_item_2"
     static let recitationItem3 = "sc_recitation_item_3"
+    static let recitationUrl1 = "sc_recitation_url_1"
+    static let recitationUrl2 = "sc_recitation_url_2"
+    static let recitationUrl3 = "sc_recitation_url_3"
 
     static let prayerTitle = "sc_prayer_title"
     static let prayerName = "sc_prayer_name"
@@ -39,7 +45,12 @@ struct WidgetListEntry: TimelineEntry {
     let date: Date
     let title: String
     let subtitle: String
-    let items: [String]
+    let items: [WidgetListItem]
+}
+
+struct WidgetListItem {
+    let title: String
+    let url: URL?
 }
 
 struct FavoritesProvider: TimelineProvider {
@@ -48,7 +59,7 @@ struct FavoritesProvider: TimelineProvider {
             date: Date(),
             title: "Favorites",
             subtitle: "Open app to add favorites",
-            items: ["No favorites yet"]
+            items: [WidgetListItem(title: "No favorites yet", url: nil)]
         )
     }
 
@@ -62,11 +73,12 @@ struct FavoritesProvider: TimelineProvider {
 
     private func loadEntry() -> WidgetListEntry {
         let defaults = UserDefaults.widgetData
-        let items = [
-            defaults?.widgetString(WidgetKeys.favoriteItem1, fallback: "No favorites yet") ?? "No favorites yet",
-            defaults?.widgetString(WidgetKeys.favoriteItem2, fallback: "") ?? "",
-            defaults?.widgetString(WidgetKeys.favoriteItem3, fallback: "") ?? ""
-        ].filter { !$0.isEmpty }
+        let items = widgetItems(
+            defaults: defaults,
+            titleKeys: [WidgetKeys.favoriteItem1, WidgetKeys.favoriteItem2, WidgetKeys.favoriteItem3],
+            urlKeys: [WidgetKeys.favoriteUrl1, WidgetKeys.favoriteUrl2, WidgetKeys.favoriteUrl3],
+            firstFallback: "No favorites yet"
+        )
 
         return WidgetListEntry(
             date: Date(),
@@ -86,7 +98,7 @@ struct RecitationProvider: TimelineProvider {
             date: Date(),
             title: "Today's Recitations",
             subtitle: "",
-            items: ["Open app to refresh"]
+            items: [WidgetListItem(title: "Open app to refresh", url: nil)]
         )
     }
 
@@ -100,11 +112,12 @@ struct RecitationProvider: TimelineProvider {
 
     private func loadEntry() -> WidgetListEntry {
         let defaults = UserDefaults.widgetData
-        let items = [
-            defaults?.widgetString(WidgetKeys.recitationItem1, fallback: "Open app to refresh") ?? "Open app to refresh",
-            defaults?.widgetString(WidgetKeys.recitationItem2, fallback: "") ?? "",
-            defaults?.widgetString(WidgetKeys.recitationItem3, fallback: "") ?? ""
-        ].filter { !$0.isEmpty }
+        let items = widgetItems(
+            defaults: defaults,
+            titleKeys: [WidgetKeys.recitationItem1, WidgetKeys.recitationItem2, WidgetKeys.recitationItem3],
+            urlKeys: [WidgetKeys.recitationUrl1, WidgetKeys.recitationUrl2, WidgetKeys.recitationUrl3],
+            firstFallback: "Open app to refresh"
+        )
 
         return WidgetListEntry(
             date: Date(),
@@ -115,6 +128,23 @@ struct RecitationProvider: TimelineProvider {
             subtitle: defaults?.widgetString(WidgetKeys.recitationSubtitle, fallback: "") ?? "",
             items: items
         )
+    }
+}
+
+private func widgetItems(
+    defaults: UserDefaults?,
+    titleKeys: [String],
+    urlKeys: [String],
+    firstFallback: String
+) -> [WidgetListItem] {
+    titleKeys.enumerated().compactMap { index, titleKey in
+        let title = defaults?.widgetString(titleKey, fallback: index == 0 ? firstFallback : "") ?? ""
+        if title.isEmpty {
+            return nil
+        }
+
+        let rawUrl = defaults?.widgetString(urlKeys[index], fallback: "") ?? ""
+        return WidgetListItem(title: title, url: URL(string: rawUrl))
     }
 }
 
@@ -215,13 +245,23 @@ struct WidgetListView: View {
             }
             Spacer(minLength: 4)
             ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
-                Text(item)
-                    .font(.caption)
-                    .foregroundColor(.bodyText)
-                    .lineLimit(1)
+                if let url = item.url {
+                    Link(destination: url) {
+                        widgetItemText(item.title)
+                    }
+                } else {
+                    widgetItemText(item.title)
+                }
             }
         }
         .widgetCard()
+    }
+
+    private func widgetItemText(_ title: String) -> some View {
+        Text(title)
+            .font(.caption)
+            .foregroundColor(.bodyText)
+            .lineLimit(1)
     }
 }
 

@@ -7,12 +7,13 @@ import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:shia_companion/utils/webview_registry.dart'
     if (dart.library.js_interop) 'package:shia_companion/utils/webview_registry_web.dart';
 
 import 'constants.dart';
 import 'pages/home_page.dart';
+import 'pages/widget_preview_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,7 @@ void main() async {
 enum _AppLaunchDestination {
   home,
   deleteAccount,
+  widgetPreview,
 }
 
 _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
@@ -47,6 +49,11 @@ _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
       uri.pathSegments.where((segment) => segment.trim().isNotEmpty).toList();
   if (segments.length == 1 && segments.first == 'delete-account') {
     return _AppLaunchDestination.deleteAccount;
+  }
+  if (kDebugMode &&
+      segments.length == 1 &&
+      segments.first == 'widget-preview') {
+    return _AppLaunchDestination.widgetPreview;
   }
   return _AppLaunchDestination.home;
 }
@@ -88,6 +95,7 @@ class MyApp extends StatelessWidget {
               darkModeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: switch (_resolveLaunchDestination(Uri.base)) {
             _AppLaunchDestination.deleteAccount => const DeleteAccountPage(),
+            _AppLaunchDestination.widgetPreview => const WidgetPreviewPage(),
             _AppLaunchDestination.home => MyHomePage(
                 title: appName,
                 analytics: analytics,

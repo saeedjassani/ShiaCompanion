@@ -4,7 +4,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/utils/deep_links.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 
 class HomeScreenWidgetService {
@@ -21,12 +24,18 @@ class HomeScreenWidgetService {
   static const String favoriteItem1Key = 'sc_favorites_item_1';
   static const String favoriteItem2Key = 'sc_favorites_item_2';
   static const String favoriteItem3Key = 'sc_favorites_item_3';
+  static const String favoriteUrl1Key = 'sc_favorites_url_1';
+  static const String favoriteUrl2Key = 'sc_favorites_url_2';
+  static const String favoriteUrl3Key = 'sc_favorites_url_3';
 
   static const String recitationTitleKey = 'sc_recitation_title';
   static const String recitationSubtitleKey = 'sc_recitation_subtitle';
   static const String recitationItem1Key = 'sc_recitation_item_1';
   static const String recitationItem2Key = 'sc_recitation_item_2';
   static const String recitationItem3Key = 'sc_recitation_item_3';
+  static const String recitationUrl1Key = 'sc_recitation_url_1';
+  static const String recitationUrl2Key = 'sc_recitation_url_2';
+  static const String recitationUrl3Key = 'sc_recitation_url_3';
 
   static const String prayerTitleKey = 'sc_prayer_title';
   static const String prayerNameKey = 'sc_prayer_name';
@@ -35,6 +44,21 @@ class HomeScreenWidgetService {
   static const String prayerLocationKey = 'sc_prayer_location';
   static const String prayerScheduleKey = 'sc_prayer_schedule';
 
+  static String prayerFilterPreferenceKey(String prayerName) {
+    return 'widget_upcoming_${notificationPreferenceKeyForPrayer(prayerName)}';
+  }
+
+  static bool defaultPrayerFilterValue(String prayerName) {
+    final normalizedName = prayerName.trim().toLowerCase();
+    return normalizedName != 'sunrise' && normalizedName != 'sunset';
+  }
+
+  static bool shouldIncludePrayer(String prayerName) {
+    if (!SP.isInitialized) return defaultPrayerFilterValue(prayerName);
+    return SP.prefs.getBool(prayerFilterPreferenceKey(prayerName)) ??
+        defaultPrayerFilterValue(prayerName);
+  }
+
   bool get _isSupported {
     return !kIsWeb && (Platform.isAndroid || Platform.isIOS);
   }
@@ -42,60 +66,89 @@ class HomeScreenWidgetService {
   Future<void> publishAll() async {
     if (!_isSupported) return;
 
-    await publishFavorites();
-    await publishTodaysRecitations();
-    await publishUpcomingPrayer();
+    await _saveAndRefresh(buildWidgetSnapshot());
   }
 
   Future<void> publishFavorites() async {
     if (!_isSupported) return;
 
-    final favorites = favsData ?? const <UniversalData>[];
-    final topFavorites = favorites
-        .map(
-          (item) => item.title.trim().isNotEmpty ? item.title.trim() : item.uid,
-        )
-        .take(3)
-        .toList(growable: false);
-
-    await _saveAndRefresh({
-      favoritesTitleKey: 'Favorites',
-      favoritesSubtitleKey: _favoritesSubtitle(favorites.length),
-      favoriteItem1Key: _itemAt(topFavorites, 0) ?? 'No favorites yet',
-      favoriteItem2Key: _itemAt(topFavorites, 1) ?? '',
-      favoriteItem3Key: _itemAt(topFavorites, 2) ?? '',
-    });
+    await _saveAndRefresh(buildFavoritesSnapshot());
   }
 
   Future<void> publishTodaysRecitations() async {
     if (!_isSupported) return;
 
-    final today = DateTime.now();
-    final recitations = buildTodaysRecitationItems(now: today);
-    final topRecitations =
-        recitations.map((item) => item.title.trim()).take(3).toList();
-
-    await _saveAndRefresh({
-      recitationTitleKey: "Today's Recitations",
-      recitationSubtitleKey: _weekdayLabel(today),
-      recitationItem1Key: _itemAt(topRecitations, 0) ?? 'Open app to refresh',
-      recitationItem2Key: _itemAt(topRecitations, 1) ?? '',
-      recitationItem3Key: _itemAt(topRecitations, 2) ?? '',
-    });
+    await _saveAndRefresh(buildTodaysRecitationsSnapshot());
   }
 
   Future<void> publishUpcomingPrayer() async {
     if (!_isSupported) return;
 
+    await _saveAndRefresh(buildUpcomingPrayerSnapshot());
+  }
+
+  Map<String, String> buildWidgetSnapshot() {
+    return {
+      ...buildFavoritesSnapshot(),
+      ...buildTodaysRecitationsSnapshot(),
+      ...buildUpcomingPrayerSnapshot(),
+    };
+  }
+
+  Map<String, String> buildFavoritesSnapshot() {
+    final favorites = (favsData ?? const <UniversalData>[])
+        .where((item) => item.type == 0)
+        .toList(growable: false);
+    final topFavorites = favorites.take(3).toList(growable: false);
+
+    return {
+      favoritesTitleKey: 'Favorites',
+      favoritesSubtitleKey: _favoritesSubtitle(favorites.length),
+      favoriteItem1Key:
+          _widgetTitleForUniversalData(_itemAt(topFavorites, 0)) ??
+              'No favorites yet',
+      favoriteItem2Key:
+          _widgetTitleForUniversalData(_itemAt(topFavorites, 1)) ?? '',
+      favoriteItem3Key:
+          _widgetTitleForUniversalData(_itemAt(topFavorites, 2)) ?? '',
+      favoriteUrl1Key: _widgetUrlForUniversalData(_itemAt(topFavorites, 0)),
+      favoriteUrl2Key: _widgetUrlForUniversalData(_itemAt(topFavorites, 1)),
+      favoriteUrl3Key: _widgetUrlForUniversalData(_itemAt(topFavorites, 2)),
+    };
+  }
+
+  Map<String, String> buildTodaysRecitationsSnapshot({DateTime? now}) {
+    final today = now ?? DateTime.now();
+    final recitations = buildTodaysRecitationItems(now: today)
+        .where((item) => !item.uid.contains('~'))
+        .take(3)
+        .toList();
+
+    return {
+      recitationTitleKey: "Today's Recitations",
+      recitationSubtitleKey: _weekdayLabel(today),
+      recitationItem1Key: _widgetTitleForRecitation(_itemAt(recitations, 0)) ??
+          'Open app to refresh',
+      recitationItem2Key:
+          _widgetTitleForRecitation(_itemAt(recitations, 1)) ?? '',
+      recitationItem3Key:
+          _widgetTitleForRecitation(_itemAt(recitations, 2)) ?? '',
+      recitationUrl1Key: _widgetUrlForRecitation(_itemAt(recitations, 0)),
+      recitationUrl2Key: _widgetUrlForRecitation(_itemAt(recitations, 1)),
+      recitationUrl3Key: _widgetUrlForRecitation(_itemAt(recitations, 2)),
+    };
+  }
+
+  Map<String, String> buildUpcomingPrayerSnapshot() {
     final prayerSnapshot = _buildPrayerSnapshot();
-    await _saveAndRefresh({
+    return {
       prayerTitleKey: 'Upcoming Prayer',
       prayerNameKey: prayerSnapshot.name,
       prayerTimeKey: prayerSnapshot.time,
       prayerDateKey: prayerSnapshot.dateLabel,
       prayerLocationKey: prayerSnapshot.location,
       prayerScheduleKey: prayerSnapshot.encodedSchedule,
-    });
+    };
   }
 
   Future<void> publishAllSoon() async {
@@ -197,6 +250,8 @@ class HomeScreenWidgetService {
       );
 
       for (var index = 0; index < names.length; index++) {
+        if (!shouldIncludePrayer(names[index])) continue;
+
         final dateTime = _dateTimeForTime24(date, times24[index]);
         if (dateTime == null) continue;
 
@@ -225,9 +280,33 @@ class HomeScreenWidgetService {
   }
 
   String _favoritesSubtitle(int count) {
-    if (count == 0) return 'Open app to add favorites';
-    if (count == 1) return '1 saved item';
-    return '$count saved items';
+    if (count == 0) return 'Open app to add zikr favorites';
+    if (count == 1) return '1 saved zikr';
+    return '$count saved zikr';
+  }
+
+  String? _widgetTitleForUniversalData(UniversalData? item) {
+    if (item == null) return null;
+    final title = item.title.trim();
+    return title.isNotEmpty ? title : item.canonicalUid;
+  }
+
+  String _widgetUrlForUniversalData(UniversalData? item) {
+    if (item == null || item.type != 0) return '';
+    final uid = item.canonicalUid;
+    return buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]);
+  }
+
+  String? _widgetTitleForRecitation(UidTitleData? item) {
+    final title = item?.title.trim();
+    if (title == null || title.isEmpty) return null;
+    return title;
+  }
+
+  String _widgetUrlForRecitation(UidTitleData? item) {
+    if (item == null) return '';
+    final uid = item.getFirstUId();
+    return buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]);
   }
 
   T? _itemAt<T>(List<T> items, int index) {
