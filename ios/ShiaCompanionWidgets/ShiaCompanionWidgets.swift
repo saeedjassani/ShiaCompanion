@@ -247,22 +247,28 @@ struct WidgetListView: View {
             ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
                 if let url = item.url {
                     Link(destination: url) {
-                        widgetItemText(item.title)
+                        widgetItemRow(item.title)
                     }
                     .buttonStyle(.plain)
                 } else {
-                    widgetItemText(item.title)
+                    widgetItemRow(item.title)
                 }
             }
         }
         .widgetCard()
     }
 
-    private func widgetItemText(_ title: String) -> some View {
-        Text(title)
-            .font(.caption)
-            .foregroundColor(.bodyText)
-            .lineLimit(1)
+    private func widgetItemRow(_ title: String) -> some View {
+        HStack(spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.bodyText)
+                .lineLimit(1)
+            Spacer(minLength: 4)
+            Image(systemName: "chevron.right")
+                .font(.caption2.weight(.semibold))
+                .foregroundColor(.secondaryText)
+        }
     }
 }
 
