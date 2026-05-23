@@ -102,6 +102,21 @@ class MyApp extends StatelessWidget {
                 observer: observer,
               ),
           },
+          onGenerateRoute: (settings) {
+            if (settings.name == '/delete-account') {
+              return MaterialPageRoute(
+                builder: (_) => const DeleteAccountPage(),
+                settings: settings,
+              );
+            }
+            if (kDebugMode && settings.name == '/widget-preview') {
+              return MaterialPageRoute(
+                builder: (_) => const WidgetPreviewPage(),
+                settings: settings,
+              );
+            }
+            return null;
+          },
           navigatorObservers: [observer, routeObserver],
         );
       }),
