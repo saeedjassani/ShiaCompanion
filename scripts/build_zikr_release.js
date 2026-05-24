@@ -180,7 +180,28 @@ function buildIndexEntry(data, resolvedSlugData) {
     entry.slugAliases = slugAliases;
   }
 
+  const day = normalizeDayPatterns(data?.day);
+  if (day != null) {
+    entry.day = day;
+  }
+
   return entry;
+}
+
+function normalizeDayPatterns(value) {
+  if (typeof value === 'string') {
+    const pattern = value.trim();
+    return pattern || null;
+  }
+
+  if (Array.isArray(value)) {
+    const patterns = value
+      .map((pattern) => `${pattern ?? ''}`.trim())
+      .filter((pattern) => pattern.length > 0);
+    return patterns.length > 0 ? patterns : null;
+  }
+
+  return null;
 }
 
 function shouldWriteContentFile(uid, data) {
