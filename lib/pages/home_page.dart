@@ -180,14 +180,6 @@ class _MyHomePageState extends State<MyHomePage>
     final target = _pendingDeepLink!;
     _pendingDeepLink = null;
 
-    if (target.type == prayerTimesDeepLinkType) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        pushPageRoute(context, CalendarPage(true));
-      });
-      return;
-    }
-
     if (target.type != zikrDeepLinkType || target.segments.isEmpty) {
       _openDeepLinkNotFound(target.key);
       return;
