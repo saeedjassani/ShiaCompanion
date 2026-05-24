@@ -513,21 +513,22 @@
   },
   "AC1": {
     "title": "Ziyarah on the Day of Ghadeer",
-    "order": 15,
+    "order": 19,
     "slug": "ziyarah-on-the-day-of-ghadeer"
   },
   "AC10": {
     "title": "Aamaal of the Night of Arafah",
+    "order": 8,
     "slug": "aamaal-of-the-night-of-arafat"
   },
   "AC11": {
     "title": "Aamaal of the Day of Arafah (9th Zilhajj)",
-    "order": 7,
+    "order": 11,
     "slug": "aamal-of-the-day-of-arafat-9th-zilhajj"
   },
   "AC12": {
     "title": "Dua of Imam Husayn (a.s.) on the Day of Arafah",
-    "order": 8,
+    "order": 12,
     "slug": "dua-of-imam-husayn-a-s-on-the-day-of-arafah"
   },
   "AC13": {
@@ -537,40 +538,62 @@
   },
   "AC14": {
     "title": "The Night & Day of Eid al-Azhaa (Qurban)",
-    "order": 10,
+    "order": 13,
     "slug": "the-night-day-of-eid-al-adha-qurban"
   },
   "AC15": {
     "title": "The Day of Eid al-Azhaa (Qurban)",
-    "order": 11,
+    "order": 15,
     "slug": "the-day-of-eid-al-adha-qurban"
   },
   "AC16": {
     "title": "The Fifteenth Of Zilhajj",
-    "order": 12,
+    "order": 16,
     "slug": "the-fifteenth-of-zilhajj"
   },
   "AC17": {
     "title": "Aamaal of the Night of Eid-e-Ghadeer",
-    "order": 13,
+    "order": 17,
     "slug": "aamal-of-the-night-of-eid-e-ghadeer"
   },
   "AC18": {
     "title": "Aamaal of the Day of Eid-e-Ghadeer",
-    "order": 14,
+    "order": 18,
     "slug": "aamal-of-the-day-of-eid-e-ghadeer"
   },
   "AC2": {
     "title": "Another Ziyarah on the Day of Ghadeer",
-    "order": 16,
+    "order": 20,
     "slug": "another-ziyarah-on-the-day-of-ghadeer"
+  },
+  "AC20": {
+    "title": "Seegah of Brotherhood (Ukhuwwat) on the Day of Ghadeer",
+    "order": 21,
+    "slug": "seegah-of-brotherhood-ukhuwwat-on-the-day-of-ghadeer"
+  },
+  "AC21": {
+    "title": "The Day of Mubaahelah",
+    "order": 22,
+    "slug": "the-day-of-mubahelah"
+  },
+  "AC22": {
+    "title": "The Twenty-Fifth Of Zilhajj",
+    "order": 23,
+    "slug": "the-twenty-fifth-of-zilhajj"
+  },
+  "AC23": {
+    "title": "The Last Day of Zilhaj",
+    "order": 24,
+    "slug": "the-last-day-of-zilhaj"
   },
   "AC3": {
     "title": "Ziyarah on the Id al-Fitr and Id al-Azha days",
+    "order": 12,
     "slug": "ziyarah-on-the-id-al-fitr-and-id-al-azha-days"
   },
   "AC4": {
     "title": "Ziyarah on the day of Arafat",
+    "order": 10,
     "slug": "ziyarah-on-the-day-of-arafat"
   },
   "AC5": {
@@ -580,6 +603,7 @@
   },
   "AC6": {
     "title": "Salat of وَ وَاعَدْنَا",
+    "order": 3,
     "slug": "salat-of"
   },
   "AC7": {
@@ -968,8 +992,8 @@
     "slug": "ziyaarat-e-jaamea-h-sagheerah"
   },
   "G13": {
-    "title": "Ziyarat e Jamiah Kabeerah",
-    "slug": "ziyarat-e-jamiah-kabeerah"
+    "title": "Ziyaarat-e-Jaameah Kabeerah",
+    "slug": "ziyaarat-e-jaameah-kabeerah"
   },
   "G15": {
     "title": "Ziyarat of Saturday",
@@ -1420,6 +1444,10 @@
     "title": "Dua Kumayl",
     "slug": "dua-kumayl-2"
   },
+  "R1": {
+    "title": "Aamaal for the 1st Night and Day of the Month of Moharram",
+    "slug": "aamaal-for-the-1st-day-night-of-the-month-of-moharram"
+  },
   "R11": {
     "title": "Ziyarah on the day of Ashura",
     "slug": "ziyarah-on-the-day-of-ashura"
@@ -1428,21 +1456,25 @@
     "title": "Dua Alqamah",
     "slug": "dua-alqamah"
   },
+  "R4": {
+    "title": "The Third Of Moharram",
+    "slug": "the-third-of-moharram"
+  },
   "R5": {
-    "title": "The Ninth Of Muharram",
+    "title": "The Ninth Of Moharram",
     "slug": "the-ninth-of-muharram"
   },
   "R6": {
-    "title": "The 10th Night Of Muharram (Shabe Ashura)",
-    "slug": "the-10th-night-of-muharram-shabe-ashura"
+    "title": "The 10th Night Of Moharram (Shabe Ashura)",
+    "slug": "the-10th-night-of-moharram-shabe-ashura"
   },
   "R7": {
-    "title": "The 10th of Muharram (The Day of Ashura)",
-    "slug": "the-10th-of-muharram-the-day-of-ashura"
+    "title": "The 10th of Moharram",
+    "slug": "the-10th-of-moharram-the-day-of-ashoora"
   },
   "R9": {
-    "title": "Aamal of Ashura",
-    "slug": "aamal-of-ashura"
+    "title": "Aamaal of Ashoora",
+    "slug": "aamaal-of-ashoora"
   },
   "S7": {
     "title": "Ziyarah on the day of Arbaeen; The Twentieth of Safar",
