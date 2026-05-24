@@ -105,46 +105,32 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                         data[HomeScreenWidgetService.favoritesSubtitleKey] ??
                             '',
                     items: [
-                      _PreviewItem(
-                        data[HomeScreenWidgetService.favoriteItem1Key] ?? '',
-                        data[HomeScreenWidgetService.favoriteUrl1Key] ?? '',
-                      ),
-                      _PreviewItem(
-                        data[HomeScreenWidgetService.favoriteItem2Key] ?? '',
-                        data[HomeScreenWidgetService.favoriteUrl2Key] ?? '',
-                      ),
-                      _PreviewItem(
-                        data[HomeScreenWidgetService.favoriteItem3Key] ?? '',
-                        data[HomeScreenWidgetService.favoriteUrl3Key] ?? '',
+                      ..._itemsFromSnapshot(
+                        data,
+                        HomeScreenWidgetService.favoriteItemKeys,
+                        HomeScreenWidgetService.favoriteUrlKeys,
                       ),
                     ],
                   ),
                   _ListWidgetPreview(
                     width: 340,
-                    height: 180,
+                    height: 220,
                     title: data[HomeScreenWidgetService.recitationTitleKey] ??
                         "Today's Recitations",
                     subtitle:
                         data[HomeScreenWidgetService.recitationSubtitleKey] ??
                             '',
                     items: [
-                      _PreviewItem(
-                        data[HomeScreenWidgetService.recitationItem1Key] ?? '',
-                        data[HomeScreenWidgetService.recitationUrl1Key] ?? '',
-                      ),
-                      _PreviewItem(
-                        data[HomeScreenWidgetService.recitationItem2Key] ?? '',
-                        data[HomeScreenWidgetService.recitationUrl2Key] ?? '',
-                      ),
-                      _PreviewItem(
-                        data[HomeScreenWidgetService.recitationItem3Key] ?? '',
-                        data[HomeScreenWidgetService.recitationUrl3Key] ?? '',
+                      ..._itemsFromSnapshot(
+                        data,
+                        HomeScreenWidgetService.recitationItemKeys,
+                        HomeScreenWidgetService.recitationUrlKeys,
                       ),
                     ],
                   ),
                   _PrayerWidgetPreview(
                     width: 180,
-                    height: 180,
+                    height: 112,
                     title: data[HomeScreenWidgetService.prayerTitleKey] ??
                         'Upcoming Prayer',
                     name:
@@ -168,6 +154,17 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
       ),
     );
   }
+}
+
+List<_PreviewItem> _itemsFromSnapshot(
+  Map<String, String> data,
+  List<String> titleKeys,
+  List<String> urlKeys,
+) {
+  return [
+    for (var index = 0; index < titleKeys.length; index++)
+      _PreviewItem(data[titleKeys[index]] ?? '', data[urlKeys[index]] ?? ''),
+  ];
 }
 
 class _PreviewItem {
@@ -214,39 +211,53 @@ class _ListWidgetPreview extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 12, color: palette.secondaryText),
             ),
-          const Spacer(),
-          for (final item in visibleItems.take(3))
-            SizedBox(
-              height: 30,
-              child: InkWell(
-                onTap: item.url.isEmpty
-                    ? null
-                    : () => launchUrl(Uri.parse(item.url)),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.1,
-                          color: palette.bodyText,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.chevron_right,
-                      size: 14,
-                      color: palette.secondaryText,
-                    ),
-                  ],
+          const SizedBox(height: 8),
+          if (visibleItems.length == 1 && visibleItems.first.url.isEmpty)
+            Expanded(
+              child: Center(
+                child: Text(
+                  visibleItems.first.title,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: palette.bodyText),
                 ),
               ),
-            ),
+            )
+          else
+            for (final item in visibleItems.take(6))
+              SizedBox(
+                height: 30,
+                child: InkWell(
+                  onTap: item.url.isEmpty
+                      ? null
+                      : () => launchUrl(Uri.parse(item.url)),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.1,
+                            color: palette.bodyText,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      if (item.url.isNotEmpty)
+                        Icon(
+                          Icons.chevron_right,
+                          size: 14,
+                          color: palette.secondaryText,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
         ],
       ),
     );

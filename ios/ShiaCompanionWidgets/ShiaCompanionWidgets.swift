@@ -6,21 +6,13 @@ private let appGroupID = "group.com.developer110.shiacompanion"
 private enum WidgetKeys {
     static let favoritesTitle = "sc_favorites_title"
     static let favoritesSubtitle = "sc_favorites_subtitle"
-    static let favoriteItem1 = "sc_favorites_item_1"
-    static let favoriteItem2 = "sc_favorites_item_2"
-    static let favoriteItem3 = "sc_favorites_item_3"
-    static let favoriteUrl1 = "sc_favorites_url_1"
-    static let favoriteUrl2 = "sc_favorites_url_2"
-    static let favoriteUrl3 = "sc_favorites_url_3"
+    static let favoriteItems = (1...8).map { "sc_favorites_item_\($0)" }
+    static let favoriteUrls = (1...8).map { "sc_favorites_url_\($0)" }
 
     static let recitationTitle = "sc_recitation_title"
     static let recitationSubtitle = "sc_recitation_subtitle"
-    static let recitationItem1 = "sc_recitation_item_1"
-    static let recitationItem2 = "sc_recitation_item_2"
-    static let recitationItem3 = "sc_recitation_item_3"
-    static let recitationUrl1 = "sc_recitation_url_1"
-    static let recitationUrl2 = "sc_recitation_url_2"
-    static let recitationUrl3 = "sc_recitation_url_3"
+    static let recitationItems = (1...8).map { "sc_recitation_item_\($0)" }
+    static let recitationUrls = (1...8).map { "sc_recitation_url_\($0)" }
 
     static let prayerTitle = "sc_prayer_title"
     static let prayerName = "sc_prayer_name"
@@ -39,6 +31,7 @@ private extension UserDefaults {
         let value = string(forKey: key)?.trimmingCharacters(in: .whitespacesAndNewlines)
         return value?.isEmpty == false ? value! : fallback
     }
+
 }
 
 struct WidgetListEntry: TimelineEntry {
@@ -75,8 +68,8 @@ struct FavoritesProvider: TimelineProvider {
         let defaults = UserDefaults.widgetData
         let items = widgetItems(
             defaults: defaults,
-            titleKeys: [WidgetKeys.favoriteItem1, WidgetKeys.favoriteItem2, WidgetKeys.favoriteItem3],
-            urlKeys: [WidgetKeys.favoriteUrl1, WidgetKeys.favoriteUrl2, WidgetKeys.favoriteUrl3],
+            titleKeys: WidgetKeys.favoriteItems,
+            urlKeys: WidgetKeys.favoriteUrls,
             firstFallback: "No favorites yet"
         )
 
@@ -114,8 +107,8 @@ struct RecitationProvider: TimelineProvider {
         let defaults = UserDefaults.widgetData
         let items = widgetItems(
             defaults: defaults,
-            titleKeys: [WidgetKeys.recitationItem1, WidgetKeys.recitationItem2, WidgetKeys.recitationItem3],
-            urlKeys: [WidgetKeys.recitationUrl1, WidgetKeys.recitationUrl2, WidgetKeys.recitationUrl3],
+            titleKeys: WidgetKeys.recitationItems,
+            urlKeys: WidgetKeys.recitationUrls,
             firstFallback: "Open app to refresh"
         )
 
@@ -230,7 +223,8 @@ struct WidgetListView: View {
     let entry: WidgetListEntry
 
     var body: some View {
-        let visibleItems = Array(entry.items.prefix(family == .systemSmall ? 2 : 3))
+        let visibleItems = Array(entry.items.prefix(visibleItemCount))
+        let isEmptyState = entry.items.count == 1 && entry.items.first?.url == nil
 
         VStack(alignment: .leading, spacing: 4) {
             Text(entry.title)
@@ -243,22 +237,44 @@ struct WidgetListView: View {
                     .foregroundColor(.secondaryText)
                     .lineLimit(1)
             }
-            Spacer(minLength: 4)
-            ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
-                if let url = item.url {
-                    Link(destination: url) {
-                        widgetItemRow(item.title)
+            Color.clear.frame(height: 8)
+            if isEmptyState, let item = entry.items.first {
+                Spacer(minLength: 0)
+                Text(item.title)
+                    .font(.caption)
+                    .foregroundColor(.bodyText)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                Spacer(minLength: 0)
+            } else {
+                ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
+                    if let url = item.url {
+                        Link(destination: url) {
+                            widgetItemRow(item.title, clickable: true)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        widgetItemRow(item.title, clickable: false)
                     }
-                    .buttonStyle(.plain)
-                } else {
-                    widgetItemRow(item.title)
                 }
             }
         }
         .widgetCard()
     }
 
-    private func widgetItemRow(_ title: String) -> some View {
+    private var visibleItemCount: Int {
+        switch family {
+        case .systemSmall:
+            return 2
+        case .systemMedium:
+            return 4
+        default:
+            return 8
+        }
+    }
+
+    private func widgetItemRow(_ title: String, clickable: Bool) -> some View {
         HStack(spacing: 4) {
             Text(title)
                 .font(.caption)
@@ -268,8 +284,10 @@ struct WidgetListView: View {
             Image(systemName: "chevron.right")
                 .font(.caption2.weight(.semibold))
                 .foregroundColor(.secondaryText)
+                .opacity(clickable ? 1 : 0)
         }
-        .frame(height: 24)
+        .frame(maxWidth: .infinity, minHeight: 26, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
 
@@ -302,6 +320,7 @@ struct PrayerWidgetView: View {
                 .lineLimit(1)
         }
         .widgetCard()
+        .widgetURL(URL(string: "https://shia-companion.web.app/calendar-prayer-times"))
     }
 }
 
@@ -355,7 +374,7 @@ struct FavoritesWidget: Widget {
         }
         .configurationDisplayName("Favorites")
         .description("Saved Shia Companion favorites.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
@@ -368,7 +387,7 @@ struct TodaysRecitationWidget: Widget {
         }
         .configurationDisplayName("Today's Recitations")
         .description("Daily recitations from Shia Companion.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
@@ -381,7 +400,7 @@ struct UpcomingPrayerWidget: Widget {
         }
         .configurationDisplayName("Upcoming Prayer")
         .description("The next prayer time for your saved location.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall])
     }
 }
 

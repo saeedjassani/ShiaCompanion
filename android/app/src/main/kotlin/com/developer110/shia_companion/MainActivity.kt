@@ -1,7 +1,9 @@
 package com.developer110.shia_companion
 
 import android.content.ContentValues
+import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
@@ -23,7 +25,29 @@ class MainActivity: FlutterActivity() {
     private val notificationAudioChannel = "shia_companion/notification_audio"
     private val homeWidgetsChannel = "shia_companion/home_widgets"
     private val widgetPreferencesName = "shia_companion_widgets"
+    private val widgetUrlExtra = "com.developer110.shiacompanion.WIDGET_URL"
     private val mainScope = CoroutineScope(Dispatchers.Main)
+    private var homeWidgetsMethodChannel: MethodChannel? = null
+    private var pendingWidgetUrl: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        pendingWidgetUrl = intent?.getStringExtra(widgetUrlExtra)
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val widgetUrl = intent.getStringExtra(widgetUrlExtra)
+        if (widgetUrl.isNullOrBlank()) return
+
+        val channel = homeWidgetsMethodChannel
+        if (channel == null) {
+            pendingWidgetUrl = widgetUrl
+        } else {
+            channel.invokeMethod("openWidgetUrl", widgetUrl)
+        }
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -67,11 +91,16 @@ class MainActivity: FlutterActivity() {
             }
         }
 
-        MethodChannel(
+        homeWidgetsMethodChannel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             homeWidgetsChannel
-        ).setMethodCallHandler { call, result ->
+        )
+        homeWidgetsMethodChannel?.setMethodCallHandler { call, result ->
             when (call.method) {
+                "takeWidgetUrl" -> {
+                    result.success(pendingWidgetUrl)
+                    pendingWidgetUrl = null
+                }
                 "saveWidgetData" -> {
                     val values = call.arguments as? Map<*, *>
                     if (values == null) {

@@ -21,6 +21,26 @@ class HomeScreenWidgetService {
 
   static const String favoritesTitleKey = 'sc_favorites_title';
   static const String favoritesSubtitleKey = 'sc_favorites_subtitle';
+  static const List<String> favoriteItemKeys = [
+    'sc_favorites_item_1',
+    'sc_favorites_item_2',
+    'sc_favorites_item_3',
+    'sc_favorites_item_4',
+    'sc_favorites_item_5',
+    'sc_favorites_item_6',
+    'sc_favorites_item_7',
+    'sc_favorites_item_8',
+  ];
+  static const List<String> favoriteUrlKeys = [
+    'sc_favorites_url_1',
+    'sc_favorites_url_2',
+    'sc_favorites_url_3',
+    'sc_favorites_url_4',
+    'sc_favorites_url_5',
+    'sc_favorites_url_6',
+    'sc_favorites_url_7',
+    'sc_favorites_url_8',
+  ];
   static const String favoriteItem1Key = 'sc_favorites_item_1';
   static const String favoriteItem2Key = 'sc_favorites_item_2';
   static const String favoriteItem3Key = 'sc_favorites_item_3';
@@ -30,6 +50,26 @@ class HomeScreenWidgetService {
 
   static const String recitationTitleKey = 'sc_recitation_title';
   static const String recitationSubtitleKey = 'sc_recitation_subtitle';
+  static const List<String> recitationItemKeys = [
+    'sc_recitation_item_1',
+    'sc_recitation_item_2',
+    'sc_recitation_item_3',
+    'sc_recitation_item_4',
+    'sc_recitation_item_5',
+    'sc_recitation_item_6',
+    'sc_recitation_item_7',
+    'sc_recitation_item_8',
+  ];
+  static const List<String> recitationUrlKeys = [
+    'sc_recitation_url_1',
+    'sc_recitation_url_2',
+    'sc_recitation_url_3',
+    'sc_recitation_url_4',
+    'sc_recitation_url_5',
+    'sc_recitation_url_6',
+    'sc_recitation_url_7',
+    'sc_recitation_url_8',
+  ];
   static const String recitationItem1Key = 'sc_recitation_item_1';
   static const String recitationItem2Key = 'sc_recitation_item_2';
   static const String recitationItem3Key = 'sc_recitation_item_3';
@@ -99,44 +139,43 @@ class HomeScreenWidgetService {
     final favorites = (favsData ?? const <UniversalData>[])
         .where((item) => item.type == 0)
         .toList(growable: false);
-    final topFavorites = favorites.take(3).toList(growable: false);
-
-    return {
+    final topFavorites = favorites.take(favoriteItemKeys.length).toList(
+          growable: false,
+        );
+    final snapshot = <String, String>{
       favoritesTitleKey: 'Favorites',
       favoritesSubtitleKey: _favoritesSubtitle(favorites.length),
-      favoriteItem1Key:
-          _widgetTitleForUniversalData(_itemAt(topFavorites, 0)) ??
-              'No favorites yet',
-      favoriteItem2Key:
-          _widgetTitleForUniversalData(_itemAt(topFavorites, 1)) ?? '',
-      favoriteItem3Key:
-          _widgetTitleForUniversalData(_itemAt(topFavorites, 2)) ?? '',
-      favoriteUrl1Key: _widgetUrlForUniversalData(_itemAt(topFavorites, 0)),
-      favoriteUrl2Key: _widgetUrlForUniversalData(_itemAt(topFavorites, 1)),
-      favoriteUrl3Key: _widgetUrlForUniversalData(_itemAt(topFavorites, 2)),
     };
+
+    for (var index = 0; index < favoriteItemKeys.length; index++) {
+      final item = _itemAt(topFavorites, index);
+      snapshot[favoriteItemKeys[index]] = _widgetTitleForUniversalData(item) ??
+          (index == 0 ? 'No favorites yet' : '');
+      snapshot[favoriteUrlKeys[index]] = _widgetUrlForUniversalData(item);
+    }
+
+    return snapshot;
   }
 
   Map<String, String> buildTodaysRecitationsSnapshot({DateTime? now}) {
     final today = now ?? DateTime.now();
     final recitations = buildTodaysRecitationItems(now: today)
         .where((item) => !item.uid.contains('~'))
-        .take(3)
+        .take(recitationItemKeys.length)
         .toList();
-
-    return {
+    final snapshot = <String, String>{
       recitationTitleKey: "Today's Recitations",
       recitationSubtitleKey: _weekdayLabel(today),
-      recitationItem1Key: _widgetTitleForRecitation(_itemAt(recitations, 0)) ??
-          'Open app to refresh',
-      recitationItem2Key:
-          _widgetTitleForRecitation(_itemAt(recitations, 1)) ?? '',
-      recitationItem3Key:
-          _widgetTitleForRecitation(_itemAt(recitations, 2)) ?? '',
-      recitationUrl1Key: _widgetUrlForRecitation(_itemAt(recitations, 0)),
-      recitationUrl2Key: _widgetUrlForRecitation(_itemAt(recitations, 1)),
-      recitationUrl3Key: _widgetUrlForRecitation(_itemAt(recitations, 2)),
     };
+
+    for (var index = 0; index < recitationItemKeys.length; index++) {
+      final item = _itemAt(recitations, index);
+      snapshot[recitationItemKeys[index]] = _widgetTitleForRecitation(item) ??
+          (index == 0 ? 'Open app to refresh' : '');
+      snapshot[recitationUrlKeys[index]] = _widgetUrlForRecitation(item);
+    }
+
+    return snapshot;
   }
 
   Map<String, String> buildUpcomingPrayerSnapshot() {

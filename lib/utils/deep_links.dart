@@ -10,6 +10,9 @@ class DeepLinkTarget {
   String get key => '$type/${segments.join('/')}';
 }
 
+const int zikrDeepLinkType = 0;
+const int prayerTimesDeepLinkType = 1;
+
 String buildDeepLinkPath({
   required int type,
   required List<String> segments,
@@ -27,7 +30,11 @@ String buildZikrDeepLinkPath({
     return '/zikr/${Uri.encodeComponent(normalizedSlug)}';
   }
 
-  return buildDeepLinkPath(type: 0, segments: [uid]);
+  return buildDeepLinkPath(type: zikrDeepLinkType, segments: [uid]);
+}
+
+String buildPrayerTimesDeepLinkPath() {
+  return '/calendar-prayer-times';
 }
 
 DeepLinkTarget? parseDeepLinkUri(Uri uri) {
@@ -42,12 +49,16 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
 
   if (segments.first == 'zikr') {
     if (segments.length != 2) return null;
-    return DeepLinkTarget(type: 0, segments: [segments[1]]);
+    return DeepLinkTarget(type: zikrDeepLinkType, segments: [segments[1]]);
+  }
+
+  if (segments.length == 1 && segments.first == 'calendar-prayer-times') {
+    return const DeepLinkTarget(type: prayerTimesDeepLinkType, segments: []);
   }
 
   // Legacy root-level slug paths like /ziyarat-e-ashura still resolve to zikr.
   if (segments.length == 1) {
-    return DeepLinkTarget(type: 0, segments: segments);
+    return DeepLinkTarget(type: zikrDeepLinkType, segments: segments);
   }
 
   return null;
@@ -88,4 +99,8 @@ String buildZikrDeepLinkUrl({
     uid: uid,
     slug: slug,
   )}';
+}
+
+String buildPrayerTimesDeepLinkUrl() {
+  return 'https://shia-companion.web.app${buildPrayerTimesDeepLinkPath()}';
 }
