@@ -439,6 +439,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       } else {
         itemOrder[widget.item.uid] = parsedOrder;
       }
+      if (dayValue == null) {
+        itemMetadata.remove(widget.item.uid);
+      } else {
+        itemMetadata[widget.item.uid] = {'day': dayValue};
+      }
       items[widget.item.uid] = titleController?.text ?? widget.item.title;
       widget.item.title = titleController?.text ?? widget.item.title;
       setLocalSlugData(
@@ -576,6 +581,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     await zikrCollection.doc(widget.item.uid).delete();
     items.remove(widget.item.uid);
     itemOrder.remove(widget.item.uid);
+    itemMetadata.remove(widget.item.uid);
     removeLocalSlugData(widget.item.uid);
 
     if (!mounted) return;
