@@ -5,12 +5,10 @@ private let appGroupID = "group.com.developer110.shiacompanion"
 
 private enum WidgetKeys {
     static let favoritesTitle = "sc_favorites_title"
-    static let favoritesSubtitle = "sc_favorites_subtitle"
     static let favoriteItems = (1...8).map { "sc_favorites_item_\($0)" }
     static let favoriteUrls = (1...8).map { "sc_favorites_url_\($0)" }
 
     static let recitationTitle = "sc_recitation_title"
-    static let recitationSubtitle = "sc_recitation_subtitle"
     static let recitationItems = (1...8).map { "sc_recitation_item_\($0)" }
     static let recitationUrls = (1...8).map { "sc_recitation_url_\($0)" }
 
@@ -37,7 +35,6 @@ private extension UserDefaults {
 struct WidgetListEntry: TimelineEntry {
     let date: Date
     let title: String
-    let subtitle: String
     let items: [WidgetListItem]
 }
 
@@ -51,7 +48,6 @@ struct FavoritesProvider: TimelineProvider {
         WidgetListEntry(
             date: Date(),
             title: "Favorites",
-            subtitle: "Open app to add favorites",
             items: [WidgetListItem(title: "No favorites yet", url: nil)]
         )
     }
@@ -76,10 +72,6 @@ struct FavoritesProvider: TimelineProvider {
         return WidgetListEntry(
             date: Date(),
             title: defaults?.widgetString(WidgetKeys.favoritesTitle, fallback: "Favorites") ?? "Favorites",
-            subtitle: defaults?.widgetString(
-                WidgetKeys.favoritesSubtitle,
-                fallback: "Open app to add favorites"
-            ) ?? "Open app to add favorites",
             items: items
         )
     }
@@ -90,7 +82,6 @@ struct RecitationProvider: TimelineProvider {
         WidgetListEntry(
             date: Date(),
             title: "Today's Recitations",
-            subtitle: "",
             items: [WidgetListItem(title: "Open app to refresh", url: nil)]
         )
     }
@@ -118,7 +109,6 @@ struct RecitationProvider: TimelineProvider {
                 WidgetKeys.recitationTitle,
                 fallback: "Today's Recitations"
             ) ?? "Today's Recitations",
-            subtitle: defaults?.widgetString(WidgetKeys.recitationSubtitle, fallback: "") ?? "",
             items: items
         )
     }
@@ -162,7 +152,7 @@ struct PrayerProvider: TimelineProvider {
     func placeholder(in context: Context) -> PrayerWidgetEntry {
         PrayerWidgetEntry(
             date: Date(),
-            title: "Upcoming Prayer",
+            title: "Next Prayer",
             name: "Prayer Times",
             time: "Set location",
             dateLabel: "Open app",
@@ -189,7 +179,8 @@ struct PrayerProvider: TimelineProvider {
 
         return PrayerWidgetEntry(
             date: now,
-            title: defaults?.widgetString(WidgetKeys.prayerTitle, fallback: "Upcoming Prayer") ?? "Upcoming Prayer",
+            title: (defaults?.widgetString(WidgetKeys.prayerTitle, fallback: "Next Prayer") ?? "Next Prayer")
+                .replacingOccurrences(of: "Upcoming", with: "Next"),
             name: nextPrayer?.name ?? defaults?.widgetString(WidgetKeys.prayerName, fallback: "Prayer Times") ?? "Prayer Times",
             time: nextPrayer?.time ?? defaults?.widgetString(WidgetKeys.prayerTime, fallback: "Set location") ?? "Set location",
             dateLabel: nextPrayer?.dateLabel ?? defaults?.widgetString(WidgetKeys.prayerDate, fallback: "Open app") ?? "Open app",
@@ -231,12 +222,6 @@ struct WidgetListView: View {
                 .font(.headline)
                 .foregroundColor(.primaryText)
                 .lineLimit(1)
-            if !entry.subtitle.isEmpty {
-                Text(entry.subtitle)
-                    .font(.caption)
-                    .foregroundColor(.secondaryText)
-                    .lineLimit(1)
-            }
             Color.clear.frame(height: 8)
             if isEmptyState, let item = entry.items.first {
                 Spacer(minLength: 0)
@@ -309,10 +294,12 @@ struct PrayerWidgetView: View {
                 .foregroundColor(.bodyText)
                 .minimumScaleFactor(0.75)
                 .lineLimit(1)
-            Text(entry.dateLabel)
-                .font(.caption)
-                .foregroundColor(.secondaryText)
-                .lineLimit(1)
+            if !entry.dateLabel.isEmpty && entry.dateLabel.lowercased() != "today" {
+                Text(entry.dateLabel)
+                    .font(.caption)
+                    .foregroundColor(.secondaryText)
+                    .lineLimit(1)
+            }
             Spacer(minLength: 2)
             Text(entry.location)
                 .font(.caption2)
@@ -326,7 +313,7 @@ struct PrayerWidgetView: View {
 private extension View {
     func widgetCard() -> some View {
         self
-            .padding(14)
+            .padding(10)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .widgetBackground()
     }
@@ -373,7 +360,7 @@ struct FavoritesWidget: Widget {
         }
         .configurationDisplayName("Favorites")
         .description("Saved Shia Companion favorites.")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([.systemMedium, .systemLarge])
     }
 }
 
@@ -386,7 +373,7 @@ struct TodaysRecitationWidget: Widget {
         }
         .configurationDisplayName("Today's Recitations")
         .description("Daily recitations from Shia Companion.")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([.systemMedium, .systemLarge])
     }
 }
 
@@ -397,7 +384,7 @@ struct UpcomingPrayerWidget: Widget {
         StaticConfiguration(kind: kind, provider: PrayerProvider()) { entry in
             PrayerWidgetView(entry: entry)
         }
-        .configurationDisplayName("Upcoming Prayer")
+        .configurationDisplayName("Next Prayer")
         .description("The next prayer time for your saved location.")
         .supportedFamilies([.systemSmall])
     }

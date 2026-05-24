@@ -160,11 +160,14 @@ class _MyHomePageState extends State<MyHomePage>
 
   void _queueDeepLink(DeepLinkTarget? target) {
     if (target == null) return;
+    if (_pendingDeepLink?.key == target.key) {
+      return;
+    }
 
     final now = DateTime.now();
     if (_lastDeepLinkKey == target.key &&
         _lastDeepLinkAt != null &&
-        now.difference(_lastDeepLinkAt!) < const Duration(seconds: 2)) {
+        now.difference(_lastDeepLinkAt!) < const Duration(seconds: 5)) {
       return;
     }
 

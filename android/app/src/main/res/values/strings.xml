@@ -2,7 +2,7 @@
 <resources>
     <string name="widget_favorites_name">Favorites</string>
     <string name="widget_recitations_name">Today\'s Recitations</string>
-    <string name="widget_prayer_name">Upcoming Prayer</string>
+    <string name="widget_prayer_name">Next Prayer</string>
     <string name="widget_favorites_description">Saved Shia Companion favorites.</string>
     <string name="widget_recitations_description">Daily recitations from Shia Companion.</string>
     <string name="widget_prayer_description">The next prayer time for your saved location.</string>

@@ -97,13 +97,10 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                 runSpacing: 20,
                 children: [
                   _ListWidgetPreview(
-                    width: 180,
+                    width: 340,
                     height: 180,
                     title: data[HomeScreenWidgetService.favoritesTitleKey] ??
                         'Favorites',
-                    subtitle:
-                        data[HomeScreenWidgetService.favoritesSubtitleKey] ??
-                            '',
                     items: [
                       ..._itemsFromSnapshot(
                         data,
@@ -117,9 +114,6 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                     height: 220,
                     title: data[HomeScreenWidgetService.recitationTitleKey] ??
                         "Today's Recitations",
-                    subtitle:
-                        data[HomeScreenWidgetService.recitationSubtitleKey] ??
-                            '',
                     items: [
                       ..._itemsFromSnapshot(
                         data,
@@ -130,9 +124,9 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                   ),
                   _PrayerWidgetPreview(
                     width: 180,
-                    height: 112,
+                    height: 180,
                     title: data[HomeScreenWidgetService.prayerTitleKey] ??
-                        'Upcoming Prayer',
+                        'Next Prayer',
                     name:
                         data[HomeScreenWidgetService.prayerNameKey] ?? 'Prayer',
                     time: data[HomeScreenWidgetService.prayerTimeKey] ?? '',
@@ -179,14 +173,12 @@ class _ListWidgetPreview extends StatelessWidget {
     required this.width,
     required this.height,
     required this.title,
-    required this.subtitle,
     required this.items,
   });
 
   final double width;
   final double height;
   final String title;
-  final String subtitle;
   final List<_PreviewItem> items;
 
   @override
@@ -204,13 +196,6 @@ class _ListWidgetPreview extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style:
                   const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          if (subtitle.isNotEmpty)
-            Text(
-              subtitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 12, color: palette.secondaryText),
-            ),
           const SizedBox(height: 8),
           if (visibleItems.length == 1 && visibleItems.first.url.isEmpty)
             Expanded(
@@ -307,10 +292,11 @@ class _PrayerWidgetPreview extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style:
                   const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
-          Text(dateLabel,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 12, color: palette.secondaryText)),
+          if (dateLabel.isNotEmpty && dateLabel.toLowerCase() != 'today')
+            Text(dateLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, color: palette.secondaryText)),
           const Spacer(),
           Text(location,
               maxLines: 1,
