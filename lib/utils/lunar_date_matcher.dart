@@ -1,5 +1,29 @@
 import 'package:hijri/hijri_calendar.dart';
 
+int _sundayBasedWeekday(HijriCalendar date) {
+  final weekday = date.wkDay ?? date.weekDay();
+  return weekday == DateTime.sunday ? 0 : weekday;
+}
+
+List<String> _patternsFromValue(Object? value) {
+  if (value is String) {
+    return value
+        .split(',')
+        .map((pattern) => pattern.trim())
+        .where((pattern) => pattern.isNotEmpty)
+        .toList();
+  }
+
+  if (value is Iterable) {
+    return value
+        .expand((pattern) => _patternsFromValue(pattern))
+        .where((pattern) => pattern.isNotEmpty)
+        .toList();
+  }
+
+  return const [];
+}
+
 /// Checks if a given lunar date matches the provided day pattern.
 ///
 /// Pattern formats:
@@ -11,7 +35,7 @@ import 'package:hijri/hijri_calendar.dart';
 bool matchesLunarDatePattern(String pattern, {HijriCalendar? currentDate}) {
   currentDate ??= HijriCalendar.now();
 
-  final parts = pattern.split('-');
+  final parts = pattern.trim().split('-');
   if (parts.length < 2) return false;
 
   final month = int.tryParse(parts[0]);
@@ -24,12 +48,7 @@ bool matchesLunarDatePattern(String pattern, {HijriCalendar? currentDate}) {
     final dayOfWeek = int.tryParse(parts[2]);
     if (dayOfWeek == null || dayOfWeek < 0 || dayOfWeek > 6) return false;
 
-    // Get the day of week for current date (1=Sunday through 7=Saturday in hijri calendar)
-    // Convert to 0-based (0=Sunday through 6=Saturday)
-    final currentDayOfWeek = (currentDate.wkDay ?? 7) - 1;
-    if (currentDayOfWeek < 0) return false;
-
-    return currentDayOfWeek == dayOfWeek;
+    return _sundayBasedWeekday(currentDate) == dayOfWeek;
   }
 
   // Fixed date pattern (MM-DD)
@@ -44,29 +63,33 @@ bool matchesLunarDatePattern(String pattern, {HijriCalendar? currentDate}) {
 }
 
 /// Checks if any pattern in the list matches the current lunar date.
-bool matchesAnyLunarPattern(List<String>? patterns) {
+bool matchesAnyLunarPattern(
+  Iterable<String>? patterns, {
+  HijriCalendar? currentDate,
+}) {
   if (patterns == null || patterns.isEmpty) return false;
-  return patterns.any((pattern) => matchesLunarDatePattern(pattern));
+  currentDate ??= HijriCalendar.now();
+  return patterns.any(
+    (pattern) => matchesLunarDatePattern(pattern, currentDate: currentDate),
+  );
 }
 
 /// Returns a list of zikr UIDs that match the current lunar date.
-List<String> getTodaysZikrs(Map<String, dynamic> zikrData) {
+List<String> getTodaysZikrs(
+  Map<String, dynamic> zikrData, {
+  HijriCalendar? currentDate,
+}) {
   final today = <String>[];
+  currentDate ??= HijriCalendar.now();
 
   zikrData.forEach((uid, value) {
     if (value is! Map<String, dynamic>) return;
 
-    final day = value['day'];
-    if (day == null) return;
+    final patterns = _patternsFromValue(value['day']);
+    if (patterns.isEmpty) return;
 
-    if (day is String) {
-      if (matchesLunarDatePattern(day)) {
-        today.add(uid);
-      }
-    } else if (day is List) {
-      if (matchesAnyLunarPattern(day.cast<String>())) {
-        today.add(uid);
-      }
+    if (matchesAnyLunarPattern(patterns, currentDate: currentDate)) {
+      today.add(uid);
     }
   });
 

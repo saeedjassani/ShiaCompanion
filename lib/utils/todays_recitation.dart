@@ -1,3 +1,4 @@
+import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/utils/lunar_date_matcher.dart';
@@ -16,6 +17,25 @@ void _insertIfAvailable(
   );
 }
 
+void _addIfAvailable(List<UidTitleData> workingItems, String uid) {
+  _insertIfAvailable(workingItems, workingItems.length, uid);
+}
+
+int _compareRecitationItems(UidTitleData a, UidTitleData b) {
+  final aOrder = getItemOrderValue(a.uid);
+  final bOrder = getItemOrderValue(b.uid);
+  if (aOrder != bOrder) {
+    return aOrder.compareTo(bOrder);
+  }
+
+  final byId = a.getId().compareTo(b.getId());
+  if (byId != 0) {
+    return byId;
+  }
+
+  return a.uid.compareTo(b.uid);
+}
+
 String? _weekdayPrefix(DateTime today) {
   return switch (today.weekday) {
     DateTime.friday => 'J',
@@ -30,14 +50,22 @@ String? _weekdayPrefix(DateTime today) {
 }
 
 List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) {
-  final workingItems = <UidTitleData>[];
-
-  final lunarMatchedUids = getTodaysZikrs(itemMetadata);
-  for (final uid in lunarMatchedUids) {
-    _insertIfAvailable(workingItems, workingItems.length, uid);
-  }
-
   final today = now ?? DateTime.now();
+  final adjustedHijriDate = HijriCalendar.fromDate(
+    today.add(Duration(days: hijriDate)),
+  );
+
+  final lunarItems = <UidTitleData>[];
+  final lunarMatchedUids = getTodaysZikrs(
+    itemMetadata,
+    currentDate: adjustedHijriDate,
+  );
+  for (final uid in lunarMatchedUids) {
+    _addIfAvailable(lunarItems, uid);
+  }
+  lunarItems.sort(_compareRecitationItems);
+
+  final weekdayItems = <UidTitleData>[];
   final weekdayPrefix = _weekdayPrefix(today);
   for (final rawUid in items.keys) {
     final uid = rawUid.toString();
@@ -45,20 +73,25 @@ List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) {
         weekdayPrefix == uid.replaceAll(RegExp('[0-9].*'), '')) {
       final title = items[rawUid]?.toString() ?? '';
       if (title.trim().isNotEmpty) {
-        workingItems.add(UidTitleData(uid, title));
+        weekdayItems.add(UidTitleData(uid, title));
       }
     }
   }
+  weekdayItems.sort(_compareRecitationItems);
 
-  workingItems.sort((a, b) {
-    return a.getId() > b.getId() ? 1 : -1;
-  });
+  final workingItems = <UidTitleData>[
+    ...lunarItems,
+  ];
+
+  for (final item in weekdayItems) {
+    _addIfAvailable(workingItems, item.uid);
+  }
 
   if (items.isNotEmpty) {
-    _insertIfAvailable(workingItems, 1, 'E18');
-    _insertIfAvailable(workingItems, 2, 'G6');
-    _insertIfAvailable(workingItems, 3, 'G4');
-    _insertIfAvailable(workingItems, 4, 'E37');
+    _addIfAvailable(workingItems, 'E18');
+    _addIfAvailable(workingItems, 'G6');
+    _addIfAvailable(workingItems, 'G4');
+    _addIfAvailable(workingItems, 'E37');
   }
 
   return workingItems;
