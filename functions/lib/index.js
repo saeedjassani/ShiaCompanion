@@ -100,6 +100,9 @@ async function rebuildZikrIndex() {
             if (typeof data.order === "number") {
                 item.order = data.order;
             }
+            if (data.day) {
+                item.day = data.day;
+            }
             index[doc.id] = item;
         }
     });
