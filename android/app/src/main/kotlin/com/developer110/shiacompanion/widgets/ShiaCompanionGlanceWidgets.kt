@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
 
 private const val WIDGET_PREFS = "shia_companion_widgets"
 private const val WIDGET_URL_EXTRA = "com.developer110.shiacompanion.WIDGET_URL"
-private const val PRAYER_TIMES_URL = "https://shia-companion.web.app/calendar-prayer-times"
 private const val ACTION_REFRESH_PRAYER_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_PRAYER_WIDGET"
 
@@ -230,7 +229,7 @@ private fun PrayerWidgetContent() {
     val data = context.widgetData()
     val prayer = data.nextPrayer()
 
-    WidgetSurface(clickable = true, clickUrl = PRAYER_TIMES_URL) {
+    WidgetSurface(clickable = true) {
         Text(
             text = data.text(KEY_PRAYER_TITLE, "Upcoming Prayer"),
             style = TextStyle(

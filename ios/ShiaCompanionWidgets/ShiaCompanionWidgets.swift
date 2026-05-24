@@ -320,7 +320,6 @@ struct PrayerWidgetView: View {
                 .lineLimit(1)
         }
         .widgetCard()
-        .widgetURL(URL(string: "https://shia-companion.web.app/calendar-prayer-times"))
     }
 }
 
