@@ -73,6 +73,7 @@
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver
             android:name="com.developer110.shiacompanion.widgets.FavoritesWidgetReceiver"
+            android:label="@string/widget_favorites_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -83,6 +84,7 @@
         </receiver>
         <receiver
             android:name="com.developer110.shiacompanion.widgets.TodaysRecitationWidgetReceiver"
+            android:label="@string/widget_recitations_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -93,6 +95,7 @@
         </receiver>
         <receiver
             android:name="com.developer110.shiacompanion.widgets.UpcomingPrayerWidgetReceiver"
+            android:label="@string/widget_prayer_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

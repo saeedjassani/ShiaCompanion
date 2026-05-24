@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceId
@@ -17,6 +16,8 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.background
@@ -25,39 +26,36 @@ import androidx.glance.layout.Column
 import androidx.glance.layout.ColumnScope
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.color.ColorProvider
+import com.developer110.shia_companion.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 private const val WIDGET_PREFS = "shia_companion_widgets"
+private const val WIDGET_URL_EXTRA = "com.developer110.shiacompanion.WIDGET_URL"
+private const val PRAYER_TIMES_URL = "https://shia-companion.web.app/calendar-prayer-times"
 private const val ACTION_REFRESH_PRAYER_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_PRAYER_WIDGET"
 
 private const val KEY_FAVORITES_TITLE = "sc_favorites_title"
 private const val KEY_FAVORITES_SUBTITLE = "sc_favorites_subtitle"
-private const val KEY_FAVORITE_ITEM_1 = "sc_favorites_item_1"
-private const val KEY_FAVORITE_ITEM_2 = "sc_favorites_item_2"
-private const val KEY_FAVORITE_ITEM_3 = "sc_favorites_item_3"
-private const val KEY_FAVORITE_URL_1 = "sc_favorites_url_1"
-private const val KEY_FAVORITE_URL_2 = "sc_favorites_url_2"
-private const val KEY_FAVORITE_URL_3 = "sc_favorites_url_3"
+private val favoriteItemKeys = (1..8).map { "sc_favorites_item_$it" }
+private val favoriteUrlKeys = (1..8).map { "sc_favorites_url_$it" }
 
 private const val KEY_RECITATION_TITLE = "sc_recitation_title"
 private const val KEY_RECITATION_SUBTITLE = "sc_recitation_subtitle"
-private const val KEY_RECITATION_ITEM_1 = "sc_recitation_item_1"
-private const val KEY_RECITATION_ITEM_2 = "sc_recitation_item_2"
-private const val KEY_RECITATION_ITEM_3 = "sc_recitation_item_3"
-private const val KEY_RECITATION_URL_1 = "sc_recitation_url_1"
-private const val KEY_RECITATION_URL_2 = "sc_recitation_url_2"
-private const val KEY_RECITATION_URL_3 = "sc_recitation_url_3"
+private val recitationItemKeys = (1..8).map { "sc_recitation_item_$it" }
+private val recitationUrlKeys = (1..8).map { "sc_recitation_url_$it" }
 
 private const val KEY_PRAYER_TITLE = "sc_prayer_title"
 private const val KEY_PRAYER_NAME = "sc_prayer_name"
@@ -93,8 +91,8 @@ class FavoritesWidget : GlanceAppWidget() {
                 titleFallback = "Favorites",
                 subtitleKey = KEY_FAVORITES_SUBTITLE,
                 subtitleFallback = "Open app to add favorites",
-                itemKeys = listOf(KEY_FAVORITE_ITEM_1, KEY_FAVORITE_ITEM_2, KEY_FAVORITE_ITEM_3),
-                itemUrlKeys = listOf(KEY_FAVORITE_URL_1, KEY_FAVORITE_URL_2, KEY_FAVORITE_URL_3),
+                itemKeys = favoriteItemKeys,
+                itemUrlKeys = favoriteUrlKeys,
                 firstItemFallback = "No favorites yet"
             )
         }
@@ -115,8 +113,8 @@ class TodaysRecitationWidget : GlanceAppWidget() {
                 titleFallback = "Today's Recitations",
                 subtitleKey = KEY_RECITATION_SUBTITLE,
                 subtitleFallback = "",
-                itemKeys = listOf(KEY_RECITATION_ITEM_1, KEY_RECITATION_ITEM_2, KEY_RECITATION_ITEM_3),
-                itemUrlKeys = listOf(KEY_RECITATION_URL_1, KEY_RECITATION_URL_2, KEY_RECITATION_URL_3),
+                itemKeys = recitationItemKeys,
+                itemUrlKeys = recitationUrlKeys,
                 firstItemFallback = "Open app to refresh"
             )
         }
@@ -195,17 +193,33 @@ private fun WidgetListContent(
             )
         }
         Spacer(GlanceModifier.height(8.dp))
-        items.take(3).forEach { item ->
-            val modifier = item.url
-                .takeIf { it.isNotBlank() }
-                ?.let { GlanceModifier.clickable(actionStartActivity(context.openUrlIntent(it))) }
-                ?: GlanceModifier
+        if (items.size == 1 && items.first().url.isBlank()) {
             Text(
-                text = "› ${item.title}",
-                modifier = modifier.height(24.dp),
-                style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
-                maxLines = 1
+                text = items.first().title,
+                modifier = GlanceModifier.fillMaxWidth(),
+                style = TextStyle(
+                    color = bodyTextColor,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center
+                ),
+                maxLines = 2
             )
+            Spacer(GlanceModifier.defaultWeight())
+            return@WidgetSurface
+        }
+        LazyColumn(modifier = GlanceModifier.defaultWeight()) {
+            items(items) { item ->
+                val modifier = item.url
+                    .takeIf { it.isNotBlank() }
+                    ?.let { GlanceModifier.clickable(actionStartActivity(context.openUrlIntent(it))) }
+                    ?: GlanceModifier
+                Text(
+                    text = "${item.title}  ›",
+                    modifier = modifier.fillMaxWidth().height(26.dp),
+                    style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
+                    maxLines = 1
+                )
+            }
         }
     }
 }
@@ -216,7 +230,7 @@ private fun PrayerWidgetContent() {
     val data = context.widgetData()
     val prayer = data.nextPrayer()
 
-    WidgetSurface(clickable = true) {
+    WidgetSurface(clickable = true, clickUrl = PRAYER_TIMES_URL) {
         Text(
             text = data.text(KEY_PRAYER_TITLE, "Upcoming Prayer"),
             style = TextStyle(
@@ -261,6 +275,7 @@ private fun PrayerWidgetContent() {
 @Composable
 private fun WidgetSurface(
     clickable: Boolean,
+    clickUrl: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val context = LocalContext.current
@@ -270,7 +285,7 @@ private fun WidgetSurface(
         .cornerRadius(14.dp)
         .let {
             if (clickable) {
-                it.clickable(actionStartActivity(context.openAppIntent()))
+                it.clickable(actionStartActivity(context.openWidgetIntent(clickUrl)))
             } else {
                 it
             }
@@ -322,18 +337,18 @@ private data class WidgetItem(
 )
 
 private fun Context.openUrlIntent(url: String): Intent {
-    return Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-        setPackage(packageName)
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
+    return openWidgetIntent(url)
 }
 
-private fun Context.openAppIntent(): Intent {
-    return packageManager.getLaunchIntentForPackage(packageName)?.apply {
+private fun Context.openWidgetIntent(url: String?): Intent {
+    return Intent(this, MainActivity::class.java).apply {
+        action = Intent.ACTION_MAIN
+        addCategory(Intent.CATEGORY_LAUNCHER)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    } ?: Intent(Intent.ACTION_MAIN).apply {
-        setPackage(packageName)
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        url?.takeIf { it.isNotBlank() }?.let {
+            putExtra(WIDGET_URL_EXTRA, it)
+        }
     }
 }
 

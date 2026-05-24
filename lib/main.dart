@@ -12,8 +12,10 @@ import 'package:shia_companion/utils/webview_registry.dart'
     if (dart.library.js_interop) 'package:shia_companion/utils/webview_registry_web.dart';
 
 import 'constants.dart';
+import 'pages/calendar_page.dart';
 import 'pages/home_page.dart';
 import 'pages/widget_preview_page.dart';
+import 'utils/deep_links.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +44,7 @@ enum _AppLaunchDestination {
   home,
   deleteAccount,
   widgetPreview,
+  prayerTimes,
 }
 
 _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
@@ -54,6 +57,10 @@ _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
       segments.length == 1 &&
       segments.first == 'widget-preview') {
     return _AppLaunchDestination.widgetPreview;
+  }
+  final target = parseDeepLinkUri(uri);
+  if (target?.type == prayerTimesDeepLinkType) {
+    return _AppLaunchDestination.prayerTimes;
   }
   return _AppLaunchDestination.home;
 }
@@ -96,6 +103,10 @@ class MyApp extends StatelessWidget {
           home: switch (_resolveLaunchDestination(Uri.base)) {
             _AppLaunchDestination.deleteAccount => const DeleteAccountPage(),
             _AppLaunchDestination.widgetPreview => const WidgetPreviewPage(),
+            _AppLaunchDestination.prayerTimes => Scaffold(
+                appBar: AppBar(title: const Text('Calendar')),
+                body: CalendarPage(true),
+              ),
             _AppLaunchDestination.home => MyHomePage(
                 title: appName,
                 analytics: analytics,
@@ -112,6 +123,18 @@ class MyApp extends StatelessWidget {
             if (kDebugMode && settings.name == '/widget-preview') {
               return MaterialPageRoute(
                 builder: (_) => const WidgetPreviewPage(),
+                settings: settings,
+              );
+            }
+            final target = settings.name == null
+                ? null
+                : parseDeepLinkUri(Uri.parse(settings.name!));
+            if (target?.type == prayerTimesDeepLinkType) {
+              return MaterialPageRoute(
+                builder: (_) => Scaffold(
+                  appBar: AppBar(title: const Text('Calendar')),
+                  body: CalendarPage(true),
+                ),
                 settings: settings,
               );
             }

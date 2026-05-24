@@ -30,20 +30,35 @@ class AccountService {
     await _ensureGoogleSignInInitialized();
 
     final signIn = GoogleSignIn.instance;
-    GoogleSignInAccount? googleUser;
-
-    if (signIn.supportsAuthenticate()) {
-      googleUser = await signIn.authenticate();
-    } else {
-      googleUser = await signIn.attemptLightweightAuthentication() ??
-          await signIn.authenticate();
-    }
+    final googleUser = await _authenticateWithGoogle(signIn);
 
     final googleAuth = await googleUser.authentication;
     final credential = GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
     );
     return _auth.signInWithCredential(credential);
+  }
+
+  static Future<GoogleSignInAccount> _authenticateWithGoogle(
+    GoogleSignIn signIn,
+  ) async {
+    if (!signIn.supportsAuthenticate()) {
+      final lightweightUser = await signIn.attemptLightweightAuthentication();
+      if (lightweightUser != null) return lightweightUser;
+    }
+
+    try {
+      return await signIn.authenticate();
+    } on GoogleSignInException catch (error) {
+      if (defaultTargetPlatform != TargetPlatform.android ||
+          error.code != GoogleSignInExceptionCode.interrupted) {
+        rethrow;
+      }
+
+      final lightweightUser = await signIn.attemptLightweightAuthentication();
+      if (lightweightUser != null) return lightweightUser;
+      rethrow;
+    }
   }
 
   static Future<void> _ensureGoogleSignInInitialized() {

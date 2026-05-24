@@ -59,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage>
   List<LiveStreamingData>? holyShrine, liveChannel;
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
+  MethodChannel? _widgetLinkChannel;
   DeepLinkTarget? _pendingDeepLink;
   bool _itemsLoaded = false;
   bool _isPublishingIndex = false;
@@ -115,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage>
     trackScreen('Home Page');
     WidgetsBinding.instance.addObserver(this);
     _setupDeepLinks();
+    _setupAndroidWidgetLinks();
     setupPreferences();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
@@ -132,6 +134,28 @@ class _MyHomePageState extends State<MyHomePage>
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
       _queueDeepLink(parseDeepLinkUri(uri));
     });
+  }
+
+  Future<void> _setupAndroidWidgetLinks() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+
+    final channel = MethodChannel('shia_companion/home_widgets');
+    _widgetLinkChannel = channel;
+    channel.setMethodCallHandler((call) async {
+      if (call.method != 'openWidgetUrl') return;
+      final url = call.arguments?.toString();
+      if (url == null || url.isEmpty) return;
+      _queueDeepLink(parseDeepLinkUri(Uri.parse(url)));
+    });
+
+    try {
+      final url = await channel.invokeMethod<String>('takeWidgetUrl');
+      if (url != null && url.isNotEmpty) {
+        _queueDeepLink(parseDeepLinkUri(Uri.parse(url)));
+      }
+    } on MissingPluginException {
+      // Native widget bridge is only available on Android/iOS app builds.
+    }
   }
 
   void _queueDeepLink(DeepLinkTarget? target) {
@@ -156,7 +180,15 @@ class _MyHomePageState extends State<MyHomePage>
     final target = _pendingDeepLink!;
     _pendingDeepLink = null;
 
-    if (target.type != 0 || target.segments.isEmpty) {
+    if (target.type == prayerTimesDeepLinkType) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        pushPageRoute(context, CalendarPage(true));
+      });
+      return;
+    }
+
+    if (target.type != zikrDeepLinkType || target.segments.isEmpty) {
       _openDeepLinkNotFound(target.key);
       return;
     }
@@ -938,7 +970,7 @@ class _MyHomePageState extends State<MyHomePage>
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
-    FavoritesManager.instance.dispose();
+    _widgetLinkChannel?.setMethodCallHandler(null);
     super.dispose();
   }
 
