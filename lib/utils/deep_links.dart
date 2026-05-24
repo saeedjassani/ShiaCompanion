@@ -32,6 +32,14 @@ String buildZikrDeepLinkPath({
   return buildDeepLinkPath(type: zikrDeepLinkType, segments: [uid]);
 }
 
+bool isReservedNonZikrRouteName(String? routeName) {
+  if (routeName == null || routeName.isEmpty) return false;
+  final uri = Uri.tryParse(routeName);
+  if (uri == null) return false;
+  final segments = _extractSegments(uri);
+  return segments.isNotEmpty && _reservedNonZikrPaths.contains(segments.first);
+}
+
 DeepLinkTarget? parseDeepLinkUri(Uri uri) {
   final segments = _extractSegments(uri);
   if (segments.isEmpty) return null;
@@ -47,6 +55,10 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
     return DeepLinkTarget(type: zikrDeepLinkType, segments: [segments[1]]);
   }
 
+  if (_reservedNonZikrPaths.contains(segments.first)) {
+    return null;
+  }
+
   // Legacy root-level slug paths like /ziyarat-e-ashura still resolve to zikr.
   if (segments.length == 1) {
     return DeepLinkTarget(type: zikrDeepLinkType, segments: segments);
@@ -54,6 +66,14 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
 
   return null;
 }
+
+const Set<String> _reservedNonZikrPaths = {
+  'CALLBACK',
+  'callback',
+  'calendar-prayer-times',
+  'delete-account',
+  'widget-preview',
+};
 
 List<String> _extractSegments(Uri uri) {
   if (uri.fragment.isNotEmpty) {

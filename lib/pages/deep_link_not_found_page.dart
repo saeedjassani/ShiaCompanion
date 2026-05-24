@@ -26,7 +26,7 @@ class DeepLinkNotFoundPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'We couldn\'t find this shared content.',
+                'We couldn\'t find this content.',
                 style: theme.textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),

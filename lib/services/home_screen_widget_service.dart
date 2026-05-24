@@ -144,7 +144,7 @@ class HomeScreenWidgetService {
         );
     final snapshot = <String, String>{
       favoritesTitleKey: 'Favorites',
-      favoritesSubtitleKey: _favoritesSubtitle(favorites.length),
+      favoritesSubtitleKey: '',
     };
 
     for (var index = 0; index < favoriteItemKeys.length; index++) {
@@ -165,7 +165,7 @@ class HomeScreenWidgetService {
         .toList();
     final snapshot = <String, String>{
       recitationTitleKey: "Today's Recitations",
-      recitationSubtitleKey: _weekdayLabel(today),
+      recitationSubtitleKey: '',
     };
 
     for (var index = 0; index < recitationItemKeys.length; index++) {
@@ -181,7 +181,7 @@ class HomeScreenWidgetService {
   Map<String, String> buildUpcomingPrayerSnapshot() {
     final prayerSnapshot = _buildPrayerSnapshot();
     return {
-      prayerTitleKey: 'Upcoming Prayer',
+      prayerTitleKey: 'Next Prayer',
       prayerNameKey: prayerSnapshot.name,
       prayerTimeKey: prayerSnapshot.time,
       prayerDateKey: prayerSnapshot.dateLabel,
@@ -318,12 +318,6 @@ class HomeScreenWidgetService {
     return DateTime(date.year, date.month, date.day, hour, minute);
   }
 
-  String _favoritesSubtitle(int count) {
-    if (count == 0) return 'Open app to add zikr favorites';
-    if (count == 1) return '1 saved zikr';
-    return '$count saved zikr';
-  }
-
   String? _widgetTitleForUniversalData(UniversalData? item) {
     if (item == null) return null;
     final title = item.title.trim();
@@ -358,19 +352,6 @@ class HomeScreenWidgetService {
       if (test(item)) return item;
     }
     return null;
-  }
-
-  String _weekdayLabel(DateTime date) {
-    const labels = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ];
-    return labels[date.weekday - 1];
   }
 }
 

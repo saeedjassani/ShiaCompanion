@@ -47,12 +47,10 @@ private const val ACTION_REFRESH_PRAYER_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_PRAYER_WIDGET"
 
 private const val KEY_FAVORITES_TITLE = "sc_favorites_title"
-private const val KEY_FAVORITES_SUBTITLE = "sc_favorites_subtitle"
 private val favoriteItemKeys = (1..8).map { "sc_favorites_item_$it" }
 private val favoriteUrlKeys = (1..8).map { "sc_favorites_url_$it" }
 
 private const val KEY_RECITATION_TITLE = "sc_recitation_title"
-private const val KEY_RECITATION_SUBTITLE = "sc_recitation_subtitle"
 private val recitationItemKeys = (1..8).map { "sc_recitation_item_$it" }
 private val recitationUrlKeys = (1..8).map { "sc_recitation_url_$it" }
 
@@ -88,8 +86,6 @@ class FavoritesWidget : GlanceAppWidget() {
             WidgetListContent(
                 titleKey = KEY_FAVORITES_TITLE,
                 titleFallback = "Favorites",
-                subtitleKey = KEY_FAVORITES_SUBTITLE,
-                subtitleFallback = "Open app to add favorites",
                 itemKeys = favoriteItemKeys,
                 itemUrlKeys = favoriteUrlKeys,
                 firstItemFallback = "No favorites yet"
@@ -110,8 +106,6 @@ class TodaysRecitationWidget : GlanceAppWidget() {
             WidgetListContent(
                 titleKey = KEY_RECITATION_TITLE,
                 titleFallback = "Today's Recitations",
-                subtitleKey = KEY_RECITATION_SUBTITLE,
-                subtitleFallback = "",
                 itemKeys = recitationItemKeys,
                 itemUrlKeys = recitationUrlKeys,
                 firstItemFallback = "Open app to refresh"
@@ -153,8 +147,6 @@ class PrayerWidgetRefreshReceiver : BroadcastReceiver() {
 private fun WidgetListContent(
     titleKey: String,
     titleFallback: String,
-    subtitleKey: String,
-    subtitleFallback: String,
     itemKeys: List<String>,
     itemUrlKeys: List<String>,
     firstItemFallback: String
@@ -183,14 +175,6 @@ private fun WidgetListContent(
             ),
             maxLines = 1
         )
-        val subtitle = data.text(subtitleKey, subtitleFallback)
-        if (subtitle.isNotBlank()) {
-            Text(
-                text = subtitle,
-                style = TextStyle(color = secondaryTextColor, fontSize = 12.sp),
-                maxLines = 1
-            )
-        }
         Spacer(GlanceModifier.height(8.dp))
         if (items.size == 1 && items.first().url.isBlank()) {
             Text(
@@ -231,7 +215,7 @@ private fun PrayerWidgetContent() {
 
     WidgetSurface(clickable = true) {
         Text(
-            text = data.text(KEY_PRAYER_TITLE, "Upcoming Prayer"),
+            text = data.text(KEY_PRAYER_TITLE, "Next Prayer").replace("Upcoming", "Next"),
             style = TextStyle(
                 color = secondaryTextColor,
                 fontSize = 12.sp,
@@ -257,11 +241,13 @@ private fun PrayerWidgetContent() {
             ),
             maxLines = 1
         )
-        Text(
-            text = prayer.dateLabel,
-            style = TextStyle(color = secondaryTextColor, fontSize = 12.sp),
-            maxLines = 1
-        )
+        if (prayer.dateLabel.isNotBlank() && !prayer.dateLabel.equals("Today", ignoreCase = true)) {
+            Text(
+                text = prayer.dateLabel,
+                style = TextStyle(color = secondaryTextColor, fontSize = 12.sp),
+                maxLines = 1
+            )
+        }
         Spacer(GlanceModifier.defaultWeight())
         Text(
             text = prayer.location,
@@ -343,8 +329,11 @@ private fun Context.openWidgetIntent(url: String?): Intent {
     return Intent(this, MainActivity::class.java).apply {
         action = Intent.ACTION_MAIN
         addCategory(Intent.CATEGORY_LAUNCHER)
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+            Intent.FLAG_ACTIVITY_CLEAR_TOP or
+            Intent.FLAG_ACTIVITY_SINGLE_TOP
+        )
         url?.takeIf { it.isNotBlank() }?.let {
             putExtra(WIDGET_URL_EXTRA, it)
         }

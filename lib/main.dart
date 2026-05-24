@@ -14,6 +14,7 @@ import 'package:shia_companion/utils/webview_registry.dart'
 import 'constants.dart';
 import 'pages/home_page.dart';
 import 'pages/widget_preview_page.dart';
+import 'utils/deep_links.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -115,21 +116,52 @@ class MyApp extends StatelessWidget {
                 settings: settings,
               );
             }
+            if (isReservedNonZikrRouteName(settings.name)) {
+              return _ignoredPlatformRoute(settings);
+            }
             return null;
           },
           onUnknownRoute: (settings) {
-            return MaterialPageRoute(
-              builder: (_) => MyHomePage(
-                title: appName,
-                analytics: analytics,
-                observer: observer,
-              ),
-              settings: const RouteSettings(name: '/'),
-            );
+            return _ignoredPlatformRoute(settings);
           },
           navigatorObservers: [observer, routeObserver],
         );
       }),
     );
+  }
+}
+
+Route<void> _ignoredPlatformRoute(RouteSettings settings) {
+  return PageRouteBuilder<void>(
+    settings: settings,
+    opaque: false,
+    barrierColor: Colors.transparent,
+    transitionDuration: Duration.zero,
+    reverseTransitionDuration: Duration.zero,
+    pageBuilder: (context, _, __) => const _IgnoredPlatformRoutePage(),
+  );
+}
+
+class _IgnoredPlatformRoutePage extends StatefulWidget {
+  const _IgnoredPlatformRoutePage();
+
+  @override
+  State<_IgnoredPlatformRoutePage> createState() =>
+      _IgnoredPlatformRoutePageState();
+}
+
+class _IgnoredPlatformRoutePageState extends State<_IgnoredPlatformRoutePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).maybePop();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
   }
 }

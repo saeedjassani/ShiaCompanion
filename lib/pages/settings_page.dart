@@ -155,7 +155,8 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
           ExpansionTile(
             leading: Icon(Icons.widgets),
-            title: Text("Upcoming prayer widget"),
+            title: Text("Next prayer widget"),
+            subtitle: Text("Choose which prayer times count as next."),
             children: _buildUpcomingPrayerWidgetOptions(),
           ),
           Divider(),
