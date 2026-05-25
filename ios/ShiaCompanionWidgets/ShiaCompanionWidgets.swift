@@ -166,16 +166,40 @@ struct PrayerProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<PrayerWidgetEntry>) -> Void) {
-        let entry = loadEntry()
-        completion(Timeline(entries: [entry], policy: .after(entry.nextRefresh)))
+        completion(loadTimeline())
+    }
+
+    private func loadTimeline() -> Timeline<PrayerWidgetEntry> {
+        let defaults = UserDefaults.widgetData
+        let schedule = parseSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
+        let now = Date()
+        let transitionDates = schedule
+            .filter { $0.date > now }
+            .prefix(8)
+            .map { $0.date.addingTimeInterval(60) }
+        var entries = [loadEntry(defaults: defaults, schedule: schedule, now: now)]
+
+        for date in transitionDates where date > now {
+            entries.append(loadEntry(defaults: defaults, schedule: schedule, now: date))
+        }
+
+        let policyDate = entries.last?.nextRefresh ?? Date().addingTimeInterval(1800)
+        return Timeline(entries: entries, policy: .after(policyDate))
     }
 
     private func loadEntry() -> PrayerWidgetEntry {
         let defaults = UserDefaults.widgetData
         let schedule = parseSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
-        let now = Date()
+        return loadEntry(defaults: defaults, schedule: schedule, now: Date())
+    }
+
+    private func loadEntry(
+        defaults: UserDefaults?,
+        schedule: [PrayerScheduleEntry],
+        now: Date
+    ) -> PrayerWidgetEntry {
         let nextPrayer = schedule.first { $0.date > now }
-        let nextRefresh = nextPrayer?.date.addingTimeInterval(60) ?? Date().addingTimeInterval(1800)
+        let nextRefresh = nextPrayer?.date.addingTimeInterval(60) ?? now.addingTimeInterval(1800)
 
         return PrayerWidgetEntry(
             date: now,

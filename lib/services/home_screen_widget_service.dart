@@ -238,6 +238,16 @@ class HomeScreenWidgetService {
 
     final now = DateTime.now();
     final entries = _buildPrayerSchedule(now);
+    if (!_hasAnyIncludedPrayer()) {
+      return _PrayerSnapshot(
+        name: 'No prayers selected',
+        time: 'Open settings',
+        dateLabel: '',
+        location: city ?? 'Saved location',
+        encodedSchedule: '',
+      );
+    }
+
     final nextEntry = _firstWhereOrNull(
       entries,
       (entry) => entry.dateTime.isAfter(now),
@@ -305,6 +315,10 @@ class HomeScreenWidgetService {
 
     schedule.sort((a, b) => a.dateTime.compareTo(b.dateTime));
     return schedule;
+  }
+
+  bool _hasAnyIncludedPrayer() {
+    return getPrayerTimeObject().getTimeNames().any(shouldIncludePrayer);
   }
 
   DateTime? _dateTimeForTime24(DateTime date, String time24) {
