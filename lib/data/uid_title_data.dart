@@ -1,7 +1,8 @@
-import 'dart:core';
+final RegExp _uidNumberPattern = RegExp(r'\d+');
 
 class UidTitleData {
-  String uid, title;
+  String uid;
+  String title;
 
   UidTitleData(this.uid, this.title);
 
@@ -14,8 +15,7 @@ class UidTitleData {
 
   // Returns primary UID. L4 is returned when UID is G17|L4
   String getFirstUId() {
-    if (uid.contains("|")) return uid.split("|")[1];
-    return uid;
+    return uid.split("|").last;
   }
 
   String getTitle() {
@@ -23,9 +23,8 @@ class UidTitleData {
   }
 
   int getId() {
-    if (uid.contains("|")) {
-      return int.parse(uid.split("|")[0].replaceAll(RegExp("[A-Z]*"), ""));
-    }
-    return int.parse(uid.replaceAll(RegExp("[A-Z]*~*[A-Z]*"), ""));
+    final sortableUid = uid.split("|").first;
+    final match = _uidNumberPattern.firstMatch(sortableUid);
+    return int.tryParse(match?.group(0) ?? '') ?? 999999;
   }
 }
