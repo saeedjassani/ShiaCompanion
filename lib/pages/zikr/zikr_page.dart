@@ -14,6 +14,7 @@ import '../../constants.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
 import 'zikr_edit_form.dart';
+import 'zikr_form_helpers.dart';
 import 'zikr_content_viewer.dart';
 
 class ZikrPage extends StatefulWidget {
@@ -44,7 +45,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   TextEditingController? orderController;
   TextEditingController? dayController;
   final List<TextEditingController> tabControllers = [];
-  final RegExp _numericOrderPattern = RegExp(r'^-?\d+(\.\d+)?$');
   PageRoute? _pageRoute;
   Uri? _previousBrowserUri;
   List<String> _slugAliases = const [];
@@ -245,13 +245,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       codeController = TextEditingController(text: zikrData?['code']);
       dataController = TextEditingController(text: zikrData?['data']);
       meritsController = TextEditingController(text: zikrData?['merits']);
-      final dayValue = zikrData?['day'];
       dayController = TextEditingController(
-        text: dayValue is String
-            ? dayValue
-            : dayValue is List
-                ? dayValue.join(', ')
-                : '',
+        text: formatZikrDayValue(zikrData?['day']),
       );
       _slugAliases = currentAliases;
       final rawTabs = zikrData?['tabs'];
@@ -267,11 +262,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       }
       final double? currentOrder = itemOrder[widget.item.uid];
       orderController = TextEditingController(
-          text: currentOrder == null
-              ? ''
-              : (currentOrder % 1 == 0
-                  ? currentOrder.toInt().toString()
-                  : currentOrder.toString()));
+        text: formatZikrOrderValue(currentOrder),
+      );
     });
     _scheduleCurrentWebRouteSync(replace: true);
   }
@@ -319,18 +311,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     codeController?.text = zikrData?['code']?.toString() ?? '';
     dataController?.text = zikrData?['data']?.toString() ?? '';
     meritsController?.text = zikrData?['merits']?.toString() ?? '';
-    final dayValue = zikrData?['day'];
-    dayController?.text = dayValue is String
-        ? dayValue
-        : dayValue is List
-            ? dayValue.join(', ')
-            : '';
+    dayController?.text = formatZikrDayValue(zikrData?['day']);
     final currentOrder = itemOrder[widget.item.uid];
-    orderController?.text = currentOrder == null
-        ? ''
-        : (currentOrder % 1 == 0
-            ? currentOrder.toInt().toString()
-            : currentOrder.toString());
+    orderController?.text = formatZikrOrderValue(currentOrder);
     final rawSlugAliases = zikrData?['slugAliases'];
     _slugAliases = normalizeSlugAliases(
       rawSlugAliases is Iterable ? rawSlugAliases : null,
@@ -376,7 +359,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         ));
         return;
       }
-      if (rawOrder.isNotEmpty && !_numericOrderPattern.hasMatch(rawOrder)) {
+      if (!isValidZikrOrderInput(rawOrder)) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
               'Order must be a number (examples: -2, 5, 5.5) or left blank'),
@@ -409,16 +392,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         exclude: nextSlug,
       );
 
-      // Parse day field: split by comma and trim each pattern
-      dynamic dayValue;
-      if (rawDay.isNotEmpty) {
-        final dayPatterns = rawDay
-            .split(',')
-            .map((p) => p.trim())
-            .where((p) => p.isNotEmpty)
-            .toList();
-        dayValue = dayPatterns.length == 1 ? dayPatterns[0] : dayPatterns;
-      }
+      final dayValue = parseZikrDayInput(rawDay);
 
       await zikrCollection.doc(widget.item.uid).update({
         'title': titleController?.text,
@@ -544,13 +518,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       extraTabs.addAll(rawTabs.map((tab) => tab?.toString() ?? ''));
     }
 
-    final visibleTabs = <String>[];
-    if (primary.trim().isNotEmpty ||
-        extraTabs.every((tab) => tab.trim().isEmpty)) {
-      visibleTabs.add(primary);
-    }
-    visibleTabs.addAll(extraTabs.where((tab) => tab.trim().isNotEmpty));
-    return visibleTabs;
+    return buildVisibleZikrTabContents(
+      primary: primary,
+      extraTabs: extraTabs,
+    );
   }
 
   Future<void> _deleteZikr() async {
@@ -626,47 +597,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   String? _findInternalUid(String href) {
-    final trimmed = href.trim();
-    if (trimmed.isEmpty) return null;
-
-    final direct = _lookupInternalItemUid(trimmed);
-    if (direct != null) return direct;
-
-    final uri = Uri.tryParse(trimmed);
-    if (uri == null) return null;
-
-    if (uri.hasScheme) {
-      final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
-      if (pathSegments.length == 2 && pathSegments[0] == 'zikr') {
-        return _lookupInternalItemUid(pathSegments[1]);
-      }
-      return null;
-    }
-
-    var path = uri.path;
-    if (path.isNotEmpty) {
-      final pathSegments = path.split('/').where((s) => s.isNotEmpty).toList();
-      if (pathSegments.length == 2 && pathSegments[0] == 'zikr') {
-        return _lookupInternalItemUid(pathSegments[1]);
-      }
-      if (pathSegments.length == 1) {
-        return _lookupInternalItemUid(pathSegments[0]);
-      }
-    }
-
-    final fragment = uri.fragment;
-    if (fragment.isNotEmpty) {
-      final fragSegments =
-          fragment.split('/').where((s) => s.isNotEmpty).toList();
-      if (fragSegments.length == 2 && fragSegments[0] == 'zikr') {
-        return _lookupInternalItemUid(fragSegments[1]);
-      }
-      if (fragSegments.length == 1) {
-        return _lookupInternalItemUid(fragSegments[0]);
-      }
-    }
-
-    return null;
+    final segment = extractZikrLinkSegment(href);
+    return segment == null ? null : _lookupInternalItemUid(segment);
   }
 
   Future<void> _handleZikrLinkTap(String href) async {

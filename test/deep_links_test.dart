@@ -33,4 +33,27 @@ void main() {
       'https://shia-companion.web.app/zikr/ziyarat-e-ashura',
     );
   });
+
+  test('extractZikrLinkSegment supports internal link shapes', () {
+    expect(extractZikrLinkSegment('G1'), 'G1');
+    expect(
+        extractZikrLinkSegment('/zikr/ziyarat-e-ashura'), 'ziyarat-e-ashura');
+    expect(
+      extractZikrLinkSegment(
+        'https://shia-companion.web.app/#/0/ziyarat-e-ashura',
+      ),
+      'ziyarat-e-ashura',
+    );
+    expect(
+      extractZikrLinkSegment(
+        'https://shia-companion.web.app/0/ziyarat-e-ashura',
+      ),
+      'ziyarat-e-ashura',
+    );
+  });
+
+  test('extractZikrLinkSegment ignores non-zikr routes and external pages', () {
+    expect(extractZikrLinkSegment('/delete-account'), isNull);
+    expect(extractZikrLinkSegment('https://example.com/articles/1'), isNull);
+  });
 }
