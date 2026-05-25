@@ -67,6 +67,31 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
   return null;
 }
 
+String? extractZikrLinkSegment(String href) {
+  final trimmed = href.trim();
+  if (trimmed.isEmpty) return null;
+
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null) return null;
+
+  if (!uri.hasScheme) {
+    return _firstZikrSegment(parseDeepLinkUri(uri));
+  }
+
+  final appTarget = _isAppDeepLinkHost(uri.host) ? parseDeepLinkUri(uri) : null;
+  final appSegment = _firstZikrSegment(appTarget);
+  if (appSegment != null) {
+    return appSegment;
+  }
+
+  final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
+  if (pathSegments.length == 2 && pathSegments.first == 'zikr') {
+    return Uri.decodeComponent(pathSegments[1]);
+  }
+
+  return null;
+}
+
 const Set<String> _reservedNonZikrPaths = {
   'CALLBACK',
   'callback',
@@ -74,6 +99,24 @@ const Set<String> _reservedNonZikrPaths = {
   'delete-account',
   'widget-preview',
 };
+
+const Set<String> _appDeepLinkHosts = {
+  'shia-companion.web.app',
+  'www.shia-companion.web.app',
+};
+
+String? _firstZikrSegment(DeepLinkTarget? target) {
+  if (target == null ||
+      target.type != zikrDeepLinkType ||
+      target.segments.isEmpty) {
+    return null;
+  }
+  return target.segments.first;
+}
+
+bool _isAppDeepLinkHost(String host) {
+  return _appDeepLinkHosts.contains(host.toLowerCase());
+}
 
 List<String> _extractSegments(Uri uri) {
   if (uri.fragment.isNotEmpty) {

@@ -9,13 +9,13 @@ class ZikrLineSegment {
   bool get hasHref => href != null && href!.trim().isNotEmpty;
 }
 
-class _ParsedZikrContent {
+class ParsedZikrContent {
   final List<String> lines;
   final Set<int> arabicCodes;
   final Set<int> transliCodes;
   final Set<int> translaCodes;
 
-  const _ParsedZikrContent({
+  const ParsedZikrContent({
     required this.lines,
     required this.arabicCodes,
     required this.transliCodes,
@@ -24,7 +24,7 @@ class _ParsedZikrContent {
 }
 
 class ZikrContentParser {
-  static _ParsedZikrContent parseContent(
+  static ParsedZikrContent parseContent(
     String content, {
     required bool hideHeaderLine,
     required String? code,
@@ -43,7 +43,7 @@ class ZikrContentParser {
       }
     }
 
-    return _ParsedZikrContent(
+    return ParsedZikrContent(
       lines: split,
       arabicCodes: arabicCodes,
       transliCodes: _generateEnglishCodes(arabicCodes, true, code),
@@ -52,14 +52,23 @@ class ZikrContentParser {
   }
 
   static bool isArabic(String s) {
-    for (int i = 0, n = s.length; i < n && i < 35;) {
-      int c = s.codeUnitAt(i);
-      if (c >= 0x0600 && c <= 0x06FF) {
+    var scannedCharacters = 0;
+    for (final rune in s.runes) {
+      if (scannedCharacters >= 35) break;
+      if (_isArabicRune(rune)) {
         return true;
       }
-      i += c.bitLength;
+      scannedCharacters++;
     }
     return false;
+  }
+
+  static bool _isArabicRune(int rune) {
+    return (rune >= 0x0600 && rune <= 0x06FF) ||
+        (rune >= 0x0750 && rune <= 0x077F) ||
+        (rune >= 0x08A0 && rune <= 0x08FF) ||
+        (rune >= 0xFB50 && rune <= 0xFDFF) ||
+        (rune >= 0xFE70 && rune <= 0xFEFF);
   }
 
   static final RegExp _markdownLinkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
