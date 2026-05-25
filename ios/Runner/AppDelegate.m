@@ -2,6 +2,9 @@
 #include "GeneratedPluginRegistrant.h"
 
 // @import Firebase;
+#if __has_include(<WidgetKit/WidgetKit.h>)
+@import WidgetKit;
+#endif
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application
@@ -36,6 +39,11 @@
     }
 
     if ([@"refreshWidgets" isEqualToString:call.method]) {
+#if __has_include(<WidgetKit/WidgetKit.h>)
+      if (@available(iOS 14.0, *)) {
+        [[WidgetCenter sharedCenter] reloadAllTimelines];
+      }
+#endif
       result(nil);
       return;
     }
