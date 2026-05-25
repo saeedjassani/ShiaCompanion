@@ -5,6 +5,7 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
+import 'package:shia_companion/utils/data_search_filter.dart';
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;
@@ -17,11 +18,7 @@ class DataSearch extends SearchDelegate<String> {
       return [];
     }
 
-    return listWords
-        .where((entry) =>
-            entry.title.contains(RegExp(query, caseSensitive: false)) &&
-            !entry.uid.contains("|"))
-        .toList();
+    return filterDataSearchResults(listWords, query);
   }
 
   Widget _buildSearchTile(BuildContext context, UidTitleData entry) {
