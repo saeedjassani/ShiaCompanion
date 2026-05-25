@@ -2,9 +2,6 @@
 #include "GeneratedPluginRegistrant.h"
 
 // @import Firebase;
-#if __has_include(<WidgetKit/WidgetKit.h>)
-@import WidgetKit;
-#endif
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application
@@ -39,11 +36,20 @@
     }
 
     if ([@"refreshWidgets" isEqualToString:call.method]) {
-#if __has_include(<WidgetKit/WidgetKit.h>)
       if (@available(iOS 14.0, *)) {
-        [[WidgetCenter sharedCenter] reloadAllTimelines];
+        Class widgetCenterClass = NSClassFromString(@"WidgetKit.WidgetCenter");
+        SEL sharedCenterSelector = NSSelectorFromString(@"sharedCenter");
+        SEL reloadAllTimelinesSelector = NSSelectorFromString(@"reloadAllTimelines");
+
+        if (widgetCenterClass &&
+            [widgetCenterClass respondsToSelector:sharedCenterSelector]) {
+          id widgetCenter =
+              [widgetCenterClass performSelector:sharedCenterSelector];
+          if ([widgetCenter respondsToSelector:reloadAllTimelinesSelector]) {
+            [widgetCenter performSelector:reloadAllTimelinesSelector];
+          }
+        }
       }
-#endif
       result(nil);
       return;
     }
