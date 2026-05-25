@@ -124,7 +124,10 @@ class ZikrContentParser {
           .replaceAll("ہ", "ه")
           .replaceAll("ک", "ك")
           .replaceAll("ۃ", "ة")
-          .replaceAll('الله', 'اللّٰه');
+          .replaceAll('الله', 'اللّٰه')
+          .replaceAll('ٗ ', '')
+          .replaceAll('ٖ ', ' ِ')
+          .replaceAll('اۤ', 'ا');
     }
   }
 }
