@@ -75,6 +75,12 @@ class _ZikrSettingsPageState extends State<ZikrSettingsPage> {
             },
             title: Text("Keep screen on while reciting Zikr"),
           ),
+          Divider(),
+          SwitchListTile(
+            value: SP.prefs.getBool('share_zikr_image') ?? true,
+            onChanged: (v) => saveBooleanPref('share_zikr_image', v),
+            title: Text("Share Zikr as Image"),
+          ),
           ...showThreeLineSettings(),
         ],
       ),
