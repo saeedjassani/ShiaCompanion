@@ -9,13 +9,16 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/utils/deep_links.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 import '../../constants.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
 import 'zikr_edit_form.dart';
 import 'zikr_form_helpers.dart';
+import 'zikr_content_parser.dart';
 import 'zikr_content_viewer.dart';
+import 'zikr_share_image.dart';
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
@@ -34,7 +37,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   bool isAdmin = false;
   bool isEditing = false;
+  bool _isSharingZikr = false;
   bool _isCurrentRoute = false;
+  int _selectedZikrTabIndex = 0;
   String? userId;
   Map<String, dynamic>? zikrData;
   TextEditingController? titleController;
@@ -156,6 +161,16 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               ? dataSlug
               : cachedSlug,
     );
+  }
+
+  String? _currentShareSlug() {
+    final controllerSlug = normalizeSlug(slugController?.text.trim() ?? '');
+    final dataSlug = normalizeSlug(zikrData?['slug']?.toString() ?? '');
+    final cachedSlug = itemSlugs[widget.item.uid];
+
+    if (controllerSlug.isNotEmpty) return controllerSlug;
+    if (dataSlug.isNotEmpty) return dataSlug;
+    return cachedSlug;
   }
 
   void _scheduleCurrentWebRouteSync({bool replace = false}) {
@@ -559,26 +574,104 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     Navigator.pop(context);
   }
 
-  void _shareCurrentZikr() {
+  int _clampedSelectedTabIndex(List<String> tabContents) {
+    if (tabContents.isEmpty) return 0;
+    return _selectedZikrTabIndex.clamp(0, tabContents.length - 1);
+  }
+
+  String _tabHeaderForContent(String content, int index) {
+    final lines = content
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty);
+    if (lines.isNotEmpty) {
+      return ZikrContentParser.parseLineSegments(lines.first)
+          .map((segment) => segment.text)
+          .join()
+          .trim();
+    }
+    return 'Part ${index + 1}';
+  }
+
+  Future<void> _shareCurrentZikr() async {
+    if (_isSharingZikr) return;
+
     final title = titleController?.text.trim().isNotEmpty == true
         ? titleController!.text.trim()
         : widget.item.title;
     final deepLink = buildZikrDeepLinkUrl(
       uid: widget.item.uid,
-      slug: itemSlugs[widget.item.uid],
+      slug: _currentShareSlug(),
+    );
+    final sharePositionOrigin = Rect.fromLTWH(
+      MediaQuery.of(context).size.width / 2,
+      0,
+      2,
+      2,
     );
 
-    SharePlus.instance.share(
-      ShareParams(
-        text: '$title\n$deepLink',
-        sharePositionOrigin: Rect.fromLTWH(
-          MediaQuery.of(context).size.width / 2,
-          0,
-          2,
-          2,
+    setState(() {
+      _isSharingZikr = true;
+    });
+
+    try {
+      final tabContents = _buildVisibleTabContents();
+      final selectedIndex = _clampedSelectedTabIndex(tabContents);
+      final selectedContent =
+          tabContents.isEmpty ? '' : tabContents[selectedIndex];
+      final showTabHeaders = tabContents.length > 1;
+      final shareImage = SP.prefs.getBool('share_zikr_image') ?? true;
+      final imageBytes = !shareImage || selectedContent.trim().isEmpty
+          ? null
+          : await buildZikrShareImage(
+              ZikrShareImageRequest(
+                title: title,
+                tabTitle: showTabHeaders
+                    ? _tabHeaderForContent(selectedContent, selectedIndex)
+                    : '',
+                content: selectedContent,
+                hideHeaderLine: showTabHeaders,
+                code: zikrData?['code']?.toString(),
+              ),
+            );
+
+      await SharePlus.instance.share(
+        ShareParams(
+          title: title,
+          subject: title,
+          text: '$title\n$deepLink',
+          files: imageBytes == null
+              ? null
+              : [
+                  XFile.fromData(
+                    imageBytes,
+                    mimeType: 'image/png',
+                    name: 'shia-companion-zikr.png',
+                  ),
+                ],
+          fileNameOverrides:
+              imageBytes == null ? null : const ['shia-companion-zikr.png'],
+          downloadFallbackEnabled: imageBytes == null,
+          sharePositionOrigin: sharePositionOrigin,
         ),
-      ),
-    );
+      );
+    } catch (error) {
+      debugPrint('Error sharing zikr image: $error');
+      await SharePlus.instance.share(
+        ShareParams(
+          title: title,
+          subject: title,
+          text: '$title\n$deepLink',
+          sharePositionOrigin: sharePositionOrigin,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSharingZikr = false;
+        });
+      }
+    }
   }
 
   String? _lookupInternalItemUid(String segment) {
@@ -663,6 +756,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             : widget.item.title);
     final hasAnyContent =
         tabContents.any((content) => content.trim().isNotEmpty);
+    final selectedTabIndex = _clampedSelectedTabIndex(tabContents);
 
     return SelectionArea(
       child: Scaffold(
@@ -685,7 +779,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               IconButton(
                 icon: const Icon(Icons.share),
                 tooltip: 'Share',
-                onPressed: _shareCurrentZikr,
+                onPressed: _isSharingZikr ? null : _shareCurrentZikr,
               ),
             isAdmin && zikrData != null
                 ? IconButton(
@@ -739,8 +833,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                     Expanded(
                                       child: ZikrContentViewerWidget(
                                         tabContents: tabContents,
-                                        selectedTabIndex: 0,
-                                        onTabChanged: (_) {},
+                                        selectedTabIndex: selectedTabIndex,
+                                        onTabChanged: (index) {
+                                          setState(() {
+                                            _selectedZikrTabIndex = index;
+                                          });
+                                        },
                                         hasMerits: hasMerits,
                                         onShowMerits: _showMeritsSheet,
                                         onLinkTap: _handleZikrLinkTap,

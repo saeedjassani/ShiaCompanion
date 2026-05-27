@@ -41,14 +41,24 @@
       const path = window.location.pathname || '/';
       const isContentPath = path !== '/' && path !== '/index.html';
       const isAndroid = /Android/i.test(navigator.userAgent);
+      const isIos =
+        /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+      const androidStoreUrl =
+        'https://play.google.com/store/apps/details?id=com.developer110.shiacompanion';
+      const iosStoreUrl = 'https://apps.apple.com/app/id1492517189';
       const redirectKey = 'shia-companion-open-app-' + path;
+      const bannerDismissedKey = 'shia-companion-download-banner-dismissed';
 
-      if (!isContentPath || !isAndroid) {
+      if ((!isAndroid && !isIos) || !isMobileViewport || isStandalone) {
         return;
       }
 
       function getIntentUrl() {
-        const fallbackUrl = window.location.href;
         return (
           'intent://' +
           window.location.host +
@@ -56,7 +66,7 @@
           window.location.search +
           window.location.hash +
           '#Intent;scheme=https;package=com.developer110.shiacompanion;S.browser_fallback_url=' +
-          encodeURIComponent(fallbackUrl) +
+          encodeURIComponent(androidStoreUrl) +
           ';end'
         );
       }
@@ -65,24 +75,93 @@
         window.location.href = getIntentUrl();
       }
 
-      function createOpenAppBanner() {
-        const banner = document.createElement('button');
-        banner.type = 'button';
-        banner.textContent = 'Open in app';
+      function getDownloadUrl() {
+        if (isAndroid && isContentPath) {
+          return getIntentUrl();
+        }
+        return isAndroid ? androidStoreUrl : iosStoreUrl;
+      }
+
+      function createDownloadAppBanner() {
+        if (sessionStorage.getItem(bannerDismissedKey) === '1') {
+          return;
+        }
+
+        const banner = document.createElement('div');
         banner.setAttribute(
           'style',
-          'position:fixed;top:16px;right:16px;z-index:9999;border:0;border-radius:999px;padding:12px 18px;background:#5d4037;color:#fff;font:600 14px system-ui,-apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 10px 25px rgba(0,0,0,.18);cursor:pointer;'
+          'position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:9999;display:flex;align-items:center;gap:12px;border:1px solid rgba(93,64,55,.18);border-radius:18px;padding:12px;background:rgba(255,255,255,.96);color:#2e2723;font:14px system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;box-shadow:0 14px 32px rgba(0,0,0,.18);backdrop-filter:blur(14px);'
         );
-        banner.addEventListener('click', openAndroidApp);
-        document.addEventListener('DOMContentLoaded', function () {
-          document.body.appendChild(banner);
+
+        const icon = document.createElement('img');
+        icon.src = 'icons/Icon-192.png';
+        icon.alt = '';
+        icon.setAttribute(
+          'style',
+          'width:42px;height:42px;border-radius:10px;flex:0 0 auto;'
+        );
+
+        const copy = document.createElement('div');
+        copy.setAttribute('style', 'min-width:0;flex:1;line-height:1.25;');
+
+        const title = document.createElement('div');
+        title.textContent = 'Get Shia Companion';
+        title.setAttribute(
+          'style',
+          'font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
+        );
+
+        const subtitle = document.createElement('div');
+        subtitle.textContent = isAndroid && isContentPath
+          ? 'Open or install the app.'
+          : 'Download the mobile app.';
+        subtitle.setAttribute(
+          'style',
+          'margin-top:2px;color:#6d5d55;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
+        );
+
+        const cta = document.createElement('a');
+        cta.href = getDownloadUrl();
+        cta.textContent = 'Get';
+        cta.setAttribute(
+          'style',
+          'flex:0 0 auto;border-radius:999px;padding:10px 16px;background:#5d4037;color:#fff;font-weight:700;text-decoration:none;'
+        );
+
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.textContent = 'x';
+        close.setAttribute('aria-label', 'Dismiss download banner');
+        close.setAttribute(
+          'style',
+          'flex:0 0 auto;border:0;background:transparent;color:#6d5d55;font:700 18px system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;padding:4px 2px;'
+        );
+        close.addEventListener('click', function () {
+          sessionStorage.setItem(bannerDismissedKey, '1');
+          banner.remove();
         });
+
+        copy.appendChild(title);
+        copy.appendChild(subtitle);
+        banner.appendChild(icon);
+        banner.appendChild(copy);
+        banner.appendChild(cta);
+        banner.appendChild(close);
+
+        function appendBanner() {
+          document.body.appendChild(banner);
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', appendBanner);
+        } else {
+          appendBanner();
+        }
       }
 
       async function maybeOpenInstalledApp() {
-        createOpenAppBanner();
-
-        if (
+        if (!isAndroid ||
+          !isContentPath ||
           typeof navigator.getInstalledRelatedApps !== 'function' ||
           sessionStorage.getItem(redirectKey) === '1'
         ) {
@@ -104,6 +183,7 @@
         }
       }
 
+      createDownloadAppBanner();
       maybeOpenInstalledApp();
     })();
   </script>
