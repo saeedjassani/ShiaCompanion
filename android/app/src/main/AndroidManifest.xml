@@ -107,5 +107,8 @@
         <receiver
             android:name="com.developer110.shiacompanion.widgets.PrayerWidgetRefreshReceiver"
             android:exported="false" />
+        <receiver
+            android:name="com.developer110.shiacompanion.widgets.RecitationWidgetRefreshReceiver"
+            android:exported="false" />
     </application>
 </manifest>

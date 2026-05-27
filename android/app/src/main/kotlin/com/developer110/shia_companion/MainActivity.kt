@@ -10,6 +10,7 @@ import android.webkit.MimeTypeMap
 import androidx.glance.appwidget.updateAll
 import com.developer110.shiacompanion.widgets.FavoritesWidget
 import com.developer110.shiacompanion.widgets.scheduleNextPrayerWidgetRefresh
+import com.developer110.shiacompanion.widgets.scheduleNextRecitationWidgetRefresh
 import com.developer110.shiacompanion.widgets.TodaysRecitationWidget
 import com.developer110.shiacompanion.widgets.UpcomingPrayerWidget
 import io.flutter.embedding.android.FlutterActivity
@@ -120,8 +121,15 @@ class MainActivity: FlutterActivity() {
                             editor.putString(key, value.toString())
                         }
                     }
-                    editor.apply()
-                    result.success(null)
+                    if (editor.commit()) {
+                        result.success(null)
+                    } else {
+                        result.error(
+                            "save_failed",
+                            "Widget data could not be saved.",
+                            null
+                        )
+                    }
                 }
                 "refreshWidgets" -> {
                     mainScope.launch {
@@ -130,6 +138,7 @@ class MainActivity: FlutterActivity() {
                             TodaysRecitationWidget().updateAll(applicationContext)
                             UpcomingPrayerWidget().updateAll(applicationContext)
                             scheduleNextPrayerWidgetRefresh(applicationContext)
+                            scheduleNextRecitationWidgetRefresh(applicationContext)
                             result.success(null)
                         } catch (error: Exception) {
                             result.error(

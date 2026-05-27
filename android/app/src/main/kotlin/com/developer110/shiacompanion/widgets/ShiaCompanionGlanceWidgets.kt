@@ -37,14 +37,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.color.ColorProvider
 import com.developer110.shia_companion.MainActivity
+import java.util.Calendar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 
 private const val WIDGET_PREFS = "shia_companion_widgets"
 private const val WIDGET_URL_EXTRA = "com.developer110.shiacompanion.WIDGET_URL"
 private const val ACTION_REFRESH_PRAYER_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_PRAYER_WIDGET"
+private const val ACTION_REFRESH_RECITATION_WIDGET =
+    "com.developer110.shiacompanion.widgets.REFRESH_RECITATION_WIDGET"
 
 private const val KEY_FAVORITES_TITLE = "sc_favorites_title"
 private val favoriteItemKeys = (1..8).map { "sc_favorites_item_$it" }
@@ -53,6 +57,7 @@ private val favoriteUrlKeys = (1..8).map { "sc_favorites_url_$it" }
 private const val KEY_RECITATION_TITLE = "sc_recitation_title"
 private val recitationItemKeys = (1..8).map { "sc_recitation_item_$it" }
 private val recitationUrlKeys = (1..8).map { "sc_recitation_url_$it" }
+private const val KEY_RECITATION_SCHEDULE = "sc_recitation_schedule"
 
 private const val KEY_PRAYER_TITLE = "sc_prayer_title"
 private const val KEY_PRAYER_NAME = "sc_prayer_name"
@@ -108,7 +113,8 @@ class TodaysRecitationWidget : GlanceAppWidget() {
                 titleFallback = "Today's Recitations",
                 itemKeys = recitationItemKeys,
                 itemUrlKeys = recitationUrlKeys,
-                firstItemFallback = "Open app to refresh"
+                firstItemFallback = "Open app to refresh",
+                scheduleKey = KEY_RECITATION_SCHEDULE
             )
         }
     }
@@ -143,17 +149,29 @@ class PrayerWidgetRefreshReceiver : BroadcastReceiver() {
     }
 }
 
+class RecitationWidgetRefreshReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != ACTION_REFRESH_RECITATION_WIDGET) return
+
+        CoroutineScope(Dispatchers.Main).launch {
+            TodaysRecitationWidget().updateAll(context.applicationContext)
+            scheduleNextRecitationWidgetRefresh(context.applicationContext)
+        }
+    }
+}
+
 @Composable
 private fun WidgetListContent(
     titleKey: String,
     titleFallback: String,
     itemKeys: List<String>,
     itemUrlKeys: List<String>,
-    firstItemFallback: String
+    firstItemFallback: String,
+    scheduleKey: String? = null
 ) {
     val context = LocalContext.current
     val data = context.widgetData()
-    val items = itemKeys.mapIndexedNotNull { index, key ->
+    val items = data.scheduledWidgetItems(scheduleKey) ?: itemKeys.mapIndexedNotNull { index, key ->
         val title = data.text(key, if (index == 0) firstItemFallback else "")
         if (title.isBlank()) {
             null
@@ -289,7 +307,7 @@ private fun Context.widgetData() = getSharedPreferences(WIDGET_PREFS, Context.MO
 
 fun scheduleNextPrayerWidgetRefresh(context: Context) {
     val nextPrayer = context.widgetData().nextPrayerEpochMillis() ?: return
-    val triggerAt = nextPrayer + 60_000L
+    val triggerAt = nextPrayer
     if (triggerAt <= System.currentTimeMillis()) return
 
     val intent = Intent(context, PrayerWidgetRefreshReceiver::class.java).apply {
@@ -316,10 +334,105 @@ fun scheduleNextPrayerWidgetRefresh(context: Context) {
     }
 }
 
+fun scheduleNextRecitationWidgetRefresh(context: Context) {
+    val triggerAt = context.widgetData().nextWidgetListScheduleEpochMillis(
+        KEY_RECITATION_SCHEDULE
+    ) ?: nextLocalMidnightMillis()
+    if (triggerAt <= System.currentTimeMillis()) return
+
+    val intent = Intent(context, RecitationWidgetRefreshReceiver::class.java).apply {
+        action = ACTION_REFRESH_RECITATION_WIDGET
+    }
+    val flags = PendingIntent.FLAG_UPDATE_CURRENT or (
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+        )
+    val pendingIntent = PendingIntent.getBroadcast(context, 1, intent, flags)
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+    try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerAt,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+        }
+    } catch (_: SecurityException) {
+        alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+    }
+}
+
 private data class WidgetItem(
     val title: String,
     val url: String
 )
+
+private data class WidgetListScheduleEntry(
+    val startEpochMillis: Long,
+    val items: List<WidgetItem>
+)
+
+private fun android.content.SharedPreferences.scheduledWidgetItems(
+    scheduleKey: String?
+): List<WidgetItem>? {
+    if (scheduleKey.isNullOrBlank()) return null
+
+    val now = System.currentTimeMillis()
+    return parseWidgetListSchedule(getString(scheduleKey, ""))
+        .lastOrNull { it.startEpochMillis <= now }
+        ?.items
+        ?.takeIf { it.isNotEmpty() }
+}
+
+private fun android.content.SharedPreferences.nextWidgetListScheduleEpochMillis(
+    scheduleKey: String
+): Long? {
+    val now = System.currentTimeMillis()
+    return parseWidgetListSchedule(getString(scheduleKey, ""))
+        .map { it.startEpochMillis }
+        .filter { it > now }
+        .minOrNull()
+}
+
+private fun parseWidgetListSchedule(rawSchedule: String?): List<WidgetListScheduleEntry> {
+    if (rawSchedule.isNullOrBlank()) return emptyList()
+
+    return try {
+        val entries = JSONArray(rawSchedule)
+        List(entries.length()) { index ->
+            val entry = entries.getJSONObject(index)
+            val rawItems = entry.optJSONArray("items") ?: JSONArray()
+            val items = List(rawItems.length()) { itemIndex ->
+                val rawItem = rawItems.getJSONObject(itemIndex)
+                WidgetItem(
+                    title = rawItem.optString("title", "").trim(),
+                    url = rawItem.optString("url", "").trim()
+                )
+            }.filter { it.title.isNotBlank() }
+
+            WidgetListScheduleEntry(
+                startEpochMillis = entry.optLong("start"),
+                items = items
+            )
+        }
+            .filter { it.startEpochMillis > 0L }
+            .sortedBy { it.startEpochMillis }
+    } catch (_: Exception) {
+        emptyList()
+    }
+}
+
+private fun nextLocalMidnightMillis(): Long {
+    return Calendar.getInstance().apply {
+        add(Calendar.DAY_OF_YEAR, 1)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+}
 
 private fun Context.openUrlIntent(url: String): Intent {
     return openWidgetIntent(url)

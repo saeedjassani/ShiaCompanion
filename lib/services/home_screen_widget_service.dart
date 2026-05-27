@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -76,6 +77,7 @@ class HomeScreenWidgetService {
   static const String recitationUrl1Key = 'sc_recitation_url_1';
   static const String recitationUrl2Key = 'sc_recitation_url_2';
   static const String recitationUrl3Key = 'sc_recitation_url_3';
+  static const String recitationScheduleKey = 'sc_recitation_schedule';
 
   static const String prayerTitleKey = 'sc_prayer_title';
   static const String prayerNameKey = 'sc_prayer_name';
@@ -159,13 +161,11 @@ class HomeScreenWidgetService {
 
   Map<String, String> buildTodaysRecitationsSnapshot({DateTime? now}) {
     final today = now ?? DateTime.now();
-    final recitations = buildTodaysRecitationItems(now: today)
-        .where((item) => !item.uid.contains('~'))
-        .take(recitationItemKeys.length)
-        .toList();
+    final recitations = _buildRecitationItemsForDay(today);
     final snapshot = <String, String>{
       recitationTitleKey: "Today's Recitations",
       recitationSubtitleKey: '',
+      recitationScheduleKey: jsonEncode(_buildRecitationSchedule(today)),
     };
 
     for (var index = 0; index < recitationItemKeys.length; index++) {
@@ -176,6 +176,33 @@ class HomeScreenWidgetService {
     }
 
     return snapshot;
+  }
+
+  List<Map<String, Object>> _buildRecitationSchedule(DateTime now) {
+    final startOfToday = DateTime(now.year, now.month, now.day);
+
+    return List.generate(8, (dayOffset) {
+      final date = startOfToday.add(Duration(days: dayOffset));
+      final items = _buildRecitationItemsForDay(date);
+
+      return {
+        'start': date.millisecondsSinceEpoch,
+        'items': items
+            .map((item) => {
+                  'title': _widgetTitleForRecitation(item) ?? '',
+                  'url': _widgetUrlForRecitation(item),
+                })
+            .where((item) => (item['title'] ?? '').isNotEmpty)
+            .toList(),
+      };
+    });
+  }
+
+  List<UidTitleData> _buildRecitationItemsForDay(DateTime date) {
+    return buildTodaysRecitationItems(now: date)
+        .where((item) => !item.uid.contains('~'))
+        .take(recitationItemKeys.length)
+        .toList();
   }
 
   Map<String, String> buildUpcomingPrayerSnapshot() {

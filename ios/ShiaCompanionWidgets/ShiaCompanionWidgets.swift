@@ -11,6 +11,7 @@ private enum WidgetKeys {
     static let recitationTitle = "sc_recitation_title"
     static let recitationItems = (1...8).map { "sc_recitation_item_\($0)" }
     static let recitationUrls = (1...8).map { "sc_recitation_url_\($0)" }
+    static let recitationSchedule = "sc_recitation_schedule"
 
     static let prayerTitle = "sc_prayer_title"
     static let prayerName = "sc_prayer_name"
@@ -41,6 +42,11 @@ struct WidgetListEntry: TimelineEntry {
 struct WidgetListItem {
     let title: String
     let url: URL?
+}
+
+private struct WidgetListScheduleEntry {
+    let start: Date
+    let items: [WidgetListItem]
 }
 
 struct FavoritesProvider: TimelineProvider {
@@ -91,20 +97,61 @@ struct RecitationProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<WidgetListEntry>) -> Void) {
-        completion(Timeline(entries: [loadEntry()], policy: .after(Date().addingTimeInterval(3600))))
+        completion(loadTimeline())
+    }
+
+    private func loadTimeline() -> Timeline<WidgetListEntry> {
+        let defaults = UserDefaults.widgetData
+        let schedule = parseListSchedule(defaults?.string(forKey: WidgetKeys.recitationSchedule) ?? "")
+        let now = Date()
+
+        if schedule.isEmpty {
+            return Timeline(
+                entries: [loadEntry(defaults: defaults, schedule: schedule, now: now)],
+                policy: .after(now.addingTimeInterval(3600))
+            )
+        }
+
+        let transitionDates = schedule
+            .map(\.start)
+            .filter { $0 > now }
+            .prefix(8)
+        var entries = [loadEntry(defaults: defaults, schedule: schedule, now: now)]
+
+        for date in transitionDates {
+            entries.append(loadEntry(defaults: defaults, schedule: schedule, now: date))
+        }
+
+        let policyDate = entries.last?.date.addingTimeInterval(86400) ?? now.addingTimeInterval(3600)
+        return Timeline(entries: entries, policy: .after(policyDate))
     }
 
     private func loadEntry() -> WidgetListEntry {
         let defaults = UserDefaults.widgetData
-        let items = widgetItems(
-            defaults: defaults,
-            titleKeys: WidgetKeys.recitationItems,
-            urlKeys: WidgetKeys.recitationUrls,
-            firstFallback: "Open app to refresh"
-        )
+        let schedule = parseListSchedule(defaults?.string(forKey: WidgetKeys.recitationSchedule) ?? "")
+        return loadEntry(defaults: defaults, schedule: schedule, now: Date())
+    }
+
+    private func loadEntry(
+        defaults: UserDefaults?,
+        schedule: [WidgetListScheduleEntry],
+        now: Date
+    ) -> WidgetListEntry {
+        let scheduledItems = currentListScheduleEntry(schedule, now: now)?.items
+        let items: [WidgetListItem]
+        if let scheduledItems = scheduledItems, !scheduledItems.isEmpty {
+            items = scheduledItems
+        } else {
+            items = widgetItems(
+                defaults: defaults,
+                titleKeys: WidgetKeys.recitationItems,
+                urlKeys: WidgetKeys.recitationUrls,
+                firstFallback: "Open app to refresh"
+            )
+        }
 
         return WidgetListEntry(
-            date: Date(),
+            date: now,
             title: defaults?.widgetString(
                 WidgetKeys.recitationTitle,
                 fallback: "Today's Recitations"
@@ -129,6 +176,50 @@ private func widgetItems(
         let rawUrl = defaults?.widgetString(urlKeys[index], fallback: "") ?? ""
         return WidgetListItem(title: title, url: URL(string: rawUrl))
     }
+}
+
+private func currentListScheduleEntry(
+    _ schedule: [WidgetListScheduleEntry],
+    now: Date
+) -> WidgetListScheduleEntry? {
+    schedule.last { $0.start <= now }
+}
+
+private func parseListSchedule(_ rawSchedule: String) -> [WidgetListScheduleEntry] {
+    guard
+        let data = rawSchedule.data(using: .utf8),
+        let rawEntries = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+    else {
+        return []
+    }
+
+    return rawEntries.compactMap { rawEntry in
+        guard
+            let startMillis = (rawEntry["start"] as? NSNumber)?.doubleValue,
+            let rawItems = rawEntry["items"] as? [[String: Any]]
+        else {
+            return nil
+        }
+
+        let items = rawItems.compactMap { rawItem -> WidgetListItem? in
+            guard let title = (rawItem["title"] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+                !title.isEmpty
+            else {
+                return nil
+            }
+
+            let rawUrl = (rawItem["url"] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            return WidgetListItem(title: title, url: URL(string: rawUrl))
+        }
+
+        return WidgetListScheduleEntry(
+            start: Date(timeIntervalSince1970: startMillis / 1000.0),
+            items: items
+        )
+    }
+    .sorted { $0.start < $1.start }
 }
 
 struct PrayerWidgetEntry: TimelineEntry {
@@ -176,7 +267,7 @@ struct PrayerProvider: TimelineProvider {
         let transitionDates = schedule
             .filter { $0.date > now }
             .prefix(8)
-            .map { $0.date.addingTimeInterval(60) }
+            .map(\.date)
         var entries = [loadEntry(defaults: defaults, schedule: schedule, now: now)]
 
         for date in transitionDates where date > now {
@@ -199,7 +290,7 @@ struct PrayerProvider: TimelineProvider {
         now: Date
     ) -> PrayerWidgetEntry {
         let nextPrayer = schedule.first { $0.date > now }
-        let nextRefresh = nextPrayer?.date.addingTimeInterval(60) ?? now.addingTimeInterval(1800)
+        let nextRefresh = nextPrayer?.date ?? now.addingTimeInterval(1800)
 
         return PrayerWidgetEntry(
             date: now,
