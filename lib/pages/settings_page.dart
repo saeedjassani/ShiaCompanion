@@ -6,11 +6,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:the_apple_sign_in/the_apple_sign_in.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../services/account_service.dart';
 import '../services/home_screen_widget_service.dart';
 import '../utils/dark_mode.dart';
+import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
 import 'about_page.dart';
 import 'scheduled_notifications_page.dart';
@@ -470,12 +470,10 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  _launchURL() async {
-    Uri url = Uri.parse('mailto:developer110@hotmail.com?subject=' +
-        Uri.encodeComponent("Shia Companion | Feedback"));
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
+  Future<void> _launchURL() async {
+    final launched =
+        await launchSupportEmail(subject: "Shia Companion | Feedback");
+    if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
         content: new Text("No email app found"),
       ));
