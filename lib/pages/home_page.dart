@@ -90,10 +90,16 @@ class _MyHomePageState extends State<MyHomePage>
     isUserAdmin = false;
 
     if (user != null) {
-      final idTokenResult = await user?.getIdTokenResult(true);
-      final claims = idTokenResult?.claims;
-      if (claims != null && claims['admin'] == true) {
-        isUserAdmin = true;
+      try {
+        final idTokenResult =
+            await user!.getIdTokenResult().timeout(const Duration(seconds: 4));
+        final claims = idTokenResult.claims;
+        if (claims != null && claims['admin'] == true) {
+          isUserAdmin = true;
+        }
+      } catch (error) {
+        debugPrint(
+            'Unable to refresh admin claim, using bundled index: $error');
       }
     }
 
