@@ -110,19 +110,23 @@ class _SettingsPageState extends State<SettingsPage> {
                 : "Reuse stored location until you refresh it manually."),
             value: shouldUseLiveLocation(),
             onChanged: (value) async {
-              await SP.prefs.setBool('use_live_location', value);
               if (value) {
                 final success = await initializeLocation(force: true);
                 if (success) {
+                  await SP.prefs.setBool('use_live_location', true);
                   await HomeScreenWidgetService.instance
                       .publishUpcomingPrayer();
+                } else {
+                  await SP.prefs.setBool('use_live_location', false);
                 }
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text(success
                       ? "Live location enabled."
-                      : "Failed to fetch live location."),
+                      : "Location permission was not granted."),
                 ));
+              } else {
+                await SP.prefs.setBool('use_live_location', false);
               }
               setState(() {});
             },
