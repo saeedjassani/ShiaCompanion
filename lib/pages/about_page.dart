@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:shia_companion/utils/external_launch.dart';
 
 class AboutPage extends StatefulWidget {
   @override
@@ -56,10 +56,8 @@ class _AboutPageState extends State<AboutPage> {
               ),
               ListTile(
                 onTap: () async {
-                  Uri url = Uri.parse("mailto:developer110@hotmail.com");
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url);
-                  } else {
+                  final launched = await launchSupportEmail();
+                  if (!launched && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("No e-mail app found")));
                   }
