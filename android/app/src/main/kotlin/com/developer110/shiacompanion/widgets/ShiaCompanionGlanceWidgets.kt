@@ -51,12 +51,12 @@ private const val ACTION_REFRESH_RECITATION_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_RECITATION_WIDGET"
 
 private const val KEY_FAVORITES_TITLE = "sc_favorites_title"
-private val favoriteItemKeys = (1..8).map { "sc_favorites_item_$it" }
-private val favoriteUrlKeys = (1..8).map { "sc_favorites_url_$it" }
+private val favoriteItemKeys = (1..12).map { "sc_favorites_item_$it" }
+private val favoriteUrlKeys = (1..12).map { "sc_favorites_url_$it" }
 
 private const val KEY_RECITATION_TITLE = "sc_recitation_title"
-private val recitationItemKeys = (1..8).map { "sc_recitation_item_$it" }
-private val recitationUrlKeys = (1..8).map { "sc_recitation_url_$it" }
+private val recitationItemKeys = (1..12).map { "sc_recitation_item_$it" }
+private val recitationUrlKeys = (1..12).map { "sc_recitation_url_$it" }
 private const val KEY_RECITATION_SCHEDULE = "sc_recitation_schedule"
 
 private const val KEY_PRAYER_TITLE = "sc_prayer_title"
@@ -215,7 +215,7 @@ private fun WidgetListContent(
                     ?.let { GlanceModifier.clickable(actionStartActivity(context.openUrlIntent(it))) }
                     ?: GlanceModifier
                 Text(
-                    text = "${item.title}  ›",
+                    text = if (item.url.isNotBlank()) "${item.title}  ›" else item.title,
                     modifier = modifier.fillMaxWidth().height(26.dp),
                     style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
                     maxLines = 1
