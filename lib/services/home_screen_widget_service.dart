@@ -22,26 +22,15 @@ class HomeScreenWidgetService {
 
   static const String favoritesTitleKey = 'sc_favorites_title';
   static const String favoritesSubtitleKey = 'sc_favorites_subtitle';
-  static const List<String> favoriteItemKeys = [
-    'sc_favorites_item_1',
-    'sc_favorites_item_2',
-    'sc_favorites_item_3',
-    'sc_favorites_item_4',
-    'sc_favorites_item_5',
-    'sc_favorites_item_6',
-    'sc_favorites_item_7',
-    'sc_favorites_item_8',
-  ];
-  static const List<String> favoriteUrlKeys = [
-    'sc_favorites_url_1',
-    'sc_favorites_url_2',
-    'sc_favorites_url_3',
-    'sc_favorites_url_4',
-    'sc_favorites_url_5',
-    'sc_favorites_url_6',
-    'sc_favorites_url_7',
-    'sc_favorites_url_8',
-  ];
+  static const int listWidgetItemCount = 12;
+  static final List<String> favoriteItemKeys = List.generate(
+    listWidgetItemCount,
+    (index) => 'sc_favorites_item_${index + 1}',
+  );
+  static final List<String> favoriteUrlKeys = List.generate(
+    listWidgetItemCount,
+    (index) => 'sc_favorites_url_${index + 1}',
+  );
   static const String favoriteItem1Key = 'sc_favorites_item_1';
   static const String favoriteItem2Key = 'sc_favorites_item_2';
   static const String favoriteItem3Key = 'sc_favorites_item_3';
@@ -51,26 +40,14 @@ class HomeScreenWidgetService {
 
   static const String recitationTitleKey = 'sc_recitation_title';
   static const String recitationSubtitleKey = 'sc_recitation_subtitle';
-  static const List<String> recitationItemKeys = [
-    'sc_recitation_item_1',
-    'sc_recitation_item_2',
-    'sc_recitation_item_3',
-    'sc_recitation_item_4',
-    'sc_recitation_item_5',
-    'sc_recitation_item_6',
-    'sc_recitation_item_7',
-    'sc_recitation_item_8',
-  ];
-  static const List<String> recitationUrlKeys = [
-    'sc_recitation_url_1',
-    'sc_recitation_url_2',
-    'sc_recitation_url_3',
-    'sc_recitation_url_4',
-    'sc_recitation_url_5',
-    'sc_recitation_url_6',
-    'sc_recitation_url_7',
-    'sc_recitation_url_8',
-  ];
+  static final List<String> recitationItemKeys = List.generate(
+    listWidgetItemCount,
+    (index) => 'sc_recitation_item_${index + 1}',
+  );
+  static final List<String> recitationUrlKeys = List.generate(
+    listWidgetItemCount,
+    (index) => 'sc_recitation_url_${index + 1}',
+  );
   static const String recitationItem1Key = 'sc_recitation_item_1';
   static const String recitationItem2Key = 'sc_recitation_item_2';
   static const String recitationItem3Key = 'sc_recitation_item_3';
@@ -200,7 +177,6 @@ class HomeScreenWidgetService {
 
   List<UidTitleData> _buildRecitationItemsForDay(DateTime date) {
     return buildTodaysRecitationItems(now: date)
-        .where((item) => !item.uid.contains('~'))
         .take(recitationItemKeys.length)
         .toList();
   }
@@ -379,6 +355,7 @@ class HomeScreenWidgetService {
 
   String _widgetUrlForRecitation(UidTitleData? item) {
     if (item == null) return '';
+    if (item.getUId().contains('~')) return '';
     final uid = item.getFirstUId();
     return buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]);
   }

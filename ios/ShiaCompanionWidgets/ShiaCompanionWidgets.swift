@@ -5,12 +5,12 @@ private let appGroupID = "group.com.developer110.shiacompanion"
 
 private enum WidgetKeys {
     static let favoritesTitle = "sc_favorites_title"
-    static let favoriteItems = (1...8).map { "sc_favorites_item_\($0)" }
-    static let favoriteUrls = (1...8).map { "sc_favorites_url_\($0)" }
+    static let favoriteItems = (1...12).map { "sc_favorites_item_\($0)" }
+    static let favoriteUrls = (1...12).map { "sc_favorites_url_\($0)" }
 
     static let recitationTitle = "sc_recitation_title"
-    static let recitationItems = (1...8).map { "sc_recitation_item_\($0)" }
-    static let recitationUrls = (1...8).map { "sc_recitation_url_\($0)" }
+    static let recitationItems = (1...12).map { "sc_recitation_item_\($0)" }
+    static let recitationUrls = (1...12).map { "sc_recitation_url_\($0)" }
     static let recitationSchedule = "sc_recitation_schedule"
 
     static let prayerTitle = "sc_prayer_title"
@@ -370,7 +370,7 @@ struct WidgetListView: View {
         case .systemMedium:
             return 4
         default:
-            return 8
+            return 10
         }
     }
 
