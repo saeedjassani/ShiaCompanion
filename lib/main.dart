@@ -135,7 +135,6 @@ Route<void> _ignoredPlatformRoute(RouteSettings settings) {
   return PageRouteBuilder<void>(
     settings: settings,
     opaque: false,
-    barrierColor: Colors.transparent,
     transitionDuration: Duration.zero,
     reverseTransitionDuration: Duration.zero,
     pageBuilder: (context, _, __) => const _IgnoredPlatformRoutePage(),
@@ -156,12 +155,15 @@ class _IgnoredPlatformRoutePageState extends State<_IgnoredPlatformRoutePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      Navigator.of(context).maybePop();
+      final route = ModalRoute.of(context);
+      if (route != null) {
+        Navigator.of(context).removeRoute(route);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox.shrink();
+    return const IgnorePointer(child: SizedBox.expand());
   }
 }
