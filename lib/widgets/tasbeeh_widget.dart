@@ -43,7 +43,8 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
     ];
 
     if (isChecked && milestones.any((milestone) => milestone == nextCount)) {
-      SystemSound.play(SystemSoundType.click);
+      SystemSound.play(SystemSoundType.alert);
+      HapticFeedback.mediumImpact();
     }
 
     setState(() {
