@@ -460,30 +460,54 @@ class FavoritesManager extends ChangeNotifier {
   }
 
   Future<void> addFavorite(UniversalData item) async {
-    final normalizedItem = (await _resolveTitles(
-      [_normalizeFavorite(item)],
-      fallbacks: [item],
-    ))
-        .first;
+    final normalizedItem = _normalizeFavorite(item);
+    final immediateItem = normalizedItem.title.trim().isNotEmpty
+        ? normalizedItem
+        : UniversalData(
+            normalizedItem.canonicalUid,
+            item.title.trim().isNotEmpty
+                ? item.title.trim()
+                : normalizedItem.canonicalUid,
+            normalizedItem.type,
+          );
     final nextFavorites = _sanitizeFavorites([
       ...(favsData ?? const <UniversalData>[]),
-      normalizedItem,
+      immediateItem,
     ]);
 
     _updateFavoritesData(nextFavorites);
+    await HomeScreenWidgetService.instance.publishFavorites();
+
+    final resolvedItem = (await _resolveTitles(
+      [normalizedItem],
+      fallbacks: [item, immediateItem],
+    ))
+        .first;
+    final favoritesToSave = nextFavorites
+        .map((favorite) => favorite == normalizedItem ? resolvedItem : favorite)
+        .toList(growable: false);
+    final resolvedTitleChanged = favoritesToSave.any((favorite) {
+      if (favorite != resolvedItem) return false;
+      return favorite.title != immediateItem.title;
+    });
+
+    if (resolvedTitleChanged) {
+      _updateFavoritesData(favoritesToSave);
+      await HomeScreenWidgetService.instance.publishFavorites();
+    }
 
     final user = _auth.currentUser;
     if (user == null) {
-      await _saveGuestFavorites(nextFavorites);
+      await _saveGuestFavorites(favoritesToSave);
       debugPrint(
         'FavoritesManager: Added favorite ${normalizedItem.canonicalUid} (guest)',
       );
       return;
     }
 
-    await _saveUserFavoritesToSharedPreferences(user.uid, nextFavorites);
+    await _saveUserFavoritesToSharedPreferences(user.uid, favoritesToSave);
     try {
-      await _saveRemoteFavoritesForUser(user.uid, nextFavorites);
+      await _saveRemoteFavoritesForUser(user.uid, favoritesToSave);
       debugPrint(
         'FavoritesManager: Added favorite ${normalizedItem.canonicalUid} (Firestore)',
       );
@@ -500,6 +524,7 @@ class FavoritesManager extends ChangeNotifier {
     )..remove(normalizedItem);
 
     _updateFavoritesData(nextFavorites);
+    await HomeScreenWidgetService.instance.publishFavorites();
 
     final user = _auth.currentUser;
     if (user == null) {
