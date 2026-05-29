@@ -48,7 +48,7 @@ class _AboutPageState extends State<AboutPage> {
                 "Version $appVersion",
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.68),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.68),
                 ),
               ),
               const SizedBox(height: 24),
@@ -150,7 +150,7 @@ class _AboutPanel extends StatelessWidget {
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: theme.dividerColor.withOpacity(0.28),
+          color: theme.dividerColor.withValues(alpha: 0.28),
         ),
       ),
       child: Column(

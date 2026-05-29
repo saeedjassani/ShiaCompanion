@@ -285,7 +285,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       ? _accountSubtitle(currentUser)
                       : "Sign in to sync favorites across devices.",
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onPrimaryContainer.withOpacity(0.78),
+                    color:
+                        colorScheme.onPrimaryContainer.withValues(alpha: 0.78),
                   ),
                 ),
               ],
@@ -325,7 +326,7 @@ class _SettingsPageState extends State<SettingsPage> {
               color: theme.cardColor,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: theme.dividerColor.withOpacity(0.28),
+                color: theme.dividerColor.withValues(alpha: 0.28),
               ),
             ),
             child: Column(
@@ -408,7 +409,7 @@ class _SettingsPageState extends State<SettingsPage> {
         "$appName $appVersion",
         textAlign: TextAlign.center,
         style: theme.textTheme.bodySmall?.copyWith(
-          color: theme.colorScheme.onSurface.withOpacity(0.62),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.62),
         ),
       ),
     );
