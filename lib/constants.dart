@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:location/location.dart' as location;
+import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/azaan_option.dart';
@@ -284,38 +284,34 @@ Future<bool> initializeLocation(
   }
 
   try {
-    final locationService = location.Location();
-    var serviceEnabled = await locationService.serviceEnabled();
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      serviceEnabled = await locationService.requestService();
-      if (!serviceEnabled) {
-        debugPrint("Location service is disabled");
-        return false;
-      }
+      debugPrint("Location service is disabled");
+      return false;
     }
 
-    if (!kIsWeb) {
-      var permissionStatus = await locationService.hasPermission();
-      if (permissionStatus == location.PermissionStatus.denied) {
-        permissionStatus = await locationService.requestPermission();
-      }
-      if (permissionStatus != location.PermissionStatus.granted &&
-          permissionStatus != location.PermissionStatus.grantedLimited) {
-        debugPrint("Location permission not granted: $permissionStatus");
-        return false;
-      }
+    var permissionStatus = await Geolocator.checkPermission();
+    if (permissionStatus == LocationPermission.denied) {
+      permissionStatus = await Geolocator.requestPermission();
+    }
+    if (permissionStatus == LocationPermission.denied ||
+        permissionStatus == LocationPermission.deniedForever ||
+        permissionStatus == LocationPermission.unableToDetermine) {
+      debugPrint("Location permission not granted: $permissionStatus");
+      return false;
     }
 
     // On manual refresh, we want to show some feedback.
     // TODO For now, let's just print to debug, but could use a state management solution.
-    location.LocationData currentLocation;
+    Position currentLocation;
     try {
-      currentLocation = await locationService.getLocation();
+      currentLocation = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
     } catch (e) {
       debugPrint("Web location access failed: $e");
-      return false;
-    }
-    if (currentLocation.latitude == null || currentLocation.longitude == null) {
       return false;
     }
     final previousLat = lat;

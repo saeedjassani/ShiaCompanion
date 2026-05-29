@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:location/location.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:math';
@@ -52,10 +51,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with WidgetsBindingObserver, RouteAware {
   String hadith = '';
-  LocationData? currentLocation;
   DateTime today = DateTime.now();
 
-  Location location = Location();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   List<LiveStreamingData>? holyShrine, liveChannel;
@@ -792,7 +789,7 @@ class _MyHomePageState extends State<MyHomePage>
     int randomIndex = min + rnd.nextInt(max - min);
     String hadithString =
         await DefaultAssetBundle.of(context).loadString('assets/hadith.csv');
-    List csvTable = CsvToListConverter().convert(hadithString);
+    final csvTable = csv.decode(hadithString);
     hadith = csvTable[randomIndex][0];
     setState(() {});
   }

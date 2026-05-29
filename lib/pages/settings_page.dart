@@ -1,11 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:the_apple_sign_in/the_apple_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../constants.dart';
 import '../services/account_service.dart';
 import '../services/favorites_manager.dart';
@@ -758,48 +760,50 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       User? firebaseUser = _auth.currentUser;
       if (firebaseUser == null) {
-        final AuthorizationResult appleResult =
-            await TheAppleSignIn.performRequests(
-                [AppleIdRequest(requestedScopes: [])]);
-
-        switch (appleResult.status) {
-          case AuthorizationStatus.authorized:
-            final AuthCredential credential =
-                OAuthProvider('apple.com').credential(
-              accessToken: String.fromCharCodes(
-                  appleResult.credential!.authorizationCode!),
-              idToken:
-                  String.fromCharCodes(appleResult.credential!.identityToken!),
-            );
-
-            UserCredential authResult =
-                await _auth.signInWithCredential(credential);
-            ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-              content: new Text("Login Successful"),
-            ));
-            setState(() {
-              user = authResult.user;
-            });
-            break;
-
-          case AuthorizationStatus.error:
-            debugPrint(
-                "Sign in failed: ${appleResult.error!.localizedDescription}");
-            ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-              content: new Text("Apple Sign-In Failed"),
-            ));
-            break;
-
-          case AuthorizationStatus.cancelled:
-            debugPrint('User cancelled apple sign-in');
-            break;
+        final rawNonce = generateNonce();
+        final nonce = sha256.convert(utf8.encode(rawNonce)).toString();
+        final appleCredential = await SignInWithApple.getAppleIDCredential(
+          scopes: [],
+          nonce: nonce,
+        );
+        final identityToken = appleCredential.identityToken;
+        if (identityToken == null) {
+          throw FirebaseAuthException(
+            code: 'missing-apple-id-token',
+            message: 'Apple did not return an identity token.',
+          );
         }
+
+        final credential = OAuthProvider('apple.com').credential(
+          idToken: identityToken,
+          rawNonce: rawNonce,
+        );
+        final authResult = await _auth.signInWithCredential(credential);
+        ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
+          content: new Text("Login Successful"),
+        ));
+        setState(() {
+          user = authResult.user;
+        });
       } else {
         logOff();
       }
+    } on SignInWithAppleAuthorizationException catch (error) {
+      if (error.code == AuthorizationErrorCode.canceled) {
+        debugPrint('User cancelled apple sign-in');
+        return;
+      }
+      debugPrint("Apple sign-in failed: ${error.message}");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
+        content: new Text("Apple Sign-In Failed"),
+      ));
     } catch (error) {
       debugPrint(error.toString());
-      return null;
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
+        content: new Text("Apple Sign-In Failed"),
+      ));
     }
   }
 
