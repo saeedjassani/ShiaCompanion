@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/utils/deep_links.dart';
+import 'package:shia_companion/utils/external_launch.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 import '../../constants.dart';
@@ -39,6 +39,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   bool isEditing = false;
   bool _isSharingZikr = false;
   bool _isCurrentRoute = false;
+  bool _didFailToLoadZikrData = false;
   int _selectedZikrTabIndex = 0;
   String? userId;
   Map<String, dynamic>? zikrData;
@@ -61,6 +62,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void initState() {
     super.initState();
+    isAdmin = isUserAdmin;
     _counterSessionId = widget.item.getFirstUId();
     final counterState =
         ZikrCounterSessionStore.instance.read(_counterSessionId);
@@ -229,22 +231,36 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   Future<void> _checkAdmin() async {
     final user = _auth.currentUser;
     if (user != null) {
-      setState(() {
-        userId = user.uid;
-      });
-      final idTokenResult = await user.getIdTokenResult(true);
-      final claims = idTokenResult.claims;
-      if (claims != null && claims['admin'] == true) {
+      if (mounted) {
         setState(() {
-          isAdmin = true;
+          userId = user.uid;
         });
+      }
+      try {
+        final idTokenResult =
+            await user.getIdTokenResult().timeout(const Duration(seconds: 4));
+        final claims = idTokenResult.claims;
+        if (!mounted) return;
+        setState(() {
+          isAdmin = claims != null && claims['admin'] == true;
+        });
+      } catch (error) {
+        debugPrint('Unable to refresh zikr admin claim: $error');
       }
     }
   }
 
   Future<void> _initializePageData() async {
-    await _checkAdmin();
-    await _fetchZikrData();
+    if (isAdmin) {
+      await _checkAdmin();
+      final loaded = await _fetchZikrData();
+      if (!loaded) _markZikrDataUnavailable();
+      return;
+    }
+
+    final loaded = await _loadZikrDataFromAssets();
+    if (!loaded) _markZikrDataUnavailable();
+    _refreshAdminDataIfNeeded();
   }
 
   void _applyZikrData(Map<String, dynamic> data) {
@@ -254,6 +270,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       exclude: currentSlug,
     );
     setState(() {
+      _didFailToLoadZikrData = false;
       zikrData = data;
       titleController = TextEditingController(text: zikrData?['title']);
       slugController = TextEditingController(text: currentSlug);
@@ -300,23 +317,47 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
   }
 
-  Future<void> _loadZikrDataFromFirestore() async {
-    final doc = await zikrCollection.doc(widget.item.getFirstUId()).get();
-    if (!doc.exists) {
-      return;
-    }
+  Future<bool> _loadZikrDataFromFirestore() async {
+    try {
+      final doc = await zikrCollection.doc(widget.item.getFirstUId()).get();
+      if (!doc.exists) {
+        return false;
+      }
 
-    final data = doc.data() as Map<String, dynamic>;
-    _applyZikrData(data);
+      final data = doc.data() as Map<String, dynamic>;
+      _applyZikrData(data);
+      return true;
+    } catch (e) {
+      debugPrint('Error loading zikr from Firestore: $e');
+      return false;
+    }
   }
 
-  Future<void> _fetchZikrData() async {
+  Future<bool> _fetchZikrData() async {
     if (!isAdmin) {
-      await _loadZikrDataFromAssets();
-      return;
+      return _loadZikrDataFromAssets();
     }
 
-    await _loadZikrDataFromFirestore();
+    final loadedFromFirestore = await _loadZikrDataFromFirestore();
+    if (loadedFromFirestore) return true;
+    return _loadZikrDataFromAssets();
+  }
+
+  Future<void> _refreshAdminDataIfNeeded() async {
+    await _checkAdmin();
+    if (!mounted || !isAdmin) return;
+
+    final loadedFromFirestore = await _loadZikrDataFromFirestore();
+    if (!loadedFromFirestore && zikrData == null) {
+      _markZikrDataUnavailable();
+    }
+  }
+
+  void _markZikrDataUnavailable() {
+    if (!mounted || zikrData != null) return;
+    setState(() {
+      _didFailToLoadZikrData = true;
+    });
   }
 
   void _resetControllersFromCurrentData() {
@@ -710,9 +751,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       uri = Uri.parse('https://$href');
     }
 
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    await launchExternalUri(uri);
   }
 
   @override
@@ -811,7 +850,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             key: _counterStackKey,
             children: [
               zikrData == null
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(
+                      child: _didFailToLoadZikrData
+                          ? const Text('Unable to open this dua.')
+                          : const CircularProgressIndicator(),
+                    )
                   : !hasAnyContent && !isEditing
                       ? const Center(child: Text('Coming soon...'))
                       : Padding(
