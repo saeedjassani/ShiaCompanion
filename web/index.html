@@ -3,6 +3,7 @@
 <head>
   <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description"
     content="Access authentic Shia duas, ziyarats, and prayer times with the Shia Companion app. Available for iOS, Android, and Web.">
@@ -44,7 +45,6 @@
       const isIos =
         /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
       const isStandalone =
         window.matchMedia('(display-mode: standalone)').matches ||
         window.navigator.standalone === true;
@@ -54,7 +54,7 @@
       const redirectKey = 'shia-companion-open-app-' + path;
       const bannerDismissedKey = 'shia-companion-download-banner-dismissed';
 
-      if ((!isAndroid && !isIos) || !isMobileViewport || isStandalone) {
+      if ((!isAndroid && !isIos) || isStandalone) {
         return;
       }
 
