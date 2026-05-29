@@ -14,6 +14,7 @@ import '../services/session_refresh_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
+import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
 import 'scheduled_notifications_page.dart';
 
@@ -184,6 +185,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 title: const Text("Dark mode"),
                 subtitle: const Text("Use the dark appearance across the app."),
+              ),
+            ],
+          ),
+          _buildSettingsSection(
+            context,
+            title: 'Zikr Reading & Sharing',
+            children: [
+              ZikrReadingPreferencesControls(
+                showLeadingIcons: true,
+                onChanged: () {
+                  if (!mounted) return;
+                  setState(() {});
+                },
               ),
             ],
           ),
