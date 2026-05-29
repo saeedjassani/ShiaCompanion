@@ -40,6 +40,15 @@ post_install do |installer|
     # Ensure all pods use the same minimum iOS deployment target required by some plugins
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+
+      if target.name == 'geolocator_apple'
+        definitions = config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] || ['$(inherited)']
+        definitions = [definitions] if definitions.is_a?(String)
+        unless definitions.include?('BYPASS_PERMISSION_LOCATION_ALWAYS=1')
+          definitions << 'BYPASS_PERMISSION_LOCATION_ALWAYS=1'
+        end
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = definitions
+      end
     end
   end
 end
