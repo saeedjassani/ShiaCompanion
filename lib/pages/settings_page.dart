@@ -46,197 +46,404 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final darkModeProvider = Provider.of<DarkModeProvider>(context);
+    final currentUser = user ?? _auth.currentUser;
+
     return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          user != null
-              ? ListTile(
-                  title: Text("Name"),
-                  trailing: Text("${user?.displayName}"),
-                )
-              : Container(),
-          ListTile(
-            leading: Icon(Icons.info),
-            title: Text("About Us"),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AboutPage()));
-            },
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.adjust),
-            title: Text("Adjust Hijri Date"),
-            onTap: () {
-              adjustHijriAlertDialog(context);
-            },
-          ),
-          Divider(),
-          !kIsWeb
-              ? Column(
-                  children: [
-                    ListTile(
-                      leading: Icon(Icons.volume_up),
-                      title: Text("Notification Sound"),
-                      subtitle: Text(_getCurrentAzaanName()),
-                      onTap: () {
-                        _showAzaanSelectionDialog(context);
-                      },
-                    ),
-                    Divider(),
-                    ListTile(
-                      leading: Icon(Icons.play_arrow),
-                      title: Text("Test Azaan Notification"),
-                      onTap: () {
-                        _testNotification();
-                      },
-                    ),
-                    Divider(),
-                    if (isUserAdmin) ...[
-                      ListTile(
-                        leading: Icon(Icons.notifications_active),
-                        title: Text("Scheduled Notifications"),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  ScheduledNotificationsPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      Divider(),
-                    ],
-                  ],
-                )
-              : Container(),
-          SwitchListTile(
-            secondary: const Icon(Icons.my_location),
-            title: const Text("Always use live location"),
-            subtitle: Text(shouldUseLiveLocation()
-                ? "Prayer times will fetch your current location on app open."
-                : "Reuse stored location until you refresh it manually."),
-            value: shouldUseLiveLocation(),
-            onChanged: (value) async {
-              if (value) {
-                final success = await initializeLocation(force: true);
-                if (success) {
-                  await SP.prefs.setBool('use_live_location', true);
-                  await HomeScreenWidgetService.instance
-                      .publishUpcomingPrayer();
-                } else {
-                  await SP.prefs.setBool('use_live_location', false);
-                }
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(success
-                      ? "Live location enabled."
-                      : "Location permission was not granted."),
-                ));
-              } else {
-                await SP.prefs.setBool('use_live_location', false);
-              }
-              setState(() {});
-            },
-          ),
-          Divider(),
-          if (!shouldUseLiveLocation()) ...[
-            ListTile(
-              leading: Icon(Icons.location_on),
-              title: Text("Refresh Location"),
-              onTap: () async {
-                bool success = await initializeLocation(force: true);
-                if (success) {
-                  await HomeScreenWidgetService.instance
-                      .publishUpcomingPrayer();
-                }
-                if (!mounted) return;
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text("Location has been refreshed."),
-                  ));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text("Failed to refresh location."),
-                  ));
-                }
-                setState(() {});
-              },
-            ),
-            Divider(),
-          ],
-          if (!kIsWeb) ...[
-            ExpansionTile(
-              leading: Icon(Icons.widgets),
-              title: Text("Next prayer widget"),
-              subtitle: Text("Choose which prayer times count as next."),
-              children: _buildUpcomingPrayerWidgetOptions(),
-            ),
-            Divider(),
-          ],
-          ListTile(
-            leading: Icon(Icons.feedback),
-            title: Text("Feedback"),
-            onTap: () {
-              _launchURL();
-            },
-          ),
-          Divider(),
-          SwitchListTile(
-            value: darkModeProvider.isDarkMode,
-            onChanged: (value) {
-              darkModeProvider.toggleDarkMode();
-            },
-            title: Text("Dark mode"),
-          ),
-          Divider(),
-          user != null
-              ? Column(
-                  children: [
-                    ListTile(
-                      leading: Icon(Icons.power_settings_new),
-                      title: Text("Logout"),
-                      onTap: () {
-                        logOff();
-                      },
-                    ),
-                    Divider(),
-                    ListTile(
-                      leading: Icon(Icons.delete_forever_outlined),
-                      onTap: () => _showDeleteConfirmationDialog(context),
-                      title: Text('Delete My Account'),
-                    ),
-                  ],
-                )
-              : Column(
-                  children: [
-                    ListTile(
-                      leading: Image.asset('assets/images/google_logo.png',
-                          height: 24.0),
-                      title: Text('Sign in with Google'),
-                      onTap: () async {
-                        await _signInWithGoogle();
-                        await _refreshAfterAuthChange();
-                      },
-                    ),
-                    Divider(),
-                    !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS
-                        ? ListTile(
-                            leading: Image.asset('assets/images/apple_logo.png',
-                                height: 24.0),
-                            title: Text('Sign in with Apple'),
-                            onTap: () async {
-                              await _signInWithApple();
-                              await _refreshAfterAuthChange();
-                            },
-                          )
-                        : Container(),
-                  ],
+          _buildAccountHeader(context, currentUser),
+          const SizedBox(height: 16),
+          _buildSettingsSection(
+            context,
+            title: 'Prayer & Location',
+            children: [
+              ListTile(
+                leading: const Icon(Icons.adjust),
+                title: const Text("Adjust Hijri Date"),
+                subtitle: Text(_hijriAdjustmentLabel()),
+                onTap: () {
+                  adjustHijriAlertDialog(context);
+                },
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.my_location),
+                title: const Text("Always use live location"),
+                subtitle: Text(_liveLocationSubtitle()),
+                value: shouldUseLiveLocation(),
+                onChanged: (value) async {
+                  if (value) {
+                    final success = await initializeLocation(force: true);
+                    if (success) {
+                      await SP.prefs.setBool('use_live_location', true);
+                      await HomeScreenWidgetService.instance
+                          .publishUpcomingPrayer();
+                    } else {
+                      await SP.prefs.setBool('use_live_location', false);
+                    }
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(success
+                          ? "Live location enabled."
+                          : "Location permission was not granted."),
+                    ));
+                  } else {
+                    await SP.prefs.setBool('use_live_location', false);
+                  }
+                  setState(() {});
+                },
+              ),
+              if (!shouldUseLiveLocation())
+                ListTile(
+                  leading: const Icon(Icons.location_on),
+                  title: const Text("Refresh Location"),
+                  subtitle: Text(_refreshLocationSubtitle()),
+                  onTap: () async {
+                    bool success = await initializeLocation(force: true);
+                    if (success) {
+                      await HomeScreenWidgetService.instance
+                          .publishUpcomingPrayer();
+                    }
+                    if (!mounted) return;
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Location has been refreshed."),
+                      ));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Failed to refresh location."),
+                      ));
+                    }
+                    setState(() {});
+                  },
                 ),
+            ],
+          ),
+          if (!kIsWeb)
+            _buildSettingsSection(
+              context,
+              title: 'Notifications',
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.volume_up),
+                  title: const Text("Notification Sound"),
+                  subtitle: Text(_getCurrentAzaanName()),
+                  onTap: () {
+                    _showAzaanSelectionDialog(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.play_arrow),
+                  title: const Text("Test Azaan Notification"),
+                  subtitle:
+                      const Text("Schedule a sample notification in a moment."),
+                  onTap: () {
+                    _testNotification();
+                  },
+                ),
+                if (isUserAdmin)
+                  ListTile(
+                    leading: const Icon(Icons.notifications_active),
+                    title: const Text("Scheduled Notifications"),
+                    subtitle:
+                        const Text("Review pending prayer notifications."),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScheduledNotificationsPage(),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            ),
+          if (!kIsWeb)
+            _buildSettingsSection(
+              context,
+              title: 'Home Screen Widget',
+              children: [
+                ExpansionTile(
+                  leading: const Icon(Icons.widgets),
+                  title: const Text("Next prayer widget"),
+                  subtitle: const Text("Choose which prayers can appear next."),
+                  children: _buildUpcomingPrayerWidgetOptions(),
+                ),
+              ],
+            ),
+          _buildSettingsSection(
+            context,
+            title: 'Appearance',
+            children: [
+              SwitchListTile(
+                secondary: const Icon(Icons.dark_mode),
+                value: darkModeProvider.isDarkMode,
+                onChanged: (value) {
+                  darkModeProvider.toggleDarkMode();
+                },
+                title: const Text("Dark mode"),
+                subtitle: const Text("Use the dark appearance across the app."),
+              ),
+            ],
+          ),
+          _buildSettingsSection(
+            context,
+            title: 'Support',
+            children: [
+              ListTile(
+                leading: const Icon(Icons.feedback),
+                title: const Text("Feedback"),
+                subtitle: const Text("Send questions, issues, or suggestions."),
+                onTap: () {
+                  _launchURL();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.info),
+                title: const Text("About Us"),
+                subtitle: Text("Version $appVersion"),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AboutPage()),
+                  );
+                },
+              ),
+            ],
+          ),
+          _buildSettingsSection(
+            context,
+            title: 'Account',
+            children: _buildAccountActionTiles(currentUser),
+          ),
+          _buildVersionFooter(context),
         ],
       ),
     );
+  }
+
+  Widget _buildAccountHeader(BuildContext context, User? currentUser) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isSignedIn = currentUser != null;
+    final photoUrl = currentUser?.photoURL;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: colorScheme.primary,
+            backgroundImage: photoUrl == null || photoUrl.isEmpty
+                ? null
+                : NetworkImage(photoUrl),
+            child: photoUrl == null || photoUrl.isEmpty
+                ? Text(
+                    _avatarLabel(currentUser),
+                    style: TextStyle(
+                      color: colorScheme.onPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  )
+                : null,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isSignedIn ? _accountTitle(currentUser) : "Not signed in",
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isSignedIn
+                      ? _accountSubtitle(currentUser)
+                      : "Sign in to sync favorites across devices.",
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onPrimaryContainer.withOpacity(0.78),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsSection(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+  }) {
+    if (children.isEmpty) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              title,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: theme.cardColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: theme.dividerColor.withOpacity(0.28),
+              ),
+            ),
+            child: Column(
+              children: _withDividers(children),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _withDividers(List<Widget> children) {
+    final dividedChildren = <Widget>[];
+    for (var index = 0; index < children.length; index++) {
+      if (index > 0) {
+        dividedChildren.add(const Divider(height: 1));
+      }
+      dividedChildren.add(children[index]);
+    }
+    return dividedChildren;
+  }
+
+  List<Widget> _buildAccountActionTiles(User? currentUser) {
+    if (currentUser != null) {
+      final errorColor = Theme.of(context).colorScheme.error;
+
+      return [
+        ListTile(
+          leading: const Icon(Icons.power_settings_new),
+          title: const Text("Logout"),
+          subtitle: const Text("Sign out on this device."),
+          onTap: () {
+            logOff();
+          },
+        ),
+        ListTile(
+          leading: Icon(
+            Icons.delete_forever_outlined,
+            color: errorColor,
+          ),
+          onTap: () => _showDeleteConfirmationDialog(context),
+          title: Text(
+            'Delete My Account',
+            style: TextStyle(color: errorColor),
+          ),
+          subtitle: const Text("Permanently remove your account data."),
+        ),
+      ];
+    }
+
+    return [
+      ListTile(
+        leading: Image.asset('assets/images/google_logo.png', height: 24.0),
+        title: const Text('Sign in with Google'),
+        subtitle: const Text("Sync favorites and account data."),
+        onTap: () async {
+          await _signInWithGoogle();
+          await _refreshAfterAuthChange();
+        },
+      ),
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS)
+        ListTile(
+          leading: Image.asset('assets/images/apple_logo.png', height: 24.0),
+          title: const Text('Sign in with Apple'),
+          subtitle: const Text("Use your Apple ID to sign in."),
+          onTap: () async {
+            await _signInWithApple();
+            await _refreshAfterAuthChange();
+          },
+        ),
+    ];
+  }
+
+  Widget _buildVersionFooter(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(
+        "$appName $appVersion",
+        textAlign: TextAlign.center,
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurface.withOpacity(0.62),
+        ),
+      ),
+    );
+  }
+
+  String _accountTitle(User? currentUser) {
+    final displayName = currentUser?.displayName?.trim();
+    if (displayName != null && displayName.isNotEmpty) return displayName;
+
+    final email = currentUser?.email?.trim();
+    if (email != null && email.isNotEmpty) return email;
+
+    return "Signed in";
+  }
+
+  String _accountSubtitle(User? currentUser) {
+    final email = currentUser?.email?.trim();
+    if (email != null && email.isNotEmpty) return email;
+
+    return "Favorites and account data are syncing.";
+  }
+
+  String _avatarLabel(User? currentUser) {
+    final label = _accountTitle(currentUser);
+    return label.isEmpty ? "S" : label.substring(0, 1).toUpperCase();
+  }
+
+  String _hijriAdjustmentLabel() {
+    final adjustment = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
+    if (adjustment == 0) return "No adjustment";
+
+    final days = adjustment.abs();
+    final suffix = days == 1 ? "day" : "days";
+    return adjustment > 0 ? "$days $suffix ahead" : "$days $suffix behind";
+  }
+
+  String _liveLocationSubtitle() {
+    if (shouldUseLiveLocation()) {
+      return "Prayer times will fetch your current location on app open.";
+    }
+    return "Reuse stored location until you refresh it manually.";
+  }
+
+  String _refreshLocationSubtitle() {
+    final savedCity = city?.trim();
+    if (savedCity != null && savedCity.isNotEmpty) {
+      return "Current saved location: $savedCity.";
+    }
+    return "Update the saved prayer-times location.";
   }
 
   adjustHijriAlertDialog(BuildContext context) {
