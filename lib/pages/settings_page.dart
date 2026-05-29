@@ -8,7 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import '../constants.dart';
 import '../services/account_service.dart';
+import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
+import '../services/session_refresh_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
@@ -16,8 +18,7 @@ import 'about_page.dart';
 import 'scheduled_notifications_page.dart';
 
 class SettingsPage extends StatefulWidget {
-  final Future<void> Function() loginCallback;
-  SettingsPage(this.loginCallback);
+  SettingsPage();
 
   @override
   _SettingsPageState createState() => new _SettingsPageState();
@@ -27,6 +28,14 @@ class _SettingsPageState extends State<SettingsPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   _SettingsPageState();
+
+  Future<void> _refreshAfterAuthChange() async {
+    await SessionRefreshService.refreshSessionState();
+    await FavoritesManager.instance.loadFavorites();
+    await HomeScreenWidgetService.instance.publishAll();
+    if (!mounted) return;
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -157,13 +166,15 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             Divider(),
           ],
-          ExpansionTile(
-            leading: Icon(Icons.widgets),
-            title: Text("Next prayer widget"),
-            subtitle: Text("Choose which prayer times count as next."),
-            children: _buildUpcomingPrayerWidgetOptions(),
-          ),
-          Divider(),
+          if (!kIsWeb) ...[
+            ExpansionTile(
+              leading: Icon(Icons.widgets),
+              title: Text("Next prayer widget"),
+              subtitle: Text("Choose which prayer times count as next."),
+              children: _buildUpcomingPrayerWidgetOptions(),
+            ),
+            Divider(),
+          ],
           ListTile(
             leading: Icon(Icons.feedback),
             title: Text("Feedback"),
@@ -206,7 +217,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: Text('Sign in with Google'),
                       onTap: () async {
                         await _signInWithGoogle();
-                        await widget.loginCallback();
+                        await _refreshAfterAuthChange();
                       },
                     ),
                     Divider(),
@@ -217,7 +228,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             title: Text('Sign in with Apple'),
                             onTap: () async {
                               await _signInWithApple();
-                              await widget.loginCallback();
+                              await _refreshAfterAuthChange();
                             },
                           )
                         : Container(),
@@ -466,9 +477,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> logOff() async {
     try {
       await AccountService.signOut();
-      user = null;
-      await widget.loginCallback();
-      setState(() {});
+      await _refreshAfterAuthChange();
     } catch (e) {
       debugPrint("Error : $e");
     }
@@ -595,9 +604,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       );
 
-      user = null;
-      await widget.loginCallback();
-      setState(() {});
+      await _refreshAfterAuthChange();
     } on AccountActionException catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

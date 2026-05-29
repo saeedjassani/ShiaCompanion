@@ -12,16 +12,16 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:location/location.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:convert';
 import 'dart:math';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
-import 'package:shia_companion/pages/calendar_page.dart';
+import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
+import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
@@ -69,49 +69,13 @@ class _MyHomePageState extends State<MyHomePage>
   final CollectionReference<Map<String, dynamic>> _zikrCollection =
       FirebaseFirestore.instance.collection('zikr');
 
-  bool scrollToPrayerTimes = false;
-
-  callback() {
-    // Navigate to calendar and scroll to prayer times when invoked from the home card
-    scrollToPrayerTimes = true;
-    pushPageRoute(context, CalendarPage(scrollToPrayerTimes));
+  void _openHomeMenuItem(HomeMenuItem item) {
+    final page = item.buildPage();
+    pushPageRoute(context, page);
   }
 
-  Future<void> loginCallback() async {
-    await _refreshSessionState();
-    await FavoritesManager.instance.loadFavorites();
-    await HomeScreenWidgetService.instance.publishAll();
-    if (!mounted) return;
-    setState(() {});
-  }
-
-  Future<void> _refreshSessionState() async {
-    user = _auth.currentUser;
-    isUserAdmin = false;
-
-    if (user != null) {
-      try {
-        final idTokenResult =
-            await user!.getIdTokenResult().timeout(const Duration(seconds: 4));
-        final claims = idTokenResult.claims;
-        if (claims != null && claims['admin'] == true) {
-          isUserAdmin = true;
-        }
-      } catch (error) {
-        debugPrint(
-            'Unable to refresh admin claim, using bundled index: $error');
-      }
-    }
-
-    if (isUserAdmin) {
-      await _loadItemsFromFirebase();
-    } else {
-      await _loadItemsFromAssets();
-    }
-
-    if (items.isEmpty) {
-      await _loadItemsFromAssets();
-    }
+  Future<void> _refreshHomeSessionState() async {
+    await SessionRefreshService.refreshSessionState();
     _itemsLoaded = true;
     _resolvePendingDeepLink();
   }
@@ -418,7 +382,7 @@ class _MyHomePageState extends State<MyHomePage>
 
       final publishStatus = await _waitForPublishCompletion(requestId);
       if (publishStatus == _PublishStatus.success && isUserAdmin) {
-        await _loadItemsFromFirebase();
+        await SessionRefreshService.loadItemsFromFirebase();
       }
 
       if (!mounted) return;
@@ -559,7 +523,7 @@ class _MyHomePageState extends State<MyHomePage>
                               Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
-                  child: HomePrayerTimesCard(callback),
+                  child: HomePrayerTimesCard(),
                 ),
               ),
               SizedBox(height: 8),
@@ -589,24 +553,14 @@ class _MyHomePageState extends State<MyHomePage>
                       crossAxisSpacing: spacing,
                       childAspectRatio: constraints.maxWidth < 400 ? 0.95 : 0.9,
                     ),
-                    itemCount: zikr.length,
+                    itemCount: homeMenuItems.length,
                     itemBuilder: (BuildContext c, int i) {
+                      final menuItem = homeMenuItems[i];
                       return Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: Card(
                           child: InkWell(
-                            onTap: () {
-                              // Preferences is handled specially because it requires a callback
-                              Widget page = getPage(zikr[i],
-                                  loginCallback: loginCallback,
-                                  scrollToPrayerTimes: false);
-                              if (page is Container) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("Coming soon")));
-                              } else {
-                                pushPageRoute(context, page);
-                              }
-                            },
+                            onTap: () => _openHomeMenuItem(menuItem),
                             child: LayoutBuilder(
                                 builder: (context, tileConstraints) {
                               final double tileWidth = tileConstraints.maxWidth;
@@ -629,14 +583,14 @@ class _MyHomePageState extends State<MyHomePage>
                                       backgroundColor:
                                           Theme.of(context).primaryColor,
                                       child: Icon(
-                                        zikrIcons[i],
+                                        menuItem.icon,
                                         size: iconSize,
                                         color: Colors.white,
                                       ),
                                     ),
                                     SizedBox(height: tileWidth > 140 ? 10 : 6),
                                     Text(
-                                      zikr[i],
+                                      menuItem.label,
                                       textAlign: TextAlign.center,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -658,96 +612,8 @@ class _MyHomePageState extends State<MyHomePage>
         ));
   }
 
-  Future<void> _loadItemsFromAssets() async {
-    try {
-      String data =
-          await DefaultAssetBundle.of(context).loadString("assets/zikr.json");
-      final decoded = json.decode(data);
-      items = {};
-      itemOrder = {};
-      itemMetadata = {};
-      clearLocalSlugMaps();
-      decoded.forEach((key, value) {
-        if (value is Map) {
-          final title = value['title']?.toString() ?? '';
-          if (title.isEmpty) return;
-          items[key] = title;
-          final order = value['order'];
-          if (order is num) itemOrder[key] = order.toDouble();
-          final day = value['day'];
-          if (day != null) {
-            itemMetadata[key] = {'day': day};
-          }
-          setLocalSlugData(
-            key.toString(),
-            slug: value['slug']?.toString(),
-            aliases:
-                value['slugAliases'] is Iterable ? value['slugAliases'] : null,
-          );
-        } else {
-          final title = value?.toString() ?? '';
-          if (title.isEmpty) return;
-          items[key] = title;
-        }
-      });
-    } catch (e) {
-      debugPrint("Error loading zikr index from assets: $e");
-    }
-  }
-
-  Future<void> _loadItemsFromFirebase() async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .doc('zikr_meta/index')
-          .get(const GetOptions(source: Source.server));
-      if (doc.exists && doc['items'] != null) {
-        final rawItems = doc['items'];
-        items = {};
-        itemOrder = {};
-        itemMetadata = {};
-        clearLocalSlugMaps();
-        final visibleUids = <String>{};
-
-        // Filter items based on admin status
-        rawItems.forEach((key, value) {
-          final title = value is Map ? value['title'] : value;
-          final hasData = value is Map ? value['hasData'] ?? false : true;
-          final order = value is Map ? value['order'] : null;
-          final slug = value is Map ? value['slug'] : null;
-          final slugAliases = value is Map ? value['slugAliases'] : null;
-          final day = value is Map ? value['day'] : null;
-
-          // Show all items to admins, only items with data to users
-          if (isUserAdmin || hasData) {
-            items[key] = title;
-            visibleUids.add(key.toString());
-            if (order is num) itemOrder[key] = order.toDouble();
-            if (day != null) {
-              itemMetadata[key] = {'day': day};
-            }
-            setLocalSlugData(
-              key.toString(),
-              slug: slug?.toString(),
-              aliases: slugAliases is Iterable ? slugAliases : null,
-            );
-          }
-        });
-        final rawSlugLookup = doc.data()?['slugLookup'];
-        if (rawSlugLookup is Map) {
-          applySlugLookupMap(rawSlugLookup, visibleUids);
-        }
-      } else {
-        items = {};
-        itemOrder = {};
-        clearLocalSlugMaps();
-      }
-    } catch (e) {
-      debugPrint("Error loading zikr index: $e");
-    }
-  }
-
   void initializeData() async {
-    await _refreshSessionState();
+    await _refreshHomeSessionState();
     getHadith();
 
     // Initialize favorites (from SharedPreferences if logged out, Firestore if logged in)
@@ -885,17 +751,9 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   buildBody(BuildContext c, int i) {
+    final menuItem = homeMenuItems[i];
     return InkWell(
-      onTap: () {
-        Widget page = getPage(zikr[i],
-            loginCallback: loginCallback, scrollToPrayerTimes: false);
-        if (page is Container) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text("Coming soon")));
-        } else {
-          pushPageRoute(context, page);
-        }
-      },
+      onTap: () => _openHomeMenuItem(menuItem),
       child: Container(
         margin: EdgeInsets.all(6.0),
         padding: EdgeInsets.only(
@@ -916,10 +774,11 @@ class _MyHomePageState extends State<MyHomePage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(zikrIcons[i], size: 48, color: Theme.of(context).primaryColor),
+            Icon(menuItem.icon,
+                size: 48, color: Theme.of(context).primaryColor),
             SizedBox(height: 8),
             Text(
-              zikr[i],
+              menuItem.label,
               style: TextStyle(fontSize: 14),
               textAlign: TextAlign.center,
             ),

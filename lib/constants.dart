@@ -12,23 +12,15 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/pages/item_page.dart';
-import 'package:shia_companion/pages/qibla_finder.dart';
 import 'package:http/http.dart' as http;
-import 'pages/calendar_page.dart';
-import 'pages/library_page.dart';
 import 'package:date_format/date_format.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
 
-import 'pages/list_items.dart';
 import 'pages/video_player.dart';
-import 'pages/favorites_page.dart';
-import 'pages/todays_recitation_page.dart';
-import 'package:shia_companion/pages/settings_page.dart';
 import 'utils/shared_preferences.dart';
-import 'widgets/tasbeeh_widget.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/utils/prayer_times.dart';
@@ -200,89 +192,6 @@ bool shouldRefreshPrayerNotificationSchedule(
 
   return !_hasFreshScheduleReminder(pending);
 }
-
-// Helper to map a tile label to a freshly-built page instance.
-Widget getPage(String label,
-    {Future<void> Function()? loginCallback,
-    bool scrollToPrayerTimes = false}) {
-  switch (label) {
-    case 'Favorites':
-      return FavoritesPage();
-    case "Today's Recitations":
-      return TodaysRecitationPage();
-    case 'Taqeebat e Namaz':
-      return ItemList("D", "Taqeebat e Namaz");
-    case 'Namaz':
-      return ItemList("F", "Namaz");
-    case 'Duas':
-      return ItemList("E", "Duas");
-    case 'Ziyarats':
-      return ItemList("G", "Ziyarats");
-    case 'Surahs':
-      return ItemList("A", "Surahs");
-    case 'Aamaal':
-      return ItemList("C", "Aamaal");
-    case 'Calendar & Prayer Times':
-      return Scaffold(
-          appBar: AppBar(title: Text('Calendar')),
-          body: CalendarPage(scrollToPrayerTimes));
-    case 'Library':
-      return Scaffold(
-          appBar: AppBar(title: Text('Library')), body: LibraryPage());
-    case 'Munajaats':
-      return ItemList("H", "Munajaats");
-    case 'Baaqeyaat As Saalehaat':
-      return ItemList("I", "Baaqeyaat As Saalehaat");
-    case 'Qibla Finder':
-      return QiblaFinder();
-    case 'Tasbeeh Counter':
-      return TasbeehWidget();
-    case 'Preferences':
-      // SettingsPage expects a loginCallback; we pass it through when available
-      return Scaffold(
-          appBar: AppBar(title: Text('Preferences')),
-          body: SettingsPage(loginCallback ?? () async {}));
-    default:
-      return Container();
-  }
-}
-
-List<String> zikr = [
-  "Favorites",
-  "Today's Recitations",
-  "Taqeebat e Namaz",
-  "Namaz",
-  "Duas",
-  "Ziyarats",
-  "Surahs",
-  "Aamaal",
-  "Calendar & Prayer Times",
-  "Library",
-  "Munajaat",
-  "Baaqeyaat As Saalehaat",
-  "Qibla Finder",
-  "Tasbeeh Counter",
-  "Preferences",
-];
-
-// Icon mapping used for responsive grid in Home Page. Picked from Material icons
-List<IconData> zikrIcons = [
-  Icons.favorite, // Favorites
-  Icons.book, // Today's Recitations
-  Icons.bookmark, // Namaz
-  Icons.wb_sunny, // Namaz
-  Icons.menu_book, // Duas
-  Icons.mosque, // Ziyarats
-  Icons.menu_book, // Surahs
-  Icons.check_circle, // Amaal
-  Icons.calendar_today, // Calendar
-  Icons.library_books, // Library
-  Icons.menu_book, // Munajaats (Library book icon)
-  Icons.list_alt, // Baaqeyaat As Saalehaat
-  Icons.explore, // Qibla Finder
-  tasbeehCounterIcon, // Tasbeeh Counter
-  Icons.settings, // Preferences
-];
 
 PrayerTime? prayerTime;
 

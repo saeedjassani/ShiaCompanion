@@ -10,8 +10,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../constants.dart';
 
 class CalendarPage extends StatefulWidget {
-  final bool shouldScroll;
-  CalendarPage(this.shouldScroll);
+  CalendarPage();
 
   @override
   _CalendarPageState createState() => new _CalendarPageState();
@@ -24,8 +23,6 @@ class _CalendarPageState extends State<CalendarPage> {
 
   TextStyle smallText = new TextStyle(fontSize: 11.0);
 
-  late ScrollController scrollController;
-
   DateTime? selectedDay;
 
   @override
@@ -33,12 +30,6 @@ class _CalendarPageState extends State<CalendarPage> {
     super.initState();
     trackScreen('Calendar Page');
     _updateEventString();
-    scrollController = ScrollController();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   _updateEventString() async {
@@ -54,17 +45,9 @@ class _CalendarPageState extends State<CalendarPage> {
     if (this.mounted) setState(() {});
   }
 
-  _scrollToEnd() async {
-    scrollController.animateTo(scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 500), curve: Curves.ease);
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (widget.shouldScroll)
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToEnd());
     return SingleChildScrollView(
-      controller: scrollController,
       child: Column(
         children: <Widget>[
           Container(
