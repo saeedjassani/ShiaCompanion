@@ -4,8 +4,7 @@ import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
-  final callback;
-  HomePrayerTimesCard(this.callback);
+  HomePrayerTimesCard();
 
   @override
   PrayerTimesState createState() => PrayerTimesState();
