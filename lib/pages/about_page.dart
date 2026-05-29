@@ -8,6 +8,8 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
+  static const String _supportEmail = "developer110@hotmail.com";
+
   @override
   void initState() {
     super.initState();
@@ -16,61 +18,165 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: getAppBar(),
-      body: Container(
-        padding: EdgeInsets.all(12.0),
+      body: SafeArea(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              ListTile(
-                title: Image.asset(
+              Center(
+                child: Image.asset(
                   'assets/logo.png',
-                  width: 150.0,
-                  height: 150.0,
+                  width: 132,
+                  height: 132,
                 ),
               ),
-              ListTile(
-                title: Text(
-                  appName,
-                  textAlign: TextAlign.center,
-                ),
-                subtitle: Text(
-                  "Version " + appVersion,
-                  textAlign: TextAlign.center,
+              const SizedBox(height: 16),
+              Text(
+                appName,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              ListTile(
-                title: Text(
-                  "﷽",
-                  textAlign: TextAlign.center,
+              const SizedBox(height: 4),
+              Text(
+                "Version $appVersion",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withOpacity(0.68),
                 ),
               ),
-              ListTile(
-                title: Text(
-                  "We thank Almighty Allah and His beloved Fourteen Infallibles (a.s.) for Their help which made us able to share this humble work with the Momeneen. We dedicate the app to them and the following Marhumeems:\n\nMarhooma Amina Mohammed Raza Jassani\nMarhoom Haji Mohammad Raza Jassani\nMarhoom Haji Yusufali Bhojani\n\n\nPlease recite Surah Fateha for Marhumeen and Marhumaat\n\nFor feedback, queries or suggestions contact :",
-                  textAlign: TextAlign.center,
+              const SizedBox(height: 24),
+              Text(
+                "﷽",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 18),
+              _AboutPanel(
+                icon: Icons.menu_book_outlined,
+                title: "Purpose",
+                child: Text(
+                  "A companion for prayer times, duas, ziyarats, majalis, and zikr.",
+                  style: theme.textTheme.bodyLarge,
                 ),
               ),
-              ListTile(
-                onTap: () async {
-                  final launched = await launchSupportEmail();
-                  if (!launched && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("No e-mail app found")));
-                  }
-                },
-                title: Text(
-                  "developer110@hotmail.com",
-                  style: TextStyle(color: Colors.blue),
-                  textAlign: TextAlign.center,
+              const SizedBox(height: 12),
+              _AboutPanel(
+                icon: Icons.favorite_outline,
+                title: "Dedication",
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "We thank Almighty Allah and His beloved Fourteen Infallibles (a.s.) for Their help which made us able to share this humble work with the Momeneen. We dedicate the app to them and the following Marhumeems:",
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      "Marhooma Amina Mohammed Raza Jassani\n"
+                      "Marhoom Haji Mohammad Raza Jassani\n"
+                      "Marhoom Haji Yusufali Bhojani",
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      "Please recite Surah Fateha for Marhumeen and Marhumaat.",
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              _AboutPanel(
+                icon: Icons.support_agent,
+                title: "Contact",
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "For feedback, queries, or suggestions:",
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: () async {
+                        final launched = await launchSupportEmail();
+                        if (!launched && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("No e-mail app found")),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.mail_outline),
+                      label: const Text(_supportEmail),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AboutPanel extends StatelessWidget {
+  const _AboutPanel({
+    required this.icon,
+    required this.title,
+    required this.child,
+  });
+
+  final IconData icon;
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: theme.dividerColor.withOpacity(0.28),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
       ),
     );
   }
