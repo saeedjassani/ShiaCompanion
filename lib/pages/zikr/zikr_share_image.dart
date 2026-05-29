@@ -12,6 +12,7 @@ class ZikrShareImageRequest {
   final String tabTitle;
   final String content;
   final bool hideHeaderLine;
+  final ColorScheme colorScheme;
   final String? code;
 
   const ZikrShareImageRequest({
@@ -19,6 +20,7 @@ class ZikrShareImageRequest {
     required this.tabTitle,
     required this.content,
     required this.hideHeaderLine,
+    required this.colorScheme,
     this.code,
   });
 }
@@ -26,53 +28,42 @@ class ZikrShareImageRequest {
 Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
   const width = 1080.0;
   const height = 1350.0;
-  const padding = 72.0;
+  const padding = 54.0;
   const contentWidth = width - (padding * 2);
-  const contentBottom = height - padding;
+  const contentBottom = height - 54.0;
+  final colors = _ShareImageColors.fromScheme(request.colorScheme);
 
   final recorder = ui.PictureRecorder();
   final canvas = Canvas(recorder);
   final size = const Size(width, height);
-  final backgroundPaint = Paint()..color = const Color(0xFFFDF9F3);
-  final cardPaint = Paint()..color = Colors.white;
-  final borderPaint = Paint()
-    ..color = const Color(0xFFE7D8CA)
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = 3;
+  final backgroundPaint = Paint()..color = colors.background;
 
   canvas.drawRect(Offset.zero & size, backgroundPaint);
-  final cardRect = RRect.fromRectAndRadius(
-    Rect.fromLTWH(36, 36, width - 72, height - 72),
-    const Radius.circular(36),
-  );
-  canvas.drawRRect(cardRect, cardPaint);
-  canvas.drawRRect(cardRect, borderPaint);
 
-  var y = padding;
+  var y = 44.0;
   y = _paintText(
     canvas,
     request.title,
-    Rect.fromLTWH(padding, y, contentWidth, 120),
+    Rect.fromLTWH(padding, y, contentWidth, 68),
     TextStyle(
-      color: const Color(0xFF3F2B24),
-      fontSize: 46,
-      fontWeight: FontWeight.w700,
+      color: colors.primaryText,
+      fontSize: 40,
+      fontWeight: FontWeight.w500,
       height: 1.15,
       letterSpacing: 0,
     ),
-    textAlign: TextAlign.center,
-    maxLines: 2,
+    maxLines: 1,
   );
-  y += 20;
+  y += 64;
 
   if (request.tabTitle.trim().isNotEmpty &&
-      request.tabTitle.trim() != request.title.trim()) {
+      !_sameHeaderText(request.tabTitle, request.title)) {
     y = _paintText(
       canvas,
       request.tabTitle,
       Rect.fromLTWH(padding, y, contentWidth, 64),
       TextStyle(
-        color: const Color(0xFF7A5B4B),
+        color: colors.secondaryText,
         fontSize: 28,
         fontWeight: FontWeight.w600,
         height: 1.2,
@@ -81,12 +72,12 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
       textAlign: TextAlign.center,
       maxLines: 1,
     );
-    y += 16;
+    y += 22;
   }
 
   final parsed = ZikrContentParser.parseContent(
     request.content,
-    hideHeaderLine: request.hideHeaderLine,
+    hideHeaderLine: request.hideHeaderLine || _startsWithVisibleHeader(request),
     code: request.code,
   );
   final shareLines = <_ShareImageLine>[];
@@ -106,7 +97,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
     if (parsed.arabicCodes.contains(i)) {
       line = ZikrContentParser.formatArabicText(line);
       style = TextStyle(
-        color: const Color(0xFF2E2723),
+        color: colors.primaryText,
         fontFamily: arabicFont,
         fontSize: 46,
         height: 1.38,
@@ -120,7 +111,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
       if (!showTransliteration) continue;
       line = line.toUpperCase();
       style = TextStyle(
-        color: const Color(0xFF5C4539),
+        color: colors.primaryText,
         fontSize: 28,
         fontWeight: FontWeight.w700,
         height: 1.24,
@@ -131,7 +122,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
     } else if (parsed.translaCodes.contains(i)) {
       if (!showTranslation) continue;
       style = TextStyle(
-        color: const Color(0xFF4E423C),
+        color: colors.primaryText,
         fontSize: 28,
         height: 1.24,
         letterSpacing: 0,
@@ -140,7 +131,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
       textDirection = TextDirection.ltr;
     } else {
       style = TextStyle(
-        color: const Color(0xFF6B5A51),
+        color: colors.secondaryText,
         fontSize: 26,
         fontStyle: FontStyle.italic,
         height: 1.22,
@@ -225,14 +216,40 @@ double _paintText(
     textAlign: textAlign,
     textDirection: textDirection,
     maxLines: maxLines,
-    ellipsis: maxLines == null ? null : '...',
-  )..layout(maxWidth: rect.width);
+    ellipsis: maxLines == null ? null : _ellipsis,
+  )..layout(minWidth: rect.width, maxWidth: rect.width);
 
   painter.paint(canvas, Offset(rect.left, rect.top));
   return rect.top + painter.height;
 }
 
 const _minReadableHeight = 48.0;
+const _ellipsis = '…';
+
+class _ShareImageColors {
+  final Color background;
+  final Color primaryText;
+  final Color secondaryText;
+
+  const _ShareImageColors({
+    required this.background,
+    required this.primaryText,
+    required this.secondaryText,
+  });
+
+  factory _ShareImageColors.fromScheme(ColorScheme scheme) {
+    final dark = scheme.brightness == Brightness.dark;
+    return _ShareImageColors(
+      background: Color.lerp(
+        scheme.surface,
+        scheme.surfaceContainerLowest,
+        dark ? 0.08 : 0.18,
+      )!,
+      primaryText: scheme.onSurface,
+      secondaryText: scheme.onSurfaceVariant,
+    );
+  }
+}
 
 class _ShareImageLine {
   final String text;
@@ -273,7 +290,7 @@ double _measureTextHeight(
     text: TextSpan(text: text, style: style),
     textAlign: textAlign,
     textDirection: textDirection,
-  )..layout(maxWidth: maxWidth);
+  )..layout(minWidth: maxWidth, maxWidth: maxWidth);
   return painter.height;
 }
 
@@ -291,12 +308,13 @@ _PaintedLineResult? _paintContentLine(
     return null;
   }
 
-  final displayText = forceEllipsis ? _withTrailingEllipsis(text) : text;
+  final displayText =
+      forceEllipsis ? _withTrailingEllipsis(text, textDirection) : text;
   final painter = TextPainter(
     text: TextSpan(text: displayText, style: style),
     textAlign: textAlign,
     textDirection: textDirection,
-  )..layout(maxWidth: rect.width);
+  )..layout(minWidth: rect.width, maxWidth: rect.width);
 
   if (rect.top + painter.height <= rect.bottom) {
     painter.paint(canvas, Offset(rect.left, rect.top));
@@ -310,12 +328,15 @@ _PaintedLineResult? _paintContentLine(
   final lineHeight = math.max(fontSize, fontSize * (style.height ?? 1.2));
   final maxLines = math.max(1, (remainingHeight / lineHeight).floor());
   final truncatedPainter = TextPainter(
-    text: TextSpan(text: displayText, style: style),
+    text: TextSpan(
+      text: _withTrailingEllipsis(text, textDirection),
+      style: style,
+    ),
     textAlign: textAlign,
     textDirection: textDirection,
     maxLines: maxLines,
-    ellipsis: '...',
-  )..layout(maxWidth: rect.width);
+    ellipsis: _ellipsis,
+  )..layout(minWidth: rect.width, maxWidth: rect.width);
 
   truncatedPainter.paint(canvas, Offset(rect.left, rect.top));
   return _PaintedLineResult(
@@ -330,8 +351,32 @@ String _plainText(String line) {
       .join();
 }
 
-String _withTrailingEllipsis(String text) {
+bool _startsWithVisibleHeader(ZikrShareImageRequest request) {
+  final firstLine = request.content
+      .split('\n')
+      .map((line) => _plainText(line.trim()))
+      .firstWhere((line) => line.isNotEmpty, orElse: () => '');
+  if (firstLine.isEmpty) return false;
+
+  final normalizedFirstLine = _normalizeHeaderText(firstLine);
+  return normalizedFirstLine.isNotEmpty &&
+      (_sameHeaderText(firstLine, request.title) ||
+          _sameHeaderText(firstLine, request.tabTitle));
+}
+
+bool _sameHeaderText(String first, String second) {
+  return _normalizeHeaderText(first) == _normalizeHeaderText(second);
+}
+
+String _normalizeHeaderText(String text) {
+  return text.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+}
+
+String _withTrailingEllipsis(
+  String text, [
+  TextDirection textDirection = TextDirection.ltr,
+]) {
   final trimmed = text.trimRight();
-  if (trimmed.endsWith('...')) return trimmed;
-  return '$trimmed ...';
+  if (trimmed.endsWith('...') || trimmed.endsWith(_ellipsis)) return trimmed;
+  return '$trimmed $_ellipsis';
 }
