@@ -160,11 +160,18 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
               ],
             ),
-          if (!kIsWeb)
+          if (_supportsHomeScreenWidgets())
             _buildSettingsSection(
               context,
-              title: 'Home Screen Widget',
+              title: 'Home Screen Widgets',
               children: [
+                const ListTile(
+                  leading: Icon(Icons.dashboard_customize_outlined),
+                  title: Text("Available widgets"),
+                  subtitle: Text(
+                    "Favorites, Today's Recitations, and Next Prayer can be added from your phone's widget picker.",
+                  ),
+                ),
                 ExpansionTile(
                   leading: const Icon(Icons.widgets),
                   title: const Text("Next prayer widget"),
@@ -347,6 +354,11 @@ class _SettingsPageState extends State<SettingsPage> {
       dividedChildren.add(children[index]);
     }
     return dividedChildren;
+  }
+
+  bool _supportsHomeScreenWidgets() {
+    if (kIsWeb) return false;
+    return Platform.isAndroid || Platform.isIOS;
   }
 
   List<Widget> _buildAccountActionTiles(User? currentUser) {
