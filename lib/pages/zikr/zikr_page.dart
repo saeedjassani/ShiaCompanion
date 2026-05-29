@@ -33,7 +33,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference zikrCollection =
       FirebaseFirestore.instance.collection('zikr');
-  final GlobalKey _counterStackKey = GlobalKey();
 
   bool isAdmin = false;
   bool isEditing = false;
@@ -216,16 +215,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  void _handleCounterDragEnd(
-    DraggableDetails details,
+  void _handleCounterDragUpdate(
+    DragUpdateDetails details,
     BoxConstraints constraints,
   ) {
-    final renderBox =
-        _counterStackKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
-
-    final localOffset = renderBox.globalToLocal(details.offset);
-    _updateCounterOffset(_clampCounterOffset(localOffset, constraints));
+    final currentOffset = _resolveCounterOffset(
+      constraints,
+      _counterOffset.value,
+    );
+    _updateCounterOffset(
+      _clampCounterOffset(currentOffset + details.delta, constraints),
+    );
   }
 
   Future<void> _checkAdmin() async {
@@ -847,7 +847,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         ),
         body: LayoutBuilder(
           builder: (context, bodyConstraints) => Stack(
-            key: _counterStackKey,
             children: [
               zikrData == null
                   ? Center(
@@ -904,44 +903,40 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                       return Positioned(
                         left: resolvedOffset.dx,
                         top: resolvedOffset.dy,
-                        child: LongPressDraggable(
-                          feedback: Material(
-                            color: Colors.transparent,
-                            child: _buildCounterCard(),
-                          ),
-                          childWhenDragging: Opacity(
-                            opacity: 0.18,
-                            child: _buildCounterCard(),
-                          ),
-                          onDragEnd: (details) =>
-                              _handleCounterDragEnd(details, bodyConstraints),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              _buildCounterCard(),
-                              Positioned(
-                                right: 8,
-                                top: 8,
-                                child: Material(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest,
-                                  shape: const CircleBorder(),
-                                  child: IconButton(
-                                    padding: const EdgeInsets.all(6),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 32,
-                                      minHeight: 32,
+                        child: SelectionContainer.disabled(
+                          child: GestureDetector(
+                            onPanUpdate: (details) => _handleCounterDragUpdate(
+                              details,
+                              bodyConstraints,
+                            ),
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                _buildCounterCard(),
+                                Positioned(
+                                  right: 8,
+                                  top: 8,
+                                  child: Material(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest,
+                                    shape: const CircleBorder(),
+                                    child: IconButton(
+                                      padding: const EdgeInsets.all(6),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 32,
+                                        minHeight: 32,
+                                      ),
+                                      visualDensity: VisualDensity.compact,
+                                      icon: const Icon(Icons.close, size: 16),
+                                      tooltip: 'Hide counter',
+                                      onPressed: () =>
+                                          _setCounterVisibility(false),
                                     ),
-                                    visualDensity: VisualDensity.compact,
-                                    icon: const Icon(Icons.close, size: 16),
-                                    tooltip: 'Hide counter',
-                                    onPressed: () =>
-                                        _setCounterVisibility(false),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );
