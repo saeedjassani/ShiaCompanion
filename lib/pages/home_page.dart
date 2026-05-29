@@ -32,6 +32,8 @@ import 'package:shia_companion/widgets/prayer_times_widget.dart';
 
 enum _PublishStatus { success, error, timeout }
 
+const String _homeWidgetPromoDismissedKey = 'home_widget_promo_dismissed';
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({
     required this.title,
@@ -64,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage>
   bool _itemsLoaded = false;
   bool _isPublishingIndex = false;
   bool _isRefreshingLiveLocation = false;
+  bool _homeWidgetPromoDismissed = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
   final CollectionReference<Map<String, dynamic>> _zikrCollection =
@@ -449,6 +452,100 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
+  bool get _supportsHomeScreenWidgets {
+    return !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+  }
+
+  bool get _shouldShowHomeWidgetPromo {
+    return SP.isInitialized &&
+        _supportsHomeScreenWidgets &&
+        !_homeWidgetPromoDismissed;
+  }
+
+  void _dismissHomeWidgetPromo() {
+    setState(() {
+      _homeWidgetPromoDismissed = true;
+    });
+    unawaited(SP.prefs.setBool(_homeWidgetPromoDismissedKey, true));
+  }
+
+  void _openWidgetPreferences() {
+    final preferencesItem = getHomeMenuItem('Preferences');
+    if (preferencesItem == null) return;
+
+    _openHomeMenuItem(preferencesItem);
+  }
+
+  Widget _buildHomeWidgetPromoCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: colorScheme.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.widgets_outlined,
+                  color: colorScheme.onSecondaryContainer,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Home screen widgets are available',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: colorScheme.onSecondaryContainer,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Add Favorites, Today's Recitations, and Next Prayer from your phone's widget picker.",
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSecondaryContainer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Dismiss',
+                  icon: const Icon(Icons.close),
+                  color: colorScheme.onSecondaryContainer,
+                  onPressed: _dismissHomeWidgetPromo,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: _openWidgetPreferences,
+                icon: const Icon(Icons.tune),
+                label: const Text('Widget settings'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
@@ -526,6 +623,8 @@ class _MyHomePageState extends State<MyHomePage>
                   child: HomePrayerTimesCard(),
                 ),
               ),
+              if (_shouldShowHomeWidgetPromo)
+                _buildHomeWidgetPromoCard(context),
               SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -700,6 +799,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   setupPreferences() async {
     await SP.init();
+    _homeWidgetPromoDismissed =
+        SP.prefs.getBool(_homeWidgetPromoDismissedKey) ?? false;
     arabicFontSize = SP.prefs.getDouble('ara_font_size') ?? arabicFontSize;
     englishFontSize = SP.prefs.getDouble('eng_font_size') ?? englishFontSize;
 
