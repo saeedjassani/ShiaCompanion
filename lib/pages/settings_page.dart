@@ -225,7 +225,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ListTile(
                 leading: const Icon(Icons.info),
                 title: const Text("About Us"),
-                subtitle: Text("Version $appVersion"),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -250,7 +249,6 @@ class _SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isSignedIn = currentUser != null;
-    final photoUrl = currentUser?.photoURL;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -263,10 +261,7 @@ class _SettingsPageState extends State<SettingsPage> {
           CircleAvatar(
             radius: 26,
             backgroundColor: colorScheme.primary,
-            backgroundImage: photoUrl == null || photoUrl.isEmpty
-                ? null
-                : NetworkImage(photoUrl),
-            child: photoUrl == null || photoUrl.isEmpty
+            child: isSignedIn
                 ? Text(
                     _avatarLabel(currentUser),
                     style: TextStyle(
@@ -274,7 +269,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       fontWeight: FontWeight.w700,
                     ),
                   )
-                : null,
+                : Icon(
+                    Icons.account_circle,
+                    color: colorScheme.onPrimary,
+                    size: 30,
+                  ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -447,8 +446,23 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   String _avatarLabel(User? currentUser) {
-    final label = _accountTitle(currentUser);
-    return label.isEmpty ? "S" : label.substring(0, 1).toUpperCase();
+    final displayName = currentUser?.displayName?.trim();
+    if (displayName != null && displayName.isNotEmpty) {
+      final parts = displayName
+          .split(RegExp(r'\s+'))
+          .where((part) => part.isNotEmpty)
+          .take(2)
+          .toList();
+      final initials = parts.map((part) => part.substring(0, 1)).join();
+      if (initials.isNotEmpty) return initials.toUpperCase();
+    }
+
+    final email = currentUser?.email?.trim();
+    if (email != null && email.isNotEmpty) {
+      return email.substring(0, 1).toUpperCase();
+    }
+
+    return "SC";
   }
 
   String _hijriAdjustmentLabel() {
