@@ -8,6 +8,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import androidx.glance.appwidget.updateAll
+import com.developer110.shiacompanion.widgets.DailyPrayerTimesWidget
 import com.developer110.shiacompanion.widgets.FavoritesWidget
 import com.developer110.shiacompanion.widgets.scheduleNextPrayerWidgetRefresh
 import com.developer110.shiacompanion.widgets.scheduleNextRecitationWidgetRefresh
@@ -136,6 +137,7 @@ class MainActivity: FlutterActivity() {
                         try {
                             FavoritesWidget().updateAll(applicationContext)
                             TodaysRecitationWidget().updateAll(applicationContext)
+                            DailyPrayerTimesWidget().updateAll(applicationContext)
                             UpcomingPrayerWidget().updateAll(applicationContext)
                             scheduleNextPrayerWidgetRefresh(applicationContext)
                             scheduleNextRecitationWidgetRefresh(applicationContext)

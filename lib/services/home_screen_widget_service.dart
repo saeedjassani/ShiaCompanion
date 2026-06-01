@@ -8,7 +8,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/utils/deep_links.dart';
-import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 
 class HomeScreenWidgetService {
@@ -62,21 +62,20 @@ class HomeScreenWidgetService {
   static const String prayerDateKey = 'sc_prayer_date';
   static const String prayerLocationKey = 'sc_prayer_location';
   static const String prayerScheduleKey = 'sc_prayer_schedule';
+  static const String prayerSecondaryNameKey = 'sc_prayer_secondary_name';
+  static const String prayerSecondaryTimeKey = 'sc_prayer_secondary_time';
 
-  static String prayerFilterPreferenceKey(String prayerName) {
-    return 'widget_upcoming_${notificationPreferenceKeyForPrayer(prayerName)}';
-  }
-
-  static bool defaultPrayerFilterValue(String prayerName) {
-    final normalizedName = prayerName.trim().toLowerCase();
-    return normalizedName != 'sunrise' && normalizedName != 'sunset';
-  }
-
-  static bool shouldIncludePrayer(String prayerName) {
-    if (!SP.isInitialized) return defaultPrayerFilterValue(prayerName);
-    return SP.prefs.getBool(prayerFilterPreferenceKey(prayerName)) ??
-        defaultPrayerFilterValue(prayerName);
-  }
+  static const String dailyPrayerTimesTitleKey = 'sc_daily_prayer_title';
+  static const String dailyPrayerTimesScheduleKey = 'sc_daily_prayer_schedule';
+  static const int dailyPrayerTimesItemCount = 5;
+  static final List<String> dailyPrayerNameKeys = List.generate(
+    dailyPrayerTimesItemCount,
+    (index) => 'sc_daily_prayer_name_${index + 1}',
+  );
+  static final List<String> dailyPrayerTimeKeys = List.generate(
+    dailyPrayerTimesItemCount,
+    (index) => 'sc_daily_prayer_time_${index + 1}',
+  );
 
   bool get _isSupported {
     return !kIsWeb && (Platform.isAndroid || Platform.isIOS);
@@ -106,11 +105,18 @@ class HomeScreenWidgetService {
     await _saveAndRefresh(buildUpcomingPrayerSnapshot());
   }
 
+  Future<void> publishDailyPrayerTimes() async {
+    if (!_isSupported) return;
+
+    await _saveAndRefresh(buildDailyPrayerTimesSnapshot());
+  }
+
   Map<String, String> buildWidgetSnapshot() {
     return {
       ...buildFavoritesSnapshot(),
       ...buildTodaysRecitationsSnapshot(),
       ...buildUpcomingPrayerSnapshot(),
+      ...buildDailyPrayerTimesSnapshot(),
     };
   }
 
@@ -190,7 +196,40 @@ class HomeScreenWidgetService {
       prayerDateKey: prayerSnapshot.dateLabel,
       prayerLocationKey: prayerSnapshot.location,
       prayerScheduleKey: prayerSnapshot.encodedSchedule,
+      prayerSecondaryNameKey: prayerSnapshot.secondaryName,
+      prayerSecondaryTimeKey: prayerSnapshot.secondaryTime,
     };
+  }
+
+  Map<String, String> buildDailyPrayerTimesSnapshot({DateTime? now}) {
+    final snapshot = <String, String>{
+      dailyPrayerTimesTitleKey: 'Prayer Times',
+      dailyPrayerTimesScheduleKey: '',
+      prayerLocationKey: lat == null || long == null
+          ? 'Location needed'
+          : city ?? 'Saved location',
+    };
+
+    if (lat == null || long == null) {
+      for (var index = 0; index < dailyPrayerTimesItemCount; index++) {
+        snapshot[dailyPrayerNameKeys[index]] = index == 0 ? 'Set location' : '';
+        snapshot[dailyPrayerTimeKeys[index]] = index == 0 ? 'Open app' : '';
+      }
+      return snapshot;
+    }
+
+    final today = now ?? DateTime.now();
+    final prayers = _buildDailyPrayerTimesForDay(today);
+    snapshot[dailyPrayerTimesScheduleKey] =
+        jsonEncode(_buildDailyPrayerTimesSchedule(today));
+
+    for (var index = 0; index < dailyPrayerTimesItemCount; index++) {
+      final prayer = _itemAt(prayers, index);
+      snapshot[dailyPrayerNameKeys[index]] = prayer?.name ?? '';
+      snapshot[dailyPrayerTimeKeys[index]] = prayer?.time ?? '';
+    }
+
+    return snapshot;
   }
 
   Future<void> publishAllSoon() async {
@@ -217,6 +256,12 @@ class HomeScreenWidgetService {
     unawaited(publishUpcomingPrayer());
   }
 
+  Future<void> publishDailyPrayerTimesSoon() async {
+    if (!_isSupported) return;
+
+    unawaited(publishDailyPrayerTimes());
+  }
+
   Future<void> _saveAndRefresh(Map<String, String> values) async {
     try {
       await _channel.invokeMethod<void>('saveWidgetData', values);
@@ -236,21 +281,13 @@ class HomeScreenWidgetService {
         dateLabel: 'Open app',
         location: 'Location needed',
         encodedSchedule: '',
+        secondaryName: '',
+        secondaryTime: '',
       );
     }
 
     final now = DateTime.now();
     final entries = _buildPrayerSchedule(now);
-    if (!_hasAnyIncludedPrayer()) {
-      return _PrayerSnapshot(
-        name: 'No prayers selected',
-        time: 'Open settings',
-        dateLabel: '',
-        location: city ?? 'Saved location',
-        encodedSchedule: '',
-      );
-    }
-
     final nextEntry = _firstWhereOrNull(
       entries,
       (entry) => entry.dateTime.isAfter(now),
@@ -263,6 +300,8 @@ class HomeScreenWidgetService {
         dateLabel: 'Refresh schedule',
         location: city ?? 'Saved location',
         encodedSchedule: entries.map((entry) => entry.encode()).join(';'),
+        secondaryName: '',
+        secondaryTime: '',
       );
     }
 
@@ -272,6 +311,8 @@ class HomeScreenWidgetService {
       dateLabel: nextEntry.dateLabel,
       location: city ?? 'Saved location',
       encodedSchedule: entries.map((entry) => entry.encode()).join(';'),
+      secondaryName: nextEntry.secondaryName,
+      secondaryTime: nextEntry.secondaryTime,
     );
   }
 
@@ -281,9 +322,9 @@ class HomeScreenWidgetService {
     final names = prayerTime.getTimeNames();
     final startOfToday = DateTime(now.year, now.month, now.day);
 
-    for (var dayOffset = 0; dayOffset < 2; dayOffset++) {
+    for (var dayOffset = 0; dayOffset < 8; dayOffset++) {
       final date = startOfToday.add(Duration(days: dayOffset));
-      final dateLabel = dayOffset == 0 ? 'Today' : 'Tomorrow';
+      final dateLabel = _dateLabelForDay(date, dayOffset);
 
       prayerTime.setTimeFormat(prayerTime.getTime24());
       final times24 = prayerTime.getPrayerTimes(
@@ -301,17 +342,45 @@ class HomeScreenWidgetService {
         date.timeZoneOffset.inMinutes / 60.0,
       );
 
-      for (var index = 0; index < names.length; index++) {
-        if (!shouldIncludePrayer(names[index])) continue;
+      final midnight = shiaMidnightForDate(
+        prayerTime: prayerTime,
+        date: date,
+        latitude: lat!,
+        longitude: long!,
+      );
+      final periods = [
+        _PrayerPeriod(
+          index: prayerIndexFajr,
+          name: names[prayerIndexFajr],
+          secondaryName: 'Sunrise',
+          secondaryTime: displayTimes[prayerIndexSunrise],
+        ),
+        _PrayerPeriod(
+          index: prayerIndexZuhr,
+          name: names[prayerIndexZuhr],
+          secondaryName: 'Sunset',
+          secondaryTime: displayTimes[prayerIndexSunset],
+        ),
+        _PrayerPeriod(
+          index: prayerIndexMaghrib,
+          name: names[prayerIndexMaghrib],
+          secondaryName: 'Midnight',
+          secondaryTime:
+              midnight == null ? '' : formatPrayerDateTime12(midnight),
+        ),
+      ];
 
-        final dateTime = _dateTimeForTime24(date, times24[index]);
+      for (final period in periods) {
+        final dateTime = dateTimeForTime24(date, times24[period.index]);
         if (dateTime == null) continue;
 
         schedule.add(_PrayerScheduleEntry(
           dateTime: dateTime,
-          name: names[index],
-          displayTime: displayTimes[index],
+          name: period.name,
+          displayTime: displayTimes[period.index],
           dateLabel: dateLabel,
+          secondaryName: period.secondaryName,
+          secondaryTime: period.secondaryTime,
         ));
       }
     }
@@ -320,19 +389,40 @@ class HomeScreenWidgetService {
     return schedule;
   }
 
-  bool _hasAnyIncludedPrayer() {
-    return getPrayerTimeObject().getTimeNames().any(shouldIncludePrayer);
+  List<PrayerTimeDisplayEntry> _buildDailyPrayerTimesForDay(DateTime date) {
+    return buildFiveDailyPrayerTimeEntries(
+      prayerTime: getPrayerTimeObject(),
+      date: date,
+      latitude: lat!,
+      longitude: long!,
+      timeZone: date.timeZoneOffset.inMinutes / 60.0,
+    );
   }
 
-  DateTime? _dateTimeForTime24(DateTime date, String time24) {
-    final parts = time24.split(':');
-    if (parts.length != 2) return null;
+  List<Map<String, Object>> _buildDailyPrayerTimesSchedule(DateTime now) {
+    final startOfToday = DateTime(now.year, now.month, now.day);
 
-    final hour = int.tryParse(parts[0]);
-    final minute = int.tryParse(parts[1]);
-    if (hour == null || minute == null) return null;
+    return List.generate(8, (dayOffset) {
+      final date = startOfToday.add(Duration(days: dayOffset));
+      final prayers = _buildDailyPrayerTimesForDay(date);
 
-    return DateTime(date.year, date.month, date.day, hour, minute);
+      return {
+        'start': date.millisecondsSinceEpoch,
+        'items': prayers
+            .map((prayer) => {
+                  'title': prayer.name,
+                  'time': prayer.time,
+                  'url': '',
+                })
+            .toList(),
+      };
+    });
+  }
+
+  String _dateLabelForDay(DateTime date, int dayOffset) {
+    if (dayOffset == 0) return 'Today';
+    if (dayOffset == 1) return 'Tomorrow';
+    return '${date.month}/${date.day}';
   }
 
   String? _widgetTitleForUniversalData(UniversalData? item) {
@@ -380,6 +470,8 @@ class _PrayerSnapshot {
     required this.dateLabel,
     required this.location,
     required this.encodedSchedule,
+    required this.secondaryName,
+    required this.secondaryTime,
   });
 
   final String name;
@@ -387,6 +479,22 @@ class _PrayerSnapshot {
   final String dateLabel;
   final String location;
   final String encodedSchedule;
+  final String secondaryName;
+  final String secondaryTime;
+}
+
+class _PrayerPeriod {
+  const _PrayerPeriod({
+    required this.index,
+    required this.name,
+    required this.secondaryName,
+    required this.secondaryTime,
+  });
+
+  final int index;
+  final String name;
+  final String secondaryName;
+  final String secondaryTime;
 }
 
 class _PrayerScheduleEntry {
@@ -395,12 +503,16 @@ class _PrayerScheduleEntry {
     required this.name,
     required this.displayTime,
     required this.dateLabel,
+    required this.secondaryName,
+    required this.secondaryTime,
   });
 
   final DateTime dateTime;
   final String name;
   final String displayTime;
   final String dateLabel;
+  final String secondaryName;
+  final String secondaryTime;
 
   String encode() {
     return [
@@ -408,6 +520,8 @@ class _PrayerScheduleEntry {
       name,
       displayTime,
       dateLabel,
+      secondaryName,
+      secondaryTime,
     ].join('|');
   }
 }

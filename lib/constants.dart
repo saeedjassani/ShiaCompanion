@@ -23,6 +23,7 @@ import 'pages/video_player.dart';
 import 'utils/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -133,8 +134,15 @@ String _scheduleDateKey(DateTime dateTime) =>
 String _scheduleLocationKey(double? value) =>
     value == null ? 'unknown' : value.toStringAsFixed(4);
 
+List<String> getPrayerNotificationPrayerNames() {
+  return [
+    ...getPrayerTimeObject().getTimeNames(),
+    'Midnight',
+  ];
+}
+
 String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
-  final prayerNames = getPrayerTimeObject().getTimeNames();
+  final prayerNames = getPrayerNotificationPrayerNames();
   final enabledPrayerKeys = prayerNames.map((prayerName) {
     final key = notificationPreferenceKeyForPrayer(prayerName);
     return '$key:${SP.prefs.getBool(key) == true ? 1 : 0}';
@@ -145,7 +153,7 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
       azaanId == 'custom' ? SP.prefs.getString(azaanCustomFilePathKey) : null;
 
   return [
-    'v5',
+    'v6',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'lat:${_scheduleLocationKey(lat)}',
     'long:${_scheduleLocationKey(long)}',
@@ -187,7 +195,7 @@ bool shouldRefreshPrayerNotificationSchedule(
 
   if (lat == null || long == null) return false;
 
-  final prayerNames = getPrayerTimeObject().getTimeNames();
+  final prayerNames = getPrayerNotificationPrayerNames();
   if (!areAnyPrayerNotificationsEnabled(prayerNames)) return false;
 
   return !_hasFreshScheduleReminder(pending);
@@ -205,6 +213,59 @@ PrayerTime getPrayerTimeObject() {
   prayerTime!.setAdjustHighLats(prayerTime!.getAngleBased());
 
   return prayerTime!;
+}
+
+class PrayerNotificationScheduleEntry {
+  const PrayerNotificationScheduleEntry({
+    required this.name,
+    required this.dateTime,
+  });
+
+  final String name;
+  final DateTime dateTime;
+}
+
+List<PrayerNotificationScheduleEntry> buildPrayerNotificationEntriesForDay({
+  required PrayerTime prayerTime,
+  required DateTime date,
+  required double latitude,
+  required double longitude,
+}) {
+  final originalFormat = prayerTime.getTimeFormat();
+  try {
+    prayerTime.setTimeFormat(prayerTime.getTime24());
+    final names = prayerTime.getTimeNames();
+    final times = prayerTime.getPrayerTimes(
+      date,
+      latitude,
+      longitude,
+      date.timeZoneOffset.inMinutes / 60.0,
+    );
+    final entries = <PrayerNotificationScheduleEntry>[];
+    for (var index = 0; index < names.length; index++) {
+      final dateTime = dateTimeForTime24(date, times[index]);
+      if (dateTime == null) continue;
+      entries.add(PrayerNotificationScheduleEntry(
+        name: names[index],
+        dateTime: dateTime,
+      ));
+    }
+    final midnight = shiaMidnightForDate(
+      prayerTime: prayerTime,
+      date: date,
+      latitude: latitude,
+      longitude: longitude,
+    );
+    if (midnight != null) {
+      entries.add(PrayerNotificationScheduleEntry(
+        name: 'Midnight',
+        dateTime: midnight,
+      ));
+    }
+    return entries;
+  } finally {
+    prayerTime.setTimeFormat(originalFormat);
+  }
 }
 
 Map items = {};
@@ -376,7 +437,7 @@ int prayerNotificationScheduleDays(int enabledPrayerCount) {
 }
 
 Iterable<int> prayerNotificationIds(
-    {int days = 12, int prayerCount = 7}) sync* {
+    {int days = 12, int prayerCount = 8}) sync* {
   for (int dayOffset = 0; dayOffset < days; dayOffset++) {
     for (int prayerIndex = 0; prayerIndex < prayerCount; prayerIndex++) {
       yield (100 * (prayerIndex + 1)) + dayOffset;
@@ -406,7 +467,7 @@ Future<void> setUpNotifications() async {
 
   final selectedAzaanId = resolveAzaanPreferenceIdForCurrentPlatform(
       SP.isInitialized ? SP.prefs.getString(azaanPreferenceKey) : null);
-  final prayerNames = getPrayerTimeObject().getTimeNames();
+  final prayerNames = getPrayerNotificationPrayerNames();
   final enabledPrayerCount = enabledPrayerNotificationCount(prayerNames);
   final scheduleDays = prayerNotificationScheduleDays(enabledPrayerCount);
   final scheduleFingerprint = buildPrayerNotificationScheduleFingerprint();
@@ -428,20 +489,20 @@ Future<void> setUpNotifications() async {
 
   DateTime now = DateTime.now();
   PrayerTime prayers = getPrayerTimeObject();
-  prayers.setTimeFormat(prayers.getTime24());
   final List<Future<void>> schedulingTasks = [];
   for (int i = 0; i < scheduleDays; i++) {
     DateTime temp = now.add(Duration(days: i));
-    List<String> prayerTimes = prayers.getPrayerTimes(
-        temp, lat!, long!, temp.timeZoneOffset.inMinutes / 60.0);
-
-    List<String> _prayerNames = prayers.getTimeNames();
-    _prayerNames.asMap().forEach((index, prayerName) {
+    final entries = buildPrayerNotificationEntriesForDay(
+      prayerTime: prayers,
+      date: temp,
+      latitude: lat!,
+      longitude: long!,
+    );
+    entries.asMap().forEach((index, entry) {
       schedulingTasks.add(schedulePrayerTimeNotification(
         (100 * (index + 1)) + i,
-        DateTime.parse(
-            "${temp.toIso8601String().substring(0, 10)} ${prayerTimes[index]}"),
-        prayerName,
+        entry.dateTime,
+        entry.name,
         azaanId: selectedAzaanId,
       ));
     });

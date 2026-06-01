@@ -134,6 +134,35 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                         data[HomeScreenWidgetService.prayerDateKey] ?? '',
                     location:
                         data[HomeScreenWidgetService.prayerLocationKey] ?? '',
+                    secondaryName:
+                        data[HomeScreenWidgetService.prayerSecondaryNameKey] ??
+                            '',
+                    secondaryTime:
+                        data[HomeScreenWidgetService.prayerSecondaryTimeKey] ??
+                            '',
+                  ),
+                  _DailyPrayerTimesWidgetPreview(
+                    width: 340,
+                    height: 180,
+                    title: data[
+                            HomeScreenWidgetService.dailyPrayerTimesTitleKey] ??
+                        'Prayer Times',
+                    location:
+                        data[HomeScreenWidgetService.prayerLocationKey] ?? '',
+                    items: [
+                      for (var index = 0;
+                          index <
+                              HomeScreenWidgetService.dailyPrayerTimesItemCount;
+                          index++)
+                        _PreviewPrayerTime(
+                          data[HomeScreenWidgetService
+                                  .dailyPrayerNameKeys[index]] ??
+                              '',
+                          data[HomeScreenWidgetService
+                                  .dailyPrayerTimeKeys[index]] ??
+                              '',
+                        ),
+                    ],
                   ),
                 ],
               ),
@@ -258,6 +287,8 @@ class _PrayerWidgetPreview extends StatelessWidget {
     required this.time,
     required this.dateLabel,
     required this.location,
+    required this.secondaryName,
+    required this.secondaryTime,
   });
 
   final double width;
@@ -267,10 +298,15 @@ class _PrayerWidgetPreview extends StatelessWidget {
   final String time;
   final String dateLabel;
   final String location;
+  final String secondaryName;
+  final String secondaryTime;
 
   @override
   Widget build(BuildContext context) {
     final palette = _WidgetPalette.of(context);
+    final footer = secondaryName.isNotEmpty && secondaryTime.isNotEmpty
+        ? '$secondaryName: $secondaryTime'
+        : location;
     return _WidgetShell(
       width: width,
       height: height,
@@ -297,6 +333,88 @@ class _PrayerWidgetPreview extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 12, color: palette.secondaryText)),
+          const Spacer(),
+          Text(footer,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 11, color: palette.secondaryText)),
+        ],
+      ),
+    );
+  }
+}
+
+class _PreviewPrayerTime {
+  const _PreviewPrayerTime(this.name, this.time);
+
+  final String name;
+  final String time;
+}
+
+class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
+  const _DailyPrayerTimesWidgetPreview({
+    required this.width,
+    required this.height,
+    required this.title,
+    required this.location,
+    required this.items,
+  });
+
+  final double width;
+  final double height;
+  final String title;
+  final String location;
+  final List<_PreviewPrayerTime> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = _WidgetPalette.of(context);
+    final visibleItems = items
+        .where((item) => item.name.isNotEmpty || item.time.isNotEmpty)
+        .take(5)
+        .toList();
+
+    return _WidgetShell(
+      width: width,
+      height: height,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)
+                  .copyWith(color: palette.primaryText)),
+          const Spacer(),
+          Row(
+            children: [
+              for (final item in visibleItems)
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(item.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: palette.secondaryText)),
+                      const SizedBox(height: 4),
+                      Text(item.time,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: palette.bodyText)),
+                    ],
+                  ),
+                ),
+            ],
+          ),
           const Spacer(),
           Text(location,
               maxLines: 1,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import '../constants.dart';
 
@@ -56,6 +57,10 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                                     onTap: () async {
                                       bool success =
                                           await initializeLocation(force: true);
+                                      if (success) {
+                                        await HomeScreenWidgetService.instance
+                                            .publishAll();
+                                      }
                                       if (mounted) {
                                         setState(() {});
                                         if (success) {
@@ -85,35 +90,41 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Fajr"),
-                              SizedBox(
-                                height: 4,
-                              ),
-                              Text(_prayerTimes[0]),
-                            ],
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Fajr"),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                Text(_prayerTimes[0]),
+                              ],
+                            ),
                           ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Zuhr"),
-                              SizedBox(
-                                height: 4,
-                              ),
-                              Text(_prayerTimes[2]),
-                            ],
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Zuhr"),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                Text(_prayerTimes[2]),
+                              ],
+                            ),
                           ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Maghrib"),
-                              SizedBox(
-                                height: 4,
-                              ),
-                              Text(_prayerTimes[5]),
-                            ],
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Maghrib"),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                Text(_prayerTimes[5]),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -121,7 +132,10 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                   )
                 : InkWell(
                     onTap: () async {
-                      await initializeLocation(force: true);
+                      final success = await initializeLocation(force: true);
+                      if (success) {
+                        await HomeScreenWidgetService.instance.publishAll();
+                      }
                       if (mounted) setState(() {});
                     },
                     child: Container(

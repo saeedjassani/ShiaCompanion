@@ -80,8 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     final success = await initializeLocation(force: true);
                     if (success) {
                       await SP.prefs.setBool('use_live_location', true);
-                      await HomeScreenWidgetService.instance
-                          .publishUpcomingPrayer();
+                      await HomeScreenWidgetService.instance.publishAll();
                     } else {
                       await SP.prefs.setBool('use_live_location', false);
                     }
@@ -105,8 +104,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   onTap: () async {
                     bool success = await initializeLocation(force: true);
                     if (success) {
-                      await HomeScreenWidgetService.instance
-                          .publishUpcomingPrayer();
+                      await HomeScreenWidgetService.instance.publishAll();
                     }
                     if (!mounted) return;
                     if (success) {
@@ -160,26 +158,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       );
                     },
                   ),
-              ],
-            ),
-          if (_supportsHomeScreenWidgets())
-            _buildSettingsSection(
-              context,
-              title: 'Home Screen Widgets',
-              children: [
-                const ListTile(
-                  leading: Icon(Icons.dashboard_customize_outlined),
-                  title: Text("Available widgets"),
-                  subtitle: Text(
-                    "Favorites, Today's Recitations, and Next Prayer can be added from your phone's widget picker.",
-                  ),
-                ),
-                ExpansionTile(
-                  leading: const Icon(Icons.widgets),
-                  title: const Text("Next prayer widget"),
-                  subtitle: const Text("Choose which prayers can appear next."),
-                  children: _buildUpcomingPrayerWidgetOptions(),
-                ),
               ],
             ),
           _buildSettingsSection(
@@ -355,11 +333,6 @@ class _SettingsPageState extends State<SettingsPage> {
       dividedChildren.add(children[index]);
     }
     return dividedChildren;
-  }
-
-  bool _supportsHomeScreenWidgets() {
-    if (kIsWeb) return false;
-    return Platform.isAndroid || Platform.isIOS;
   }
 
   List<Widget> _buildAccountActionTiles(User? currentUser) {
@@ -540,27 +513,6 @@ class _SettingsPageState extends State<SettingsPage> {
     await SP.prefs.remove('prayerTimes');
     await HomeScreenWidgetService.instance.publishTodaysRecitations();
     setState(() {});
-  }
-
-  List<Widget> _buildUpcomingPrayerWidgetOptions() {
-    final prayerNames = getPrayerTimeObject().getTimeNames();
-    return prayerNames
-        .map(
-          (prayerName) => SwitchListTile(
-            title: Text(prayerName),
-            value: HomeScreenWidgetService.shouldIncludePrayer(prayerName),
-            onChanged: (value) async {
-              await SP.prefs.setBool(
-                HomeScreenWidgetService.prayerFilterPreferenceKey(prayerName),
-                value,
-              );
-              await HomeScreenWidgetService.instance.publishUpcomingPrayer();
-              if (!mounted) return;
-              setState(() {});
-            },
-          ),
-        )
-        .toList();
   }
 
   String _getCurrentAzaanName() {
