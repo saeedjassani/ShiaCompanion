@@ -634,6 +634,19 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return 'Part ${index + 1}';
   }
 
+  Future<void> _shareZikrText({
+    required String title,
+    required String deepLink,
+    required Rect sharePositionOrigin,
+  }) {
+    return SharePlus.instance.share(
+      ShareParams(
+        text: '$title\n$deepLink',
+        sharePositionOrigin: sharePositionOrigin,
+      ),
+    );
+  }
+
   Future<void> _shareCurrentZikr() async {
     if (_isSharingZikr) return;
 
@@ -656,56 +669,74 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     });
 
     try {
+      final shareImage = SP.prefs.getBool('share_zikr_image') ?? true;
+      if (!shareImage) {
+        await _shareZikrText(
+          title: title,
+          deepLink: deepLink,
+          sharePositionOrigin: sharePositionOrigin,
+        );
+        return;
+      }
+
       final tabContents = _buildVisibleTabContents();
       final selectedIndex = _clampedSelectedTabIndex(tabContents);
       final selectedContent =
           tabContents.isEmpty ? '' : tabContents[selectedIndex];
+      if (selectedContent.trim().isEmpty) {
+        await _shareZikrText(
+          title: title,
+          deepLink: deepLink,
+          sharePositionOrigin: sharePositionOrigin,
+        );
+        return;
+      }
+
       final showTabHeaders = tabContents.length > 1;
-      final shareImage = SP.prefs.getBool('share_zikr_image') ?? true;
-      final imageBytes = !shareImage || selectedContent.trim().isEmpty
-          ? null
-          : await buildZikrShareImage(
-              ZikrShareImageRequest(
-                title: title,
-                tabTitle: showTabHeaders
-                    ? _tabHeaderForContent(selectedContent, selectedIndex)
-                    : '',
-                content: selectedContent,
-                hideHeaderLine: showTabHeaders,
-                colorScheme: Theme.of(context).colorScheme,
-                code: zikrData?['code']?.toString(),
-              ),
-            );
+      final imageBytes = await buildZikrShareImage(
+        ZikrShareImageRequest(
+          title: title,
+          tabTitle: showTabHeaders
+              ? _tabHeaderForContent(selectedContent, selectedIndex)
+              : '',
+          content: selectedContent,
+          hideHeaderLine: showTabHeaders,
+          colorScheme: Theme.of(context).colorScheme,
+          code: zikrData?['code']?.toString(),
+        ),
+      );
+      if (imageBytes == null) {
+        await _shareZikrText(
+          title: title,
+          deepLink: deepLink,
+          sharePositionOrigin: sharePositionOrigin,
+        );
+        return;
+      }
 
       await SharePlus.instance.share(
         ShareParams(
           title: title,
           subject: title,
           text: '$title\n$deepLink',
-          files: imageBytes == null
-              ? null
-              : [
-                  XFile.fromData(
-                    imageBytes,
-                    mimeType: 'image/png',
-                    name: 'shia-companion-zikr.png',
-                  ),
-                ],
-          fileNameOverrides:
-              imageBytes == null ? null : const ['shia-companion-zikr.png'],
-          downloadFallbackEnabled: imageBytes == null,
+          files: [
+            XFile.fromData(
+              imageBytes,
+              mimeType: 'image/png',
+              name: 'shia-companion-zikr.png',
+            ),
+          ],
+          fileNameOverrides: const ['shia-companion-zikr.png'],
+          downloadFallbackEnabled: false,
           sharePositionOrigin: sharePositionOrigin,
         ),
       );
     } catch (error) {
       debugPrint('Error sharing zikr image: $error');
-      await SharePlus.instance.share(
-        ShareParams(
-          title: title,
-          subject: title,
-          text: '$title\n$deepLink',
-          sharePositionOrigin: sharePositionOrigin,
-        ),
+      await _shareZikrText(
+        title: title,
+        deepLink: deepLink,
+        sharePositionOrigin: sharePositionOrigin,
       );
     } finally {
       if (mounted) {
