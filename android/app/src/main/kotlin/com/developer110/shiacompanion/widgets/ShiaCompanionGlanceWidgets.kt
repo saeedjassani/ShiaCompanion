@@ -24,6 +24,7 @@ import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.ColumnScope
+import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
@@ -65,6 +66,13 @@ private const val KEY_PRAYER_TIME = "sc_prayer_time"
 private const val KEY_PRAYER_DATE = "sc_prayer_date"
 private const val KEY_PRAYER_LOCATION = "sc_prayer_location"
 private const val KEY_PRAYER_SCHEDULE = "sc_prayer_schedule"
+private const val KEY_PRAYER_SECONDARY_NAME = "sc_prayer_secondary_name"
+private const val KEY_PRAYER_SECONDARY_TIME = "sc_prayer_secondary_time"
+
+private const val KEY_DAILY_PRAYER_TITLE = "sc_daily_prayer_title"
+private val dailyPrayerNameKeys = (1..5).map { "sc_daily_prayer_name_$it" }
+private val dailyPrayerTimeKeys = (1..5).map { "sc_daily_prayer_time_$it" }
+private const val KEY_DAILY_PRAYER_SCHEDULE = "sc_daily_prayer_schedule"
 
 private val backgroundColor = ColorProvider(
     day = androidx.compose.ui.graphics.Color(0xFF6D4C41),
@@ -138,6 +146,20 @@ class UpcomingPrayerWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = UpcomingPrayerWidget()
 }
 
+class DailyPrayerTimesWidget : GlanceAppWidget() {
+    override val sizeMode: SizeMode = SizeMode.Exact
+
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        provideContent {
+            DailyPrayerTimesWidgetContent()
+        }
+    }
+}
+
+class DailyPrayerTimesWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = DailyPrayerTimesWidget()
+}
+
 class PrayerWidgetRefreshReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_REFRESH_PRAYER_WIDGET) return
@@ -155,6 +177,7 @@ class RecitationWidgetRefreshReceiver : BroadcastReceiver() {
 
         CoroutineScope(Dispatchers.Main).launch {
             TodaysRecitationWidget().updateAll(context.applicationContext)
+            DailyPrayerTimesWidget().updateAll(context.applicationContext)
             scheduleNextRecitationWidgetRefresh(context.applicationContext)
         }
     }
@@ -195,6 +218,7 @@ private fun WidgetListContent(
         )
         Spacer(GlanceModifier.height(8.dp))
         if (items.size == 1 && items.first().url.isBlank()) {
+            Spacer(GlanceModifier.defaultWeight())
             Text(
                 text = items.first().title,
                 modifier = GlanceModifier.fillMaxWidth(),
@@ -230,6 +254,7 @@ private fun PrayerWidgetContent() {
     val context = LocalContext.current
     val data = context.widgetData()
     val prayer = data.nextPrayer()
+    val footer = prayer.secondaryText.ifBlank { prayer.location }
 
     WidgetSurface(clickable = true) {
         Text(
@@ -268,7 +293,63 @@ private fun PrayerWidgetContent() {
         }
         Spacer(GlanceModifier.defaultWeight())
         Text(
-            text = prayer.location,
+            text = footer,
+            style = TextStyle(color = secondaryTextColor, fontSize = 11.sp),
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun DailyPrayerTimesWidgetContent() {
+    val context = LocalContext.current
+    val data = context.widgetData()
+    val prayers = data.dailyPrayerTimes()
+    val location = data.text(KEY_PRAYER_LOCATION, "Location needed")
+
+    WidgetSurface(clickable = true) {
+        Text(
+            text = data.text(KEY_DAILY_PRAYER_TITLE, "Prayer Times"),
+            style = TextStyle(
+                color = primaryTextColor,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            maxLines = 1
+        )
+        Spacer(GlanceModifier.defaultWeight())
+        Row(modifier = GlanceModifier.fillMaxWidth()) {
+            prayers.take(5).forEach { prayer ->
+                Column(modifier = GlanceModifier.defaultWeight()) {
+                    Text(
+                        text = prayer.title,
+                        modifier = GlanceModifier.fillMaxWidth(),
+                        style = TextStyle(
+                            color = secondaryTextColor,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        ),
+                        maxLines = 1
+                    )
+                    Spacer(GlanceModifier.height(4.dp))
+                    Text(
+                        text = prayer.time,
+                        modifier = GlanceModifier.fillMaxWidth(),
+                        style = TextStyle(
+                            color = bodyTextColor,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        ),
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+        Spacer(GlanceModifier.defaultWeight())
+        Text(
+            text = location,
             style = TextStyle(color = secondaryTextColor, fontSize = 11.sp),
             maxLines = 1
         )
@@ -279,6 +360,7 @@ private fun PrayerWidgetContent() {
 private fun WidgetSurface(
     clickable: Boolean,
     clickUrl: String? = null,
+    contentPadding: Int = 14,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val context = LocalContext.current
@@ -293,7 +375,7 @@ private fun WidgetSurface(
                 it
             }
         }
-        .padding(14.dp)
+        .padding(contentPadding.dp)
 
     Column(
         modifier = modifier,
@@ -366,7 +448,8 @@ fun scheduleNextRecitationWidgetRefresh(context: Context) {
 
 private data class WidgetItem(
     val title: String,
-    val url: String
+    val url: String,
+    val time: String = ""
 )
 
 private data class WidgetListScheduleEntry(
@@ -408,7 +491,8 @@ private fun parseWidgetListSchedule(rawSchedule: String?): List<WidgetListSchedu
                 val rawItem = rawItems.getJSONObject(itemIndex)
                 WidgetItem(
                     title = rawItem.optString("title", "").trim(),
-                    url = rawItem.optString("url", "").trim()
+                    url = rawItem.optString("url", "").trim(),
+                    time = rawItem.optString("time", "").trim()
                 )
             }.filter { it.title.isNotBlank() }
 
@@ -461,14 +545,30 @@ private data class PrayerDisplay(
     val name: String,
     val time: String,
     val dateLabel: String,
-    val location: String
+    val location: String,
+    val secondaryName: String,
+    val secondaryTime: String
+)
+
+private val PrayerDisplay.secondaryText: String
+    get() = if (secondaryName.isNotBlank() && secondaryTime.isNotBlank()) {
+        "$secondaryName: $secondaryTime"
+    } else {
+        ""
+    }
+
+private data class DailyPrayerTimeDisplay(
+    val title: String,
+    val time: String
 )
 
 private data class PrayerEntry(
     val epochMillis: Long,
     val name: String,
     val time: String,
-    val dateLabel: String
+    val dateLabel: String,
+    val secondaryName: String,
+    val secondaryTime: String
 )
 
 private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
@@ -477,14 +577,16 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
     val next = getString(KEY_PRAYER_SCHEDULE, "")
         ?.split(';')
         ?.mapNotNull { rawEntry ->
-            val parts = rawEntry.split('|', limit = 4)
-            if (parts.size != 4) return@mapNotNull null
+            val parts = rawEntry.split('|', limit = 6)
+            if (parts.size != 4 && parts.size != 6) return@mapNotNull null
             val epochMillis = parts[0].toLongOrNull() ?: return@mapNotNull null
             PrayerEntry(
                 epochMillis = epochMillis,
                 name = parts[1],
                 time = parts[2],
-                dateLabel = parts[3]
+                dateLabel = parts[3],
+                secondaryName = parts.getOrNull(4).orEmpty(),
+                secondaryTime = parts.getOrNull(5).orEmpty()
             )
         }
         ?.filter { it.epochMillis > now }
@@ -495,7 +597,9 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
             name = next.name,
             time = next.time,
             dateLabel = next.dateLabel,
-            location = location
+            location = location,
+            secondaryName = next.secondaryName,
+            secondaryTime = next.secondaryTime
         )
     }
 
@@ -503,8 +607,27 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
         name = text(KEY_PRAYER_NAME, "Prayer Times"),
         time = text(KEY_PRAYER_TIME, "Set location"),
         dateLabel = text(KEY_PRAYER_DATE, "Open app"),
-        location = location
+        location = location,
+        secondaryName = text(KEY_PRAYER_SECONDARY_NAME, ""),
+        secondaryTime = text(KEY_PRAYER_SECONDARY_TIME, "")
     )
+}
+
+private fun android.content.SharedPreferences.dailyPrayerTimes(): List<DailyPrayerTimeDisplay> {
+    val scheduledItems = scheduledWidgetItems(KEY_DAILY_PRAYER_SCHEDULE)
+    val items = scheduledItems ?: dailyPrayerNameKeys.mapIndexedNotNull { index, key ->
+        val title = text(key, if (index == 0) "Set location" else "")
+        val time = text(dailyPrayerTimeKeys[index], if (index == 0) "Open app" else "")
+        if (title.isBlank() && time.isBlank()) {
+            null
+        } else {
+            WidgetItem(title = title, url = "", time = time)
+        }
+    }
+
+    return items
+        .take(5)
+        .map { DailyPrayerTimeDisplay(title = it.title, time = it.time) }
 }
 
 private fun android.content.SharedPreferences.nextPrayerEpochMillis(): Long? {
@@ -512,8 +635,8 @@ private fun android.content.SharedPreferences.nextPrayerEpochMillis(): Long? {
     return getString(KEY_PRAYER_SCHEDULE, "")
         ?.split(';')
         ?.mapNotNull { rawEntry ->
-            val parts = rawEntry.split('|', limit = 4)
-            if (parts.size != 4) return@mapNotNull null
+            val parts = rawEntry.split('|', limit = 6)
+            if (parts.size != 4 && parts.size != 6) return@mapNotNull null
             parts[0].toLongOrNull()
         }
         ?.filter { it > now }

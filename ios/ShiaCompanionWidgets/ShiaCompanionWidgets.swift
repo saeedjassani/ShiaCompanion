@@ -19,6 +19,13 @@ private enum WidgetKeys {
     static let prayerDate = "sc_prayer_date"
     static let prayerLocation = "sc_prayer_location"
     static let prayerSchedule = "sc_prayer_schedule"
+    static let prayerSecondaryName = "sc_prayer_secondary_name"
+    static let prayerSecondaryTime = "sc_prayer_secondary_time"
+
+    static let dailyPrayerTitle = "sc_daily_prayer_title"
+    static let dailyPrayerNames = (1...5).map { "sc_daily_prayer_name_\($0)" }
+    static let dailyPrayerTimes = (1...5).map { "sc_daily_prayer_time_\($0)" }
+    static let dailyPrayerSchedule = "sc_daily_prayer_schedule"
 }
 
 private extension UserDefaults {
@@ -37,11 +44,26 @@ struct WidgetListEntry: TimelineEntry {
     let date: Date
     let title: String
     let items: [WidgetListItem]
+    let location: String
+
+    init(date: Date, title: String, items: [WidgetListItem], location: String = "") {
+        self.date = date
+        self.title = title
+        self.items = items
+        self.location = location
+    }
 }
 
 struct WidgetListItem {
     let title: String
     let url: URL?
+    let time: String
+
+    init(title: String, url: URL? = nil, time: String = "") {
+        self.title = title
+        self.url = url
+        self.time = time
+    }
 }
 
 private struct WidgetListScheduleEntry {
@@ -161,6 +183,84 @@ struct RecitationProvider: TimelineProvider {
     }
 }
 
+struct DailyPrayerTimesProvider: TimelineProvider {
+    func placeholder(in context: Context) -> WidgetListEntry {
+        WidgetListEntry(
+            date: Date(),
+            title: "Prayer Times",
+            items: [
+                WidgetListItem(title: "Fajr", time: "05:00 am"),
+                WidgetListItem(title: "Zuhr", time: "12:30 pm"),
+                WidgetListItem(title: "Asr", time: "04:15 pm"),
+                WidgetListItem(title: "Maghrib", time: "08:10 pm"),
+                WidgetListItem(title: "Isha", time: "09:05 pm")
+            ],
+            location: "Karbala"
+        )
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (WidgetListEntry) -> Void) {
+        completion(loadEntry())
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<WidgetListEntry>) -> Void) {
+        completion(loadTimeline())
+    }
+
+    private func loadTimeline() -> Timeline<WidgetListEntry> {
+        let defaults = UserDefaults.widgetData
+        let schedule = parseListSchedule(defaults?.string(forKey: WidgetKeys.dailyPrayerSchedule) ?? "")
+        let now = Date()
+
+        if schedule.isEmpty {
+            return Timeline(
+                entries: [loadEntry(defaults: defaults, schedule: schedule, now: now)],
+                policy: .after(now.addingTimeInterval(3600))
+            )
+        }
+
+        let transitionDates = schedule
+            .map(\.start)
+            .filter { $0 > now }
+            .prefix(8)
+        var entries = [loadEntry(defaults: defaults, schedule: schedule, now: now)]
+
+        for date in transitionDates {
+            entries.append(loadEntry(defaults: defaults, schedule: schedule, now: date))
+        }
+
+        let policyDate = entries.last?.date.addingTimeInterval(86400) ?? now.addingTimeInterval(3600)
+        return Timeline(entries: entries, policy: .after(policyDate))
+    }
+
+    private func loadEntry() -> WidgetListEntry {
+        let defaults = UserDefaults.widgetData
+        let schedule = parseListSchedule(defaults?.string(forKey: WidgetKeys.dailyPrayerSchedule) ?? "")
+        return loadEntry(defaults: defaults, schedule: schedule, now: Date())
+    }
+
+    private func loadEntry(
+        defaults: UserDefaults?,
+        schedule: [WidgetListScheduleEntry],
+        now: Date
+    ) -> WidgetListEntry {
+        let scheduledItems = currentListScheduleEntry(schedule, now: now)?.items
+        let items: [WidgetListItem]
+        if let scheduledItems = scheduledItems, !scheduledItems.isEmpty {
+            items = scheduledItems
+        } else {
+            items = dailyPrayerItems(defaults: defaults)
+        }
+
+        return WidgetListEntry(
+            date: now,
+            title: defaults?.widgetString(WidgetKeys.dailyPrayerTitle, fallback: "Prayer Times") ?? "Prayer Times",
+            items: items,
+            location: defaults?.widgetString(WidgetKeys.prayerLocation, fallback: "Location needed") ?? "Location needed"
+        )
+    }
+}
+
 private func widgetItems(
     defaults: UserDefaults?,
     titleKeys: [String],
@@ -175,6 +275,17 @@ private func widgetItems(
 
         let rawUrl = defaults?.widgetString(urlKeys[index], fallback: "") ?? ""
         return WidgetListItem(title: title, url: URL(string: rawUrl))
+    }
+}
+
+private func dailyPrayerItems(defaults: UserDefaults?) -> [WidgetListItem] {
+    WidgetKeys.dailyPrayerNames.enumerated().compactMap { index, nameKey in
+        let name = defaults?.widgetString(nameKey, fallback: index == 0 ? "Set location" : "") ?? ""
+        let time = defaults?.widgetString(WidgetKeys.dailyPrayerTimes[index], fallback: index == 0 ? "Open app" : "") ?? ""
+        if name.isEmpty && time.isEmpty {
+            return nil
+        }
+        return WidgetListItem(title: name, time: time)
     }
 }
 
@@ -211,7 +322,9 @@ private func parseListSchedule(_ rawSchedule: String) -> [WidgetListScheduleEntr
 
             let rawUrl = (rawItem["url"] as? String)?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            return WidgetListItem(title: title, url: URL(string: rawUrl))
+            let time = (rawItem["time"] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            return WidgetListItem(title: title, url: URL(string: rawUrl), time: time)
         }
 
         return WidgetListScheduleEntry(
@@ -229,6 +342,8 @@ struct PrayerWidgetEntry: TimelineEntry {
     let time: String
     let dateLabel: String
     let location: String
+    let secondaryName: String
+    let secondaryTime: String
     let nextRefresh: Date
 }
 
@@ -237,6 +352,8 @@ private struct PrayerScheduleEntry {
     let name: String
     let time: String
     let dateLabel: String
+    let secondaryName: String
+    let secondaryTime: String
 }
 
 struct PrayerProvider: TimelineProvider {
@@ -248,6 +365,8 @@ struct PrayerProvider: TimelineProvider {
             time: "Set location",
             dateLabel: "Open app",
             location: "Location needed",
+            secondaryName: "",
+            secondaryTime: "",
             nextRefresh: Date().addingTimeInterval(1800)
         )
     }
@@ -300,6 +419,8 @@ struct PrayerProvider: TimelineProvider {
             time: nextPrayer?.time ?? defaults?.widgetString(WidgetKeys.prayerTime, fallback: "Set location") ?? "Set location",
             dateLabel: nextPrayer?.dateLabel ?? defaults?.widgetString(WidgetKeys.prayerDate, fallback: "Open app") ?? "Open app",
             location: defaults?.widgetString(WidgetKeys.prayerLocation, fallback: "Location needed") ?? "Location needed",
+            secondaryName: nextPrayer?.secondaryName ?? defaults?.widgetString(WidgetKeys.prayerSecondaryName, fallback: "") ?? "",
+            secondaryTime: nextPrayer?.secondaryTime ?? defaults?.widgetString(WidgetKeys.prayerSecondaryTime, fallback: "") ?? "",
             nextRefresh: nextRefresh
         )
     }
@@ -308,8 +429,10 @@ struct PrayerProvider: TimelineProvider {
         rawSchedule
             .split(separator: ";")
             .compactMap { rawEntry in
-                let parts = rawEntry.split(separator: "|", maxSplits: 3).map(String.init)
-                guard parts.count == 4, let epochMillis = Double(parts[0]) else {
+                let parts = rawEntry
+                    .split(separator: "|", maxSplits: 5, omittingEmptySubsequences: false)
+                    .map(String.init)
+                guard (parts.count == 4 || parts.count == 6), let epochMillis = Double(parts[0]) else {
                     return nil
                 }
 
@@ -317,7 +440,9 @@ struct PrayerProvider: TimelineProvider {
                     date: Date(timeIntervalSince1970: epochMillis / 1000.0),
                     name: parts[1],
                     time: parts[2],
-                    dateLabel: parts[3]
+                    dateLabel: parts[3],
+                    secondaryName: parts.count == 6 ? parts[4] : "",
+                    secondaryTime: parts.count == 6 ? parts[5] : ""
                 )
             }
             .sorted { $0.date < $1.date }
@@ -391,10 +516,64 @@ struct WidgetListView: View {
     }
 }
 
+struct DailyPrayerTimesView: View {
+    let entry: WidgetListEntry
+
+    var body: some View {
+        let visibleItems = Array(entry.items.prefix(5))
+        let hasPrayerTimes = visibleItems.contains { !$0.time.isEmpty }
+
+        VStack(alignment: .leading, spacing: 6) {
+            Text(entry.title)
+                .font(.headline)
+                .foregroundColor(.primaryText)
+                .lineLimit(1)
+            Spacer(minLength: 0)
+            if hasPrayerTimes {
+                HStack(alignment: .center, spacing: 8) {
+                    ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
+                        VStack(spacing: 4) {
+                            Text(item.title)
+                                .font(.caption2.weight(.semibold))
+                                .foregroundColor(.secondaryText)
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity)
+                            Text(item.time)
+                                .font(.caption.weight(.bold))
+                                .foregroundColor(.bodyText)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                                .frame(maxWidth: .infinity)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+            } else if let item = visibleItems.first {
+                Spacer(minLength: 0)
+                Text(item.title)
+                    .font(.caption)
+                    .foregroundColor(.bodyText)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                Spacer(minLength: 0)
+            }
+            Spacer(minLength: 0)
+            Text(entry.location)
+                .font(.caption2)
+                .foregroundColor(.secondaryText)
+                .lineLimit(1)
+        }
+        .widgetCard()
+    }
+}
+
 struct PrayerWidgetView: View {
     let entry: PrayerWidgetEntry
 
     var body: some View {
+        let footer = !entry.secondaryName.isEmpty && !entry.secondaryTime.isEmpty
+            ? "\(entry.secondaryName): \(entry.secondaryTime)"
+            : entry.location
+
         VStack(alignment: .leading, spacing: 4) {
             Text(entry.title)
                 .font(.caption.weight(.semibold))
@@ -416,7 +595,7 @@ struct PrayerWidgetView: View {
                     .lineLimit(1)
             }
             Spacer(minLength: 2)
-            Text(entry.location)
+            Text(footer)
                 .font(.caption2)
                 .foregroundColor(.secondaryText)
                 .lineLimit(1)
@@ -492,6 +671,19 @@ struct TodaysRecitationWidget: Widget {
     }
 }
 
+struct DailyPrayerTimesWidget: Widget {
+    let kind = "DailyPrayerTimesWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: DailyPrayerTimesProvider()) { entry in
+            DailyPrayerTimesView(entry: entry)
+        }
+        .configurationDisplayName("Prayer Times")
+        .description("All five daily prayer times for your saved location.")
+        .supportedFamilies([.systemMedium])
+    }
+}
+
 struct UpcomingPrayerWidget: Widget {
     let kind = "UpcomingPrayerWidget"
 
@@ -510,6 +702,7 @@ struct ShiaCompanionWidgets: WidgetBundle {
     var body: some Widget {
         FavoritesWidget()
         TodaysRecitationWidget()
+        DailyPrayerTimesWidget()
         UpcomingPrayerWidget()
     }
 }
