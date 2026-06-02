@@ -33,14 +33,14 @@ class MainActivity: FlutterActivity() {
     private var pendingWidgetUrl: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        pendingWidgetUrl = intent?.getStringExtra(widgetUrlExtra)
+        pendingWidgetUrl = consumeWidgetUrl(intent)
         super.onCreate(savedInstanceState)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        val widgetUrl = intent.getStringExtra(widgetUrlExtra)
+        val widgetUrl = consumeWidgetUrl(intent)
         if (widgetUrl.isNullOrBlank()) return
 
         val channel = homeWidgetsMethodChannel
@@ -154,6 +154,14 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+    }
+
+    private fun consumeWidgetUrl(intent: Intent?): String? {
+        val widgetUrl = intent
+            ?.getStringExtra(widgetUrlExtra)
+            ?.takeIf { it.isNotBlank() }
+        intent?.removeExtra(widgetUrlExtra)
+        return widgetUrl
     }
 
     private fun registerNotificationSound(path: String): Uri? {

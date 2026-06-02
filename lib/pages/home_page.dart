@@ -164,7 +164,8 @@ class _MyHomePageState extends State<MyHomePage>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      pushPageRoute(context, ZikrPage(resolvedItem));
+      pushRootPageRoute(ZikrPage(resolvedItem)) ??
+          pushPageRoute(context, ZikrPage(resolvedItem));
     });
   }
 

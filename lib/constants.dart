@@ -272,6 +272,7 @@ Map items = {};
 Map<String, double> itemOrder = {};
 Map<String, dynamic> itemMetadata = {};
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 double getItemOrderValue(String uid) {
   final custom = itemOrder[uid];
@@ -892,10 +893,17 @@ Future<void> trackScreen(String screenName) async {
 
 // Platform-aware route push that supports back navigation
 Future<T?> pushPageRoute<T>(BuildContext context, Widget page) {
-  return Navigator.push<T>(
-    context,
-    kIsWeb
-        ? MaterialPageRoute(builder: (context) => page)
-        : CupertinoPageRoute(builder: (context) => page),
-  );
+  return Navigator.push<T>(context, _pageRouteFor(page));
+}
+
+Future<T?>? pushRootPageRoute<T>(Widget page) {
+  final navigator = appNavigatorKey.currentState;
+  if (navigator == null) return null;
+  return navigator.push<T>(_pageRouteFor(page));
+}
+
+PageRoute<T> _pageRouteFor<T>(Widget page) {
+  return kIsWeb
+      ? MaterialPageRoute<T>(builder: (context) => page)
+      : CupertinoPageRoute<T>(builder: (context) => page);
 }
