@@ -523,14 +523,14 @@ private fun Context.openUrlIntent(url: String): Intent {
 }
 
 private fun Context.openWidgetIntent(url: String?): Intent {
-    return Intent(this, MainActivity::class.java).apply {
-        action = Intent.ACTION_MAIN
-        addCategory(Intent.CATEGORY_LAUNCHER)
-        addFlags(
-            Intent.FLAG_ACTIVITY_NEW_TASK or
-            Intent.FLAG_ACTIVITY_CLEAR_TOP or
-            Intent.FLAG_ACTIVITY_SINGLE_TOP
-        )
+    val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+        ?: Intent(this, MainActivity::class.java).apply {
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+
+    return launchIntent.apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         url?.takeIf { it.isNotBlank() }?.let {
             putExtra(WIDGET_URL_EXTRA, it)
         }

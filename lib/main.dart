@@ -68,12 +68,18 @@ class MyApp extends StatelessWidget {
     final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
     final FirebaseAnalyticsObserver observer =
         FirebaseAnalyticsObserver(analytics: analytics);
+    Widget buildHomePage() => MyHomePage(
+          title: appName,
+          analytics: analytics,
+          observer: observer,
+        );
 
     return ChangeNotifierProvider(
       create: (context) => DarkModeProvider(),
       child:
           Consumer<DarkModeProvider>(builder: (context, darkModeProvider, _) {
         return MaterialApp(
+          navigatorKey: appNavigatorKey,
           title: appName,
           theme: ThemeData(
             useMaterial3: true,
@@ -97,11 +103,7 @@ class MyApp extends StatelessWidget {
           home: switch (_resolveLaunchDestination(Uri.base)) {
             _AppLaunchDestination.deleteAccount => const DeleteAccountPage(),
             _AppLaunchDestination.widgetPreview => const WidgetPreviewPage(),
-            _AppLaunchDestination.home => MyHomePage(
-                title: appName,
-                analytics: analytics,
-                observer: observer,
-              ),
+            _AppLaunchDestination.home => buildHomePage(),
           },
           onGenerateRoute: (settings) {
             if (settings.name == '/delete-account') {
@@ -117,12 +119,18 @@ class MyApp extends StatelessWidget {
               );
             }
             if (isReservedNonZikrRouteName(settings.name)) {
-              return _ignoredPlatformRoute(settings);
+              return _ignoredPlatformRoute(
+                settings,
+                fallbackBuilder: (_) => buildHomePage(),
+              );
             }
             return null;
           },
           onUnknownRoute: (settings) {
-            return _ignoredPlatformRoute(settings);
+            return _ignoredPlatformRoute(
+              settings,
+              fallbackBuilder: (_) => buildHomePage(),
+            );
           },
           navigatorObservers: [observer, routeObserver],
         );
@@ -131,18 +139,27 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Route<void> _ignoredPlatformRoute(RouteSettings settings) {
+Route<void> _ignoredPlatformRoute(
+  RouteSettings settings, {
+  required WidgetBuilder fallbackBuilder,
+}) {
   return PageRouteBuilder<void>(
     settings: settings,
     opaque: false,
     transitionDuration: Duration.zero,
     reverseTransitionDuration: Duration.zero,
-    pageBuilder: (context, _, __) => const _IgnoredPlatformRoutePage(),
+    pageBuilder: (context, _, __) => _IgnoredPlatformRoutePage(
+      fallbackBuilder: fallbackBuilder,
+    ),
   );
 }
 
 class _IgnoredPlatformRoutePage extends StatefulWidget {
-  const _IgnoredPlatformRoutePage();
+  const _IgnoredPlatformRoutePage({
+    required this.fallbackBuilder,
+  });
+
+  final WidgetBuilder fallbackBuilder;
 
   @override
   State<_IgnoredPlatformRoutePage> createState() =>
@@ -155,15 +172,20 @@ class _IgnoredPlatformRoutePageState extends State<_IgnoredPlatformRoutePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      final navigator = Navigator.of(context);
       final route = ModalRoute.of(context);
-      if (route != null) {
-        Navigator.of(context).removeRoute(route);
+      if (route != null && navigator.canPop()) {
+        navigator.removeRoute(route);
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!Navigator.of(context).canPop()) {
+      return widget.fallbackBuilder(context);
+    }
+
     return const IgnorePointer(child: SizedBox.expand());
   }
 }
