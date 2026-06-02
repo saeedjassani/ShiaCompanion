@@ -7,8 +7,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.compose.runtime.Composable
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
@@ -22,14 +25,18 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.background
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ColumnScope
 import androidx.glance.layout.Row
+import androidx.glance.layout.RowScope
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
@@ -37,6 +44,7 @@ import androidx.glance.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.color.ColorProvider
+import com.developer110.shiacompanion.R
 import com.developer110.shia_companion.MainActivity
 import java.util.Calendar
 import kotlinx.coroutines.CoroutineScope
@@ -89,6 +97,14 @@ private val bodyTextColor = ColorProvider(
 private val secondaryTextColor = ColorProvider(
     day = androidx.compose.ui.graphics.Color(0xFFE4C7B3),
     night = androidx.compose.ui.graphics.Color(0xFFBFA898)
+)
+private val accentColor = ColorProvider(
+    day = androidx.compose.ui.graphics.Color(0xFFFFC857),
+    night = androidx.compose.ui.graphics.Color(0xFFFFD879)
+)
+private val iconBackgroundColor = ColorProvider(
+    day = androidx.compose.ui.graphics.Color(0x33FFC857),
+    night = androidx.compose.ui.graphics.Color(0x29FFD879)
 )
 
 class FavoritesWidget : GlanceAppWidget() {
@@ -166,6 +182,7 @@ class PrayerWidgetRefreshReceiver : BroadcastReceiver() {
 
         CoroutineScope(Dispatchers.Main).launch {
             UpcomingPrayerWidget().updateAll(context.applicationContext)
+            DailyPrayerTimesWidget().updateAll(context.applicationContext)
             scheduleNextPrayerWidgetRefresh(context.applicationContext)
         }
     }
@@ -256,35 +273,47 @@ private fun PrayerWidgetContent() {
     val prayer = data.nextPrayer()
     val footer = prayer.secondaryText.ifBlank { prayer.location }
 
-    WidgetSurface(clickable = true) {
-        Text(
-            text = data.text(KEY_PRAYER_TITLE, "Next Prayer").replace("Upcoming", "Next"),
-            style = TextStyle(
-                color = secondaryTextColor,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            maxLines = 1
-        )
-        Text(
-            text = prayer.name,
-            style = TextStyle(
-                color = primaryTextColor,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            maxLines = 1
-        )
+    WidgetSurface(clickable = true, contentPadding = 14) {
+        Row(
+            modifier = GlanceModifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PrayerIconBadge(prayer.name, containerSizeDp = 32, iconSizeDp = 18)
+            Spacer(GlanceModifier.width(8.dp))
+            Column(modifier = GlanceModifier.defaultWeight()) {
+                Text(
+                    text = data.text(KEY_PRAYER_TITLE, "Next Prayer")
+                        .replace("Upcoming", "Next")
+                        .replace(" Prayer", ""),
+                    style = TextStyle(
+                        color = secondaryTextColor,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    maxLines = 1
+                )
+                Text(
+                    text = prayer.name,
+                    style = TextStyle(
+                        color = primaryTextColor,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    maxLines = 1
+                )
+            }
+        }
+        Spacer(GlanceModifier.height(10.dp))
         Text(
             text = prayer.time,
             style = TextStyle(
                 color = bodyTextColor,
-                fontSize = 22.sp,
+                fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 1
         )
-        if (prayer.dateLabel.isNotBlank() && !prayer.dateLabel.equals("Today", ignoreCase = true)) {
+        if (prayer.dateLabel.isNotBlank()) {
             Text(
                 text = prayer.dateLabel,
                 style = TextStyle(color = secondaryTextColor, fontSize = 12.sp),
@@ -294,7 +323,7 @@ private fun PrayerWidgetContent() {
         Spacer(GlanceModifier.defaultWeight())
         Text(
             text = footer,
-            style = TextStyle(color = secondaryTextColor, fontSize = 11.sp),
+            style = TextStyle(color = secondaryTextColor, fontSize = 10.sp),
             maxLines = 1
         )
     }
@@ -306,52 +335,101 @@ private fun DailyPrayerTimesWidgetContent() {
     val data = context.widgetData()
     val prayers = data.dailyPrayerTimes()
     val location = data.text(KEY_PRAYER_LOCATION, "Location needed")
+    val nextPrayer = data.nextPrayer()
+    val countdown = nextPrayer.countdownText()
 
-    WidgetSurface(clickable = true) {
-        Text(
-            text = data.text(KEY_DAILY_PRAYER_TITLE, "Prayer Times"),
-            style = TextStyle(
-                color = primaryTextColor,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            maxLines = 1
-        )
-        Spacer(GlanceModifier.defaultWeight())
-        Row(modifier = GlanceModifier.fillMaxWidth()) {
-            prayers.take(5).forEach { prayer ->
-                Column(modifier = GlanceModifier.defaultWeight()) {
-                    Text(
-                        text = prayer.title,
-                        modifier = GlanceModifier.fillMaxWidth(),
-                        style = TextStyle(
-                            color = secondaryTextColor,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        ),
-                        maxLines = 1
-                    )
-                    Spacer(GlanceModifier.height(4.dp))
-                    Text(
-                        text = prayer.time,
-                        modifier = GlanceModifier.fillMaxWidth(),
-                        style = TextStyle(
-                            color = bodyTextColor,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        ),
-                        maxLines = 1
-                    )
-                }
+    WidgetSurface(clickable = true, contentPadding = 10) {
+        Row(
+            modifier = GlanceModifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = location,
+                modifier = GlanceModifier.defaultWeight(),
+                style = TextStyle(
+                    color = secondaryTextColor,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1
+            )
+            if (countdown.isNotBlank()) {
+                Text(
+                    text = countdown,
+                    style = TextStyle(
+                        color = bodyTextColor,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.End
+                    ),
+                    maxLines = 1
+                )
             }
         }
         Spacer(GlanceModifier.defaultWeight())
+        Row(
+            modifier = GlanceModifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            prayers.take(5).forEach { prayer ->
+                PrayerTimeColumn(prayer)
+            }
+        }
+        Spacer(GlanceModifier.defaultWeight())
+    }
+}
+
+@Composable
+private fun RowScope.PrayerTimeColumn(prayer: DailyPrayerTimeDisplay) {
+    Column(
+        modifier = GlanceModifier.defaultWeight(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        PrayerIconBadge(prayer.title, containerSizeDp = 25, iconSizeDp = 14)
+        Spacer(GlanceModifier.height(4.dp))
         Text(
-            text = location,
-            style = TextStyle(color = secondaryTextColor, fontSize = 11.sp),
+            text = prayer.title,
+            modifier = GlanceModifier.fillMaxWidth(),
+            style = TextStyle(
+                color = secondaryTextColor,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            ),
             maxLines = 1
+        )
+        Text(
+            text = prayer.time,
+            modifier = GlanceModifier.fillMaxWidth(),
+            style = TextStyle(
+                color = bodyTextColor,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            ),
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun PrayerIconBadge(
+    prayerName: String,
+    containerSizeDp: Int,
+    iconSizeDp: Int
+) {
+    Box(
+        modifier = GlanceModifier
+            .size(containerSizeDp.dp)
+            .background(iconBackgroundColor)
+            .cornerRadius((containerSizeDp / 2).dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            provider = ImageProvider(prayerIconRes(prayerName)),
+            contentDescription = prayerName.ifBlank { "Prayer" },
+            modifier = GlanceModifier.size(iconSizeDp.dp),
+            colorFilter = ColorFilter.tint(accentColor)
         )
     }
 }
@@ -542,6 +620,7 @@ private fun android.content.SharedPreferences.text(key: String, fallback: String
 }
 
 private data class PrayerDisplay(
+    val epochMillis: Long?,
     val name: String,
     val time: String,
     val dateLabel: String,
@@ -557,10 +636,42 @@ private val PrayerDisplay.secondaryText: String
         ""
     }
 
+private fun PrayerDisplay.countdownText(nowMillis: Long = System.currentTimeMillis()): String {
+    val targetMillis = epochMillis ?: return ""
+    val remainingMillis = targetMillis - nowMillis
+    if (remainingMillis <= 0L) return "$name now"
+
+    val totalMinutes = ((remainingMillis + 59_999L) / 60_000L).coerceAtLeast(1L)
+    val days = totalMinutes / (24L * 60L)
+    val hours = (totalMinutes % (24L * 60L)) / 60L
+    val minutes = totalMinutes % 60L
+    val remaining = when {
+        days > 0L && hours > 0L -> "${days}d ${hours}h"
+        days > 0L -> "${days}d"
+        hours > 0L && minutes > 0L -> "${hours}h ${minutes}m"
+        hours > 0L -> "${hours}h"
+        else -> "${minutes}m"
+    }
+    return "$name in $remaining"
+}
+
 private data class DailyPrayerTimeDisplay(
     val title: String,
     val time: String
 )
+
+private fun prayerIconRes(prayerName: String): Int {
+    val name = prayerName.lowercase()
+    return when {
+        name.contains("fajr") -> R.drawable.ic_prayer_fajr
+        name.contains("zuhr") || name.contains("dhuhr") || name.contains("dhohr") ->
+            R.drawable.ic_prayer_zuhr
+        name.contains("asr") -> R.drawable.ic_prayer_asr
+        name.contains("maghrib") -> R.drawable.ic_prayer_maghrib
+        name.contains("isha") -> R.drawable.ic_prayer_isha
+        else -> R.drawable.ic_prayer_zuhr
+    }
+}
 
 private data class PrayerEntry(
     val epochMillis: Long,
@@ -594,6 +705,7 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
 
     if (next != null) {
         return PrayerDisplay(
+            epochMillis = next.epochMillis,
             name = next.name,
             time = next.time,
             dateLabel = next.dateLabel,
@@ -604,6 +716,7 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
     }
 
     return PrayerDisplay(
+        epochMillis = null,
         name = text(KEY_PRAYER_NAME, "Prayer Times"),
         time = text(KEY_PRAYER_TIME, "Set location"),
         dateLabel = text(KEY_PRAYER_DATE, "Open app"),

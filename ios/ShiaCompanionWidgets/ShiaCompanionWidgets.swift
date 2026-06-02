@@ -45,12 +45,23 @@ struct WidgetListEntry: TimelineEntry {
     let title: String
     let items: [WidgetListItem]
     let location: String
+    let nextPrayerName: String
+    let nextPrayerDate: Date?
 
-    init(date: Date, title: String, items: [WidgetListItem], location: String = "") {
+    init(
+        date: Date,
+        title: String,
+        items: [WidgetListItem],
+        location: String = "",
+        nextPrayerName: String = "",
+        nextPrayerDate: Date? = nil
+    ) {
         self.date = date
         self.title = title
         self.items = items
         self.location = location
+        self.nextPrayerName = nextPrayerName
+        self.nextPrayerDate = nextPrayerDate
     }
 }
 
@@ -195,7 +206,9 @@ struct DailyPrayerTimesProvider: TimelineProvider {
                 WidgetListItem(title: "Maghrib", time: "08:10 pm"),
                 WidgetListItem(title: "Isha", time: "09:05 pm")
             ],
-            location: "Karbala"
+            location: "Karbala",
+            nextPrayerName: "Zuhr",
+            nextPrayerDate: Date().addingTimeInterval(7200)
         )
     }
 
@@ -210,23 +223,25 @@ struct DailyPrayerTimesProvider: TimelineProvider {
     private func loadTimeline() -> Timeline<WidgetListEntry> {
         let defaults = UserDefaults.widgetData
         let schedule = parseListSchedule(defaults?.string(forKey: WidgetKeys.dailyPrayerSchedule) ?? "")
+        let prayerSchedule = parsePrayerSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
         let now = Date()
 
         if schedule.isEmpty {
             return Timeline(
-                entries: [loadEntry(defaults: defaults, schedule: schedule, now: now)],
+                entries: [loadEntry(defaults: defaults, schedule: schedule, prayerSchedule: prayerSchedule, now: now)],
                 policy: .after(now.addingTimeInterval(3600))
             )
         }
 
-        let transitionDates = schedule
-            .map(\.start)
+        let transitionDates = schedule.map(\.start) + prayerSchedule.map(\.date)
+        let upcomingTransitionDates = transitionDates
             .filter { $0 > now }
+            .sorted()
             .prefix(8)
-        var entries = [loadEntry(defaults: defaults, schedule: schedule, now: now)]
+        var entries = [loadEntry(defaults: defaults, schedule: schedule, prayerSchedule: prayerSchedule, now: now)]
 
-        for date in transitionDates {
-            entries.append(loadEntry(defaults: defaults, schedule: schedule, now: date))
+        for date in upcomingTransitionDates {
+            entries.append(loadEntry(defaults: defaults, schedule: schedule, prayerSchedule: prayerSchedule, now: date))
         }
 
         let policyDate = entries.last?.date.addingTimeInterval(86400) ?? now.addingTimeInterval(3600)
@@ -236,12 +251,14 @@ struct DailyPrayerTimesProvider: TimelineProvider {
     private func loadEntry() -> WidgetListEntry {
         let defaults = UserDefaults.widgetData
         let schedule = parseListSchedule(defaults?.string(forKey: WidgetKeys.dailyPrayerSchedule) ?? "")
-        return loadEntry(defaults: defaults, schedule: schedule, now: Date())
+        let prayerSchedule = parsePrayerSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
+        return loadEntry(defaults: defaults, schedule: schedule, prayerSchedule: prayerSchedule, now: Date())
     }
 
     private func loadEntry(
         defaults: UserDefaults?,
         schedule: [WidgetListScheduleEntry],
+        prayerSchedule: [PrayerScheduleEntry],
         now: Date
     ) -> WidgetListEntry {
         let scheduledItems = currentListScheduleEntry(schedule, now: now)?.items
@@ -251,12 +268,15 @@ struct DailyPrayerTimesProvider: TimelineProvider {
         } else {
             items = dailyPrayerItems(defaults: defaults)
         }
+        let nextPrayer = prayerSchedule.first { $0.date > now }
 
         return WidgetListEntry(
             date: now,
             title: defaults?.widgetString(WidgetKeys.dailyPrayerTitle, fallback: "Prayer Times") ?? "Prayer Times",
             items: items,
-            location: defaults?.widgetString(WidgetKeys.prayerLocation, fallback: "Location needed") ?? "Location needed"
+            location: defaults?.widgetString(WidgetKeys.prayerLocation, fallback: "Location needed") ?? "Location needed",
+            nextPrayerName: nextPrayer?.name ?? defaults?.widgetString(WidgetKeys.prayerName, fallback: "") ?? "",
+            nextPrayerDate: nextPrayer?.date
         )
     }
 }
@@ -381,7 +401,7 @@ struct PrayerProvider: TimelineProvider {
 
     private func loadTimeline() -> Timeline<PrayerWidgetEntry> {
         let defaults = UserDefaults.widgetData
-        let schedule = parseSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
+        let schedule = parsePrayerSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
         let now = Date()
         let transitionDates = schedule
             .filter { $0.date > now }
@@ -399,7 +419,7 @@ struct PrayerProvider: TimelineProvider {
 
     private func loadEntry() -> PrayerWidgetEntry {
         let defaults = UserDefaults.widgetData
-        let schedule = parseSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
+        let schedule = parsePrayerSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
         return loadEntry(defaults: defaults, schedule: schedule, now: Date())
     }
 
@@ -425,28 +445,29 @@ struct PrayerProvider: TimelineProvider {
         )
     }
 
-    private func parseSchedule(_ rawSchedule: String) -> [PrayerScheduleEntry] {
-        rawSchedule
-            .split(separator: ";")
-            .compactMap { rawEntry in
-                let parts = rawEntry
-                    .split(separator: "|", maxSplits: 5, omittingEmptySubsequences: false)
-                    .map(String.init)
-                guard (parts.count == 4 || parts.count == 6), let epochMillis = Double(parts[0]) else {
-                    return nil
-                }
+}
 
-                return PrayerScheduleEntry(
-                    date: Date(timeIntervalSince1970: epochMillis / 1000.0),
-                    name: parts[1],
-                    time: parts[2],
-                    dateLabel: parts[3],
-                    secondaryName: parts.count == 6 ? parts[4] : "",
-                    secondaryTime: parts.count == 6 ? parts[5] : ""
-                )
+private func parsePrayerSchedule(_ rawSchedule: String) -> [PrayerScheduleEntry] {
+    rawSchedule
+        .split(separator: ";")
+        .compactMap { rawEntry in
+            let parts = rawEntry
+                .split(separator: "|", maxSplits: 5, omittingEmptySubsequences: false)
+                .map(String.init)
+            guard (parts.count == 4 || parts.count == 6), let epochMillis = Double(parts[0]) else {
+                return nil
             }
-            .sorted { $0.date < $1.date }
-    }
+
+            return PrayerScheduleEntry(
+                date: Date(timeIntervalSince1970: epochMillis / 1000.0),
+                name: parts[1],
+                time: parts[2],
+                dateLabel: parts[3],
+                secondaryName: parts.count == 6 ? parts[4] : "",
+                secondaryTime: parts.count == 6 ? parts[5] : ""
+            )
+        }
+        .sorted { $0.date < $1.date }
 }
 
 struct WidgetListView: View {
@@ -523,26 +544,41 @@ struct DailyPrayerTimesView: View {
         let visibleItems = Array(entry.items.prefix(5))
         let hasPrayerTimes = visibleItems.contains { !$0.time.isEmpty }
 
-        VStack(alignment: .leading, spacing: 6) {
-            Text(entry.title)
-                .font(.headline)
-                .foregroundColor(.primaryText)
-                .lineLimit(1)
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .center, spacing: 6) {
+                Text(entry.location)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundColor(.secondaryText)
+                    .lineLimit(1)
+                Spacer(minLength: 4)
+                if !entry.nextPrayerName.isEmpty, let nextPrayerDate = entry.nextPrayerDate {
+                    HStack(spacing: 3) {
+                        Text(entry.nextPrayerName)
+                        Text("in")
+                        Text(nextPrayerDate, style: .timer)
+                    }
+                    .font(.caption2.weight(.bold))
+                    .foregroundColor(.bodyText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                }
+            }
             Spacer(minLength: 0)
             if hasPrayerTimes {
-                HStack(alignment: .center, spacing: 8) {
+                HStack(alignment: .center, spacing: 6) {
                     ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
                         VStack(spacing: 4) {
+                            PrayerGlyph(prayerName: item.title, badgeSize: 25, symbolSize: 13)
                             Text(item.title)
                                 .font(.caption2.weight(.semibold))
                                 .foregroundColor(.secondaryText)
                                 .lineLimit(1)
                                 .frame(maxWidth: .infinity)
                             Text(item.time)
-                                .font(.caption.weight(.bold))
+                                .font(.caption2.weight(.bold))
                                 .foregroundColor(.bodyText)
                                 .lineLimit(1)
-                                .minimumScaleFactor(0.75)
+                                .minimumScaleFactor(0.72)
                                 .frame(maxWidth: .infinity)
                         }
                         .frame(maxWidth: .infinity)
@@ -557,10 +593,6 @@ struct DailyPrayerTimesView: View {
                 Spacer(minLength: 0)
             }
             Spacer(minLength: 0)
-            Text(entry.location)
-                .font(.caption2)
-                .foregroundColor(.secondaryText)
-                .lineLimit(1)
         }
         .widgetCard()
     }
@@ -574,21 +606,26 @@ struct PrayerWidgetView: View {
             ? "\(entry.secondaryName): \(entry.secondaryTime)"
             : entry.location
 
-        VStack(alignment: .leading, spacing: 4) {
-            Text(entry.title)
-                .font(.caption.weight(.semibold))
-                .foregroundColor(.secondaryText)
-                .lineLimit(1)
-            Text(entry.name)
-                .font(.headline)
-                .foregroundColor(.primaryText)
-                .lineLimit(1)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .center, spacing: 8) {
+                PrayerGlyph(prayerName: entry.name, badgeSize: 34, symbolSize: 18)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(compactNextTitle(entry.title))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(.secondaryText)
+                        .lineLimit(1)
+                    Text(entry.name)
+                        .font(.headline)
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                }
+            }
             Text(entry.time)
-                .font(.title2.weight(.bold))
+                .font(.title.weight(.bold))
                 .foregroundColor(.bodyText)
                 .minimumScaleFactor(0.75)
                 .lineLimit(1)
-            if !entry.dateLabel.isEmpty && entry.dateLabel.lowercased() != "today" {
+            if !entry.dateLabel.isEmpty {
                 Text(entry.dateLabel)
                     .font(.caption)
                     .foregroundColor(.secondaryText)
@@ -602,6 +639,49 @@ struct PrayerWidgetView: View {
         }
         .widgetCard()
     }
+}
+
+struct PrayerGlyph: View {
+    let prayerName: String
+    let badgeSize: CGFloat
+    let symbolSize: CGFloat
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.iconBackground)
+            Image(systemName: prayerSymbolName(for: prayerName))
+                .font(.system(size: symbolSize, weight: .semibold))
+                .foregroundColor(.accentText)
+        }
+        .frame(width: badgeSize, height: badgeSize)
+    }
+}
+
+private func compactNextTitle(_ title: String) -> String {
+    return title
+        .replacingOccurrences(of: "Upcoming", with: "Next")
+        .replacingOccurrences(of: " Prayer", with: "")
+}
+
+private func prayerSymbolName(for prayerName: String) -> String {
+    let name = prayerName.lowercased()
+    if name.contains("fajr") {
+        return "sunrise"
+    }
+    if name.contains("zuhr") || name.contains("dhuhr") || name.contains("dhohr") {
+        return "sun.max"
+    }
+    if name.contains("asr") {
+        return "sun.min"
+    }
+    if name.contains("maghrib") {
+        return "sunset"
+    }
+    if name.contains("isha") {
+        return "moon.stars"
+    }
+    return "sun.max"
 }
 
 private extension View {
@@ -642,6 +722,16 @@ private extension Color {
         traits.userInterfaceStyle == .dark
             ? UIColor(red: 0.75, green: 0.66, blue: 0.60, alpha: 1.0)
             : UIColor(red: 0.89, green: 0.78, blue: 0.70, alpha: 1.0)
+    })
+    static let iconBackground = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 1.0, green: 0.85, blue: 0.47, alpha: 0.16)
+            : UIColor(red: 1.0, green: 0.78, blue: 0.34, alpha: 0.20)
+    })
+    static let accentText = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 1.0, green: 0.85, blue: 0.47, alpha: 1.0)
+            : UIColor(red: 1.0, green: 0.78, blue: 0.34, alpha: 1.0)
     })
 }
 

@@ -787,7 +787,7 @@
     "slug": "dua-of-imam-mahdi-a-t-f-s"
   },
   "E13": {
-    "title": "Dua Sayfi al Sagir (Dua Qamoos)",
+    "title": "Dua-e-Sayfee Sagheer (Dua Qaamoos)",
     "slug": "dua-sayfi-al-sagir-dua-qamoos"
   },
   "E14": {
@@ -1148,7 +1148,7 @@
     "slug": "ziyarat-e-hazrat-abbas-a-s"
   },
   "G70": {
-    "title": "Ziyarate Imam Ali Naqi (a.s.)",
+    "title": "Ziyaarat of Imam Ali Naqi (a.s.)",
     "slug": "ziyarate-imam-ali-naqi-a-s",
     "day": "12-15"
   },
@@ -1336,9 +1336,17 @@
     "title": "Other Etiquettes of Namaz",
     "slug": "other-etiquettes-of-namaz"
   },
+  "I76": {
+    "title": "Hirz-e-Imam Jafar al-Sadiq (a.s.)",
+    "slug": "hirz-e-imam-jafar-al-sadiq-a-s"
+  },
   "I8": {
     "title": "Etiquettes of Taaqeebaat",
     "slug": "etiquettes-of-taaqeebaat"
+  },
+  "I82": {
+    "title": "Hirz-e-Imam Hasan al-Askari (a.s.)",
+    "slug": "hirz-e-imam-hasan-al-askari-a-s"
   },
   "I9": {
     "title": "General Ta'qeebaat-1",
