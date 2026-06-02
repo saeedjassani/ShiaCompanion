@@ -144,11 +144,9 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                   _DailyPrayerTimesWidgetPreview(
                     width: 340,
                     height: 180,
-                    title: data[
-                            HomeScreenWidgetService.dailyPrayerTimesTitleKey] ??
-                        'Prayer Times',
                     location:
                         data[HomeScreenWidgetService.prayerLocationKey] ?? '',
+                    nextPrayer: _nextPrayerFromSnapshot(data),
                     items: [
                       for (var index = 0;
                           index <
@@ -188,6 +186,56 @@ List<_PreviewItem> _itemsFromSnapshot(
     for (var index = 0; index < titleKeys.length; index++)
       _PreviewItem(data[titleKeys[index]] ?? '', data[urlKeys[index]] ?? ''),
   ];
+}
+
+_PreviewNextPrayer? _nextPrayerFromSnapshot(Map<String, String> data) {
+  final schedule = data[HomeScreenWidgetService.prayerScheduleKey] ?? '';
+  final now = DateTime.now();
+  final nextEntry = schedule
+      .split(';')
+      .map((rawEntry) => rawEntry.split('|'))
+      .where((parts) => parts.length == 4 || parts.length == 6)
+      .map((parts) {
+        final epochMillis = int.tryParse(parts.first);
+        if (epochMillis == null) return null;
+        final dateTime = DateTime.fromMillisecondsSinceEpoch(epochMillis);
+        if (!dateTime.isAfter(now)) return null;
+        return _ScheduledPreviewPrayer(parts[1], dateTime);
+      })
+      .whereType<_ScheduledPreviewPrayer>()
+      .fold<_ScheduledPreviewPrayer?>(null, (current, candidate) {
+        if (current == null || candidate.dateTime.isBefore(current.dateTime)) {
+          return candidate;
+        }
+        return current;
+      });
+
+  if (nextEntry == null) return null;
+  return _PreviewNextPrayer(
+    nextEntry.name,
+    _countdownLabel(nextEntry.dateTime.difference(now)),
+  );
+}
+
+String _countdownLabel(Duration duration) {
+  final totalMinutes =
+      duration.inMinutes + (duration.inSeconds % 60 == 0 ? 0 : 1);
+  final days = totalMinutes ~/ (24 * 60);
+  final hours = (totalMinutes % (24 * 60)) ~/ 60;
+  final minutes = totalMinutes % 60;
+
+  if (days > 0 && hours > 0) return 'in ${days}d ${hours}h';
+  if (days > 0) return 'in ${days}d';
+  if (hours > 0 && minutes > 0) return 'in ${hours}h ${minutes}m';
+  if (hours > 0) return 'in ${hours}h';
+  return 'in ${minutes.clamp(1, 59)}m';
+}
+
+class _ScheduledPreviewPrayer {
+  const _ScheduledPreviewPrayer(this.name, this.dateTime);
+
+  final String name;
+  final DateTime dateTime;
 }
 
 class _PreviewItem {
@@ -313,22 +361,47 @@ class _PrayerWidgetPreview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)
-                  .copyWith(color: palette.secondaryText)),
-          Text(name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _PrayerIconBadge(name: name, size: 34, iconSize: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _compactNextTitle(title),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: palette.secondaryText,
+                      ),
+                    ),
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
           Text(time,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style:
-                  const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
-          if (dateLabel.isNotEmpty && dateLabel.toLowerCase() != 'today')
+                  const TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+          if (dateLabel.isNotEmpty)
             Text(dateLabel,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -355,15 +428,15 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
   const _DailyPrayerTimesWidgetPreview({
     required this.width,
     required this.height,
-    required this.title,
     required this.location,
+    required this.nextPrayer,
     required this.items,
   });
 
   final double width;
   final double height;
-  final String title;
   final String location;
+  final _PreviewNextPrayer? nextPrayer;
   final List<_PreviewPrayerTime> items;
 
   @override
@@ -380,11 +453,34 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)
-                  .copyWith(color: palette.primaryText)),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  location,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: palette.secondaryText,
+                  ),
+                ),
+              ),
+              if (nextPrayer != null)
+                Text(
+                  '${nextPrayer!.name} ${nextPrayer!.countdown}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: palette.bodyText,
+                  ),
+                ),
+            ],
+          ),
           const Spacer(),
           Row(
             children: [
@@ -393,21 +489,26 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      _PrayerIconBadge(
+                        name: item.name,
+                        size: 25,
+                        iconSize: 13,
+                      ),
+                      const SizedBox(height: 4),
                       Text(item.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: palette.secondaryText)),
-                      const SizedBox(height: 4),
                       Text(item.time,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: palette.bodyText)),
                     ],
@@ -416,14 +517,65 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          Text(location,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, color: palette.secondaryText)),
         ],
       ),
     );
   }
+}
+
+class _PreviewNextPrayer {
+  const _PreviewNextPrayer(this.name, this.countdown);
+
+  final String name;
+  final String countdown;
+}
+
+class _PrayerIconBadge extends StatelessWidget {
+  const _PrayerIconBadge({
+    required this.name,
+    required this.size,
+    required this.iconSize,
+  });
+
+  final String name;
+  final double size;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = _WidgetPalette.of(context);
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: palette.iconBackground,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        _prayerIconFor(name),
+        size: iconSize,
+        color: palette.accentText,
+      ),
+    );
+  }
+}
+
+String _compactNextTitle(String title) {
+  return title.replaceAll('Upcoming', 'Next').replaceAll(' Prayer', '');
+}
+
+IconData _prayerIconFor(String prayerName) {
+  final name = prayerName.toLowerCase();
+  if (name.contains('fajr')) return Icons.wb_twilight;
+  if (name.contains('zuhr') ||
+      name.contains('dhuhr') ||
+      name.contains('dhohr')) {
+    return Icons.wb_sunny;
+  }
+  if (name.contains('asr')) return Icons.brightness_5;
+  if (name.contains('maghrib')) return Icons.wb_twilight;
+  if (name.contains('isha')) return Icons.nights_stay;
+  return Icons.mosque;
 }
 
 class _WidgetShell extends StatelessWidget {
@@ -464,6 +616,8 @@ class _WidgetPalette {
     required this.primaryText,
     required this.bodyText,
     required this.secondaryText,
+    required this.iconBackground,
+    required this.accentText,
   });
 
   final Color background;
@@ -471,6 +625,8 @@ class _WidgetPalette {
   final Color primaryText;
   final Color bodyText;
   final Color secondaryText;
+  final Color iconBackground;
+  final Color accentText;
 
   static _WidgetPalette of(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
@@ -481,6 +637,8 @@ class _WidgetPalette {
         primaryText: Color(0xFFFFF3E7),
         bodyText: Color(0xFFE9D5C4),
         secondaryText: Color(0xFFBFA898),
+        iconBackground: Color(0x29FFD879),
+        accentText: Color(0xFFFFD879),
       );
     }
 
@@ -490,6 +648,8 @@ class _WidgetPalette {
       primaryText: Color(0xFFFFF8F1),
       bodyText: Color(0xFFF7E4D3),
       secondaryText: Color(0xFFE4C7B3),
+      iconBackground: Color(0x33FFC857),
+      accentText: Color(0xFFFFC857),
     );
   }
 }
