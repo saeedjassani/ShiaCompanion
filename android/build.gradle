@@ -14,6 +14,13 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
+subprojects { project ->
+    project.tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
 // Ensure all Android library modules compile with the same (or higher) compileSdk as the app
 subprojects { project ->
     if (project.plugins.hasPlugin('com.android.library') || project.plugins.hasPlugin('com.android.application')) {
