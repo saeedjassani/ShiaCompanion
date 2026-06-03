@@ -278,32 +278,32 @@ private fun PrayerWidgetContent() {
             modifier = GlanceModifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            PrayerIconBadge(prayer.name, containerSizeDp = 32, iconSizeDp = 18)
-            Spacer(GlanceModifier.width(8.dp))
-            Column(modifier = GlanceModifier.defaultWeight()) {
-                Text(
-                    text = data.text(KEY_PRAYER_TITLE, "Next Prayer")
-                        .replace("Upcoming", "Next")
-                        .replace(" Prayer", ""),
-                    style = TextStyle(
-                        color = secondaryTextColor,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    maxLines = 1
-                )
-                Text(
-                    text = prayer.name,
-                    style = TextStyle(
-                        color = primaryTextColor,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    maxLines = 1
-                )
-            }
+            Text(
+                text = data.text(KEY_PRAYER_TITLE, "Next Prayer")
+                    .replace("Upcoming", "Next")
+                    .replace(" Prayer", ""),
+                modifier = GlanceModifier.defaultWeight(),
+                style = TextStyle(
+                    color = secondaryTextColor,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1
+            )
+            PrayerIconBadge(prayer.name, containerSizeDp = 24, iconSizeDp = 13)
         }
-        Spacer(GlanceModifier.height(10.dp))
+        Spacer(GlanceModifier.height(2.dp))
+        Text(
+            text = prayer.name,
+            modifier = GlanceModifier.fillMaxWidth(),
+            style = TextStyle(
+                color = primaryTextColor,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            maxLines = 1
+        )
+        Spacer(GlanceModifier.height(8.dp))
         Text(
             text = prayer.time,
             style = TextStyle(
@@ -337,25 +337,40 @@ private fun DailyPrayerTimesWidgetContent() {
     val location = data.text(KEY_PRAYER_LOCATION, "Location needed")
     val nextPrayer = data.nextPrayer()
     val countdown = nextPrayer.countdownText()
+    val visiblePrayers = prayers.take(5)
 
     WidgetSurface(clickable = true, contentPadding = 10) {
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = location,
+            Row(
                 modifier = GlanceModifier.defaultWeight(),
-                style = TextStyle(
-                    color = secondaryTextColor,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                maxLines = 1
-            )
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    provider = ImageProvider(R.drawable.ic_widget_location),
+                    contentDescription = "Location",
+                    modifier = GlanceModifier.size(11.dp),
+                    colorFilter = ColorFilter.tint(secondaryTextColor)
+                )
+                Spacer(GlanceModifier.width(3.dp))
+                Text(
+                    text = location,
+                    modifier = GlanceModifier.defaultWeight(),
+                    style = TextStyle(
+                        color = secondaryTextColor,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    maxLines = 1
+                )
+            }
             if (countdown.isNotBlank()) {
+                Spacer(GlanceModifier.width(6.dp))
                 Text(
                     text = countdown,
+                    modifier = GlanceModifier.defaultWeight(),
                     style = TextStyle(
                         color = bodyTextColor,
                         fontSize = 11.sp,
@@ -371,8 +386,11 @@ private fun DailyPrayerTimesWidgetContent() {
             modifier = GlanceModifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            prayers.take(5).forEach { prayer ->
+            visiblePrayers.forEachIndexed { index, prayer ->
                 PrayerTimeColumn(prayer)
+                if (index != visiblePrayers.lastIndex) {
+                    Spacer(GlanceModifier.width(4.dp))
+                }
             }
         }
         Spacer(GlanceModifier.defaultWeight())
