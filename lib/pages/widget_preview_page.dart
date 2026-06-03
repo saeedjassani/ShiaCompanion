@@ -364,36 +364,30 @@ class _PrayerWidgetPreview extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _PrayerIconBadge(name: name, size: 34, iconSize: 18),
-              const SizedBox(width: 8),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _compactNextTitle(title),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: palette.secondaryText,
-                      ),
-                    ),
-                    Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  _compactNextTitle(title),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: palette.secondaryText,
+                  ),
                 ),
               ),
+              _PrayerIconBadge(name: name, size: 24, iconSize: 13),
             ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 8),
           Text(time,
@@ -456,27 +450,42 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  location,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: palette.secondaryText,
-                  ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: 11,
+                      color: palette.secondaryText,
+                    ),
+                    const SizedBox(width: 3),
+                    Expanded(
+                      child: Text(
+                        location,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: palette.secondaryText,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              if (nextPrayer != null) const SizedBox(width: 6),
               if (nextPrayer != null)
-                Text(
-                  '${nextPrayer!.name} ${nextPrayer!.countdown}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: palette.bodyText,
+                Expanded(
+                  child: Text(
+                    '${nextPrayer!.name} ${nextPrayer!.countdown}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: palette.bodyText,
+                    ),
                   ),
                 ),
             ],
@@ -484,18 +493,18 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
           const Spacer(),
           Row(
             children: [
-              for (final item in visibleItems)
+              for (var i = 0; i < visibleItems.length; i++) ...[
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _PrayerIconBadge(
-                        name: item.name,
+                        name: visibleItems[i].name,
                         size: 25,
                         iconSize: 13,
                       ),
                       const SizedBox(height: 4),
-                      Text(item.name,
+                      Text(visibleItems[i].name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
@@ -503,7 +512,7 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: palette.secondaryText)),
-                      Text(item.time,
+                      Text(visibleItems[i].time,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
@@ -514,6 +523,8 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (i != visibleItems.length - 1) const SizedBox(width: 6),
+              ],
             ],
           ),
           const Spacer(),

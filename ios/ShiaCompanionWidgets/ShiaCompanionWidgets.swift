@@ -546,11 +546,15 @@ struct DailyPrayerTimesView: View {
 
         VStack(alignment: .leading, spacing: 5) {
             HStack(alignment: .center, spacing: 6) {
-                Text(entry.location)
-                    .font(.caption2.weight(.semibold))
+                HStack(spacing: 3) {
+                    Image(systemName: "location.fill")
+                        .font(.system(size: 9, weight: .bold))
+                    Text(entry.location)
+                        .font(.caption2.weight(.semibold))
+                }
                     .foregroundColor(.secondaryText)
                     .lineLimit(1)
-                Spacer(minLength: 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 if !entry.nextPrayerName.isEmpty, let nextPrayerDate = entry.nextPrayerDate {
                     HStack(spacing: 3) {
                         Text(entry.nextPrayerName)
@@ -561,11 +565,12 @@ struct DailyPrayerTimesView: View {
                     .foregroundColor(.bodyText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
             }
             Spacer(minLength: 0)
             if hasPrayerTimes {
-                HStack(alignment: .center, spacing: 6) {
+                HStack(alignment: .center, spacing: 8) {
                     ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
                         VStack(spacing: 4) {
                             PrayerGlyph(prayerName: item.title, badgeSize: 25, symbolSize: 13)
@@ -607,19 +612,20 @@ struct PrayerWidgetView: View {
             : entry.location
 
         VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .center, spacing: 8) {
-                PrayerGlyph(prayerName: entry.name, badgeSize: 34, symbolSize: 18)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(compactNextTitle(entry.title))
-                        .font(.caption2.weight(.semibold))
-                        .foregroundColor(.secondaryText)
-                        .lineLimit(1)
-                    Text(entry.name)
-                        .font(.headline)
-                        .foregroundColor(.primaryText)
-                        .lineLimit(1)
-                }
+            HStack(alignment: .center, spacing: 6) {
+                Text(compactNextTitle(entry.title))
+                    .font(.caption2.weight(.semibold))
+                    .foregroundColor(.secondaryText)
+                    .lineLimit(1)
+                Spacer(minLength: 4)
+                PrayerGlyph(prayerName: entry.name, badgeSize: 24, symbolSize: 13)
             }
+            Text(entry.name)
+                .font(.headline.weight(.bold))
+                .foregroundColor(.primaryText)
+                .minimumScaleFactor(0.82)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
             Text(entry.time)
                 .font(.title.weight(.bold))
                 .foregroundColor(.bodyText)
