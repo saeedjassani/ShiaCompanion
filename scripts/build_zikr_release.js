@@ -10,6 +10,7 @@ const ZIKR_COLLECTION = 'zikr';
 const INDEX_OUTPUT_PATH = path.join(__dirname, '..', 'assets', 'zikr.json');
 const CONTENT_OUTPUT_DIR = path.join(__dirname, '..', 'assets', 'zikr');
 const DRY_RUN = process.argv.includes('--dry-run');
+const ALLOW_STALE_ON_ERROR = process.argv.includes('--allow-stale-on-error');
 
 function getServiceAccountPath() {
   const envPath = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
@@ -444,6 +445,13 @@ async function main() {
 }
 
 main().catch((error) => {
+  if (ALLOW_STALE_ON_ERROR) {
+    console.warn('Unable to refresh zikr release assets from Firestore.');
+    console.warn('Continuing with committed assets so the web build and deploy can proceed.');
+    console.warn(error?.stack || error);
+    process.exit(0);
+  }
+
   console.error(error);
   process.exit(1);
 });
