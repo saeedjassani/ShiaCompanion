@@ -25,6 +25,44 @@ function getServiceAccountPath() {
   return candidates.find((candidate) => fs.existsSync(candidate));
 }
 
+function getServiceAccountFromEnv() {
+  const rawJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (rawJson) {
+    try {
+      return JSON.parse(rawJson);
+    } catch (error) {
+      throw new Error(`FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON: ${error.message}`);
+    }
+  }
+
+  const base64Json = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+  if (base64Json) {
+    try {
+      return JSON.parse(Buffer.from(base64Json, 'base64').toString('utf8'));
+    } catch (error) {
+      throw new Error(`FIREBASE_SERVICE_ACCOUNT_BASE64 is not valid JSON: ${error.message}`);
+    }
+  }
+
+  return null;
+}
+
+function getServiceAccount() {
+  const envServiceAccount = getServiceAccountFromEnv();
+  if (envServiceAccount) {
+    return envServiceAccount;
+  }
+
+  const serviceAccountPath = getServiceAccountPath();
+  if (!serviceAccountPath) {
+    throw new Error(
+      'Could not find service account credentials. Set FIREBASE_SERVICE_ACCOUNT_JSON, FIREBASE_SERVICE_ACCOUNT_BASE64, FIREBASE_SERVICE_ACCOUNT_KEY, or place serviceAccountKey.json in scripts/ or repo root.',
+    );
+  }
+
+  return require(path.resolve(serviceAccountPath));
+}
+
 function normalizeSlug(value) {
   return `${value ?? ''}`
     .toLowerCase()
@@ -316,14 +354,7 @@ function removeStaleFiles(contentIds) {
 }
 
 async function main() {
-  const serviceAccountPath = getServiceAccountPath();
-  if (!serviceAccountPath) {
-    throw new Error(
-      'Could not find serviceAccountKey.json. Set FIREBASE_SERVICE_ACCOUNT_KEY or place the file in scripts/ or repo root.',
-    );
-  }
-
-  const serviceAccount = require(path.resolve(serviceAccountPath));
+  const serviceAccount = getServiceAccount();
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
