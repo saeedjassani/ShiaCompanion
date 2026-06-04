@@ -16,7 +16,17 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install
+      - name: Refresh zikr release assets
+        run: node scripts/build_zikr_release.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
       - run: flutter build web
+      - name: Generate zikr SEO pages
+        run: node scripts/generate_zikr_seo_pages.js
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
