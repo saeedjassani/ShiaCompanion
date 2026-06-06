@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../constants.dart';
 import '../utils/shared_preferences.dart';
+import '../utils/zikr_wakelock.dart';
 import '../widgets/zikr_settings.dart';
 
 class ItemPage extends StatefulWidget {
@@ -30,6 +30,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
       TextEditingController();
 
   void refreshState() {
+    syncZikrWakelockPreference(owner: this, isActive: true);
     setState(() {});
   }
 
@@ -47,7 +48,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     trackScreen('Item Page');
-    if (SP.prefs.getBool('keep_awake') ?? true) WakelockPlus.enable();
+    syncZikrWakelockPreference(owner: this, isActive: true);
     initializeData();
   }
 
@@ -284,7 +285,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
     _contentEditController.dispose();
     _englishEditController.dispose();
     _transliterationEditController.dispose();
-    WakelockPlus.disable();
+    syncZikrWakelockPreference(owner: this, isActive: false);
     super.dispose();
   }
 

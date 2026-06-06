@@ -11,6 +11,7 @@ import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/external_launch.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
+import 'package:shia_companion/utils/zikr_wakelock.dart';
 import '../../constants.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
@@ -92,6 +93,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterOffset.dispose();
     _showCounter.dispose();
     _counterCount.dispose();
+    syncZikrWakelockPreference(owner: this, isActive: false);
     super.dispose();
   }
 
@@ -789,6 +791,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void didPush() {
     _isCurrentRoute = true;
+    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
     _previousBrowserUri ??= Uri.base;
     _scheduleCurrentWebRouteSync();
   }
@@ -796,17 +799,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void didPopNext() {
     _isCurrentRoute = true;
+    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
     _scheduleCurrentWebRouteSync(replace: true);
   }
 
   @override
   void didPushNext() {
     _isCurrentRoute = false;
+    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
   }
 
   @override
   void didPop() {
     _isCurrentRoute = false;
+    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
     final previousBrowserUri = _previousBrowserUri;
     if (previousBrowserUri != null) {
       syncWebRouteUri(previousBrowserUri, replace: true);
@@ -984,6 +990,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   void refreshState() {
+    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
     setState(() {});
   }
 }
