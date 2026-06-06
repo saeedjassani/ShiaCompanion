@@ -75,6 +75,13 @@ bool shouldUseLiveLocation() {
   return SP.prefs.getBool('use_live_location') ?? false;
 }
 
+bool shouldShowPrecisePrayerAlarmSetting({
+  required TargetPlatform platform,
+  bool isWeb = kIsWeb,
+}) {
+  return !isWeb && platform == TargetPlatform.android;
+}
+
 String defaultAzaanPreferenceId() {
   if (!kIsWeb && Platform.isIOS) return AzaanOptions.takbir.id;
   return AzaanOptions.azaan.id;
@@ -827,7 +834,26 @@ Future<bool> requestExactPrayerAlarmPermissionIfNeeded() async {
   }
 
   canScheduleExactPrayerNotifications =
+      await androidImplementation.canScheduleExactNotifications() ?? false;
+  if (canScheduleExactPrayerNotifications) {
+    return true;
+  }
+
+  canScheduleExactPrayerNotifications =
       await androidImplementation.requestExactAlarmsPermission() ?? false;
+  return canScheduleExactPrayerNotifications;
+}
+
+Future<bool> refreshExactPrayerAlarmPermissionStatus() async {
+  final androidImplementation =
+      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+  if (androidImplementation == null) {
+    return canScheduleExactPrayerNotifications;
+  }
+
+  canScheduleExactPrayerNotifications =
+      await androidImplementation.canScheduleExactNotifications() ?? false;
   return canScheduleExactPrayerNotifications;
 }
 

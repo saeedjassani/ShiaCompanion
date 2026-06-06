@@ -100,9 +100,6 @@ class PrayerTimesState extends State<PrayerTimesCard> {
   Future<void> inversePref(String s) async {
     final value = SP.prefs.getBool(s) ?? false;
     final nextValue = !value;
-    if (nextValue) {
-      await requestExactPrayerAlarmPermissionIfNeeded();
-    }
     await SP.prefs.setBool(s, nextValue);
     setState(() {});
   }

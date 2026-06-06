@@ -44,7 +44,13 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     trackScreen('Settings Page');
+    if (_showPrecisePrayerAlarmSetting) {
+      unawaited(_refreshExactAlarmPermissionStatus());
+    }
   }
+
+  bool get _showPrecisePrayerAlarmSetting =>
+      shouldShowPrecisePrayerAlarmSetting(platform: defaultTargetPlatform);
 
   @override
   Widget build(BuildContext context) {
@@ -143,6 +149,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     _testNotification();
                   },
                 ),
+                if (_showPrecisePrayerAlarmSetting)
+                  ListTile(
+                    leading: const Icon(Icons.alarm_on),
+                    title: const Text("Precise Prayer Alarms"),
+                    subtitle: Text(_precisePrayerAlarmSubtitle()),
+                    onTap: _requestPrecisePrayerAlarms,
+                  ),
                 if (isUserAdmin)
                   ListTile(
                     leading: const Icon(Icons.notifications_active),
@@ -664,6 +677,77 @@ class _SettingsPageState extends State<SettingsPage> {
     );
 
     await testNotification(flutterLocalNotificationsPlugin!);
+  }
+
+  String _precisePrayerAlarmSubtitle() {
+    return canScheduleExactPrayerNotifications
+        ? 'Enabled for exact Azan timing.'
+        : 'Off. Android may deliver prayer notifications a bit late.';
+  }
+
+  Future<void> _refreshExactAlarmPermissionStatus() async {
+    await refreshExactPrayerAlarmPermissionStatus();
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  Future<void> _requestPrecisePrayerAlarms() async {
+    if (flutterLocalNotificationsPlugin == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Notification system not initialized')),
+      );
+      return;
+    }
+
+    final alreadyEnabled = await refreshExactPrayerAlarmPermissionStatus();
+    if (!mounted) return;
+    if (alreadyEnabled) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Precise prayer alarms are already enabled.')),
+      );
+      return;
+    }
+
+    final shouldOpenSettings = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Enable Precise Prayer Alarms?'),
+            content: const Text(
+              'Android requires Alarms & reminders access for Azan notifications to fire exactly at prayer time. Without it, reminders still work but may arrive a bit late.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    if (!shouldOpenSettings) return;
+
+    final granted = await requestExactPrayerAlarmPermissionIfNeeded();
+    await refreshExactPrayerAlarmPermissionStatus();
+    if (canScheduleExactPrayerNotifications) {
+      await setUpNotifications();
+    }
+
+    if (!mounted) return;
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          granted || canScheduleExactPrayerNotifications
+              ? 'Precise prayer alarms enabled.'
+              : 'Precise prayer alarms were not enabled. Approximate timing will still be used.',
+        ),
+      ),
+    );
   }
 
   saveBooleanPref(String key, bool value) async {
