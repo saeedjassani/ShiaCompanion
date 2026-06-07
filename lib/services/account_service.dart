@@ -20,6 +20,7 @@ class AccountService {
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static Future<void>? _googleSignInInitialization;
+  static const Duration _recentLoginWindow = Duration(minutes: 5);
 
   static Future<UserCredential> signInWithGoogle() async {
     if (kIsWeb) {
@@ -85,8 +86,9 @@ class AccountService {
     }
 
     try {
-      await FavoritesManager.instance.deleteAllFavorites(currentUser.uid);
-      await _deleteUserWithFallbackReauth(currentUser);
+      final deletionUser = await _ensureRecentLoginForDataDeletion(currentUser);
+      await FavoritesManager.instance.deleteAllFavorites(deletionUser.uid);
+      await _deleteUserWithFallbackReauth(deletionUser);
     } on AccountActionException {
       rethrow;
     } on FirebaseAuthException catch (error) {
@@ -94,6 +96,32 @@ class AccountService {
     } catch (error) {
       throw AccountActionException('Error deleting account: $error');
     }
+  }
+
+  static Future<User> _ensureRecentLoginForDataDeletion(User user) async {
+    if (_hasRecentSignIn(user)) return user;
+
+    if (kIsWeb && _supportsGooglePopupReauth(user)) {
+      await user.reauthenticateWithPopup(GoogleAuthProvider());
+      final refreshedUser = _auth.currentUser;
+      if (refreshedUser == null || refreshedUser.uid != user.uid) {
+        throw const AccountActionException(
+          'Your session expired. Please sign in again and retry deletion.',
+        );
+      }
+      return refreshedUser;
+    }
+
+    throw const AccountActionException(
+      'For security, please sign in again and then retry deleting your account.',
+    );
+  }
+
+  static bool _hasRecentSignIn(User user) {
+    final lastSignIn = user.metadata.lastSignInTime;
+    if (lastSignIn == null) return false;
+
+    return DateTime.now().difference(lastSignIn).abs() <= _recentLoginWindow;
   }
 
   static Future<void> _deleteUserWithFallbackReauth(User user) async {
