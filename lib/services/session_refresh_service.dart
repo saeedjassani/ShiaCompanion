@@ -80,17 +80,23 @@ class SessionRefreshService {
       final doc = await FirebaseFirestore.instance
           .doc('zikr_meta/index')
           .get(const GetOptions(source: Source.server));
-      if (doc.exists && doc['items'] != null) {
-        final rawItems = doc['items'];
+      final data = doc.data();
+      final rawItems = data?['items'];
+      if (doc.exists && rawItems is Map) {
         items = {};
         itemOrder = {};
         itemMetadata = {};
         clearLocalSlugMaps();
         final visibleUids = <String>{};
 
-        rawItems.forEach((key, value) {
-          final title = value is Map ? value['title'] : value;
-          final hasData = value is Map ? value['hasData'] ?? false : true;
+        rawItems.forEach((rawKey, value) {
+          final key = rawKey.toString();
+          final title = value is Map
+              ? value['title']?.toString().trim() ?? ''
+              : value?.toString().trim() ?? '';
+          if (title.isEmpty) return;
+
+          final hasData = value is Map ? value['hasData'] == true : true;
           final order = value is Map ? value['order'] : null;
           final slug = value is Map ? value['slug'] : null;
           final slugAliases = value is Map ? value['slugAliases'] : null;
@@ -110,13 +116,14 @@ class SessionRefreshService {
             );
           }
         });
-        final rawSlugLookup = doc.data()?['slugLookup'];
+        final rawSlugLookup = data?['slugLookup'];
         if (rawSlugLookup is Map) {
           applySlugLookupMap(rawSlugLookup, visibleUids);
         }
       } else {
         items = {};
         itemOrder = {};
+        itemMetadata = {};
         clearLocalSlugMaps();
       }
     } catch (e) {
