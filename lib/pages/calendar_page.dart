@@ -10,151 +10,182 @@ import 'package:table_calendar/table_calendar.dart';
 import '../constants.dart';
 
 class CalendarPage extends StatefulWidget {
-  CalendarPage();
+  const CalendarPage({
+    super.key,
+    this.initialDate,
+    this.initialEvents,
+    this.trackScreenOnInit = true,
+  });
+
+  final DateTime? initialDate;
+  final Map<String, dynamic>? initialEvents;
+  final bool trackScreenOnInit;
 
   @override
-  _CalendarPageState createState() => new _CalendarPageState();
+  _CalendarPageState createState() => _CalendarPageState();
 }
 
 class _CalendarPageState extends State<CalendarPage> {
   var eventsMap = {};
 
-  String eventString = "";
-
-  TextStyle smallText = new TextStyle(fontSize: 11.0);
-
   DateTime? selectedDay;
+  DateTime _focusedDay = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    trackScreen('Calendar Page');
-    _updateEventString();
+    selectedDay = widget.initialDate ?? DateTime.now();
+    _focusedDay = selectedDay!;
+    if (widget.trackScreenOnInit) {
+      trackScreen('Calendar Page');
+    }
+    if (widget.initialEvents != null) {
+      eventsMap = widget.initialEvents!;
+    } else {
+      _loadEvents();
+    }
   }
 
-  _updateEventString() async {
+  Future<void> _loadEvents() async {
     String events = await rootBundle.loadString("assets/events.json");
 
     eventsMap = json.decode(events);
 
-    selectedDay = DateTime.now().add(Duration(days: hijriDate));
-    HijriCalendar _today = HijriCalendar.fromDate(selectedDay!);
-    eventString = _today.toFormat("dd MMMM, yyyy");
-    var w = eventsMap[getStringFromDate(_today)];
-    if (w != null) eventString += "\n\n" + w['content'];
     if (this.mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final selectedDate = selectedDay ?? DateTime.now();
+
     return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 12.0),
+          _CalendarPanel(
             child: TableCalendar(
-              firstDay: DateTime.utc(2000, 1, 11),
-              lastDay: DateTime.utc(2050, 12, 31),
-              focusedDay: selectedDay ?? DateTime.now(),
-              calendarStyle: CalendarStyle(
-                outsideDaysVisible: false,
-                weekendTextStyle: TextStyle(),
-              ),
-              daysOfWeekStyle: DaysOfWeekStyle(
-                weekendStyle: TextStyle(color: const Color(0xFF616161)),
-              ),
-              headerStyle: HeaderStyle(
-                  titleTextStyle: TextStyle(fontSize: 14),
-                  titleTextFormatter: (date, locale) {
-                    String month1;
-                    HijriCalendar newDate = HijriCalendar.fromDate(
-                        date.add(Duration(days: hijriDate)));
-                    month1 = formatDate(date, [M, ", ", yyyy]) +
-                        " / " +
-                        newDate.toFormat("MMMM, yyyy");
-                    return month1;
-                  },
+                firstDay: DateTime.utc(2000, 1, 11),
+                lastDay: DateTime.utc(2050, 12, 31),
+                focusedDay: _focusedDay,
+                selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+                availableGestures: AvailableGestures.horizontalSwipe,
+                daysOfWeekHeight: 30.0,
+                rowHeight: 54.0,
+                calendarStyle: CalendarStyle(
+                  cellMargin: EdgeInsets.zero,
+                  defaultTextStyle: theme.textTheme.bodyMedium!.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  weekendTextStyle: theme.textTheme.bodyMedium!.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  outsideDaysVisible: true,
+                ),
+                daysOfWeekStyle: DaysOfWeekStyle(
+                  weekdayStyle: theme.textTheme.labelSmall!.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                  ),
+                  weekendStyle: theme.textTheme.labelSmall!.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                  ),
+                ),
+                headerStyle: HeaderStyle(
+                  headerPadding: const EdgeInsets.fromLTRB(0, 0, 0, 10.0),
+                  leftChevronPadding: EdgeInsets.zero,
+                  rightChevronPadding: EdgeInsets.zero,
+                  leftChevronMargin: EdgeInsets.zero,
+                  rightChevronMargin: EdgeInsets.zero,
+                  leftChevronIcon: _CalendarChevron(
+                    icon: Icons.chevron_left,
+                    color: colorScheme.primary,
+                  ),
+                  rightChevronIcon: _CalendarChevron(
+                    icon: Icons.chevron_right,
+                    color: colorScheme.primary,
+                  ),
                   formatButtonVisible: false,
-                  titleCentered: true),
-              calendarBuilders: CalendarBuilders(
-                prioritizedBuilder:
-                    (BuildContext context, DateTime day, events) {
-                  HijriCalendar hDate = HijriCalendar.fromDate(
-                      day.add(Duration(days: hijriDate)));
-
-                  String tmpDate = getStringFromDate(hDate);
-                  Color? dayColor = Colors.transparent;
-
-                  if (eventsMap[tmpDate] != null) {
-                    dayColor = eventsMap[tmpDate]['color'] == 0
-                        ? Colors.green[200]
-                        : Colors.red[200];
-                  }
-                  if (this.isToday(day) && dayColor == Colors.transparent) {
-                    dayColor = Colors.blue[200];
-                  }
-                  return Container(
-                      margin: const EdgeInsets.all(2.0),
-                      decoration: BoxDecoration(
-                          color: dayColor,
-                          border: Border.all(
-                              width: selectedDay == day ? 2.0 : 1.0,
-                              color: selectedDay == day
-                                  ? Colors.blue
-                                  : Colors.grey)),
-                      padding: EdgeInsets.symmetric(horizontal: 4.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Align(
-                            alignment: Alignment.bottomLeft,
-                            child: Text(
-                              day.day.toString(),
-                              style: smallText,
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Text(
-                              convertNumberToUrdu(hDate.hDay.toString()),
-                              style: smallText,
-                            ),
-                          ),
-                        ],
-                      ));
+                  titleCentered: true,
+                ),
+                calendarBuilders: CalendarBuilders(
+                  headerTitleBuilder: (context, date) {
+                    return _CalendarHeaderTitle(
+                      gregorianMonth: date,
+                      hijriMonth: _hijriDateFor(date),
+                    );
+                  },
+                  prioritizedBuilder:
+                      (BuildContext context, DateTime day, focusedDay) {
+                    final isOutsideMonth = day.month != focusedDay.month ||
+                        day.year != focusedDay.year;
+                    return _CalendarDayCell(
+                      day: day,
+                      hijriDay: _hijriDateFor(day).hDay,
+                      event: isOutsideMonth ? null : _eventForDay(day),
+                      isSelected: isSameDay(selectedDay, day),
+                      isToday: !isOutsideMonth && isToday(day),
+                      isOutsideMonth: isOutsideMonth,
+                    );
+                  },
+                ),
+                onPageChanged: (focusedDay) {
+                  _focusedDay = focusedDay;
                 },
-              ),
-              onDaySelected: (DateTime date, DateTime _) {
-                HijriCalendar newDate =
-                    HijriCalendar.fromDate(date.add(Duration(days: hijriDate)));
-
-                String tmpDate = getStringFromDate(newDate);
-                eventString = newDate.toFormat("dd MMMM, yyyy");
-                if (eventsMap[tmpDate] != null) {
-                  eventString += "\n\n" + eventsMap[tmpDate]['content'];
-                }
-                selectedDay = date;
-                setState(() {});
-              },
-            ),
+                onDaySelected: (DateTime date, DateTime focusedDay) {
+                  selectedDay = date;
+                  _focusedDay = date;
+                  setState(() {});
+                }),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-            child: Text(
-              eventString,
-              key: ValueKey("cal-key"),
-              textAlign: TextAlign.center,
-            ),
+          const SizedBox(height: 14.0),
+          _SelectedDateSummary(
+            key: ValueKey("cal-key"),
+            gregorianDate: selectedDate,
+            hijriDate: _hijriDateFor(selectedDate),
+            event: _eventForDay(selectedDate),
           ),
+          const SizedBox(height: 14.0),
           selectedDay != null
-              ? PrayerTimesCard(
-                  date: selectedDay!,
+              ? _CalendarPanel(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        "Prayer Times",
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4.0),
+                      PrayerTimesCard(
+                        date: selectedDay!,
+                      ),
+                    ],
+                  ),
                 )
               : Container(),
         ],
       ),
     );
+  }
+
+  Map<String, dynamic>? _eventForDay(DateTime day) {
+    final event = eventsMap[getStringFromDate(_hijriDateFor(day))];
+    if (event is Map<String, dynamic>) return event;
+    return null;
+  }
+
+  HijriCalendar _hijriDateFor(DateTime date) {
+    return HijriCalendar.fromDate(date.add(Duration(days: hijriDate)));
   }
 
   String getStringFromDate(HijriCalendar dateTime) {
@@ -170,6 +201,353 @@ class _CalendarPageState extends State<CalendarPage> {
         dateTime.month == now.month &&
         dateTime.year == now.year;
   }
+}
+
+class _CalendarPanel extends StatelessWidget {
+  final Widget child;
+
+  const _CalendarPanel({
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.dark
+            ? colorScheme.surfaceContainerLow
+            : colorScheme.surface,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(
+            alpha: theme.brightness == Brightness.dark ? 0.42 : 0.58,
+          ),
+        ),
+        boxShadow: [
+          if (theme.brightness == Brightness.light)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 18.0,
+              offset: const Offset(0, 8),
+            ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _CalendarDayCell extends StatelessWidget {
+  final DateTime day;
+  final int hijriDay;
+  final Map<String, dynamic>? event;
+  final bool isSelected;
+  final bool isToday;
+  final bool isOutsideMonth;
+
+  const _CalendarDayCell({
+    required this.day,
+    required this.hijriDay,
+    required this.event,
+    required this.isSelected,
+    required this.isToday,
+    required this.isOutsideMonth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final eventColor = _eventColor(context, event);
+    final Color backgroundColor;
+    final Color borderColor;
+    final Color primaryTextColor;
+    final Color secondaryTextColor;
+    final Color? markerColor;
+
+    if (isOutsideMonth) {
+      backgroundColor = Colors.transparent;
+      borderColor = Colors.transparent;
+      primaryTextColor = colorScheme.onSurfaceVariant.withValues(
+        alpha: theme.brightness == Brightness.dark ? 0.5 : 0.46,
+      );
+      secondaryTextColor = colorScheme.onSurfaceVariant.withValues(
+        alpha: theme.brightness == Brightness.dark ? 0.42 : 0.38,
+      );
+      markerColor = null;
+    } else if (isSelected) {
+      backgroundColor = colorScheme.primary;
+      borderColor = colorScheme.primary;
+      primaryTextColor = colorScheme.onPrimary;
+      secondaryTextColor = colorScheme.onPrimary.withValues(alpha: 0.82);
+      markerColor = eventColor == null ? null : colorScheme.onPrimary;
+    } else if (eventColor != null) {
+      backgroundColor = eventColor.withValues(
+        alpha: theme.brightness == Brightness.dark ? 0.16 : 0.08,
+      );
+      borderColor = eventColor.withValues(
+        alpha: theme.brightness == Brightness.dark ? 0.7 : 0.35,
+      );
+      primaryTextColor = colorScheme.onSurface;
+      secondaryTextColor = colorScheme.onSurfaceVariant;
+      markerColor = eventColor;
+    } else if (isToday) {
+      final todayColor = _todayColor(context);
+      backgroundColor = todayColor.withValues(
+        alpha: theme.brightness == Brightness.dark ? 0.2 : 0.1,
+      );
+      borderColor = todayColor.withValues(
+        alpha: theme.brightness == Brightness.dark ? 0.72 : 0.44,
+      );
+      primaryTextColor = colorScheme.onSurface;
+      secondaryTextColor = colorScheme.onSurfaceVariant;
+      markerColor = null;
+    } else {
+      backgroundColor = Colors.transparent;
+      borderColor = Colors.transparent;
+      primaryTextColor = colorScheme.onSurface;
+      secondaryTextColor = colorScheme.onSurfaceVariant;
+      markerColor = null;
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 160),
+      curve: Curves.easeOut,
+      margin: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(
+          color: borderColor,
+          width: isSelected ? 1.4 : 1.0,
+        ),
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            top: 6.0,
+            left: 8.0,
+            child: Text(
+              day.day.toString(),
+              maxLines: 1,
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: primaryTextColor,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Positioned(
+            right: 7.0,
+            bottom: 5.0,
+            child: Text(
+              convertNumberToUrdu(hijriDay.toString()),
+              maxLines: 1,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: secondaryTextColor,
+                fontSize: 10.0,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          if (markerColor != null)
+            Positioned(
+              top: 9.0,
+              right: 9.0,
+              child: Container(
+                width: 6.0,
+                height: 6.0,
+                decoration: BoxDecoration(
+                  color: markerColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarHeaderTitle extends StatelessWidget {
+  final DateTime gregorianMonth;
+  final HijriCalendar hijriMonth;
+
+  const _CalendarHeaderTitle({
+    required this.gregorianMonth,
+    required this.hijriMonth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Center(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          "${formatDate(gregorianMonth, [
+                M,
+                " ",
+                yyyy
+              ])} / ${hijriMonth.toFormat("MMMM yyyy")}",
+          maxLines: 1,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectedDateSummary extends StatelessWidget {
+  final DateTime gregorianDate;
+  final HijriCalendar hijriDate;
+  final Map<String, dynamic>? event;
+
+  const _SelectedDateSummary({
+    super.key,
+    required this.gregorianDate,
+    required this.hijriDate,
+    required this.event,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final eventColor = _eventColor(context, event);
+
+    return _CalendarPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hijriDate.toFormat("dd MMMM, yyyy"),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2.0),
+                    Text(
+                      formatDate(
+                          gregorianDate, [DD, ", ", M, " ", d, ", ", yyyy]),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (event != null) ...[
+            const SizedBox(height: 14.0),
+            Container(
+              padding: const EdgeInsets.only(left: 12.0),
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: eventColor ?? colorScheme.primary,
+                    width: 3.0,
+                  ),
+                ),
+              ),
+              child: Text(
+                event!['content'] ?? "",
+                textAlign: TextAlign.start,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 14.0),
+            Text(
+              "No event listed for this date.",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                height: 1.35,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarChevron extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+
+  const _CalendarChevron({
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 38.0,
+      height: 38.0,
+      decoration: BoxDecoration(
+        color: color.withValues(
+          alpha: Theme.of(context).brightness == Brightness.dark ? 0.14 : 0.1,
+        ),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Icon(
+        icon,
+        color: color,
+        size: 22.0,
+      ),
+    );
+  }
+}
+
+Color? _eventColor(BuildContext context, Map<String, dynamic>? event) {
+  if (event == null) return null;
+
+  final theme = Theme.of(context);
+  final colorScheme = theme.colorScheme;
+  final value = event['color'];
+  if (value == 0) {
+    return theme.brightness == Brightness.dark
+        ? Colors.red.shade400
+        : Colors.red.shade700;
+  }
+  if (value == 1) {
+    return theme.brightness == Brightness.dark
+        ? Colors.green.shade300
+        : Colors.green.shade700;
+  }
+  return colorScheme.tertiary;
+}
+
+Color _todayColor(BuildContext context) {
+  return Theme.of(context).brightness == Brightness.dark
+      ? Colors.lightBlue.shade300
+      : Colors.blue.shade700;
 }
 
 String convertNumberToUrdu(String input) {
