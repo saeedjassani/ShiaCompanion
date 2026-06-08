@@ -1336,6 +1336,10 @@
     "title": "Other Etiquettes of Namaz",
     "slug": "other-etiquettes-of-namaz"
   },
+  "I74": {
+    "title": "Hirz-e-Janab-e-Fatemah (s.a.)",
+    "slug": "hirz-e-janab-e-fatemah-s-a"
+  },
   "I75": {
     "title": "Hirz-e-Imam Zainul Aabedeen (a.s.)",
     "slug": "hirz-e-imam-zainul-aabedeen-a-s"
@@ -1344,13 +1348,29 @@
     "title": "Hirz-e-Imam Jafar al-Sadiq (a.s.)",
     "slug": "hirz-e-imam-jafar-al-sadiq-a-s"
   },
+  "I77": {
+    "title": "Hirz-e-Imam Moosa al-Kazim (a.s.)",
+    "slug": "hirz-e-imam-moosa-al-kazim-a-s"
+  },
   "I8": {
     "title": "Etiquettes of Taaqeebaat",
     "slug": "etiquettes-of-taaqeebaat"
   },
+  "I80": {
+    "title": "Hirz-e-Imam al-Jawad (a.s.)",
+    "slug": "hirz-e-imam-al-jawad-a-s"
+  },
+  "I81": {
+    "title": "Hirz-e-Imam Ali al-Naqi (a.s.)",
+    "slug": "hirz-e-imam-ali-al-naqi-a-s"
+  },
   "I82": {
     "title": "Hirz-e-Imam Hasan al-Askari (a.s.)",
     "slug": "hirz-e-imam-hasan-al-askari-a-s"
+  },
+  "I83": {
+    "title": "Hirz-e-Imam al-Mahdi (a.t.f.s.)",
+    "slug": "hirz-e-imam-al-mahdi-a-t-f-s"
   },
   "I9": {
     "title": "General Ta'qeebaat-1",
