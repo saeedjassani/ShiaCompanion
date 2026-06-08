@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/external_launch.dart';
@@ -31,6 +32,8 @@ class ZikrPage extends StatefulWidget {
 }
 
 class _ZikrPageState extends State<ZikrPage> with RouteAware {
+  static const String _bookmarkHintSeenKey = 'zikr_bookmark_hint_seen_v1';
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference zikrCollection =
       FirebaseFirestore.instance.collection('zikr');
@@ -40,6 +43,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   bool _isSharingZikr = false;
   bool _isCurrentRoute = false;
   bool _didFailToLoadZikrData = false;
+  bool _didQueueBookmarkHint = false;
   int _selectedZikrTabIndex = 0;
   String? userId;
   Map<String, dynamic>? zikrData;
@@ -54,6 +58,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   PageRoute? _pageRoute;
   Uri? _previousBrowserUri;
   List<String> _slugAliases = const [];
+  ZikrBookmark? _savedBookmark;
+  final Map<int, double> _currentTabScrollOffsets = {};
   late final String _counterSessionId;
   late final ValueNotifier<Offset> _counterOffset;
   late final ValueNotifier<bool> _showCounter;
@@ -69,6 +75,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterOffset = ValueNotifier(counterState.offset);
     _showCounter = ValueNotifier(counterState.isVisible);
     _counterCount = ValueNotifier(counterState.count);
+    _loadSavedBookmark();
     if (widget.startEditing) {
       isEditing = true;
     }
@@ -108,6 +115,48 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       _pageRoute = route;
       routeObserver.subscribe(this, route);
     }
+  }
+
+  String get _bookmarkUid => widget.item.getFirstUId();
+
+  void _loadSavedBookmark() {
+    final bookmark = ZikrBookmarkStore.instance.read(_bookmarkUid);
+    if (bookmark == null) return;
+
+    _savedBookmark = bookmark;
+    _selectedZikrTabIndex = bookmark.tabIndex;
+    _currentTabScrollOffsets[bookmark.tabIndex] = bookmark.scrollOffset;
+  }
+
+  void _scheduleBookmarkHintIfNeeded({required bool hasAnyContent}) {
+    if (_didQueueBookmarkHint ||
+        isEditing ||
+        zikrData == null ||
+        !hasAnyContent ||
+        !SP.isInitialized ||
+        (SP.prefs.getBool(_bookmarkHintSeenKey) ?? false)) {
+      return;
+    }
+
+    _didQueueBookmarkHint = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || isEditing || zikrData == null) return;
+
+      await SP.prefs.setBool(_bookmarkHintSeenKey, true);
+      if (!mounted) return;
+
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          content: const Text('New: tap the bookmark icon to save your place.'),
+          action: SnackBarAction(
+            label: 'Got it',
+            onPressed: () {},
+          ),
+        ),
+      );
+    });
   }
 
   void _persistCounterSession({
@@ -749,6 +798,53 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
   }
 
+  void _handleContentScrollPositionChanged(
+    ZikrContentScrollPosition position,
+  ) {
+    _currentTabScrollOffsets[position.tabIndex] = position.scrollOffset;
+  }
+
+  Future<void> _toggleBookmark({
+    required String pageTitle,
+    required List<String> tabContents,
+    required int selectedTabIndex,
+  }) async {
+    final existingBookmark = _savedBookmark;
+    if (existingBookmark != null) {
+      await ZikrBookmarkStore.instance.remove(_bookmarkUid);
+      if (!mounted) return;
+      setState(() {
+        _savedBookmark = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bookmark removed')),
+      );
+      return;
+    }
+
+    final selectedContent =
+        tabContents.isEmpty ? '' : tabContents[selectedTabIndex];
+    final bookmark = ZikrBookmark(
+      uid: _bookmarkUid,
+      title: pageTitle,
+      tabIndex: selectedTabIndex,
+      tabTitle: tabContents.length > 1
+          ? _tabHeaderForContent(selectedContent, selectedTabIndex)
+          : null,
+      scrollOffset: _currentTabScrollOffsets[selectedTabIndex] ?? 0,
+      updatedAt: DateTime.now().toUtc(),
+    );
+
+    await ZikrBookmarkStore.instance.save(bookmark);
+    if (!mounted) return;
+    setState(() {
+      _savedBookmark = bookmark;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Bookmark saved on this device')),
+    );
+  }
+
   String? _lookupInternalItemUid(String segment) {
     if (segment.isEmpty) return null;
 
@@ -834,6 +930,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final hasAnyContent =
         tabContents.any((content) => content.trim().isNotEmpty);
     final selectedTabIndex = _clampedSelectedTabIndex(tabContents);
+    _scheduleBookmarkHintIfNeeded(hasAnyContent: hasAnyContent);
 
     return SelectionArea(
       child: Scaffold(
@@ -852,6 +949,21 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 tooltip: 'Save Changes',
                 onPressed: _saveEdits,
               ),
+            if (zikrData != null)
+              if (!isEditing && hasAnyContent)
+                IconButton(
+                  icon: Icon(_savedBookmark == null
+                      ? Icons.bookmark_border
+                      : Icons.bookmark),
+                  tooltip: _savedBookmark == null
+                      ? 'Save Bookmark'
+                      : 'Remove Bookmark',
+                  onPressed: () => _toggleBookmark(
+                    pageTitle: pageTitle,
+                    tabContents: tabContents,
+                    selectedTabIndex: selectedTabIndex,
+                  ),
+                ),
             if (zikrData != null)
               IconButton(
                 icon: const Icon(Icons.share),
@@ -923,6 +1035,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                         onShowMerits: _showMeritsSheet,
                                         onLinkTap: _handleZikrLinkTap,
                                         code: zikrData?['code']?.toString(),
+                                        initialBookmarkTabIndex:
+                                            _savedBookmark?.tabIndex,
+                                        initialBookmarkScrollOffset:
+                                            _savedBookmark?.scrollOffset,
+                                        onScrollPositionChanged:
+                                            _handleContentScrollPositionChanged,
                                       ),
                                     ),
                                   ],

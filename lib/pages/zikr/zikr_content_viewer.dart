@@ -3,6 +3,16 @@ import 'package:flutter/material.dart';
 import '../../constants.dart';
 import 'zikr_content_parser.dart';
 
+class ZikrContentScrollPosition {
+  const ZikrContentScrollPosition({
+    required this.tabIndex,
+    required this.scrollOffset,
+  });
+
+  final int tabIndex;
+  final double scrollOffset;
+}
+
 class ZikrContentViewerWidget extends StatefulWidget {
   final List<String> tabContents;
   final int selectedTabIndex;
@@ -11,6 +21,9 @@ class ZikrContentViewerWidget extends StatefulWidget {
   final VoidCallback onShowMerits;
   final String? code;
   final Future<void> Function(String href) onLinkTap;
+  final int? initialBookmarkTabIndex;
+  final double? initialBookmarkScrollOffset;
+  final ValueChanged<ZikrContentScrollPosition>? onScrollPositionChanged;
 
   const ZikrContentViewerWidget({
     Key? key,
@@ -21,6 +34,9 @@ class ZikrContentViewerWidget extends StatefulWidget {
     required this.onShowMerits,
     required this.onLinkTap,
     this.code,
+    this.initialBookmarkTabIndex,
+    this.initialBookmarkScrollOffset,
+    this.onScrollPositionChanged,
   }) : super(key: key);
 
   @override
@@ -33,6 +49,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   late List<ScrollController> _tabScrollControllers;
   late List<GlobalKey> _tabHeaderKeys;
   late int _selectedTabIndex;
+  late final int? _initialBookmarkTabIndex;
+  late final double? _initialBookmarkScrollOffset;
+  bool _didRestoreInitialBookmark = false;
 
   TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
     final linkStyle = baseStyle.copyWith(
@@ -63,6 +82,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   void initState() {
     super.initState();
     _selectedTabIndex = widget.selectedTabIndex;
+    _initialBookmarkTabIndex = widget.initialBookmarkTabIndex;
+    _initialBookmarkScrollOffset = widget.initialBookmarkScrollOffset;
     _pageController = PageController(initialPage: _selectedTabIndex);
     _tabScrollControllers = [];
     _tabHeaderKeys = [];
@@ -115,11 +136,56 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
   void _syncTabScrollControllers(int count) {
     while (_tabScrollControllers.length < count) {
-      _tabScrollControllers.add(ScrollController());
+      final tabIndex = _tabScrollControllers.length;
+      final controller = ScrollController();
+      controller.addListener(() {
+        if (!controller.hasClients) return;
+        widget.onScrollPositionChanged?.call(
+          ZikrContentScrollPosition(
+            tabIndex: tabIndex,
+            scrollOffset: controller.offset,
+          ),
+        );
+      });
+      _tabScrollControllers.add(controller);
     }
     while (_tabScrollControllers.length > count) {
       _tabScrollControllers.removeLast().dispose();
     }
+  }
+
+  void _restoreInitialBookmarkIfNeeded(
+    int tabIndex,
+    ScrollController controller,
+  ) {
+    final bookmarkTabIndex = _initialBookmarkTabIndex;
+    final bookmarkOffset = _initialBookmarkScrollOffset;
+    if (_didRestoreInitialBookmark ||
+        bookmarkTabIndex == null ||
+        bookmarkOffset == null ||
+        bookmarkOffset <= 0 ||
+        tabIndex != bookmarkTabIndex) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _didRestoreInitialBookmark || !controller.hasClients) {
+        return;
+      }
+
+      final position = controller.position;
+      final targetOffset = bookmarkOffset
+          .clamp(position.minScrollExtent, position.maxScrollExtent)
+          .toDouble();
+      controller.jumpTo(targetOffset);
+      _didRestoreInitialBookmark = true;
+      widget.onScrollPositionChanged?.call(
+        ZikrContentScrollPosition(
+          tabIndex: tabIndex,
+          scrollOffset: targetOffset,
+        ),
+      );
+    });
   }
 
   void _centerSelectedTab(
@@ -179,9 +245,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   Widget _buildTabContent(
     String rawContent,
     ScrollController controller, {
+    required int tabIndex,
     required bool hideHeaderLine,
     required bool showMeritsButton,
   }) {
+    _restoreInitialBookmarkIfNeeded(tabIndex, controller);
+
     final parsedContent = ZikrContentParser.parseContent(
       rawContent,
       hideHeaderLine: hideHeaderLine,
@@ -376,6 +445,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             itemBuilder: (context, index) => _buildTabContent(
               widget.tabContents[index],
               _tabScrollControllers[index],
+              tabIndex: index,
               hideHeaderLine: showTabHeaders,
               showMeritsButton: widget.hasMerits && index == 0,
             ),
