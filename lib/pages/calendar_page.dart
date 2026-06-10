@@ -34,7 +34,7 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   void initState() {
     super.initState();
-    selectedDay = widget.initialDate ?? DateTime.now();
+    selectedDay = _localCalendarDate(widget.initialDate ?? DateTime.now());
     _focusedDay = selectedDay!;
     if (widget.trackScreenOnInit) {
       trackScreen('Calendar Page');
@@ -137,11 +137,12 @@ class _CalendarPageState extends State<CalendarPage> {
                   },
                 ),
                 onPageChanged: (focusedDay) {
-                  _focusedDay = focusedDay;
+                  _focusedDay = _localCalendarDate(focusedDay);
                 },
                 onDaySelected: (DateTime date, DateTime focusedDay) {
-                  selectedDay = date;
-                  _focusedDay = date;
+                  final selectedDate = _localCalendarDate(date);
+                  selectedDay = selectedDate;
+                  _focusedDay = selectedDate;
                   setState(() {});
                 }),
           ),
@@ -152,27 +153,6 @@ class _CalendarPageState extends State<CalendarPage> {
             hijriDate: _hijriDateFor(selectedDate),
             event: _eventForDay(selectedDate),
           ),
-          const SizedBox(height: 14.0),
-          selectedDay != null
-              ? _CalendarPanel(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        "Prayer Times",
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: colorScheme.onSurface,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 4.0),
-                      PrayerTimesCard(
-                        date: selectedDay!,
-                      ),
-                    ],
-                  ),
-                )
-              : Container(),
         ],
       ),
     );
@@ -185,7 +165,9 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   HijriCalendar _hijriDateFor(DateTime date) {
-    return HijriCalendar.fromDate(date.add(Duration(days: hijriDate)));
+    return HijriCalendar.fromDate(
+      _localCalendarDate(date).add(Duration(days: hijriDate)),
+    );
   }
 
   String getStringFromDate(HijriCalendar dateTime) {
@@ -201,6 +183,10 @@ class _CalendarPageState extends State<CalendarPage> {
         dateTime.month == now.month &&
         dateTime.year == now.year;
   }
+}
+
+DateTime _localCalendarDate(DateTime date) {
+  return DateTime(date.year, date.month, date.day);
 }
 
 class _CalendarPanel extends StatelessWidget {
@@ -490,6 +476,18 @@ class _SelectedDateSummary extends StatelessWidget {
               ),
             ),
           ],
+          const SizedBox(height: 16.0),
+          Divider(
+            height: 1.0,
+            color: colorScheme.outlineVariant.withValues(
+              alpha: theme.brightness == Brightness.dark ? 0.48 : 0.72,
+            ),
+          ),
+          const SizedBox(height: 8.0),
+          PrayerTimesCard(
+            date: gregorianDate,
+            compact: true,
+          ),
         ],
       ),
     );

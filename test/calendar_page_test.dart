@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
+import 'package:shia_companion/widgets/prayer_times_card.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,48 @@ void main() {
     );
 
     expect(find.text('28'), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('tapped calendar date stays local for prayer time calculation',
+      (tester) async {
+    await _pumpCalendar(
+      tester,
+      brightness: Brightness.dark,
+    );
+
+    await tester.tap(find.text('10'));
+    await tester.pumpAndSettle();
+
+    final prayerTimesCard =
+        tester.widget<PrayerTimesCard>(find.byType(PrayerTimesCard));
+    expect(prayerTimesCard.date.isUtc, isFalse);
+    expect(prayerTimesCard.date.year, 2026);
+    expect(prayerTimesCard.date.month, 7);
+    expect(prayerTimesCard.date.day, 10);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('calendar embeds prayer rows with widget prayer icons',
+      (tester) async {
+    lat = 21.4225;
+    long = 39.8262;
+
+    await _pumpCalendar(
+      tester,
+      brightness: Brightness.dark,
+    );
+
+    expect(find.text('Prayer Times'), findsNothing);
+    expect(find.byType(PrayerTimesCard), findsOneWidget);
+    expect(find.byIcon(Icons.wb_twilight), findsWidgets);
+    expect(find.byIcon(Icons.light_mode), findsOneWidget);
+    expect(find.byIcon(Icons.wb_sunny), findsOneWidget);
+    expect(find.byIcon(Icons.brightness_5), findsOneWidget);
+    expect(find.byIcon(Icons.wb_twilight_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.nights_stay), findsOneWidget);
+    expect(find.byIcon(Icons.bedtime), findsOneWidget);
+    expect(find.byIcon(Icons.mosque), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
