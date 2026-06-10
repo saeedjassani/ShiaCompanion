@@ -4,7 +4,7 @@
     "slug": "6-al-an-aam"
   },
   "A100": {
-    "title": "96: Al-Alaq العلق",
+    "title": "96: al-Alaq العلق",
     "slug": "96-al-alaq"
   },
   "A101": {
@@ -12,8 +12,8 @@
     "slug": "97-al-qadr"
   },
   "A102": {
-    "title": "98: Al-Bayyina البينة",
-    "slug": "98-al-bayyina"
+    "title": "98: al-Bayyenah البينة",
+    "slug": "98-al-bayyenah"
   },
   "A103": {
     "title": "99: al-Zalzalah الزلزلة",
@@ -204,7 +204,7 @@
     "slug": "36-yaseen"
   },
   "A41": {
-    "title": "37: As-Saaffaat الصافات",
+    "title": "37: al-Saaffaat الصافات",
     "slug": "37-as-saaffaat"
   },
   "A42": {
@@ -256,8 +256,8 @@
     "slug": "48-al-fath"
   },
   "A53": {
-    "title": "49: Al-Hujuraat الحجرات",
-    "slug": "49-al-hujuraat"
+    "title": "49: al-Hojoraat الحجرات",
+    "slug": "49-al-hojoraat"
   },
   "A54": {
     "title": "50: Qaaf ق",
@@ -296,7 +296,7 @@
     "slug": "57-al-hadeed"
   },
   "A62": {
-    "title": "58: Al-Mujaadila المجادلة",
+    "title": "58: al-Mujaadelah المجادلة",
     "slug": "58-al-mujaadila"
   },
   "A63": {
@@ -316,12 +316,12 @@
     "slug": "62-al-jumu-a"
   },
   "A67": {
-    "title": "63: Al-Munaafiqoon المنافقون",
-    "slug": "63-al-munaafiqoon"
+    "title": "63: al-Munaafeqoon المنافقون",
+    "slug": "63-al-munaafeqoon"
   },
   "A68": {
-    "title": "64: At-Taghaabun التغابن",
-    "slug": "64-at-taghaabun"
+    "title": "64: al-Taghaabon التغابن",
+    "slug": "64-al-taghaabon"
   },
   "A69": {
     "title": "65: al-Talaaq الطلاق",
@@ -364,8 +364,8 @@
     "slug": "73-al-muzzammil"
   },
   "A78": {
-    "title": "74: Al-Muddaththir المدثر",
-    "slug": "74-al-muddaththir"
+    "title": "74: al-Muddassir المدثر",
+    "slug": "74-al-muddassir"
   },
   "A79": {
     "title": "75: Al-Qiyaama القيامة",
@@ -1111,8 +1111,9 @@
     "slug": "ziyarate-janabe-hani-ibn-urwah-a-s"
   },
   "G62": {
-    "title": "Ziyarate Farzandane Janabe Muslim (a.s.)",
-    "slug": "ziyarate-farzandane-janabe-muslim-a-s"
+    "title": "Ziyaarat of sons of Janab-e-Muslim (a.s.)",
+    "slug": "ziyarate-farzandane-janabe-muslim-a-s",
+    "day": "12-23"
   },
   "G63": {
     "title": "Ziyarate Janabe Salman e Farsi (a.s.)",
