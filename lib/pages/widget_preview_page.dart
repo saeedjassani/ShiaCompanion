@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
+import 'package:shia_companion/utils/prayer_time_icons.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -563,7 +564,7 @@ class _PrayerIconBadge extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Icon(
-        _prayerIconFor(name),
+        prayerIconFor(name),
         size: iconSize,
         color: palette.accentText,
       ),
@@ -573,20 +574,6 @@ class _PrayerIconBadge extends StatelessWidget {
 
 String _compactNextTitle(String title) {
   return title.replaceAll('Upcoming', 'Next').replaceAll(' Prayer', '');
-}
-
-IconData _prayerIconFor(String prayerName) {
-  final name = prayerName.toLowerCase();
-  if (name.contains('fajr')) return Icons.wb_twilight;
-  if (name.contains('zuhr') ||
-      name.contains('dhuhr') ||
-      name.contains('dhohr')) {
-    return Icons.wb_sunny;
-  }
-  if (name.contains('asr')) return Icons.brightness_5;
-  if (name.contains('maghrib')) return Icons.wb_twilight;
-  if (name.contains('isha')) return Icons.nights_stay;
-  return Icons.mosque;
 }
 
 class _WidgetShell extends StatelessWidget {
