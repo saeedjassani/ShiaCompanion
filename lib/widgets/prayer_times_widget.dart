@@ -49,8 +49,11 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  "Location: $city",
+                                Flexible(
+                                  child: Text(
+                                    "Location: $city",
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                                 if (!useLiveLocation)
                                   InkWell(

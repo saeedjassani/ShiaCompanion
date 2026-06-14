@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/widgets/responsive_content.dart';
 
 import '../constants.dart';
 
@@ -32,31 +33,49 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
     return Scaffold(
       appBar: getAppBar(),
       body: data != null
-          ? GridView.builder(
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-              itemCount: data!.length,
-              itemBuilder: (BuildContext c, int i) {
-                return Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Card(
+          ? ResponsiveContent(
+              maxWidth: wideContentWidth,
+              padding: const EdgeInsets.all(16),
+              child: GridView.builder(
+                padding: const EdgeInsets.only(bottom: 16),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 260,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.05,
+                ),
+                itemCount: data!.length,
+                itemBuilder: (BuildContext c, int i) {
+                  return Card(
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: InkWell(
                       onTap: () {
                         handleUniversalDataClick(
                             context, UniversalData.forLiveStream(data![i]));
                       },
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Image.network(
-                            data![i].img ?? '', // Add null check for img
-                            fit: BoxFit.cover,
-                            height: 120,
+                          Expanded(
+                            child: Image.network(
+                              data![i].img ?? '',
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest,
+                                child: Icon(
+                                  Icons.live_tv,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
                           ),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 2.0),
+                            padding: const EdgeInsets.all(10.0),
                             child: Text(
                               data![i].title,
                               overflow: TextOverflow.ellipsis,
@@ -66,9 +85,9 @@ class _LiveStreamingPageState extends State<LiveStreamingPage> {
                         ],
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             )
           : Center(child: CircularProgressIndicator()),
     );

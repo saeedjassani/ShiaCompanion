@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 
 import '../constants.dart';
+import '../widgets/responsive_content.dart';
 
 class ScheduledNotificationsPage extends StatefulWidget {
   @override
@@ -93,17 +94,22 @@ class _ScheduledNotificationsPageState
             return Center(child: Text('No scheduled notifications.'));
           }
 
-          return ListView.separated(
-            itemCount: requests.length,
-            separatorBuilder: (context, index) => Divider(height: 1),
-            itemBuilder: (context, index) {
-              final request = requests[index];
-              return ListTile(
-                leading: Icon(Icons.notifications),
-                title: Text(_titleFor(request)),
-                subtitle: Text(_subtitleFor(request)),
-              );
-            },
+          return ResponsiveContent(
+            maxWidth: listContentWidth,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: requests.length,
+              separatorBuilder: (context, index) => Divider(height: 1),
+              itemBuilder: (context, index) {
+                final request = requests[index];
+                return ListTile(
+                  leading: Icon(Icons.notifications),
+                  title: Text(_titleFor(request)),
+                  subtitle: Text(_subtitleFor(request)),
+                );
+              },
+            ),
           );
         },
       ),

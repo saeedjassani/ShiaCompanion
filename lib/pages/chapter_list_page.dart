@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:yaml/yaml.dart';
 
 import '../constants.dart';
@@ -46,19 +47,24 @@ class _ChapterListPageState extends State<ChapterListPage> {
         title: Text(widget.title),
       ),
       body: chapters.length > 0
-          ? ListView.separated(
-              shrinkWrap: true,
-              itemBuilder: (context, index) => ListTile(
-                    title: Text(chapters[index].title),
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ChapterPage(
-                                widget.slug + "/" + chapters[index].uid,
-                                chapters[index].title))),
-                  ),
-              separatorBuilder: (context, index) => Divider(),
-              itemCount: chapters.length)
+          ? ResponsiveContent(
+              maxWidth: listContentWidth,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) => ListTile(
+                        title: Text(chapters[index].title),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChapterPage(
+                                    widget.slug + "/" + chapters[index].uid,
+                                    chapters[index].title))),
+                      ),
+                  separatorBuilder: (context, index) => Divider(),
+                  itemCount: chapters.length),
+            )
           : Center(child: CircularProgressIndicator()),
     );
   }

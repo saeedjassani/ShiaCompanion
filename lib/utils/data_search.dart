@@ -6,6 +6,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/utils/data_search_filter.dart';
+import 'package:shia_companion/widgets/responsive_content.dart';
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;
@@ -90,10 +91,15 @@ class DataSearch extends SearchDelegate<String> {
     analytics.logSearch(searchTerm: query); // Log the search event
     final suggestionList = _filteredResults();
 
-    return ListView.builder(
-      itemBuilder: (context, index) =>
-          _buildSearchTile(context, suggestionList[index]),
-      itemCount: suggestionList.length,
+    return ResponsiveContent(
+      maxWidth: listContentWidth,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemBuilder: (context, index) =>
+            _buildSearchTile(context, suggestionList[index]),
+        itemCount: suggestionList.length,
+      ),
     );
   }
 
@@ -101,10 +107,15 @@ class DataSearch extends SearchDelegate<String> {
   Widget buildSuggestions(BuildContext context) {
     final List<UidTitleData> suggestionList = _filteredResults();
 
-    return ListView.builder(
-      itemBuilder: (context, index) =>
-          _buildSearchTile(context, suggestionList[index]),
-      itemCount: suggestionList.length,
+    return ResponsiveContent(
+      maxWidth: listContentWidth,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemBuilder: (context, index) =>
+            _buildSearchTile(context, suggestionList[index]),
+        itemCount: suggestionList.length,
+      ),
     );
   }
 }

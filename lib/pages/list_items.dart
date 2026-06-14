@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/widgets/responsive_content.dart';
 
 import '../constants.dart';
 import '../services/favorites_manager.dart';
@@ -107,11 +108,16 @@ class _ItemListState extends State<ItemList> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView.separated(
-        separatorBuilder: (BuildContext context, int index) => Divider(),
-        itemCount: workingItems.length,
-        itemBuilder: (BuildContext c, int i) =>
-            buildZikrRow(c, workingItems[i]),
+      body: ResponsiveContent(
+        maxWidth: listContentWidth,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ListView.separated(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          separatorBuilder: (BuildContext context, int index) => Divider(),
+          itemCount: workingItems.length,
+          itemBuilder: (BuildContext c, int i) =>
+              buildZikrRow(c, workingItems[i]),
+        ),
       ),
     );
   }

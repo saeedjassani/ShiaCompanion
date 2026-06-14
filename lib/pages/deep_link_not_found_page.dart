@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shia_companion/widgets/responsive_content.dart';
 
 class DeepLinkNotFoundPage extends StatelessWidget {
   final String? target;
@@ -13,9 +14,10 @@ class DeepLinkNotFoundPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Link Not Found'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+      body: ResponsiveContent(
+        maxWidth: compactContentWidth,
+        padding: const EdgeInsets.all(24.0),
+        child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

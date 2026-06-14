@@ -16,6 +16,7 @@ import '../services/session_refresh_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
+import '../widgets/responsive_content.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
 import 'scheduled_notifications_page.dart';
@@ -57,7 +58,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final darkModeProvider = Provider.of<DarkModeProvider>(context);
     final currentUser = user ?? _auth.currentUser;
 
-    return SingleChildScrollView(
+    return ResponsiveScrollableContent(
+      maxWidth: compactContentWidth,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
