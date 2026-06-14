@@ -7,6 +7,7 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import '../constants.dart';
 import '../utils/shared_preferences.dart';
 import '../utils/zikr_wakelock.dart';
+import '../widgets/responsive_content.dart';
 import '../widgets/zikr_settings.dart';
 
 class ItemPage extends StatefulWidget {
@@ -193,8 +194,10 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
                 ),
                 endDrawer: ZikrSettingsPage(refreshState),
                 body: itemData != null
-                    ? Padding(
-                        padding: const EdgeInsets.all(8.0),
+                    ? ResponsiveContent(
+                        maxWidth:
+                            isEditing ? wideContentWidth : readingContentWidth,
+                        padding: const EdgeInsets.all(16.0),
                         child: isEditing
                             ? _buildEditFields()
                             : TabBarView(
@@ -227,7 +230,7 @@ class _ItemPageState extends State<ItemPage> with TickerProviderStateMixin {
                                 ],
                               ),
                       )
-                    : Text(''),
+                    : const SizedBox.shrink(),
               ),
             )
           : Container(),

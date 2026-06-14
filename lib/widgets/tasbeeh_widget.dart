@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../constants.dart';
 import '../utils/shared_preferences.dart';
+import 'responsive_content.dart';
 
 class TasbeehWidget extends StatefulWidget {
   const TasbeehWidget({super.key});
@@ -81,7 +82,8 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
       appBar: AppBar(
         title: const Text('Tasbeeh Counter'),
       ),
-      body: Padding(
+      body: ResponsiveContent(
+        maxWidth: compactContentWidth,
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [

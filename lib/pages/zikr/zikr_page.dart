@@ -14,6 +14,7 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 import 'package:shia_companion/utils/zikr_wakelock.dart';
 import '../../constants.dart';
+import '../../widgets/responsive_content.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
 import 'zikr_edit_form.dart';
@@ -1006,7 +1007,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                     )
                   : !hasAnyContent && !isEditing
                       ? const Center(child: Text('Coming soon...'))
-                      : Padding(
+                      : ResponsiveContent(
+                          maxWidth: isEditing
+                              ? wideContentWidth
+                              : readingContentWidth,
                           padding: const EdgeInsets.all(16.0),
                           child: isEditing
                               ? ZikrEditFormWidget(
@@ -1020,30 +1024,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   tabControllers: tabControllers,
                                   onAddTab: _addTabField,
                                 )
-                              : Column(
-                                  children: [
-                                    Expanded(
-                                      child: ZikrContentViewerWidget(
-                                        tabContents: tabContents,
-                                        selectedTabIndex: selectedTabIndex,
-                                        onTabChanged: (index) {
-                                          setState(() {
-                                            _selectedZikrTabIndex = index;
-                                          });
-                                        },
-                                        hasMerits: hasMerits,
-                                        onShowMerits: _showMeritsSheet,
-                                        onLinkTap: _handleZikrLinkTap,
-                                        code: zikrData?['code']?.toString(),
-                                        initialBookmarkTabIndex:
-                                            _savedBookmark?.tabIndex,
-                                        initialBookmarkScrollOffset:
-                                            _savedBookmark?.scrollOffset,
-                                        onScrollPositionChanged:
-                                            _handleContentScrollPositionChanged,
-                                      ),
-                                    ),
-                                  ],
+                              : ZikrContentViewerWidget(
+                                  tabContents: tabContents,
+                                  selectedTabIndex: selectedTabIndex,
+                                  onTabChanged: (index) {
+                                    setState(() {
+                                      _selectedZikrTabIndex = index;
+                                    });
+                                  },
+                                  hasMerits: hasMerits,
+                                  onShowMerits: _showMeritsSheet,
+                                  onLinkTap: _handleZikrLinkTap,
+                                  code: zikrData?['code']?.toString(),
+                                  initialBookmarkTabIndex:
+                                      _savedBookmark?.tabIndex,
+                                  initialBookmarkScrollOffset:
+                                      _savedBookmark?.scrollOffset,
+                                  onScrollPositionChanged:
+                                      _handleContentScrollPositionChanged,
                                 ),
                         ),
               // Counter overlay

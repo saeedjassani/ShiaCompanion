@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:http/http.dart';
+import 'package:shia_companion/widgets/responsive_content.dart';
 
 import '../constants.dart';
 
@@ -40,7 +41,14 @@ class _ChapterPageState extends State<ChapterPage> {
         title: Text(widget.title),
       ),
       body: chapterMarkdown != null
-          ? Markdown(data: chapterMarkdown!)
+          ? ResponsiveContent(
+              maxWidth: readingContentWidth,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Markdown(
+                data: chapterMarkdown!,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            )
           : Center(child: CircularProgressIndicator()),
     );
   }

@@ -4,6 +4,7 @@ import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/prayer_times_card.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -60,101 +61,129 @@ class _CalendarPageState extends State<CalendarPage> {
     final colorScheme = theme.colorScheme;
     final selectedDate = selectedDay ?? DateTime.now();
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          _CalendarPanel(
-            child: TableCalendar(
-                firstDay: DateTime.utc(2000, 1, 11),
-                lastDay: DateTime.utc(2050, 12, 31),
-                focusedDay: _focusedDay,
-                selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-                availableGestures: AvailableGestures.horizontalSwipe,
-                daysOfWeekHeight: 30.0,
-                rowHeight: 54.0,
-                calendarStyle: CalendarStyle(
-                  cellMargin: EdgeInsets.zero,
-                  defaultTextStyle: theme.textTheme.bodyMedium!.copyWith(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  weekendTextStyle: theme.textTheme.bodyMedium!.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  outsideDaysVisible: true,
-                ),
-                daysOfWeekStyle: DaysOfWeekStyle(
-                  weekdayStyle: theme.textTheme.labelSmall!.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0,
-                  ),
-                  weekendStyle: theme.textTheme.labelSmall!.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0,
-                  ),
-                ),
-                headerStyle: HeaderStyle(
-                  headerPadding: const EdgeInsets.fromLTRB(0, 0, 0, 10.0),
-                  leftChevronPadding: EdgeInsets.zero,
-                  rightChevronPadding: EdgeInsets.zero,
-                  leftChevronMargin: EdgeInsets.zero,
-                  rightChevronMargin: EdgeInsets.zero,
-                  leftChevronIcon: _CalendarChevron(
-                    icon: Icons.chevron_left,
-                    color: colorScheme.primary,
-                  ),
-                  rightChevronIcon: _CalendarChevron(
-                    icon: Icons.chevron_right,
-                    color: colorScheme.primary,
-                  ),
-                  formatButtonVisible: false,
-                  titleCentered: true,
-                ),
-                calendarBuilders: CalendarBuilders(
-                  headerTitleBuilder: (context, date) {
-                    return _CalendarHeaderTitle(
-                      gregorianMonth: date,
-                      hijriMonth: _hijriDateFor(date),
-                    );
-                  },
-                  prioritizedBuilder:
-                      (BuildContext context, DateTime day, focusedDay) {
-                    final isOutsideMonth = day.month != focusedDay.month ||
-                        day.year != focusedDay.year;
-                    return _CalendarDayCell(
-                      day: day,
-                      hijriDay: _hijriDateFor(day).hDay,
-                      event: isOutsideMonth ? null : _eventForDay(day),
-                      isSelected: isSameDay(selectedDay, day),
-                      isToday: !isOutsideMonth && isToday(day),
-                      isOutsideMonth: isOutsideMonth,
-                    );
-                  },
-                ),
-                onPageChanged: (focusedDay) {
-                  _focusedDay = _localCalendarDate(focusedDay);
-                },
-                onDaySelected: (DateTime date, DateTime focusedDay) {
-                  final selectedDate = _localCalendarDate(date);
-                  selectedDay = selectedDate;
-                  _focusedDay = selectedDate;
-                  setState(() {});
-                }),
+    final calendarPanel = _CalendarPanel(
+      child: TableCalendar(
+        firstDay: DateTime.utc(2000, 1, 11),
+        lastDay: DateTime.utc(2050, 12, 31),
+        focusedDay: _focusedDay,
+        selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+        availableGestures: AvailableGestures.horizontalSwipe,
+        daysOfWeekHeight: 30.0,
+        rowHeight: 54.0,
+        calendarStyle: CalendarStyle(
+          cellMargin: EdgeInsets.zero,
+          defaultTextStyle: theme.textTheme.bodyMedium!.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(height: 14.0),
-          _SelectedDateSummary(
-            key: ValueKey("cal-key"),
-            gregorianDate: selectedDate,
-            hijriDate: _hijriDateFor(selectedDate),
-            event: _eventForDay(selectedDate),
+          weekendTextStyle: theme.textTheme.bodyMedium!.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
           ),
-        ],
+          outsideDaysVisible: true,
+        ),
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: theme.textTheme.labelSmall!.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0,
+          ),
+          weekendStyle: theme.textTheme.labelSmall!.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0,
+          ),
+        ),
+        headerStyle: HeaderStyle(
+          headerPadding: const EdgeInsets.fromLTRB(0, 0, 0, 10.0),
+          leftChevronPadding: EdgeInsets.zero,
+          rightChevronPadding: EdgeInsets.zero,
+          leftChevronMargin: EdgeInsets.zero,
+          rightChevronMargin: EdgeInsets.zero,
+          leftChevronIcon: _CalendarChevron(
+            icon: Icons.chevron_left,
+            color: colorScheme.primary,
+          ),
+          rightChevronIcon: _CalendarChevron(
+            icon: Icons.chevron_right,
+            color: colorScheme.primary,
+          ),
+          formatButtonVisible: false,
+          titleCentered: true,
+        ),
+        calendarBuilders: CalendarBuilders(
+          headerTitleBuilder: (context, date) {
+            return _CalendarHeaderTitle(
+              gregorianMonth: date,
+              hijriMonth: _hijriDateFor(date),
+            );
+          },
+          prioritizedBuilder: (BuildContext context, DateTime day, focusedDay) {
+            final isOutsideMonth =
+                day.month != focusedDay.month || day.year != focusedDay.year;
+            return _CalendarDayCell(
+              day: day,
+              hijriDay: _hijriDateFor(day).hDay,
+              event: isOutsideMonth ? null : _eventForDay(day),
+              isSelected: isSameDay(selectedDay, day),
+              isToday: !isOutsideMonth && isToday(day),
+              isOutsideMonth: isOutsideMonth,
+            );
+          },
+        ),
+        onPageChanged: (focusedDay) {
+          _focusedDay = _localCalendarDate(focusedDay);
+        },
+        onDaySelected: (DateTime date, DateTime focusedDay) {
+          final selectedDate = _localCalendarDate(date);
+          selectedDay = selectedDate;
+          _focusedDay = selectedDate;
+          setState(() {});
+        },
       ),
+    );
+
+    final selectedSummary = _SelectedDateSummary(
+      key: ValueKey("cal-key"),
+      gregorianDate: selectedDate,
+      hijriDate: _hijriDateFor(selectedDate),
+      event: _eventForDay(selectedDate),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 960;
+        return ResponsiveScrollableContent(
+          maxWidth: isWide ? wideContentWidth : compactContentWidth,
+          padding: responsivePagePadding(
+            constraints.maxWidth,
+            vertical: 16,
+          ).copyWith(bottom: 24),
+          child: isWide
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: calendarPanel,
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      flex: 2,
+                      child: selectedSummary,
+                    ),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    calendarPanel,
+                    const SizedBox(height: 14.0),
+                    selectedSummary,
+                  ],
+                ),
+        );
+      },
     );
   }
 

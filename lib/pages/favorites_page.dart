@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
+import 'package:shia_companion/widgets/responsive_content.dart';
 
 class FavoritesPage extends StatefulWidget {
   @override
@@ -43,30 +44,35 @@ class _FavoritesPageState extends State<FavoritesPage> {
             return Center(child: Text('No favorites yet.'));
           }
 
-          return ListView.separated(
-            itemCount: favorites.length,
-            separatorBuilder: (_, __) => Divider(),
-            itemBuilder: (context, index) {
-              UniversalData item = favorites[index];
-              return ListTile(
-                title: isUserAdmin
-                    ? Text(item.uid + ' ' + item.title)
-                    : Text(item.title),
-                onTap: () {
-                  handleUniversalDataClick(context, item);
-                },
-                onLongPress: () {
-                  if (isUserAdmin)
-                    handleUniversalDataClick(context, item, itemPage: true);
-                },
-                trailing: InkWell(
+          return ResponsiveContent(
+            maxWidth: listContentWidth,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: favorites.length,
+              separatorBuilder: (_, __) => Divider(),
+              itemBuilder: (context, index) {
+                UniversalData item = favorites[index];
+                return ListTile(
+                  title: isUserAdmin
+                      ? Text(item.uid + ' ' + item.title)
+                      : Text(item.title),
                   onTap: () {
-                    FavoritesManager.instance.toggleFavorite(item);
+                    handleUniversalDataClick(context, item);
                   },
-                  child: getFavIcon(context, item),
-                ),
-              );
-            },
+                  onLongPress: () {
+                    if (isUserAdmin)
+                      handleUniversalDataClick(context, item, itemPage: true);
+                  },
+                  trailing: InkWell(
+                    onTap: () {
+                      FavoritesManager.instance.toggleFavorite(item);
+                    },
+                    child: getFavIcon(context, item),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

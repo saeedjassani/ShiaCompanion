@@ -28,6 +28,7 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
+import 'package:shia_companion/widgets/responsive_content.dart';
 
 enum _PublishStatus { success, error, timeout }
 
@@ -485,14 +486,16 @@ class _MyHomePageState extends State<MyHomePage>
                 })
           ],
         ),
-        body: SingleChildScrollView(
+        body: ResponsiveScrollableContent(
+          maxWidth: wideContentWidth,
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: 32.0, horizontal: 16.0),
+                      vertical: 22.0, horizontal: 16.0),
                   child: InkWell(
                     onTap: () {
                       SharePlus.instance.share(ShareParams(
@@ -502,7 +505,8 @@ class _MyHomePageState extends State<MyHomePage>
                             MediaQuery.of(context).size.width / 2, 0, 2, 2),
                       ));
                     },
-                    child: SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 760),
                       child: Text(
                         '$hadith',
                         textAlign: TextAlign.center,
@@ -511,22 +515,29 @@ class _MyHomePageState extends State<MyHomePage>
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Theme(
-                  data: Theme.of(context).copyWith(
-                    textButtonTheme: TextButtonThemeData(
-                      style: TextButton.styleFrom(
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onSurface),
+              Align(
+                alignment: Alignment.center,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 760),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        textButtonTheme: TextButtonThemeData(
+                          style: TextButton.styleFrom(
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      child: HomePrayerTimesCard(),
                     ),
                   ),
-                  child: HomePrayerTimesCard(),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 16),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: LayoutBuilder(builder: (context, constraints) {
                   // Use maxCrossAxisExtent so grid adapts to available width
                   // Make the tiles smaller on narrow screens so more columns can fit
@@ -538,9 +549,12 @@ class _MyHomePageState extends State<MyHomePage>
                   } else if (constraints.maxWidth < 600) {
                     maxExtent = 160;
                     spacing = 8.0;
+                  } else if (constraints.maxWidth < 900) {
+                    maxExtent = 190;
+                    spacing = 10.0;
                   } else {
-                    maxExtent = 240;
-                    spacing = 8.0;
+                    maxExtent = 210;
+                    spacing = 12.0;
                   }
                   return GridView.builder(
                     physics: const NeverScrollableScrollPhysics(),
@@ -549,7 +563,8 @@ class _MyHomePageState extends State<MyHomePage>
                       maxCrossAxisExtent: maxExtent,
                       mainAxisSpacing: spacing,
                       crossAxisSpacing: spacing,
-                      childAspectRatio: constraints.maxWidth < 400 ? 0.95 : 0.9,
+                      childAspectRatio:
+                          constraints.maxWidth >= 900 ? 1.05 : 0.95,
                     ),
                     itemCount: homeMenuItems.length,
                     itemBuilder: (BuildContext c, int i) {
