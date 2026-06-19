@@ -1,6 +1,6 @@
 {
   "A10": {
-    "title": "6: Al-An'aam الأنعام",
+    "title": "6: al-An'aam الأنعام",
     "slug": "6-al-an-aam"
   },
   "A100": {
@@ -8,7 +8,7 @@
     "slug": "96-al-alaq"
   },
   "A101": {
-    "title": "97: Al-Qadr القدر",
+    "title": "97: al-Qadr القدر",
     "slug": "97-al-qadr"
   },
   "A102": {
@@ -20,31 +20,31 @@
     "slug": "99-al-zalzalah"
   },
   "A104": {
-    "title": "100: Al-Aadiyaat العاديات",
-    "slug": "100-al-aadiyaat"
+    "title": "100: al-Aadeyaat العاديات",
+    "slug": "100-al-aadeyaat"
   },
   "A105": {
-    "title": "101: Al-Qaari'a القارعة",
-    "slug": "101-al-qaari-a"
+    "title": "101: al-Qaarea'h القارعة",
+    "slug": "101-al-qaarea-h"
   },
   "A106": {
-    "title": "102: At-Takaasor التكاثر",
-    "slug": "102-at-takaasor"
+    "title": "102: al-Takaasor التكاثر",
+    "slug": "102-al-takaasor"
   },
   "A107": {
-    "title": "103: Al-Asr العصر",
+    "title": "103: al-Asr العصر",
     "slug": "103-al-asr"
   },
   "A108": {
-    "title": "104: Al-Humaza الهمزة",
+    "title": "104: al-Homazah الهمزة",
     "slug": "104-al-humaza"
   },
   "A109": {
-    "title": "105: Al-Fil الفيل",
-    "slug": "105-al-fil"
+    "title": "105: al-Feel الفيل",
+    "slug": "105-al-feel"
   },
   "A11": {
-    "title": "7: Al-A'raaf الأعراف",
+    "title": "7: al-Aa'raaf الأعراف",
     "slug": "7-al-a-raaf"
   },
   "A110": {
@@ -56,19 +56,19 @@
     "slug": "107-al-maao-on"
   },
   "A112": {
-    "title": "108: Al-Kawsar الكوثر",
+    "title": "108: al-Kawsar الكوثر",
     "slug": "108-al-kawsar"
   },
   "A113": {
-    "title": "109: Al-Kaaferoon الكافرون",
+    "title": "109: al-Kaaferoon الكافرون",
     "slug": "109-al-kaaferoon"
   },
   "A114": {
-    "title": "110: An-Nasr النصر",
-    "slug": "110-an-nasr"
+    "title": "110: al-Nasr النصر",
+    "slug": "110-al-nasr"
   },
   "A115": {
-    "title": "111: Al-Masad المسد",
+    "title": "111: al-Masad المسد",
     "slug": "111-al-masad"
   },
   "A116": {
@@ -84,7 +84,7 @@
     "slug": "114-an-naas"
   },
   "A12": {
-    "title": "8: Al-Anfaal الأنفال",
+    "title": "8: al-Anfaal الأنفال",
     "slug": "8-al-anfaal"
   },
   "A13": {
@@ -104,7 +104,7 @@
     "slug": "12-yusuf"
   },
   "A17": {
-    "title": "13: Ar-Ra'd الرعد",
+    "title": "13: al-Ra'd الرعد",
     "slug": "13-ar-ra-d"
   },
   "A18": {
@@ -112,19 +112,19 @@
     "slug": "14-ibrahim"
   },
   "A19": {
-    "title": "15: Al-Hijr الحجر",
+    "title": "15: al-Hijr الحجر",
     "slug": "15-al-hijr"
   },
   "A20": {
-    "title": "16: An-Nahl النحل",
-    "slug": "16-an-nahl"
+    "title": "16: al-Nahl النحل",
+    "slug": "16-al-nahl"
   },
   "A21": {
-    "title": "17: Al-Israa الإسراء",
+    "title": "17: al-Israa الإسراء",
     "slug": "17-al-israa"
   },
   "A22": {
-    "title": "18: Al-Kahf الكهف",
+    "title": "18: al-Kahf الكهف",
     "slug": "18-al-kahf"
   },
   "A23": {
@@ -136,43 +136,43 @@
     "slug": "20-taa-haa"
   },
   "A25": {
-    "title": "21: Al-Anbiyaa الأنبياء",
+    "title": "21: al-Anbiyaa الأنبياء",
     "slug": "21-al-anbiyaa"
   },
   "A26": {
-    "title": "22: Al-Hajj الحج",
+    "title": "22: al-Hajj الحج",
     "slug": "22-al-hajj"
   },
   "A27": {
-    "title": "23: Al-Muminoon المؤمنون",
-    "slug": "23-al-muminoon"
+    "title": "23: al-Momenoon المؤمنون",
+    "slug": "23-al-momenoon"
   },
   "A28": {
-    "title": "24: An-Noor النور",
-    "slug": "24-an-noor"
+    "title": "24: al-Noor النور",
+    "slug": "24-al-noor"
   },
   "A29": {
     "title": "25: Al-Furqaan الفرقان",
     "slug": "25-al-furqaan"
   },
   "A30": {
-    "title": "26: Ash-Shu'araa الشعراء",
-    "slug": "26-ash-shu-araa"
+    "title": "26: al-Shoa'raa الشعراء",
+    "slug": "26-al-shoa-raa"
   },
   "A31": {
-    "title": "27: An-Naml النمل",
-    "slug": "27-an-naml"
+    "title": "27: al-Naml النمل",
+    "slug": "27-al-naml"
   },
   "A32": {
-    "title": "28: Al-Qasas القصص",
+    "title": "28: al-Qasas القصص",
     "slug": "28-al-qasas"
   },
   "A33": {
-    "title": "29: Al-Ankaboot العنكبوت",
+    "title": "29: al-Ankaboot العنكبوت",
     "slug": "29-al-ankaboot"
   },
   "A34": {
-    "title": "30: Ar-Room الروم",
+    "title": "30: al-Room الروم",
     "slug": "30-ar-room"
   },
   "A35": {
@@ -180,16 +180,16 @@
     "slug": "31-luqman"
   },
   "A36": {
-    "title": "32: As-Sajda السجدة",
-    "slug": "32-as-sajda"
+    "title": "32: al-Sajdah السجدة",
+    "slug": "32-al-sajdah"
   },
   "A37": {
-    "title": "33: Al-Ahzaab الأحزاب",
+    "title": "33: al-Ahzaab الأحزاب",
     "slug": "33-al-ahzaab"
   },
   "A38": {
-    "title": "34: Saba سبإ",
-    "slug": "34-saba"
+    "title": "34: Sabaa سبإ",
+    "slug": "34-sabaa"
   },
   "A39": {
     "title": "35: Faatir فاطر",
@@ -212,47 +212,47 @@
     "slug": "38-saad"
   },
   "A43": {
-    "title": "39: Az-Zumar الزمر",
-    "slug": "39-az-zumar"
+    "title": "39: al-Zumar الزمر",
+    "slug": "39-al-zumar"
   },
   "A44": {
-    "title": "40: Al-Ghaafir غافر",
+    "title": "40: al-Ghaafir غافر",
     "slug": "40-al-ghaafir"
   },
   "A45": {
-    "title": "41: Fussilat فصلت",
-    "slug": "41-fussilat"
+    "title": "41: Fusselat فصلت",
+    "slug": "41-fusselat"
   },
   "A46": {
-    "title": "42: Ash-Shura الشورى",
-    "slug": "42-ash-shura"
+    "title": "42: al-Shooraa الشورى",
+    "slug": "42-al-shooraa"
   },
   "A47": {
-    "title": "43: Az-Zukhruf الزخرف",
-    "slug": "43-az-zukhruf"
+    "title": "43: al-Zukhruf الزخرف",
+    "slug": "43-al-zukhruf"
   },
   "A48": {
-    "title": "44: Ad-Dukhaan الدخان",
-    "slug": "44-ad-dukhaan"
+    "title": "44: al-Dokhaan الدخان",
+    "slug": "44-al-dokhaan"
   },
   "A49": {
-    "title": "45: Al-Jaathiya الجاثية",
-    "slug": "45-al-jaathiya"
+    "title": "45: al-Jaaseyah الجاثية",
+    "slug": "45-al-jaaseyah"
   },
   "A5": {
-    "title": "1: Al-Faatehah الفاتحة",
+    "title": "1: al-Faatehah الفاتحة",
     "slug": "1-al-faatehah"
   },
   "A50": {
-    "title": "46: Al-Ahqaf الأحقاف",
-    "slug": "46-al-ahqaf"
+    "title": "46: al-Ahqaaf الأحقاف",
+    "slug": "46-al-ahqaaf"
   },
   "A51": {
     "title": "47: Muhammad محمد",
     "slug": "47-muhammad"
   },
   "A52": {
-    "title": "48: Al-Fath الفتح",
+    "title": "48: al-Fath الفتح",
     "slug": "48-al-fath"
   },
   "A53": {
@@ -264,35 +264,35 @@
     "slug": "50-qaaf"
   },
   "A55": {
-    "title": "51: Adh-Dhaariyat الذاريات",
-    "slug": "51-adh-dhaariyat"
+    "title": "51: al-Zaareyaat الذاريات",
+    "slug": "51-al-zaareyaat"
   },
   "A56": {
-    "title": "52: At-Tur الطور",
+    "title": "52: al-Toor الطور",
     "slug": "52-at-tur"
   },
   "A57": {
-    "title": "53: An-Najm النجم",
+    "title": "53: al-Najm النجم",
     "slug": "53-an-najm"
   },
   "A58": {
-    "title": "54: Al-Qamar القمر",
+    "title": "54: al-Qamar القمر",
     "slug": "54-al-qamar"
   },
   "A59": {
-    "title": "55: Ar-Rahmaan الرحمن",
-    "slug": "55-ar-rahmaan"
+    "title": "55: al-Rahmaan الرحمن",
+    "slug": "55-al-rahmaan"
   },
   "A6": {
     "title": "2 : Al-Baqarah البقرة",
     "slug": "2-al-baqarah"
   },
   "A60": {
-    "title": "56: Al-Waaqia الواقعة",
+    "title": "56: al-Waaqeah الواقعة",
     "slug": "56-al-waaqia"
   },
   "A61": {
-    "title": "57: Al-Hadeed الحديد",
+    "title": "57: al-Hadeed الحديد",
     "slug": "57-al-hadeed"
   },
   "A62": {
@@ -300,20 +300,20 @@
     "slug": "58-al-mujaadila"
   },
   "A63": {
-    "title": "59: Al-Hashr الحشر",
+    "title": "59: al-Hashr الحشر",
     "slug": "59-al-hashr"
   },
   "A64": {
-    "title": "60: Al-Mumtahana الممتحنة",
-    "slug": "60-al-mumtahana"
+    "title": "60: al-Mumtahanah الممتحنة",
+    "slug": "60-al-mumtahanah"
   },
   "A65": {
-    "title": "61: As-Saff الصف",
-    "slug": "61-as-saff"
+    "title": "61: al-Saff الصف",
+    "slug": "61-al-saff"
   },
   "A66": {
-    "title": "62: Al-Jumu'a الجمعة",
-    "slug": "62-al-jumu-a"
+    "title": "62: al-Jomoa'h الجمعة",
+    "slug": "62-al-jomoa-h"
   },
   "A67": {
     "title": "63: al-Munaafeqoon المنافقون",
@@ -332,24 +332,24 @@
     "slug": "3-aal-e-imraan"
   },
   "A70": {
-    "title": "66: At-Tahrim التحريم",
-    "slug": "66-at-tahrim"
+    "title": "66: al-Tahreem التحريم",
+    "slug": "66-al-tahreem"
   },
   "A71": {
     "title": "67: Al-Mulk الملك",
     "slug": "67-al-mulk"
   },
   "A72": {
-    "title": "68: Al-Qalam القلم",
+    "title": "68: al-Qalam القلم",
     "slug": "68-al-qalam"
   },
   "A73": {
-    "title": "69: Al-Haaqqa الحاقة",
-    "slug": "69-al-haaqqa"
+    "title": "69: al-Haaqqah الحاقة",
+    "slug": "69-al-haaqqah"
   },
   "A74": {
-    "title": "70: Al-Ma'aarij المعارج",
-    "slug": "70-al-ma-aarij"
+    "title": "70: al-Ma-a'arij المعارج",
+    "slug": "70-al-ma-a-arij"
   },
   "A75": {
     "title": "71: Nooh نوح",
@@ -360,7 +360,7 @@
     "slug": "72-al-jinn"
   },
   "A77": {
-    "title": "73: Al-Muzzammil المزمل",
+    "title": "73: al-Muzzammil المزمل",
     "slug": "73-al-muzzammil"
   },
   "A78": {
@@ -368,71 +368,71 @@
     "slug": "74-al-muddassir"
   },
   "A79": {
-    "title": "75: Al-Qiyaama القيامة",
-    "slug": "75-al-qiyaama"
+    "title": "75: al-Qeyaamah القيامة",
+    "slug": "75-al-qeyaamah"
   },
   "A8": {
     "title": "4: al-Nisaa النساء",
     "slug": "4-an-nisaa"
   },
   "A80": {
-    "title": "76: Al-Insaan الانسان",
+    "title": "76: al-Insaan الانسان",
     "slug": "76-al-insaan"
   },
   "A81": {
-    "title": "77: Al-Mursalaat المرسلات",
+    "title": "77: al-Mursalaat المرسلات",
     "slug": "77-al-mursalaat"
   },
   "A82": {
-    "title": "78: An-Naba النبإ",
-    "slug": "78-an-naba"
+    "title": "78: al-Nabaa النبإ",
+    "slug": "78-al-nabaa"
   },
   "A83": {
-    "title": "79: An-Naazi'aat النازعات",
-    "slug": "79-an-naazi-aat"
+    "title": "79: al-Naazea'at النازعات",
+    "slug": "79-al-naazea-at"
   },
   "A84": {
     "title": "80: Abasa عبس",
     "slug": "80-abasa"
   },
   "A85": {
-    "title": "81: At-Takwir التكوير",
-    "slug": "81-at-takwir"
+    "title": "81: al-Takweer التكوير",
+    "slug": "81-al-takweer"
   },
   "A86": {
-    "title": "82: Al-Infitaar الإنفطار",
-    "slug": "82-al-infitaar"
+    "title": "82: al-Infetaar الإنفطار",
+    "slug": "82-al-infetaar"
   },
   "A87": {
-    "title": "83: Al-Mutaffifin المطففين",
-    "slug": "83-al-mutaffifin"
+    "title": "83: al-Motaffefeen المطففين",
+    "slug": "83-al-motaffefeen"
   },
   "A88": {
-    "title": "84: Al-Inshiqaaq الإنشقاق",
-    "slug": "84-al-inshiqaaq"
+    "title": "84: al-Insheqaaq الإنشقاق",
+    "slug": "84-al-insheqaaq"
   },
   "A89": {
-    "title": "85: Al-Burooj البروج",
+    "title": "85: al-Burooj البروج",
     "slug": "85-al-burooj"
   },
   "A9": {
-    "title": "5: Al-Maaida المائدة",
-    "slug": "5-al-maaida"
+    "title": "5: al-Maaedah المائدة",
+    "slug": "5-al-maaedah"
   },
   "A90": {
-    "title": "86: At-Taariq الطارق",
-    "slug": "86-at-taariq"
+    "title": "86: al-Taariq الطارق",
+    "slug": "86-al-taariq"
   },
   "A91": {
-    "title": "87: Al-A'laa الأعلى",
-    "slug": "87-al-a-laa"
+    "title": "87: al-A-a'laa الأعلى",
+    "slug": "87-al-a-a-laa"
   },
   "A92": {
-    "title": "88: Al-Ghaashiya الغاشية",
-    "slug": "88-al-ghaashiya"
+    "title": "88: al-Ghaasheyah الغاشية",
+    "slug": "88-al-ghaasheyah"
   },
   "A93": {
-    "title": "89: Al-Fajr الفجر",
+    "title": "89: al-Fajr الفجر",
     "slug": "89-al-fajr"
   },
   "A94": {
@@ -440,23 +440,23 @@
     "slug": "90-al-balad"
   },
   "A95": {
-    "title": "91: Ash-Shams الشمس",
-    "slug": "91-ash-shams"
+    "title": "91: al-Shams الشمس",
+    "slug": "91-al-shams"
   },
   "A96": {
-    "title": "92: Al-Lail الليل",
-    "slug": "92-al-lail"
+    "title": "92: al-Layl الليل",
+    "slug": "92-al-layl"
   },
   "A97": {
-    "title": "93: Ad-Dhuhaa الضحى",
-    "slug": "93-ad-dhuhaa"
+    "title": "93: al-Zohaa الضحى",
+    "slug": "93-al-zohaa"
   },
   "A98": {
-    "title": "94: Ash-Sharh (Insherah) الشرح",
+    "title": "94: al-Sharh (Insherah) الشرح",
     "slug": "94-ash-sharh-insherah"
   },
   "A99": {
-    "title": "95: At-Tin التين",
+    "title": "95: al-Teen التين",
     "slug": "95-at-tin"
   },
   "AA1": {
@@ -478,6 +478,10 @@
   "AA2": {
     "title": "Recitation Of The Holy Qur’an In Ramazan",
     "slug": "recitation-of-the-holy-qur-an-in-ramazan"
+  },
+  "AA21": {
+    "title": "Dua No. 43 of Saheefah al-Kaamelah",
+    "slug": "dua-no-43-of-saheefah-al-kaamelah"
   },
   "AA3": {
     "title": "Aamal to be performed only during Night",
@@ -690,6 +694,10 @@
     "title": "Iraq",
     "slug": "iraq"
   },
+  "C15": {
+    "title": "General Aamaal of each Month",
+    "slug": "general-aamaal-of-each-month"
+  },
   "C~AA5": {
     "title": "Mahe Ramazan",
     "slug": "mahe-ramazan"
@@ -879,8 +887,8 @@
     "slug": "dua-e-nudbah-2"
   },
   "E35": {
-    "title": "Dua e Sabah",
-    "slug": "dua-e-sabah"
+    "title": "Dua-e-Sabaah",
+    "slug": "dua-e-sabaah"
   },
   "E36": {
     "title": "Dua e Sad Subhan (Dua e Sahifa)",
@@ -889,6 +897,10 @@
   "E37": {
     "title": "Dua e Sanamay Quraish",
     "slug": "dua-e-sanamay-quraish"
+  },
+  "E38": {
+    "title": "Dua Faraj (Release from Grief) يَا عِمَادَ مَنْ لَا عِمَادَ لَهُ",
+    "slug": "dua-faraj-release-from-grief"
   },
   "E39": {
     "title": "Dua for Ailments and Illnesses",
@@ -899,7 +911,7 @@
     "slug": "dua-for-glorifying-allah-s-w-t"
   },
   "E46": {
-    "title": "Dua for Istikharah fom Holy Quran",
+    "title": "Dua for Istekhaarah fom Holy Quran",
     "slug": "dua-for-istikharah-fom-holy-quran"
   },
   "E5": {
@@ -1010,8 +1022,9 @@
     "slug": "ziyaarat-e-aal-e-yaaseen"
   },
   "G11": {
-    "title": "Ziyarat e Nahiya",
-    "slug": "ziyarat-e-nahiya"
+    "title": "Ziyaarat-e-Naaheyah",
+    "slug": "ziyaarat-e-naaheyah",
+    "day": "01-10"
   },
   "G12": {
     "title": "Ziyaarat-e-Jaamea'h Sagheerah",
@@ -1063,8 +1076,9 @@
     "slug": "ziyarat-e-hazrat-rasul-e-khuda"
   },
   "G51": {
-    "title": "Ziyarate Ameerul Momeneen Hazrat Ali (a.s.)",
-    "slug": "ziyarate-ameerul-momeneen-hazrat-ali-a-s"
+    "title": "Ziyaarat-e-Ameerul Momeneen Imam Ali (a.s.)",
+    "slug": "ziyaarat-e-ameerul-momeneen-imam-ali-a-s",
+    "day": "21-09"
   },
   "G52": {
     "title": "Ziyaarat-e-Janab-e-Faatemah Zahra (s.a.)",
@@ -1273,6 +1287,18 @@
     "title": "Aamal Between Dawn & Sunrise",
     "slug": "aamal-between-dawn-sunrise"
   },
+  "I104": {
+    "title": "Tafaaul and Istekhaarah",
+    "slug": "tafaaul-and-istekhaarah"
+  },
+  "I105": {
+    "title": "Numerical Istekhaarah",
+    "slug": "numerical-istekhaarah"
+  },
+  "I106": {
+    "title": "Appearing Istekhaarah for Others",
+    "slug": "appearing-istekhaarah-for-others"
+  },
   "I11": {
     "title": "Rosary made of the turbat of Imam al-Husayn (a.s.)",
     "slug": "rosary-made-of-the-turbat-of-imam-husayn-a-s"
@@ -1320,6 +1346,26 @@
   "I3": {
     "title": "Cleansing the Teeth",
     "slug": "cleansing-the-teeth"
+  },
+  "I32": {
+    "title": "Prayer of Istekhaarah with Sheets",
+    "slug": "prayer-of-istekhaarah-with-sheets"
+  },
+  "I33": {
+    "title": "Istekhaarah",
+    "slug": "istekhaarah"
+  },
+  "I34": {
+    "title": "Istekhaarah with Rosary (Tasbeeh)",
+    "slug": "istekhaarah-with-rosary-tasbeeh"
+  },
+  "I35": {
+    "title": "Istikharah of the author of Al-Jawahir",
+    "slug": "istikharah-of-the-author-of-al-jawahir"
+  },
+  "I36": {
+    "title": "The time of Istikharah",
+    "slug": "the-time-of-istikharah"
   },
   "I4": {
     "title": "The Ritual Ablution (Wuzu)",
@@ -1372,6 +1418,10 @@
   "I83": {
     "title": "Hirz-e-Imam al-Mahdi (a.t.f.s.)",
     "slug": "hirz-e-imam-al-mahdi-a-t-f-s"
+  },
+  "I85": {
+    "title": "Holy Prophet (s.a.w.a.)'s prayer for security",
+    "slug": "holy-prophet-s-a-w-a-s-prayer-for-security"
   },
   "I9": {
     "title": "General Ta'qeebaat-1",
@@ -1545,6 +1595,10 @@
     "title": "Aamal of Ashoora",
     "slug": "aamaal-of-ashoora",
     "day": "01-10"
+  },
+  "S5": {
+    "title": "20th Safar (Arbaeen - 40th Day)",
+    "slug": "20th-safar-arbaeen-40th-day"
   },
   "S7": {
     "title": "Ziyarah on the day of Arbaeen; The Twentieth of Safar",
