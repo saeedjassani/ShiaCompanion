@@ -28,15 +28,8 @@
 </head>
 
 <body>
-  <!-- This script installs service_worker.js to provide PWA functionality to
-       application. For more information, see:
-       https://developers.google.com/web/fundamentals/primers/service-workers -->
   <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
-
-  <!-- Use flutter.js to bootstrap the service worker as recommended by Flutter docs -->
-  <script src="flutter.js" defer></script>
-  <script src="main.dart.js" type="application/javascript"></script>
   <script>
     (function () {
       const path = window.location.pathname || '/';
@@ -187,6 +180,7 @@
       maybeOpenInstalledApp();
     })();
   </script>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 
 </html>

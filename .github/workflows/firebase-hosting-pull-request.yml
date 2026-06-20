@@ -24,7 +24,7 @@ jobs:
         run: node scripts/build_zikr_release.js --allow-stale-on-error
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_ZIKR_SERVICE_ACCOUNT_JSON || secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
-      - run: flutter build web
+      - run: flutter build web --wasm
       - name: Generate zikr SEO pages
         run: node scripts/generate_zikr_seo_pages.js
       - uses: FirebaseExtended/action-hosting-deploy@v0
