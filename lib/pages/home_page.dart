@@ -632,17 +632,11 @@ class _MyHomePageState extends State<MyHomePage>
     // Initialize favorites (from SharedPreferences if logged out, Firestore if logged in)
     await FavoritesManager.instance.loadFavorites();
 
-    // On web, avoid showing a location prompt on first paint. The prayer-times
-    // card and settings page still let users request location deliberately.
-    final useLiveLocation = shouldUseLiveLocation();
-    final shouldInitializeLocation =
-        !kIsWeb || useLiveLocation || (lat != null && long != null);
-    if (shouldInitializeLocation) {
-      await initializeLocation(
-        force: useLiveLocation,
-        context: useLiveLocation || kIsWeb ? null : context,
-      );
-    }
+    // Initialize LocationData
+    await initializeLocation(
+      force: shouldUseLiveLocation(),
+      context: shouldUseLiveLocation() ? null : context,
+    );
 
     if (!kIsWeb) {
       await initializeNotificationTimeZone();

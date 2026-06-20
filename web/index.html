@@ -159,24 +159,6 @@
         }
       }
 
-      function showDownloadAppBannerAfterInteraction() {
-        let hasShown = false;
-        function show() {
-          if (hasShown) {
-            return;
-          }
-          hasShown = true;
-          window.removeEventListener('pointerdown', show);
-          window.removeEventListener('keydown', show);
-          window.removeEventListener('scroll', show);
-          createDownloadAppBanner();
-        }
-
-        window.addEventListener('pointerdown', show, { once: true, passive: true });
-        window.addEventListener('keydown', show, { once: true });
-        window.addEventListener('scroll', show, { once: true, passive: true });
-      }
-
       async function maybeOpenInstalledApp() {
         if (!isAndroid ||
           !isContentPath ||
@@ -201,7 +183,7 @@
         }
       }
 
-      showDownloadAppBannerAfterInteraction();
+      createDownloadAppBanner();
       maybeOpenInstalledApp();
     })();
   </script>
