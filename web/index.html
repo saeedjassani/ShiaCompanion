@@ -25,9 +25,75 @@
   <link rel="icon" type="image/png" href="favicon.ico" />
   <link rel="manifest" href="manifest.json">
   <title>Shia Companion - Dua, Ziyarat & Prayer Times</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    #app-loading {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      background: #ffffff;
+      color: #3e2723;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #app-loading-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    #app-loading img {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+    }
+
+    #app-loading-name {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #app-loading {
+        background: #171411;
+        color: #f7eee9;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div id="app-loading" role="status" aria-label="Loading Shia Companion">
+    <div id="app-loading-content">
+      <img src="icons/Icon-192.png" width="72" height="72" alt="">
+      <div id="app-loading-name">Shia Companion</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const loadingShell = document.getElementById('app-loading');
+      if (document.querySelector('.seo-zikr-content')) {
+        loadingShell.remove();
+        return;
+      }
+      window.addEventListener(
+        'flutter-first-frame',
+        function () {
+          loadingShell.remove();
+        },
+        { once: true }
+      );
+    })();
+  </script>
   <script>
     (function () {
       const path = window.location.pathname || '/';
