@@ -65,13 +65,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-    final FirebaseAnalyticsObserver observer =
-        FirebaseAnalyticsObserver(analytics: analytics);
+    final FirebaseAnalyticsObserver? analyticsObserver = kIsWeb
+        ? null
+        : FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance);
     Widget buildHomePage() => MyHomePage(
           title: appName,
-          analytics: analytics,
-          observer: observer,
         );
 
     return ChangeNotifierProvider(
@@ -132,7 +130,10 @@ class MyApp extends StatelessWidget {
               fallbackBuilder: (_) => buildHomePage(),
             );
           },
-          navigatorObservers: [observer, routeObserver],
+          navigatorObservers: [
+            if (analyticsObserver != null) analyticsObserver,
+            routeObserver,
+          ],
         );
       }),
     );

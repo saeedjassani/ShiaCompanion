@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
@@ -35,13 +34,9 @@ enum _PublishStatus { success, error, timeout }
 class MyHomePage extends StatefulWidget {
   MyHomePage({
     required this.title,
-    required this.analytics,
-    required this.observer,
   });
 
   final String title;
-  final FirebaseAnalytics analytics;
-  final FirebaseAnalyticsObserver observer;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -81,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
-    trackScreen('Home Page');
+    unawaited(trackScreen('Home Page', deferOnWeb: true));
     WidgetsBinding.instance.addObserver(this);
     _setupDeepLinks();
     _setupAndroidWidgetLinks();
