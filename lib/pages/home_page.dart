@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
-import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +9,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:math';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
@@ -23,6 +21,7 @@ import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
+import 'package:shia_companion/utils/hadith_loader.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
@@ -691,22 +690,16 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  // 0 - 2340 General
-  // 2341 - 2375 Muharram
   Future<void> getHadith() async {
-    HijriCalendar _today =
+    final today =
         HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
-    Random rnd = Random();
-    int min = 0, max = 2341;
-    if (_today.hMonth < 2 || (_today.hMonth == 2 && _today.hDay < 9)) {
-      min = 2341;
-      max = 2376;
-    }
-    int randomIndex = min + rnd.nextInt(max - min);
-    String hadithString =
-        await DefaultAssetBundle.of(context).loadString('assets/hadith.csv');
-    final csvTable = csv.decode(hadithString);
-    hadith = csvTable[randomIndex][0];
+    final useMuharramQuotes =
+        today.hMonth < 2 || (today.hMonth == 2 && today.hDay < 9);
+    hadith = await loadRandomHadith(
+      DefaultAssetBundle.of(context),
+      useMuharramQuotes: useMuharramQuotes,
+    );
+    if (!mounted) return;
     setState(() {});
   }
 
