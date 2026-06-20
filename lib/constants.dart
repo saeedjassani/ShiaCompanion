@@ -910,7 +910,14 @@ Icon getFavIcon(BuildContext context, UniversalData itemData) {
         );
 }
 
-Future<void> trackScreen(String screenName) async {
+Future<void> trackScreen(
+  String screenName, {
+  bool deferOnWeb = false,
+}) async {
+  if (kIsWeb && deferOnWeb) {
+    await WidgetsBinding.instance.endOfFrame;
+    await Future<void>.delayed(const Duration(seconds: 5));
+  }
   await FirebaseAnalytics.instance.logEvent(
     name: 'screen_view',
     parameters: {'screen_name': screenName},
