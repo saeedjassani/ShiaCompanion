@@ -174,7 +174,27 @@
         }
       }
 
-      createDownloadAppBanner();
+      let bannerScheduled = false;
+
+      function scheduleDownloadAppBanner() {
+        if (bannerScheduled) {
+          return;
+        }
+        bannerScheduled = true;
+        window.setTimeout(createDownloadAppBanner, 2500);
+      }
+
+      window.addEventListener(
+        'flutter-first-frame',
+        scheduleDownloadAppBanner,
+        { once: true }
+      );
+      window.setTimeout(function () {
+        if (!bannerScheduled) {
+          bannerScheduled = true;
+          createDownloadAppBanner();
+        }
+      }, 10000);
       maybeOpenInstalledApp();
     })();
   </script>
