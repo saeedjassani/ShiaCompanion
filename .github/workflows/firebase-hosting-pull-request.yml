@@ -24,6 +24,8 @@ jobs:
         run: node scripts/build_zikr_release.js --allow-stale-on-error
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_ZIKR_SERVICE_ACCOUNT_JSON || secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
+      - name: Generate hadith shards
+        run: node scripts/generate_hadith_shards.js
       - run: flutter build web --wasm
       - name: Generate zikr SEO pages
         run: node scripts/generate_zikr_seo_pages.js

@@ -12,7 +12,6 @@ dependencies:
   provider: ^6.0.5
   app_links: ^7.1.1
   auth_buttons: ^3.0.0
-  csv: ^8.0.0
   date_format: ^2.0.7
   firebase_auth: ^6.1.3
   firebase_crashlytics: ^5.0.6
@@ -63,11 +62,15 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/
+    - assets/books.json
+    - assets/events.json
+    - assets/items.json
+    - assets/logo.png
+    - assets/zikr.json
+    - assets/hadith/
     - assets/images/
     - assets/zikr/
     - assets/items/
-    - assets/hadith.csv
 
   fonts:
     - family: Qalam
