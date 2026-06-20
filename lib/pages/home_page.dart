@@ -632,11 +632,14 @@ class _MyHomePageState extends State<MyHomePage>
     // Initialize favorites (from SharedPreferences if logged out, Firestore if logged in)
     await FavoritesManager.instance.loadFavorites();
 
-    // Initialize LocationData
-    await initializeLocation(
-      force: shouldUseLiveLocation(),
-      context: shouldUseLiveLocation() ? null : context,
-    );
+    // On web, keep first load quiet and let the prayer card request location
+    // only after the user taps it.
+    if (!kIsWeb) {
+      await initializeLocation(
+        force: shouldUseLiveLocation(),
+        context: shouldUseLiveLocation() ? null : context,
+      );
+    }
 
     if (!kIsWeb) {
       await initializeNotificationTimeZone();
@@ -676,6 +679,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   Future<void> _refreshLiveLocationIfNeeded() async {
     if (_isRefreshingLiveLocation ||
+        kIsWeb ||
         !SP.isInitialized ||
         !shouldUseLiveLocation()) {
       return;

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
@@ -22,6 +23,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     PrayerTime prayerTime = getPrayerTimeObject();
     prayerTime.setTimeFormat(prayerTime.getTime12());
     final useLiveLocation = shouldUseLiveLocation();
+    final isFetchingLiveLocation = useLiveLocation && !kIsWeb;
 
     List<String>? _prayerTimes = lat != null
         ? prayerTime.getPrayerTimes(currentTime, lat!, long!,
@@ -145,7 +147,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(24.0),
                       child: Text(
-                          useLiveLocation
+                          isFetchingLiveLocation
                               ? "Fetching live location to display prayer times"
                               : "Enable location to display prayer times",
                           textAlign: TextAlign.center),
