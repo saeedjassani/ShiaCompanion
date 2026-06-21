@@ -5,6 +5,7 @@ import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/favorite_icon.dart';
 
 import '../constants.dart';
 
@@ -64,7 +65,7 @@ class TodaysRecitationPage extends StatelessWidget {
                                     .toggleFavorite(favoriteData);
                                 setTileState(() {});
                               },
-                              child: getFavIcon(context, favoriteData),
+                              child: FavoriteIcon(favorite: favoriteData),
                             ),
                           ),
                   );

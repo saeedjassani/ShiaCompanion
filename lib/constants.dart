@@ -35,8 +35,6 @@ double screenHeight = 0;
 User? user;
 bool isUserAdmin = false;
 
-List<UniversalData>? favsData;
-
 final String appName = "Shia Companion";
 final Color appColor = Colors.brown;
 const IconData tasbeehCounterIcon = Icons.exposure_plus_1;
@@ -896,18 +894,6 @@ AppBar getAppBar() {
   return AppBar(
     title: Text(appName),
   );
-}
-
-Icon getFavIcon(BuildContext context, UniversalData itemData) {
-  return (favsData ?? const <UniversalData>[]).contains(itemData)
-      ? Icon(
-          Icons.star,
-          color: Theme.of(context).colorScheme.primary,
-        )
-      : Icon(
-          Icons.star_border,
-          color: Theme.of(context).colorScheme.primary,
-        );
 }
 
 Future<void> trackScreen(

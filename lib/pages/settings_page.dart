@@ -790,9 +790,8 @@ class _SettingsPageState extends State<SettingsPage> {
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
           content: new Text("Login Successful"),
         ));
-        setState(() {
-          user = authResult.user;
-        });
+        user = authResult.user;
+        await _refreshAfterAuthChange();
       } else {
         logOff();
       }
@@ -834,9 +833,8 @@ class _SettingsPageState extends State<SettingsPage> {
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
           content: new Text("Login Successful"),
         ));
-        setState(() {
-          user = authResult.user;
-        });
+        user = authResult.user;
+        await _refreshAfterAuthChange();
       } else {
         logOff();
       }

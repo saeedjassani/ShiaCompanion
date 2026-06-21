@@ -7,6 +7,7 @@ import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/utils/data_search_filter.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/favorite_icon.dart';
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;
@@ -49,11 +50,10 @@ class DataSearch extends SearchDelegate<String> {
             : Text(entry.title),
         trailing: !isParentZikr
             ? InkWell(
-                onTap: () {
-                  FavoritesManager.instance.toggleFavorite(itemData);
-                  setTileState(() {});
+                onTap: () async {
+                  await FavoritesManager.instance.toggleFavorite(itemData);
                 },
-                child: getFavIcon(context, itemData),
+                child: FavoriteIcon(favorite: itemData),
               )
             : null,
       ),

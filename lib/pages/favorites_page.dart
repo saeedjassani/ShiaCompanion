@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
+import 'package:shia_companion/widgets/favorite_icon.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 
 class FavoritesPage extends StatefulWidget {
@@ -30,17 +31,15 @@ class _FavoritesPageState extends State<FavoritesPage> {
       body: ListenableBuilder(
         listenable: favoritesManager,
         builder: (context, _) {
-          final favorites = favsData;
+          final favorites = favoritesManager.favorites;
           final shouldShowLoading = favoritesManager.isLoading &&
-              (!favoritesManager.hasLoadedFavorites ||
-                  favorites == null ||
-                  favorites.isEmpty);
+              (!favoritesManager.hasLoadedFavorites || favorites.isEmpty);
 
           if (shouldShowLoading) {
             return Center(child: CircularProgressIndicator());
           }
 
-          if (favorites == null || favorites.isEmpty) {
+          if (favorites.isEmpty) {
             return Center(child: Text('No favorites yet.'));
           }
 
@@ -65,10 +64,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       handleUniversalDataClick(context, item, itemPage: true);
                   },
                   trailing: InkWell(
-                    onTap: () {
-                      FavoritesManager.instance.toggleFavorite(item);
+                    onTap: () async {
+                      await FavoritesManager.instance.toggleFavorite(item);
                     },
-                    child: getFavIcon(context, item),
+                    child: FavoriteIcon(favorite: item),
                   ),
                 );
               },
