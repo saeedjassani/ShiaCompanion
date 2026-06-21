@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "F64WJ4KMVP.com.developer110.shiacompanion",
+        "paths": [
+          "/",
+          "/*"
+        ]
+      }
+    ]
+  }
+}

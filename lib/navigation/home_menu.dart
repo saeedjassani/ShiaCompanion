@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
@@ -5,12 +6,18 @@ import '../pages/calendar_page.dart';
 import '../pages/favorites_page.dart';
 import '../pages/library_page.dart';
 import '../pages/list_items.dart';
+import '../pages/prayer_counter_page.dart';
 import '../pages/qibla_finder.dart';
 import '../pages/settings_page.dart';
 import '../pages/todays_recitation_page.dart';
 import '../widgets/tasbeeh_widget.dart';
 
 typedef HomeMenuPageBuilder = Widget Function();
+
+bool get supportsPrayerCounterOnCurrentPlatform =>
+    !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS);
 
 class HomeMenuItem {
   const HomeMenuItem({
@@ -105,6 +112,12 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     icon: tasbeehCounterIcon,
     pageBuilder: () => TasbeehWidget(),
   ),
+  if (supportsPrayerCounterOnCurrentPlatform)
+    HomeMenuItem(
+      label: 'Rakaat Counter',
+      icon: Icons.self_improvement_rounded,
+      pageBuilder: () => const PrayerCounterPage(),
+    ),
   HomeMenuItem(
     label: 'Preferences',
     icon: Icons.settings,

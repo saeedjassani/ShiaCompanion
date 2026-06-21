@@ -1,6 +1,12 @@
 #include "AppDelegate.h"
 #include "GeneratedPluginRegistrant.h"
 
+@interface AppDelegate () <FlutterStreamHandler>
+
+@property(nonatomic, copy) FlutterEventSink proximityEventSink;
+
+@end
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application
@@ -14,6 +20,7 @@
 - (void)didInitializeImplicitFlutterEngine:(NSObject<FlutterImplicitEngineBridge>*)engineBridge {
   [GeneratedPluginRegistrant registerWithRegistry:engineBridge.pluginRegistry];
   [self configureHomeWidgetChannelWithMessenger:engineBridge.applicationRegistrar.messenger];
+  [self configureProximitySensorChannelsWithMessenger:engineBridge.applicationRegistrar.messenger];
 }
 
 - (void)configureHomeWidgetChannelWithMessenger:(NSObject<FlutterBinaryMessenger> *)messenger {
@@ -65,6 +72,71 @@
 
     result(FlutterMethodNotImplemented);
   }];
+}
+
+- (void)configureProximitySensorChannelsWithMessenger:
+    (NSObject<FlutterBinaryMessenger> *)messenger {
+  FlutterMethodChannel *methodChannel =
+      [FlutterMethodChannel methodChannelWithName:@"shia_companion/proximity_sensor"
+                                  binaryMessenger:messenger];
+  [methodChannel setMethodCallHandler:^(FlutterMethodCall *call,
+                                        FlutterResult result) {
+    if (![@"isAvailable" isEqualToString:call.method]) {
+      result(FlutterMethodNotImplemented);
+      return;
+    }
+
+    UIDevice *device = UIDevice.currentDevice;
+    BOOL wasEnabled = device.proximityMonitoringEnabled;
+    device.proximityMonitoringEnabled = YES;
+    BOOL isAvailable = device.proximityMonitoringEnabled;
+    if (!wasEnabled) {
+      device.proximityMonitoringEnabled = NO;
+    }
+    result(@(isAvailable));
+  }];
+
+  FlutterEventChannel *eventChannel = [FlutterEventChannel
+      eventChannelWithName:@"shia_companion/proximity_sensor_events"
+           binaryMessenger:messenger];
+  [eventChannel setStreamHandler:self];
+}
+
+- (FlutterError *)onListenWithArguments:(id)arguments
+                              eventSink:(FlutterEventSink)events {
+  UIDevice *device = UIDevice.currentDevice;
+  device.proximityMonitoringEnabled = YES;
+  if (!device.proximityMonitoringEnabled) {
+    events([FlutterError errorWithCode:@"sensor_unavailable"
+                               message:@"This device does not have a proximity sensor."
+                               details:nil]);
+    return nil;
+  }
+
+  self.proximityEventSink = events;
+  [[NSNotificationCenter defaultCenter]
+      addObserver:self
+         selector:@selector(proximityStateDidChange:)
+             name:UIDeviceProximityStateDidChangeNotification
+           object:device];
+  events(@(device.proximityState));
+  return nil;
+}
+
+- (FlutterError *)onCancelWithArguments:(id)arguments {
+  [[NSNotificationCenter defaultCenter]
+      removeObserver:self
+                name:UIDeviceProximityStateDidChangeNotification
+              object:UIDevice.currentDevice];
+  self.proximityEventSink = nil;
+  UIDevice.currentDevice.proximityMonitoringEnabled = NO;
+  return nil;
+}
+
+- (void)proximityStateDidChange:(NSNotification *)notification {
+  if (self.proximityEventSink) {
+    self.proximityEventSink(@(UIDevice.currentDevice.proximityState));
+  }
 }
 
 @end
