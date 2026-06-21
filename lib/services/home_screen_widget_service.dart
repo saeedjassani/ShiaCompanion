@@ -77,8 +77,14 @@ class HomeScreenWidgetService {
     (index) => 'sc_daily_prayer_time_${index + 1}',
   );
 
+  List<UniversalData> _favorites = const [];
+
   bool get _isSupported {
     return !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+  }
+
+  void updateFavorites(Iterable<UniversalData> favorites) {
+    _favorites = List.unmodifiable(favorites);
   }
 
   Future<void> publishAll() async {
@@ -111,20 +117,24 @@ class HomeScreenWidgetService {
     await _saveAndRefresh(buildDailyPrayerTimesSnapshot());
   }
 
-  Map<String, String> buildWidgetSnapshot() {
+  Map<String, String> buildWidgetSnapshot({
+    Iterable<UniversalData>? favorites,
+  }) {
     return {
-      ...buildFavoritesSnapshot(),
+      ...buildFavoritesSnapshot(favorites: favorites),
       ...buildTodaysRecitationsSnapshot(),
       ...buildUpcomingPrayerSnapshot(),
       ...buildDailyPrayerTimesSnapshot(),
     };
   }
 
-  Map<String, String> buildFavoritesSnapshot() {
-    final favorites = (favsData ?? const <UniversalData>[])
+  Map<String, String> buildFavoritesSnapshot({
+    Iterable<UniversalData>? favorites,
+  }) {
+    final favoriteItems = (favorites ?? _favorites)
         .where((item) => item.type == 0)
         .toList(growable: false);
-    final topFavorites = favorites.take(favoriteItemKeys.length).toList(
+    final topFavorites = favoriteItems.take(favoriteItemKeys.length).toList(
           growable: false,
         );
     final snapshot = <String, String>{

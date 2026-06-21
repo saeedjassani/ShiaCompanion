@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/favorite_icon.dart';
 
 import '../constants.dart';
 import '../services/favorites_manager.dart';
@@ -53,11 +54,10 @@ class _LibraryPageState extends State<LibraryPage> {
                 ),
                 onTap: () => handleUniversalDataClick(context, itemData),
                 trailing: InkWell(
-                  onTap: () {
-                    FavoritesManager.instance.toggleFavorite(itemData);
-                    setState(() {});
+                  onTap: () async {
+                    await FavoritesManager.instance.toggleFavorite(itemData);
                   },
-                  child: getFavIcon(context, itemData),
+                  child: FavoriteIcon(favorite: itemData),
                 ));
           },
           separatorBuilder: (context, index) => Divider(),

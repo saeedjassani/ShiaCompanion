@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/services/favorites_sync_policy.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
@@ -28,6 +29,7 @@ class FavoritesManager extends ChangeNotifier {
   static const String _legacyRealtimeFavoritesPath = 'new_favs';
   static const String _favoritesCollection = 'favorites';
   static const String _favoritesDocId = 'index';
+  static const String _guestImportPendingKey = 'favorites_guest_import_pending';
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -36,11 +38,20 @@ class FavoritesManager extends ChangeNotifier {
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   Map<String, String>? _bookTitleLookup;
   Future<void>? _loadFavoritesFuture;
+  Future<void> _storageWriteQueue = Future.value();
+  List<UniversalData> _favorites = const [];
+  List<UniversalData> _pendingGuestFavorites = const [];
+  String? _pendingGuestImportUserId;
+  String? _loadedUserId;
+  bool _isImportingGuestFavorites = false;
+  bool _isReplayingPendingOperations = false;
+  int _mutationVersion = 0;
   bool _isLoading = false;
   bool _hasLoadedFavorites = false;
 
   bool get isLoading => _isLoading;
   bool get hasLoadedFavorites => _hasLoadedFavorites;
+  List<UniversalData> get favorites => _favorites;
 
   DocumentReference<Map<String, dynamic>> _favoritesDoc(String userId) {
     return _firestore
@@ -55,6 +66,9 @@ class FavoritesManager extends ChangeNotifier {
   }
 
   String _userStorageKey(String userId) => 'favorites_user_$userId';
+
+  String _pendingOperationsStorageKey(String userId) =>
+      'favorites_pending_operations_$userId';
 
   Future<void> loadFavorites() async {
     if (_loadFavoritesFuture != null) {
@@ -80,10 +94,14 @@ class FavoritesManager extends ChangeNotifier {
   }
 
   Future<void> _loadFavoritesInternal() async {
+    await _storageWriteQueue;
     final guestFavorites = await _loadGuestFavorites();
     final user = _auth.currentUser;
+    final isGuestToUserTransition =
+        _hasLoadedFavorites && _loadedUserId == null && user != null;
 
-    _listener?.cancel();
+    await _listener?.cancel();
+    _listener = null;
 
     if (user == null) {
       final resolvedGuestFavorites = await _resolveTitles(
@@ -95,6 +113,7 @@ class FavoritesManager extends ChangeNotifier {
       debugPrint(
         'FavoritesManager: Loaded ${resolvedGuestFavorites.length} guest favorites',
       );
+      _loadedUserId = null;
       return;
     }
 
@@ -112,39 +131,92 @@ class FavoritesManager extends ChangeNotifier {
       _updateFavoritesData(resolvedCachedFavorites);
     }
 
-    final remoteFavorites = await _loadRemoteFavorites(user.uid);
-    final legacyRealtimeFavorites =
-        await _loadLegacyRealtimeFavorites(user.uid);
-    final mergedFavorites = _mergeFavorites([
-      ...userCachedFavorites,
-      ...remoteFavorites,
-      ...legacyRealtimeFavorites,
-      ...guestFavorites,
-    ]);
-    final resolvedFavorites = await _resolveTitles(
-      mergedFavorites,
-      fallbacks: [
-        ...userCachedFavorites,
-        ...remoteFavorites,
-        ...legacyRealtimeFavorites,
-        ...guestFavorites,
-      ],
+    final remoteRead = await _loadRemoteFavorites(user.uid);
+    final legacyRealtimeFavorites = remoteRead.succeeded && remoteRead.exists
+        ? const <UniversalData>[]
+        : await _loadLegacyRealtimeFavorites(user.uid);
+    final shouldImportGuestFavorites = isGuestToUserTransition ||
+        SP.prefs.getBool(_guestImportPendingKey) == true;
+    final decision = resolveSignedInFavorites(
+      remoteReadSucceeded: remoteRead.succeeded,
+      remoteExists: remoteRead.exists,
+      remoteFavorites: remoteRead.favorites,
+      cachedFavorites: userCachedFavorites,
+      guestFavorites: guestFavorites,
+      legacyFavorites: legacyRealtimeFavorites,
+      shouldImportGuestFavorites: shouldImportGuestFavorites,
     );
+    late List<PendingFavoriteOperation> pendingOperations;
+    late List<UniversalData> resolvedFavorites;
+    while (true) {
+      await _storageWriteQueue;
+      final versionBeforeResolution = _mutationVersion;
+      pendingOperations = _loadPendingOperations(user.uid);
+      final favoritesWithPendingOperations = applyPendingFavoriteOperations(
+        decision.visibleFavorites,
+        pendingOperations,
+      );
+      resolvedFavorites = await _resolveTitles(
+        favoritesWithPendingOperations,
+        fallbacks: [
+          ...userCachedFavorites,
+          ...remoteRead.favorites,
+          ...legacyRealtimeFavorites,
+          ...guestFavorites,
+        ],
+      );
+      if (versionBeforeResolution == _mutationVersion) break;
+    }
 
     _updateFavoritesData(resolvedFavorites);
     await _saveUserFavoritesToSharedPreferences(user.uid, resolvedFavorites);
 
-    final remoteAlreadyUpToDate =
-        _haveSameFavoriteKeys(remoteFavorites, mergedFavorites);
-    if (!remoteAlreadyUpToDate) {
-      await _saveRemoteFavoritesForUser(user.uid, resolvedFavorites);
+    var remoteMigrationSucceeded = remoteRead.succeeded;
+    if (decision.remoteSeed != null) {
+      try {
+        await _saveRemoteFavoritesForUser(user.uid, _favorites);
+        for (final operation in pendingOperations) {
+          await _clearPendingOperation(
+            user.uid,
+            operation.favorite,
+            shouldExist: operation.shouldExist,
+          );
+        }
+      } catch (error) {
+        remoteMigrationSucceeded = false;
+        debugPrint('FavoritesManager: Error creating favorites index: $error');
+      }
+    } else if (decision.guestFavoritesToImport.isNotEmpty) {
+      try {
+        await _addRemoteFavoritesForUser(
+          user.uid,
+          decision.guestFavoritesToImport,
+        );
+      } catch (error) {
+        remoteMigrationSucceeded = false;
+        _pendingGuestImportUserId = user.uid;
+        _pendingGuestFavorites = decision.guestFavoritesToImport;
+        debugPrint('FavoritesManager: Error importing guest favorites: $error');
+      }
+    } else if (!remoteRead.succeeded && shouldImportGuestFavorites) {
+      _pendingGuestImportUserId = user.uid;
+      _pendingGuestFavorites = guestFavorites;
     }
 
-    if (guestFavorites.isNotEmpty || legacyRealtimeFavorites.isNotEmpty) {
+    if (remoteRead.succeeded &&
+        decision.remoteSeed == null &&
+        pendingOperations.isNotEmpty) {
+      await _replayPendingOperations(user.uid, pendingOperations);
+    }
+
+    if (decision.canCleanUpLegacyData && remoteMigrationSucceeded) {
       await _clearGuestFavorites();
       await _deleteLegacyRealtimeFavorites(user.uid);
+      _pendingGuestImportUserId = null;
+      _pendingGuestFavorites = const [];
     }
 
+    _loadedUserId = user.uid;
     setupRealtimeListener();
   }
 
@@ -154,8 +226,13 @@ class FavoritesManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _updateFavoritesData(List<UniversalData> nextFavorites) {
-    favsData = nextFavorites;
+  void _updateFavoritesData(
+    List<UniversalData> nextFavorites, {
+    bool isUserMutation = false,
+  }) {
+    if (isUserMutation) _mutationVersion++;
+    _favorites = List.unmodifiable(_sanitizeFavorites(nextFavorites));
+    HomeScreenWidgetService.instance.updateFavorites(_favorites);
     HomeScreenWidgetService.instance.publishFavoritesSoon();
     notifyListeners();
   }
@@ -214,27 +291,142 @@ class FavoritesManager extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveFavoritesToStorageKey(
-    String storageKey,
-    List<UniversalData> favorites,
-  ) async {
-    try {
-      if (favorites.isEmpty) {
-        await SP.prefs.remove(storageKey);
-        return;
-      }
+  List<PendingFavoriteOperation> _loadPendingOperations(String userId) {
+    final encoded = SP.prefs.getString(_pendingOperationsStorageKey(userId));
+    if (encoded == null || encoded.isEmpty) return const [];
 
-      await SP.prefs.setString(
-        storageKey,
-        jsonEncode(_sanitizeFavorites(favorites)),
-      );
-    } catch (e) {
-      debugPrint('FavoritesManager: Error saving favorites to $storageKey: $e');
+    try {
+      final parsed = jsonDecode(encoded);
+      if (parsed is! List) return const [];
+      final operations = <String, PendingFavoriteOperation>{};
+      for (final value in parsed) {
+        if (value is! Map) continue;
+        final uid = value['uid']?.toString().trim() ?? '';
+        final type = value['type'] is int
+            ? value['type'] as int
+            : int.tryParse(value['type']?.toString() ?? '') ?? -1;
+        final shouldExist = value['shouldExist'];
+        if (uid.isEmpty ||
+            !_isSupportedFavoriteType(type) ||
+            shouldExist is! bool) {
+          continue;
+        }
+        final favorite = _normalizeFavorite(UniversalData(
+          uid,
+          value['title']?.toString() ?? '',
+          type,
+        ));
+        operations.remove(favorite.favoriteKey);
+        operations[favorite.favoriteKey] = PendingFavoriteOperation(
+          favorite: favorite,
+          shouldExist: shouldExist,
+        );
+      }
+      return operations.values.toList(growable: false);
+    } catch (error) {
+      debugPrint('FavoritesManager: Error decoding pending operations: $error');
+      return const [];
     }
   }
 
-  Future<void> _saveGuestFavorites(List<UniversalData> favorites) {
-    return _saveFavoritesToStorageKey(_guestStorageKey, favorites);
+  Future<void> _recordPendingOperation(
+    String userId,
+    UniversalData favorite, {
+    required bool shouldExist,
+  }) {
+    return _enqueueStorageWrite(() async {
+      final operations = {
+        for (final operation in _loadPendingOperations(userId))
+          operation.favorite.favoriteKey: operation,
+      };
+      operations.remove(favorite.favoriteKey);
+      operations[favorite.favoriteKey] = PendingFavoriteOperation(
+        favorite: favorite,
+        shouldExist: shouldExist,
+      );
+      await _writePendingOperations(userId, operations.values);
+    });
+  }
+
+  Future<void> _clearPendingOperation(
+    String userId,
+    UniversalData favorite, {
+    required bool shouldExist,
+  }) {
+    return _enqueueStorageWrite(() async {
+      final operations = {
+        for (final operation in _loadPendingOperations(userId))
+          operation.favorite.favoriteKey: operation,
+      };
+      final current = operations[favorite.favoriteKey];
+      if (current?.shouldExist != shouldExist) return;
+      operations.remove(favorite.favoriteKey);
+      await _writePendingOperations(userId, operations.values);
+    });
+  }
+
+  Future<void> _writePendingOperations(
+    String userId,
+    Iterable<PendingFavoriteOperation> operations,
+  ) async {
+    final values = operations
+        .map((operation) => {
+              ..._remoteEntry(operation.favorite),
+              'title': operation.favorite.title,
+              'shouldExist': operation.shouldExist,
+            })
+        .toList(growable: false);
+    if (values.isEmpty) {
+      await SP.prefs.remove(_pendingOperationsStorageKey(userId));
+      return;
+    }
+    await SP.prefs.setString(
+      _pendingOperationsStorageKey(userId),
+      jsonEncode(values),
+    );
+  }
+
+  Future<void> _saveFavoritesToStorageKey(
+    String storageKey,
+    List<UniversalData> favorites,
+  ) {
+    final encodedFavorites = _sanitizeFavorites(favorites);
+    return _enqueueStorageWrite(() async {
+      try {
+        if (encodedFavorites.isEmpty) {
+          await SP.prefs.remove(storageKey);
+          return;
+        }
+
+        await SP.prefs.setString(
+          storageKey,
+          jsonEncode(encodedFavorites),
+        );
+      } catch (e) {
+        debugPrint(
+            'FavoritesManager: Error saving favorites to $storageKey: $e');
+      }
+    });
+  }
+
+  Future<void> _enqueueStorageWrite(Future<void> Function() write) {
+    final operation = _storageWriteQueue.then((_) => write());
+    _storageWriteQueue = operation.catchError((Object error) {
+      debugPrint('FavoritesManager: Storage write failed: $error');
+    });
+    return operation;
+  }
+
+  Future<void> _saveGuestFavorites(
+    List<UniversalData> favorites, {
+    bool markForImport = false,
+  }) async {
+    await _saveFavoritesToStorageKey(_guestStorageKey, favorites);
+    if (markForImport) {
+      await _enqueueStorageWrite(
+        () => SP.prefs.setBool(_guestImportPendingKey, true),
+      );
+    }
   }
 
   Future<void> _saveUserFavoritesToSharedPreferences(
@@ -245,16 +437,24 @@ class FavoritesManager extends ChangeNotifier {
   }
 
   Future<void> _clearGuestFavorites() async {
-    await SP.prefs.remove(_guestStorageKey);
+    await _enqueueStorageWrite(() async {
+      await SP.prefs.remove(_guestStorageKey);
+      await SP.prefs.remove(_guestImportPendingKey);
+    });
   }
 
-  Future<List<UniversalData>> _loadRemoteFavorites(String userId) async {
+  Future<_RemoteFavoritesRead> _loadRemoteFavorites(String userId) async {
     try {
-      final snapshot = await _favoritesDoc(userId).get();
-      return _decodeRemoteFavorites(snapshot.data()?['entries']);
+      final snapshot = await _favoritesDoc(userId).get(
+        const GetOptions(source: Source.server),
+      );
+      return _RemoteFavoritesRead.success(
+        exists: snapshot.exists,
+        favorites: _decodeRemoteFavorites(snapshot.data()?['entries']),
+      );
     } catch (e) {
       debugPrint('FavoritesManager: Error loading remote favorites: $e');
-      return const [];
+      return const _RemoteFavoritesRead.failure();
     }
   }
 
@@ -335,17 +535,6 @@ class FavoritesManager extends ChangeNotifier {
     return _sanitizeFavorites(source);
   }
 
-  bool _haveSameFavoriteKeys(
-    Iterable<UniversalData> first,
-    Iterable<UniversalData> second,
-  ) {
-    final firstKeys =
-        _sanitizeFavorites(first).map((entry) => entry.favoriteKey).toSet();
-    final secondKeys =
-        _sanitizeFavorites(second).map((entry) => entry.favoriteKey).toSet();
-    return setEquals(firstKeys, secondKeys);
-  }
-
   Future<List<UniversalData>> _resolveTitles(
     List<UniversalData> favorites, {
     Iterable<UniversalData> fallbacks = const [],
@@ -355,7 +544,7 @@ class FavoritesManager extends ChangeNotifier {
     final fallbackTitles = <String, String>{};
     for (final entry in [
       ...fallbacks,
-      ...(favsData ?? const <UniversalData>[]),
+      ..._favorites,
     ]) {
       final normalized = _normalizeFavorite(entry);
       final title = normalized.title.trim();
@@ -422,21 +611,63 @@ class FavoritesManager extends ChangeNotifier {
       return;
     }
 
-    _listener?.cancel();
+    unawaited(_listener?.cancel());
     _listener = _favoritesDoc(user.uid).snapshots().listen(
       (snapshot) async {
-        final remoteFavorites =
+        if (_auth.currentUser?.uid != user.uid ||
+            snapshot.metadata.isFromCache ||
+            snapshot.metadata.hasPendingWrites) {
+          return;
+        }
+
+        var remoteFavorites =
             _decodeRemoteFavorites(snapshot.data()?['entries']);
+        if (_pendingGuestImportUserId == user.uid &&
+            _pendingGuestFavorites.isNotEmpty &&
+            !_isImportingGuestFavorites) {
+          _isImportingGuestFavorites = true;
+          try {
+            await _addRemoteFavoritesForUser(
+              user.uid,
+              _pendingGuestFavorites,
+            );
+            remoteFavorites = _mergeFavorites([
+              ...remoteFavorites,
+              ..._pendingGuestFavorites,
+            ]);
+            await _clearGuestFavorites();
+            _pendingGuestImportUserId = null;
+            _pendingGuestFavorites = const [];
+          } catch (error) {
+            debugPrint(
+                'FavoritesManager: Deferred guest import failed: $error');
+          } finally {
+            _isImportingGuestFavorites = false;
+          }
+        }
+
+        await _storageWriteQueue;
+        final pendingOperations = _loadPendingOperations(user.uid);
+        remoteFavorites = applyPendingFavoriteOperations(
+          remoteFavorites,
+          pendingOperations,
+        );
+        final versionBeforeResolution = _mutationVersion;
+
         final resolvedFavorites = await _resolveTitles(
           remoteFavorites,
-          fallbacks: favsData ?? const <UniversalData>[],
+          fallbacks: _favorites,
         );
+        if (versionBeforeResolution != _mutationVersion) return;
 
         _updateFavoritesData(resolvedFavorites);
         await _saveUserFavoritesToSharedPreferences(
             user.uid, resolvedFavorites);
+        if (pendingOperations.isNotEmpty) {
+          unawaited(_replayPendingOperations(user.uid, pendingOperations));
+        }
         debugPrint(
-          'FavoritesManager: Updated favsData with ${resolvedFavorites.length} items from Firestore',
+          'FavoritesManager: Loaded ${resolvedFavorites.length} favorites from Firestore',
         );
       },
       onError: (error) {
@@ -451,13 +682,66 @@ class FavoritesManager extends ChangeNotifier {
   ) async {
     final normalizedFavorites = _sanitizeFavorites(favorites);
     await _favoritesDoc(userId).set({
-      'version': 2,
-      'entries': normalizedFavorites
-          .map((entry) => {'uid': entry.canonicalUid, 'type': entry.type})
-          .toList(),
+      'version': 3,
+      'entries': normalizedFavorites.map(_remoteEntry).toList(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  Future<void> _addRemoteFavoritesForUser(
+    String userId,
+    Iterable<UniversalData> favorites,
+  ) async {
+    final entries = _sanitizeFavorites(favorites).map(_remoteEntry).toList();
+    if (entries.isEmpty) return;
+    await _favoritesDoc(userId).set({
+      'version': 3,
+      'entries': FieldValue.arrayUnion(entries),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> _removeRemoteFavoriteForUser(
+    String userId,
+    UniversalData favorite,
+  ) {
+    return _favoritesDoc(userId).set({
+      'version': 3,
+      'entries': FieldValue.arrayRemove([_remoteEntry(favorite)]),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> _replayPendingOperations(
+    String userId,
+    Iterable<PendingFavoriteOperation> operations,
+  ) async {
+    if (_isReplayingPendingOperations) return;
+    _isReplayingPendingOperations = true;
+    try {
+      for (final operation in operations) {
+        if (operation.shouldExist) {
+          await _addRemoteFavoritesForUser(userId, [operation.favorite]);
+        } else {
+          await _removeRemoteFavoriteForUser(userId, operation.favorite);
+        }
+        await _clearPendingOperation(
+          userId,
+          operation.favorite,
+          shouldExist: operation.shouldExist,
+        );
+      }
+    } catch (error) {
+      debugPrint('FavoritesManager: Pending favorite replay failed: $error');
+    } finally {
+      _isReplayingPendingOperations = false;
+    }
+  }
+
+  Map<String, Object> _remoteEntry(UniversalData favorite) => {
+        'uid': favorite.canonicalUid,
+        'type': favorite.type,
+      };
 
   Future<void> addFavorite(UniversalData item) async {
     final normalizedItem = _normalizeFavorite(item);
@@ -470,44 +754,39 @@ class FavoritesManager extends ChangeNotifier {
                 : normalizedItem.canonicalUid,
             normalizedItem.type,
           );
+    if (isFavorite(immediateItem)) return;
+
     final nextFavorites = _sanitizeFavorites([
-      ...(favsData ?? const <UniversalData>[]),
+      ..._favorites,
       immediateItem,
     ]);
 
-    _updateFavoritesData(nextFavorites);
-    await HomeScreenWidgetService.instance.publishFavorites();
-
-    final resolvedItem = (await _resolveTitles(
-      [normalizedItem],
-      fallbacks: [item, immediateItem],
-    ))
-        .first;
-    final favoritesToSave = nextFavorites
-        .map((favorite) => favorite == normalizedItem ? resolvedItem : favorite)
-        .toList(growable: false);
-    final resolvedTitleChanged = favoritesToSave.any((favorite) {
-      if (favorite != resolvedItem) return false;
-      return favorite.title != immediateItem.title;
-    });
-
-    if (resolvedTitleChanged) {
-      _updateFavoritesData(favoritesToSave);
-      await HomeScreenWidgetService.instance.publishFavorites();
-    }
+    _updateFavoritesData(nextFavorites, isUserMutation: true);
 
     final user = _auth.currentUser;
     if (user == null) {
-      await _saveGuestFavorites(favoritesToSave);
+      await _saveGuestFavorites(nextFavorites, markForImport: true);
       debugPrint(
         'FavoritesManager: Added favorite ${normalizedItem.canonicalUid} (guest)',
       );
       return;
     }
 
-    await _saveUserFavoritesToSharedPreferences(user.uid, favoritesToSave);
     try {
-      await _saveRemoteFavoritesForUser(user.uid, favoritesToSave);
+      await Future.wait([
+        _saveUserFavoritesToSharedPreferences(user.uid, nextFavorites),
+        _recordPendingOperation(
+          user.uid,
+          normalizedItem,
+          shouldExist: true,
+        ),
+      ]);
+      await _addRemoteFavoritesForUser(user.uid, [normalizedItem]);
+      await _clearPendingOperation(
+        user.uid,
+        normalizedItem,
+        shouldExist: true,
+      );
       debugPrint(
         'FavoritesManager: Added favorite ${normalizedItem.canonicalUid} (Firestore)',
       );
@@ -519,25 +798,37 @@ class FavoritesManager extends ChangeNotifier {
 
   Future<void> removeFavorite(UniversalData item) async {
     final normalizedItem = _normalizeFavorite(item);
-    final nextFavorites = List<UniversalData>.from(
-      favsData ?? const <UniversalData>[],
-    )..remove(normalizedItem);
+    if (!isFavorite(normalizedItem)) return;
 
-    _updateFavoritesData(nextFavorites);
-    await HomeScreenWidgetService.instance.publishFavorites();
+    final nextFavorites = List<UniversalData>.from(_favorites)
+      ..remove(normalizedItem);
+
+    _updateFavoritesData(nextFavorites, isUserMutation: true);
 
     final user = _auth.currentUser;
     if (user == null) {
-      await _saveGuestFavorites(nextFavorites);
+      await _saveGuestFavorites(nextFavorites, markForImport: true);
       debugPrint(
         'FavoritesManager: Removed favorite ${normalizedItem.canonicalUid} (guest)',
       );
       return;
     }
 
-    await _saveUserFavoritesToSharedPreferences(user.uid, nextFavorites);
     try {
-      await _saveRemoteFavoritesForUser(user.uid, nextFavorites);
+      await Future.wait([
+        _saveUserFavoritesToSharedPreferences(user.uid, nextFavorites),
+        _recordPendingOperation(
+          user.uid,
+          normalizedItem,
+          shouldExist: false,
+        ),
+      ]);
+      await _removeRemoteFavoriteForUser(user.uid, normalizedItem);
+      await _clearPendingOperation(
+        user.uid,
+        normalizedItem,
+        shouldExist: false,
+      );
       debugPrint(
         'FavoritesManager: Removed favorite ${normalizedItem.canonicalUid} (Firestore)',
       );
@@ -548,8 +839,7 @@ class FavoritesManager extends ChangeNotifier {
   }
 
   bool isFavorite(UniversalData item) {
-    return (favsData ?? const <UniversalData>[])
-        .contains(_normalizeFavorite(item));
+    return _favorites.contains(_normalizeFavorite(item));
   }
 
   Future<void> toggleFavorite(UniversalData item) async {
@@ -564,7 +854,10 @@ class FavoritesManager extends ChangeNotifier {
     try {
       await _favoritesDoc(userId).delete();
       await _deleteLegacyRealtimeFavorites(userId);
-      await SP.prefs.remove(_userStorageKey(userId));
+      await _enqueueStorageWrite(() async {
+        await SP.prefs.remove(_userStorageKey(userId));
+        await SP.prefs.remove(_pendingOperationsStorageKey(userId));
+      });
 
       if (_auth.currentUser?.uid == userId) {
         _updateFavoritesData([]);
@@ -582,4 +875,20 @@ class FavoritesManager extends ChangeNotifier {
     debugPrint('FavoritesManager: Disposed listener');
     super.dispose();
   }
+}
+
+class _RemoteFavoritesRead {
+  const _RemoteFavoritesRead.success({
+    required this.exists,
+    required this.favorites,
+  }) : succeeded = true;
+
+  const _RemoteFavoritesRead.failure()
+      : succeeded = false,
+        exists = false,
+        favorites = const [];
+
+  final bool succeeded;
+  final bool exists;
+  final List<UniversalData> favorites;
 }

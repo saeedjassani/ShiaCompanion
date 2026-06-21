@@ -33,7 +33,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
     if (items.isEmpty) {
       await _loadItemsFromAssets();
     }
-    favsData ??= items.entries
+    final previewFavorites = items.entries
         .where((entry) => !entry.key.toString().contains('~'))
         .take(3)
         .map((entry) => UniversalData(entry.key.toString(), entry.value, 0))
@@ -42,7 +42,9 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
     lat ??= 32.616;
     long ??= 44.032;
 
-    return HomeScreenWidgetService.instance.buildWidgetSnapshot();
+    return HomeScreenWidgetService.instance.buildWidgetSnapshot(
+      favorites: previewFavorites,
+    );
   }
 
   Future<void> _loadItemsFromAssets() async {
