@@ -81,17 +81,28 @@
   <script>
     (function () {
       const loadingShell = document.getElementById('app-loading');
-      if (document.querySelector('.seo-zikr-content')) {
+      const hasSeoContent = document.querySelector('.seo-zikr-content') !== null;
+      let seoFallbackTimer;
+
+      function removeLoadingShell() {
+        if (seoFallbackTimer) {
+          window.clearTimeout(seoFallbackTimer);
+        }
         loadingShell.remove();
-        return;
       }
+
       window.addEventListener(
         'flutter-first-frame',
-        function () {
-          loadingShell.remove();
-        },
+        removeLoadingShell,
         { once: true }
       );
+
+      // Generated zikr pages include readable HTML for search engines and as a
+      // no-app fallback. Keep it behind the loading shell during normal Flutter
+      // startup, but reveal it if Flutter cannot produce a frame.
+      if (hasSeoContent) {
+        seoFallbackTimer = window.setTimeout(removeLoadingShell, 15000);
+      }
     })();
   </script>
   <script>

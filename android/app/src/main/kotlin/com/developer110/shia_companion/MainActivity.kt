@@ -1,7 +1,12 @@
 package com.developer110.shia_companion
 
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -16,6 +21,7 @@ import com.developer110.shiacompanion.widgets.TodaysRecitationWidget
 import com.developer110.shiacompanion.widgets.UpcomingPrayerWidget
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.util.Locale
@@ -26,11 +32,31 @@ import kotlinx.coroutines.launch
 class MainActivity: FlutterActivity() {
     private val notificationAudioChannel = "shia_companion/notification_audio"
     private val homeWidgetsChannel = "shia_companion/home_widgets"
+    private val proximitySensorChannel = "shia_companion/proximity_sensor"
+    private val proximitySensorEventsChannel =
+        "shia_companion/proximity_sensor_events"
     private val widgetPreferencesName = "shia_companion_widgets"
     private val widgetUrlExtra = "com.developer110.shiacompanion.WIDGET_URL"
     private val mainScope = CoroutineScope(Dispatchers.Main)
     private var homeWidgetsMethodChannel: MethodChannel? = null
     private var pendingWidgetUrl: String? = null
+    private var sensorManager: SensorManager? = null
+    private var proximitySensor: Sensor? = null
+    private var proximityEventSink: EventChannel.EventSink? = null
+    private var lastProximityState: Boolean? = null
+    private val proximityListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            val sensor = proximitySensor ?: return
+            val isNear = event.values.firstOrNull()?.let { it < sensor.maximumRange }
+                ?: return
+            if (lastProximityState == isNear) return
+
+            lastProximityState = isNear
+            proximityEventSink?.success(isNear)
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         pendingWidgetUrl = consumeWidgetUrl(intent)
@@ -154,6 +180,69 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        configureProximitySensorChannels(flutterEngine)
+    }
+
+    private fun configureProximitySensorChannels(flutterEngine: FlutterEngine) {
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        proximitySensor = sensorManager?.getDefaultSensor(Sensor.TYPE_PROXIMITY)
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            proximitySensorChannel
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "isAvailable" -> result.success(proximitySensor != null)
+                else -> result.notImplemented()
+            }
+        }
+
+        EventChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            proximitySensorEventsChannel
+        ).setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+                val manager = sensorManager
+                val sensor = proximitySensor
+                if (manager == null || sensor == null) {
+                    events.error(
+                        "sensor_unavailable",
+                        "This device does not have a proximity sensor.",
+                        null
+                    )
+                    return
+                }
+
+                proximityEventSink = events
+                lastProximityState = null
+                val registered = manager.registerListener(
+                    proximityListener,
+                    sensor,
+                    SensorManager.SENSOR_DELAY_NORMAL
+                )
+                if (!registered) {
+                    proximityEventSink = null
+                    events.error(
+                        "sensor_registration_failed",
+                        "The proximity sensor could not be started.",
+                        null
+                    )
+                }
+            }
+
+            override fun onCancel(arguments: Any?) {
+                sensorManager?.unregisterListener(proximityListener)
+                proximityEventSink = null
+                lastProximityState = null
+            }
+        })
+    }
+
+    override fun onDestroy() {
+        sensorManager?.unregisterListener(proximityListener)
+        proximityEventSink = null
+        super.onDestroy()
     }
 
     private fun consumeWidgetUrl(intent: Intent?): String? {
