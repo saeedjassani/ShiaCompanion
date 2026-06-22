@@ -17,6 +17,7 @@ import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
+import 'package:shia_companion/services/qaza_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
@@ -623,8 +624,9 @@ class _MyHomePageState extends State<MyHomePage>
     await _refreshHomeSessionState();
     getHadith();
 
-    // Initialize favorites (from SharedPreferences if logged out, Firestore if logged in)
+    // Initialize synced user data from SharedPreferences or Firestore.
     await FavoritesManager.instance.loadFavorites();
+    await QazaTrackerManager.instance.loadQaza();
 
     // On web, keep first load quiet and let the prayer card request location
     // only after the user taps it.

@@ -12,6 +12,7 @@ import '../constants.dart';
 import '../services/account_service.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
+import '../services/qaza_tracker_manager.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
@@ -36,6 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _refreshAfterAuthChange() async {
     await SessionRefreshService.refreshSessionState();
     await FavoritesManager.instance.loadFavorites();
+    await QazaTrackerManager.instance.loadQaza();
     await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
     setState(() {});

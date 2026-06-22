@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../firebase_auth_config.dart';
 import '../firebase_options.dart';
 import 'favorites_manager.dart';
+import 'qaza_tracker_manager.dart';
 
 class AccountActionException implements Exception {
   final String message;
@@ -88,6 +89,7 @@ class AccountService {
     try {
       final deletionUser = await _ensureRecentLoginForDataDeletion(currentUser);
       await FavoritesManager.instance.deleteAllFavorites(deletionUser.uid);
+      await QazaTrackerManager.instance.deleteAllQazaData(deletionUser.uid);
       await _deleteUserWithFallbackReauth(deletionUser);
     } on AccountActionException {
       rethrow;
