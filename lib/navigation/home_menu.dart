@@ -115,7 +115,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   if (supportsPrayerCounterOnCurrentPlatform)
     HomeMenuItem(
       label: 'Rakaat Counter',
-      icon: Icons.self_improvement_rounded,
+      icon: Icons.sensor_occupied_rounded,
       pageBuilder: () => const PrayerCounterPage(),
     ),
   HomeMenuItem(
