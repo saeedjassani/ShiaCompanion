@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/qaza_tracker_state.dart';
+import '../services/qaza_tracker_sync_policy.dart';
 import '../utils/shared_preferences.dart';
 
 class QazaTrackerManager extends ChangeNotifier {
@@ -36,9 +37,10 @@ class QazaTrackerManager extends ChangeNotifier {
   String? _pendingGuestImportUserId;
   String? _loadedUserId;
   bool _isImportingGuestState = false;
-  bool _isReplayingPendingDelta = false;
+  bool _isReplayingPendingOperations = false;
   bool _isLoading = false;
   bool _hasLoadedQaza = false;
+  int _operationSequence = 0;
 
   bool get isLoading => _isLoading;
   bool get hasLoadedQaza => _hasLoadedQaza;
@@ -54,7 +56,10 @@ class QazaTrackerManager extends ChangeNotifier {
 
   String _userStorageKey(String userId) => 'qaza_tracker_user_$userId';
 
-  String _pendingDeltaStorageKey(String userId) =>
+  String _pendingOperationsStorageKey(String userId) =>
+      'qaza_tracker_pending_operations_$userId';
+
+  String _legacyPendingDeltaStorageKey(String userId) =>
       'qaza_tracker_pending_delta_$userId';
 
   String _guestImportMergedStorageKey(String userId) =>
@@ -111,7 +116,7 @@ class QazaTrackerManager extends ChangeNotifier {
         !guestState.isEmpty;
     final cachedStateIncludesGuestImport =
         SP.prefs.getBool(_guestImportMergedStorageKey(user.uid)) == true;
-    final pendingDelta = _loadPendingDelta(user.uid);
+    final pendingOperations = _loadPendingOperations(user.uid);
 
     if (!remoteRead.succeeded) {
       final visibleState = cachedState.isEmpty
@@ -145,7 +150,7 @@ class QazaTrackerManager extends ChangeNotifier {
 
       try {
         await _saveRemoteStateForUser(user.uid, seedState);
-        await _clearPendingDelta(user.uid, pendingDelta);
+        await _clearPendingOperations(user.uid, pendingOperations);
         if (shouldImportGuestState) {
           await _clearGuestState();
           await _setGuestImportMergedIntoCache(user.uid, false);
@@ -167,7 +172,10 @@ class QazaTrackerManager extends ChangeNotifier {
     if (shouldImportGuestState) {
       visibleState = visibleState.plus(guestState);
     }
-    visibleState = visibleState.applyDelta(pendingDelta);
+    visibleState = applyPendingQazaOperations(
+      visibleState,
+      pendingOperations,
+    );
 
     _updateState(visibleState);
     await _saveUserStateToSharedPreferences(user.uid, visibleState);
@@ -189,8 +197,8 @@ class QazaTrackerManager extends ChangeNotifier {
       }
     }
 
-    if (!pendingDelta.isZero) {
-      unawaited(_replayPendingDelta(user.uid, pendingDelta));
+    if (pendingOperations.isNotEmpty) {
+      unawaited(_replayPendingOperations(user.uid, pendingOperations));
     }
 
     _loadedUserId = user.uid;
@@ -304,51 +312,83 @@ class QazaTrackerManager extends ChangeNotifier {
     return QazaTrackerState.fromJson(entries);
   }
 
-  QazaTrackerDelta _loadPendingDelta(String userId) {
-    final encoded = SP.prefs.getString(_pendingDeltaStorageKey(userId));
-    if (encoded == null || encoded.isEmpty) return QazaTrackerDelta.zero;
+  List<PendingQazaOperation> _loadPendingOperations(String userId) {
+    final encoded = SP.prefs.getString(_pendingOperationsStorageKey(userId));
+    if (encoded == null || encoded.isEmpty) return const [];
 
     try {
-      return QazaTrackerDelta.fromJson(jsonDecode(encoded));
+      final parsed = jsonDecode(encoded);
+      if (parsed is! List) return const [];
+
+      final operations = <PendingQazaOperation>[];
+      final seenIds = <String>{};
+      for (final value in parsed) {
+        final operation = PendingQazaOperation.fromJson(value);
+        if (operation == null || !seenIds.add(operation.id)) continue;
+        operations.add(operation);
+      }
+      return operations;
     } catch (error) {
-      debugPrint('QazaTrackerManager: Error decoding pending delta: $error');
-      return QazaTrackerDelta.zero;
+      debugPrint(
+        'QazaTrackerManager: Error decoding pending operations: $error',
+      );
+      return const [];
     }
   }
 
-  Future<void> _recordPendingDelta(
+  Future<void> _recordPendingOperation(
     String userId,
-    QazaTrackerDelta delta,
+    PendingQazaOperation operation,
   ) {
-    if (delta.isZero) return Future.value();
     return _enqueueStorageWrite(() async {
-      final nextDelta = _loadPendingDelta(userId).plus(delta);
-      await _writePendingDelta(userId, nextDelta);
+      final operations = [
+        ..._loadPendingOperations(userId),
+        operation,
+      ];
+      await _writePendingOperations(userId, operations);
     });
   }
 
-  Future<void> _clearPendingDelta(
+  Future<void> _clearPendingOperation(
     String userId,
-    QazaTrackerDelta delta,
+    PendingQazaOperation operation,
   ) {
-    if (delta.isZero) return Future.value();
     return _enqueueStorageWrite(() async {
-      final nextDelta = _loadPendingDelta(userId).minus(delta);
-      await _writePendingDelta(userId, nextDelta);
+      final operations = _loadPendingOperations(userId)
+          .where((pending) => pending.id != operation.id)
+          .toList(growable: false);
+      await _writePendingOperations(userId, operations);
     });
   }
 
-  Future<void> _writePendingDelta(
+  Future<void> _clearPendingOperations(
     String userId,
-    QazaTrackerDelta delta,
+    Iterable<PendingQazaOperation> operationsToClear,
+  ) {
+    final idsToClear = operationsToClear.map((operation) => operation.id).toSet();
+    if (idsToClear.isEmpty) return Future.value();
+
+    return _enqueueStorageWrite(() async {
+      final operations = _loadPendingOperations(userId)
+          .where((pending) => !idsToClear.contains(pending.id))
+          .toList(growable: false);
+      await _writePendingOperations(userId, operations);
+    });
+  }
+
+  Future<void> _writePendingOperations(
+    String userId,
+    List<PendingQazaOperation> operations,
   ) async {
-    if (delta.isZero) {
-      await SP.prefs.remove(_pendingDeltaStorageKey(userId));
+    if (operations.isEmpty) {
+      await SP.prefs.remove(_pendingOperationsStorageKey(userId));
       return;
     }
     await SP.prefs.setString(
-      _pendingDeltaStorageKey(userId),
-      jsonEncode(delta.toJson()),
+      _pendingOperationsStorageKey(userId),
+      jsonEncode(
+        operations.map((operation) => operation.toJson()).toList(),
+      ),
     );
   }
 
@@ -391,18 +431,17 @@ class QazaTrackerManager extends ChangeNotifier {
     });
   }
 
-  Future<void> _applyRemoteDeltaForUser(
+  Future<void> _applyRemoteOperationForUser(
     String userId,
-    QazaTrackerDelta delta,
+    PendingQazaOperation operation,
   ) async {
-    if (delta.isZero) return;
     await _firestore.runTransaction((transaction) async {
       final ref = _qazaDoc(userId);
       final snapshot = await transaction.get(ref);
       final current = snapshot.exists
           ? _decodeRemoteState(snapshot.data()?['entries'])
           : QazaTrackerState.empty;
-      final nextState = current.applyDelta(delta);
+      final nextState = applyPendingQazaOperation(current, operation);
       transaction.set(ref, {
         'version': 1,
         'entries': nextState.toJson(),
@@ -451,13 +490,16 @@ class QazaTrackerManager extends ChangeNotifier {
         }
 
         await _storageWriteQueue;
-        final pendingDelta = _loadPendingDelta(user.uid);
-        final visibleState = remoteState.applyDelta(pendingDelta);
+        final pendingOperations = _loadPendingOperations(user.uid);
+        final visibleState = applyPendingQazaOperations(
+          remoteState,
+          pendingOperations,
+        );
         _updateState(visibleState);
         await _saveUserStateToSharedPreferences(user.uid, visibleState);
 
-        if (!pendingDelta.isZero) {
-          unawaited(_replayPendingDelta(user.uid, pendingDelta));
+        if (pendingOperations.isNotEmpty) {
+          unawaited(_replayPendingOperations(user.uid, pendingOperations));
         }
       },
       onError: (error) {
@@ -466,47 +508,51 @@ class QazaTrackerManager extends ChangeNotifier {
     );
   }
 
-  Future<void> _replayPendingDelta(
+  Future<void> _replayPendingOperations(
     String userId,
-    QazaTrackerDelta delta,
+    List<PendingQazaOperation> operations,
   ) async {
-    if (_isReplayingPendingDelta || delta.isZero) return;
-    _isReplayingPendingDelta = true;
+    if (_isReplayingPendingOperations || operations.isEmpty) return;
+    _isReplayingPendingOperations = true;
     try {
-      await _applyRemoteDeltaForUser(userId, delta);
-      await _clearPendingDelta(userId, delta);
+      for (final operation in operations) {
+        await _applyRemoteOperationForUser(userId, operation);
+        await _clearPendingOperation(userId, operation);
+      }
     } catch (error) {
-      debugPrint('QazaTrackerManager: Pending delta replay failed: $error');
+      debugPrint(
+        'QazaTrackerManager: Pending operation replay failed: $error',
+      );
     } finally {
-      _isReplayingPendingDelta = false;
+      _isReplayingPendingOperations = false;
     }
   }
 
   Future<void> addMissed(QazaEntryType type) {
-    return _applyDelta(
-      QazaTrackerDelta.single(
-        type,
-        const QazaEntryDelta(remaining: 1),
+    return _applyOperation(
+      PendingQazaOperation.addMissed(
+        id: _newOperationId(),
+        type: type,
       ),
     );
   }
 
   Future<void> markCompleted(QazaEntryType type) {
     if (_state.countFor(type).remaining <= 0) return Future.value();
-    return _applyDelta(
-      QazaTrackerDelta.single(
-        type,
-        const QazaEntryDelta(remaining: -1, completed: 1),
+    return _applyOperation(
+      PendingQazaOperation.markCompleted(
+        id: _newOperationId(),
+        type: type,
       ),
     );
   }
 
   Future<void> undoCompleted(QazaEntryType type) {
     if (_state.countFor(type).completed <= 0) return Future.value();
-    return _applyDelta(
-      QazaTrackerDelta.single(
-        type,
-        const QazaEntryDelta(remaining: 1, completed: -1),
+    return _applyOperation(
+      PendingQazaOperation.undoCompleted(
+        id: _newOperationId(),
+        type: type,
       ),
     );
   }
@@ -516,20 +562,25 @@ class QazaTrackerManager extends ChangeNotifier {
     required int remaining,
     required int completed,
   }) {
-    final nextState = _state.setCount(
-      type,
-      QazaEntryCount(
-        remaining: remaining,
-        completed: completed,
+    return _applyOperation(
+      PendingQazaOperation.setCount(
+        id: _newOperationId(),
+        type: type,
+        count: QazaEntryCount(
+          remaining: remaining,
+          completed: completed,
+        ),
       ),
     );
-    return _applyDelta(QazaTrackerDelta.between(_state, nextState));
   }
 
-  Future<void> _applyDelta(QazaTrackerDelta delta) async {
-    if (delta.isZero) return;
+  String _newOperationId() {
+    final sequence = _operationSequence++;
+    return '${DateTime.now().microsecondsSinceEpoch}_$sequence';
+  }
 
-    final nextState = _state.applyDelta(delta);
+  Future<void> _applyOperation(PendingQazaOperation operation) async {
+    final nextState = applyPendingQazaOperation(_state, operation);
     final appliedDelta = QazaTrackerDelta.between(_state, nextState);
     if (appliedDelta.isZero) return;
 
@@ -545,10 +596,10 @@ class QazaTrackerManager extends ChangeNotifier {
     try {
       await Future.wait([
         _saveUserStateToSharedPreferences(user.uid, nextState),
-        _recordPendingDelta(user.uid, appliedDelta),
+        _recordPendingOperation(user.uid, operation),
       ]);
-      await _applyRemoteDeltaForUser(user.uid, appliedDelta);
-      await _clearPendingDelta(user.uid, appliedDelta);
+      await _applyRemoteOperationForUser(user.uid, operation);
+      await _clearPendingOperation(user.uid, operation);
       debugPrint('QazaTrackerManager: Updated qaza tracker in Firestore');
     } catch (error) {
       debugPrint('QazaTrackerManager: Error syncing qaza tracker: $error');
@@ -560,7 +611,8 @@ class QazaTrackerManager extends ChangeNotifier {
       await _qazaDoc(userId).delete();
       await _enqueueStorageWrite(() async {
         await SP.prefs.remove(_userStorageKey(userId));
-        await SP.prefs.remove(_pendingDeltaStorageKey(userId));
+        await SP.prefs.remove(_pendingOperationsStorageKey(userId));
+        await SP.prefs.remove(_legacyPendingDeltaStorageKey(userId));
         await SP.prefs.remove(_guestImportMergedStorageKey(userId));
       });
 
