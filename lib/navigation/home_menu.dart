@@ -7,6 +7,7 @@ import '../pages/favorites_page.dart';
 import '../pages/library_page.dart';
 import '../pages/list_items.dart';
 import '../pages/prayer_counter_page.dart';
+import '../pages/qaza_tracker_page.dart';
 import '../pages/qibla_finder.dart';
 import '../pages/settings_page.dart';
 import '../pages/todays_recitation_page.dart';
@@ -111,6 +112,11 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     label: 'Tasbeeh Counter',
     icon: tasbeehCounterIcon,
     pageBuilder: () => TasbeehWidget(),
+  ),
+  HomeMenuItem(
+    label: 'Qaza Tracker',
+    icon: Icons.event_available_rounded,
+    pageBuilder: () => const QazaTrackerPage(),
   ),
   if (supportsPrayerCounterOnCurrentPlatform)
     HomeMenuItem(
