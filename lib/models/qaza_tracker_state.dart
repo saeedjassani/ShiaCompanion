@@ -5,6 +5,7 @@ enum QazaEntryType {
   maghrib,
   isha,
   ayat,
+  other,
   fast,
 }
 
@@ -16,6 +17,7 @@ extension QazaEntryTypeInfo on QazaEntryType {
         QazaEntryType.maghrib => 'maghrib',
         QazaEntryType.isha => 'isha',
         QazaEntryType.ayat => 'namaz_e_ayat',
+        QazaEntryType.other => 'other',
         QazaEntryType.fast => 'fast',
       };
 
@@ -26,6 +28,7 @@ extension QazaEntryTypeInfo on QazaEntryType {
         QazaEntryType.maghrib => 'Maghrib',
         QazaEntryType.isha => 'Isha',
         QazaEntryType.ayat => 'Namaz e Ayat',
+        QazaEntryType.other => 'Other',
         QazaEntryType.fast => 'Fasts',
       };
 
