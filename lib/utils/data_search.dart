@@ -11,9 +11,13 @@ import 'package:shia_companion/widgets/favorite_icon.dart';
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;
+  final Set<String> libraryUids;
 
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  DataSearch(this.listWords);
+  DataSearch(
+    this.listWords, {
+    this.libraryUids = const {},
+  });
 
   List<UidTitleData> _filteredResults() {
     if (query.isEmpty) {
@@ -24,13 +28,15 @@ class DataSearch extends SearchDelegate<String> {
   }
 
   Widget _buildSearchTile(BuildContext context, UidTitleData entry) {
-    final itemData = UniversalData(entry.uid, entry.title, 0);
+    final isLibraryBook = libraryUids.contains(entry.uid);
+    final itemData =
+        UniversalData(entry.uid, entry.title, isLibraryBook ? 1 : 0);
     final isParentZikr = entry.getUId().contains("~");
 
     return StatefulBuilder(
       builder: (context, setTileState) => ListTile(
         onTap: () {
-          if (entry.getUId().contains("~")) {
+          if (!isLibraryBook && entry.getUId().contains("~")) {
             Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -41,7 +47,7 @@ class DataSearch extends SearchDelegate<String> {
           }
         },
         onLongPress: () {
-          if (isUserAdmin) {
+          if (isUserAdmin && !isLibraryBook) {
             handleUniversalDataClick(context, itemData, itemPage: true);
           }
         },
