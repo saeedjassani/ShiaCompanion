@@ -368,6 +368,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
       QazaEntryType.maghrib => Icons.nightlight_round,
       QazaEntryType.isha => Icons.dark_mode_outlined,
       QazaEntryType.ayat => Icons.brightness_low_rounded,
+      QazaEntryType.other => Icons.help_outline_rounded,
       QazaEntryType.fast => Icons.restaurant_menu_rounded,
     };
   }
