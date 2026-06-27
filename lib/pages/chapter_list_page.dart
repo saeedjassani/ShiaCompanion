@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
-import 'package:yaml/yaml.dart';
 
 import '../constants.dart';
 import 'chapter_page.dart';
@@ -14,30 +13,40 @@ class ChapterListPage extends StatefulWidget {
   ChapterListPage(this.slug, this.title);
 
   @override
-  _ChapterListPageState createState() => new _ChapterListPageState();
+  _ChapterListPageState createState() => _ChapterListPageState();
 }
 
 class _ChapterListPageState extends State<ChapterListPage> {
-  List<UidTitleData> chapters = [];
+  late Future<List<UidTitleData>> _chaptersFuture;
 
   @override
   void initState() {
     super.initState();
     trackScreen('Chapter List Page');
-    _updateEventString();
+    _chaptersFuture = LibraryService.loadChapters(widget.slug);
   }
 
-  _updateEventString() async {
-    var response = await get(Uri.parse(
-        "https://raw.githubusercontent.com/saeedjassani/shiavault-library/master/books/${widget.slug}/metadata.yml"));
-    if (response.statusCode == 200) {
-      final mapData = loadYaml(response.body.split('---')[1].trim());
-      List temp = mapData['chapters'];
-      for (var t in temp) {
-        chapters.add(UidTitleData(t['slug'], t['title']));
-      }
-    }
-    setState(() {});
+  void _retry() {
+    setState(() {
+      _chaptersFuture = LibraryService.loadChapters(widget.slug);
+    });
+  }
+
+  void _openChapter(List<UidTitleData> chapters, UidTitleData chapter) {
+    final chapterIndex = chapters.indexOf(chapter);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChapterPage(
+          '${widget.slug}/${chapter.uid}',
+          chapter.title,
+          bookTitle: widget.title,
+          chapters: chapters,
+          chapterIndex: chapterIndex,
+          bookSlug: widget.slug,
+        ),
+      ),
+    );
   }
 
   @override
@@ -46,26 +55,90 @@ class _ChapterListPageState extends State<ChapterListPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: chapters.length > 0
-          ? ResponsiveContent(
-              maxWidth: listContentWidth,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) => ListTile(
-                        title: Text(chapters[index].title),
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ChapterPage(
-                                    widget.slug + "/" + chapters[index].uid,
-                                    chapters[index].title))),
+      body: FutureBuilder<List<UidTitleData>>(
+        future: _chaptersFuture,
+        builder: (context, snapshot) {
+          final chapters = snapshot.data ?? const <UidTitleData>[];
+
+          return ResponsiveContent(
+            maxWidth: listContentWidth,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            child: switch (snapshot.connectionState) {
+              ConnectionState.waiting => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              _ when snapshot.hasError => _ChapterMessage(
+                  icon: Icons.cloud_off,
+                  title: 'Chapters unavailable',
+                  message: 'Check your connection and try again.',
+                  actionLabel: 'Retry',
+                  onAction: _retry,
+                ),
+              _ when chapters.isEmpty => const _ChapterMessage(
+                  icon: Icons.menu_book,
+                  title: 'No chapters found',
+                  message: 'This book has no chapters right now.',
+                ),
+              _ => ListView.separated(
+                  padding: EdgeInsets.zero,
+                  itemBuilder: (context, index) {
+                    final chapter = chapters[index];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 6,
                       ),
-                  separatorBuilder: (context, index) => Divider(),
-                  itemCount: chapters.length),
-            )
-          : Center(child: CircularProgressIndicator()),
+                      title: Text(chapter.title),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openChapter(chapters, chapter),
+                    );
+                  },
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemCount: chapters.length,
+                ),
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ChapterMessage extends StatelessWidget {
+  const _ChapterMessage({
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 40),
+          const SizedBox(height: 12),
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text(message, textAlign: TextAlign.center),
+          if (actionLabel != null && onAction != null) ...[
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: onAction,
+              child: Text(actionLabel!),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

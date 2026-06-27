@@ -17,6 +17,7 @@ import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
+import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
@@ -471,14 +472,9 @@ class _MyHomePageState extends State<MyHomePage>
               ),
             ],
             IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () {
-                  showSearch(
-                      context: context,
-                      delegate: DataSearch(items.entries
-                          .map((entry) => UidTitleData(entry.key, entry.value))
-                          .toList()));
-                })
+              icon: Icon(Icons.search),
+              onPressed: _openSearch,
+            )
           ],
         ),
         body: ResponsiveScrollableContent(
@@ -690,6 +686,26 @@ class _MyHomePageState extends State<MyHomePage>
       await HomeScreenWidgetService.instance.publishAll();
       setState(() {});
     }
+  }
+
+  Future<void> _openSearch() async {
+    final books = await LibraryService.loadBooks();
+    if (!mounted) return;
+
+    final zikrEntries = items.entries
+        .map((entry) => UidTitleData(entry.key, entry.value))
+        .toList();
+
+    showSearch(
+      context: context,
+      delegate: DataSearch(
+        [
+          ...zikrEntries,
+          ...books,
+        ],
+        libraryUids: books.map((book) => book.uid).toSet(),
+      ),
+    );
   }
 
   Future<void> getHadith() async {
