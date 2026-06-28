@@ -20,7 +20,7 @@ class ChapterPage extends StatefulWidget {
   final int initialPageIndex;
   final double? initialFontSize;
 
-  ChapterPage(
+  const ChapterPage(
     this.slug,
     this.title, {
     this.bookTitle,
@@ -46,6 +46,8 @@ class _ChapterPageState extends State<ChapterPage> {
   int _pageIndex = 0;
   int _pageCount = 1;
   bool _didRestoreInitialPage = false;
+  bool _isSaved = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -56,6 +58,47 @@ class _ChapterPageState extends State<ChapterPage> {
         .clamp(_minFontSize, _maxFontSize);
     _pageIndex = math.max(0, widget.initialPageIndex);
     _chapterFuture = LibraryService.loadChapterMarkdown(widget.slug);
+    _checkSaved();
+  }
+
+  Future<void> _checkSaved() async {
+    final bookSlug = widget.bookSlug;
+    if (bookSlug == null || bookSlug.trim().isEmpty) return;
+    final saved = await LibraryService.isBookSaved(bookSlug);
+    if (mounted) setState(() => _isSaved = saved);
+  }
+
+  Future<void> _toggleSave() async {
+    final bookSlug = widget.bookSlug;
+    if (bookSlug == null || bookSlug.trim().isEmpty || _isSaving) return;
+    setState(() => _isSaving = true);
+    try {
+      if (_isSaved) {
+        await LibraryService.removeSavedBook(bookSlug);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Offline copy removed')),
+          );
+        }
+      } else {
+        final title = widget.bookTitle ?? widget.title;
+        await LibraryService.saveBookForOffline(bookSlug, title);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$title saved for offline')),
+          );
+        }
+      }
+      await _checkSaved();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Save failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -303,9 +346,24 @@ class _ChapterPageState extends State<ChapterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bookSlug = widget.bookSlug;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          if (bookSlug != null && bookSlug.trim().isNotEmpty)
+            IconButton(
+              icon: _isSaving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(_isSaved ? Icons.download_done : Icons.download),
+              tooltip: _isSaved ? 'Remove offline copy' : 'Save book offline',
+              onPressed: _toggleSave,
+            ),
+        ],
       ),
       body: FutureBuilder<String>(
         future: _chapterFuture,

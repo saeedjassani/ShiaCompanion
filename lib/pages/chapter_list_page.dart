@@ -10,7 +10,7 @@ class ChapterListPage extends StatefulWidget {
   final String slug;
   final String title;
 
-  ChapterListPage(this.slug, this.title);
+  const ChapterListPage(this.slug, this.title);
 
   @override
   _ChapterListPageState createState() => _ChapterListPageState();
@@ -18,18 +18,59 @@ class ChapterListPage extends StatefulWidget {
 
 class _ChapterListPageState extends State<ChapterListPage> {
   late Future<List<UidTitleData>> _chaptersFuture;
+  bool _isSaved = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     trackScreen('Chapter List Page');
     _chaptersFuture = LibraryService.loadChapters(widget.slug);
+    _checkSaved();
+  }
+
+  Future<void> _checkSaved() async {
+    final saved = await LibraryService.isBookSaved(widget.slug);
+    if (mounted) {
+      setState(() => _isSaved = saved);
+    }
   }
 
   void _retry() {
     setState(() {
       _chaptersFuture = LibraryService.loadChapters(widget.slug);
     });
+  }
+
+  Future<void> _toggleSave() async {
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+    try {
+      if (_isSaved) {
+        await LibraryService.removeSavedBook(widget.slug);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Offline copy removed')),
+          );
+        }
+      } else {
+        await LibraryService.saveBookForOffline(widget.slug, widget.title);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${widget.title} saved for offline')),
+          );
+        }
+      }
+      await _checkSaved();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Save failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   void _openChapter(List<UidTitleData> chapters, UidTitleData chapter) {
@@ -54,6 +95,19 @@ class _ChapterListPageState extends State<ChapterListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(_isSaved ? Icons.download_done : Icons.download),
+            tooltip: _isSaved ? 'Remove offline copy' : 'Save book offline',
+            onPressed: _toggleSave,
+          ),
+        ],
       ),
       body: FutureBuilder<List<UidTitleData>>(
         future: _chaptersFuture,

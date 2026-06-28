@@ -6,7 +6,6 @@ import '../pages/calendar_page.dart';
 import '../pages/favorites_page.dart';
 import '../pages/library_page.dart';
 import '../pages/list_items.dart';
-import '../pages/saved_books_page.dart';
 import '../pages/prayer_counter_page.dart';
 import '../pages/qaza_tracker_page.dart';
 import '../pages/qibla_finder.dart';
@@ -93,11 +92,6 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
       appBar: AppBar(title: Text('Library')),
       body: LibraryPage(),
     ),
-  ),
-  HomeMenuItem(
-    label: 'Saved Books',
-    icon: Icons.download,
-    pageBuilder: () => const SavedBooksPage(),
   ),
   HomeMenuItem(
     label: 'Munajaat',
