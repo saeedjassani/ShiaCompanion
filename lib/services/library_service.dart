@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:yaml/yaml.dart';
 
 import '../data/uid_title_data.dart';
@@ -100,6 +102,115 @@ class LibraryService {
     if (parts.length >= 3) return parts[1].trim();
     return body.trim();
   }
+
+  static Future<void> saveBookForOffline(String bookSlug, String title) async {
+    final chapters = await loadChapters(bookSlug);
+    final dir = await _offlineLibraryDir();
+    final bookDir = Directory('${dir.path}/$bookSlug');
+    if (!await bookDir.exists()) {
+      await bookDir.create(recursive: true);
+    }
+
+    final manifest = <String, dynamic>{
+      'bookSlug': bookSlug,
+      'title': title,
+      'savedAt': DateTime.now().toUtc().toIso8601String(),
+      'chapters': chapters.map((c) => {'slug': c.uid, 'title': c.title}).toList(),
+    };
+    await File('${bookDir.path}/manifest.json')
+        .writeAsString(jsonEncode(manifest));
+
+    for (final chapter in chapters) {
+      final markdown = await loadChapterMarkdown('$bookSlug/${chapter.uid}');
+      await File('${bookDir.path}/${chapter.uid}.md').writeAsString(markdown);
+    }
+  }
+
+  static Future<void> removeSavedBook(String bookSlug) async {
+    final dir = await _offlineLibraryDir();
+    final bookDir = Directory('${dir.path}/$bookSlug');
+    if (await bookDir.exists()) {
+      await bookDir.delete(recursive: true);
+    }
+  }
+
+  static Future<List<SavedBook>> loadSavedBooks() async {
+    final dir = await _offlineLibraryDir();
+    if (!await dir.exists()) return const [];
+
+    final entries = await dir.list().toList();
+    final saved = <SavedBook>[];
+
+    for (final entry in entries) {
+      if (entry is Directory) {
+        final manifestFile = File('${entry.path}/manifest.json');
+        if (await manifestFile.exists()) {
+          try {
+            final content = await manifestFile.readAsString();
+            final decoded = jsonDecode(content) as Map<String, dynamic>;
+            saved.add(SavedBook(
+              bookSlug: decoded['bookSlug']?.toString() ?? entry.path.split('/').last,
+              title: decoded['title']?.toString() ?? 'Unknown',
+              savedAt: DateTime.tryParse(decoded['savedAt']?.toString() ?? '') ?? DateTime.now(),
+            ));
+          } catch (_) {
+            // skip corrupted manifest
+          }
+        }
+      }
+    }
+
+    saved.sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    return saved;
+  }
+
+  static Future<bool> isBookSaved(String bookSlug) async {
+    final dir = await _offlineLibraryDir();
+    final bookDir = Directory('${dir.path}/$bookSlug');
+    return await bookDir.exists();
+  }
+
+  static Future<String> loadSavedChapterMarkdown(String bookSlug, String chapterSlug) async {
+    final dir = await _offlineLibraryDir();
+    final file = File('${dir.path}/$bookSlug/$chapterSlug.md');
+    if (!await file.exists()) {
+      throw const LibraryLoadException('Saved chapter not found.');
+    }
+    return await file.readAsString();
+  }
+
+  static Future<List<UidTitleData>> loadSavedChapters(String bookSlug) async {
+    final dir = await _offlineLibraryDir();
+    final manifestFile = File('${dir.path}/$bookSlug/manifest.json');
+    if (!await manifestFile.exists()) {
+      return const [];
+    }
+
+    final content = await manifestFile.readAsString();
+    final decoded = jsonDecode(content) as Map<String, dynamic>;
+    final rawChapters = decoded['chapters'];
+    if (rawChapters is! List) return const [];
+
+    return rawChapters
+        .whereType<Map>()
+        .map((chapter) {
+          final slug = chapter['slug']?.toString().trim() ?? '';
+          final title = chapter['title']?.toString().trim() ?? '';
+          if (slug.isEmpty || title.isEmpty) return null;
+          return UidTitleData(slug, title);
+        })
+        .whereType<UidTitleData>()
+        .toList(growable: false);
+  }
+
+  static Future<Directory> _offlineLibraryDir() async {
+    final root = await getApplicationDocumentsDirectory();
+    final dir = Directory('${root.path}/offline_library');
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    return dir;
+  }
 }
 
 class LibraryLoadException implements Exception {
@@ -113,4 +224,16 @@ class LibraryLoadException implements Exception {
     if (statusCode == null) return message;
     return '$message ($statusCode)';
   }
+}
+
+class SavedBook {
+  const SavedBook({
+    required this.bookSlug,
+    required this.title,
+    required this.savedAt,
+  });
+
+  final String bookSlug;
+  final String title;
+  final DateTime savedAt;
 }
