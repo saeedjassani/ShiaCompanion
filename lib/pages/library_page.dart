@@ -123,6 +123,30 @@ class _LibraryPageState extends State<LibraryPage> {
                   return _BookTile(
                     book: book,
                     itemData: itemData,
+                    isSaved: false,
+                    onSaveToggle: () async {
+                      try {
+                        await LibraryService.saveBookForOffline(
+                          book.uid,
+                          book.title,
+                        );
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${book.title} saved for offline.'),
+                          ),
+                        );
+                      } catch (e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Unable to save book: ${e.toString().replaceFirst("Exception: ", "")}',
+                            ),
+                          ),
+                        );
+                      }
+                    },
                   );
                 },
                 separatorBuilder: (context, index) => Divider(
@@ -170,10 +194,14 @@ class _BookTile extends StatelessWidget {
   const _BookTile({
     required this.book,
     required this.itemData,
+    required this.isSaved,
+    required this.onSaveToggle,
   });
 
   final UidTitleData book;
   final UniversalData itemData;
+  final bool isSaved;
+  final Future<void> Function() onSaveToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -181,11 +209,21 @@ class _BookTile extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       title: Text(book.title),
       onTap: () => handleUniversalDataClick(context, itemData),
-      trailing: InkWell(
-        onTap: () async {
-          await FavoritesManager.instance.toggleFavorite(itemData);
-        },
-        child: FavoriteIcon(favorite: itemData),
+      trailing: Wrap(
+        spacing: 12,
+        children: [
+          IconButton(
+            icon: Icon(isSaved ? Icons.download_done : Icons.download),
+            tooltip: isSaved ? 'Remove offline copy' : 'Save offline',
+            onPressed: onSaveToggle,
+          ),
+          InkWell(
+            onTap: () async {
+              await FavoritesManager.instance.toggleFavorite(itemData);
+            },
+            child: FavoriteIcon(favorite: itemData),
+          ),
+        ],
       ),
     );
   }
