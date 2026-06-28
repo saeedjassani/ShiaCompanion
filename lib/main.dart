@@ -8,6 +8,7 @@ import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:shia_companion/utils/network_utils.dart';
 import 'package:shia_companion/utils/webview_registry.dart'
     if (dart.library.js_interop) 'package:shia_companion/utils/webview_registry_web.dart';
 
@@ -35,6 +36,8 @@ void main() async {
 
   // Setup WebView for web platform
   registerWebViewWebImplementation();
+
+  await NetworkUtils().initialize();
 
   runApp(const MyApp());
 }
