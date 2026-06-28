@@ -420,7 +420,7 @@ class _MyHomePageState extends State<MyHomePage>
     try {
       final doc = await FirebaseFirestore.instance
           .doc('zikr_meta/publish_requests')
-          .get(const GetOptions(source: Source.server));
+          .get();
       final data = doc.data();
       if (data == null) {
         return null;

@@ -445,9 +445,7 @@ class FavoritesManager extends ChangeNotifier {
 
   Future<_RemoteFavoritesRead> _loadRemoteFavorites(String userId) async {
     try {
-      final snapshot = await _favoritesDoc(userId).get(
-        const GetOptions(source: Source.server),
-      );
+      final snapshot = await _favoritesDoc(userId).get();
       return _RemoteFavoritesRead.success(
         exists: snapshot.exists,
         favorites: _decodeRemoteFavorites(snapshot.data()?['entries']),

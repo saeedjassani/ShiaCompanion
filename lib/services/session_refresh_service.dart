@@ -77,9 +77,7 @@ class SessionRefreshService {
 
   static Future<void> loadItemsFromFirebase() async {
     try {
-      final doc = await FirebaseFirestore.instance
-          .doc('zikr_meta/index')
-          .get(const GetOptions(source: Source.server));
+      final doc = await FirebaseFirestore.instance.doc('zikr_meta/index').get();
       final data = doc.data();
       final rawItems = data?['items'];
       if (doc.exists && rawItems is Map) {

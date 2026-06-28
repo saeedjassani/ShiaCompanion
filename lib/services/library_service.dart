@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:yaml/yaml.dart';
 
 import '../data/uid_title_data.dart';
+import '../utils/network_utils.dart';
 
 class LibraryService {
   LibraryService._();
@@ -42,6 +43,12 @@ class LibraryService {
     final cached = _chapterCache[bookSlug];
     if (cached != null) return cached;
 
+    if (!NetworkUtils().isOnline) {
+      throw const LibraryLoadException(
+        'Library browsing needs a network connection.',
+      );
+    }
+
     final response =
         await http.get(Uri.parse('$_libraryBaseUrl/$bookSlug/metadata.yml'));
     if (response.statusCode != 200) {
@@ -72,6 +79,12 @@ class LibraryService {
   }
 
   static Future<String> loadChapterMarkdown(String slug) async {
+    if (!NetworkUtils().isOnline) {
+      throw const LibraryLoadException(
+        'Reading books needs a network connection.',
+      );
+    }
+
     final response = await http.get(Uri.parse('$_libraryBaseUrl/$slug.md'));
     if (response.statusCode != 200) {
       throw LibraryLoadException(
