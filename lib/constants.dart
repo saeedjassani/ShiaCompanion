@@ -427,9 +427,20 @@ Future<bool> initializeLocation(
           "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$lat&longitude=$long&localityLanguage=en"));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        city = data['locality'] ?? data['city'] ?? data['principalSubdivision'];
-        if (SP.prefs.getString("city") != city) needToSchedule = true;
-        if (city != null) await SP.prefs.setString("city", city!);
+        final resolvedCity =
+            data['locality'] ?? data['city'] ?? data['principalSubdivision'];
+        final validCity = _validateGeocodeResult(data, resolvedCity);
+        if (validCity != null) {
+          city = validCity;
+          if (SP.prefs.getString("city") != city) needToSchedule = true;
+          if (city != null) await SP.prefs.setString("city", city!);
+        } else {
+          debugPrint(
+              "Ignoring non-city geocode result: '$resolvedCity' for lat=$lat, long=$long");
+          if (context != null && !kIsWeb) {
+            _showGeocodeFallbackDialog(context);
+          }
+        }
       }
     } catch (e) {
       debugPrint("Error getting city: $e");
@@ -445,6 +456,43 @@ Future<bool> initializeLocation(
     }
     return false;
   }
+}
+
+String? _validateGeocodeResult(
+    Map<String, dynamic> data, String? resolvedCity) {
+  if (resolvedCity == null || resolvedCity.trim().isEmpty) return null;
+
+  final trimmed = resolvedCity.trim();
+
+  final countryCode = (data['countryCode'] ?? '').toString().trim().toUpperCase();
+  final hasCountryCode = countryCode.length == 2;
+  if (!hasCountryCode) return null;
+
+  final localityInfo = data['localityInfo'];
+  if (localityInfo is Map) {
+    final administrative = localityInfo['administrative'];
+    if (administrative is List && administrative.isNotEmpty) {
+      final hasAdminArea = administrative.any((entry) {
+        if (entry is Map) {
+          final level = (entry['level'] ?? '').toString().trim();
+          final name = (entry['name'] ?? '').toString().trim();
+          if (level == '0' || level == '1') return name.isNotEmpty;
+        }
+        return false;
+      });
+      if (!hasAdminArea) return null;
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+
+  if (RegExp(r'^\d+\.?\d*\s*[ns]\s*\d+\.?\d*\s*[ew]$').hasMatch(trimmed)) {
+    return null;
+  }
+
+  return trimmed;
 }
 
 void _showLocationServiceDialog(BuildContext context) {
@@ -468,6 +516,27 @@ void _showLocationServiceDialog(BuildContext context) {
               await Geolocator.openLocationSettings();
             },
             child: const Text('Open Settings'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _showGeocodeFallbackDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: const Text('Location Uncertain'),
+        content: const Text(
+          'We couldn\'t determine a city name for your current coordinates. Using your previously saved location instead.',
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('OK'),
           ),
         ],
       );
