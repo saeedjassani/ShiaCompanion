@@ -110,12 +110,13 @@ class _LibraryPageState extends State<LibraryPage> {
             _ => ListView.separated(
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) {
-                  if (_lastProgress != null && index == 0) {
-                    return _ContinueReadingTile(
-                      progress: _lastProgress!,
-                      onTap: () => _continueReading(_lastProgress!),
-                    );
-                  }
+                  // TODO implement this once chapters are rendered properly
+                  // if (_lastProgress != null && index == 0) {
+                  //   return _ContinueReadingTile(
+                  //     progress: _lastProgress!,
+                  //     onTap: () => _continueReading(_lastProgress!),
+                  //   );
+                  // }
 
                   final bookIndex = _lastProgress == null ? index : index - 1;
                   final book = books[bookIndex];
@@ -212,11 +213,6 @@ class _BookTile extends StatelessWidget {
       trailing: Wrap(
         spacing: 12,
         children: [
-          IconButton(
-            icon: Icon(isSaved ? Icons.download_done : Icons.download),
-            tooltip: isSaved ? 'Remove offline copy' : 'Save offline',
-            onPressed: onSaveToggle,
-          ),
           InkWell(
             onTap: () async {
               await FavoritesManager.instance.toggleFavorite(itemData);
