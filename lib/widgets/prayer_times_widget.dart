@@ -137,7 +137,11 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                   )
                 : InkWell(
                     onTap: () async {
-                      final success = await initializeLocation(force: true);
+                      if (isFetchingLiveLocation) return;
+                      final success = await initializeLocation(
+                        force: true,
+                        context: context,
+                      );
                       if (success) {
                         await HomeScreenWidgetService.instance.publishAll();
                       }
@@ -146,11 +150,34 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                          isFetchingLiveLocation
-                              ? "Fetching live location to display prayer times"
-                              : "Enable location to display prayer times",
-                          textAlign: TextAlign.center),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isFetchingLiveLocation
+                                ? Icons.location_searching
+                                : Icons.location_off,
+                            size: 40,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            isFetchingLiveLocation
+                                ? "Fetching live location to display prayer times"
+                                : "Location not available",
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            isFetchingLiveLocation
+                                ? "Please wait..."
+                                : "Tap here to enable location",
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
           ],

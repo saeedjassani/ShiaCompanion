@@ -186,12 +186,31 @@ class _PrayerTimesUnavailable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Text(
-      "Set location to display prayer times.",
-      style: theme.textTheme.bodyMedium?.copyWith(
-        color: theme.colorScheme.onSurfaceVariant,
-        height: 1.35,
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.location_off,
+          size: 32,
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Location not available",
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "Enable location to display accurate prayer times for your area.",
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

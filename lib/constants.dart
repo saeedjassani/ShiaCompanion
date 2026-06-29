@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -354,6 +355,9 @@ Future<bool> initializeLocation(
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       debugPrint("Location service is disabled");
+      if (context != null && !kIsWeb) {
+        _showLocationServiceDialog(context);
+      }
       return false;
     }
 
@@ -361,24 +365,47 @@ Future<bool> initializeLocation(
     if (permissionStatus == LocationPermission.denied) {
       permissionStatus = await Geolocator.requestPermission();
     }
+
     if (permissionStatus == LocationPermission.denied ||
         permissionStatus == LocationPermission.deniedForever ||
         permissionStatus == LocationPermission.unableToDetermine) {
       debugPrint("Location permission not granted: $permissionStatus");
+      if (context != null && !kIsWeb) {
+        _showPermissionDeniedDialog(context, permissionStatus);
+      }
       return false;
     }
 
-    // On manual refresh, we want to show some feedback.
-    // TODO For now, let's just print to debug, but could use a state management solution.
+    if (permissionStatus == LocationPermission.whileInUse ||
+        permissionStatus == LocationPermission.always) {
+      // Permission granted; fall through to fetch position.
+    }
+
+    // Use a timeout so we don't hang indefinitely on a cold/failing fetch.
     Position currentLocation;
     try {
       currentLocation = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
         ),
+      ).timeout(
+        const Duration(seconds: 20),
+        onTimeout: () {
+          throw TimeoutException(
+              'Location request timed out after 20 seconds');
+        },
       );
+    } on TimeoutException catch (e) {
+      debugPrint("Location request timed out: $e");
+      if (context != null && !kIsWeb) {
+        _showLocationTimeoutDialog(context);
+      }
+      return false;
     } catch (e) {
-      debugPrint("Web location access failed: $e");
+      debugPrint("Location fetch failed: $e");
+      if (context != null && !kIsWeb) {
+        _showLocationErrorDialog(context, e);
+      }
       return false;
     }
     final previousLat = lat;
@@ -413,8 +440,127 @@ Future<bool> initializeLocation(
     return true;
   } catch (e) {
     debugPrint(e.toString());
+    if (context != null && !kIsWeb) {
+      _showLocationErrorDialog(context, e);
+    }
     return false;
   }
+}
+
+void _showLocationServiceDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: const Text('Location Services Disabled'),
+        content: const Text(
+          'Location services are turned off. Please enable location services in your device settings to get accurate prayer times for your area.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await Geolocator.openLocationSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _showPermissionDeniedDialog(
+    BuildContext context, LocationPermission status) {
+  String message;
+  if (status == LocationPermission.deniedForever) {
+    message =
+        'Location permission was permanently denied. Please open app settings and grant location permission to get accurate prayer times.';
+  } else if (status == LocationPermission.unableToDetermine) {
+    message =
+        'Unable to determine location permission status. Please open app settings and ensure location permission is granted.';
+  } else {
+    message =
+        'Location permission is required to show accurate prayer times for your area.';
+  }
+
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: const Text('Location Permission Required'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Geolocator.openAppSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _showLocationTimeoutDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: const Text('Location Timeout'),
+        content: const Text(
+          'Unable to get your location within the expected time. This may be due to poor GPS signal or network issues. Please try again.',
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _showLocationErrorDialog(BuildContext context, dynamic error) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: const Text('Location Error'),
+        content: Text(
+          'An error occurred while getting your location: $error\n\nPlease check that location services are enabled and try again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await Geolocator.openLocationSettings();
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 bool areAnyPrayerNotificationsEnabled(List<String> prayerNames) {
