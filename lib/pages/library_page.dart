@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
-import 'package:shia_companion/pages/chapter_page.dart';
 import 'package:shia_companion/services/library_progress_store.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
@@ -38,46 +37,46 @@ class _LibraryPageState extends State<LibraryPage> {
     _lastProgress = LibraryProgressStore.instance.readLast();
   }
 
-  Future<void> _continueReading(LibraryProgress progress) async {
-    final chapters = await LibraryService.loadChapters(progress.bookSlug);
-    if (!mounted) return;
+  // Future<void> _continueReading(LibraryProgress progress) async {
+  //   final chapters = await LibraryService.loadChapters(progress.bookSlug);
+  //   if (!mounted) return;
 
-    var chapterIndex = progress.chapterIndex;
-    if (chapterIndex < 0 ||
-        chapterIndex >= chapters.length ||
-        chapters[chapterIndex].uid != progress.chapterSlug) {
-      chapterIndex = chapters.indexWhere(
-        (chapter) => chapter.uid == progress.chapterSlug,
-      );
-    }
-    if (chapterIndex < 0 || chapterIndex >= chapters.length) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Saved chapter is no longer available')),
-      );
-      await LibraryProgressStore.instance.removeLast();
-      setState(_loadLastProgress);
-      return;
-    }
+  //   var chapterIndex = progress.chapterIndex;
+  //   if (chapterIndex < 0 ||
+  //       chapterIndex >= chapters.length ||
+  //       chapters[chapterIndex].uid != progress.chapterSlug) {
+  //     chapterIndex = chapters.indexWhere(
+  //       (chapter) => chapter.uid == progress.chapterSlug,
+  //     );
+  //   }
+  //   if (chapterIndex < 0 || chapterIndex >= chapters.length) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Saved chapter is no longer available')),
+  //     );
+  //     await LibraryProgressStore.instance.removeLast();
+  //     setState(_loadLastProgress);
+  //     return;
+  //   }
 
-    final chapter = chapters[chapterIndex];
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChapterPage(
-          '${progress.bookSlug}/${chapter.uid}',
-          chapter.title,
-          bookTitle: progress.bookTitle,
-          chapters: chapters,
-          chapterIndex: chapterIndex,
-          bookSlug: progress.bookSlug,
-          initialPageIndex: progress.pageIndex,
-          initialFontSize: progress.fontSize,
-        ),
-      ),
-    );
-    if (!mounted) return;
-    setState(_loadLastProgress);
-  }
+  //   final chapter = chapters[chapterIndex];
+  //   await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => ChapterPage(
+  //         '${progress.bookSlug}/${chapter.uid}',
+  //         chapter.title,
+  //         bookTitle: progress.bookTitle,
+  //         chapters: chapters,
+  //         chapterIndex: chapterIndex,
+  //         bookSlug: progress.bookSlug,
+  //         initialPageIndex: progress.pageIndex,
+  //         initialFontSize: progress.fontSize,
+  //       ),
+  //     ),
+  //   );
+  //   if (!mounted) return;
+  //   setState(_loadLastProgress);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -162,34 +161,34 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 }
 
-class _ContinueReadingTile extends StatelessWidget {
-  const _ContinueReadingTile({
-    required this.progress,
-    required this.onTap,
-  });
+// class _ContinueReadingTile extends StatelessWidget {
+//   const _ContinueReadingTile({
+//     required this.progress,
+//     required this.onTap,
+//   });
 
-  final LibraryProgress progress;
-  final VoidCallback onTap;
+//   final LibraryProgress progress;
+//   final VoidCallback onTap;
 
-  @override
-  Widget build(BuildContext context) {
-    final pageCount = progress.pageCount <= 0 ? 1 : progress.pageCount;
-    final pageIndex = progress.pageIndex.clamp(0, pageCount - 1) + 1;
+//   @override
+//   Widget build(BuildContext context) {
+//     final pageCount = progress.pageCount <= 0 ? 1 : progress.pageCount;
+//     final pageIndex = progress.pageIndex.clamp(0, pageCount - 1) + 1;
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      leading: const Icon(Icons.play_circle_outline),
-      title: const Text('Continue reading'),
-      subtitle: Text(
-        '${progress.chapterTitle} - Page $pageIndex of $pageCount',
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
-    );
-  }
-}
+//     return ListTile(
+//       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+//       leading: const Icon(Icons.play_circle_outline),
+//       title: const Text('Continue reading'),
+//       subtitle: Text(
+//         '${progress.chapterTitle} - Page $pageIndex of $pageCount',
+//         maxLines: 2,
+//         overflow: TextOverflow.ellipsis,
+//       ),
+//       trailing: const Icon(Icons.chevron_right),
+//       onTap: onTap,
+//     );
+//   }
+// }
 
 class _BookTile extends StatelessWidget {
   const _BookTile({

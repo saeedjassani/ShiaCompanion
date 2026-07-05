@@ -69,3 +69,20 @@ Future<String> loadRandomHadith(
   final shard = jsonDecode(await bundle.loadString(location.path)) as List;
   return shard[location.itemIndex] as String;
 }
+
+Future<List<String>> loadAllHadith(AssetBundle bundle) async {
+  final manifestJson = jsonDecode(
+    await bundle.loadString('assets/hadith/manifest.json'),
+  ) as Map<String, dynamic>;
+  final manifest = HadithManifest.fromJson(manifestJson);
+  final totalShards = (manifest.totalQuotes / manifest.shardSize).ceil();
+  final allHadith = <String>[];
+
+  for (var i = 0; i < totalShards; i++) {
+    final path = 'assets/hadith/${i.toString().padLeft(3, '0')}.json';
+    final shard = jsonDecode(await bundle.loadString(path)) as List;
+    allHadith.addAll(shard.map((e) => e as String));
+  }
+
+  return allHadith;
+}
