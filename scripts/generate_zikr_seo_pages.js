@@ -288,7 +288,7 @@ function buildPageHtml(templateHtml, page) {
 }
 
 function buildSitemap(paths) {
-  const urls = ['/', '/zikr', ...paths].map((urlPath) => `${SITE_ORIGIN}${urlPath}`);
+  const urls = ['/', '/zikr/', ...paths].map((urlPath) => `${SITE_ORIGIN}${urlPath}`);
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
@@ -361,7 +361,7 @@ function main() {
     slugs.set(slug, uid);
 
     const title = normalizeWhitespace(entry.title || content.title || humanizeSlug(slug));
-    const canonicalPath = `/zikr/${slug}`;
+    const canonicalPath = `/zikr/${slug}/`;
     const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;
     const description = buildDescription(title, slug, content);
     const titleTag = buildTitleTag(title, slug);
