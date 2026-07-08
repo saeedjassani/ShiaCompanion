@@ -3,6 +3,8 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/library_progress_store.dart';
 import 'package:shia_companion/services/library_service.dart';
+import 'package:shia_companion/utils/markdown_block_parser.dart';
+import 'package:shia_companion/utils/page_layout_engine.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 
@@ -33,7 +35,7 @@ class ChapterPage extends StatefulWidget {
   _ChapterPageState createState() => _ChapterPageState();
 }
 
-class _ChapterPageState extends State<ChapterPage> {
+class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
   static const double _minFontSize = 14;
   static const double _maxFontSize = 28;
   static const double _lineHeight = 1.55;
@@ -42,15 +44,40 @@ class _ChapterPageState extends State<ChapterPage> {
   double _readerFontSize = 18;
   bool _isSaved = false;
   bool _isSaving = false;
+  bool _paginationReady = false;
+
+  PaginationResult? _result;
+  PageController? _pageController;
+  int _currentPageIndex = 0;
+  int _savedBlockIndex = 0;
+  double _pageHeight = 0;
+  double _contentWidth = 400;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     trackScreen('Chapter Page');
     _readerFontSize = (widget.initialFontSize ?? englishFontSize)
         .clamp(_minFontSize, _maxFontSize);
+    _savedBlockIndex = widget.initialPageIndex;
     _chapterFuture = LibraryService.loadChapterMarkdown(widget.slug);
     _checkSaved();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _pageController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    if (_paginationReady && _result != null) {
+      _repaginate();
+    }
   }
 
   Future<void> _checkSaved() async {
@@ -100,15 +127,53 @@ class _ChapterPageState extends State<ChapterPage> {
   }
 
   void _changeFontSize(double delta) {
+    final newSize =
+        (_readerFontSize + delta).clamp(_minFontSize, _maxFontSize);
+    if (newSize == _readerFontSize) return;
+
     setState(() {
-      _readerFontSize =
-          (_readerFontSize + delta).clamp(_minFontSize, _maxFontSize);
+      _readerFontSize = newSize;
       englishFontSize = _readerFontSize;
     });
     if (SP.isInitialized) {
       SP.prefs.setDouble('eng_font_size', _readerFontSize);
     }
+
+    _repaginate();
     _saveProgress();
+  }
+
+  void _repaginate() {
+    if (_result != null && _pageHeight > 0) {
+      final styleSheet = _readerStyleSheet(context);
+      final engine = PageLayoutEngine(
+        markdown: _result!.blocks.map((b) => b.rawText).join('\n\n'),
+        contentWidth: _contentWidth,
+        contentHeight: _pageHeight,
+        fontSize: _readerFontSize,
+        lineHeight: _lineHeight,
+        styleSheet: styleSheet,
+      );
+      final result = engine.compute();
+      int targetPage = 0;
+      for (var p = 0; p < result.pageBlocks.length; p++) {
+        for (final paginatedBlock in result.pageBlocks[p]) {
+          if (paginatedBlock.originalIndex == _savedBlockIndex) {
+            targetPage = p;
+            break;
+          }
+        }
+        if (targetPage == p) break;
+      }
+      setState(() {
+        _result = result;
+        _paginationReady = true;
+        _currentPageIndex = targetPage;
+      });
+      if (_pageController != null && _pageController!.hasClients) {
+        _pageController!.jumpToPage(targetPage);
+      }
+    }
   }
 
   void _saveProgress() {
@@ -121,6 +186,7 @@ class _ChapterPageState extends State<ChapterPage> {
             ? widget.chapters[widget.chapterIndex].uid
             : fallbackChapterSlug;
 
+    final pageCount = _result?.pageCount ?? 1;
     LibraryProgressStore.instance.save(
       LibraryProgress(
         bookSlug: bookSlug,
@@ -128,8 +194,8 @@ class _ChapterPageState extends State<ChapterPage> {
         chapterSlug: chapterSlug,
         chapterTitle: widget.title,
         chapterIndex: widget.chapterIndex,
-        pageIndex: 0,
-        pageCount: 1,
+        pageIndex: _savedBlockIndex,
+        pageCount: pageCount,
         fontSize: _readerFontSize,
         updatedAt: DateTime.now(),
       ),
@@ -146,26 +212,152 @@ class _ChapterPageState extends State<ChapterPage> {
       h1: textTheme.headlineSmall?.copyWith(fontSize: _readerFontSize + 8),
       h2: textTheme.titleLarge?.copyWith(fontSize: _readerFontSize + 5),
       h3: textTheme.titleMedium?.copyWith(fontSize: _readerFontSize + 3),
+      h4: textTheme.titleSmall?.copyWith(fontSize: _readerFontSize + 2),
+      h5: textTheme.titleSmall?.copyWith(fontSize: _readerFontSize + 1),
+      h6: textTheme.titleSmall?.copyWith(fontSize: _readerFontSize),
       blockquote: textTheme.bodyLarge?.copyWith(
         fontSize: _readerFontSize,
         height: _lineHeight,
         fontStyle: FontStyle.italic,
       ),
+      code: textTheme.bodyMedium?.copyWith(
+        fontSize: _readerFontSize - 2,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      ),
+      a: textTheme.bodyLarge?.copyWith(
+        fontSize: _readerFontSize,
+        color: Theme.of(context).colorScheme.primary,
+      ),
     );
   }
 
-  Widget _buildScrollableReader(String chapterMarkdown) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+  Widget _buildPagedReader(String chapterMarkdown) {
+    final blocks = MarkdownBlockParser.parse(chapterMarkdown);
+    
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _pageHeight = constraints.maxHeight;
+        _contentWidth = readingContentWidth;
+        debugPrint("PAGINATION: constraints=$constraints, contentWidth=$_contentWidth, pageHeight=$_pageHeight");
+
+        if (!_paginationReady) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _pageHeight > 0) {
+              final styleSheet = _readerStyleSheet(context);
+              final engine = PageLayoutEngine(
+                markdown: blocks.map((b) => b.rawText).join('\n\n'),
+                contentWidth: _contentWidth,
+                contentHeight: _pageHeight,
+                fontSize: _readerFontSize,
+                lineHeight: _lineHeight,
+                styleSheet: styleSheet,
+              );
+
+              final result = engine.compute();
+              int targetPage = 0;
+              for (var p = 0; p < result.pageBlocks.length; p++) {
+                for (final paginatedBlock in result.pageBlocks[p]) {
+                  if (paginatedBlock.originalIndex == _savedBlockIndex) {
+                    targetPage = p;
+                    break;
+                  }
+                }
+                if (targetPage == p) break;
+              }
+              
+              setState(() {
+                _pageController = PageController(initialPage: targetPage);
+                _result = result;
+                _paginationReady = true;
+                _currentPageIndex = targetPage;
+              });
+            }
+          });
+          
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final pageCount = _result?.pageCount ?? 1;
+
+        return PageView.builder(
+          controller: _pageController,
+          itemCount: pageCount,
+          onPageChanged: (page) {
+            setState(() {
+              _currentPageIndex = page;
+              if (_result!.pageBlocks.isNotEmpty &&
+                  page < _result!.pageBlocks.length &&
+                  _result!.pageBlocks[page].isNotEmpty) {
+                _savedBlockIndex = _result!.pageBlocks[page].first.originalIndex;
+              }
+            });
+          },
+          itemBuilder: (context, pageIndex) => _buildPage(pageIndex),
+        );
+      },
+    );
+  }
+
+  Widget _buildPage(int pageIndex) {
+    final result = _result!;
+    if (pageIndex >= result.pageBlocks.length) return const SizedBox.shrink();
+
+    final paginatedBlocks = result.pageBlocks[pageIndex];
+    final pageChildren = <Widget>[];
+
+    for (final paginatedBlock in paginatedBlocks) {
+      final block = result.blocks[paginatedBlock.originalIndex];
+      final renderText = paginatedBlock.text;
+
+      pageChildren.add(
+        Padding(
+          padding: EdgeInsets.only(
+            top: paginatedBlock.topMargin,
+            bottom: paginatedBlock.bottomMargin,
+          ),
+          child: Directionality(
+            textDirection: block.textDirection,
+            child: MarkdownBody(
+              data: renderText,
+              selectable: true,
+              styleSheet: _readerStyleSheet(context),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: readingContentWidth),
-        child: MarkdownBody(
-          data: chapterMarkdown,
-          selectable: true,
-          styleSheet: _readerStyleSheet(context),
+        constraints: BoxConstraints(
+          maxWidth: _contentWidth,
+          maxHeight: _pageHeight,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: pageChildren,
         ),
       ),
     );
+  }
+
+  void _goToPreviousPage() {
+    if (_currentPageIndex > 0) {
+      _pageController?.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _goToNextPage() {
+    if (_result != null && _currentPageIndex < _result!.pageCount - 1) {
+      _pageController?.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   Widget _buildMessage({
@@ -199,6 +391,8 @@ class _ChapterPageState extends State<ChapterPage> {
   @override
   Widget build(BuildContext context) {
     final bookSlug = widget.bookSlug;
+    final pageCount = _result?.pageCount ?? 1;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -232,14 +426,39 @@ class _ChapterPageState extends State<ChapterPage> {
               onAction: _retry,
             );
           }
-          return _buildScrollableReader(snapshot.data ?? '');
+          return _buildPagedReader(snapshot.data ?? '');
         },
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+          padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
           child: Row(
             children: [
+              IconButton(
+                tooltip: 'Previous page',
+                icon: const Icon(Icons.chevron_left),
+                onPressed: _paginationReady && _currentPageIndex > 0
+                    ? _goToPreviousPage
+                    : null,
+              ),
+              if (_paginationReady)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    '${_currentPageIndex + 1} / $pageCount',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                )
+              else
+                const SizedBox(width: 48),
+              IconButton(
+                tooltip: 'Next page',
+                icon: const Icon(Icons.chevron_right),
+                onPressed: _paginationReady && _currentPageIndex < pageCount - 1
+                    ? _goToNextPage
+                    : null,
+              ),
+              const Spacer(),
               IconButton(
                 tooltip: 'Decrease font size',
                 icon: const Icon(Icons.text_decrease),

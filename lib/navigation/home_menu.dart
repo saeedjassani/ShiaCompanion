@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../pages/calendar_page.dart';
 import '../pages/favorites_page.dart';
-import '../pages/hadith_page.dart';
 import '../pages/library_page.dart';
 import '../pages/list_items.dart';
 import '../pages/prayer_counter_page.dart';
@@ -125,11 +124,6 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
       icon: Icons.sensor_occupied_rounded,
       pageBuilder: () => const PrayerCounterPage(),
     ),
-  HomeMenuItem(
-    label: 'Hadith',
-    icon: Icons.auto_stories,
-    pageBuilder: () => const HadithPage(),
-  ),
   HomeMenuItem(
     label: 'Preferences',
     icon: Icons.settings,
