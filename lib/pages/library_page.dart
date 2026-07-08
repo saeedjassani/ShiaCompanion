@@ -8,6 +8,7 @@ import 'package:shia_companion/widgets/responsive_content.dart';
 
 import '../constants.dart';
 import '../services/favorites_manager.dart';
+import 'chapter_page.dart';
 
 class LibraryPage extends StatefulWidget {
   @override
@@ -37,46 +38,46 @@ class _LibraryPageState extends State<LibraryPage> {
     _lastProgress = LibraryProgressStore.instance.readLast();
   }
 
-  // Future<void> _continueReading(LibraryProgress progress) async {
-  //   final chapters = await LibraryService.loadChapters(progress.bookSlug);
-  //   if (!mounted) return;
+  Future<void> _continueReading(LibraryProgress progress) async {
+    final chapters = await LibraryService.loadChapters(progress.bookSlug);
+    if (!mounted) return;
 
-  //   var chapterIndex = progress.chapterIndex;
-  //   if (chapterIndex < 0 ||
-  //       chapterIndex >= chapters.length ||
-  //       chapters[chapterIndex].uid != progress.chapterSlug) {
-  //     chapterIndex = chapters.indexWhere(
-  //       (chapter) => chapter.uid == progress.chapterSlug,
-  //     );
-  //   }
-  //   if (chapterIndex < 0 || chapterIndex >= chapters.length) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Saved chapter is no longer available')),
-  //     );
-  //     await LibraryProgressStore.instance.removeLast();
-  //     setState(_loadLastProgress);
-  //     return;
-  //   }
+    var chapterIndex = progress.chapterIndex;
+    if (chapterIndex < 0 ||
+        chapterIndex >= chapters.length ||
+        chapters[chapterIndex].uid != progress.chapterSlug) {
+      chapterIndex = chapters.indexWhere(
+        (chapter) => chapter.uid == progress.chapterSlug,
+      );
+    }
+    if (chapterIndex < 0 || chapterIndex >= chapters.length) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Saved chapter is no longer available')),
+      );
+      await LibraryProgressStore.instance.removeLast();
+      setState(_loadLastProgress);
+      return;
+    }
 
-  //   final chapter = chapters[chapterIndex];
-  //   await Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => ChapterPage(
-  //         '${progress.bookSlug}/${chapter.uid}',
-  //         chapter.title,
-  //         bookTitle: progress.bookTitle,
-  //         chapters: chapters,
-  //         chapterIndex: chapterIndex,
-  //         bookSlug: progress.bookSlug,
-  //         initialPageIndex: progress.pageIndex,
-  //         initialFontSize: progress.fontSize,
-  //       ),
-  //     ),
-  //   );
-  //   if (!mounted) return;
-  //   setState(_loadLastProgress);
-  // }
+    final chapter = chapters[chapterIndex];
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChapterPage(
+          '${progress.bookSlug}/${chapter.uid}',
+          chapter.title,
+          bookTitle: progress.bookTitle,
+          chapters: chapters,
+          chapterIndex: chapterIndex,
+          bookSlug: progress.bookSlug,
+          initialPageIndex: progress.pageIndex,
+          initialFontSize: progress.fontSize,
+        ),
+      ),
+    );
+    if (!mounted) return;
+    setState(_loadLastProgress);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,13 +110,12 @@ class _LibraryPageState extends State<LibraryPage> {
             _ => ListView.separated(
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) {
-                  // TODO implement this once chapters are rendered properly
-                  // if (_lastProgress != null && index == 0) {
-                  //   return _ContinueReadingTile(
-                  //     progress: _lastProgress!,
-                  //     onTap: () => _continueReading(_lastProgress!),
-                  //   );
-                  // }
+                  if (_lastProgress != null && index == 0) {
+                    return _ContinueReadingTile(
+                      progress: _lastProgress!,
+                      onTap: () => _continueReading(_lastProgress!),
+                    );
+                  }
 
                   final bookIndex = _lastProgress == null ? index : index - 1;
                   final book = books[bookIndex];
@@ -161,34 +161,34 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 }
 
-// class _ContinueReadingTile extends StatelessWidget {
-//   const _ContinueReadingTile({
-//     required this.progress,
-//     required this.onTap,
-//   });
+class _ContinueReadingTile extends StatelessWidget {
+  const _ContinueReadingTile({
+    required this.progress,
+    required this.onTap,
+  });
 
-//   final LibraryProgress progress;
-//   final VoidCallback onTap;
+  final LibraryProgress progress;
+  final VoidCallback onTap;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final pageCount = progress.pageCount <= 0 ? 1 : progress.pageCount;
-//     final pageIndex = progress.pageIndex.clamp(0, pageCount - 1) + 1;
+  @override
+  Widget build(BuildContext context) {
+    final pageCount = progress.pageCount <= 0 ? 1 : progress.pageCount;
+    final pageIndex = progress.pageIndex.clamp(0, pageCount - 1) + 1;
 
-//     return ListTile(
-//       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-//       leading: const Icon(Icons.play_circle_outline),
-//       title: const Text('Continue reading'),
-//       subtitle: Text(
-//         '${progress.chapterTitle} - Page $pageIndex of $pageCount',
-//         maxLines: 2,
-//         overflow: TextOverflow.ellipsis,
-//       ),
-//       trailing: const Icon(Icons.chevron_right),
-//       onTap: onTap,
-//     );
-//   }
-// }
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      leading: const Icon(Icons.play_circle_outline),
+      title: const Text('Continue reading'),
+      subtitle: Text(
+        '${progress.chapterTitle} - Page $pageIndex of $pageCount',
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap,
+    );
+  }
+}
 
 class _BookTile extends StatelessWidget {
   const _BookTile({

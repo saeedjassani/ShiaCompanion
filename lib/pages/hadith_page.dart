@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shia_companion/utils/hadith_loader.dart';
 
 class HadithPage extends StatefulWidget {
   const HadithPage({super.key});
@@ -31,12 +30,9 @@ class _HadithPageState extends State<HadithPage> {
   }
 
   Future<void> _loadHadith() async {
-    final bundle = DefaultAssetBundle.of(context);
-    final hadith = await loadAllHadith(bundle);
+    // hadith functionality disabled - loadAllHadith not implemented
     if (!mounted) return;
     setState(() {
-      _allHadith = hadith;
-      _filteredHadith = hadith;
       _isLoading = false;
     });
   }
