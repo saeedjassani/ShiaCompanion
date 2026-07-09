@@ -650,6 +650,10 @@
     "title": "Eid Prayer",
     "slug": "eid-prayer"
   },
+  "AF~AG3": {
+    "title": "Karbala al-Muqaddasah",
+    "slug": "karbala-al-muqaddasah"
+  },
   "AF~AI2": {
     "title": "Kufa",
     "slug": "kufa"
@@ -661,6 +665,10 @@
   "AF~AL7": {
     "title": "Samarrah",
     "slug": "samarrah"
+  },
+  "AG1": {
+    "title": "Merits of Visiting Imam al-Husayn (a.s.)",
+    "slug": "merits-of-visiting-imam-al-husayn-a-s"
   },
   "AI10|H17": {
     "title": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)",
@@ -817,6 +825,10 @@
   "E154": {
     "title": "Dua-e-Ehtejaab [The Supplication of Concealment]",
     "slug": "dua-e-ehtejaab-the-supplication-of-concealment"
+  },
+  "E155": {
+    "title": "Dua e Marefat - Allahumma Arrifni",
+    "slug": "dua-e-marefat-allahumma-arrifni"
   },
   "E16": {
     "title": "Dua during the Occultation of Imam Mahdi (a.t.f.s.) - SHORT اَللّٰهُمَّ عَرِّفْنِىْ نَفْسَكَ",
@@ -1247,9 +1259,17 @@
     "title": "15th Whispered Prayer of the Abstainers - Munajaat al Zahideen",
     "slug": "15th-whispered-prayer-of-the-abstainers-munajaat-al-zahideen"
   },
+  "H16": {
+    "title": "Imam Ali (a.s.)'s Whispered Prayer - Munajat Manzoom",
+    "slug": "imam-ali-a-s-s-whispered-prayer-munajat-manzoom"
+  },
   "H17": {
     "title": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)",
     "slug": "the-whispered-prayer-munajaat-of-ameerul-momeneen-a-2"
+  },
+  "H18": {
+    "title": "(1) Munaajaat for Istekhaaraa",
+    "slug": "1-munajaat-for-guidance-to-the-best"
   },
   "H2": {
     "title": "2nd Whispered Prayer of the Complainers - Munajaat al Shakeen",
@@ -1360,11 +1380,11 @@
     "slug": "istekhaarah-with-rosary-tasbeeh"
   },
   "I35": {
-    "title": "Istikharah of the author of Al-Jawahir",
+    "title": "Istekhaarah of the author of al-Jawahir",
     "slug": "istikharah-of-the-author-of-al-jawahir"
   },
   "I36": {
-    "title": "The time of Istikharah",
+    "title": "The time of Istekhaarah",
     "slug": "the-time-of-istikharah"
   },
   "I4": {
