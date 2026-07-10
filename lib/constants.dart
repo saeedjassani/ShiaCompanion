@@ -381,32 +381,40 @@ Future<bool> initializeLocation(
       // Permission granted; fall through to fetch position.
     }
 
-    // Use a timeout so we don't hang indefinitely on a cold/failing fetch.
+    // Use a time limit so we don't hang indefinitely on a cold/failing fetch,
+    // and keep a last-known fix as a fallback when a fresh one can't be obtained.
+    final lastKnownPosition = await Geolocator.getLastKnownPosition();
+
     Position currentLocation;
     try {
       currentLocation = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 20),
         ),
-      ).timeout(
-        const Duration(seconds: 20),
-        onTimeout: () {
-          throw TimeoutException(
-              'Location request timed out after 20 seconds');
-        },
       );
     } on TimeoutException catch (e) {
-      debugPrint("Location request timed out: $e");
-      if (context != null && !kIsWeb) {
-        _showLocationTimeoutDialog(context);
+      if (lastKnownPosition != null) {
+        debugPrint("Location request timed out; using last known position.");
+        currentLocation = lastKnownPosition;
+      } else {
+        debugPrint("Location request timed out: $e");
+        if (context != null && !kIsWeb) {
+          _showLocationTimeoutDialog(context);
+        }
+        return false;
       }
-      return false;
     } catch (e) {
-      debugPrint("Location fetch failed: $e");
-      if (context != null && !kIsWeb) {
-        _showLocationErrorDialog(context, e);
+      if (lastKnownPosition != null) {
+        debugPrint("Location fetch failed; using last known position: $e");
+        currentLocation = lastKnownPosition;
+      } else {
+        debugPrint("Location fetch failed: $e");
+        if (context != null && !kIsWeb) {
+          _showLocationErrorDialog(context, e);
+        }
+        return false;
       }
-      return false;
     }
     final previousLat = lat;
     final previousLong = long;
