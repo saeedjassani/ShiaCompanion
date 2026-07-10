@@ -383,7 +383,10 @@ Future<bool> initializeLocation(
 
     // Use a time limit so we don't hang indefinitely on a cold/failing fetch,
     // and keep a last-known fix as a fallback when a fresh one can't be obtained.
-    final lastKnownPosition = await Geolocator.getLastKnownPosition();
+    // getLastKnownPosition is unsupported on web, so skip it there.
+    final Position? lastKnownPosition = kIsWeb
+        ? null
+        : await Geolocator.getLastKnownPosition();
 
     Position currentLocation;
     try {
@@ -444,14 +447,29 @@ Future<bool> initializeLocation(
           if (city != null) await SP.prefs.setString("city", city!);
         } else {
           debugPrint(
-              "Ignoring non-city geocode result: '$resolvedCity' for lat=$lat, long=$long");
+              "Geocode did not resolve a city name ('$resolvedCity'); using a broader location label.");
+          // Don't keep a stale previous city: reflect the new coordinates.
+          final fallback = _geocodeFallbackLabel(data, lat!, long!);
+          if (fallback != city) needToSchedule = true;
+          city = fallback;
+          await SP.prefs.setString("city", city!);
           if (context != null && !kIsWeb) {
             _showGeocodeFallbackDialog(context);
           }
         }
+      } else {
+        debugPrint("Geocode returned status ${response.statusCode}");
+        if (locationChanged) {
+          city = _geocodeFallbackLabel({}, lat!, long!);
+          await SP.prefs.setString("city", city!);
+        }
       }
     } catch (e) {
       debugPrint("Error getting city: $e");
+      if (locationChanged) {
+        city = _geocodeFallbackLabel({}, lat!, long!);
+        await SP.prefs.setString("city", city!);
+      }
     }
     if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
       await setUpNotifications();
@@ -482,9 +500,13 @@ String? _validateGeocodeResult(
     if (administrative is List && administrative.isNotEmpty) {
       final hasAdminArea = administrative.any((entry) {
         if (entry is Map) {
-          final level = (entry['level'] ?? '').toString().trim();
+          // BigDataCloud reports admin level as `adminLevel` (2 = country,
+          // 4 = first-order subdivision). Older schemas used `level` '0'/'1'.
+          final level = entry['adminLevel'] ?? entry['level'];
           final name = (entry['name'] ?? '').toString().trim();
-          if (level == '0' || level == '1') return name.isNotEmpty;
+          final isCountryOrState =
+              level == 2 || level == 4 || level == '0' || level == '1';
+          if (isCountryOrState) return name.isNotEmpty;
         }
         return false;
       });
@@ -501,6 +523,19 @@ String? _validateGeocodeResult(
   }
 
   return trimmed;
+}
+
+/// Builds a readable location label from a geocode response when a precise
+/// city name can't be validated. Prefers the subdivision/country and falls
+/// back to raw coordinates so the UI never shows a stale previous location.
+String _geocodeFallbackLabel(Map<String, dynamic> data, double lat, double long) {
+  final candidate = (data['principalSubdivision'] ??
+      data['countryName'] ??
+      data['locality'] ??
+      '').toString().trim();
+  return candidate.isNotEmpty
+      ? candidate
+      : '${lat.toStringAsFixed(2)}, ${long.toStringAsFixed(2)}';
 }
 
 void _showLocationServiceDialog(BuildContext context) {
@@ -539,7 +574,7 @@ void _showGeocodeFallbackDialog(BuildContext context) {
       return AlertDialog(
         title: const Text('Location Uncertain'),
         content: const Text(
-          'We couldn\'t determine a city name for your current coordinates. Using your previously saved location instead.',
+          'We couldn\'t determine a precise city name for your current coordinates. Showing a broader location instead.',
         ),
         actions: [
           ElevatedButton(
