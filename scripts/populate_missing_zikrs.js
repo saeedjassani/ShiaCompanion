@@ -52,9 +52,29 @@ function toMobile(url) {
 // ---------------------------------------------------------------------------
 // Web search: find the best duas.org page for a given title.
 // Default backend is DuckDuckGo's HTML endpoint (reliable, scrapable). If a
-// Google Custom Search API key + CX are provided via env, `engine=google` uses
-// the official API instead. Results are filtered to the duas.org domain.
+// Google Custom Search API key + CX are available (env vars or a local
+// gitignored scripts/search_config.json), `engine=google` uses the official
+// API instead. Results are filtered to the duas.org domain.
 // ---------------------------------------------------------------------------
+const SEARCH_CONFIG_PATH = path.join(__dirname, 'search_config.json');
+
+// Resolved credentials: local config file wins over process.env.
+function getSearchConfig() {
+  let fileConfig = {};
+  if (fs.existsSync(SEARCH_CONFIG_PATH)) {
+    try {
+      fileConfig = JSON.parse(fs.readFileSync(SEARCH_CONFIG_PATH, 'utf8'));
+    } catch {
+      fileConfig = {};
+    }
+  }
+  const rawKey = fileConfig.GOOGLE_CSE_API_KEY || process.env.GOOGLE_CSE_API_KEY || '';
+  const rawCx = fileConfig.GOOGLE_CSE_CX || process.env.GOOGLE_CSE_CX || '';
+  // Treat the example/placeholder values as "not set" so we fall back to DDG.
+  const clean = (v) => (/replace_with/i.test(v) ? '' : v);
+  return { key: clean(rawKey), cx: clean(rawCx) };
+}
+
 async function searchDuckDuckGo(query) {
   const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
   const html = await fetchHtml(url);
@@ -79,12 +99,14 @@ async function searchDuckDuckGo(query) {
 }
 
 async function searchGoogleCSE(query) {
-  const key = process.env.GOOGLE_CSE_API_KEY;
-  const cx = process.env.GOOGLE_CSE_CX;
+  const { key, cx } = getSearchConfig();
   const url =
     `https://www.googleapis.com/customsearch/v1?key=${key}&cx=${cx}` +
     `&q=${encodeURIComponent(query)}`;
-  const res = await axios.get(url, { timeout: 30000 });
+  const res = await axios.get(url, {
+    timeout: 30000,
+    headers: { 'Referer': 'https://duas.org/' },
+  });
   const items = res.data?.items ?? [];
   return [
     ...new Set(
@@ -101,11 +123,56 @@ async function searchGoogleCSE(query) {
   ];
 }
 
-async function searchWeb(query, { engine = 'ddg' } = {}) {
-  if (engine === 'google' && process.env.GOOGLE_CSE_API_KEY && process.env.GOOGLE_CSE_CX) {
-    return searchGoogleCSE(query);
+const CORPUS_PATH = path.join(__dirname, 'duas_org_index.json');
+const SKIPPED_PATH = path.join(__dirname, 'skipped_zikrs.json');
+
+function loadSkipped() {
+  try {
+    return new Set(JSON.parse(fs.readFileSync(SKIPPED_PATH, 'utf8')));
+  } catch {
+    return new Set();
   }
-  return searchDuckDuckGo(query);
+}
+
+function saveSkipped(uids) {
+  fs.writeFileSync(SKIPPED_PATH, JSON.stringify([...uids].sort(), null, 2));
+}
+
+function searchCorpus(query) {
+  let corpus;
+  try {
+    corpus = JSON.parse(fs.readFileSync(CORPUS_PATH, 'utf8'));
+  } catch {
+    return [];
+  }
+  const scored = corpus
+    .map((p) => ({ url: p.url, title: p.title, score: score(query, p.title) }))
+    .filter((p) => p.score > 0.3)
+    .sort((a, b) => b.score - a.score);
+  return scored.slice(0, 5).map((p) => p.url);
+}
+
+async function searchWeb(query, { engine = 'ddg' } = {}) {
+  if (engine === 'google') {
+    const { key, cx } = getSearchConfig();
+    if (key && cx) return searchGoogleCSE(query);
+    console.warn(
+      '  (engine=google requested but GOOGLE_CSE_API_KEY/CX missing; ' +
+        'set env vars or scripts/search_config.json)',
+    );
+  }
+  // Try DDG first; if it returns nothing (e.g. blocked by CAPTCHA), fall back
+  // to the local duas.org corpus.
+  let results;
+  try {
+    results = await searchDuckDuckGo(query);
+  } catch {
+    results = [];
+  }
+  if (results.length === 0) {
+    results = searchCorpus(query);
+  }
+  return results;
 }
 
 function loadJson(p) {
@@ -116,8 +183,10 @@ function computeMissing() {
   const items = loadJson(ITEMS_PATH);
   const zikr = loadJson(ZIKR_PATH);
   const have = new Set(Object.keys(zikr));
+  const skipped = loadSkipped();
   const missing = [];
   let skippedAggregators = 0;
+  let skippedPreviously = 0;
   for (const [uid, value] of Object.entries(items)) {
     // `~` = parent/list aggregator, `|` = special composite. These never hold
     // their own 3-line content (the build pipeline prunes them), so they are
@@ -127,11 +196,16 @@ function computeMissing() {
       continue;
     }
     if (have.has(uid)) continue;
+    if (skipped.has(uid)) {
+      skippedPreviously += 1;
+      continue;
+    }
     const title = typeof value === 'string' ? value : `${value?.title ?? ''}`;
     missing.push({ uid, title });
   }
   missing.sort((a, b) => a.uid.localeCompare(b.uid));
   missing._skippedAggregators = skippedAggregators;
+  missing._skippedPreviously = skippedPreviously;
   return missing;
 }
 
@@ -295,6 +369,12 @@ function preview(doc, uid) {
   console.log('     first : ' + doc.data.split('\n').slice(0, 3).join(' | '));
 }
 
+function persistSkips(skippedUids) {
+  const existing = loadSkipped();
+  for (const uid of skippedUids) existing.add(uid);
+  saveSkipped(existing);
+}
+
 async function matchLoop(missing, { store, regenerate, engine, searchFn = searchWeb }) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   const approved = [];
@@ -326,6 +406,7 @@ async function matchLoop(missing, { store, regenerate, engine, searchFn = search
     let url = null;
     if (choice === 's' || choice === 'skip') {
       skipped.push(item.uid);
+      persistSkips([item.uid]);
       continue;
     } else if (choice === 'u') {
       url = await ask(rl, '  paste duas.org URL: ');
@@ -338,6 +419,7 @@ async function matchLoop(missing, { store, regenerate, engine, searchFn = search
     }
     if (!url) {
       skipped.push(item.uid);
+      persistSkips([item.uid]);
       continue;
     }
 
@@ -360,6 +442,7 @@ async function matchLoop(missing, { store, regenerate, engine, searchFn = search
       }
       if (!doc) {
         skipped.push(item.uid);
+        persistSkips([item.uid]);
         continue;
       }
     }
@@ -377,6 +460,7 @@ async function matchLoop(missing, { store, regenerate, engine, searchFn = search
       }
     } else {
       skipped.push(item.uid);
+      persistSkips([item.uid]);
     }
   }
 
@@ -413,11 +497,18 @@ async function main() {
   };
 
   if (cmd === 'diff') {
-    const missing = computeMissing();
+    let missing = computeMissing();
+    const skippedAggregators = missing._skippedAggregators;
+    const limitArg = getArg('--limit');
+    const limit = limitArg != null ? parseInt(limitArg, 10) : NaN;
+    if (!Number.isNaN(limit) && limit > 0) {
+      missing = missing.slice(0, limit);
+    }
     console.log(`items.json: ${Object.keys(loadJson(ITEMS_PATH)).length} entries`);
     console.log(`zikr.json:  ${Object.keys(loadJson(ZIKR_PATH)).length} entries`);
-    console.log(`(excluded ${missing._skippedAggregators} parent/list aggregators: '~' and '|' UIDs)`);
-    console.log(`MISSING (in items.json, not in zikr.json): ${missing.length}\n`);
+    console.log(`(excluded ${skippedAggregators} parent/list aggregators: '~' and '|' UIDs)`);
+    console.log(`(also skipped previously via 's' in match: ${missing._skippedPreviously} UIDs)`);
+    console.log(`MISSING (in items.json, not in zikr.json): ${missing.length}${Number.isNaN(limit) ? '' : ` (limited to ${limit} by --limit)`}\n`);
     for (const m of missing) console.log(`${m.uid}\t${m.title}`);
     const out = getArg('--out') || path.join(__dirname, 'missing_zikrs.json');
     fs.writeFileSync(out, JSON.stringify(missing, null, 2));
@@ -437,9 +528,14 @@ async function main() {
   }
 
   if (cmd === 'match') {
-    const missing = computeMissing();
+    let missing = computeMissing();
+    const limitArg = getArg('--limit');
+    const limit = limitArg != null ? parseInt(limitArg, 10) : NaN;
+    if (!Number.isNaN(limit) && limit > 0) {
+      missing = missing.slice(0, limit);
+    }
     const engine = getArg('--engine') || (has('--google') ? 'google' : 'ddg');
-    console.log(`Missing zikrs: ${missing.length}. Search engine: ${engine}.`);
+    console.log(`Missing zikrs: ${missing.length}${Number.isNaN(limit) ? '' : ` (limited to ${limit} by --limit)`}. Search engine: ${engine}.`);
     console.log('For each, the top duas.org search results are shown; approve (y) to store.\n');
     await matchLoop(missing, {
       store: has('--store'),
@@ -452,14 +548,16 @@ async function main() {
   console.log(`Usage:
   node populate_missing_zikrs.js diff                       # list missing zikrs
   node populate_missing_zikrs.js crawl [--seeds s.json]     # (optional) build a local corpus
-  node populate_missing_zikrs.js match [--store] [--regenerate] [--engine ddg|google]
+  node populate_missing_zikrs.js match [--store] [--regenerate] [--engine ddg|google] [--limit N]
                                                           # interactive: search + approve each
 
 Matching searches the web for each missing title and offers the top duas.org
 results; you approve (y) each one before any Firebase write. Without --store it
 records approvals to approved_zikrs.json.
   --engine ddg     DuckDuckGo HTML scrape (default, no key needed)
-  --engine google  Google Custom Search (needs GOOGLE_CSE_API_KEY + GOOGLE_CSE_CX)`);
+  --engine google  Google Custom Search (needs GOOGLE_CSE_API_KEY + GOOGLE_CSE_CX,
+                   via env or scripts/search_config.json)
+  --limit N        process only the first N missing items (for daily 100-query batches)`);
 }
 
 module.exports = {
@@ -467,6 +565,7 @@ module.exports = {
   searchWeb,
   searchDuckDuckGo,
   searchGoogleCSE,
+  searchCorpus,
   tryParse,
   matchLoop,
 };

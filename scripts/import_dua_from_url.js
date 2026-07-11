@@ -195,6 +195,15 @@ function previewDocument(doc, uid, triplets) {
   console.log('='.repeat(72));
 }
 
+function getFirestoreDb() {
+  if (admin.apps.length > 0) {
+    return admin.firestore();
+  }
+  const serviceAccount = getServiceAccount();
+  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  return admin.firestore();
+}
+
 async function storeDocument(uid, doc, { regenerate, skipConfirm }) {
   if (doc.data.trim().length === 0) {
     throw new Error('Refusing to store: parsed data is empty. Check the source URL.');
@@ -208,9 +217,7 @@ async function storeDocument(uid, doc, { regenerate, skipConfirm }) {
     return false;
   }
 
-  const serviceAccount = getServiceAccount();
-  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-  const db = admin.firestore();
+  const db = getFirestoreDb();
 
   await db.collection(ZIKR_COLLECTION).doc(uid).set(doc);
   console.log(`✅ Stored zikr/${uid} (${doc.title})`);

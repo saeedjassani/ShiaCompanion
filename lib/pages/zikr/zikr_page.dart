@@ -140,11 +140,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
 
     _didQueueBookmarkHint = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    SP.prefs.setBool(_bookmarkHintSeenKey, true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || isEditing || zikrData == null) return;
-
-      await SP.prefs.setBool(_bookmarkHintSeenKey, true);
-      if (!mounted) return;
 
       final messenger = ScaffoldMessenger.of(context);
       messenger.hideCurrentSnackBar();
