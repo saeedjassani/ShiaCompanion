@@ -135,18 +135,31 @@ function extractTriplets(paneHtml) {
   const transliteration = grabByClass(paneHtml, 'Trl');
   const translation = grabByClass(paneHtml, 'Tra');
 
-  const count = Math.min(arabic.length, transliteration.length, translation.length);
-  if (count < arabic.length || count < transliteration.length || count < translation.length) {
+  const minCount = Math.min(arabic.length, transliteration.length, translation.length);
+  const countsDiffer = arabic.length !== transliteration.length || arabic.length !== translation.length;
+  
+  let arabicStartIndex = 0;
+  let effectiveCount = minCount;
+  
+  if (countsDiffer && arabic.length > minCount) {
+    // Skip the first Arabic element when counts differ
+    arabicStartIndex = 1;
+    effectiveCount = Math.min(arabic.length - 1, transliteration.length, translation.length);
     console.warn(
       `⚠️  Class counts differ (Ara=${arabic.length}, Trl=${transliteration.length}, ` +
-        `Tra=${translation.length}). Using the first ${count} aligned triplets.`,
+        `Tra=${translation.length}). Skipping first Arabic, using ${effectiveCount} aligned triplets.`,
+    );
+  } else if (countsDiffer) {
+    console.warn(
+      `⚠️  Class counts differ (Ara=${arabic.length}, Trl=${transliteration.length}, ` +
+        `Tra=${translation.length}). Using the first ${effectiveCount} aligned triplets.`,
     );
   }
 
   const triplets = [];
-  for (let i = 0; i < count; i += 1) {
+  for (let i = 0; i < effectiveCount; i += 1) {
     triplets.push({
-      arabic: arabic[i],
+      arabic: arabic[i + arabicStartIndex],
       transliteration: transliteration[i],
       translation: translation[i],
     });

@@ -939,6 +939,10 @@
     "title": "Dua for Ailments and Illnesses",
     "slug": "dua-for-ailments-and-illnesses"
   },
+  "E4": {
+    "title": "Dua Adilah",
+    "slug": "dua-adilah"
+  },
   "E44": {
     "title": "Dua for Glorifying Allah (s.w.t.)",
     "slug": "dua-for-glorifying-allah-s-w-t"
@@ -1292,9 +1296,45 @@
     "title": "(1) Munaajaat for Istekhaaraa",
     "slug": "1-munajaat-for-guidance-to-the-best"
   },
+  "H19": {
+    "title": "(2) Munajaat for True Repentance",
+    "slug": "2-munajaat-for-true-repentance"
+  },
   "H2": {
     "title": "2nd Whispered Prayer of the Complainers - Munajaat al Shakeen",
     "slug": "2nd-whispered-prayer-of-the-complainers-munajaat-al-shakeen"
+  },
+  "H20": {
+    "title": "(3) Munajaat for Help in Travel",
+    "slug": "3-munajaat-for-help-in-travel"
+  },
+  "H21": {
+    "title": "(4) Munajaat for Sustenance",
+    "slug": "4-munajaat-for-sustenance"
+  },
+  "H22": {
+    "title": "(5) Munajaat for Seeking Protection",
+    "slug": "5-munajaat-for-seeking-protection"
+  },
+  "H23": {
+    "title": "(6) Munajaat for acceptance of repentance",
+    "slug": "6-munajaat-for-acceptance-of-repentance"
+  },
+  "H24": {
+    "title": "(7) Munajaat for Hajj",
+    "slug": "7-munajaat-for-hajj"
+  },
+  "H25": {
+    "title": "(8) Munajaat for safety from persecution",
+    "slug": "8-munajaat-for-safety-from-persecution"
+  },
+  "H26": {
+    "title": "(9) Munajaat for Thanksgiving",
+    "slug": "9-munajaat-for-thanksgiving"
+  },
+  "H27": {
+    "title": "(10) Munajaat for Granting of Requests",
+    "slug": "10-munajaat-for-granting-of-requests"
   },
   "H3": {
     "title": "3rd Whispered Prayer of the Fearful - Munajaat al Khaefeen",

@@ -335,7 +335,7 @@ function ask(rl, question) {
   return new Promise((resolve) => rl.question(question, (a) => resolve(a.trim())));
 }
 
-async function tryParse(url) {
+async function tryParse(url, title) {
   const candidates = [url];
   if (/mobile/i.test(url)) {
     candidates.push(url.replace(/\/mobile\//i, '/'));
@@ -350,8 +350,7 @@ async function tryParse(url) {
       const pane = extractPaneOne(html);
       const triplets = extractTriplets(pane);
       if (triplets.length > 0) {
-        const pageTitle = extractTitle(html);
-        return buildDocument({ uid: '', url: c, title: pageTitle, triplets });
+        return buildDocument({ uid: '', url: c, title, triplets });
       }
     } catch {
       /* try next candidate */
@@ -425,7 +424,7 @@ async function matchLoop(missing, { store, regenerate, engine, searchFn = search
 
     let doc = null;
     try {
-      doc = await tryParse(url);
+      doc = await tryParse(url, item.title);
     } catch (err) {
       console.log('  fetch/parse failed: ' + err.message);
     }
@@ -435,7 +434,7 @@ async function matchLoop(missing, { store, regenerate, engine, searchFn = search
       if (again === 'u') {
         const u2 = await ask(rl, '  paste duas.org URL: ');
         try {
-          doc = await tryParse(u2);
+          doc = await tryParse(u2, item.title);
         } catch {
           /* ignore */
         }
@@ -450,7 +449,7 @@ async function matchLoop(missing, { store, regenerate, engine, searchFn = search
     preview(doc, item.uid);
     const decision = await ask(rl, '  Store to Firebase? [y/N/s]: ');
     if (decision === 'y' || decision === 'yes') {
-      const finalDoc = { ...doc, title: (await ask(rl, '  title override (Enter=keep): ')) || doc.title };
+      const finalDoc = doc;
       if (store) {
         await storeDocument(item.uid, finalDoc, { regenerate: false, skipConfirm: true });
         storedCount += 1;
@@ -504,6 +503,10 @@ async function main() {
     if (!Number.isNaN(limit) && limit > 0) {
       missing = missing.slice(0, limit);
     }
+    const uidArg = getArg('--uid');
+    if (uidArg) {
+      missing = missing.filter((m) => m.uid === uidArg);
+    }
     console.log(`items.json: ${Object.keys(loadJson(ITEMS_PATH)).length} entries`);
     console.log(`zikr.json:  ${Object.keys(loadJson(ZIKR_PATH)).length} entries`);
     console.log(`(excluded ${skippedAggregators} parent/list aggregators: '~' and '|' UIDs)`);
@@ -534,6 +537,10 @@ async function main() {
     if (!Number.isNaN(limit) && limit > 0) {
       missing = missing.slice(0, limit);
     }
+    const uidArg = getArg('--uid');
+    if (uidArg) {
+      missing = missing.filter((m) => m.uid === uidArg);
+    }
     const engine = getArg('--engine') || (has('--google') ? 'google' : 'ddg');
     console.log(`Missing zikrs: ${missing.length}${Number.isNaN(limit) ? '' : ` (limited to ${limit} by --limit)`}. Search engine: ${engine}.`);
     console.log('For each, the top duas.org search results are shown; approve (y) to store.\n');
@@ -548,8 +555,8 @@ async function main() {
   console.log(`Usage:
   node populate_missing_zikrs.js diff                       # list missing zikrs
   node populate_missing_zikrs.js crawl [--seeds s.json]     # (optional) build a local corpus
-  node populate_missing_zikrs.js match [--store] [--regenerate] [--engine ddg|google] [--limit N]
-                                                          # interactive: search + approve each
+  node populate_missing_zikrs.js match [--store] [--regenerate] [--engine ddg|google] [--limit N] [--uid UID]
+                                                           # interactive: search + approve each
 
 Matching searches the web for each missing title and offers the top duas.org
 results; you approve (y) each one before any Firebase write. Without --store it
@@ -557,7 +564,8 @@ records approvals to approved_zikrs.json.
   --engine ddg     DuckDuckGo HTML scrape (default, no key needed)
   --engine google  Google Custom Search (needs GOOGLE_CSE_API_KEY + GOOGLE_CSE_CX,
                    via env or scripts/search_config.json)
-  --limit N        process only the first N missing items (for daily 100-query batches)`);
+  --limit N        process only the first N missing items (for daily 100-query batches)
+  --uid UID        process only the specified UID (e.g. AE6)`);
 }
 
 module.exports = {
