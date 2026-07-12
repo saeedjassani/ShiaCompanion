@@ -467,9 +467,17 @@
     "title": "Dua-e-Iftetaah",
     "slug": "dua-e-iftetaah"
   },
+  "AA11": {
+    "title": "Dua Baha - Ramadan Suhoor Dawn",
+    "slug": "dua-baha-ramadan-suhoor-dawn"
+  },
   "AA12": {
     "title": "Dua-e-Abu Hamzah Sumali",
     "slug": "dua-e-abu-hamzah-sumali"
+  },
+  "AA13": {
+    "title": "Ya Uddati - Ramadan",
+    "slug": "ya-uddati-ramadan"
   },
   "AA16": {
     "title": "Aamal-e-Sahar in the Holy Month of Ramazan",
@@ -494,6 +502,10 @@
   "AA5": {
     "title": "Duas after every obligatory Prayers",
     "slug": "duas-after-every-obligatory-prayers"
+  },
+  "AA9": {
+    "title": "Dua Hajj - Ramadan",
+    "slug": "dua-hajj-ramadan"
   },
   "AA~Z8": {
     "title": "Everyday short duas in the month of Ramazan",
@@ -650,6 +662,10 @@
     "title": "Eid Prayer",
     "slug": "eid-prayer"
   },
+  "AE15": {
+    "title": "Ziyarat Lady Masooma Qom",
+    "slug": "ziyarat-lady-masooma-qom"
+  },
   "AF~AG3": {
     "title": "Karbala al-Muqaddasah",
     "slug": "karbala-al-muqaddasah"
@@ -697,6 +713,10 @@
   "AS1": {
     "title": "Dua No. 1",
     "slug": "dua-no-1"
+  },
+  "B~AE7": {
+    "title": "Iran",
+    "slug": "iran"
   },
   "B~AF8": {
     "title": "Iraq",
@@ -828,6 +848,7 @@
   },
   "E155": {
     "title": "Dua e Marefat - Allahumma Arrifni",
+    "order": 15,
     "slug": "dua-e-marefat-allahumma-arrifni"
   },
   "E16": {
