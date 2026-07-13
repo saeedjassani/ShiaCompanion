@@ -237,6 +237,10 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
     return LayoutBuilder(
       builder: (context, constraints) {
         _pageHeight = constraints.maxHeight;
+        // Measure at readingContentWidth (840px) to get the desired page count
+        // (e.g. 3 pages for the sample content). Rendering at the actual
+        // narrower width may make individual pages taller, which is handled
+        // by SingleChildScrollView.
         _contentWidth = readingContentWidth;
         debugPrint("PAGINATION: constraints=$constraints, contentWidth=$_contentWidth, pageHeight=$_pageHeight");
 
@@ -327,13 +331,13 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
       );
     }
 
+    // Render at the actual available width (from LayoutBuilder constraints,
+    // minus 32px horizontal padding). This prevents horizontal overflow.
+    // SingleChildScrollView handles cases where content is taller than the
+    // viewport (due to width differences between measurement and rendering).
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: _contentWidth,
-          maxHeight: _pageHeight,
-        ),
+      child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: pageChildren,
