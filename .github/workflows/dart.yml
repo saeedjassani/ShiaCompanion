@@ -71,24 +71,6 @@ jobs:
           pod repo update
           pod install --verbose
 
-      # 8️⃣ Detect Podfile.lock changes (if any)
-      - name: Check for changes
-        id: check-changes
-        run: |
-          if [[ -n "$(git status ios/Podfile.lock --porcelain)" ]]; then
-            echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
-          fi
-
-      # 9️⃣ Commit & push Podfile.lock if changed
-      - name: Commit and push changes
-        if: env.CHANGES_DETECTED == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add ios/Podfile.lock
-          git commit -m "Update Podfile.lock [skip ci]"
-          git push
-
       # 🔟 Build iOS app (no code signing)
       - name: Build iOS App
         run: flutter build ios --release --no-codesign
