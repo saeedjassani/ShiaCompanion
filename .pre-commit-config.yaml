@@ -6,3 +6,28 @@ repos:
           entry: flutter
           args: ["analyze", "."]
           language: system
+          stages: [commit, push]
+
+      -   id: bump_version
+          name: Bump app version
+          entry: node
+          args: ["scripts/bump_version.js"]
+          language: system
+          stages: [push]
+          pass_filenames: false
+
+      -   id: build_zikr_release
+          name: Build zikr release assets
+          entry: node
+          args: ["scripts/build_zikr_release.js"]
+          language: system
+          stages: [push]
+          pass_filenames: false
+
+      -   id: generate_zikr_seo_pages
+          name: Generate zikr SEO pages
+          entry: node
+          args: ["scripts/generate_zikr_seo_pages.js"]
+          language: system
+          stages: [push]
+          pass_filenames: false

@@ -278,3 +278,6 @@ fabric.properties
 
 scripts/search_config.json
 
+# Generated SEO pages (regenerated on pre-push)
+web/zikr/
+
