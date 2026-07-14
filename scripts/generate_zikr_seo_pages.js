@@ -6,7 +6,7 @@ const ZIKR_INDEX_PATH = path.join(REPO_ROOT, 'assets', 'zikr.json');
 const ZIKR_CONTENT_DIR = path.join(REPO_ROOT, 'assets', 'zikr');
 const BUILD_WEB_DIR = process.env.WEB_BUILD_DIR
   ? path.resolve(process.env.WEB_BUILD_DIR)
-  : path.join(REPO_ROOT, 'build', 'web');
+  : path.join(REPO_ROOT, 'web');
 const FLUTTER_INDEX_PATH = path.join(BUILD_WEB_DIR, 'index.html');
 const GENERATED_ZIKR_DIR = path.join(BUILD_WEB_DIR, 'zikr');
 const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shia-companion.web.app')
@@ -340,7 +340,7 @@ function buildZikrIndexPage(templateHtml, pages) {
 function main() {
   if (!fs.existsSync(FLUTTER_INDEX_PATH)) {
     throw new Error(
-      `Could not find ${FLUTTER_INDEX_PATH}. Run "flutter build web" before generating zikr SEO pages.`,
+      `Could not find ${FLUTTER_INDEX_PATH}. Ensure web/index.html exists before generating zikr SEO pages.`,
     );
   }
 

@@ -520,6 +520,7 @@
 		19BC5F68FF34ADC07A9C6583 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = ShiaCompanionWidgets/ShiaCompanionWidgetsRelease.entitlements;
@@ -796,6 +797,7 @@
 		A9F3357A13896C4A741762FB /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = ShiaCompanionWidgets/ShiaCompanionWidgets.entitlements;
@@ -820,6 +822,7 @@
 		FC67CD1D06244E434A687E72 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = ShiaCompanionWidgets/ShiaCompanionWidgets.entitlements;
