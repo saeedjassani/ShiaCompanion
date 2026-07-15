@@ -1,7 +1,8 @@
 #include "AppDelegate.h"
 #include "GeneratedPluginRegistrant.h"
+@import WatchConnectivity;
 
-@interface AppDelegate () <FlutterStreamHandler>
+@interface AppDelegate () <FlutterStreamHandler, WCSessionDelegate>
 
 @property(nonatomic, copy) FlutterEventSink proximityEventSink;
 
@@ -13,6 +14,13 @@
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   if (@available(iOS 10.0, *)) {
     [UNUserNotificationCenter currentNotificationCenter].delegate = (id<UNUserNotificationCenterDelegate>) self;
+  }
+  if (@available(iOS 9.0, *)) {
+    if ([WCSession isSupported]) {
+      WCSession *session = [WCSession defaultSession];
+      session.delegate = self;
+      [session activateSession];
+    }
   }
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
@@ -137,6 +145,19 @@
   if (self.proximityEventSink) {
     self.proximityEventSink(@(UIDevice.currentDevice.proximityState));
   }
+}
+
+// MARK: - WCSessionDelegate
+- (void)session:(nonnull WCSession *)session activationDidCompleteWithState:(WCSessionActivationState)activationState error:(nullable NSError *)error {
+  if (error) {
+    NSLog(@"WCSession activation failed: %@", error.localizedDescription);
+  }
+}
+
+- (void)sessionDidBecomeInactive:(nonnull WCSession *)session {}
+
+- (void)sessionDidDeactivate:(nonnull WCSession *)session {
+  [[WCSession defaultSession] activateSession];
 }
 
 @end
