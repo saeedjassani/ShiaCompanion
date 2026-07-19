@@ -67,7 +67,7 @@ struct ContentView: View {
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.systemGray6))
+                        .fill(Color.secondary.opacity(0.12))
                 )
 
                 // Refresh hint

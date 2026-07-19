@@ -1,5 +1,6 @@
 import SwiftUI
 import WatchKit
+import Combine
 
 private let appGroupID = "group.com.developer110.shiacompanion"
 
