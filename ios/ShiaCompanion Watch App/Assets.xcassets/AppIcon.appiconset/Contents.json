@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "1024.png",
       "idiom" : "watch",
       "platform" : "watchos",
       "role" : "notificationCenter",
@@ -8,6 +9,7 @@
       "scale" : "2x"
     },
     {
+      "filename" : "1024.png",
       "idiom" : "watch",
       "platform" : "watchos",
       "role" : "notificationCenter",
@@ -15,6 +17,7 @@
       "scale" : "2x"
     },
     {
+      "filename" : "1024.png",
       "idiom" : "watch",
       "platform" : "watchos",
       "role" : "companionSettings",
@@ -22,6 +25,7 @@
       "scale" : "2x"
     },
     {
+      "filename" : "1024.png",
       "idiom" : "watch",
       "platform" : "watchos",
       "role" : "companionSettings",
@@ -29,6 +33,7 @@
       "scale" : "3x"
     },
     {
+      "filename" : "1024.png",
       "idiom" : "watch",
       "platform" : "watchos",
       "role" : "appLauncher",
@@ -36,6 +41,7 @@
       "scale" : "2x"
     },
     {
+      "filename" : "1024.png",
       "idiom" : "watch",
       "platform" : "watchos",
       "role" : "appLauncher",
@@ -43,6 +49,7 @@
       "scale" : "2x"
     },
     {
+      "filename" : "1024.png",
       "idiom" : "watch",
       "platform" : "watchos",
       "role" : "quickLook",
@@ -50,6 +57,7 @@
       "scale" : "2x"
     },
     {
+      "filename" : "1024.png",
       "idiom" : "watch",
       "platform" : "watchos",
       "role" : "quickLook",
@@ -57,6 +65,7 @@
       "scale" : "2x"
     },
     {
+      "filename" : "1024.png",
       "idiom" : "watch",
       "platform" : "watchos",
       "size" : "1024x1024",
