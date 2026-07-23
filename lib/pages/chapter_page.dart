@@ -6,7 +6,6 @@ import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/utils/markdown_block_parser.dart';
 import 'package:shia_companion/utils/page_layout_engine.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
-import 'package:shia_companion/widgets/responsive_content.dart';
 
 import '../constants.dart';
 
@@ -237,11 +236,9 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
     return LayoutBuilder(
       builder: (context, constraints) {
         _pageHeight = constraints.maxHeight;
-        // Measure at readingContentWidth (840px) to get the desired page count
-        // (e.g. 3 pages for the sample content). Rendering at the actual
-        // narrower width may make individual pages taller, which is handled
-        // by SingleChildScrollView.
-        _contentWidth = readingContentWidth;
+        // Measure at the actual available width (parent minus padding) so
+        // pages fit exactly without needing scroll on each page.
+        _contentWidth = constraints.maxWidth - 32;
         debugPrint("PAGINATION: constraints=$constraints, contentWidth=$_contentWidth, pageHeight=$_pageHeight");
 
         if (!_paginationReady) {
@@ -312,6 +309,7 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
     for (final paginatedBlock in paginatedBlocks) {
       final block = result.blocks[paginatedBlock.originalIndex];
       final renderText = paginatedBlock.text;
+      final blockColor = Colors.primaries[paginatedBlock.originalIndex % Colors.primaries.length];
 
       pageChildren.add(
         Padding(
@@ -319,28 +317,38 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
             top: paginatedBlock.topMargin,
             bottom: paginatedBlock.bottomMargin,
           ),
-          child: Directionality(
-            textDirection: block.textDirection,
-            child: MarkdownBody(
-              data: renderText,
-              selectable: true,
-              styleSheet: _readerStyleSheet(context),
+          child: Container(
+            decoration: BoxDecoration(
+              color: blockColor.withValues(alpha: 0.15),
+              border: Border.all(
+                color: blockColor.withValues(alpha: 0.5),
+                width: 1,
+              ),
+            ),
+            child: Directionality(
+              textDirection: block.textDirection,
+              child: MarkdownBody(
+                data: renderText,
+                selectable: true,
+                styleSheet: _readerStyleSheet(context),
+              ),
             ),
           ),
         ),
       );
     }
 
-    // Render at the actual available width (from LayoutBuilder constraints,
-    // minus 32px horizontal padding). This prevents horizontal overflow.
-    // SingleChildScrollView handles cases where content is taller than the
-    // viewport (due to width differences between measurement and rendering).
+    // Clip overflow so blocks that render slightly taller than measured
+    // don't cause layout issues. The page is constrained to viewport height.
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: pageChildren,
+      child: ClipRect(
+        child: SizedBox(
+          height: _pageHeight,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: pageChildren,
+          ),
         ),
       ),
     );
