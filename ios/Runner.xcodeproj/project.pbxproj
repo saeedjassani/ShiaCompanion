@@ -21,9 +21,6 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		B71D044ACA3FE22A0A6137B7 /* ShiaCompanionWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17589C5BFD2ED398A0A8F70B /* ShiaCompanionWidgets.swift */; };
 		F3E38B7EFCE659EF42B85BE1 /* ShiaCompanionWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EBE703D67FF6B51A56C822DE /* ShiaCompanionWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		9073F095300710F200AE79BE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9073F092300710F200AE79BE /* ContentView.swift */; };
-		9073F096300710F200AE79BE /* ShiaCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9073F093300710F200AE79BE /* ShiaCompanionApp.swift */; };
-		9073F097300710F200AE79BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9073F091300710F200AE79BE /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,12 +104,11 @@
 		AA18C3DA5CB0D5E8E9DD3182 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EBE703D67FF6B51A56C822DE /* ShiaCompanionWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShiaCompanionWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBF36F8DEAAA8A5CFA3CED5E /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-9073F090300710F200AE79BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ShiaCompanion Watch App/Info.plist; sourceTree = "SOURCE_ROOT"; };
-9073F091300710F200AE79BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ShiaCompanion Watch App/Assets.xcassets; sourceTree = "SOURCE_ROOT"; };
-9073F092300710F200AE79BE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShiaCompanion Watch App/ContentView.swift; sourceTree = "SOURCE_ROOT"; };
-9073F093300710F200AE79BE /* ShiaCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShiaCompanion Watch App/ShiaCompanionApp.swift; sourceTree = "SOURCE_ROOT"; };
-9073F094300710F200AE79BE /* ShiaCompanionWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShiaCompanion Watch App/ShiaCompanionWatch.entitlements; sourceTree = "SOURCE_ROOT"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		9073F07C300710F000AE79BE /* ShiaCompanion Watch App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "ShiaCompanion Watch App"; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		9073F078300710F000AE79BE /* Frameworks */ = {
@@ -268,10 +264,13 @@
 				9073F079300710F000AE79BE /* Resources */,
 			);
 			buildRules = (
-		);
-		dependencies = (
-		);
-		name = "ShiaCompanion Watch App";
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				9073F07C300710F000AE79BE /* ShiaCompanion Watch App */,
+			);
+			name = "ShiaCompanion Watch App";
 			packageProductDependencies = (
 			);
 			productName = "ShiaCompanion Watch App";
@@ -349,7 +348,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9073F097300710F200AE79BE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -545,8 +543,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9073F095300710F200AE79BE /* ContentView.swift in Sources */,
-				9073F096300710F200AE79BE /* ShiaCompanionApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -734,7 +730,11 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				INFOPLIST_FILE = "ShiaCompanion Watch App/Info.plist";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = ShiaCompanion;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.developer110.shiacompanion;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -782,7 +782,11 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				INFOPLIST_FILE = "ShiaCompanion Watch App/Info.plist";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = ShiaCompanion;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.developer110.shiacompanion;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -828,7 +832,11 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				INFOPLIST_FILE = "ShiaCompanion Watch App/Info.plist";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = ShiaCompanion;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.developer110.shiacompanion;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
