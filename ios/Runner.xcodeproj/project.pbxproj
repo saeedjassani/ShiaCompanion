@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -104,13 +104,24 @@
 		AA18C3DA5CB0D5E8E9DD3182 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EBE703D67FF6B51A56C822DE /* ShiaCompanionWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShiaCompanionWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBF36F8DEAAA8A5CFA3CED5E /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-/* End PBXFileReference section */
+		9073F08A300710F000AE79BE /* ShiaCompanionWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ShiaCompanion Watch App/ShiaCompanionWatch.entitlements"; sourceTree = "<group>"; };
+		9073F08B300710F100AE79BE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShiaCompanion Watch App/ContentView.swift"; sourceTree = "<group>"; };
+		9073F08C300710F100AE79BE /* ShiaCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShiaCompanion Watch App/ShiaCompanionApp.swift"; sourceTree = "<group>"; };
+		9073F08D300710F100AE79BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "ShiaCompanion Watch App/Assets.xcassets"; sourceTree = "<group>"; };
+		/* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		9073F07C300710F000AE79BE /* ShiaCompanion Watch App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {
-			"Info.plist" = "file";
-		}; explicitFolders = (); path = "ShiaCompanion Watch App"; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
+/* Begin PBXGroup section */
+		9073F07C300710F000AE79BE /* ShiaCompanion Watch App */ = {
+			isa = PBXGroup;
+			children = (
+				9073F08A300710F000AE79BE /* ShiaCompanionWatch.entitlements */,
+				9073F08B300710F100AE79BE /* ContentView.swift */,
+				9073F08C300710F100AE79BE /* ShiaCompanionApp.swift */,
+				9073F08D300710F100AE79BE /* Assets.xcassets */,
+			);
+			path = "ShiaCompanion Watch App";
+			sourceTree = "<group>";
+		};
 
 /* Begin PBXFrameworksBuildPhase section */
 		9073F078300710F000AE79BE /* Frameworks */ = {
@@ -269,9 +280,7 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				9073F07C300710F000AE79BE /* ShiaCompanion Watch App */,
-			);
+			
 			name = "ShiaCompanion Watch App";
 			packageProductDependencies = (
 			);
