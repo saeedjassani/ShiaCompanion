@@ -107,7 +107,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		9073F07C300710F000AE79BE /* ShiaCompanion Watch App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "ShiaCompanion Watch App"; sourceTree = "<group>"; };
+		9073F07C300710F000AE79BE /* ShiaCompanion Watch App */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {
+			"Info.plist" = "file";
+		}; explicitFolders = (); path = "ShiaCompanion Watch App"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
