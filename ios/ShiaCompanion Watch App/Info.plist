@@ -24,6 +24,8 @@
 	</array>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
+	<key>WKApplication</key>
+	<true/>
 	<key>WKCompanionAppBundleIdentifier</key>
 	<string>com.developer110.shiacompanion</string>
 	<key>UISupportedInterfaceOrientations</key>
