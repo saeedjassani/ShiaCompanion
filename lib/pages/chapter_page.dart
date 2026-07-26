@@ -239,7 +239,6 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
         // Measure at the actual available width (parent minus padding) so
         // pages fit exactly without needing scroll on each page.
         _contentWidth = constraints.maxWidth - 32;
-        debugPrint("PAGINATION: constraints=$constraints, contentWidth=$_contentWidth, pageHeight=$_pageHeight");
 
         if (!_paginationReady) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -309,7 +308,6 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
     for (final paginatedBlock in paginatedBlocks) {
       final block = result.blocks[paginatedBlock.originalIndex];
       final renderText = paginatedBlock.text;
-      final blockColor = Colors.primaries[paginatedBlock.originalIndex % Colors.primaries.length];
 
       pageChildren.add(
         Padding(
@@ -317,21 +315,12 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
             top: paginatedBlock.topMargin,
             bottom: paginatedBlock.bottomMargin,
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: blockColor.withValues(alpha: 0.15),
-              border: Border.all(
-                color: blockColor.withValues(alpha: 0.5),
-                width: 1,
-              ),
-            ),
-            child: Directionality(
-              textDirection: block.textDirection,
-              child: MarkdownBody(
-                data: renderText,
-                selectable: true,
-                styleSheet: _readerStyleSheet(context),
-              ),
+          child: Directionality(
+            textDirection: block.textDirection,
+            child: MarkdownBody(
+              data: renderText,
+              selectable: true,
+              styleSheet: _readerStyleSheet(context),
             ),
           ),
         ),

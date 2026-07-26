@@ -23,6 +23,15 @@ class MarkdownBlockParser {
 
   static final RegExp _blankLineSplit = RegExp(r'\n\s*\n');
 
+  /// Matches a single "soft" line break within a block (as opposed to the
+  /// blank-line block separators matched by [_blankLineSplit]). Mirrors the
+  /// pattern flutter_markdown_plus uses internally when `softLineBreak` is
+  /// false (the default): a lone `\n` is rendered as a space, not a line
+  /// break. Source markdown is often hard-wrapped at a fixed column, so
+  /// without this normalization, height measurement (which treats `\n` as a
+  /// forced break) wildly overestimates how tall a block will render.
+  static final RegExp _softLineBreak = RegExp(r' ?\n *');
+
   // Block-level marker patterns.
   static final RegExp _headingPattern = RegExp(r'^(#{1,6})\s');
   static final RegExp _blockquotePattern = RegExp(r'^>\s?');
@@ -71,7 +80,7 @@ class MarkdownBlockParser {
           .firstWhere((t) => t.name == 'heading$level');
       return MarkdownBlock(
         rawText: text,
-        strippedText: stripped,
+        strippedText: _collapseSoftLineBreaks(stripped),
         type: blockType,
         textDirection: textDirection,
         headingLevel: level,
@@ -87,7 +96,7 @@ class MarkdownBlockParser {
       });
       return MarkdownBlock(
         rawText: text,
-        strippedText: strippedLines.join('\n'),
+        strippedText: _collapseSoftLineBreaks(strippedLines.join('\n')),
         type: MarkdownBlockType.blockquote,
         textDirection: textDirection,
       );
@@ -101,7 +110,7 @@ class MarkdownBlockParser {
           .replaceFirst(_orderedListPattern, '');
       return MarkdownBlock(
         rawText: text,
-        strippedText: stripped,
+        strippedText: _collapseSoftLineBreaks(stripped),
         type: MarkdownBlockType.listItem,
         textDirection: textDirection,
       );
@@ -110,10 +119,17 @@ class MarkdownBlockParser {
     // Default: paragraph
     return MarkdownBlock(
       rawText: text,
-      strippedText: text,
+      strippedText: _collapseSoftLineBreaks(text),
       type: MarkdownBlockType.paragraph,
       textDirection: textDirection,
     );
+  }
+
+  /// Collapses soft line breaks the same way flutter_markdown_plus does when
+  /// rendering (`softLineBreak: false`), so height measurement of
+  /// [strippedText] matches how the text actually reflows on screen.
+  static String _collapseSoftLineBreaks(String text) {
+    return text.replaceAll(_softLineBreak, ' ');
   }
 
   /// Detect the text direction of a block's content.

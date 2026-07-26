@@ -47,10 +47,8 @@ class PageLayoutEngine {
   final MarkdownStyleSheet styleSheet;
 
   PaginationResult compute() {
-    debugPrint('PAGINATION: contentHeight=$contentHeight, contentWidth=$contentWidth');
     final blocks = MarkdownBlockParser.parse(markdown);
-    debugPrint('PAGINATION: parsed ${blocks.length} blocks');
-    
+
     if (blocks.isEmpty) {
       return PaginationResult(
         blocks: blocks,
@@ -67,7 +65,6 @@ class PageLayoutEngine {
     for (var i = 0; i < blocks.length; i++) {
       final block = blocks[i];
       final h = _measureBlock(block);
-      debugPrint('PAGINATION: block $i type=${block.type} height=$h margins=${block.totalVerticalMargin} rawText.len=${block.rawText.length}');
       remaining.add(_BlockWithHeight(i, block, block.rawText, h));
     }
 
@@ -136,11 +133,6 @@ class PageLayoutEngine {
           remaining.removeAt(0);
         }
       }
-    }
-
-    debugPrint('PAGINATION: created ${pageBlocks.length} pages');
-    for (var p = 0; p < pageBlocks.length; p++) {
-      debugPrint('PAGINATION: page $p has ${pageBlocks[p].length} blocks');
     }
 
     return PaginationResult(
@@ -300,20 +292,21 @@ class PageLayoutEngine {
       }
     }
 
-    // Try by words
-    if (sentences.length <= 1) {
-      final words = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
-      if (words.length < 2) return null;
-      for (var i = words.length - 1; i >= 1; i--) {
-        final firstPart = words.take(i).join(' ');
-        final h = _measureBlock(MarkdownBlock(
-          rawText: firstPart, strippedText: firstPart,
-          type: block.type, textDirection: block.textDirection,
-          headingLevel: block.headingLevel,
-        ));
-        if (h <= effectiveHeight) {
-          return MapEntry(firstPart, words.skip(i).join(' '));
-        }
+    // Fall back to word-level splitting. This also covers the case where the
+    // block has multiple sentences but even the first one doesn't fit — we
+    // still want to use as much of the remaining page space as possible
+    // instead of leaving it blank.
+    final words = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    if (words.length < 2) return null;
+    for (var i = words.length - 1; i >= 1; i--) {
+      final firstPart = words.take(i).join(' ');
+      final h = _measureBlock(MarkdownBlock(
+        rawText: firstPart, strippedText: firstPart,
+        type: block.type, textDirection: block.textDirection,
+        headingLevel: block.headingLevel,
+      ));
+      if (h <= effectiveHeight) {
+        return MapEntry(firstPart, words.skip(i).join(' '));
       }
     }
 
