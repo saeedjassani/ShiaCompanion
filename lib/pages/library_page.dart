@@ -17,25 +17,25 @@ class LibraryPage extends StatefulWidget {
 
 class _LibraryPageState extends State<LibraryPage> {
   late Future<List<UidTitleData>> _booksFuture;
-  LibraryProgress? _lastProgress;
+  List<LibraryProgress> _recentProgress = const [];
 
   @override
   void initState() {
     super.initState();
     trackScreen('Library Page');
     _booksFuture = LibraryService.loadBooks();
-    _loadLastProgress();
+    _loadRecentProgress();
   }
 
   void _retry() {
     setState(() {
       _booksFuture = LibraryService.loadBooks();
-      _loadLastProgress();
+      _loadRecentProgress();
     });
   }
 
-  void _loadLastProgress() {
-    _lastProgress = LibraryProgressStore.instance.readLast();
+  void _loadRecentProgress() {
+    _recentProgress = LibraryProgressStore.instance.readAll();
   }
 
   Future<void> _continueReading(LibraryProgress progress) async {
@@ -54,8 +54,8 @@ class _LibraryPageState extends State<LibraryPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saved chapter is no longer available')),
       );
-      await LibraryProgressStore.instance.removeLast();
-      setState(_loadLastProgress);
+      await LibraryProgressStore.instance.remove(progress.bookSlug);
+      setState(_loadRecentProgress);
       return;
     }
 
@@ -76,7 +76,7 @@ class _LibraryPageState extends State<LibraryPage> {
       ),
     );
     if (!mounted) return;
-    setState(_loadLastProgress);
+    setState(_loadRecentProgress);
   }
 
   @override
@@ -110,19 +110,35 @@ class _LibraryPageState extends State<LibraryPage> {
             _ => ListView.separated(
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) {
-                  if (_lastProgress != null && index == 0) {
+                  final continueCount = _recentProgress.length;
+                  final headerOffset = continueCount == 0 ? 0 : 1;
+
+                  if (continueCount > 0 && index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        'Continue Reading',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (index < continueCount + headerOffset) {
+                    final progress = _recentProgress[index - headerOffset];
                     return _ContinueReadingTile(
-                      progress: _lastProgress!,
-                      onTap: () => _continueReading(_lastProgress!),
+                      progress: progress,
+                      onTap: () => _continueReading(progress),
                       onDismiss: () async {
-                        await LibraryProgressStore.instance.removeLast();
+                        await LibraryProgressStore.instance.remove(progress.bookSlug);
                         if (!mounted) return;
-                        setState(_loadLastProgress);
+                        setState(_loadRecentProgress);
                       },
                     );
                   }
 
-                  final bookIndex = _lastProgress == null ? index : index - 1;
+                  final bookIndex = index - continueCount - headerOffset;
                   final book = books[bookIndex];
                   final itemData = UniversalData(book.uid, book.title, 1);
                   return _BookTile(
@@ -157,7 +173,9 @@ class _LibraryPageState extends State<LibraryPage> {
                 separatorBuilder: (context, index) => Divider(
                   color: theme.dividerColor.withValues(alpha: 0.4),
                 ),
-                itemCount: books.length + (_lastProgress == null ? 0 : 1),
+                itemCount: books.length +
+                    _recentProgress.length +
+                    (_recentProgress.isEmpty ? 0 : 1),
               ),
           },
         );
@@ -182,10 +200,14 @@ class _ContinueReadingTile extends StatelessWidget {
     final pageCount = progress.pageCount <= 0 ? 1 : progress.pageCount;
     final pageIndex = progress.pageIndex.clamp(0, pageCount - 1) + 1;
 
+    final title = progress.bookTitle.trim().isNotEmpty
+        ? progress.bookTitle
+        : progress.chapterTitle;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       leading: const Icon(Icons.play_circle_outline),
-      title: const Text('Continue reading'),
+      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(
         '${progress.chapterTitle} - Page $pageIndex of $pageCount',
         maxLines: 2,
