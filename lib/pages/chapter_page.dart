@@ -39,6 +39,11 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
   static const double _maxFontSize = 28;
   static const double _lineHeight = 1.55;
 
+  // A brief open (e.g. looking something up) shouldn't register as "reading"
+  // and surface a Continue Reading entry for it. Progress is only persisted
+  // once the chapter has been actively open for at least this long.
+  static const Duration _minReadingDuration = Duration(seconds: 20);
+
   late Future<String> _chapterFuture;
   double _readerFontSize = 18;
   bool _isSaved = false;
@@ -52,6 +57,8 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
   double _pageHeight = 0;
   double _contentWidth = 400;
 
+  final Stopwatch _activeReadingTime = Stopwatch();
+
   @override
   void initState() {
     super.initState();
@@ -62,12 +69,14 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
     _savedBlockIndex = widget.initialPageIndex;
     _chapterFuture = LibraryService.loadChapterMarkdown(widget.slug);
     _checkSaved();
+    _activeReadingTime.start();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _pageController?.dispose();
+    _saveProgress();
     super.dispose();
   }
 
@@ -76,6 +85,21 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
     super.didChangeMetrics();
     if (_paginationReady && _result != null) {
       _repaginate();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (!_activeReadingTime.isRunning) _activeReadingTime.start();
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+        if (_activeReadingTime.isRunning) _activeReadingTime.stop();
+        _saveProgress();
     }
   }
 
@@ -176,6 +200,8 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
   }
 
   void _saveProgress() {
+    if (_activeReadingTime.elapsed < _minReadingDuration) return;
+
     final bookSlug = widget.bookSlug;
     if (bookSlug == null || bookSlug.trim().isEmpty) return;
 
@@ -291,6 +317,7 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
                 _savedBlockIndex = _result!.pageBlocks[page].first.originalIndex;
               }
             });
+            _saveProgress();
           },
           itemBuilder: (context, pageIndex) => _buildPage(pageIndex),
         );

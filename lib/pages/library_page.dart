@@ -114,6 +114,11 @@ class _LibraryPageState extends State<LibraryPage> {
                     return _ContinueReadingTile(
                       progress: _lastProgress!,
                       onTap: () => _continueReading(_lastProgress!),
+                      onDismiss: () async {
+                        await LibraryProgressStore.instance.removeLast();
+                        if (!mounted) return;
+                        setState(_loadLastProgress);
+                      },
                     );
                   }
 
@@ -165,10 +170,12 @@ class _ContinueReadingTile extends StatelessWidget {
   const _ContinueReadingTile({
     required this.progress,
     required this.onTap,
+    required this.onDismiss,
   });
 
   final LibraryProgress progress;
   final VoidCallback onTap;
+  final VoidCallback onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +191,11 @@ class _ContinueReadingTile extends StatelessWidget {
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: IconButton(
+        icon: const Icon(Icons.close),
+        tooltip: 'Remove',
+        onPressed: onDismiss,
+      ),
       onTap: onTap,
     );
   }
