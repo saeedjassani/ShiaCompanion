@@ -11,6 +11,7 @@ class DeepLinkTarget {
 }
 
 const int zikrDeepLinkType = 0;
+const int libraryDeepLinkType = 1;
 
 String buildDeepLinkPath({
   required int type,
@@ -30,6 +31,20 @@ String buildZikrDeepLinkPath({
   }
 
   return buildDeepLinkPath(type: zikrDeepLinkType, segments: [uid]);
+}
+
+String buildLibraryDeepLinkPath({
+  required String bookSlug,
+  String? chapterSlug,
+}) {
+  final normalizedChapterSlug = chapterSlug?.trim();
+  final segments = [
+    bookSlug,
+    if (normalizedChapterSlug != null && normalizedChapterSlug.isNotEmpty)
+      normalizedChapterSlug,
+  ];
+  final encodedSegments = segments.map(Uri.encodeComponent).join('/');
+  return '/library/$encodedSegments';
 }
 
 bool isReservedNonZikrRouteName(String? routeName) {
@@ -53,6 +68,14 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
   if (segments.first == 'zikr') {
     if (segments.length != 2) return null;
     return DeepLinkTarget(type: zikrDeepLinkType, segments: [segments[1]]);
+  }
+
+  if (segments.first == 'library') {
+    if (segments.length < 2 || segments.length > 3) return null;
+    return DeepLinkTarget(
+      type: libraryDeepLinkType,
+      segments: segments.sublist(1),
+    );
   }
 
   if (_isReservedNonZikrPath(segments.first)) {
@@ -151,5 +174,15 @@ String buildZikrDeepLinkUrl({
   return 'https://shia-companion.web.app${buildZikrDeepLinkPath(
     uid: uid,
     slug: slug,
+  )}';
+}
+
+String buildLibraryDeepLinkUrl({
+  required String bookSlug,
+  String? chapterSlug,
+}) {
+  return 'https://shia-companion.web.app${buildLibraryDeepLinkPath(
+    bookSlug: bookSlug,
+    chapterSlug: chapterSlug,
   )}';
 }

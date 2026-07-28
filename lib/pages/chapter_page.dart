@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/library_progress_store.dart';
 import 'package:shia_companion/services/library_service.dart';
+import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/markdown_block_parser.dart';
 import 'package:shia_companion/utils/page_layout_engine.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/utils/web_route_sync.dart';
 
 import '../constants.dart';
 
@@ -34,7 +37,8 @@ class ChapterPage extends StatefulWidget {
   _ChapterPageState createState() => _ChapterPageState();
 }
 
-class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
+class _ChapterPageState extends State<ChapterPage>
+    with WidgetsBindingObserver, RouteAware {
   static const double _minFontSize = 14;
   static const double _maxFontSize = 28;
   static const double _lineHeight = 1.55;
@@ -48,7 +52,11 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
   double _readerFontSize = 18;
   bool _isSaved = false;
   bool _isSaving = false;
+  bool _isSharing = false;
   bool _paginationReady = false;
+  bool _isCurrentRoute = false;
+  PageRoute? _pageRoute;
+  Uri? _previousBrowserUri;
 
   PaginationResult? _result;
   PageController? _pageController;
@@ -75,9 +83,94 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    if (_pageRoute != null) {
+      routeObserver.unsubscribe(this);
+    }
     _pageController?.dispose();
     _saveProgress();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute && route != _pageRoute) {
+      if (_pageRoute != null) {
+        routeObserver.unsubscribe(this);
+      }
+      _pageRoute = route;
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  String? get _chapterSlug {
+    final segments = widget.slug.split('/');
+    return segments.isNotEmpty ? segments.last : null;
+  }
+
+  void _scheduleCurrentWebRouteSync({bool replace = false}) {
+    final bookSlug = widget.bookSlug;
+    final chapterSlug = _chapterSlug;
+    if (bookSlug == null || bookSlug.trim().isEmpty || chapterSlug == null) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_isCurrentRoute) return;
+      syncWebRoutePath(
+        buildLibraryDeepLinkPath(bookSlug: bookSlug, chapterSlug: chapterSlug),
+        replace: replace,
+      );
+    });
+  }
+
+  @override
+  void didPush() {
+    _isCurrentRoute = true;
+    _previousBrowserUri ??= Uri.base;
+    _scheduleCurrentWebRouteSync();
+  }
+
+  @override
+  void didPopNext() {
+    _isCurrentRoute = true;
+    _scheduleCurrentWebRouteSync(replace: true);
+  }
+
+  @override
+  void didPushNext() {
+    _isCurrentRoute = false;
+  }
+
+  @override
+  void didPop() {
+    _isCurrentRoute = false;
+    final previousBrowserUri = _previousBrowserUri;
+    if (previousBrowserUri != null) {
+      syncWebRouteUri(previousBrowserUri, replace: true);
+    }
+  }
+
+  Future<void> _shareChapter() async {
+    if (_isSharing) return;
+    final bookSlug = widget.bookSlug;
+    final chapterSlug = _chapterSlug;
+    if (bookSlug == null || bookSlug.trim().isEmpty || chapterSlug == null) {
+      return;
+    }
+
+    setState(() => _isSharing = true);
+    try {
+      final deepLink = buildLibraryDeepLinkUrl(
+        bookSlug: bookSlug,
+        chapterSlug: chapterSlug,
+      );
+      await SharePlus.instance.share(
+        ShareParams(text: '${widget.title}\n$deepLink'),
+      );
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
+    }
   }
 
   @override
@@ -425,7 +518,18 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
-          if (bookSlug != null && bookSlug.trim().isNotEmpty)
+          if (bookSlug != null && bookSlug.trim().isNotEmpty) ...[
+            IconButton(
+              icon: _isSharing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.share),
+              tooltip: 'Share chapter',
+              onPressed: _isSharing ? null : _shareChapter,
+            ),
             IconButton(
               icon: _isSaving
                   ? const SizedBox(
@@ -437,6 +541,7 @@ class _ChapterPageState extends State<ChapterPage> with WidgetsBindingObserver {
               tooltip: _isSaved ? 'Remove offline copy' : 'Save book offline',
               onPressed: _toggleSave,
             ),
+          ],
         ],
       ),
       body: FutureBuilder<String>(

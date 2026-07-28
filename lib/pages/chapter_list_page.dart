@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/library_service.dart';
+import 'package:shia_companion/utils/deep_links.dart';
+import 'package:shia_companion/utils/web_route_sync.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 
 import '../constants.dart';
@@ -16,10 +19,14 @@ class ChapterListPage extends StatefulWidget {
   _ChapterListPageState createState() => _ChapterListPageState();
 }
 
-class _ChapterListPageState extends State<ChapterListPage> {
+class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
   late Future<List<UidTitleData>> _chaptersFuture;
   bool _isSaved = false;
   bool _isSaving = false;
+  bool _isSharing = false;
+  bool _isCurrentRoute = false;
+  PageRoute? _pageRoute;
+  Uri? _previousBrowserUri;
 
   @override
   void initState() {
@@ -27,6 +34,77 @@ class _ChapterListPageState extends State<ChapterListPage> {
     trackScreen('Chapter List Page');
     _chaptersFuture = LibraryService.loadChapters(widget.slug);
     _checkSaved();
+  }
+
+  @override
+  void dispose() {
+    if (_pageRoute != null) {
+      routeObserver.unsubscribe(this);
+    }
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute && route != _pageRoute) {
+      if (_pageRoute != null) {
+        routeObserver.unsubscribe(this);
+      }
+      _pageRoute = route;
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  void _scheduleCurrentWebRouteSync({bool replace = false}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_isCurrentRoute) return;
+      syncWebRoutePath(
+        buildLibraryDeepLinkPath(bookSlug: widget.slug),
+        replace: replace,
+      );
+    });
+  }
+
+  @override
+  void didPush() {
+    _isCurrentRoute = true;
+    _previousBrowserUri ??= Uri.base;
+    _scheduleCurrentWebRouteSync();
+  }
+
+  @override
+  void didPopNext() {
+    _isCurrentRoute = true;
+    _scheduleCurrentWebRouteSync(replace: true);
+  }
+
+  @override
+  void didPushNext() {
+    _isCurrentRoute = false;
+  }
+
+  @override
+  void didPop() {
+    _isCurrentRoute = false;
+    final previousBrowserUri = _previousBrowserUri;
+    if (previousBrowserUri != null) {
+      syncWebRouteUri(previousBrowserUri, replace: true);
+    }
+  }
+
+  Future<void> _shareBook() async {
+    if (_isSharing) return;
+    setState(() => _isSharing = true);
+    try {
+      final deepLink = buildLibraryDeepLinkUrl(bookSlug: widget.slug);
+      await SharePlus.instance.share(
+        ShareParams(text: '${widget.title}\n$deepLink'),
+      );
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
+    }
   }
 
   Future<void> _checkSaved() async {
@@ -96,6 +174,17 @@ class _ChapterListPageState extends State<ChapterListPage> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
+          IconButton(
+            icon: _isSharing
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.share),
+            tooltip: 'Share book',
+            onPressed: _isSharing ? null : _shareBook,
+          ),
           IconButton(
             icon: _isSaving
                 ? const SizedBox(

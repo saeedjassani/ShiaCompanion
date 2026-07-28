@@ -13,6 +13,8 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
+import 'package:shia_companion/pages/chapter_list_page.dart';
+import 'package:shia_companion/pages/chapter_page.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
@@ -147,7 +149,17 @@ class _MyHomePageState extends State<MyHomePage>
     final target = _pendingDeepLink!;
     _pendingDeepLink = null;
 
-    if (target.type != zikrDeepLinkType || target.segments.isEmpty) {
+    if (target.segments.isEmpty) {
+      _openDeepLinkNotFound(target.key);
+      return;
+    }
+
+    if (target.type == libraryDeepLinkType) {
+      await _resolveLibraryDeepLink(target);
+      return;
+    }
+
+    if (target.type != zikrDeepLinkType) {
       _openDeepLinkNotFound(target.key);
       return;
     }
@@ -163,6 +175,70 @@ class _MyHomePageState extends State<MyHomePage>
       if (!mounted) return;
       pushRootPageRoute(ZikrPage(resolvedItem)) ??
           pushPageRoute(context, ZikrPage(resolvedItem));
+    });
+  }
+
+  Future<void> _resolveLibraryDeepLink(DeepLinkTarget target) async {
+    final bookSlug = target.segments.first;
+    final chapterSlug =
+        target.segments.length > 1 ? target.segments[1] : null;
+
+    final books = await LibraryService.loadBooks();
+    if (!mounted) return;
+
+    UidTitleData? book;
+    for (final candidate in books) {
+      if (candidate.uid == bookSlug) {
+        book = candidate;
+        break;
+      }
+    }
+    if (book == null) {
+      _openDeepLinkNotFound(target.segments.join('/'));
+      return;
+    }
+    final resolvedBook = book;
+
+    if (chapterSlug == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final route = ChapterListPage(resolvedBook.uid, resolvedBook.title);
+        pushRootPageRoute(route) ?? pushPageRoute(context, route);
+      });
+      return;
+    }
+
+    List<UidTitleData> chapters;
+    try {
+      chapters = await LibraryService.loadChapters(bookSlug);
+    } on LibraryLoadException {
+      chapters = const [];
+    }
+    if (!mounted) return;
+
+    final chapterIndex =
+        chapters.indexWhere((chapter) => chapter.uid == chapterSlug);
+    if (chapterIndex == -1) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final route = ChapterListPage(resolvedBook.uid, resolvedBook.title);
+        pushRootPageRoute(route) ?? pushPageRoute(context, route);
+      });
+      return;
+    }
+
+    final chapter = chapters[chapterIndex];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final route = ChapterPage(
+        '$bookSlug/${chapter.uid}',
+        chapter.title,
+        bookTitle: resolvedBook.title,
+        chapters: chapters,
+        chapterIndex: chapterIndex,
+        bookSlug: bookSlug,
+      );
+      pushRootPageRoute(route) ?? pushPageRoute(context, route);
     });
   }
 

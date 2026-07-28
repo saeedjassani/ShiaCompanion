@@ -96,4 +96,73 @@ void main() {
       isNull,
     );
   });
+
+  test('parseDeepLinkUri supports book-level library links', () {
+    final target = parseDeepLinkUri(
+      Uri.parse('https://shia-companion.web.app/library/some-book'),
+    );
+
+    expect(target, isNotNull);
+    expect(target?.type, libraryDeepLinkType);
+    expect(target?.segments, ['some-book']);
+  });
+
+  test('parseDeepLinkUri supports chapter-level library links', () {
+    final target = parseDeepLinkUri(
+      Uri.parse(
+        'https://shia-companion.web.app/library/some-book/chapter-1',
+      ),
+    );
+
+    expect(target, isNotNull);
+    expect(target?.type, libraryDeepLinkType);
+    expect(target?.segments, ['some-book', 'chapter-1']);
+  });
+
+  test('parseDeepLinkUri supports hash-based library links', () {
+    final target = parseDeepLinkUri(
+      Uri.parse('https://shia-companion.web.app/#/library/some-book'),
+    );
+
+    expect(target, isNotNull);
+    expect(target?.type, libraryDeepLinkType);
+    expect(target?.segments, ['some-book']);
+  });
+
+  test('parseDeepLinkUri rejects malformed library links', () {
+    expect(
+      parseDeepLinkUri(Uri.parse('https://shia-companion.web.app/library')),
+      isNull,
+    );
+    expect(
+      parseDeepLinkUri(
+        Uri.parse('https://shia-companion.web.app/library/a/b/c'),
+      ),
+      isNull,
+    );
+  });
+
+  test('buildLibraryDeepLinkPath builds book and chapter paths', () {
+    expect(
+      buildLibraryDeepLinkPath(bookSlug: 'some-book'),
+      '/library/some-book',
+    );
+    expect(
+      buildLibraryDeepLinkPath(
+        bookSlug: 'some-book',
+        chapterSlug: 'chapter-1',
+      ),
+      '/library/some-book/chapter-1',
+    );
+  });
+
+  test('buildLibraryDeepLinkUrl builds an absolute share URL', () {
+    expect(
+      buildLibraryDeepLinkUrl(
+        bookSlug: 'some-book',
+        chapterSlug: 'chapter-1',
+      ),
+      'https://shia-companion.web.app/library/some-book/chapter-1',
+    );
+  });
 }
