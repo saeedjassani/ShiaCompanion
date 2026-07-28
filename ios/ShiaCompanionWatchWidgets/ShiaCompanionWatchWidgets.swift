@@ -1,233 +1,265 @@
 import SwiftUI
 import WidgetKit
 
-private let appGroupID = "group.com.developer110.shiacompanion"
-
-private enum WidgetKeys {
-    static let prayerName = "sc_prayer_name"
-    static let prayerTime = "sc_prayer_time"
-    static let prayerLocation = "sc_prayer_location"
-    static let prayerSchedule = "sc_prayer_schedule"
-}
-
-private extension UserDefaults {
-    static var widgetData: UserDefaults? {
-        UserDefaults(suiteName: appGroupID)
-    }
-
-    func widgetString(_ key: String, fallback: String) -> String {
-        let value = string(forKey: key)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        return value?.isEmpty == false ? value! : fallback
-    }
-}
-
-// MARK: - Prayer schedule parsing
-
-private struct PrayerScheduleEntry {
-    let date: Date
-    let name: String
-    let time: String
-}
-
-private func parsePrayerSchedule(_ rawSchedule: String) -> [PrayerScheduleEntry] {
-    rawSchedule
-        .split(separator: ";")
-        .compactMap { rawEntry in
-            let parts = rawEntry
-                .split(separator: "|", maxSplits: 5, omittingEmptySubsequences: false)
-                .map(String.init)
-            guard (parts.count == 4 || parts.count == 6), let epochMillis = Double(parts[0]) else {
-                return nil
-            }
-
-            return PrayerScheduleEntry(
-                date: Date(timeIntervalSince1970: epochMillis / 1000.0),
-                name: parts[1],
-                time: parts[2]
-            )
-        }
-        .sorted { $0.date < $1.date }
-}
-
 // MARK: - Timeline entry
 
 struct NextPrayerEntry: TimelineEntry {
     let date: Date
     let name: String
     let time: String
+    let prayerDate: Date?
+    let dayLabel: String
     let location: String
+    let hasData: Bool
+    /// Shown instead of a time when `hasData` is false.
+    let hint: String
+
+    static func placeholder(at date: Date = Date()) -> NextPrayerEntry {
+        NextPrayerEntry(
+            date: date,
+            name: "Maghrib",
+            time: "7:30 pm",
+            prayerDate: date.addingTimeInterval(3600),
+            dayLabel: "Today",
+            location: "Karbala",
+            hasData: true,
+            hint: ""
+        )
+    }
+
+    static func empty(at date: Date = Date(), hint: String) -> NextPrayerEntry {
+        NextPrayerEntry(
+            date: date,
+            name: "Open app",
+            time: "--:--",
+            prayerDate: nil,
+            dayLabel: "",
+            location: "",
+            hasData: false,
+            hint: hint
+        )
+    }
+
+    /// Time without the meridiem, for the tight circular/corner families.
+    var compactTime: String {
+        let trimmed = time.trimmingCharacters(in: .whitespaces)
+        guard let firstSpace = trimmed.firstIndex(of: " ") else { return trimmed }
+        return String(trimmed[trimmed.startIndex..<firstSpace])
+    }
+
+    var symbolName: String {
+        hasData ? prayerSymbolName(for: name) : "moon.stars"
+    }
 }
 
+// MARK: - Provider
+
 struct NextPrayerProvider: TimelineProvider {
+    private let store = PrayerDataStore.shared
+
     func placeholder(in context: Context) -> NextPrayerEntry {
-        NextPrayerEntry(date: Date(), name: "Maghrib", time: "7:30 pm", location: "")
+        .placeholder()
     }
 
     func getSnapshot(in context: Context, completion: @escaping (NextPrayerEntry) -> Void) {
-        completion(loadEntry())
+        if context.isPreview && !store.hasPrayerTimes {
+            completion(.placeholder())
+        } else {
+            completion(entry(at: Date()))
+        }
+    }
+
+    static func emptyHint(store: PrayerDataStore) -> String {
+        store.hasSyncedData
+            ? "Set your location in the iPhone app."
+            : "Open the iPhone app to sync prayer times."
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<NextPrayerEntry>) -> Void) {
-        let defaults = UserDefaults.widgetData
-        let schedule = parsePrayerSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
         let now = Date()
-        let transitionDates = schedule
-            .filter { $0.date > now }
-            .prefix(8)
-            .map(\.date)
+        // One entry per upcoming prayer so the complication rolls over on its own,
+        // even if the phone is out of range for days.
+        let upcoming = store.prayerSchedule.filter { $0.date > now }.prefix(24)
 
-        var entries = [loadEntry(defaults: defaults, schedule: schedule, now: now)]
-        for date in transitionDates {
-            entries.append(loadEntry(defaults: defaults, schedule: schedule, now: date))
+        guard !upcoming.isEmpty else {
+            // Nothing usable yet — retry in an hour; a live sync reloads us sooner.
+            completion(
+                Timeline(
+                    entries: [.empty(at: now, hint: Self.emptyHint(store: store))],
+                    policy: .after(now.addingTimeInterval(3600))
+                )
+            )
+            return
         }
 
-        let policyDate = entries.last?.date.addingTimeInterval(1800) ?? now.addingTimeInterval(1800)
-        completion(Timeline(entries: entries, policy: .after(policyDate)))
+        let location = store.location
+        var entries: [NextPrayerEntry] = []
+        // Entry N renders "the prayer after N", starting from right now.
+        var renderDate = now
+        for prayer in upcoming {
+            entries.append(entry(at: renderDate, next: prayer, location: location))
+            renderDate = prayer.date
+        }
+
+        completion(Timeline(entries: entries, policy: .after(renderDate)))
     }
 
-    private func loadEntry() -> NextPrayerEntry {
-        let defaults = UserDefaults.widgetData
-        let schedule = parsePrayerSchedule(defaults?.string(forKey: WidgetKeys.prayerSchedule) ?? "")
-        return loadEntry(defaults: defaults, schedule: schedule, now: Date())
+    private func entry(at date: Date) -> NextPrayerEntry {
+        guard let next = store.nextPrayer(after: date) else {
+            return .empty(at: date, hint: Self.emptyHint(store: store))
+        }
+        return entry(at: date, next: next, location: store.location)
     }
 
-    private func loadEntry(
-        defaults: UserDefaults?,
-        schedule: [PrayerScheduleEntry],
-        now: Date
+    private func entry(
+        at date: Date,
+        next: PrayerScheduleEntry,
+        location: String
     ) -> NextPrayerEntry {
-        let nextPrayer = schedule.first { $0.date > now }
-
-        return NextPrayerEntry(
-            date: now,
-            name: nextPrayer?.name ?? defaults?.widgetString(WidgetKeys.prayerName, fallback: "Prayer Times") ?? "Prayer Times",
-            time: nextPrayer?.time ?? defaults?.widgetString(WidgetKeys.prayerTime, fallback: "Open app") ?? "Open app",
-            location: defaults?.widgetString(WidgetKeys.prayerLocation, fallback: "") ?? ""
+        NextPrayerEntry(
+            date: date,
+            name: next.name,
+            time: next.time,
+            prayerDate: next.date,
+            dayLabel: next.dateLabel,
+            location: location,
+            hasData: true,
+            hint: ""
         )
     }
 }
 
 // MARK: - Views
 
-private func prayerSymbolName(for prayerName: String) -> String {
-    let name = prayerName.lowercased()
-    if name.contains("fajr") {
-        return "sunrise"
-    }
-    if name.contains("zuhr") || name.contains("dhuhr") || name.contains("dhohr") {
-        return "sun.max"
-    }
-    if name.contains("asr") {
-        return "sun.min"
-    }
-    if name.contains("maghrib") {
-        return "sunset"
-    }
-    if name.contains("isha") {
-        return "moon.stars"
-    }
-    return "sun.max"
-}
-
-private func shortTime(_ time: String) -> String {
-    time
-        .replacingOccurrences(of: " am", with: "", options: .caseInsensitive)
-        .replacingOccurrences(of: " pm", with: "", options: .caseInsensitive)
-}
-
-struct NextPrayerCircularView: View {
-    let entry: NextPrayerEntry
-
-    var body: some View {
-        VStack(spacing: 1) {
-            Image(systemName: prayerSymbolName(for: entry.name))
-                .font(.system(size: 14, weight: .semibold))
-            Text(shortTime(entry.time))
-                .font(.system(size: 11, weight: .semibold))
-                .minimumScaleFactor(0.7)
-                .lineLimit(1)
-        }
-        .widgetAccentable()
-    }
-}
-
-struct NextPrayerRectangularView: View {
-    let entry: NextPrayerEntry
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(entry.name)
-                .font(.headline)
-                .widgetAccentable()
-                .lineLimit(1)
-            Text(entry.time)
-                .font(.title3)
-                .lineLimit(1)
-            if !entry.location.isEmpty {
-                Text(entry.location)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-        }
-    }
-}
-
-struct NextPrayerInlineView: View {
-    let entry: NextPrayerEntry
-
-    var body: some View {
-        Label("\(entry.name) \(entry.time)", systemImage: prayerSymbolName(for: entry.name))
-    }
-}
-
-struct NextPrayerCornerView: View {
-    let entry: NextPrayerEntry
-
-    var body: some View {
-        Image(systemName: prayerSymbolName(for: entry.name))
-            .widgetLabel {
-                Text(entry.time)
-            }
-    }
-}
-
-struct NextPrayerWidgetView: View {
+struct NextPrayerComplicationView: View {
     @Environment(\.widgetFamily) private var family
     let entry: NextPrayerEntry
 
     var body: some View {
         switch family {
         case .accessoryCircular:
-            NextPrayerCircularView(entry: entry)
-        case .accessoryInline:
-            NextPrayerInlineView(entry: entry)
+            circular
         case .accessoryCorner:
-            NextPrayerCornerView(entry: entry)
+            corner
+        case .accessoryInline:
+            inline
         default:
-            NextPrayerRectangularView(entry: entry)
+            rectangular
+        }
+    }
+
+    private var circular: some View {
+        VStack(spacing: 0) {
+            Image(systemName: entry.symbolName)
+                .font(.system(size: 12, weight: .medium))
+            Text(entry.compactTime)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+        }
+        .widgetAccentable()
+    }
+
+    private var corner: some View {
+        Text(entry.compactTime)
+            .font(.system(size: 16, weight: .semibold, design: .rounded))
+            .widgetLabel {
+                Text(entry.name)
+            }
+    }
+
+    private var inline: some View {
+        Label {
+            Text(entry.hasData ? "\(entry.name) \(entry.time)" : "Open Shia Companion")
+        } icon: {
+            Image(systemName: entry.symbolName)
+        }
+    }
+
+    private var rectangular: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            HStack(spacing: 3) {
+                Image(systemName: entry.symbolName)
+                    .font(.system(size: 11, weight: .medium))
+                Text(entry.hasData ? entry.name : "Shia Companion")
+                    .font(.headline)
+                    .lineLimit(1)
+            }
+            .widgetAccentable()
+
+            if entry.hasData {
+                Text(entry.time)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                if let prayerDate = entry.prayerDate {
+                    Text(prayerDate, style: .relative)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            } else {
+                Text(entry.hint)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private extension View {
+    /// watchOS 10 requires widgets to declare a container background to render in the
+    /// Smart Stack; complications on a watch face keep their own (transparent) styling.
+    @ViewBuilder
+    func widgetContainerBackground() -> some View {
+        if #available(watchOS 10.0, *) {
+            containerBackground(.clear, for: .widget)
+        } else {
+            self
         }
     }
 }
 
 // MARK: - Widget
 
-struct NextPrayerWidget: Widget {
-    let kind = "NextPrayerWidget"
+struct NextPrayerComplication: Widget {
+    let kind = "NextPrayerComplication"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: NextPrayerProvider()) { entry in
-            NextPrayerWidgetView(entry: entry)
+            NextPrayerComplicationView(entry: entry)
+                .widgetContainerBackground()
         }
         .configurationDisplayName("Next Prayer")
-        .description("Shows your next prayer time.")
-        .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline, .accessoryCorner])
+        .description("The next prayer time for your saved location.")
+        .supportedFamilies([
+            .accessoryCircular,
+            .accessoryCorner,
+            .accessoryInline,
+            .accessoryRectangular,
+        ])
     }
 }
 
 @main
 struct ShiaCompanionWatchWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        NextPrayerWidget()
+        NextPrayerComplication()
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+struct NextPrayerComplication_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            NextPrayerComplicationView(entry: .placeholder())
+                .previewContext(WidgetPreviewContext(family: .accessoryCircular))
+            NextPrayerComplicationView(entry: .placeholder())
+                .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
+            NextPrayerComplicationView(entry: .placeholder())
+                .previewContext(WidgetPreviewContext(family: .accessoryInline))
+        }
+    }
+}
+#endif

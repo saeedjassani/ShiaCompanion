@@ -12,6 +12,7 @@
 		269E8F57DDE0693B2494F2CE /* ShiaCompanionWatchWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 250484A52DC11923320C9200 /* ShiaCompanionWatchWidgets.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		4CAE388974BE61D3EF242F9A /* ShiaCompanionWatchWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 016B3362B4A86CF32988DFEB /* ShiaCompanionWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		89F14A100BAF05857E7603E0 /* PrayerDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A798C59F54A09C6B1B342036 /* PrayerDataStore.swift */; };
 		9052139B252E516B00BAF811 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9052139A252E516B00BAF811 /* GoogleService-Info.plist */; };
 		906A431A253A043A00AC66A1 /* azan.caf in Resources */ = {isa = PBXBuildFile; fileRef = 906A4319253A043A00AC66A1 /* azan.caf */; };
 		9073F085300710F200AE79BE /* ShiaCompanion Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 9073F07B300710F000AE79BE /* ShiaCompanion Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -24,8 +25,10 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		A9E7D16CCA4BF1EA31B08C69 /* WatchConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0322238FD9DB24F0F877BD /* WatchConnectivityManager.swift */; };
 		B11118556C6FA8E39EBEF513 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5C76E41B18AD0B8D05FA189 /* SwiftUI.framework */; };
 		B71D044ACA3FE22A0A6137B7 /* ShiaCompanionWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17589C5BFD2ED398A0A8F70B /* ShiaCompanionWidgets.swift */; };
+		B91D4DB57CBE1E93D905366C /* PrayerDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A798C59F54A09C6B1B342036 /* PrayerDataStore.swift */; };
 		F3E38B7EFCE659EF42B85BE1 /* ShiaCompanionWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EBE703D67FF6B51A56C822DE /* ShiaCompanionWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		FE0ED4277430F6C4CED71A8E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65C7A955437D95BF9AFF00F5 /* WidgetKit.framework */; };
 /* End PBXBuildFile section */
@@ -102,6 +105,7 @@
 
 /* Begin PBXFileReference section */
 		016B3362B4A86CF32988DFEB /* ShiaCompanionWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShiaCompanionWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D0322238FD9DB24F0F877BD /* WatchConnectivityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchConnectivityManager.swift; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		17589C5BFD2ED398A0A8F70B /* ShiaCompanionWidgets.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShiaCompanionWidgets.swift; sourceTree = "<group>"; };
@@ -136,6 +140,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9E46C7C3DAFBE0866AABE3C5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A5C76E41B18AD0B8D05FA189 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
+		A798C59F54A09C6B1B342036 /* PrayerDataStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PrayerDataStore.swift; sourceTree = "<group>"; };
 		AA18C3DA5CB0D5E8E9DD3182 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CBAF09A77DAE20CED36768B6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		EBE703D67FF6B51A56C822DE /* ShiaCompanionWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShiaCompanionWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -205,6 +210,8 @@
 				9073F08B300710F100AE79BE /* ContentView.swift */,
 				9073F08C300710F100AE79BE /* ShiaCompanionApp.swift */,
 				9073F08D300710F100AE79BE /* Assets.xcassets */,
+				A798C59F54A09C6B1B342036 /* PrayerDataStore.swift */,
+				0D0322238FD9DB24F0F877BD /* WatchConnectivityManager.swift */,
 			);
 			path = "ShiaCompanion Watch App";
 			sourceTree = "<group>";
@@ -643,6 +650,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				269E8F57DDE0693B2494F2CE /* ShiaCompanionWatchWidgets.swift in Sources */,
+				89F14A100BAF05857E7603E0 /* PrayerDataStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -652,6 +660,8 @@
 			files = (
 				9073F08F300710F100AE79BE /* ContentView.swift in Sources */,
 				9073F090300710F100AE79BE /* ShiaCompanionApp.swift in Sources */,
+				B91D4DB57CBE1E93D905366C /* PrayerDataStore.swift in Sources */,
+				A9E7D16CCA4BF1EA31B08C69 /* WatchConnectivityManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

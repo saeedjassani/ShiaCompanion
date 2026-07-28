@@ -1,111 +1,107 @@
+import Combine
 import SwiftUI
 import WatchKit
-import Combine
-
-private let appGroupID = "group.com.developer110.shiacompanion"
 
 @main
 struct ShiaCompanion_Watch_AppApp: App {
     @StateObject private var prayerModel = PrayerTimeModel()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(prayerModel)
                 .onAppear {
+                    WatchConnectivityManager.shared.activate()
                     prayerModel.refresh()
                 }
+        }
+        .onChange(of: scenePhase) { phase in
+            if phase == .active {
+                WatchConnectivityManager.shared.requestSnapshot()
+                prayerModel.refresh()
+            }
         }
     }
 }
 
 // MARK: - Prayer Time Model
 
-class PrayerTimeModel: ObservableObject {
+final class PrayerTimeModel: ObservableObject {
     @Published var prayerEntries: [PrayerEntry] = []
     @Published var location: String = ""
     @Published var nextPrayerName: String = ""
     @Published var nextPrayerTime: String = ""
+    @Published var nextPrayerDate: Date?
+    @Published var nextPrayerDayLabel: String = ""
+    @Published var state: State = .waitingForPhone
+    @Published var lastSyncDate: Date?
 
-    private let dailyPrayerNameKeys = (1...5).map { "sc_daily_prayer_name_\($0)" }
-    private let dailyPrayerTimeKeys = (1...5).map { "sc_daily_prayer_time_\($0)" }
+    enum State {
+        /// The phone has never sent a snapshot.
+        case waitingForPhone
+        /// Synced, but the phone app has no location saved yet.
+        case needsLocation
+        case loaded
+    }
 
-    private var defaults: UserDefaults? {
-        UserDefaults(suiteName: appGroupID)
+    private let store = PrayerDataStore.shared
+    private var observer: NSObjectProtocol?
+    private var rolloverTimer: Timer?
+
+    init() {
+        observer = NotificationCenter.default.addObserver(
+            forName: .prayerDataDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.refresh()
+        }
+    }
+
+    deinit {
+        if let observer = observer {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        rolloverTimer?.invalidate()
     }
 
     func refresh() {
-        loadDailyPrayerTimes()
-        loadNextPrayer()
-    }
-
-    private func loadDailyPrayerTimes() {
-        guard let defaults = defaults else { return }
-
-        location = defaults.widgetString("sc_prayer_location", fallback: "Set location in app")
-
-        var entries: [PrayerEntry] = []
-        for i in 0..<5 {
-            let name = defaults.widgetString(dailyPrayerNameKeys[i], fallback: i == 0 ? "Open app" : "")
-            let time = defaults.widgetString(dailyPrayerTimeKeys[i], fallback: i == 0 ? "Set location" : "")
-            if !name.isEmpty || !time.isEmpty {
-                entries.append(PrayerEntry(name: name, time: time))
-            }
-        }
-        prayerEntries = entries
-    }
-
-    private func loadNextPrayer() {
-        guard let defaults = defaults else { return }
-        let schedule = parsePrayerSchedule(defaults.string(forKey: "sc_prayer_schedule") ?? "")
         let now = Date()
-        if let next = schedule.first(where: { $0.date > now }) {
+        if !store.hasSyncedData {
+            state = .waitingForPhone
+        } else if !store.hasPrayerTimes {
+            state = .needsLocation
+        } else {
+            state = .loaded
+        }
+        lastSyncDate = store.lastSyncDate
+        location = store.location
+        prayerEntries = state == .loaded ? store.dailyPrayers(for: now) : []
+
+        if let next = store.nextPrayer(after: now) {
             nextPrayerName = next.name
             nextPrayerTime = next.time
+            nextPrayerDate = next.date
+            nextPrayerDayLabel = next.dateLabel
+        } else {
+            nextPrayerName = ""
+            nextPrayerTime = ""
+            nextPrayerDate = nil
+            nextPrayerDayLabel = ""
         }
+
+        scheduleRollover(after: now)
     }
-}
 
-struct PrayerEntry {
-    let name: String
-    let time: String
-}
-
-private struct PrayerScheduleEntry {
-    let date: Date
-    let name: String
-    let time: String
-    let dateLabel: String
-    let secondaryName: String
-    let secondaryTime: String
-}
-
-private func parsePrayerSchedule(_ rawSchedule: String) -> [PrayerScheduleEntry] {
-    rawSchedule
-        .split(separator: ";")
-        .compactMap { rawEntry in
-            let parts = rawEntry
-                .split(separator: "|", maxSplits: 5, omittingEmptySubsequences: false)
-                .map(String.init)
-            guard (parts.count == 4 || parts.count == 6), let epochMillis = Double(parts[0]) else {
-                return nil
-            }
-
-            return PrayerScheduleEntry(
-                date: Date(timeIntervalSince1970: epochMillis / 1000.0),
-                name: parts[1],
-                time: parts[2],
-                dateLabel: parts[3],
-                secondaryName: parts.count == 6 ? parts[4] : "",
-                secondaryTime: parts.count == 6 ? parts[5] : ""
-            )
+    /// Re-derive the "next" prayer the moment the current one passes, so an open watch
+    /// app doesn't sit on a stale banner.
+    private func scheduleRollover(after now: Date) {
+        rolloverTimer?.invalidate()
+        guard let next = nextPrayerDate, next > now else { return }
+        let interval = min(next.timeIntervalSince(now) + 1, 60 * 60)
+        rolloverTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
+            self?.refresh()
         }
-        .sorted { $0.date < $1.date }
-}
-
-private extension UserDefaults {
-    func widgetString(_ key: String, fallback: String) -> String {
-        let value = string(forKey: key)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        return value?.isEmpty == false ? value! : fallback
     }
 }
