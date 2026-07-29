@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/airport.dart';
 import '../models/flight.dart';
 import '../utils/shared_preferences.dart';
+import 'airport_repository.dart';
 
 /// Local persistence for saved flights.
 ///
@@ -72,17 +74,27 @@ class FlightStore extends ChangeNotifier {
 
   /// Tolerant of anything that is not a well-formed flight list: a corrupt or
   /// partially written entry drops out instead of breaking the whole page.
-  static List<Flight> decode(String? raw) {
+  ///
+  /// [resolveIata] upgrades flights saved before airports were stored in full;
+  /// it defaults to the bundled database.
+  static List<Flight> decode(
+    String? raw, {
+    Airport? Function(String iata)? resolveIata,
+  }) {
     if (raw == null || raw.isEmpty) return const [];
 
     try {
       final decoded = jsonDecode(raw);
       if (decoded is! List) return const [];
 
+      final lookup = resolveIata ?? AirportRepository.instance.byIata;
       final flights = <Flight>[];
       for (final entry in decoded) {
         if (entry is! Map) continue;
-        final flight = Flight.fromJson(Map<String, dynamic>.from(entry));
+        final flight = Flight.fromJson(
+          Map<String, dynamic>.from(entry),
+          resolveIata: lookup,
+        );
         if (flight != null) flights.add(flight);
       }
       return sortByDeparture(flights);

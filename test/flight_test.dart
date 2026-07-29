@@ -3,6 +3,9 @@ import 'package:shia_companion/models/airport.dart';
 import 'package:shia_companion/models/flight.dart';
 import 'package:shia_companion/services/flight_store.dart';
 import 'package:shia_companion/utils/flight_formatting.dart';
+import 'package:shia_companion/utils/flight_prayer_times.dart';
+import 'package:shia_companion/utils/geo_utils.dart';
+import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
 
 const _sfoLine = 'SFO\tKSFO\tSan Francisco International Airport\t'
@@ -10,21 +13,19 @@ const _sfoLine = 'SFO\tKSFO\tSan Francisco International Airport\t'
 const _istLine = 'IST\tLTFM\tIstanbul Airport\tArnavutkoy\tTurkey\t'
     '41.2622\t28.7278\tEurope/Istanbul';
 
-Airport? _lookup(String iata) {
-  switch (iata) {
-    case 'SFO':
-      return Airport.tryParseLine(_sfoLine);
-    case 'IST':
-      return Airport.tryParseLine(_istLine);
-    default:
-      return null;
-  }
-}
+final _sfo = Airport.tryParseLine(_sfoLine)!;
+final _ist = Airport.tryParseLine(_istLine)!;
+
+Airport? _lookup(String iata) => switch (iata) {
+      'SFO' => _sfo,
+      'IST' => _ist,
+      _ => null,
+    };
 
 Flight _sfoToIstanbul() => Flight(
       id: 'test-flight',
-      originIata: 'SFO',
-      destinationIata: 'IST',
+      origin: _sfo,
+      destination: _ist,
       // TK 80: leaves SFO 19:55 and lands in Istanbul 19:05 the next day.
       departureLocal: DateTime(2026, 7, 30, 19, 55),
       arrivalLocal: DateTime(2026, 7, 31, 19, 5),
@@ -76,11 +77,52 @@ void main() {
       final restored = Flight.fromJson(flight.toJson())!;
 
       expect(restored.id, flight.id);
-      expect(restored.originIata, 'SFO');
-      expect(restored.destinationIata, 'IST');
+      expect(restored.origin.iata, 'SFO');
+      expect(restored.destination.iata, 'IST');
       expect(restored.departureLocal, flight.departureLocal);
       expect(restored.arrivalLocal, flight.arrivalLocal);
       expect(restored.flightNumber, 'TK 80');
+    });
+
+    test('carries the full airport, so it needs no database to be read', () {
+      // The point of the snapshot: coordinates and zone travel with the flight.
+      final restored = Flight.fromJson(_sfoToIstanbul().toJson())!;
+
+      expect(restored.origin.latitude, closeTo(37.619, 1e-6));
+      expect(restored.origin.longitude, closeTo(-122.375, 1e-6));
+      expect(restored.origin.timeZoneId, 'America/Los_Angeles');
+      expect(restored.origin.name, 'San Francisco International Airport');
+      expect(restored.destination.timeZoneId, 'Europe/Istanbul');
+      // Resolving needs only the time zone database, not the airport database.
+      expect(ResolvedFlight.resolve(restored), isNotNull);
+    });
+
+    test('upgrades a flight saved when only the IATA code was stored', () {
+      final restored = Flight.fromJson({
+        'id': 'legacy',
+        'origin': 'SFO',
+        'destination': 'IST',
+        'departure': '2026-07-30T19:55',
+        'arrival': '2026-07-31T19:05',
+      }, resolveIata: _lookup)!;
+
+      expect(restored.origin.iata, 'SFO');
+      expect(restored.origin.timeZoneId, 'America/Los_Angeles');
+      expect(restored.destination.iata, 'IST');
+    });
+
+    test('drops a legacy flight whose airport is no longer in the database',
+        () {
+      expect(
+        Flight.fromJson({
+          'id': 'legacy',
+          'origin': 'SFO',
+          'destination': 'ZZZ',
+          'departure': '2026-07-30T19:55',
+          'arrival': '2026-07-31T19:05',
+        }, resolveIata: _lookup),
+        isNull,
+      );
     });
 
     test('keeps departure a wall clock, with no zone attached', () {
@@ -96,7 +138,7 @@ void main() {
         'destination': 'IST',
         'departure': '2026-07-30T19:55:00Z',
         'arrival': '2026-07-31T19:05:00Z',
-      })!;
+      }, resolveIata: _lookup)!;
 
       expect(restored.departureLocal, DateTime(2026, 7, 30, 19, 55));
       expect(restored.departureLocal.isUtc, isFalse);
@@ -113,8 +155,7 @@ void main() {
 
   group('ResolvedFlight', () {
     test('places each wall clock on the UTC timeline via its own zone', () {
-      final resolved = ResolvedFlight.resolve(_sfoToIstanbul(),
-          lookup: _lookup)!;
+      final resolved = ResolvedFlight.resolve(_sfoToIstanbul())!;
 
       // 19:55 PDT (UTC-7) on 30 July.
       expect(resolved.departureUtc, DateTime.utc(2026, 7, 31, 2, 55));
@@ -125,16 +166,20 @@ void main() {
       expect(resolved.routeLabel, 'SFO → IST');
     });
 
-    test('returns null when an airport is unknown', () {
-      final flight = _sfoToIstanbul().copyWith(destinationIata: 'ZZZ');
-      expect(ResolvedFlight.resolve(flight, lookup: _lookup), isNull);
+    test('returns null when an airport carries an unknown time zone', () {
+      final flight = _sfoToIstanbul().copyWith(
+        destination: Airport.tryParseLine(
+          'ZZZ\tZZZZ\tNowhere\tNowhere\tNowhere\t0\t0\tMars/Olympus_Mons',
+        ),
+      );
+      expect(ResolvedFlight.resolve(flight), isNull);
     });
 
     test('flags an overnight flight recorded as landing the same day', () {
       // The classic data-entry mistake: arrival date left on the departure day.
       final flight = _sfoToIstanbul()
           .copyWith(arrivalLocal: DateTime(2026, 7, 30, 19, 5));
-      final resolved = ResolvedFlight.resolve(flight, lookup: _lookup)!;
+      final resolved = ResolvedFlight.resolve(flight)!;
 
       expect(resolved.duration.isNegative, isTrue);
       expect(resolved.hasPlausibleDuration, isFalse);
@@ -154,8 +199,8 @@ void main() {
       final later = _sfoToIstanbul();
       final earlier = Flight(
         id: 'earlier',
-        originIata: 'IST',
-        destinationIata: 'SFO',
+        origin: _ist,
+        destination: _sfo,
         departureLocal: DateTime(2026, 7, 1, 8),
         arrivalLocal: DateTime(2026, 7, 1, 14),
       );
@@ -171,11 +216,58 @@ void main() {
       expect(FlightStore.decode('{"not":"a list"}'), isEmpty);
       // A bad entry drops out; the good one survives.
       expect(
-        FlightStore.decode('[{"id":"broken"},'
-            '{"id":"ok","origin":"SFO","destination":"IST",'
-            '"departure":"2026-07-30T19:55","arrival":"2026-07-31T19:05"}]'),
+        FlightStore.decode(
+          '[{"id":"broken"},'
+          '{"id":"ok","origin":"SFO","destination":"IST",'
+          '"departure":"2026-07-30T19:55","arrival":"2026-07-31T19:05"}]',
+          resolveIata: _lookup,
+        ),
         hasLength(1),
       );
+    });
+
+    test('a stored flight replans with no airport database available', () {
+      // The whole point of the snapshot. Decode with a resolver that knows
+      // nothing, then run the full pipeline: no lookup is ever needed.
+      final stored = FlightStore.encode([_sfoToIstanbul()]);
+      final restored = FlightStore.decode(
+        stored,
+        resolveIata: (_) => null,
+      ).single;
+
+      final resolved = ResolvedFlight.resolve(restored)!;
+      final prayerTime = PrayerTime()
+        ..setCalcMethod(0)
+        ..setAsrJuristic(1)
+        ..setAdjustHighLats(3);
+
+      final plan = computeFlightPrayerPlan(
+        prayerTime: prayerTime,
+        origin: GeoPoint(resolved.origin.latitude, resolved.origin.longitude),
+        destination: GeoPoint(
+          resolved.destination.latitude,
+          resolved.destination.longitude,
+        ),
+        departureUtc: resolved.departureUtc,
+        arrivalUtc: resolved.arrivalUtc,
+      );
+
+      expect(plan.isValid, isTrue);
+      expect(plan.eventsDuringFlight, isNotEmpty);
+      expect(plan.distanceKm, closeTo(10766, 60));
+    });
+
+    test('upgrades legacy entries in place through the resolver', () {
+      final upgraded = FlightStore.decode(
+        '[{"id":"legacy","origin":"SFO","destination":"IST",'
+        '"departure":"2026-07-30T19:55","arrival":"2026-07-31T19:05"}]',
+        resolveIata: _lookup,
+      );
+
+      expect(upgraded.single.origin.timeZoneId, 'America/Los_Angeles');
+      // Re-encoding writes the full snapshot, so the resolver is not needed
+      // again on the next read.
+      expect(FlightStore.decode(FlightStore.encode(upgraded)), hasLength(1));
     });
   });
 

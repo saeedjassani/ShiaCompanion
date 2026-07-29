@@ -47,8 +47,8 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     await AirportRepository.instance.load();
     final existing = widget.existing;
     if (existing != null) {
-      _origin = AirportRepository.instance.byIata(existing.originIata);
-      _destination = AirportRepository.instance.byIata(existing.destinationIata);
+      _origin = existing.origin;
+      _destination = existing.destination;
       _departureLocal = existing.departureLocal;
       _arrivalLocal = existing.arrivalLocal;
       _flightNumberController.text = existing.flightNumber ?? '';
@@ -156,8 +156,8 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     final flight = Flight(
       id: widget.existing?.id ??
           DateTime.now().microsecondsSinceEpoch.toString(),
-      originIata: origin.iata,
-      destinationIata: destination.iata,
+      origin: origin,
+      destination: destination,
       departureLocal: departure,
       arrivalLocal: arrival,
       flightNumber: _flightNumberController.text.trim().isEmpty
@@ -165,12 +165,10 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
           : _flightNumberController.text.trim().toUpperCase(),
     );
 
-    final resolved = ResolvedFlight.resolve(
-      flight,
-      lookup: AirportRepository.instance.byIata,
-    );
+    final resolved = ResolvedFlight.resolve(flight);
     if (resolved == null) {
-      setState(() => _errorText = 'Could not resolve those airports.');
+      setState(() => _errorText =
+          'Could not resolve the time zone for one of those airports.');
       return;
     }
     if (resolved.duration <= Duration.zero) {

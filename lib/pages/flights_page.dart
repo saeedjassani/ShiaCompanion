@@ -54,11 +54,7 @@ class _FlightsPageState extends State<FlightsPage> {
   }
 
   Future<void> _confirmDelete(Flight flight) async {
-    final resolved = ResolvedFlight.resolve(
-      flight,
-      lookup: AirportRepository.instance.byIata,
-    );
-    final label = resolved?.routeLabel ?? 'this flight';
+    final label = flight.routeLabel;
 
     final shouldDelete = await showDialog<bool>(
       context: context,
@@ -139,10 +135,7 @@ class _FlightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final resolved = ResolvedFlight.resolve(
-      flight,
-      lookup: AirportRepository.instance.byIata,
-    );
+    final resolved = ResolvedFlight.resolve(flight);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -159,8 +152,7 @@ class _FlightCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          resolved?.routeLabel ??
-                              '${flight.originIata} → ${flight.destinationIata}',
+                          flight.routeLabel,
                           style: theme.textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w700),
                         ),

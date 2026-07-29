@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../models/airport.dart';
 import '../models/flight.dart';
-import '../services/airport_repository.dart';
 import '../utils/flight_formatting.dart';
 import '../utils/flight_prayer_times.dart';
 import '../utils/geo_utils.dart';
@@ -49,10 +48,7 @@ class _FlightPrayerTimesPageState extends State<FlightPrayerTimesPage> {
   /// Solving the route costs a few hundred prayer-time evaluations, so it is
   /// done once per flight rather than on every rebuild.
   void _recompute() {
-    final resolved = ResolvedFlight.resolve(
-      _flight,
-      lookup: AirportRepository.instance.byIata,
-    );
+    final resolved = ResolvedFlight.resolve(_flight);
     _resolved = resolved;
     _plan = resolved == null
         ? null
@@ -707,11 +703,12 @@ class _UnresolvableFlight extends StatelessWidget {
             Icon(Icons.help_outline,
                 size: 40, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(height: 12),
-            Text('Airports could not be loaded',
+            Text('Time zones could not be loaded',
                 style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              'Tap edit to pick the departure and arrival airports again.',
+              'One of these airports has a time zone this build does not '
+              'recognise. Tap edit to pick the airports again.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

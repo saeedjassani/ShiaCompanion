@@ -9,19 +9,24 @@ import 'airport.dart';
 /// printed on a boarding pass — together with the airports they belong to.
 /// The UTC instants are derived from the airports' time zones, which is what
 /// makes "10:35 pm SFO" and "8:15 pm IST" line up on one timeline.
+///
+/// The airports are stored in full rather than by code. A saved flight is then
+/// self-contained: it keeps working if the bundled airport database changes,
+/// if an airport is looked up from somewhere else in future, and — the case
+/// that matters most here — when the phone is offline at 38,000 feet.
 class Flight {
   const Flight({
     required this.id,
-    required this.originIata,
-    required this.destinationIata,
+    required this.origin,
+    required this.destination,
     required this.departureLocal,
     required this.arrivalLocal,
     this.flightNumber,
   });
 
   final String id;
-  final String originIata;
-  final String destinationIata;
+  final Airport origin;
+  final Airport destination;
 
   /// Scheduled departure as shown at the origin airport (local wall clock).
   final DateTime departureLocal;
@@ -32,17 +37,19 @@ class Flight {
   /// Optional label such as `TK 80`.
   final String? flightNumber;
 
+  String get routeLabel => '${origin.iata} → ${destination.iata}';
+
   Flight copyWith({
-    String? originIata,
-    String? destinationIata,
+    Airport? origin,
+    Airport? destination,
     DateTime? departureLocal,
     DateTime? arrivalLocal,
     String? flightNumber,
   }) {
     return Flight(
       id: id,
-      originIata: originIata ?? this.originIata,
-      destinationIata: destinationIata ?? this.destinationIata,
+      origin: origin ?? this.origin,
+      destination: destination ?? this.destination,
       departureLocal: departureLocal ?? this.departureLocal,
       arrivalLocal: arrivalLocal ?? this.arrivalLocal,
       flightNumber: flightNumber ?? this.flightNumber,
@@ -51,24 +58,29 @@ class Flight {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'origin': originIata,
-        'destination': destinationIata,
+        'origin': origin.toJson(),
+        'destination': destination.toJson(),
         'departure': _encodeWallClock(departureLocal),
         'arrival': _encodeWallClock(arrivalLocal),
         if (flightNumber != null && flightNumber!.isNotEmpty)
           'flightNumber': flightNumber,
       };
 
-  static Flight? fromJson(Map<String, dynamic> json) {
+  /// [resolveIata] upgrades flights written before airports were stored in
+  /// full, when only the IATA code was persisted.
+  static Flight? fromJson(
+    Map<String, dynamic> json, {
+    Airport? Function(String iata)? resolveIata,
+  }) {
     final id = json['id'];
-    final origin = json['origin'];
-    final destination = json['destination'];
+    final origin = _decodeAirport(json['origin'], resolveIata);
+    final destination = _decodeAirport(json['destination'], resolveIata);
     final departure = _decodeWallClock(json['departure']);
     final arrival = _decodeWallClock(json['arrival']);
 
     if (id is! String ||
-        origin is! String ||
-        destination is! String ||
+        origin == null ||
+        destination == null ||
         departure == null ||
         arrival == null) {
       return null;
@@ -77,14 +89,23 @@ class Flight {
     final flightNumber = json['flightNumber'];
     return Flight(
       id: id,
-      originIata: origin,
-      destinationIata: destination,
+      origin: origin,
+      destination: destination,
       departureLocal: departure,
       arrivalLocal: arrival,
       flightNumber: flightNumber is String && flightNumber.isNotEmpty
           ? flightNumber
           : null,
     );
+  }
+
+  static Airport? _decodeAirport(
+    Object? value,
+    Airport? Function(String iata)? resolveIata,
+  ) {
+    if (value is Map) return Airport.fromJson(Map<String, dynamic>.from(value));
+    if (value is String) return resolveIata?.call(value);
+    return null;
   }
 
   /// Wall-clock times are serialized without a zone suffix on purpose: they are
@@ -110,15 +131,13 @@ class Flight {
   }
 }
 
-/// A [Flight] joined to its airports and resolved onto the UTC timeline.
+/// A [Flight] placed onto the UTC timeline.
 ///
-/// Constructed through [ResolvedFlight.resolve], which returns null when either
-/// airport or time zone is missing from the bundled database.
+/// Constructed through [ResolvedFlight.resolve], which returns null only when
+/// an airport's time zone is missing from the bundled time zone database.
 class ResolvedFlight {
   const ResolvedFlight._({
     required this.flight,
-    required this.origin,
-    required this.destination,
     required this.originLocation,
     required this.destinationLocation,
     required this.departureUtc,
@@ -126,29 +145,21 @@ class ResolvedFlight {
   });
 
   final Flight flight;
-  final Airport origin;
-  final Airport destination;
   final tz.Location originLocation;
   final tz.Location destinationLocation;
   final DateTime departureUtc;
   final DateTime arrivalUtc;
 
-  static ResolvedFlight? resolve(
-    Flight flight, {
-    required Airport? Function(String iata) lookup,
-  }) {
-    final origin = lookup(flight.originIata);
-    final destination = lookup(flight.destinationIata);
-    if (origin == null || destination == null) return null;
+  Airport get origin => flight.origin;
+  Airport get destination => flight.destination;
 
-    final originLocation = tryGetLocation(origin.timeZoneId);
-    final destinationLocation = tryGetLocation(destination.timeZoneId);
+  static ResolvedFlight? resolve(Flight flight) {
+    final originLocation = tryGetLocation(flight.origin.timeZoneId);
+    final destinationLocation = tryGetLocation(flight.destination.timeZoneId);
     if (originLocation == null || destinationLocation == null) return null;
 
     return ResolvedFlight._(
       flight: flight,
-      origin: origin,
-      destination: destination,
       originLocation: originLocation,
       destinationLocation: destinationLocation,
       departureUtc: _toUtc(originLocation, flight.departureLocal),
@@ -164,7 +175,7 @@ class ResolvedFlight {
   bool get hasPlausibleDuration =>
       duration > Duration.zero && duration < const Duration(hours: 24);
 
-  String get routeLabel => '${origin.iata} → ${destination.iata}';
+  String get routeLabel => flight.routeLabel;
 
   static DateTime _toUtc(tz.Location location, DateTime wallClock) {
     return tz.TZDateTime(

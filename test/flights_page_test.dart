@@ -9,17 +9,20 @@ import 'package:shia_companion/services/airport_repository.dart';
 import 'package:shia_companion/services/flight_store.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
 
+Airport _airport(String iata) => AirportRepository.instance.byIata(iata)!;
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
-    AirportRepository.instance.seedForTesting(
-      Airport.parseDatabase(
-        File(AirportRepository.assetPath).readAsStringSync(),
-      ),
-    );
     ensureTimeZoneDatabaseInitialized();
   });
+
+  AirportRepository.instance.seedForTesting(
+    Airport.parseDatabase(
+      File(AirportRepository.assetPath).readAsStringSync(),
+    ),
+  );
 
   tearDown(() => FlightStore.instance.resetForTesting());
 
@@ -38,8 +41,8 @@ void main() {
     FlightStore.instance.resetForTesting(flights: [
       Flight(
         id: 'tk80',
-        originIata: 'SFO',
-        destinationIata: 'IST',
+        origin: _airport('SFO'),
+        destination: _airport('IST'),
         departureLocal: DateTime(2026, 7, 30, 19, 55),
         arrivalLocal: DateTime(2026, 7, 31, 19, 5),
         flightNumber: 'TK 80',
@@ -59,15 +62,15 @@ void main() {
     FlightStore.instance.resetForTesting(flights: [
       Flight(
         id: 'later',
-        originIata: 'SFO',
-        destinationIata: 'IST',
+        origin: _airport('SFO'),
+        destination: _airport('IST'),
         departureLocal: DateTime(2026, 9, 1, 19, 55),
         arrivalLocal: DateTime(2026, 9, 2, 19, 5),
       ),
       Flight(
         id: 'earlier',
-        originIata: 'IST',
-        destinationIata: 'NJF',
+        origin: _airport('IST'),
+        destination: _airport('NJF'),
         departureLocal: DateTime(2026, 7, 30, 8),
         arrivalLocal: DateTime(2026, 7, 30, 11, 30),
       ),

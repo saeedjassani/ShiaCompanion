@@ -8,23 +8,27 @@ import 'package:shia_companion/pages/flight_prayer_times_page.dart';
 import 'package:shia_companion/services/airport_repository.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
 
+/// Looks an airport up from the real database. Saved flights embed the whole
+/// airport, so this stands in for what the picker would have handed over.
+Airport _airport(String iata) => AirportRepository.instance.byIata(iata)!;
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
-    AirportRepository.instance.seedForTesting(
-      Airport.parseDatabase(
-        File(AirportRepository.assetPath).readAsStringSync(),
-      ),
-    );
-    ensureTimeZoneDatabaseInitialized();
-  });
+  // Seeded here rather than in setUpAll: the flight literals below are built
+  // while main() runs, which is before any setUpAll callback fires.
+  AirportRepository.instance.seedForTesting(
+    Airport.parseDatabase(
+      File(AirportRepository.assetPath).readAsStringSync(),
+    ),
+  );
+  ensureTimeZoneDatabaseInitialized();
 
   // TK 80: SFO 19:55 on 30 July → IST 19:05 on 31 July.
   final sfoToIstanbul = Flight(
     id: 'tk80',
-    originIata: 'SFO',
-    destinationIata: 'IST',
+    origin: _airport('SFO'),
+    destination: _airport('IST'),
     departureLocal: DateTime(2026, 7, 30, 19, 55),
     arrivalLocal: DateTime(2026, 7, 31, 19, 5),
     flightNumber: 'TK 80',
@@ -67,8 +71,8 @@ void main() {
       tester,
       Flight(
         id: 'daytime',
-        originIata: 'SFO',
-        destinationIata: 'JFK',
+        origin: _airport('SFO'),
+        destination: _airport('JFK'),
         departureLocal: DateTime(2026, 7, 30, 9),
         arrivalLocal: DateTime(2026, 7, 30, 17, 25),
       ),
@@ -105,10 +109,20 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('degrades gracefully when an airport is unknown', (tester) async {
-    await _pump(tester, sfoToIstanbul.copyWith(destinationIata: 'ZZZ'));
+  testWidgets('degrades gracefully when a time zone cannot be resolved',
+      (tester) async {
+    // A saved flight now carries its own airports, so the only way resolving
+    // can fail is a time zone this build's database does not know.
+    await _pump(
+      tester,
+      sfoToIstanbul.copyWith(
+        destination: Airport.tryParseLine(
+          'ZZZ\tZZZZ\tNowhere\tNowhere\tNowhere\t0\t0\tMars/Olympus_Mons',
+        ),
+      ),
+    );
 
-    expect(find.text('Airports could not be loaded'), findsOneWidget);
+    expect(find.text('Time zones could not be loaded'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

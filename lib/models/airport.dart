@@ -66,6 +66,49 @@ class Airport {
     );
   }
 
+  /// Serialized into each saved flight so the flight carries everything it
+  /// needs. See [Flight] for why the coordinates are copied rather than looked
+  /// up again on every read.
+  Map<String, dynamic> toJson() => {
+        'iata': iata,
+        'icao': icao,
+        'name': name,
+        'city': city,
+        'country': country,
+        'lat': latitude,
+        'lon': longitude,
+        'tz': timeZoneId,
+      };
+
+  static Airport? fromJson(Map<String, dynamic> json) {
+    final iata = json['iata'];
+    final timeZoneId = json['tz'];
+    final latitude = (json['lat'] as num?)?.toDouble();
+    final longitude = (json['lon'] as num?)?.toDouble();
+
+    if (iata is! String ||
+        iata.isEmpty ||
+        timeZoneId is! String ||
+        timeZoneId.isEmpty ||
+        latitude == null ||
+        longitude == null) {
+      return null;
+    }
+
+    String text(Object? value) => value is String ? value : '';
+
+    return Airport(
+      iata: iata,
+      icao: text(json['icao']),
+      name: text(json['name']),
+      city: text(json['city']),
+      country: text(json['country']),
+      latitude: latitude,
+      longitude: longitude,
+      timeZoneId: timeZoneId,
+    );
+  }
+
   static List<Airport> parseDatabase(String contents) {
     final airports = <Airport>[];
     for (final line in const LineSplitter().convert(contents)) {
