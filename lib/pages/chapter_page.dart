@@ -11,6 +11,7 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
 import '../constants.dart';
+import '../widgets/responsive_content.dart';
 
 class ChapterPage extends StatefulWidget {
   final String slug;
@@ -559,7 +560,11 @@ class _ChapterPageState extends State<ChapterPage>
               onAction: _retry,
             );
           }
-          return _buildPagedReader(snapshot.data ?? '');
+          return ResponsiveContent(
+            maxWidth: readingContentWidth,
+            padding: EdgeInsets.zero,
+            child: _buildPagedReader(snapshot.data ?? ''),
+          );
         },
       ),
       bottomNavigationBar: SafeArea(

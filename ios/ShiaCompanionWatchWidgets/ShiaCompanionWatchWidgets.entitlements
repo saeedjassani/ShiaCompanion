@@ -5,6 +5,8 @@
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.com.developer110.shiacompanion</string>
+		<string>group.com.developer110.shiacompanion.watch</string>
+		<string>group.com.developer110.shiacompanion.widgets</string>
 	</array>
 </dict>
 </plist>
