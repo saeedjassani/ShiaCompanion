@@ -53,14 +53,39 @@ void main() {
     expect(find.text('Isha'), findsOneWidget);
     expect(find.text('Not during this flight'), findsNothing);
 
-    // Maghrib arrives shortly after take-off, over the western United States.
-    expect(find.textContaining('45m after take-off'), findsOneWidget);
+    // Maghrib arrives soon after take-off, over the western United States.
+    expect(find.textContaining('1h 11m after take-off'), findsOneWidget);
     // The qibla is given relative to the cabin, not just as a bearing.
     expect(
       find.textContaining('relative to the direction of flight'),
       findsWidgets,
     );
 
+    // The altitude correction is disclosed per prayer, and in both directions:
+    // Maghrib and Isha later, Fajr and sunrise earlier.
+    expect(
+      find.textContaining('later than the horizon of the ground below'),
+      findsWidgets,
+    );
+    expect(
+      find.textContaining('earlier than the horizon of the ground below'),
+      findsWidgets,
+    );
+
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('explains which horizon the times are measured from',
+      (tester) async {
+    await _pump(tester, sfoToIstanbul);
+
+    await tester.scrollUntilVisible(
+      find.text('Measured from the horizon at altitude'),
+      300,
+    );
+    expect(find.textContaining('38,000 ft'), findsOneWidget);
+    // The jurisprudential question is named, not answered.
+    expect(find.textContaining('question for your marja'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

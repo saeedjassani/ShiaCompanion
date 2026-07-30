@@ -428,6 +428,14 @@ class _PrayerEventRow extends StatelessWidget {
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
+          if (_horizonLine() case final horizonLine?)
+            Text(
+              horizonLine,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
           if (event.qiblaRelativeToCourseDegrees != null)
             Text(
               _qiblaLine(),
@@ -448,6 +456,20 @@ class _PrayerEventRow extends StatelessWidget {
         ? 'End of the Isha window · '
         : '';
     return '$prefix${formatFlightDuration(elapsed)} after take-off$where';
+  }
+
+  /// Explains the altitude correction per prayer, in the direction it actually
+  /// moves: later for Maghrib and Isha, earlier for Fajr and sunrise.
+  String? _horizonLine() {
+    final shift = event.shiftFromGroundHorizon;
+    if (shift == null) return null;
+
+    final minutes = shift.inMinutes;
+    if (minutes.abs() < 1) return null;
+
+    final direction = minutes > 0 ? 'later' : 'earlier';
+    return '${minutes.abs()} min $direction than the horizon of the ground '
+        'below';
   }
 
   String _qiblaLine() {
@@ -573,10 +595,29 @@ class _Disclaimers extends StatelessWidget {
           title: 'How these are worked out',
           body: 'The aircraft is assumed to follow the great-circle route at a '
               'steady speed, and each prayer time is solved for the position '
-              'the aircraft is at when that time arrives. Delays, holding, and '
-              'routing around weather will shift these times. Altitude is not '
-              'accounted for; being high up brings sunset slightly later and '
-              'dawn slightly earlier than shown.',
+              'the aircraft is at when that time arrives. A delay of an hour '
+              'moves these times by roughly half an hour, and routing around '
+              'weather can move them by ten to twenty minutes, so treat them '
+              'as close rather than exact.',
+        ),
+        const SizedBox(height: 12),
+        _NoticeCard(
+          icon: Icons.flight_class,
+          title: plan.usesAircraftHorizon
+              ? 'Measured from the horizon at altitude'
+              : 'Measured from the horizon at ground level',
+          body: plan.usesAircraftHorizon
+              ? 'At ${_cruiseLabel(plan.cruiseAltitudeFeet)} the horizon sits '
+                  'about ${horizonDipDegrees(plan.cruiseAltitudeFeet).toStringAsFixed(1)}° '
+                  'lower than on the ground, so the sun takes longer to set and '
+                  'dawn comes sooner. That moves Maghrib and Isha about twenty '
+                  'minutes later, and Fajr about twenty minutes earlier, than '
+                  'the times for the ground beneath you — each row shows its '
+                  'own shift. Which horizon governs the prayer is a question '
+                  'for your marja, not one this app can settle.'
+              : 'Times follow the horizon of the ground below the aircraft. '
+                  'From the cabin the sun sets later and dawn breaks earlier '
+                  'than shown, by around twenty minutes at cruise altitude.',
         ),
         if (plan.crossesHighLatitude) ...[
           const SizedBox(height: 12),
@@ -604,6 +645,17 @@ class _Disclaimers extends StatelessWidget {
       ],
     );
   }
+}
+
+/// `38,000 ft`
+String _cruiseLabel(double feet) {
+  final rounded = feet.round().toString();
+  final buffer = StringBuffer();
+  for (var index = 0; index < rounded.length; index++) {
+    if (index > 0 && (rounded.length - index) % 3 == 0) buffer.write(',');
+    buffer.write(rounded[index]);
+  }
+  return '$buffer ft';
 }
 
 class _NoticeCard extends StatelessWidget {
