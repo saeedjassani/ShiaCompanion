@@ -22,7 +22,7 @@ import 'pages/chapter_list_page.dart';
 
 import 'pages/video_player.dart';
 import 'utils/shared_preferences.dart';
-import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
@@ -122,7 +122,7 @@ Future<void> initializeNotificationTimeZone() async {
   if (kIsWeb) return;
 
   if (!_notificationTimeZoneInitialized) {
-    tz_data.initializeTimeZones();
+    ensureTimeZoneDatabaseInitialized();
     _notificationTimeZoneInitialized = true;
   }
 

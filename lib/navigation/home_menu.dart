@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../pages/calendar_page.dart';
 import '../pages/favorites_page.dart';
+import '../pages/flights_page.dart';
 import '../pages/library_page.dart';
 import '../pages/list_items.dart';
 import '../pages/prayer_counter_page.dart';
@@ -84,6 +85,11 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
       appBar: AppBar(title: Text('Calendar')),
       body: CalendarPage(),
     ),
+  ),
+  HomeMenuItem(
+    label: 'Prayer Times in Flight',
+    icon: Icons.flight,
+    pageBuilder: () => const FlightsPage(),
   ),
   HomeMenuItem(
     label: 'Library',
