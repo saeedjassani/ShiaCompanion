@@ -162,17 +162,156 @@ void main() {
     });
   });
 
+  group('horizonDipDegrees', () {
+    test('is zero at sea level and grows with altitude', () {
+      expect(horizonDipDegrees(0), 0);
+      expect(horizonDipDegrees(-500), 0);
+      expect(horizonDipDegrees(30000), closeTo(3.07, 0.02));
+      expect(horizonDipDegrees(35000), closeTo(3.31, 0.02));
+      expect(horizonDipDegrees(38000), closeTo(3.45, 0.02));
+      expect(horizonDipDegrees(41000), closeTo(3.59, 0.02));
+    });
+
+    test('is insensitive across the realistic cruise band', () {
+      // Half a degree over 11,000 ft is why a fixed default is defensible.
+      final spread = horizonDipDegrees(41000) - horizonDipDegrees(30000);
+      expect(spread, lessThan(0.6));
+    });
+  });
+
+  group('altitudeFeetAt', () {
+    const total = Duration(hours: 13, minutes: 10);
+
+    test('climbs, cruises, and descends', () {
+      expect(altitudeFeetAt(elapsed: Duration.zero, total: total), 0);
+      expect(
+        altitudeFeetAt(elapsed: const Duration(minutes: 12, seconds: 30),
+            total: total),
+        closeTo(19000, 1),
+      );
+      expect(
+        altitudeFeetAt(elapsed: const Duration(minutes: 25), total: total),
+        closeTo(38000, 1),
+      );
+      expect(
+        altitudeFeetAt(elapsed: const Duration(hours: 6), total: total),
+        closeTo(38000, 1),
+      );
+      expect(altitudeFeetAt(elapsed: total, total: total), closeTo(0, 1));
+    });
+
+    test('never exceeds cruise or goes negative', () {
+      for (var minute = 0; minute <= total.inMinutes; minute++) {
+        final altitude =
+            altitudeFeetAt(elapsed: Duration(minutes: minute), total: total);
+        expect(altitude, inInclusiveRange(0, 38000), reason: 'at $minute min');
+      }
+    });
+
+    test('scales both phases down on a hop too short for them', () {
+      // A 40 minute flight cannot fit a 25 minute climb and 30 minute descent.
+      const short = Duration(minutes: 40);
+      final peak = altitudeFeetAt(
+          elapsed: const Duration(minutes: 20), total: short);
+      expect(peak, closeTo(38000, 1));
+      for (var minute = 0; minute <= 40; minute++) {
+        expect(
+          altitudeFeetAt(elapsed: Duration(minutes: minute), total: short),
+          inInclusiveRange(0, 38000),
+        );
+      }
+    });
+
+    test('degenerate inputs give zero rather than NaN', () {
+      expect(altitudeFeetAt(elapsed: Duration.zero, total: Duration.zero), 0);
+      expect(
+        altitudeFeetAt(
+            elapsed: const Duration(hours: 1),
+            total: const Duration(hours: 2),
+            cruiseAltitudeFeet: 0),
+        0,
+      );
+    });
+  });
+
+  group('HorizonAdjustedPrayerTime', () {
+    test('delays Maghrib and advances Fajr, leaving Zuhr and Asr alone', () {
+      final ground = buildCalculator();
+      const position = GeoPoint(41.2622, 28.7278);
+      final instant = DateTime.utc(2026, 7, 31, 12);
+
+      final atGround = prayerInstantsUtc(
+          prayerTime: ground, instantUtc: instant, position: position);
+      final atAltitude = prayerInstantsUtc(
+        prayerTime: ground,
+        instantUtc: instant,
+        position: position,
+        dipDegrees: horizonDipDegrees(38000),
+      );
+
+      Duration shift(int index) =>
+          atAltitude[index]!.difference(atGround[index]!);
+
+      // Horizon-referenced prayers move, and in opposite directions.
+      expect(shift(prayerIndexMaghrib).inMinutes, inInclusiveRange(15, 30));
+      expect(shift(prayerIndexSunset).inMinutes, inInclusiveRange(10, 25));
+      expect(shift(prayerIndexFajr).inMinutes, inInclusiveRange(-35, -15));
+      expect(shift(prayerIndexSunrise).inMinutes, inInclusiveRange(-25, -10));
+
+      // Zuhr is meridian transit and Asr is a solar-altitude rule, so neither
+      // depends on where the observer's horizon is.
+      expect(shift(prayerIndexZuhr).inSeconds.abs(), lessThanOrEqualTo(1));
+      expect(shift(prayerIndexAsr).inSeconds.abs(), lessThanOrEqualTo(1));
+    });
+
+    test('a zero dip reproduces the ground times exactly', () {
+      final ground = buildCalculator();
+      const position = GeoPoint(41.2622, 28.7278);
+      final instant = DateTime.utc(2026, 7, 31, 12);
+
+      final plain = prayerInstantsUtc(
+          prayerTime: ground, instantUtc: instant, position: position);
+      final zeroDip = prayerInstantsUtc(
+          prayerTime: ground,
+          instantUtc: instant,
+          position: position,
+          dipDegrees: 0);
+
+      for (final index in flightPrayerIndices) {
+        expect(zeroDip[index], plain[index], reason: 'index $index');
+      }
+    });
+
+    test('copies the source settings rather than mutating it', () {
+      final source = buildCalculator();
+      final originalMethod = source.getCalcMethod();
+      final originalAngles = List<double>.of(source.mParams);
+
+      final adjusted = HorizonAdjustedPrayerTime(source, 3.45);
+      expect(adjusted.getCalcMethod(), originalMethod);
+      expect(adjusted.getAsrJuristic(), source.getAsrJuristic());
+      expect(adjusted.getAdjustHighLats(), source.getAdjustHighLats());
+
+      // The shared method-parameter table must not be written through.
+      adjusted.mParams[0] = 99;
+      expect(source.mParams, originalAngles);
+    });
+  });
+
   group('computeFlightPrayerPlan', () {
     test('a stationary "flight" reproduces the ground prayer times', () {
       final prayerTime = buildCalculator();
       // Origin and destination are the same point, so the solver must land on
-      // exactly the times a person standing in Makkah would use.
+      // exactly the times a person standing in Makkah would use. The ground
+      // horizon is required for that comparison — the aircraft horizon is
+      // deliberately different.
       final plan = computeFlightPrayerPlan(
         prayerTime: prayerTime,
         origin: makkah,
         destination: makkah,
         departureUtc: DateTime.utc(2024, 6, 16, 0),
         arrivalUtc: DateTime.utc(2024, 6, 16, 21),
+        useAircraftHorizon: false,
       );
 
       prayerTime.setTimeFormat(prayerTime.getTime24());
@@ -245,10 +384,14 @@ void main() {
       );
 
       for (final event in plan.eventsDuringFlight) {
+        // Re-solve with the same horizon dip the plan used at that moment,
+        // otherwise this compares an aircraft-horizon time against a
+        // ground-horizon one.
         final instants = prayerInstantsUtc(
           prayerTime: prayerTime,
           instantUtc: event.instantUtc!,
           position: event.position!,
+          dipDegrees: horizonDipDegrees(event.altitudeFeet ?? 0),
         );
         final selfConsistent = instants[event.prayerIndex];
         expect(selfConsistent, isNotNull, reason: event.name);
@@ -354,6 +497,102 @@ void main() {
 
       expect(plan.isValid, isFalse);
       expect(plan.eventsDuringFlight, isEmpty);
+    });
+
+    test('defaults to the aircraft horizon and reports the shift', () {
+      final plan = computeFlightPrayerPlan(
+        prayerTime: buildCalculator(),
+        origin: sanFrancisco,
+        destination: istanbul,
+        departureUtc: DateTime.utc(2026, 7, 31, 2, 55),
+        arrivalUtc: DateTime.utc(2026, 7, 31, 16, 5),
+      );
+
+      expect(plan.usesAircraftHorizon, isTrue);
+      expect(plan.cruiseAltitudeFeet, defaultCruiseAltitudeFeet);
+
+      final maghrib = plan.eventsDuringFlight
+          .firstWhere((event) => event.prayerIndex == prayerIndexMaghrib);
+      expect(maghrib.groundHorizonInstantUtc, isNotNull);
+      // Maghrib lands 45 minutes in, so the aircraft is already at cruise.
+      expect(maghrib.altitudeFeet, closeTo(38000, 1));
+      expect(maghrib.shiftFromGroundHorizon!.inMinutes, greaterThan(10));
+
+      final fajr = plan.eventsDuringFlight
+          .firstWhere((event) => event.prayerIndex == prayerIndexFajr);
+      expect(fajr.shiftFromGroundHorizon!.inMinutes, lessThan(0));
+    });
+
+    test('the aircraft-horizon plan is shifted from the ground-horizon plan',
+        () {
+      final departureUtc = DateTime.utc(2026, 7, 31, 2, 55);
+      final arrivalUtc = DateTime.utc(2026, 7, 31, 16, 5);
+
+      FlightPrayerPlan planFor({required bool aircraft}) =>
+          computeFlightPrayerPlan(
+            prayerTime: buildCalculator(),
+            origin: sanFrancisco,
+            destination: istanbul,
+            departureUtc: departureUtc,
+            arrivalUtc: arrivalUtc,
+            useAircraftHorizon: aircraft,
+          );
+
+      final ground = planFor(aircraft: false);
+      final air = planFor(aircraft: true);
+
+      expect(ground.usesAircraftHorizon, isFalse);
+      // The ground plan is the comparison baseline, so it carries no shift.
+      for (final event in ground.eventsDuringFlight) {
+        expect(event.groundHorizonInstantUtc, isNull, reason: event.name);
+      }
+
+      final groundMaghrib = ground.eventsDuringFlight
+          .firstWhere((event) => event.prayerIndex == prayerIndexMaghrib);
+      final airMaghrib = air.eventsDuringFlight
+          .firstWhere((event) => event.prayerIndex == prayerIndexMaghrib);
+
+      expect(airMaghrib.instantUtc!.isAfter(groundMaghrib.instantUtc!), isTrue);
+      // Each event's reported baseline must be the ground plan's own answer.
+      expect(
+        airMaghrib.groundHorizonInstantUtc,
+        groundMaghrib.instantUtc,
+      );
+    });
+
+    test('a prayer during the climb gets a smaller correction than at cruise',
+        () {
+      // Departure timed so the eastbound equatorial Maghrib lands ten minutes
+      // in, less than halfway up the climb.
+      FlightPrayerEvent maghribFor(DateTime departureUtc) {
+        final plan = computeFlightPrayerPlan(
+          prayerTime: buildCalculator(),
+          origin: const GeoPoint(0, 0),
+          destination: const GeoPoint(0, 60),
+          departureUtc: departureUtc,
+          arrivalUtc: departureUtc.add(const Duration(hours: 6)),
+        );
+        return plan.eventsDuringFlight
+            .firstWhere((event) => event.prayerIndex == prayerIndexMaghrib);
+      }
+
+      final climbing = maghribFor(DateTime.utc(2026, 3, 20, 18, 15));
+      final cruising = maghribFor(DateTime.utc(2026, 3, 20, 17, 30));
+
+      expect(climbing.altitudeFeet, greaterThan(0));
+      expect(climbing.altitudeFeet, lessThan(defaultCruiseAltitudeFeet / 2));
+      expect(cruising.altitudeFeet, closeTo(defaultCruiseAltitudeFeet, 1));
+
+      // Still corrected, but by strictly less than a cruising aircraft.
+      expect(climbing.shiftFromGroundHorizon!.inMinutes, greaterThan(0));
+      expect(
+        climbing.shiftFromGroundHorizon!,
+        lessThan(cruising.shiftFromGroundHorizon!),
+      );
+      expect(
+        horizonDipDegrees(climbing.altitudeFeet!),
+        lessThan(horizonDipDegrees(defaultCruiseAltitudeFeet)),
+      );
     });
 
     test('restores the calculator time format', () {

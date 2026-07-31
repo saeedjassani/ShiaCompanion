@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:shia_companion/utils/geo_utils.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
@@ -21,6 +23,108 @@ import 'package:shia_companion/utils/prayer_times.dart';
 /// Shia midnight, the end of the Isha window. Follows the seven names returned
 /// by [PrayerTime.getTimeNames], matching how the rest of the app appends it.
 const int prayerIndexMidnight = 7;
+
+/// Cruise altitude assumed when none is given. Across the realistic band of
+/// 30,000–41,000 ft the horizon dip only moves from 3.07° to 3.59°, worth about
+/// three minutes, so a sensible constant is enough — there is no need to ask
+/// the user for the flight level.
+const double defaultCruiseAltitudeFeet = 38000;
+
+/// Rough vertical profile of an airliner. Worth modelling because a prayer can
+/// fall well inside the climb: on the SFO–IST example Maghrib arrives 45
+/// minutes after take-off, and treating that as cruise altitude would overstate
+/// the correction.
+const Duration typicalClimbDuration = Duration(minutes: 25);
+const Duration typicalDescentDuration = Duration(minutes: 30);
+
+/// Angle by which the visible horizon sits below the astronomical horizontal
+/// for an observer at [altitudeFeet]. Zero at sea level, ~3.45° at 38,000 ft.
+double horizonDipDegrees(double altitudeFeet) {
+  if (altitudeFeet <= 0) return 0;
+
+  final altitudeKm = altitudeFeet * 0.3048 / 1000.0;
+  return acos(earthRadiusKm / (earthRadiusKm + altitudeKm)) * 180.0 / pi;
+}
+
+/// Altitude at [elapsed] into a flight of [total], assuming a linear climb to
+/// [cruiseAltitudeFeet], a level cruise, and a linear descent.
+///
+/// Short hops that cannot fit a full climb and descent get both phases scaled
+/// down proportionally rather than a clipped cruise.
+double altitudeFeetAt({
+  required Duration elapsed,
+  required Duration total,
+  double cruiseAltitudeFeet = defaultCruiseAltitudeFeet,
+}) {
+  final totalMs = total.inMilliseconds;
+  if (totalMs <= 0 || cruiseAltitudeFeet <= 0) return 0;
+
+  final elapsedMs = elapsed.inMilliseconds.clamp(0, totalMs);
+
+  // Never let climb and descent claim more than 70% of the flight between them.
+  final maxPhaseMs = (totalMs * 0.35).round();
+  final climbMs = min(typicalClimbDuration.inMilliseconds, maxPhaseMs);
+  final descentMs = min(typicalDescentDuration.inMilliseconds, maxPhaseMs);
+
+  if (climbMs > 0 && elapsedMs < climbMs) {
+    return cruiseAltitudeFeet * elapsedMs / climbMs;
+  }
+  final descentStartMs = totalMs - descentMs;
+  if (descentMs > 0 && elapsedMs > descentStartMs) {
+    return cruiseAltitudeFeet * (totalMs - elapsedMs) / descentMs;
+  }
+  return cruiseAltitudeFeet;
+}
+
+/// A calculator that measures the sun's depression from the horizon seen at
+/// altitude rather than from the horizon at ground level.
+///
+/// The dip is added to every angle that is defined against the horizon —
+/// sunrise, sunset, and the Fajr/Maghrib/Isha twilight angles — and left off
+/// Zuhr and Asr, which are fixed by the sun's own altitude and so do not move
+/// with the observer's height.
+///
+/// For sunrise and sunset this is exact geometry. For the twilight angles it is
+/// an approximation: it assumes the whole dawn/dusk geometry rotates with the
+/// observer's horizon, which is the usual practical treatment but not a
+/// rigorous atmospheric model.
+class HorizonAdjustedPrayerTime extends PrayerTime {
+  HorizonAdjustedPrayerTime(PrayerTime source, this.dipDegrees) {
+    setCalcMethod(source.getCalcMethod());
+    setAsrJuristic(source.getAsrJuristic());
+    setAdjustHighLats(source.getAdjustHighLats());
+    setDhuhrMinutes(source.getDhuhrMinutes());
+    setTimeFormat(source.getTimeFormat());
+    setNumIterations(source.getNumIterations());
+    methodParams = {
+      for (final entry in source.methodParams.entries)
+        entry.key: List<double>.of(entry.value),
+    };
+    tune(List<int>.of(source.offsets));
+  }
+
+  final double dipDegrees;
+
+  /// Mirrors [PrayerTime.computeTimes], with the dip folded into the angles
+  /// that are measured from the horizon.
+  @override
+  List<double> computeTimes(List<double> times) {
+    final t = dayPortion(times);
+    final params = mParams;
+
+    final fajr = computeTime(180.0 - (params[0] + dipDegrees), t[0]);
+    final sunrise = computeTime(180.0 - (0.833 + dipDegrees), t[1]);
+    final dhuhr = computeMidDay(t[2]);
+    final asr = computeAsr(1.0 + getAsrJuristic(), t[3]);
+    final sunset = computeTime(0.833 + dipDegrees, t[4]);
+    // In minutes-after-sunset mode adjustTimes overwrites these from the
+    // already-adjusted sunset, so the dip still carries through.
+    final maghrib = computeTime(params[2] + dipDegrees, t[5]);
+    final isha = computeTime(params[4] + dipDegrees, t[6]);
+
+    return [fajr, sunrise, dhuhr, asr, sunset, maghrib, isha];
+  }
+}
 
 /// The prayers surfaced for a flight, in the order they are displayed.
 const List<int> flightPrayerIndices = [
@@ -58,6 +162,8 @@ class FlightPrayerEvent {
     this.position,
     this.qiblaBearingDegrees,
     this.courseBearingDegrees,
+    this.altitudeFeet,
+    this.groundHorizonInstantUtc,
   });
 
   final int prayerIndex;
@@ -79,7 +185,23 @@ class FlightPrayerEvent {
   /// relative to the cabin, which is what you can actually judge from a seat.
   final double? courseBearingDegrees;
 
+  /// Modelled altitude at [instantUtc], in feet.
+  final double? altitudeFeet;
+
+  /// The same prayer solved against the horizon of the ground below instead of
+  /// the horizon seen from the cabin. Null when the two cannot be paired up.
+  final DateTime? groundHorizonInstantUtc;
+
   bool get hasInstant => instantUtc != null;
+
+  /// How much later this prayer falls than it would using the ground horizon.
+  /// Negative for Fajr and sunrise, which arrive earlier from altitude.
+  Duration? get shiftFromGroundHorizon {
+    final aircraft = instantUtc;
+    final ground = groundHorizonInstantUtc;
+    if (aircraft == null || ground == null) return null;
+    return aircraft.difference(ground);
+  }
 
   /// Qibla direction relative to the nose of the aircraft, in degrees.
   /// Positive is to the right, negative to the left.
@@ -100,8 +222,16 @@ class FlightPrayerPlan {
     required this.destination,
     required this.distanceKm,
     required this.crossesHighLatitude,
+    required this.cruiseAltitudeFeet,
+    required this.usesAircraftHorizon,
     this.isValid = true,
   });
+
+  /// Cruise altitude the vertical profile was built from.
+  final double cruiseAltitudeFeet;
+
+  /// True when times are measured from the horizon seen at altitude.
+  final bool usesAircraftHorizon;
 
   /// False when the flight window itself is unusable (zero or negative
   /// duration), in which case no prayer could be solved for.
@@ -139,6 +269,12 @@ class FlightPrayerPlan {
 /// [departureUtc] and [arrivalUtc] must both be UTC instants. [prayerTime] is
 /// used for its configured calculation method (Jafari, Hanafi asr, and the
 /// high-latitude rule) — its time format is saved and restored.
+/// When [useAircraftHorizon] is true (the default) the sun's depression is
+/// measured from the horizon visible at the aircraft's altitude, which puts
+/// Maghrib roughly twenty minutes later and Fajr roughly twenty minutes earlier
+/// than the horizon of the ground below. Each event also carries the
+/// ground-horizon time for comparison. Whether the cabin or the ground horizon
+/// governs the prayer is a question of jurisprudence, not of astronomy.
 FlightPrayerPlan computeFlightPrayerPlan({
   required PrayerTime prayerTime,
   required GeoPoint origin,
@@ -146,6 +282,8 @@ FlightPrayerPlan computeFlightPrayerPlan({
   required DateTime departureUtc,
   required DateTime arrivalUtc,
   Duration scanStep = const Duration(minutes: 2),
+  double cruiseAltitudeFeet = defaultCruiseAltitudeFeet,
+  bool useAircraftHorizon = true,
 }) {
   assert(departureUtc.isUtc && arrivalUtc.isUtc,
       'Flight endpoints must be UTC instants');
@@ -174,14 +312,31 @@ FlightPrayerPlan computeFlightPrayerPlan({
         destination: destination,
         distanceKm: greatCircleDistanceKm(origin, destination),
         crossesHighLatitude: false,
+        cruiseAltitudeFeet: cruiseAltitudeFeet,
+        usesAircraftHorizon: useAircraftHorizon,
         isValid: false,
       );
     }
+
+    final duration = Duration(milliseconds: durationMs);
 
     GeoPoint positionAt(DateTime instant) {
       final fraction =
           instant.difference(departureUtc).inMilliseconds / durationMs;
       return interpolateGreatCircle(origin, destination, fraction);
+    }
+
+    double altitudeAt(DateTime instant) {
+      return altitudeFeetAt(
+        elapsed: instant.difference(departureUtc),
+        total: duration,
+        cruiseAltitudeFeet: cruiseAltitudeFeet,
+      );
+    }
+
+    double dipAt(DateTime instant) {
+      if (!useAircraftHorizon) return 0;
+      return horizonDipDegrees(altitudeAt(instant));
     }
 
     /// g(t) in milliseconds for every prayer index, or null where the sun never
@@ -191,6 +346,7 @@ FlightPrayerPlan computeFlightPrayerPlan({
         prayerTime: prayerTime,
         instantUtc: instant,
         position: positionAt(instant),
+        dipDegrees: dipAt(instant),
       );
       return [
         for (final prayerInstant in instants)
@@ -244,6 +400,7 @@ FlightPrayerPlan computeFlightPrayerPlan({
             lower: previousInstant,
             upper: instant,
             positionAt: positionAt,
+            dipAt: dipAt,
           ));
         }
       }
@@ -253,11 +410,37 @@ FlightPrayerPlan computeFlightPrayerPlan({
       if (clampedMs >= durationMs) break;
     }
 
+    // Solve again against the ground horizon so every event can say how far the
+    // altitude correction moved it. Guarded by the flag, so the recursive call
+    // cannot recurse a second time.
+    final groundCrossings = <int, List<DateTime>>{};
+    if (useAircraftHorizon) {
+      final groundPlan = computeFlightPrayerPlan(
+        prayerTime: prayerTime,
+        origin: origin,
+        destination: destination,
+        departureUtc: departureUtc,
+        arrivalUtc: arrivalUtc,
+        scanStep: scanStep,
+        cruiseAltitudeFeet: cruiseAltitudeFeet,
+        useAircraftHorizon: false,
+      );
+      for (final event in groundPlan.eventsDuringFlight) {
+        groundCrossings
+            .putIfAbsent(event.prayerIndex, () => <DateTime>[])
+            .add(event.instantUtc!);
+      }
+    }
+
     final events = <FlightPrayerEvent>[];
     for (final index in flightPrayerIndices) {
       final prayerCrossings = crossings[index]!;
       if (prayerCrossings.isNotEmpty) {
-        for (final crossing in prayerCrossings) {
+        final ground = groundCrossings[index];
+        for (var occurrence = 0;
+            occurrence < prayerCrossings.length;
+            occurrence++) {
+          final crossing = prayerCrossings[occurrence];
           final position = positionAt(crossing);
           events.add(FlightPrayerEvent(
             prayerIndex: index,
@@ -265,6 +448,11 @@ FlightPrayerPlan computeFlightPrayerPlan({
             status: FlightPrayerStatus.duringFlight,
             instantUtc: crossing,
             position: position,
+            altitudeFeet: altitudeAt(crossing),
+            groundHorizonInstantUtc:
+                ground != null && occurrence < ground.length
+                    ? ground[occurrence]
+                    : null,
             qiblaBearingDegrees: qiblaBearingDegrees(position),
             courseBearingDegrees: _courseAt(
               crossing: crossing,
@@ -301,6 +489,8 @@ FlightPrayerPlan computeFlightPrayerPlan({
       destination: destination,
       distanceKm: greatCircleDistanceKm(origin, destination),
       crossesHighLatitude: maxAbsLatitude > 48.5,
+      cruiseAltitudeFeet: cruiseAltitudeFeet,
+      usesAircraftHorizon: useAircraftHorizon,
     );
   } finally {
     prayerTime.setTimeFormat(originalFormat);
@@ -314,6 +504,7 @@ DateTime _refineCrossing({
   required DateTime lower,
   required DateTime upper,
   required GeoPoint Function(DateTime) positionAt,
+  required double Function(DateTime) dipAt,
 }) {
   var low = lower;
   var high = upper;
@@ -330,6 +521,7 @@ DateTime _refineCrossing({
       prayerTime: prayerTime,
       instantUtc: midpoint,
       position: positionAt(midpoint),
+      dipDegrees: dipAt(midpoint),
     );
     final prayerInstant = instants[prayerIndex];
     // Losing the sun angle mid-bisection means the bracket straddles a
@@ -374,11 +566,19 @@ double _courseAt({
 /// [position], where noon really is around 12:00 regardless of political time
 /// zones. That keeps the returned values away from the midnight wrap that
 /// makes a UTC-framed calculation discontinuous mid-ocean.
+/// [dipDegrees] shifts every horizon-referenced angle, so passing the horizon
+/// dip for the aircraft's altitude gives the times as seen from the cabin
+/// rather than from the ground below. Zero reproduces the ground-level times.
 List<DateTime?> prayerInstantsUtc({
   required PrayerTime prayerTime,
   required DateTime instantUtc,
   required GeoPoint position,
+  double dipDegrees = 0,
 }) {
+  final calculator = dipDegrees <= 0
+      ? prayerTime
+      : HorizonAdjustedPrayerTime(prayerTime, dipDegrees);
+
   final solarOffsetHours = position.longitude / 15.0;
   final solarOffset = Duration(
     milliseconds: (solarOffsetHours * Duration.millisecondsPerHour).round(),
@@ -386,12 +586,12 @@ List<DateTime?> prayerInstantsUtc({
   final solarNow = instantUtc.toUtc().add(solarOffset);
   final solarDate = DateTime.utc(solarNow.year, solarNow.month, solarNow.day);
 
-  final raw = _solarHours(prayerTime, solarDate, position, solarOffsetHours);
+  final raw = _solarHours(calculator, solarDate, position, solarOffsetHours);
 
   return [
     for (final value in raw) _solarHoursToUtc(value, solarDate, solarOffset),
     _midnightInstantUtc(
-      prayerTime: prayerTime,
+      prayerTime: calculator,
       solarNow: solarNow,
       position: position,
       solarOffsetHours: solarOffsetHours,
