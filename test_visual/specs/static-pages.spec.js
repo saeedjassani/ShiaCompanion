@@ -34,6 +34,17 @@ for (const page_ of STATIC_PAGES) {
 test.describe('generated zikr SEO pages', () => {
   const slugs = sampleGeneratedZikrPages();
 
+  test('the SEO pages made it into the deployed bundle', () => {
+    // Guards the pipeline itself. These are generated at build time into
+    // build/web; if the generator ever targets the wrong directory again they
+    // vanish from the deploy silently, since the app still renders /zikr/<slug>
+    // at runtime and nothing user-facing looks broken.
+    expect(
+      slugs.length,
+      'no pre-rendered zikr pages found in the web build',
+    ).toBeGreaterThan(0);
+  });
+
   for (const slug of slugs) {
     test(`zikr/${slug} serves pre-rendered content`, async ({page, baseURL}) => {
       const failures = watchForFailures(page, baseURL);

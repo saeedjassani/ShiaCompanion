@@ -52,8 +52,14 @@ runs:
       shell: bash
       run: flutter build web --wasm
 
+    # Must target build/web. The script defaults to the web/ source directory,
+    # which `flutter build web` has already copied by this point, so on a clean
+    # CI checkout the generated pages and sitemap land somewhere nothing reads.
+    # Locally this is masked: the pre-commit push hook generates into web/
+    # before the build, so they get copied along with everything else.
     - name: Generate zikr SEO pages
       shell: bash
       run: node scripts/generate_zikr_seo_pages.js
       env:
+        WEB_BUILD_DIR: build/web
         SITE_ORIGIN: ${{ inputs.site-origin }}
