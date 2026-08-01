@@ -36,6 +36,10 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           firebase-service-account-json: ${{ secrets.FIREBASE_ZIKR_SERVICE_ACCOUNT_JSON || secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
 
+      - uses: ./.github/actions/visual-tests
+        with:
+          build-dir: build/web
+
       # master gets a stable, long-lived channel so there is always somewhere
       # to check the current state of the branch before cutting a release.
       - name: Deploy master to the staging channel

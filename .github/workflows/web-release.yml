@@ -71,6 +71,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           firebase-service-account-json: ${{ secrets.FIREBASE_ZIKR_SERVICE_ACCOUNT_JSON || secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
 
+      # The last gate before production: if the built bundle does not boot or a
+      # page regressed visually, the deploy never runs.
+      - uses: ./.github/actions/visual-tests
+        with:
+          build-dir: build/web
+
       - name: Deploy to live
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
