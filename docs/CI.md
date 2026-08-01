@@ -48,14 +48,19 @@ here. No golden files to maintain.
 To cover another screen, add it to `_screens` in that file.
 
 **Known gap.** Screens that reach Firebase while building cannot be listed
-yet — anything using `FavoritesManager` (which holds Firestore, Auth and
-Database instances as fields) or `ItemList` (which builds a Firestore
-collection reference in a field initializer). That covers Favorites, Library
-and the eight zikr list screens. Closing it means standing up Firebase test
-doubles in the suite — `TestFirebaseCoreHostApi` from
-`firebase_core_platform_interface`, plus fakes for Firestore and Auth — or
-making those singletons lazy. Worth doing; it is the single biggest coverage
-win available.
+yet. `FavoritesManager` and `QazaTrackerManager` hold Firestore and Auth
+instances as fields, and `ItemList` builds a Firestore collection reference in
+a field initializer, so constructing any of them without a Firebase app throws
+`[core/no-app]`. That covers Favorites, Library, Qaza tracker and the eight
+zikr list screens. Closing it means standing up Firebase test doubles in the
+suite — `TestFirebaseCoreHostApi` from `firebase_core_platform_interface`,
+plus fakes for Firestore and Auth — or making those singletons lazy. Worth
+doing; it is the single biggest coverage win available.
+
+Screens are wrapped in a `Scaffold` when they are page bodies rather than whole
+pages (`ownsScaffold: false`). Without it they render with no `Material`
+ancestor and unbounded width, which fails for reasons that have nothing to do
+with the screen.
 
 ### 3. Web visual and smoke tests — `test_visual/`
 

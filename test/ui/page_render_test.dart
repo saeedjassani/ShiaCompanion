@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/pages/about_page.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/flights_page.dart';
-import 'package:shia_companion/pages/qaza_tracker_page.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/tasbeeh_widget.dart';
 
 /// Renders each screen across the viewports and themes we ship to, and fails on
@@ -16,11 +17,19 @@ import 'package:shia_companion/widgets/tasbeeh_widget.dart';
 /// the Playwright suite in test_visual/.
 ///
 /// Adding a screen: append it to [_screens]. Screens that reach Firebase while
-/// building — anything using FavoritesManager, or ItemList, which constructs a
-/// Firestore collection reference in a field initializer — cannot be listed
-/// until the suite stands up Firebase test doubles. See docs/CI.md.
+/// building cannot be listed until the suite stands up Firebase test doubles —
+/// that rules out anything using FavoritesManager or QazaTrackerManager, which
+/// hold Firestore and Auth instances as fields, and ItemList, which constructs
+/// a Firestore collection reference in a field initializer. See docs/CI.md.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    // The app initialises SP before runApp; screens read SP.prefs directly and
+    // it throws when unset.
+    SharedPreferences.setMockInitialValues({});
+    await SP.init();
+  });
 
   for (final screen in _screens) {
     for (final viewport in _viewports) {
@@ -44,10 +53,14 @@ void main() {
 }
 
 class _Screen {
-  const _Screen(this.name, this.build);
+  const _Screen(this.name, this.build, {this.ownsScaffold = true});
 
   final String name;
   final Widget Function() build;
+
+  /// False for screens that are page bodies rather than whole pages, and so
+  /// need a Scaffold above them to supply Material and bounded constraints.
+  final bool ownsScaffold;
 }
 
 class _Viewport {
@@ -64,9 +77,9 @@ final List<_Screen> _screens = [
   _Screen(
     'Calendar',
     () => const CalendarPage(trackScreenOnInit: false),
+    ownsScaffold: false,
   ),
   _Screen('Flights', () => const FlightsPage(trackScreenOnInit: false)),
-  _Screen('Qaza tracker', () => const QazaTrackerPage()),
   _Screen('Tasbeeh counter', () => const TasbeehWidget()),
 ];
 
@@ -96,7 +109,12 @@ Future<void> _pump(
           brightness: brightness,
         ),
       ),
-      home: screen.build(),
+      home: screen.ownsScaffold
+          ? screen.build()
+          : Scaffold(
+              appBar: AppBar(title: Text(screen.name)),
+              body: screen.build(),
+            ),
     ),
   );
 
