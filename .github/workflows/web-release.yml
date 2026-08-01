@@ -1,0 +1,81 @@
+name: Web release
+
+# The only workflow that can write to the live site.
+#
+#   git tag v3.3.2 && git push origin v3.3.2
+#
+# workflow_dispatch is kept for re-deploying an existing tag (a rollback is
+# just dispatching this workflow against an older tag).
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag to deploy (e.g. v3.3.2)'
+        required: true
+
+concurrency:
+  group: web-release
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.44.8'
+
+jobs:
+  verify:
+    name: Verify release candidate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Static analysis
+        run: flutter analyze
+
+      - name: Unit and widget tests
+        run: flutter test --no-pub --reporter expanded
+
+      - name: Check the tag matches pubspec version
+        run: |
+          tag="${{ github.event.inputs.ref || github.ref_name }}"
+          pubspec=$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//' | cut -d+ -f1)
+          if [ "${tag#v}" != "$pubspec" ]; then
+            echo "::error::Tag $tag does not match pubspec version $pubspec."
+            echo "Run scripts/bump_version.js, commit, then tag v$pubspec."
+            exit 1
+          fi
+          echo "Releasing $tag (pubspec $pubspec)."
+
+  deploy:
+    name: Deploy to production
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - uses: ./.github/actions/build-web
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          firebase-service-account-json: ${{ secrets.FIREBASE_ZIKR_SERVICE_ACCOUNT_JSON || secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
+
+      - name: Deploy to live
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
+          projectId: shia-comapnion
+          target: shia-companion
+          channelId: live
