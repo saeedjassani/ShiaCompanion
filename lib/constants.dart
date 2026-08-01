@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1158,6 +1159,11 @@ Future<void> trackScreen(
   String screenName, {
   bool deferOnWeb = false,
 }) async {
+  // Screens call this unawaited from initState. Without Firebase the analytics
+  // call raises an unhandled async error that takes the screen down with it —
+  // so no app, no analytics, rather than the other way round. This is also what
+  // lets widget tests render any page without standing up Firebase.
+  if (Firebase.apps.isEmpty) return;
   if (kIsWeb && deferOnWeb) {
     await WidgetsBinding.instance.endOfFrame;
     await Future<void>.delayed(const Duration(seconds: 5));
