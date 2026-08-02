@@ -281,3 +281,8 @@ scripts/search_config.json
 # Generated SEO pages (regenerated on pre-push)
 web/zikr/
 
+
+# Playwright visual tests
+test_visual/node_modules/
+test_visual/report/
+test_visual/test-results/

@@ -1,0 +1,64 @@
+name: Web preview
+
+# Previews only. Production is deployed exclusively by web-release.yml, which
+# runs on a v* tag.
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: web-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.44.8'
+
+jobs:
+  preview:
+    name: Deploy preview channel
+    # Forks cannot read the deployment secrets, so skip rather than fail.
+    if: >
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/build-web
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          firebase-service-account-json: ${{ secrets.FIREBASE_ZIKR_SERVICE_ACCOUNT_JSON || secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
+
+      - uses: ./.github/actions/visual-tests
+        with:
+          build-dir: build/web
+
+      # master gets a stable, long-lived channel so there is always somewhere
+      # to check the current state of the branch before cutting a release.
+      - name: Deploy master to the staging channel
+        if: github.ref == 'refs/heads/master'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
+          projectId: shia-comapnion
+          target: shia-companion
+          channelId: staging
+          expires: 30d
+
+      - name: Deploy pull request preview
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
+          projectId: shia-comapnion
+          target: shia-companion
+          expires: 7d

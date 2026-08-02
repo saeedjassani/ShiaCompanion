@@ -1,0 +1,65 @@
+name: Build web bundle
+description: >
+  Builds the Flutter web bundle into build/web, including the generated hadith
+  shards, refreshed zikr release assets and the pre-rendered zikr SEO pages.
+
+inputs:
+  flutter-version:
+    description: Flutter SDK version to build with.
+    required: true
+  firebase-service-account-json:
+    description: >
+      Service account used to refresh the zikr release assets. Optional — when
+      absent the build falls back to the assets committed in the repository.
+    required: false
+    default: ''
+  site-origin:
+    description: Origin baked into the generated SEO pages and sitemap.
+    required: false
+    default: 'https://shia-companion.web.app'
+
+runs:
+  using: composite
+  steps:
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ inputs.flutter-version }}
+        channel: stable
+        cache: true
+
+    - uses: actions/setup-node@v5
+      with:
+        node-version: '24'
+
+    - name: Install script dependencies
+      shell: bash
+      run: npm install
+
+    - name: Refresh zikr release assets
+      shell: bash
+      run: node scripts/build_zikr_release.js --allow-stale-on-error
+      env:
+        FIREBASE_SERVICE_ACCOUNT_JSON: ${{ inputs.firebase-service-account-json }}
+
+    - name: Generate hadith shards
+      shell: bash
+      run: node scripts/generate_hadith_shards.js
+
+    - shell: bash
+      run: flutter pub get
+
+    - name: Build web bundle
+      shell: bash
+      run: flutter build web --wasm
+
+    # Must target build/web. The script defaults to the web/ source directory,
+    # which `flutter build web` has already copied by this point, so on a clean
+    # CI checkout the generated pages and sitemap land somewhere nothing reads.
+    # Locally this is masked: the pre-commit push hook generates into web/
+    # before the build, so they get copied along with everything else.
+    - name: Generate zikr SEO pages
+      shell: bash
+      run: node scripts/generate_zikr_seo_pages.js
+      env:
+        WEB_BUILD_DIR: build/web
+        SITE_ORIGIN: ${{ inputs.site-origin }}

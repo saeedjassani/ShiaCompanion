@@ -1,0 +1,15 @@
+{
+  "name": "shia-companion-visual-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Playwright smoke and visual regression checks for the Shia Companion web build.",
+  "scripts": {
+    "serve": "node serve.js",
+    "test": "playwright test",
+    "test:update": "playwright test --update-snapshots",
+    "report": "playwright show-report report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1"
+  }
+}

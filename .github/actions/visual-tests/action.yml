@@ -1,0 +1,43 @@
+name: Visual tests
+description: >
+  Runs the Playwright smoke and visual regression suite against an already
+  built web bundle.
+
+inputs:
+  build-dir:
+    description: Directory holding the built web bundle, relative to the repo root.
+    required: false
+    default: build/web
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v5
+      with:
+        node-version: '24'
+
+    - name: Install Playwright
+      shell: bash
+      working-directory: test_visual
+      run: |
+        npm ci || npm install
+        npx playwright install --with-deps chromium
+
+    - name: Run visual tests
+      shell: bash
+      working-directory: test_visual
+      env:
+        WEB_BUILD_DIR: ${{ github.workspace }}/${{ inputs.build-dir }}
+      run: npx playwright test
+
+    - name: Upload Playwright report and any new baselines
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-${{ github.job }}
+        path: |
+          test_visual/report
+          test_visual/specs/__screenshots__
+          test_visual/test-results
+        if-no-files-found: ignore
+        retention-days: 7
