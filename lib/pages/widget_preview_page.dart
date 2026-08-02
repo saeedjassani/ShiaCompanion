@@ -133,8 +133,6 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                     name:
                         data[HomeScreenWidgetService.prayerNameKey] ?? 'Prayer',
                     time: data[HomeScreenWidgetService.prayerTimeKey] ?? '',
-                    dateLabel:
-                        data[HomeScreenWidgetService.prayerDateKey] ?? '',
                     location:
                         data[HomeScreenWidgetService.prayerLocationKey] ?? '',
                     secondaryName:
@@ -336,7 +334,6 @@ class _PrayerWidgetPreview extends StatelessWidget {
     required this.title,
     required this.name,
     required this.time,
-    required this.dateLabel,
     required this.location,
     required this.secondaryName,
     required this.secondaryTime,
@@ -347,7 +344,6 @@ class _PrayerWidgetPreview extends StatelessWidget {
   final String title;
   final String name;
   final String time;
-  final String dateLabel;
   final String location;
   final String secondaryName;
   final String secondaryTime;
@@ -398,11 +394,6 @@ class _PrayerWidgetPreview extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style:
                   const TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
-          if (dateLabel.isNotEmpty)
-            Text(dateLabel,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12, color: palette.secondaryText)),
           const Spacer(),
           Text(footer,
               maxLines: 1,

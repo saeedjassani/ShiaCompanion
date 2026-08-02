@@ -16,7 +16,6 @@ private enum WidgetKeys {
     static let prayerTitle = "sc_prayer_title"
     static let prayerName = "sc_prayer_name"
     static let prayerTime = "sc_prayer_time"
-    static let prayerDate = "sc_prayer_date"
     static let prayerLocation = "sc_prayer_location"
     static let prayerSchedule = "sc_prayer_schedule"
     static let prayerSecondaryName = "sc_prayer_secondary_name"
@@ -360,7 +359,6 @@ struct PrayerWidgetEntry: TimelineEntry {
     let title: String
     let name: String
     let time: String
-    let dateLabel: String
     let location: String
     let secondaryName: String
     let secondaryTime: String
@@ -371,7 +369,6 @@ private struct PrayerScheduleEntry {
     let date: Date
     let name: String
     let time: String
-    let dateLabel: String
     let secondaryName: String
     let secondaryTime: String
 }
@@ -383,7 +380,6 @@ struct PrayerProvider: TimelineProvider {
             title: "Next Prayer",
             name: "Prayer Times",
             time: "Set location",
-            dateLabel: "Open app",
             location: "Location needed",
             secondaryName: "",
             secondaryTime: "",
@@ -437,7 +433,6 @@ struct PrayerProvider: TimelineProvider {
                 .replacingOccurrences(of: "Upcoming", with: "Next"),
             name: nextPrayer?.name ?? defaults?.widgetString(WidgetKeys.prayerName, fallback: "Prayer Times") ?? "Prayer Times",
             time: nextPrayer?.time ?? defaults?.widgetString(WidgetKeys.prayerTime, fallback: "Set location") ?? "Set location",
-            dateLabel: nextPrayer?.dateLabel ?? defaults?.widgetString(WidgetKeys.prayerDate, fallback: "Open app") ?? "Open app",
             location: defaults?.widgetString(WidgetKeys.prayerLocation, fallback: "Location needed") ?? "Location needed",
             secondaryName: nextPrayer?.secondaryName ?? defaults?.widgetString(WidgetKeys.prayerSecondaryName, fallback: "") ?? "",
             secondaryTime: nextPrayer?.secondaryTime ?? defaults?.widgetString(WidgetKeys.prayerSecondaryTime, fallback: "") ?? "",
@@ -462,7 +457,6 @@ private func parsePrayerSchedule(_ rawSchedule: String) -> [PrayerScheduleEntry]
                 date: Date(timeIntervalSince1970: epochMillis / 1000.0),
                 name: parts[1],
                 time: parts[2],
-                dateLabel: parts[3],
                 secondaryName: parts.count == 6 ? parts[4] : "",
                 secondaryTime: parts.count == 6 ? parts[5] : ""
             )
@@ -557,15 +551,18 @@ struct DailyPrayerTimesView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if !entry.nextPrayerName.isEmpty, let nextPrayerDate = entry.nextPrayerDate {
                     HStack(spacing: 3) {
-                        Text(entry.nextPrayerName)
-                        Text("in")
+                        Text("\(entry.nextPrayerName) in")
+                        // Timer text reserves room for the widest value it can
+                        // ever show, so it needs trailing alignment of its own
+                        // to sit flush against the edge of the widget.
                         Text(nextPrayerDate, style: .timer)
+                            .font(.caption2.weight(.bold).monospacedDigit())
+                            .multilineTextAlignment(.trailing)
                     }
                     .font(.caption2.weight(.bold))
                     .foregroundColor(.bodyText)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .layoutPriority(1)
                 }
             }
             Spacer(minLength: 0)
@@ -631,12 +628,6 @@ struct PrayerWidgetView: View {
                 .foregroundColor(.bodyText)
                 .minimumScaleFactor(0.75)
                 .lineLimit(1)
-            if !entry.dateLabel.isEmpty {
-                Text(entry.dateLabel)
-                    .font(.caption)
-                    .foregroundColor(.secondaryText)
-                    .lineLimit(1)
-            }
             Spacer(minLength: 2)
             Text(footer)
                 .font(.caption2)

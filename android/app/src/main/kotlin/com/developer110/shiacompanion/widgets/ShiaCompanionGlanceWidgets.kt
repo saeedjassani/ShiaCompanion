@@ -71,7 +71,6 @@ private const val KEY_RECITATION_SCHEDULE = "sc_recitation_schedule"
 private const val KEY_PRAYER_TITLE = "sc_prayer_title"
 private const val KEY_PRAYER_NAME = "sc_prayer_name"
 private const val KEY_PRAYER_TIME = "sc_prayer_time"
-private const val KEY_PRAYER_DATE = "sc_prayer_date"
 private const val KEY_PRAYER_LOCATION = "sc_prayer_location"
 private const val KEY_PRAYER_SCHEDULE = "sc_prayer_schedule"
 private const val KEY_PRAYER_SECONDARY_NAME = "sc_prayer_secondary_name"
@@ -313,13 +312,6 @@ private fun PrayerWidgetContent() {
             ),
             maxLines = 1
         )
-        if (prayer.dateLabel.isNotBlank()) {
-            Text(
-                text = prayer.dateLabel,
-                style = TextStyle(color = secondaryTextColor, fontSize = 12.sp),
-                maxLines = 1
-            )
-        }
         Spacer(GlanceModifier.defaultWeight())
         Text(
             text = footer,
@@ -641,7 +633,6 @@ private data class PrayerDisplay(
     val epochMillis: Long?,
     val name: String,
     val time: String,
-    val dateLabel: String,
     val location: String,
     val secondaryName: String,
     val secondaryTime: String
@@ -695,7 +686,6 @@ private data class PrayerEntry(
     val epochMillis: Long,
     val name: String,
     val time: String,
-    val dateLabel: String,
     val secondaryName: String,
     val secondaryTime: String
 )
@@ -713,7 +703,6 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
                 epochMillis = epochMillis,
                 name = parts[1],
                 time = parts[2],
-                dateLabel = parts[3],
                 secondaryName = parts.getOrNull(4).orEmpty(),
                 secondaryTime = parts.getOrNull(5).orEmpty()
             )
@@ -726,7 +715,6 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
             epochMillis = next.epochMillis,
             name = next.name,
             time = next.time,
-            dateLabel = next.dateLabel,
             location = location,
             secondaryName = next.secondaryName,
             secondaryTime = next.secondaryTime
@@ -737,7 +725,6 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
         epochMillis = null,
         name = text(KEY_PRAYER_NAME, "Prayer Times"),
         time = text(KEY_PRAYER_TIME, "Set location"),
-        dateLabel = text(KEY_PRAYER_DATE, "Open app"),
         location = location,
         secondaryName = text(KEY_PRAYER_SECONDARY_NAME, ""),
         secondaryTime = text(KEY_PRAYER_SECONDARY_TIME, "")
