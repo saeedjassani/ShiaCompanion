@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Shia Companion</string>
+
+    <string name="location">Location</string>
+    <string name="next_prayer">Next Prayer</string>
+    <string name="next_prayer_on">Next Prayer · %1$s</string>
+    <string name="in_time">in %1$s</string>
+    <string name="refresh">Refresh</string>
+    <string name="syncing">Syncing…</string>
+    <string name="sync_now">Sync now</string>
+    <string name="synced_relative">Synced %1$s</string>
+
+    <string name="waiting_for_phone_title">Waiting for phone</string>
+    <string name="waiting_for_phone_message">Open Shia Companion on your phone to send prayer times to your watch.</string>
+    <string name="needs_location_title">Location needed</string>
+    <string name="needs_location_message">Set your location in Shia Companion on your phone, then sync again.</string>
+
+    <string name="error_phone_not_connected">Phone not connected.</string>
+    <string name="error_phone_unreachable">Could not reach the phone.</string>
+
+    <string name="tile_label">Next Prayer</string>
+    <string name="tile_description">The next prayer time for your saved location.</string>
+    <string name="complication_label">Next Prayer</string>
+    <string name="complication_description">%1$s at %2$s</string>
+</resources>

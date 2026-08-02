@@ -94,6 +94,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     implementation 'androidx.glance:glance-appwidget:1.1.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+    // Pushes prayer snapshots to the Wear OS app in android/wear.
+    implementation 'com.google.android.gms:play-services-wearable:20.0.1'
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }

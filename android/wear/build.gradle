@@ -1,0 +1,5 @@
+// Plugin versions live in settings.gradle, mirroring android/settings.gradle.
+
+tasks.register("clean", Delete) {
+    delete layout.buildDirectory
+}

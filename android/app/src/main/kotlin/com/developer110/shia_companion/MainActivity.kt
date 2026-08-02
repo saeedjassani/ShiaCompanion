@@ -19,6 +19,7 @@ import com.developer110.shiacompanion.widgets.scheduleNextPrayerWidgetRefresh
 import com.developer110.shiacompanion.widgets.scheduleNextRecitationWidgetRefresh
 import com.developer110.shiacompanion.widgets.TodaysRecitationWidget
 import com.developer110.shiacompanion.widgets.UpcomingPrayerWidget
+import com.developer110.shiacompanion.wear.WearSnapshotPublisher
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -61,6 +62,13 @@ class MainActivity: FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         pendingWidgetUrl = consumeWidgetUrl(intent)
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Catches the case where the watch missed an earlier push (out of range, watch app
+        // reinstalled) — a no-op when the snapshot is unchanged.
+        WearSnapshotPublisher.publish(applicationContext)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -149,6 +157,9 @@ class MainActivity: FlutterActivity() {
                         }
                     }
                     if (editor.commit()) {
+                        // The watch has its own storage, so it only ever sees data that
+                        // is explicitly pushed over the data layer.
+                        WearSnapshotPublisher.publish(applicationContext)
                         result.success(null)
                     } else {
                         result.error(

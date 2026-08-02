@@ -1,0 +1,35 @@
+// The Wear OS app is its own Gradle build, deliberately kept out of the Flutter build in
+// `android/settings.gradle`: `flutter build apk` runs unqualified `assemble*` tasks, so a
+// wear module included there would be assembled on every phone build and a compile error
+// in it would block phone releases. Build it with:
+//
+//     gradle -p android/wear assembleRelease
+//
+// It ships to the same Play listing as the phone app (same applicationId, same signing
+// key), which is what lets Play offer it on a paired watch.
+
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+plugins {
+    id "com.android.application" version "8.13.2" apply false
+    id "org.jetbrains.kotlin.android" version "2.3.20" apply false
+    id "org.jetbrains.kotlin.plugin.compose" version "2.3.20" apply false
+}
+
+rootProject.name = "shia_companion_wear"
+
+include ':app'

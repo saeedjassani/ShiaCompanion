@@ -1,0 +1,113 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "org.jetbrains.kotlin.plugin.compose"
+}
+
+// The watch app version tracks pubspec.yaml, so a release cut from a tag ships a watch
+// APK that matches the phone one without a second place to bump. Play only requires the
+// two APKs in a listing to have distinct version codes, hence the offset.
+def versionCodeOffset = 100000
+def pubspecFile = new File(rootDir, "../../pubspec.yaml")
+def pubspecVersion = {
+    def matcher = pubspecFile.text =~ /(?m)^version:\s*([0-9]+(?:\.[0-9]+)*)\+([0-9]+)\s*$/
+    if (!matcher.find()) {
+        throw new GradleException("Unable to read 'version:' from ${pubspecFile}")
+    }
+    return [name: matcher.group(1), code: matcher.group(2).toInteger()]
+}()
+
+// Play requires the watch APK to be signed with the same key as the phone APK, so both
+// read the same key.properties. A relative storeFile is resolved against android/.
+def keystorePropertiesFile = new File(rootDir, "../key.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+def keystoreFile = {
+    def path = keystoreProperties['storeFile']
+    if (path == null) return null
+    def candidate = new File(path as String)
+    return candidate.isAbsolute() ? candidate : new File(rootDir, "../${path}")
+}()
+
+android {
+    namespace 'com.developer110.shiacompanion.wear'
+    compileSdk 36
+
+    defaultConfig {
+        // Must match the phone app: the data layer only connects apps that share a
+        // package name and signing key, and Play pairs the two APKs the same way.
+        applicationId "com.developer110.shiacompanion"
+        minSdkVersion 30
+        targetSdkVersion 36
+        versionCode pubspecVersion.code + versionCodeOffset
+        versionName pubspecVersion.name
+    }
+
+    signingConfigs {
+        release {
+            if (keystoreFile != null) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile keystoreFile
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (keystoreFile != null) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            // Mirrors the phone app so a debug watch build pairs with a debug phone build.
+            applicationIdSuffix ".debug"
+        }
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
+dependencies {
+    implementation "com.google.android.gms:play-services-wearable:20.0.1"
+
+    implementation "androidx.activity:activity-compose:1.13.0"
+    implementation "androidx.wear.compose:compose-foundation:1.6.2"
+    implementation "androidx.wear.compose:compose-material:1.6.2"
+
+    implementation "androidx.wear.tiles:tiles:1.6.2"
+    implementation "androidx.wear.protolayout:protolayout:1.4.2"
+    implementation "androidx.wear.protolayout:protolayout-expression:1.4.2"
+    implementation "androidx.wear.protolayout:protolayout-material:1.4.2"
+
+    implementation "androidx.wear.watchface:watchface-complications-data-source-ktx:1.3.0"
+
+    implementation "androidx.concurrent:concurrent-futures:1.3.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2"
+
+    testImplementation "junit:junit:4.13.2"
+}

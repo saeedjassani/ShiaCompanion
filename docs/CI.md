@@ -4,7 +4,7 @@
 
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
-| `ci.yml` | push to `master`, every PR, manual | Analysis, tests, web build + visual checks, Android APK, iOS build |
+| `ci.yml` | push to `master`, every PR, manual | Analysis, tests, web build + visual checks, Android APK, Wear OS APK, iOS build |
 | `web-preview.yml` | push to `master`, every PR, manual | Deploys a Firebase preview channel. Never touches production. |
 | `web-release.yml` | push of a `v*` tag, manual | The only workflow that writes to the live site |
 

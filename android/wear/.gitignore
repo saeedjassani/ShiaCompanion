@@ -1,0 +1,7 @@
+/.gradle
+/build
+/local.properties
+/captures
+/gradlew
+/gradlew.bat
+gradle-wrapper.jar
