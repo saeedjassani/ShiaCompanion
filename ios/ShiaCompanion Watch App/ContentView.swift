@@ -6,30 +6,50 @@ struct ContentView: View {
     @ObservedObject private var connectivity = WatchConnectivityManager.shared
 
     var body: some View {
-        ScrollView {
-            switch prayerModel.state {
-            case .loaded:
-                loadedContent
-            case .waitingForPhone:
-                SyncPromptView(
-                    title: "Waiting for iPhone",
-                    message: "Open Shia Companion on your iPhone to send prayer times to your watch.",
-                    isRequesting: connectivity.isRequesting,
-                    errorMessage: connectivity.lastError
-                ) {
-                    WatchConnectivityManager.shared.requestSnapshot()
-                }
-            case .needsLocation:
-                SyncPromptView(
-                    title: "Location needed",
-                    message: "Set your location in Shia Companion on your iPhone, then sync again.",
-                    isRequesting: connectivity.isRequesting,
-                    errorMessage: connectivity.lastError
-                ) {
-                    WatchConnectivityManager.shared.requestSnapshot()
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 12) {
+                    switch prayerModel.state {
+                    case .loaded:
+                        loadedContent
+                    case .waitingForPhone:
+                        SyncPromptView(
+                            title: "Waiting for iPhone",
+                            message: "Open Shia Companion on your iPhone to send prayer times to your watch.",
+                            isRequesting: connectivity.isRequesting,
+                            errorMessage: connectivity.lastError
+                        ) {
+                            WatchConnectivityManager.shared.requestSnapshot()
+                        }
+                    case .needsLocation:
+                        SyncPromptView(
+                            title: "Location needed",
+                            message: "Set your location in Shia Companion on your iPhone, then sync again.",
+                            isRequesting: connectivity.isRequesting,
+                            errorMessage: connectivity.lastError
+                        ) {
+                            WatchConnectivityManager.shared.requestSnapshot()
+                        }
+                    }
+
+                    // Outside the switch: the counter works offline, so it stays reachable
+                    // even when the phone has never synced prayer times.
+                    counterLink
                 }
             }
         }
+    }
+
+    private var counterLink: some View {
+        NavigationLink {
+            CounterView()
+        } label: {
+            Label("Tasbeeh Counter", systemImage: "hand.tap.fill")
+                .font(.caption)
+        }
+        .buttonStyle(.bordered)
+        .padding(.horizontal)
+        .padding(.bottom, 4)
     }
 
     private var loadedContent: some View {
@@ -214,6 +234,7 @@ struct ContentView_Previews: PreviewProvider {
         ]
         return ContentView()
             .environmentObject(model)
+            .environmentObject(CounterModel())
     }
 }
 #endif
