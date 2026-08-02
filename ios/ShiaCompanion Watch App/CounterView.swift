@@ -232,20 +232,31 @@ struct CounterView: View {
             .disabled(model.count == 0)
             .accessibilityLabel("Reset")
 
-            Button {
-                model.adjust(by: 1)
-            } label: {
-                Image(systemName: "plus")
-            }
-            .accessibilityLabel("Add one")
-            .modifier(PrimaryHandGestureShortcut())
+            addButton
         }
         .buttonStyle(.bordered)
         .font(.system(size: 13))
     }
+
+    /// The screen's primary action, which is what the Double Tap hand gesture (pinching
+    /// thumb and index finger) invokes on Series 9 / Ultra 2 and later. Styled prominent
+    /// so the system's Double Tap highlight lands on an obvious control — watchOS gives
+    /// no way to query whether the hardware supports the gesture, so the affordance has
+    /// to read correctly on watches that don't.
+    private var addButton: some View {
+        Button {
+            model.adjust(by: 1)
+        } label: {
+            Image(systemName: "plus")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .accessibilityLabel("Add one")
+        .modifier(PrimaryHandGestureShortcut())
+    }
 }
 
-/// Routes the double-tap hand gesture to the add button. The modifier is watchOS 11+,
+/// Routes the Double Tap hand gesture to the add button. The modifier is watchOS 11+,
 /// and the app deploys back to watchOS 9.
 private struct PrimaryHandGestureShortcut: ViewModifier {
     @ViewBuilder
