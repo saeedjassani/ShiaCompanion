@@ -5,12 +5,15 @@ import WatchKit
 @main
 struct ShiaCompanion_Watch_AppApp: App {
     @StateObject private var prayerModel = PrayerTimeModel()
+    /// Owned by the app so the count survives navigating away from the counter screen.
+    @StateObject private var counterModel = CounterModel()
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(prayerModel)
+                .environmentObject(counterModel)
                 .onAppear {
                     WatchConnectivityManager.shared.activate()
                     prayerModel.refresh()
