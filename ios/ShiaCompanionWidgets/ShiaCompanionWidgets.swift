@@ -22,8 +22,8 @@ private enum WidgetKeys {
     static let prayerSecondaryTime = "sc_prayer_secondary_time"
 
     static let dailyPrayerTitle = "sc_daily_prayer_title"
-    static let dailyPrayerNames = (1...5).map { "sc_daily_prayer_name_\($0)" }
-    static let dailyPrayerTimes = (1...5).map { "sc_daily_prayer_time_\($0)" }
+    static let dailyPrayerNames = (1...6).map { "sc_daily_prayer_name_\($0)" }
+    static let dailyPrayerTimes = (1...6).map { "sc_daily_prayer_time_\($0)" }
     static let dailyPrayerSchedule = "sc_daily_prayer_schedule"
 }
 
@@ -200,6 +200,7 @@ struct DailyPrayerTimesProvider: TimelineProvider {
             title: "Prayer Times",
             items: [
                 WidgetListItem(title: "Fajr", time: "05:00 am"),
+                WidgetListItem(title: "Sunrise", time: "06:24 am"),
                 WidgetListItem(title: "Zuhr", time: "12:30 pm"),
                 WidgetListItem(title: "Asr", time: "04:15 pm"),
                 WidgetListItem(title: "Maghrib", time: "08:10 pm"),
@@ -377,7 +378,7 @@ struct PrayerProvider: TimelineProvider {
     func placeholder(in context: Context) -> PrayerWidgetEntry {
         PrayerWidgetEntry(
             date: Date(),
-            title: "Next Prayer",
+            title: "Up Next",
             name: "Prayer Times",
             time: "Set location",
             location: "Location needed",
@@ -429,7 +430,7 @@ struct PrayerProvider: TimelineProvider {
 
         return PrayerWidgetEntry(
             date: now,
-            title: (defaults?.widgetString(WidgetKeys.prayerTitle, fallback: "Next Prayer") ?? "Next Prayer")
+            title: (defaults?.widgetString(WidgetKeys.prayerTitle, fallback: "Up Next") ?? "Up Next")
                 .replacingOccurrences(of: "Upcoming", with: "Next"),
             name: nextPrayer?.name ?? defaults?.widgetString(WidgetKeys.prayerName, fallback: "Prayer Times") ?? "Prayer Times",
             time: nextPrayer?.time ?? defaults?.widgetString(WidgetKeys.prayerTime, fallback: "Set location") ?? "Set location",
@@ -535,8 +536,10 @@ struct DailyPrayerTimesView: View {
     let entry: WidgetListEntry
 
     var body: some View {
-        let visibleItems = Array(entry.items.prefix(5))
+        let visibleItems = Array(entry.items.prefix(6))
         let hasPrayerTimes = visibleItems.contains { !$0.time.isEmpty }
+        // Six columns only fit a medium widget once the gutters tighten up.
+        let columnSpacing: CGFloat = visibleItems.count > 5 ? 4 : 8
 
         VStack(alignment: .leading, spacing: 5) {
             HStack(alignment: .center, spacing: 6) {
@@ -567,7 +570,7 @@ struct DailyPrayerTimesView: View {
             }
             Spacer(minLength: 0)
             if hasPrayerTimes {
-                HStack(alignment: .center, spacing: 8) {
+                HStack(alignment: .center, spacing: columnSpacing) {
                     ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
                         VStack(spacing: 4) {
                             PrayerGlyph(prayerName: item.title, badgeSize: 25, symbolSize: 13)
@@ -575,12 +578,13 @@ struct DailyPrayerTimesView: View {
                                 .font(.caption2.weight(.semibold))
                                 .foregroundColor(.secondaryText)
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                                 .frame(maxWidth: .infinity)
                             Text(item.time)
                                 .font(.caption2.weight(.bold))
                                 .foregroundColor(.bodyText)
                                 .lineLimit(1)
-                                .minimumScaleFactor(0.72)
+                                .minimumScaleFactor(0.6)
                                 .frame(maxWidth: .infinity)
                         }
                         .frame(maxWidth: .infinity)
@@ -666,17 +670,23 @@ private func prayerSymbolName(for prayerName: String) -> String {
     if name.contains("fajr") {
         return "sunrise"
     }
+    if name.contains("sunrise") {
+        return "sunrise.fill"
+    }
     if name.contains("zuhr") || name.contains("dhuhr") || name.contains("dhohr") {
         return "sun.max"
     }
     if name.contains("asr") {
         return "sun.min"
     }
-    if name.contains("maghrib") {
+    if name.contains("maghrib") || name.contains("sunset") {
         return "sunset"
     }
     if name.contains("isha") {
         return "moon.stars"
+    }
+    if name.contains("midnight") {
+        return "moon"
     }
     return "sun.max"
 }
@@ -766,7 +776,7 @@ struct DailyPrayerTimesWidget: Widget {
             DailyPrayerTimesView(entry: entry)
         }
         .configurationDisplayName("Prayer Times")
-        .description("All five daily prayer times for your saved location.")
+        .description("The prayer times you picked in Settings, for your saved location.")
         .supportedFamilies([.systemMedium])
     }
 }
@@ -778,8 +788,8 @@ struct UpcomingPrayerWidget: Widget {
         StaticConfiguration(kind: kind, provider: PrayerProvider()) { entry in
             PrayerWidgetView(entry: entry)
         }
-        .configurationDisplayName("Next Prayer")
-        .description("The next prayer time for your saved location.")
+        .configurationDisplayName("Up Next")
+        .description("The next of the times you picked in Settings, for your saved location.")
         .supportedFamilies([.systemSmall])
     }
 }

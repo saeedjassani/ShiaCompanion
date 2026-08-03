@@ -129,7 +129,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                     width: 180,
                     height: 180,
                     title: data[HomeScreenWidgetService.prayerTitleKey] ??
-                        'Next Prayer',
+                        'Up Next',
                     name:
                         data[HomeScreenWidgetService.prayerNameKey] ?? 'Prayer',
                     time: data[HomeScreenWidgetService.prayerTimeKey] ?? '',
@@ -432,7 +432,7 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
     final palette = _WidgetPalette.of(context);
     final visibleItems = items
         .where((item) => item.name.isNotEmpty || item.time.isNotEmpty)
-        .take(5)
+        .take(6)
         .toList();
 
     return _WidgetShell(
@@ -517,7 +517,8 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (i != visibleItems.length - 1) const SizedBox(width: 6),
+                if (i != visibleItems.length - 1)
+                  SizedBox(width: visibleItems.length > 5 ? 2 : 6),
               ],
             ],
           ),

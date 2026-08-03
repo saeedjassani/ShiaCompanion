@@ -16,7 +16,9 @@ import '../services/qaza_tracker_manager.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
+import '../utils/prayer_time_icons.dart';
 import '../utils/shared_preferences.dart';
+import '../utils/widget_prayer_time_selection.dart';
 import '../widgets/responsive_content.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
@@ -106,6 +108,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   setState(() {});
                 },
               ),
+              if (!kIsWeb)
+                ListTile(
+                  leading: const Icon(Icons.widgets),
+                  title: const Text("Widget Prayer Times"),
+                  subtitle: Text(_widgetPrayerTimesSubtitle()),
+                  onTap: () {
+                    _showWidgetPrayerTimesDialog(context);
+                  },
+                ),
               if (!shouldUseLiveLocation())
                 ListTile(
                   leading: const Icon(Icons.location_on),
@@ -523,6 +534,90 @@ class _SettingsPageState extends State<SettingsPage> {
         return dialog;
       },
     );
+  }
+
+  String _widgetPrayerTimesSubtitle() {
+    final names =
+        selectedWidgetPrayerTimes().map((time) => time.name).join(', ');
+    return "Shown on the home screen widgets: $names.";
+  }
+
+  void _showWidgetPrayerTimesDialog(BuildContext context) {
+    final selected =
+        selectedWidgetPrayerTimes().map((time) => time.id).toSet();
+
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setDialogState) {
+            final atMinimum = selected.length <= minWidgetPrayerTimes;
+            final atMaximum = selected.length >= maxWidgetPrayerTimes;
+
+            return AlertDialog(
+              title: const Text("Widget Prayer Times"),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                      child: Text(
+                        "Pick $minWidgetPrayerTimes to $maxWidgetPrayerTimes "
+                        "times. Sunrise, Sunset and Midnight are the deadlines "
+                        "a prayer has to be offered before.",
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                    for (final time in widgetPrayerTimes)
+                      CheckboxListTile(
+                        dense: true,
+                        secondary: Icon(prayerIconFor(time.name)),
+                        title: Text(time.name),
+                        value: selected.contains(time.id),
+                        onChanged: (selected.contains(time.id)
+                                ? atMinimum
+                                : atMaximum)
+                            ? null
+                            : (bool? value) {
+                                setDialogState(() {
+                                  if (value == true) {
+                                    selected.add(time.id);
+                                  } else {
+                                    selected.remove(time.id);
+                                  }
+                                });
+                              },
+                      ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(dialogContext);
+                    await _saveWidgetPrayerTimes(selected.toList());
+                  },
+                  child: const Text("Save"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _saveWidgetPrayerTimes(List<String> ids) async {
+    await saveWidgetPrayerTimes(ids);
+    await HomeScreenWidgetService.instance.publishAll();
+    if (!mounted) return;
+    setState(() {});
   }
 
   saveHijriDate() async {

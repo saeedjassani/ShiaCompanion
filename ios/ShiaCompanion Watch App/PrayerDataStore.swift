@@ -19,8 +19,8 @@ nonisolated enum WatchDataKeys {
     static let prayerSecondaryName = "sc_prayer_secondary_name"
     static let prayerSecondaryTime = "sc_prayer_secondary_time"
 
-    static let dailyPrayerNames = (1...5).map { "sc_daily_prayer_name_\($0)" }
-    static let dailyPrayerTimes = (1...5).map { "sc_daily_prayer_time_\($0)" }
+    static let dailyPrayerNames = (1...6).map { "sc_daily_prayer_name_\($0)" }
+    static let dailyPrayerTimes = (1...6).map { "sc_daily_prayer_time_\($0)" }
     static let dailyPrayerSchedule = "sc_daily_prayer_schedule"
 
     /// Epoch millis of the last payload the phone sent. Absent until the first sync.

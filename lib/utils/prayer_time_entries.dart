@@ -64,40 +64,6 @@ List<PrayerTimeDisplayEntry> buildExtendedPrayerTimeEntries({
   }
 }
 
-List<PrayerTimeDisplayEntry> buildFiveDailyPrayerTimeEntries({
-  required PrayerTime prayerTime,
-  required DateTime date,
-  required double latitude,
-  required double longitude,
-  required double timeZone,
-}) {
-  final originalFormat = prayerTime.getTimeFormat();
-  try {
-    prayerTime.setTimeFormat(prayerTime.getTime12());
-    final names = prayerTime.getTimeNames();
-    final times =
-        prayerTime.getPrayerTimes(date, latitude, longitude, timeZone);
-    final indices = [
-      prayerIndexFajr,
-      prayerIndexZuhr,
-      prayerIndexAsr,
-      prayerIndexMaghrib,
-      prayerIndexIsha,
-    ];
-
-    return [
-      for (final index in indices)
-        PrayerTimeDisplayEntry(
-          name: names[index],
-          time: times[index],
-          notificationPrayerName: names[index],
-        ),
-    ];
-  } finally {
-    prayerTime.setTimeFormat(originalFormat);
-  }
-}
-
 DateTime? shiaMidnightForDate({
   required PrayerTime prayerTime,
   required DateTime date,
