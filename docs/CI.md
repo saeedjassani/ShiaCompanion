@@ -101,6 +101,18 @@ Regenerate deliberately after an intended UI change:
 cd test_visual && npm run test:update
 ```
 
+### 4. Wear OS tests — `android/wear/app/src/test`
+
+The watch app is a separate Gradle build with its own Kotlin suite, run by the `wear`
+job: JVM tests over the sync and schedule logic, and Robolectric render tests that
+put the watch screen in each state on three watch shapes, plus the real tile and
+complication. Same idea as layers 1 and 2 above, same absence of golden files. See
+docs/WEAR_OS.md.
+
+```bash
+gradle -p android/wear test
+```
+
 ## iOS builds and Xcode
 
 The `ios` job pins `macos-15`, whose default is Xcode 16.4 — the same version

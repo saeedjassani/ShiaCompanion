@@ -140,6 +140,13 @@ class PrayerDataStore private constructor(private val prefs: SharedPreferences) 
         if (wroteSomething) editor.apply()
     }
 
+    /** Wipes the stored snapshot, so a test starts from an unsynced watch. */
+    internal fun clear() {
+        val editor = prefs.edit()
+        editor.clear()
+        editor.apply()
+    }
+
     /** The upcoming prayer/period timeline (eight days), sorted ascending. */
     val prayerSchedule: List<PrayerScheduleEntry>
         get() = parsePrayerSchedule(string(WearDataKeys.PRAYER_SCHEDULE))

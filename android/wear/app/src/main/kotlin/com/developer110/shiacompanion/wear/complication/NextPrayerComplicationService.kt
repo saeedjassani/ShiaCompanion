@@ -19,7 +19,6 @@ import com.developer110.shiacompanion.wear.MainActivity
 import com.developer110.shiacompanion.wear.PrayerDataStore
 import com.developer110.shiacompanion.wear.PrayerScheduleEntry
 import com.developer110.shiacompanion.wear.R
-import com.developer110.shiacompanion.wear.compactTime
 import com.developer110.shiacompanion.wear.prayerIconRes
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -57,6 +56,7 @@ class NextPrayerComplicationService : SuspendingComplicationDataSourceService() 
         type: ComplicationType,
         prayer: PrayerScheduleEntry,
     ): ComplicationData? {
+        val fields = complicationFields(prayer)
         val description = PlainComplicationText
             .Builder(getString(R.string.complication_description, prayer.name, prayer.time))
             .build()
@@ -70,18 +70,16 @@ class NextPrayerComplicationService : SuspendingComplicationDataSourceService() 
 
         return when (type) {
             ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
-                text = PlainComplicationText.Builder(compactTime(prayer.time)).build(),
+                text = PlainComplicationText.Builder(fields.shortText).build(),
                 contentDescription = description,
             )
-                .setTitle(PlainComplicationText.Builder(prayer.name).build())
+                .setTitle(PlainComplicationText.Builder(fields.shortTitle).build())
                 .setMonochromaticImage(monochromaticImage(prayer.name))
                 .setTapAction(openAppIntent())
                 .build()
 
             ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
-                text = PlainComplicationText
-                    .Builder("${prayer.name} · ${prayer.time}")
-                    .build(),
+                text = PlainComplicationText.Builder(fields.longText).build(),
                 contentDescription = description,
             )
                 .setTitle(countdown)

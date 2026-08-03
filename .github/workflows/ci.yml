@@ -119,8 +119,17 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
-      - name: Unit tests
+      - name: Unit and render tests
         run: gradle -p android/wear test
+
+      - name: Upload test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wear-test-report
+          path: android/wear/app/build/reports/tests/**
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Build APK
         run: gradle -p android/wear assembleRelease

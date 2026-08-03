@@ -24,9 +24,6 @@ import com.google.common.util.concurrent.ListenableFuture
 
 private const val RESOURCES_VERSION = "1"
 
-/** How many prayers to lay out ahead. Eight days of data, capped at a day or so of entries. */
-private const val TIMELINE_ENTRIES = 12
-
 private const val ACCENT_COLOR = 0xFFFFD879.toInt()
 private const val PRIMARY_TEXT_COLOR = 0xFFFFF3E7.toInt()
 private const val SECONDARY_TEXT_COLOR = 0xFFE4C7B3.toInt()
@@ -63,28 +60,33 @@ class NextPrayerTileService : TileService() {
         val deviceParameters = requestParams.deviceConfiguration
         val store = PrayerDataStore.get(this)
         val now = System.currentTimeMillis()
-        val upcoming = store.upcomingPrayers(now).take(TIMELINE_ENTRIES)
+        val upcoming = store.upcomingPrayers(now)
         val location = store.location
 
         val timeline = TimelineBuilders.Timeline.Builder()
-        var validFrom = now
-        for (prayer in upcoming) {
+        for (window in tileWindows(upcoming, now)) {
             timeline.addTimelineEntry(
                 TimelineBuilders.TimelineEntry.Builder()
                     .setValidity(
                         TimelineBuilders.TimeInterval.Builder()
-                            .setStartMillis(validFrom)
-                            .setEndMillis(prayer.epochMillis)
+                            .setStartMillis(window.startMillis)
+                            .setEndMillis(window.endMillis)
                             .build()
                     )
                     .setLayout(
                         LayoutElementBuilders.Layout.Builder()
-                            .setRoot(prayerLayout(deviceParameters, prayer, location, validFrom))
+                            .setRoot(
+                                prayerLayout(
+                                    deviceParameters,
+                                    window.prayer,
+                                    location,
+                                    window.startMillis,
+                                )
+                            )
                             .build()
                     )
                     .build()
             )
-            validFrom = prayer.epochMillis
         }
 
         // An entry without validity is the fallback the renderer falls back to once every

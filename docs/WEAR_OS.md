@@ -71,6 +71,40 @@ derives "next prayer" and "today's prayers" from those with the watch's own cloc
 
 So a watch that is out of range for days keeps showing the right prayer.
 
+## Tests
+
+`gradle -p android/wear test` runs both layers, and the `wear` CI job runs it on every PR.
+
+### 1. Logic — `PrayerScheduleTest`, `PrayerDataStoreTest`, `PrayerUiStateTest`, `NextPrayerTileWindowsTest`, `ComplicationFieldsTest`
+
+Plain JVM tests over the parts that decide what the watch shows: decoding the phone's
+schedule records and day-by-day JSON, the three sync states, the roll-over from one prayer
+to the next, the tile's timeline slicing, and the text each complication slot gets.
+
+These are deliberately free of Android and Compose types — which is why `uiState`,
+`tileWindows` and `complicationFields` live in files of their own rather than inside the
+composables and services that use them.
+
+### 2. Render — `PrayerScreenRenderTest`, `NextPrayerTileServiceTest`, `NextPrayerComplicationServiceTest`
+
+Robolectric. The Wear counterpart of `test/ui/page_render_test.dart`: the screen is
+rendered in each state the phone can leave it in, on small round, large round and square
+watches, and anything raised while laying it out fails the test. The tile and the
+complication are built from their real services, so a layout the renderer would reject
+fails here too. No golden files.
+
+`PrayerScreenRenderTest` renders `PrayerScreen`, not `PrayerApp` — the latter owns the
+store, the data layer and a 30 second tick that never completes, and a Compose test clock
+left on auto would wait on it forever.
+
+### Not covered
+
+Nothing runs against a real watch. The Playwright suite in `test_visual/` has no Wear
+equivalent here: that would mean an instrumented test on a Wear emulator, which is minutes
+of CI per run and flakier than everything above it. Pixel-level regressions on the watch,
+and anything that only breaks on a real Play services connection — the data layer round
+trip most of all — are found by hand.
+
 ## Keys
 
 `WearDataKeys` (watch) and `WearSnapshot` (phone) both list the `sc_*` keys, and both

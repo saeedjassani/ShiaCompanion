@@ -64,39 +64,7 @@ private val WearPalette = Colors(
 
 private const val TICK_MILLIS = 30_000L
 
-enum class SyncStatus {
-    /** The phone has never sent a snapshot. */
-    WAITING_FOR_PHONE,
-
-    /** Synced, but the phone app has no location saved yet. */
-    NEEDS_LOCATION,
-    LOADED,
-}
-
-data class PrayerUiState(
-    val status: SyncStatus,
-    val location: String,
-    val nextPrayer: PrayerScheduleEntry?,
-    val prayers: List<PrayerEntry>,
-    val lastSyncedAtMillis: Long?,
-)
-
-private fun PrayerDataStore.uiState(nowMillis: Long): PrayerUiState {
-    val status = when {
-        !hasSyncedData -> SyncStatus.WAITING_FOR_PHONE
-        !hasPrayerTimes -> SyncStatus.NEEDS_LOCATION
-        else -> SyncStatus.LOADED
-    }
-
-    return PrayerUiState(
-        status = status,
-        location = location,
-        nextPrayer = nextPrayer(nowMillis),
-        prayers = if (status == SyncStatus.LOADED) dailyPrayers(nowMillis) else emptyList(),
-        lastSyncedAtMillis = lastSyncedAtMillis,
-    )
-}
-
+/** Wires the screen to the stored snapshot and the clock. */
 @Composable
 fun PrayerApp() {
     val context = LocalContext.current
@@ -116,7 +84,29 @@ fun PrayerApp() {
         }
     }
 
-    val state = remember(revision, nowMillis) { store.uiState(nowMillis) }
+    PrayerScreen(
+        state = remember(revision, nowMillis) { store.uiState(nowMillis) },
+        nowMillis = nowMillis,
+        isRequesting = isRequesting,
+        errorMessage = lastError,
+        onRefresh = { PhoneSyncManager.requestSnapshot(context) },
+    )
+}
+
+/**
+ * Everything the watch draws, from state alone.
+ *
+ * Free of the store, the data layer and the clock, so the render tests can put it in each
+ * state the phone can leave it in without standing any of that up.
+ */
+@Composable
+fun PrayerScreen(
+    state: PrayerUiState,
+    nowMillis: Long,
+    isRequesting: Boolean,
+    errorMessage: String?,
+    onRefresh: () -> Unit,
+) {
     val listState = rememberScalingLazyListState()
 
     MaterialTheme(colors = WearPalette) {
@@ -136,7 +126,7 @@ fun PrayerApp() {
                         state = state,
                         nowMillis = nowMillis,
                         isRequesting = isRequesting,
-                        onRefresh = { PhoneSyncManager.requestSnapshot(context) },
+                        onRefresh = onRefresh,
                     )
 
                     SyncStatus.WAITING_FOR_PHONE -> item {
@@ -144,8 +134,8 @@ fun PrayerApp() {
                             title = stringResource(R.string.waiting_for_phone_title),
                             message = stringResource(R.string.waiting_for_phone_message),
                             isRequesting = isRequesting,
-                            errorMessage = lastError,
-                            onRetry = { PhoneSyncManager.requestSnapshot(context) },
+                            errorMessage = errorMessage,
+                            onRetry = onRefresh,
                         )
                     }
 
@@ -154,8 +144,8 @@ fun PrayerApp() {
                             title = stringResource(R.string.needs_location_title),
                             message = stringResource(R.string.needs_location_message),
                             isRequesting = isRequesting,
-                            errorMessage = lastError,
-                            onRetry = { PhoneSyncManager.requestSnapshot(context) },
+                            errorMessage = errorMessage,
+                            onRetry = onRefresh,
                         )
                     }
                 }
