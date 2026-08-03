@@ -8,6 +8,7 @@ import 'package:shia_companion/widgets/responsive_content.dart';
 
 import '../constants.dart';
 import '../services/favorites_manager.dart';
+import 'chapter_list_page.dart';
 import 'chapter_page.dart';
 
 class LibraryPage extends StatefulWidget {
@@ -60,8 +61,20 @@ class _LibraryPageState extends State<LibraryPage> {
     }
 
     final chapter = chapters[chapterIndex];
-    await Navigator.push(
-      context,
+    final bookTitle = progress.bookTitle.trim().isNotEmpty
+        ? progress.bookTitle
+        : progress.chapterTitle;
+    final navigator = Navigator.of(context);
+
+    // Resuming drops the reader straight into the chapter, but backing out of
+    // it should land on that book's chapter list — the same place you'd be if
+    // you had navigated in by hand — rather than all the way back here.
+    navigator.push(
+      MaterialPageRoute(
+        builder: (context) => ChapterListPage(progress.bookSlug, bookTitle),
+      ),
+    );
+    await navigator.push(
       MaterialPageRoute(
         builder: (context) => ChapterPage(
           '${progress.bookSlug}/${chapter.uid}',

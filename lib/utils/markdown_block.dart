@@ -83,7 +83,9 @@ class MarkdownBlock {
       case MarkdownBlockType.horizontalRule:
         return 16.0;
       case MarkdownBlockType.paragraph:
-        return 0.0;
+        // Paragraphs render as separate widgets with no spacing of their own,
+        // so without this they run straight into each other.
+        return 12.0;
     }
   }
 
