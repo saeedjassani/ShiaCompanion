@@ -71,15 +71,14 @@ private const val KEY_RECITATION_SCHEDULE = "sc_recitation_schedule"
 private const val KEY_PRAYER_TITLE = "sc_prayer_title"
 private const val KEY_PRAYER_NAME = "sc_prayer_name"
 private const val KEY_PRAYER_TIME = "sc_prayer_time"
-private const val KEY_PRAYER_DATE = "sc_prayer_date"
 private const val KEY_PRAYER_LOCATION = "sc_prayer_location"
 private const val KEY_PRAYER_SCHEDULE = "sc_prayer_schedule"
 private const val KEY_PRAYER_SECONDARY_NAME = "sc_prayer_secondary_name"
 private const val KEY_PRAYER_SECONDARY_TIME = "sc_prayer_secondary_time"
 
 private const val KEY_DAILY_PRAYER_TITLE = "sc_daily_prayer_title"
-private val dailyPrayerNameKeys = (1..5).map { "sc_daily_prayer_name_$it" }
-private val dailyPrayerTimeKeys = (1..5).map { "sc_daily_prayer_time_$it" }
+private val dailyPrayerNameKeys = (1..6).map { "sc_daily_prayer_name_$it" }
+private val dailyPrayerTimeKeys = (1..6).map { "sc_daily_prayer_time_$it" }
 private const val KEY_DAILY_PRAYER_SCHEDULE = "sc_daily_prayer_schedule"
 
 private val backgroundColor = ColorProvider(
@@ -279,7 +278,7 @@ private fun PrayerWidgetContent() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = data.text(KEY_PRAYER_TITLE, "Next Prayer")
+                text = data.text(KEY_PRAYER_TITLE, "Up Next")
                     .replace("Upcoming", "Next")
                     .replace(" Prayer", ""),
                 modifier = GlanceModifier.defaultWeight(),
@@ -313,13 +312,6 @@ private fun PrayerWidgetContent() {
             ),
             maxLines = 1
         )
-        if (prayer.dateLabel.isNotBlank()) {
-            Text(
-                text = prayer.dateLabel,
-                style = TextStyle(color = secondaryTextColor, fontSize = 12.sp),
-                maxLines = 1
-            )
-        }
         Spacer(GlanceModifier.defaultWeight())
         Text(
             text = footer,
@@ -337,7 +329,9 @@ private fun DailyPrayerTimesWidgetContent() {
     val location = data.text(KEY_PRAYER_LOCATION, "Location needed")
     val nextPrayer = data.nextPrayer()
     val countdown = nextPrayer.countdownText()
-    val visiblePrayers = prayers.take(5)
+    val visiblePrayers = prayers.take(6)
+    // Six columns only fit a medium widget once the gutters tighten up.
+    val columnSpacingDp = if (visiblePrayers.size > 5) 2 else 4
 
     WidgetSurface(clickable = true, contentPadding = 10) {
         Row(
@@ -389,7 +383,7 @@ private fun DailyPrayerTimesWidgetContent() {
             visiblePrayers.forEachIndexed { index, prayer ->
                 PrayerTimeColumn(prayer)
                 if (index != visiblePrayers.lastIndex) {
-                    Spacer(GlanceModifier.width(4.dp))
+                    Spacer(GlanceModifier.width(columnSpacingDp.dp))
                 }
             }
         }
@@ -641,7 +635,6 @@ private data class PrayerDisplay(
     val epochMillis: Long?,
     val name: String,
     val time: String,
-    val dateLabel: String,
     val location: String,
     val secondaryName: String,
     val secondaryTime: String
@@ -682,11 +675,14 @@ private fun prayerIconRes(prayerName: String): Int {
     val name = prayerName.lowercase()
     return when {
         name.contains("fajr") -> R.drawable.ic_prayer_fajr
+        name.contains("sunrise") -> R.drawable.ic_prayer_sunrise
         name.contains("zuhr") || name.contains("dhuhr") || name.contains("dhohr") ->
             R.drawable.ic_prayer_zuhr
         name.contains("asr") -> R.drawable.ic_prayer_asr
+        name.contains("sunset") -> R.drawable.ic_prayer_sunset
         name.contains("maghrib") -> R.drawable.ic_prayer_maghrib
         name.contains("isha") -> R.drawable.ic_prayer_isha
+        name.contains("midnight") -> R.drawable.ic_prayer_midnight
         else -> R.drawable.ic_prayer_zuhr
     }
 }
@@ -695,7 +691,6 @@ private data class PrayerEntry(
     val epochMillis: Long,
     val name: String,
     val time: String,
-    val dateLabel: String,
     val secondaryName: String,
     val secondaryTime: String
 )
@@ -713,7 +708,6 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
                 epochMillis = epochMillis,
                 name = parts[1],
                 time = parts[2],
-                dateLabel = parts[3],
                 secondaryName = parts.getOrNull(4).orEmpty(),
                 secondaryTime = parts.getOrNull(5).orEmpty()
             )
@@ -726,7 +720,6 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
             epochMillis = next.epochMillis,
             name = next.name,
             time = next.time,
-            dateLabel = next.dateLabel,
             location = location,
             secondaryName = next.secondaryName,
             secondaryTime = next.secondaryTime
@@ -737,7 +730,6 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
         epochMillis = null,
         name = text(KEY_PRAYER_NAME, "Prayer Times"),
         time = text(KEY_PRAYER_TIME, "Set location"),
-        dateLabel = text(KEY_PRAYER_DATE, "Open app"),
         location = location,
         secondaryName = text(KEY_PRAYER_SECONDARY_NAME, ""),
         secondaryTime = text(KEY_PRAYER_SECONDARY_TIME, "")
@@ -757,7 +749,7 @@ private fun android.content.SharedPreferences.dailyPrayerTimes(): List<DailyPray
     }
 
     return items
-        .take(5)
+        .take(6)
         .map { DailyPrayerTimeDisplay(title = it.title, time = it.time) }
 }
 

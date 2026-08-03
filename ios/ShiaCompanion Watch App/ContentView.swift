@@ -68,7 +68,7 @@ struct ContentView: View {
                 .padding(.top, 4)
             }
 
-            // Next Prayer Banner
+            // Up Next Banner
             if !prayerModel.nextPrayerName.isEmpty {
                 VStack(spacing: 4) {
                     Text(nextPrayerHeading)
@@ -147,8 +147,8 @@ struct ContentView: View {
 
     private var nextPrayerHeading: String {
         let label = prayerModel.nextPrayerDayLabel
-        guard !label.isEmpty, label != "Today" else { return "Next Prayer" }
-        return "Next Prayer · \(label)"
+        guard !label.isEmpty, label != "Today" else { return "Up Next" }
+        return "Up Next · \(label)"
     }
 }
 

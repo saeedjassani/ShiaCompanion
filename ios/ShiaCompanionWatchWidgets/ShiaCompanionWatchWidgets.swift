@@ -229,8 +229,8 @@ struct NextPrayerComplication: Widget {
             NextPrayerComplicationView(entry: entry)
                 .widgetContainerBackground()
         }
-        .configurationDisplayName("Next Prayer")
-        .description("The next prayer time for your saved location.")
+        .configurationDisplayName("Up Next")
+        .description("The next of the times you picked in Settings, for your saved location.")
         .supportedFamilies([
             .accessoryCircular,
             .accessoryCorner,

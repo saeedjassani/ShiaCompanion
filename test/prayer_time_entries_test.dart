@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
+import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 
 void main() {
   test('dateTimeForTime24 parses HH:mm and rejects malformed input', () {
@@ -19,25 +20,94 @@ void main() {
     expect(formatPrayerDateTime12(DateTime(2024, 1, 1, 23, 9)), '11:09 pm');
   });
 
-  test('buildFiveDailyPrayerTimeEntries returns the five daily prayers in order', () {
+  test('readWidgetPrayerTimes returns the default five prayers in order', () {
     final prayerTime = getPrayerTimeObject();
     final originalFormat = prayerTime.getTimeFormat();
 
-    final entries = buildFiveDailyPrayerTimeEntries(
+    final readings = readWidgetPrayerTimes(
       prayerTime: prayerTime,
       date: DateTime(2024, 6, 16),
       latitude: 21.4225,
       longitude: 39.8262,
       timeZone: 3.0,
+      times: defaultWidgetPrayerTimeSelection,
     );
 
     expect(
-      entries.map((e) => e.name).toList(),
+      readings.map((reading) => reading.time.name).toList(),
       ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha'],
     );
-    expect(entries.every((e) => e.canNotify), isTrue);
-    // The original time format must be restored after building entries.
+    expect(
+      readings.map((reading) => reading.dateTime).toList(),
+      orderedEquals(
+        List.of(readings.map((reading) => reading.dateTime))..sort(),
+      ),
+    );
+    // The original time format must be restored after resolving times.
     expect(prayerTime.getTimeFormat(), originalFormat);
+  });
+
+  test('readWidgetPrayerTimes resolves the daylight markers chronologically',
+      () {
+    final readings = readWidgetPrayerTimes(
+      prayerTime: getPrayerTimeObject(),
+      date: DateTime(2024, 6, 16),
+      latitude: 21.4225,
+      longitude: 39.8262,
+      timeZone: 3.0,
+      times: widgetPrayerTimes,
+    );
+
+    expect(
+      readings.map((reading) => reading.time.name).toList(),
+      [
+        'Fajr',
+        'Sunrise',
+        'Zuhr',
+        'Asr',
+        'Sunset',
+        'Maghrib',
+        'Isha',
+        'Midnight',
+      ],
+    );
+    for (var index = 1; index < readings.length; index++) {
+      expect(
+        readings[index].dateTime.isAfter(readings[index - 1].dateTime),
+        isTrue,
+        reason: '${readings[index].time.name} must follow '
+            '${readings[index - 1].time.name}',
+      );
+    }
+    expect(readings.every((reading) => reading.displayTime.isNotEmpty), isTrue);
+  });
+
+  test('resolveWidgetPrayerTimes falls back when the stored selection is unusable',
+      () {
+    expect(
+      resolveWidgetPrayerTimes(['fajr', 'maghrib']).map((time) => time.id),
+      defaultWidgetPrayerTimeIds,
+    );
+    expect(
+      resolveWidgetPrayerTimes(null).map((time) => time.id),
+      defaultWidgetPrayerTimeIds,
+    );
+    expect(
+      resolveWidgetPrayerTimes(widgetPrayerTimes.map((t) => t.id).toList())
+          .map((time) => time.id),
+      defaultWidgetPrayerTimeIds,
+    );
+    expect(
+      resolveWidgetPrayerTimes(['nonsense', 'fajr', 'sunrise', 'zuhr'])
+          .map((time) => time.id),
+      ['fajr', 'sunrise', 'zuhr'],
+    );
+    // Selections are stored as a set and read back in the order times occur.
+    expect(
+      resolveWidgetPrayerTimes(['sunset', 'fajr', 'sunrise'])
+          .map((time) => time.id),
+      ['fajr', 'sunrise', 'sunset'],
+    );
   });
 
   test('buildExtendedPrayerTimeEntries includes all seven names plus a Midnight entry', () {

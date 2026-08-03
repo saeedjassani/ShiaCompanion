@@ -8,8 +8,8 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/utils/deep_links.dart';
-import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
+import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 
 class HomeScreenWidgetService {
   HomeScreenWidgetService._();
@@ -67,7 +67,7 @@ class HomeScreenWidgetService {
 
   static const String dailyPrayerTimesTitleKey = 'sc_daily_prayer_title';
   static const String dailyPrayerTimesScheduleKey = 'sc_daily_prayer_schedule';
-  static const int dailyPrayerTimesItemCount = 5;
+  static const int dailyPrayerTimesItemCount = maxWidgetPrayerTimes;
   static final List<String> dailyPrayerNameKeys = List.generate(
     dailyPrayerTimesItemCount,
     (index) => 'sc_daily_prayer_name_${index + 1}',
@@ -200,7 +200,7 @@ class HomeScreenWidgetService {
   Map<String, String> buildUpcomingPrayerSnapshot() {
     final prayerSnapshot = _buildPrayerSnapshot();
     return {
-      prayerTitleKey: 'Next Prayer',
+      prayerTitleKey: 'Up Next',
       prayerNameKey: prayerSnapshot.name,
       prayerTimeKey: prayerSnapshot.time,
       prayerDateKey: prayerSnapshot.dateLabel,
@@ -235,8 +235,8 @@ class HomeScreenWidgetService {
 
     for (var index = 0; index < dailyPrayerTimesItemCount; index++) {
       final prayer = _itemAt(prayers, index);
-      snapshot[dailyPrayerNameKeys[index]] = prayer?.name ?? '';
-      snapshot[dailyPrayerTimeKeys[index]] = prayer?.time ?? '';
+      snapshot[dailyPrayerNameKeys[index]] = prayer?.time.name ?? '';
+      snapshot[dailyPrayerTimeKeys[index]] = prayer?.displayTime ?? '';
     }
 
     return snapshot;
@@ -328,69 +328,31 @@ class HomeScreenWidgetService {
 
   List<_PrayerScheduleEntry> _buildPrayerSchedule(DateTime now) {
     final schedule = <_PrayerScheduleEntry>[];
-    final prayerTime = getPrayerTimeObject();
-    final names = prayerTime.getTimeNames();
+    final selected = selectedWidgetPrayerTimes();
     final startOfToday = DateTime(now.year, now.month, now.day);
 
     for (var dayOffset = 0; dayOffset < 8; dayOffset++) {
       final date = startOfToday.add(Duration(days: dayOffset));
       final dateLabel = _dateLabelForDay(date, dayOffset);
+      // Every time, not just the selected ones, so a prayer can still name the
+      // deadline it has to be offered before even when that marker is hidden.
+      final readings = {
+        for (final reading in _readWidgetPrayerTimesForDay(date))
+          reading.time.id: reading,
+      };
 
-      prayerTime.setTimeFormat(prayerTime.getTime24());
-      final times24 = prayerTime.getPrayerTimes(
-        date,
-        lat!,
-        long!,
-        date.timeZoneOffset.inMinutes / 60.0,
-      );
+      for (final time in selected) {
+        final reading = readings[time.id];
+        if (reading == null) continue;
 
-      prayerTime.setTimeFormat(prayerTime.getTime12());
-      final displayTimes = prayerTime.getPrayerTimes(
-        date,
-        lat!,
-        long!,
-        date.timeZoneOffset.inMinutes / 60.0,
-      );
-
-      final midnight = shiaMidnightForDate(
-        prayerTime: prayerTime,
-        date: date,
-        latitude: lat!,
-        longitude: long!,
-      );
-      final periods = [
-        _PrayerPeriod(
-          index: prayerIndexFajr,
-          name: names[prayerIndexFajr],
-          secondaryName: 'Sunrise',
-          secondaryTime: displayTimes[prayerIndexSunrise],
-        ),
-        _PrayerPeriod(
-          index: prayerIndexZuhr,
-          name: names[prayerIndexZuhr],
-          secondaryName: 'Sunset',
-          secondaryTime: displayTimes[prayerIndexSunset],
-        ),
-        _PrayerPeriod(
-          index: prayerIndexMaghrib,
-          name: names[prayerIndexMaghrib],
-          secondaryName: 'Midnight',
-          secondaryTime:
-              midnight == null ? '' : formatPrayerDateTime12(midnight),
-        ),
-      ];
-
-      for (final period in periods) {
-        final dateTime = dateTimeForTime24(date, times24[period.index]);
-        if (dateTime == null) continue;
-
+        final offerBefore = readings[time.offerBeforeId];
         schedule.add(_PrayerScheduleEntry(
-          dateTime: dateTime,
-          name: period.name,
-          displayTime: displayTimes[period.index],
+          dateTime: reading.dateTime,
+          name: time.name,
+          displayTime: reading.displayTime,
           dateLabel: dateLabel,
-          secondaryName: period.secondaryName,
-          secondaryTime: period.secondaryTime,
+          secondaryName: offerBefore == null ? '' : offerBefore.time.name,
+          secondaryTime: offerBefore == null ? '' : offerBefore.displayTime,
         ));
       }
     }
@@ -399,13 +361,24 @@ class HomeScreenWidgetService {
     return schedule;
   }
 
-  List<PrayerTimeDisplayEntry> _buildDailyPrayerTimesForDay(DateTime date) {
-    return buildFiveDailyPrayerTimeEntries(
+  List<WidgetPrayerTimeReading> _readWidgetPrayerTimesForDay(
+    DateTime date, {
+    List<WidgetPrayerTime>? times,
+  }) {
+    return readWidgetPrayerTimes(
       prayerTime: getPrayerTimeObject(),
       date: date,
       latitude: lat!,
       longitude: long!,
       timeZone: date.timeZoneOffset.inMinutes / 60.0,
+      times: times ?? widgetPrayerTimes,
+    );
+  }
+
+  List<WidgetPrayerTimeReading> _buildDailyPrayerTimesForDay(DateTime date) {
+    return _readWidgetPrayerTimesForDay(
+      date,
+      times: selectedWidgetPrayerTimes(),
     );
   }
 
@@ -420,8 +393,8 @@ class HomeScreenWidgetService {
         'start': date.millisecondsSinceEpoch,
         'items': prayers
             .map((prayer) => {
-                  'title': prayer.name,
-                  'time': prayer.time,
+                  'title': prayer.time.name,
+                  'time': prayer.displayTime,
                   'url': '',
                 })
             .toList(),
@@ -489,20 +462,6 @@ class _PrayerSnapshot {
   final String dateLabel;
   final String location;
   final String encodedSchedule;
-  final String secondaryName;
-  final String secondaryTime;
-}
-
-class _PrayerPeriod {
-  const _PrayerPeriod({
-    required this.index,
-    required this.name,
-    required this.secondaryName,
-    required this.secondaryTime,
-  });
-
-  final int index;
-  final String name;
   final String secondaryName;
   final String secondaryTime;
 }
