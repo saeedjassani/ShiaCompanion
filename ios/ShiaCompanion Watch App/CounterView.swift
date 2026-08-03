@@ -83,9 +83,15 @@ final class CounterModel: ObservableObject {
 
 // MARK: - View
 
-/// Counting is available four ways so a dhikr can be kept without looking at the watch:
-/// tapping the dial, swiping up/down on it, turning the Digital Crown, and the
-/// double-tap hand gesture on hardware that supports it.
+/// A single control — the dial — owns every way of counting, so each input route lands
+/// on the same button: one screen tap, a hand pinch, and the Digital Crown.
+///
+/// Concentrating them is what gives the pinch anywhere to land. watchOS has no API for
+/// a single pinch: the one first-class hook, `handGestureShortcut`, is wired by the
+/// system to Double Tap. A *single* pinch reaches an app only through AssistiveTouch,
+/// which activates whichever control holds focus — so the dial takes focus on appear,
+/// making it both the Crown's rotation target and the thing a pinch mapped to "Tap"
+/// will hit.
 struct CounterView: View {
     @EnvironmentObject private var model: CounterModel
 
@@ -94,9 +100,7 @@ struct CounterView: View {
     @State private var crownValue: Double = 0
     @State private var lastCrownStep = 0
     @State private var isConfirmingReset = false
-
-    /// Movement under this is a tap, not a swipe.
-    private static let swipeThreshold: CGFloat = 16
+    @FocusState private var isDialFocused: Bool
 
     var body: some View {
         VStack(spacing: 6) {
@@ -106,24 +110,6 @@ struct CounterView: View {
         }
         .padding(.horizontal, 6)
         .padding(.bottom, 4)
-        .focusable()
-        .digitalCrownRotation(
-            $crownValue,
-            from: -Double(CounterModel.maxCount),
-            through: Double(CounterModel.maxCount),
-            by: 1,
-            sensitivity: .medium,
-            isContinuous: false,
-            // We play our own click per count; the built-in detent haptic would double it.
-            isHapticFeedbackEnabled: false
-        )
-        .onChange(of: crownValue) { value in
-            let step = Int(value.rounded())
-            guard step != lastCrownStep else { return }
-            let delta = step - lastCrownStep
-            lastCrownStep = step
-            model.adjust(by: delta)
-        }
         .navigationTitle("Tasbeeh")
         .confirmationDialog(
             "Reset the count?",
@@ -158,6 +144,41 @@ struct CounterView: View {
     }
 
     private var dial: some View {
+        Button {
+            model.adjust(by: 1)
+        } label: {
+            dialFace
+        }
+        .buttonStyle(.plain)
+        .focused($isDialFocused)
+        // Claim focus on arrival so the Crown counts straight away, and so an
+        // AssistiveTouch pinch mapped to "Tap" lands on the dial without the user first
+        // walking the focus ring. Focus is not held captive after that — trapping it
+        // would leave AssistiveTouch users unable to reach minus and reset at all.
+        .onAppear { isDialFocused = true }
+        .digitalCrownRotation(
+            $crownValue,
+            from: -Double(CounterModel.maxCount),
+            through: Double(CounterModel.maxCount),
+            by: 1,
+            sensitivity: .medium,
+            isContinuous: false,
+            // We play our own click per count; the built-in detent haptic would double it.
+            isHapticFeedbackEnabled: false
+        )
+        .onChange(of: crownValue) { value in
+            let step = Int(value.rounded())
+            guard step != lastCrownStep else { return }
+            let delta = step - lastCrownStep
+            lastCrownStep = step
+            model.adjust(by: delta)
+        }
+        .modifier(PrimaryHandGestureShortcut())
+        .accessibilityLabel("Add one")
+        .accessibilityValue("Count \(model.count)")
+    }
+
+    private var dialFace: some View {
         ZStack {
             Circle()
                 .fill(Color.accentColor.opacity(0.15))
@@ -179,7 +200,7 @@ struct CounterView: View {
                     .font(.system(size: 42, weight: .bold, design: .rounded))
                     .minimumScaleFactor(0.4)
                     .lineLimit(1)
-                Text("Tap · Swipe · Crown")
+                Text("Tap · Pinch · Crown")
                     .font(.system(size: 9))
                     .foregroundColor(.secondary)
             }
@@ -188,30 +209,6 @@ struct CounterView: View {
         .frame(maxWidth: .infinity)
         .aspectRatio(1, contentMode: .fit)
         .contentShape(Rectangle())
-        .gesture(dialGesture)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Count")
-        .accessibilityValue("\(model.count)")
-        .accessibilityAdjustableAction { direction in
-            model.adjust(by: direction == .increment ? 1 : -1)
-        }
-    }
-
-    /// One gesture handles both taps and swipes: a `DragGesture` with no minimum
-    /// distance always wins over a separate `TapGesture`, so the two are told apart by
-    /// how far the finger travelled instead of by gesture composition.
-    private var dialGesture: some Gesture {
-        DragGesture(minimumDistance: 0)
-            .onEnded { value in
-                let dx = value.translation.width
-                let dy = value.translation.height
-                if abs(dx) < Self.swipeThreshold && abs(dy) < Self.swipeThreshold {
-                    model.adjust(by: 1)
-                } else if abs(dy) > abs(dx) {
-                    // Swipe up counts on, swipe down takes one back.
-                    model.adjust(by: dy < 0 ? 1 : -1)
-                }
-            }
     }
 
     private var controls: some View {
@@ -231,33 +228,14 @@ struct CounterView: View {
             }
             .disabled(model.count == 0)
             .accessibilityLabel("Reset")
-
-            addButton
         }
         .buttonStyle(.bordered)
         .font(.system(size: 13))
     }
-
-    /// The screen's primary action, which is what the Double Tap hand gesture (pinching
-    /// thumb and index finger) invokes on Series 9 / Ultra 2 and later. Styled prominent
-    /// so the system's Double Tap highlight lands on an obvious control — watchOS gives
-    /// no way to query whether the hardware supports the gesture, so the affordance has
-    /// to read correctly on watches that don't.
-    private var addButton: some View {
-        Button {
-            model.adjust(by: 1)
-        } label: {
-            Image(systemName: "plus")
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.borderedProminent)
-        .accessibilityLabel("Add one")
-        .modifier(PrimaryHandGestureShortcut())
-    }
 }
 
-/// Routes the Double Tap hand gesture to the add button. The modifier is watchOS 11+,
-/// and the app deploys back to watchOS 9.
+/// Routes the Double Tap hand gesture to the dial. The modifier is watchOS 11+, and the
+/// app deploys back to watchOS 9.
 private struct PrimaryHandGestureShortcut: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
