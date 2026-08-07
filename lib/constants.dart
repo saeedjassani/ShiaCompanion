@@ -70,11 +70,6 @@ const String _androidPrayerChannelMigrationKey =
 const int _androidPrayerChannelMigrationVersion = 2;
 const String _androidPrayerChannelVersion = 'v2';
 
-bool shouldUseLiveLocation() {
-  if (!SP.isInitialized) return false;
-  return SP.prefs.getBool('use_live_location') ?? false;
-}
-
 /// Why the most recent [initializeLocation] gave up, so callers can say
 /// something more useful than "failed". Cleared on every success.
 enum LocationFailure {
