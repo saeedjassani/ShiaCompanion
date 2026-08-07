@@ -445,10 +445,14 @@ Future<bool> initializeLocation(
 
     Position currentLocation;
     try {
+      // Medium accuracy is a network/wifi fix rather than a GPS lock: it
+      // returns in about a second instead of tens of seconds, and costs a
+      // fraction of the battery. The precision it gives up is irrelevant here —
+      // a few hundred metres moves any prayer time by well under a second.
       currentLocation = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 20),
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 10),
         ),
       );
     } on TimeoutException catch (e) {
