@@ -75,6 +75,25 @@ bool shouldUseLiveLocation() {
   return SP.prefs.getBool('use_live_location') ?? false;
 }
 
+/// Why the most recent [initializeLocation] gave up, so callers can say
+/// something more useful than "failed". Cleared on every success.
+enum LocationFailure {
+  serviceDisabled,
+  permissionDenied,
+  permissionDeniedForever,
+  timeout,
+  unknown,
+}
+
+LocationFailure? lastLocationFailure;
+
+/// When the position behind the current [lat] / [long] was actually measured.
+///
+/// Not the same as when we fetched it: [initializeLocation] falls back to
+/// `getLastKnownPosition`, which can be hours or days old. Treating that as a
+/// fresh reading would let a caller believe it has an up-to-date fix.
+DateTime? lastLocationFixAt;
+
 bool shouldShowPrecisePrayerAlarmSetting({
   required TargetPlatform platform,
   bool isWeb = kIsWeb,
@@ -386,6 +405,7 @@ Future<bool> initializeLocation(
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       debugPrint("Location service is disabled");
+      lastLocationFailure = LocationFailure.serviceDisabled;
       if (context != null && !kIsWeb) {
         _showLocationServiceDialog(context);
       }
@@ -401,6 +421,10 @@ Future<bool> initializeLocation(
         permissionStatus == LocationPermission.deniedForever ||
         permissionStatus == LocationPermission.unableToDetermine) {
       debugPrint("Location permission not granted: $permissionStatus");
+      lastLocationFailure =
+          permissionStatus == LocationPermission.deniedForever
+              ? LocationFailure.permissionDeniedForever
+              : LocationFailure.permissionDenied;
       if (context != null && !kIsWeb) {
         _showPermissionDeniedDialog(context, permissionStatus);
       }
@@ -433,6 +457,7 @@ Future<bool> initializeLocation(
         currentLocation = lastKnownPosition;
       } else {
         debugPrint("Location request timed out: $e");
+        lastLocationFailure = LocationFailure.timeout;
         if (context != null && !kIsWeb) {
           _showLocationTimeoutDialog(context);
         }
@@ -444,12 +469,19 @@ Future<bool> initializeLocation(
         currentLocation = lastKnownPosition;
       } else {
         debugPrint("Location fetch failed: $e");
+        lastLocationFailure = LocationFailure.unknown;
         if (context != null && !kIsWeb) {
           _showLocationErrorDialog(context, e);
         }
         return false;
       }
     }
+    lastLocationFailure = null;
+    // A device clock ahead of ours would otherwise make a fix look permanently
+    // fresh, so never accept a measurement timestamp from the future.
+    final nowForFix = DateTime.now();
+    final fixedAt = currentLocation.timestamp;
+    lastLocationFixAt = fixedAt.isAfter(nowForFix) ? nowForFix : fixedAt;
     lat = currentLocation.latitude;
     long = currentLocation.longitude;
     final locationChanged = hasPrayerScheduleLocationMoved();
@@ -492,6 +524,7 @@ Future<bool> initializeLocation(
     return true;
   } catch (e) {
     debugPrint(e.toString());
+    lastLocationFailure = LocationFailure.unknown;
     if (context != null && !kIsWeb) {
       _showLocationErrorDialog(context, e);
     }

@@ -23,7 +23,7 @@ void main() {
   Position _pos(double latitude, double longitude) => Position(
         latitude: latitude,
         longitude: longitude,
-        timestamp: DateTime(2020, 1, 1),
+        timestamp: DateTime.now(),
         accuracy: 1,
         altitude: 0,
         altitudeAccuracy: 1,
