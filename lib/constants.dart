@@ -434,6 +434,10 @@ Future<bool> initializeLocation(
     await SP.prefs.setDouble("lat", lat!);
     await SP.prefs.setDouble("long", long!);
 
+    // The city label is cosmetic: prayer times are already correct at this
+    // point regardless of what the geocoder says. So every failure below leaves
+    // the previous label in place rather than degrading it — never coordinates,
+    // never a dialog.
     try {
       final response = await http.get(Uri.parse(
           "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$lat&longitude=$long&localityLanguage=en"));
@@ -441,36 +445,21 @@ Future<bool> initializeLocation(
         final data = jsonDecode(response.body);
         final resolvedCity =
             data['locality'] ?? data['city'] ?? data['principalSubdivision'];
-        final validCity = _validateGeocodeResult(data, resolvedCity);
-        if (validCity != null) {
-          city = validCity;
-          if (SP.prefs.getString("city") != city) needToSchedule = true;
-          if (city != null) await SP.prefs.setString("city", city!);
+        final resolvedLabel = _validateGeocodeResult(data, resolvedCity) ??
+            _validateGeocodeResult(data, _geocodeFallbackLabel(data));
+        if (resolvedLabel != null) {
+          if (city != resolvedLabel) needToSchedule = true;
+          city = resolvedLabel;
+          await SP.prefs.setString("city", resolvedLabel);
         } else {
           debugPrint(
-              "Geocode did not resolve a city name ('$resolvedCity'); using a broader location label.");
-          // Don't keep a stale previous city: reflect the new coordinates.
-          final fallback = _geocodeFallbackLabel(data, lat!, long!);
-          if (fallback != city) needToSchedule = true;
-          city = fallback;
-          await SP.prefs.setString("city", city!);
-          if (context != null && !kIsWeb) {
-            _showGeocodeFallbackDialog(context);
-          }
+              "Geocode did not resolve a usable label ('$resolvedCity'); keeping ${city ?? 'no label'}.");
         }
       } else {
         debugPrint("Geocode returned status ${response.statusCode}");
-        if (locationChanged) {
-          city = _geocodeFallbackLabel({}, lat!, long!);
-          await SP.prefs.setString("city", city!);
-        }
       }
     } catch (e) {
       debugPrint("Error getting city: $e");
-      if (locationChanged) {
-        city = _geocodeFallbackLabel({}, lat!, long!);
-        await SP.prefs.setString("city", city!);
-      }
     }
     if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
       await setUpNotifications();
@@ -485,58 +474,49 @@ Future<bool> initializeLocation(
   }
 }
 
+/// Sanity-checks a reverse-geocode label before we show it.
+///
+/// The city name is display-only — prayer times are computed from lat/long, so
+/// this guards a label, not a calculation, and it stays deliberately loose. A
+/// two-letter `countryCode` means the coordinates landed in a real country,
+/// which is what rules out the ocean fixes emulators produce at (0, 0). Nothing
+/// more is required: demanding a populated `localityInfo.administrative` tree
+/// on top of that rejected perfectly good names in city-states and small
+/// territories, where the admin hierarchy is sparse.
 String? _validateGeocodeResult(
     Map<String, dynamic> data, String? resolvedCity) {
   if (resolvedCity == null || resolvedCity.trim().isEmpty) return null;
 
   final trimmed = resolvedCity.trim();
 
-  final countryCode = (data['countryCode'] ?? '').toString().trim().toUpperCase();
-  final hasCountryCode = countryCode.length == 2;
-  if (!hasCountryCode) return null;
+  final countryCode =
+      (data['countryCode'] ?? '').toString().trim().toUpperCase();
+  if (countryCode.length != 2) return null;
 
-  final localityInfo = data['localityInfo'];
-  if (localityInfo is Map) {
-    final administrative = localityInfo['administrative'];
-    if (administrative is List && administrative.isNotEmpty) {
-      final hasAdminArea = administrative.any((entry) {
-        if (entry is Map) {
-          // BigDataCloud reports admin level as `adminLevel` (2 = country,
-          // 4 = first-order subdivision). Older schemas used `level` '0'/'1'.
-          final level = entry['adminLevel'] ?? entry['level'];
-          final name = (entry['name'] ?? '').toString().trim();
-          final isCountryOrState =
-              level == 2 || level == 4 || level == '0' || level == '1';
-          if (isCountryOrState) return name.isNotEmpty;
-        }
-        return false;
-      });
-      if (!hasAdminArea) return null;
-    } else {
-      return null;
-    }
-  } else {
-    return null;
-  }
-
-  if (RegExp(r'^\d+\.?\d*\s*[ns]\s*\d+\.?\d*\s*[ew]$').hasMatch(trimmed)) {
+  if (RegExp(r'^\d+\.?\d*\s*[ns]\s*\d+\.?\d*\s*[ew]$', caseSensitive: false)
+      .hasMatch(trimmed)) {
     return null;
   }
 
   return trimmed;
 }
 
-/// Builds a readable location label from a geocode response when a precise
-/// city name can't be validated. Prefers the subdivision/country and falls
-/// back to raw coordinates so the UI never shows a stale previous location.
-String _geocodeFallbackLabel(Map<String, dynamic> data, double lat, double long) {
-  final candidate = (data['principalSubdivision'] ??
-      data['countryName'] ??
-      data['locality'] ??
-      '').toString().trim();
-  return candidate.isNotEmpty
-      ? candidate
-      : '${lat.toStringAsFixed(2)}, ${long.toStringAsFixed(2)}';
+/// Best readable label available from a geocode response when the primary
+/// locality can't be used. Widens from the city outwards and gives up rather
+/// than inventing something: returning null keeps whatever label we already
+/// had, because a stale city name reads better than raw coordinates — and this
+/// string is published to the home screen widget and watch complication.
+String? _geocodeFallbackLabel(Map<String, dynamic> data) {
+  for (final key in const [
+    'locality',
+    'city',
+    'principalSubdivision',
+    'countryName',
+  ]) {
+    final candidate = (data[key] ?? '').toString().trim();
+    if (candidate.isNotEmpty) return candidate;
+  }
+  return null;
 }
 
 void _showLocationServiceDialog(BuildContext context) {
@@ -560,27 +540,6 @@ void _showLocationServiceDialog(BuildContext context) {
               await Geolocator.openLocationSettings();
             },
             child: const Text('Open Settings'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-void _showGeocodeFallbackDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext dialogContext) {
-      return AlertDialog(
-        title: const Text('Location Uncertain'),
-        content: const Text(
-          'We couldn\'t determine a precise city name for your current coordinates. Showing a broader location instead.',
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('OK'),
           ),
         ],
       );
