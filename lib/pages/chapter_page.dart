@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
@@ -79,6 +81,23 @@ class _ChapterPageState extends State<ChapterPage>
   /// When we arrive in a chapter by paging *backwards* out of the next one, the
   /// reader should land on its last page rather than its first.
   bool _landOnLastPage = false;
+
+  // Tap-to-turn. The page text is selectable, and SelectableText registers its
+  // own tap recognizer — a descendant recognizer wins the gesture arena over an
+  // ancestor GestureDetector, so taps landing on text would never reach one.
+  // Listener sees raw pointer events regardless of the arena, so we recognise
+  // the tap ourselves and leave selection untouched.
+  static const double _tapTurnZoneFraction = 0.3;
+  static const double _tapMoveSlop = 12;
+
+  Offset? _pointerDownPosition;
+  Duration? _pointerDownTimestamp;
+  Duration? _lastTapTurnTimestamp;
+  bool _hasTextSelection = false;
+
+  /// Whether text was selected when the current tap started. Such a tap is the
+  /// one that dismisses the selection, so it shouldn't also turn the page.
+  bool _tapStartedWithSelection = false;
 
   final Stopwatch _activeReadingTime = Stopwatch();
 
@@ -403,6 +422,7 @@ class _ChapterPageState extends State<ChapterPage>
     if (bookSlug == null) return;
 
     _saveProgress();
+    _hasTextSelection = false;
 
     final chapter = widget.chapters[targetIndex];
     final previousController = _pageController;
@@ -503,20 +523,25 @@ class _ChapterPageState extends State<ChapterPage>
         final slotCount =
             _leadingSlotCount + pageCount + (_hasNextChapter ? 1 : 0);
 
-        return PageView.builder(
-          controller: _pageController,
-          itemCount: slotCount,
-          onPageChanged: _onPageChanged,
-          itemBuilder: (context, index) {
-            final contentIndex = index - _leadingSlotCount;
-            if (contentIndex < 0) {
-              return _buildChapterHandoff(forward: false);
-            }
-            if (contentIndex >= pageCount) {
-              return _buildChapterHandoff(forward: true);
-            }
-            return _buildPage(contentIndex);
-          },
+        return Listener(
+          onPointerDown: _onPointerDown,
+          onPointerCancel: _onPointerCancel,
+          onPointerUp: (event) => _onPointerUp(event, constraints.maxWidth),
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: slotCount,
+            onPageChanged: _onPageChanged,
+            itemBuilder: (context, index) {
+              final contentIndex = index - _leadingSlotCount;
+              if (contentIndex < 0) {
+                return _buildChapterHandoff(forward: false);
+              }
+              if (contentIndex >= pageCount) {
+                return _buildChapterHandoff(forward: true);
+              }
+              return _buildPage(contentIndex);
+            },
+          ),
         );
       },
     );
@@ -536,6 +561,10 @@ class _ChapterPageState extends State<ChapterPage>
       return;
     }
 
+    // Any selection belonged to the page we just left, and its text may be
+    // disposed without reporting the change.
+    _hasTextSelection = false;
+
     setState(() {
       _currentPageIndex = contentIndex;
       _savedBlockIndex = _blockIndexForPage(result, contentIndex);
@@ -546,6 +575,62 @@ class _ChapterPageState extends State<ChapterPage>
     if (contentIndex <= 1 || contentIndex >= result.pageCount - 2) {
       _prefetchAdjacentChapters();
     }
+  }
+
+  /// Tracks whether any text on the page is currently selected. Read only by
+  /// the tap handler, so there's nothing to rebuild.
+  void _onSelectionChanged(
+    String? text,
+    TextSelection selection,
+    SelectionChangedCause? cause,
+  ) {
+    _hasTextSelection = selection.isValid && !selection.isCollapsed;
+  }
+
+  void _onPointerDown(PointerDownEvent event) {
+    _pointerDownPosition = event.localPosition;
+    _pointerDownTimestamp = event.timeStamp;
+    _tapStartedWithSelection = _hasTextSelection;
+  }
+
+  void _onPointerCancel(PointerCancelEvent event) {
+    _pointerDownPosition = null;
+    _pointerDownTimestamp = null;
+  }
+
+  void _onPointerUp(PointerUpEvent event, double readerWidth) {
+    final downPosition = _pointerDownPosition;
+    final downTimestamp = _pointerDownTimestamp;
+    _pointerDownPosition = null;
+    _pointerDownTimestamp = null;
+
+    if (downPosition == null || downTimestamp == null) return;
+    if (!_paginationReady || _isChangingChapter) return;
+
+    // A drag — a page swipe, or a selection drag on desktop.
+    if ((event.localPosition - downPosition).distance > _tapMoveSlop) return;
+    // Held long enough that the text is starting a selection instead.
+    if (event.timeStamp - downTimestamp >= kLongPressTimeout) return;
+    // The tap that clears an existing selection stops there.
+    if (_tapStartedWithSelection) return;
+    // The second half of a double tap selects a word; it shouldn't also turn a
+    // second page.
+    final lastTurn = _lastTapTurnTimestamp;
+    if (lastTurn != null && event.timeStamp - lastTurn < kDoubleTapTimeout) {
+      return;
+    }
+
+    final zoneWidth = readerWidth * _tapTurnZoneFraction;
+    final x = event.localPosition.dx;
+    if (x <= zoneWidth) {
+      _lastTapTurnTimestamp = event.timeStamp;
+      _goToPreviousPage();
+    } else if (x >= readerWidth - zoneWidth) {
+      _lastTapTurnTimestamp = event.timeStamp;
+      _goToNextPage();
+    }
+    // The middle of the page is deliberately inert, so tapping to dismiss a
+    // selection or to reach for a word never moves the reader by accident.
   }
 
   /// The page shown while a swipe carries the reader across a chapter
@@ -611,6 +696,7 @@ class _ChapterPageState extends State<ChapterPage>
               data: renderText,
               selectable: true,
               styleSheet: _readerStyleSheet(context),
+              onSelectionChanged: _onSelectionChanged,
             ),
           ),
         ),
