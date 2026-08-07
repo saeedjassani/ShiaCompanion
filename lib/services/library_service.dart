@@ -18,6 +18,12 @@ class LibraryService {
   static List<UidTitleData>? _cachedBooks;
   static final Map<String, List<UidTitleData>> _chapterCache = {};
 
+  /// Recently fetched chapter markdown, keyed by `bookSlug/chapterSlug`. Kept
+  /// small — it exists so paging across a chapter boundary (and prefetching the
+  /// chapter ahead) doesn't re-hit the network, not as a full offline store.
+  static final Map<String, String> _markdownCache = {};
+  static const int _markdownCacheLimit = 8;
+
   static Future<List<UidTitleData>> loadBooks() async {
     final cached = _cachedBooks;
     if (cached != null) return cached;
@@ -46,6 +52,13 @@ class LibraryService {
     if (cached != null) return cached;
 
     if (!NetworkUtils().isOnline) {
+      // A book saved for offline reading carries its own chapter list, so
+      // being offline shouldn't lock the reader out of it.
+      final saved = await _savedChaptersOrNull(bookSlug);
+      if (saved != null) {
+        _chapterCache[bookSlug] = saved;
+        return saved;
+      }
       throw const LibraryLoadException(
         'Library browsing needs a network connection.',
       );
@@ -54,6 +67,11 @@ class LibraryService {
     final response =
         await http.get(Uri.parse('$_libraryBaseUrl/$bookSlug/metadata.yml'));
     if (response.statusCode != 200) {
+      final saved = await _savedChaptersOrNull(bookSlug);
+      if (saved != null) {
+        _chapterCache[bookSlug] = saved;
+        return saved;
+      }
       throw LibraryLoadException(
         'Unable to load chapters. Please try again.',
         statusCode: response.statusCode,
@@ -81,6 +99,15 @@ class LibraryService {
   }
 
   static Future<String> loadChapterMarkdown(String slug) async {
+    final cached = _markdownCache[slug];
+    if (cached != null) return cached;
+
+    final saved = await _readSavedChapterMarkdown(slug);
+    if (saved != null) {
+      _cacheMarkdown(slug, saved);
+      return saved;
+    }
+
     if (!NetworkUtils().isOnline) {
       throw const LibraryLoadException(
         'Reading books needs a network connection.',
@@ -94,7 +121,53 @@ class LibraryService {
         statusCode: response.statusCode,
       );
     }
+    _cacheMarkdown(slug, response.body);
     return response.body;
+  }
+
+  /// Loads a chapter into the cache in the background, ignoring failures. Used
+  /// to have the next chapter ready before the reader swipes into it.
+  static Future<void> prefetchChapterMarkdown(String slug) async {
+    if (_markdownCache.containsKey(slug)) return;
+    try {
+      await loadChapterMarkdown(slug);
+    } catch (_) {
+      // A prefetch is best-effort; the real load will surface any error.
+    }
+  }
+
+  static void _cacheMarkdown(String slug, String markdown) {
+    if (_markdownCache.length >= _markdownCacheLimit) {
+      _markdownCache.remove(_markdownCache.keys.first);
+    }
+    _markdownCache[slug] = markdown;
+  }
+
+  /// The on-disk copy of a chapter, if the book was saved for offline reading.
+  /// Returns null on web (no application documents directory) and whenever the
+  /// book simply isn't saved.
+  static Future<String?> _readSavedChapterMarkdown(String slug) async {
+    final separator = slug.lastIndexOf('/');
+    if (separator <= 0) return null;
+
+    try {
+      return await loadSavedChapterMarkdown(
+        slug.substring(0, separator),
+        slug.substring(separator + 1),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<List<UidTitleData>?> _savedChaptersOrNull(
+      String bookSlug) async {
+    try {
+      final saved = await loadSavedChapters(bookSlug);
+      return saved.isEmpty ? null : saved;
+    } catch (_) {
+      return null;
+    }
   }
 
   static String _yamlPayload(String body) {

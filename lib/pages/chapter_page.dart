@@ -1,11 +1,12 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/library_progress_store.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
-import 'package:shia_companion/utils/markdown_block_parser.dart';
 import 'package:shia_companion/utils/page_layout_engine.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
@@ -44,12 +45,18 @@ class _ChapterPageState extends State<ChapterPage>
   static const double _maxFontSize = 28;
   static const double _lineHeight = 1.55;
 
-  // A brief open (e.g. looking something up) shouldn't register as "reading"
-  // and surface a Continue Reading entry for it. Progress is only persisted
-  // once the chapter has been actively open for at least this long.
-  static const Duration _minReadingDuration = Duration(seconds: 20);
+  // A glance at a chapter (e.g. following a link and backing straight out)
+  // shouldn't register as "reading" and surface a Continue Reading entry for
+  // it. Progress is only persisted once the chapter has been actively open for
+  // at least this long — short enough that anyone who actually started reading
+  // gets their place back.
+  static const Duration _minReadingDuration = Duration(seconds: 5);
 
   late Future<String> _chapterFuture;
+  late String _slug;
+  late String _title;
+  late int _chapterIndex;
+
   double _readerFontSize = 18;
   bool _isSaved = false;
   bool _isSaving = false;
@@ -60,11 +67,37 @@ class _ChapterPageState extends State<ChapterPage>
   Uri? _previousBrowserUri;
 
   PaginationResult? _result;
+  String? _paginatedMarkdown;
   PageController? _pageController;
   int _currentPageIndex = 0;
   int _savedBlockIndex = 0;
   double _pageHeight = 0;
   double _contentWidth = 400;
+
+  /// Set while a neighbouring chapter is being opened, so a second swipe (or a
+  /// button press) can't kick off a competing chapter change.
+  bool _isChangingChapter = false;
+
+  /// When we arrive in a chapter by paging *backwards* out of the next one, the
+  /// reader should land on its last page rather than its first.
+  bool _landOnLastPage = false;
+
+  // Tap-to-turn. The page text is selectable, and SelectableText registers its
+  // own tap recognizer — a descendant recognizer wins the gesture arena over an
+  // ancestor GestureDetector, so taps landing on text would never reach one.
+  // Listener sees raw pointer events regardless of the arena, so we recognise
+  // the tap ourselves and leave selection untouched.
+  static const double _tapTurnZoneFraction = 0.3;
+  static const double _tapMoveSlop = 12;
+
+  Offset? _pointerDownPosition;
+  Duration? _pointerDownTimestamp;
+  Duration? _lastTapTurnTimestamp;
+  bool _hasTextSelection = false;
+
+  /// Whether text was selected when the current tap started. Such a tap is the
+  /// one that dismisses the selection, so it shouldn't also turn the page.
+  bool _tapStartedWithSelection = false;
 
   final Stopwatch _activeReadingTime = Stopwatch();
 
@@ -75,8 +108,11 @@ class _ChapterPageState extends State<ChapterPage>
     trackScreen('Chapter Page');
     _readerFontSize = (widget.initialFontSize ?? englishFontSize)
         .clamp(_minFontSize, _maxFontSize);
+    _slug = widget.slug;
+    _title = widget.title;
+    _chapterIndex = widget.chapterIndex;
     _savedBlockIndex = widget.initialPageIndex;
-    _chapterFuture = LibraryService.loadChapterMarkdown(widget.slug);
+    _chapterFuture = LibraryService.loadChapterMarkdown(_slug);
     _checkSaved();
     _activeReadingTime.start();
   }
@@ -106,14 +142,35 @@ class _ChapterPageState extends State<ChapterPage>
   }
 
   String? get _chapterSlug {
-    final segments = widget.slug.split('/');
+    final segments = _slug.split('/');
     return segments.isNotEmpty ? segments.last : null;
   }
 
-  void _scheduleCurrentWebRouteSync({bool replace = false}) {
+  String? get _bookSlug {
     final bookSlug = widget.bookSlug;
+    if (bookSlug != null && bookSlug.trim().isNotEmpty) return bookSlug.trim();
+    final separator = _slug.lastIndexOf('/');
+    return separator > 0 ? _slug.substring(0, separator) : null;
+  }
+
+  /// Whether this chapter knows its siblings, i.e. whether reading can flow on
+  /// past its edges.
+  bool get _hasChapterList =>
+      _chapterIndex >= 0 && _chapterIndex < widget.chapters.length;
+
+  bool get _hasPreviousChapter => _hasChapterList && _chapterIndex > 0;
+
+  bool get _hasNextChapter =>
+      _hasChapterList && _chapterIndex < widget.chapters.length - 1;
+
+  /// The PageView carries one extra leading page when a previous chapter
+  /// exists, so swiping back off page one flows into it.
+  int get _leadingSlotCount => _hasPreviousChapter ? 1 : 0;
+
+  void _scheduleCurrentWebRouteSync({bool replace = false}) {
+    final bookSlug = _bookSlug;
     final chapterSlug = _chapterSlug;
-    if (bookSlug == null || bookSlug.trim().isEmpty || chapterSlug == null) {
+    if (bookSlug == null || chapterSlug == null) {
       return;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -154,9 +211,9 @@ class _ChapterPageState extends State<ChapterPage>
 
   Future<void> _shareChapter() async {
     if (_isSharing) return;
-    final bookSlug = widget.bookSlug;
+    final bookSlug = _bookSlug;
     final chapterSlug = _chapterSlug;
-    if (bookSlug == null || bookSlug.trim().isEmpty || chapterSlug == null) {
+    if (bookSlug == null || chapterSlug == null) {
       return;
     }
 
@@ -167,7 +224,7 @@ class _ChapterPageState extends State<ChapterPage>
         chapterSlug: chapterSlug,
       );
       await SharePlus.instance.share(
-        ShareParams(text: '${widget.title}\n$deepLink'),
+        ShareParams(text: '$_title\n$deepLink'),
       );
     } finally {
       if (mounted) setState(() => _isSharing = false);
@@ -217,7 +274,7 @@ class _ChapterPageState extends State<ChapterPage>
           );
         }
       } else {
-        final title = widget.bookTitle ?? widget.title;
+        final title = widget.bookTitle ?? _title;
         await LibraryService.saveBookForOffline(bookSlug, title);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -239,7 +296,8 @@ class _ChapterPageState extends State<ChapterPage>
 
   void _retry() {
     setState(() {
-      _chapterFuture = LibraryService.loadChapterMarkdown(widget.slug);
+      _isChangingChapter = false;
+      _chapterFuture = LibraryService.loadChapterMarkdown(_slug);
     });
   }
 
@@ -260,36 +318,51 @@ class _ChapterPageState extends State<ChapterPage>
     _saveProgress();
   }
 
+  PaginationResult _computePagination(String markdown) {
+    return PageLayoutEngine(
+      markdown: markdown,
+      contentWidth: _contentWidth,
+      contentHeight: _pageHeight,
+      fontSize: _readerFontSize,
+      lineHeight: _lineHeight,
+      styleSheet: _readerStyleSheet(context),
+    ).compute();
+  }
+
+  /// The page that should be shown for the position we're restoring: the last
+  /// page when paging backwards into a chapter, otherwise the page holding the
+  /// block the reader last saw.
+  int _resolveTargetPage(PaginationResult result) {
+    if (result.pageCount == 0) return 0;
+    if (_landOnLastPage) return result.pageCount - 1;
+
+    for (var page = 0; page < result.pageBlocks.length; page++) {
+      for (final paginatedBlock in result.pageBlocks[page]) {
+        if (paginatedBlock.originalIndex == _savedBlockIndex) return page;
+      }
+    }
+    return 0;
+  }
+
+  int _blockIndexForPage(PaginationResult result, int page) {
+    if (page < 0 || page >= result.pageBlocks.length) return _savedBlockIndex;
+    final blocks = result.pageBlocks[page];
+    return blocks.isEmpty ? _savedBlockIndex : blocks.first.originalIndex;
+  }
+
   void _repaginate() {
-    if (_result != null && _pageHeight > 0) {
-      final styleSheet = _readerStyleSheet(context);
-      final engine = PageLayoutEngine(
-        markdown: _result!.blocks.map((b) => b.rawText).join('\n\n'),
-        contentWidth: _contentWidth,
-        contentHeight: _pageHeight,
-        fontSize: _readerFontSize,
-        lineHeight: _lineHeight,
-        styleSheet: styleSheet,
-      );
-      final result = engine.compute();
-      int targetPage = 0;
-      for (var p = 0; p < result.pageBlocks.length; p++) {
-        for (final paginatedBlock in result.pageBlocks[p]) {
-          if (paginatedBlock.originalIndex == _savedBlockIndex) {
-            targetPage = p;
-            break;
-          }
-        }
-        if (targetPage == p) break;
-      }
-      setState(() {
-        _result = result;
-        _paginationReady = true;
-        _currentPageIndex = targetPage;
-      });
-      if (_pageController != null && _pageController!.hasClients) {
-        _pageController!.jumpToPage(targetPage);
-      }
+    final markdown = _paginatedMarkdown;
+    if (markdown == null || _pageHeight <= 0) return;
+
+    final result = _computePagination(markdown);
+    final targetPage = _resolveTargetPage(result);
+    setState(() {
+      _result = result;
+      _paginationReady = true;
+      _currentPageIndex = targetPage;
+    });
+    if (_pageController != null && _pageController!.hasClients) {
+      _pageController!.jumpToPage(_leadingSlotCount + targetPage);
     }
   }
 
@@ -299,11 +372,8 @@ class _ChapterPageState extends State<ChapterPage>
     final bookSlug = widget.bookSlug;
     if (bookSlug == null || bookSlug.trim().isEmpty) return;
 
-    final fallbackChapterSlug = widget.slug.split('/').last;
-    final chapterSlug =
-        widget.chapterIndex >= 0 && widget.chapterIndex < widget.chapters.length
-            ? widget.chapters[widget.chapterIndex].uid
-            : fallbackChapterSlug;
+    final chapterSlug = _chapterSlug;
+    if (chapterSlug == null || chapterSlug.isEmpty) return;
 
     final pageCount = _result?.pageCount ?? 1;
     LibraryProgressStore.instance.save(
@@ -311,8 +381,8 @@ class _ChapterPageState extends State<ChapterPage>
         bookSlug: bookSlug,
         bookTitle: widget.bookTitle ?? '',
         chapterSlug: chapterSlug,
-        chapterTitle: widget.title,
-        chapterIndex: widget.chapterIndex,
+        chapterTitle: _title,
+        chapterIndex: _chapterIndex,
         pageIndex: _savedBlockIndex,
         pageCount: pageCount,
         fontSize: _readerFontSize,
@@ -321,9 +391,75 @@ class _ChapterPageState extends State<ChapterPage>
     );
   }
 
+  /// Warms the cache for the chapters either side of this one so paging across
+  /// a chapter boundary is instant instead of hitting the network mid-swipe.
+  void _prefetchAdjacentChapters() {
+    final bookSlug = _bookSlug;
+    if (bookSlug == null) return;
+
+    if (_hasNextChapter) {
+      LibraryService.prefetchChapterMarkdown(
+        '$bookSlug/${widget.chapters[_chapterIndex + 1].uid}',
+      );
+    }
+    if (_hasPreviousChapter) {
+      LibraryService.prefetchChapterMarkdown(
+        '$bookSlug/${widget.chapters[_chapterIndex - 1].uid}',
+      );
+    }
+  }
+
+  /// Continues reading into the chapter before or after this one, in place, so
+  /// the book reads as one continuous flow and Back still returns to whatever
+  /// opened the reader.
+  void _openAdjacentChapter({required bool forward}) {
+    if (_isChangingChapter) return;
+
+    final targetIndex = _chapterIndex + (forward ? 1 : -1);
+    if (targetIndex < 0 || targetIndex >= widget.chapters.length) return;
+
+    final bookSlug = _bookSlug;
+    if (bookSlug == null) return;
+
+    _saveProgress();
+    _hasTextSelection = false;
+
+    final chapter = widget.chapters[targetIndex];
+    final previousController = _pageController;
+
+    setState(() {
+      _isChangingChapter = true;
+      _chapterIndex = targetIndex;
+      _title = chapter.title;
+      _slug = '$bookSlug/${chapter.uid}';
+      _chapterFuture = LibraryService.loadChapterMarkdown(_slug);
+      _result = null;
+      _paginatedMarkdown = null;
+      _paginationReady = false;
+      _currentPageIndex = 0;
+      _savedBlockIndex = 0;
+      _landOnLastPage = !forward;
+      _pageController = null;
+    });
+
+    // The PageView is still mounted for this frame; disposing its controller
+    // before it detaches would throw.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      previousController?.dispose();
+    });
+
+    _scheduleCurrentWebRouteSync(replace: true);
+  }
+
   MarkdownStyleSheet _readerStyleSheet(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+      // Justified body text is what makes a page read like a printed book
+      // rather than a web page. WrapAlignment.spaceBetween is how
+      // flutter_markdown_plus spells TextAlign.justify. Headings and list items
+      // stay ragged-right — justifying short lines just stretches them.
+      textAlign: WrapAlignment.spaceBetween,
+      blockquoteAlign: WrapAlignment.spaceBetween,
       p: textTheme.bodyLarge?.copyWith(
         fontSize: _readerFontSize,
         height: _lineHeight,
@@ -351,8 +487,6 @@ class _ChapterPageState extends State<ChapterPage>
   }
 
   Widget _buildPagedReader(String chapterMarkdown) {
-    final blocks = MarkdownBlockParser.parse(chapterMarkdown);
-    
     return LayoutBuilder(
       builder: (context, constraints) {
         _pageHeight = constraints.maxHeight;
@@ -362,60 +496,180 @@ class _ChapterPageState extends State<ChapterPage>
 
         if (!_paginationReady) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && _pageHeight > 0) {
-              final styleSheet = _readerStyleSheet(context);
-              final engine = PageLayoutEngine(
-                markdown: blocks.map((b) => b.rawText).join('\n\n'),
-                contentWidth: _contentWidth,
-                contentHeight: _pageHeight,
-                fontSize: _readerFontSize,
-                lineHeight: _lineHeight,
-                styleSheet: styleSheet,
-              );
+            if (!mounted || _paginationReady || _pageHeight <= 0) return;
 
-              final result = engine.compute();
-              int targetPage = 0;
-              for (var p = 0; p < result.pageBlocks.length; p++) {
-                for (final paginatedBlock in result.pageBlocks[p]) {
-                  if (paginatedBlock.originalIndex == _savedBlockIndex) {
-                    targetPage = p;
-                    break;
-                  }
-                }
-                if (targetPage == p) break;
-              }
-              
-              setState(() {
-                _pageController = PageController(initialPage: targetPage);
-                _result = result;
-                _paginationReady = true;
-                _currentPageIndex = targetPage;
-              });
-            }
+            final result = _computePagination(chapterMarkdown);
+            final targetPage = _resolveTargetPage(result);
+
+            setState(() {
+              _result = result;
+              _paginatedMarkdown = chapterMarkdown;
+              _paginationReady = true;
+              _isChangingChapter = false;
+              _landOnLastPage = false;
+              _currentPageIndex = targetPage;
+              _savedBlockIndex = _blockIndexForPage(result, targetPage);
+              _pageController = PageController(
+                initialPage: _leadingSlotCount + targetPage,
+              );
+            });
+            _prefetchAdjacentChapters();
           });
-          
+
           return const Center(child: CircularProgressIndicator());
         }
 
         final pageCount = _result?.pageCount ?? 1;
+        final slotCount =
+            _leadingSlotCount + pageCount + (_hasNextChapter ? 1 : 0);
 
-        return PageView.builder(
-          controller: _pageController,
-          itemCount: pageCount,
-          onPageChanged: (page) {
-            setState(() {
-              _currentPageIndex = page;
-              if (_result!.pageBlocks.isNotEmpty &&
-                  page < _result!.pageBlocks.length &&
-                  _result!.pageBlocks[page].isNotEmpty) {
-                _savedBlockIndex = _result!.pageBlocks[page].first.originalIndex;
+        return Listener(
+          onPointerDown: _onPointerDown,
+          onPointerCancel: _onPointerCancel,
+          onPointerUp: (event) => _onPointerUp(event, constraints.maxWidth),
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: slotCount,
+            onPageChanged: _onPageChanged,
+            itemBuilder: (context, index) {
+              final contentIndex = index - _leadingSlotCount;
+              if (contentIndex < 0) {
+                return _buildChapterHandoff(forward: false);
               }
-            });
-            _saveProgress();
-          },
-          itemBuilder: (context, pageIndex) => _buildPage(pageIndex),
+              if (contentIndex >= pageCount) {
+                return _buildChapterHandoff(forward: true);
+              }
+              return _buildPage(contentIndex);
+            },
+          ),
         );
       },
+    );
+  }
+
+  void _onPageChanged(int index) {
+    final result = _result;
+    if (result == null) return;
+
+    final contentIndex = index - _leadingSlotCount;
+    if (contentIndex < 0) {
+      _openAdjacentChapter(forward: false);
+      return;
+    }
+    if (contentIndex >= result.pageCount) {
+      _openAdjacentChapter(forward: true);
+      return;
+    }
+
+    // Any selection belonged to the page we just left, and its text may be
+    // disposed without reporting the change.
+    _hasTextSelection = false;
+
+    setState(() {
+      _currentPageIndex = contentIndex;
+      _savedBlockIndex = _blockIndexForPage(result, contentIndex);
+    });
+    _saveProgress();
+
+    // Reading up to an edge is the cue to have the neighbour ready.
+    if (contentIndex <= 1 || contentIndex >= result.pageCount - 2) {
+      _prefetchAdjacentChapters();
+    }
+  }
+
+  /// Tracks whether any text on the page is currently selected. Read only by
+  /// the tap handler, so there's nothing to rebuild.
+  void _onSelectionChanged(
+    String? text,
+    TextSelection selection,
+    SelectionChangedCause? cause,
+  ) {
+    _hasTextSelection = selection.isValid && !selection.isCollapsed;
+  }
+
+  void _onPointerDown(PointerDownEvent event) {
+    _pointerDownPosition = event.localPosition;
+    _pointerDownTimestamp = event.timeStamp;
+    _tapStartedWithSelection = _hasTextSelection;
+  }
+
+  void _onPointerCancel(PointerCancelEvent event) {
+    _pointerDownPosition = null;
+    _pointerDownTimestamp = null;
+  }
+
+  void _onPointerUp(PointerUpEvent event, double readerWidth) {
+    final downPosition = _pointerDownPosition;
+    final downTimestamp = _pointerDownTimestamp;
+    _pointerDownPosition = null;
+    _pointerDownTimestamp = null;
+
+    if (downPosition == null || downTimestamp == null) return;
+    if (!_paginationReady || _isChangingChapter) return;
+
+    // A drag — a page swipe, or a selection drag on desktop.
+    if ((event.localPosition - downPosition).distance > _tapMoveSlop) return;
+    // Held long enough that the text is starting a selection instead.
+    if (event.timeStamp - downTimestamp >= kLongPressTimeout) return;
+    // The tap that clears an existing selection stops there.
+    if (_tapStartedWithSelection) return;
+    // The second half of a double tap selects a word; it shouldn't also turn a
+    // second page.
+    final lastTurn = _lastTapTurnTimestamp;
+    if (lastTurn != null && event.timeStamp - lastTurn < kDoubleTapTimeout) {
+      return;
+    }
+
+    final zoneWidth = readerWidth * _tapTurnZoneFraction;
+    final x = event.localPosition.dx;
+    if (x <= zoneWidth) {
+      _lastTapTurnTimestamp = event.timeStamp;
+      _goToPreviousPage();
+    } else if (x >= readerWidth - zoneWidth) {
+      _lastTapTurnTimestamp = event.timeStamp;
+      _goToNextPage();
+    }
+    // The middle of the page is deliberately inert, so tapping to dismiss a
+    // selection or to reach for a word never moves the reader by accident.
+  }
+
+  /// The page shown while a swipe carries the reader across a chapter
+  /// boundary. It names the chapter being entered, so the handoff reads as
+  /// part of the book rather than as a stall.
+  Widget _buildChapterHandoff({required bool forward}) {
+    final theme = Theme.of(context);
+    final index = _chapterIndex + (forward ? 1 : -1);
+    final title = index >= 0 && index < widget.chapters.length
+        ? widget.chapters[index].title
+        : '';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              forward ? 'Next chapter' : 'Previous chapter',
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 20),
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -442,6 +696,7 @@ class _ChapterPageState extends State<ChapterPage>
               data: renderText,
               selectable: true,
               styleSheet: _readerStyleSheet(context),
+              onSelectionChanged: _onSelectionChanged,
             ),
           ),
         ),
@@ -464,21 +719,34 @@ class _ChapterPageState extends State<ChapterPage>
     );
   }
 
+  bool get _canGoBack =>
+      _paginationReady && (_currentPageIndex > 0 || _hasPreviousChapter);
+
+  bool get _canGoForward =>
+      _paginationReady &&
+      (_currentPageIndex < (_result?.pageCount ?? 1) - 1 || _hasNextChapter);
+
   void _goToPreviousPage() {
+    if (!_paginationReady) return;
     if (_currentPageIndex > 0) {
       _pageController?.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    } else if (_hasPreviousChapter) {
+      _openAdjacentChapter(forward: false);
     }
   }
 
   void _goToNextPage() {
-    if (_result != null && _currentPageIndex < _result!.pageCount - 1) {
+    if (!_paginationReady) return;
+    if (_currentPageIndex < (_result?.pageCount ?? 1) - 1) {
       _pageController?.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    } else if (_hasNextChapter) {
+      _openAdjacentChapter(forward: true);
     }
   }
 
@@ -512,12 +780,15 @@ class _ChapterPageState extends State<ChapterPage>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final bookSlug = widget.bookSlug;
     final pageCount = _result?.pageCount ?? 1;
+    final progress =
+        pageCount <= 1 ? 1.0 : (_currentPageIndex + 1) / pageCount;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(_title),
         actions: [
           if (bookSlug != null && bookSlug.trim().isNotEmpty) ...[
             IconButton(
@@ -568,55 +839,69 @@ class _ChapterPageState extends State<ChapterPage>
         },
       ),
       bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
-          child: Row(
-            children: [
-              IconButton(
-                tooltip: 'Previous page',
-                icon: const Icon(Icons.chevron_left),
-                onPressed: _paginationReady && _currentPageIndex > 0
-                    ? _goToPreviousPage
-                    : null,
-              ),
-              if (_paginationReady)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    '${_currentPageIndex + 1} / $pageCount',
-                    style: Theme.of(context).textTheme.bodyMedium,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LinearProgressIndicator(
+              value: _paginationReady ? progress : null,
+              minHeight: 2,
+              backgroundColor: theme.dividerColor.withValues(alpha: 0.3),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
+              child: Row(
+                children: [
+                  IconButton(
+                    tooltip: _paginationReady &&
+                            _currentPageIndex == 0 &&
+                            _hasPreviousChapter
+                        ? 'Previous chapter'
+                        : 'Previous page',
+                    icon: const Icon(Icons.chevron_left),
+                    onPressed: _canGoBack ? _goToPreviousPage : null,
                   ),
-                )
-              else
-                const SizedBox(width: 48),
-              IconButton(
-                tooltip: 'Next page',
-                icon: const Icon(Icons.chevron_right),
-                onPressed: _paginationReady && _currentPageIndex < pageCount - 1
-                    ? _goToNextPage
-                    : null,
+                  if (_paginationReady)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        '${_currentPageIndex + 1} / $pageCount',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    )
+                  else
+                    const SizedBox(width: 48),
+                  IconButton(
+                    tooltip: _paginationReady &&
+                            _currentPageIndex == pageCount - 1 &&
+                            _hasNextChapter
+                        ? 'Next chapter'
+                        : 'Next page',
+                    icon: const Icon(Icons.chevron_right),
+                    onPressed: _canGoForward ? _goToNextPage : null,
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    tooltip: 'Decrease font size',
+                    icon: const Icon(Icons.text_decrease),
+                    onPressed: _readerFontSize <= _minFontSize
+                        ? null
+                        : () => _changeFontSize(-1),
+                  ),
+                  Text(
+                    '${_readerFontSize.round()}',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  IconButton(
+                    tooltip: 'Increase font size',
+                    icon: const Icon(Icons.text_increase),
+                    onPressed: _readerFontSize >= _maxFontSize
+                        ? null
+                        : () => _changeFontSize(1),
+                  ),
+                ],
               ),
-              const Spacer(),
-              IconButton(
-                tooltip: 'Decrease font size',
-                icon: const Icon(Icons.text_decrease),
-                onPressed: _readerFontSize <= _minFontSize
-                    ? null
-                    : () => _changeFontSize(-1),
-              ),
-              Text(
-                '${_readerFontSize.round()}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              IconButton(
-                tooltip: 'Increase font size',
-                icon: const Icon(Icons.text_increase),
-                onPressed: _readerFontSize >= _maxFontSize
-                    ? null
-                    : () => _changeFontSize(1),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

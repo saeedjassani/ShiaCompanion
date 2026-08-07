@@ -230,6 +230,10 @@ class _MyHomePageState extends State<MyHomePage>
     final chapter = chapters[chapterIndex];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      // Put the book's chapter list under the chapter, so backing out of a
+      // shared chapter link lands in the book rather than dropping to home.
+      final listRoute = ChapterListPage(resolvedBook.uid, resolvedBook.title);
+      pushRootPageRoute(listRoute) ?? pushPageRoute(context, listRoute);
       final route = ChapterPage(
         '$bookSlug/${chapter.uid}',
         chapter.title,
