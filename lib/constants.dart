@@ -138,8 +138,34 @@ Future<void> initializeNotificationTimeZone() async {
 String _scheduleDateKey(DateTime dateTime) =>
     dateTime.toIso8601String().substring(0, 10);
 
-String _scheduleLocationKey(double? value) =>
-    value == null ? 'unknown' : value.toStringAsFixed(4);
+/// How far the device must move, in degrees, before the notification schedule
+/// is worth rebuilding. Roughly 1 km, which shifts any prayer time by under two
+/// seconds.
+const double locationChangeThreshold = 0.01;
+
+const String _scheduleAnchorLatKey = 'prayer_schedule_anchor_lat';
+const String _scheduleAnchorLongKey = 'prayer_schedule_anchor_long';
+
+/// Whether we have moved far enough from the position the current notification
+/// schedule was built for to be worth rebuilding it.
+///
+/// Both callers — the check inside [initializeLocation] and
+/// [shouldRefreshPrayerNotificationSchedule] — go through here, against the
+/// same stored anchor, so they cannot disagree. Comparing against the anchor
+/// rather than against the previous reading is what stops jitter accumulating:
+/// a device wobbling either side of a boundary stays within the threshold of
+/// the anchor and never triggers a rebuild.
+bool hasPrayerScheduleLocationMoved() {
+  if (lat == null || long == null) return false;
+  if (!SP.isInitialized) return true;
+
+  final anchorLat = SP.prefs.getDouble(_scheduleAnchorLatKey);
+  final anchorLong = SP.prefs.getDouble(_scheduleAnchorLongKey);
+  if (anchorLat == null || anchorLong == null) return true;
+
+  return (anchorLat - lat!).abs() > locationChangeThreshold ||
+      (anchorLong - long!).abs() > locationChangeThreshold;
+}
 
 List<String> getPrayerNotificationPrayerNames() {
   return [
@@ -159,11 +185,13 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   final customAudioPath =
       azaanId == 'custom' ? SP.prefs.getString(azaanCustomFilePathKey) : null;
 
+  // Location is deliberately absent: it is tracked by the schedule anchor via
+  // hasPrayerScheduleLocationMoved(), which applies a distance threshold. Any
+  // rounding of raw coordinates into this string would flip on GPS jitter and
+  // force a full reschedule on the next app open.
   return [
-    'v6',
+    'v7',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
-    'lat:${_scheduleLocationKey(lat)}',
-    'long:${_scheduleLocationKey(long)}',
     'tz:${tz.local.name}',
     'azaan:$azaanId',
     'custom:${customAudioPath ?? ''}',
@@ -201,6 +229,8 @@ bool shouldRefreshPrayerNotificationSchedule(
   }
 
   if (lat == null || long == null) return false;
+
+  if (hasPrayerScheduleLocationMoved()) return true;
 
   final prayerNames = getPrayerNotificationPrayerNames();
   if (!areAnyPrayerNotificationsEnabled(prayerNames)) return false;
@@ -420,14 +450,9 @@ Future<bool> initializeLocation(
         return false;
       }
     }
-    final previousLat = lat;
-    final previousLong = long;
     lat = currentLocation.latitude;
     long = currentLocation.longitude;
-    final locationChanged = previousLat == null ||
-        previousLong == null ||
-        (previousLat - lat!).abs() > 0.0001 ||
-        (previousLong - long!).abs() > 0.0001;
+    final locationChanged = hasPrayerScheduleLocationMoved();
     if (locationChanged) {
       needToSchedule = true;
     }
@@ -701,13 +726,14 @@ Future<void> setUpNotifications() async {
   if (lat == null || long == null) {
     debugPrint("Skipping Azan notifications: location unavailable");
     await SP.prefs.remove(prayerNotificationScheduleFingerprintKey);
+    await SP.prefs.remove(_scheduleAnchorLatKey);
+    await SP.prefs.remove(_scheduleAnchorLongKey);
     return;
   }
 
   if (enabledPrayerCount == 0) {
     debugPrint("Skipping Azan notifications: all prayers disabled");
-    await SP.prefs.setString(
-        prayerNotificationScheduleFingerprintKey, scheduleFingerprint);
+    await _storePrayerScheduleAnchor(scheduleFingerprint);
     return;
   }
 
@@ -749,8 +775,18 @@ Future<void> setUpNotifications() async {
       notificationDetails: platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.inexact,
       payload: now.add(Duration(days: scheduleDays - 1)).toIso8601String());
+  await _storePrayerScheduleAnchor(scheduleFingerprint);
+}
+
+/// Records what this schedule was built from: the fingerprint, and the position
+/// that future moves are measured against.
+Future<void> _storePrayerScheduleAnchor(String scheduleFingerprint) async {
   await SP.prefs
       .setString(prayerNotificationScheduleFingerprintKey, scheduleFingerprint);
+  if (lat != null && long != null) {
+    await SP.prefs.setDouble(_scheduleAnchorLatKey, lat!);
+    await SP.prefs.setDouble(_scheduleAnchorLongKey, long!);
+  }
 }
 
 /// Prepares custom audio file for notification playback
