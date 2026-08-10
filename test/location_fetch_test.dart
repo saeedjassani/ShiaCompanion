@@ -23,7 +23,7 @@ void main() {
   Position _pos(double latitude, double longitude) => Position(
         latitude: latitude,
         longitude: longitude,
-        timestamp: DateTime(2020, 1, 1),
+        timestamp: DateTime.now(),
         accuracy: 1,
         altitude: 0,
         altitudeAccuracy: 1,
@@ -164,31 +164,91 @@ void main() {
       );
     });
 
-    test('replaces a stale city with a broader label when validation fails',
+    test('keeps a sparse administrative tree from rejecting a real city',
         () async {
       city = 'Old City';
+      GeolocatorPlatform.instance = _FakeGeolocator(
+        currentPosition: _pos(26.22, 50.58),
+      );
+
+      // City-states and small territories report a shallow admin hierarchy with
+      // no country/subdivision entry. The locality is still the right label.
+      await runWithGeocode(
+        '{"locality":"Manama","city":"Manama",'
+        '"principalSubdivision":"Capital","countryName":"Bahrain",'
+        '"countryCode":"BH","localityInfo":{"administrative":'
+        '[{"adminLevel":8,"name":"Manama"}]}}',
+        body: () async {
+          final success = await initializeLocation(force: true);
+
+          expect(success, isTrue);
+          expect(city, 'Manama');
+        },
+      );
+    });
+
+    test('widens to the next available label when there is no locality',
+        () async {
       GeolocatorPlatform.instance = _FakeGeolocator(
         currentPosition: _pos(1.0, 2.0),
       );
 
-      // Missing administrative area -> _validateGeocodeResult rejects the city.
       await runWithGeocode(
-        '{"locality":"Somewhere","city":"Somewhere",'
+        '{"locality":"","city":"",'
         '"principalSubdivision":"Region X","countryName":"Country Y",'
-        '"countryCode":"US","localityInfo":{"administrative":'
-        '[{"adminLevel":8,"name":"Somewhere"}]}}',
+        '"countryCode":"US","localityInfo":{"administrative":[]}}',
         body: () async {
           final success = await initializeLocation(force: true);
 
           expect(success, isTrue);
           expect(city, 'Region X');
-          expect(city, isNot('Old City'));
         },
       );
     });
 
-    test('falls back to coordinates when the geocode request fails',
+    test('rejects an ocean fix with no country code', () async {
+      city = 'Old City';
+      GeolocatorPlatform.instance = _FakeGeolocator(
+        currentPosition: _pos(0.0, 0.0),
+      );
+
+      // What an emulator parked at Null Island returns: a plausible-looking
+      // ocean name, but no country. The previous label must survive.
+      await runWithGeocode(
+        '{"locality":"Atlantic Ocean","city":"",'
+        '"principalSubdivision":"","countryName":"",'
+        '"countryCode":"","localityInfo":{"administrative":[]}}',
+        body: () async {
+          final success = await initializeLocation(force: true);
+
+          expect(success, isTrue);
+          expect(city, 'Old City');
+        },
+      );
+    });
+
+    test('never degrades the saved city to coordinates when geocode fails',
         () async {
+      city = 'Stable City';
+      GeolocatorPlatform.instance = _FakeGeolocator(
+        currentPosition: _pos(3.0, 4.0),
+      );
+
+      // This label is published to the home screen widget and the watch
+      // complication, so a transient network failure must not rewrite it.
+      await runWithGeocode(
+        null,
+        geocodeError: Exception('no network'),
+        body: () async {
+          final success = await initializeLocation(force: true);
+
+          expect(success, isTrue);
+          expect(city, 'Stable City');
+        },
+      );
+    });
+
+    test('leaves the city unset when the first ever geocode fails', () async {
       GeolocatorPlatform.instance = _FakeGeolocator(
         currentPosition: _pos(3.0, 4.0),
       );
@@ -200,28 +260,8 @@ void main() {
           final success = await initializeLocation(force: true);
 
           expect(success, isTrue);
-          expect(city, startsWith('3.00'));
-        },
-      );
-    });
-
-    test('keeps the previous city when nothing moved and geocode fails',
-        () async {
-      city = 'Stable City';
-      lat = 10.0;
-      long = 20.0;
-      GeolocatorPlatform.instance = _FakeGeolocator(
-        currentPosition: _pos(10.00001, 20.00001),
-      );
-
-      await runWithGeocode(
-        null,
-        geocodeError: Exception('no network'),
-        body: () async {
-          final success = await initializeLocation(force: true);
-
-          expect(success, isTrue);
-          expect(city, 'Stable City');
+          expect(lat, 3.0);
+          expect(city, isNull);
         },
       );
     });

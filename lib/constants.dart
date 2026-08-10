@@ -70,10 +70,24 @@ const String _androidPrayerChannelMigrationKey =
 const int _androidPrayerChannelMigrationVersion = 2;
 const String _androidPrayerChannelVersion = 'v2';
 
-bool shouldUseLiveLocation() {
-  if (!SP.isInitialized) return false;
-  return SP.prefs.getBool('use_live_location') ?? false;
+/// Why the most recent [initializeLocation] gave up, so callers can say
+/// something more useful than "failed". Cleared on every success.
+enum LocationFailure {
+  serviceDisabled,
+  permissionDenied,
+  permissionDeniedForever,
+  timeout,
+  unknown,
 }
+
+LocationFailure? lastLocationFailure;
+
+/// When the position behind the current [lat] / [long] was actually measured.
+///
+/// Not the same as when we fetched it: [initializeLocation] falls back to
+/// `getLastKnownPosition`, which can be hours or days old. Treating that as a
+/// fresh reading would let a caller believe it has an up-to-date fix.
+DateTime? lastLocationFixAt;
 
 bool shouldShowPrecisePrayerAlarmSetting({
   required TargetPlatform platform,
@@ -138,8 +152,34 @@ Future<void> initializeNotificationTimeZone() async {
 String _scheduleDateKey(DateTime dateTime) =>
     dateTime.toIso8601String().substring(0, 10);
 
-String _scheduleLocationKey(double? value) =>
-    value == null ? 'unknown' : value.toStringAsFixed(4);
+/// How far the device must move, in degrees, before the notification schedule
+/// is worth rebuilding. Roughly 1 km, which shifts any prayer time by under two
+/// seconds.
+const double locationChangeThreshold = 0.01;
+
+const String _scheduleAnchorLatKey = 'prayer_schedule_anchor_lat';
+const String _scheduleAnchorLongKey = 'prayer_schedule_anchor_long';
+
+/// Whether we have moved far enough from the position the current notification
+/// schedule was built for to be worth rebuilding it.
+///
+/// Both callers — the check inside [initializeLocation] and
+/// [shouldRefreshPrayerNotificationSchedule] — go through here, against the
+/// same stored anchor, so they cannot disagree. Comparing against the anchor
+/// rather than against the previous reading is what stops jitter accumulating:
+/// a device wobbling either side of a boundary stays within the threshold of
+/// the anchor and never triggers a rebuild.
+bool hasPrayerScheduleLocationMoved() {
+  if (lat == null || long == null) return false;
+  if (!SP.isInitialized) return true;
+
+  final anchorLat = SP.prefs.getDouble(_scheduleAnchorLatKey);
+  final anchorLong = SP.prefs.getDouble(_scheduleAnchorLongKey);
+  if (anchorLat == null || anchorLong == null) return true;
+
+  return (anchorLat - lat!).abs() > locationChangeThreshold ||
+      (anchorLong - long!).abs() > locationChangeThreshold;
+}
 
 List<String> getPrayerNotificationPrayerNames() {
   return [
@@ -159,11 +199,13 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   final customAudioPath =
       azaanId == 'custom' ? SP.prefs.getString(azaanCustomFilePathKey) : null;
 
+  // Location is deliberately absent: it is tracked by the schedule anchor via
+  // hasPrayerScheduleLocationMoved(), which applies a distance threshold. Any
+  // rounding of raw coordinates into this string would flip on GPS jitter and
+  // force a full reschedule on the next app open.
   return [
-    'v6',
+    'v7',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
-    'lat:${_scheduleLocationKey(lat)}',
-    'long:${_scheduleLocationKey(long)}',
     'tz:${tz.local.name}',
     'azaan:$azaanId',
     'custom:${customAudioPath ?? ''}',
@@ -201,6 +243,8 @@ bool shouldRefreshPrayerNotificationSchedule(
   }
 
   if (lat == null || long == null) return false;
+
+  if (hasPrayerScheduleLocationMoved()) return true;
 
   final prayerNames = getPrayerNotificationPrayerNames();
   if (!areAnyPrayerNotificationsEnabled(prayerNames)) return false;
@@ -356,6 +400,7 @@ Future<bool> initializeLocation(
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       debugPrint("Location service is disabled");
+      lastLocationFailure = LocationFailure.serviceDisabled;
       if (context != null && !kIsWeb) {
         _showLocationServiceDialog(context);
       }
@@ -371,6 +416,10 @@ Future<bool> initializeLocation(
         permissionStatus == LocationPermission.deniedForever ||
         permissionStatus == LocationPermission.unableToDetermine) {
       debugPrint("Location permission not granted: $permissionStatus");
+      lastLocationFailure =
+          permissionStatus == LocationPermission.deniedForever
+              ? LocationFailure.permissionDeniedForever
+              : LocationFailure.permissionDenied;
       if (context != null && !kIsWeb) {
         _showPermissionDeniedDialog(context, permissionStatus);
       }
@@ -391,10 +440,14 @@ Future<bool> initializeLocation(
 
     Position currentLocation;
     try {
+      // Medium accuracy is a network/wifi fix rather than a GPS lock: it
+      // returns in about a second instead of tens of seconds, and costs a
+      // fraction of the battery. The precision it gives up is irrelevant here —
+      // a few hundred metres moves any prayer time by well under a second.
       currentLocation = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 20),
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 10),
         ),
       );
     } on TimeoutException catch (e) {
@@ -403,6 +456,7 @@ Future<bool> initializeLocation(
         currentLocation = lastKnownPosition;
       } else {
         debugPrint("Location request timed out: $e");
+        lastLocationFailure = LocationFailure.timeout;
         if (context != null && !kIsWeb) {
           _showLocationTimeoutDialog(context);
         }
@@ -414,26 +468,32 @@ Future<bool> initializeLocation(
         currentLocation = lastKnownPosition;
       } else {
         debugPrint("Location fetch failed: $e");
+        lastLocationFailure = LocationFailure.unknown;
         if (context != null && !kIsWeb) {
           _showLocationErrorDialog(context, e);
         }
         return false;
       }
     }
-    final previousLat = lat;
-    final previousLong = long;
+    lastLocationFailure = null;
+    // A device clock ahead of ours would otherwise make a fix look permanently
+    // fresh, so never accept a measurement timestamp from the future.
+    final nowForFix = DateTime.now();
+    final fixedAt = currentLocation.timestamp;
+    lastLocationFixAt = fixedAt.isAfter(nowForFix) ? nowForFix : fixedAt;
     lat = currentLocation.latitude;
     long = currentLocation.longitude;
-    final locationChanged = previousLat == null ||
-        previousLong == null ||
-        (previousLat - lat!).abs() > 0.0001 ||
-        (previousLong - long!).abs() > 0.0001;
+    final locationChanged = hasPrayerScheduleLocationMoved();
     if (locationChanged) {
       needToSchedule = true;
     }
     await SP.prefs.setDouble("lat", lat!);
     await SP.prefs.setDouble("long", long!);
 
+    // The city label is cosmetic: prayer times are already correct at this
+    // point regardless of what the geocoder says. So every failure below leaves
+    // the previous label in place rather than degrading it — never coordinates,
+    // never a dialog.
     try {
       final response = await http.get(Uri.parse(
           "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$lat&longitude=$long&localityLanguage=en"));
@@ -441,36 +501,21 @@ Future<bool> initializeLocation(
         final data = jsonDecode(response.body);
         final resolvedCity =
             data['locality'] ?? data['city'] ?? data['principalSubdivision'];
-        final validCity = _validateGeocodeResult(data, resolvedCity);
-        if (validCity != null) {
-          city = validCity;
-          if (SP.prefs.getString("city") != city) needToSchedule = true;
-          if (city != null) await SP.prefs.setString("city", city!);
+        final resolvedLabel = _validateGeocodeResult(data, resolvedCity) ??
+            _validateGeocodeResult(data, _geocodeFallbackLabel(data));
+        if (resolvedLabel != null) {
+          if (city != resolvedLabel) needToSchedule = true;
+          city = resolvedLabel;
+          await SP.prefs.setString("city", resolvedLabel);
         } else {
           debugPrint(
-              "Geocode did not resolve a city name ('$resolvedCity'); using a broader location label.");
-          // Don't keep a stale previous city: reflect the new coordinates.
-          final fallback = _geocodeFallbackLabel(data, lat!, long!);
-          if (fallback != city) needToSchedule = true;
-          city = fallback;
-          await SP.prefs.setString("city", city!);
-          if (context != null && !kIsWeb) {
-            _showGeocodeFallbackDialog(context);
-          }
+              "Geocode did not resolve a usable label ('$resolvedCity'); keeping ${city ?? 'no label'}.");
         }
       } else {
         debugPrint("Geocode returned status ${response.statusCode}");
-        if (locationChanged) {
-          city = _geocodeFallbackLabel({}, lat!, long!);
-          await SP.prefs.setString("city", city!);
-        }
       }
     } catch (e) {
       debugPrint("Error getting city: $e");
-      if (locationChanged) {
-        city = _geocodeFallbackLabel({}, lat!, long!);
-        await SP.prefs.setString("city", city!);
-      }
     }
     if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
       await setUpNotifications();
@@ -478,6 +523,7 @@ Future<bool> initializeLocation(
     return true;
   } catch (e) {
     debugPrint(e.toString());
+    lastLocationFailure = LocationFailure.unknown;
     if (context != null && !kIsWeb) {
       _showLocationErrorDialog(context, e);
     }
@@ -485,58 +531,49 @@ Future<bool> initializeLocation(
   }
 }
 
+/// Sanity-checks a reverse-geocode label before we show it.
+///
+/// The city name is display-only — prayer times are computed from lat/long, so
+/// this guards a label, not a calculation, and it stays deliberately loose. A
+/// two-letter `countryCode` means the coordinates landed in a real country,
+/// which is what rules out the ocean fixes emulators produce at (0, 0). Nothing
+/// more is required: demanding a populated `localityInfo.administrative` tree
+/// on top of that rejected perfectly good names in city-states and small
+/// territories, where the admin hierarchy is sparse.
 String? _validateGeocodeResult(
     Map<String, dynamic> data, String? resolvedCity) {
   if (resolvedCity == null || resolvedCity.trim().isEmpty) return null;
 
   final trimmed = resolvedCity.trim();
 
-  final countryCode = (data['countryCode'] ?? '').toString().trim().toUpperCase();
-  final hasCountryCode = countryCode.length == 2;
-  if (!hasCountryCode) return null;
+  final countryCode =
+      (data['countryCode'] ?? '').toString().trim().toUpperCase();
+  if (countryCode.length != 2) return null;
 
-  final localityInfo = data['localityInfo'];
-  if (localityInfo is Map) {
-    final administrative = localityInfo['administrative'];
-    if (administrative is List && administrative.isNotEmpty) {
-      final hasAdminArea = administrative.any((entry) {
-        if (entry is Map) {
-          // BigDataCloud reports admin level as `adminLevel` (2 = country,
-          // 4 = first-order subdivision). Older schemas used `level` '0'/'1'.
-          final level = entry['adminLevel'] ?? entry['level'];
-          final name = (entry['name'] ?? '').toString().trim();
-          final isCountryOrState =
-              level == 2 || level == 4 || level == '0' || level == '1';
-          if (isCountryOrState) return name.isNotEmpty;
-        }
-        return false;
-      });
-      if (!hasAdminArea) return null;
-    } else {
-      return null;
-    }
-  } else {
-    return null;
-  }
-
-  if (RegExp(r'^\d+\.?\d*\s*[ns]\s*\d+\.?\d*\s*[ew]$').hasMatch(trimmed)) {
+  if (RegExp(r'^\d+\.?\d*\s*[ns]\s*\d+\.?\d*\s*[ew]$', caseSensitive: false)
+      .hasMatch(trimmed)) {
     return null;
   }
 
   return trimmed;
 }
 
-/// Builds a readable location label from a geocode response when a precise
-/// city name can't be validated. Prefers the subdivision/country and falls
-/// back to raw coordinates so the UI never shows a stale previous location.
-String _geocodeFallbackLabel(Map<String, dynamic> data, double lat, double long) {
-  final candidate = (data['principalSubdivision'] ??
-      data['countryName'] ??
-      data['locality'] ??
-      '').toString().trim();
-  return candidate.isNotEmpty
-      ? candidate
-      : '${lat.toStringAsFixed(2)}, ${long.toStringAsFixed(2)}';
+/// Best readable label available from a geocode response when the primary
+/// locality can't be used. Widens from the city outwards and gives up rather
+/// than inventing something: returning null keeps whatever label we already
+/// had, because a stale city name reads better than raw coordinates — and this
+/// string is published to the home screen widget and watch complication.
+String? _geocodeFallbackLabel(Map<String, dynamic> data) {
+  for (final key in const [
+    'locality',
+    'city',
+    'principalSubdivision',
+    'countryName',
+  ]) {
+    final candidate = (data[key] ?? '').toString().trim();
+    if (candidate.isNotEmpty) return candidate;
+  }
+  return null;
 }
 
 void _showLocationServiceDialog(BuildContext context) {
@@ -560,27 +597,6 @@ void _showLocationServiceDialog(BuildContext context) {
               await Geolocator.openLocationSettings();
             },
             child: const Text('Open Settings'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-void _showGeocodeFallbackDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext dialogContext) {
-      return AlertDialog(
-        title: const Text('Location Uncertain'),
-        content: const Text(
-          'We couldn\'t determine a precise city name for your current coordinates. Showing a broader location instead.',
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('OK'),
           ),
         ],
       );
@@ -742,13 +758,14 @@ Future<void> setUpNotifications() async {
   if (lat == null || long == null) {
     debugPrint("Skipping Azan notifications: location unavailable");
     await SP.prefs.remove(prayerNotificationScheduleFingerprintKey);
+    await SP.prefs.remove(_scheduleAnchorLatKey);
+    await SP.prefs.remove(_scheduleAnchorLongKey);
     return;
   }
 
   if (enabledPrayerCount == 0) {
     debugPrint("Skipping Azan notifications: all prayers disabled");
-    await SP.prefs.setString(
-        prayerNotificationScheduleFingerprintKey, scheduleFingerprint);
+    await _storePrayerScheduleAnchor(scheduleFingerprint);
     return;
   }
 
@@ -790,8 +807,18 @@ Future<void> setUpNotifications() async {
       notificationDetails: platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.inexact,
       payload: now.add(Duration(days: scheduleDays - 1)).toIso8601String());
+  await _storePrayerScheduleAnchor(scheduleFingerprint);
+}
+
+/// Records what this schedule was built from: the fingerprint, and the position
+/// that future moves are measured against.
+Future<void> _storePrayerScheduleAnchor(String scheduleFingerprint) async {
   await SP.prefs
       .setString(prayerNotificationScheduleFingerprintKey, scheduleFingerprint);
+  if (lat != null && long != null) {
+    await SP.prefs.setDouble(_scheduleAnchorLatKey, lat!);
+    await SP.prefs.setDouble(_scheduleAnchorLongKey, long!);
+  }
 }
 
 /// Prepares custom audio file for notification playback

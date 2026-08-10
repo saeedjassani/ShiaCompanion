@@ -20,6 +20,7 @@ import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
+import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
@@ -59,7 +60,6 @@ class _MyHomePageState extends State<MyHomePage>
   DeepLinkTarget? _pendingDeepLink;
   bool _itemsLoaded = false;
   bool _isPublishingIndex = false;
-  bool _isRefreshingLiveLocation = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
   final CollectionReference<Map<String, dynamic>> _zikrCollection =
@@ -707,9 +707,12 @@ class _MyHomePageState extends State<MyHomePage>
     // On web, keep first load quiet and let the prayer card request location
     // only after the user taps it.
     if (!kIsWeb) {
-      await initializeLocation(
-        force: shouldUseLiveLocation(),
-        context: shouldUseLiveLocation() ? null : context,
+      // Pass context only when there is nothing stored yet: that first fetch
+      // needs the explainer and the permission prompt. Once a location exists,
+      // an automatic refresh must never interrupt the user with a dialog — the
+      // card shows the outcome instead.
+      await LocationService.instance.refreshIfStale(
+        context: LocationService.instance.hasLocation ? null : context,
       );
     }
 
@@ -749,23 +752,12 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {});
   }
 
-  Future<void> _refreshLiveLocationIfNeeded() async {
-    if (_isRefreshingLiveLocation ||
-        kIsWeb ||
-        !SP.isInitialized ||
-        !shouldUseLiveLocation()) {
-      return;
-    }
+  Future<void> _refreshLocationOnResume() async {
+    if (kIsWeb || !SP.isInitialized) return;
 
-    _isRefreshingLiveLocation = true;
-    final success = await initializeLocation(force: true);
-    _isRefreshingLiveLocation = false;
-
-    if (!mounted) return;
-    if (success) {
-      await HomeScreenWidgetService.instance.publishAll();
-      setState(() {});
-    }
+    // Cheap by design: this returns immediately unless the stored fix has aged
+    // past the freshness window, so flicking away and back costs nothing.
+    await LocationService.instance.refreshIfStale();
   }
 
   Future<void> _openSearch() async {
@@ -815,6 +807,7 @@ class _MyHomePageState extends State<MyHomePage>
     city = SP.prefs.getString("city");
     lat = SP.prefs.getDouble("lat");
     long = SP.prefs.getDouble("long");
+    LocationService.instance.restore();
     arabicFont = await FontPreferences.getSelectedFont() ?? "Qalam";
 
     // By default turn on Azan for Fajr, Dhuhr and Maghrib
@@ -947,7 +940,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _refreshLiveLocationIfNeeded();
+      _refreshLocationOnResume();
     }
   }
 

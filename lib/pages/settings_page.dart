@@ -12,6 +12,7 @@ import '../constants.dart';
 import '../services/account_service.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
+import '../services/location_service.dart';
 import '../services/qaza_tracker_manager.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/dark_mode.dart';
@@ -49,9 +50,23 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     trackScreen('Settings Page');
+    // The refresh row reflects location status, which can also change from the
+    // home page or an automatic refresh, so follow the service rather than
+    // relying on this page's own taps to know when to redraw.
+    LocationService.instance.addListener(_onLocationChanged);
     if (_showPrecisePrayerAlarmSetting) {
       unawaited(_refreshExactAlarmPermissionStatus());
     }
+  }
+
+  @override
+  void dispose() {
+    LocationService.instance.removeListener(_onLocationChanged);
+    super.dispose();
+  }
+
+  void _onLocationChanged() {
+    if (mounted) setState(() {});
   }
 
   bool get _showPrecisePrayerAlarmSetting =>
@@ -82,32 +97,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   adjustHijriAlertDialog(context);
                 },
               ),
-              SwitchListTile(
-                secondary: const Icon(Icons.my_location),
-                title: const Text("Always use live location"),
-                subtitle: Text(_liveLocationSubtitle()),
-                value: shouldUseLiveLocation(),
-                onChanged: (value) async {
-                  if (value) {
-                    final success = await initializeLocation(force: true);
-                    if (success) {
-                      await SP.prefs.setBool('use_live_location', true);
-                      await HomeScreenWidgetService.instance.publishAll();
-                    } else {
-                      await SP.prefs.setBool('use_live_location', false);
-                    }
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(success
-                          ? "Live location enabled."
-                          : "Location permission was not granted."),
-                    ));
-                  } else {
-                    await SP.prefs.setBool('use_live_location', false);
-                  }
-                  setState(() {});
-                },
-              ),
               if (!kIsWeb)
                 ListTile(
                   leading: const Icon(Icons.widgets),
@@ -117,29 +106,41 @@ class _SettingsPageState extends State<SettingsPage> {
                     _showWidgetPrayerTimesDialog(context);
                   },
                 ),
-              if (!shouldUseLiveLocation())
-                ListTile(
-                  leading: const Icon(Icons.location_on),
-                  title: const Text("Refresh Location"),
-                  subtitle: Text(_refreshLocationSubtitle()),
-                  onTap: () async {
-                    bool success = await initializeLocation(force: true);
-                    if (success) {
-                      await HomeScreenWidgetService.instance.publishAll();
-                    }
-                    if (!mounted) return;
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text("Location has been refreshed."),
-                      ));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text("Failed to refresh location."),
-                      ));
-                    }
-                    setState(() {});
-                  },
-                ),
+              ListTile(
+                leading: const Icon(Icons.location_on),
+                title: const Text("Refresh Location"),
+                subtitle: Text(_refreshLocationSubtitle()),
+                trailing: LocationService.instance.isRefreshing
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : null,
+                enabled: !LocationService.instance.isRefreshing,
+                onTap: () async {
+                  // Passing context lets initializeLocation explain *why* it
+                  // failed and offer the relevant settings screen, instead of
+                  // a snackbar that guesses. The row redraws from the service
+                  // listener, so there is no setState to sequence here.
+                  final success =
+                      await LocationService.instance.refresh(context: context);
+                  if (!mounted) return;
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Location has been refreshed."),
+                    ));
+                    return;
+                  }
+                  // Those diagnostic dialogs are all guarded on !kIsWeb, so on
+                  // web a failure would otherwise look like a dead tap.
+                  if (kIsWeb) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(LocationService.instance.failureMessage),
+                    ));
+                  }
+                },
+              ),
             ],
           ),
           if (!kIsWeb)
@@ -475,19 +476,35 @@ class _SettingsPageState extends State<SettingsPage> {
     return adjustment > 0 ? "$days $suffix ahead" : "$days $suffix behind";
   }
 
-  String _liveLocationSubtitle() {
-    if (shouldUseLiveLocation()) {
-      return "Prayer times will fetch your current location on app open.";
-    }
-    return "Reuse stored location until you refresh it manually.";
-  }
-
   String _refreshLocationSubtitle() {
+    final location = LocationService.instance;
+    if (location.isRefreshing) {
+      return "Updating your location…";
+    }
+    // Survives the snackbar, and covers the paths that show no dialog at all.
+    if (location.status == LocationRefreshStatus.failed) {
+      return "${location.failureMessage}. Tap to try again.";
+    }
+
     final savedCity = city?.trim();
-    if (savedCity != null && savedCity.isNotEmpty) {
+    if (savedCity == null || savedCity.isEmpty) {
+      return "Update the saved prayer-times location.";
+    }
+
+    final updatedAt = LocationService.instance.updatedAt;
+    if (updatedAt == null) {
       return "Current saved location: $savedCity.";
     }
-    return "Update the saved prayer-times location.";
+    return "$savedCity · updated ${_locationAgeLabel(updatedAt)}. "
+        "Refreshes on its own as you move.";
+  }
+
+  String _locationAgeLabel(DateTime updatedAt) {
+    final age = DateTime.now().difference(updatedAt);
+    if (age.inMinutes < 1) return "just now";
+    if (age.inMinutes < 60) return "${age.inMinutes}m ago";
+    if (age.inHours < 24) return "${age.inHours}h ago";
+    return "${age.inDays}d ago";
   }
 
   adjustHijriAlertDialog(BuildContext context) {
