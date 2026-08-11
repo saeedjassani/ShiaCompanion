@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
@@ -15,13 +16,17 @@ import 'package:shia_companion/utils/web_route_sync.dart';
 import 'package:shia_companion/utils/zikr_wakelock.dart';
 import '../../constants.dart';
 import '../../widgets/responsive_content.dart';
+import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
 import 'zikr_edit_form.dart';
 import 'zikr_form_helpers.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_content_viewer.dart';
+import 'zikr_reading_stats.dart';
 import 'zikr_share_image.dart';
+
+enum _ZikrMenuAction { share, readingSettings, edit }
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
@@ -34,6 +39,10 @@ class ZikrPage extends StatefulWidget {
 
 class _ZikrPageState extends State<ZikrPage> with RouteAware {
   static const String _bookmarkHintSeenKey = 'zikr_bookmark_hint_seen_v1';
+
+  /// Below this width the app bar keeps only the bookmark icon so a long zikr
+  /// title is not squeezed out by the action row.
+  static const double _compactActionsWidth = 420;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference zikrCollection =
@@ -60,7 +69,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   Uri? _previousBrowserUri;
   List<String> _slugAliases = const [];
   ZikrBookmark? _savedBookmark;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final Map<int, double> _currentTabScrollOffsets = {};
+  final Map<int, double> _currentTabMaxScrollExtents = {};
+  final ValueNotifier<double> _readingProgress = ValueNotifier<double>(0);
+  ZikrReadingStats _readingStats = ZikrReadingStats.empty;
+  String? _readingStatsSignature;
   late final String _counterSessionId;
   late final ValueNotifier<Offset> _counterOffset;
   late final ValueNotifier<bool> _showCounter;
@@ -101,6 +115,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterOffset.dispose();
     _showCounter.dispose();
     _counterCount.dispose();
+    _readingProgress.dispose();
     syncZikrWakelockPreference(owner: this, isActive: false);
     super.dispose();
   }
@@ -801,6 +816,64 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ZikrContentScrollPosition position,
   ) {
     _currentTabScrollOffsets[position.tabIndex] = position.scrollOffset;
+    _currentTabMaxScrollExtents[position.tabIndex] = position.maxScrollExtent;
+    _updateReadingProgress();
+  }
+
+  /// Recomputes the reading estimate only when the rendered text changed, since
+  /// this runs on every rebuild of the page.
+  void _refreshReadingStats(
+    List<String> tabContents, {
+    required bool hideHeaderLine,
+  }) {
+    final signature = '$hideHeaderLine|${tabContents.join('\n')}';
+    if (signature == _readingStatsSignature) return;
+
+    _readingStatsSignature = signature;
+    _readingStats = analyzeZikrReadingStats(
+      tabContents,
+      hideHeaderLine: hideHeaderLine,
+    );
+    _updateReadingProgress();
+  }
+
+  void _updateReadingProgress() {
+    final next = _computeReadingProgress();
+    if (next == _readingProgress.value) return;
+
+    // Progress is recomputed while the page is building or laying out, so the
+    // notifier is only written once the frame is done.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _readingProgress.value = next;
+      });
+      return;
+    }
+
+    _readingProgress.value = next;
+  }
+
+  double _computeReadingProgress() {
+    final weights = _readingStats.tabWeights;
+    if (weights.isEmpty) return 0;
+
+    final tabIndex = _selectedZikrTabIndex.clamp(0, weights.length - 1);
+    final maxScrollExtent = _currentTabMaxScrollExtents[tabIndex];
+    // An unmeasured tab has not been laid out yet, so nothing is read.
+    final tabFraction = maxScrollExtent == null
+        ? 0.0
+        : zikrTabScrollFraction(
+            scrollOffset: _currentTabScrollOffsets[tabIndex] ?? 0,
+            maxScrollExtent: maxScrollExtent,
+          );
+
+    return zikrReadingProgress(
+      tabWeights: weights,
+      tabIndex: tabIndex,
+      tabFraction: tabFraction,
+    );
   }
 
   Future<void> _toggleBookmark({
@@ -914,6 +987,174 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
   }
 
+  Widget _buildAppBarTitle(String title) {
+    // Long titles wrap onto a second, smaller line instead of being clipped.
+    final useTwoLines = title.trim().length > 24;
+    return Text(
+      title,
+      maxLines: useTwoLines ? 2 : 1,
+      overflow: TextOverflow.ellipsis,
+      style: useTwoLines ? const TextStyle(fontSize: 16, height: 1.2) : null,
+    );
+  }
+
+  void _handleMenuAction(_ZikrMenuAction action) {
+    switch (action) {
+      case _ZikrMenuAction.share:
+        if (!_isSharingZikr) _shareCurrentZikr();
+        break;
+      case _ZikrMenuAction.readingSettings:
+        _scaffoldKey.currentState?.openEndDrawer();
+        break;
+      case _ZikrMenuAction.edit:
+        _toggleEdit();
+        break;
+    }
+  }
+
+  List<Widget> _buildAppBarActions({
+    required String pageTitle,
+    required List<String> tabContents,
+    required int selectedTabIndex,
+    required bool hasAnyContent,
+    required bool isCompact,
+  }) {
+    final settingsButton = IconButton(
+      icon: const Icon(Icons.filter_list),
+      tooltip: 'Reading settings',
+      onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+    );
+
+    if (zikrData == null) return [settingsButton];
+
+    if (isEditing) {
+      if (!isAdmin) return [settingsButton];
+      return [
+        IconButton(
+          icon: const Icon(Icons.delete),
+          tooltip: 'Delete Zikr',
+          onPressed: _deleteZikr,
+        ),
+        IconButton(
+          icon: const Icon(Icons.done),
+          tooltip: 'Save Changes',
+          onPressed: _saveEdits,
+        ),
+        IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: 'Stop editing',
+          onPressed: _toggleEdit,
+        ),
+      ];
+    }
+
+    final canShare = !_isSharingZikr;
+    return [
+      if (hasAnyContent)
+        IconButton(
+          icon: Icon(
+            _savedBookmark == null ? Icons.bookmark_border : Icons.bookmark,
+          ),
+          tooltip:
+              _savedBookmark == null ? 'Save Bookmark' : 'Remove Bookmark',
+          onPressed: () => _toggleBookmark(
+            pageTitle: pageTitle,
+            tabContents: tabContents,
+            selectedTabIndex: selectedTabIndex,
+          ),
+        ),
+      if (!isCompact)
+        IconButton(
+          icon: const Icon(Icons.share),
+          tooltip: 'Share',
+          onPressed: canShare ? _shareCurrentZikr : null,
+        ),
+      PopupMenuButton<_ZikrMenuAction>(
+        tooltip: 'More options',
+        onSelected: _handleMenuAction,
+        itemBuilder: (context) => [
+          if (isCompact)
+            PopupMenuItem(
+              value: _ZikrMenuAction.share,
+              enabled: canShare,
+              child: const ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.share),
+                title: Text('Share'),
+              ),
+            ),
+          const PopupMenuItem(
+            value: _ZikrMenuAction.readingSettings,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(Icons.filter_list),
+              title: Text('Reading settings'),
+            ),
+          ),
+          if (isAdmin)
+            const PopupMenuItem(
+              value: _ZikrMenuAction.edit,
+              child: ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.edit),
+                title: Text('Edit Zikr'),
+              ),
+            ),
+        ],
+      ),
+    ];
+  }
+
+  PreferredSizeWidget? _buildReadingProgressBar(BuildContext context) {
+    if (!_readingStats.hasContent) return null;
+    if (SP.isInitialized && !(SP.prefs.getBool(showZikrProgressKey) ?? true)) {
+      return null;
+    }
+
+    final foreground = Theme.of(context).appBarTheme.foregroundColor ??
+        Theme.of(context).colorScheme.onSurface;
+    final readingTime = zikrReadingTimeLabel(_readingStats.duration);
+
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(26),
+      child: ValueListenableBuilder<double>(
+        valueListenable: _readingProgress,
+        builder: (context, progress, _) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LinearProgressIndicator(
+              value: progress,
+              minHeight: 3,
+              backgroundColor: foreground.withValues(alpha: 0.2),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                foreground.withValues(alpha: 0.85),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 3, 16, 4),
+              child: DefaultTextStyle(
+                style: TextStyle(
+                  fontSize: 11,
+                  color: foreground.withValues(alpha: 0.85),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(readingTime),
+                    Text(zikrProgressLabel(progress)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final merits = meritsController?.text.trim() ?? '';
@@ -930,58 +1171,25 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         tabContents.any((content) => content.trim().isNotEmpty);
     final selectedTabIndex = _clampedSelectedTabIndex(tabContents);
     _scheduleBookmarkHintIfNeeded(hasAnyContent: hasAnyContent);
+    _refreshReadingStats(
+      isEditing ? const [] : tabContents,
+      hideHeaderLine: tabContents.length > 1,
+    );
+    final isCompact = MediaQuery.of(context).size.width < _compactActionsWidth;
 
     return SelectionArea(
       child: Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
-          title: Text(pageTitle),
-          actions: [
-            if (isAdmin && zikrData != null && isEditing)
-              IconButton(
-                icon: const Icon(Icons.delete),
-                tooltip: 'Delete Zikr',
-                onPressed: _deleteZikr,
-              ),
-            if (isAdmin && zikrData != null && isEditing)
-              IconButton(
-                icon: const Icon(Icons.done),
-                tooltip: 'Save Changes',
-                onPressed: _saveEdits,
-              ),
-            if (zikrData != null)
-              if (!isEditing && hasAnyContent)
-                IconButton(
-                  icon: Icon(_savedBookmark == null
-                      ? Icons.bookmark_border
-                      : Icons.bookmark),
-                  tooltip: _savedBookmark == null
-                      ? 'Save Bookmark'
-                      : 'Remove Bookmark',
-                  onPressed: () => _toggleBookmark(
-                    pageTitle: pageTitle,
-                    tabContents: tabContents,
-                    selectedTabIndex: selectedTabIndex,
-                  ),
-                ),
-            if (zikrData != null)
-              IconButton(
-                icon: const Icon(Icons.share),
-                tooltip: 'Share',
-                onPressed: _isSharingZikr ? null : _shareCurrentZikr,
-              ),
-            isAdmin && zikrData != null
-                ? IconButton(
-                    icon: Icon(isEditing ? Icons.close : Icons.edit),
-                    onPressed: _toggleEdit,
-                  )
-                : Container(),
-            Builder(builder: (BuildContext innerContext) {
-              return IconButton(
-                icon: Icon(Icons.filter_list),
-                onPressed: () => Scaffold.of(innerContext).openEndDrawer(),
-              );
-            }),
-          ],
+          title: _buildAppBarTitle(pageTitle),
+          actions: _buildAppBarActions(
+            pageTitle: pageTitle,
+            tabContents: tabContents,
+            selectedTabIndex: selectedTabIndex,
+            hasAnyContent: hasAnyContent,
+            isCompact: isCompact,
+          ),
+          bottom: _buildReadingProgressBar(context),
         ),
         endDrawer: ZikrSettingsPage(refreshState),
         floatingActionButton: ValueListenableBuilder<bool>(
@@ -1029,6 +1237,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                     setState(() {
                                       _selectedZikrTabIndex = index;
                                     });
+                                    _updateReadingProgress();
                                   },
                                   hasMerits: hasMerits,
                                   onShowMerits: _showMeritsSheet,

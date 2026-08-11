@@ -6,6 +6,9 @@ import '../constants.dart';
 import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
 
+/// Preference key controlling the reading progress bar on the zikr page.
+const String showZikrProgressKey = 'show_zikr_progress';
+
 class ZikrReadingPreferencesControls extends StatefulWidget {
   const ZikrReadingPreferencesControls({
     Key? key,
@@ -82,6 +85,15 @@ class _ZikrReadingPreferencesControlsState
             await _saveBooleanPref("keep_awake", v);
           },
           title: const Text("Keep screen on while reciting Zikr"),
+        ),
+        SwitchListTile(
+          secondary: _leading(Icons.timelapse),
+          value: SP.prefs.getBool(showZikrProgressKey) ?? true,
+          onChanged: (v) async {
+            await _saveBooleanPref(showZikrProgressKey, v);
+          },
+          title: const Text("Show Reading Progress"),
+          subtitle: const Text("Progress bar and estimated reading time."),
         ),
         SwitchListTile(
           secondary: _leading(Icons.ios_share),
