@@ -7,10 +7,12 @@ class ZikrContentScrollPosition {
   const ZikrContentScrollPosition({
     required this.tabIndex,
     required this.scrollOffset,
+    this.maxScrollExtent = 0,
   });
 
   final int tabIndex;
   final double scrollOffset;
+  final double maxScrollExtent;
 }
 
 class ZikrContentViewerWidget extends StatefulWidget {
@@ -138,20 +140,38 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     while (_tabScrollControllers.length < count) {
       final tabIndex = _tabScrollControllers.length;
       final controller = ScrollController();
-      controller.addListener(() {
-        if (!controller.hasClients) return;
-        widget.onScrollPositionChanged?.call(
-          ZikrContentScrollPosition(
-            tabIndex: tabIndex,
-            scrollOffset: controller.offset,
-          ),
-        );
-      });
+      controller.addListener(() => _reportScrollPosition(tabIndex, controller));
       _tabScrollControllers.add(controller);
     }
     while (_tabScrollControllers.length > count) {
       _tabScrollControllers.removeLast().dispose();
     }
+  }
+
+  void _reportScrollPosition(int tabIndex, ScrollController controller) {
+    if (widget.onScrollPositionChanged == null || !controller.hasClients) {
+      return;
+    }
+
+    final position = controller.position;
+    widget.onScrollPositionChanged!.call(
+      ZikrContentScrollPosition(
+        tabIndex: tabIndex,
+        scrollOffset: position.pixels,
+        maxScrollExtent: position.maxScrollExtent,
+      ),
+    );
+  }
+
+  /// Publishes the position of a tab that has not been scrolled yet, so
+  /// progress is known as soon as a tab is laid out or swiped to.
+  void _scheduleScrollPositionReport(int tabIndex) {
+    if (widget.onScrollPositionChanged == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || tabIndex >= _tabScrollControllers.length) return;
+      _reportScrollPosition(tabIndex, _tabScrollControllers[tabIndex]);
+    });
   }
 
   void _restoreInitialBookmarkIfNeeded(
@@ -250,6 +270,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     required bool showMeritsButton,
   }) {
     _restoreInitialBookmarkIfNeeded(tabIndex, controller);
+    if (tabIndex == _selectedTabIndex) {
+      _scheduleScrollPositionReport(tabIndex);
+    }
 
     final parsedContent = ZikrContentParser.parseContent(
       rawContent,
@@ -266,82 +289,90 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final transliStyle =
         TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
 
-    return Scrollbar(
-      controller: controller,
-      child: ListView.builder(
+    return NotificationListener<ScrollMetricsNotification>(
+      onNotification: (notification) {
+        if (tabIndex == _selectedTabIndex) {
+          _reportScrollPosition(tabIndex, controller);
+        }
+        return false;
+      },
+      child: Scrollbar(
         controller: controller,
-        itemCount: parsedContent.lines.length + (showMeritsButton ? 1 : 0),
-        itemBuilder: (BuildContext context, int index) {
-          // Show merits button at the top of first tab
-          if (showMeritsButton && index == 0) {
-            return Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                top: 12.0,
-                right: 16.0,
-                bottom: 12.0,
-              ),
-              child: InkWell(
-                onTap: widget.onShowMerits,
-                child: Text(
-                  'Merits',
-                  style: TextStyle(
-                    decoration: TextDecoration.underline,
-                    fontSize: 14,
+        child: ListView.builder(
+          controller: controller,
+          itemCount: parsedContent.lines.length + (showMeritsButton ? 1 : 0),
+          itemBuilder: (BuildContext context, int index) {
+            // Show merits button at the top of first tab
+            if (showMeritsButton && index == 0) {
+              return Padding(
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  top: 12.0,
+                  right: 16.0,
+                  bottom: 12.0,
+                ),
+                child: InkWell(
+                  onTap: widget.onShowMerits,
+                  child: Text(
+                    'Merits',
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          // Adjust content index for merits button
-          final contentIndex = showMeritsButton ? index - 1 : index;
-          final str = parsedContent.lines[contentIndex].trim();
+            // Adjust content index for merits button
+            final contentIndex = showMeritsButton ? index - 1 : index;
+            final str = parsedContent.lines[contentIndex].trim();
 
-          if (parsedContent.arabicCodes.contains(contentIndex)) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
-              child: Text.rich(
-                _buildTextSpanForLine(
-                  ZikrContentParser.formatArabicText(str),
-                  arabicStyle,
+            if (parsedContent.arabicCodes.contains(contentIndex)) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
+                child: Text.rich(
+                  _buildTextSpanForLine(
+                    ZikrContentParser.formatArabicText(str),
+                    arabicStyle,
+                  ),
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.rtl,
                 ),
-                textAlign: TextAlign.center,
-                textDirection: TextDirection.rtl,
-              ),
-            );
-          } else if (parsedContent.transliCodes.contains(contentIndex)) {
-            return showTransliteration
-                ? Text.rich(
-                    _buildTextSpanForLine(str.toUpperCase(), transliStyle),
-                    textAlign: TextAlign.center,
-                  )
-                : Container();
-          } else if (parsedContent.translaCodes.contains(contentIndex)) {
-            return showTranslation
-                ? Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Text.rich(
-                      _buildTextSpanForLine(
-                        str,
-                        TextStyle(fontSize: englishFontSize),
-                      ),
+              );
+            } else if (parsedContent.transliCodes.contains(contentIndex)) {
+              return showTransliteration
+                  ? Text.rich(
+                      _buildTextSpanForLine(str.toUpperCase(), transliStyle),
                       textAlign: TextAlign.center,
-                    ),
-                  )
-                : Container();
-          } else {
-            return Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 4.0),
-              child: Text.rich(
-                _buildTextSpanForLine(
-                  str,
-                  const TextStyle(fontStyle: FontStyle.italic),
+                    )
+                  : Container();
+            } else if (parsedContent.translaCodes.contains(contentIndex)) {
+              return showTranslation
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: Text.rich(
+                        _buildTextSpanForLine(
+                          str,
+                          TextStyle(fontSize: englishFontSize),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  : Container();
+            } else {
+              return Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 4.0),
+                child: Text.rich(
+                  _buildTextSpanForLine(
+                    str,
+                    const TextStyle(fontStyle: FontStyle.italic),
+                  ),
                 ),
-              ),
-            );
-          }
-        },
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -441,6 +472,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
               });
               widget.onTabChanged(index);
               _centerSelectedTab();
+              _scheduleScrollPositionReport(index);
             },
             itemBuilder: (context, index) => _buildTabContent(
               widget.tabContents[index],
