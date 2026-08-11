@@ -77,6 +77,37 @@ List<UniversalData> _deduplicate(Iterable<UniversalData> source) {
   ];
 }
 
+/// Restores a user's manual ordering on top of a server list that has no
+/// ordering of its own to offer.
+///
+/// Entries missing from [orderedKeys] (favorites added elsewhere since the
+/// reorder) keep their relative order and land after the ordered ones.
+List<UniversalData> applyFavoriteOrder(
+  Iterable<UniversalData> favorites,
+  Iterable<String> orderedKeys,
+) {
+  final ranks = <String, int>{};
+  for (final key in orderedKeys) {
+    ranks.putIfAbsent(key, () => ranks.length);
+  }
+
+  final entries = favorites.toList(growable: false);
+  if (ranks.isEmpty) return entries;
+
+  final unrankedOffset = ranks.length;
+  final decorated = [
+    for (var index = 0; index < entries.length; index++)
+      (
+        rank: ranks[entries[index].favoriteKey] ?? unrankedOffset + index,
+        index: index,
+        favorite: entries[index],
+      ),
+  ]..sort((a, b) =>
+      a.rank != b.rank ? a.rank.compareTo(b.rank) : a.index.compareTo(b.index));
+
+  return [for (final entry in decorated) entry.favorite];
+}
+
 List<UniversalData> applyPendingFavoriteOperations(
   Iterable<UniversalData> favorites,
   Iterable<PendingFavoriteOperation> operations,

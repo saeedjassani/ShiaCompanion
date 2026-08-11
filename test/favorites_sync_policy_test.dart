@@ -99,6 +99,40 @@ void main() {
     expect(favorites, [kept]);
   });
 
+  test('a pending reorder survives a server list that predates it', () {
+    final first = favorite('first');
+    final second = favorite('second');
+    final third = favorite('third');
+
+    final favorites = applyFavoriteOrder(
+      [first, second, third],
+      [third.favoriteKey, first.favoriteKey, second.favoriteKey],
+    );
+
+    expect(favorites, [third, first, second]);
+  });
+
+  test('favorites added since the reorder keep their order at the end', () {
+    final reordered = favorite('reordered');
+    final untouched = favorite('untouched');
+    final addedElsewhere = favorite('added-elsewhere');
+    final addedLater = favorite('added-later');
+
+    final favorites = applyFavoriteOrder(
+      [untouched, addedElsewhere, reordered, addedLater],
+      [reordered.favoriteKey, untouched.favoriteKey],
+    );
+
+    expect(favorites, [reordered, untouched, addedElsewhere, addedLater]);
+  });
+
+  test('an empty order leaves the list untouched', () {
+    final first = favorite('first');
+    final second = favorite('second');
+
+    expect(applyFavoriteOrder([first, second], const []), [first, second]);
+  });
+
   test('the latest pending operation for an item determines its state', () {
     final favoriteToToggle = favorite('toggle');
 
