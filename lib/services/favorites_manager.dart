@@ -384,42 +384,23 @@ class FavoritesManager extends ChangeNotifier {
     return applyFavoriteOrder(favorites, pendingOrder.orderedKeys);
   }
 
-  _PendingFavoriteOrder? _loadPendingOrder(String userId) {
+  PendingFavoriteOrder? _loadPendingOrder(String userId) {
     final encoded = SP.prefs.getString(_pendingOrderStorageKey(userId));
-    if (encoded == null || encoded.isEmpty) return null;
-
-    try {
-      final parsed = jsonDecode(encoded);
-      if (parsed is! Map) return null;
-      final keys = parsed['keys'];
-      if (keys is! List) return null;
-      final orderedKeys = [
-        for (final key in keys)
-          if (key is String && key.trim().isNotEmpty) key,
-      ];
-      if (orderedKeys.isEmpty) return null;
-      final version = parsed['version'];
-      return _PendingFavoriteOrder(
-        version: version is int ? version : 0,
-        orderedKeys: orderedKeys,
-      );
-    } catch (error) {
-      debugPrint('FavoritesManager: Error decoding pending order: $error');
-      return null;
+    final order = decodePendingFavoriteOrder(encoded);
+    if (order == null && encoded != null && encoded.isNotEmpty) {
+      debugPrint('FavoritesManager: Discarded an unreadable pending order');
     }
+    return order;
   }
 
   Future<void> _recordPendingOrder(
     String userId,
-    _PendingFavoriteOrder order,
+    PendingFavoriteOrder order,
   ) {
     return _enqueueStorageWrite(() async {
       await SP.prefs.setString(
         _pendingOrderStorageKey(userId),
-        jsonEncode({
-          'version': order.version,
-          'keys': order.orderedKeys,
-        }),
+        encodePendingFavoriteOrder(order),
       );
     });
   }
@@ -428,8 +409,9 @@ class FavoritesManager extends ChangeNotifier {
   /// still waiting on the network survives an older write finishing late.
   Future<void> _clearPendingOrder(String userId, int version) {
     return _enqueueStorageWrite(() async {
-      final stored = _loadPendingOrder(userId);
-      if (stored != null && stored.version > version) return;
+      if (!shouldClearPendingFavoriteOrder(_loadPendingOrder(userId), version)) {
+        return;
+      }
       await SP.prefs.remove(_pendingOrderStorageKey(userId));
     });
   }
@@ -944,7 +926,7 @@ class FavoritesManager extends ChangeNotifier {
       return;
     }
 
-    final pendingOrder = _PendingFavoriteOrder(
+    final pendingOrder = PendingFavoriteOrder(
       version: _mutationVersion,
       orderedKeys: [
         for (final favorite in nextFavorites) favorite.favoriteKey,
@@ -1003,16 +985,6 @@ class FavoritesManager extends ChangeNotifier {
     debugPrint('FavoritesManager: Disposed listener');
     super.dispose();
   }
-}
-
-class _PendingFavoriteOrder {
-  const _PendingFavoriteOrder({
-    required this.version,
-    required this.orderedKeys,
-  });
-
-  final int version;
-  final List<String> orderedKeys;
 }
 
 class _RemoteFavoritesRead {
