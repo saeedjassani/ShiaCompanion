@@ -22,6 +22,17 @@ class _FavoritesPageState extends State<FavoritesPage> {
     await FavoritesManager.instance.loadFavorites();
   }
 
+  Future<void> _onReorder(int oldIndex, int newIndex) async {
+    try {
+      await FavoritesManager.instance.moveFavorite(oldIndex, newIndex);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not save the new order. Try again.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final favoritesManager = FavoritesManager.instance;
@@ -46,29 +57,55 @@ class _FavoritesPageState extends State<FavoritesPage> {
           return ResponsiveContent(
             maxWidth: listContentWidth,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ListView.separated(
+            child: ReorderableListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: favorites.length,
-              separatorBuilder: (_, __) => Divider(),
+              buildDefaultDragHandles: false,
+              onReorderItem: _onReorder,
               itemBuilder: (context, index) {
                 UniversalData item = favorites[index];
-                return ListTile(
-                  title: isUserAdmin
-                      ? Text(item.uid + ' ' + item.title)
-                      : Text(item.title),
-                  onTap: () {
-                    handleUniversalDataClick(context, item);
-                  },
-                  onLongPress: () {
-                    if (isUserAdmin)
-                      handleUniversalDataClick(context, item, itemPage: true);
-                  },
-                  trailing: InkWell(
-                    onTap: () async {
-                      await FavoritesManager.instance.toggleFavorite(item);
-                    },
-                    child: FavoriteIcon(favorite: item),
-                  ),
+                return Column(
+                  key: ValueKey(item.favoriteKey),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      title: isUserAdmin
+                          ? Text(item.uid + ' ' + item.title)
+                          : Text(item.title),
+                      onTap: () {
+                        handleUniversalDataClick(context, item);
+                      },
+                      onLongPress: () {
+                        if (isUserAdmin)
+                          handleUniversalDataClick(context, item,
+                              itemPage: true);
+                      },
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          InkWell(
+                            onTap: () async {
+                              await FavoritesManager.instance
+                                  .toggleFavorite(item);
+                            },
+                            child: FavoriteIcon(favorite: item),
+                          ),
+                          const SizedBox(width: 8),
+                          ReorderableDragStartListener(
+                            index: index,
+                            child: Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: Icon(
+                                Icons.drag_handle,
+                                semanticLabel: 'Reorder ${item.title}',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (index < favorites.length - 1) Divider(),
+                  ],
                 );
               },
             ),

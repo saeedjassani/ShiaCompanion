@@ -45,6 +45,7 @@ class FavoritesManager extends ChangeNotifier {
   String? _loadedUserId;
   bool _isImportingGuestFavorites = false;
   bool _isReplayingPendingOperations = false;
+  bool _isReplayingPendingOrder = false;
   int _mutationVersion = 0;
   bool _isLoading = false;
   bool _hasLoadedFavorites = false;
@@ -69,6 +70,9 @@ class FavoritesManager extends ChangeNotifier {
 
   String _pendingOperationsStorageKey(String userId) =>
       'favorites_pending_operations_$userId';
+
+  String _pendingOrderStorageKey(String userId) =>
+      'favorites_pending_order_$userId';
 
   Future<void> loadFavorites() async {
     if (_loadFavoritesFuture != null) {
@@ -157,7 +161,7 @@ class FavoritesManager extends ChangeNotifier {
         pendingOperations,
       );
       resolvedFavorites = await _resolveTitles(
-        favoritesWithPendingOperations,
+        _applyPendingOrder(user.uid, favoritesWithPendingOperations),
         fallbacks: [
           ...userCachedFavorites,
           ...remoteRead.favorites,
@@ -203,10 +207,14 @@ class FavoritesManager extends ChangeNotifier {
       _pendingGuestFavorites = guestFavorites;
     }
 
-    if (remoteRead.succeeded &&
-        decision.remoteSeed == null &&
-        pendingOperations.isNotEmpty) {
-      await _replayPendingOperations(user.uid, pendingOperations);
+    if (remoteRead.succeeded && decision.remoteSeed == null) {
+      if (pendingOperations.isNotEmpty) {
+        await _replayPendingOperations(user.uid, pendingOperations);
+      }
+      await _replayPendingOrder(user.uid);
+    } else if (decision.remoteSeed != null && remoteMigrationSucceeded) {
+      // The seed write already published the current order.
+      await _clearPendingOrder(user.uid, _mutationVersion);
     }
 
     if (decision.canCleanUpLegacyData && remoteMigrationSucceeded) {
@@ -363,6 +371,66 @@ class FavoritesManager extends ChangeNotifier {
       operations.remove(favorite.favoriteKey);
       await _writePendingOperations(userId, operations.values);
     });
+  }
+
+  /// Firestore stores the entries in order, but a reorder that has not reached
+  /// the server yet has to be reapplied to whatever the server hands back.
+  List<UniversalData> _applyPendingOrder(
+    String userId,
+    List<UniversalData> favorites,
+  ) {
+    final pendingOrder = _loadPendingOrder(userId);
+    if (pendingOrder == null) return favorites;
+    return applyFavoriteOrder(favorites, pendingOrder.orderedKeys);
+  }
+
+  PendingFavoriteOrder? _loadPendingOrder(String userId) {
+    final encoded = SP.prefs.getString(_pendingOrderStorageKey(userId));
+    final order = decodePendingFavoriteOrder(encoded);
+    if (order == null && encoded != null && encoded.isNotEmpty) {
+      debugPrint('FavoritesManager: Discarded an unreadable pending order');
+    }
+    return order;
+  }
+
+  Future<void> _recordPendingOrder(
+    String userId,
+    PendingFavoriteOrder order,
+  ) {
+    return _enqueueStorageWrite(() async {
+      await SP.prefs.setString(
+        _pendingOrderStorageKey(userId),
+        encodePendingFavoriteOrder(order),
+      );
+    });
+  }
+
+  /// Drops the marker only when no newer reorder has replaced it, so a reorder
+  /// still waiting on the network survives an older write finishing late.
+  Future<void> _clearPendingOrder(String userId, int version) {
+    return _enqueueStorageWrite(() async {
+      if (!shouldClearPendingFavoriteOrder(_loadPendingOrder(userId), version)) {
+        return;
+      }
+      await SP.prefs.remove(_pendingOrderStorageKey(userId));
+    });
+  }
+
+  Future<void> _replayPendingOrder(String userId) async {
+    if (_isReplayingPendingOrder) return;
+    await _storageWriteQueue;
+    final pendingOrder = _loadPendingOrder(userId);
+    if (pendingOrder == null) return;
+
+    _isReplayingPendingOrder = true;
+    try {
+      await _saveRemoteFavoritesForUser(userId, _favorites);
+      await _clearPendingOrder(userId, pendingOrder.version);
+    } catch (error) {
+      debugPrint('FavoritesManager: Pending order replay failed: $error');
+    } finally {
+      _isReplayingPendingOrder = false;
+    }
   }
 
   Future<void> _writePendingOperations(
@@ -650,6 +718,7 @@ class FavoritesManager extends ChangeNotifier {
           remoteFavorites,
           pendingOperations,
         );
+        remoteFavorites = _applyPendingOrder(user.uid, remoteFavorites);
         final versionBeforeResolution = _mutationVersion;
 
         final resolvedFavorites = await _resolveTitles(
@@ -664,6 +733,7 @@ class FavoritesManager extends ChangeNotifier {
         if (pendingOperations.isNotEmpty) {
           unawaited(_replayPendingOperations(user.uid, pendingOperations));
         }
+        unawaited(_replayPendingOrder(user.uid));
         debugPrint(
           'FavoritesManager: Loaded ${resolvedFavorites.length} favorites from Firestore',
         );
@@ -836,6 +906,47 @@ class FavoritesManager extends ChangeNotifier {
     }
   }
 
+  /// Moves the favorite at [fromIndex] so that it ends up at [toIndex] in the
+  /// resulting list, matching the indices `ReorderableListView.onReorderItem`
+  /// reports.
+  Future<void> moveFavorite(int fromIndex, int toIndex) async {
+    final reordered = List<UniversalData>.from(_favorites);
+    if (fromIndex < 0 || fromIndex >= reordered.length) return;
+    final destination = toIndex.clamp(0, reordered.length - 1);
+    if (destination == fromIndex) return;
+
+    reordered.insert(destination, reordered.removeAt(fromIndex));
+    _updateFavoritesData(reordered, isUserMutation: true);
+
+    final nextFavorites = _favorites;
+    final user = _auth.currentUser;
+    if (user == null) {
+      await _saveGuestFavorites(nextFavorites, markForImport: true);
+      debugPrint('FavoritesManager: Reordered favorites (guest)');
+      return;
+    }
+
+    final pendingOrder = PendingFavoriteOrder(
+      version: _mutationVersion,
+      orderedKeys: [
+        for (final favorite in nextFavorites) favorite.favoriteKey,
+      ],
+    );
+
+    try {
+      await Future.wait([
+        _saveUserFavoritesToSharedPreferences(user.uid, nextFavorites),
+        _recordPendingOrder(user.uid, pendingOrder),
+      ]);
+      await _saveRemoteFavoritesForUser(user.uid, nextFavorites);
+      await _clearPendingOrder(user.uid, pendingOrder.version);
+      debugPrint('FavoritesManager: Reordered favorites (Firestore)');
+    } catch (e) {
+      debugPrint('FavoritesManager: Error reordering favorites: $e');
+      rethrow;
+    }
+  }
+
   bool isFavorite(UniversalData item) {
     return _favorites.contains(_normalizeFavorite(item));
   }
@@ -855,6 +966,7 @@ class FavoritesManager extends ChangeNotifier {
       await _enqueueStorageWrite(() async {
         await SP.prefs.remove(_userStorageKey(userId));
         await SP.prefs.remove(_pendingOperationsStorageKey(userId));
+        await SP.prefs.remove(_pendingOrderStorageKey(userId));
       });
 
       if (_auth.currentUser?.uid == userId) {
