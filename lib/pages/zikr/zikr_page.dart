@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
@@ -834,25 +833,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       tabContents,
       hideHeaderLine: hideHeaderLine,
     );
-    _updateReadingProgress();
+    // This runs from build, so the notifier is written once the frame is done.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _updateReadingProgress();
+    });
   }
 
   void _updateReadingProgress() {
-    final next = _computeReadingProgress();
-    if (next == _readingProgress.value) return;
-
-    // Progress is recomputed while the page is building or laying out, so the
-    // notifier is only written once the frame is done.
-    if (SchedulerBinding.instance.schedulerPhase ==
-        SchedulerPhase.persistentCallbacks) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _readingProgress.value = next;
-      });
-      return;
-    }
-
-    _readingProgress.value = next;
+    _readingProgress.value = _computeReadingProgress();
   }
 
   double _computeReadingProgress() {
