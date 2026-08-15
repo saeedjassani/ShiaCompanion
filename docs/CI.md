@@ -30,6 +30,40 @@ only then deploys to `live`.
 
 **Rolling back** is dispatching `web-release.yml` manually against an older tag.
 
+## Where to test changes before releasing
+
+| Channel | URL | Updated by | Lifetime |
+| --- | --- | --- | --- |
+| `live` | https://shia-companion.web.app | a `v*` tag | permanent |
+| `staging` | https://shia-companion--staging-3dxo2xwu.web.app | every merge to `master` | 30 days, reset on each deploy |
+| per-PR | posted as a comment on the pull request | every push to the PR | 7 days |
+
+`staging` is the one to check before cutting a release: it always holds what is
+currently on `master`.
+
+Every deploy also prints its URL to the **run summary**, at the top of the
+workflow run page in the Actions tab. That is the quickest place to look and it
+is always correct, which a bookmark is not — see the caveat below.
+
+To list the channels directly:
+
+```bash
+firebase hosting:channel:list --site shia-companion --project shia-comapnion
+```
+
+`--site` is **not optional**. The project id is misspelled (`shia-comapnion`)
+but the site is not (`shia-companion`), and without `--site` the CLI queries a
+near-empty site of the same name as the project and reports a stale `live` row
+and no preview channels at all. Same distinction in the console:
+https://console.firebase.google.com/project/shia-comapnion/hosting/sites/shia-companion
+
+**The staging URL is stable, but not permanent.** The hash belongs to the
+channel rather than to any single deploy, so redeploying does not change it.
+Preview channels are capped at a 30-day expiry by Firebase, and this one's
+clock resets on every merge to `master`. If `master` goes untouched for longer
+than that, Firebase deletes the channel and the next merge recreates it —
+expect a new hash then, and prefer the run summary over a bookmark.
+
 ## Testing layers
 
 Three layers, each catching what the others cannot.

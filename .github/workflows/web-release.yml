@@ -78,6 +78,7 @@ jobs:
           build-dir: build/web
 
       - name: Deploy to live
+        id: live
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
@@ -85,3 +86,15 @@ jobs:
           projectId: shia-comapnion
           target: shia-companion
           channelId: live
+
+      - name: Publish the deployed URL to the run summary
+        if: always() && steps.live.outputs.details_url
+        env:
+          TAG: "${{ github.event.inputs.ref || github.ref_name }}"
+          URL: "${{ steps.live.outputs.details_url }}"
+        run: |
+          {
+            echo "### Released ${TAG} to production"
+            echo
+            echo "${URL}"
+          } >> "$GITHUB_STEP_SUMMARY"

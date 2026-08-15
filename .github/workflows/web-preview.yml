@@ -43,6 +43,7 @@ jobs:
       # master gets a stable, long-lived channel so there is always somewhere
       # to check the current state of the branch before cutting a release.
       - name: Deploy master to the staging channel
+        id: staging
         if: github.ref == 'refs/heads/master'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -54,6 +55,7 @@ jobs:
           expires: 30d
 
       - name: Deploy pull request preview
+        id: preview
         if: github.event_name == 'pull_request'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -62,3 +64,24 @@ jobs:
           projectId: shia-comapnion
           target: shia-companion
           expires: 7d
+
+      # Put the URL on the run page itself. Otherwise finding where a build
+      # went means digging through step logs or reaching for the Firebase CLI,
+      # and the channel hash is not something anyone should have to memorise.
+      - name: Publish the deployed URL to the run summary
+        if: always() && (steps.staging.outputs.details_url || steps.preview.outputs.details_url)
+        env:
+          # Quoted: an unquoted '#' would start a YAML comment and truncate the
+          # expression mid-way.
+          CHANNEL: "${{ github.ref == 'refs/heads/master' && 'staging' || format('pull request #{0}', github.event.number) }}"
+          URL: "${{ steps.staging.outputs.details_url || steps.preview.outputs.details_url }}"
+          EXPIRES: "${{ steps.staging.outputs.expire_time_formatted || steps.preview.outputs.expire_time_formatted }}"
+        run: |
+          {
+            echo "### Deployed to ${CHANNEL}"
+            echo
+            echo "${URL}"
+            echo
+            echo "Expires: ${EXPIRES:-unknown}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
