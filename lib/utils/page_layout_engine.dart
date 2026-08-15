@@ -144,6 +144,9 @@ class PageLayoutEngine {
   }
 
   double _measureBlock(MarkdownBlock block) {
+    if (block.type == MarkdownBlockType.listItem) {
+      return _measureListBlock(block);
+    }
     final span = _buildTextSpan(block);
     final painter = TextPainter(
       text: span,
@@ -151,6 +154,52 @@ class PageLayoutEngine {
     );
     painter.layout(maxWidth: contentWidth);
     return painter.height;
+  }
+
+  // A single listItem block can represent several consecutive `1. `/`- `
+  // lines (there's no blank line between list items to split them apart at
+  // the parser level), but flutter_markdown_plus renders each one as its own
+  // row: a fixed-width bullet/number column plus text that wraps in the
+  // remaining width, with blockSpacing between rows. Measuring the whole
+  // block as one continuously-wrapped paragraph at the full content width
+  // (as a plain paragraph would be) undercounts wrapped lines and produces a
+  // block that renders taller than measured — hence the per-item measurement
+  // here instead of the single-TextSpan path used for other block types.
+  double _measureListBlock(MarkdownBlock block) {
+    final items = MarkdownBlockParser.splitListItems(block.rawText);
+    if (items.isEmpty) return 0.0;
+
+    final heights = _measureListItemHeights(items, block);
+    final blockSpacing = styleSheet.blockSpacing ?? 8.0;
+
+    var total = 0.0;
+    for (var i = 0; i < heights.length; i++) {
+      if (i > 0) total += blockSpacing;
+      total += heights[i];
+    }
+    return total;
+  }
+
+  /// The rendered height of each (marker-stripped) list item text on its
+  /// own indented row, as flutter_markdown_plus lays it out.
+  List<double> _measureListItemHeights(
+    List<String> strippedItems,
+    MarkdownBlock block,
+  ) {
+    final indent = (styleSheet.listIndent ?? 24.0) +
+        (styleSheet.listBulletPadding?.horizontal ?? 4.0);
+    final itemWidth = (contentWidth - indent).clamp(1.0, contentWidth);
+    final style = _styleForBlock(block);
+
+    return [
+      for (final item in strippedItems)
+        (TextPainter(
+          text: _parseInlineMarkdown(item, style),
+          textDirection: block.textDirection,
+        )
+              ..layout(maxWidth: itemWidth))
+            .height,
+    ];
   }
 
   TextSpan _buildTextSpan(MarkdownBlock block) {
@@ -273,39 +322,48 @@ class PageLayoutEngine {
     final effectiveHeight = availableHeight - block.blockTopMargin;
     if (effectiveHeight <= 15) return null;
 
-    final text = block.strippedText;
+    if (block.type == MarkdownBlockType.listItem) {
+      return _splitListAtHeight(block, effectiveHeight);
+    }
+
+    return _splitTextAtHeight(
+      block.strippedText,
+      effectiveHeight,
+      (candidate) => _measureBlock(MarkdownBlock(
+        rawText: candidate, strippedText: candidate,
+        type: block.type, textDirection: block.textDirection,
+        headingLevel: block.headingLevel,
+      )),
+    );
+  }
+
+  /// Splits [text] so the first part's rendered height (per [measureHeight])
+  /// fits within [effectiveHeight]. Tries sentence boundaries first, falling
+  /// back to word boundaries so as much of the remaining page space is used
+  /// as possible instead of leaving it blank. Returns null if not even one
+  /// word fits.
+  MapEntry<String, String>? _splitTextAtHeight(
+    String text,
+    double effectiveHeight,
+    double Function(String candidate) measureHeight,
+  ) {
     if (text.trim().isEmpty) return null;
 
-    // Try by sentences (natural)
     final sentences = _splitSentences(text);
     if (sentences.length >= 2) {
       for (var i = sentences.length - 1; i >= 1; i--) {
         final firstPart = sentences.take(i).join(' ');
-        final h = _measureBlock(MarkdownBlock(
-          rawText: firstPart, strippedText: firstPart,
-          type: block.type, textDirection: block.textDirection,
-          headingLevel: block.headingLevel,
-        ));
-        if (h <= effectiveHeight) {
-          return MapEntry(sentences.take(i).join(' '), sentences.skip(i).join(' '));
+        if (measureHeight(firstPart) <= effectiveHeight) {
+          return MapEntry(firstPart, sentences.skip(i).join(' '));
         }
       }
     }
 
-    // Fall back to word-level splitting. This also covers the case where the
-    // block has multiple sentences but even the first one doesn't fit — we
-    // still want to use as much of the remaining page space as possible
-    // instead of leaving it blank.
     final words = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
     if (words.length < 2) return null;
     for (var i = words.length - 1; i >= 1; i--) {
       final firstPart = words.take(i).join(' ');
-      final h = _measureBlock(MarkdownBlock(
-        rawText: firstPart, strippedText: firstPart,
-        type: block.type, textDirection: block.textDirection,
-        headingLevel: block.headingLevel,
-      ));
-      if (h <= effectiveHeight) {
+      if (measureHeight(firstPart) <= effectiveHeight) {
         return MapEntry(firstPart, words.skip(i).join(' '));
       }
     }
@@ -313,10 +371,78 @@ class PageLayoutEngine {
     return null;
   }
 
+  /// Splits a listItem block at an item boundary, so each fragment stays
+  /// whole, correctly-marked list markdown. Splitting on [block.strippedText]
+  /// the way the generic paragraph/blockquote path does would flatten the
+  /// list into plain prose — only the block's very first item ever had its
+  /// marker stripped there, so every later item's `1. `/`- ` would render as
+  /// literal text — and would measure it at the wrong (unindented) width.
+  ///
+  /// If not even the first item fits whole, falls back to splitting *within*
+  /// that item at a sentence/word boundary — the same way an oversized
+  /// paragraph splits — keeping the item's marker (if any) on the fitting
+  /// head. The tail has no marker of its own, which is deliberate:
+  /// flutter_markdown_plus treats an unmarked line directly following a list
+  /// item (no blank line) as a lazy continuation of that same item, so it
+  /// still renders indented under it rather than as a new bullet. A "first
+  /// item" with no marker at all happens when this is itself the unmarked
+  /// tail of an earlier inner split that still doesn't fit one page — it
+  /// keeps splitting the same way, just without a marker to carry forward.
+  ///
+  /// Returns null if not even one word of the first item fits.
+  MapEntry<String, String>? _splitListAtHeight(
+    MarkdownBlock block,
+    double effectiveHeight,
+  ) {
+    final rawItems = MarkdownBlockParser.splitListItemsRaw(block.rawText);
+    if (rawItems.isEmpty) return null;
+
+    final strippedItems = MarkdownBlockParser.splitListItems(block.rawText);
+    final heights = _measureListItemHeights(strippedItems, block);
+    final blockSpacing = styleSheet.blockSpacing ?? 8.0;
+
+    var used = 0.0;
+    var fitCount = 0;
+    for (var i = 0; i < heights.length; i++) {
+      final addition = heights[i] + (i > 0 ? blockSpacing : 0.0);
+      if (used + addition > effectiveHeight) break;
+      used += addition;
+      fitCount++;
+    }
+
+    if (fitCount > 0) {
+      return MapEntry(
+        rawItems.take(fitCount).join('\n'),
+        rawItems.skip(fitCount).join('\n'),
+      );
+    }
+
+    // Not even the first item fits whole — split within it.
+    final marker = MarkdownBlockParser.leadingListMarker(rawItems.first) ?? '';
+
+    final innerSplit = _splitTextAtHeight(
+      strippedItems.first,
+      effectiveHeight,
+      (candidate) => _measureListItemHeights([candidate], block).first,
+    );
+    if (innerSplit == null) return null;
+
+    final tailRaw = [innerSplit.value, ...rawItems.skip(1)]
+        .where((s) => s.trim().isNotEmpty)
+        .join('\n');
+    if (tailRaw.isEmpty) return null;
+
+    return MapEntry('$marker${innerSplit.key}', tailRaw);
+  }
+
   /// Split a block into page-sized fragments (for blocks taller than a page).
   List<String> _splitIntoPages(MarkdownBlock block) {
     final available = contentHeight - block.totalVerticalMargin;
     if (available <= 0) return [block.strippedText];
+
+    if (block.type == MarkdownBlockType.listItem) {
+      return _splitListIntoPages(block);
+    }
 
     final fragments = <String>[];
     var remaining = block.strippedText;
@@ -335,6 +461,33 @@ class PageLayoutEngine {
         remaining = split.value;
       } else {
         fragments.add(remaining);
+        break;
+      }
+    }
+
+    return fragments;
+  }
+
+  /// The list-item counterpart to [_splitIntoPages]: walks item boundaries
+  /// (via [_splitListAtHeight]) instead of sentences/words.
+  List<String> _splitListIntoPages(MarkdownBlock block) {
+    final effectiveHeight = contentHeight - block.blockTopMargin;
+    final fragments = <String>[];
+    var remainingRaw = block.rawText;
+
+    while (remainingRaw.isNotEmpty) {
+      final split = _splitListAtHeight(
+        MarkdownBlock(
+          rawText: remainingRaw, strippedText: remainingRaw,
+          type: MarkdownBlockType.listItem, textDirection: block.textDirection,
+        ),
+        effectiveHeight,
+      );
+      if (split != null) {
+        fragments.add(split.key);
+        remainingRaw = split.value;
+      } else {
+        fragments.add(remainingRaw);
         break;
       }
     }
