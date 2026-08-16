@@ -132,7 +132,7 @@ class HomeScreenWidgetService {
     Iterable<UniversalData>? favorites,
   }) {
     final favoriteItems = (favorites ?? _favorites)
-        .where((item) => item.type == 0)
+        .where((item) => _isLinkableFavorite(item))
         .toList(growable: false);
     final topFavorites = favoriteItems.take(favoriteItemKeys.length).toList(
           growable: false,
@@ -414,10 +414,27 @@ class HomeScreenWidgetService {
     return title.isNotEmpty ? title : item.canonicalUid;
   }
 
+  /// Favourites the widget can open. Shrines and channels (type 2) are
+  /// navigation targets with no deep link, so a row for one would do nothing
+  /// when tapped; zikr and library items both have one.
+  bool _isLinkableFavorite(UniversalData item) {
+    return item.type == zikrDeepLinkType || item.type == libraryDeepLinkType;
+  }
+
   String _widgetUrlForUniversalData(UniversalData? item) {
-    if (item == null || item.type != 0) return '';
+    if (item == null) return '';
+
     final uid = item.canonicalUid;
-    return buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]);
+    switch (item.type) {
+      case zikrDeepLinkType:
+        return buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]);
+      case libraryDeepLinkType:
+        // A library favourite is saved straight from the book list, where the
+        // uid already is the book's slug.
+        return buildLibraryDeepLinkUrl(bookSlug: uid);
+      default:
+        return '';
+    }
   }
 
   String? _widgetTitleForRecitation(UidTitleData? item) {
