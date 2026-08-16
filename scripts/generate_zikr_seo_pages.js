@@ -13,6 +13,14 @@ const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shia-companion.web.app'
   .replace(/\/+$/, '');
 const MAX_SECTION_LINES = 80;
 
+// Hand-written pages that ship from web/ rather than being generated here.
+// This file replaces the checked-in sitemap wholesale, so anything left out
+// disappears from the sitemap the moment the generator runs. Only real files
+// belong here: a path that exists solely through the "**" rewrite in
+// firebase.json resolves to the app shell, which Google sees as a duplicate of
+// the home page and drops.
+const STATIC_PAGE_PATHS = ['/privacy.html', '/delete_account.html'];
+
 function escapeHtml(value) {
   return `${value ?? ''}`
     .replace(/&/g, '&amp;')
@@ -288,7 +296,16 @@ function buildPageHtml(templateHtml, page) {
 }
 
 function buildSitemap(paths) {
-  const urls = ['/', '/zikr', ...paths].map((urlPath) => `${SITE_ORIGIN}${urlPath}`);
+  const allPaths = ['/', '/zikr', ...STATIC_PAGE_PATHS, ...paths];
+  const seen = new Set();
+  for (const urlPath of allPaths) {
+    if (seen.has(urlPath)) {
+      throw new Error(`Duplicate sitemap path: ${urlPath}`);
+    }
+    seen.add(urlPath);
+  }
+
+  const urls = allPaths.map((urlPath) => `${SITE_ORIGIN}${urlPath}`);
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
@@ -344,7 +361,15 @@ function main() {
     );
   }
 
-  const templateHtml = fs.readFileSync(FLUTTER_INDEX_PATH, 'utf8');
+  // `flutter build web` substitutes $FLUTTER_BASE_HREF only in the root
+  // index.html it emits; a copy of the template placed in a subdirectory keeps
+  // the literal placeholder. That ships a page whose <base> is an invalid URL,
+  // so every relative asset — flutter_bootstrap.js included — fails to load and
+  // the page never boots. It only bites when the generator runs against the
+  // web/ source tree, which the pre-push hook does. Pin it to the site root.
+  const templateHtml = fs
+    .readFileSync(FLUTTER_INDEX_PATH, 'utf8')
+    .replace(/\$FLUTTER_BASE_HREF/g, '/');
   const index = readJson(ZIKR_INDEX_PATH);
   const pages = [];
   const slugs = new Map();
@@ -401,11 +426,8 @@ function main() {
     }
   }
 
-  fs.writeFileSync(
-    path.join(BUILD_WEB_DIR, 'sitemap.xml'),
-    buildSitemap(pages.map((page) => page.canonicalPath)),
-    'utf8',
-  );
+  const sitemap = buildSitemap(pages.map((page) => page.canonicalPath));
+  fs.writeFileSync(path.join(BUILD_WEB_DIR, 'sitemap.xml'), sitemap, 'utf8');
   fs.writeFileSync(
     path.join(GENERATED_ZIKR_DIR, 'index.html'),
     buildZikrIndexPage(templateHtml, pages),
@@ -414,7 +436,9 @@ function main() {
 
   console.log(`Generated ${pages.length} zikr SEO pages in ${GENERATED_ZIKR_DIR}`);
   console.log(`Generated ${aliasCount} zikr alias pages`);
-  console.log(`Generated sitemap.xml with ${pages.length + 2} URLs`);
+  console.log(
+    `Generated sitemap.xml with ${(sitemap.match(/<loc>/g) ?? []).length} URLs`,
+  );
 }
 
 main();

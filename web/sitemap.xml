@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fallback only. scripts/generate_zikr_seo_pages.js overwrites this file in
+  build/web with the full sitemap, including every pre-rendered /zikr/<slug>
+  page. If a deploy ever serves this version instead, the generator did not run
+  against build/web and the zikr pages are missing from the bundle too.
+
+  Every <loc> here must be a real file in the bundle. Paths that exist only via
+  the "**" rewrite in firebase.json return the app shell, which Google indexes
+  as a duplicate of the home page.
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://shia-companion.web.app/</loc>
-    <priority>1.0</priority>
   </url>
   <url>
     <loc>https://shia-companion.web.app/privacy.html</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://shia-companion.web.app/delete-account</loc>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://shia-companion.web.app/delete_account.html</loc>
-    <priority>0.7</priority>
   </url>
 </urlset>

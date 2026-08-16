@@ -1,0 +1,148 @@
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const {test, expect} = require('@playwright/test');
+const {BUILD_DIR, sampleGeneratedZikrPages} = require('./helpers');
+
+// The origin baked into the generated sitemap. Matches the default in
+// scripts/generate_zikr_seo_pages.js and the site-origin input on the
+// build-web action.
+const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shia-companion.web.app')
+  .replace(/\/+$/, '');
+
+// These checks run against the built bundle, not the rendered app, so one
+// project is enough — the other would assert identical bytes.
+test.beforeEach(({}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop');
+});
+
+function locsFrom(xml) {
+  return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+}
+
+/**
+ * Resolves a sitemap path the way Firebase Hosting does when it looks for a
+ * real file: exact match first, then <path>/index.html. Returns null when only
+ * the "**" rewrite could serve it.
+ */
+function resolveBundleFile(urlPath) {
+  const relative = urlPath.replace(/^\/+/, '');
+  const candidates = relative === ''
+    ? ['index.html']
+    : [relative, path.join(relative, 'index.html')];
+
+  for (const candidate of candidates) {
+    const filePath = path.join(BUILD_DIR, candidate);
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      return filePath;
+    }
+  }
+  return null;
+}
+
+test.describe('sitemap.xml', () => {
+  test('is served as parseable XML rather than the app shell', async ({request}) => {
+    const response = await request.get('/sitemap.xml');
+    expect(response.status()).toBe(200);
+
+    const contentType = response.headers()['content-type'] ?? '';
+    expect(contentType, 'firebase.json pins this to application/xml').toContain('xml');
+
+    const body = await response.text();
+    // The failure this guards: sitemap.xml missing from build/web, so the
+    // rewrite returns index.html under an XML content type. Search Console
+    // reports that as "Couldn't fetch", which reads like a network problem and
+    // is not one.
+    expect(
+      body.toLowerCase(),
+      'sitemap.xml is serving the Flutter app shell — it is missing from the bundle',
+    ).not.toContain('<!doctype html');
+    expect(body.trimStart()).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+    expect(body).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    expect(body.trimEnd().endsWith('</urlset>')).toBe(true);
+  });
+
+  test('lists every generated zikr page exactly once', async ({request}) => {
+    const locs = locsFrom(await (await request.get('/sitemap.xml')).text());
+
+    expect(new Set(locs).size, 'duplicate <loc> entries').toBe(locs.length);
+    expect(locs.length).toBeLessThanOrEqual(50000);
+    for (const loc of locs) {
+      expect(loc, 'every <loc> must be absolute and on the production origin')
+        .toMatch(new RegExp(`^${SITE_ORIGIN}/`));
+    }
+
+    const generated = sampleGeneratedZikrPages(Number.MAX_SAFE_INTEGER);
+    expect(
+      generated.length,
+      'no pre-rendered zikr pages in the bundle — the generator did not target build/web',
+    ).toBeGreaterThan(0);
+
+    // Compare on canonical URL rather than directory name. Alias directories
+    // are deliberately absent from the sitemap: each one self-canonicalises to
+    // the slug it duplicates, so listing it would submit the same page twice.
+    for (const slug of generated) {
+      const html = fs.readFileSync(
+        path.join(BUILD_DIR, 'zikr', slug, 'index.html'),
+        'utf8',
+      );
+      const canonical = html.match(/<link rel="canonical" href="([^"]+)">/)?.[1];
+      expect(canonical, `zikr/${slug} has no canonical link`).toBeTruthy();
+      expect(locs, `zikr/${slug} canonicalises to a URL missing from the sitemap`)
+        .toContain(canonical);
+    }
+
+    expect(locs).toContain(`${SITE_ORIGIN}/`);
+    expect(locs).toContain(`${SITE_ORIGIN}/privacy.html`);
+    expect(locs).toContain(`${SITE_ORIGIN}/delete_account.html`);
+  });
+
+  test('points only at paths backed by a real file in the bundle', async ({request}) => {
+    const locs = locsFrom(await (await request.get('/sitemap.xml')).text());
+
+    const rewriteOnly = locs
+      .map((loc) => loc.slice(SITE_ORIGIN.length) || '/')
+      .filter((urlPath) => resolveBundleFile(urlPath) === null);
+
+    // A path served only by the "**" rewrite returns the app shell: identical
+    // bytes for every such URL, which Google folds into the home page instead
+    // of indexing.
+    expect(
+      rewriteOnly,
+      'these sitemap URLs have no file in the bundle and resolve to the app shell',
+    ).toEqual([]);
+  });
+});
+
+test('robots.txt allows crawling and advertises the sitemap', async ({request}) => {
+  const response = await request.get('/robots.txt');
+  expect(response.status()).toBe(200);
+
+  const body = await response.text();
+  expect(body).toMatch(/^\s*User-agent:\s*\*/m);
+  expect(body, 'a bare "Disallow: /" hides the whole site')
+    .not.toMatch(/^\s*Disallow:\s*\/\s*$/m);
+  expect(body).toContain(`Sitemap: ${SITE_ORIGIN}/sitemap.xml`);
+});
+
+test('generated pages carry a substituted <base href>', () => {
+  const slugs = sampleGeneratedZikrPages();
+  expect(slugs.length).toBeGreaterThan(0);
+
+  for (const slug of slugs) {
+    const html = fs.readFileSync(
+      path.join(BUILD_DIR, 'zikr', slug, 'index.html'),
+      'utf8',
+    );
+    // An unsubstituted placeholder makes <base> an invalid URL, so every
+    // relative asset on the page — flutter_bootstrap.js included — 404s.
+    expect(html, `zikr/${slug} kept the literal $FLUTTER_BASE_HREF placeholder`)
+      .not.toContain('$FLUTTER_BASE_HREF');
+    // Alias directories canonicalise to the slug they duplicate, so match the
+    // shape rather than the directory name.
+    expect(html).toMatch(
+      new RegExp(`<link rel="canonical" href="${SITE_ORIGIN}/zikr/[a-z0-9-]+">`),
+    );
+  }
+});
