@@ -49,7 +49,10 @@ test.describe('generated zikr SEO pages', () => {
     test(`zikr/${slug} serves pre-rendered content`, async ({page, baseURL}) => {
       const failures = watchForFailures(page, baseURL);
 
-      const response = await page.goto(`/zikr/${slug}/`, {
+      // No trailing slash: firebase.json sets trailingSlash false, so this is
+      // the form that serves directly and the form the page self-canonicalises
+      // to. The slash variant 301s here.
+      const response = await page.goto(`/zikr/${slug}`, {
         waitUntil: 'domcontentloaded',
       });
       expect(response?.status()).toBe(200);

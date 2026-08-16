@@ -60,6 +60,18 @@ Every `<loc>` must resolve to a real file in the bundle. A path that exists only
 through the rewrite returns the same app shell as every other such path, so
 Google folds it into the home page instead of indexing it.
 
+It must also be the **final** URL, not one that redirects. The generated pages
+are written as `<slug>/index.html`, and Hosting's default is to serve those at
+`/<slug>/` while 301ing `/<slug>` to it — the opposite of the slash-less form
+the generator emits as `<loc>`, `rel=canonical`, `og:url` and the JSON-LD `url`.
+That left Google following a 301 to a page naming the redirecting URL as its
+canonical. `"trailingSlash": false` in `firebase.json` inverts it so the
+slash-less form is what serves.
+
+If you ever change `trailingSlash`, change the canonical form in
+`generate_zikr_seo_pages.js` with it — they have to agree, and `serve.js`
+mirrors the setting so the suite will tell you when they don't.
+
 ## Where to test changes before releasing
 
 | Channel | URL | Updated by | Lifetime |

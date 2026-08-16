@@ -13,6 +13,7 @@
   "hosting": {
     "target": "shia-companion",
     "public": "build/web",
+    "trailingSlash": false,
     "headers": [
       {
         "source": "/apple-app-site-association",

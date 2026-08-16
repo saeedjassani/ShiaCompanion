@@ -79,6 +79,24 @@ function send(res, status, filePath, forcedType) {
 const server = http.createServer((req, res) => {
   const urlPath = req.url || '/';
   const pathname = urlPath.split('?')[0].split('#')[0];
+
+  // firebase.json: { "trailingSlash": false }
+  //
+  // Hosting serves <dir>/index.html at /<dir> and 301s /<dir>/ to it. Serving
+  // both forms with a 200, as this server used to, hides a whole class of
+  // canonical bug: the generated pages name the slash-less URL as their
+  // canonical, and under Hosting's *default* it is the slash-less form that
+  // redirects — so Google follows a 301 to a page pointing back at the URL it
+  // just came from. Mirror the configured behaviour so the tests see it.
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    const withoutSlash = pathname.replace(/\/+$/, '');
+    if (findFile(resolveWithinRoot(withoutSlash))) {
+      res.writeHead(301, {Location: withoutSlash, 'Cache-Control': 'no-store'});
+      res.end();
+      return;
+    }
+  }
+
   const direct = findFile(resolveWithinRoot(pathname));
 
   if (direct) {

@@ -113,6 +113,32 @@ test.describe('sitemap.xml', () => {
       'these sitemap URLs have no file in the bundle and resolve to the app shell',
     ).toEqual([]);
   });
+
+  test('serves every listed URL directly, with no redirect', async ({request}) => {
+    const locs = locsFrom(await (await request.get('/sitemap.xml')).text());
+
+    // Checking the filesystem is not enough: the file can exist and the URL
+    // still 301 elsewhere. Hosting serves <dir>/index.html at /<dir> or at
+    // /<dir>/ depending on trailingSlash, and the generated pages name the
+    // slash-less form as their canonical. When the sitemap URL redirects,
+    // Google indexes the target while the target's rel=canonical points back
+    // at the URL it just came from.
+    const redirected = [];
+    for (const loc of locs.slice(0, 40)) {
+      const urlPath = loc.slice(SITE_ORIGIN.length) || '/';
+      const response = await request.get(urlPath, {maxRedirects: 0});
+      if (response.status() !== 200) {
+        redirected.push(
+          `${urlPath} -> ${response.status()} ${response.headers()['location'] ?? ''}`.trim(),
+        );
+      }
+    }
+
+    expect(
+      redirected,
+      'sitemap URLs must be the final URL, not one that redirects',
+    ).toEqual([]);
+  });
 });
 
 test('robots.txt allows crawling and advertises the sitemap', async ({request}) => {
