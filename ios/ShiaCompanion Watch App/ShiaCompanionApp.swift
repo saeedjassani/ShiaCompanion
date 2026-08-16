@@ -23,6 +23,10 @@ struct ShiaCompanion_Watch_AppApp: App {
             if phase == .active {
                 WatchConnectivityManager.shared.requestSnapshot()
                 prayerModel.refresh()
+            } else {
+                // Leaving the foreground is the last chance to push a debounced count to
+                // the complication before the app is suspended.
+                counterModel.flushComplicationReload()
             }
         }
     }
