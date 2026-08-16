@@ -1,6 +1,7 @@
 import Combine
 import SwiftUI
 import WatchKit
+import WidgetKit
 
 // MARK: - Model
 
@@ -28,6 +29,14 @@ final class CounterModel: ObservableObject {
         static let count = "sc_watch_counter_count"
         static let target = "sc_watch_counter_target"
     }
+
+    /// Must match `CounterComplication.kind` in the widget extension.
+    private static let complicationKind = "TasbeehCounterComplication"
+    /// Long enough that a burst of counting collapses into one reload — WidgetKit
+    /// throttles an extension that asks too often, and a dropped reload would leave the
+    /// complication stale for far longer than this wait.
+    private static let reloadDebounce: TimeInterval = 2
+    private var pendingReload: DispatchWorkItem?
 
     /// Same fallback as `PrayerDataStore`: a missing app group degrades to local storage
     /// rather than losing the count entirely.
@@ -76,6 +85,7 @@ final class CounterModel: ObservableObject {
         count = updated
         persistCount(updated)
         play(crossedTarget ? .success : (delta > 0 ? .click : .directionDown), force: crossedTarget)
+        scheduleComplicationReload()
     }
 
     func reset() {
@@ -83,6 +93,7 @@ final class CounterModel: ObservableObject {
         count = 0
         persistCount(0)
         play(.stop, force: true)
+        scheduleComplicationReload()
     }
 
     func cycleTarget() {
@@ -91,6 +102,7 @@ final class CounterModel: ObservableObject {
         let updated = target
         saveQueue.async { [defaults] in defaults.set(updated, forKey: Keys.target) }
         play(.click, force: true)
+        scheduleComplicationReload()
     }
 
     /// Blocks until every queued write has landed. Called when the app leaves the
@@ -116,6 +128,27 @@ final class CounterModel: ObservableObject {
         guard force || now - lastHapticAt >= Self.hapticInterval else { return }
         lastHapticAt = now
         WKInterfaceDevice.current().play(type)
+    }
+
+    /// Coalesces the reloads: counting is bursty (a Crown spin is dozens of changes a
+    /// second), and only the value the user stops on is worth pushing to the widget.
+    private func scheduleComplicationReload() {
+        pendingReload?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.pendingReload = nil
+            WidgetCenter.shared.reloadTimelines(ofKind: Self.complicationKind)
+        }
+        pendingReload = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.reloadDebounce, execute: work)
+    }
+
+    /// Called when the app leaves the foreground: a suspended app never runs the pending
+    /// work item, so the last change has to be flushed while there is still time.
+    func flushComplicationReload() {
+        guard let work = pendingReload else { return }
+        work.cancel()
+        pendingReload = nil
+        WidgetCenter.shared.reloadTimelines(ofKind: Self.complicationKind)
     }
 }
 

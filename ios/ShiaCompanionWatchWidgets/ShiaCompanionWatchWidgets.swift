@@ -334,6 +334,7 @@ struct NextPrayerComplication: Widget {
 struct ShiaCompanionWatchWidgetsBundle: WidgetBundle {
     var body: some Widget {
         NextPrayerComplication()
+        CounterComplication()
     }
 }
 
