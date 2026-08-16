@@ -87,9 +87,15 @@ const server = http.createServer((req, res) => {
   }
 
   // firebase.json: { "source": "**", "destination": "/index.html" }
+  //
+  // Hosting matches `headers` against the *requested* path, before the rewrite,
+  // so a missing /sitemap.xml comes back as the app shell still labelled
+  // application/xml. That is a 200 no crawler can parse, and it is exactly the
+  // shape of failure the SEO tests exist to catch — so mirror it here rather
+  // than quietly serving the fallback as text/html.
   const fallback = path.join(ROOT, 'index.html');
   if (fs.existsSync(fallback)) {
-    send(res, 200, fallback);
+    send(res, 200, fallback, FORCED_CONTENT_TYPES.get(pathname));
     return;
   }
 
