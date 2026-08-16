@@ -111,7 +111,12 @@ DateTime? dateTimeForTime24(DateTime date, String time24) {
   final minute = int.tryParse(parts[1]);
   if (hour == null || minute == null) return null;
 
-  return DateTime(date.year, date.month, date.day, hour, minute);
+  // Keep whichever zone the caller handed us. Building a local DateTime from a
+  // UTC one silently shifts the result by the machine's offset, which makes any
+  // comparison against a UTC instant wrong everywhere except UTC itself.
+  return date.isUtc
+      ? DateTime.utc(date.year, date.month, date.day, hour, minute)
+      : DateTime(date.year, date.month, date.day, hour, minute);
 }
 
 String formatPrayerDateTime12(DateTime dateTime) {

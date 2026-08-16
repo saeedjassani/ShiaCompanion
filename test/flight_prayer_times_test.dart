@@ -66,16 +66,15 @@ void main() {
         position: makkah,
       );
 
-      // shiaMidnightForDate returns a wall-clock time in the device's own zone,
-      // so shift it onto the UTC timeline before comparing.
-      final date = DateTime(2024, 6, 16);
+      // Given a UTC date, shiaMidnightForDate computes against a zero offset
+      // and answers on the UTC timeline, so there is nothing to shift and
+      // nothing that depends on where the machine running this happens to be.
       final expectedUtc = shiaMidnightForDate(
         prayerTime: prayerTime,
-        date: date,
+        date: DateTime.utc(2024, 6, 16),
         latitude: makkah.latitude,
         longitude: makkah.longitude,
-      )!
-          .subtract(date.timeZoneOffset);
+      )!;
 
       expect(
         instants[prayerIndexMidnight]!.difference(expectedUtc).inMinutes.abs(),
