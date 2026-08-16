@@ -58,9 +58,13 @@ function watchForFailures(page, baseURL) {
   page.on('requestfailed', (request) => {
     const url = request.url();
     if (!url.startsWith(baseURL)) return;
-    failures.push(
-      `Request failed: ${url} (${request.failure()?.errorText ?? 'unknown'})`,
-    );
+    const error = request.failure()?.errorText ?? 'unknown';
+    // A cancelled request is not a broken asset. Flutter abandons font fetches
+    // it decides it no longer needs, and anything still in flight when the test
+    // ends aborts too — neither says the file is missing. A genuinely absent
+    // asset answers with a 404, which the response handler above catches.
+    if (error.includes('ERR_ABORTED')) return;
+    failures.push(`Request failed: ${url} (${error})`);
   });
 
   return failures;
