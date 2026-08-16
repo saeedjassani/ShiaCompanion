@@ -286,3 +286,8 @@ web/zikr/
 test_visual/node_modules/
 test_visual/report/
 test_visual/test-results/
+
+# Playwright screenshot baselines: CI (linux) owns the enforced set.
+# A local run seeds one for its own platform; that is scratch, not a baseline.
+test_visual/specs/__screenshots__/*
+!test_visual/specs/__screenshots__/linux/

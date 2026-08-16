@@ -7,7 +7,12 @@ const PORT = Number(process.env.PORT || 4173);
 module.exports = defineConfig({
   testDir: './specs',
   // One reviewable directory of committed baselines, split per viewport.
-  snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
+  // Keyed by platform on purpose. A Flutter canvas does not rasterise
+  // identically on macOS and Linux, so one shared baseline set would mean a
+  // developer's local run and CI could never both be right. CI owns the linux
+  // set; anything a local run seeds for its own platform is gitignored.
+  snapshotPathTemplate:
+    '{testDir}/__screenshots__/{platform}/{projectName}/{arg}{ext}',
   // The web app is one canvas; a hung frame fails slowly, so give it room.
   timeout: 90 * 1000,
   expect: {
