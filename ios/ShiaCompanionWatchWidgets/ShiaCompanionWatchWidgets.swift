@@ -1,3 +1,4 @@
+import AppIntents
 import SwiftUI
 import WidgetKit
 
@@ -13,6 +14,11 @@ struct NextPrayerEntry: TimelineEntry {
     let hasData: Bool
     /// Shown instead of a time when `hasData` is false.
     let hint: String
+
+    /// How long before a prayer the widget starts asking the Smart Stack for room.
+    static let imminentLead: TimeInterval = 45 * 60
+    /// ...and how long after it is still the thing you want to see.
+    static let relevantTail: TimeInterval = 15 * 60
 
     static func placeholder(at date: Date = Date()) -> NextPrayerEntry {
         NextPrayerEntry(
@@ -47,8 +53,26 @@ struct NextPrayerEntry: TimelineEntry {
         return String(trimmed[trimmed.startIndex..<firstSpace])
     }
 
+    /// Name for the families that crop a full one, e.g. "Mgrb" for Maghrib.
+    var shortName: String {
+        hasData ? prayerShortName(for: name) : name
+    }
+
     var symbolName: String {
         hasData ? prayerSymbolName(for: name) : "moon.stars"
+    }
+
+    /// Ranks this entry against every other widget competing for the Smart Stack.
+    /// A flat score parks the widget wherever it first landed; scoring by how
+    /// close the prayer is floats it to the top as the time approaches.
+    var relevance: TimelineEntryRelevance? {
+        guard hasData, let prayerDate else { return nil }
+        let lead = prayerDate.timeIntervalSince(date)
+        guard lead > 0 else { return TimelineEntryRelevance(score: 0) }
+        let imminent = lead <= Self.imminentLead
+        // `duration` expires the score at the prayer itself, so a stale entry
+        // cannot keep claiming the top slot after the time has passed.
+        return TimelineEntryRelevance(score: imminent ? 90 : 20, duration: lead)
     }
 }
 
@@ -98,10 +122,47 @@ struct NextPrayerProvider: TimelineProvider {
         var renderDate = now
         for prayer in upcoming {
             entries.append(entry(at: renderDate, next: prayer, location: location))
+            // A second, identical entry shortly before the prayer. An entry's
+            // relevance score is fixed when the entry starts, so without this the
+            // Smart Stack would rank the widget on how far off the prayer looked
+            // hours ago and never notice it becoming imminent.
+            let imminent = prayer.date.addingTimeInterval(-NextPrayerEntry.imminentLead)
+            if imminent > renderDate {
+                entries.append(entry(at: imminent, next: prayer, location: location))
+            }
             renderDate = prayer.date
         }
 
         completion(Timeline(entries: entries, policy: .after(renderDate)))
+    }
+
+    /// Windows in which the system may surface "Up Next" in the Smart Stack on its
+    /// own. Without them the widget is only ever visible where a user pinned it by
+    /// hand, which is the gap between "it's a complication" and "it's a widget".
+    @available(watchOS 11.0, *)
+    func relevance() async -> WidgetRelevance<Void> {
+        let now = Date()
+        let attributes = store.prayerSchedule
+            .filter { $0.date > now }
+            .prefix(16)
+            .map { prayer in
+                WidgetRelevanceAttribute<Void>(
+                    context: Self.relevantWindow(
+                        from: prayer.date.addingTimeInterval(-NextPrayerEntry.imminentLead),
+                        to: prayer.date.addingTimeInterval(NextPrayerEntry.relevantTail)
+                    )
+                )
+            }
+        return WidgetRelevance(attributes)
+    }
+
+    @available(watchOS 11.0, *)
+    private static func relevantWindow(from start: Date, to end: Date) -> RelevantContext {
+        if #available(watchOS 26.0, *) {
+            // `.scheduled`: a prayer time is a fixed appointment, not a soft hint.
+            return .date(interval: DateInterval(start: start, end: end), kind: .scheduled)
+        }
+        return .date(from: start, to: end)
     }
 
     private func entry(at date: Date) -> NextPrayerEntry {
@@ -148,6 +209,20 @@ struct NextPrayerComplicationView: View {
         }
     }
 
+    /// Full name when it fits, curated short form when it doesn't, so Maghrib
+    /// degrades to "Mgrb" rather than "Maghri…". `ViewThatFits` is watchOS 9, so
+    /// this needs no availability shim.
+    private var prayerNameLabel: some View {
+        ViewThatFits(in: .horizontal) {
+            Text(entry.name)
+                .font(.headline)
+                .lineLimit(1)
+            Text(entry.shortName)
+                .font(.headline)
+                .lineLimit(1)
+        }
+    }
+
     private var circular: some View {
         VStack(spacing: 0) {
             Image(systemName: entry.symbolName)
@@ -158,19 +233,28 @@ struct NextPrayerComplicationView: View {
                 .lineLimit(1)
         }
         .widgetAccentable()
+        // Faces with a label slot draw the name outside the circle — the only
+        // room on this family that the time isn't already using.
+        .widgetLabel {
+            Text(entry.shortName)
+        }
     }
 
     private var corner: some View {
         Text(entry.compactTime)
             .font(.system(size: 16, weight: .semibold, design: .rounded))
             .widgetLabel {
-                Text(entry.name)
+                // The curved bezel label is narrower than it looks; a full
+                // "Maghrib" loses its tail there.
+                Text(entry.shortName)
             }
     }
 
     private var inline: some View {
         Label {
-            Text(entry.hasData ? "\(entry.name) \(entry.time)" : "Open Shia Companion")
+            // accessoryInline is one shared line and the system ignores layout
+            // modifiers on it, so the string itself has to be the short one.
+            Text(entry.hasData ? "\(entry.shortName) \(entry.compactTime)" : "Open Shia Companion")
         } icon: {
             Image(systemName: entry.symbolName)
         }
@@ -181,9 +265,13 @@ struct NextPrayerComplicationView: View {
             HStack(spacing: 3) {
                 Image(systemName: entry.symbolName)
                     .font(.system(size: 11, weight: .medium))
-                Text(entry.hasData ? entry.name : "Shia Companion")
-                    .font(.headline)
-                    .lineLimit(1)
+                if entry.hasData {
+                    prayerNameLabel
+                } else {
+                    Text("Shia Companion")
+                        .font(.headline)
+                        .lineLimit(1)
+                }
             }
             .widgetAccentable()
 
@@ -207,12 +295,14 @@ struct NextPrayerComplicationView: View {
 }
 
 private extension View {
-    /// watchOS 10 requires widgets to declare a container background to render in the
-    /// Smart Stack; complications on a watch face keep their own (transparent) styling.
+    /// watchOS applies this in the Smart Stack only — watch-face complications ignore
+    /// it and stay transparent either way. `.clear` therefore bought nothing on the
+    /// face and cost the widget its card in the stack, where it read as unstyled
+    /// text floating on black instead of a widget.
     @ViewBuilder
     func widgetContainerBackground() -> some View {
         if #available(watchOS 10.0, *) {
-            containerBackground(.clear, for: .widget)
+            containerBackground(.fill.tertiary, for: .widget)
         } else {
             self
         }
@@ -250,15 +340,45 @@ struct ShiaCompanionWatchWidgetsBundle: WidgetBundle {
 // MARK: - Preview
 
 #if DEBUG
+private extension NextPrayerEntry {
+    static func preview(_ name: String, _ time: String) -> NextPrayerEntry {
+        NextPrayerEntry(
+            date: Date(),
+            name: name,
+            time: time,
+            prayerDate: Date().addingTimeInterval(1800),
+            dayLabel: "Today",
+            location: "Karbala",
+            hasData: true,
+            hint: ""
+        )
+    }
+}
+
 struct NextPrayerComplication_Previews: PreviewProvider {
+    private static let families: [WidgetFamily] = [
+        .accessoryCircular,
+        .accessoryCorner,
+        .accessoryInline,
+        .accessoryRectangular,
+    ]
+
+    /// Maghrib and Midnight are the longest labels the phone can send, and the
+    /// reason the short forms exist — preview both so cropping shows up here
+    /// rather than on someone's wrist.
+    private static let samples: [NextPrayerEntry] = [
+        .preview("Asr", "4:15 pm"),
+        .preview("Maghrib", "7:30 pm"),
+        .preview("Midnight", "11:58 pm"),
+    ]
+
     static var previews: some View {
-        Group {
-            NextPrayerComplicationView(entry: .placeholder())
-                .previewContext(WidgetPreviewContext(family: .accessoryCircular))
-            NextPrayerComplicationView(entry: .placeholder())
-                .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
-            NextPrayerComplicationView(entry: .placeholder())
-                .previewContext(WidgetPreviewContext(family: .accessoryInline))
+        ForEach(families, id: \.self) { family in
+            ForEach(samples, id: \.name) { entry in
+                NextPrayerComplicationView(entry: entry)
+                    .previewContext(WidgetPreviewContext(family: family))
+                    .previewDisplayName("\(entry.name) – \(String(describing: family))")
+            }
         }
     }
 }

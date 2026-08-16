@@ -211,6 +211,26 @@ nonisolated func parsePrayerSchedule(_ rawSchedule: String) -> [PrayerScheduleEn
         .sorted { $0.date < $1.date }
 }
 
+/// Short form of a prayer/period name, for the complication families that only
+/// have room for a few characters.
+///
+/// Curated rather than truncated or initialled: the selectable set collides on
+/// its first letter twice (Sunrise/Sunset, Maghrib/Midnight), and "Mag…" reads
+/// worse than a form people already write by hand.
+nonisolated func prayerShortName(for prayerName: String) -> String {
+    let name = prayerName.lowercased()
+    if name.contains("fajr") { return "Fajr" }
+    if name.contains("sunrise") { return "Rise" }
+    if name.contains("zuhr") || name.contains("dhuhr") || name.contains("dhohr") { return "Zuhr" }
+    if name.contains("asr") { return "Asr" }
+    if name.contains("maghrib") { return "Mgrb" }
+    if name.contains("sunset") { return "Set" }
+    if name.contains("isha") { return "Isha" }
+    if name.contains("midnight") { return "Mid" }
+    // A label a newer phone build added: shorten it rather than guess at it.
+    return prayerName.split(separator: " ").first.map(String.init) ?? prayerName
+}
+
 /// SF Symbol for a prayer/period name. Shared by the app and the complication.
 nonisolated func prayerSymbolName(for prayerName: String) -> String {
     let name = prayerName.lowercased()
