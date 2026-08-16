@@ -183,10 +183,24 @@ npm test
 
 #### Screenshot baselines
 
-Baselines live in `test_visual/specs/__screenshots__/<viewport>/`. When a
-baseline is missing the test seeds it and passes — a first run has nothing to
-regress against. Seeded baselines come back as the `playwright-*` CI artifact.
-Download them, commit them, and every later run compares against them.
+Committed under `test_visual/specs/__screenshots__/linux/`, keyed by platform
+because a Flutter canvas does not rasterise identically across operating
+systems. CI (linux) owns the enforced set; whatever a local run seeds for its
+own platform is gitignored.
+
+**Four screenshots are compared: `privacy` and `delete-account-form`, at both
+viewports.** The Flutter routes are deliberately not compared — the home screen
+picks a random hadith, so its height changes between loads and shifts
+everything below it. Those routes assert first frame, a laid-out canvas, no
+console errors and no same-origin 4xx instead, which is what actually matters.
+
+A missing baseline **fails on CI** and seeds locally. That asymmetry is the
+point: seeding and passing is right the first time, when there is nothing to
+compare against, but left in place any screenshot added later is quietly never
+checked — the run seeds it, goes green, and nobody learns the assertion is
+inert. The failing CI run still attaches the seeded image, which is the only
+way to obtain a linux baseline from a macOS machine: download the
+`playwright-web` artifact and commit the file.
 
 Regenerate deliberately after an intended UI change:
 

@@ -124,12 +124,30 @@ async function expectScreenshot(page, expect, testInfo, name, options = {}) {
     return;
   }
 
+  // Seed it either way, and attach it, so the image is downloadable from the
+  // run that needed it — a linux baseline cannot be produced on a developer's
+  // macOS machine, so the CI artifact is the only way to obtain one.
   fs.mkdirSync(path.dirname(baseline), {recursive: true});
   fs.writeFileSync(baseline, await page.screenshot(options));
   await testInfo.attach(`seeded baseline: ${name}`, {
     path: baseline,
     contentType: 'image/png',
   });
+
+  // On CI a missing baseline has to fail. Seeding and passing is right the
+  // first time, when there is nothing to compare against, but left in place it
+  // means any screenshot added later is quietly never checked: the run seeds
+  // it, goes green, and nobody learns the assertion is inert.
+  if (process.env.CI) {
+    throw new Error(
+      `No committed baseline for ${name}.\n` +
+        `Expected: ${path.relative(process.cwd(), baseline)}\n` +
+        'It has been seeded and attached to this run — download the ' +
+        'playwright-web artifact, commit the file, and this becomes an ' +
+        'enforced comparison.',
+    );
+  }
+
   console.warn(
     `[visual] seeded new baseline ${path.relative(process.cwd(), baseline)} — ` +
       'commit it to enforce this screenshot on future runs.',
