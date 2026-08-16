@@ -30,6 +30,36 @@ only then deploys to `live`.
 
 **Rolling back** is dispatching `web-release.yml` manually against an older tag.
 
+**Nothing reaches production until a tag is pushed.** Merging to `master` moves
+`staging` and nothing else, so `https://shia-companion.web.app` can sit many
+merges behind `master` without anything looking wrong. This matters most for
+SEO: the pre-rendered `/zikr/<slug>` pages and the generated `sitemap.xml` only
+exist in a deployed bundle, so until a release tag ships them, Search Console
+keeps crawling the previous sitemap. Check the `live` row of
+`firebase hosting:channel:list` against the tag you expect before concluding
+anything about what Google can see.
+
+## SEO surface
+
+Three things have to line up, and all three ship in the same bundle:
+
+| File | Where it comes from |
+| --- | --- |
+| `sitemap.xml` | generated into `build/web` by `scripts/generate_zikr_seo_pages.js`; `web/sitemap.xml` is only the fallback |
+| `/zikr/<slug>/index.html` | same script, one pre-rendered page per zikr |
+| `robots.txt` | checked in at `web/robots.txt`, points at `SITE_ORIGIN/sitemap.xml` |
+
+`test_visual/specs/seo.spec.js` asserts all of it against the built bundle.
+The failure it exists to catch is quiet: if `sitemap.xml` is missing from
+`build/web`, the `**` rewrite in `firebase.json` answers with the app shell
+while the `headers` rule still labels it `application/xml`. That is a 200 no
+crawler can parse, and Search Console reports it as **"Couldn't fetch"** — which
+reads like a network problem and is not one.
+
+Every `<loc>` must resolve to a real file in the bundle. A path that exists only
+through the rewrite returns the same app shell as every other such path, so
+Google folds it into the home page instead of indexing it.
+
 ## Where to test changes before releasing
 
 | Channel | URL | Updated by | Lifetime |
