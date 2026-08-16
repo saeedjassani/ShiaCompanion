@@ -72,10 +72,90 @@
         color: #f7eee9;
       }
     }
+
+    /* The app paints into a canvas, so the rendered DOM holds no links at all
+       and the sitemap is the only way a crawler can reach a zikr page. Pages
+       discovered by sitemap alone, with nothing linking to them, are what
+       Google leaves in "Discovered - currently not indexed". This nav is a
+       real link graph into /zikr and the most-requested duas.
+
+       Positioned absolutely so it never adds to the document flow: the app is
+       full-viewport and this must not give the page a scrollbar. It stays in
+       the DOM once Flutter boots — painted over, not removed — and becomes
+       visible if the engine never produces a frame, which makes it a usable
+       fallback rather than only a crawler affordance. */
+    .seo-site-nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 24px 20px 48px;
+      color: #2e2723;
+      background: #fff;
+      font: 16px/1.7 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    /* Generated zikr pages inject their article ahead of this nav, and there
+       an absolute nav would sit on top of the text. Put it back in flow so it
+       reads as a footer under the article. */
+    .seo-zikr-content ~ .seo-site-nav {
+      position: static;
+      border-top: 1px solid rgba(93, 64, 55, .18);
+    }
+
+    .seo-site-nav h2 {
+      font-size: 18px;
+      margin: 20px 0 8px;
+    }
+
+    .seo-site-nav ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .seo-site-nav a {
+      color: #5d4037;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .seo-site-nav {
+        color: #f7eee9;
+        background: #171411;
+      }
+
+      .seo-site-nav a {
+        color: #d7b8a8;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <nav class="seo-site-nav" aria-label="Shia Companion sections">
+    <h2>Shia Companion</h2>
+    <p>Duas, ziyarats, Quran recitations, aamal and prayer times.</p>
+    <ul>
+      <li><a href="/zikr">All duas, ziyarats and zikr</a></li>
+      <li><a href="/privacy.html">Privacy policy</a></li>
+      <li><a href="/delete_account.html">Delete your account</a></li>
+    </ul>
+    <h2>Frequently read</h2>
+    <ul>
+      <li><a href="/zikr/dua-kumayl">Dua Kumayl</a></li>
+      <li><a href="/zikr/dua-tawassul">Dua Tawassul</a></li>
+      <li><a href="/zikr/ziyarat-e-ashura">Ziyaarat-e-Ashoora</a></li>
+      <li><a href="/zikr/dua-jawshan-al-kabeer">Dua Jawshan al-Kabeer</a></li>
+      <li><a href="/zikr/dua-e-nudbah">Dua-e-Nudbah</a></li>
+      <li><a href="/zikr/dua-e-ahad">Dua e Ahad</a></li>
+      <li><a href="/zikr/dua-e-sabaah">Dua-e-Sabaah</a></li>
+      <li><a href="/zikr/dua-mashlool">Dua Mashlool</a></li>
+      <li><a href="/zikr/dua-e-faraj">Dua-e-Faraj</a></li>
+      <li><a href="/zikr/ziyarat-e-ameenullah">Ziyarat-e-Ameenullah</a></li>
+      <li><a href="/zikr/ziyarat-e-aale-yaseen">Ziyarat e Aale Yaseen</a></li>
+    </ul>
+  </nav>
   <div id="app-loading" role="status" aria-label="Loading Shia Companion">
     <div id="app-loading-content">
       <img src="icons/Icon-192.png" width="72" height="72" alt="">
@@ -85,7 +165,8 @@
   <script>
     (function () {
       const loadingShell = document.getElementById('app-loading');
-      const hasSeoContent = document.querySelector('.seo-zikr-content') !== null;
+      const hasSeoContent =
+        document.querySelector('.seo-zikr-content, .seo-site-nav') !== null;
       let seoFallbackTimer;
 
       function removeLoadingShell() {
@@ -101,9 +182,10 @@
         { once: true }
       );
 
-      // Generated zikr pages include readable HTML for search engines and as a
-      // no-app fallback. Keep it behind the loading shell during normal Flutter
-      // startup, but reveal it if Flutter cannot produce a frame.
+      // Generated zikr pages and the site nav are readable HTML, for search
+      // engines and as a no-app fallback. Keep them behind the loading shell
+      // during normal Flutter startup, but reveal them if Flutter cannot
+      // produce a frame — otherwise a failed boot is a blank white page.
       if (hasSeoContent) {
         seoFallbackTimer = window.setTimeout(removeLoadingShell, 15000);
       }

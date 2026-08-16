@@ -141,6 +141,51 @@ test.describe('sitemap.xml', () => {
   });
 });
 
+test.describe('internal linking', () => {
+  test('the home page links into the zikr pages', async ({request}) => {
+    const html = await (await request.get('/')).text();
+    const nav = html.match(
+      /<nav class="seo-site-nav"[\s\S]*?<\/nav>/,
+    )?.[0];
+
+    // Without this the rendered DOM is one canvas and no link at all, leaving
+    // the sitemap as the only route to 433 pages. Sitemap-only URLs with
+    // nothing pointing at them are what Google reports as "Discovered -
+    // currently not indexed".
+    expect(nav, 'the home page has no crawlable nav').toBeTruthy();
+
+    const hrefs = [...nav.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
+    expect(hrefs).toContain('/zikr');
+
+    const zikrLinks = hrefs.filter((href) => href.startsWith('/zikr/'));
+    expect(
+      zikrLinks.length,
+      'the nav should reach individual zikr pages, not just the index',
+    ).toBeGreaterThan(5);
+
+    // Every one of these is hand-written, so a renamed or dropped slug would
+    // otherwise become a 404 that only shows up in production.
+    const broken = hrefs.filter((href) => resolveBundleFile(href) === null);
+    expect(broken, 'nav links with no page in the bundle').toEqual([]);
+  });
+
+  test('the zikr index links to every generated page', async ({request}) => {
+    const html = await (await request.get('/zikr')).text();
+    const hrefs = new Set(
+      [...html.matchAll(/href="(\/zikr\/[^"]+)"/g)].map((match) => match[1]),
+    );
+
+    const locs = locsFrom(await (await request.get('/sitemap.xml')).text())
+      .map((loc) => loc.slice(SITE_ORIGIN.length))
+      .filter((urlPath) => urlPath.startsWith('/zikr/'));
+
+    // The index is the hub the home page points at: if a sitemap URL is
+    // missing from it, that page has no inbound link anywhere on the site.
+    const unlinked = locs.filter((urlPath) => !hrefs.has(urlPath));
+    expect(unlinked, 'sitemap pages missing from the /zikr index').toEqual([]);
+  });
+});
+
 test('robots.txt allows crawling and advertises the sitemap', async ({request}) => {
   const response = await request.get('/robots.txt');
   expect(response.status()).toBe(200);
