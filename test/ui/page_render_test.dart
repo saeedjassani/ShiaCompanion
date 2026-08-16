@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/about_page.dart';
-import 'package:shia_companion/pages/calendar_page.dart';
-import 'package:shia_companion/pages/flights_page.dart';
+import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
-import 'package:shia_companion/widgets/tasbeeh_widget.dart';
 
-/// Renders each screen across the viewports and themes we ship to, and fails on
-/// any framework error raised while laying it out.
+import 'firebase_test_doubles.dart';
+
+/// Renders every screen across the viewports and themes we ship to, and fails
+/// on any framework error raised while laying it out.
 ///
 /// This is the cheap half of "did the UI break". A RenderFlex overflow, a null
 /// dereference during build or a bad constraint all surface here as an
@@ -16,19 +18,15 @@ import 'package:shia_companion/widgets/tasbeeh_widget.dart';
 /// maintain. Pixel-level regressions on the web build are covered separately by
 /// the Playwright suite in test_visual/.
 ///
-/// Adding a screen: append it to [_screens]. Screens that reach Firebase while
-/// building cannot be listed until the suite stands up Firebase test doubles —
-/// that rules out anything using FavoritesManager or QazaTrackerManager, which
-/// hold Firestore and Auth instances as fields, and ItemList, which constructs
-/// a Firestore collection reference in a field initializer. See docs/CI.md.
+/// The screen list is [homeMenuItems] itself rather than a copy, so a new menu
+/// entry is covered the day it is added and cannot be forgotten here.
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   setUpAll(() async {
     // The app initialises SP before runApp; screens read SP.prefs directly and
     // it throws when unset.
     SharedPreferences.setMockInitialValues({});
     await SP.init();
+    await setUpFirebaseForRenderTests();
   });
 
   for (final screen in _screens) {
@@ -53,14 +51,10 @@ void main() {
 }
 
 class _Screen {
-  const _Screen(this.name, this.build, {this.ownsScaffold = true});
+  const _Screen(this.name, this.build);
 
   final String name;
   final Widget Function() build;
-
-  /// False for screens that are page bodies rather than whole pages, and so
-  /// need a Scaffold above them to supply Material and bounded constraints.
-  final bool ownsScaffold;
 }
 
 class _Viewport {
@@ -70,17 +64,21 @@ class _Viewport {
   final Size size;
 }
 
-// trackScreenOnInit is disabled where the screen exposes it so the tests do not
-// depend on analytics being reachable.
+/// Menu screens that cannot be rendered in a widget test, with the reason.
+///
+/// Qibla Finder is a host for a `WebViewWidget`, which asserts unless a
+/// `WebViewPlatform` is registered. Standing one up means implementing the
+/// controller, widget, navigation delegate and cookie manager interfaces — at
+/// which point the test exercises those stubs rather than the screen, since
+/// the screen is little more than a Scaffold around the web view.
+const Set<String> _unrenderableMenuScreens = {'Qibla Finder'};
+
 final List<_Screen> _screens = [
+  for (final item in homeMenuItems)
+    if (!_unrenderableMenuScreens.contains(item.label))
+      _Screen(item.label, item.buildPage),
+  // Reachable from the app bar rather than the menu.
   _Screen('About', () => AboutPage()),
-  _Screen(
-    'Calendar',
-    () => const CalendarPage(trackScreenOnInit: false),
-    ownsScaffold: false,
-  ),
-  _Screen('Flights', () => const FlightsPage(trackScreenOnInit: false)),
-  _Screen('Tasbeeh counter', () => const TasbeehWidget()),
 ];
 
 const List<_Viewport> _viewports = [
@@ -101,20 +99,20 @@ Future<void> _pump(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   await tester.pumpWidget(
-    MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.brown,
-          brightness: brightness,
+    // Settings reads DarkModeProvider from the tree, exactly as main.dart
+    // supplies it.
+    ChangeNotifierProvider(
+      create: (_) => DarkModeProvider(),
+      child: MaterialApp(
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.brown,
+            brightness: brightness,
+          ),
         ),
+        home: screen.build(),
       ),
-      home: screen.ownsScaffold
-          ? screen.build()
-          : Scaffold(
-              appBar: AppBar(title: Text(screen.name)),
-              body: screen.build(),
-            ),
     ),
   );
 

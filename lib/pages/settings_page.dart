@@ -336,11 +336,16 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.cardColor,
+          // Material rather than a decorated Container: the rows inside are
+          // ListTiles, which paint their background and ink splashes onto the
+          // nearest Material ancestor. Behind a coloured Container those
+          // effects are hidden, so taps landed with no ripple.
+          Material(
+            color: theme.cardColor,
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
+              side: BorderSide(
                 color: theme.dividerColor.withValues(alpha: 0.28),
               ),
             ),
