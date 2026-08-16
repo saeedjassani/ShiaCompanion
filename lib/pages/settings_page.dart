@@ -97,15 +97,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   adjustHijriAlertDialog(context);
                 },
               ),
-              if (!kIsWeb)
-                ListTile(
-                  leading: const Icon(Icons.widgets),
-                  title: const Text("Widget Prayer Times"),
-                  subtitle: Text(_widgetPrayerTimesSubtitle()),
-                  onTap: () {
-                    _showWidgetPrayerTimesDialog(context);
-                  },
-                ),
+              ListTile(
+                leading: const Icon(Icons.widgets),
+                title: const Text("Prayer Times Shown"),
+                subtitle: Text(_widgetPrayerTimesSubtitle()),
+                onTap: () {
+                  _showWidgetPrayerTimesDialog(context);
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.location_on),
                 title: const Text("Refresh Location"),
@@ -561,7 +560,7 @@ class _SettingsPageState extends State<SettingsPage> {
   String _widgetPrayerTimesSubtitle() {
     final names =
         selectedWidgetPrayerTimes().map((time) => time.name).join(', ');
-    return "Shown on the home screen widgets: $names.";
+    return "Shown on the home page and home screen widgets: $names.";
   }
 
   void _showWidgetPrayerTimesDialog(BuildContext context) {
@@ -577,7 +576,7 @@ class _SettingsPageState extends State<SettingsPage> {
             final atMaximum = selected.length >= maxWidgetPrayerTimes;
 
             return AlertDialog(
-              title: const Text("Widget Prayer Times"),
+              title: const Text("Prayer Times Shown"),
               content: SizedBox(
                 width: double.maxFinite,
                 child: ListView(

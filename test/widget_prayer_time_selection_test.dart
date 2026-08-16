@@ -32,7 +32,7 @@ void main() {
 
   test('the prayer times widget shows the saved selection, in order', () async {
     await saveWidgetPrayerTimes(
-      ['maghrib', 'fajr', 'sunset', 'sunrise', 'zuhr', 'asr'],
+      ['maghrib', 'fajr', 'sunset', 'sunrise', 'zuhr'],
     );
 
     final snapshot = HomeScreenWidgetService.instance
@@ -40,7 +40,7 @@ void main() {
 
     expect(
       namesFrom(snapshot),
-      ['Fajr', 'Sunrise', 'Zuhr', 'Asr', 'Sunset', 'Maghrib'],
+      ['Fajr', 'Sunrise', 'Zuhr', 'Sunset', 'Maghrib'],
     );
     expect(
       snapshot[HomeScreenWidgetService.dailyPrayerTimeKeys[1]],
@@ -117,5 +117,84 @@ void main() {
       HomeScreenWidgetService.dailyPrayerTimeKeys.length,
       maxWidgetPrayerTimes,
     );
+  });
+
+  group('nextWidgetPrayerTimeReadings', () {
+    test('shows every selected time for today when none have passed yet',
+        () async {
+      await saveWidgetPrayerTimes(defaultWidgetPrayerTimeIds);
+      final prayerTime = getPrayerTimeObject();
+      // UTC, so the reading order below doesn't depend on the host machine's
+      // timezone (an offset far from Mecca's own can otherwise wrap Fajr's
+      // computed hour past midnight and into "yesterday").
+      final date = DateTime.utc(2024, 6, 16);
+
+      final readings = nextWidgetPrayerTimeReadings(
+        prayerTime: prayerTime,
+        latitude: lat!,
+        longitude: long!,
+        count: selectedWidgetPrayerTimes().length,
+        now: date, // midnight: before every prayer that day
+      );
+
+      expect(
+        readings.map((r) => r.time.name),
+        ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha'],
+      );
+      expect(readings.every((r) => r.dateTime.day == date.day), isTrue);
+    });
+
+    test('rolls entirely into tomorrow once today is spent', () async {
+      await saveWidgetPrayerTimes(defaultWidgetPrayerTimeIds);
+      final prayerTime = getPrayerTimeObject();
+      final date = DateTime.utc(2024, 6, 16, 23, 59);
+
+      final readings = nextWidgetPrayerTimeReadings(
+        prayerTime: prayerTime,
+        latitude: lat!,
+        longitude: long!,
+        count: selectedWidgetPrayerTimes().length,
+        now: date,
+      );
+
+      expect(readings.length, 5);
+      expect(readings.every((r) => r.dateTime.day == date.day + 1), isTrue);
+    });
+
+    test('fills the tail from tomorrow once today only has a few left',
+        () async {
+      await saveWidgetPrayerTimes(defaultWidgetPrayerTimeIds);
+      final prayerTime = getPrayerTimeObject();
+      final date = DateTime.utc(2024, 6, 16);
+      final todaysZuhr = readWidgetPrayerTimes(
+        prayerTime: prayerTime,
+        date: date,
+        latitude: lat!,
+        longitude: long!,
+        timeZone: date.timeZoneOffset.inMinutes / 60.0,
+        times: selectedWidgetPrayerTimes(),
+      ).firstWhere((r) => r.time.id == 'zuhr').dateTime;
+
+      final readings = nextWidgetPrayerTimeReadings(
+        prayerTime: prayerTime,
+        latitude: lat!,
+        longitude: long!,
+        count: selectedWidgetPrayerTimes().length,
+        now: todaysZuhr.add(const Duration(minutes: 1)),
+      );
+
+      expect(
+        readings.map((r) => r.time.name),
+        ['Asr', 'Maghrib', 'Isha', 'Fajr', 'Zuhr'],
+      );
+      expect(
+        readings.take(3).every((r) => r.dateTime.day == date.day),
+        isTrue,
+      );
+      expect(
+        readings.skip(3).every((r) => r.dateTime.day == date.day + 1),
+        isTrue,
+      );
+    });
   });
 }

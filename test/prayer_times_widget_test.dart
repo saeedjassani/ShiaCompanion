@@ -24,6 +24,13 @@ void main() {
     city = null;
     lastLocationFailure = null;
     service.resetForTest();
+    // Midnight, so every default-selection prayer is still ahead of "now" and
+    // the card's "next 5" is deterministic regardless of when the suite runs.
+    PrayerTimesState.debugNow = () => DateTime(2024, 6, 16);
+  });
+
+  tearDown(() {
+    PrayerTimesState.debugNow = DateTime.now;
   });
 
   Position _pos(double latitude, double longitude) => Position(

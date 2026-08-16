@@ -2,19 +2,19 @@ import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
-/// Which times the home screen widgets show. Chosen once in Settings and shared
-/// by the prayer times list widget and the Up Next countdown, so both agree on
-/// what "next" means.
+/// Which times the home page card and home screen widgets show. Chosen once in
+/// Settings and shared by the home card, the prayer times list widget and the
+/// Up Next countdown, so all three agree on what "next" means.
 ///
 /// The five prayers are the default, but a prayer offered before it becomes
 /// qaza is bounded by Sunrise, Sunset or Midnight rather than by the next
 /// prayer, so those markers are selectable too.
 const String widgetPrayerTimesKey = 'widget_prayer_times';
 
-/// Fewer than three leaves the list widget looking broken; more than six stops
-/// the columns fitting a medium widget.
+/// Fewer than three leaves the list widget looking broken; more than five
+/// stops the home card's row fitting a phone screen.
 const int minWidgetPrayerTimes = 3;
-const int maxWidgetPrayerTimes = 6;
+const int maxWidgetPrayerTimes = 5;
 
 class WidgetPrayerTime {
   const WidgetPrayerTime({
@@ -201,4 +201,44 @@ List<WidgetPrayerTimeReading> readWidgetPrayerTimes({
   } finally {
     prayerTime.setTimeFormat(originalFormat);
   }
+}
+
+/// The next [count] occurrences of [times], soonest first, starting from
+/// [now]. Looks at most one day past [now]'s date — enough to roll from
+/// today's last selected time into tomorrow's first, since a selection is at
+/// most [maxWidgetPrayerTimes] long and every unclaimed slot on day one is
+/// guaranteed to be filled by day two's full selection.
+List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
+  required PrayerTime prayerTime,
+  required double latitude,
+  required double longitude,
+  required int count,
+  DateTime? now,
+  List<WidgetPrayerTime>? times,
+}) {
+  final selected = times ?? selectedWidgetPrayerTimes();
+  final moment = now ?? DateTime.now();
+  // Preserve whether the caller is working in UTC or local time: building a
+  // local midnight from a UTC moment (or vice versa) would silently swap in
+  // the wrong timezone offset for every reading computed below.
+  final startOfToday = moment.isUtc
+      ? DateTime.utc(moment.year, moment.month, moment.day)
+      : DateTime(moment.year, moment.month, moment.day);
+
+  final upcoming = <WidgetPrayerTimeReading>[];
+  for (var dayOffset = 0; dayOffset < 2 && upcoming.length < count; dayOffset++) {
+    final date = startOfToday.add(Duration(days: dayOffset));
+    final readings = readWidgetPrayerTimes(
+      prayerTime: prayerTime,
+      date: date,
+      latitude: latitude,
+      longitude: longitude,
+      timeZone: date.timeZoneOffset.inMinutes / 60.0,
+      times: selected,
+    );
+    upcoming.addAll(readings.where((reading) => reading.dateTime.isAfter(moment)));
+  }
+
+  upcoming.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+  return upcoming.take(count).toList(growable: false);
 }

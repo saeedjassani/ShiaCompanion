@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/services/location_service.dart';
+import 'package:shia_companion/utils/prayer_time_icons.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import '../constants.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
@@ -15,16 +19,30 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   PrayerTimesState();
 
   final LocationService _location = LocationService.instance;
+  Timer? _ticker;
+
+  /// Lets tests pin "now" instead of racing the wall clock: which prayers
+  /// count as "next" — and whether they belong to today or tomorrow — depends
+  /// on the moment the card is built.
+  @visibleForTesting
+  static DateTime Function() debugNow = DateTime.now;
 
   @override
   void initState() {
     super.initState();
     _location.addListener(_onLocationChanged);
+    // The highlighted "next" prayer, and near midnight the list itself, move
+    // forward on their own even when nothing else changes. Without a tick the
+    // card would only catch up the next time something else rebuilt it.
+    _ticker = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _location.removeListener(_onLocationChanged);
+    _ticker?.cancel();
     super.dispose();
   }
 
@@ -41,17 +59,23 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime currentTime = DateTime.now();
+    DateTime now = debugNow();
     HijriCalendar _today =
-        HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
+        HijriCalendar.fromDate(now.add(Duration(days: hijriDate)));
     PrayerTime prayerTime = getPrayerTimeObject();
-    prayerTime.setTimeFormat(prayerTime.getTime12());
+    final selected = selectedWidgetPrayerTimes();
 
     // Always render from the last known fix. A refresh in flight, or one that
     // just failed, never blanks times the user could still be relying on.
-    List<String>? _prayerTimes = lat != null
-        ? prayerTime.getPrayerTimes(currentTime, lat!, long!,
-            currentTime.timeZoneOffset.inMinutes / 60.0)
+    List<WidgetPrayerTimeReading>? _readings = lat != null
+        ? nextWidgetPrayerTimeReadings(
+            prayerTime: prayerTime,
+            latitude: lat!,
+            longitude: long!,
+            count: selected.length,
+            now: now,
+            times: selected,
+          )
         : null;
     return Card(
       child: Padding(
@@ -66,7 +90,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
             SizedBox(
               height: 4,
             ),
-            _prayerTimes != null
+            _readings != null && _readings.isNotEmpty
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,47 +100,22 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                         onRefresh: _refreshLocation,
                       ),
                       SizedBox(
-                        height: 4,
+                        height: 8,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Fajr"),
-                                SizedBox(
-                                  height: 4,
+                          for (var i = 0; i < _readings.length; i++)
+                            Expanded(
+                              child: _PrayerTimeColumn(
+                                reading: _readings[i],
+                                isNext: i == 0,
+                                isTomorrow: !_isSameDate(
+                                  _readings[i].dateTime,
+                                  now,
                                 ),
-                                Text(_prayerTimes[0]),
-                              ],
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Zuhr"),
-                                SizedBox(
-                                  height: 4,
-                                ),
-                                Text(_prayerTimes[2]),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Maghrib"),
-                                SizedBox(
-                                  height: 4,
-                                ),
-                                Text(_prayerTimes[5]),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                     ],
@@ -127,6 +126,77 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                   ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+bool _isSameDate(DateTime a, DateTime b) {
+  return a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
+/// One prayer in the "next" row: its icon, name and time, with the soonest
+/// one visually promoted and any entry that has rolled into tomorrow labelled
+/// as such.
+class _PrayerTimeColumn extends StatelessWidget {
+  const _PrayerTimeColumn({
+    required this.reading,
+    required this.isNext,
+    required this.isTomorrow,
+  });
+
+  final WidgetPrayerTimeReading reading;
+  final bool isNext;
+  final bool isTomorrow;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final color = isNext ? colorScheme.primary : colorScheme.onSurface;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+      decoration: isNext
+          ? BoxDecoration(
+              color: colorScheme.primaryContainer.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(10),
+            )
+          : null,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Reserved whether or not this entry crosses into tomorrow, so
+          // every column's icon lines up at the same height.
+          Text(
+            isTomorrow ? "Tomorrow" : "",
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Icon(prayerIconFor(reading.time.name), size: 16, color: color),
+          const SizedBox(height: 2),
+          Text(
+            reading.time.name,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: color,
+              fontWeight: isNext ? FontWeight.bold : FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            reading.displayTime,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: color,
+              fontWeight: isNext ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }
