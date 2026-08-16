@@ -121,22 +121,39 @@ dark themes, and fails on any framework error raised while laying it out.
 `RenderFlex` overflows, bad constraints and nulls during build all surface
 here. No golden files to maintain.
 
-To cover another screen, add it to `_screens` in that file.
+The screen list is `homeMenuItems` itself rather than a copy, so a new menu
+entry is covered the day it is added. Nothing needs adding here for it.
 
-**Known gap.** Screens that reach Firebase while building cannot be listed
-yet. `FavoritesManager` and `QazaTrackerManager` hold Firestore and Auth
-instances as fields, and `ItemList` builds a Firestore collection reference in
-a field initializer, so constructing any of them without a Firebase app throws
-`[core/no-app]`. That covers Favorites, Library, Qaza tracker and the eight
-zikr list screens. Closing it means standing up Firebase test doubles in the
-suite — `TestFirebaseCoreHostApi` from `firebase_core_platform_interface`,
-plus fakes for Firestore and Auth — or making those singletons lazy. Worth
-doing; it is the single biggest coverage win available.
+**Firebase.** Screens reach it two ways, and `test/ui/firebase_test_doubles.dart`
+answers both. `FavoritesManager` and `QazaTrackerManager` hold Firestore, Auth
+and Database instances in field initialisers and `ItemList` builds a collection
+reference the same way, so `setupFirebaseCoreMocks` plus `Firebase.initializeApp`
+runs first or every one of them throws `[core/no-app]`. The reads those screens
+start in `initState` are then answered with empty results by mock channel
+handlers; without them the call raises `MissingPluginException`, which surfaces
+as an unhandled async error and fails the test for a reason unrelated to
+rendering. Screens render their empty state, which is what a new user sees.
 
-Screens are wrapped in a `Scaffold` when they are page bodies rather than whole
-pages (`ownsScaffold: false`). Without it they render with no `Material`
-ancestor and unbounded width, which fails for reasons that have nothing to do
-with the screen.
+**Excluded:** `Qibla Finder`, which hosts a `WebViewWidget` and asserts unless a
+`WebViewPlatform` is registered. Registering a fake means implementing the
+controller, widget, navigation delegate and cookie manager interfaces, at which
+point the test exercises those stubs rather than the screen — the screen being
+little more than a Scaffold around the web view. The exclusion set in the test
+file carries this reason.
+
+## Timezone
+
+`flutter test` must pass in any zone, not just the UTC that CI happens to run
+in. Prayer time code is the place this breaks: a `DateTime` built from
+year/month/day is local unless it is explicitly UTC, and mixing the two shifts
+a comparison by the machine's offset — invisible on CI, a failure on a
+developer's laptop. `dateTimeForTime24` preserves whichever zone its date
+argument used for exactly this reason. When touching this area, check with
+
+```bash
+TZ=Pacific/Kiritimati flutter test    # UTC+14
+TZ=Pacific/Midway flutter test        # UTC-11
+```
 
 ### 3. Web visual and smoke tests — `test_visual/`
 
