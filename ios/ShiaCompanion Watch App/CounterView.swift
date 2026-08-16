@@ -16,6 +16,11 @@ final class CounterModel: ObservableObject {
     /// `0` means "no target"; the rest mirror the milestones the phone app beeps at.
     static let targetOptions = [0, 33, 34, 100, 1000]
 
+    /// Floor on the gap between two count haptics. The Taptic engine cannot render two
+    /// clicks closer than this anyway — it swallows the second — so calling `play` again
+    /// only costs main-thread time during exactly the burst we are trying not to drop.
+    private static let hapticInterval: TimeInterval = 0.08
+
     @Published private(set) var count: Int
     @Published private(set) var target: Int
 
@@ -26,10 +31,15 @@ final class CounterModel: ObservableObject {
 
     /// Same fallback as `PrayerDataStore`: a missing app group degrades to local storage
     /// rather than losing the count entirely.
-    private var defaults: UserDefaults { UserDefaults(suiteName: watchAppGroupID) ?? .standard }
+    private let defaults: UserDefaults
+    /// Serial, so the last value enqueued is the last value written even though the writes
+    /// happen off the main thread.
+    private let saveQueue = DispatchQueue(label: "com.shiacompanion.watch.counter-save", qos: .utility)
+    private var lastHapticAt: TimeInterval = 0
 
     init() {
         let defaults = UserDefaults(suiteName: watchAppGroupID) ?? .standard
+        self.defaults = defaults
         count = min(max(defaults.integer(forKey: Keys.count), 0), Self.maxCount)
         let storedTarget = defaults.integer(forKey: Keys.target)
         target = Self.targetOptions.contains(storedTarget) ? storedTarget : 0
@@ -61,23 +71,51 @@ final class CounterModel: ObservableObject {
         // Compare laps rather than testing `updated % target`, so a Crown flick that
         // jumps several counts at once still lands the milestone haptic.
         let crossedTarget = target > 0 && updated > count && updated / target > count / target
+        // The count lands first and alone. Everything after it is feedback, and a pinch
+        // arriving mid-`adjust` has to find the main runloop free or the system drops it.
         count = updated
-        defaults.set(updated, forKey: Keys.count)
-        WKInterfaceDevice.current().play(crossedTarget ? .success : (delta > 0 ? .click : .directionDown))
+        persistCount(updated)
+        play(crossedTarget ? .success : (delta > 0 ? .click : .directionDown), force: crossedTarget)
     }
 
     func reset() {
         guard count != 0 else { return }
         count = 0
-        defaults.set(0, forKey: Keys.count)
-        WKInterfaceDevice.current().play(.stop)
+        persistCount(0)
+        play(.stop, force: true)
     }
 
     func cycleTarget() {
         let index = Self.targetOptions.firstIndex(of: target) ?? 0
         target = Self.targetOptions[(index + 1) % Self.targetOptions.count]
-        defaults.set(target, forKey: Keys.target)
-        WKInterfaceDevice.current().play(.click)
+        let updated = target
+        saveQueue.async { [defaults] in defaults.set(updated, forKey: Keys.target) }
+        play(.click, force: true)
+    }
+
+    /// Blocks until every queued write has landed. Called when the app leaves the
+    /// foreground, which is the only moment the process might be suspended before the
+    /// background queue drains.
+    func flushPendingWrites() {
+        saveQueue.sync {}
+    }
+
+    /// The app group container is shared storage, and writing to it costs more than a
+    /// plain `UserDefaults` write. Off the main thread it costs the counter nothing; the
+    /// serial queue means a burst of pinches collapses into the same ordered sequence of
+    /// writes without any of them blocking a tap.
+    private func persistCount(_ value: Int) {
+        saveQueue.async { [defaults] in defaults.set(value, forKey: Keys.count) }
+    }
+
+    /// Coalesces feedback, never counts: a skipped click means the user felt one buzz for
+    /// two very fast pinches, which is what the hardware would have given them regardless.
+    /// Milestones bypass the throttle — that buzz is the one being listened for.
+    private func play(_ type: WKHapticType, force: Bool) {
+        let now = ProcessInfo.processInfo.systemUptime
+        guard force || now - lastHapticAt >= Self.hapticInterval else { return }
+        lastHapticAt = now
+        WKInterfaceDevice.current().play(type)
     }
 }
 
@@ -92,15 +130,30 @@ final class CounterModel: ObservableObject {
 /// which activates whichever control holds focus — so the dial takes focus on appear,
 /// making it both the Crown's rotation target and the thing a pinch mapped to "Tap"
 /// will hit.
+///
+/// That makes focus load-bearing: anything that clears it silently turns every later
+/// pinch into a no-op. The parent screen republishes prayer times on foregrounding, on
+/// every phone sync and on an hourly rollover timer, and each of those rebuilds the
+/// navigation stack underneath this view — so focus is tracked per-control and re-claimed
+/// whenever it goes nowhere at all, rather than only being set once on appear.
 struct CounterView: View {
+    /// Distinguishing *which* control has focus is what lets focus be restored without
+    /// being trapped: focus moving to another control here is the user navigating, focus
+    /// going `nil` is the system losing it.
+    private enum Field: Hashable {
+        case target, dial, minus, reset
+    }
+
     @EnvironmentObject private var model: CounterModel
+    @Environment(\.scenePhase) private var scenePhase
 
     /// Raw Crown position. Only the *delta* is used, so the Crown keeps counting from
     /// wherever it happens to be after a reset.
     @State private var crownValue: Double = 0
     @State private var lastCrownStep = 0
     @State private var isConfirmingReset = false
-    @FocusState private var isDialFocused: Bool
+    @State private var isOnScreen = false
+    @FocusState private var focus: Field?
 
     var body: some View {
         VStack(spacing: 6) {
@@ -119,6 +172,44 @@ struct CounterView: View {
             Button("Reset", role: .destructive) { model.reset() }
             Button("Cancel", role: .cancel) {}
         }
+        .onAppear {
+            isOnScreen = true
+            focus = .dial
+        }
+        .onDisappear {
+            isOnScreen = false
+            model.flushPendingWrites()
+        }
+        .onChange(of: focus) { field in
+            // Only `nil` is a loss. Landing on minus, reset or the target button is the
+            // user walking the focus ring, and stealing focus back would leave an
+            // AssistiveTouch user unable to press anything but the dial.
+            guard field == nil else { return }
+            claimDialFocus()
+        }
+        .onChange(of: isConfirmingReset) { presenting in
+            // The dialog takes focus with it on the way out, and it takes its dismissal
+            // animation to hand it back, so the re-claim has to outlast the transition.
+            guard !presenting else { return }
+            claimDialFocus(after: 0.35)
+        }
+        .onChange(of: scenePhase) { phase in
+            if phase == .active {
+                claimDialFocus(after: 0.25)
+            } else {
+                model.flushPendingWrites()
+            }
+        }
+    }
+
+    /// Re-asserts focus a runloop pass later, because a claim made inside the same update
+    /// that cleared it is simply overwritten again. Re-checks on arrival so a user who
+    /// moved focus in the meantime keeps it.
+    private func claimDialFocus(after delay: TimeInterval = 0.05) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            guard isOnScreen, !isConfirmingReset, focus == nil else { return }
+            focus = .dial
+        }
     }
 
     private var targetButton: some View {
@@ -130,14 +221,17 @@ struct CounterView: View {
                     .font(.system(size: 9))
                 Text(model.targetLabel)
                     .font(.system(size: 11))
-                if model.target > 0 && model.lap > 1 {
-                    Text("×\(model.lap)")
-                        .font(.system(size: 11, weight: .semibold))
-                }
+                // Kept in the tree at zero opacity rather than branched in and out: the lap
+                // ticks over mid-session, and adding a view to a focusable control's label
+                // makes the focus engine re-evaluate and can drop the dial's focus.
+                Text("×\(model.lap)")
+                    .font(.system(size: 11, weight: .semibold))
+                    .opacity(model.target > 0 && model.lap > 1 ? 1 : 0)
             }
             .foregroundColor(.secondary)
         }
         .buttonStyle(.plain)
+        .focused($focus, equals: .target)
         .accessibilityLabel("Target")
         .accessibilityValue(model.targetLabel)
         .accessibilityHint("Changes the target count")
@@ -150,12 +244,7 @@ struct CounterView: View {
             dialFace
         }
         .buttonStyle(.plain)
-        .focused($isDialFocused)
-        // Claim focus on arrival so the Crown counts straight away, and so an
-        // AssistiveTouch pinch mapped to "Tap" lands on the dial without the user first
-        // walking the focus ring. Focus is not held captive after that — trapping it
-        // would leave AssistiveTouch users unable to reach minus and reset at all.
-        .onAppear { isDialFocused = true }
+        .focused($focus, equals: .dial)
         .digitalCrownRotation(
             $crownValue,
             from: -Double(CounterModel.maxCount),
@@ -180,20 +269,22 @@ struct CounterView: View {
 
     private var dialFace: some View {
         ZStack {
+            // Doubles as the focus indicator: `.plain` draws no focus ring of its own, and
+            // a lost focus is otherwise invisible right up until a pinch does nothing.
             Circle()
-                .fill(Color.accentColor.opacity(0.15))
+                .fill(Color.accentColor.opacity(focus == .dial ? 0.22 : 0.08))
 
-            if model.target > 0 {
-                Circle()
-                    .trim(from: 0, to: model.progress)
-                    .stroke(
-                        Color.accentColor,
-                        style: StrokeStyle(lineWidth: 4, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90))
-                    .padding(2)
-                    .animation(.easeOut(duration: 0.15), value: model.count)
-            }
+            // Always present, trimmed to nothing when there is no target, so switching
+            // targets does not restructure the focused button's label.
+            Circle()
+                .trim(from: 0, to: model.target > 0 ? model.progress : 0)
+                .stroke(
+                    Color.accentColor,
+                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .padding(2)
+                .animation(.easeOut(duration: 0.15), value: model.progress)
 
             VStack(spacing: 0) {
                 Text("\(model.count)")
@@ -219,6 +310,7 @@ struct CounterView: View {
                 Image(systemName: "minus")
             }
             .disabled(model.count == 0)
+            .focused($focus, equals: .minus)
             .accessibilityLabel("Subtract one")
 
             Button {
@@ -227,6 +319,7 @@ struct CounterView: View {
                 Image(systemName: "arrow.counterclockwise")
             }
             .disabled(model.count == 0)
+            .focused($focus, equals: .reset)
             .accessibilityLabel("Reset")
         }
         .buttonStyle(.bordered)
