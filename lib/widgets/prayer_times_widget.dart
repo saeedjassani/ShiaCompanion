@@ -64,6 +64,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         HijriCalendar.fromDate(now.add(Duration(days: hijriDate)));
     PrayerTime prayerTime = getPrayerTimeObject();
     final selected = selectedWidgetPrayerTimes();
+    final dateText = _today.toFormat("dd MMMM yyyy");
 
     // Always render from the last known fix. A refresh in flight, or one that
     // just failed, never blanks times the user could still be relying on.
@@ -77,47 +78,42 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
             times: selected,
           )
         : null;
+    final hasReadings = _readings != null && _readings.isNotEmpty;
+    // Where "tomorrow" starts, if at all — the row is chronological, so once
+    // one column crosses midnight every column after it has too. Tagging only
+    // that one boundary (instead of every rolled-over column) reads like a
+    // date divider in a list, rather than repeating "Tomorrow" three times.
+    final firstTomorrowIndex = _readings == null
+        ? -1
+        : _readings.indexWhere((r) => !_isSameDate(r.dateTime, now));
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              _today.toFormat("dd MMMM yyyy"),
-              style: boldText,
-            ),
-            SizedBox(
-              height: 4,
-            ),
-            _readings != null && _readings.isNotEmpty
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
+            hasReadings
+                ? _CardHeader(
+                    dateText: dateText,
+                    location: _location,
+                    onRefresh: _refreshLocation,
+                  )
+                // No coordinates yet: nothing to name the location with, so
+                // just the date — _LocationEmptyState below explains why.
+                : Text(dateText, style: boldText),
+            const SizedBox(height: 6),
+            hasReadings
+                ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _LocationStatusRow(
-                        location: _location,
-                        onRefresh: _refreshLocation,
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          for (var i = 0; i < _readings.length; i++)
-                            Expanded(
-                              child: _PrayerTimeColumn(
-                                reading: _readings[i],
-                                isNext: i == 0,
-                                isTomorrow: !_isSameDate(
-                                  _readings[i].dateTime,
-                                  now,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
+                      for (var i = 0; i < _readings.length; i++)
+                        Expanded(
+                          child: _PrayerTimeColumn(
+                            reading: _readings[i],
+                            isTomorrowBoundary: i == firstTomorrowIndex,
+                          ),
+                        ),
                     ],
                   )
                 : _LocationEmptyState(
@@ -135,83 +131,18 @@ bool _isSameDate(DateTime a, DateTime b) {
   return a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-/// One prayer in the "next" row: its icon, name and time, with the soonest
-/// one visually promoted and any entry that has rolled into tomorrow labelled
-/// as such.
-class _PrayerTimeColumn extends StatelessWidget {
-  const _PrayerTimeColumn({
-    required this.reading,
-    required this.isNext,
-    required this.isTomorrow,
-  });
-
-  final WidgetPrayerTimeReading reading;
-  final bool isNext;
-  final bool isTomorrow;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final color = isNext ? colorScheme.primary : colorScheme.onSurface;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-      decoration: isNext
-          ? BoxDecoration(
-              color: colorScheme.primaryContainer.withValues(alpha: 0.35),
-              borderRadius: BorderRadius.circular(10),
-            )
-          : null,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Reserved whether or not this entry crosses into tomorrow, so
-          // every column's icon lines up at the same height.
-          Text(
-            isTomorrow ? "Tomorrow" : "",
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          Icon(prayerIconFor(reading.time.name), size: 16, color: color),
-          const SizedBox(height: 2),
-          Text(
-            reading.time.name,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: color,
-              fontWeight: isNext ? FontWeight.bold : FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            reading.displayTime,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: color,
-              fontWeight: isNext ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The one line above the times that carries every location state: which city
-/// the times belong to, whether a refresh is running, how old the fix is, and
-/// what went wrong last time. Deliberately the only thing that changes — the
-/// prayer times below it never move.
-class _LocationStatusRow extends StatelessWidget {
-  const _LocationStatusRow({
+/// The single line above the times: the Hijri date, the location (or
+/// whatever explains its absence), and the refresh affordance, all together
+/// — location no longer gets a line of its own. A stale reading adds one
+/// small caption underneath; nothing else grows the header.
+class _CardHeader extends StatelessWidget {
+  const _CardHeader({
+    required this.dateText,
     required this.location,
     required this.onRefresh,
   });
 
+  final String dateText;
   final LocationService location;
   final VoidCallback onRefresh;
 
@@ -222,60 +153,147 @@ class _LocationStatusRow extends StatelessWidget {
     final failed = location.status == LocationRefreshStatus.failed;
     final label = city;
 
-    final String text;
+    final String suffix;
     if (failed) {
-      text = label == null
+      suffix = label == null
           ? location.failureMessage
           : "$label · ${location.failureMessage}";
-    } else if (label == null) {
-      // A missing label does not mean a missing location: this row only renders
-      // once there are coordinates, and the geocode that names them is allowed
-      // to fail on its own. Only claim to be locating if we actually are.
-      text = location.isRefreshing
+    } else if (label != null) {
+      suffix = label;
+    } else {
+      // A missing label does not mean a missing location: this header only
+      // renders once there are coordinates, and the geocode that names them
+      // is allowed to fail or still be running on its own.
+      suffix = location.isRefreshing
           ? "Locating…"
           : "Prayer times for your location";
-    } else if (location.shouldDiscloseAge) {
-      text = "Location: $label · updated ${_ageLabel(location.updatedAt!)}";
-    } else {
-      text = "Location: $label";
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    // Only once there's a named location worth dating, and only when that
+    // reading is actually old — this is the one thing about the header that
+    // still changes on its own, so it stays a separate, smaller line.
+    final showUpdated = !failed && label != null && location.shouldDiscloseAge;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Flexible(
-          child: Text(
-            text,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: failed
-                ? theme.textTheme.bodyMedium?.copyWith(color: colorScheme.error)
-                : null,
-          ),
-        ),
-        // The refresh affordance is always present, whatever the state — a
-        // failed location must never be a dead end.
-        location.isRefreshing
-            ? const Padding(
-                padding: EdgeInsets.all(4.0),
-                child: SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: dateText, style: boldText),
+                    TextSpan(
+                      text: " · $suffix",
+                      style: TextStyle(
+                        color: failed
+                            ? colorScheme.error
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
-              )
-            : InkWell(
-                onTap: onRefresh,
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Icon(
-                    Icons.refresh,
-                    size: 18,
-                    color: failed ? colorScheme.error : null,
-                  ),
-                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
+            ),
+            // The refresh affordance is always present, whatever the state —
+            // a failed location must never be a dead end.
+            location.isRefreshing
+                ? const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : InkWell(
+                    onTap: onRefresh,
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.refresh,
+                        size: 16,
+                        color:
+                            failed ? colorScheme.error : colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+          ],
+        ),
+        if (showUpdated)
+          Text(
+            "updated ${_ageLabel(location.updatedAt!)}",
+            style: theme.textTheme.labelSmall
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
+          ),
       ],
+    );
+  }
+}
+
+/// One prayer in the row: icon, name and time, all at equal weight — order
+/// alone already says what's next, so nothing here is bolded or boxed to
+/// repeat that. Only the single column where the row crosses into tomorrow
+/// gets a divider on its left edge; no label needed there, since a time
+/// that's earlier than the one before it already tells the story. Everything
+/// after that divider is understood to be tomorrow too, the same way a date
+/// divider works in a list.
+class _PrayerTimeColumn extends StatelessWidget {
+  const _PrayerTimeColumn({
+    required this.reading,
+    required this.isTomorrowBoundary,
+  });
+
+  final WidgetPrayerTimeReading reading;
+  final bool isTomorrowBoundary;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final nameStyle =
+        theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      decoration: isTomorrowBoundary
+          ? BoxDecoration(
+              border: Border(
+                left: BorderSide(color: colorScheme.outlineVariant),
+              ),
+            )
+          : null,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            prayerIconFor(reading.time.name),
+            size: 16,
+            color: colorScheme.primary,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            reading.time.name,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: nameStyle,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            reading.displayTime,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
+          ),
+        ],
+      ),
     );
   }
 }

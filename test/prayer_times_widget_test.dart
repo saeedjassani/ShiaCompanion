@@ -72,7 +72,7 @@ void main() {
 
     await pumpCard(tester);
     expect(find.text('Fajr'), findsOneWidget);
-    expect(find.text('Location: Najaf'), findsOneWidget);
+    expect(find.textContaining('Najaf'), findsOneWidget);
 
     await withGeocode(() async {
       unawaited(service.refresh());
@@ -83,7 +83,7 @@ void main() {
       expect(find.text('Fajr'), findsOneWidget);
       expect(find.text('Zuhr'), findsOneWidget);
       expect(find.text('Maghrib'), findsOneWidget);
-      expect(find.text('Location: Najaf'), findsOneWidget);
+      expect(find.textContaining('Najaf'), findsOneWidget);
 
       gate.complete(_pos(32.02, 44.34));
       await tester.pumpAndSettle();
