@@ -115,19 +115,47 @@ class ZikrContentParser {
     return englishCodes;
   }
 
+  // Maps the Indo-Pak/Qalam-style letterforms the Arabic text is authored
+  // in to standard modern Arabic, for fonts other than Qalam that don't
+  // carry those letterforms (confirmed via font inspection: MeQuran's font
+  // file has no glyphs at all for ی/ہ/ھ/ک/ۃ, so they'd render as missing
+  // boxes there without this mapping).
+  //
+  // Each entry replaces a single character in place, so it applies
+  // regardless of what follows it (line end, punctuation, another mark).
+  //
+  // Deliberately NOT touched here: کھڑی زیر / khaṛi zer (ٖ) and الٹا پیش /
+  // ulta pesh (ٗ). An earlier version of this mapping flattened them to a
+  // plain kasra/damma, reasoning from the pre-3-line manual transcripts
+  // (which spell the same words with plain harakat). That reasoning was
+  // wrong — confirmed by the zikr content's author: those older transcripts
+  // were simply less precise, and khaṛi zer / ulta pesh are their own
+  // correct, distinct Indo-Pak Qur'anic marks, not shorthand for the plain
+  // vowel. All three bundled fonts have glyphs for both (checked via their
+  // cmaps), so leaving them as-is is also not a rendering risk.
+  static const Map<String, String> _indoPakToStandard = {
+    'ی': 'ي', // Farsi/Urdu yeh -> Arabic yeh
+    'ہ': 'ه', // Urdu heh goal -> Arabic heh
+    'ھ': 'ه', // Urdu doachashmi heh -> Arabic heh
+    'ک': 'ك', // Urdu keheh -> Arabic kaf
+    'ۃ': 'ة', // Urdu teh marbuta goal -> Arabic teh marbuta
+  };
+
   static String formatArabicText(String str) {
     if (arabicFont == 'Qalam') {
       return str;
-    } else {
-      return str
-          .replaceAll("ی", "ي")
-          .replaceAll("ہ", "ه")
-          .replaceAll("ک", "ك")
-          .replaceAll("ۃ", "ة")
-          .replaceAll('الله', 'اللّٰه')
-          .replaceAll('ٗ ', '')
-          .replaceAll('ٖ ', ' ِ')
-          .replaceAll('اۤ', 'ا');
     }
+    var result = str;
+    _indoPakToStandard.forEach((from, to) {
+      result = result.replaceAll(from, to);
+    });
+    return result
+        // Must run after the ہ/ھ -> ه mapping above so "اللہ" (Urdu
+        // spelling) is also caught, not just "الله".
+        .replaceAll('الله', 'اللّٰه')
+        // Single-codepoint "Allah" ligature; Uthmani's font file has no
+        // glyph for it, so it renders as a missing-glyph box there today.
+        .replaceAll('ﷲ', 'اللّٰه')
+        .replaceAll('اۤ', 'ا');
   }
 }
