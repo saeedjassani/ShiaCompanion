@@ -137,27 +137,63 @@ cd test_visual && npm run test:update
 
 ## iOS builds and Xcode
 
-The `ios` job pins `macos-15`, whose default is Xcode 16.4 — the same version
-used locally and on Codemagic.
+### Why Runner links libswiftCompatibility56.a explicitly
 
-It cannot use `macos-latest`. That label now resolves to macOS 26, where the
-build fails to link:
+Under Xcode 26 the app failed to link:
 
 ```
 Error (Xcode): Undefined symbol: __swift_FORCE_LOAD_$_swiftCompatibility56
 ```
 
-This is **not** a missing library. `libswiftCompatibility56.a` is present for
-`iphoneos`, `iphonesimulator`, `watchos` and `watchsimulator` in every Xcode on
-both runner images, 16.0 through 26.6 — verified directly on the runners. The
-symbol is auto-linked by a prebuilt dependency and Xcode 26's linker is not
-resolving it from the toolchain the way Xcode 16 did.
+Two separate things were going on.
 
-The `ios-xcode-26` job builds on `macos-latest` with `continue-on-error: true`
-purely as early warning. **When it goes green, move the `ios` job to
-`macos-latest` and delete it.** Until then, note that upgrading a local machine
-or Codemagic to Xcode 26 is expected to hit the same failure — this is an
-Xcode-version problem, not a CI-environment problem.
+**1. Why the symbol is needed at all.** `FirebaseAnalytics` ships as a
+precompiled binary whose device slice leaves that symbol undefined and expects
+the linker to supply it — `nm -u` on
+`FirebaseAnalytics.xcframework/ios-arm64/…/FirebaseAnalytics` shows it, and
+`FirebaseAuth` does the same. Apple still provides it: `nm` on
+`libswiftCompatibility56.a` in Xcode 26.6 reports it as a defined symbol for
+arm64 and arm64e. Xcode 26 simply stopped putting that library on the link
+line, so Runner names it explicitly.
+
+Upgrading Firebase is not an alternative. 12.17.0, three releases newer than
+the pinned 12.14.0, still leaves the symbol undefined — checked by downloading
+the release and inspecting the binary.
+
+**2. Why `$(TOOLCHAIN_DIR)` cannot be used to find it.** On the macOS 26
+runners the Metal toolchain is mounted as a MobileAsset cryptex, and
+`TOOLCHAIN_DIR` resolves to *that* during the link phase:
+
+```
+/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-…/
+Metal.xctoolchain/usr/lib/swift/iphoneos/libswiftCompatibility56.a
+```
+
+which does not exist. Note that `xcodebuild -showBuildSettings` reports
+`TOOLCHAIN_DIR` as the XcodeDefault toolchain — the value differs between that
+query and the actual build, so the setting cannot be trusted from a query
+alone. A machine without the Metal cryptex mounted resolves it correctly, which
+is why this reproduced only in CI.
+
+**`DT_TOOLCHAIN_DIR` always names the Xcode default toolchain**, so that is what
+the build settings use.
+
+The archive is passed by absolute path rather than `-lswiftCompatibility56`. A
+minimal reproduction on the runner confirmed the linker resolves it equally well
+either way; the absolute path is preferred because a wrong directory then fails
+with the offending path in the message, rather than an unhelpful
+`library 'swiftCompatibility56' not found`.
+
+Both settings are applied to all three build configurations of the Runner
+target in `Runner.xcodeproj`, and verified by the `ios-xcode-26` CI job.
+
+### Runner labels
+
+The `ios` job pins `macos-15` (Xcode 16.4), matching Codemagic. The
+`ios-xcode-26` job builds the same code on `macos-latest` (Xcode 26.x) with
+`continue-on-error: true`, so a regression under the newer toolchain is visible
+without blocking a merge. Once it has been green for a while, fold the two
+together and build only on `macos-latest`.
 
 ## Pinned versions
 

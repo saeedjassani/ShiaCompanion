@@ -827,8 +827,13 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
 				);
 				MARKETING_VERSION = 2.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)/libswiftCompatibility56.a",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.developer110.shiacompanion;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1150,8 +1155,13 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
 				);
 				MARKETING_VERSION = 2.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)/libswiftCompatibility56.a",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.developer110.shiacompanion;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1185,8 +1195,13 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
 				);
 				MARKETING_VERSION = 2.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)/libswiftCompatibility56.a",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.developer110.shiacompanion;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
