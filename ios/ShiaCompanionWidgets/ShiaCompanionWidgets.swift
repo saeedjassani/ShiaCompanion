@@ -555,17 +555,19 @@ struct DailyPrayerTimesView: View {
                 if !entry.nextPrayerName.isEmpty, let nextPrayerDate = entry.nextPrayerDate {
                     HStack(spacing: 3) {
                         Text("\(entry.nextPrayerName) in")
-                        // Timer text reserves room for the widest value it can
-                        // ever show, so it needs trailing alignment of its own
-                        // to sit flush against the edge of the widget.
+                        // Timer text asks for far more room than a countdown
+                        // ever needs and centres the digits inside it. Cap that
+                        // box so it cannot crowd out the location, and align
+                        // trailing within it so the digits sit flush right.
                         Text(nextPrayerDate, style: .timer)
-                            .font(.caption2.weight(.bold).monospacedDigit())
                             .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 54, alignment: .trailing)
                     }
                     .font(.caption2.weight(.bold))
                     .foregroundColor(.bodyText)
                     .lineLimit(1)
-                    .layoutPriority(1)
+                    .minimumScaleFactor(0.75)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
             }
             Spacer(minLength: 0)
