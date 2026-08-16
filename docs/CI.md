@@ -231,11 +231,18 @@ target in `Runner.xcodeproj`, and verified by the `ios-xcode-26` CI job.
 
 ### Runner labels
 
-The `ios` job pins `macos-15` (Xcode 16.4), matching Codemagic. The
-`ios-xcode-26` job builds the same code on `macos-latest` (Xcode 26.x) with
-`continue-on-error: true`, so a regression under the newer toolchain is visible
-without blocking a merge. Once it has been green for a while, fold the two
-together and build only on `macos-latest`.
+A single `ios` job builds on `macos-latest`, currently Xcode 26.
+
+It used to be two: `macos-15` for the build that had to pass, and an advisory
+`macos-latest` job carrying `continue-on-error: true` to show whether the newer
+toolchain worked yet. That arrangement existed only because the link failure
+above was unsolved, and it cost a second full iOS build — roughly fifteen
+minutes of macOS runner time — on every push. With the link fixed and the
+advisory job green, the pin and the duplicate build are gone.
+
+If a future Xcode breaks the build again, the failure belongs in the open
+rather than behind `continue-on-error`. Pin `runs-on` to the last known good
+`macos-NN` deliberately and for as short a time as possible.
 
 ## Pinned versions
 
