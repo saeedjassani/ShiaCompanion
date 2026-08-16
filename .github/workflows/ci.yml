@@ -100,36 +100,9 @@ jobs:
           retention-days: 14
 
   ios:
-    name: iOS build (Xcode 16.4)
-    needs: analyze-and-test
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Show selected Xcode
-        run: |
-          xcode-select -p
-          xcodebuild -version
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
-          cache: true
-
-      - run: flutter pub get
-
-      - name: Build iOS app
-        run: flutter build ios --release --no-codesign
-
-  ios-xcode-26:
-    # Early warning only. Apple will eventually require Xcode 26 for App Store
-    # submissions; when this job goes green the `ios` job can move to
-    # macos-latest and this one can be deleted. It must never block a merge.
-    name: iOS build (Xcode 26, advisory)
+    name: iOS build
     needs: analyze-and-test
     runs-on: macos-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v5
 
