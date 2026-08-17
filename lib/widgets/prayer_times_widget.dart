@@ -6,6 +6,7 @@ import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/prayer_time_icons.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
+import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
@@ -57,6 +58,13 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     if (mounted) setState(() {});
   }
 
+  /// The same picker Settings offers, reachable from the card it changes —
+  /// otherwise nobody discovers the setting without going looking for it.
+  Future<void> _editTimesShown() async {
+    final changed = await showWidgetPrayerTimesDialog(context);
+    if (changed && mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime now = debugNow();
@@ -87,46 +95,54 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         ? -1
         : _readings.indexWhere((r) => !_isSameDate(r.dateTime, now));
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            hasReadings
-                ? _CardHeader(
-                    dateText: dateText,
-                    location: _location,
-                    onRefresh: _refreshLocation,
-                  )
-                // No coordinates yet: nothing to name the location with, so
-                // just the date — _LocationEmptyState below explains why.
-                : Text(dateText, style: boldText),
-            const SizedBox(height: 6),
-            hasReadings
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    // The one column carrying the "(next day)" note is taller
-                    // than the rest; aligning to the top keeps every icon,
-                    // name and time on the same line across the row.
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (var i = 0; i < _readings.length; i++)
-                        Expanded(
-                          child: _PrayerTimeColumn(
-                            reading: _readings[i],
-                            isFirstTomorrow: i == firstTomorrowIndex,
-                          ),
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          hasReadings
+              ? _CardHeader(
+                  dateText: dateText,
+                  location: _location,
+                  onRefresh: _refreshLocation,
+                  onEditTimesShown: _editTimesShown,
+                )
+              // No coordinates yet: nothing to name the location with, so
+              // just the date — _LocationEmptyState below explains why.
+              : Text(dateText, style: boldText),
+          const SizedBox(height: 6),
+          hasReadings
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // The one column carrying the "(next day)" note is taller
+                  // than the rest; aligning to the top keeps every icon,
+                  // name and time on the same line across the row.
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (var i = 0; i < _readings.length; i++)
+                      Expanded(
+                        child: _PrayerTimeColumn(
+                          reading: _readings[i],
+                          isFirstTomorrow: i == firstTomorrowIndex,
                         ),
-                    ],
-                  )
-                : _LocationEmptyState(
-                    location: _location,
-                    onRefresh: _refreshLocation,
-                  ),
-          ],
-        ),
+                      ),
+                  ],
+                )
+              : _LocationEmptyState(
+                  location: _location,
+                  onRefresh: _refreshLocation,
+                ),
+        ],
       ),
+    );
+
+    return Card(
+      // Long-press anywhere on the card is the second way into the picker, for
+      // people who prod at a thing before hunting for its button. Only once
+      // there are times to customise — the empty state owns its own tap.
+      child: hasReadings
+          ? InkWell(onLongPress: _editTimesShown, child: content)
+          : content,
     );
   }
 }
@@ -144,11 +160,13 @@ class _CardHeader extends StatelessWidget {
     required this.dateText,
     required this.location,
     required this.onRefresh,
+    required this.onEditTimesShown,
   });
 
   final String dateText;
   final LocationService location;
   final VoidCallback onRefresh;
+  final VoidCallback onEditTimesShown;
 
   @override
   Widget build(BuildContext context) {
@@ -228,6 +246,20 @@ class _CardHeader extends StatelessWidget {
                       ),
                     ),
                   ),
+            // Permanently visible rather than a one-time hint: this is the
+            // only place the "which times are shown" setting announces itself
+            // outside the Settings list.
+            InkWell(
+              onTap: onEditTimesShown,
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Icon(
+                  Icons.tune,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
           ],
         ),
         if (showUpdated)
