@@ -1,7 +1,7 @@
 name: Web preview
 
 # Previews only. Production is deployed exclusively by web-release.yml, which
-# runs on a v* tag.
+# runs when the version in pubspec.yaml changes.
 on:
   push:
     branches:

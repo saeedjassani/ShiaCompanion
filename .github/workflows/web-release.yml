@@ -2,14 +2,24 @@ name: Web release
 
 # The only workflow that can write to the live site.
 #
-#   git tag v3.3.2 && git push origin v3.3.2
+#   node scripts/bump_version.js     # 3.3.2+95 -> 3.3.3+96
+#   git commit -am "Bump version to 3.3.3" && git push
+#
+# The version in pubspec.yaml is what cuts a release. A push to master is a
+# release when no `v<version>` tag exists yet; the tag is created by this
+# workflow after the deploy succeeds, so it records what is live rather than
+# what someone intended to ship. That is also what makes re-pushing a pubspec
+# change idempotent: an edit that leaves the version alone finds its tag
+# already there and stops at the gate.
 #
 # workflow_dispatch is kept for re-deploying an existing tag (a rollback is
 # just dispatching this workflow against an older tag).
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - master
+    paths:
+      - 'pubspec.yaml'
   workflow_dispatch:
     inputs:
       ref:
@@ -24,8 +34,53 @@ env:
   FLUTTER_VERSION: '3.44.8'
 
 jobs:
+  gate:
+    name: Decide whether this is a release
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.decide.outputs.release }}
+      tag: ${{ steps.decide.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Compare the pubspec version against the released tags
+        id: decide
+        run: |
+          set -euo pipefail
+          version=$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//' | cut -d+ -f1)
+          tag="v$version"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Redeploying an existing tag. The checkout is that tag, so this
+            # still catches dispatching a ref whose pubspec says something else.
+            ref="${{ github.event.inputs.ref }}"
+            if [ "${ref#v}" != "$version" ]; then
+              echo "::error::Ref $ref does not match pubspec version $version."
+              exit 1
+            fi
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "Redeploying $ref."
+            exit 0
+          fi
+
+          # Queried on the remote rather than in the checkout: the default
+          # checkout fetches no tags, and a stale local view would re-release a
+          # version that already shipped.
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "$tag already exists — pubspec.yaml changed without a version bump. Nothing to release."
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "Releasing $tag."
+          fi
+
   verify:
     name: Verify release candidate
+    needs: gate
+    if: needs.gate.outputs.release == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -46,21 +101,12 @@ jobs:
       - name: Unit and widget tests
         run: flutter test --no-pub --reporter expanded
 
-      - name: Check the tag matches pubspec version
-        run: |
-          tag="${{ github.event.inputs.ref || github.ref_name }}"
-          pubspec=$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//' | cut -d+ -f1)
-          if [ "${tag#v}" != "$pubspec" ]; then
-            echo "::error::Tag $tag does not match pubspec version $pubspec."
-            echo "Run scripts/bump_version.js, commit, then tag v$pubspec."
-            exit 1
-          fi
-          echo "Releasing $tag (pubspec $pubspec)."
-
   deploy:
     name: Deploy to production
-    needs: verify
+    needs: [gate, verify]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
         with:
@@ -87,10 +133,21 @@ jobs:
           target: shia-companion
           channelId: live
 
+      # Marks the commit that is actually live. Nothing triggers off this tag —
+      # the push trigger is branch-scoped — so it cannot start a second run.
+      - name: Tag the released commit
+        if: github.event_name == 'push'
+        env:
+          TAG: ${{ needs.gate.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git tag "$TAG" "$GITHUB_SHA"
+          git push origin "refs/tags/$TAG"
+
       - name: Publish the deployed URL to the run summary
         if: always() && steps.live.outputs.details_url
         env:
-          TAG: "${{ github.event.inputs.ref || github.ref_name }}"
+          TAG: "${{ needs.gate.outputs.tag }}"
           URL: "${{ steps.live.outputs.details_url }}"
         run: |
           {

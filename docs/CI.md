@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | `ci.yml` | push to `master`, every PR, manual | Analysis, tests, web build + visual checks, Android APK, iOS build |
 | `web-preview.yml` | push to `master`, every PR, manual | Deploys a Firebase preview channel. Never touches production. |
-| `web-release.yml` | push of a `v*` tag, manual | The only workflow that writes to the live site |
+| `web-release.yml` | push to `master` that changes the version in `pubspec.yaml`, manual | The only workflow that writes to the live site |
 
 `ci.yml` runs analysis and tests first, on Ubuntu, and only starts the slow
 platform builds once they pass. A failing test is reported in about three
@@ -14,30 +14,38 @@ minutes instead of after a twenty minute build that was going to fail anyway.
 
 ## Releasing the web app
 
-Production is no longer deployed by merging to `master`. Merging deploys to the
-`staging` preview channel; production is cut from a tag:
+Merging an ordinary change to `master` deploys to the `staging` preview channel
+and nothing else. **The version in `pubspec.yaml` is what cuts a release:**
 
 ```bash
 node scripts/bump_version.js     # 3.3.1+94 -> 3.3.2+95
 git add pubspec.yaml && git commit -m "Bump version to 3.3.2"
 git push
-git tag v3.3.2 && git push origin v3.3.2
 ```
 
-`web-release.yml` then verifies the tag matches `pubspec.yaml`, re-runs
-analysis and tests, builds, runs the visual suite against the built bundle, and
-only then deploys to `live`.
+`web-release.yml` runs on any push to `master` touching `pubspec.yaml`, and its
+first job decides whether that push was actually a release: it is one when no
+`v<version>` tag exists yet. Editing `pubspec.yaml` without changing the version
+— adding a dependency, say — finds `v3.3.2` already there and stops at the gate,
+which is also what makes a re-push or a revert-and-redo harmless.
+
+Once past the gate it re-runs analysis and tests, builds, runs the visual suite
+against the built bundle, deploys to `live`, and only then tags the deployed
+commit `v3.3.2`. The tag is a record of what shipped rather than a trigger, so
+pushing one by hand no longer deploys anything.
 
 **Rolling back** is dispatching `web-release.yml` manually against an older tag.
+The gate checks that tag's own `pubspec.yaml` agrees with its name, and the
+tagging step is skipped since the tag already exists.
 
-**Nothing reaches production until a tag is pushed.** Merging to `master` moves
-`staging` and nothing else, so `https://shia-companion.web.app` can sit many
-merges behind `master` without anything looking wrong. This matters most for
-SEO: the pre-rendered `/zikr/<slug>` pages and the generated `sitemap.xml` only
-exist in a deployed bundle, so until a release tag ships them, Search Console
-keeps crawling the previous sitemap. Check the `live` row of
-`firebase hosting:channel:list` against the tag you expect before concluding
-anything about what Google can see.
+**Production still lags `master` between version bumps.** `staging` moves on
+every merge while `https://shia-companion.web.app` sits at the last released
+version, without anything looking wrong. This matters most for SEO: the
+pre-rendered `/zikr/<slug>` pages and the generated `sitemap.xml` only exist in
+a deployed bundle, so until a release ships them, Search Console keeps crawling
+the previous sitemap. Check the `live` row of `firebase hosting:channel:list`
+against the version you expect before concluding anything about what Google can
+see.
 
 ## SEO surface
 
@@ -76,7 +84,7 @@ mirrors the setting so the suite will tell you when they don't.
 
 | Channel | URL | Updated by | Lifetime |
 | --- | --- | --- | --- |
-| `live` | https://shia-companion.web.app | a `v*` tag | permanent |
+| `live` | https://shia-companion.web.app | a version bump in `pubspec.yaml` | permanent |
 | `staging` | https://shia-companion--staging-3dxo2xwu.web.app | every merge to `master` | 30 days, reset on each deploy |
 | per-PR | posted as a comment on the pull request | every push to the PR | 7 days |
 
