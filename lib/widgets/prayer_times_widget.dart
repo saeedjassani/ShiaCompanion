@@ -81,8 +81,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     final hasReadings = _readings != null && _readings.isNotEmpty;
     // Where "tomorrow" starts, if at all — the row is chronological, so once
     // one column crosses midnight every column after it has too. Tagging only
-    // that one boundary (instead of every rolled-over column) reads like a
-    // date divider in a list, rather than repeating "Tomorrow" three times.
+    // that one column (instead of every rolled-over one) reads like a date
+    // divider in a list, rather than repeating the note three times.
     final firstTomorrowIndex = _readings == null
         ? -1
         : _readings.indexWhere((r) => !_isSameDate(r.dateTime, now));
@@ -106,12 +106,16 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
             hasReadings
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // The one column carrying the "(next day)" note is taller
+                    // than the rest; aligning to the top keeps every icon,
+                    // name and time on the same line across the row.
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       for (var i = 0; i < _readings.length; i++)
                         Expanded(
                           child: _PrayerTimeColumn(
                             reading: _readings[i],
-                            isTomorrowBoundary: i == firstTomorrowIndex,
+                            isFirstTomorrow: i == firstTomorrowIndex,
                           ),
                         ),
                     ],
@@ -218,8 +222,9 @@ class _CardHeader extends StatelessWidget {
                       child: Icon(
                         Icons.refresh,
                         size: 16,
-                        color:
-                            failed ? colorScheme.error : colorScheme.onSurfaceVariant,
+                        color: failed
+                            ? colorScheme.error
+                            : colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -239,18 +244,16 @@ class _CardHeader extends StatelessWidget {
 /// One prayer in the row: icon, name and time, all at equal weight — order
 /// alone already says what's next, so nothing here is bolded or boxed to
 /// repeat that. Only the single column where the row crosses into tomorrow
-/// gets a divider on its left edge; no label needed there, since a time
-/// that's earlier than the one before it already tells the story. Everything
-/// after that divider is understood to be tomorrow too, the same way a date
-/// divider works in a list.
+/// carries an italic "(next day)" under its time; everything after it is
+/// understood to be tomorrow too, the same way a date divider works in a list.
 class _PrayerTimeColumn extends StatelessWidget {
   const _PrayerTimeColumn({
     required this.reading,
-    required this.isTomorrowBoundary,
+    required this.isFirstTomorrow,
   });
 
   final WidgetPrayerTimeReading reading;
-  final bool isTomorrowBoundary;
+  final bool isFirstTomorrow;
 
   @override
   Widget build(BuildContext context) {
@@ -261,13 +264,6 @@ class _PrayerTimeColumn extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-      decoration: isTomorrowBoundary
-          ? BoxDecoration(
-              border: Border(
-                left: BorderSide(color: colorScheme.outlineVariant),
-              ),
-            )
-          : null,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -292,6 +288,16 @@ class _PrayerTimeColumn extends StatelessWidget {
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
+          if (isFirstTomorrow)
+            Text(
+              "(next day)",
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontStyle: FontStyle.italic,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
         ],
       ),
     );
