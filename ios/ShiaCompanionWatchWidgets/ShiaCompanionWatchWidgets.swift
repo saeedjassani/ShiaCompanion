@@ -53,9 +53,9 @@ struct NextPrayerEntry: TimelineEntry {
         return String(trimmed[trimmed.startIndex..<firstSpace])
     }
 
-    /// Name for the families that crop a full one, e.g. "Mgrb" for Maghrib.
-    var shortName: String {
-        hasData ? prayerShortName(for: name) : name
+    /// Name reduced to a letter, for `accessoryCorner` alone.
+    var initial: String {
+        hasData ? prayerInitial(for: name) : name
     }
 
     var symbolName: String {
@@ -209,20 +209,6 @@ struct NextPrayerComplicationView: View {
         }
     }
 
-    /// Full name when it fits, initial when it doesn't, so Maghrib degrades to
-    /// "M" rather than "Maghri…". This family has the room to keep the whole
-    /// word most of the time. `ViewThatFits` is watchOS 9, so no shim needed.
-    private var prayerNameLabel: some View {
-        ViewThatFits(in: .horizontal) {
-            Text(entry.name)
-                .font(.headline)
-                .lineLimit(1)
-            Text(entry.shortName)
-                .font(.headline)
-                .lineLimit(1)
-        }
-    }
-
     private var circular: some View {
         VStack(spacing: 0) {
             Image(systemName: entry.symbolName)
@@ -236,7 +222,7 @@ struct NextPrayerComplicationView: View {
         // Faces with a label slot draw the name outside the circle — the only
         // room on this family that the time isn't already using.
         .widgetLabel {
-            Text(entry.shortName)
+            Text(entry.name)
         }
     }
 
@@ -244,19 +230,16 @@ struct NextPrayerComplicationView: View {
         Text(entry.compactTime)
             .font(.system(size: 16, weight: .semibold, design: .rounded))
             .widgetLabel {
-                // The curved bezel label is narrower than it looks; a full
-                // "Maghrib" loses its tail there. This is the one family with no
-                // symbol of its own, so the letter stands unaided — Maghrib and
-                // Midnight both read "M" here, told apart only by the time.
-                Text(entry.shortName)
+                // Corner is the cropping case, confirmed on-device: the curved
+                // bezel label shares its arc with the time, and a name of any
+                // length loses its tail there. A letter is what fits.
+                Text(entry.initial)
             }
     }
 
     private var inline: some View {
         Label {
-            // accessoryInline is one shared line and the system ignores layout
-            // modifiers on it, so the string itself has to be the short one.
-            Text(entry.hasData ? "\(entry.shortName) \(entry.compactTime)" : "Open Shia Companion")
+            Text(entry.hasData ? "\(entry.name) \(entry.compactTime)" : "Open Shia Companion")
         } icon: {
             Image(systemName: entry.symbolName)
         }
@@ -268,7 +251,11 @@ struct NextPrayerComplicationView: View {
                 Image(systemName: entry.symbolName)
                     .font(.system(size: 11, weight: .medium))
                 if entry.hasData {
-                    prayerNameLabel
+                    // Roomiest family, and confirmed on-device to hold the whole
+                    // word next to the symbol.
+                    Text(entry.name)
+                        .font(.headline)
+                        .lineLimit(1)
                 } else {
                     Text("Shia Companion")
                         .font(.headline)
