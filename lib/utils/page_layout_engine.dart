@@ -34,17 +34,41 @@ class PageLayoutEngine {
     required this.markdown,
     required this.contentWidth,
     required this.contentHeight,
-    required this.fontSize,
-    required this.lineHeight,
     required this.styleSheet,
+    this.textScaler = TextScaler.noScaling,
+    this.selectable = true,
   });
+
+  /// Width `RenderEditable` reserves for the caret and its gap
+  /// (`_kCaretGap` 1.0 + `SelectableText`'s default `cursorWidth` 2.0), and so
+  /// does *not* give the text: selectable markdown wraps 3px narrower than the
+  /// box it sits in. Small, but it is the difference between the last line of
+  /// a page fitting and being clipped away.
+  static const double _selectableCaretMargin = 3.0;
 
   final String markdown;
   final double contentWidth;
   final double contentHeight;
-  final double fontSize;
-  final double lineHeight;
+
+  /// The same style sheet the page is rendered with — font sizes and line
+  /// heights are read from it, so measurement and rendering can't drift apart.
   final MarkdownStyleSheet styleSheet;
+
+  /// The scaler the rendered text will be laid out with — the caller's
+  /// `MediaQuery.textScalerOf(context)`, i.e. the reader's system font-size
+  /// setting. [TextPainter] does no scaling by default, so leaving this out
+  /// would measure every block at 100% while the page renders larger, and the
+  /// bottom of each page would be clipped.
+  final TextScaler textScaler;
+
+  /// Whether the page renders its text with `MarkdownBody(selectable: true)`,
+  /// which costs [_selectableCaretMargin] of wrapping width.
+  final bool selectable;
+
+  /// The width text actually wraps in, as opposed to the width of the box it
+  /// is given.
+  double get _wrapWidth =>
+      contentWidth - (selectable ? _selectableCaretMargin : 0.0);
 
   PaginationResult compute() {
     final blocks = MarkdownBlockParser.parse(markdown);
@@ -65,7 +89,7 @@ class PageLayoutEngine {
     for (var i = 0; i < blocks.length; i++) {
       final block = blocks[i];
       final h = _measureBlock(block);
-      remaining.add(_BlockWithHeight(i, block, block.rawText, h));
+      remaining.add(_BlockWithHeight(i, block, h));
     }
 
     while (remaining.isNotEmpty) {
@@ -90,18 +114,19 @@ class PageLayoutEngine {
           final split = _splitAtHeight(item.block, available);
           if (split != null) {
             // First part fits on this page
+            final head = _fragment(item.block, split.key);
             page.add(PaginatedBlock(
-              item.index, 0, split.key,
+              item.index, 0, head.rawText,
               item.block.blockTopMargin, 0.0,
             ));
             used += contentHeight; // fill the page
-            // Replace remaining with the rest
-            final remainderH = _measureBlock(MarkdownBlock(
-              rawText: split.value, strippedText: split.value,
-              type: item.block.type, textDirection: item.block.textDirection,
-              headingLevel: item.block.headingLevel,
-            ));
-            remaining[0] = _BlockWithHeight(item.index, item.block, split.value, remainderH);
+            // Replace remaining with the rest. It becomes the block that gets
+            // measured and, if it still doesn't fit, split again — carrying
+            // the original block here instead would re-split its full text and
+            // repeat on the next page what this one just showed.
+            final tail = _fragment(item.block, split.value);
+            remaining[0] =
+                _BlockWithHeight(item.index, tail, _measureBlock(tail));
           }
           break;
         } else {
@@ -120,7 +145,8 @@ class PageLayoutEngine {
           final fragments = _splitIntoPages(item.block);
           for (final frag in fragments) {
             pageBlocks.add([
-              PaginatedBlock(item.index, 0, frag, item.block.blockTopMargin, item.block.blockBottomMargin),
+              PaginatedBlock(item.index, 0, _fragment(item.block, frag).rawText,
+                  item.block.blockTopMargin, item.block.blockBottomMargin),
             ]);
           }
           remaining.removeAt(0);
@@ -147,13 +173,59 @@ class PageLayoutEngine {
     if (block.type == MarkdownBlockType.listItem) {
       return _measureListBlock(block);
     }
-    final span = _buildTextSpan(block);
+    final insets = _blockInsets(block.type);
+
+    // A quoted list (`> 1. …`) is a list as far as the renderer is concerned:
+    // indented rows inside the quote's padding, not quoted prose.
+    if (block.type == MarkdownBlockType.blockquote &&
+        MarkdownBlockParser.startsWithListMarker(block.strippedText)) {
+      return _measureListBlock(block, widthInset: insets.horizontal) +
+          insets.vertical;
+    }
+
     final painter = TextPainter(
-      text: span,
+      text: _buildTextSpan(block),
       textDirection: block.textDirection,
+      textScaler: textScaler,
     );
-    painter.layout(maxWidth: contentWidth);
-    return painter.height;
+    painter.layout(
+      maxWidth: (_wrapWidth - insets.horizontal).clamp(1.0, contentWidth),
+    );
+    return painter.height + insets.vertical;
+  }
+
+  /// Padding flutter_markdown_plus wraps a block's text in, on top of the text
+  /// metrics themselves. A blockquote is the one that bites: it renders inside
+  /// `blockquotePadding` (8 on every side by default), so it takes 16px more
+  /// height than its text and wraps in 16px less width — enough to push an
+  /// extra line past the bottom of the page if measurement ignores it.
+  EdgeInsets _blockInsets(MarkdownBlockType type) {
+    switch (type) {
+      case MarkdownBlockType.blockquote:
+        // The quote's text is still a paragraph inside the quote, so it picks
+        // up pPadding as well.
+        return (styleSheet.blockquotePadding ?? EdgeInsets.zero)
+            .add(styleSheet.pPadding ?? EdgeInsets.zero)
+            .resolve(TextDirection.ltr);
+      case MarkdownBlockType.heading1:
+        return styleSheet.h1Padding ?? EdgeInsets.zero;
+      case MarkdownBlockType.heading2:
+        return styleSheet.h2Padding ?? EdgeInsets.zero;
+      case MarkdownBlockType.heading3:
+        return styleSheet.h3Padding ?? EdgeInsets.zero;
+      case MarkdownBlockType.heading4:
+        return styleSheet.h4Padding ?? EdgeInsets.zero;
+      case MarkdownBlockType.heading5:
+        return styleSheet.h5Padding ?? EdgeInsets.zero;
+      case MarkdownBlockType.heading6:
+        return styleSheet.h6Padding ?? EdgeInsets.zero;
+      case MarkdownBlockType.paragraph:
+        return styleSheet.pPadding ?? EdgeInsets.zero;
+      case MarkdownBlockType.listItem:
+      case MarkdownBlockType.horizontalRule:
+        // `li` and `hr` get no text padding of their own.
+        return EdgeInsets.zero;
+    }
   }
 
   // A single listItem block can represent several consecutive `1. `/`- `
@@ -165,11 +237,15 @@ class PageLayoutEngine {
   // (as a plain paragraph would be) undercounts wrapped lines and produces a
   // block that renders taller than measured — hence the per-item measurement
   // here instead of the single-TextSpan path used for other block types.
-  double _measureListBlock(MarkdownBlock block) {
-    final items = MarkdownBlockParser.splitListItems(block.rawText);
-    if (items.isEmpty) return 0.0;
+  double _measureListBlock(MarkdownBlock block, {double widthInset = 0}) {
+    // A quoted list has had its `>` markers stripped; a plain one hasn't.
+    final source = block.type == MarkdownBlockType.blockquote
+        ? block.strippedText
+        : block.rawText;
+    final rawItems = MarkdownBlockParser.splitListItemsRaw(source);
+    if (rawItems.isEmpty) return 0.0;
 
-    final heights = _measureListItemHeights(items, block);
+    final heights = _measureListItemHeights(rawItems, block, widthInset);
     final blockSpacing = styleSheet.blockSpacing ?? 8.0;
 
     var total = 0.0;
@@ -180,26 +256,80 @@ class PageLayoutEngine {
     return total;
   }
 
-  /// The rendered height of each (marker-stripped) list item text on its
-  /// own indented row, as flutter_markdown_plus lays it out.
+  /// The rendered height of each list item's row, as flutter_markdown_plus
+  /// lays it out: a fixed-width bullet/number column beside text that wraps in
+  /// what's left, the two baseline-aligned.
   List<double> _measureListItemHeights(
-    List<String> strippedItems,
-    MarkdownBlock block,
-  ) {
-    final indent = (styleSheet.listIndent ?? 24.0) +
-        (styleSheet.listBulletPadding?.horizontal ?? 4.0);
-    final itemWidth = (contentWidth - indent).clamp(1.0, contentWidth);
-    final style = _styleForBlock(block);
-
+    List<String> rawItems,
+    MarkdownBlock block, [
+    double widthInset = 0,
+  ]) {
     return [
-      for (final item in strippedItems)
-        (TextPainter(
-          text: _parseInlineMarkdown(item, style),
-          textDirection: block.textDirection,
-        )
-              ..layout(maxWidth: itemWidth))
-            .height,
+      for (final item in rawItems)
+        _measureListRow(
+          MarkdownBlockParser.leadingListMarker(item),
+          MarkdownBlockParser.stripListMarker(item),
+          block,
+          widthInset,
+        ),
     ];
+  }
+
+  /// The height of one list row: its marker column and its text sit in a
+  /// baseline-aligned `Row`, whose height is the tallest thing above the
+  /// shared baseline plus the tallest thing below it — not simply the taller
+  /// of the two children. The marker column is only [MarkdownStyleSheet
+  /// .listIndent] wide, so a long marker (`137.`) wraps and can make the row
+  /// taller than its text.
+  double _measureListRow(
+    String? marker,
+    String text,
+    MarkdownBlock block, [
+    double widthInset = 0,
+  ]) {
+    final indent = styleSheet.listIndent ?? 24.0;
+    final bulletColumn = indent + (styleSheet.listBulletPadding?.horizontal ?? 4.0);
+    final textWidth =
+        (_wrapWidth - widthInset - bulletColumn).clamp(1.0, contentWidth);
+
+    final textPainter = TextPainter(
+      text: _parseInlineMarkdown(text, _styleForBlock(block)),
+      textDirection: block.textDirection,
+      textScaler: textScaler,
+    )..layout(maxWidth: textWidth);
+
+    if (marker == null) return textPainter.height;
+
+    final bulletPainter = TextPainter(
+      // An unordered item renders a bullet glyph rather than its source
+      // marker; an ordered one renders its own number followed by a period
+      // (whatever delimiter the source used), since the builder carries the
+      // list's `start` through.
+      text: TextSpan(
+        text: _renderedListMarker(marker),
+        style: styleSheet.listBullet,
+      ),
+      textDirection: block.textDirection,
+      textScaler: textScaler,
+    )..layout(maxWidth: indent);
+
+    return _baselineAlignedHeight(textPainter, bulletPainter);
+  }
+
+  static String _renderedListMarker(String marker) {
+    final number = RegExp(r'^\d+').firstMatch(marker);
+    return number == null ? '•' : '${number.group(0)}.';
+  }
+
+  /// The cross-axis extent `RenderFlex` gives a baseline-aligned row of two
+  /// text children.
+  double _baselineAlignedHeight(TextPainter a, TextPainter b) {
+    final aBaseline = a.computeDistanceToActualBaseline(TextBaseline.alphabetic);
+    final bBaseline = b.computeDistanceToActualBaseline(TextBaseline.alphabetic);
+    final above = aBaseline > bBaseline ? aBaseline : bBaseline;
+    final belowA = a.height - aBaseline;
+    final belowB = b.height - bBaseline;
+    return above + (belowA > belowB ? belowA : belowB);
   }
 
   TextSpan _buildTextSpan(MarkdownBlock block) {
@@ -207,28 +337,30 @@ class PageLayoutEngine {
     return _parseInlineMarkdown(block.strippedText, baseStyle);
   }
 
+  /// The style a block's text is measured with. These are the style sheet's
+  /// own styles, untouched: the renderer lays the text out with exactly these,
+  /// so overriding anything here (a line height the heading styles don't
+  /// actually carry, say) measures a page that isn't the one that renders.
   TextStyle? _styleForBlock(MarkdownBlock block) {
     switch (block.type) {
       case MarkdownBlockType.heading1:
-        return styleSheet.h1?.copyWith(height: lineHeight);
+        return styleSheet.h1;
       case MarkdownBlockType.heading2:
-        return styleSheet.h2?.copyWith(height: lineHeight);
+        return styleSheet.h2;
       case MarkdownBlockType.heading3:
-        return styleSheet.h3?.copyWith(height: lineHeight);
+        return styleSheet.h3;
       case MarkdownBlockType.heading4:
-        return styleSheet.h4?.copyWith(height: lineHeight);
+        return styleSheet.h4;
       case MarkdownBlockType.heading5:
-        return styleSheet.h5?.copyWith(height: lineHeight);
+        return styleSheet.h5;
       case MarkdownBlockType.heading6:
-        return styleSheet.h6?.copyWith(height: lineHeight);
+        return styleSheet.h6;
       case MarkdownBlockType.blockquote:
-        return styleSheet.blockquote?.copyWith(height: lineHeight);
+        return styleSheet.blockquote;
       case MarkdownBlockType.listItem:
-        return styleSheet.p?.copyWith(height: lineHeight);
       case MarkdownBlockType.horizontalRule:
-        return styleSheet.p?.copyWith(height: lineHeight, fontSize: fontSize);
       case MarkdownBlockType.paragraph:
-        return styleSheet.p?.copyWith(height: lineHeight);
+        return styleSheet.p;
     }
   }
 
@@ -238,10 +370,19 @@ class PageLayoutEngine {
     var remaining = text;
     final patterns = <_InlinePattern>[
       _InlinePattern(
+        // A backslash escape renders the character after it literally, and —
+        // the point of matching it first — stops that character from acting
+        // as a delimiter. The chapters are full of `\`` before transliterated
+        // names, which would otherwise read as code-span backticks and be
+        // measured in the (smaller) code style.
+        RegExp(r'\\([!-/:-@\[-`{-~])'),
+        (match) => TextSpan(text: match.group(1), style: baseStyle),
+      ),
+      _InlinePattern(
         RegExp(r'`([^`]+)`'),
         (match) => TextSpan(
           text: match.group(1),
-          style: styleSheet.code?.copyWith(height: lineHeight, fontSize: fontSize),
+          style: styleSheet.code,
         ),
       ),
       _InlinePattern(
@@ -253,7 +394,22 @@ class PageLayoutEngine {
         ),
       ),
       _InlinePattern(
-        RegExp(r'\*\*([^*]+)\*\*|__([^_]+)__'),
+        // Bold-italic. It has to be tried before `**`, which would otherwise
+        // fail on the inner `*` and leave the asterisks in the measured text.
+        // The content may not begin or end with whitespace: `*** ***` is a run
+        // of literal asterisks, not emphasis, and treating it as emphasis
+        // measures six characters that do get rendered.
+        RegExp(r'\*\*\*(\S(?:[^*]*\S)?)\*\*\*|___(\S(?:[^_]*\S)?)___'),
+        (match) => TextSpan(
+          text: match.group(1) ?? match.group(2) ?? '',
+          style: (baseStyle ?? const TextStyle()).copyWith(
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ),
+      _InlinePattern(
+        RegExp(r'\*\*(\S(?:[^*]*\S)?)\*\*|__(\S(?:[^_]*\S)?)__'),
         (match) => TextSpan(
           text: match.group(1) ?? match.group(2) ?? '',
           style: (baseStyle ?? const TextStyle())
@@ -261,7 +417,7 @@ class PageLayoutEngine {
         ),
       ),
       _InlinePattern(
-        RegExp(r'\*([^*]+)\*|_([^_]+)_'),
+        RegExp(r'\*(\S(?:[^*]*\S)?)\*|_(\S(?:[^_]*\S)?)_'),
         (match) => TextSpan(
           text: match.group(1) ?? match.group(2) ?? '',
           style: (baseStyle ?? const TextStyle())
@@ -276,7 +432,7 @@ class PageLayoutEngine {
         RegExp(r'\[([^\]]+)\]\([^)]+\)'),
         (match) => TextSpan(
           text: match.group(1) ?? '',
-          style: styleSheet.a?.copyWith(height: lineHeight) ?? baseStyle,
+          style: styleSheet.a ?? baseStyle,
         ),
       ),
     ];
@@ -307,6 +463,27 @@ class PageLayoutEngine {
       remaining = remaining.substring(earliestIndex + matchedLength);
     }
     return TextSpan(children: spans, style: baseStyle);
+  }
+
+  /// A piece of [source] that has been split off it, as a block in its own
+  /// right — the thing the page renders and the engine measures and re-splits.
+  ///
+  /// [text] is what the split routines hand back, which is marker-free for
+  /// paragraphs and blockquotes (they split [MarkdownBlock.strippedText]) and
+  /// already-marked list markdown for lists. Rendering a blockquote fragment
+  /// as-is would drop the quote styling on every page after the first, so its
+  /// `> ` is put back here.
+  MarkdownBlock _fragment(MarkdownBlock source, String text) {
+    final raw = source.type == MarkdownBlockType.blockquote
+        ? text.split('\n').map((line) => '> $line').join('\n')
+        : text;
+    return MarkdownBlock(
+      rawText: raw,
+      strippedText: text,
+      type: source.type,
+      textDirection: source.textDirection,
+      headingLevel: source.headingLevel,
+    );
   }
 
   bool _canSplitBlock(MarkdownBlockType type) {
@@ -397,8 +574,7 @@ class PageLayoutEngine {
     final rawItems = MarkdownBlockParser.splitListItemsRaw(block.rawText);
     if (rawItems.isEmpty) return null;
 
-    final strippedItems = MarkdownBlockParser.splitListItems(block.rawText);
-    final heights = _measureListItemHeights(strippedItems, block);
+    final heights = _measureListItemHeights(rawItems, block);
     final blockSpacing = styleSheet.blockSpacing ?? 8.0;
 
     var used = 0.0;
@@ -418,12 +594,12 @@ class PageLayoutEngine {
     }
 
     // Not even the first item fits whole — split within it.
-    final marker = MarkdownBlockParser.leadingListMarker(rawItems.first) ?? '';
+    final marker = MarkdownBlockParser.leadingListMarker(rawItems.first);
 
     final innerSplit = _splitTextAtHeight(
-      strippedItems.first,
+      MarkdownBlockParser.stripListMarker(rawItems.first),
       effectiveHeight,
-      (candidate) => _measureListItemHeights([candidate], block).first,
+      (candidate) => _measureListRow(marker, candidate, block),
     );
     if (innerSplit == null) return null;
 
@@ -432,10 +608,15 @@ class PageLayoutEngine {
         .join('\n');
     if (tailRaw.isEmpty) return null;
 
-    return MapEntry('$marker${innerSplit.key}', tailRaw);
+    return MapEntry('${marker ?? ''}${innerSplit.key}', tailRaw);
   }
 
   /// Split a block into page-sized fragments (for blocks taller than a page).
+  ///
+  /// Every fragment is rendered with the block's own top *and* bottom margin,
+  /// so the height a fragment may occupy is the page less both — cutting them
+  /// to the full page height and adding the margins afterwards is what pushes
+  /// the closing line of the fragment off the bottom of the page.
   List<String> _splitIntoPages(MarkdownBlock block) {
     final available = contentHeight - block.totalVerticalMargin;
     if (available <= 0) return [block.strippedText];
@@ -449,12 +630,9 @@ class PageLayoutEngine {
 
     while (remaining.isNotEmpty) {
       final split = _splitAtHeight(
-        MarkdownBlock(
-          rawText: remaining, strippedText: remaining,
-          type: block.type, textDirection: block.textDirection,
-          headingLevel: block.headingLevel,
-        ),
-        contentHeight,
+        _fragment(block, remaining),
+        // _splitAtHeight takes the space before the top margin comes out.
+        available + block.blockTopMargin,
       );
       if (split != null) {
         fragments.add(split.key);
@@ -471,7 +649,8 @@ class PageLayoutEngine {
   /// The list-item counterpart to [_splitIntoPages]: walks item boundaries
   /// (via [_splitListAtHeight]) instead of sentences/words.
   List<String> _splitListIntoPages(MarkdownBlock block) {
-    final effectiveHeight = contentHeight - block.blockTopMargin;
+    // Net of both margins, for the reason given on [_splitIntoPages].
+    final effectiveHeight = contentHeight - block.totalVerticalMargin;
     final fragments = <String>[];
     var remainingRaw = block.rawText;
 
@@ -504,11 +683,18 @@ class PageLayoutEngine {
 }
 
 class _BlockWithHeight {
-  const _BlockWithHeight(this.index, this.block, this.text, this.height);
+  const _BlockWithHeight(this.index, this.block, this.height);
+
+  /// Index into the parsed block list — several fragments of one split block
+  /// all keep the index of the block they came from.
   final int index;
+
+  /// The block still to be laid out: the original, or what's left of it after
+  /// earlier pages took their share.
   final MarkdownBlock block;
-  final String text;
   final double height;
+
+  String get text => block.rawText;
 }
 
 class _InlinePattern {

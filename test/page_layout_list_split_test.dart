@@ -54,8 +54,6 @@ void main() {
       markdown: _listMarkdown,
       contentWidth: contentWidth,
       contentHeight: pageHeight,
-      fontSize: fontSize,
-      lineHeight: lineHeight,
       styleSheet: sheet,
     ).compute();
 

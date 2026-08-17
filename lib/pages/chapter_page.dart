@@ -239,6 +239,16 @@ class _ChapterPageState extends State<ChapterPage>
   }
 
   @override
+  void didChangeTextScaleFactor() {
+    super.didChangeTextScaleFactor();
+    // Pages are measured at the current scale, so a change to it has to
+    // re-cut them or the text no longer fits the page it was laid out for.
+    if (_paginationReady && _result != null) {
+      _repaginate();
+    }
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     switch (state) {
@@ -322,9 +332,10 @@ class _ChapterPageState extends State<ChapterPage>
       markdown: markdown,
       contentWidth: _contentWidth,
       contentHeight: _pageHeight,
-      fontSize: _readerFontSize,
-      lineHeight: _lineHeight,
       styleSheet: _readerStyleSheet(context),
+      // The reader's text renders at the system font scale; measuring at 100%
+      // would clip the bottom of every page for anyone who has turned it up.
+      textScaler: MediaQuery.textScalerOf(context),
     ).compute();
   }
 
@@ -702,13 +713,19 @@ class _ChapterPageState extends State<ChapterPage>
       );
     }
 
-    // Clip overflow so blocks that render slightly taller than measured
-    // don't cause layout issues. The page is constrained to viewport height.
+    // Pages are cut to a measured height, and measurement models how
+    // flutter_markdown_plus lays each block out rather than observing it. The
+    // model is exercised against real chapters, but markdown it doesn't
+    // predict exactly can still render a page a few pixels tall — and clipping
+    // that put the last line of the page permanently out of reach. Letting the
+    // page scroll instead costs nothing when the estimate is right (there is
+    // nothing to scroll) and keeps the text reachable when it isn't.
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ClipRect(
-        child: SizedBox(
-          height: _pageHeight,
+      child: SizedBox(
+        height: _pageHeight,
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: pageChildren,

@@ -36,8 +36,17 @@ class MarkdownBlockParser {
   static final RegExp _headingPattern = RegExp(r'^(#{1,6})\s');
   static final RegExp _blockquotePattern = RegExp(r'^>\s?');
   static final RegExp _unorderedListPattern = RegExp(r'^[\-\*\+]\s');
-  static final RegExp _orderedListPattern = RegExp(r'^\d+\.\s');
+  // CommonMark accepts `)` as well as `.` after an ordered list's number, and
+  // the library's chapters use both.
+  static final RegExp _orderedListPattern = RegExp(r'^\d+[.)]\s');
   static final RegExp _horizontalRulePattern = RegExp(r'^[-*_]{3,}$');
+
+  /// The underline of a setext heading — `Title` on one line with `===` (h1)
+  /// or `---` (h2) under it. The library's chapters use this form as often as
+  /// they use `#`, and a heading measured as body text is measured several
+  /// points too small.
+  static final RegExp _setextH1Underline = RegExp(r'^=+\s*$');
+  static final RegExp _setextH2Underline = RegExp(r'^-+\s*$');
 
   /// Parse the raw [markdown] string into a list of [MarkdownBlock]s.
   static List<MarkdownBlock> parse(String markdown) {
@@ -70,6 +79,12 @@ class MarkdownBlockParser {
         textDirection: textDirection,
       );
     }
+
+    // Check setext heading (`Title` with `===` or `---` underneath it). This
+    // has to come before the list and paragraph checks: the content line above
+    // the underline is the heading, whatever it looks like on its own.
+    final setext = _setextHeading(text, textDirection);
+    if (setext != null) return setext;
 
     // Check heading
     final headingMatch = _headingPattern.firstMatch(text);
@@ -125,6 +140,37 @@ class MarkdownBlockParser {
     );
   }
 
+  /// The block as a setext heading, or null if its last line isn't a setext
+  /// underline. Everything above the underline is the heading's text, matching
+  /// how the markdown parser reads it.
+  static MarkdownBlock? _setextHeading(String text, TextDirection direction) {
+    final lines = text.split('\n');
+    if (lines.length < 2) return null;
+
+    final underline = lines.last;
+    final int level;
+    if (_setextH1Underline.hasMatch(underline)) {
+      level = 1;
+    } else if (_setextH2Underline.hasMatch(underline)) {
+      level = 2;
+    } else {
+      return null;
+    }
+
+    final content = lines.take(lines.length - 1).join('\n').trim();
+    if (content.isEmpty) return null;
+
+    return MarkdownBlock(
+      rawText: text,
+      strippedText: _collapseSoftLineBreaks(content),
+      type: level == 1
+          ? MarkdownBlockType.heading1
+          : MarkdownBlockType.heading2,
+      textDirection: direction,
+      headingLevel: level,
+    );
+  }
+
   /// Splits a (possibly multi-item) list block's raw text into individual
   /// item texts, marker stripped and soft line breaks collapsed. A single
   /// [MarkdownBlockType.listItem] block can represent several consecutive
@@ -133,13 +179,14 @@ class MarkdownBlockParser {
   /// callers that need to measure rendered height must measure per item
   /// rather than treating the block as one continuously-wrapped paragraph.
   static List<String> splitListItems(String rawText) {
-    return splitListItemsRaw(rawText)
-        .map(
-          (item) => item
-              .replaceFirst(_unorderedListPattern, '')
-              .replaceFirst(_orderedListPattern, ''),
-        )
-        .toList();
+    return splitListItemsRaw(rawText).map(stripListMarker).toList();
+  }
+
+  /// [item] without the `1. `/`- ` it starts with, if it starts with one.
+  static String stripListMarker(String item) {
+    return item
+        .replaceFirst(_unorderedListPattern, '')
+        .replaceFirst(_orderedListPattern, '');
   }
 
   /// Like [splitListItems], but keeps each item's own marker (`1. `, `- `,
@@ -174,6 +221,11 @@ class MarkdownBlockParser {
 
     return items;
   }
+
+  /// Whether [text] opens with a list marker, i.e. whether the markdown
+  /// parser will render it as a list rather than as a paragraph.
+  static bool startsWithListMarker(String text) =>
+      leadingListMarker(text.trimLeft()) != null;
 
   /// Returns the list marker (`1. `, `- `, …) [line] starts with, or null if
   /// it doesn't start with one.
