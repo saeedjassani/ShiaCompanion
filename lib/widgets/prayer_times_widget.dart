@@ -189,13 +189,13 @@ class _CardHeader extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(text: dateText, style: boldText),
+                    // Date and location read as one line, so they carry the
+                    // same weight; only a failure recolours its half.
                     TextSpan(
                       text: " · $suffix",
-                      style: TextStyle(
-                        color: failed
-                            ? colorScheme.error
-                            : colorScheme.onSurfaceVariant,
-                      ),
+                      style: failed
+                          ? boldText.copyWith(color: colorScheme.error)
+                          : boldText,
                     ),
                   ],
                 ),
