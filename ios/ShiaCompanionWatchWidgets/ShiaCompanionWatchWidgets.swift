@@ -209,9 +209,9 @@ struct NextPrayerComplicationView: View {
         }
     }
 
-    /// Full name when it fits, curated short form when it doesn't, so Maghrib
-    /// degrades to "Mgrb" rather than "Maghri…". `ViewThatFits` is watchOS 9, so
-    /// this needs no availability shim.
+    /// Full name when it fits, initial when it doesn't, so Maghrib degrades to
+    /// "M" rather than "Maghri…". This family has the room to keep the whole
+    /// word most of the time. `ViewThatFits` is watchOS 9, so no shim needed.
     private var prayerNameLabel: some View {
         ViewThatFits(in: .horizontal) {
             Text(entry.name)
@@ -245,7 +245,9 @@ struct NextPrayerComplicationView: View {
             .font(.system(size: 16, weight: .semibold, design: .rounded))
             .widgetLabel {
                 // The curved bezel label is narrower than it looks; a full
-                // "Maghrib" loses its tail there.
+                // "Maghrib" loses its tail there. This is the one family with no
+                // symbol of its own, so the letter stands unaided — Maghrib and
+                // Midnight both read "M" here, told apart only by the time.
                 Text(entry.shortName)
             }
     }
