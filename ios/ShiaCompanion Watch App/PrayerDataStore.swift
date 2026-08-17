@@ -211,6 +211,24 @@ nonisolated func parsePrayerSchedule(_ rawSchedule: String) -> [PrayerScheduleEn
         .sorted { $0.date < $1.date }
 }
 
+/// First letter of a prayer/period name, for `accessoryCorner`.
+///
+/// Corner is the one family with no room to negotiate: its curved bezel label
+/// sits beside the time, and measured on-device *any* name crops it — a letter
+/// is what fits, barely. Every other family gets the whole word.
+///
+/// Ambiguous by construction, and corner has no symbol slot to lean on, so
+/// Sunrise/Sunset both read "S" and Maghrib/Midnight both read "M" with only
+/// the time to tell them apart. That is the trade corner forces.
+///
+/// Taken from the name as the phone sent it rather than a canonical spelling,
+/// so the letter always matches the word shown everywhere else in the app —
+/// "Dhuhr" reads "D", not "Z".
+nonisolated func prayerInitial(for prayerName: String) -> String {
+    let trimmed = prayerName.trimmingCharacters(in: .whitespaces)
+    return trimmed.first.map { String($0).uppercased() } ?? trimmed
+}
+
 /// SF Symbol for a prayer/period name. Shared by the app and the complication.
 nonisolated func prayerSymbolName(for prayerName: String) -> String {
     let name = prayerName.lowercased()
