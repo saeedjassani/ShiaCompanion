@@ -87,11 +87,6 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     ),
   ),
   HomeMenuItem(
-    label: 'Prayer Times in Flight',
-    icon: Icons.flight,
-    pageBuilder: () => const FlightsPage(),
-  ),
-  HomeMenuItem(
     label: 'Library',
     icon: Icons.library_books,
     pageBuilder: () => Scaffold(
@@ -130,6 +125,11 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
       icon: Icons.sensor_occupied_rounded,
       pageBuilder: () => const PrayerCounterPage(),
     ),
+  HomeMenuItem(
+    label: 'Prayer Times in Flight',
+    icon: Icons.flight,
+    pageBuilder: () => const FlightsPage(),
+  ),
   HomeMenuItem(
     label: 'Preferences',
     icon: Icons.settings,

@@ -37,8 +37,6 @@ class ZikrPage extends StatefulWidget {
 }
 
 class _ZikrPageState extends State<ZikrPage> with RouteAware {
-  static const String _bookmarkHintSeenKey = 'zikr_bookmark_hint_seen_v1';
-
   /// Below this width the app bar keeps only the bookmark icon so a long zikr
   /// title is not squeezed out by the action row.
   static const double _compactActionsWidth = 420;
@@ -52,7 +50,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   bool _isSharingZikr = false;
   bool _isCurrentRoute = false;
   bool _didFailToLoadZikrData = false;
-  bool _didQueueBookmarkHint = false;
   int _selectedZikrTabIndex = 0;
   String? userId;
   Map<String, dynamic>? zikrData;
@@ -141,35 +138,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _savedBookmark = bookmark;
     _selectedZikrTabIndex = bookmark.tabIndex;
     _currentTabScrollOffsets[bookmark.tabIndex] = bookmark.scrollOffset;
-  }
-
-  void _scheduleBookmarkHintIfNeeded({required bool hasAnyContent}) {
-    if (_didQueueBookmarkHint ||
-        isEditing ||
-        zikrData == null ||
-        !hasAnyContent ||
-        !SP.isInitialized ||
-        (SP.prefs.getBool(_bookmarkHintSeenKey) ?? false)) {
-      return;
-    }
-
-    _didQueueBookmarkHint = true;
-    SP.prefs.setBool(_bookmarkHintSeenKey, true);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || isEditing || zikrData == null) return;
-
-      final messenger = ScaffoldMessenger.of(context);
-      messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(
-        SnackBar(
-          content: const Text('New: tap the bookmark icon to save your place.'),
-          action: SnackBarAction(
-            label: 'Got it',
-            onPressed: () {},
-          ),
-        ),
-      );
-    });
   }
 
   void _persistCounterSession({
@@ -1159,7 +1127,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final hasAnyContent =
         tabContents.any((content) => content.trim().isNotEmpty);
     final selectedTabIndex = _clampedSelectedTabIndex(tabContents);
-    _scheduleBookmarkHintIfNeeded(hasAnyContent: hasAnyContent);
     _refreshReadingStats(
       isEditing ? const [] : tabContents,
       hideHeaderLine: tabContents.length > 1,

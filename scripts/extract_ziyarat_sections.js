@@ -33,6 +33,23 @@ const ORDINAL_HEADING_RE =
 const TRIPLET_DIV_SPLIT_RE = /(<div class="(?:Ara|Trl|Tra)"[\s\S]*?<\/[a-zA-Z0-9]+>)/;
 const TRIPLET_DIV_CLASS_RE = /^<div class="(Ara|Trl|Tra)"/;
 
+// Two more bits of page chrome that survive tag-stripping as bare text, so
+// they can't be caught by stripNonContentElements (a DOM-level pass):
+//   - A second <audio> offering an alternate recording is introduced by a
+//     bare "Alt:" text node between the two <audio> tags. The <audio>s
+//     themselves are removed by stripNonContentElements, but that leaves
+//     "Alt:" behind as an orphaned prose line.
+//   - Some pages point to a fuller version of a sub-topic with a link like
+//     "Seperate Ziarat Page" / "Seperate page" / "seperate pg z" (site's
+//     own typo, both spellings seen). The Zikr viewer renders plain text,
+//     so a stray link caption like this is meaningless noise, not content.
+//     Anchored to the start of the line and requiring "page"/"pg" right
+//     after, so it can't swallow real sentences that just happen to use
+//     the word "separate"/"separation" (e.g. "...bid you farewell for
+//     separation" — seen in real ziyarah text).
+const ALT_LABEL_RE = /^alt\s*:?$/i;
+const SEPARATE_PAGE_LINK_RE = /^se?p[ae]rat[a-z]*\s+(ziarat\s+)?(page|pg)\b/i;
+
 function extractTabLabels($) {
   const labels = new Map();
   $('a[data-toggle="tab"]').each((_, el) => {
@@ -56,6 +73,7 @@ function parseHtmlIntoItems(rawHtml) {
   const flushProseLine = (rawLine) => {
     const text = stripHtmlTags(rawLine).trim();
     if (!text) return;
+    if (ALT_LABEL_RE.test(text) || SEPARATE_PAGE_LINK_RE.test(text)) return;
     const headingMatch = text.match(ORDINAL_HEADING_RE);
     if (headingMatch && text.length < 90) {
       items.push({ type: 'heading', text });
