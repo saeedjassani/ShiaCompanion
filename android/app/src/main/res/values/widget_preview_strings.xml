@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sample content for the widget picker previews only. Never shown on a
+     placed widget, which always renders the user's real data. -->
+<resources>
+    <string name="widget_preview_up_next">Up Next</string>
+    <string name="widget_preview_prayer_name">Fajr</string>
+    <string name="widget_preview_prayer_time">5:12 AM</string>
+    <string name="widget_preview_prayer_footer">Sunrise: 6:31 AM</string>
+
+    <string name="widget_preview_location">Toronto</string>
+    <string name="widget_preview_countdown">Zuhr in 3h 12m</string>
+    <string name="widget_preview_fajr">Fajr</string>
+    <string name="widget_preview_fajr_time">5:12</string>
+    <string name="widget_preview_zuhr">Zuhr</string>
+    <string name="widget_preview_zuhr_time">13:22</string>
+    <string name="widget_preview_asr">Asr</string>
+    <string name="widget_preview_asr_time">17:04</string>
+    <string name="widget_preview_maghrib">Maghrib</string>
+    <string name="widget_preview_maghrib_time">20:51</string>
+    <string name="widget_preview_isha">Isha</string>
+    <string name="widget_preview_isha_time">21:14</string>
+
+    <string name="widget_preview_favorite_1">Dua Kumayl  ›</string>
+    <string name="widget_preview_favorite_2">Ziyarat Ashura  ›</string>
+    <string name="widget_preview_favorite_3">Dua Tawassul  ›</string>
+    <string name="widget_preview_favorite_4">Ziyarat e Warith  ›</string>
+
+    <string name="widget_preview_recitation_1">Dua Jawshan Kabeer  ›</string>
+    <string name="widget_preview_recitation_2">Amaal for 15th Night  ›</string>
+    <string name="widget_preview_recitation_3">Dua Nudba  ›</string>
+    <string name="widget_preview_recitation_4">Ziyarat Aale Yaseen  ›</string>
+</resources>

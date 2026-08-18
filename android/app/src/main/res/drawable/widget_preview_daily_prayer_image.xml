@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget picker preview for hosts below API 31, which use
+     android:previewImage rather than android:previewLayout. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="250dp"
+    android:height="110dp"
+    android:viewportWidth="250"
+    android:viewportHeight="110">
+    <path
+        android:fillColor="@color/widget_surface"
+        android:pathData="M14,0 L236,0 A14,14 0 0 1 250,14 L250,96 A14,14 0 0 1 236,110 L14,110 A14,14 0 0 1 0,96 L0,14 A14,14 0 0 1 14,0 Z" />
+    <group
+        android:scaleX="0.458333"
+        android:scaleY="0.458333"
+        android:translateX="12"
+        android:translateY="14">
+        <path
+            android:fillColor="@color/widget_secondary_text"
+            android:pathData="M12,2C8.13,2 5,5.13 5,9c0,5.25 7,13 7,13s7,-7.75 7,-13c0,-3.87 -3.13,-7 -7,-7zM12,11.5c-1.38,0 -2.5,-1.12 -2.5,-2.5s1.12,-2.5 2.5,-2.5s2.5,1.12 2.5,2.5s-1.12,2.5 -2.5,2.5z" />
+    </group>
+    <path
+        android:fillColor="@color/widget_secondary_text"
+        android:fillAlpha="0.9"
+        android:pathData="M30.5,16 L81.5,16 A3.5,3.5 0 0 1 85,19.5 L85,19.5 A3.5,3.5 0 0 1 81.5,23 L30.5,23 A3.5,3.5 0 0 1 27,19.5 L27,19.5 A3.5,3.5 0 0 1 30.5,16 Z" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:fillAlpha="0.9"
+        android:pathData="M183.5,16 L234.5,16 A3.5,3.5 0 0 1 238,19.5 L238,19.5 A3.5,3.5 0 0 1 234.5,23 L183.5,23 A3.5,3.5 0 0 1 180,19.5 L180,19.5 A3.5,3.5 0 0 1 183.5,16 Z" />
+    <path
+        android:fillColor="@color/widget_icon_badge"
+        android:pathData="M21,52 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0 Z" />
+    <group
+        android:scaleX="0.541667"
+        android:scaleY="0.541667"
+        android:translateX="26.5"
+        android:translateY="45.5">
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M4,18H20"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M7,18C7,15.24 9.24,13 12,13C14.76,13 17,15.24 17,18"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M12,7V9M6.8,10.8L8.2,12.2M17.2,10.8L15.8,12.2"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+    </group>
+    <path
+        android:fillColor="@color/widget_secondary_text"
+        android:fillAlpha="0.9"
+        android:pathData="M24,71 L42,71 A3,3 0 0 1 45,74 L45,74 A3,3 0 0 1 42,77 L24,77 A3,3 0 0 1 21,74 L21,74 A3,3 0 0 1 24,71 Z" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:pathData="M21,83 L45,83 A3,3 0 0 1 48,86 L48,86 A3,3 0 0 1 45,89 L21,89 A3,3 0 0 1 18,86 L18,86 A3,3 0 0 1 21,83 Z" />
+    <path
+        android:fillColor="@color/widget_icon_badge"
+        android:pathData="M67,52 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0 Z" />
+    <group
+        android:scaleX="0.541667"
+        android:scaleY="0.541667"
+        android:translateX="72.5"
+        android:translateY="45.5">
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M12,8C9.79,8 8,9.79 8,12C8,14.21 9.79,16 12,16C14.21,16 16,14.21 16,12C16,9.79 14.21,8 12,8Z"
+            android:strokeColor="@color/widget_accent"
+            android:strokeWidth="2" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M12,3V5M12,19V21M3,12H5M19,12H21M5.64,5.64L7.05,7.05M16.95,16.95L18.36,18.36M18.36,5.64L16.95,7.05M7.05,16.95L5.64,18.36"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+    </group>
+    <path
+        android:fillColor="@color/widget_secondary_text"
+        android:fillAlpha="0.9"
+        android:pathData="M70,71 L88,71 A3,3 0 0 1 91,74 L91,74 A3,3 0 0 1 88,77 L70,77 A3,3 0 0 1 67,74 L67,74 A3,3 0 0 1 70,71 Z" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:pathData="M67,83 L91,83 A3,3 0 0 1 94,86 L94,86 A3,3 0 0 1 91,89 L67,89 A3,3 0 0 1 64,86 L64,86 A3,3 0 0 1 67,83 Z" />
+    <path
+        android:fillColor="@color/widget_icon_badge"
+        android:pathData="M113,52 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0 Z" />
+    <group
+        android:scaleX="0.541667"
+        android:scaleY="0.541667"
+        android:translateX="118.5"
+        android:translateY="45.5">
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M7,18H21"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M8,15C8.72,12.68 10.3,11 12.5,11C14.7,11 16.28,12.68 17,15"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M4,7L7,10M12.5,5V8M20,7L17,10"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+    </group>
+    <path
+        android:fillColor="@color/widget_secondary_text"
+        android:fillAlpha="0.9"
+        android:pathData="M116,71 L134,71 A3,3 0 0 1 137,74 L137,74 A3,3 0 0 1 134,77 L116,77 A3,3 0 0 1 113,74 L113,74 A3,3 0 0 1 116,71 Z" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:pathData="M113,83 L137,83 A3,3 0 0 1 140,86 L140,86 A3,3 0 0 1 137,89 L113,89 A3,3 0 0 1 110,86 L110,86 A3,3 0 0 1 113,83 Z" />
+    <path
+        android:fillColor="@color/widget_icon_badge"
+        android:pathData="M159,52 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0 Z" />
+    <group
+        android:scaleX="0.541667"
+        android:scaleY="0.541667"
+        android:translateX="164.5"
+        android:translateY="45.5">
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M4,17H20"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M8,17C8,14.79 9.79,13 12,13C14.21,13 16,14.79 16,17"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M6,20H18M8.5,8.5L7,7M15.5,8.5L17,7M12,6V8"
+            android:strokeColor="@color/widget_accent"
+            android:strokeLineCap="round"
+            android:strokeWidth="2" />
+    </group>
+    <path
+        android:fillColor="@color/widget_secondary_text"
+        android:fillAlpha="0.9"
+        android:pathData="M162,71 L180,71 A3,3 0 0 1 183,74 L183,74 A3,3 0 0 1 180,77 L162,77 A3,3 0 0 1 159,74 L159,74 A3,3 0 0 1 162,71 Z" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:pathData="M159,83 L183,83 A3,3 0 0 1 186,86 L186,86 A3,3 0 0 1 183,89 L159,89 A3,3 0 0 1 156,86 L156,86 A3,3 0 0 1 159,83 Z" />
+    <path
+        android:fillColor="@color/widget_icon_badge"
+        android:pathData="M205,52 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0 Z" />
+    <group
+        android:scaleX="0.541667"
+        android:scaleY="0.541667"
+        android:translateX="210.5"
+        android:translateY="45.5">
+        <path
+            android:fillColor="@color/widget_accent"
+            android:pathData="M17.8,15.4C16.95,15.75 16.04,15.94 15.08,15.94C11.21,15.94 8.06,12.79 8.06,8.92C8.06,7.19 8.69,5.6 9.73,4.37C6.76,5.21 4.58,7.94 4.58,11.18C4.58,15.08 7.74,18.24 11.64,18.24C14.26,18.24 16.55,16.81 17.8,15.4Z" />
+        <path
+            android:fillColor="@color/widget_accent"
+            android:pathData="M17.8,5.1L18.45,6.42L19.9,6.63L18.85,7.65L19.1,9.1L17.8,8.42L16.5,9.1L16.75,7.65L15.7,6.63L17.15,6.42Z" />
+    </group>
+    <path
+        android:fillColor="@color/widget_secondary_text"
+        android:fillAlpha="0.9"
+        android:pathData="M208,71 L226,71 A3,3 0 0 1 229,74 L229,74 A3,3 0 0 1 226,77 L208,77 A3,3 0 0 1 205,74 L205,74 A3,3 0 0 1 208,71 Z" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:pathData="M205,83 L229,83 A3,3 0 0 1 232,86 L232,86 A3,3 0 0 1 229,89 L205,89 A3,3 0 0 1 202,86 L202,86 A3,3 0 0 1 205,83 Z" />
+</vector>
