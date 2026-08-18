@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_surface">#FF241B17</color>
+    <color name="widget_icon_badge">#29FFD879</color>
+    <color name="widget_primary_text">#FFFFF3E7</color>
+    <color name="widget_body_text">#FFE9D5C4</color>
+    <color name="widget_secondary_text">#FFBFA898</color>
+    <color name="widget_accent">#FFFFD879</color>
+</resources>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget picker preview for API 31+ hosts. Mirrors PrayerWidgetContent in
+     ShiaCompanionGlanceWidgets.kt; sample data only, never rendered on a
+     placed widget. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_surface"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:text="@string/widget_preview_up_next"
+            android:textColor="@color/widget_secondary_text"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/widget_icon_badge">
+
+            <ImageView
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/widget_preview_prayer_name"
+                android:src="@drawable/ic_prayer_fajr"
+                android:tint="@color/widget_accent" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:text="@string/widget_preview_prayer_name"
+        android:textColor="@color/widget_primary_text"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:maxLines="1"
+        android:text="@string/widget_preview_prayer_time"
+        android:textColor="@color/widget_body_text"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="@string/widget_preview_prayer_footer"
+        android:textColor="@color/widget_secondary_text"
+        android:textSize="10sp" />
+</LinearLayout>

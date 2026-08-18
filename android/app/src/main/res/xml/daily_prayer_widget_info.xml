@@ -5,6 +5,8 @@
     android:targetCellWidth="4"
     android:targetCellHeight="2"
     android:resizeMode="horizontal|vertical"
+    android:previewImage="@drawable/widget_preview_daily_prayer_image"
+    android:previewLayout="@layout/widget_preview_daily_prayer"
     android:description="@string/widget_daily_prayer_description"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/glance_default_loading_layout"

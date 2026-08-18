@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget picker preview for API 31+ hosts. Mirrors WidgetListContent in
+     ShiaCompanionGlanceWidgets.kt; sample data only, never rendered on a
+     placed widget. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_surface"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:maxLines="1"
+        android:text="@string/widget_recitations_name"
+        android:textColor="@color/widget_primary_text"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:text="@string/widget_preview_recitation_1"
+        android:textColor="@color/widget_body_text"
+        android:textSize="12sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:text="@string/widget_preview_recitation_2"
+        android:textColor="@color/widget_body_text"
+        android:textSize="12sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:text="@string/widget_preview_recitation_3"
+        android:textColor="@color/widget_body_text"
+        android:textSize="12sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:text="@string/widget_preview_recitation_4"
+        android:textColor="@color/widget_body_text"
+        android:textSize="12sp" />
+</LinearLayout>

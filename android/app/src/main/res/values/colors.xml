@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The single source of truth for the widget palette. The Glance widgets,
+         the shape drawables and the picker previews all read these, so the
+         launcher can resolve -night itself instead of us baking colours in. -->
+    <color name="widget_surface">#FF6D4C41</color>
+    <color name="widget_icon_badge">#33FFC857</color>
+    <color name="widget_primary_text">#FFFFF8F1</color>
+    <color name="widget_body_text">#FFF7E4D3</color>
+    <color name="widget_secondary_text">#FFE4C7B3</color>
+    <color name="widget_accent">#FFFFC857</color>
+</resources>

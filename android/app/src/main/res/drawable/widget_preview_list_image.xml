@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget picker preview for hosts below API 31, which use
+     android:previewImage rather than android:previewLayout. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="250dp"
+    android:height="110dp"
+    android:viewportWidth="250"
+    android:viewportHeight="110">
+    <path
+        android:fillColor="@color/widget_surface"
+        android:pathData="M14,0 L236,0 A14,14 0 0 1 250,14 L250,96 A14,14 0 0 1 236,110 L14,110 A14,14 0 0 1 0,96 L0,14 A14,14 0 0 1 14,0 Z" />
+    <path
+        android:fillColor="@color/widget_primary_text"
+        android:pathData="M18.5,14 L83.5,14 A4.5,4.5 0 0 1 88,18.5 L88,18.5 A4.5,4.5 0 0 1 83.5,23 L18.5,23 A4.5,4.5 0 0 1 14,18.5 L14,18.5 A4.5,4.5 0 0 1 18.5,14 Z" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:fillAlpha="0.9"
+        android:pathData="M17.5,36 L178.5,36 A3.5,3.5 0 0 1 182,39.5 L182,39.5 A3.5,3.5 0 0 1 178.5,43 L17.5,43 A3.5,3.5 0 0 1 14,39.5 L14,39.5 A3.5,3.5 0 0 1 17.5,36 Z" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/widget_secondary_text"
+        android:strokeAlpha="0.9"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.4"
+        android:pathData="M231,36.8 L233.6,39.5 L231,42.2" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:fillAlpha="0.9"
+        android:pathData="M17.5,53 L142.5,53 A3.5,3.5 0 0 1 146,56.5 L146,56.5 A3.5,3.5 0 0 1 142.5,60 L17.5,60 A3.5,3.5 0 0 1 14,56.5 L14,56.5 A3.5,3.5 0 0 1 17.5,53 Z" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/widget_secondary_text"
+        android:strokeAlpha="0.9"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.4"
+        android:pathData="M231,53.8 L233.6,56.5 L231,59.2" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:fillAlpha="0.9"
+        android:pathData="M17.5,70 L196.5,70 A3.5,3.5 0 0 1 200,73.5 L200,73.5 A3.5,3.5 0 0 1 196.5,77 L17.5,77 A3.5,3.5 0 0 1 14,73.5 L14,73.5 A3.5,3.5 0 0 1 17.5,70 Z" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/widget_secondary_text"
+        android:strokeAlpha="0.9"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.4"
+        android:pathData="M231,70.8 L233.6,73.5 L231,76.2" />
+    <path
+        android:fillColor="@color/widget_body_text"
+        android:fillAlpha="0.9"
+        android:pathData="M17.5,87 L156.5,87 A3.5,3.5 0 0 1 160,90.5 L160,90.5 A3.5,3.5 0 0 1 156.5,94 L17.5,94 A3.5,3.5 0 0 1 14,90.5 L14,90.5 A3.5,3.5 0 0 1 17.5,87 Z" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/widget_secondary_text"
+        android:strokeAlpha="0.9"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.4"
+        android:pathData="M231,87.8 L233.6,90.5 L231,93.2" />
+</vector>

@@ -18,7 +18,7 @@ import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
@@ -43,7 +43,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.color.ColorProvider
+import androidx.glance.unit.ColorProvider
 import com.developer110.shiacompanion.R
 import com.developer110.shia_companion.MainActivity
 import java.util.Calendar
@@ -81,30 +81,12 @@ private val dailyPrayerNameKeys = (1..6).map { "sc_daily_prayer_name_$it" }
 private val dailyPrayerTimeKeys = (1..6).map { "sc_daily_prayer_time_$it" }
 private const val KEY_DAILY_PRAYER_SCHEDULE = "sc_daily_prayer_schedule"
 
-private val backgroundColor = ColorProvider(
-    day = androidx.compose.ui.graphics.Color(0xFF6D4C41),
-    night = androidx.compose.ui.graphics.Color(0xFF241B17)
-)
-private val primaryTextColor = ColorProvider(
-    day = androidx.compose.ui.graphics.Color(0xFFFFF8F1),
-    night = androidx.compose.ui.graphics.Color(0xFFFFF3E7)
-)
-private val bodyTextColor = ColorProvider(
-    day = androidx.compose.ui.graphics.Color(0xFFF7E4D3),
-    night = androidx.compose.ui.graphics.Color(0xFFE9D5C4)
-)
-private val secondaryTextColor = ColorProvider(
-    day = androidx.compose.ui.graphics.Color(0xFFE4C7B3),
-    night = androidx.compose.ui.graphics.Color(0xFFBFA898)
-)
-private val accentColor = ColorProvider(
-    day = androidx.compose.ui.graphics.Color(0xFFFFC857),
-    night = androidx.compose.ui.graphics.Color(0xFFFFD879)
-)
-private val iconBackgroundColor = ColorProvider(
-    day = androidx.compose.ui.graphics.Color(0x33FFC857),
-    night = androidx.compose.ui.graphics.Color(0x29FFD879)
-)
+// Colours live in res/values(-night)/colors.xml so the shape drawables and the
+// picker previews share them, and so API 31+ hosts resolve day/night themselves.
+private val primaryTextColor = ColorProvider(R.color.widget_primary_text)
+private val bodyTextColor = ColorProvider(R.color.widget_body_text)
+private val secondaryTextColor = ColorProvider(R.color.widget_secondary_text)
+private val accentColor = ColorProvider(R.color.widget_accent)
 
 class FavoritesWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
@@ -433,8 +415,7 @@ private fun PrayerIconBadge(
     Box(
         modifier = GlanceModifier
             .size(containerSizeDp.dp)
-            .background(iconBackgroundColor)
-            .cornerRadius((containerSizeDp / 2).dp),
+            .background(ImageProvider(R.drawable.widget_icon_badge)),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -454,10 +435,12 @@ private fun WidgetSurface(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val context = LocalContext.current
+    // GlanceModifier.cornerRadius() is a no-op below API 31, so the rounded
+    // surface comes from a shape drawable instead of a flat colour + radius.
     val modifier = GlanceModifier
         .fillMaxSize()
-        .background(backgroundColor)
-        .cornerRadius(14.dp)
+        .appWidgetBackground()
+        .background(ImageProvider(R.drawable.widget_surface))
         .let {
             if (clickable) {
                 it.clickable(actionStartActivity(context.openWidgetIntent(clickUrl)))
