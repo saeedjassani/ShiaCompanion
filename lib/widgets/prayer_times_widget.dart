@@ -321,13 +321,20 @@ class _PrayerTimeColumn extends StatelessWidget {
                 ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
           if (isFirstTomorrow)
-            Text(
-              "(next day)",
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontStyle: FontStyle.italic,
-                color: colorScheme.onSurfaceVariant,
+            // A fifth of a phone's width is not enough for "(next day)" at
+            // full size, and clipping it mid-word is worse than shrinking it —
+            // so it scales down to whatever the column actually has.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                "(next day)",
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                softWrap: false,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontStyle: FontStyle.italic,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
         ],

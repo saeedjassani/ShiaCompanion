@@ -135,6 +135,35 @@ void main() {
     );
   });
 
+  testWidgets('fits the "(next day)" note inside its column on a phone',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    // Late enough that the tail of the row has rolled over into tomorrow, so
+    // one column actually carries the note.
+    PrayerTimesState.debugNow = () => DateTime(2024, 6, 16, 23, 30);
+    // A small phone, where five columns leave the note barely any room.
+    tester.view.physicalSize = const Size(320, 720);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await pumpCard(tester);
+
+    final note = find.text('(next day)');
+    expect(note, findsOneWidget);
+
+    // The note must be scaled to fit rather than clipped mid-word: what gets
+    // painted has to be no wider than the column it sits in.
+    final column = find.ancestor(of: note, matching: find.byType(Expanded));
+    final painted = tester.getSize(find.ancestor(
+      of: note,
+      matching: find.byType(FittedBox),
+    ));
+    expect(painted.width, lessThanOrEqualTo(tester.getSize(column).width));
+  });
+
   testWidgets('discloses the age of a stale reading', (tester) async {
     lat = 32.02;
     long = 44.34;
