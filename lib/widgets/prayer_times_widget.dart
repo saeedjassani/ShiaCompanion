@@ -6,6 +6,7 @@ import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/prayer_time_icons.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
+import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
@@ -57,6 +58,13 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     if (mounted) setState(() {});
   }
 
+  /// The same picker Settings offers, reachable from the card it changes —
+  /// otherwise nobody discovers the setting without going looking for it.
+  Future<void> _editTimesShown() async {
+    final changed = await showWidgetPrayerTimesDialog(context);
+    if (changed && mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime now = debugNow();
@@ -81,48 +89,60 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     final hasReadings = _readings != null && _readings.isNotEmpty;
     // Where "tomorrow" starts, if at all — the row is chronological, so once
     // one column crosses midnight every column after it has too. Tagging only
-    // that one boundary (instead of every rolled-over column) reads like a
-    // date divider in a list, rather than repeating "Tomorrow" three times.
+    // that one column (instead of every rolled-over one) reads like a date
+    // divider in a list, rather than repeating the note three times.
     final firstTomorrowIndex = _readings == null
         ? -1
         : _readings.indexWhere((r) => !_isSameDate(r.dateTime, now));
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            hasReadings
-                ? _CardHeader(
-                    dateText: dateText,
-                    location: _location,
-                    onRefresh: _refreshLocation,
-                  )
-                // No coordinates yet: nothing to name the location with, so
-                // just the date — _LocationEmptyState below explains why.
-                : Text(dateText, style: boldText),
-            const SizedBox(height: 6),
-            hasReadings
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      for (var i = 0; i < _readings.length; i++)
-                        Expanded(
-                          child: _PrayerTimeColumn(
-                            reading: _readings[i],
-                            isTomorrowBoundary: i == firstTomorrowIndex,
-                          ),
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          hasReadings
+              ? _CardHeader(
+                  dateText: dateText,
+                  location: _location,
+                  onRefresh: _refreshLocation,
+                  onEditTimesShown: _editTimesShown,
+                )
+              // No coordinates yet: nothing to name the location with, so
+              // just the date — _LocationEmptyState below explains why.
+              : Text(dateText, style: boldText),
+          const SizedBox(height: 6),
+          hasReadings
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // The one column carrying the "(next day)" note is taller
+                  // than the rest; aligning to the top keeps every icon,
+                  // name and time on the same line across the row.
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (var i = 0; i < _readings.length; i++)
+                      Expanded(
+                        child: _PrayerTimeColumn(
+                          reading: _readings[i],
+                          isFirstTomorrow: i == firstTomorrowIndex,
                         ),
-                    ],
-                  )
-                : _LocationEmptyState(
-                    location: _location,
-                    onRefresh: _refreshLocation,
-                  ),
-          ],
-        ),
+                      ),
+                  ],
+                )
+              : _LocationEmptyState(
+                  location: _location,
+                  onRefresh: _refreshLocation,
+                ),
+        ],
       ),
+    );
+
+    return Card(
+      // Long-press anywhere on the card is the second way into the picker, for
+      // people who prod at a thing before hunting for its button. Only once
+      // there are times to customise — the empty state owns its own tap.
+      child: hasReadings
+          ? InkWell(onLongPress: _editTimesShown, child: content)
+          : content,
     );
   }
 }
@@ -140,11 +160,13 @@ class _CardHeader extends StatelessWidget {
     required this.dateText,
     required this.location,
     required this.onRefresh,
+    required this.onEditTimesShown,
   });
 
   final String dateText;
   final LocationService location;
   final VoidCallback onRefresh;
+  final VoidCallback onEditTimesShown;
 
   @override
   Widget build(BuildContext context) {
@@ -185,13 +207,13 @@ class _CardHeader extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(text: dateText, style: boldText),
+                    // Date and location read as one line, so they carry the
+                    // same weight; only a failure recolours its half.
                     TextSpan(
                       text: " · $suffix",
-                      style: TextStyle(
-                        color: failed
-                            ? colorScheme.error
-                            : colorScheme.onSurfaceVariant,
-                      ),
+                      style: failed
+                          ? boldText.copyWith(color: colorScheme.error)
+                          : boldText,
                     ),
                   ],
                 ),
@@ -218,11 +240,26 @@ class _CardHeader extends StatelessWidget {
                       child: Icon(
                         Icons.refresh,
                         size: 16,
-                        color:
-                            failed ? colorScheme.error : colorScheme.onSurfaceVariant,
+                        color: failed
+                            ? colorScheme.error
+                            : colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
+            // Permanently visible rather than a one-time hint: this is the
+            // only place the "which times are shown" setting announces itself
+            // outside the Settings list.
+            InkWell(
+              onTap: onEditTimesShown,
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Icon(
+                  Icons.tune,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
           ],
         ),
         if (showUpdated)
@@ -239,18 +276,16 @@ class _CardHeader extends StatelessWidget {
 /// One prayer in the row: icon, name and time, all at equal weight — order
 /// alone already says what's next, so nothing here is bolded or boxed to
 /// repeat that. Only the single column where the row crosses into tomorrow
-/// gets a divider on its left edge; no label needed there, since a time
-/// that's earlier than the one before it already tells the story. Everything
-/// after that divider is understood to be tomorrow too, the same way a date
-/// divider works in a list.
+/// carries an italic "(next day)" under its time; everything after it is
+/// understood to be tomorrow too, the same way a date divider works in a list.
 class _PrayerTimeColumn extends StatelessWidget {
   const _PrayerTimeColumn({
     required this.reading,
-    required this.isTomorrowBoundary,
+    required this.isFirstTomorrow,
   });
 
   final WidgetPrayerTimeReading reading;
-  final bool isTomorrowBoundary;
+  final bool isFirstTomorrow;
 
   @override
   Widget build(BuildContext context) {
@@ -261,13 +296,6 @@ class _PrayerTimeColumn extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-      decoration: isTomorrowBoundary
-          ? BoxDecoration(
-              border: Border(
-                left: BorderSide(color: colorScheme.outlineVariant),
-              ),
-            )
-          : null,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -292,6 +320,16 @@ class _PrayerTimeColumn extends StatelessWidget {
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
+          if (isFirstTomorrow)
+            Text(
+              "(next day)",
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontStyle: FontStyle.italic,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
         ],
       ),
     );
