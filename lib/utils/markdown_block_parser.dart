@@ -36,8 +36,17 @@ class MarkdownBlockParser {
   static final RegExp _headingPattern = RegExp(r'^(#{1,6})\s');
   static final RegExp _blockquotePattern = RegExp(r'^>\s?');
   static final RegExp _unorderedListPattern = RegExp(r'^[\-\*\+]\s');
-  static final RegExp _orderedListPattern = RegExp(r'^\d+\.\s');
+  // CommonMark accepts `)` as well as `.` after an ordered list's number, and
+  // the library's chapters use both.
+  static final RegExp _orderedListPattern = RegExp(r'^\d+[.)]\s');
   static final RegExp _horizontalRulePattern = RegExp(r'^[-*_]{3,}$');
+
+  /// The underline of a setext heading — `Title` on one line with `===` (h1)
+  /// or `---` (h2) under it. The library's chapters use this form as often as
+  /// they use `#`, and a heading measured as body text is measured several
+  /// points too small.
+  static final RegExp _setextH1Underline = RegExp(r'^=+\s*$');
+  static final RegExp _setextH2Underline = RegExp(r'^-+\s*$');
 
   /// Parse the raw [markdown] string into a list of [MarkdownBlock]s.
   static List<MarkdownBlock> parse(String markdown) {
@@ -70,6 +79,12 @@ class MarkdownBlockParser {
         textDirection: textDirection,
       );
     }
+
+    // Check setext heading (`Title` with `===` or `---` underneath it). This
+    // has to come before the list and paragraph checks: the content line above
+    // the underline is the heading, whatever it looks like on its own.
+    final setext = _setextHeading(text, textDirection);
+    if (setext != null) return setext;
 
     // Check heading
     final headingMatch = _headingPattern.firstMatch(text);
@@ -125,64 +140,35 @@ class MarkdownBlockParser {
     );
   }
 
-  /// Splits a (possibly multi-item) list block's raw text into individual
-  /// item texts, marker stripped and soft line breaks collapsed. A single
-  /// [MarkdownBlockType.listItem] block can represent several consecutive
-  /// `1. `/`- ` lines (there's no blank line between list items), but
-  /// flutter_markdown_plus renders each one as its own indented row — so
-  /// callers that need to measure rendered height must measure per item
-  /// rather than treating the block as one continuously-wrapped paragraph.
-  static List<String> splitListItems(String rawText) {
-    return splitListItemsRaw(rawText)
-        .map(
-          (item) => item
-              .replaceFirst(_unorderedListPattern, '')
-              .replaceFirst(_orderedListPattern, ''),
-        )
-        .toList();
-  }
+  /// The block as a setext heading, or null if its last line isn't a setext
+  /// underline. Everything above the underline is the heading's text, matching
+  /// how the markdown parser reads it.
+  static MarkdownBlock? _setextHeading(String text, TextDirection direction) {
+    final lines = text.split('\n');
+    if (lines.length < 2) return null;
 
-  /// Like [splitListItems], but keeps each item's own marker (`1. `, `- `,
-  /// …) intact instead of stripping it. Callers that need to re-render a
-  /// subset of a multi-item list block — e.g. splitting one across pages —
-  /// need each fragment to remain valid, self-contained list markdown, not
-  /// just the bare text [splitListItems] produces for measurement.
-  static List<String> splitListItemsRaw(String rawText) {
-    final lines = rawText.split('\n');
-    final items = <String>[];
-    final buffer = StringBuffer();
-
-    void flush() {
-      if (buffer.isNotEmpty) {
-        items.add(buffer.toString());
-        buffer.clear();
-      }
+    final underline = lines.last;
+    final int level;
+    if (_setextH1Underline.hasMatch(underline)) {
+      level = 1;
+    } else if (_setextH2Underline.hasMatch(underline)) {
+      level = 2;
+    } else {
+      return null;
     }
 
-    for (final line in lines) {
-      final isMarkerLine = _unorderedListPattern.hasMatch(line) ||
-          _orderedListPattern.hasMatch(line);
-      if (isMarkerLine) {
-        flush();
-        buffer.write(line);
-      } else if (line.trim().isNotEmpty) {
-        if (buffer.isNotEmpty) buffer.write(' ');
-        buffer.write(line.trim());
-      }
-    }
-    flush();
+    final content = lines.take(lines.length - 1).join('\n').trim();
+    if (content.isEmpty) return null;
 
-    return items;
-  }
-
-  /// Returns the list marker (`1. `, `- `, …) [line] starts with, or null if
-  /// it doesn't start with one.
-  static String? leadingListMarker(String line) {
-    final unordered = _unorderedListPattern.firstMatch(line);
-    if (unordered != null) return unordered.group(0);
-    final ordered = _orderedListPattern.firstMatch(line);
-    if (ordered != null) return ordered.group(0);
-    return null;
+    return MarkdownBlock(
+      rawText: text,
+      strippedText: _collapseSoftLineBreaks(content),
+      type: level == 1
+          ? MarkdownBlockType.heading1
+          : MarkdownBlockType.heading2,
+      textDirection: direction,
+      headingLevel: level,
+    );
   }
 
   /// Collapses soft line breaks the same way flutter_markdown_plus does when

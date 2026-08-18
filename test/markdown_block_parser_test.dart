@@ -89,38 +89,7 @@ void main() {
     expect(blocks.single.type, MarkdownBlockType.listItem);
   });
 
-  test('splitListItems separates a multi-item ordered list into items', () {
-    final items = MarkdownBlockParser.splitListItems(
-      '1. First item\n2. Second item\n3. Third item',
-    );
 
-    expect(items, ['First item', 'Second item', 'Third item']);
-  });
 
-  test('splitListItems separates a multi-item unordered list into items', () {
-    final items = MarkdownBlockParser.splitListItems(
-      '- First item\n- Second item',
-    );
 
-    expect(items, ['First item', 'Second item']);
-  });
-
-  test('splitListItems joins hard-wrapped continuation lines within an item', () {
-    final items = MarkdownBlockParser.splitListItems(
-      '1. First line of item one\n'
-      'continues here.\n'
-      '2. Second item',
-    );
-
-    expect(items, [
-      'First line of item one continues here.',
-      'Second item',
-    ]);
-  });
-
-  test('splitListItems returns one item for a single-item list', () {
-    final items = MarkdownBlockParser.splitListItems('- only item');
-
-    expect(items, ['only item']);
-  });
 }

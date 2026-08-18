@@ -1,16 +1,20 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/library_progress_store.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
-import 'package:shia_companion/utils/page_layout_engine.dart';
+import 'package:shia_companion/utils/markdown_block.dart';
+import 'package:shia_companion/utils/markdown_block_parser.dart';
+import 'package:shia_companion/utils/reader_layout.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
 import '../constants.dart';
+import '../widgets/reader_content.dart';
 import '../widgets/responsive_content.dart';
 
 class ChapterPage extends StatefulWidget {
@@ -65,8 +69,21 @@ class _ChapterPageState extends State<ChapterPage>
   PageRoute? _pageRoute;
   Uri? _previousBrowserUri;
 
-  PaginationResult? _result;
-  String? _paginatedMarkdown;
+  /// The chapter's blocks, and the pages measured from the column they were
+  /// laid out in. Both are replaced together whenever the chapter is measured
+  /// again — at a new font size, or a new page size.
+  List<MarkdownBlock> _blocks = const [];
+  ReaderPagination? _pagination;
+
+  /// The keys the measuring pass reads its geometry through. Non-null only
+  /// while a measuring pass is in flight.
+  GlobalKey? _measureColumnKey;
+  List<GlobalKey> _measureBlockKeys = const [];
+
+  /// The page size and system text size the current pages were measured at.
+  /// Pages only hold for the layout they were cut from, so a change to either
+  /// is a re-measure.
+  ({Size size, TextScaler textScaler})? _measuredFor;
   PageController? _pageController;
   int _currentPageIndex = 0;
   int _savedBlockIndex = 0;
@@ -231,14 +248,6 @@ class _ChapterPageState extends State<ChapterPage>
   }
 
   @override
-  void didChangeMetrics() {
-    super.didChangeMetrics();
-    if (_paginationReady && _result != null) {
-      _repaginate();
-    }
-  }
-
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     switch (state) {
@@ -313,56 +322,40 @@ class _ChapterPageState extends State<ChapterPage>
       SP.prefs.setDouble('eng_font_size', _readerFontSize);
     }
 
-    _repaginate();
+    _remeasure();
     _saveProgress();
-  }
-
-  PaginationResult _computePagination(String markdown) {
-    return PageLayoutEngine(
-      markdown: markdown,
-      contentWidth: _contentWidth,
-      contentHeight: _pageHeight,
-      fontSize: _readerFontSize,
-      lineHeight: _lineHeight,
-      styleSheet: _readerStyleSheet(context),
-    ).compute();
   }
 
   /// The page that should be shown for the position we're restoring: the last
   /// page when paging backwards into a chapter, otherwise the page holding the
   /// block the reader last saw.
-  int _resolveTargetPage(PaginationResult result) {
-    if (result.pageCount == 0) return 0;
-    if (_landOnLastPage) return result.pageCount - 1;
-
-    for (var page = 0; page < result.pageBlocks.length; page++) {
-      for (final paginatedBlock in result.pageBlocks[page]) {
-        if (paginatedBlock.originalIndex == _savedBlockIndex) return page;
-      }
-    }
-    return 0;
+  int _resolveTargetPage(ReaderPagination pagination) {
+    if (pagination.pageCount == 0) return 0;
+    if (_landOnLastPage) return pagination.pageCount - 1;
+    return pagination.pageForBlock(_savedBlockIndex);
   }
 
-  int _blockIndexForPage(PaginationResult result, int page) {
-    if (page < 0 || page >= result.pageBlocks.length) return _savedBlockIndex;
-    final blocks = result.pageBlocks[page];
-    return blocks.isEmpty ? _savedBlockIndex : blocks.first.originalIndex;
+  int _blockIndexForPage(ReaderPagination pagination, int page) {
+    if (page < 0 || page >= pagination.pageCount) return _savedBlockIndex;
+    return pagination.pages[page].firstBlock;
   }
 
-  void _repaginate() {
-    final markdown = _paginatedMarkdown;
-    if (markdown == null || _pageHeight <= 0) return;
-
-    final result = _computePagination(markdown);
-    final targetPage = _resolveTargetPage(result);
+  /// Throws the current pages away and lays the chapter out again, keeping the
+  /// reader on the block they were on. Everything about a page — where it
+  /// starts, where it ends — comes from a real layout at one font size and one
+  /// page size, so a change to either can only be answered by measuring again.
+  void _remeasure() {
+    if (!_paginationReady) return;
+    final controller = _pageController;
     setState(() {
-      _result = result;
-      _paginationReady = true;
-      _currentPageIndex = targetPage;
+      _paginationReady = false;
+      _pagination = null;
+      _pageController = null;
+      _measureColumnKey = null;
+      _measureBlockKeys = const [];
+      _measuredFor = null;
     });
-    if (_pageController != null && _pageController!.hasClients) {
-      _pageController!.jumpToPage(_leadingSlotCount + targetPage);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => controller?.dispose());
   }
 
   void _saveProgress() {
@@ -374,7 +367,7 @@ class _ChapterPageState extends State<ChapterPage>
     final chapterSlug = _chapterSlug;
     if (chapterSlug == null || chapterSlug.isEmpty) return;
 
-    final pageCount = _result?.pageCount ?? 1;
+    final pageCount = _pagination?.pageCount ?? 1;
     LibraryProgressStore.instance.save(
       LibraryProgress(
         bookSlug: bookSlug,
@@ -432,8 +425,11 @@ class _ChapterPageState extends State<ChapterPage>
       _title = chapter.title;
       _slug = '$bookSlug/${chapter.uid}';
       _chapterFuture = LibraryService.loadChapterMarkdown(_slug);
-      _result = null;
-      _paginatedMarkdown = null;
+      _pagination = null;
+      _blocks = const [];
+      _measureColumnKey = null;
+      _measureBlockKeys = const [];
+      _measuredFor = null;
       _paginationReady = false;
       _currentPageIndex = 0;
       _savedBlockIndex = 0;
@@ -489,36 +485,30 @@ class _ChapterPageState extends State<ChapterPage>
     return LayoutBuilder(
       builder: (context, constraints) {
         _pageHeight = constraints.maxHeight;
-        // Measure at the actual available width (parent minus padding) so
-        // pages fit exactly without needing scroll on each page.
+        // The width the chapter is measured in has to be the width it is
+        // rendered in, so both go through the same horizontal padding.
         _contentWidth = constraints.maxWidth - 32;
 
-        if (!_paginationReady) {
+        // Reading the text scaler here is also what subscribes the reader to
+        // it: a chapter measured at one system text size is not the chapter
+        // that renders at another.
+        final measuredFor = (
+          size: Size(_contentWidth, _pageHeight),
+          textScaler: MediaQuery.textScalerOf(context),
+        );
+        if (_paginationReady && _measuredFor != measuredFor) {
+          // The reader was rotated, resized, or had its text size changed
+          // under it. The pages belong to the layout before that.
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted || _paginationReady || _pageHeight <= 0) return;
-
-            final result = _computePagination(chapterMarkdown);
-            final targetPage = _resolveTargetPage(result);
-
-            setState(() {
-              _result = result;
-              _paginatedMarkdown = chapterMarkdown;
-              _paginationReady = true;
-              _isChangingChapter = false;
-              _landOnLastPage = false;
-              _currentPageIndex = targetPage;
-              _savedBlockIndex = _blockIndexForPage(result, targetPage);
-              _pageController = PageController(
-                initialPage: _leadingSlotCount + targetPage,
-              );
-            });
-            _prefetchAdjacentChapters();
+            if (mounted) _remeasure();
           });
-
-          return const Center(child: CircularProgressIndicator());
         }
 
-        final pageCount = _result?.pageCount ?? 1;
+        if (!_paginationReady) {
+          return _buildMeasuringPass(chapterMarkdown, measuredFor);
+        }
+
+        final pageCount = _pagination?.pageCount ?? 1;
         final slotCount =
             _leadingSlotCount + pageCount + (_hasNextChapter ? 1 : 0);
 
@@ -546,8 +536,83 @@ class _ChapterPageState extends State<ChapterPage>
     );
   }
 
+  /// Lays the whole chapter out as one column, off-screen, and reads the
+  /// pages out of it once the frame is done.
+  ///
+  /// The reader shows a page by windowing onto this column, so the column is
+  /// built exactly as the pages are: same width, same style sheet, same widget
+  /// per block. Nothing about a page is predicted — where it may start and
+  /// where it may end are read back from the text the engine actually laid
+  /// out, which is the only way a page can be guaranteed to hold whole lines
+  /// and to hold as many of them as it has room for.
+  Widget _buildMeasuringPass(
+    String chapterMarkdown,
+    ({Size size, TextScaler textScaler}) measuredFor,
+  ) {
+    if (_measureColumnKey == null) {
+      _blocks = MarkdownBlockParser.parse(chapterMarkdown);
+      _measureColumnKey = GlobalKey();
+      _measureBlockKeys = [for (var i = 0; i < _blocks.length; i++) GlobalKey()];
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final columnKey = _measureColumnKey;
+        if (!mounted || _paginationReady || columnKey == null) return;
+        if (_pageHeight <= 0) return;
+
+        final pagination = paginateColumn(
+          harvestColumnGeometry(
+            columnKey: columnKey,
+            blockKeys: _measureBlockKeys,
+          ),
+          pageHeight: _pageHeight,
+        );
+        final targetPage = _resolveTargetPage(pagination);
+
+        setState(() {
+          _pagination = pagination;
+          _measuredFor = measuredFor;
+          _paginationReady = true;
+          _isChangingChapter = false;
+          _landOnLastPage = false;
+          _currentPageIndex = targetPage;
+          _savedBlockIndex = _blockIndexForPage(pagination, targetPage);
+          _pageController = PageController(
+            initialPage: _leadingSlotCount + targetPage,
+          );
+          _measureColumnKey = null;
+          _measureBlockKeys = const [];
+        });
+        _prefetchAdjacentChapters();
+      });
+    }
+
+    return Stack(
+      children: [
+        const Center(child: CircularProgressIndicator()),
+        // Laid out, never painted: an Opacity of zero skips its child's
+        // painting entirely, and the reader only needs the layout.
+        Positioned.fill(
+          child: IgnorePointer(
+            child: Opacity(
+              opacity: 0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ReaderMeasureColumn(
+                  columnKey: _measureColumnKey!,
+                  blocks: _blocks,
+                  blockKeys: _measureBlockKeys,
+                  styleSheet: _readerStyleSheet(context),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _onPageChanged(int index) {
-    final result = _result;
+    final result = _pagination;
     if (result == null) return;
 
     final contentIndex = index - _leadingSlotCount;
@@ -578,12 +643,8 @@ class _ChapterPageState extends State<ChapterPage>
 
   /// Tracks whether any text on the page is currently selected. Read only by
   /// the tap handler, so there's nothing to rebuild.
-  void _onSelectionChanged(
-    String? text,
-    TextSelection selection,
-    SelectionChangedCause? cause,
-  ) {
-    _hasTextSelection = selection.isValid && !selection.isCollapsed;
+  void _onSelectionChanged(SelectedContent? content) {
+    _hasTextSelection = (content?.plainText.trim().isNotEmpty) ?? false;
   }
 
   void _onPointerDown(PointerDownEvent event) {
@@ -673,46 +734,18 @@ class _ChapterPageState extends State<ChapterPage>
   }
 
   Widget _buildPage(int pageIndex) {
-    final result = _result!;
-    if (pageIndex >= result.pageBlocks.length) return const SizedBox.shrink();
+    final pagination = _pagination!;
+    if (pageIndex >= pagination.pageCount) return const SizedBox.shrink();
 
-    final paginatedBlocks = result.pageBlocks[pageIndex];
-    final pageChildren = <Widget>[];
-
-    for (final paginatedBlock in paginatedBlocks) {
-      final block = result.blocks[paginatedBlock.originalIndex];
-      final renderText = paginatedBlock.text;
-
-      pageChildren.add(
-        Padding(
-          padding: EdgeInsets.only(
-            top: paginatedBlock.topMargin,
-            bottom: paginatedBlock.bottomMargin,
-          ),
-          child: Directionality(
-            textDirection: block.textDirection,
-            child: MarkdownBody(
-              data: renderText,
-              selectable: true,
-              styleSheet: _readerStyleSheet(context),
-              onSelectionChanged: _onSelectionChanged,
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Clip overflow so blocks that render slightly taller than measured
-    // don't cause layout issues. The page is constrained to viewport height.
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ClipRect(
-        child: SizedBox(
-          height: _pageHeight,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: pageChildren,
-          ),
+      child: SelectionArea(
+        onSelectionChanged: _onSelectionChanged,
+        child: ReaderPageWindow(
+          blocks: _blocks,
+          page: pagination.pages[pageIndex],
+          pageHeight: _pageHeight,
+          styleSheet: _readerStyleSheet(context),
         ),
       ),
     );
@@ -723,7 +756,7 @@ class _ChapterPageState extends State<ChapterPage>
 
   bool get _canGoForward =>
       _paginationReady &&
-      (_currentPageIndex < (_result?.pageCount ?? 1) - 1 || _hasNextChapter);
+      (_currentPageIndex < (_pagination?.pageCount ?? 1) - 1 || _hasNextChapter);
 
   void _goToPreviousPage() {
     if (!_paginationReady) return;
@@ -739,7 +772,7 @@ class _ChapterPageState extends State<ChapterPage>
 
   void _goToNextPage() {
     if (!_paginationReady) return;
-    if (_currentPageIndex < (_result?.pageCount ?? 1) - 1) {
+    if (_currentPageIndex < (_pagination?.pageCount ?? 1) - 1) {
       _pageController?.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -781,7 +814,7 @@ class _ChapterPageState extends State<ChapterPage>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bookSlug = widget.bookSlug;
-    final pageCount = _result?.pageCount ?? 1;
+    final pageCount = _pagination?.pageCount ?? 1;
     final progress =
         pageCount <= 1 ? 1.0 : (_currentPageIndex + 1) / pageCount;
 
