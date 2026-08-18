@@ -557,16 +557,18 @@ Color? _eventColor(BuildContext context, Map<String, dynamic>? event) {
 
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
+  // events.json has always used 0 for green and 1 for red; the calendar
+  // redesign read the two the other way round and inverted every day.
   final value = event['color'];
   if (value == 0) {
     return theme.brightness == Brightness.dark
-        ? Colors.red.shade400
-        : Colors.red.shade700;
+        ? Colors.green.shade300
+        : Colors.green.shade700;
   }
   if (value == 1) {
     return theme.brightness == Brightness.dark
-        ? Colors.green.shade300
-        : Colors.green.shade700;
+        ? Colors.red.shade400
+        : Colors.red.shade700;
   }
   return colorScheme.tertiary;
 }

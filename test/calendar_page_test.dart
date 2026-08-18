@@ -86,6 +86,27 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('marks mourning days green and celebration days red',
+      (tester) async {
+    // events.json numbers its two colours 0 and 1; the day cell has to keep
+    // reading them the way the data has always meant them.
+    await _pumpCalendar(
+      tester,
+      brightness: Brightness.dark,
+      initialDate: DateTime(2026, 6, 22),
+      events: _markerTestEvents(0),
+    );
+    expect(_markerColors(tester), [Colors.green.shade300]);
+
+    await _pumpCalendar(
+      tester,
+      brightness: Brightness.dark,
+      initialDate: DateTime(2026, 6, 22),
+      events: _markerTestEvents(1),
+    );
+    expect(_markerColors(tester), [Colors.red.shade400]);
+  });
+
   testWidgets('selected event summary does not repeat the lunar date header',
       (tester) async {
     await _pumpCalendar(
@@ -148,3 +169,24 @@ const _eventSummaryTestEvents = <String, dynamic>{
     'color': 0,
   },
 };
+
+/// A single event a couple of days after the selected one, so the day it
+/// lands on keeps its own colour instead of the selection's.
+Map<String, dynamic> _markerTestEvents(int color) => <String, dynamic>{
+      '9-1': <String, dynamic>{
+        'header': '9th Moharram',
+        'content': 'Shab e Ashoor',
+        'color': color,
+      },
+    };
+
+/// The colours of the small event dots currently painted on the grid.
+List<Color?> _markerColors(WidgetTester tester) {
+  return tester
+      .widgetList<Container>(find.byWidgetPredicate((widget) =>
+          widget is Container &&
+          widget.constraints?.maxWidth == 6.0 &&
+          widget.decoration is BoxDecoration))
+      .map((container) => (container.decoration as BoxDecoration).color)
+      .toList();
+}
