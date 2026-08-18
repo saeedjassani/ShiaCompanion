@@ -112,19 +112,21 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
               : Text(dateText, style: boldText),
           const SizedBox(height: 6),
           hasReadings
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  // The one column carrying the "(next day)" note is taller
-                  // than the rest; aligning to the top keeps every icon,
-                  // name and time on the same line across the row.
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (var i = 0; i < _readings.length; i++)
-                      Expanded(
-                        child: _PrayerTimeColumn(
-                          reading: _readings[i],
-                          isFirstTomorrow: i == firstTomorrowIndex,
-                        ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final reading in _readings)
+                          Expanded(child: _PrayerTimeColumn(reading: reading)),
+                      ],
+                    ),
+                    if (firstTomorrowIndex >= 0)
+                      _NextDayNote(
+                        index: firstTomorrowIndex,
+                        count: _readings.length,
                       ),
                   ],
                 )
@@ -275,17 +277,13 @@ class _CardHeader extends StatelessWidget {
 
 /// One prayer in the row: icon, name and time, all at equal weight — order
 /// alone already says what's next, so nothing here is bolded or boxed to
-/// repeat that. Only the single column where the row crosses into tomorrow
-/// carries an italic "(next day)" under its time; everything after it is
-/// understood to be tomorrow too, the same way a date divider works in a list.
+/// repeat that.
 class _PrayerTimeColumn extends StatelessWidget {
   const _PrayerTimeColumn({
     required this.reading,
-    required this.isFirstTomorrow,
   });
 
   final WidgetPrayerTimeReading reading;
-  final bool isFirstTomorrow;
 
   @override
   Widget build(BuildContext context) {
@@ -320,24 +318,45 @@ class _PrayerTimeColumn extends StatelessWidget {
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
-          if (isFirstTomorrow)
-            // A fifth of a phone's width is not enough for "(next day)" at
-            // full size, and clipping it mid-word is worse than shrinking it —
-            // so it scales down to whatever the column actually has.
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                "(next day)",
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                softWrap: false,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  fontStyle: FontStyle.italic,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
         ],
+      ),
+    );
+  }
+}
+
+/// Marks the one column where the row crosses into tomorrow; everything after
+/// it is understood to be tomorrow too, the same way a date divider works in a
+/// list. It sits under the row rather than inside that column because at full
+/// size it is wider than a fifth of a phone — and spilling into the columns
+/// beside it costs nothing, since those are the next day as well.
+class _NextDayNote extends StatelessWidget {
+  const _NextDayNote({
+    required this.index,
+    required this.count,
+  });
+
+  final int index;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6.0),
+      // Centred on the column it tags. Align keeps the note inside the card
+      // even when that column is the first or the last one.
+      child: Align(
+        alignment: Alignment(2 * ((index + 0.5) / count) - 1, 0),
+        child: Text(
+          "(next day)",
+          maxLines: 1,
+          softWrap: false,
+          style: theme.textTheme.labelSmall?.copyWith(
+            fontStyle: FontStyle.italic,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
       ),
     );
   }

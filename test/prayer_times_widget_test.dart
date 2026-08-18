@@ -135,7 +135,7 @@ void main() {
     );
   });
 
-  testWidgets('fits the "(next day)" note inside its column on a phone',
+  testWidgets('keeps the "(next day)" note on one line and inside the card',
       (tester) async {
     lat = 32.02;
     long = 44.34;
@@ -154,14 +154,17 @@ void main() {
     final note = find.text('(next day)');
     expect(note, findsOneWidget);
 
-    // The note must be scaled to fit rather than clipped mid-word: what gets
-    // painted has to be no wider than the column it sits in.
-    final column = find.ancestor(of: note, matching: find.byType(Expanded));
-    final painted = tester.getSize(find.ancestor(
-      of: note,
-      matching: find.byType(FittedBox),
-    ));
-    expect(painted.width, lessThanOrEqualTo(tester.getSize(column).width));
+    // One line at full size, wider than the fifth of the row it belongs to —
+    // it is allowed to spill into the neighbouring columns, which are the
+    // next day as well.
+    final noteRect = tester.getRect(note);
+    final columnWidth = tester.getSize(find.byType(Expanded).first).width;
+    expect(noteRect.width, greaterThan(columnWidth));
+
+    // What it must never do is run off the card.
+    final cardRect = tester.getRect(find.byType(Card));
+    expect(noteRect.left, greaterThanOrEqualTo(cardRect.left));
+    expect(noteRect.right, lessThanOrEqualTo(cardRect.right));
   });
 
   testWidgets('discloses the age of a stale reading', (tester) async {
