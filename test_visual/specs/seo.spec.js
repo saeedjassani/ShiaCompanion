@@ -195,6 +195,25 @@ test('robots.txt allows crawling and advertises the sitemap', async ({request}) 
   expect(body, 'a bare "Disallow: /" hides the whole site')
     .not.toMatch(/^\s*Disallow:\s*\/\s*$/m);
   expect(body).toContain(`Sitemap: ${SITE_ORIGIN}/sitemap.xml`);
+  expect(body).toContain(`Sitemap: ${SITE_ORIGIN}/sitemap-all.xml`);
+});
+
+// A duplicate of sitemap.xml at a path Search Console has never seen, so a
+// stuck "Couldn't fetch" verdict on the original can be sidestepped by
+// submitting this instead. Serving one but not the other would hand Search
+// Console a second broken URL, which is the whole failure being worked around.
+test('sitemap-all.xml duplicates sitemap.xml exactly', async ({request}) => {
+  const [canonical, duplicate] = await Promise.all([
+    request.get('/sitemap.xml'),
+    request.get('/sitemap-all.xml'),
+  ]);
+
+  expect(duplicate.status()).toBe(200);
+  expect(
+    duplicate.headers()['content-type'] ?? '',
+    'firebase.json must match /sitemap*.xml, not just /sitemap.xml',
+  ).toContain('xml');
+  expect(await duplicate.text()).toBe(await canonical.text());
 });
 
 test('generated pages carry a substituted <base href>', () => {

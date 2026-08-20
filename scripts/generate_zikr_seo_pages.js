@@ -13,6 +13,16 @@ const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shia-companion.web.app'
   .replace(/\/+$/, '');
 const MAX_SECTION_LINES = 80;
 
+// Search Console pins a "Couldn't fetch" verdict to a sitemap URL and will not
+// clear it on resubmission, even after the URL serves valid XML again — and it
+// does: status, content-type, XML validity, Googlebot UA, IPv6, TLS 1.2 and
+// HTTP/1.1 all check out, and URL Inspection reports "URL is available to
+// Google". Publishing the identical sitemap at a second path gives Search
+// Console a URL carrying no cached verdict. Both files are written from one
+// string, so they cannot drift. Drop the second path once /sitemap.xml reports
+// Success.
+const SITEMAP_FILENAMES = ['sitemap.xml', 'sitemap-all.xml'];
+
 // Hand-written pages that ship from web/ rather than being generated here.
 // This file replaces the checked-in sitemap wholesale, so anything left out
 // disappears from the sitemap the moment the generator runs. Only real files
@@ -427,7 +437,9 @@ function main() {
   }
 
   const sitemap = buildSitemap(pages.map((page) => page.canonicalPath));
-  fs.writeFileSync(path.join(BUILD_WEB_DIR, 'sitemap.xml'), sitemap, 'utf8');
+  for (const filename of SITEMAP_FILENAMES) {
+    fs.writeFileSync(path.join(BUILD_WEB_DIR, filename), sitemap, 'utf8');
+  }
   fs.writeFileSync(
     path.join(GENERATED_ZIKR_DIR, 'index.html'),
     buildZikrIndexPage(templateHtml, pages),
@@ -437,7 +449,8 @@ function main() {
   console.log(`Generated ${pages.length} zikr SEO pages in ${GENERATED_ZIKR_DIR}`);
   console.log(`Generated ${aliasCount} zikr alias pages`);
   console.log(
-    `Generated sitemap.xml with ${(sitemap.match(/<loc>/g) ?? []).length} URLs`,
+    `Generated ${SITEMAP_FILENAMES.join(', ')} with `
+    + `${(sitemap.match(/<loc>/g) ?? []).length} URLs`,
   );
 }
 

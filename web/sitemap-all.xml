@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fallback only, and a byte-for-byte duplicate of sitemap.xml.
+  scripts/generate_zikr_seo_pages.js overwrites both files in build/web with the
+  full sitemap, from a single generated string, so the two cannot drift.
+
+  This second path exists because Search Console pins a "Couldn't fetch" verdict
+  to a sitemap URL and will not clear it on resubmission. Submitting this URL
+  instead gives it one with no cached verdict. Once /sitemap.xml reports
+  Success, this file and its entry in robots.txt can be deleted.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://shia-companion.web.app/</loc>
+  </url>
+  <url>
+    <loc>https://shia-companion.web.app/privacy.html</loc>
+  </url>
+  <url>
+    <loc>https://shia-companion.web.app/delete_account.html</loc>
+  </url>
+</urlset>

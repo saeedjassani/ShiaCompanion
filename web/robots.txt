@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://shia-companion.web.app/sitemap.xml
+Sitemap: https://shia-companion.web.app/sitemap-all.xml
