@@ -17,6 +17,7 @@ import 'package:shia_companion/pages/chapter_list_page.dart';
 import 'package:shia_companion/pages/chapter_page.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
+import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
@@ -62,8 +63,6 @@ class _MyHomePageState extends State<MyHomePage>
   bool _isPublishingIndex = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
-  final CollectionReference<Map<String, dynamic>> _zikrCollection =
-      FirebaseFirestore.instance.collection('zikr');
 
   void _openHomeMenuItem(HomeMenuItem item) {
     final page = item.buildPage();
@@ -88,7 +87,9 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future<void> _setupDeepLinks() async {
-    _queueDeepLink(parseDeepLinkUri(Uri.base));
+    if (!webLaunchDeepLinkHandled) {
+      _queueDeepLink(parseDeepLinkUri(Uri.base));
+    }
 
     if (kIsWeb) return;
 
@@ -246,88 +247,8 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  Future<UidTitleData?> _resolveDeepLinkItem(DeepLinkTarget target) async {
-    if (target.segments.isEmpty) return null;
-
-    final primarySegment = target.segments.first;
-    if (items.containsKey(primarySegment)) {
-      final title = items[primarySegment];
-      if (title is String && title.isNotEmpty) {
-        return UidTitleData(primarySegment, title);
-      }
-    }
-
-    final cachedUid = slugToItemUid[primarySegment];
-    if (cachedUid != null) {
-      final title = items[cachedUid];
-      if (title is String && title.isNotEmpty) {
-        return UidTitleData(cachedUid, title);
-      }
-    }
-
-    if (!isUserAdmin) {
-      return null;
-    }
-
-    return _fetchDeepLinkItemFromFirestore(primarySegment);
-  }
-
-  Future<UidTitleData?> _fetchDeepLinkItemFromFirestore(String segment) async {
-    final directUidSnapshot = await _zikrCollection.doc(segment).get();
-    final directUidItem = _buildDeepLinkItemFromSnapshot(directUidSnapshot);
-    if (directUidItem != null) {
-      return directUidItem;
-    }
-
-    final slugSnapshot =
-        await _zikrCollection.where('slug', isEqualTo: segment).limit(1).get();
-    if (slugSnapshot.docs.isNotEmpty) {
-      final slugItem = _buildDeepLinkItemFromSnapshot(slugSnapshot.docs.first);
-      if (slugItem != null) {
-        return slugItem;
-      }
-    }
-
-    final aliasSnapshot = await _zikrCollection
-        .where('slugAliases', arrayContains: segment)
-        .limit(1)
-        .get();
-    if (aliasSnapshot.docs.isEmpty) return null;
-
-    return _buildDeepLinkItemFromSnapshot(aliasSnapshot.docs.first);
-  }
-
-  UidTitleData? _buildDeepLinkItemFromSnapshot(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-  ) {
-    if (!snapshot.exists) return null;
-
-    final data = snapshot.data();
-    if (data == null) return null;
-
-    final title = data['title']?.toString().trim() ?? '';
-    if (title.isEmpty) return null;
-
-    final hasPrimaryData = data['data']?.toString().trim().isNotEmpty == true;
-    final rawTabs = data['tabs'];
-    final hasTabData = rawTabs is List &&
-        rawTabs.any((tab) => tab?.toString().trim().isNotEmpty == true);
-    if (!isUserAdmin && !hasPrimaryData && !hasTabData) {
-      return null;
-    }
-
-    final uid = snapshot.id;
-    items[uid] = title;
-    final order = data['order'];
-    if (order is num) {
-      itemOrder[uid] = order.toDouble();
-    }
-    setLocalSlugData(
-      uid,
-      slug: data['slug']?.toString(),
-      aliases: data['slugAliases'] is Iterable ? data['slugAliases'] : null,
-    );
-    return UidTitleData(uid, title);
+  Future<UidTitleData?> _resolveDeepLinkItem(DeepLinkTarget target) {
+    return DeepLinkResolver.resolveZikrItem(target);
   }
 
   void _openDeepLinkNotFound(String target) {

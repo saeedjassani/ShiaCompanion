@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
+import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
@@ -125,6 +126,18 @@ class MyApp extends StatelessWidget {
                 fallbackBuilder: (_) => buildHomePage(),
               );
             }
+            // Web only: give a shared link a route of its own so the launch URL
+            // survives start-up. Without this the name falls through to
+            // onUnknownRoute, which mounts home and then removes itself,
+            // rewriting the address bar to "/" on the way out. Native builds
+            // report "/" here and receive their links through app_links, so
+            // this never runs for them.
+            if (kIsWeb) {
+              final launchRoute = _launchDeepLinkRoute(settings);
+              if (launchRoute != null) {
+                return launchRoute;
+              }
+            }
             return null;
           },
           onUnknownRoute: (settings) {
@@ -141,6 +154,24 @@ class MyApp extends StatelessWidget {
       }),
     );
   }
+}
+
+/// Builds the route for a link the web app booted into, or null when the name
+/// is not a deep link.
+///
+/// Navigator splits an initial route like /zikr/<slug> into "/", "/zikr" and
+/// "/zikr/<slug>", generating what it can and discarding the rest, so home
+/// stays underneath and back still reaches it. A library chapter link yields
+/// the chapter over its chapter list the same way.
+Route<void>? _launchDeepLinkRoute(RouteSettings settings) {
+  final target = parseLaunchRouteName(settings.name);
+  if (target == null) return null;
+
+  webLaunchDeepLinkHandled = true;
+  return MaterialPageRoute<void>(
+    builder: (_) => DeepLinkLaunchPage(target: target),
+    settings: settings,
+  );
 }
 
 Route<void> _ignoredPlatformRoute(

@@ -13,6 +13,16 @@ class DeepLinkTarget {
 const int zikrDeepLinkType = 0;
 const int libraryDeepLinkType = 1;
 
+/// Set when the web launch URL generated its own route, so the home page knows
+/// not to open the same link a second time.
+///
+/// The home page reads `Uri.base` on start-up to catch links the app booted
+/// into. On web that job now belongs to the launch route, but the flag is
+/// checked rather than the web branch simply removed: if route generation ever
+/// stops matching a path, the home page still opens it instead of the link
+/// silently doing nothing.
+bool webLaunchDeepLinkHandled = false;
+
 String buildDeepLinkPath({
   required int type,
   required List<String> segments,
@@ -88,6 +98,26 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
   }
 
   return null;
+}
+
+/// The target a web launch URL should open directly, or null when the route
+/// name is not a link the app can land on.
+///
+/// Split out from the route factory so the decision — which names get a route
+/// of their own, and which fall through to the home page — is testable without
+/// standing up a Navigator.
+DeepLinkTarget? parseLaunchRouteName(String? name) {
+  if (name == null || name.isEmpty || name == '/') return null;
+
+  final uri = Uri.tryParse(name);
+  if (uri == null) return null;
+
+  final target = parseDeepLinkUri(uri);
+  if (target == null) return null;
+  if (target.type != zikrDeepLinkType && target.type != libraryDeepLinkType) {
+    return null;
+  }
+  return target;
 }
 
 String? extractZikrLinkSegment(String href) {

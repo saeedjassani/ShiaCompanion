@@ -165,4 +165,52 @@ void main() {
       'https://shia-companion.web.app/library/some-book/chapter-1',
     );
   });
+
+  group('parseLaunchRouteName', () {
+    // These are the names that must get a route of their own on web. Anything
+    // returning null here falls through to onUnknownRoute, which mounts home,
+    // removes itself, and rewrites the address bar to "/" on the way out —
+    // the flicker a shared link used to show.
+    test('claims zikr links so the launch URL survives start-up', () {
+      final target = parseLaunchRouteName('/zikr/dua-e-ahad');
+
+      expect(target, isNotNull);
+      expect(target!.type, zikrDeepLinkType);
+      expect(target.segments, ['dua-e-ahad']);
+    });
+
+    test('claims library books and chapters', () {
+      final book = parseLaunchRouteName('/library/nahjul-balagha');
+      expect(book, isNotNull);
+      expect(book!.type, libraryDeepLinkType);
+      expect(book.segments, ['nahjul-balagha']);
+
+      final chapter = parseLaunchRouteName('/library/nahjul-balagha/sermon-1');
+      expect(chapter, isNotNull);
+      expect(chapter!.type, libraryDeepLinkType);
+      expect(chapter.segments, ['nahjul-balagha', 'sermon-1']);
+    });
+
+    test('claims legacy root-level slugs', () {
+      final target = parseLaunchRouteName('/ziyarat-e-ashura');
+
+      expect(target, isNotNull);
+      expect(target!.type, zikrDeepLinkType);
+      expect(target.segments, ['ziyarat-e-ashura']);
+    });
+
+    test('leaves the home route alone', () {
+      expect(parseLaunchRouteName('/'), isNull);
+      expect(parseLaunchRouteName(''), isNull);
+      expect(parseLaunchRouteName(null), isNull);
+    });
+
+    test('leaves reserved paths to their own routes', () {
+      // These have dedicated handling in onGenerateRoute above the launch
+      // check; claiming them here would shadow it.
+      expect(parseLaunchRouteName('/delete-account'), isNull);
+      expect(parseLaunchRouteName('/widget-preview'), isNull);
+      expect(parseLaunchRouteName('/callback'), isNull);
+    });
+  });
 }
