@@ -78,6 +78,43 @@ void main() {
     expect(blocks.single.textDirection, TextDirection.ltr);
   });
 
+  test('a leading number does not make an Arabic quotation left-to-right', () {
+    // The library numbers its quotations, and Ghurar al-Hikam opens thousands
+    // of aphorisms exactly like this. A digit is weak in the Unicode bidi
+    // algorithm: it takes the direction of its surroundings rather than
+    // setting one.
+    final blocks = MarkdownBlockParser.parse(
+      '> 1\u0640 \u0627\u0644\u062F\u064F\u0651\u0646\u0652\u064A\u0627 '
+      '\u062F\u0627\u0631\u064F \u0645\u064E\u0645\u064E\u0631\u064D\u0651.',
+    );
+
+    expect(blocks.single.textDirection, TextDirection.rtl);
+  });
+
+  test('digits of any script are weak', () {
+    // Arabic-Indic digit, then Arabic text.
+    expect(
+      MarkdownBlockParser.parse('\u0667\u0640 \u0627\u0644\u0633\u0644\u0627\u0645')
+          .single
+          .textDirection,
+      TextDirection.rtl,
+    );
+    // A number that really does open English prose stays left-to-right.
+    expect(
+      MarkdownBlockParser.parse('7. Be in this world as a stranger.')
+          .single
+          .textDirection,
+      TextDirection.ltr,
+    );
+  });
+
+  test('a block with no strong character falls back to left-to-right', () {
+    expect(
+      MarkdownBlockParser.parse('123 456').single.textDirection,
+      TextDirection.ltr,
+    );
+  });
+
   test(
       'a run of consecutive list lines parses as one listItem block '
       'spanning all items', () {
