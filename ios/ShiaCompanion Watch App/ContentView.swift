@@ -127,9 +127,20 @@ struct ContentView: View {
             if !prayerModel.prayerEntries.isEmpty {
                 VStack(spacing: 0) {
                     ForEach(Array(prayerModel.prayerEntries.enumerated()), id: \.offset) { index, entry in
+                        // The day is named once, where the list crosses into it, the way
+                        // the phone's card tags only the first column that has rolled
+                        // over. Repeating "Tomorrow" down every remaining row said the
+                        // same thing four times on a screen with no room to say it once.
+                        if let label = dayBreakLabel(at: index) {
+                            DayBreak(label: label)
+                        }
+
                         PrayerRow(entry: entry, isNext: index == 0)
 
-                        if index < prayerModel.prayerEntries.count - 1 {
+                        // The break draws its own rule, so a plain divider here would
+                        // double it.
+                        if index < prayerModel.prayerEntries.count - 1,
+                           dayBreakLabel(at: index + 1) == nil {
                             Divider()
                                 .padding(.leading, 34)
                         }
@@ -158,6 +169,20 @@ struct ContentView: View {
             }
         }
         .padding(.horizontal, Self.gutter)
+    }
+
+    /// The label for a day change landing on `index`, or `nil` where the day carries on.
+    ///
+    /// Compares against the row before rather than testing for "not today", so a list
+    /// that somehow spans two midnights names both days instead of lumping them under
+    /// one heading. In practice a selection of three to five times crosses at most one.
+    private func dayBreakLabel(at index: Int) -> String? {
+        let entries = prayerModel.prayerEntries
+        guard index < entries.count else { return nil }
+        let label = entries[index].dayLabel
+        guard !label.isEmpty else { return nil }
+        guard index > 0 else { return label }
+        return entries[index - 1].dayLabel == label ? nil : label
     }
 
     /// Explicit rather than `.padding(.horizontal)`: the default is a platform-defined
@@ -220,8 +245,8 @@ struct SyncPromptView: View {
 
 // MARK: - Prayer row
 
-/// One upcoming time. The day label only appears once the list has rolled past
-/// midnight, so a today-only list reads exactly as it did before.
+/// One upcoming time. Which day it belongs to is `DayBreak`'s job, above the first row
+/// of that day — the row itself is only ever a name and a time.
 ///
 /// `.footnote`, not `.body`: an icon, a name and a time side by side on a 162pt screen
 /// come to more than the row holds at `.body`'s 17pt, and the name was the one losing
@@ -248,14 +273,11 @@ struct PrayerRow: View {
                 // happens to draw its line.
                 VStack(alignment: .leading, spacing: 0) {
                     name
-                    day
                     time
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                VStack(alignment: .leading, spacing: 0) {
-                    name
-                    day
-                }
+                name
                 Spacer(minLength: 4)
                 time.layoutPriority(1)
             }
@@ -272,23 +294,35 @@ struct PrayerRow: View {
             .minimumScaleFactor(0.7)
     }
 
-    @ViewBuilder
-    private var day: some View {
-        if !entry.dayLabel.isEmpty {
-            Text(entry.dayLabel)
-                .font(.caption2)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-        }
-    }
-
     private var time: some View {
         Text(entry.time)
             .font(.footnote.weight(.semibold))
             .foregroundColor(.primary)
             .lineLimit(1)
             .minimumScaleFactor(0.8)
+    }
+}
+
+/// Names the day the rows below it belong to. A rule rather than a row of its own, so
+/// the list still reads as one card of times with a seam in it.
+struct DayBreak: View {
+    let label: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            Rectangle()
+                .fill(Color.secondary.opacity(0.35))
+                .frame(height: 1)
+                .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, 6)
+        .padding(.top, 8)
+        .padding(.bottom, 2)
     }
 }
 

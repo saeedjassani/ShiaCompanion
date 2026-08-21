@@ -63,6 +63,9 @@ h2 .kindmark{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--in
 .clipmark{outline:1px solid var(--fail)}
 .cutline{position:absolute;left:0;right:0;border-top:2px dashed rgba(255,90,95,.9);pointer-events:none}
 .cutlabel{position:absolute;right:3px;font:600 8px/1 "IBM Plex Mono",monospace;color:#FF8A8F}
+.foldline{position:absolute;left:0;right:0;border-top:1px dashed rgba(143,162,172,.7);pointer-events:none}
+.foldlabel{position:absolute;right:0;font:600 8px/1 "IBM Plex Mono",monospace;color:#0D1215;
+  background:#8FA2AC;padding:2px 4px;border-radius:0 0 0 4px}
 .findings{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
 .finding{display:flex;gap:8px;align-items:baseline;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
 .tag{font:600 9px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;
@@ -93,6 +96,7 @@ code{font-family:"IBM Plex Mono",monospace;font-size:.92em;background:var(--pane
   <div class="ctl"><span class="ctl-label">Dynamic Type</span><div class="chips" id="typeChips"></div></div>
   <div class="ctl"><span class="ctl-label">Content</span><div class="chips" id="caseChips"></div></div>
   <div class="ctl"><span class="ctl-label">Zoom</span><div class="chips" id="zoomChips"></div></div>
+  <div class="ctl"><span class="ctl-label">Prayer list</span><div class="chips" id="scrollChips"></div></div>
 </div>
 
 <h2>Prayer list<span class="kindmark">ContentView</span></h2>
@@ -160,7 +164,7 @@ the bottom of the display.</p>
       count:7, target:0, lap:1}
   };
 
-  const state = {watch:WATCHES[0], type:"Large", caseName:"Longest", zoom:2.4};
+  const state = {watch:WATCHES[0], type:"Large", caseName:"Longest", zoom:2.4, full:false};
 
   const canvas = document.createElement("canvas");
   const mctx = canvas.getContext("2d");
@@ -349,6 +353,13 @@ the bottom of the display.</p>
     let worstName = null, worstTime = null;
     c.rows.forEach((r, i)=>{
       const [name, time, day] = r;
+      // After: the day is named once, on a rule above the first row of that day.
+      if (after && day && (i === 0 || c.rows[i-1][2] !== day)){
+        const brk = el("div","rowline",{gap:px(6),padding:px(8)+" "+px(cardPad)+" "+px(2)});
+        brk.appendChild(txt(day, T.caption2[0], "400", {leading:T.caption2[1], color:"#9AA7AE"}));
+        brk.appendChild(el("span",null,{flex:"1 1 auto",height:"1px",background:"rgba(255,255,255,.3)"}));
+        listBox.appendChild(brk);
+      }
       const row = el("div","rowline",{padding:px(6)+" "+px(cardPad),gap:0});
       row.appendChild(badge(iconD, rowStyle[0]*0.62));
       const gap = el("span",null,{width:px(iconGap),flex:"none"}); row.appendChild(gap);
@@ -371,7 +382,7 @@ the bottom of the display.</p>
 
       const nameCol = el("div",null,{display:"flex",flexDirection:"column",flex:"1 1 auto",minWidth:0});
       nameCol.appendChild(txt(name, rowStyle[0], "400", {fit:nameF, leading:rowStyle[1]}));
-      if (day) nameCol.appendChild(txt(day, Math.min(10, T.caption2[0]), "400", {leading:13, color:"#9AA7AE"}));
+      if (day && !after) nameCol.appendChild(txt(day, Math.min(10, T.caption2[0]), "400", {leading:13, color:"#9AA7AE"}));
       if (stacked) nameCol.appendChild(txt(time, rowStyle[0], "600", {fit:timeF, leading:rowStyle[1]}));
       row.appendChild(nameCol);
       if (!stacked){
@@ -527,10 +538,22 @@ the bottom of the display.</p>
       const contentPt = body.getBoundingClientRect().height / state.zoom;
       const screenPt = parseFloat(body.dataset.screenHeight);
       if (contentPt <= screenPt + 1) return;
-      screen.appendChild(el("div","scrollfade"));
-      const tag = el("div","scrolltag");
-      tag.textContent = "scrolls · " + contentPt.toFixed(0) + "pt of content";
-      screen.appendChild(tag);
+      const NAV = parseFloat(body.style.top) / state.zoom;
+      if (state.full){
+        // The screen scrolls, so showing only its first screenful hides the rows this
+        // page exists to check. Opened out, with the fold marked.
+        screen.style.height = px(NAV + contentPt);
+        const fold = el("div","foldline",{top:px(NAV + screenPt)});
+        screen.appendChild(fold);
+        const fl = el("div","foldlabel",{top:px(NAV + screenPt + 2)});
+        fl.textContent = "screenful ends";
+        screen.appendChild(fl);
+      } else {
+        screen.appendChild(el("div","scrollfade"));
+        const tag = el("div","scrolltag");
+        tag.textContent = "scrolls · " + contentPt.toFixed(0) + "pt of content";
+        screen.appendChild(tag);
+      }
       const spec = screen.closest(".spec");
       const m = spec && spec.querySelector(".metrics");
       if (m) m.textContent += " · content " + contentPt.toFixed(0) + "pt";
@@ -554,6 +577,9 @@ the bottom of the display.</p>
       it=>it.v===state.caseName, it=>state.caseName=it.v);
     chipRow(document.getElementById("zoomChips"), [1.6,2.4,3.2].map(z=>({label:z+"×",v:z})),
       it=>it.v===state.zoom, it=>state.zoom=it.v);
+    chipRow(document.getElementById("scrollChips"),
+      [{label:"first screenful",v:false},{label:"whole scroll",v:true}],
+      it=>it.v===state.full, it=>state.full=it.v);
     render();
   }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(build);
