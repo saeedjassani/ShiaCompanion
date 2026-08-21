@@ -222,13 +222,17 @@ struct NextPrayerComplicationView: View {
 
             VStack(spacing: 0) {
                 Image(systemName: entry.symbolName)
-                    .font(.system(size: side * 0.22, weight: .medium))
+                    .font(.system(size: side * 0.20, weight: .medium))
                 Text(entry.compactTime)
                     .font(.system(size: side * 0.34, weight: .semibold, design: .rounded))
                     .minimumScaleFactor(0.45)
                     .allowsTightening(true)
                     .lineLimit(1)
-                    .frame(width: side * 0.76)
+                    // 0.70, not the 0.76 the widest band would allow: the symbol above
+                    // pushes the time below centre, and the chord it sits in is
+                    // narrower than the one through the middle. Measured against
+                    // "11:58" on a 42pt circle, which is where 0.76 ran over.
+                    .frame(width: side * 0.70)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
@@ -259,7 +263,9 @@ struct NextPrayerComplicationView: View {
 
     private var inline: some View {
         Label {
-            Text(entry.hasData ? "\(entry.name) \(entry.compactTime)" : "Open Shia Companion")
+            // Kept short: the inline slot is the one family whose width the system
+            // owns, and it elides rather than scales.
+            Text(entry.hasData ? "\(entry.name) \(entry.compactTime)" : "Open iPhone app")
         } icon: {
             Image(systemName: entry.symbolName)
         }
@@ -267,11 +273,13 @@ struct NextPrayerComplicationView: View {
 
     /// A name row and a time row, and nothing else.
     ///
-    /// Rectangular is wide but short — about 49pt on a 41mm watch — and the previous
-    /// three-row stack (`.headline` name, 15pt time, caption countdown) measured taller
-    /// than that, so the bottom of it was cut off. Putting the countdown beside the time
-    /// rather than under it drops the stack to two rows, which fits on every size, and
-    /// the time is the one thing here that never yields room.
+    /// Not where the cropping was — the family is 152x69.5pt even on a 40mm watch, and
+    /// the previous three-row stack (`.headline` name, 15pt time, caption countdown)
+    /// measured about 9pt inside that. This is a legibility change rather than a fix:
+    /// the time was the smallest thing on the roomiest family, and the countdown had
+    /// nothing bounding its width. Beside the time instead of under it, the countdown
+    /// is capped, the time is half again as large, and the stack keeps ~25pt spare for
+    /// larger accessibility text.
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 3) {
@@ -301,9 +309,9 @@ struct NextPrayerComplicationView: View {
                             .font(.system(size: 10))
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.trailing)
-                            .minimumScaleFactor(0.7)
+                            .minimumScaleFactor(0.6)
                             .lineLimit(1)
-                            .frame(maxWidth: 62, alignment: .trailing)
+                            .frame(maxWidth: 58, alignment: .trailing)
                     }
                 }
             } else {

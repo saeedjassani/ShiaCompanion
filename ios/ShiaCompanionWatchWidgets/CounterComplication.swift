@@ -154,7 +154,10 @@ struct CounterComplicationView: View {
     private var corner: some View {
         Text("\(entry.count)")
             .font(.system(size: 15, weight: .semibold, design: .rounded))
-            .minimumScaleFactor(0.5)
+            // A count elided to "999…" reads as a different number, which is worse than
+            // a small one, so this floor is set low enough that five digits still shrink
+            // into corner's slot rather than losing their tail.
+            .minimumScaleFactor(0.3)
             .allowsTightening(true)
             .lineLimit(1)
             .widgetLabel {
@@ -170,7 +173,10 @@ struct CounterComplicationView: View {
 
     private var inline: some View {
         Label {
-            Text(entry.target > 0 ? "Tasbeeh \(entry.targetLabel)" : "Tasbeeh \(entry.count)")
+            // The count alone. Inline is a single system-sized line that elides rather
+            // than scales, and "Tasbeeh 999/1000" overran it — a whole count reads
+            // better there than a target with its tail cut off.
+            Text("Tasbeeh \(entry.count)")
         } icon: {
             Image(systemName: "hand.tap.fill")
         }
@@ -178,11 +184,11 @@ struct CounterComplicationView: View {
 
     /// Two short rows and a hairline gauge.
     ///
-    /// The rectangular family is only about 49pt tall on a 41mm watch, and the previous
-    /// four-row stack (`.headline` title, 20pt count, 6pt gauge, caption) measured past
-    /// that — so the target line, the thing the ring is counting towards, was the row
-    /// that fell off the bottom. The count and its target now share a baseline, which
-    /// buys back a whole row.
+    /// The family is 152x69.5pt on a 40mm watch, and the container background insets
+    /// that further; the previous four-row stack — `.headline` title, 20pt count, 6pt
+    /// gauge, caption — measured past what was left, so the target line, the thing the
+    /// ring is counting towards, was the row that fell off the bottom. The count and its
+    /// target now share a baseline, which buys back a whole row.
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 3) {
