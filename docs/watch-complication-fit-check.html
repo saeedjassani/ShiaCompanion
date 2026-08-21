@@ -249,17 +249,46 @@ survive every family — a complication that shows a truncated time has no reaso
     if (fitres && fitres.truncated) n.classList.add("overflowmark");
     return n;
   }
-  // A stand-in for an SF Symbol: same advance width, recognisably a mark.
+  // Mirrors prayerSymbolName(for:) — the point of drawing these at all is that no two
+  // selectable times share one.
+  function symbolKind(prayerName){
+    const n = (prayerName || "").toLowerCase();
+    if (n.indexOf("fajr") >= 0) return "sunrise";
+    if (n.indexOf("sunrise") >= 0) return "sunriseFill";
+    if (n.indexOf("zuhr") >= 0 || n.indexOf("dhuhr") >= 0 || n.indexOf("dhohr") >= 0) return "sunMax";
+    if (n.indexOf("asr") >= 0) return "sunMin";
+    if (n.indexOf("sunset") >= 0) return "sunset";
+    if (n.indexOf("maghrib") >= 0) return "sunsetFill";
+    if (n.indexOf("isha") >= 0) return "moonStars";
+    if (n.indexOf("midnight") >= 0) return "moon";
+    return "sunMax";
+  }
+  const HORIZON = '<path d="M8 80h84"/>';
+  const ARC = '<path d="M28 80a22 22 0 0 1 44 0"/>';
+  const ARC_FILL = '<path d="M28 80a22 22 0 0 1 44 0z" fill="currentColor" stroke="none"/>';
+  const SYMBOLS = {
+    sunMax:   '<circle cx="50" cy="50" r="17"/><path d="M50 8v13M50 79v13M8 50h13M79 50h13M19 19l9 9M72 72l9 9M81 19l-9 9M28 72l-9 9"/>',
+    sunMin:   '<circle cx="50" cy="50" r="17"/><path d="M50 17v7M50 76v7M17 50h7M76 50h7M26 26l5 5M69 69l5 5M74 26l-5 5M31 69l-5 5"/>',
+    sunrise:  HORIZON + ARC + '<path d="M50 8v24M40 20l10-12 10 12"/>',
+    sunriseFill: HORIZON + ARC_FILL + '<path d="M50 8v24M40 20l10-12 10 12"/>',
+    sunset:   HORIZON + ARC + '<path d="M50 32V8M40 20l10 12 10-12"/>',
+    sunsetFill: HORIZON + ARC_FILL + '<path d="M50 32V8M40 20l10 12 10-12"/>',
+    moon:     '<path d="M64 14a38 38 0 1 0 24 44A30 30 0 0 1 64 14z"/>',
+    moonStars:'<path d="M56 20a32 32 0 1 0 22 38A26 26 0 0 1 56 20z"/><path d="M84 16l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/><path d="M78 48l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>'
+  };
+  // Stand-ins for the SF Symbols: same advance width, and — the part that matters —
+  // a different mark for every time the app can show.
   function glyph(size, kind){
     const s = size * 1.15;
     const n = el("span","glyph",{width:px(s),height:px(s)});
-    const c = kind === "moon" ? "M50 12a38 38 0 1 0 38 50A30 30 0 0 1 50 12z"
-            : kind === "tap"  ? "M38 8h12v44h30L44 92V52H20z"
-            : null;
-    n.innerHTML = c
-      ? '<svg viewBox="0 0 100 100" width="100%" height="100%" fill="currentColor" aria-hidden="true"><path d="'+c+'"/></svg>'
-      : '<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="9">'
-        +'<circle cx="50" cy="52" r="20"/><path d="M50 8v10M50 86v6M8 52h10M82 52h10M20 22l7 7M73 75l7 7M80 22l-7 7M27 75l-7 7"/></svg>';
+    if (kind === "tap"){
+      n.innerHTML = '<svg viewBox="0 0 100 100" width="100%" height="100%" fill="currentColor" '
+        + 'aria-hidden="true"><path d="M38 8h12v44h30L44 92V52H20z"/></svg>';
+      return n;
+    }
+    n.innerHTML = '<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true" fill="none" '
+      + 'stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">'
+      + (SYMBOLS[kind] || SYMBOLS.sunMax) + '</svg>';
     return n;
   }
   function verdict(kind, label){
@@ -335,7 +364,7 @@ survive every family — a complication that shows a truncated time has no reaso
     const f = rectFrame(w[0], w[1], true);
     const avail = w[0] - 2*RECT_INSET, availH = w[1] - 2*RECT_INSET;
     const nameSize = 16, timeSize = 15, relSize = 11;   // .headline / 15pt / .caption2
-    const g = glyph(11, c.empty ? "moon" : "sun");
+    const g = glyph(11, c.empty ? "moonStars" : symbolKind(c.name));
     const nameW = avail - 11*1.15 - 3;
     const nf = fit(c.empty ? "Shia Companion" : c.name, nameSize, "600", false, nameW, 1); // no minScale
     const row1 = el("div","row"); row1.appendChild(g);
@@ -367,10 +396,19 @@ survive every family — a complication that shows a truncated time has no reaso
     const f = rectFrame(w[0], w[1], true);
     const avail = w[0] - 2*RECT_INSET, availH = w[1] - 2*RECT_INSET;
     const nameSize = 12, timeSize = 18, relSize = 10;
-    const head = c.empty ? "Shia Companion"
-               : (c.day && c.day !== "Today" ? c.name + " · " + c.day : c.name);
-    const g = glyph(10, c.empty ? "moon" : "sun");
+    const g = glyph(10, c.empty ? "moonStars" : symbolKind(c.name));
     const nameW = avail - 10*1.15 - 3;
+    // PrayerNameText's ladder: name with the day, name alone, initial with the day,
+    // initial alone. The first that fits at full size wins.
+    const day = (c.day && c.day !== "Today") ? c.day : "";
+    const initial = (c.name || "?").trim().charAt(0).toUpperCase();
+    const rungs = c.empty ? ["Shia Companion"]
+                : day ? [c.name + " · " + day, c.name, initial + " · " + day, initial]
+                      : [c.name, initial];
+    let head = rungs[rungs.length - 1], rung = rungs.length - 1;
+    for (let i = 0; i < rungs.length; i++){
+      if (measure(rungs[i], nameSize, "600", false) <= nameW){ head = rungs[i]; rung = i; break; }
+    }
     const nf = fit(head, nameSize, "600", false, nameW, 0.7);
     const row1 = el("div","row"); row1.appendChild(g);
     row1.appendChild(textNode(head, nameSize, "600", false, nf));
@@ -397,9 +435,11 @@ survive every family — a complication that shows a truncated time has no reaso
     let kind = hk, label = hl;
     if (timeFit && timeFit.truncated){ kind = "fail"; label = "time truncates"; }
     else if (relFit && relFit.truncated){ kind = "warn"; label = "countdown elides"; }
+    else if (rung > 0 && !c.empty){ label = "name → “" + head + "”"; }
     return {stage:f.stage, kind, label,
       metrics:[
         ["stack", used.toFixed(1)+"pt of "+availH.toFixed(1)+"pt"],
+        ["name", rung === 0 ? "full" : "rung " + (rung+1) + " of " + rungs.length + " — “" + head + "”"],
         timeFit ? ["time", (timeFit.scale*100).toFixed(0)+"% of "+timeSize+"pt"] : null,
         relFit ? ["countdown", (relFit.scale*100).toFixed(0)+"% of "+relSize+"pt"] : null
       ]};
@@ -408,7 +448,7 @@ survive every family — a complication that shows a truncated time has no reaso
   function prayerCircOld(side, c){
     const f = circleFrame(side);
     const symSize = 12, timeSize = 15;
-    f.content.appendChild(glyph(symSize, c.empty ? "moon" : "sun"));
+    f.content.appendChild(glyph(symSize, c.empty ? "moonStars" : symbolKind(c.name)));
     // Old layout: no width constraint, so the square is what it lays out against.
     const tf = fit(c.compact, timeSize, "600", true, side, 0.6);
     f.content.appendChild(textNode(c.compact, timeSize, "600", true, tf));
@@ -431,7 +471,7 @@ survive every family — a complication that shows a truncated time has no reaso
   function prayerCircNew(side, c){
     const f = circleFrame(side);
     const symSize = side*0.20, timeSize = side*0.34, boxW = side*0.70;
-    f.content.appendChild(glyph(symSize, c.empty ? "moon" : "sun"));
+    f.content.appendChild(glyph(symSize, c.empty ? "moonStars" : symbolKind(c.name)));
     const tf = fit(c.compact, timeSize, "600", true, boxW, 0.45);
     const n = textNode(c.compact, timeSize, "600", true, tf);
     n.style.width = px(boxW); n.style.textAlign="center";
@@ -480,7 +520,7 @@ survive every family — a complication that shows a truncated time has no reaso
     const f = boxFrame(w, 26);
     f.content.style.justifyContent = "flex-start";
     const size = 15;
-    f.content.appendChild(glyph(size, "sun"));
+    f.content.appendChild(glyph(size, "sunMax"));
     const pad = el("span",null,{width:px(4),flex:"none"}); f.content.appendChild(pad);
     const avail = w - size*1.15 - 4;
     const tf = fit(text, size, "400", false, avail, 1);

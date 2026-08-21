@@ -152,6 +152,8 @@ the bottom of the display.</p>
     "AX3":     {title2:[44,52], headline:[40,48], body:[40,48], footnote:[33,40], caption1:[32,39], caption2:[29,35]}
   };
 
+  // Sunrise and Midnight are the longest names the phone can send, and the reason the
+  // initial fallback exists.
   const CASES = {
     "Typical": {loc:"Karbala", next:"Asr", nextTime:"4:15 pm", day:"Today", rel:"in 42 min",
       rows:[["Asr","4:15 pm",""],["Maghrib","7:30 pm",""],["Isha","8:45 pm",""],["Fajr","4:30 am","Tomorrow"],["Zuhr","12:15 pm","Tomorrow"]],
@@ -209,18 +211,45 @@ the bottom of the display.</p>
     if (opts.fit && opts.fit.truncated) n.classList.add("clipmark");
     return n;
   }
-  function glyph(size, stroke){
+  // Mirrors prayerSymbolName(for:) — the point of drawing these at all is that no two
+  // selectable times share one.
+  function symbolKind(prayerName){
+    const n = (prayerName || "").toLowerCase();
+    if (n.indexOf("fajr") >= 0) return "sunrise";
+    if (n.indexOf("sunrise") >= 0) return "sunriseFill";
+    if (n.indexOf("zuhr") >= 0 || n.indexOf("dhuhr") >= 0 || n.indexOf("dhohr") >= 0) return "sunMax";
+    if (n.indexOf("asr") >= 0) return "sunMin";
+    if (n.indexOf("sunset") >= 0) return "sunset";
+    if (n.indexOf("maghrib") >= 0) return "sunsetFill";
+    if (n.indexOf("isha") >= 0) return "moonStars";
+    if (n.indexOf("midnight") >= 0) return "moon";
+    return "sunMax";
+  }
+  const HORIZON = '<path d="M8 80h84"/>';
+  const ARC = '<path d="M28 80a22 22 0 0 1 44 0"/>';
+  const ARC_FILL = '<path d="M28 80a22 22 0 0 1 44 0z" fill="currentColor" stroke="none"/>';
+  const SYMBOLS = {
+    sunMax:   '<circle cx="50" cy="50" r="17"/><path d="M50 8v13M50 79v13M8 50h13M79 50h13M19 19l9 9M72 72l9 9M81 19l-9 9M28 72l-9 9"/>',
+    sunMin:   '<circle cx="50" cy="50" r="17"/><path d="M50 17v7M50 76v7M17 50h7M76 50h7M26 26l5 5M69 69l5 5M74 26l-5 5M31 69l-5 5"/>',
+    sunrise:  HORIZON + ARC + '<path d="M50 8v24M40 20l10-12 10 12"/>',
+    sunriseFill: HORIZON + ARC_FILL + '<path d="M50 8v24M40 20l10-12 10 12"/>',
+    sunset:   HORIZON + ARC + '<path d="M50 32V8M40 20l10 12 10-12"/>',
+    sunsetFill: HORIZON + ARC_FILL + '<path d="M50 32V8M40 20l10 12 10-12"/>',
+    moon:     '<path d="M64 14a38 38 0 1 0 24 44A30 30 0 0 1 64 14z"/>',
+    moonStars:'<path d="M56 20a32 32 0 1 0 22 38A26 26 0 0 1 56 20z"/><path d="M84 16l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/><path d="M78 48l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>'
+  };
+  function glyph(size, stroke, kind){
     const s = size * 1.15;
     const n = el("span",null,{width:px(s),height:px(s),flex:"none",display:"block",color:"#6FD3E4"});
     n.innerHTML = '<svg viewBox="0 0 100 100" width="100%" height="100%" fill="none" stroke="currentColor" '
-      + 'stroke-width="'+(stroke||9)+'" aria-hidden="true"><circle cx="50" cy="52" r="20"/>'
-      + '<path d="M50 8v10M50 86v6M8 52h10M82 52h10M20 22l7 7M73 75l7 7M80 22l-7 7M27 75l-7 7"/></svg>';
+      + 'stroke-width="'+(stroke||9)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + (SYMBOLS[kind] || SYMBOLS.sunMax) + '</svg>';
     return n;
   }
-  function badge(diameter, symbolSize){
+  function badge(diameter, symbolSize, prayerName){
     const n = el("span",null,{width:px(diameter),height:px(diameter),flex:"none",borderRadius:"50%",
       background:"rgba(111,211,228,.22)",display:"flex",alignItems:"center",justifyContent:"center"});
-    n.appendChild(glyph(symbolSize, 11));
+    n.appendChild(glyph(symbolSize, 11, symbolKind(prayerName)));
     return n;
   }
 
@@ -303,7 +332,7 @@ the bottom of the display.</p>
 
     // location
     const locRow = el("div","rowline",{gap:px(4),justifyContent:"center"});
-    locRow.appendChild(glyph(T.caption2[0]));
+    locRow.appendChild(glyph(T.caption2[0], 9, "sunMax"));
     const locRoom = inner - T.caption2[0]*1.15 - 4;
     if (after){
       // lineLimit(2): a long city name takes a second line rather than losing its tail.
@@ -351,6 +380,7 @@ the bottom of the display.</p>
       background:"rgba(255,255,255,.10)",overflow:"hidden"});
     const rowInner = inner - 2*cardPad;
     let worstName = null, worstTime = null;
+    const fellBackNames = [], compactNames = [];
     c.rows.forEach((r, i)=>{
       const [name, time, day] = r;
       // After: the day is named once, on a rule above the first row of that day.
@@ -361,12 +391,12 @@ the bottom of the display.</p>
         listBox.appendChild(brk);
       }
       const row = el("div","rowline",{padding:px(6)+" "+px(cardPad),gap:0});
-      row.appendChild(badge(iconD, rowStyle[0]*0.62));
+      row.appendChild(badge(iconD, rowStyle[0]*0.62, name));
       const gap = el("span",null,{width:px(iconGap),flex:"none"}); row.appendChild(gap);
 
       const textRoom = rowInner - iconD - iconGap - 4;
       const stacked = after && AX;
-      let timeF, nameF;
+      let timeF, nameF, shownName = name, fellBack = false;
       if (stacked){
         // The stacked layout: the time moves under the name, so each gets the whole
         // remaining width.
@@ -380,10 +410,26 @@ the bottom of the display.</p>
         nameF = fit(name, rowStyle[0], "400", false, Math.max(0,nameRoom), after ? 0.7 : 0.8);
       }
 
+      let nameStyle = rowStyle;
+      if (after && nameF.scale < 1){
+        // PrayerNameText's ladder: the whole name, the whole name one type style down,
+        // then the initial. Never a clipped word.
+        const room = nameF.avail;
+        if (measure(name, T.caption2[0], "400", false) <= room){
+          nameStyle = T.caption2;
+          nameF = fit(name, T.caption2[0], "400", false, room, 1);
+          compactNames.push(name);
+        } else {
+          shownName = name.trim().charAt(0).toUpperCase();
+          fellBack = true;
+          nameF = fit(shownName, rowStyle[0], "400", false, room, 0.5);
+        }
+      }
       const nameCol = el("div",null,{display:"flex",flexDirection:"column",flex:"1 1 auto",minWidth:0});
-      nameCol.appendChild(txt(name, rowStyle[0], "400", {fit:nameF, leading:rowStyle[1]}));
+      nameCol.appendChild(txt(shownName, nameStyle[0], "400", {fit:nameF, leading:nameStyle[1]}));
       if (day && !after) nameCol.appendChild(txt(day, Math.min(10, T.caption2[0]), "400", {leading:13, color:"#9AA7AE"}));
       if (stacked) nameCol.appendChild(txt(time, rowStyle[0], "600", {fit:timeF, leading:rowStyle[1]}));
+      if (fellBack) fellBackNames.push(name);
       row.appendChild(nameCol);
       if (!stacked){
         row.appendChild(el("span",null,{flex:"1 1 auto",minWidth:px(4)}));
@@ -398,13 +444,21 @@ the bottom of the display.</p>
       if (!worstTime || timeF.scale < worstTime.scale) worstTime = timeF;
     });
     col.appendChild(listBox);
-    F.note(worstName, "row prayer name");
+    if (fellBackNames.length){
+      F.add("warn","initial", fellBackNames.join(", ") + (fellBackNames.length > 1 ? " show" : " shows")
+        + " as an initial — the name does not fit even a size down");
+    } else if (compactNames.length){
+      F.add("ok","a size down", compactNames.join(", ") + " set in caption2 to fit the row");
+    } else {
+      F.note(worstName, "row prayer name");
+    }
     F.note(worstTime, "row time");
 
     // refresh button + sync line
     const btnH = T.caption1[1] + 16;
-    const btn = el("div",null,{height:px(btnH),borderRadius:px(btnH/2),background:"rgba(255,255,255,.16)",
-      display:"flex",alignItems:"center",justifyContent:"center",gap:px(4)});
+    const btn = el("div",null,{minHeight:px(btnH),borderRadius:px(btnH/2),background:"rgba(255,255,255,.16)",
+      display:"flex",alignItems:"center",justifyContent:"center",gap:px(4),
+      padding:px(4)+" "+px(8),flex:"none"});
     btn.appendChild(glyph(T.caption1[0]));
     const rw = wrapLines("Refresh", T.caption1[0], "400", false, inner - 30);
     btn.appendChild(txt("Refresh", T.caption1[0], "400", {wrap:true, leading:T.caption1[1]}));
@@ -416,8 +470,9 @@ the bottom of the display.</p>
     sync.style.whiteSpace = "normal"; sync.style.textAlign = "center";
     col.appendChild(sync);
 
-    const cbtn = el("div",null,{height:px(btnH),borderRadius:px(btnH/2),background:"rgba(255,255,255,.16)",
+    const cbtn = el("div",null,{minHeight:px(btnH),borderRadius:px(btnH/2),background:"rgba(255,255,255,.16)",
       display:"flex",alignItems:"center",justifyContent:"center",gap:px(4),
+      padding:px(4)+" "+px(8),flex:"none",
       marginLeft:px(gutter),marginRight:px(gutter),marginTop:px(12)});
     cbtn.appendChild(glyph(T.caption1[0]));
     const cw = wrapLines("Tasbeeh Counter", T.caption1[0], "400", false, inner - 30);

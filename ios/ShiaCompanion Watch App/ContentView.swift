@@ -251,8 +251,8 @@ struct SyncPromptView: View {
 /// `.footnote`, not `.body`: an icon, a name and a time side by side on a 162pt screen
 /// come to more than the row holds at `.body`'s 17pt, and the name was the one losing
 /// its tail — measured truncating on every watch up to 45mm at the default text size.
-/// The time carries the layout priority, because a shortened name ("Maghri…") is still
-/// recognisable and a shortened time is not.
+/// The time carries the layout priority, and where the name still cannot fit it becomes
+/// its initial rather than a clipped word.
 struct PrayerRow: View {
     let entry: UpcomingPrayerRow
     let isNext: Bool
@@ -287,11 +287,13 @@ struct PrayerRow: View {
     }
 
     private var name: some View {
-        Text(entry.name)
-            .font(.footnote)
-            .foregroundColor(isNext ? .accentColor : .primary)
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
+        // No `minimumScaleFactor`: the name is either the whole word at its proper size
+        // or the initial. Half-shrunk text on a watch is the worst of the three.
+        PrayerNameText(
+            name: entry.name,
+            font: .footnote,
+            color: isNext ? .accentColor : .primary
+        )
     }
 
     private var time: some View {

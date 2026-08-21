@@ -285,10 +285,21 @@ struct NextPrayerComplicationView: View {
             HStack(spacing: 3) {
                 Image(systemName: entry.symbolName)
                     .font(.system(size: 10, weight: .medium))
-                Text(entry.hasData ? headline : "Shia Companion")
-                    .font(.system(size: 12, weight: .semibold))
-                    .minimumScaleFactor(0.7)
-                    .lineLimit(1)
+                if entry.hasData {
+                    // Degrades name → initial rather than clipping the word; the day
+                    // label goes first, since the time below already implies the day.
+                    PrayerNameText(
+                        name: entry.name,
+                        dayLabel: entry.dayLabel == "Today" ? "" : entry.dayLabel,
+                        font: .system(size: 12, weight: .semibold),
+                        compactFont: .system(size: 10.5, weight: .semibold)
+                    )
+                } else {
+                    Text("Shia Companion")
+                        .font(.system(size: 12, weight: .semibold))
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(1)
+                }
             }
             .widgetAccentable()
 
@@ -324,13 +335,6 @@ struct NextPrayerComplicationView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// "Fajr · Tomorrow" once the next time has rolled past midnight, so a countdown
-    /// measured in hours doesn't read as though it were still today.
-    private var headline: String {
-        let label = entry.dayLabel
-        guard !label.isEmpty, label != "Today" else { return entry.name }
-        return "\(entry.name) · \(label)"
-    }
 }
 
 private extension View {
