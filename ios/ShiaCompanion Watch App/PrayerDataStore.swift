@@ -124,6 +124,42 @@ nonisolated struct PrayerDataStore: Sendable {
         prayerSchedule.first { $0.date > date }
     }
 
+    /// The next `limit` times from the synced schedule, soonest first.
+    ///
+    /// The schedule the phone publishes already contains only the times chosen in
+    /// Settings, spread over the next eight days, so taking a prefix of it is the same
+    /// rolling window the home card and the prayer times widget show — the list carries
+    /// on into tomorrow rather than emptying out after the day's last prayer.
+    func upcomingPrayers(after date: Date = Date(), limit: Int) -> [PrayerScheduleEntry] {
+        guard limit > 0 else { return [] }
+        return Array(prayerSchedule.lazy.filter { $0.date > date }.prefix(limit))
+    }
+
+    /// How many times the phone's selection holds, so the watch shows the same number of
+    /// columns the phone's card does.
+    ///
+    /// Counted from a day of the published daily schedule rather than sent as its own
+    /// key: the phone already writes one entry per selected time per day, and deriving it
+    /// keeps the two in step without another key to sync. Settings bounds the selection
+    /// to 3–5; anything outside that means a stale or malformed payload, so it falls back
+    /// to the five daily prayers.
+    var selectedPrayerCount: Int {
+        let fallback = 5
+        let counts = dailyPrayerCountsPerDay()
+        guard let count = counts.first(where: { $0 > 0 }) else { return fallback }
+        return (3...5).contains(count) ? count : fallback
+    }
+
+    private func dailyPrayerCountsPerDay() -> [Int] {
+        let raw = string(WatchDataKeys.dailyPrayerSchedule)
+        guard
+            !raw.isEmpty,
+            let data = raw.data(using: .utf8),
+            let days = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+        else { return [] }
+        return days.map { ($0["items"] as? [[String: Any]])?.count ?? 0 }
+    }
+
     /// The five daily prayer times for the given day.
     ///
     /// Prefers the multi-day JSON schedule so the watch rolls over to the next day on

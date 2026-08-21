@@ -116,23 +116,36 @@ struct CounterComplicationView: View {
     }
 
     /// The dial from `CounterView`, shrunk: ring for the current lap, count in the middle.
+    ///
+    /// Sized off the container rather than in fixed points: the circular family is
+    /// 10pt wider on a 49mm watch than on a 41mm one, and a number laid out for the
+    /// big one loses digits inside the small one's circle.
     private var circular: some View {
-        ZStack {
-            AccessoryWidgetBackground()
+        GeometryReader { proxy in
+            let side = min(proxy.size.width, proxy.size.height)
 
-            if entry.target > 0 {
-                Circle()
-                    .trim(from: 0, to: entry.progress)
-                    .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .padding(2)
+            ZStack {
+                AccessoryWidgetBackground()
+
+                if entry.target > 0 {
+                    Circle()
+                        .trim(from: 0, to: entry.progress)
+                        .stroke(style: StrokeStyle(lineWidth: side * 0.09, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .padding(side * 0.05)
+                }
+
+                Text("\(entry.count)")
+                    .font(.system(size: side * 0.42, weight: .semibold, design: .rounded))
+                    .minimumScaleFactor(0.35)
+                    .allowsTightening(true)
+                    .lineLimit(1)
+                    // The chord across the middle of the ring, not the width of the
+                    // square the ring is drawn in — five digits have to shrink to sit
+                    // inside the circle rather than run out through its sides.
+                    .frame(width: side * 0.66)
             }
-
-            Text("\(entry.count)")
-                .font(.system(size: 20, weight: .semibold, design: .rounded))
-                .minimumScaleFactor(0.4)
-                .lineLimit(1)
-                .padding(.horizontal, 6)
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .widgetAccentable()
     }
@@ -140,7 +153,10 @@ struct CounterComplicationView: View {
     /// The corner family only has room for the number; the curved label carries the lap.
     private var corner: some View {
         Text("\(entry.count)")
-            .font(.system(size: 16, weight: .semibold, design: .rounded))
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .minimumScaleFactor(0.5)
+            .allowsTightening(true)
+            .lineLimit(1)
             .widgetLabel {
                 if entry.target > 0 {
                     Gauge(value: entry.progress) {
@@ -160,43 +176,58 @@ struct CounterComplicationView: View {
         }
     }
 
+    /// Two short rows and a hairline gauge.
+    ///
+    /// The rectangular family is only about 49pt tall on a 41mm watch, and the previous
+    /// four-row stack (`.headline` title, 20pt count, 6pt gauge, caption) measured past
+    /// that — so the target line, the thing the ring is counting towards, was the row
+    /// that fell off the bottom. The count and its target now share a baseline, which
+    /// buys back a whole row.
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 3) {
                 Image(systemName: "hand.tap.fill")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 10, weight: .medium))
                 Text("Tasbeeh")
-                    .font(.headline)
+                    .font(.system(size: 12, weight: .semibold))
                     .lineLimit(1)
             }
             .widgetAccentable()
 
-            Text("\(entry.count)")
-                .font(.system(size: 20, weight: .semibold, design: .rounded))
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text("\(entry.count)")
+                    .font(.system(size: 19, weight: .semibold, design: .rounded))
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                    // The count never yields room to the label beside it.
+                    .layoutPriority(1)
+
+                Spacer(minLength: 2)
+
+                Text(targetSummary)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+            }
 
             if entry.target > 0 {
-                // The bar reads the lap, so the "×N" tells the user which lap it is.
                 Gauge(value: entry.progress) {
                     EmptyView()
                 } currentValueLabel: {
                     EmptyView()
                 }
                 .gaugeStyle(.accessoryLinearCapacity)
-                .frame(height: 6)
-
-                Text(entry.lap > 1 ? "\(entry.targetLabel) · ×\(entry.lap)" : entry.targetLabel)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            } else {
-                Text("No target")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                .frame(height: 4)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// "12 / 33 · ×2" — the lap only once there has been more than one.
+    private var targetSummary: String {
+        guard entry.target > 0 else { return "No target" }
+        return entry.lap > 1 ? "\(entry.targetLabel) · ×\(entry.lap)" : entry.targetLabel
     }
 }
 
@@ -220,10 +251,18 @@ struct CounterComplication: Widget {
     /// timeline after the count settles.
     let kind = "TasbeehCounterComplication"
 
+    /// Host matched by `ContentView.counterURLHost` in the watch app. The scheme is
+    /// declared in the Watch App's `Info.plist`.
+    static let counterURL = URL(string: "shiacompanion://tasbeeh")
+
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: CounterProvider()) { entry in
             CounterComplicationView(entry: entry)
                 .widgetContainerBackground()
+                // Without a URL a tap only launches the app, which lands on the prayer
+                // list — one screen short of the counter the complication was showing.
+                // `ContentView` matches the host and pushes the counter.
+                .widgetURL(Self.counterURL)
         }
         .configurationDisplayName("Tasbeeh")
         .description("Your running dhikr count, with the ring showing progress to your target.")
@@ -240,14 +279,29 @@ struct CounterComplication: Widget {
 
 #if DEBUG
 struct CounterComplication_Previews: PreviewProvider {
+    private static let families: [WidgetFamily] = [
+        .accessoryCircular,
+        .accessoryCorner,
+        .accessoryInline,
+        .accessoryRectangular,
+    ]
+
+    /// The widest content each family can be asked to hold: no target, a long lap
+    /// label, and a count at the cap. Previewing every family against all three is
+    /// how cropping shows up here rather than on someone's wrist.
+    private static let samples: [(String, CounterEntry)] = [
+        ("Typical", CounterEntry(date: Date(), count: 21, target: 33)),
+        ("No target", CounterEntry(date: Date(), count: 486, target: 0)),
+        ("Widest", CounterEntry(date: Date(), count: 99_999, target: 1000)),
+    ]
+
     static var previews: some View {
-        Group {
-            CounterComplicationView(entry: .placeholder())
-                .previewContext(WidgetPreviewContext(family: .accessoryCircular))
-            CounterComplicationView(entry: .placeholder())
-                .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
-            CounterComplicationView(entry: .placeholder())
-                .previewContext(WidgetPreviewContext(family: .accessoryInline))
+        ForEach(families, id: \.self) { family in
+            ForEach(samples, id: \.0) { name, entry in
+                CounterComplicationView(entry: entry)
+                    .previewContext(WidgetPreviewContext(family: family))
+                    .previewDisplayName("\(name) – \(String(describing: family))")
+            }
         }
     }
 }

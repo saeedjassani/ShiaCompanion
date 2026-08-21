@@ -82,15 +82,29 @@ final class CounterModel: ObservableObject {
         let crossedTarget = target > 0 && updated > count && updated / target > count / target
         // The count lands first and alone. Everything after it is feedback, and a pinch
         // arriving mid-`adjust` has to find the main runloop free or the system drops it.
-        count = updated
+        setCount(updated)
         persistCount(updated)
         play(crossedTarget ? .success : (delta > 0 ? .click : .directionDown), force: crossedTarget)
         scheduleComplicationReload()
     }
 
+    /// Publishes the new count with animation explicitly switched off.
+    ///
+    /// Double Tap invokes the button's action from inside the system's own animated
+    /// transaction, so without this the number cross-faded to its new value on every
+    /// pinch while a screen tap — which carries no such transaction — updated it
+    /// instantly. That difference is the whole of "the gesture counts slower than
+    /// tapping": the count was landing at the same moment either way, and then spending
+    /// a further animation interval catching up on screen.
+    private func setCount(_ value: Int) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) { count = value }
+    }
+
     func reset() {
         guard count != 0 else { return }
-        count = 0
+        setCount(0)
         persistCount(0)
         play(.stop, force: true)
         scheduleComplicationReload()
@@ -127,7 +141,12 @@ final class CounterModel: ObservableObject {
         let now = ProcessInfo.processInfo.systemUptime
         guard force || now - lastHapticAt >= Self.hapticInterval else { return }
         lastHapticAt = now
-        WKInterfaceDevice.current().play(type)
+        // Hopped to the next runloop pass so the Taptic call — which is not free, and
+        // occasionally far from it — happens after SwiftUI has drawn the new number
+        // rather than in front of it.
+        DispatchQueue.main.async {
+            WKInterfaceDevice.current().play(type)
+        }
     }
 
     /// Coalesces the reloads: counting is bursty (a Crown spin is dozens of changes a
@@ -154,6 +173,13 @@ final class CounterModel: ObservableObject {
 
 // MARK: - View
 
+/// Distinguishing *which* control has focus is what lets focus be restored without being
+/// trapped: focus moving to another control here is the user navigating, focus going
+/// `nil` is the system losing it.
+private enum CounterField: Hashable {
+    case target, dial, minus, reset
+}
+
 /// A single control — the dial — owns every way of counting, so each input route lands
 /// on the same button: one screen tap, a hand pinch, and the Digital Crown.
 ///
@@ -169,15 +195,33 @@ final class CounterModel: ObservableObject {
 /// every phone sync and on an hourly rollover timer, and each of those rebuilds the
 /// navigation stack underneath this view — so focus is tracked per-control and re-claimed
 /// whenever it goes nowhere at all, rather than only being set once on appear.
+///
+/// This outer view exists only to pull the model out of the environment. `@EnvironmentObject`
+/// invalidates whatever declares it on *any* published change, so declaring it on the
+/// screen itself would rebuild the whole screen — the focus modifiers and the Crown's
+/// rotation binding included — on every single count. Handing the model down as a plain
+/// reference keeps that machinery still, and the three small subviews below re-render
+/// instead.
 struct CounterView: View {
-    /// Distinguishing *which* control has focus is what lets focus be restored without
-    /// being trapped: focus moving to another control here is the user navigating, focus
-    /// going `nil` is the system losing it.
-    private enum Field: Hashable {
-        case target, dial, minus, reset
+    @EnvironmentObject private var model: CounterModel
+
+    var body: some View {
+        CounterScreen(model: model)
+            // Nothing here changes but the object identity, so the screen only rebuilds
+            // when it is genuinely a different counter.
+            .equatable()
+    }
+}
+
+private struct CounterScreen: View, Equatable {
+    static func == (lhs: CounterScreen, rhs: CounterScreen) -> Bool {
+        lhs.model === rhs.model
     }
 
-    @EnvironmentObject private var model: CounterModel
+    /// Deliberately *not* `@ObservedObject`: this view reads no published value, and
+    /// observing one would undo the split described above.
+    let model: CounterModel
+
     @Environment(\.scenePhase) private var scenePhase
 
     /// Raw Crown position. Only the *delta* is used, so the Crown keeps counting from
@@ -186,13 +230,17 @@ struct CounterView: View {
     @State private var lastCrownStep = 0
     @State private var isConfirmingReset = false
     @State private var isOnScreen = false
-    @FocusState private var focus: Field?
+    @FocusState private var focus: CounterField?
 
     var body: some View {
         VStack(spacing: 6) {
             targetButton
             dial
-            controls
+            CounterControls(
+                model: model,
+                focus: $focus,
+                onReset: { isConfirmingReset = true }
+            )
         }
         .padding(.horizontal, 6)
         .padding(.bottom, 4)
@@ -249,24 +297,11 @@ struct CounterView: View {
         Button {
             model.cycleTarget()
         } label: {
-            HStack(spacing: 4) {
-                Image(systemName: "target")
-                    .font(.system(size: 9))
-                Text(model.targetLabel)
-                    .font(.system(size: 11))
-                // Kept in the tree at zero opacity rather than branched in and out: the lap
-                // ticks over mid-session, and adding a view to a focusable control's label
-                // makes the focus engine re-evaluate and can drop the dial's focus.
-                Text("×\(model.lap)")
-                    .font(.system(size: 11, weight: .semibold))
-                    .opacity(model.target > 0 && model.lap > 1 ? 1 : 0)
-            }
-            .foregroundColor(.secondary)
+            TargetLabel(model: model)
         }
         .buttonStyle(.plain)
         .focused($focus, equals: .target)
         .accessibilityLabel("Target")
-        .accessibilityValue(model.targetLabel)
         .accessibilityHint("Changes the target count")
     }
 
@@ -274,7 +309,7 @@ struct CounterView: View {
         Button {
             model.adjust(by: 1)
         } label: {
-            dialFace
+            DialFace(model: model, isFocused: focus == .dial)
         }
         .buttonStyle(.plain)
         .focused($focus, equals: .dial)
@@ -297,15 +332,43 @@ struct CounterView: View {
         }
         .modifier(PrimaryHandGestureShortcut())
         .accessibilityLabel("Add one")
-        .accessibilityValue("Count \(model.count)")
     }
+}
 
-    private var dialFace: some View {
+/// The target button's contents. Split out so ticking the lap over redraws a label
+/// rather than the screen.
+private struct TargetLabel: View {
+    @ObservedObject var model: CounterModel
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "target")
+                .font(.system(size: 9))
+            Text(model.targetLabel)
+                .font(.system(size: 11))
+            // Kept in the tree at zero opacity rather than branched in and out: the lap
+            // ticks over mid-session, and adding a view to a focusable control's label
+            // makes the focus engine re-evaluate and can drop the dial's focus.
+            Text("×\(model.lap)")
+                .font(.system(size: 11, weight: .semibold))
+                .opacity(model.target > 0 && model.lap > 1 ? 1 : 0)
+        }
+        .foregroundColor(.secondary)
+        .accessibilityValue(model.targetLabel)
+    }
+}
+
+/// The dial's contents, and the only thing in the screen that a count has to redraw.
+private struct DialFace: View {
+    @ObservedObject var model: CounterModel
+    let isFocused: Bool
+
+    var body: some View {
         ZStack {
             // Doubles as the focus indicator: `.plain` draws no focus ring of its own, and
             // a lost focus is otherwise invisible right up until a pinch does nothing.
             Circle()
-                .fill(Color.accentColor.opacity(focus == .dial ? 0.22 : 0.08))
+                .fill(Color.accentColor.opacity(isFocused ? 0.22 : 0.08))
 
             // Always present, trimmed to nothing when there is no target, so switching
             // targets does not restructure the focused button's label.
@@ -333,9 +396,18 @@ struct CounterView: View {
         .frame(maxWidth: .infinity)
         .aspectRatio(1, contentMode: .fit)
         .contentShape(Rectangle())
+        .accessibilityValue("Count \(model.count)")
     }
+}
 
-    private var controls: some View {
+/// Minus and reset. They only observe the model to dim themselves at zero, which is
+/// reason enough to keep them out of the screen's own update.
+private struct CounterControls: View {
+    @ObservedObject var model: CounterModel
+    @FocusState.Binding var focus: CounterField?
+    let onReset: () -> Void
+
+    var body: some View {
         HStack(spacing: 6) {
             Button {
                 model.adjust(by: -1)
@@ -346,9 +418,7 @@ struct CounterView: View {
             .focused($focus, equals: .minus)
             .accessibilityLabel("Subtract one")
 
-            Button {
-                isConfirmingReset = true
-            } label: {
+            Button(action: onReset) {
                 Image(systemName: "arrow.counterclockwise")
             }
             .disabled(model.count == 0)

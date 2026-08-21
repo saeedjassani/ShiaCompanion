@@ -34,8 +34,17 @@ struct ShiaCompanion_Watch_AppApp: App {
 
 // MARK: - Prayer Time Model
 
+/// One row of the watch's prayer list. Carries the day label so a row that has
+/// rolled over into tomorrow can say so, the way the phone's card does.
+struct UpcomingPrayerRow: Hashable {
+    let name: String
+    let time: String
+    /// Empty for today; "Tomorrow" or a date for anything further out.
+    let dayLabel: String
+}
+
 final class PrayerTimeModel: ObservableObject {
-    @Published var prayerEntries: [PrayerEntry] = []
+    @Published var prayerEntries: [UpcomingPrayerRow] = []
     @Published var location: String = ""
     @Published var nextPrayerName: String = ""
     @Published var nextPrayerTime: String = ""
@@ -84,7 +93,7 @@ final class PrayerTimeModel: ObservableObject {
         }
         lastSyncDate = store.lastSyncDate
         location = store.location
-        prayerEntries = state == .loaded ? store.dailyPrayers(for: now) : []
+        prayerEntries = state == .loaded ? upcomingRows(at: now) : []
 
         if let next = store.nextPrayer(after: now) {
             nextPrayerName = next.name
@@ -99,6 +108,28 @@ final class PrayerTimeModel: ObservableObject {
         }
 
         scheduleRollover(after: now)
+    }
+
+    /// The same rolling window the phone's home card and the prayer times widget show:
+    /// the next N of the times chosen in Settings, carrying on into tomorrow rather than
+    /// stopping at the end of today.
+    ///
+    /// Falls back to the day's times only if the schedule holds nothing upcoming — that
+    /// means a snapshot old enough to have run out, and a stale list still beats none.
+    private func upcomingRows(at now: Date) -> [UpcomingPrayerRow] {
+        let upcoming = store.upcomingPrayers(after: now, limit: store.selectedPrayerCount)
+        if !upcoming.isEmpty {
+            return upcoming.map { entry in
+                UpcomingPrayerRow(
+                    name: entry.name,
+                    time: entry.time,
+                    dayLabel: entry.dateLabel == "Today" ? "" : entry.dateLabel
+                )
+            }
+        }
+        return store.dailyPrayers(for: now).map {
+            UpcomingPrayerRow(name: $0.name, time: $0.time, dayLabel: "")
+        }
     }
 
     /// Re-derive the "next" prayer the moment the current one passes, so an open watch
