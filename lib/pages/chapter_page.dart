@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/library_progress_store.dart';
@@ -116,6 +117,11 @@ class _ChapterPageState extends State<ChapterPage>
 
   final Stopwatch _activeReadingTime = Stopwatch();
 
+  /// Holds the keyboard for the reader, so the arrow keys turn pages on web and
+  /// desktop instead of walking focus around the controls.
+  final FocusNode _keyboardFocusNode =
+      FocusNode(debugLabel: 'ChapterPage keyboard');
+
   @override
   void initState() {
     super.initState();
@@ -139,6 +145,7 @@ class _ChapterPageState extends State<ChapterPage>
       routeObserver.unsubscribe(this);
     }
     _pageController?.dispose();
+    _keyboardFocusNode.dispose();
     _saveProgress();
     super.dispose();
   }
@@ -746,6 +753,102 @@ class _ChapterPageState extends State<ChapterPage>
     }
   }
 
+  /// Turns pages from the keyboard. Arrow keys are what a reader on the web
+  /// reaches for, and they carry across a chapter boundary exactly as the
+  /// on-screen controls do.
+  KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    if (HardwareKeyboard.instance.isControlPressed ||
+        HardwareKeyboard.instance.isMetaPressed ||
+        HardwareKeyboard.instance.isAltPressed) {
+      return KeyEventResult.ignored;
+    }
+
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.arrowLeft ||
+        key == LogicalKeyboardKey.pageUp) {
+      if (!_canGoBack) return KeyEventResult.ignored;
+      _goToPreviousPage();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowRight ||
+        key == LogicalKeyboardKey.pageDown) {
+      if (!_canGoForward) return KeyEventResult.ignored;
+      _goToNextPage();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  /// The title of the chapter reading flows into, in [forward]'s direction, or
+  /// null when this is the first or last chapter of the book.
+  String? _adjacentChapterTitle({required bool forward}) {
+    if (forward ? !_hasNextChapter : !_hasPreviousChapter) return null;
+    return widget.chapters[_chapterIndex + (forward ? 1 : -1)].title;
+  }
+
+  /// The control at either end of the reader's toolbar.
+  ///
+  /// In the middle of a chapter it is an arrow, because there is nothing to say
+  /// beyond "one page further". On the edge pages the same press leaves the
+  /// chapter altogether, so the arrow becomes a labelled button naming the
+  /// chapter it lands in — nobody should have to guess that a chevron is about
+  /// to take them somewhere else.
+  Widget _buildPageNavControl({
+    required bool forward,
+    required int pageCount,
+  }) {
+    final atEdge = _paginationReady &&
+        (forward
+            ? _currentPageIndex >= pageCount - 1
+            : _currentPageIndex == 0);
+    final chapterTitle =
+        atEdge ? _adjacentChapterTitle(forward: forward) : null;
+    final onPressed = forward
+        ? (_canGoForward ? _goToNextPage : null)
+        : (_canGoBack ? _goToPreviousPage : null);
+
+    if (chapterTitle == null) {
+      return IconButton(
+        tooltip: forward ? 'Next page' : 'Previous page',
+        icon: Icon(forward ? Icons.chevron_right : Icons.chevron_left),
+        onPressed: onPressed,
+      );
+    }
+
+    // One line, so the bar keeps its height as the reader crosses the edge,
+    // and short-prefixed, so the room goes to the part that identifies the
+    // chapter. The tooltip carries the untruncated title.
+    return Flexible(
+      child: Tooltip(
+        message: forward
+            ? 'Next chapter: $chapterTitle'
+            : 'Previous chapter: $chapterTitle',
+        child: TextButton.icon(
+          onPressed: onPressed,
+          icon: Icon(
+            forward ? Icons.chevron_right : Icons.chevron_left,
+            size: 20,
+          ),
+          iconAlignment: forward ? IconAlignment.end : IconAlignment.start,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            visualDensity: VisualDensity.compact,
+          ),
+          label: Text(
+            forward ? 'Next: $chapterTitle' : 'Previous: $chapterTitle',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: forward ? TextAlign.end : TextAlign.start,
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMessage({
     required IconData icon,
     required String title,
@@ -782,122 +885,127 @@ class _ChapterPageState extends State<ChapterPage>
     final progress =
         pageCount <= 1 ? 1.0 : (_currentPageIndex + 1) / pageCount;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_title),
-        actions: [
-          if (bookSlug != null && bookSlug.trim().isNotEmpty) ...[
-            IconButton(
-              icon: _isSharing
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.share),
-              tooltip: 'Share chapter',
-              onPressed: _isSharing ? null : _shareChapter,
-            ),
-            IconButton(
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Icon(_isSaved ? Icons.download_done : Icons.download),
-              tooltip: _isSaved ? 'Remove offline copy' : 'Save book offline',
-              onPressed: _toggleSave,
-            ),
-          ],
-        ],
-      ),
-      body: FutureBuilder<String>(
-        future: _chapterFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _buildMessage(
-              icon: Icons.cloud_off,
-              title: 'Chapter unavailable',
-              message: 'Check your connection and try again.',
-              actionLabel: 'Retry',
-              onAction: _retry,
-            );
-          }
-          return ResponsiveContent(
-            maxWidth: readingContentWidth,
-            padding: EdgeInsets.zero,
-            child: _buildPagedReader(snapshot.data ?? ''),
-          );
-        },
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            LinearProgressIndicator(
-              value: _paginationReady ? progress : null,
-              minHeight: 2,
-              backgroundColor: theme.dividerColor.withValues(alpha: 0.3),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
-              child: Row(
-                children: [
-                  IconButton(
-                    tooltip: _paginationReady &&
-                            _currentPageIndex == 0 &&
-                            _hasPreviousChapter
-                        ? 'Previous chapter'
-                        : 'Previous page',
-                    icon: const Icon(Icons.chevron_left),
-                    onPressed: _canGoBack ? _goToPreviousPage : null,
-                  ),
-                  if (_paginationReady)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text(
-                        '${_currentPageIndex + 1} / $pageCount',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    )
-                  else
-                    const SizedBox(width: 48),
-                  IconButton(
-                    tooltip: _paginationReady &&
-                            _currentPageIndex == pageCount - 1 &&
-                            _hasNextChapter
-                        ? 'Next chapter'
-                        : 'Next page',
-                    icon: const Icon(Icons.chevron_right),
-                    onPressed: _canGoForward ? _goToNextPage : null,
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    tooltip: 'Decrease font size',
-                    icon: const Icon(Icons.text_decrease),
-                    onPressed: _readerFontSize <= _minFontSize
-                        ? null
-                        : () => _changeFontSize(-1),
-                  ),
-                  Text(
-                    '${_readerFontSize.round()}',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  IconButton(
-                    tooltip: 'Increase font size',
-                    icon: const Icon(Icons.text_increase),
-                    onPressed: _readerFontSize >= _maxFontSize
-                        ? null
-                        : () => _changeFontSize(1),
-                  ),
-                ],
+    return Focus(
+      focusNode: _keyboardFocusNode,
+      autofocus: true,
+      onKeyEvent: _onKeyEvent,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_title),
+          actions: [
+            if (bookSlug != null && bookSlug.trim().isNotEmpty) ...[
+              IconButton(
+                icon: _isSharing
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.share),
+                tooltip: 'Share chapter',
+                onPressed: _isSharing ? null : _shareChapter,
               ),
-            ),
+              IconButton(
+                icon: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(_isSaved ? Icons.download_done : Icons.download),
+                tooltip: _isSaved ? 'Remove offline copy' : 'Save book offline',
+                onPressed: _toggleSave,
+              ),
+            ],
           ],
+        ),
+        body: FutureBuilder<String>(
+          future: _chapterFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return _buildMessage(
+                icon: Icons.cloud_off,
+                title: 'Chapter unavailable',
+                message: 'Check your connection and try again.',
+                actionLabel: 'Retry',
+                onAction: _retry,
+              );
+            }
+            return ResponsiveContent(
+              maxWidth: readingContentWidth,
+              padding: EdgeInsets.zero,
+              child: _buildPagedReader(snapshot.data ?? ''),
+            );
+          },
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(
+                value: _paginationReady ? progress : null,
+                minHeight: 2,
+                backgroundColor: theme.dividerColor.withValues(alpha: 0.3),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
+                child: Row(
+                  children: [
+                    // The navigation controls take whatever room is left over
+                    // once the font controls have theirs: on an edge page they
+                    // grow into a labelled button, and the label is the part
+                    // that needs the space.
+                    Expanded(
+                      child: Row(
+                        children: [
+                          _buildPageNavControl(
+                            forward: false,
+                            pageCount: pageCount,
+                          ),
+                          if (_paginationReady)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: Text(
+                                '${_currentPageIndex + 1} / $pageCount',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                            )
+                          else
+                            const SizedBox(width: 48),
+                          _buildPageNavControl(
+                            forward: true,
+                            pageCount: pageCount,
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Decrease font size',
+                      icon: const Icon(Icons.text_decrease),
+                      onPressed: _readerFontSize <= _minFontSize
+                          ? null
+                          : () => _changeFontSize(-1),
+                    ),
+                    Text(
+                      '${_readerFontSize.round()}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    IconButton(
+                      tooltip: 'Increase font size',
+                      icon: const Icon(Icons.text_increase),
+                      onPressed: _readerFontSize >= _maxFontSize
+                          ? null
+                          : () => _changeFontSize(1),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

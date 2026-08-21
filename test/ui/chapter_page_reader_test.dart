@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -185,6 +186,127 @@ void main() {
       }, timeout: const Timeout(Duration(minutes: 5)));
     }
   }
+
+  /// Puts the reader on screen over [chapterSlug], paginated and ready.
+  Future<void> pumpReader(
+    WidgetTester tester, {
+    required String chapterSlug,
+    required List<UidTitleData> chapters,
+    required int chapterIndex,
+  }) async {
+    await tester.pumpWidget(MaterialApp(
+      home: ChapterPage(
+        '$bookSlug/$chapterSlug',
+        'A Chapter',
+        bookSlug: bookSlug,
+        chapters: chapters,
+        chapterIndex: chapterIndex,
+        initialFontSize: 16,
+      ),
+    ));
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+  }
+
+  testWidgets('the arrow keys turn pages', (tester) async {
+    tester.view.physicalSize = const Size(393, 852);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const chapterSlug = 'arrow-keys';
+    seedChapter(chapterSlug, 'numbered_list.md');
+    await tester
+        .runAsync(() => LibraryService.loadChapterMarkdown('$bookSlug/$chapterSlug'));
+
+    await pumpReader(
+      tester,
+      chapterSlug: chapterSlug,
+      chapters: [UidTitleData(chapterSlug, 'A Chapter')],
+      chapterIndex: 0,
+    );
+    expect(readCounter(tester).page, 1);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pumpAndSettle();
+    expect(readCounter(tester).page, 2,
+        reason: 'the right arrow should turn to the next page');
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.pumpAndSettle();
+    expect(readCounter(tester).page, 1,
+        reason: 'the left arrow should turn back a page');
+
+    expect(tester.takeException(), isNull);
+  }, timeout: const Timeout(Duration(minutes: 5)));
+
+  testWidgets('the edge pages name the chapter their control leads to',
+      (tester) async {
+    tester.view.physicalSize = const Size(393, 852);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const chapterSlug = 'edge-pages';
+    const previousSlug = 'edge-pages-before';
+    const nextSlug = 'edge-pages-after';
+    for (final slug in [chapterSlug, previousSlug, nextSlug]) {
+      seedChapter(slug, 'numbered_list.md');
+      // Warmed so the reader's prefetch of its neighbours is a cache hit
+      // rather than a request the test would have to wait on.
+      await tester
+          .runAsync(() => LibraryService.loadChapterMarkdown('$bookSlug/$slug'));
+    }
+
+    await pumpReader(
+      tester,
+      chapterSlug: chapterSlug,
+      chapters: [
+        UidTitleData(previousSlug, 'The Chapter Before'),
+        UidTitleData(chapterSlug, 'A Chapter'),
+        UidTitleData(nextSlug, 'The Chapter After'),
+      ],
+      chapterIndex: 1,
+    );
+
+    // Page one: back leaves the chapter, so it says where it goes; forward is
+    // still just another page of this chapter. The controls are matched by
+    // tooltip — the chapter handoff page carries the same words in its text.
+    expect(find.byTooltip('Previous chapter: The Chapter Before'),
+        findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(TextButton),
+        matching: find.text('Previous: The Chapter Before'),
+      ),
+      findsOneWidget,
+      reason: 'the control should name the chapter it leads to',
+    );
+    expect(find.byTooltip('Next page'), findsOneWidget);
+    expect(find.byTooltip('Next chapter: The Chapter After'), findsNothing);
+
+    // Read to the last page, where it is the other way round.
+    final total = readCounter(tester).total;
+    for (var page = 1; page < total; page++) {
+      await tapToTurn(tester, Duration(seconds: page));
+      await tester.pumpAndSettle();
+    }
+    expect(readCounter(tester).page, total);
+
+    expect(find.byTooltip('Next chapter: The Chapter After'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(TextButton),
+        matching: find.text('Next: The Chapter After'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('Previous page'), findsOneWidget);
+    expect(find.byTooltip('Previous chapter: The Chapter Before'), findsNothing);
+
+    expect(tester.takeException(), isNull);
+  }, timeout: const Timeout(Duration(minutes: 5)));
 
   testWidgets('changing the font size re-cuts the pages and stays put',
       (tester) async {
