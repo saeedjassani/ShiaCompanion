@@ -818,10 +818,14 @@ class _ChapterPageState extends State<ChapterPage>
       );
     }
 
-    final label = forward ? 'Next chapter' : 'Previous chapter';
+    // One line, so the bar keeps its height as the reader crosses the edge,
+    // and short-prefixed, so the room goes to the part that identifies the
+    // chapter. The tooltip carries the untruncated title.
     return Flexible(
       child: Tooltip(
-        message: '$label: $chapterTitle',
+        message: forward
+            ? 'Next chapter: $chapterTitle'
+            : 'Previous chapter: $chapterTitle',
         child: TextButton.icon(
           onPressed: onPressed,
           icon: Icon(
@@ -833,25 +837,12 @@ class _ChapterPageState extends State<ChapterPage>
             padding: const EdgeInsets.symmetric(horizontal: 8),
             visualDensity: VisualDensity.compact,
           ),
-          label: Column(
-            crossAxisAlignment: forward
-                ? CrossAxisAlignment.end
-                : CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              Text(
-                chapterTitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-            ],
+          label: Text(
+            forward ? 'Next: $chapterTitle' : 'Previous: $chapterTitle',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: forward ? TextAlign.end : TextAlign.start,
+            style: Theme.of(context).textTheme.labelLarge,
           ),
         ),
       ),

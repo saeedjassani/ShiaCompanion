@@ -278,7 +278,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(TextButton),
-        matching: find.text('The Chapter Before'),
+        matching: find.text('Previous: The Chapter Before'),
       ),
       findsOneWidget,
       reason: 'the control should name the chapter it leads to',
@@ -298,7 +298,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(TextButton),
-        matching: find.text('The Chapter After'),
+        matching: find.text('Next: The Chapter After'),
       ),
       findsOneWidget,
     );
