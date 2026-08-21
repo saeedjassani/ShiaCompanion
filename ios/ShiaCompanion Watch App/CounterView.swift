@@ -192,6 +192,7 @@ struct CounterView: View {
         VStack(spacing: 6) {
             targetButton
             dial
+                .frame(height: dialDiameter)
             controls
         }
         .padding(.horizontal, 6)
@@ -300,37 +301,63 @@ struct CounterView: View {
         .accessibilityValue("Count \(model.count)")
     }
 
+    /// Sized from the device rather than from the space the parent has left over:
+    /// watchOS lays navigation content out in a scrolling container, so it proposes an
+    /// unbounded height and a `maxHeight: .infinity` dial collapses to its ideal size —
+    /// which is how the ring ended up a fraction of the screen with the rest of it empty
+    /// below the controls. The fractions leave room for the target button above and the
+    /// minus/reset row below at every watch size.
+    private var dialDiameter: CGFloat {
+        let screen = WKInterfaceDevice.current().screenBounds.size
+        return min(screen.width * 0.58, screen.height * 0.37)
+    }
+
+    /// The label is measured against the ring rather than set in fixed points, so it holds
+    /// its proportions from the 40mm watch up to the Ultra. At a fixed 42pt count and 9pt
+    /// caption it did not: on every size where the ring came out small the count filled it
+    /// and the caption wrapped to three lines and spilled past the stroke.
     private var dialFace: some View {
-        ZStack {
-            // Doubles as the focus indicator: `.plain` draws no focus ring of its own, and
-            // a lost focus is otherwise invisible right up until a pinch does nothing.
-            Circle()
-                .fill(Color.accentColor.opacity(focus == .dial ? 0.22 : 0.08))
+        GeometryReader { proxy in
+            let diameter = min(proxy.size.width, proxy.size.height)
 
-            // Always present, trimmed to nothing when there is no target, so switching
-            // targets does not restructure the focused button's label.
-            Circle()
-                .trim(from: 0, to: model.target > 0 ? model.progress : 0)
-                .stroke(
-                    Color.accentColor,
-                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
-                )
-                .rotationEffect(.degrees(-90))
-                .padding(2)
-                .animation(.easeOut(duration: 0.15), value: model.progress)
+            ZStack {
+                // Doubles as the focus indicator: `.plain` draws no focus ring of its own, and
+                // a lost focus is otherwise invisible right up until a pinch does nothing.
+                Circle()
+                    .fill(Color.accentColor.opacity(focus == .dial ? 0.22 : 0.08))
 
-            VStack(spacing: 0) {
-                Text("\(model.count)")
-                    .font(.system(size: 42, weight: .bold, design: .rounded))
-                    .minimumScaleFactor(0.4)
-                    .lineLimit(1)
-                Text("Tap · Pinch · Crown")
-                    .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                // Always present, trimmed to nothing when there is no target, so switching
+                // targets does not restructure the focused button's label.
+                Circle()
+                    .trim(from: 0, to: model.target > 0 ? model.progress : 0)
+                    .stroke(
+                        Color.accentColor,
+                        style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .padding(2)
+                    .animation(.easeOut(duration: 0.15), value: model.progress)
+
+                VStack(spacing: 0) {
+                    Text("\(model.count)")
+                        .font(.system(size: diameter * 0.34, weight: .bold, design: .rounded))
+                        .minimumScaleFactor(0.4)
+                        .lineLimit(1)
+                    // One line, always: wrapped, the caption is what pushed the label out
+                    // of the ring, and it is a hint rather than something to be read closely.
+                    Text("Tap · Pinch · Crown")
+                        .font(.system(size: max(diameter * 0.085, 7)))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                }
+                // The square that fits inside the ring, so the label clears the stroke at
+                // any diameter instead of relying on a fixed inset.
+                .frame(width: diameter * 0.707)
             }
-            .padding(.horizontal, 16)
+            .frame(width: diameter, height: diameter)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity)
         .aspectRatio(1, contentMode: .fit)
         .contentShape(Rectangle())
     }
