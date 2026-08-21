@@ -70,7 +70,7 @@ struct ContentView: View {
                 .font(.caption)
         }
         .buttonStyle(.bordered)
-        .padding(.horizontal)
+        .padding(.horizontal, Self.gutter)
         .padding(.bottom, 4)
     }
 
@@ -85,7 +85,7 @@ struct ContentView: View {
                     Text(prayerModel.location)
                         .font(.caption2)
                         .foregroundColor(.secondary)
-                        .lineLimit(1)
+                        .lineLimit(2)
                 }
                 .padding(.top, 4)
             }
@@ -99,9 +99,13 @@ struct ContentView: View {
                     Text(prayerModel.nextPrayerName)
                         .font(.headline)
                         .foregroundColor(.accentColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
                     Text(prayerModel.nextPrayerTime)
                         .font(.title2)
                         .fontWeight(.bold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                     if let date = prayerModel.nextPrayerDate {
                         Text(date, style: .relative)
                             .font(.caption2)
@@ -127,7 +131,7 @@ struct ContentView: View {
 
                         if index < prayerModel.prayerEntries.count - 1 {
                             Divider()
-                                .padding(.leading, 40)
+                                .padding(.leading, 34)
                         }
                     }
                 }
@@ -153,8 +157,13 @@ struct ContentView: View {
                     .multilineTextAlignment(.center)
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, Self.gutter)
     }
+
+    /// Explicit rather than `.padding(.horizontal)`: the default is a platform-defined
+    /// amount, and on a 162pt screen the difference between 8 and 16 a side is a tenth
+    /// of the row the prayer times have to fit in.
+    static let gutter: CGFloat = 8
 
     private var nextPrayerHeading: String {
         let label = prayerModel.nextPrayerDayLabel
@@ -213,38 +222,73 @@ struct SyncPromptView: View {
 
 /// One upcoming time. The day label only appears once the list has rolled past
 /// midnight, so a today-only list reads exactly as it did before.
+///
+/// `.footnote`, not `.body`: an icon, a name and a time side by side on a 162pt screen
+/// come to more than the row holds at `.body`'s 17pt, and the name was the one losing
+/// its tail — measured truncating on every watch up to 45mm at the default text size.
+/// The time carries the layout priority, because a shortened name ("Maghri…") is still
+/// recognisable and a shortened time is not.
 struct PrayerRow: View {
     let entry: UpcomingPrayerRow
     let isNext: Bool
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
         HStack(spacing: 0) {
             PrayerIcon(prayerName: entry.name)
-                .frame(width: 24, height: 24)
-                .padding(.trailing, 8)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(entry.name)
-                    .font(.body)
-                    .foregroundColor(isNext ? .accentColor : .primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                if !entry.dayLabel.isEmpty {
-                    Text(entry.dayLabel)
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
+                .frame(width: 22, height: 22)
+                .padding(.trailing, 6)
+
+            if dynamicTypeSize >= .xxxLarge {
+                // From xxxLarge up the two never fit on one line however far they
+                // shrink, so the time goes under the name instead of being elided.
+                // The threshold is a size below the accessibility ones because that is
+                // where the measurements say the row gives out, not where the API
+                // happens to draw its line.
+                VStack(alignment: .leading, spacing: 0) {
+                    name
+                    day
+                    time
                 }
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    name
+                    day
+                }
+                Spacer(minLength: 4)
+                time.layoutPriority(1)
             }
-            Spacer(minLength: 4)
-            Text(entry.time)
-                .font(.body)
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
         }
         .padding(.vertical, 6)
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 6)
+    }
+
+    private var name: some View {
+        Text(entry.name)
+            .font(.footnote)
+            .foregroundColor(isNext ? .accentColor : .primary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+    }
+
+    @ViewBuilder
+    private var day: some View {
+        if !entry.dayLabel.isEmpty {
+            Text(entry.dayLabel)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+    }
+
+    private var time: some View {
+        Text(entry.time)
+            .font(.footnote.weight(.semibold))
+            .foregroundColor(.primary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
     }
 }
 

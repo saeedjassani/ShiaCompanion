@@ -387,11 +387,14 @@ private struct DialFace: View {
                     .font(.system(size: 42, weight: .bold, design: .rounded))
                     .minimumScaleFactor(0.4)
                     .lineLimit(1)
-                Text("Tap · Pinch · Crown")
+                // Two words, not three: the dial is height-limited on every watch —
+                // 108pt across on a 40mm — and the full list wrapped to two lines inside
+                // it, which pushed the count off centre.
+                Text("Tap · Pinch")
                     .font(.system(size: 9))
                     .foregroundColor(.secondary)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 10)
         }
         .frame(maxWidth: .infinity)
         .aspectRatio(1, contentMode: .fit)
