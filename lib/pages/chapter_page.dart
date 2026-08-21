@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/library_progress_store.dart';
@@ -11,6 +10,7 @@ import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/markdown_block.dart';
 import 'package:shia_companion/utils/markdown_block_parser.dart';
 import 'package:shia_companion/utils/reader_layout.dart';
+import 'package:shia_companion/utils/reader_style.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
@@ -47,7 +47,6 @@ class _ChapterPageState extends State<ChapterPage>
     with WidgetsBindingObserver, RouteAware {
   static const double _minFontSize = 14;
   static const double _maxFontSize = 28;
-  static const double _lineHeight = 1.55;
 
   // A glance at a chapter (e.g. following a link and backing straight out)
   // shouldn't register as "reading" and surface a Continue Reading entry for
@@ -453,41 +452,6 @@ class _ChapterPageState extends State<ChapterPage>
     _scheduleCurrentWebRouteSync(replace: true);
   }
 
-  MarkdownStyleSheet _readerStyleSheet(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-      // Justified body text is what makes a page read like a printed book
-      // rather than a web page. WrapAlignment.spaceBetween is how
-      // flutter_markdown_plus spells TextAlign.justify. Headings and list items
-      // stay ragged-right — justifying short lines just stretches them.
-      textAlign: WrapAlignment.spaceBetween,
-      blockquoteAlign: WrapAlignment.spaceBetween,
-      p: textTheme.bodyLarge?.copyWith(
-        fontSize: _readerFontSize,
-        height: _lineHeight,
-      ),
-      h1: textTheme.headlineSmall?.copyWith(fontSize: _readerFontSize + 8),
-      h2: textTheme.titleLarge?.copyWith(fontSize: _readerFontSize + 5),
-      h3: textTheme.titleMedium?.copyWith(fontSize: _readerFontSize + 3),
-      h4: textTheme.titleSmall?.copyWith(fontSize: _readerFontSize + 2),
-      h5: textTheme.titleSmall?.copyWith(fontSize: _readerFontSize + 1),
-      h6: textTheme.titleSmall?.copyWith(fontSize: _readerFontSize),
-      blockquote: textTheme.bodyLarge?.copyWith(
-        fontSize: _readerFontSize,
-        height: _lineHeight,
-        fontStyle: FontStyle.italic,
-      ),
-      code: textTheme.bodyMedium?.copyWith(
-        fontSize: _readerFontSize - 2,
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-      ),
-      a: textTheme.bodyLarge?.copyWith(
-        fontSize: _readerFontSize,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-    );
-  }
-
   Widget _buildPagedReader(String chapterMarkdown) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -608,7 +572,7 @@ class _ChapterPageState extends State<ChapterPage>
                   columnKey: _measureColumnKey!,
                   blocks: _blocks,
                   blockKeys: _measureBlockKeys,
-                  styleSheet: _readerStyleSheet(context),
+                  styleSheet: readerStyleSheet(context, fontSize: _readerFontSize),
                 ),
               ),
             ),
@@ -752,7 +716,7 @@ class _ChapterPageState extends State<ChapterPage>
           blocks: _blocks,
           page: pagination.pages[pageIndex],
           pageHeight: _pageHeight,
-          styleSheet: _readerStyleSheet(context),
+          styleSheet: readerStyleSheet(context, fontSize: _readerFontSize),
         ),
       ),
     );
