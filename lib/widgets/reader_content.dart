@@ -3,6 +3,7 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
 import '../utils/markdown_block.dart';
 import '../utils/reader_layout.dart';
+import '../utils/reader_style.dart';
 
 /// One block of a chapter, as both the measuring pass and the pages build it.
 ///
@@ -22,6 +23,13 @@ class ReaderBlockView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Derived here rather than passed in, so the measuring pass and the pages
+    // cannot end up holding different styles for the same block: both build
+    // through this one widget, from the same block and the same base sheet.
+    final sheet = block.textDirection == TextDirection.rtl
+        ? rtlReaderStyleSheet(styleSheet)
+        : styleSheet;
+
     return Padding(
       padding: EdgeInsets.only(
         top: block.blockTopMargin,
@@ -37,7 +45,7 @@ class ReaderBlockView extends StatelessWidget {
           // metrics to itself — measurement could then neither see the lines
           // nor trust the width they were broken at.
           selectable: false,
-          styleSheet: styleSheet,
+          styleSheet: sheet,
         ),
       ),
     );
@@ -76,7 +84,12 @@ class ReaderMeasureColumn extends StatelessWidget {
       child: Column(
         key: columnKey,
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        // Stretch, not start: a block that shrank to its text would sit against
+        // the left margin whatever its direction, leaving a short Arabic quote
+        // floating in the middle of the page with its rule beside it. At full
+        // width the block's own Directionality puts the text — and the rule —
+        // on the correct side.
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < blocks.length; i++)
             KeyedSubtree(
@@ -131,7 +144,9 @@ class ReaderPageWindow extends StatelessWidget {
                 offset: Offset(0, -page.contentOffset),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // Matches ReaderMeasureColumn; see the note there. The pages
+                  // must lay blocks out exactly as the measuring pass did.
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (var i = page.firstBlock;
                         i <= page.lastBlock && i < blocks.length;

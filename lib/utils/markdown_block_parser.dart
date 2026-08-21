@@ -21,6 +21,18 @@ class MarkdownBlockParser {
     r']',
   );
 
+  /// Characters that carry no direction of their own: whitespace, digits in
+  /// any script (ASCII, Arabic-Indic and extended Arabic-Indic), punctuation,
+  /// symbols and combining marks.
+  static final RegExp _weakOrNeutralPattern = RegExp(
+    r'[\s\d\u0660-\u0669\u06F0-\u06F9\p{P}\p{S}\p{M}]',
+    unicode: true,
+  );
+
+  /// Any letter, in any script — the only class of character strong enough to
+  /// set a block's direction.
+  static final RegExp _letterPattern = RegExp(r'\p{L}', unicode: true);
+
   static final RegExp _blankLineSplit = RegExp(r'\n\s*\n');
 
   /// Matches a single "soft" line break within a block (as opposed to the
@@ -180,62 +192,34 @@ class MarkdownBlockParser {
 
   /// Detect the text direction of a block's content.
   ///
-  /// Returns [TextDirection.rtl] if the first non-whitespace character
-  /// belongs to a right-to-left script, otherwise [TextDirection.ltr].
+  /// The direction of a block, from the first *strong* character in it.
+  ///
+  /// This is the rule the Unicode bidirectional algorithm uses, and the
+  /// distinction it draws matters here. Digits are weak: they take the
+  /// direction of the text around them instead of setting it. So does
+  /// punctuation, and so do the harakat that sit on Arabic letters. Only a
+  /// letter is strong enough to decide.
+  ///
+  /// Skipping digits is not a nicety. The library numbers its quotations —
+  /// `> 1ـ الدُّنْيا دارُ مَمَرٍّ` opens thousands of aphorisms in Ghurar
+  /// al-Hikam alone — and treating that leading `1` as strong laid every one
+  /// of them out left to right.
   static TextDirection _detectTextDirection(String text) {
-    // Find the first significant character (non-whitespace, non-punctuation)
     for (var i = 0; i < text.length && i < 500; i++) {
       final char = text[i];
+      // Weak or neutral: whitespace, digits in any script, punctuation,
+      // symbols, and combining marks. None of these set a direction.
+      if (_weakOrNeutralPattern.hasMatch(char)) {
+        continue;
+      }
       if (_rtlCharPattern.hasMatch(char)) {
         return TextDirection.rtl;
       }
-      // Skip whitespace and common ASCII punctuation
-      if (char.trim().isEmpty || _isAsciiPunctuation(char)) {
-        continue;
+      if (_letterPattern.hasMatch(char)) {
+        return TextDirection.ltr;
       }
-      // First non-whitespace, non-punctuation character is LTR
-      return TextDirection.ltr;
     }
     return TextDirection.ltr;
   }
 
-  static bool _isAsciiPunctuation(String char) {
-    // Use code-unit checks to avoid const string escaping issues.
-    for (final c in char.codeUnits) {
-      if (c == 46 ||
-          c == 44 ||
-          c == 59 ||
-          c == 58 ||
-          c == 33 ||
-          c == 63 ||
-          c == 45 ||
-          c == 34 ||
-          c == 39 ||
-          c == 40 ||
-          c == 41 ||
-          c == 91 ||
-          c == 93 ||
-          c == 123 ||
-          c == 125 ||
-          c == 60 ||
-          c == 62 ||
-          c == 47 ||
-          c == 64 ||
-          c == 35 ||
-          c == 36 ||
-          c == 37 ||
-          c == 94 ||
-          c == 38 ||
-          c == 42 ||
-          c == 95 ||
-          c == 126 ||
-          c == 96 ||
-          c == 43 ||
-          c == 61 ||
-          c == 124) {
-        return true;
-      }
-    }
-    return false;
-  }
 }
