@@ -4,7 +4,14 @@ class UidTitleData {
   String uid;
   String title;
 
-  UidTitleData(this.uid, this.title);
+  /// Who wrote it, shown under the title in the library list.
+  ///
+  /// Optional because it only applies to books, and because the library's own
+  /// metadata does not name an author for every one of them — some credit only
+  /// a compiler, a translator or a publisher, and a few credit nobody.
+  final String? author;
+
+  UidTitleData(this.uid, this.title, {this.author});
 
   // All UID must end with and integer which is used for sorting.
   // ~ in UID indicates that it is a List of Items
