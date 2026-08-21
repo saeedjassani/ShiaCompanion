@@ -38,13 +38,49 @@ class LibraryService {
           final slug = book['slug']?.toString().trim() ?? '';
           final title = book['title']?.toString().trim() ?? '';
           if (slug.isEmpty || title.isEmpty) return null;
-          return UidTitleData(slug, title);
+          final author = book['author']?.toString().trim();
+          return UidTitleData(
+            slug,
+            title,
+            author: (author == null || author.isEmpty) ? null : author,
+          );
         })
         .whereType<UidTitleData>()
         .toList(growable: false);
 
     _cachedBooks = books;
     return books;
+  }
+
+  /// Where a book that has been retired from the library now lives.
+  ///
+  /// Some books were in the library twice, scraped from two sites, and the
+  /// duplicate has since been removed. A slug is not just a name: it is the
+  /// deep-link path, and the key reading progress, favourites and offline
+  /// copies are stored under. So a link or a saved position pointing at a
+  /// retired book has to land on the copy that survived rather than 404.
+  static Map<String, String>? _retiredSlugs;
+
+  static Future<void> _loadRetiredSlugs() async {
+    if (_retiredSlugs != null) return;
+    try {
+      final encoded =
+          await rootBundle.loadString('assets/retired_slugs.json');
+      final decoded = json.decode(encoded);
+      _retiredSlugs = decoded is Map
+          ? decoded.map((k, v) => MapEntry(k.toString(), v.toString()))
+          : <String, String>{};
+    } catch (_) {
+      // A missing or malformed map must not take the library down with it;
+      // every live slug still resolves to itself.
+      _retiredSlugs = <String, String>{};
+    }
+  }
+
+  /// [bookSlug] itself, or the slug that replaced it if it has been retired.
+  static Future<String> resolveBookSlug(String bookSlug) async {
+    await _loadRetiredSlugs();
+    return _retiredSlugs?[bookSlug] ?? bookSlug;
   }
 
   static Future<List<UidTitleData>> loadChapters(String bookSlug) async {

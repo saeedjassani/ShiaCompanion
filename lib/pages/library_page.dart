@@ -251,9 +251,18 @@ class _BookTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final author = book.author;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       title: Text(book.title),
+      // The library holds several works under near-identical titles — separate
+      // translations of the same book, most often — so the author is what tells
+      // two rows apart. Not every book names one, and those rows simply have no
+      // subtitle rather than a placeholder.
+      subtitle: author == null
+          ? null
+          : Text(author, maxLines: 2, overflow: TextOverflow.ellipsis),
       onTap: () => handleUniversalDataClick(context, itemData),
       trailing: Wrap(
         spacing: 12,

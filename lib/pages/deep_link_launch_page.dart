@@ -75,7 +75,10 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
   }
 
   Future<Widget?> _resolveLibraryDestination() async {
-    final bookSlug = widget.target.segments.first;
+    // A retired duplicate's slug still resolves, to the copy that survived, so
+    // old links and saved positions do not dead-end.
+    final bookSlug =
+        await LibraryService.resolveBookSlug(widget.target.segments.first);
     final chapterSlug =
         widget.target.segments.length > 1 ? widget.target.segments[1] : null;
 
