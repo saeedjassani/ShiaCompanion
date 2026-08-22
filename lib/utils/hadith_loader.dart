@@ -33,6 +33,15 @@ class HadithAssetLocation {
   final int itemIndex;
 }
 
+/// A seed that is stable for an entire UTC calendar day, so every user sees
+/// the same "hadith of the day" instead of a new random quote on every app
+/// launch. Pass [now] in tests to control which day is used.
+int dailyHadithSeed([DateTime? now]) {
+  final utcNow = (now ?? DateTime.now()).toUtc();
+  final dayStart = DateTime.utc(utcNow.year, utcNow.month, utcNow.day);
+  return dayStart.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
+}
+
 HadithAssetLocation locateHadithAsset(int quoteIndex, int shardSize) {
   final shardIndex = quoteIndex ~/ shardSize;
   return HadithAssetLocation(
