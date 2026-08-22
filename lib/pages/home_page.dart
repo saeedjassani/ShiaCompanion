@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
@@ -712,6 +713,7 @@ class _MyHomePageState extends State<MyHomePage>
     hadith = await loadRandomHadith(
       DefaultAssetBundle.of(context),
       useMuharramQuotes: useMuharramQuotes,
+      random: Random(dailyHadithSeed()),
     );
     if (!mounted) return;
     setState(() {});
