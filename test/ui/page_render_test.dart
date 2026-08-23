@@ -18,8 +18,9 @@ import 'firebase_test_doubles.dart';
 /// maintain. Pixel-level regressions on the web build are covered separately by
 /// the Playwright suite in test_visual/.
 ///
-/// The screen list is [homeMenuItems] itself rather than a copy, so a new menu
-/// entry is covered the day it is added and cannot be forgotten here.
+/// The screen list is [allHomeMenuItems] itself rather than a copy, so a new
+/// menu entry — admin-gated ones included — is covered the day it is added and
+/// cannot be forgotten here.
 void main() {
   setUpAll(() async {
     // The app initialises SP before runApp; screens read SP.prefs directly and
@@ -74,7 +75,7 @@ class _Viewport {
 const Set<String> _unrenderableMenuScreens = {'Qibla Finder'};
 
 final List<_Screen> _screens = [
-  for (final item in homeMenuItems)
+  for (final item in allHomeMenuItems)
     if (!_unrenderableMenuScreens.contains(item.label))
       _Screen(item.label, item.buildPage),
   // Reachable from the app bar rather than the menu.

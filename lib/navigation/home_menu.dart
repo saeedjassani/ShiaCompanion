@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 import '../services/analytics_service.dart';
+import '../pages/admin/usage_dashboard_page.dart';
 import '../pages/calendar_page.dart';
 import '../pages/favorites_page.dart';
 import '../pages/flights_page.dart';
@@ -27,21 +28,29 @@ class HomeMenuItem {
     required this.label,
     required this.icon,
     required this.pageBuilder,
+    this.countsAsFeatureUse = true,
   });
 
   final String label;
   final IconData icon;
   final HomeMenuPageBuilder pageBuilder;
 
+  /// False for admin tools. The usage dashboard would otherwise appear in the
+  /// feature ranking it exists to display, and every visit to check the numbers
+  /// would change them.
+  final bool countsAsFeatureUse;
+
   Widget buildPage() {
     // Every home menu feature is opened through here, so one hook ranks Qibla,
     // Tasbeeh, Qaza, Calendar and the rest against each other without each page
     // needing its own event.
-    AnalyticsService.feature(
-      'home_menu_$analyticsId',
-      label: label,
-      parameters: {'menu_item': label},
-    );
+    if (countsAsFeatureUse) {
+      AnalyticsService.feature(
+        'home_menu_$analyticsId',
+        label: label,
+        parameters: {'menu_item': label},
+      );
+    }
     return pageBuilder();
   }
 
@@ -155,6 +164,27 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     ),
   ),
 ]);
+
+/// Menu entries only an admin sees. Kept out of [homeMenuItems] so the grid
+/// every user gets stays a compile-time constant, and so admin state — which
+/// arrives after the session refresh, not at startup — is read at build time.
+final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
+  HomeMenuItem(
+    label: 'Usage',
+    icon: Icons.query_stats,
+    pageBuilder: () => const UsageDashboardPage(),
+    countsAsFeatureUse: false,
+  ),
+]);
+
+/// Every menu screen there is, admin-gated ones included, so the render test
+/// covers an admin entry the same day it is added.
+final List<HomeMenuItem> allHomeMenuItems =
+    List.unmodifiable([...homeMenuItems, ...adminHomeMenuItems]);
+
+/// What the home grid shows right now, which depends on who is signed in.
+List<HomeMenuItem> get visibleHomeMenuItems =>
+    isUserAdmin ? allHomeMenuItems : homeMenuItems;
 
 HomeMenuItem? getHomeMenuItem(String label) {
   for (final item in homeMenuItems) {
