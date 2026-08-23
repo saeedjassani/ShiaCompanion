@@ -1,0 +1,64 @@
+{
+  "rules": {
+    "new_favs": {
+      ".read": true,
+      "$user_id": {
+        ".write": "$user_id === auth.uid"
+      }
+    },
+    "hadiths": {
+      "$user_id": {
+        ".write": "$user_id === auth.uid",
+        ".read": "$user_id === auth.uid"
+      }
+    },
+    "favorites": {
+      "$user_id": {
+        ".write": "$user_id === auth.uid",
+        ".read": "$user_id === auth.uid"
+      }
+    },
+
+    "usage": {
+      ".read": "auth != null && auth.token.admin === true",
+
+      "totals": {
+        "$metric": {
+          "$key": {
+            ".write": "newData.exists()",
+            ".validate": "$metric.matches(/^(zikr|screen|feature|library|stream)$/) && $key.matches(/^[A-Za-z0-9_~-]{1,60}$/) && newData.isNumber() && newData.val() > 0 && (!data.exists() ? newData.val() === 1 : newData.val() === data.val() + 1)",
+            "$nested": {
+              ".validate": false
+            }
+          }
+        }
+      },
+
+      "daily": {
+        "$day": {
+          "$metric": {
+            "$key": {
+              ".write": "newData.exists()",
+              ".validate": "$day.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) && $metric.matches(/^(zikr|screen|feature|library|stream)$/) && $key.matches(/^[A-Za-z0-9_~-]{1,60}$/) && newData.isNumber() && newData.val() > 0 && (!data.exists() ? newData.val() === 1 : newData.val() === data.val() + 1)",
+              "$nested": {
+                ".validate": false
+              }
+            }
+          }
+        }
+      },
+
+      "labels": {
+        "$metric": {
+          "$key": {
+            ".write": "newData.exists()",
+            ".validate": "$metric.matches(/^(zikr|screen|feature|library|stream)$/) && $key.matches(/^[A-Za-z0-9_~-]{1,60}$/) && newData.isString() && newData.val().length <= 120",
+            "$nested": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    }
+  }
+}
