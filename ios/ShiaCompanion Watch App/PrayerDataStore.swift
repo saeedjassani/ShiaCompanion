@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// Keys shared with the Flutter app (`HomeScreenWidgetService`) and the iOS widgets.
 ///
@@ -124,6 +125,42 @@ nonisolated struct PrayerDataStore: Sendable {
         prayerSchedule.first { $0.date > date }
     }
 
+    /// The next `limit` times from the synced schedule, soonest first.
+    ///
+    /// The schedule the phone publishes already contains only the times chosen in
+    /// Settings, spread over the next eight days, so taking a prefix of it is the same
+    /// rolling window the home card and the prayer times widget show — the list carries
+    /// on into tomorrow rather than emptying out after the day's last prayer.
+    func upcomingPrayers(after date: Date = Date(), limit: Int) -> [PrayerScheduleEntry] {
+        guard limit > 0 else { return [] }
+        return Array(prayerSchedule.lazy.filter { $0.date > date }.prefix(limit))
+    }
+
+    /// How many times the phone's selection holds, so the watch shows the same number of
+    /// columns the phone's card does.
+    ///
+    /// Counted from a day of the published daily schedule rather than sent as its own
+    /// key: the phone already writes one entry per selected time per day, and deriving it
+    /// keeps the two in step without another key to sync. Settings bounds the selection
+    /// to 3–5; anything outside that means a stale or malformed payload, so it falls back
+    /// to the five daily prayers.
+    var selectedPrayerCount: Int {
+        let fallback = 5
+        let counts = dailyPrayerCountsPerDay()
+        guard let count = counts.first(where: { $0 > 0 }) else { return fallback }
+        return (3...5).contains(count) ? count : fallback
+    }
+
+    private func dailyPrayerCountsPerDay() -> [Int] {
+        let raw = string(WatchDataKeys.dailyPrayerSchedule)
+        guard
+            !raw.isEmpty,
+            let data = raw.data(using: .utf8),
+            let days = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+        else { return [] }
+        return days.map { ($0["items"] as? [[String: Any]])?.count ?? 0 }
+    }
+
     /// The five daily prayer times for the given day.
     ///
     /// Prefers the multi-day JSON schedule so the watch rolls over to the next day on
@@ -229,6 +266,82 @@ nonisolated func prayerInitial(for prayerName: String) -> String {
     return trimmed.first.map { String($0).uppercased() } ?? trimmed
 }
 
+/// A prayer name that falls back to its initial rather than to a truncated word.
+///
+/// "Maghri…" is not a shorter way of writing Maghrib — it is a word the reader has to
+/// finish themselves, and a glance at a watch is over before they can. An initial is
+/// unambiguous about being shorthand, and it sits beside a symbol that already says
+/// which part of the day this is.
+///
+/// The rungs are tried widest first, and `ViewThatFits` takes the first that fits the
+/// width it is offered — so nothing is ever shown half-finished.
+///
+/// A smaller type style sits between the whole name and the initial, because a name set
+/// one step down is still the name, while an initial is ambiguous by construction:
+/// Maghrib and Midnight both reduce to "M", and a list can hold both at once. The
+/// initial is the last resort, not the first.
+@MainActor
+struct PrayerNameText: View {
+    let name: String
+    /// "Tomorrow" and the like. The watch list names the day on its own divider, so only
+    /// the complications pass one.
+    var dayLabel: String = ""
+    var font: Font = .footnote
+    /// One step down from `font`, for the middle rung. Both are Dynamic Type styles, so
+    /// the pair keeps its relationship at every text size.
+    var compactFont: Font = .caption2
+    /// Left unset inside complications, where the widget rendering mode owns the colour.
+    var color: Color?
+
+    var body: some View {
+        if #available(watchOS 10.0, *) {
+            let r = paddedRungs
+            ViewThatFits(in: .horizontal) {
+                label(r[0].0, r[0].1)
+                label(r[1].0, r[1].1)
+                label(r[2].0, r[2].1)
+                label(r[3].0, r[3].1)
+                label(r[4].0, r[4].1)
+            }
+        } else {
+            // `ViewThatFits` is watchOS 10. Older watches shrink the name, which is what
+            // they did before this existed.
+            label(paddedRungs[0].0, font).minimumScaleFactor(0.6)
+        }
+    }
+
+    /// Widest first: the name with its day label, the name alone, the name a size down,
+    /// the initial with the label, the initial alone. Rungs that say nothing new are
+    /// dropped, then the list is padded to five so `ViewThatFits` has a fixed set of
+    /// children; the padding repeats the last rung, which changes nothing.
+    private var rungs: [(String, Font)] {
+        let initial = prayerInitial(for: name)
+        let long = dayLabel.isEmpty ? name : "\(name) · \(dayLabel)"
+        var out: [(String, Font)] = [(long, font)]
+        if long != name { out.append((name, font)) }
+        out.append((name, compactFont))
+        if long != name { out.append(("\(initial) · \(dayLabel)", font)) }
+        out.append((initial, font))
+        return out
+    }
+
+    private var paddedRungs: [(String, Font)] {
+        var out = rungs
+        while out.count < 5 { out.append(out[out.count - 1]) }
+        return out
+    }
+
+    @ViewBuilder
+    private func label(_ text: String, _ textFont: Font) -> some View {
+        let base = Text(text).font(textFont).lineLimit(1)
+        if let color {
+            base.foregroundColor(color)
+        } else {
+            base
+        }
+    }
+}
+
 /// SF Symbol for a prayer/period name. Shared by the app and the complication.
 nonisolated func prayerSymbolName(for prayerName: String) -> String {
     let name = prayerName.lowercased()
@@ -236,7 +349,10 @@ nonisolated func prayerSymbolName(for prayerName: String) -> String {
     if name.contains("sunrise") { return "sunrise.fill" }
     if name.contains("zuhr") || name.contains("dhuhr") || name.contains("dhohr") { return "sun.max" }
     if name.contains("asr") { return "sun.min" }
-    if name.contains("maghrib") || name.contains("sunset") { return "sunset" }
+    // Sunset and Maghrib are separate selectable times — Maghrib comes after sunset —
+    // so they cannot share a glyph: a list showing both showed the same icon twice.
+    if name.contains("sunset") { return "sunset" }
+    if name.contains("maghrib") { return "sunset.fill" }
     if name.contains("isha") { return "moon.stars" }
     if name.contains("midnight") { return "moon" }
     return "sun.max"

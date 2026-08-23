@@ -1,0 +1,716 @@
+<title>Complication Fit Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+:root{
+  --ground:#EDF1F3; --panel:#FFFFFF; --panel-2:#F4F7F9; --rule:#D3DBE0;
+  --ink:#141C21; --ink-2:#4A5A63; --ink-3:#7A8B94;
+  --accent:#0E7C8C; --accent-soft:#DCEEF1;
+  --ok:#1F8A5B; --ok-bg:#DFF1E8;
+  --warn:#9A6A05; --warn-bg:#FAEED2;
+  --fail:#B3282E; --fail-bg:#F9DEDF;
+  --oled:#000000; --oled-rule:#2A3238;
+  --shadow:0 1px 2px rgba(20,28,33,.08),0 8px 24px -12px rgba(20,28,33,.25);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0D1215; --panel:#161E23; --panel-2:#1C262C; --rule:#2B383F;
+    --ink:#E6EDF1; --ink-2:#A3B4BD; --ink-3:#71858F;
+    --accent:#4FC3D6; --accent-soft:#12333B;
+    --ok:#5FD3A0; --ok-bg:#123227;
+    --warn:#E8BE5C; --warn-bg:#332A11;
+    --fail:#FF8A8F; --fail-bg:#3A1618;
+    --oled-rule:#39444B;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0D1215; --panel:#161E23; --panel-2:#1C262C; --rule:#2B383F;
+  --ink:#E6EDF1; --ink-2:#A3B4BD; --ink-3:#71858F;
+  --accent:#4FC3D6; --accent-soft:#12333B;
+  --ok:#5FD3A0; --ok-bg:#123227;
+  --warn:#E8BE5C; --warn-bg:#332A11;
+  --fail:#FF8A8F; --fail-bg:#3A1618;
+  --oled-rule:#39444B;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:36px 22px 80px}
+header{border-bottom:1px solid var(--rule);padding-bottom:22px;margin-bottom:24px}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 8px
+}
+h1{font-size:clamp(28px,4vw,38px);line-height:1.1;margin:0 0 10px;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.lede{margin:0;max-width:64ch;color:var(--ink-2);font-size:16px}
+h2{font-size:20px;margin:40px 0 4px;font-weight:600;letter-spacing:-.01em}
+h2 .kindmark{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);letter-spacing:.06em;margin-left:8px;font-weight:400}
+.section-note{margin:0 0 18px;color:var(--ink-2);font-size:14px;max-width:70ch}
+
+.controls{
+  display:flex;flex-wrap:wrap;gap:18px 28px;align-items:flex-end;
+  background:var(--panel);border:1px solid var(--rule);border-radius:10px;
+  padding:14px 16px;box-shadow:var(--shadow);position:sticky;top:0;z-index:5
+}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl-label{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{
+  font:500 12px/1 "IBM Plex Mono",monospace;padding:7px 10px;border-radius:6px;
+  border:1px solid var(--rule);background:var(--panel-2);color:var(--ink-2);cursor:pointer
+}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.card.wide{grid-column:1/-1}
+.card{
+  background:var(--panel);border:1px solid var(--rule);border-radius:10px;
+  padding:14px 14px 12px;box-shadow:var(--shadow);overflow:hidden
+}
+.card h3{
+  margin:0 0 2px;font:600 13px/1.3 "IBM Plex Sans",sans-serif;
+}
+.dims{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);margin:0 0 12px}
+.pair{display:flex;gap:14px;flex-wrap:wrap}
+.spec{flex:1 1 0;min-width:0}
+.spec-head{
+  display:flex;align-items:center;gap:6px;margin-bottom:6px;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)
+}
+.stage{
+  background:var(--oled);border:1px solid var(--oled-rule);border-radius:8px;
+  padding:10px;display:flex;justify-content:center;align-items:center;overflow:auto
+}
+.verdict{
+  display:inline-flex;align-items:center;gap:5px;margin-top:8px;
+  font:600 10px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;
+  padding:5px 7px;border-radius:5px;text-transform:uppercase
+}
+.v-ok{background:var(--ok-bg);color:var(--ok)}
+.v-warn{background:var(--warn-bg);color:var(--warn)}
+.v-fail{background:var(--fail-bg);color:var(--fail)}
+.metrics{margin:6px 0 0;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);line-height:1.5}
+.metrics b{color:var(--ink-2);font-weight:500}
+
+/* --- the rendered complication itself --- */
+.cx{position:relative;color:#fff;font-family:"SF Pro Text",-apple-system,"IBM Plex Sans",sans-serif}
+.cx.rect{display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.cx .row{display:flex;align-items:center;width:100%;min-width:0}
+.cx .row.base{align-items:baseline}
+.cx .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.cx .rounded{font-family:"SF Pro Rounded","SF Pro Text",Nunito,-apple-system,sans-serif}
+.cx .dim{color:rgba(255,255,255,.62)}
+.cx .glyph{flex:none;display:block}
+.circleframe{border-radius:50%;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.circleframe .ring{position:absolute;inset:0;border-radius:50%;border:1px dashed rgba(255,255,255,.22)}
+.chord-guide{position:absolute;border:1px dashed rgba(255,180,80,.55);border-radius:2px;pointer-events:none}
+.acc-bg{position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,.14)}
+.cardbg{position:absolute;inset:0;border-radius:9px;background:rgba(255,255,255,.13)}
+.inset-guide{position:absolute;border:1px dashed rgba(255,255,255,.2);pointer-events:none}
+.overflowmark{outline:1px solid var(--fail);outline-offset:0}
+
+footer{margin-top:52px;border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-2);font-size:13.5px}
+footer h4{font:600 12px/1.4 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+footer ul{margin:0;padding-left:18px}
+footer li{margin-bottom:6px;max-width:78ch}
+code{font-family:"IBM Plex Mono",monospace;font-size:.92em;background:var(--panel-2);border:1px solid var(--rule);border-radius:4px;padding:1px 4px}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">Shia Companion · watchOS</p>
+  <h1>Complication Fit Check</h1>
+  <p class="lede">Every supported family, at Apple's published point dimensions for each watch size, laid out
+  by the same rules as the SwiftUI views and with the text actually measured. Old layout on the left, the one
+  on <code>claude/apple-watch-bugs-bvvcqk</code> on the right.</p>
+</header>
+
+<div class="controls">
+  <div class="ctl">
+    <span class="ctl-label">Watch size</span>
+    <div class="chips" id="watchChips"></div>
+  </div>
+  <div class="ctl">
+    <span class="ctl-label">Content</span>
+    <div class="chips" id="caseChips"></div>
+  </div>
+  <div class="ctl">
+    <span class="ctl-label">Zoom</span>
+    <div class="chips" id="zoomChips"></div>
+  </div>
+</div>
+
+<h2>Up Next<span class="kindmark">NextPrayerComplication</span></h2>
+<p class="section-note">The prayer name, its time, and how long until it. The time is the one thing that must
+survive every family — a complication that shows a truncated time has no reason to be on the face.</p>
+<div class="grid" id="prayerGrid"></div>
+
+<h2>Tasbeeh<span class="kindmark">CounterComplication</span></h2>
+<p class="section-note">The running count, and the target it is counting towards.</p>
+<div class="grid" id="counterGrid"></div>
+
+<footer>
+  <h4>What this is and isn't</h4>
+  <ul>
+    <li><b>Sizes are Apple's, not estimates.</b> Smart Stack / rectangular and the watch screen widths come from
+      the Human Interface Guidelines' watchOS widget dimensions; circular and corner slots from the Complications
+      page. 40mm 152×69.5, 41mm 165×72.5, 44mm 173×76.5, 45mm 184×80.5, 49mm 191×81.5.</li>
+    <li><b>It is a geometry model, not a screenshot.</b> Text is measured with the browser's own metrics. On a Mac
+      or iPhone this page renders in the real SF Pro and SF Rounded, so widths land close to the device; elsewhere
+      the fallback face shifts them a little. Line height is modelled at 1.2× the point size.</li>
+    <li><b>The rectangular content inset is an estimate</b> (4pt, drawn as the dashed guide). Apple publishes the
+      card size, not the inset the container background leaves behind, so treat the vertical verdicts as
+      "comfortable / tight", not as exact pass marks.</li>
+    <li><b>Corner is modelled conservatively.</b> The HIG publishes corner's image and text slots at 20–24pt square,
+      which is the tightest reading of the room available; the real flat-text slot is somewhat more generous. If a
+      layout survives this, it survives the device.</li>
+    <li><b>Not modelled:</b> accessibility text sizes, the tinted rendering mode, and the curved
+      <code>widgetLabel</code> arcs, which no published metric covers.</li>
+  </ul>
+</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- Published geometry (points) -------------------------------------
+  // rect: HIG > Widgets > watchOS dimensions. circular/cornerText: HIG > Complications.
+  const WATCHES = [
+    {id:"40mm", rect:[152,69.5], circular:42,   cornerText:20, screen:162},
+    {id:"41mm", rect:[165,72.5], circular:44.5, cornerText:21, screen:176},
+    {id:"44mm", rect:[173,76.5], circular:47,   cornerText:22, screen:184},
+    {id:"45mm", rect:[184,80.5], circular:50,   cornerText:24, screen:198},
+    {id:"49mm", rect:[191,81.5], circular:50,   cornerText:24, screen:205}
+  ];
+  const RECT_INSET = 4;      // estimated container inset, points
+  const LINE = 1.2;          // line height multiple
+
+  const PRAYER_CASES = {
+    "Typical":   {name:"Asr",      time:"4:15 pm",  compact:"4:15",  day:"Today",    rel:"in 42 min"},
+    "Longest":   {name:"Midnight", time:"11:58 pm", compact:"11:58", day:"Tomorrow", rel:"in 13 hr, 4 min"},
+    "Maghrib":   {name:"Maghrib",  time:"7:30 pm",  compact:"7:30",  day:"Today",    rel:"in 1 hr, 26 min"},
+    "Empty":     {name:"",         time:"",         compact:"--:--", day:"",         rel:"", empty:true,
+                  hint:"Open the iPhone app to sync prayer times."}
+  };
+  const COUNTER_CASES = {
+    "Typical":   {count:21,    target:33,   lap:1, inLap:21},
+    "Longest":   {count:99999, target:1000, lap:100, inLap:999},
+    "Maghrib":   {count:486,   target:0,    lap:1, inLap:486},
+    "Empty":     {count:0,     target:33,   lap:1, inLap:0}
+  };
+
+  const state = {watch:WATCHES[1], caseName:"Longest", zoom:3};
+
+  // ---- Text measurement -------------------------------------------------
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const STACK = '"SF Pro Text",-apple-system,"IBM Plex Sans",sans-serif';
+  const ROUND = '"SF Pro Rounded","SF Pro Text",Nunito,-apple-system,sans-serif';
+
+  function measure(text, size, weight, rounded){
+    ctx.font = weight + " " + size + "px " + (rounded ? ROUND : STACK);
+    return ctx.measureText(text).width;
+  }
+
+  // Mirrors minimumScaleFactor: shrink to fit, floor at minScale, then elide.
+  function fit(text, size, weight, rounded, avail, minScale){
+    const natural = measure(text, size, weight, rounded);
+    if (natural <= avail || !text) return {scale:1, natural, drawn:natural, truncated:false};
+    const needed = avail / natural;
+    if (needed >= minScale) return {scale:needed, natural, drawn:avail, truncated:false};
+    return {scale:minScale, natural, drawn:natural*minScale, truncated:true};
+  }
+
+  // ---- DOM helpers ------------------------------------------------------
+  const px = pt => (pt * state.zoom) + "px";
+  function el(tag, cls, style){
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (style) Object.assign(n.style, style);
+    return n;
+  }
+  function textNode(t, size, weight, rounded, fitres, extraCls){
+    const n = el("span", "t" + (rounded ? " rounded" : "") + (extraCls ? " "+extraCls : ""));
+    n.textContent = t;
+    n.style.fontSize = px(size * (fitres ? fitres.scale : 1));
+    n.style.fontWeight = weight;
+    n.style.lineHeight = LINE;
+    if (fitres && fitres.truncated) n.classList.add("overflowmark");
+    return n;
+  }
+  // Mirrors prayerSymbolName(for:) — the point of drawing these at all is that no two
+  // selectable times share one.
+  function symbolKind(prayerName){
+    const n = (prayerName || "").toLowerCase();
+    if (n.indexOf("fajr") >= 0) return "sunrise";
+    if (n.indexOf("sunrise") >= 0) return "sunriseFill";
+    if (n.indexOf("zuhr") >= 0 || n.indexOf("dhuhr") >= 0 || n.indexOf("dhohr") >= 0) return "sunMax";
+    if (n.indexOf("asr") >= 0) return "sunMin";
+    if (n.indexOf("sunset") >= 0) return "sunset";
+    if (n.indexOf("maghrib") >= 0) return "sunsetFill";
+    if (n.indexOf("isha") >= 0) return "moonStars";
+    if (n.indexOf("midnight") >= 0) return "moon";
+    return "sunMax";
+  }
+  const HORIZON = '<path d="M8 80h84"/>';
+  const ARC = '<path d="M28 80a22 22 0 0 1 44 0"/>';
+  const ARC_FILL = '<path d="M28 80a22 22 0 0 1 44 0z" fill="currentColor" stroke="none"/>';
+  const SYMBOLS = {
+    sunMax:   '<circle cx="50" cy="50" r="17"/><path d="M50 8v13M50 79v13M8 50h13M79 50h13M19 19l9 9M72 72l9 9M81 19l-9 9M28 72l-9 9"/>',
+    sunMin:   '<circle cx="50" cy="50" r="17"/><path d="M50 17v7M50 76v7M17 50h7M76 50h7M26 26l5 5M69 69l5 5M74 26l-5 5M31 69l-5 5"/>',
+    sunrise:  HORIZON + ARC + '<path d="M50 8v24M40 20l10-12 10 12"/>',
+    sunriseFill: HORIZON + ARC_FILL + '<path d="M50 8v24M40 20l10-12 10 12"/>',
+    sunset:   HORIZON + ARC + '<path d="M50 32V8M40 20l10 12 10-12"/>',
+    sunsetFill: HORIZON + ARC_FILL + '<path d="M50 32V8M40 20l10 12 10-12"/>',
+    moon:     '<path d="M64 14a38 38 0 1 0 24 44A30 30 0 0 1 64 14z"/>',
+    moonStars:'<path d="M56 20a32 32 0 1 0 22 38A26 26 0 0 1 56 20z"/><path d="M84 16l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/><path d="M78 48l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>'
+  };
+  // Stand-ins for the SF Symbols: same advance width, and — the part that matters —
+  // a different mark for every time the app can show.
+  function glyph(size, kind){
+    const s = size * 1.15;
+    const n = el("span","glyph",{width:px(s),height:px(s)});
+    if (kind === "tap"){
+      n.innerHTML = '<svg viewBox="0 0 100 100" width="100%" height="100%" fill="currentColor" '
+        + 'aria-hidden="true"><path d="M38 8h12v44h30L44 92V52H20z"/></svg>';
+      return n;
+    }
+    n.innerHTML = '<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true" fill="none" '
+      + 'stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">'
+      + (SYMBOLS[kind] || SYMBOLS.sunMax) + '</svg>';
+    return n;
+  }
+  function verdict(kind, label){
+    const v = el("div","verdict " + (kind==="ok"?"v-ok":kind==="warn"?"v-warn":"v-fail"));
+    v.textContent = label;
+    return v;
+  }
+
+  // ---- Specimen frames --------------------------------------------------
+  function rectFrame(w, h, withBg){
+    const stage = el("div","stage");
+    const outer = el("div",null,{position:"relative",width:px(w),height:px(h),flex:"none"});
+    if (withBg) outer.appendChild(el("div","cardbg"));
+    const guide = el("div","inset-guide",{
+      left:px(RECT_INSET), top:px(RECT_INSET),
+      width:px(w-2*RECT_INSET), height:px(h-2*RECT_INSET)
+    });
+    outer.appendChild(guide);
+    const content = el("div","cx rect",{
+      position:"absolute", left:px(RECT_INSET), top:px(RECT_INSET),
+      width:px(w-2*RECT_INSET), height:px(h-2*RECT_INSET)
+    });
+    outer.appendChild(content);
+    stage.appendChild(outer);
+    return {stage, content};
+  }
+  function circleFrame(side){
+    const stage = el("div","stage");
+    const outer = el("div","circleframe",{width:px(side),height:px(side),flex:"none",position:"relative"});
+    outer.appendChild(el("div","acc-bg"));
+    const content = el("div","cx",{position:"absolute",inset:"0",display:"flex",
+      flexDirection:"column",alignItems:"center",justifyContent:"center"});
+    outer.appendChild(content);
+    outer.appendChild(el("div","ring"));
+    stage.appendChild(outer);
+    // The widest the text may be at the band it actually sits in — the thing the
+    // square container gives no hint of.
+    function guide(width, height, dy){
+      const g = el("div","chord-guide",{
+        width:px(width), height:px(height),
+        left:px(side/2 - width/2), top:px(side/2 + dy - height/2)
+      });
+      outer.appendChild(g);
+    }
+    return {stage, content, guide};
+  }
+  function boxFrame(w, h){
+    const stage = el("div","stage");
+    const outer = el("div","cx",{position:"relative",width:px(w),height:px(h),flex:"none",
+      display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",
+      outline:"1px dashed rgba(255,255,255,.2)"});
+    stage.appendChild(outer);
+    return {stage, content:outer};
+  }
+
+  // Half-chord available to a line of height `lh` whose nearest edge is `dy` from centre.
+  function chord(side, dy, lh){
+    const r = side/2, far = Math.abs(dy) + lh/2;
+    return far >= r ? 0 : 2*Math.sqrt(r*r - far*far);
+  }
+
+  function heightVerdict(used, avail){
+    if (used > avail) return ["fail","clipped " + (used-avail).toFixed(1) + "pt"];
+    if (avail - used < 3) return ["warn","fits by " + (avail-used).toFixed(1) + "pt"];
+    return ["ok","fits · " + (avail-used).toFixed(1) + "pt spare"];
+  }
+  function worst(a,b){ const rank={ok:0,warn:1,fail:2}; return rank[a]>=rank[b]?a:b; }
+
+  // ---- The eight layouts ------------------------------------------------
+  // Each returns {stage, verdictKind, verdictLabel, metrics:[...]}
+
+  function prayerRectOld(w, watch, c){
+    const f = rectFrame(w[0], w[1], true);
+    const avail = w[0] - 2*RECT_INSET, availH = w[1] - 2*RECT_INSET;
+    const nameSize = 16, timeSize = 15, relSize = 11;   // .headline / 15pt / .caption2
+    const g = glyph(11, c.empty ? "moonStars" : symbolKind(c.name));
+    const nameW = avail - 11*1.15 - 3;
+    const nf = fit(c.empty ? "Shia Companion" : c.name, nameSize, "600", false, nameW, 1); // no minScale
+    const row1 = el("div","row"); row1.appendChild(g);
+    row1.appendChild(textNode(c.empty?"Shia Companion":c.name, nameSize, "600", false, nf));
+    const rows = [row1];
+    if (!c.empty){
+      const t = el("div","row"); t.appendChild(textNode(c.time, timeSize, "600", true, null));
+      const r = el("div","row"); r.appendChild(textNode(c.rel, relSize, "400", false, fit(c.rel,relSize,"400",false,avail,1), "dim"));
+      rows.push(t, r);
+    } else {
+      const h = el("div","row"); h.appendChild(textNode(c.hint, relSize, "400", false, null, "dim"));
+      rows.push(h);
+    }
+    rows.forEach(r => f.content.appendChild(r));
+    const used = rows.reduce((a,_,i)=>a + [nameSize,timeSize,relSize][i]*LINE, 0) + (rows.length-1)*1;
+    const [hk, hl] = heightVerdict(used, availH);
+    const relNat = c.empty ? 0 : measure(c.rel, relSize, "400", false);
+    const relOver = relNat > avail;
+    const kind = worst(hk, relOver ? "fail" : "ok");
+    return {stage:f.stage, kind,
+      label: relOver ? "countdown truncates" : hl,
+      metrics:[
+        ["stack", used.toFixed(1)+"pt of "+availH.toFixed(1)+"pt"],
+        c.empty ? null : ["countdown", relNat.toFixed(0)+"pt wide, "+avail.toFixed(0)+"pt free"]
+      ]};
+  }
+
+  function prayerRectNew(w, watch, c){
+    const f = rectFrame(w[0], w[1], true);
+    const avail = w[0] - 2*RECT_INSET, availH = w[1] - 2*RECT_INSET;
+    const nameSize = 12, timeSize = 18, relSize = 10;
+    const g = glyph(10, c.empty ? "moonStars" : symbolKind(c.name));
+    const nameW = avail - 10*1.15 - 3;
+    // PrayerNameText's ladder: name with the day, name alone, initial with the day,
+    // initial alone. The first that fits at full size wins.
+    const day = (c.day && c.day !== "Today") ? c.day : "";
+    const initial = (c.name || "?").trim().charAt(0).toUpperCase();
+    const rungs = c.empty ? ["Shia Companion"]
+                : day ? [c.name + " · " + day, c.name, initial + " · " + day, initial]
+                      : [c.name, initial];
+    let head = rungs[rungs.length - 1], rung = rungs.length - 1;
+    for (let i = 0; i < rungs.length; i++){
+      if (measure(rungs[i], nameSize, "600", false) <= nameW){ head = rungs[i]; rung = i; break; }
+    }
+    const nf = fit(head, nameSize, "600", false, nameW, 0.7);
+    const row1 = el("div","row"); row1.appendChild(g);
+    row1.appendChild(textNode(head, nameSize, "600", false, nf));
+    f.content.appendChild(row1);
+
+    let timeFit = null, relFit = null, used = nameSize*LINE + 1;
+    if (!c.empty){
+      const relCap = Math.min(58, Math.max(0, avail - measure(c.time,timeSize,"700",true) - 4));
+      timeFit = fit(c.time, timeSize, "700", true, avail, 0.5);           // layoutPriority(1)
+      relFit  = fit(c.rel, relSize, "400", false, relCap, 0.6);
+      const row2 = el("div","row base");
+      row2.appendChild(textNode(c.time, timeSize, "700", true, timeFit));
+      const sp = el("span",null,{flex:"1 1 auto",minWidth:px(2)}); row2.appendChild(sp);
+      const rn = textNode(c.rel, relSize, "400", false, relFit, "dim");
+      rn.style.textAlign = "right"; rn.style.maxWidth = px(58); rn.style.flex="none";
+      row2.appendChild(rn);
+      f.content.appendChild(row2);
+      used += timeSize*LINE;
+    } else {
+      const h = el("div","row"); h.appendChild(textNode(c.hint, 11, "400", false, null, "dim"));
+      f.content.appendChild(h); used += 11*LINE*2;
+    }
+    const [hk, hl] = heightVerdict(used, availH);
+    let kind = hk, label = hl;
+    if (timeFit && timeFit.truncated){ kind = "fail"; label = "time truncates"; }
+    else if (relFit && relFit.truncated){ kind = "warn"; label = "countdown elides"; }
+    else if (rung > 0 && !c.empty){ label = "name → “" + head + "”"; }
+    return {stage:f.stage, kind, label,
+      metrics:[
+        ["stack", used.toFixed(1)+"pt of "+availH.toFixed(1)+"pt"],
+        ["name", rung === 0 ? "full" : "rung " + (rung+1) + " of " + rungs.length + " — “" + head + "”"],
+        timeFit ? ["time", (timeFit.scale*100).toFixed(0)+"% of "+timeSize+"pt"] : null,
+        relFit ? ["countdown", (relFit.scale*100).toFixed(0)+"% of "+relSize+"pt"] : null
+      ]};
+  }
+
+  function prayerCircOld(side, c){
+    const f = circleFrame(side);
+    const symSize = 12, timeSize = 15;
+    f.content.appendChild(glyph(symSize, c.empty ? "moonStars" : symbolKind(c.name)));
+    // Old layout: no width constraint, so the square is what it lays out against.
+    const tf = fit(c.compact, timeSize, "600", true, side, 0.6);
+    f.content.appendChild(textNode(c.compact, timeSize, "600", true, tf));
+    // The stack is centred, so the time's own centre sits half a symbol below the
+    // circle's centre; chord() takes it from there.
+    const lh = timeSize*LINE;
+    const dy = (symSize*1.15)/2;
+    const room = chord(side, dy, lh);
+    const drawn = tf.drawn;
+    f.guide(room, lh, dy);
+    const kind = drawn > room ? "fail" : (room - drawn < 4 ? "warn" : "ok");
+    return {stage:f.stage, kind,
+      label: kind==="fail" ? "clipped by circle" : kind==="warn" ? "grazes the edge" : "inside the circle",
+      metrics:[
+        ["time", drawn.toFixed(1)+"pt wide"],
+        ["chord here", room.toFixed(1)+"pt"]
+      ]};
+  }
+
+  function prayerCircNew(side, c){
+    const f = circleFrame(side);
+    const symSize = side*0.20, timeSize = side*0.34, boxW = side*0.70;
+    f.content.appendChild(glyph(symSize, c.empty ? "moonStars" : symbolKind(c.name)));
+    const tf = fit(c.compact, timeSize, "600", true, boxW, 0.45);
+    const n = textNode(c.compact, timeSize, "600", true, tf);
+    n.style.width = px(boxW); n.style.textAlign="center";
+    f.content.appendChild(n);
+    const lh = timeSize*LINE, dy = (symSize*1.15)/2;
+    const room = chord(side, dy, lh);
+    const drawn = tf.drawn;
+    f.guide(room, lh, dy);
+    const kind = tf.truncated ? "fail" : (drawn > room ? "fail" : (room-drawn < 3 ? "warn" : "ok"));
+    return {stage:f.stage, kind,
+      label: tf.truncated ? "truncates"
+           : drawn > room ? "clipped by circle"
+           : kind==="warn" ? "grazes the edge" : "inside the circle",
+      metrics:[
+        ["time", timeSize.toFixed(1)+"pt at "+(tf.scale*100).toFixed(0)+"% → "+drawn.toFixed(1)+"pt wide"],
+        ["chord here", room.toFixed(1)+"pt"]
+      ]};
+  }
+
+  function prayerCornerOld(slot, c){
+    const f = boxFrame(slot, slot);
+    const size = 16;
+    const tf = fit(c.compact, size, "600", true, slot, 1);   // no minimumScaleFactor
+    const n = textNode(c.compact, size, "600", true, {scale:1});
+    if (tf.natural > slot) n.classList.add("overflowmark");
+    f.content.appendChild(n);
+    const kind = tf.natural > slot ? "fail" : "ok";
+    return {stage:f.stage, kind, label: kind==="fail" ? "truncates" : "fits",
+      metrics:[["time", tf.natural.toFixed(1)+"pt wide"], ["slot", slot+"pt"]]};
+  }
+
+  function prayerCornerNew(slot, c){
+    const f = boxFrame(slot, slot);
+    const size = 15;
+    const tf = fit(c.compact, size, "600", true, slot, 0.4);
+    f.content.appendChild(textNode(c.compact, size, "600", true, tf));
+    const kind = tf.truncated ? "fail" : (tf.scale < 0.55 ? "warn" : "ok");
+    return {stage:f.stage, kind,
+      label: tf.truncated ? "truncates" : tf.scale<0.55 ? "fits, small" : "fits",
+      metrics:[["time", (tf.scale*100).toFixed(0)+"% of "+size+"pt → "+tf.drawn.toFixed(1)+"pt"],
+               ["slot", slot+"pt"]]};
+  }
+
+  function inlineSpec(screen, text){
+    const w = screen - 44;                       // inline slot, approximate
+    const f = boxFrame(w, 26);
+    f.content.style.justifyContent = "flex-start";
+    const size = 15;
+    f.content.appendChild(glyph(size, "sunMax"));
+    const pad = el("span",null,{width:px(4),flex:"none"}); f.content.appendChild(pad);
+    const avail = w - size*1.15 - 4;
+    const tf = fit(text, size, "400", false, avail, 1);
+    const n = textNode(text, size, "400", false, {scale:1});
+    if (tf.natural > avail) n.classList.add("overflowmark");
+    f.content.appendChild(n);
+    const over = tf.natural > avail;
+    return {stage:f.stage, kind: over ? "warn" : (avail - tf.natural < 8 ? "warn" : "ok"),
+      label: over ? "over the estimate" : (avail - tf.natural < 8 ? "close" : "fits"),
+      metrics:[["text", tf.natural.toFixed(0)+"pt of ~"+avail.toFixed(0)+"pt"],
+               ["note", "slot + font are the system's; advisory only"]]};
+  }
+
+  function counterRectOld(w, c){
+    const f = rectFrame(w[0], w[1], true);
+    const avail = w[0]-2*RECT_INSET, availH = w[1]-2*RECT_INSET;
+    const titleSize = 16, countSize = 20, capSize = 11, gaugeH = 6;
+    const r1 = el("div","row"); r1.appendChild(glyph(11,"tap"));
+    r1.appendChild(textNode("Tasbeeh", titleSize, "600", false, null));
+    const r2 = el("div","row"); r2.appendChild(textNode(String(c.count), countSize, "600", true, null));
+    const gz = el("div",null,{width:"100%",height:px(gaugeH),background:"rgba(255,255,255,.3)",borderRadius:px(3),flex:"none"});
+    const lbl = c.target ? (c.inLap + " / " + c.target + (c.lap>1 ? " · ×"+c.lap : "")) : "No target";
+    const r3 = el("div","row"); r3.appendChild(textNode(lbl, capSize, "400", false, null, "dim"));
+    [r1,r2,gz,r3].forEach(n=>f.content.appendChild(n));
+    const used = titleSize*LINE + countSize*LINE + gaugeH + capSize*LINE + 3;
+    const [hk,hl] = heightVerdict(used, availH);
+    return {stage:f.stage, kind:hk, label:hl,
+      metrics:[["stack", used.toFixed(1)+"pt of "+availH.toFixed(1)+"pt"],
+               ["rows", "title + count + gauge + target"]]};
+  }
+
+  function counterRectNew(w, c){
+    const f = rectFrame(w[0], w[1], true);
+    const avail = w[0]-2*RECT_INSET, availH = w[1]-2*RECT_INSET;
+    const titleSize = 12, countSize = 19, capSize = 11, gaugeH = 4;
+    const r1 = el("div","row"); r1.appendChild(glyph(10,"tap"));
+    r1.appendChild(textNode("Tasbeeh", titleSize, "600", false, null));
+    const lbl = c.target ? (c.inLap + " / " + c.target + (c.lap>1 ? " · ×"+c.lap : "")) : "No target";
+    const countW = measure(String(c.count), countSize, "600", true);
+    const capFit = fit(lbl, capSize, "400", false, Math.max(0, avail - countW - 6), 0.7);
+    const r2 = el("div","row base");
+    r2.appendChild(textNode(String(c.count), countSize, "600", true, null));
+    r2.appendChild(el("span",null,{flex:"1 1 auto",minWidth:px(2)}));
+    const cn = textNode(lbl, capSize, "400", false, capFit, "dim");
+    cn.style.flex="none"; cn.style.textAlign="right";
+    r2.appendChild(cn);
+    f.content.appendChild(r1); f.content.appendChild(r2);
+    let used = titleSize*LINE + countSize*LINE + 2;
+    if (c.target){
+      const gz = el("div",null,{width:"100%",height:px(gaugeH),background:"rgba(255,255,255,.3)",borderRadius:px(2),flex:"none",marginTop:px(1)});
+      f.content.appendChild(gz); used += gaugeH + 1;
+    }
+    const [hk,hl] = heightVerdict(used, availH);
+    const kind = capFit.truncated ? "warn" : hk;
+    return {stage:f.stage, kind, label: capFit.truncated ? "target label elides" : hl,
+      metrics:[["stack", used.toFixed(1)+"pt of "+availH.toFixed(1)+"pt"],
+               ["target label", (capFit.scale*100).toFixed(0)+"% of "+capSize+"pt"]]};
+  }
+
+  function counterCircOld(side, c){
+    const f = circleFrame(side);
+    const size = 20, boxW = side - 12;   // .padding(.horizontal, 6)
+    const tf = fit(String(c.count), size, "600", true, boxW, 0.4);
+    f.content.appendChild(textNode(String(c.count), size, "600", true, tf));
+    const lh = size*LINE, room = chord(side, 0, lh);
+    f.guide(room, lh, 0);
+    const kind = tf.truncated ? "fail" : (tf.drawn > room ? "fail" : (room - tf.drawn < 4 ? "warn":"ok"));
+    return {stage:f.stage, kind,
+      label: kind==="fail"?"clipped by circle":kind==="warn"?"grazes the edge":"inside the circle",
+      metrics:[["count", (tf.scale*100).toFixed(0)+"% of "+size+"pt → "+tf.drawn.toFixed(1)+"pt"],
+               ["chord here", room.toFixed(1)+"pt"]]};
+  }
+
+  function counterCircNew(side, c){
+    const f = circleFrame(side);
+    const size = side*0.42, boxW = side*0.66;
+    const tf = fit(String(c.count), size, "600", true, boxW, 0.35);
+    const n = textNode(String(c.count), size, "600", true, tf);
+    n.style.width = px(boxW); n.style.textAlign = "center";
+    f.content.appendChild(n);
+    const lh = size*LINE, room = chord(side, 0, lh);
+    f.guide(room, lh, 0);
+    const kind = tf.truncated ? "fail" : (tf.drawn > room ? "fail" : (room - tf.drawn < 3 ? "warn":"ok"));
+    return {stage:f.stage, kind,
+      label: kind==="fail"?"clipped by circle":kind==="warn"?"grazes the edge":"inside the circle",
+      metrics:[["count", size.toFixed(1)+"pt at "+(tf.scale*100).toFixed(0)+"% → "+tf.drawn.toFixed(1)+"pt"],
+               ["chord here", room.toFixed(1)+"pt"]]};
+  }
+
+  function counterCornerOld(slot, c){
+    const f = boxFrame(slot, slot);
+    const size = 16;
+    const tf = fit(String(c.count), size, "600", true, slot, 1);
+    const n = textNode(String(c.count), size, "600", true, {scale:1});
+    if (tf.natural > slot) n.classList.add("overflowmark");
+    f.content.appendChild(n);
+    return {stage:f.stage, kind: tf.natural>slot?"fail":"ok",
+      label: tf.natural>slot?"truncates":"fits",
+      metrics:[["count", tf.natural.toFixed(1)+"pt wide"],["slot", slot+"pt"]]};
+  }
+  function counterCornerNew(slot, c){
+    const f = boxFrame(slot, slot);
+    const size = 15;
+    const tf = fit(String(c.count), size, "600", true, slot, 0.3);
+    f.content.appendChild(textNode(String(c.count), size, "600", true, tf));
+    return {stage:f.stage, kind: tf.truncated?"fail":(tf.scale<0.6?"warn":"ok"),
+      label: tf.truncated?"truncates":tf.scale<0.6?"fits, small":"fits",
+      metrics:[["count", (tf.scale*100).toFixed(0)+"% of "+size+"pt → "+tf.drawn.toFixed(1)+"pt"],
+               ["slot", slot+"pt"]]};
+  }
+
+  // ---- Card assembly ----------------------------------------------------
+  function specimen(title, res){
+    const box = el("div","spec");
+    const head = el("div","spec-head"); head.textContent = title;
+    box.appendChild(head);
+    box.appendChild(res.stage);
+    box.appendChild(verdict(res.kind, res.label));
+    const m = el("p","metrics");
+    res.metrics.filter(Boolean).forEach(([k,v])=>{
+      const line = document.createElement("div");
+      line.innerHTML = "<b>"+k+"</b> · " + v;
+      m.appendChild(line);
+    });
+    box.appendChild(m);
+    return box;
+  }
+  function card(title, dims, before, after, wide){
+    const c = el("div","card" + (wide ? " wide" : ""));
+    const h = el("h3"); h.textContent = title; c.appendChild(h);
+    const d = el("p","dims"); d.textContent = dims; c.appendChild(d);
+    const pair = el("div","pair");
+    pair.appendChild(specimen("Before", before));
+    pair.appendChild(specimen("After", after));
+    c.appendChild(pair);
+    return c;
+  }
+
+  function render(){
+    const w = state.watch, pc = PRAYER_CASES[state.caseName], cc = COUNTER_CASES[state.caseName];
+    const pg = document.getElementById("prayerGrid"), cg = document.getElementById("counterGrid");
+    pg.textContent = ""; cg.textContent = "";
+
+    const rectDims = w.rect[0]+" × "+w.rect[1]+" pt · "+RECT_INSET+"pt inset";
+    const circDims = w.circular+" × "+w.circular+" pt";
+    const cornDims = w.cornerText+" × "+w.cornerText+" pt slot";
+
+    pg.appendChild(card("accessoryRectangular", rectDims,
+      prayerRectOld(w.rect, w, pc), prayerRectNew(w.rect, w, pc), true));
+    pg.appendChild(card("accessoryCircular", circDims,
+      prayerCircOld(w.circular, pc), prayerCircNew(w.circular, pc)));
+    pg.appendChild(card("accessoryCorner", cornDims,
+      prayerCornerOld(w.cornerText, pc), prayerCornerNew(w.cornerText, pc)));
+    const inlineText = pc.empty ? "Open iPhone app" : pc.name + " " + pc.compact;
+    pg.appendChild(card("accessoryInline", (w.screen-44)+" pt slot (est.)",
+      inlineSpec(w.screen, inlineText), inlineSpec(w.screen, inlineText), true));
+
+    cg.appendChild(card("accessoryRectangular", rectDims,
+      counterRectOld(w.rect, cc), counterRectNew(w.rect, cc), true));
+    cg.appendChild(card("accessoryCircular", circDims,
+      counterCircOld(w.circular, cc), counterCircNew(w.circular, cc)));
+    cg.appendChild(card("accessoryCorner", cornDims,
+      counterCornerOld(w.cornerText, cc), counterCornerNew(w.cornerText, cc)));
+    const cLabel = "Tasbeeh " + cc.count;
+    cg.appendChild(card("accessoryInline", (w.screen-44)+" pt slot (est.)",
+      inlineSpec(w.screen, cLabel), inlineSpec(w.screen, cLabel), true));
+  }
+
+  function chipRow(host, items, isOn, onPick){
+    host.textContent = "";
+    items.forEach(it=>{
+      const b = el("button","chip");
+      b.type = "button";
+      b.textContent = it.label;
+      b.setAttribute("aria-pressed", isOn(it) ? "true" : "false");
+      b.addEventListener("click", ()=>{ onPick(it); build(); });
+      host.appendChild(b);
+    });
+  }
+  function build(){
+    chipRow(document.getElementById("watchChips"),
+      WATCHES.map(x=>({label:x.id, v:x})), it=>it.v===state.watch, it=>state.watch=it.v);
+    chipRow(document.getElementById("caseChips"),
+      Object.keys(PRAYER_CASES).map(k=>({label:k, v:k})), it=>it.v===state.caseName, it=>state.caseName=it.v);
+    chipRow(document.getElementById("zoomChips"),
+      [2,3,4,6].map(z=>({label:z+"×", v:z})), it=>it.v===state.zoom, it=>state.zoom=it.v);
+    render();
+  }
+
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(build);
+  build();
+})();
+</script>

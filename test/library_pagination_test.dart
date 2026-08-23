@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/utils/markdown_block.dart';
 import 'package:shia_companion/utils/markdown_block_parser.dart';
 import 'package:shia_companion/utils/reader_layout.dart';
+import 'package:shia_companion/utils/reader_style.dart';
 import 'package:shia_companion/widgets/reader_content.dart';
 
 /// The reader lays a chapter out once, as one column, and shows pages by
@@ -21,35 +21,11 @@ import 'package:shia_companion/widgets/reader_content.dart';
 /// ([ReaderMeasureColumn]), so what is checked is the layout, not a model of
 /// it.
 void main() {
-  const lineHeight = 1.55;
   const epsilon = 0.01;
   // Lines of one paragraph overlap by a fraction of a pixel — each line box is
   // grown to the tallest ascent and descent on it — so "inside a line" means
   // properly inside it, not within rounding of its edge.
   const tolerance = 1.0;
-
-  MarkdownStyleSheet readerStyleSheet(BuildContext context, double fontSize) {
-    // Mirrors ChapterPage._readerStyleSheet.
-    final textTheme = Theme.of(context).textTheme;
-    return MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-      textAlign: WrapAlignment.spaceBetween,
-      blockquoteAlign: WrapAlignment.spaceBetween,
-      p: textTheme.bodyLarge?.copyWith(fontSize: fontSize, height: lineHeight),
-      h1: textTheme.headlineSmall?.copyWith(fontSize: fontSize + 8),
-      h2: textTheme.titleLarge?.copyWith(fontSize: fontSize + 5),
-      h3: textTheme.titleMedium?.copyWith(fontSize: fontSize + 3),
-      h4: textTheme.titleSmall?.copyWith(fontSize: fontSize + 2),
-      h5: textTheme.titleSmall?.copyWith(fontSize: fontSize + 1),
-      h6: textTheme.titleSmall?.copyWith(fontSize: fontSize),
-      blockquote: textTheme.bodyLarge?.copyWith(
-        fontSize: fontSize,
-        height: lineHeight,
-        fontStyle: FontStyle.italic,
-      ),
-      code: textTheme.bodyMedium?.copyWith(fontSize: fontSize - 2),
-      a: textTheme.bodyLarge?.copyWith(fontSize: fontSize),
-    );
-  }
 
   /// Lays [markdown] out the way the reader's measuring pass does and returns
   /// what it measured.
@@ -77,7 +53,7 @@ void main() {
                 columnKey: columnKey,
                 blocks: blocks,
                 blockKeys: blockKeys,
-                styleSheet: readerStyleSheet(context, fontSize),
+                styleSheet: readerStyleSheet(context, fontSize: fontSize),
               );
             }),
           ),

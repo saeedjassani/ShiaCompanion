@@ -45,4 +45,31 @@ void main() {
 
     expect(quote, isNotEmpty);
   });
+
+  test('daily seed is stable across the same UTC day and changes on the next',
+      () {
+    final morning = DateTime.utc(2026, 8, 22, 0, 30);
+    final night = DateTime.utc(2026, 8, 22, 23, 59);
+    final nextDay = DateTime.utc(2026, 8, 23, 0, 30);
+
+    expect(dailyHadithSeed(morning), dailyHadithSeed(night));
+    expect(dailyHadithSeed(morning), isNot(dailyHadithSeed(nextDay)));
+  });
+
+  test('same daily seed selects the same hadith index every time', () {
+    final seed = dailyHadithSeed(DateTime.utc(2026, 8, 22));
+
+    final first = selectHadithIndex(
+      manifest,
+      useMuharramQuotes: false,
+      random: Random(seed),
+    );
+    final second = selectHadithIndex(
+      manifest,
+      useMuharramQuotes: false,
+      random: Random(seed),
+    );
+
+    expect(first, second);
+  });
 }

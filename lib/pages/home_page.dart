@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
@@ -180,7 +181,10 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future<void> _resolveLibraryDeepLink(DeepLinkTarget target) async {
-    final bookSlug = target.segments.first;
+    // A retired duplicate's slug still resolves, to the copy that survived, so
+    // old links and saved positions do not dead-end.
+    final bookSlug =
+        await LibraryService.resolveBookSlug(target.segments.first);
     final chapterSlug =
         target.segments.length > 1 ? target.segments[1] : null;
 
@@ -709,6 +713,7 @@ class _MyHomePageState extends State<MyHomePage>
     hadith = await loadRandomHadith(
       DefaultAssetBundle.of(context),
       useMuharramQuotes: useMuharramQuotes,
+      random: Random(dailyHadithSeed()),
     );
     if (!mounted) return;
     setState(() {});

@@ -1,0 +1,643 @@
+<title>Watch Screen Fit Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+:root{
+  --ground:#EDF1F3; --panel:#FFFFFF; --panel-2:#F4F7F9; --rule:#D3DBE0;
+  --ink:#141C21; --ink-2:#4A5A63; --ink-3:#7A8B94;
+  --accent:#0E7C8C; --ok:#1F8A5B; --ok-bg:#DFF1E8;
+  --warn:#9A6A05; --warn-bg:#FAEED2; --fail:#B3282E; --fail-bg:#F9DEDF;
+  --oled:#000000; --oled-rule:#2A3238;
+  --shadow:0 1px 2px rgba(20,28,33,.08),0 8px 24px -12px rgba(20,28,33,.25);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0D1215; --panel:#161E23; --panel-2:#1C262C; --rule:#2B383F;
+  --ink:#E6EDF1; --ink-2:#A3B4BD; --ink-3:#71858F;
+  --accent:#4FC3D6; --ok:#5FD3A0; --ok-bg:#123227;
+  --warn:#E8BE5C; --warn-bg:#332A11; --fail:#FF8A8F; --fail-bg:#3A1618;
+  --oled-rule:#39444B; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --ground:#0D1215; --panel:#161E23; --panel-2:#1C262C; --rule:#2B383F;
+  --ink:#E6EDF1; --ink-2:#A3B4BD; --ink-3:#71858F;
+  --accent:#4FC3D6; --ok:#5FD3A0; --ok-bg:#123227;
+  --warn:#E8BE5C; --warn-bg:#332A11; --fail:#FF8A8F; --fail-bg:#3A1618;
+  --oled-rule:#39444B; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:36px 22px 80px}
+header{border-bottom:1px solid var(--rule);padding-bottom:22px;margin-bottom:24px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
+h1{font-size:clamp(28px,4vw,38px);line-height:1.1;margin:0 0 10px;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.lede{margin:0;max-width:64ch;color:var(--ink-2);font-size:16px}
+h2{font-size:20px;margin:38px 0 4px;font-weight:600;letter-spacing:-.01em}
+h2 .kindmark{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);letter-spacing:.06em;margin-left:8px;font-weight:400}
+.section-note{margin:0 0 16px;color:var(--ink-2);font-size:14px;max-width:72ch}
+.controls{display:flex;flex-wrap:wrap;gap:16px 26px;align-items:flex-end;background:var(--panel);
+  border:1px solid var(--rule);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow);position:sticky;top:0;z-index:5}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl-label{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{font:500 12px/1 "IBM Plex Mono",monospace;padding:7px 9px;border-radius:6px;border:1px solid var(--rule);
+  background:var(--panel-2);color:var(--ink-2);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
+.pair{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.spec{display:flex;flex-direction:column;gap:8px;flex:1 1 360px;min-width:0;max-width:560px}
+.scrollfade{position:absolute;left:0;right:0;bottom:0;height:26px;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.92))}
+.scrolltag{position:absolute;right:4px;bottom:3px;font:600 8px/1 "IBM Plex Mono",monospace;color:#8FA2AC}
+.spec-head{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.stage{background:var(--panel-2);border-radius:14px;padding:12px;display:flex;justify-content:center}
+.screen{background:var(--oled);border-radius:14px;position:relative;overflow:hidden;flex:none;
+  font-family:"SF Pro Text",-apple-system,"IBM Plex Sans",sans-serif;color:#fff}
+.navbar{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;justify-content:center;
+  color:#B8C4CC;font-weight:600;border-bottom:1px dashed rgba(255,255,255,.14)}
+.rowline{display:flex;align-items:center;width:100%;min-width:0}
+.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.rounded{font-family:"SF Pro Rounded","SF Pro Text",Nunito,-apple-system,sans-serif}
+.clipmark{outline:1px solid var(--fail)}
+.cutline{position:absolute;left:0;right:0;border-top:2px dashed rgba(255,90,95,.9);pointer-events:none}
+.cutlabel{position:absolute;right:3px;font:600 8px/1 "IBM Plex Mono",monospace;color:#FF8A8F}
+.foldline{position:absolute;left:0;right:0;border-top:1px dashed rgba(143,162,172,.7);pointer-events:none}
+.foldlabel{position:absolute;right:0;font:600 8px/1 "IBM Plex Mono",monospace;color:#0D1215;
+  background:#8FA2AC;padding:2px 4px;border-radius:0 0 0 4px}
+.findings{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.finding{display:flex;gap:8px;align-items:baseline;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
+.tag{font:600 9px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 6px;border-radius:4px;flex:none}
+.t-ok{background:var(--ok-bg);color:var(--ok)}
+.t-warn{background:var(--warn-bg);color:var(--warn)}
+.t-fail{background:var(--fail-bg);color:var(--fail)}
+.metrics{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);margin:6px 0 0}
+footer{margin-top:52px;border-top:1px solid var(--rule);padding-top:20px;color:var(--ink-2);font-size:13.5px}
+footer h4{font:600 12px/1.4 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+footer ul{margin:0;padding-left:18px}
+footer li{margin-bottom:6px;max-width:78ch}
+code{font-family:"IBM Plex Mono",monospace;font-size:.92em;background:var(--panel-2);border:1px solid var(--rule);border-radius:4px;padding:1px 4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">Shia Companion · watchOS</p>
+  <h1>Watch Screen Fit Check</h1>
+  <p class="lede">The two app screens at every current watch size and every Dynamic Type step, laid out by the
+  same rules as the SwiftUI views with the text measured. The counter has no scroll view, so anything past the
+  bottom of its screen is gone; the prayer list scrolls, so its risk is words losing their tails, not their rows.</p>
+</header>
+
+<div class="controls">
+  <div class="ctl"><span class="ctl-label">Watch</span><div class="chips" id="watchChips"></div></div>
+  <div class="ctl"><span class="ctl-label">Dynamic Type</span><div class="chips" id="typeChips"></div></div>
+  <div class="ctl"><span class="ctl-label">Content</span><div class="chips" id="caseChips"></div></div>
+  <div class="ctl"><span class="ctl-label">Zoom</span><div class="chips" id="zoomChips"></div></div>
+  <div class="ctl"><span class="ctl-label">Prayer list</span><div class="chips" id="scrollChips"></div></div>
+</div>
+
+<h2>Prayer list<span class="kindmark">ContentView</span></h2>
+<p class="section-note">Scrolls, so height is only a measure of how much scrolling there is. What matters is the
+row: an icon, a name and a time competing for a screen 162pt wide at its narrowest.</p>
+<div class="card" id="listCard"></div>
+
+<h2>Tasbeeh counter<span class="kindmark">CounterView</span></h2>
+<p class="section-note">A plain <code>VStack</code> with no scroll view — the dial has to give way to the target
+button above it and the controls below, and anything that doesn't fit is simply off-screen. The red line marks
+the bottom of the display.</p>
+<div class="card" id="counterCard"></div>
+
+<footer>
+  <h4>What this is and isn't</h4>
+  <ul>
+    <li><b>Screen sizes and type sizes are Apple's.</b> Screen dimensions from the HIG's watchOS device table
+      (halved from pixels); the Dynamic Type steps from the watchOS type scale, including the accessibility sizes.
+      Large is the default.</li>
+    <li><b>It is a geometry model, not a screenshot.</b> Text is measured with the browser's metrics — real SF Pro
+      on a Mac or iPhone, a fallback face elsewhere. Row heights use Apple's published leading for each step.</li>
+    <li><b>The safe-area inset is not modelled.</b> watchOS lays out edge to edge and the app supplies its own
+      gutter, which is what the model uses. A system inset would make every horizontal verdict slightly worse.</li>
+    <li><b>Bordered button heights are estimated</b> at the text leading plus 16pt of padding, which is the one
+      number here with no published source.</li>
+  </ul>
+</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const WATCHES = [
+    {id:"40mm", w:162, h:197},
+    {id:"41mm", w:176, h:215},
+    {id:"42mm", w:187, h:223},
+    {id:"44mm", w:184, h:224},
+    {id:"45mm", w:198, h:242},
+    {id:"46mm", w:208, h:248},
+    {id:"49mm", w:205, h:251}
+  ];
+  // watchOS text styles: [size, leading] per Dynamic Type step.
+  const TYPE = {
+    "xSmall":  {title2:[19,24], headline:[14,19], body:[14,19], footnote:[12,16], caption1:[11,13], caption2:[11,13]},
+    "Small":   {title2:[20,25], headline:[15,20], body:[15,20], footnote:[12,16], caption1:[11,13], caption2:[11,13]},
+    "Medium":  {title2:[21,26], headline:[16,21], body:[16,21], footnote:[12,16], caption1:[11,13], caption2:[11,13]},
+    "Large":   {title2:[22,28], headline:[17,22], body:[17,22], footnote:[13,18], caption1:[12,16], caption2:[11,13]},
+    "xLarge":  {title2:[24,30], headline:[19,24], body:[19,24], footnote:[15,20], caption1:[14,19], caption2:[13,18]},
+    "xxLarge": {title2:[26,32], headline:[21,26], body:[21,26], footnote:[17,22], caption1:[16,21], caption2:[15,20]},
+    "xxxLarge":{title2:[28,34], headline:[23,29], body:[23,29], footnote:[19,24], caption1:[18,23], caption2:[17,22]},
+    "AX1":     {title2:[34,41], headline:[28,34], body:[28,34], footnote:[23,29], caption1:[22,28], caption2:[20,25]},
+    "AX3":     {title2:[44,52], headline:[40,48], body:[40,48], footnote:[33,40], caption1:[32,39], caption2:[29,35]}
+  };
+
+  // Sunrise and Midnight are the longest names the phone can send, and the reason the
+  // initial fallback exists.
+  const CASES = {
+    "Typical": {loc:"Karbala", next:"Asr", nextTime:"4:15 pm", day:"Today", rel:"in 42 min",
+      rows:[["Asr","4:15 pm",""],["Maghrib","7:30 pm",""],["Isha","8:45 pm",""],["Fajr","4:30 am","Tomorrow"],["Zuhr","12:15 pm","Tomorrow"]],
+      count:21, target:33, lap:1},
+    "Longest": {loc:"Dar es Salaam", next:"Midnight", nextTime:"12:15 am", day:"Tomorrow", rel:"in 13 hr, 4 min",
+      rows:[["Midnight","12:15 am","Tomorrow"],["Sunrise","11:58 am","Tomorrow"],["Maghrib","10:30 pm","Tomorrow"],["Isha","11:45 pm","Tomorrow"],["Zuhr","12:15 pm","Tomorrow"]],
+      count:99999, target:1000, lap:100},
+    "Short":   {loc:"Qom", next:"Fajr", nextTime:"5:02 am", day:"Today", rel:"in 2 hr",
+      rows:[["Fajr","5:02 am",""],["Zuhr","1:04 pm",""],["Asr","4:40 pm",""]],
+      count:7, target:0, lap:1}
+  };
+
+  const state = {watch:WATCHES[0], type:"Large", caseName:"Longest", zoom:2.4, full:false};
+
+  const canvas = document.createElement("canvas");
+  const mctx = canvas.getContext("2d");
+  const STACK = '"SF Pro Text",-apple-system,"IBM Plex Sans",sans-serif';
+  const ROUND = '"SF Pro Rounded","SF Pro Text",Nunito,-apple-system,sans-serif';
+  function measure(text, size, weight, rounded){
+    mctx.font = weight + " " + size + "px " + (rounded ? ROUND : STACK);
+    return mctx.measureText(text).width;
+  }
+  // For text with no lineLimit(1): how many lines it takes. It can't truncate.
+  function wrapLines(text, size, weight, rounded, avail){
+    const natural = measure(text, size, weight, rounded);
+    return {lines: Math.max(1, Math.ceil(natural / Math.max(1, avail))), natural, avail};
+  }
+  function fit(text, size, weight, rounded, avail, minScale){
+    const natural = measure(text, size, weight, rounded);
+    if (!text || natural <= avail) return {scale:1, natural, drawn:natural, truncated:false, avail};
+    const needed = avail / natural;
+    if (needed >= minScale) return {scale:needed, natural, drawn:avail, truncated:false, avail};
+    return {scale:minScale, natural, drawn:natural*minScale, truncated:true, avail};
+  }
+
+  const px = pt => (pt * state.zoom) + "px";
+  function el(tag, cls, style){
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (style) Object.assign(n.style, style);
+    return n;
+  }
+  function txt(t, size, weight, opts){
+    opts = opts || {};
+    const n = el("span","t" + (opts.rounded ? " rounded" : ""));
+    n.textContent = t;
+    if (opts.wrap){ n.style.whiteSpace = "normal"; n.style.overflow = "visible"; }
+    n.style.fontSize = px(size * (opts.fit ? opts.fit.scale : 1));
+    n.style.fontWeight = weight;
+    n.style.lineHeight = opts.leading ? (opts.leading/size) : 1.2;
+    if (opts.color) n.style.color = opts.color;
+    if (opts.width) n.style.width = px(opts.width);
+    if (opts.grow) { n.style.flex = "1 1 auto"; n.style.minWidth = 0; }
+    else n.style.flex = "none";
+    if (opts.fit && opts.fit.truncated) n.classList.add("clipmark");
+    return n;
+  }
+  // Mirrors prayerSymbolName(for:) — the point of drawing these at all is that no two
+  // selectable times share one.
+  function symbolKind(prayerName){
+    const n = (prayerName || "").toLowerCase();
+    if (n.indexOf("fajr") >= 0) return "sunrise";
+    if (n.indexOf("sunrise") >= 0) return "sunriseFill";
+    if (n.indexOf("zuhr") >= 0 || n.indexOf("dhuhr") >= 0 || n.indexOf("dhohr") >= 0) return "sunMax";
+    if (n.indexOf("asr") >= 0) return "sunMin";
+    if (n.indexOf("sunset") >= 0) return "sunset";
+    if (n.indexOf("maghrib") >= 0) return "sunsetFill";
+    if (n.indexOf("isha") >= 0) return "moonStars";
+    if (n.indexOf("midnight") >= 0) return "moon";
+    return "sunMax";
+  }
+  const HORIZON = '<path d="M8 80h84"/>';
+  const ARC = '<path d="M28 80a22 22 0 0 1 44 0"/>';
+  const ARC_FILL = '<path d="M28 80a22 22 0 0 1 44 0z" fill="currentColor" stroke="none"/>';
+  const SYMBOLS = {
+    sunMax:   '<circle cx="50" cy="50" r="17"/><path d="M50 8v13M50 79v13M8 50h13M79 50h13M19 19l9 9M72 72l9 9M81 19l-9 9M28 72l-9 9"/>',
+    sunMin:   '<circle cx="50" cy="50" r="17"/><path d="M50 17v7M50 76v7M17 50h7M76 50h7M26 26l5 5M69 69l5 5M74 26l-5 5M31 69l-5 5"/>',
+    sunrise:  HORIZON + ARC + '<path d="M50 8v24M40 20l10-12 10 12"/>',
+    sunriseFill: HORIZON + ARC_FILL + '<path d="M50 8v24M40 20l10-12 10 12"/>',
+    sunset:   HORIZON + ARC + '<path d="M50 32V8M40 20l10 12 10-12"/>',
+    sunsetFill: HORIZON + ARC_FILL + '<path d="M50 32V8M40 20l10 12 10-12"/>',
+    moon:     '<path d="M64 14a38 38 0 1 0 24 44A30 30 0 0 1 64 14z"/>',
+    moonStars:'<path d="M56 20a32 32 0 1 0 22 38A26 26 0 0 1 56 20z"/><path d="M84 16l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/><path d="M78 48l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>'
+  };
+  function glyph(size, stroke, kind){
+    const s = size * 1.15;
+    const n = el("span",null,{width:px(s),height:px(s),flex:"none",display:"block",color:"#6FD3E4"});
+    n.innerHTML = '<svg viewBox="0 0 100 100" width="100%" height="100%" fill="none" stroke="currentColor" '
+      + 'stroke-width="'+(stroke||9)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + (SYMBOLS[kind] || SYMBOLS.sunMax) + '</svg>';
+    return n;
+  }
+  function badge(diameter, symbolSize, prayerName){
+    const n = el("span",null,{width:px(diameter),height:px(diameter),flex:"none",borderRadius:"50%",
+      background:"rgba(111,211,228,.22)",display:"flex",alignItems:"center",justifyContent:"center"});
+    n.appendChild(glyph(symbolSize, 11, symbolKind(prayerName)));
+    return n;
+  }
+
+  // ---- Findings ----------------------------------------------------------
+  function Findings(){
+    const list = [];
+    return {
+      add(kind, label, detail){ list.push({kind, label, detail}); },
+      wrapped(w, what){
+        if (!w) return;
+        if (w.lines >= 4) this.add("warn", "wraps to " + w.lines + " lines", what
+          + " at " + w.natural.toFixed(0) + "pt into " + w.avail.toFixed(0) + "pt");
+        else if (w.lines > 1) this.add("ok", w.lines + " lines", what + " wraps");
+      },
+      note(f, what){
+        if (!f) return;
+        if (f.truncated) this.add("fail", "truncates", what + " needs " + f.natural.toFixed(0)
+          + "pt, has " + f.avail.toFixed(0) + "pt");
+        else if (f.scale < 0.85) this.add("warn", "shrinks to " + Math.round(f.scale*100) + "%",
+          what + " at " + f.natural.toFixed(0) + "pt into " + f.avail.toFixed(0) + "pt");
+      },
+      worst(){ return list.some(x=>x.kind==="fail") ? "fail"
+             : list.some(x=>x.kind==="warn") ? "warn" : "ok"; },
+      render(){
+        const ul = el("ul","findings");
+        if (!list.length){
+          const li = el("li","finding");
+          const t = el("span","tag t-ok"); t.textContent = "clear";
+          li.appendChild(t);
+          li.appendChild(document.createTextNode("nothing shrinks, nothing truncates"));
+          ul.appendChild(li);
+          return ul;
+        }
+        list.forEach(f=>{
+          const li = el("li","finding");
+          const t = el("span","tag " + (f.kind==="fail"?"t-fail":f.kind==="warn"?"t-warn":"t-ok"));
+          t.textContent = f.label;
+          li.appendChild(t);
+          li.appendChild(document.createTextNode(f.detail));
+          ul.appendChild(li);
+        });
+        return ul;
+      }
+    };
+  }
+
+  function screenFrame(watch, navTitle){
+    const stage = el("div","stage");
+    const scr = el("div","screen",{width:px(watch.w),height:px(watch.h)});
+    const NAV = 28;
+    if (navTitle !== null){
+      const bar = el("div","navbar",{height:px(NAV),fontSize:px(13)});
+      bar.textContent = navTitle;
+      scr.appendChild(bar);
+    }
+    const content = el("div",null,{position:"absolute",left:0,right:0,top:px(NAV),
+      display:"flex",flexDirection:"column",alignItems:"stretch"});
+    scr.appendChild(content);
+    stage.appendChild(scr);
+    return {stage, screen:scr, content, avail:watch.h - NAV, NAV};
+  }
+
+  // ---- Screen 1: the prayer list ----------------------------------------
+  function prayerList(watch, T, c, after){
+    const F = Findings();
+    // dynamicTypeSize >= .xxxLarge — where the row stops fitting, not where the
+    // accessibility sizes start.
+    const STACK_FROM = ["xxxLarge","AX1","AX3"];
+    const AX = STACK_FROM.indexOf(state.type) >= 0;
+    const f = screenFrame(watch, null);
+    const gutter = after ? 8 : 16;       // .padding(.horizontal) — explicit after, default before
+    const cardPad = after ? 6 : 8;
+    const iconD  = after ? 22 : 24;
+    const iconGap = after ? 6 : 8;
+    const rowStyle = after ? T.footnote : T.body;
+
+    const col = el("div",null,{display:"flex",flexDirection:"column",gap:px(12),
+      paddingLeft:px(gutter),paddingRight:px(gutter),paddingTop:px(4)});
+    const inner = watch.w - 2*gutter;
+
+    // location
+    const locRow = el("div","rowline",{gap:px(4),justifyContent:"center"});
+    locRow.appendChild(glyph(T.caption2[0], 9, "sunMax"));
+    const locRoom = inner - T.caption2[0]*1.15 - 4;
+    if (after){
+      // lineLimit(2): a long city name takes a second line rather than losing its tail.
+      const lw = wrapLines(c.loc, T.caption2[0], "400", false, locRoom);
+      locRow.appendChild(txt(c.loc, T.caption2[0], "400", {wrap:true, leading:T.caption2[1], color:"#9AA7AE"}));
+      if (lw.lines > 2) F.add("fail","truncates","location needs " + lw.lines + " lines, has 2");
+      else F.wrapped(lw, "location");
+    } else {
+      const locFit = fit(c.loc, T.caption2[0], "400", false, locRoom, 1);
+      locRow.appendChild(txt(c.loc, T.caption2[0], "400", {fit:locFit, leading:T.caption2[1], color:"#9AA7AE"}));
+      F.note(locFit, "location");
+    }
+
+    // Up Next banner
+    const bannerPadH = 12, bw = inner - 2*bannerPadH;
+    const banner = el("div",null,{display:"flex",flexDirection:"column",alignItems:"center",gap:px(4),
+      padding:px(8)+" "+px(bannerPadH),borderRadius:px(12),background:"rgba(111,211,228,.15)"});
+    const head = c.day && c.day !== "Today" ? "Up Next · " + c.day : "Up Next";
+    const headW = wrapLines(head, T.caption2[0], "400", false, bw);
+    banner.appendChild(txt(head, T.caption2[0], "400", {wrap:true, leading:T.caption2[1], color:"#9AA7AE"}));
+    // Before: no lineLimit, so a long name wraps. After: one line that shrinks, which
+    // keeps the banner a fixed shape.
+    let nameFit = null, timeFit = null, nameW = null, timeW = null;
+    if (after){
+      nameFit = fit(c.next, T.headline[0], "600", false, bw, 0.6);
+      banner.appendChild(txt(c.next, T.headline[0], "600", {fit:nameFit, leading:T.headline[1], color:"#6FD3E4"}));
+      timeFit = fit(c.nextTime, T.title2[0], "700", false, bw, 0.5);
+      banner.appendChild(txt(c.nextTime, T.title2[0], "700", {fit:timeFit, leading:T.title2[1]}));
+    } else {
+      nameW = wrapLines(c.next, T.headline[0], "600", false, bw);
+      banner.appendChild(txt(c.next, T.headline[0], "600", {wrap:true, leading:T.headline[1], color:"#6FD3E4"}));
+      timeW = wrapLines(c.nextTime, T.title2[0], "700", false, bw);
+      banner.appendChild(txt(c.nextTime, T.title2[0], "700", {wrap:true, leading:T.title2[1]}));
+    }
+    const relW = wrapLines(c.rel, T.caption2[0], "400", false, bw);
+    banner.appendChild(txt(c.rel, T.caption2[0], "400", {wrap:true, leading:T.caption2[1], color:"#9AA7AE"}));
+    col.appendChild(banner);
+    F.wrapped(headW, "“Up Next” heading");
+    F.wrapped(nameW, "banner prayer name"); F.note(nameFit, "banner prayer name");
+    F.wrapped(timeW, "banner time");        F.note(timeFit, "banner time");
+    F.wrapped(relW, "banner countdown");
+
+    // rows
+    const listBox = el("div",null,{display:"flex",flexDirection:"column",borderRadius:px(12),
+      background:"rgba(255,255,255,.10)",overflow:"hidden"});
+    const rowInner = inner - 2*cardPad;
+    let worstName = null, worstTime = null;
+    const fellBackNames = [], compactNames = [];
+    c.rows.forEach((r, i)=>{
+      const [name, time, day] = r;
+      // After: the day is named once, on a rule above the first row of that day.
+      if (after && day && (i === 0 || c.rows[i-1][2] !== day)){
+        const brk = el("div","rowline",{gap:px(6),padding:px(8)+" "+px(cardPad)+" "+px(2)});
+        brk.appendChild(txt(day, T.caption2[0], "400", {leading:T.caption2[1], color:"#9AA7AE"}));
+        brk.appendChild(el("span",null,{flex:"1 1 auto",height:"1px",background:"rgba(255,255,255,.3)"}));
+        listBox.appendChild(brk);
+      }
+      const row = el("div","rowline",{padding:px(6)+" "+px(cardPad),gap:0});
+      row.appendChild(badge(iconD, rowStyle[0]*0.62, name));
+      const gap = el("span",null,{width:px(iconGap),flex:"none"}); row.appendChild(gap);
+
+      const textRoom = rowInner - iconD - iconGap - 4;
+      const stacked = after && AX;
+      let timeF, nameF, shownName = name, fellBack = false;
+      if (stacked){
+        // The stacked layout: the time moves under the name, so each gets the whole
+        // remaining width.
+        timeF = fit(time, rowStyle[0], "600", false, textRoom + 4, 0.8);
+        nameF = fit(name, rowStyle[0], "400", false, textRoom + 4, 0.7);
+      } else {
+        timeF = fit(time, rowStyle[0], "600", false, textRoom, after ? 0.8 : 0.7);
+        // After gives the time layout priority: the name yields first.
+        const nameRoom = after ? Math.max(0, textRoom - timeF.drawn)
+                               : textRoom - measure(time, rowStyle[0], "600", false);
+        nameF = fit(name, rowStyle[0], "400", false, Math.max(0,nameRoom), after ? 0.7 : 0.8);
+      }
+
+      let nameStyle = rowStyle;
+      if (after && nameF.scale < 1){
+        // PrayerNameText's ladder: the whole name, the whole name one type style down,
+        // then the initial. Never a clipped word.
+        const room = nameF.avail;
+        if (measure(name, T.caption2[0], "400", false) <= room){
+          nameStyle = T.caption2;
+          nameF = fit(name, T.caption2[0], "400", false, room, 1);
+          compactNames.push(name);
+        } else {
+          shownName = name.trim().charAt(0).toUpperCase();
+          fellBack = true;
+          nameF = fit(shownName, rowStyle[0], "400", false, room, 0.5);
+        }
+      }
+      const nameCol = el("div",null,{display:"flex",flexDirection:"column",flex:"1 1 auto",minWidth:0});
+      nameCol.appendChild(txt(shownName, nameStyle[0], "400", {fit:nameF, leading:nameStyle[1]}));
+      if (day && !after) nameCol.appendChild(txt(day, Math.min(10, T.caption2[0]), "400", {leading:13, color:"#9AA7AE"}));
+      if (stacked) nameCol.appendChild(txt(time, rowStyle[0], "600", {fit:timeF, leading:rowStyle[1]}));
+      if (fellBack) fellBackNames.push(name);
+      row.appendChild(nameCol);
+      if (!stacked){
+        row.appendChild(el("span",null,{flex:"1 1 auto",minWidth:px(4)}));
+        row.appendChild(txt(time, rowStyle[0], "600", {fit:timeF, leading:rowStyle[1]}));
+      }
+      listBox.appendChild(row);
+      if (i < c.rows.length-1){
+        const d = el("div",null,{height:"1px",background:"rgba(255,255,255,.18)",marginLeft:px(40)});
+        listBox.appendChild(d);
+      }
+      if (!worstName || nameF.scale < worstName.scale) worstName = nameF;
+      if (!worstTime || timeF.scale < worstTime.scale) worstTime = timeF;
+    });
+    col.appendChild(listBox);
+    if (fellBackNames.length){
+      F.add("warn","initial", fellBackNames.join(", ") + (fellBackNames.length > 1 ? " show" : " shows")
+        + " as an initial — the name does not fit even a size down");
+    } else if (compactNames.length){
+      F.add("ok","a size down", compactNames.join(", ") + " set in caption2 to fit the row");
+    } else {
+      F.note(worstName, "row prayer name");
+    }
+    F.note(worstTime, "row time");
+
+    // refresh button + sync line
+    const btnH = T.caption1[1] + 16;
+    const btn = el("div",null,{minHeight:px(btnH),borderRadius:px(btnH/2),background:"rgba(255,255,255,.16)",
+      display:"flex",alignItems:"center",justifyContent:"center",gap:px(4),
+      padding:px(4)+" "+px(8),flex:"none"});
+    btn.appendChild(glyph(T.caption1[0]));
+    const rw = wrapLines("Refresh", T.caption1[0], "400", false, inner - 30);
+    btn.appendChild(txt("Refresh", T.caption1[0], "400", {wrap:true, leading:T.caption1[1]}));
+    col.appendChild(btn);
+    F.wrapped(rw, "Refresh label");
+
+    const sync = txt("Synced 4 minutes ago", T.caption2[0], "400",
+      {leading:T.caption2[1], color:"#9AA7AE"});
+    sync.style.whiteSpace = "normal"; sync.style.textAlign = "center";
+    col.appendChild(sync);
+
+    const cbtn = el("div",null,{minHeight:px(btnH),borderRadius:px(btnH/2),background:"rgba(255,255,255,.16)",
+      display:"flex",alignItems:"center",justifyContent:"center",gap:px(4),
+      padding:px(4)+" "+px(8),flex:"none",
+      marginLeft:px(gutter),marginRight:px(gutter),marginTop:px(12)});
+    cbtn.appendChild(glyph(T.caption1[0]));
+    const cw = wrapLines("Tasbeeh Counter", T.caption1[0], "400", false, inner - 30);
+    cbtn.appendChild(txt("Tasbeeh Counter", T.caption1[0], "400", {wrap:true, leading:T.caption1[1]}));
+    F.wrapped(cw, "“Tasbeeh Counter” label");
+
+    f.content.appendChild(col);
+    f.content.appendChild(cbtn);
+    f.content.dataset.scrolls = "1";
+    f.content.dataset.screenHeight = String(f.avail);
+    return {stage:f.stage, findings:F, metrics:"gutter " + gutter + "pt · row style "
+      + (after ? "footnote" : "body") + " " + rowStyle[0] + "pt"};
+  }
+
+  // ---- Screen 2: the counter --------------------------------------------
+  function counter(watch, T, c, after){
+    const F = Findings();
+    const f = screenFrame(watch, "Tasbeeh");
+    const gutter = 6, bottomPad = 4, vgap = 6;
+    const dialPadH = after ? 10 : 16;
+    const hintText = after ? "Tap · Pinch" : "Tap · Pinch · Crown";
+    const hintSize = 9;
+    const inner = watch.w - 2*gutter;
+
+    const targetH = 11 * 1.2;
+    const ctrlH = 13 * 1.2 + 16;
+    const availH = f.avail - bottomPad;
+    const dialSide = Math.min(inner, availH - targetH - ctrlH - 2*vgap);
+
+    const col = el("div",null,{display:"flex",flexDirection:"column",gap:px(vgap),
+      paddingLeft:px(gutter),paddingRight:px(gutter)});
+
+    const label = c.target ? (c.count % c.target === 0 && c.count ? c.target : c.count % c.target) + " / " + c.target : "No target";
+    const tRow = el("div","rowline",{gap:px(4),justifyContent:"center"});
+    tRow.appendChild(glyph(9));
+    tRow.appendChild(txt(label, 11, "400", {color:"#9AA7AE"}));
+    if (c.lap > 1) tRow.appendChild(txt("×"+c.lap, 11, "600", {color:"#9AA7AE"}));
+    col.appendChild(tRow);
+
+    const dial = el("div",null,{width:px(dialSide),height:px(dialSide),borderRadius:"50%",alignSelf:"center",
+      background:"rgba(111,211,228,.18)",display:"flex",flexDirection:"column",
+      alignItems:"center",justifyContent:"center",flex:"none",overflow:"hidden"});
+    const countRoom = dialSide - 2*dialPadH;
+    const countSize = 42;
+    const cf = fit(String(c.count), countSize, "700", true, countRoom, 0.4);
+    dial.appendChild(txt(String(c.count), countSize, "700", {fit:cf, rounded:true}));
+    const hw = wrapLines(hintText, hintSize, "400", false, countRoom);
+    dial.appendChild(txt(hintText, hintSize, "400", {wrap:true, color:"#9AA7AE"}));
+    col.appendChild(dial);
+    F.note(cf, "count");
+    if (hw.lines > 1) F.add("warn", "hint wraps",
+      "“" + hintText + "” needs " + hw.natural.toFixed(0) + "pt, has " + hw.avail.toFixed(0)
+      + "pt — it takes " + hw.lines + " lines inside the dial");
+
+    const ctrls = el("div","rowline",{gap:px(6),justifyContent:"center"});
+    [0,1].forEach(()=>{
+      const b = el("div",null,{height:px(ctrlH),flex:"1 1 0",borderRadius:px(ctrlH/2),
+        background:"rgba(255,255,255,.16)",display:"flex",alignItems:"center",justifyContent:"center"});
+      b.appendChild(glyph(13));
+      ctrls.appendChild(b);
+    });
+    col.appendChild(ctrls);
+    f.content.appendChild(col);
+
+    const used = targetH + vgap + dialSide + vgap + ctrlH;
+    if (dialSide <= 0){
+      F.add("fail","no room","the dial has no height left after the target row and controls");
+    } else if (used > availH + 0.5){
+      F.add("fail","off-screen", (used-availH).toFixed(1) + "pt of the stack is past the bottom of the display");
+    } else if (dialSide < inner - 1){
+      F.add("ok","height-limited", "the dial is " + dialSide.toFixed(0) + "pt, not the "
+        + inner.toFixed(0) + "pt the width allows — the screen runs out of height first");
+    }
+    if (dialSide > 0 && dialSide < 70) F.add("warn","dial small", dialSide.toFixed(0) + "pt across");
+
+    if (used > availH + 0.5){
+      const line = el("div","cutline",{top:px(f.NAV + availH)});
+      f.stage.querySelector(".screen").appendChild(line);
+      const lab = el("div","cutlabel",{top:px(f.NAV + availH + 2)});
+      lab.textContent = "screen bottom";
+      f.stage.querySelector(".screen").appendChild(lab);
+    }
+    return {stage:f.stage, findings:F,
+      metrics:"dial " + Math.max(0,dialSide).toFixed(0) + "pt · stack " + used.toFixed(0)
+        + "pt of " + availH.toFixed(0) + "pt"};
+  }
+
+  // ---- Assembly ----------------------------------------------------------
+  function specimen(title, res){
+    const box = el("div","spec");
+    const h = el("div","spec-head"); h.textContent = title; box.appendChild(h);
+    box.appendChild(res.stage);
+    const m = el("p","metrics"); m.textContent = res.metrics; box.appendChild(m);
+    box.appendChild(res.findings.render());
+    return box;
+  }
+  function render(){
+    const w = state.watch, T = TYPE[state.type], c = CASES[state.caseName];
+    const lc = document.getElementById("listCard"); lc.textContent = "";
+    const cc = document.getElementById("counterCard"); cc.textContent = "";
+    const p1 = el("div","pair");
+    p1.appendChild(specimen("Before", prayerList(w, T, c, false)));
+    p1.appendChild(specimen("After",  prayerList(w, T, c, true)));
+    lc.appendChild(p1);
+    const p2 = el("div","pair");
+    p2.appendChild(specimen("Before", counter(w, T, c, false)));
+    p2.appendChild(specimen("After",  counter(w, T, c, true)));
+    cc.appendChild(p2);
+    annotateScrollers();
+  }
+
+  // A screen showing only its first screenful isn't cropped, it's scrolled — say so,
+  // and say how far the content runs, since that is the only thing height means here.
+  function annotateScrollers(){
+    document.querySelectorAll('[data-scrolls="1"]').forEach(body=>{
+      const screen = body.closest(".screen");
+      if (!screen || screen.querySelector(".scrollfade")) return;
+      const contentPt = body.getBoundingClientRect().height / state.zoom;
+      const screenPt = parseFloat(body.dataset.screenHeight);
+      if (contentPt <= screenPt + 1) return;
+      const NAV = parseFloat(body.style.top) / state.zoom;
+      if (state.full){
+        // The screen scrolls, so showing only its first screenful hides the rows this
+        // page exists to check. Opened out, with the fold marked.
+        screen.style.height = px(NAV + contentPt);
+        const fold = el("div","foldline",{top:px(NAV + screenPt)});
+        screen.appendChild(fold);
+        const fl = el("div","foldlabel",{top:px(NAV + screenPt + 2)});
+        fl.textContent = "screenful ends";
+        screen.appendChild(fl);
+      } else {
+        screen.appendChild(el("div","scrollfade"));
+        const tag = el("div","scrolltag");
+        tag.textContent = "scrolls · " + contentPt.toFixed(0) + "pt of content";
+        screen.appendChild(tag);
+      }
+      const spec = screen.closest(".spec");
+      const m = spec && spec.querySelector(".metrics");
+      if (m) m.textContent += " · content " + contentPt.toFixed(0) + "pt";
+    });
+  }
+  function chipRow(host, items, isOn, onPick){
+    host.textContent = "";
+    items.forEach(it=>{
+      const b = el("button","chip"); b.type="button"; b.textContent = it.label;
+      b.setAttribute("aria-pressed", isOn(it) ? "true":"false");
+      b.addEventListener("click", ()=>{ onPick(it); build(); });
+      host.appendChild(b);
+    });
+  }
+  function build(){
+    chipRow(document.getElementById("watchChips"), WATCHES.map(x=>({label:x.id,v:x})),
+      it=>it.v===state.watch, it=>state.watch=it.v);
+    chipRow(document.getElementById("typeChips"), Object.keys(TYPE).map(k=>({label:k,v:k})),
+      it=>it.v===state.type, it=>state.type=it.v);
+    chipRow(document.getElementById("caseChips"), Object.keys(CASES).map(k=>({label:k,v:k})),
+      it=>it.v===state.caseName, it=>state.caseName=it.v);
+    chipRow(document.getElementById("zoomChips"), [1.6,2.4,3.2].map(z=>({label:z+"×",v:z})),
+      it=>it.v===state.zoom, it=>state.zoom=it.v);
+    chipRow(document.getElementById("scrollChips"),
+      [{label:"first screenful",v:false},{label:"whole scroll",v:true}],
+      it=>it.v===state.full, it=>state.full=it.v);
+    render();
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(build);
+  build();
+})();
+</script>

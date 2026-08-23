@@ -67,6 +67,7 @@ flutter:
     - assets/events.json
     - assets/items.json
     - assets/logo.png
+    - assets/retired_slugs.json
     - assets/zikr.json
     - assets/hadith/
     - assets/images/

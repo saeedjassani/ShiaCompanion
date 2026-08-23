@@ -209,14 +209,32 @@ struct NextPrayerComplicationView: View {
         }
     }
 
+    /// Symbol over time, both sized from the container.
+    ///
+    /// The circular family is a circle drawn inside a square, and the square is what
+    /// SwiftUI proposes to its content — so a time laid out to the full proposed width
+    /// runs out through the sides of the circle and loses its last digits. Everything
+    /// here is a fraction of the container's side, and the time is held to the chord
+    /// across the band it sits in, so it scales down instead of being clipped.
     private var circular: some View {
-        VStack(spacing: 0) {
-            Image(systemName: entry.symbolName)
-                .font(.system(size: 12, weight: .medium))
-            Text(entry.compactTime)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
+        GeometryReader { proxy in
+            let side = min(proxy.size.width, proxy.size.height)
+
+            VStack(spacing: 0) {
+                Image(systemName: entry.symbolName)
+                    .font(.system(size: side * 0.20, weight: .medium))
+                Text(entry.compactTime)
+                    .font(.system(size: side * 0.34, weight: .semibold, design: .rounded))
+                    .minimumScaleFactor(0.45)
+                    .allowsTightening(true)
+                    .lineLimit(1)
+                    // 0.70, not the 0.76 the widest band would allow: the symbol above
+                    // pushes the time below centre, and the chord it sits in is
+                    // narrower than the one through the middle. Measured against
+                    // "11:58" on a 42pt circle, which is where 0.76 ran over.
+                    .frame(width: side * 0.70)
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .widgetAccentable()
         // Faces with a label slot draw the name outside the circle — the only
@@ -227,8 +245,14 @@ struct NextPrayerComplicationView: View {
     }
 
     private var corner: some View {
+        // Corner gives its content the least room of any family, so the time is
+        // allowed to shrink a long way before it would ever be truncated: a
+        // small time is still the time, an elided one is useless.
         Text(entry.compactTime)
-            .font(.system(size: 16, weight: .semibold, design: .rounded))
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .minimumScaleFactor(0.4)
+            .allowsTightening(true)
+            .lineLimit(1)
             .widgetLabel {
                 // Corner is the cropping case, confirmed on-device: the curved
                 // bezel label shares its arc with the time, and a name of any
@@ -239,48 +263,78 @@ struct NextPrayerComplicationView: View {
 
     private var inline: some View {
         Label {
-            Text(entry.hasData ? "\(entry.name) \(entry.compactTime)" : "Open Shia Companion")
+            // Kept short: the inline slot is the one family whose width the system
+            // owns, and it elides rather than scales.
+            Text(entry.hasData ? "\(entry.name) \(entry.compactTime)" : "Open iPhone app")
         } icon: {
             Image(systemName: entry.symbolName)
         }
     }
 
+    /// A name row and a time row, and nothing else.
+    ///
+    /// Not where the cropping was — the family is 152x69.5pt even on a 40mm watch, and
+    /// the previous three-row stack (`.headline` name, 15pt time, caption countdown)
+    /// measured about 9pt inside that. This is a legibility change rather than a fix:
+    /// the time was the smallest thing on the roomiest family, and the countdown had
+    /// nothing bounding its width. Beside the time instead of under it, the countdown
+    /// is capped, the time is half again as large, and the stack keeps ~25pt spare for
+    /// larger accessibility text.
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 3) {
                 Image(systemName: entry.symbolName)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 10, weight: .medium))
                 if entry.hasData {
-                    // Roomiest family, and confirmed on-device to hold the whole
-                    // word next to the symbol.
-                    Text(entry.name)
-                        .font(.headline)
-                        .lineLimit(1)
+                    // Degrades name → initial rather than clipping the word; the day
+                    // label goes first, since the time below already implies the day.
+                    PrayerNameText(
+                        name: entry.name,
+                        dayLabel: entry.dayLabel == "Today" ? "" : entry.dayLabel,
+                        font: .system(size: 12, weight: .semibold),
+                        compactFont: .system(size: 10.5, weight: .semibold)
+                    )
                 } else {
                     Text("Shia Companion")
-                        .font(.headline)
+                        .font(.system(size: 12, weight: .semibold))
+                        .minimumScaleFactor(0.7)
                         .lineLimit(1)
                 }
             }
             .widgetAccentable()
 
             if entry.hasData {
-                Text(entry.time)
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
-                if let prayerDate = entry.prayerDate {
-                    Text(prayerDate, style: .relative)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(entry.time)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .minimumScaleFactor(0.5)
                         .lineLimit(1)
+                        .layoutPriority(1)
+
+                    Spacer(minLength: 2)
+
+                    if let prayerDate = entry.prayerDate {
+                        // Relative text asks for far more width than a countdown
+                        // needs; cap it so it can never push the time out of shape.
+                        Text(prayerDate, style: .relative)
+                            .font(.system(size: 10))
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.trailing)
+                            .minimumScaleFactor(0.6)
+                            .lineLimit(1)
+                            .frame(maxWidth: 58, alignment: .trailing)
+                    }
                 }
             } else {
                 Text(entry.hint)
-                    .font(.caption2)
+                    .font(.system(size: 11))
                     .foregroundStyle(.secondary)
+                    .lineLimit(2)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+
 }
 
 private extension View {
@@ -331,13 +385,18 @@ struct ShiaCompanionWatchWidgetsBundle: WidgetBundle {
 
 #if DEBUG
 private extension NextPrayerEntry {
-    static func preview(_ name: String, _ time: String) -> NextPrayerEntry {
+    static func preview(
+        _ name: String,
+        _ time: String,
+        dayLabel: String = "Today",
+        in seconds: TimeInterval = 1800
+    ) -> NextPrayerEntry {
         NextPrayerEntry(
             date: Date(),
             name: name,
             time: time,
-            prayerDate: Date().addingTimeInterval(1800),
-            dayLabel: "Today",
+            prayerDate: Date().addingTimeInterval(seconds),
+            dayLabel: dayLabel,
             location: "Karbala",
             hasData: true,
             hint: ""
@@ -356,18 +415,26 @@ struct NextPrayerComplication_Previews: PreviewProvider {
     /// Maghrib and Midnight are the longest labels the phone can send, and the
     /// reason the short forms exist — preview both so cropping shows up here
     /// rather than on someone's wrist.
-    private static let samples: [NextPrayerEntry] = [
-        .preview("Asr", "4:15 pm"),
-        .preview("Maghrib", "7:30 pm"),
-        .preview("Midnight", "11:58 pm"),
+    private static let samples: [(String, NextPrayerEntry)] = [
+        ("Asr", .preview("Asr", "4:15 pm")),
+        ("Maghrib", .preview("Maghrib", "7:30 pm")),
+        // The widest the complication ever gets: longest name, widest time, a day
+        // label, and a countdown long enough to want a lot of room.
+        ("Midnight tomorrow", .preview(
+            "Midnight",
+            "11:58 pm",
+            dayLabel: "Tomorrow",
+            in: 13 * 3600
+        )),
+        ("Empty", .empty(hint: "Open the iPhone app to sync prayer times.")),
     ]
 
     static var previews: some View {
         ForEach(families, id: \.self) { family in
-            ForEach(samples, id: \.name) { entry in
+            ForEach(samples, id: \.0) { name, entry in
                 NextPrayerComplicationView(entry: entry)
                     .previewContext(WidgetPreviewContext(family: family))
-                    .previewDisplayName("\(entry.name) – \(String(describing: family))")
+                    .previewDisplayName("\(name) – \(String(describing: family))")
             }
         }
     }
