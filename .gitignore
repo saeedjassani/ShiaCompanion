@@ -291,3 +291,8 @@ test_visual/test-results/
 # A local run seeds one for its own platform; that is scratch, not a baseline.
 test_visual/specs/__screenshots__/*
 !test_visual/specs/__screenshots__/linux/
+
+# zikr-arabic working files
+.zikr-backups/
+scripts/zikr_arabic/.patch.json
+scripts/zikr_arabic/__pycache__/
