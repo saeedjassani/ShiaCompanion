@@ -115,38 +115,54 @@ class ZikrContentParser {
     return englishCodes;
   }
 
-  // Maps the Indo-Pak/Qalam-style letterforms the Arabic text is authored
-  // in to standard modern Arabic, for fonts other than Qalam that don't
-  // carry those letterforms (confirmed via font inspection: MeQuran's font
-  // file has no glyphs at all for ی/ہ/ھ/ک/ۃ, so they'd render as missing
-  // boxes there without this mapping).
+  // Maps the Indo-Pak/Qalam-style letterforms the Arabic text is authored in
+  // to standard modern Arabic, for fonts other than Qalam that lack them.
+  // Each entry replaces a single character in place, so it applies regardless
+  // of what follows (line end, punctuation, another mark).
   //
-  // Each entry replaces a single character in place, so it applies
-  // regardless of what follows it (line end, punctuation, another mark).
+  // Mirrors `font_runtime` in scripts/zikr_arabic/rules.json — keep the two in
+  // step; scripts/zikr_arabic/audit.py checks the result against each font's
+  // real cmap, so drift here shows up as an INV-2 failure.
   //
-  // Deliberately NOT touched here: کھڑی زیر / khaṛi zer (ٖ) and الٹا پیش /
-  // ulta pesh (ٗ). An earlier version of this mapping flattened them to a
-  // plain kasra/damma, reasoning from the pre-3-line manual transcripts
-  // (which spell the same words with plain harakat). That reasoning was
-  // wrong — confirmed by the zikr content's author: those older transcripts
-  // were simply less precise, and khaṛi zer / ulta pesh are their own
-  // correct, distinct Indo-Pak Qur'anic marks, not shorthand for the plain
-  // vowel. All three bundled fonts have glyphs for both (checked via their
-  // cmaps), so leaving them as-is is also not a rendering risk.
-  static const Map<String, String> _indoPakToStandard = {
+  // الٹا پیش / ulta pesh (ٗ) and کھڑی زیر / khaṛi zer (ٖ) ARE flattened here,
+  // to a plain damma/kasra. This is a rendering decision, not a claim about
+  // the text: both marks are correct and distinct in the stored Indo-Pak
+  // text, and normalization must never strip them at the source. But the
+  // codepoint being present in a font's cmap does not mean the font draws it
+  // properly — Uthmani renders ulta pesh as a slanted stroke indistinguishable
+  // from a fatha, so "عِلْمَهٗ" would read as "عِلْمَهَ", and MeQuran collides
+  // the mark with the letter. A plain damma is the correct reading and both
+  // fonts draw it cleanly.
+  static const Map<String, String> _indoPakLetters = {
     'ی': 'ي', // Farsi/Urdu yeh -> Arabic yeh
     'ہ': 'ه', // Urdu heh goal -> Arabic heh
     'ھ': 'ه', // Urdu doachashmi heh -> Arabic heh
     'ک': 'ك', // Urdu keheh -> Arabic kaf
     'ۃ': 'ة', // Urdu teh marbuta goal -> Arabic teh marbuta
+    'ٗ': 'ُ', // ulta pesh -> damma (Uthmani draws ٗ like a fatha)
+    'ٖ': 'ِ', // khaṛi zer -> kasra, for the same reason
   };
+
+  // MeQuran's font file carries none of the Indo-Pak letterforms above, and
+  // also nothing for these two, which Qalam and Uthmani both have. Without
+  // them the glyphs come from a system fallback font instead of the selected
+  // one, so a line renders in two different faces at once.
+  static const Map<String, String> _meQuranOnly = {
+    'ؕ': '', // small high tah, the Indo-Pak waqf mark (3.4k in the corpus)
+    'ٮ': 'ى', // dotless beh used as the dagger-alef carrier in mushaf rasm
+  };
+
+  static Map<String, String> _substitutionsFor(String font) => {
+        ..._indoPakLetters,
+        if (font == 'MeQuran') ..._meQuranOnly,
+      };
 
   static String formatArabicText(String str) {
     if (arabicFont == 'Qalam') {
       return str;
     }
     var result = str;
-    _indoPakToStandard.forEach((from, to) {
+    _substitutionsFor(arabicFont).forEach((from, to) {
       result = result.replaceAll(from, to);
     });
     return result
@@ -154,7 +170,11 @@ class ZikrContentParser {
         // spelling) is also caught, not just "الله".
         .replaceAll('الله', 'اللّٰه')
         // Single-codepoint "Allah" ligature; Uthmani's font file has no
-        // glyph for it, so it renders as a missing-glyph box there today.
+        // glyph for it. The ligature already carries the initial alif, so the
+        // alif-prefixed spellings must be matched first — replacing the bare
+        // ligature inside "اﷲ" yields a doubled alif ("االلّٰه").
+        .replaceAll('اَﷲ', 'اَللّٰه')
+        .replaceAll('اﷲ', 'اللّٰه')
         .replaceAll('ﷲ', 'اللّٰه')
         .replaceAll('اۤ', 'ا');
   }

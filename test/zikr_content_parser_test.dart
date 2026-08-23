@@ -16,13 +16,18 @@ void main() {
         'وَ اَنَا وَ لِىٌّ لَهٗ');
   });
 
-  test(
-      'formatArabicText leaves khaṛi zer / ulta pesh untouched (distinct marks, not shorthand)',
+  test('formatArabicText flattens ulta pesh / khaṛi zer for non-Qalam fonts',
       () {
+    // Uthmani has U+0657 in its cmap but draws it as a slanted stroke that
+    // reads as a fatha, so leaving it through turns "lahu" into "laha".
+    // The marks stay intact in the stored text; only rendering flattens them.
     arabicFont = 'Uthmani';
+    expect(ZikrContentParser.formatArabicText('لَهٗ'), 'لَهُ');
+    expect(ZikrContentParser.formatArabicText('اٰيَاتِهٖ'), 'اٰيَاتِهِ');
+    arabicFont = 'MeQuran';
+    expect(ZikrContentParser.formatArabicText('بِهٖ وَ'), 'بِهِ وَ');
+    arabicFont = 'Qalam';
     expect(ZikrContentParser.formatArabicText('لَهٗ'), 'لَهٗ');
-    expect(ZikrContentParser.formatArabicText('اٰيَاتِهٖ'), 'اٰيَاتِهٖ');
-    expect(ZikrContentParser.formatArabicText('بِهٖ وَ'), 'بِهٖ وَ');
   });
 
   test('formatArabicText maps Indo-Pak letterforms to standard Arabic', () {
@@ -35,34 +40,55 @@ void main() {
 
   test('formatArabicText expands the single-codepoint Allah ligature', () {
     arabicFont = 'Uthmani';
+    // The ligature carries its own alif: the result must not double it.
     expect(ZikrContentParser.formatArabicText('صَلَّی اﷲُ عَلٰی'),
-        contains('اللّٰهُ'));
+        'صَلَّي اللّٰهُ عَلٰي');
+    expect(ZikrContentParser.formatArabicText('اَﷲُ'), 'اَللّٰهُ');
   });
 
   test(
-      'formatArabicText leaves no Indo-Pak-only character in any bundled zikr',
+      'formatArabicText leaves no glyph-less character in any bundled zikr',
       () {
-    arabicFont = 'Uthmani';
-    // ٗ (ulta pesh) and ٖ (khaṛi zer) are deliberately excluded: they're
-    // correct, distinct Indo-Pak marks, not something to flatten away.
-    const indoPakOnly = ['ی', 'ہ', 'ھ', 'ک', 'ۃ', 'ﷲ'];
+    // Characters each font's file has no glyph for, so they would be drawn
+    // from a system fallback instead of the selected font. Verified against
+    // the real cmaps by scripts/zikr_arabic/audit.py (INV-2); this test is
+    // the cheap guard that runs on every change.
+    //
+    // ٗ (ulta pesh) and ٖ (khaṛi zer) are deliberately absent from both lists:
+    // they're correct, distinct Indo-Pak marks, not something to flatten
+    // away, and all three fonts carry them.
+    const perFont = {
+      'Uthmani': ['ی', 'ہ', 'ھ', 'ک', 'ۃ', 'ﷲ'],
+      'MeQuran': ['ی', 'ہ', 'ھ', 'ک', 'ۃ', 'ﷲ', 'ؕ', 'ٮ'],
+    };
     final dir = Directory('assets/zikr');
     final offenders = <String>[];
-    for (final entry in dir.listSync().whereType<File>()) {
-      final decoded = json.decode(entry.readAsStringSync());
-      if (decoded is! Map || decoded['data'] is! String) continue;
-      final formatted =
-          ZikrContentParser.formatArabicText(decoded['data'] as String);
-      for (final ch in indoPakOnly) {
-        if (formatted.contains(ch)) {
-          offenders.add('${entry.path}: still contains $ch');
+
+    for (final entry in perFont.entries) {
+      arabicFont = entry.key;
+      for (final file in dir.listSync().whereType<File>()) {
+        final decoded = json.decode(file.readAsStringSync());
+        if (decoded is! Map) continue;
+        final sources = <String>[
+          if (decoded['data'] is String) decoded['data'] as String,
+          if (decoded['merits'] is String) decoded['merits'] as String,
+          if (decoded['tabs'] is List)
+            ...(decoded['tabs'] as List).whereType<String>(),
+        ];
+        for (final source in sources) {
+          final formatted = ZikrContentParser.formatArabicText(source);
+          for (final ch in entry.value) {
+            if (formatted.contains(ch)) {
+              offenders.add('${entry.key} ${file.path}: still contains $ch');
+            }
+          }
+          if (formatted.contains('الله')) {
+            offenders.add('${entry.key} ${file.path}: "الله" unconverted');
+          }
         }
       }
-      if (formatted.contains('الله')) {
-        offenders.add('${entry.path}: "الله" survived unconverted');
-      }
     }
-    expect(offenders, isEmpty, reason: offenders.join('\n'));
+    expect(offenders, isEmpty, reason: offenders.take(20).join('\n'));
   });
 
   test('isArabic scans each early character', () {
