@@ -31,7 +31,13 @@ are stale legacy scrape dumps. Ignore them.
 |---|---|---|
 | Authored | ~168 | Written by the app's other admin. Indo-Pak notation, `ي`/`ه`/`ك` dominant, ulta pesh and khaṛi zer used deliberately. This is the house style. |
 | Quran surahs | 115 | Every `A<n>` uid. Mushaf text, full of `ؕ` waqf marks and `ٮ`. **Excluded from every editing pass** — `corpus.load_corpus()` skips them unless asked by name. Still audited, since they ship and still have to render. Detect by uid, not by title: `A4` is Ayat al-Kursi and has no `2:` prefix. |
-| Imported du'a | 47 | duas.org-lineage. Standard-Arabic notation: `ٱ`, `أ`, `إ`, no ṣilah marks. These are what the normalization pass is mostly for. |
+| Imported du'a | 47 | duas.org imports — **confirmed by the repo owner**, not inferred. Standard-Arabic notation: `ٱ`, `أ`, `إ`, no ṣilah marks. These are what the normalization pass is mostly for. |
+
+Nothing in Firestore records provenance — none of the 936 documents carries a
+source field, and `scripts/import_dua_from_url.js` does not write one. The
+lineage above is recoverable only from notation: measure `ٱ أ إ ﭐ` against
+`ی ہ ھ ۃ ک ٮ ؕ`, normalised per 1,000 Arabic characters. The authored files
+have zero `ٱ` and 20 `أ` across 833k characters; the imports have thousands.
 
 There is **no single house letterform** to restyle toward: within the authored
 files, 73 use only `ي` and 27 only `ی`. Do not "unify" `ي`/`ی`, `ه`/`ہ`,
