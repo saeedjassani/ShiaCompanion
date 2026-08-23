@@ -8,6 +8,7 @@ import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
 
 import '../constants.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 
 class TodaysRecitationPage extends StatelessWidget {
   const TodaysRecitationPage({super.key});
@@ -44,14 +45,16 @@ class TodaysRecitationPage extends StatelessWidget {
                                     itemData.title)));
                       } else {
                         await handleUniversalDataClick(context,
-                            UniversalData(itemData.uid, itemData.title, 0));
+                            UniversalData(itemData.uid, itemData.title, 0),
+                            source: ZikrOpenSource.todaysRecitation);
                       }
                     },
                     onLongPress: () {
                       if (isUserAdmin)
                         handleUniversalDataClick(context,
                             UniversalData(itemData.uid, itemData.title, 0),
-                            itemPage: true);
+                            itemPage: true,
+                            source: ZikrOpenSource.todaysRecitation);
                     },
                     title: isUserAdmin
                         ? Text(itemData.uid + " " + itemData.title)

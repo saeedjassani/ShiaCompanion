@@ -7,6 +7,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../constants.dart';
 import '../models/prayer_counter_state.dart';
+import '../services/analytics_service.dart';
 import '../services/proximity_sensor_service.dart';
 import '../utils/shared_preferences.dart';
 import '../widgets/responsive_content.dart';
@@ -156,6 +157,11 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     setState(() => _counter = _counter.recordSajdah());
     _saveCounter();
     if (_counter.isComplete) {
+      unawaited(AnalyticsService.feature(
+        'rakaat_prayer_completed',
+        label: 'Rakaat counter completed',
+        parameters: {'total_rakaat': _counter.totalRakaat},
+      ));
       HapticFeedback.heavyImpact();
       unawaited(_setSensorEnabled(false));
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,4 +1,3 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -69,9 +68,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final FirebaseAnalyticsObserver? analyticsObserver = kIsWeb
-        ? null
-        : FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance);
     Widget buildHomePage() => MyHomePage(
           title: appName,
         );
@@ -147,7 +143,10 @@ class MyApp extends StatelessWidget {
             );
           },
           navigatorObservers: [
-            if (analyticsObserver != null) analyticsObserver,
+            // No FirebaseAnalyticsObserver: routes here are pushed without
+            // names, so it logged blank screens on mobile and double-counted
+            // every screen that also calls trackScreen. AnalyticsService.screen
+            // is the single source of screen views, on every platform.
             routeObserver,
           ],
         );

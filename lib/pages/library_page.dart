@@ -10,6 +10,7 @@ import '../constants.dart';
 import '../services/favorites_manager.dart';
 import 'chapter_list_page.dart';
 import 'chapter_page.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 
 class LibraryPage extends StatefulWidget {
   @override
@@ -263,7 +264,8 @@ class _BookTile extends StatelessWidget {
       subtitle: author == null
           ? null
           : Text(author, maxLines: 2, overflow: TextOverflow.ellipsis),
-      onTap: () => handleUniversalDataClick(context, itemData),
+      onTap: () => handleUniversalDataClick(context, itemData,
+          source: ZikrOpenSource.library),
       trailing: Wrap(
         spacing: 12,
         children: [

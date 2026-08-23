@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
+import '../services/analytics_service.dart';
 import '../pages/calendar_page.dart';
 import '../pages/favorites_page.dart';
 import '../pages/flights_page.dart';
@@ -33,8 +34,23 @@ class HomeMenuItem {
   final HomeMenuPageBuilder pageBuilder;
 
   Widget buildPage() {
+    // Every home menu feature is opened through here, so one hook ranks Qibla,
+    // Tasbeeh, Qaza, Calendar and the rest against each other without each page
+    // needing its own event.
+    AnalyticsService.feature(
+      'home_menu_$analyticsId',
+      label: label,
+      parameters: {'menu_item': label},
+    );
     return pageBuilder();
   }
+
+  /// Stable id derived from the label, so the counter key survives a rebuild
+  /// but forks if the feature is ever genuinely renamed.
+  String get analyticsId => label
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+      .replaceAll(RegExp(r'^_|_$'), '');
 }
 
 final List<HomeMenuItem> homeMenuItems = List.unmodifiable([

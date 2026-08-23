@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -6,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/utils/deep_links.dart';
@@ -30,7 +32,16 @@ enum _ZikrMenuAction { share, readingSettings, edit }
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
   final bool startEditing;
-  ZikrPage(this.item, {this.startEditing = false});
+
+  /// Where the open came from, so the dashboard can say whether search, the
+  /// home grid or a shared link is what actually brings people to a zikr.
+  final String source;
+
+  ZikrPage(
+    this.item, {
+    this.startEditing = false,
+    this.source = ZikrOpenSource.unknown,
+  });
 
   @override
   _ZikrPageState createState() => _ZikrPageState();
@@ -69,6 +80,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   final Map<int, double> _currentTabScrollOffsets = {};
   final Map<int, double> _currentTabMaxScrollExtents = {};
   final ValueNotifier<double> _readingProgress = ValueNotifier<double>(0);
+  bool _hasRecordedCompletion = false;
+  DateTime? _openedAt;
   ZikrReadingStats _readingStats = ZikrReadingStats.empty;
   String? _readingStatsSignature;
   late final String _counterSessionId;
@@ -90,7 +103,42 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (widget.startEditing) {
       isEditing = true;
     }
+    // The one place a zikr open is counted, so every entry point lands in the
+    // same bucket exactly once.
+    _openedAt = DateTime.now();
+    unawaited(trackScreen('Zikr Page'));
+    unawaited(AnalyticsService.zikrView(
+      uid: widget.item.getUId(),
+      title: widget.item.getTitle(),
+      source: widget.source,
+    ));
+    _readingProgress.addListener(_maybeRecordCompletion);
     _initializePageData();
+  }
+
+  /// Fires at most once. Opening a zikr and reciting one are different things
+  /// and the dashboard should not conflate them.
+  ///
+  /// Scroll position alone is not enough: [zikrTabScrollFraction] treats a zikr
+  /// too short to scroll as fully read the moment it lays out, so a stray tap
+  /// on a two-line dua would outrank a real recitation. Time on the page,
+  /// scaled to how long the text actually takes to recite, is the second half
+  /// of the signal.
+  void _maybeRecordCompletion() {
+    if (_hasRecordedCompletion) return;
+    if (_readingProgress.value < 0.98) return;
+
+    final openedAt = _openedAt;
+    if (openedAt == null) return;
+    final estimatedSeconds = _readingStats.duration.inSeconds;
+    final requiredSeconds = math.max(10, estimatedSeconds ~/ 2);
+    if (DateTime.now().difference(openedAt).inSeconds < requiredSeconds) return;
+
+    _hasRecordedCompletion = true;
+    unawaited(AnalyticsService.zikrCompleted(
+      uid: widget.item.getUId(),
+      title: widget.item.getTitle(),
+    ));
   }
 
   @override
@@ -111,6 +159,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterOffset.dispose();
     _showCounter.dispose();
     _counterCount.dispose();
+    _maybeRecordCompletion();
+    _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.dispose();
     syncZikrWakelockPreference(owner: this, isActive: false);
     super.dispose();
@@ -900,7 +950,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final internalUid = _findInternalUid(href);
     if (internalUid != null) {
       final title = items[internalUid]?.toString() ?? internalUid;
-      await pushPageRoute(context, ZikrPage(UidTitleData(internalUid, title)));
+      await pushPageRoute(
+        context,
+        ZikrPage(
+          UidTitleData(internalUid, title),
+          source: ZikrOpenSource.zikrLink,
+        ),
+      );
       return;
     }
 
@@ -958,7 +1014,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void _handleMenuAction(_ZikrMenuAction action) {
     switch (action) {
       case _ZikrMenuAction.share:
-        if (!_isSharingZikr) _shareCurrentZikr();
+        if (!_isSharingZikr) {
+          unawaited(AnalyticsService.feature(
+            'zikr_shared',
+            label: 'Zikr shared',
+            parameters: {'zikr_uid': widget.item.getFirstUId()},
+          ));
+          _shareCurrentZikr();
+        }
         break;
       case _ZikrMenuAction.readingSettings:
         _scaffoldKey.currentState?.openEndDrawer();

@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/favorites_sync_policy.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -823,6 +824,12 @@ class FavoritesManager extends ChangeNotifier {
             normalizedItem.type,
           );
     if (isFavorite(immediateItem)) return;
+
+    unawaited(AnalyticsService.feature(
+      'favorite_added',
+      label: 'Favorite added',
+      parameters: {'content_type': normalizedItem.type},
+    ));
 
     final nextFavorites = _sanitizeFavorites([
       ..._favorites,
