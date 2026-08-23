@@ -670,9 +670,17 @@
     "title": "Karbala al-Muqaddasah",
     "slug": "karbala-al-muqaddasah"
   },
+  "AF~AH4": {
+    "title": "Kazmayn",
+    "slug": "kazmayn"
+  },
   "AF~AI2": {
     "title": "Kufa",
     "slug": "kufa"
+  },
+  "AF~AJ6": {
+    "title": "Madaeen",
+    "slug": "madaeen"
   },
   "AF~AK1": {
     "title": "Najaf al-Ashraf",
@@ -682,14 +690,6 @@
     "title": "Samarrah",
     "slug": "samarrah"
   },
-  "AF~AH4": {
-    "title": "Kazimayn",
-    "slug": "kazimayn"
-  },
-  "AF~AJ6": {
-    "title": "Madaeen",
-    "slug": "madaeen"
-  },
   "AF~AN8": {
     "title": "Balad",
     "slug": "balad"
@@ -698,13 +698,109 @@
     "title": "Merits of Visiting Imam al-Husayn (a.s.)",
     "slug": "merits-of-visiting-imam-al-husayn-a-s"
   },
+  "AG14": {
+    "title": "Seventh Ziyarah — Ziyarah Warith — Karbala",
+    "slug": "ziyarah-warith-karbala"
+  },
+  "AG18": {
+    "title": "Ziyarah of Hazrat Abbas (a.s.) — Karbala",
+    "slug": "ziyarah-hazrat-abbas-karbala"
+  },
+  "AG5": {
+    "title": "Post-Ziyarah Prayers, Dua & Salawat — Karbala",
+    "slug": "post-ziyarah-dua-salawat-karbala"
+  },
+  "AG6": {
+    "title": "Bidding Farewell (Wida) to Imam Husayn (a.s.) — Karbala",
+    "slug": "farewell-imam-hussain-karbala"
+  },
+  "AG8": {
+    "title": "Ziyarah of Imam Husayn (a.s.) — Karbala (All 6 General Forms)",
+    "slug": "ziyarah-imam-hussain-karbala-all-forms"
+  },
+  "AH10": {
+    "title": "Entrance Permission & Farewell — Kazimayn (Imam al-Kazim & Imam al-Jawad)",
+    "slug": "entrance-farewell-kazimayn"
+  },
+  "AH2": {
+    "title": "Ziyarah of Imam Musa al-Kazim (a.s.) — Kazimayn",
+    "slug": "ziyarah-imam-musa-kazim"
+  },
+  "AH4": {
+    "title": "Salawat Upon Imam Musa al-Kazim (a.s.) — Kazimayn",
+    "slug": "salawat-imam-musa-kazim"
+  },
+  "AH5": {
+    "title": "Ziyarah of Imam Muhammad al-Jawad (a.s.) — Kazimayn",
+    "slug": "ziyarah-imam-muhammad-jawad"
+  },
+  "AH7": {
+    "title": "Invocation of Blessings Upon Imam al-Jawad (a.s.) — Kazimayn",
+    "slug": "salawat-imam-jawad"
+  },
+  "AH9": {
+    "title": "Ziyarah Common to Imam al-Kazim & Imam al-Jawad (a.s.) — Kazimayn",
+    "slug": "ziyarah-common-kazim-jawad"
+  },
   "AI10|H17": {
     "title": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)",
     "slug": "the-whispered-prayer-munajaat-of-ameerul-momeneen-a"
   },
+  "AI11": {
+    "title": "Devotional Acts at Imam al-Sadiq's Bench — Masjid al-Kufah",
+    "slug": "imam-sadiq-bench-kufah"
+  },
+  "AI15": {
+    "title": "Recommended Acts (A'amal) of Masjid al-Sahla",
+    "slug": "aamal-masjid-sahla"
+  },
+  "AI16": {
+    "title": "Recommended Acts (A'amal) of Masjid Zayd",
+    "slug": "aamal-masjid-zayd"
+  },
+  "AI3": {
+    "title": "Recommended Acts (A'amal) of Masjid al-Kufah",
+    "slug": "aamal-masjid-kufah"
+  },
+  "AI4": {
+    "title": "Acts at the Seat of Judgement (Dikkat al-Qadha) & Place of the Wash-Tub — Masjid al-Kufah",
+    "slug": "dikkat-qadha-bayt-tasht-kufah"
+  },
+  "AI5": {
+    "title": "Prayers & Supplications at the Centre of Masjid al-Kufah",
+    "slug": "centre-masjid-kufah"
+  },
+  "AJ2": {
+    "title": "Ziyarah at Madaen — Salman al-Farsi, Hudhayfah al-Yamani, Tahir ibn Imam al-Baqir & Abdullah ibn Jabir (r.a.)",
+    "slug": "ziyarah-madaen-salman-hudhayfah"
+  },
+  "AK15": {
+    "title": "Bidding Farewell to Imam Ali (a.s.) — Najaf",
+    "slug": "farewell-imam-ali-najaf"
+  },
+  "AK5": {
+    "title": "Ziyarah of Imam Ali (a.s.) — Najaf (All Forms)",
+    "slug": "ziyarah-imam-ali-najaf-all-forms"
+  },
+  "AK6": {
+    "title": "Duas After Ziyarah of Imam Ali (a.s.) & After Nafilah — Najaf",
+    "slug": "duas-after-ziyarah-imam-ali-najaf"
+  },
+  "AK7": {
+    "title": "Ziyarah of the Head of Imam Husayn (a.s.) — At Imam Ali’s Shrine, Najaf",
+    "slug": "ziyarah-imam-hussain-head-najaf"
+  },
   "AK8": {
     "title": "Second Ziyarah; Ziyarah of Aminullah (The Trustee of Allah)",
     "slug": "second-ziyarah-ziyarah-of-aminullah-the-trustee-of-allah"
+  },
+  "AL1": {
+    "title": "Combined Ziyarah of Imam Ali al-Naqi & Imam al-Hasan al-Askari — Samarra",
+    "slug": "combined-ziyarah-naqi-askari"
+  },
+  "AL11": {
+    "title": "Ziyarat at the Holy Sardaab (Occultation Cellar) — Samarra",
+    "slug": "ziyarat-holy-sardaab"
   },
   "AL12|G1": {
     "title": "Ziyarat e Aale Yaseen",
@@ -714,6 +810,10 @@
     "title": "Ziyarat al Haqq al Jadeed",
     "slug": "ziyarat-al-haqq-al-jadeed"
   },
+  "AL15": {
+    "title": "Salawat Upon Imam al-Mahdi (a.t.f.s.) — Sardaab, Samarra",
+    "slug": "salawat-imam-mahdi-sardaab"
+  },
   "AL17": {
     "title": "Ziyarat of Imam Mahdi (a.t.f.s.) after the Fajr Prayers (Allaahumma Balligh)",
     "slug": "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh-2"
@@ -721,6 +821,22 @@
   "AL18|E18": {
     "title": "Dua e Ahad",
     "slug": "dua-e-ahad-2"
+  },
+  "AL5": {
+    "title": "Ziyarah of Imam Ali al-Naqi al-Hadi (a.s.) — Samarra",
+    "slug": "ziyarah-imam-ali-naqi"
+  },
+  "AL6": {
+    "title": "Ziyarah of Imam al-Hasan al-Askari (a.s.) — Samarra",
+    "slug": "ziyarah-imam-hasan-askari"
+  },
+  "AL7": {
+    "title": "Bidding Farewell to the Two Imams (Naqi & Askari) — Samarra",
+    "slug": "farewell-two-imams-samarra"
+  },
+  "AN1": {
+    "title": "Ziyarah of Sayyid Muhammad, Son of Imam Ali al-Hadi (a.s.) — Balad",
+    "slug": "ziyarah-sayed-mohammed-balad"
   },
   "AS1": {
     "title": "Dua No. 1",
@@ -831,7 +947,7 @@
     "slug": "dua-yastasheer"
   },
   "E12": {
-    "title": "Dua of Imam Mahdi (a.t.f.s.) اَللّٰهُمَّ ادْفَعْ عَنْ وَلِيِّكَ۔۔۔",
+    "title": "Dua of Imam Mahdi (a.t.f.s.) اَللّٰهُمَّ ادْفَعْ عَنْ وَلِيِّكَ...",
     "slug": "dua-of-imam-mahdi-a-t-f-s"
   },
   "E13": {
@@ -993,7 +1109,7 @@
     "slug": "dua-for-safety-from-fire-al-evil-throughout-the-day"
   },
   "E7": {
-    "title": "Dua Allahumma Asleh اَللّٰهُمَّ أَصْلِحْ عَبْدَكَ",
+    "title": "Dua Allahumma Asleh اَللّٰهُمَّ اَصْلِحْ عَبْدَكَ",
     "slug": "dua-allahumma-asleh"
   },
   "E8": {
@@ -1020,6 +1136,10 @@
   "F2": {
     "title": "Namaz-e-Shab",
     "slug": "namaz-e-shab"
+  },
+  "F26": {
+    "title": "Namaz of Imam Mahdi (a.t.f.s.)",
+    "slug": "namaz-of-imam-mahdi-a-t-f-s"
   },
   "F27|L2": {
     "title": "Namaz of Sundays",
@@ -1057,6 +1177,10 @@
     "title": "Namaz-e-Ghofaylah",
     "order": 1,
     "slug": "namaz-e-ghofaylah"
+  },
+  "F62": {
+    "title": "Namaz of Will",
+    "slug": "namaz-of-will"
   },
   "F9": {
     "title": "Namaz e Wahshat Namaz for the Night of Burial",
@@ -1689,6 +1813,11 @@
     "slug": "aamaal-of-ashoora",
     "day": "01-10"
   },
+  "S1": {
+    "title": "The Month of Safar",
+    "slug": "the-month-of-safar",
+    "day": "02-*"
+  },
   "S5": {
     "title": "20th Safar (Arbaeen - 40th Day)",
     "slug": "20th-safar-arbaeen-40th-day"
@@ -1768,121 +1897,5 @@
   "Z8": {
     "title": "7th Day",
     "slug": "7th-day"
-  },
-  "AK5": {
-    "title": "Ziyarah of Imam Ali (a.s.) — Najaf (All Forms)",
-    "slug": "ziyarah-imam-ali-najaf-all-forms"
-  },
-  "AK6": {
-    "title": "Duas After Ziyarah of Imam Ali (a.s.) & After Nafilah — Najaf",
-    "slug": "duas-after-ziyarah-imam-ali-najaf"
-  },
-  "AK7": {
-    "title": "Ziyarah of the Head of Imam Husayn (a.s.) — At Imam Ali’s Shrine, Najaf",
-    "slug": "ziyarah-imam-hussain-head-najaf"
-  },
-  "AK15": {
-    "title": "Bidding Farewell to Imam Ali (a.s.) — Najaf",
-    "slug": "farewell-imam-ali-najaf"
-  },
-  "AG8": {
-    "title": "Ziyarah of Imam Husayn (a.s.) — Karbala (All 6 General Forms)",
-    "slug": "ziyarah-imam-hussain-karbala-all-forms"
-  },
-  "AG14": {
-    "title": "Seventh Ziyarah — Ziyarah Warith — Karbala",
-    "slug": "ziyarah-warith-karbala"
-  },
-  "AG18": {
-    "title": "Ziyarah of Hazrat Abbas (a.s.) — Karbala",
-    "slug": "ziyarah-hazrat-abbas-karbala"
-  },
-  "AG5": {
-    "title": "Post-Ziyarah Prayers, Dua & Salawat — Karbala",
-    "slug": "post-ziyarah-dua-salawat-karbala"
-  },
-  "AG6": {
-    "title": "Bidding Farewell (Wida) to Imam Husayn (a.s.) — Karbala",
-    "slug": "farewell-imam-hussain-karbala"
-  },
-  "AH2": {
-    "title": "Ziyarah of Imam Musa al-Kazim (a.s.) — Kazimayn",
-    "slug": "ziyarah-imam-musa-kazim"
-  },
-  "AH4": {
-    "title": "Salawat Upon Imam Musa al-Kazim (a.s.) — Kazimayn",
-    "slug": "salawat-imam-musa-kazim"
-  },
-  "AH5": {
-    "title": "Ziyarah of Imam Muhammad al-Jawad (a.s.) — Kazimayn",
-    "slug": "ziyarah-imam-muhammad-jawad"
-  },
-  "AH7": {
-    "title": "Invocation of Blessings Upon Imam al-Jawad (a.s.) — Kazimayn",
-    "slug": "salawat-imam-jawad"
-  },
-  "AH9": {
-    "title": "Ziyarah Common to Imam al-Kazim & Imam al-Jawad (a.s.) — Kazimayn",
-    "slug": "ziyarah-common-kazim-jawad"
-  },
-  "AH10": {
-    "title": "Entrance Permission & Farewell — Kazimayn (Imam al-Kazim & Imam al-Jawad)",
-    "slug": "entrance-farewell-kazimayn"
-  },
-  "AL1": {
-    "title": "Combined Ziyarah of Imam Ali al-Naqi & Imam al-Hasan al-Askari — Samarra",
-    "slug": "combined-ziyarah-naqi-askari"
-  },
-  "AL5": {
-    "title": "Ziyarah of Imam Ali al-Naqi al-Hadi (a.s.) — Samarra",
-    "slug": "ziyarah-imam-ali-naqi"
-  },
-  "AL6": {
-    "title": "Ziyarah of Imam al-Hasan al-Askari (a.s.) — Samarra",
-    "slug": "ziyarah-imam-hasan-askari"
-  },
-  "AL7": {
-    "title": "Bidding Farewell to the Two Imams (Naqi & Askari) — Samarra",
-    "slug": "farewell-two-imams-samarra"
-  },
-  "AL11": {
-    "title": "Ziyarat at the Holy Sardaab (Occultation Cellar) — Samarra",
-    "slug": "ziyarat-holy-sardaab"
-  },
-  "AL15": {
-    "title": "Salawat Upon Imam al-Mahdi (a.t.f.s.) — Sardaab, Samarra",
-    "slug": "salawat-imam-mahdi-sardaab"
-  },
-  "AI3": {
-    "title": "Recommended Acts (A'amal) of Masjid al-Kufah",
-    "slug": "aamal-masjid-kufah"
-  },
-  "AI4": {
-    "title": "Acts at the Seat of Judgement (Dikkat al-Qadha) & Place of the Wash-Tub — Masjid al-Kufah",
-    "slug": "dikkat-qadha-bayt-tasht-kufah"
-  },
-  "AI5": {
-    "title": "Prayers & Supplications at the Centre of Masjid al-Kufah",
-    "slug": "centre-masjid-kufah"
-  },
-  "AI11": {
-    "title": "Devotional Acts at Imam al-Sadiq's Bench — Masjid al-Kufah",
-    "slug": "imam-sadiq-bench-kufah"
-  },
-  "AI15": {
-    "title": "Recommended Acts (A'amal) of Masjid al-Sahla",
-    "slug": "aamal-masjid-sahla"
-  },
-  "AI16": {
-    "title": "Recommended Acts (A'amal) of Masjid Zayd",
-    "slug": "aamal-masjid-zayd"
-  },
-  "AJ2": {
-    "title": "Ziyarah at Madaen — Salman al-Farsi, Hudhayfah al-Yamani, Tahir ibn Imam al-Baqir & Abdullah ibn Jabir (r.a.)",
-    "slug": "ziyarah-madaen-salman-hudhayfah"
-  },
-  "AN1": {
-    "title": "Ziyarah of Sayyid Muhammad, Son of Imam Ali al-Hadi (a.s.) — Balad",
-    "slug": "ziyarah-sayed-mohammed-balad"
   }
 }
