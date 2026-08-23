@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants.dart';
+import '../services/analytics_service.dart';
 import '../utils/shared_preferences.dart';
 import 'responsive_content.dart';
 
@@ -16,6 +17,7 @@ class TasbeehWidget extends StatefulWidget {
 
 class _TasbeehWidgetState extends State<TasbeehWidget> {
   int counter = 0;
+  int _countedThisSession = 0;
   bool isChecked = true;
   late final TextEditingController controller1;
   late final TextEditingController controller2;
@@ -37,6 +39,9 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
 
   void _incrementCounter() {
     final nextCount = counter + 1;
+    // One event per tap would drown every other feature in the ranking, so the
+    // session is summarised once when the page goes away.
+    _countedThisSession++;
     final milestones = [
       _parseMilestone(controller1),
       _parseMilestone(controller2),
@@ -228,6 +233,13 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
 
   @override
   void dispose() {
+    if (_countedThisSession > 0) {
+      AnalyticsService.feature(
+        'tasbeeh_session',
+        label: 'Tasbeeh counted',
+        parameters: {'count': _countedThisSession},
+      );
+    }
     SP.prefs.setInt('count', counter);
     controller1.dispose();
     controller2.dispose();

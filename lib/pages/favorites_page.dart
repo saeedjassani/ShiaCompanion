@@ -4,6 +4,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 
 class FavoritesPage extends StatefulWidget {
   @override
@@ -73,12 +74,14 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           ? Text(item.uid + ' ' + item.title)
                           : Text(item.title),
                       onTap: () {
-                        handleUniversalDataClick(context, item);
+                        handleUniversalDataClick(context, item,
+                            source: ZikrOpenSource.favorites);
                       },
                       onLongPress: () {
                         if (isUserAdmin)
                           handleUniversalDataClick(context, item,
-                              itemPage: true);
+                              itemPage: true,
+                              source: ZikrOpenSource.favorites);
                       },
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,

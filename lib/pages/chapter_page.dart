@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -17,6 +18,7 @@ import 'package:shia_companion/utils/web_route_sync.dart';
 import '../constants.dart';
 import '../widgets/reader_content.dart';
 import '../widgets/responsive_content.dart';
+import '../services/analytics_service.dart';
 
 class ChapterPage extends StatefulWidget {
   final String slug;
@@ -127,6 +129,13 @@ class _ChapterPageState extends State<ChapterPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     trackScreen('Chapter Page');
+    // Ranks books by chapters actually read, which is a truer signal than the
+    // book list tap that ChapterListPage already records.
+    unawaited(AnalyticsService.libraryView(
+      bookUid: widget.bookSlug ?? widget.slug,
+      bookTitle: widget.bookTitle ?? widget.title,
+      chapterUid: widget.slug,
+    ));
     _readerFontSize = (widget.initialFontSize ?? englishFontSize)
         .clamp(_minFontSize, _maxFontSize);
     _slug = widget.slug;

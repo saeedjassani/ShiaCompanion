@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/qaza_tracker_state.dart';
+import '../services/analytics_service.dart';
 import '../services/qaza_tracker_sync_policy.dart';
 import '../utils/shared_preferences.dart';
 
@@ -578,6 +579,13 @@ class QazaTrackerManager extends ChangeNotifier {
   }
 
   Future<void> _applyOperation(PendingQazaOperation operation) async {
+    // Every qaza mutation funnels through here, so one hook covers adding a
+    // missed prayer, marking one done, undoing and bulk edits alike.
+    unawaited(AnalyticsService.feature(
+      'qaza_updated',
+      label: 'Qaza tracker updated',
+      parameters: {'operation': operation.kind.key},
+    ));
     final nextState = applyPendingQazaOperation(_state, operation);
     final appliedDelta = QazaTrackerDelta.between(_state, nextState);
     if (appliedDelta.isZero) return;

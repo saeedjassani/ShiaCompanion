@@ -9,6 +9,7 @@ import 'chapter_list_page.dart';
 import 'chapter_page.dart';
 import 'deep_link_not_found_page.dart';
 import 'zikr/zikr_page.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 
 /// The route the web app boots into when someone opens a shared link.
 ///
@@ -66,7 +67,9 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
     switch (widget.target.type) {
       case zikrDeepLinkType:
         final item = await DeepLinkResolver.resolveZikrItem(widget.target);
-        return item == null ? null : ZikrPage(item);
+        return item == null
+            ? null
+            : ZikrPage(item, source: ZikrOpenSource.deepLink);
       case libraryDeepLinkType:
         return _resolveLibraryDestination();
       default:

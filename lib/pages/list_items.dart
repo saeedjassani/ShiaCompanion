@@ -8,6 +8,7 @@ import 'package:shia_companion/widgets/favorite_icon.dart';
 
 import '../constants.dart';
 import '../services/favorites_manager.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 
 class ItemList extends StatefulWidget {
   final String item, title;
@@ -283,14 +284,16 @@ class _ItemListState extends State<ItemList> {
                         uidTitleData.getUId().split("~")[1],
                         uidTitleData.title)));
           } else {
-            await handleUniversalDataClick(context, itemData);
+            await handleUniversalDataClick(context, itemData,
+                source: ZikrOpenSource.list);
           }
           if (!mounted) return;
           setState(_refreshWorkingItems);
         },
         onLongPress: () {
           if (isUserAdmin)
-            handleUniversalDataClick(context, itemData, itemPage: true);
+            handleUniversalDataClick(context, itemData,
+                itemPage: true, source: ZikrOpenSource.list);
         },
         title: Text(title),
         trailing: !isParentZikr

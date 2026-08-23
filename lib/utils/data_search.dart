@@ -1,4 +1,5 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
@@ -8,12 +9,12 @@ import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/utils/data_search_filter.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;
   final Set<String> libraryUids;
 
-  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   DataSearch(
     this.listWords, {
     this.libraryUids = const {},
@@ -43,12 +44,14 @@ class DataSearch extends SearchDelegate<String> {
                     builder: (context) =>
                         ItemList(entry.getUId().split("~")[1], entry.title)));
           } else {
-            handleUniversalDataClick(context, itemData);
+            handleUniversalDataClick(context, itemData,
+                source: ZikrOpenSource.search);
           }
         },
         onLongPress: () {
           if (isUserAdmin && !isLibraryBook) {
-            handleUniversalDataClick(context, itemData, itemPage: true);
+            handleUniversalDataClick(context, itemData,
+                itemPage: true, source: ZikrOpenSource.search);
           }
         },
         title: isUserAdmin
@@ -94,7 +97,7 @@ class DataSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     // show some result based on the selection
-    analytics.logSearch(searchTerm: query); // Log the search event
+    unawaited(AnalyticsService.search(query));
     final suggestionList = _filteredResults();
 
     return ResponsiveContent(

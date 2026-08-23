@@ -34,6 +34,7 @@ import 'package:shia_companion/utils/web_route_sync.dart';
 
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 
 enum _PublishStatus { success, error, timeout }
 
@@ -175,8 +176,13 @@ class _MyHomePageState extends State<MyHomePage>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      pushRootPageRoute(ZikrPage(resolvedItem)) ??
-          pushPageRoute(context, ZikrPage(resolvedItem));
+      pushRootPageRoute(
+            ZikrPage(resolvedItem, source: ZikrOpenSource.deepLink),
+          ) ??
+          pushPageRoute(
+            context,
+            ZikrPage(resolvedItem, source: ZikrOpenSource.deepLink),
+          );
     });
   }
 
@@ -344,7 +350,8 @@ class _MyHomePageState extends State<MyHomePage>
                       pushPageRoute(
                           context,
                           ZikrPage(UidTitleData(finalUid, _title),
-                              startEditing: true));
+                              startEditing: true,
+                              source: ZikrOpenSource.admin));
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Item linked successfully')));
@@ -453,6 +460,7 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
+    final menuItems = visibleHomeMenuItems;
 
     return Scaffold(
         appBar: AppBar(
@@ -562,9 +570,9 @@ class _MyHomePageState extends State<MyHomePage>
                       childAspectRatio:
                           constraints.maxWidth >= 900 ? 1.05 : 0.95,
                     ),
-                    itemCount: homeMenuItems.length,
+                    itemCount: menuItems.length,
                     itemBuilder: (BuildContext c, int i) {
-                      final menuItem = homeMenuItems[i];
+                      final menuItem = menuItems[i];
                       return Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: Card(
@@ -774,7 +782,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   buildBody(BuildContext c, int i) {
-    final menuItem = homeMenuItems[i];
+    final menuItem = visibleHomeMenuItems[i];
     return InkWell(
       onTap: () => _openHomeMenuItem(menuItem),
       child: Container(

@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/azaan_option.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/pages/item_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
@@ -336,14 +335,16 @@ double getItemOrderValue(String uid) {
 
 Future<void> handleUniversalDataClick(
     BuildContext context, UniversalData itemData,
-    {bool itemPage = false}) async {
+    {bool itemPage = false, String source = ZikrOpenSource.unknown}) async {
   Widget? routeToPush;
   String contentType = 'universal';
   switch (itemData.type) {
     case 0:
       contentType = 'zikr';
       UidTitleData uidTitleData = UidTitleData(itemData.uid, itemData.title);
-      routeToPush = itemPage ? ItemPage(uidTitleData) : ZikrPage(uidTitleData);
+      routeToPush = itemPage
+          ? ItemPage(uidTitleData)
+          : ZikrPage(uidTitleData, source: source);
       break;
     case 1:
       contentType = 'library';
@@ -356,8 +357,20 @@ Future<void> handleUniversalDataClick(
       break;
     default:
   }
-  FirebaseAnalytics.instance
-      .logSelectContent(contentType: contentType, itemId: itemData.title);
+  if (contentType == 'library') {
+    unawaited(AnalyticsService.libraryView(
+      bookUid: itemData.uid,
+      bookTitle: itemData.title,
+    ));
+  } else if (contentType == 'live-streaming') {
+    unawaited(AnalyticsService.streamView(
+      title: itemData.title,
+      link: itemData.uid,
+    ));
+  }
+  // Zikr is not logged here: ZikrPage logs its own view so the count is the
+  // same whether the tap came from a list, the home grid, a shared link or a
+  // link inside another zikr.
   if (routeToPush != null) {
     await pushPageRoute(context, routeToPush);
   }
@@ -1164,6 +1177,11 @@ String? getCustomAudioFilePath() {
 Future<void> saveAzaanPreference(String azaanId) async {
   await SP.prefs.setString(
       azaanPreferenceKey, resolveAzaanPreferenceIdForCurrentPlatform(azaanId));
+  unawaited(AnalyticsService.feature(
+    'azaan_selected',
+    label: 'Azaan changed',
+    parameters: {'azaan_id': azaanId},
+  ));
 }
 
 /// Save custom audio file path
@@ -1185,20 +1203,11 @@ AppBar getAppBar() {
 Future<void> trackScreen(
   String screenName, {
   bool deferOnWeb = false,
-}) async {
-  // Screens call this unawaited from initState. Without Firebase the analytics
-  // call raises an unhandled async error that takes the screen down with it —
-  // so no app, no analytics, rather than the other way round. This is also what
-  // lets widget tests render any page without standing up Firebase.
-  if (Firebase.apps.isEmpty) return;
-  if (kIsWeb && deferOnWeb) {
-    await WidgetsBinding.instance.endOfFrame;
-    await Future<void>.delayed(const Duration(seconds: 5));
-  }
-  await FirebaseAnalytics.instance.logEvent(
-    name: 'screen_view',
-    parameters: {'screen_name': screenName},
-  );
+}) {
+  // Screens call this unawaited from initState, so the missing-Firebase guard
+  // and the swallowed failures both live in AnalyticsService — no app, no
+  // analytics, rather than an unhandled async error taking the screen down.
+  return AnalyticsService.screen(screenName, deferOnWeb: deferOnWeb);
 }
 
 // Platform-aware route push that supports back navigation

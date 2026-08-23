@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import '../models/airport.dart';
 import '../models/flight.dart';
 import '../utils/shared_preferences.dart';
 import 'airport_repository.dart';
+import '../services/analytics_service.dart';
 
 /// Local persistence for saved flights.
 ///
@@ -43,6 +45,10 @@ class FlightStore extends ChangeNotifier {
     } else {
       next.add(flight);
     }
+    unawaited(AnalyticsService.feature(
+      index >= 0 ? 'flight_edited' : 'flight_added',
+      label: index >= 0 ? 'Flight edited' : 'Flight added',
+    ));
     await _persist(next);
   }
 
