@@ -132,7 +132,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   HomeMenuItem(
     label: 'Qibla Finder',
     icon: Icons.explore,
-    pageBuilder: () => QiblaFinder(),
+    pageBuilder: () => const QiblaFinder(),
   ),
   HomeMenuItem(
     label: 'Tasbeeh Counter',

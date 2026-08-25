@@ -67,12 +67,10 @@ class _Viewport {
 
 /// Menu screens that cannot be rendered in a widget test, with the reason.
 ///
-/// Qibla Finder is a host for a `WebViewWidget`, which asserts unless a
-/// `WebViewPlatform` is registered. Standing one up means implementing the
-/// controller, widget, navigation delegate and cookie manager interfaces — at
-/// which point the test exercises those stubs rather than the screen, since
-/// the screen is little more than a Scaffold around the web view.
-const Set<String> _unrenderableMenuScreens = {'Qibla Finder'};
+/// Empty at the moment. Qibla Finder used to be here, when it was a host for a
+/// `WebViewWidget` that asserts unless a `WebViewPlatform` is registered; it
+/// now draws its own compass and renders like any other screen.
+const Set<String> _unrenderableMenuScreens = <String>{};
 
 final List<_Screen> _screens = [
   for (final item in allHomeMenuItems)

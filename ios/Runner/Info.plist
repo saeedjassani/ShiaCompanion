@@ -69,7 +69,7 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your location is used to calculate accurate prayer times for your current area when you open the app or refresh location.</string>
+	<string>Your location is used to calculate accurate prayer times for your current area, and to point the qibla compass towards Makkah.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to allow you to select audio files for azaan notifications.</string>
 	<key>NSMediaLibraryUsageDescription</key>

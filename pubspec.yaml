@@ -3,7 +3,7 @@ description: All the features needed by the lovers of Ahle Bayt (may Allah's pea
 
 version: 3.3.7+101
 environment:
-  sdk: ^3.0.0
+  sdk: ^3.4.0
 
 dependencies:
   flutter:
@@ -42,6 +42,8 @@ dependencies:
   geolocator: ^14.0.1
   crypto: ^3.0.7
   connectivity_plus: ^6.0.5
+  flutter_compass: ^0.8.1
+  web: ^1.1.1
 
 
 dev_dependencies:
