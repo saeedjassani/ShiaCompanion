@@ -9,11 +9,13 @@ IconData prayerIconFor(String prayerName) {
   if (name.contains('zuhr') ||
       name.contains('dhuhr') ||
       name.contains('dhohr')) {
-    return Icons.light_mode;
+    // Not light_mode: that constant renders identical to wb_sunny (used
+    // above for Sunrise) — MD3 kept the same glyph under the new name.
+    return Icons.flare;
   }
   if (name.contains('asr')) return Icons.brightness_5;
   if (name.contains('sunset')) return Icons.wb_twilight_outlined;
-  if (name.contains('maghrib')) return Icons.brightness_4;
+  if (name.contains('maghrib')) return Icons.dark_mode;
   if (name.contains('isha')) return Icons.nights_stay;
   if (name.contains('midnight')) return Icons.bedtime;
   return Icons.mosque;
