@@ -63,6 +63,61 @@ class UsageSnapshot {
 /// zikr metric without needing a metric of their own.
 const String zikrCompletionSuffix = '~done';
 
+/// Parses `usage/totals`'s raw snapshot value into metric -> key -> count.
+///
+/// A standalone function, because a counter written by
+/// [ServerValue.increment] comes back as an `int` on Android/iOS but a
+/// `double` on web -- JS has no integer type, and the web plugin's
+/// JS-interop conversion reflects that. Worth a plain unit test rather than
+/// only ever being exercised against a live database, since that split is
+/// exactly the kind of thing that renders correctly on a phone and empty on
+/// web.
+@visibleForTesting
+Map<String, Map<String, int>> parseUsageTotals(Object? value) {
+  final counts = <String, Map<String, int>>{};
+  if (value is Map) {
+    value.forEach((metric, keys) {
+      if (keys is! Map) return;
+      final bucket = counts.putIfAbsent('$metric', () => <String, int>{});
+      keys.forEach((key, count) {
+        if (count is num) {
+          bucket['$key'] = (bucket['$key'] ?? 0) + count.toInt();
+        }
+      });
+    });
+  }
+  return counts;
+}
+
+/// Parses `usage/daily`'s raw snapshot value, keeping only the days in
+/// [wantedDays] and folding every metric's counters into both the per-metric
+/// totals and the day-by-day trend. See [parseUsageTotals] for why `count`
+/// is checked against `num` rather than `int`.
+@visibleForTesting
+({Map<String, Map<String, int>> counts, Map<String, int> trend})
+    parseUsageDays(Object? value, List<String> wantedDays) {
+  final counts = <String, Map<String, int>>{};
+  final trend = <String, int>{for (final day in wantedDays) day: 0};
+
+  if (value is Map) {
+    value.forEach((rawDay, metrics) {
+      final day = '$rawDay';
+      if (!trend.containsKey(day) || metrics is! Map) return;
+      metrics.forEach((metric, keys) {
+        if (keys is! Map) return;
+        final bucket = counts.putIfAbsent('$metric', () => <String, int>{});
+        keys.forEach((key, count) {
+          if (count is! num) return;
+          final value = count.toInt();
+          bucket['$key'] = (bucket['$key'] ?? 0) + value;
+          trend[day] = (trend[day] ?? 0) + value;
+        });
+      });
+    });
+  }
+  return (counts: counts, trend: trend);
+}
+
 /// Folds the completion counters back into the zikr they belong to.
 ///
 /// They live in the same metric as opens, so without this a popular zikr would
@@ -125,18 +180,7 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
   Future<UsageSnapshot> _loadTotals() async {
     final snapshot = await FirebaseDatabase.instance.ref('usage/totals').get();
     final labels = await _loadLabels();
-    final counts = <String, Map<String, int>>{};
-
-    final value = snapshot.value;
-    if (value is Map) {
-      value.forEach((metric, keys) {
-        if (keys is! Map) return;
-        final bucket = counts.putIfAbsent('$metric', () => <String, int>{});
-        keys.forEach((key, count) {
-          if (count is int) bucket['$key'] = (bucket['$key'] ?? 0) + count;
-        });
-      });
-    }
+    final counts = parseUsageTotals(snapshot.value);
     return _toSnapshot(counts, labels, const []);
   }
 
@@ -158,30 +202,11 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
         .get();
     final labels = await _loadLabels();
 
-    final counts = <String, Map<String, int>>{};
-    final trend = <String, int>{for (final day in wanted) day: 0};
-
-    final value = snapshot.value;
-    if (value is Map) {
-      value.forEach((rawDay, metrics) {
-        final day = '$rawDay';
-        if (!trend.containsKey(day) || metrics is! Map) return;
-        metrics.forEach((metric, keys) {
-          if (keys is! Map) return;
-          final bucket = counts.putIfAbsent('$metric', () => <String, int>{});
-          keys.forEach((key, count) {
-            if (count is! int) return;
-            bucket['$key'] = (bucket['$key'] ?? 0) + count;
-            trend[day] = (trend[day] ?? 0) + count;
-          });
-        });
-      });
-    }
-
+    final parsed = parseUsageDays(snapshot.value, wanted);
     return _toSnapshot(
-      counts,
+      parsed.counts,
       labels,
-      wanted.map((day) => MapEntry(day, trend[day] ?? 0)).toList(),
+      wanted.map((day) => MapEntry(day, parsed.trend[day] ?? 0)).toList(),
     );
   }
 

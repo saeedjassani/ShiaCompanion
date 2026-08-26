@@ -35,6 +35,65 @@ void main() {
     });
   });
 
+  group('parseUsageTotals', () {
+    test('reads counts stored as int, as they arrive on Android/iOS', () {
+      final counts = parseUsageTotals({
+        'screen': {'Home-Page': 12},
+      });
+      expect(counts['screen']?['Home-Page'], 12);
+    });
+
+    test('reads counts stored as double, as they arrive on web', () {
+      // JS has no integer type, so the web plugin's JS-interop conversion
+      // hands every RTDB number back as a double. A dashboard that only
+      // recognised `int` would silently drop every row here.
+      final counts = parseUsageTotals({
+        'screen': {'Home-Page': 12.0},
+      });
+      expect(counts['screen']?['Home-Page'], 12);
+    });
+
+    test('ignores a value that is neither, without throwing', () {
+      final counts = parseUsageTotals({
+        'screen': {'Home-Page': 'not a count'},
+      });
+      expect(counts['screen']?['Home-Page'], isNull);
+    });
+
+    test('returns an empty map for a null or malformed snapshot', () {
+      expect(parseUsageTotals(null), isEmpty);
+      expect(parseUsageTotals('not a map'), isEmpty);
+    });
+  });
+
+  group('parseUsageDays', () {
+    test('sums double counts into both the metric bucket and the trend', () {
+      final result = parseUsageDays({
+        '2026-08-23': {
+          'screen': {'Home-Page': 3.0},
+        },
+        '2026-08-24': {
+          'screen': {'Home-Page': 5.0},
+        },
+      }, ['2026-08-23', '2026-08-24']);
+
+      expect(result.counts['screen']?['Home-Page'], 8);
+      expect(result.trend['2026-08-23'], 3);
+      expect(result.trend['2026-08-24'], 5);
+    });
+
+    test('drops a day outside the requested range', () {
+      final result = parseUsageDays({
+        '2026-01-01': {
+          'screen': {'Home-Page': 99.0},
+        },
+      }, ['2026-08-23']);
+
+      expect(result.counts, isEmpty);
+      expect(result.trend['2026-08-23'], 0);
+    });
+  });
+
   group('splitZikrCompletions', () {
     test('folds a completion count into the zikr it belongs to', () {
       final rows = splitZikrCompletions(const [
