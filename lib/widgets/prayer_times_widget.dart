@@ -338,27 +338,62 @@ class _NextDayNote extends StatelessWidget {
   final int index;
   final int count;
 
+  static const String _label = "(next day)";
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final style = theme.textTheme.labelSmall?.copyWith(
+      fontStyle: FontStyle.italic,
+      color: theme.colorScheme.onSurfaceVariant,
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6.0),
-      // Centred on the column it tags. Align keeps the note inside the card
-      // even when that column is the first or the last one.
-      child: Align(
-        alignment: Alignment(2 * ((index + 0.5) / count) - 1, 0),
-        child: Text(
-          "(next day)",
-          maxLines: 1,
-          softWrap: false,
-          style: theme.textTheme.labelSmall?.copyWith(
-            fontStyle: FontStyle.italic,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final painter = TextPainter(
+            text: TextSpan(text: _label, style: style),
+            textDirection: Directionality.of(context),
+            maxLines: 1,
+          )..layout();
+
+          return Align(
+            alignment: Alignment(_horizontalAlignment(width, painter.width), 0),
+            child: Text(
+              _label,
+              maxLines: 1,
+              softWrap: false,
+              style: style,
+            ),
+          );
+        },
       ),
     );
+  }
+
+  /// The [Alignment] x that puts the middle of a [noteWidth]-wide note over the
+  /// middle of the tagged column, within a row [width] across.
+  ///
+  /// Align does not place the child's centre at the fraction it is given: it
+  /// distributes the *leftover* space, so the child's centre lands at
+  /// `width * f + noteWidth * (0.5 - f)`. Passing the column's fraction
+  /// straight in therefore only aims true for the middle column and misses by
+  /// up to half the note's width at either end — which is most of the note,
+  /// since it is wider than a column by design. Solving that expression for the
+  /// x that yields the column's centre corrects it.
+  double _horizontalAlignment(double width, double noteWidth) {
+    final columnCentre = width * (index + 0.5) / count;
+    final freeSpace = width - noteWidth;
+    // Wider than the row it is tagging: there is nothing left to position it
+    // with, so centre it and let it be the whole line.
+    if (freeSpace <= 0) return 0;
+
+    // Clamping is what keeps the note inside the card when the column it tags
+    // is the first or the last one, and it is now the only thing that moves it
+    // off that column.
+    return (2 * (columnCentre - noteWidth / 2) / freeSpace - 1).clamp(-1.0, 1.0);
   }
 }
 

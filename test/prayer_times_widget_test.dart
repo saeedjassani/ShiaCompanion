@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 
 void main() {
@@ -165,6 +166,50 @@ void main() {
     final cardRect = tester.getRect(find.byType(Card));
     expect(noteRect.left, greaterThanOrEqualTo(cardRect.left));
     expect(noteRect.right, lessThanOrEqualTo(cardRect.right));
+  });
+
+  testWidgets('centres the "(next day)" note on the column it tags',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    final now = DateTime(2024, 6, 16, 23, 30);
+    PrayerTimesState.debugNow = () => now;
+    // Wide enough that the note fits over its column without being pushed back
+    // inside the card, so this measures the aim rather than the clamp.
+    tester.view.physicalSize = const Size(1200, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await pumpCard(tester);
+
+    // Which column carries the note, worked out the same way the card does.
+    final readings = nextWidgetPrayerTimeReadings(
+      prayerTime: getPrayerTimeObject(),
+      latitude: lat!,
+      longitude: long!,
+      count: selectedWidgetPrayerTimes().length,
+      now: now,
+      times: selectedWidgetPrayerTimes(),
+    );
+    final tagged = readings.indexWhere((r) =>
+        r.dateTime.year != now.year ||
+        r.dateTime.month != now.month ||
+        r.dateTime.day != now.day);
+    expect(tagged, greaterThanOrEqualTo(0),
+        reason: 'this time of day must roll into tomorrow');
+
+    final columns = find.byType(Expanded);
+    expect(tester.widgetList(columns).length, readings.length);
+
+    final noteCentre = tester.getRect(find.text('(next day)')).center.dx;
+    final columnCentre = tester.getRect(columns.at(tagged)).center.dx;
+
+    // Align distributes leftover space rather than placing the centre, so the
+    // uncorrected version drifts by up to half the note's width — tens of
+    // logical pixels here. One pixel of tolerance is for rounding.
+    expect((noteCentre - columnCentre).abs(), lessThan(1.0));
   });
 
   testWidgets('discloses the age of a stale reading', (tester) async {
