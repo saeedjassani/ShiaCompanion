@@ -20,6 +20,35 @@ class DataSearch extends SearchDelegate<String> {
     this.libraryUids = const {},
   });
 
+  /// How long the query has to stop changing before it counts as a search.
+  /// Long enough that "kum" on the way to "kumayl" is not a search of its own,
+  /// short enough that someone who types and then reads the list is counted.
+  static const Duration _searchRecordDelay = Duration(milliseconds: 900);
+
+  Timer? _recordTimer;
+  String? _recordedTerm;
+
+  /// Records the search once the query settles.
+  ///
+  /// This used to live in [buildResults] alone, which only runs when the query
+  /// is *submitted* — and almost nobody submits, because the suggestion list is
+  /// already tappable and opens the zikr. That is why the counter read a single
+  /// search against a pile of zikrs opened with `source: search`.
+  void _scheduleSearchRecord() {
+    _recordTimer?.cancel();
+    if (query.trim().isEmpty) return;
+    _recordTimer = Timer(_searchRecordDelay, _recordSearch);
+  }
+
+  void _recordSearch() {
+    _recordTimer?.cancel();
+    final term = query.trim();
+    if (term.isEmpty) return;
+    if (!isNewSearchTerm(previous: _recordedTerm, term: term)) return;
+    _recordedTerm = term;
+    unawaited(AnalyticsService.search(term));
+  }
+
   List<UidTitleData> _filteredResults() {
     if (query.isEmpty) {
       return [];
@@ -37,6 +66,9 @@ class DataSearch extends SearchDelegate<String> {
     return StatefulBuilder(
       builder: (context, setTileState) => ListTile(
         onTap: () {
+          // Acting on a result is the clearest evidence a search happened, and
+          // the query is still exactly what the user searched with.
+          _recordSearch();
           if (!isLibraryBook && entry.getUId().contains("~")) {
             Navigator.push(
                 context,
@@ -49,6 +81,7 @@ class DataSearch extends SearchDelegate<String> {
           }
         },
         onLongPress: () {
+          _recordSearch();
           if (isUserAdmin && !isLibraryBook) {
             handleUniversalDataClick(context, itemData,
                 itemPage: true, source: ZikrOpenSource.search);
@@ -82,6 +115,14 @@ class DataSearch extends SearchDelegate<String> {
   }
 
   @override
+  void close(BuildContext context, String result) {
+    // A closed search is a finished search: flush whatever is pending instead
+    // of leaving a timer to fire against a delegate nobody is looking at.
+    _recordSearch();
+    super.close(context, result);
+  }
+
+  @override
   Widget buildLeading(BuildContext context) {
     //leading icon on the left of the app bar
     return IconButton(
@@ -97,7 +138,7 @@ class DataSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     // show some result based on the selection
-    unawaited(AnalyticsService.search(query));
+    _recordSearch();
     final suggestionList = _filteredResults();
 
     return ResponsiveContent(
@@ -114,6 +155,9 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    // Rebuilt on every keystroke, so the record is debounced rather than fired
+    // here — this is the only hook that sees a search nobody acts on.
+    _scheduleSearchRecord();
     final List<UidTitleData> suggestionList = _filteredResults();
 
     return ResponsiveContent(

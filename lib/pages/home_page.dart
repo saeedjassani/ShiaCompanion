@@ -713,6 +713,7 @@ class _MyHomePageState extends State<MyHomePage>
         .map((entry) => UidTitleData(entry.key, entry.value))
         .toList();
 
+    unawaited(AnalyticsService.searchOpened());
     showSearch(
       context: context,
       delegate: DataSearch(

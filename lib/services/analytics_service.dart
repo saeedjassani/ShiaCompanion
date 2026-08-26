@@ -106,8 +106,28 @@ class AnalyticsService {
           itemId: canonicalUid,
         ));
     _count(metricZikr, canonicalUid, label: title);
-    _count(metricFeature, 'zikr_source_$source', label: 'Zikr opened via $source');
+    _count(metricFeature, 'zikr_source_$source',
+        label: _sourceLabels[source] ?? 'Zikr opened via $source');
   }
+
+  /// Dashboard names for the [ZikrOpenSource] ids.
+  ///
+  /// The ids are stable because they are database keys, but "deep_link" and
+  /// "zikr_link" read as the same thing to anyone who does not already know
+  /// which is which, so the row says what the entry point actually was.
+  static const Map<String, String> _sourceLabels = <String, String>{
+    ZikrOpenSource.list: 'Zikr opened from a category list',
+    ZikrOpenSource.search: 'Zikr opened from search',
+    ZikrOpenSource.favorites: 'Zikr opened from favorites',
+    ZikrOpenSource.library: 'Zikr opened from the library',
+    ZikrOpenSource.todaysRecitation: "Zikr opened from today's recitation",
+    ZikrOpenSource.liveStreaming: 'Zikr opened from live streaming',
+    ZikrOpenSource.deepLink: 'Zikr opened from a shared link (from outside '
+        'the app)',
+    ZikrOpenSource.zikrLink: 'Zikr opened from a link inside another zikr',
+    ZikrOpenSource.admin: 'Zikr opened from the admin list',
+    ZikrOpenSource.unknown: 'Zikr opened from an untagged entry point',
+  };
 
   /// Records a zikr being read to the end, which is the difference between a
   /// zikr people open and a zikr people actually recite.
@@ -183,6 +203,31 @@ class AnalyticsService {
         ));
     _count(metricFeature, name, label: label ?? name);
   }
+
+  /// Records the "Prayer Times Shown" selection being saved — which times the
+  /// home card, the list widget and the Up Next countdown treat as the next
+  /// prayer.
+  ///
+  /// The counter says how often people change it at all; the chosen ids go to
+  /// GA4, where the popular combinations are readable and a comma-separated
+  /// list is not a problem the way it would be as a database key.
+  static Future<void> prayerTimesSelectionChanged(List<String> ids) => feature(
+        'prayer_times_selection_changed',
+        label: 'Prayer times shown changed',
+        parameters: {'prayer_times': ids.join(',')},
+      );
+
+  /// Records the search screen being opened.
+  ///
+  /// Counted separately from [search] because the two answer different
+  /// questions: this one is how often people reach for search at all, which is
+  /// the honest measure of how much the feature is wanted, while [search]
+  /// counts the searches actually typed. Together with `zikr_source_search`
+  /// they read as a funnel — opened, searched, opened something.
+  static Future<void> searchOpened() => feature(
+        'search_opened',
+        label: 'Search opened',
+      );
 
   /// Records a search. The term goes to GA4 only — free text does not belong in
   /// a database key, and GA4 already reports it.

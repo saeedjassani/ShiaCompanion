@@ -1,5 +1,9 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../services/analytics_service.dart';
 import '../services/home_screen_widget_service.dart';
 import '../utils/prayer_time_icons.dart';
 import '../utils/widget_prayer_time_selection.dart';
@@ -11,6 +15,7 @@ import '../utils/widget_prayer_time_selection.dart';
 /// Returns true when the selection was saved, so callers can rebuild.
 Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
   final selected = selectedWidgetPrayerTimes().map((time) => time.id).toSet();
+  final before = Set<String>.of(selected);
 
   final saved = await showDialog<bool>(
     context: context,
@@ -76,7 +81,13 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
 
   if (saved != true) return false;
 
-  await saveWidgetPrayerTimes(selected.toList());
+  final ids = selected.toList();
+  await saveWidgetPrayerTimes(ids);
   await HomeScreenWidgetService.instance.publishAll();
+  // Saving without having changed anything is not a modification, and counting
+  // it would make the metric a measure of how often the dialog is opened.
+  if (!setEquals(before, selected)) {
+    unawaited(AnalyticsService.prayerTimesSelectionChanged(ids));
+  }
   return true;
 }

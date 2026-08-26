@@ -25,4 +25,31 @@ void main() {
     expect(() => filterDataSearchResults(entries, '['), returnsNormally);
     expect(filterDataSearchResults(entries, 'al-'), [entries[3]]);
   });
+
+  group('isNewSearchTerm', () {
+    test('counts the first term of a session', () {
+      expect(isNewSearchTerm(previous: null, term: 'kum'), isTrue);
+    });
+
+    test('does not count a term that is still being typed', () {
+      expect(isNewSearchTerm(previous: 'kum', term: 'kumayl'), isFalse);
+      expect(isNewSearchTerm(previous: 'Kum', term: 'kumayl '), isFalse);
+    });
+
+    test('does not count the same term twice', () {
+      expect(isNewSearchTerm(previous: 'kumayl', term: 'kumayl'), isFalse);
+    });
+
+    test('does not count a term being narrowed with backspace', () {
+      expect(isNewSearchTerm(previous: 'kumayl', term: 'kum'), isFalse);
+    });
+
+    test('counts a genuinely different term', () {
+      expect(isNewSearchTerm(previous: 'kumayl', term: 'ashura'), isTrue);
+    });
+
+    test('never counts an empty term', () {
+      expect(isNewSearchTerm(previous: 'kumayl', term: '   '), isFalse);
+    });
+  });
 }
