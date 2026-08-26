@@ -782,6 +782,13 @@ Future<void> setUpNotifications() async {
     return;
   }
 
+  // Every route to an enabled prayer passes through here — the first-run
+  // opt-in, the Settings switch, and a bell tapped on the prayer times card by
+  // someone who declined at first run. Asking here means none of them can
+  // schedule notifications the OS will silently drop. It costs nothing when
+  // permission is already settled: neither platform re-prompts.
+  await requestNotificationPermissions();
+
   DateTime now = DateTime.now();
   PrayerTime prayers = getPrayerTimeObject();
   final List<Future<void>> schedulingTasks = [];
@@ -1120,6 +1127,30 @@ String notificationPreferenceKeyForPrayer(String prayerName) {
     return 'dhuhr_notification';
   }
   return '${normalizedName}_notification';
+}
+
+/// Asks the OS for permission to post notifications.
+///
+/// Prayer reminders are the only thing the app notifies about, so this is
+/// deliberately not called at start-up for a user who has never opted into
+/// azan — see [AzaanOptInService]. Both the first-run opt-in and the Settings
+/// switch come through here when azan is turned on.
+Future<void> requestNotificationPermissions() async {
+  if (flutterLocalNotificationsPlugin == null) return;
+
+  final iosImplementation =
+      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+  await iosImplementation?.requestPermissions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  final androidImplementation =
+      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+  await androidImplementation?.requestNotificationsPermission();
 }
 
 Future<bool> requestExactPrayerAlarmPermissionIfNeeded() async {

@@ -175,7 +175,7 @@ class HomeScreenWidgetService {
     final startOfToday = DateTime(now.year, now.month, now.day);
 
     return List.generate(8, (dayOffset) {
-      final date = startOfToday.add(Duration(days: dayOffset));
+      final date = calendarDayFrom(startOfToday, dayOffset);
       final items = _buildRecitationItemsForDay(date);
 
       return {
@@ -229,7 +229,7 @@ class HomeScreenWidgetService {
     }
 
     final today = now ?? DateTime.now();
-    final prayers = _buildDailyPrayerTimesForDay(today);
+    final prayers = _buildUpcomingPrayerTimes(today);
     snapshot[dailyPrayerTimesScheduleKey] =
         jsonEncode(_buildDailyPrayerTimesSchedule(today));
 
@@ -332,7 +332,7 @@ class HomeScreenWidgetService {
     final startOfToday = DateTime(now.year, now.month, now.day);
 
     for (var dayOffset = 0; dayOffset < 8; dayOffset++) {
-      final date = startOfToday.add(Duration(days: dayOffset));
+      final date = calendarDayFrom(startOfToday, dayOffset);
       final dateLabel = _dateLabelForDay(date, dayOffset);
       // Every time, not just the selected ones, so a prayer can still name the
       // deadline it has to be offered before even when that marker is hidden.
@@ -382,24 +382,58 @@ class HomeScreenWidgetService {
     );
   }
 
+  /// The next [maxWidgetPrayerTimes] prayers from [moment] — the same rolling
+  /// window [HomePrayerTimesCard] draws, via the same function, so the widget
+  /// and the card cannot drift apart.
+  List<WidgetPrayerTimeReading> _buildUpcomingPrayerTimes(DateTime moment) {
+    return nextWidgetPrayerTimeReadings(
+      prayerTime: getPrayerTimeObject(),
+      latitude: lat!,
+      longitude: long!,
+      count: selectedWidgetPrayerTimes().length,
+      now: moment,
+      times: selectedWidgetPrayerTimes(),
+    );
+  }
+
+  /// One entry per prayer, rather than one per day.
+  ///
+  /// The widget used to publish a day at a time and the native side picks the
+  /// last entry that has started, so from the evening onwards it displayed a
+  /// list of prayers that had all already happened while the card beside it in
+  /// the app had rolled on to tomorrow. Cutting a new entry at every prayer
+  /// makes the widget advance the way the card does — WidgetKit already wakes
+  /// at these instants, since the prayer schedule contributes the same dates as
+  /// timeline transition points.
   List<Map<String, Object>> _buildDailyPrayerTimesSchedule(DateTime now) {
     final startOfToday = DateTime(now.year, now.month, now.day);
+    final boundaries = <DateTime>{startOfToday};
 
-    return List.generate(8, (dayOffset) {
-      final date = startOfToday.add(Duration(days: dayOffset));
-      final prayers = _buildDailyPrayerTimesForDay(date);
+    for (var dayOffset = 0; dayOffset < 8; dayOffset++) {
+      final date = calendarDayFrom(startOfToday, dayOffset);
+      for (final reading in _buildDailyPrayerTimesForDay(date)) {
+        // A prayer is a transition the moment it arrives: that is when it stops
+        // being the next one and drops off the front of the list.
+        if (!reading.dateTime.isBefore(startOfToday)) {
+          boundaries.add(reading.dateTime);
+        }
+      }
+    }
 
-      return {
-        'start': date.millisecondsSinceEpoch,
-        'items': prayers
-            .map((prayer) => {
-                  'title': prayer.time.name,
-                  'time': prayer.displayTime,
-                  'url': '',
-                })
-            .toList(),
-      };
-    });
+    final ordered = boundaries.toList()..sort();
+    return [
+      for (final boundary in ordered)
+        {
+          'start': boundary.millisecondsSinceEpoch,
+          'items': _buildUpcomingPrayerTimes(boundary)
+              .map((prayer) => {
+                    'title': prayer.time.name,
+                    'time': prayer.displayTime,
+                    'url': '',
+                  })
+              .toList(),
+        },
+    ];
   }
 
   String _dateLabelForDay(DateTime date, int dayOffset) {

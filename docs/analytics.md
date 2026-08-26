@@ -36,7 +36,7 @@ Flip `AnalyticsService.recordUsageInDebug` to exercise the pipeline locally.
 | `library_view` | `ChapterPage`, book taps | `book_uid`, `book_title`, `chapter_uid` |
 | `stream_view` | live streaming taps | `stream_title`, `link` |
 | `feature_use` | everywhere below | `feature`, plus per-feature extras |
-| `search` | `DataSearch.buildResults` | `search_term` |
+| `search` | `DataSearch`, once per settled query | `search_term` |
 
 ### `feature_use` values
 
@@ -44,12 +44,31 @@ Flip `AnalyticsService.recordUsageInDebug` to exercise the pipeline locally.
 Library, Favorites, …), `tasbeeh_session` (+`count`), `qaza_updated`
 (+`operation`), `favorite_added` (+`content_type`), `zikr_shared` (+`zikr_uid`),
 `azaan_selected` (+`azaan_id`), `rakaat_prayer_completed` (+`total_rakaat`),
-`flight_added` / `flight_edited`, `search`, `zikr_source_*`.
+`flight_added` / `flight_edited`, `prayer_times_selection_changed`
+(+`prayer_times`), `search`, `search_opened`, `zikr_source_*`.
 
 ### `source` values
 
-`list`, `search`, `favorites`, `library`, `todays_recitation`, `deep_link`,
-`zikr_link`, `admin`, `unknown` — see `ZikrOpenSource`.
+See `ZikrOpenSource`. The ids are database keys, so they never change; the
+dashboard label for each is `AnalyticsService._sourceLabels`, because half of
+them do not explain themselves.
+
+| Id | What it means |
+|---|---|
+| `list` | Tapped in a category list |
+| `search` | Tapped in the search results |
+| `favorites` | Tapped in Favorites |
+| `library` | Tapped from a library book |
+| `todays_recitation` | Tapped in Today's Recitation |
+| `live_streaming` | Declared, currently unused |
+| `deep_link` | A URL from **outside** the app — a shared link, opened cold by the web launch route or while running by the home page's deep-link handler |
+| `zikr_link` | A link **inside another zikr's own text**, resolved to a local uid by `extractZikrLinkSegment` and pushed by `ZikrPage._handleZikrLinkTap` |
+| `admin` | Opened from the admin zikr list |
+| `unknown` | Default — an entry point that forgot to pass a source |
+
+The two link sources are worth keeping apart: `deep_link` measures sharing and
+`zikr_link` measures cross-references in the corpus. A shared link that lands on
+a zikr whose text then links onward produces one of each.
 
 ## Why `zikr_view` lives in `ZikrPage`, not in the tap handlers
 
@@ -62,6 +81,30 @@ place every route converges, so the count is complete by construction and
 
 Keys are the **canonical** uid (`uid.split('|').last`), so an alias and its
 target are one row rather than two.
+
+## `search_opened` vs `search`
+
+Tapping the search icon counts as `search_opened`; typing something that settles
+counts as `search`. They answer different questions — how often people reach for
+search at all, against how many searches they actually run — and with
+`zikr_source_search` they read as a funnel: opened, searched, opened something.
+An opened-but-never-typed search is a real signal on its own, and it is the only
+one of the three that a user abandoning the screen still produces.
+
+## Why a search is counted on a debounce, not on submit
+
+`SearchDelegate.buildResults` — the obvious hook, and where `search()` used to
+be its only caller — runs only when the query is *submitted*. Nobody submits:
+`buildSuggestions` already renders tappable tiles that open the zikr, so the
+normal path is type → tap → gone, and `buildResults` never builds. The counter
+read one search against every zikr opened with `source: search`.
+
+`DataSearch` now records a search when the query settles (900 ms), and
+immediately when the user acts on it — taps a result, submits, or closes the
+search. `isNewSearchTerm` keeps one refined query as one search: a term that
+extends, or is extended by, the one already recorded does not count again, so
+typing "kumayl" with a pause in the middle is one search and switching to
+"ashura" is a second.
 
 ## Why `zikr_completed` needs a dwell gate
 
@@ -150,6 +193,7 @@ Admin → Custom definitions → Create custom dimension, scope **Event**:
 | Stream title | `stream_title` |
 | Menu item | `menu_item` |
 | Azaan | `azaan_id` |
+| Prayer times shown | `prayer_times` |
 
 The cap is 50 event-scoped dimensions, so there is plenty of headroom.
 Registration is **not** retroactive — data only appears from the day you create
@@ -158,3 +202,30 @@ rather than after.
 
 `screen_name` needs no registration: `logScreenView` fills the parameters GA4's
 built-in screen reports already read.
+
+## What is deliberately not counted
+
+### Unique users
+
+The RTDB counters are plain `ServerValue.increment(1)` writes made
+unauthenticated, so every number here is **events, not people**. Nothing in the
+schema can tell one device from another, and nothing should be added lightly:
+de-duplicating per person means a `seen/{metric}/{key}/{identity}` marker per
+identity per key per day, which multiplies the write volume by the fan-out of
+the ranking and hands an unauthenticated client a path it can pad indefinitely.
+
+GA4 already answers this. Every event carries an app-instance id, so *Users* is
+reported next to *Event count* for free — once the custom dimensions above are
+registered, "how many people used Qibla" is a report, not a schema change.
+Treat the dashboard as the live ranking and GA4 as the source for reach.
+
+### Apple Watch
+
+`ios/ShiaCompanion Watch App` and `ios/ShiaCompanionWatchWidgets` reach neither
+sink. A watchOS target cannot call `AnalyticsService` — it runs no Flutter
+engine, and the Firebase watchOS SDK is not in the Podfile. Counting it means
+relaying: the watch already talks to the phone over `WCSession`, and
+`AppDelegate.m`'s `didReceiveMessage:replyHandler:` already answers the
+`{"request": "snapshot"}` the watch sends on launch and on reachability, so
+that handler is where a watch-side signal would be turned into a phone-side
+event. Nothing is wired up today.

@@ -18,6 +18,7 @@ import 'package:shia_companion/pages/chapter_list_page.dart';
 import 'package:shia_companion/pages/chapter_page.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
+import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
@@ -664,8 +665,19 @@ class _MyHomePageState extends State<MyHomePage>
       await flutterLocalNotificationsPlugin?.initialize(
         settings: initializationSettings,
       );
-      await _requestNotificationPermissions();
+      // Two prompts back to back is one too many, so the OS permission dialog
+      // is skipped on the launch we ask our own question; the opt-in requests
+      // it itself, and only if the user actually wants azan.
+      final askingAboutAzaan = AzaanOptInService.shouldAsk(
+        hasLocation: LocationService.instance.hasLocation,
+      );
+      if (!askingAboutAzaan) {
+        await requestNotificationPermissions();
+      }
       await refreshExactPrayerAlarmPermissionStatus();
+      if (askingAboutAzaan && mounted) {
+        await _askAboutAzaan();
+      }
 
       final List<PendingNotificationRequest>? pendingNotificationRequests =
           await flutterLocalNotificationsPlugin?.pendingNotificationRequests();
@@ -701,6 +713,7 @@ class _MyHomePageState extends State<MyHomePage>
         .map((entry) => UidTitleData(entry.key, entry.value))
         .toList();
 
+    unawaited(AnalyticsService.searchOpened());
     showSearch(
       context: context,
       delegate: DataSearch(
@@ -744,17 +757,11 @@ class _MyHomePageState extends State<MyHomePage>
     LocationService.instance.restore();
     arabicFont = await FontPreferences.getSelectedFont() ?? "Qalam";
 
-    // By default turn on Azan for Fajr, Dhuhr and Maghrib
-    if (SP.prefs.getBool('fajr_notification') == null) {
-      await SP.prefs.setBool('fajr_notification', true);
-      await SP.prefs.setBool('dhuhr_notification', true);
-      await SP.prefs.setBool('maghrib_notification', true);
-      await SP.prefs.setBool('sunrise_notification', false);
-      await SP.prefs.setBool('asr_notification', false);
-      await SP.prefs.setBool('sunset_notification', false);
-      await SP.prefs.setBool('isha_notification', false);
-      await SP.prefs.setBool('midnight_notification', false);
-    }
+    // Azan stays off until the user says otherwise. A fresh install writes no
+    // per-prayer preference at all, which is also how a later launch still
+    // recognises it as never having been asked; an install that predates the
+    // opt-in keeps whatever it already had.
+    await AzaanOptInService.adoptChoiceFromExistingInstall();
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     appVersion = packageInfo.version;
@@ -763,22 +770,18 @@ class _MyHomePageState extends State<MyHomePage>
     initializeData();
   }
 
-  Future<void> _requestNotificationPermissions() async {
-    if (flutterLocalNotificationsPlugin == null) return;
-
-    final iosImplementation =
-        flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>();
-    await iosImplementation?.requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    final androidImplementation =
-        flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-    await androidImplementation?.requestNotificationsPermission();
+  /// Puts the first-run azan question to the user and records the answer.
+  ///
+  /// The schedule is not rebuilt here: the caller does that a few lines later
+  /// for every launch, and the answer has already changed the fingerprint it
+  /// checks.
+  Future<void> _askAboutAzaan() async {
+    final enabled = await AzaanOptInService.ask(context);
+    unawaited(AnalyticsService.feature(
+      'azaan_opt_in',
+      label: 'Azan opt-in',
+      parameters: {'choice': enabled ? 'enabled' : 'declined'},
+    ));
   }
 
   buildBody(BuildContext c, int i) {

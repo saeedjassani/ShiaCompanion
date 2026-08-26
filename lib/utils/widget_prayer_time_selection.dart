@@ -203,6 +203,20 @@ List<WidgetPrayerTimeReading> readWidgetPrayerTimes({
   }
 }
 
+/// [start] advanced by [dayOffset] whole calendar days.
+///
+/// Not `add(Duration(days: n))`: that moves a fixed number of hours, so the
+/// 25-hour day a DST fall-back creates lands back on the date it started from
+/// and the 23-hour spring-forward day overshoots into the small hours. Both
+/// produce a date whose prayer times are not the ones being asked for. Dart
+/// normalises an out-of-range day field, so arithmetic on the components
+/// lands on the intended calendar date in every zone.
+DateTime calendarDayFrom(DateTime start, int dayOffset) {
+  return start.isUtc
+      ? DateTime.utc(start.year, start.month, start.day + dayOffset)
+      : DateTime(start.year, start.month, start.day + dayOffset);
+}
+
 /// The next [count] occurrences of [times], soonest first, starting from
 /// [now]. Looks at most one day past [now]'s date — enough to roll from
 /// today's last selected time into tomorrow's first, since a selection is at
@@ -227,7 +241,7 @@ List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
 
   final upcoming = <WidgetPrayerTimeReading>[];
   for (var dayOffset = 0; dayOffset < 2 && upcoming.length < count; dayOffset++) {
-    final date = startOfToday.add(Duration(days: dayOffset));
+    final date = calendarDayFrom(startOfToday, dayOffset);
     final readings = readWidgetPrayerTimes(
       prayerTime: prayerTime,
       date: date,
