@@ -342,18 +342,198 @@ struct PrayerNameText: View {
     }
 }
 
-/// SF Symbol for a prayer/period name. Shared by the app and the complication.
-nonisolated func prayerSymbolName(for prayerName: String) -> String {
+// MARK: - Prayer glyph
+
+/// Which of the eight prayer/time glyphs a name resolves to. Mirrors
+/// `PrayerGlyphType` in the Flutter app's `lib/widgets/prayer_glyph.dart` —
+/// keep the two in step, since this is what makes the icon on a complication
+/// match the one the phone showed for the same prayer.
+nonisolated enum PrayerGlyphType {
+    case fajr, sunrise, zuhr, asr, sunset, maghrib, isha, midnight, unknown
+}
+
+nonisolated func prayerGlyphType(for prayerName: String) -> PrayerGlyphType {
     let name = prayerName.lowercased()
-    if name.contains("fajr") { return "sunrise" }
-    if name.contains("sunrise") { return "sunrise.fill" }
-    if name.contains("zuhr") || name.contains("dhuhr") || name.contains("dhohr") { return "sun.max" }
-    if name.contains("asr") { return "sun.min" }
-    // Sunset and Maghrib are separate selectable times — Maghrib comes after sunset —
-    // so they cannot share a glyph: a list showing both showed the same icon twice.
-    if name.contains("sunset") { return "sunset" }
-    if name.contains("maghrib") { return "sunset.fill" }
-    if name.contains("isha") { return "moon.stars" }
-    if name.contains("midnight") { return "moon" }
-    return "sun.max"
+    if name.contains("fajr") { return .fajr }
+    if name.contains("sunrise") { return .sunrise }
+    if name.contains("zuhr") || name.contains("dhuhr") || name.contains("dhohr") { return .zuhr }
+    if name.contains("asr") { return .asr }
+    if name.contains("sunset") { return .sunset }
+    if name.contains("maghrib") { return .maghrib }
+    if name.contains("isha") { return .isha }
+    if name.contains("midnight") { return .midnight }
+    return .unknown
+}
+
+/// Drop-in replacement for `Image(systemName: prayerSymbolName(for: name))`:
+/// draws the same horizon/sun/crescent/star glyphs the Flutter app paints in
+/// `PrayerGlyph` (`lib/widgets/prayer_glyph.dart`) instead of borrowing SF
+/// Symbols that don't match it. Scales to whatever square frame it's given.
+///
+/// Ported by hand from Flutter's `Canvas` painter to SwiftUI's `Canvas` —
+/// the two APIs shape curves differently enough (`arcToPoint` vs `addArc`,
+/// no direct equivalent for Flutter's cloud/crescent control points) that
+/// the cloud and crescent here are rebuilt from circles rather than
+/// transliterated stroke-for-stroke. Everything else — the ray angles, the
+/// horizon line, the star — maps straight across. Check this against the
+/// app's icon set once built; the shapes were not rendered anywhere to
+/// confirm the port before landing.
+@available(watchOS 8.0, *)
+struct PrayerGlyphView: View {
+    let name: String
+    var color: Color = .primary
+
+    var body: some View {
+        Canvas { context, size in
+            let side = min(size.width, size.height)
+            let scale = side / 24
+            context.translateBy(x: (size.width - side) / 2, y: (size.height - side) / 2)
+            PrayerGlyphDrawing.draw(prayerGlyphType(for: name), in: &context, scale: scale, color: color)
+        }
+    }
+}
+
+/// The drawing primitives, namespaced so they can be reused verbatim by the
+/// phone widgets target (`ShiaCompanionWidgets.swift`), which cannot import
+/// this file directly across targets.
+@available(watchOS 8.0, *)
+nonisolated enum PrayerGlyphDrawing {
+    static func draw(
+        _ type: PrayerGlyphType,
+        in ctx: inout GraphicsContext,
+        scale: CGFloat,
+        color: Color
+    ) {
+        let discStroke: CGFloat = 2.0 * scale
+        let rayStroke: CGFloat = 1.7 * scale
+        let rays8: [Double] = [0, 45, 90, 135, 180, 225, 270, 315]
+        let rays5: [Double] = [30, 60, 90, 120, 150]
+
+        func line(_ x1: CGFloat, _ y1: CGFloat, _ x2: CGFloat, _ y2: CGFloat, width: CGFloat) {
+            var p = Path()
+            p.move(to: CGPoint(x: x1 * scale, y: y1 * scale))
+            p.addLine(to: CGPoint(x: x2 * scale, y: y2 * scale))
+            ctx.stroke(p, with: .color(color), style: StrokeStyle(lineWidth: width, lineCap: .round))
+        }
+
+        func ring(_ cx: CGFloat, _ cy: CGFloat, _ r: CGFloat) {
+            let rect = CGRect(x: (cx - r) * scale, y: (cy - r) * scale, width: 2 * r * scale, height: 2 * r * scale)
+            ctx.stroke(Path(ellipseIn: rect), with: .color(color), style: StrokeStyle(lineWidth: discStroke, lineCap: .round))
+        }
+
+        /// Upper half of a circle resting on the horizon line, open at the bottom —
+        /// sunrise/sunset's half-disc.
+        func openDome(_ cx: CGFloat, _ y: CGFloat, _ r: CGFloat) {
+            var p = Path()
+            p.addArc(
+                center: CGPoint(x: cx * scale, y: y * scale),
+                radius: r * scale,
+                startAngle: .degrees(180),
+                endAngle: .degrees(360),
+                clockwise: false
+            )
+            ctx.stroke(p, with: .color(color), style: StrokeStyle(lineWidth: discStroke, lineCap: .round))
+        }
+
+        func rays(_ cx: CGFloat, _ cy: CGFloat, _ r: CGFloat, gap: CGFloat, len: CGFloat, angles: [Double]) {
+            let inner = (r + 1.0 + gap) * scale
+            let outer = inner + len * scale
+            for a in angles {
+                let rad = a * .pi / 180
+                let c = cos(rad), s = sin(rad)
+                var p = Path()
+                p.move(to: CGPoint(x: cx * scale + c * inner, y: cy * scale - s * inner))
+                p.addLine(to: CGPoint(x: cx * scale + c * outer, y: cy * scale - s * outer))
+                ctx.stroke(p, with: .color(color), style: StrokeStyle(lineWidth: rayStroke, lineCap: .round))
+            }
+        }
+
+        /// Three overlapping discs on a flat base, filled — visually the same
+        /// cloud silhouette as the app's lobed path, built from circles instead
+        /// of hand-matched arc control points.
+        func cloud(_ cx: CGFloat, _ baseY: CGFloat, _ cloudScale: CGFloat) {
+            let s = cloudScale * scale
+            let bx = cx * scale
+            let by = baseY * scale
+            var p = Path()
+            p.addEllipse(in: CGRect(x: bx - 6.4 * s, y: by - 6.6 * s, width: 6.2 * s, height: 6.2 * s))
+            p.addEllipse(in: CGRect(x: bx - 4.3 * s, y: by - 9.2 * s, width: 8.6 * s, height: 8.6 * s))
+            p.addEllipse(in: CGRect(x: bx + 0.6 * s, y: by - 6.9 * s, width: 6.8 * s, height: 6.8 * s))
+            p.addRect(CGRect(x: bx - 6.4 * s, y: by - 4 * s, width: 13.9 * s, height: 4 * s))
+            ctx.fill(p, with: .color(color))
+        }
+
+        /// A crescent, filled: two overlapping discs, even-odd rule — the
+        /// standard way to draw a crescent without matching the app's specific
+        /// `arcToPoint` control points stroke-for-stroke.
+        func crescent(_ cx: CGFloat, _ cy: CGFloat, _ crescentScale: CGFloat) {
+            let outerR = 9 * crescentScale * scale
+            let innerR = 7.3 * crescentScale * scale
+            let outerRect = CGRect(
+                x: cx * scale - outerR, y: cy * scale - outerR,
+                width: outerR * 2, height: outerR * 2
+            )
+            let innerRect = CGRect(
+                x: cx * scale - innerR + 3.2 * crescentScale * scale,
+                y: cy * scale - innerR - 1.6 * crescentScale * scale,
+                width: innerR * 2, height: innerR * 2
+            )
+            var p = Path()
+            p.addEllipse(in: outerRect)
+            p.addEllipse(in: innerRect)
+            ctx.fill(p, with: .color(color), style: FillStyle(eoFill: true))
+        }
+
+        func star(_ cx: CGFloat, _ cy: CGFloat, _ r: CGFloat) {
+            let i = r * 0.36
+            func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * scale, y: y * scale) }
+            var p = Path()
+            p.move(to: pt(cx, cy - r))
+            p.addQuadCurve(to: pt(cx + r, cy), control: pt(cx + i * 0.6, cy - i * 0.6))
+            p.addQuadCurve(to: pt(cx, cy + r), control: pt(cx + i * 0.6, cy + i * 0.6))
+            p.addQuadCurve(to: pt(cx - r, cy), control: pt(cx - i * 0.6, cy + i * 0.6))
+            p.addQuadCurve(to: pt(cx, cy - r), control: pt(cx - i * 0.6, cy - i * 0.6))
+            ctx.fill(p, with: .color(color))
+        }
+
+        switch type {
+        case .fajr:
+            line(3.5, 17, 20.5, 17, width: discStroke)
+            line(12, 16, 12, 10.6, width: rayStroke)
+            line(8.9, 16, 6.9, 11.7, width: rayStroke)
+            line(15.1, 16, 17.1, 11.7, width: rayStroke)
+        case .sunrise:
+            line(3.5, 17, 20.5, 17, width: discStroke)
+            openDome(12, 17, 4.5)
+            rays(12, 17, 4.5, gap: 0.8, len: 1.7, angles: rays5)
+        case .zuhr:
+            ring(12, 11.6, 4)
+            rays(12, 11.6, 4, gap: 0.9, len: 1.9, angles: rays8)
+        case .asr:
+            ring(7.8, 7.8, 3.0)
+            rays(7.8, 7.8, 3.0, gap: 0.85, len: 1.4, angles: rays8)
+            cloud(9.8, 20.5, 0.74)
+        case .sunset:
+            line(3.5, 17, 20.5, 17, width: discStroke)
+            openDome(12, 17, 2.8)
+            rays(12, 17, 2.8, gap: 0.8, len: 1.3, angles: rays5)
+            cloud(11.3, 11.2, 0.72)
+        case .maghrib:
+            crescent(12, 8, 1)
+        case .isha:
+            crescent(13, 6.5, 0.78)
+            cloud(3.6, 21, 0.52)
+        case .midnight:
+            star(13, 10, 4.4)
+            star(7, 16, 2.6)
+            star(18, 17, 2)
+        case .unknown:
+            // Never actually shown — every known prayer/time name resolves
+            // above — but keeps the same grammar rather than an unrelated
+            // borrowed symbol: horizon, dome, pinnacle.
+            line(4, 19, 20, 19, width: discStroke)
+            openDome(12, 19, 4)
+            line(12, 15, 12, 11.5, width: rayStroke)
+        }
+    }
 }

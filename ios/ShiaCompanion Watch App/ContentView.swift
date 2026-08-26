@@ -337,9 +337,8 @@ struct PrayerIcon: View {
         ZStack {
             Circle()
                 .fill(Color.accentColor.opacity(0.2))
-            Image(systemName: prayerSymbolName(for: prayerName))
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(.accentColor)
+            PrayerGlyphView(name: prayerName, color: .accentColor)
+                .frame(width: 13, height: 13)
         }
     }
 }
