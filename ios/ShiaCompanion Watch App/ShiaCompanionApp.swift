@@ -119,7 +119,11 @@ final class PrayerTimeModel: ObservableObject {
     private func upcomingRows(at now: Date) -> [UpcomingPrayerRow] {
         let upcoming = store.upcomingPrayers(after: now, limit: store.selectedPrayerCount)
         if !upcoming.isEmpty {
-            return upcoming.map { entry in
+            // `upcoming.first` is the same prayer already shown in the "Up Next"
+            // banner above this list, so the list itself starts with the one
+            // after it — otherwise the immediate prayer read twice on a screen
+            // with barely room to say anything once.
+            return upcoming.dropFirst().map { entry in
                 UpcomingPrayerRow(
                     name: entry.name,
                     time: entry.time,

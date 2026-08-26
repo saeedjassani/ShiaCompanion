@@ -12,7 +12,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/services/analytics_service.dart';
-import 'package:shia_companion/pages/item_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
@@ -335,16 +334,14 @@ double getItemOrderValue(String uid) {
 
 Future<void> handleUniversalDataClick(
     BuildContext context, UniversalData itemData,
-    {bool itemPage = false, String source = ZikrOpenSource.unknown}) async {
+    {String source = ZikrOpenSource.unknown}) async {
   Widget? routeToPush;
   String contentType = 'universal';
   switch (itemData.type) {
     case 0:
       contentType = 'zikr';
       UidTitleData uidTitleData = UidTitleData(itemData.uid, itemData.title);
-      routeToPush = itemPage
-          ? ItemPage(uidTitleData)
-          : ZikrPage(uidTitleData, source: source);
+      routeToPush = ZikrPage(uidTitleData, source: source);
       break;
     case 1:
       contentType = 'library';

@@ -80,13 +80,7 @@ class DataSearch extends SearchDelegate<String> {
                 source: ZikrOpenSource.search);
           }
         },
-        onLongPress: () {
-          _recordSearch();
-          if (isUserAdmin && !isLibraryBook) {
-            handleUniversalDataClick(context, itemData,
-                itemPage: true, source: ZikrOpenSource.search);
-          }
-        },
+        onLongPress: _recordSearch,
         title: isUserAdmin
             ? Text('${entry.uid} ${entry.title}')
             : Text(entry.title),

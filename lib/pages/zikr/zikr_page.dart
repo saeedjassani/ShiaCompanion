@@ -27,7 +27,7 @@ import 'zikr_content_viewer.dart';
 import 'zikr_reading_stats.dart';
 import 'zikr_share_image.dart';
 
-enum _ZikrMenuAction { share, readingSettings, edit }
+enum _ZikrMenuAction { share, readingSettings, counter, edit }
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
@@ -1026,6 +1026,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       case _ZikrMenuAction.readingSettings:
         _scaffoldKey.currentState?.openEndDrawer();
         break;
+      case _ZikrMenuAction.counter:
+        // Hiding it again is the card's own close button, right next to the
+        // count — this entry only ever needs to bring it up.
+        unawaited(AnalyticsService.feature(
+          'zikr_counter_shown',
+          label: 'Tasbeeh counter shown',
+        ));
+        _setCounterVisibility(true);
+        break;
       case _ZikrMenuAction.edit:
         _toggleEdit();
         break;
@@ -1113,6 +1122,18 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               title: Text('Reading settings'),
             ),
           ),
+          // Tucked into the menu rather than a permanent floating button:
+          // most readings never touch it, so it no longer sits on top of the
+          // content for everyone to work around on the rare page that does.
+          const PopupMenuItem(
+            value: _ZikrMenuAction.counter,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(tasbeehCounterIcon),
+              title: Text('Tasbeeh Counter'),
+            ),
+          ),
           if (isAdmin)
             const PopupMenuItem(
               value: _ZikrMenuAction.edit,
@@ -1139,7 +1160,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final readingTime = zikrReadingTimeLabel(_readingStats.duration);
 
     return PreferredSize(
-      preferredSize: const Size.fromHeight(26),
+      preferredSize: const Size.fromHeight(29),
       child: ValueListenableBuilder<double>(
         valueListenable: _readingProgress,
         builder: (context, progress, _) => Column(
@@ -1164,7 +1185,16 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(readingTime),
-                    Text(zikrProgressLabel(progress)),
+                    // Larger than the reading time beside it: this is the
+                    // number people glance down to check progress by, so it
+                    // carries the weight the row is there for.
+                    Text(
+                      zikrProgressLabel(progress),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -1211,16 +1241,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           bottom: _buildReadingProgressBar(context),
         ),
         endDrawer: ZikrSettingsPage(refreshState),
-        floatingActionButton: ValueListenableBuilder<bool>(
-          valueListenable: _showCounter,
-          builder: (context, visible, _) => visible
-              ? const SizedBox.shrink()
-              : FloatingActionButton(
-                  onPressed: () => _setCounterVisibility(true),
-                  tooltip: 'Show Counter',
-                  child: const Icon(tasbeehCounterIcon),
-                ),
-        ),
         body: LayoutBuilder(
           builder: (context, bodyConstraints) => Stack(
             children: [
