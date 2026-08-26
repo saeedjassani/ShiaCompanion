@@ -75,13 +75,17 @@ void main() {
 
     expect(find.text('Prayer Times'), findsNothing);
     expect(find.byType(PrayerTimesCard), findsOneWidget);
-    expect(find.byIcon(Icons.wb_twilight), findsWidgets);
-    expect(find.byIcon(Icons.light_mode), findsOneWidget);
-    expect(find.byIcon(Icons.wb_sunny), findsOneWidget);
-    expect(find.byIcon(Icons.brightness_5), findsOneWidget);
-    expect(find.byIcon(Icons.wb_twilight_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.nights_stay), findsOneWidget);
-    expect(find.byIcon(Icons.bedtime), findsOneWidget);
+    // Every entry (Fajr, Sunrise, Zuhr, Asr, Sunset, Maghrib, Isha, Midnight)
+    // now resolves to its own icon — see prayerIconFor().
+    expect(find.byIcon(Icons.wb_twilight), findsOneWidget); // Fajr
+    expect(find.byIcon(Icons.wb_sunny), findsOneWidget); // Sunrise
+    expect(find.byIcon(Icons.flare), findsOneWidget); // Zuhr
+    expect(find.byIcon(Icons.brightness_5), findsOneWidget); // Asr
+    expect(find.byIcon(Icons.wb_twilight_outlined), findsOneWidget); // Sunset
+    expect(find.byIcon(Icons.brightness_4), findsOneWidget); // Maghrib
+    expect(find.byIcon(Icons.nights_stay), findsOneWidget); // Isha
+    expect(find.byIcon(Icons.bedtime), findsOneWidget); // Midnight
+    expect(find.byIcon(Icons.light_mode), findsNothing);
     expect(find.byIcon(Icons.mosque), findsNothing);
     expect(tester.takeException(), isNull);
   });
