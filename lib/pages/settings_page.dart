@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../constants.dart';
 import '../services/account_service.dart';
+import '../services/analytics_service.dart';
+import '../services/azaan_opt_in_service.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
@@ -148,6 +150,13 @@ class _SettingsPageState extends State<SettingsPage> {
               context,
               title: 'Notifications',
               children: [
+                SwitchListTile(
+                  secondary: const Icon(Icons.notifications_active),
+                  title: const Text("Azan Notifications"),
+                  subtitle: Text(_azaanNotificationsSubtitle()),
+                  value: AzaanOptInService.isEnabled,
+                  onChanged: _setAzaanNotifications,
+                ),
                 ListTile(
                   leading: const Icon(Icons.volume_up),
                   title: const Text("Notification Sound"),
@@ -568,6 +577,31 @@ class _SettingsPageState extends State<SettingsPage> {
     await SP.prefs.setInt('adjust_hijri_date', hijriDate);
     await SP.prefs.remove('prayerTimes');
     await HomeScreenWidgetService.instance.publishTodaysRecitations();
+    setState(() {});
+  }
+
+  String _azaanNotificationsSubtitle() {
+    if (!AzaanOptInService.isEnabled) {
+      return "Off. Turn on to be notified at prayer times.";
+    }
+    final enabledCount =
+        enabledPrayerNotificationCount(getPrayerNotificationPrayerNames());
+    return enabledCount == 1
+        ? "On for 1 prayer. Tap a prayer on the home page to change which."
+        : "On for $enabledCount prayers. Tap a prayer on the home page to change which.";
+  }
+
+  /// The master switch, and the way back for anyone who said "Not now" on first
+  /// run. Turning it on restores the default Fajr / Zuhr / Maghrib set — the
+  /// per-prayer choice itself lives on the prayer times card.
+  Future<void> _setAzaanNotifications(bool enabled) async {
+    await AzaanOptInService.setEnabled(enabled);
+    unawaited(AnalyticsService.feature(
+      'azaan_notifications_toggled',
+      label: 'Azan notifications',
+      parameters: {'enabled': enabled ? 'on' : 'off'},
+    ));
+    if (!mounted) return;
     setState(() {});
   }
 
