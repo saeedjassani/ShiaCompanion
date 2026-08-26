@@ -30,7 +30,7 @@ void main() {
         .toSet();
   }
 
-  test('the prayer times widget shows the saved selection, in order', () async {
+  test('the prayer times widget shows the saved selection', () async {
     await saveWidgetPrayerTimes(
       ['maghrib', 'fajr', 'sunset', 'sunrise', 'zuhr'],
     );
@@ -38,9 +38,13 @@ void main() {
     final snapshot = HomeScreenWidgetService.instance
         .buildDailyPrayerTimesSnapshot(now: DateTime(2024, 6, 16));
 
+    // The selection decides *which* prayers appear; the clock decides the
+    // order, because the widget now leads with the next one up the way the
+    // card does. Asserting the set keeps this test about the selection and
+    // stops it depending on the timezone the suite happens to run in.
     expect(
-      namesFrom(snapshot),
-      ['Fajr', 'Sunrise', 'Zuhr', 'Sunset', 'Maghrib'],
+      namesFrom(snapshot).toSet(),
+      {'Fajr', 'Sunrise', 'Zuhr', 'Sunset', 'Maghrib'},
     );
     expect(
       snapshot[HomeScreenWidgetService.dailyPrayerTimeKeys[1]],
@@ -53,8 +57,8 @@ void main() {
         .buildDailyPrayerTimesSnapshot(now: DateTime(2024, 6, 16));
 
     expect(
-      namesFrom(snapshot),
-      ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha'],
+      namesFrom(snapshot).toSet(),
+      {'Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha'},
     );
   });
 
@@ -195,6 +199,95 @@ void main() {
         readings.skip(3).every((r) => r.dateTime.day == date.day + 1),
         isTrue,
       );
+    });
+
+    /// The DST fall-back day used to blank the card out.
+    ///
+    /// Stepping to "tomorrow" with `add(Duration(days: 1))` moves 24 elapsed
+    /// hours, which on a 25-hour day lands back on today at 23:00. Day two then
+    /// re-read today at the other UTC offset: duplicate prayers an hour apart
+    /// earlier on, and from the evening onwards nothing upcoming at all.
+    ///
+    /// Local time is the whole point here, so the test finds a fall-back day in
+    /// whatever zone it is running in and skips where there is none.
+    test('reads tomorrow across a DST fall-back day', () async {
+      DateTime? fallBackDay;
+      for (var day = DateTime(2024, 1, 1);
+          day.year == 2024;
+          day = DateTime(day.year, day.month, day.day + 1)) {
+        // The 25-hour day is exactly the one where 24 hours does not reach the
+        // next date.
+        if (day.add(const Duration(days: 1)).day == day.day) {
+          fallBackDay = day;
+          break;
+        }
+      }
+      if (fallBackDay == null) {
+        markTestSkipped('Local zone has no DST fall-back day in 2024.');
+        return;
+      }
+
+      await saveWidgetPrayerTimes(defaultWidgetPrayerTimeIds);
+      final prayerTime = getPrayerTimeObject();
+      final count = selectedWidgetPrayerTimes().length;
+
+      // Late enough that every one of today's prayers has passed, so the row
+      // can only be filled from tomorrow.
+      final evening = DateTime(
+          fallBackDay.year, fallBackDay.month, fallBackDay.day, 23);
+      final readings = nextWidgetPrayerTimeReadings(
+        prayerTime: prayerTime,
+        latitude: lat!,
+        longitude: long!,
+        count: count,
+        now: evening,
+      );
+
+      expect(readings.length, count,
+          reason: 'the card must not empty out on the fall-back evening');
+      expect(readings.every((r) => r.dateTime.isAfter(evening)), isTrue);
+      expect(readings.map((r) => r.time.id).toSet().length, readings.length,
+          reason: 'the same prayer must not appear twice at two DST offsets');
+      expect(readings.every((r) => r.dateTime.day != fallBackDay!.day), isTrue,
+          reason: 'every reading this late belongs to the next day');
+    });
+
+    /// The widget published a day at a time while the card showed the next few
+    /// prayers, so in the evening the two disagreed completely: the widget
+    /// still listed prayers that had already happened, the card had moved on to
+    /// tomorrow. They read through the same function now, and this pins them
+    /// together at the times of day where they used to differ.
+    test('the home screen widget shows what the card shows', () async {
+      await saveWidgetPrayerTimes(defaultWidgetPrayerTimeIds);
+      final prayerTime = getPrayerTimeObject();
+      final selected = selectedWidgetPrayerTimes();
+
+      for (final hour in [0, 6, 13, 19, 22, 23]) {
+        final now = DateTime(2024, 6, 16, hour);
+        final cardReadings = nextWidgetPrayerTimeReadings(
+          prayerTime: prayerTime,
+          latitude: lat!,
+          longitude: long!,
+          count: selected.length,
+          now: now,
+          times: selected,
+        );
+        final snapshot =
+            HomeScreenWidgetService.instance.buildDailyPrayerTimesSnapshot(
+          now: now,
+        );
+
+        expect(namesFrom(snapshot), cardReadings.map((r) => r.time.name),
+            reason: 'widget and card disagree at ${hour}:00');
+        expect(
+          [
+            for (final key in HomeScreenWidgetService.dailyPrayerTimeKeys)
+              if ((snapshot[key] ?? '').isNotEmpty) snapshot[key]!,
+          ],
+          cardReadings.map((r) => r.displayTime),
+          reason: 'widget and card show different times at ${hour}:00',
+        );
+      }
     });
   });
 }
