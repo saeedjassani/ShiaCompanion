@@ -25,6 +25,7 @@ import '../widgets/responsive_content.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
+import 'delete_account_page.dart';
 import 'scheduled_notifications_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -396,7 +397,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Icons.delete_forever_outlined,
             color: errorColor,
           ),
-          onTap: () => _showDeleteConfirmationDialog(context),
+          onTap: () => _openDeleteAccountPage(context),
           title: Text(
             'Delete My Account',
             style: TextStyle(color: errorColor),
@@ -932,54 +933,13 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirm Account Deletion'),
-          content: Text(
-              'Are you sure you want to delete your account? This action cannot be undone.'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => _deleteAccountAndData(context),
-              child: Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Function to delete the account and associated data
-  void _deleteAccountAndData(BuildContext context) async {
-    try {
-      await AccountService.deleteCurrentAccountAndData();
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account deleted successfully.'),
-        ),
-      );
-
-      await _refreshAfterAuthChange();
-    } on AccountActionException catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.message),
-        ),
-      );
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error deleting account: ${error.toString()}'),
-        ),
-      );
-    }
+  // Confirmation, deletion and error handling all live on DeleteAccountPage
+  // now — it's also the page Google Play's public account-deletion link
+  // opens, so Settings and that link go through one implementation instead
+  // of a second, modal-based copy of the same flow.
+  Future<void> _openDeleteAccountPage(BuildContext context) async {
+    await pushPageRoute(context, const DeleteAccountPage());
+    if (!mounted) return;
+    await _refreshAfterAuthChange();
   }
 }
