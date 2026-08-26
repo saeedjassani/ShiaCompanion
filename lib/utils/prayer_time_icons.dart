@@ -15,7 +15,10 @@ IconData prayerIconFor(String prayerName) {
   }
   if (name.contains('asr')) return Icons.brightness_5;
   if (name.contains('sunset')) return Icons.wb_twilight_outlined;
-  if (name.contains('maghrib')) return Icons.dark_mode;
+  // Not a crescent-moon icon (dark_mode/nightlight_round): Isha and
+  // Midnight already own that family, so Maghrib stays in the
+  // brightness-dial family instead — a shaded disc, not a moon.
+  if (name.contains('maghrib')) return Icons.brightness_4;
   if (name.contains('isha')) return Icons.nights_stay;
   if (name.contains('midnight')) return Icons.bedtime;
   return Icons.mosque;
