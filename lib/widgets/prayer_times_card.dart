@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
-import 'package:shia_companion/utils/prayer_time_icons.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:shia_companion/widgets/prayer_glyph.dart';
 import '../constants.dart';
 import '../utils/shared_preferences.dart';
 
@@ -171,8 +171,8 @@ class _PrayerIconBadge extends StatelessWidget {
         color: colorScheme.primary.withValues(alpha: 0.12),
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        prayerIconFor(name),
+      child: PrayerGlyph(
+        name: name,
         size: 17.0,
         color: colorScheme.primary,
       ),

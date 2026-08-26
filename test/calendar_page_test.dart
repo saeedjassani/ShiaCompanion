@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
+import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:shia_companion/widgets/prayer_times_card.dart';
 
 void main() {
@@ -76,17 +77,21 @@ void main() {
     expect(find.text('Prayer Times'), findsNothing);
     expect(find.byType(PrayerTimesCard), findsOneWidget);
     // Every entry (Fajr, Sunrise, Zuhr, Asr, Sunset, Maghrib, Isha, Midnight)
-    // now resolves to its own icon — see prayerIconFor().
-    expect(find.byIcon(Icons.wb_twilight), findsOneWidget); // Fajr
-    expect(find.byIcon(Icons.wb_sunny), findsOneWidget); // Sunrise
-    expect(find.byIcon(Icons.flare), findsOneWidget); // Zuhr
-    expect(find.byIcon(Icons.brightness_5), findsOneWidget); // Asr
-    expect(find.byIcon(Icons.wb_twilight_outlined), findsOneWidget); // Sunset
-    expect(find.byIcon(Icons.brightness_4), findsOneWidget); // Maghrib
-    expect(find.byIcon(Icons.nights_stay), findsOneWidget); // Isha
-    expect(find.byIcon(Icons.bedtime), findsOneWidget); // Midnight
-    expect(find.byIcon(Icons.light_mode), findsNothing);
-    expect(find.byIcon(Icons.mosque), findsNothing);
+    // resolves to its own glyph — see prayerGlyphTypeFor().
+    final glyphs = tester.widgetList<PrayerGlyph>(find.byType(PrayerGlyph));
+    expect(glyphs.length, 8);
+    final types =
+        glyphs.map((glyph) => prayerGlyphTypeFor(glyph.name)).toSet();
+    expect(types, {
+      PrayerGlyphType.fajr,
+      PrayerGlyphType.sunrise,
+      PrayerGlyphType.zuhr,
+      PrayerGlyphType.asr,
+      PrayerGlyphType.sunset,
+      PrayerGlyphType.maghrib,
+      PrayerGlyphType.isha,
+      PrayerGlyphType.midnight,
+    });
     expect(tester.takeException(), isNull);
   });
 
