@@ -8,7 +8,7 @@ import '../models/flight.dart';
 import '../utils/flight_formatting.dart';
 import '../utils/flight_prayer_times.dart';
 import '../utils/geo_utils.dart';
-import '../utils/prayer_time_icons.dart';
+import '../widgets/prayer_glyph.dart';
 import '../widgets/responsive_content.dart';
 import 'flight_editor_page.dart';
 
@@ -381,8 +381,8 @@ class _PrayerEventRow extends StatelessWidget {
                 flex: 4,
                 child: Row(
                   children: [
-                    Icon(
-                      prayerIconFor(event.name),
+                    PrayerGlyph(
+                      name: event.name,
                       size: 20,
                       color: theme.colorScheme.primary,
                     ),
@@ -544,8 +544,8 @@ class _OutsideFlightRow extends StatelessWidget {
 
     return ListTile(
       dense: true,
-      leading: Icon(
-        prayerIconFor(event.name),
+      leading: PrayerGlyph(
+        name: event.name,
         size: 20,
         color: theme.colorScheme.onSurfaceVariant,
       ),

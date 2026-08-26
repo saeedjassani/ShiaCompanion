@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../services/analytics_service.dart';
 import '../services/home_screen_widget_service.dart';
-import '../utils/prayer_time_icons.dart';
 import '../utils/widget_prayer_time_selection.dart';
+import 'prayer_glyph.dart';
 
 /// The "Prayer Times Shown" picker, shared by Settings and the home page card
 /// so the setting can be reached from the thing it changes as well as from the
@@ -44,7 +44,11 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
                   for (final time in widgetPrayerTimes)
                     CheckboxListTile(
                       dense: true,
-                      secondary: Icon(prayerIconFor(time.name)),
+                      secondary: PrayerGlyph(
+                        name: time.name,
+                        size: 24,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       title: Text(time.name),
                       value: selected.contains(time.id),
                       onChanged:

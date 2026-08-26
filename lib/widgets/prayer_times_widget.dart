@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/services/location_service.dart';
-import 'package:shia_companion/utils/prayer_time_icons.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
+import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 
@@ -297,8 +297,8 @@ class _PrayerTimeColumn extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            prayerIconFor(reading.time.name),
+          PrayerGlyph(
+            name: reading.time.name,
             size: 16,
             color: colorScheme.primary,
           ),

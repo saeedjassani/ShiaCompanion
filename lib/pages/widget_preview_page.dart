@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
-import 'package:shia_companion/utils/prayer_time_icons.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WidgetPreviewPage extends StatefulWidget {
@@ -557,8 +557,8 @@ class _PrayerIconBadge extends StatelessWidget {
         color: palette.iconBackground,
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        prayerIconFor(name),
+      child: PrayerGlyph(
+        name: name,
         size: iconSize,
         color: palette.accentText,
       ),
