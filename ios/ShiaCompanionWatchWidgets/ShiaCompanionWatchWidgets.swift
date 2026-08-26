@@ -53,11 +53,6 @@ struct NextPrayerEntry: TimelineEntry {
         return String(trimmed[trimmed.startIndex..<firstSpace])
     }
 
-    /// Name reduced to a letter, for `accessoryCorner` alone.
-    var initial: String {
-        hasData ? prayerInitial(for: name) : name
-    }
-
     var symbolName: String {
         hasData ? prayerSymbolName(for: name) : "moon.stars"
     }
@@ -245,19 +240,19 @@ struct NextPrayerComplicationView: View {
     }
 
     private var corner: some View {
-        // Corner gives its content the least room of any family, so the time is
-        // allowed to shrink a long way before it would ever be truncated: a
-        // small time is still the time, an elided one is useless.
-        Text(entry.compactTime)
-            .font(.system(size: 15, weight: .semibold, design: .rounded))
-            .minimumScaleFactor(0.4)
-            .allowsTightening(true)
-            .lineLimit(1)
+        // Confirmed on-device: corner renders its main content flat in the corner
+        // and the widgetLabel curved along the bezel — they are not two lines to
+        // balance, they're one reading line the system bends for you. Putting the
+        // time there (not the icon) is what makes that line read as a clock: the
+        // icon sits fixed in the corner, the time is what curves.
+        Image(systemName: entry.symbolName)
+            .font(.system(size: 15, weight: .medium))
             .widgetLabel {
-                // Corner is the cropping case, confirmed on-device: the curved
-                // bezel label shares its arc with the time, and a name of any
-                // length loses its tail there. A letter is what fits.
-                Text(entry.initial)
+                Text(entry.compactTime)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .minimumScaleFactor(0.4)
+                    .allowsTightening(true)
+                    .lineLimit(1)
             }
     }
 
