@@ -4,23 +4,25 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <path
-        android:fillColor="@android:color/transparent"
-        android:pathData="M3,19H21"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round"
-        android:strokeWidth="2" />
-    <path
-        android:fillColor="@android:color/transparent"
-        android:pathData="M8,19C8,16.79 9.79,15 12,15C14.21,15 16,16.79 16,19"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round"
-        android:strokeWidth="2" />
-    <path
-        android:fillColor="@android:color/transparent"
-        android:pathData="M12,8V3M8.5,4.5L12,8L15.5,4.5"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:strokeWidth="2" />
+  <path
+      android:pathData="M3.5,17 L20.5,17"
+      android:strokeColor="#FFFFFFFF"
+      android:strokeWidth="2"
+      android:strokeLineCap="round"
+      android:fillColor="@android:color/transparent" />
+  <path
+      android:pathData="M14.8,17 L14.746,16.454 L14.587,15.928 L14.328,15.444 L13.98,15.02 L13.556,14.672 L13.072,14.413 L12.546,14.254 L12,14.2 L11.454,14.254 L10.928,14.413 L10.444,14.672 L10.02,15.02 L9.672,15.444 L9.413,15.928 L9.254,16.454 L9.2,17"
+      android:strokeColor="#FFFFFFFF"
+      android:strokeWidth="2"
+      android:strokeLineCap="round"
+      android:fillColor="@android:color/transparent" />
+  <path
+      android:pathData="M15.984,14.7 L17.11,14.05 M14.3,13.016 L14.95,11.89 M12,12.4 L12,11.1 M9.7,13.016 L9.05,11.89 M8.016,14.7 L6.89,14.05"
+      android:strokeColor="#FFFFFFFF"
+      android:strokeWidth="1.7"
+      android:strokeLineCap="round"
+      android:fillColor="@android:color/transparent" />
+  <path
+      android:pathData="M6.692,9.328 h9.216 v1.872 h-9.216 Z M6.548,8.752 A2.304,2.304 0 1,1 11.156,8.752 A2.304,2.304 0 1,1 6.548,8.752 Z M8.564,7.456 A3.024,3.024 0 1,1 14.612,7.456 A3.024,3.024 0 1,1 8.564,7.456 Z M12.164,9.04 A2.16,2.16 0 1,1 16.484,9.04 A2.16,2.16 0 1,1 12.164,9.04 Z"
+      android:fillColor="#FFFFFFFF" />
 </vector>

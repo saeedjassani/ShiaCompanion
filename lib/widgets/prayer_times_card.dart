@@ -164,17 +164,19 @@ class _PrayerIconBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
+    // No circular fill behind the glyph: on this card that badge sat on top
+    // of an already-tinted surface, reading as two mismatched shades of
+    // brown rather than one. The home card's row of the same glyphs has
+    // never had a background — this now matches it.
+    return SizedBox(
       width: 30.0,
       height: 30.0,
-      decoration: BoxDecoration(
-        color: colorScheme.primary.withValues(alpha: 0.12),
-        shape: BoxShape.circle,
-      ),
-      child: PrayerGlyph(
-        name: name,
-        size: 17.0,
-        color: colorScheme.primary,
+      child: Center(
+        child: PrayerGlyph(
+          name: name,
+          size: 17.0,
+          color: colorScheme.primary,
+        ),
       ),
     );
   }

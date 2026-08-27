@@ -774,28 +774,46 @@ private struct PrayerGlyphView: View {
             }
         }
 
+        /// A rounded base with three overlapping bumps on top, filled — reads
+        /// as a cloud silhouette rather than the lobed-arc path the app draws,
+        /// but at this render size the silhouette is what actually shows.
         func cloud(_ cx: CGFloat, _ baseY: CGFloat, _ cloudScale: CGFloat) {
             let s = cloudScale * scale
             let bx = cx * scale
             let by = baseY * scale
+            func bump(_ dx: CGFloat, _ dy: CGFloat, _ r: CGFloat) -> CGRect {
+                CGRect(
+                    x: bx + dx * s - r * s, y: by + dy * s - r * s,
+                    width: 2 * r * s, height: 2 * r * s
+                )
+            }
             var p = Path()
-            p.addEllipse(in: CGRect(x: bx - 6.4 * s, y: by - 6.6 * s, width: 6.2 * s, height: 6.2 * s))
-            p.addEllipse(in: CGRect(x: bx - 4.3 * s, y: by - 9.2 * s, width: 8.6 * s, height: 8.6 * s))
-            p.addEllipse(in: CGRect(x: bx + 0.6 * s, y: by - 6.9 * s, width: 6.8 * s, height: 6.8 * s))
-            p.addRect(CGRect(x: bx - 6.4 * s, y: by - 4 * s, width: 13.9 * s, height: 4 * s))
+            let base = CGRect(x: bx - 6.4 * s, y: by - 2.6 * s, width: 12.8 * s, height: 2.6 * s)
+            p.addRoundedRect(in: base, cornerSize: CGSize(width: 1.3 * s, height: 1.3 * s))
+            p.addEllipse(in: bump(-3.4, -3.4, 3.2))
+            p.addEllipse(in: bump(0.4, -5.2, 4.2))
+            p.addEllipse(in: bump(4.2, -3.0, 3.0))
             ctx.fill(p, with: .color(color))
         }
 
+        /// A crescent, filled: two overlapping discs, even-odd rule. The
+        /// cut-out circle has to stay fully inside the outer one with real
+        /// margin, not just barely — right at the tangent point,
+        /// anti-aliasing at these small render sizes reads as a second
+        /// sliver on the opposite side, which is exactly what "not enough
+        /// margin" looked like here the first time (an extra thin crescent
+        /// where there should be none).
         func crescent(_ cx: CGFloat, _ cy: CGFloat, _ crescentScale: CGFloat) {
-            let outerR = 9 * crescentScale * scale
-            let innerR = 7.3 * crescentScale * scale
+            let outerR = 9.0 * crescentScale * scale
+            let innerR = 6.5 * crescentScale * scale
+            let offsetX = 1.2 * crescentScale * scale
+            let offsetY = -0.6 * crescentScale * scale
             let outerRect = CGRect(
                 x: cx * scale - outerR, y: cy * scale - outerR,
                 width: outerR * 2, height: outerR * 2
             )
             let innerRect = CGRect(
-                x: cx * scale - innerR + 3.2 * crescentScale * scale,
-                y: cy * scale - innerR - 1.6 * crescentScale * scale,
+                x: cx * scale + offsetX - innerR, y: cy * scale + offsetY - innerR,
                 width: innerR * 2, height: innerR * 2
             )
             var p = Path()
