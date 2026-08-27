@@ -150,7 +150,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: Navigator.of(context).canPop(),
-      onPopInvokedWithPopScope: (didPop, result) {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         _goHome(context);
       },
@@ -200,15 +200,17 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                               children: const [
                                 Text(
                                   'What gets deleted',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.w700),
+                                  style: TextStyle(fontWeight: FontWeight.w700),
                                 ),
                                 SizedBox(height: 8),
                                 Text(
                                     'Your Shia Companion account sign-in record.'),
                                 SizedBox(height: 4),
                                 Text(
-                                    'Your synced favorites stored for that account.'),
+                                    'Your synced favorites and qaza tracker stored for that account.'),
+                                SizedBox(height: 4),
+                                Text(
+                                    'Your synced reading preferences — Hijri date adjustment and font choices.'),
                                 SizedBox(height: 4),
                                 Text(
                                   'Anonymous analytics or crash reports already collected may remain in aggregate form.',
@@ -248,10 +250,9 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                               runSpacing: 12,
                               children: [
                                 FilledButton.icon(
-                                  onPressed:
-                                      _isBusy ? null : _confirmDeletion,
-                                  icon: const Icon(
-                                      Icons.delete_forever_outlined),
+                                  onPressed: _isBusy ? null : _confirmDeletion,
+                                  icon:
+                                      const Icon(Icons.delete_forever_outlined),
                                   label: Text(_isBusy
                                       ? 'Deleting...'
                                       : 'Delete my account'),

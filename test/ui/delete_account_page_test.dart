@@ -47,7 +47,10 @@ void main() {
     );
     await tester.pump();
 
-    final popScope = tester.widget<PopScope>(find.byType(PopScope));
+    // byType compares runtime Type objects exactly, and PopScope is generic
+    // (PopScope<T>) — bySubtype does the `is` check that actually matches an
+    // instance whatever T got inferred to.
+    final popScope = tester.widget<PopScope>(find.bySubtype<PopScope>());
     expect(popScope.canPop, isFalse);
   });
 
@@ -69,16 +72,14 @@ void main() {
     ));
 
     await tester.tap(find.text('Open delete account'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     expect(find.byType(DeleteAccountPage), findsOneWidget);
-    final popScope = tester.widget<PopScope>(find.byType(PopScope));
+    final popScope = tester.widget<PopScope>(find.bySubtype<PopScope>());
     expect(popScope.canPop, isTrue);
 
     await Navigator.maybePop(tester.element(find.byType(DeleteAccountPage)));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     expect(find.byType(DeleteAccountPage), findsNothing);
     expect(find.text('Open delete account'), findsOneWidget);

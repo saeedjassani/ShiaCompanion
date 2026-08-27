@@ -15,6 +15,7 @@ import '../services/azaan_opt_in_service.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
+import '../services/preferences_sync_service.dart';
 import '../services/qaza_tracker_manager.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/dark_mode.dart';
@@ -44,6 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await SessionRefreshService.refreshSessionState();
     await FavoritesManager.instance.loadFavorites();
     await QazaTrackerManager.instance.loadQaza();
+    await PreferencesSyncService.instance.pullOrSeed();
     await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
     setState(() {});
@@ -577,6 +579,7 @@ class _SettingsPageState extends State<SettingsPage> {
   saveHijriDate() async {
     await SP.prefs.setInt('adjust_hijri_date', hijriDate);
     await SP.prefs.remove('prayerTimes');
+    unawaited(PreferencesSyncService.instance.pushHijriDate());
     await HomeScreenWidgetService.instance.publishTodaysRecitations();
     setState(() {});
   }

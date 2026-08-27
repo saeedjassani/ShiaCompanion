@@ -24,6 +24,7 @@ import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/services/location_service.dart';
+import 'package:shia_companion/services/preferences_sync_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
@@ -192,8 +193,7 @@ class _MyHomePageState extends State<MyHomePage>
     // old links and saved positions do not dead-end.
     final bookSlug =
         await LibraryService.resolveBookSlug(target.segments.first);
-    final chapterSlug =
-        target.segments.length > 1 ? target.segments[1] : null;
+    final chapterSlug = target.segments.length > 1 ? target.segments[1] : null;
 
     final books = await LibraryService.loadBooks();
     if (!mounted) return;
@@ -637,6 +637,7 @@ class _MyHomePageState extends State<MyHomePage>
     // Initialize synced user data from SharedPreferences or Firestore.
     await FavoritesManager.instance.loadFavorites();
     await QazaTrackerManager.instance.loadQaza();
+    await PreferencesSyncService.instance.pullOrSeed();
 
     // On web, keep first load quiet and let the prayer card request location
     // only after the user taps it.
