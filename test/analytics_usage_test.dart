@@ -2,7 +2,36 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/pages/admin/usage_dashboard_page.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 
+import 'ui/firebase_test_doubles.dart';
+
 void main() {
+  group('AnalyticsService.feature account_deleted', () {
+    // The dashboard's "Delete Account Page" screen count only tracks the
+    // page being opened — Google Play's public /delete-account link gets
+    // visited by bots and the curious, not just people who actually delete.
+    // A real deletion additionally logs this feature event, which lands
+    // under "Features used" instead.
+    setUpAll(() async {
+      await setUpFirebaseForRenderTests();
+    });
+
+    test(
+        'the key delete_account_page.dart tracks matches what '
+        'database.rules.json accepts for the feature metric bucket', () {
+      const key = 'account_deleted';
+      expect(AnalyticsService.safeKey(key), key);
+      expect(RegExp(r'^[A-Za-z0-9_~-]{1,60}$').hasMatch(key), isTrue);
+    });
+
+    test('completes without throwing once an account is actually deleted',
+        () async {
+      await expectLater(
+        AnalyticsService.feature('account_deleted', label: 'Account deleted'),
+        completes,
+      );
+    });
+  });
+
   group('AnalyticsService.safeKey', () {
     test('leaves a zikr uid untouched, case and tilde included', () {
       expect(AnalyticsService.safeKey('L4~2'), 'L4~2');

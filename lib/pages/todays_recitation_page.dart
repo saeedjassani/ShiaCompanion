@@ -49,13 +49,6 @@ class TodaysRecitationPage extends StatelessWidget {
                             source: ZikrOpenSource.todaysRecitation);
                       }
                     },
-                    onLongPress: () {
-                      if (isUserAdmin)
-                        handleUniversalDataClick(context,
-                            UniversalData(itemData.uid, itemData.title, 0),
-                            itemPage: true,
-                            source: ZikrOpenSource.todaysRecitation);
-                    },
                     title: isUserAdmin
                         ? Text(itemData.uid + " " + itemData.title)
                         : Text(itemData.title),

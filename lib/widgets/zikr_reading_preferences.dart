@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
+import '../services/analytics_service.dart';
+import '../services/preferences_sync_service.dart';
 import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
 
@@ -44,6 +46,14 @@ class _ZikrReadingPreferencesControlsState
               });
               _saveDoublePref('ara_font_size', arabicFontSize);
             },
+            // Not onChanged: that fires on every pixel of the drag, which is
+            // fine for the local write but would spam the analytics counter
+            // and the synced document with dozens of writes for one gesture.
+            onChangeEnd: (_) => _onFontSizeChangeEnd(
+              feature: 'arabic_font_size_changed',
+              label: 'Arabic font size changed',
+              push: PreferencesSyncService.instance.pushArabicFontSize,
+            ),
             value: arabicFontSize,
           ),
           trailing: Text(arabicFontSize.toInt().toString()),
@@ -62,6 +72,11 @@ class _ZikrReadingPreferencesControlsState
               });
               _saveDoublePref('eng_font_size', englishFontSize);
             },
+            onChangeEnd: (_) => _onFontSizeChangeEnd(
+              feature: 'english_font_size_changed',
+              label: 'English font size changed',
+              push: PreferencesSyncService.instance.pushEnglishFontSize,
+            ),
             value: englishFontSize,
           ),
           trailing: Text(englishFontSize.toInt().toString()),
@@ -147,6 +162,15 @@ class _ZikrReadingPreferencesControlsState
     widget.onChanged?.call();
   }
 
+  void _onFontSizeChangeEnd({
+    required String feature,
+    required String label,
+    required Future<void> Function() push,
+  }) {
+    unawaited(AnalyticsService.feature(feature, label: label));
+    unawaited(push());
+  }
+
   Future<void> _saveBooleanPref(String key, bool value) async {
     await SP.prefs.setBool(key, value);
     widget.onChanged?.call();
@@ -161,6 +185,12 @@ class _ZikrReadingPreferencesControlsState
       arabicFont = font;
     });
     await FontPreferences.setSelectedFont(font);
+    unawaited(AnalyticsService.feature(
+      'arabic_font_changed',
+      label: 'Arabic font changed',
+      parameters: {'font': font},
+    ));
+    unawaited(PreferencesSyncService.instance.pushArabicFont());
     widget.onChanged?.call();
   }
 

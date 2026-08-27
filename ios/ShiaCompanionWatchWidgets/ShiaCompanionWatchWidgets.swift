@@ -53,9 +53,10 @@ struct NextPrayerEntry: TimelineEntry {
         return String(trimmed[trimmed.startIndex..<firstSpace])
     }
 
-    var symbolName: String {
-        hasData ? prayerSymbolName(for: name) : "moon.stars"
-    }
+    /// Name to resolve a glyph from. `name` itself covers the empty state too:
+    /// `.empty(...)` sets it to "Open app", which matches no known prayer and
+    /// falls through to the glyph's generic horizon shape.
+    var glyphName: String { name }
 
     /// Ranks this entry against every other widget competing for the Smart Stack.
     /// A flat score parks the widget wherever it first landed; scoring by how
@@ -216,8 +217,8 @@ struct NextPrayerComplicationView: View {
             let side = min(proxy.size.width, proxy.size.height)
 
             VStack(spacing: 0) {
-                Image(systemName: entry.symbolName)
-                    .font(.system(size: side * 0.20, weight: .medium))
+                PrayerGlyphView(name: entry.glyphName)
+                    .frame(width: side * 0.22, height: side * 0.22)
                 Text(entry.compactTime)
                     .font(.system(size: side * 0.34, weight: .semibold, design: .rounded))
                     .minimumScaleFactor(0.45)
@@ -245,8 +246,8 @@ struct NextPrayerComplicationView: View {
         // balance, they're one reading line the system bends for you. Putting the
         // time there (not the icon) is what makes that line read as a clock: the
         // icon sits fixed in the corner, the time is what curves.
-        Image(systemName: entry.symbolName)
-            .font(.system(size: 15, weight: .medium))
+        PrayerGlyphView(name: entry.glyphName)
+            .frame(width: 15, height: 15)
             .widgetLabel {
                 Text(entry.compactTime)
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
@@ -262,7 +263,8 @@ struct NextPrayerComplicationView: View {
             // owns, and it elides rather than scales.
             Text(entry.hasData ? "\(entry.name) \(entry.compactTime)" : "Open iPhone app")
         } icon: {
-            Image(systemName: entry.symbolName)
+            PrayerGlyphView(name: entry.glyphName)
+                .frame(width: 14, height: 14)
         }
     }
 
@@ -278,8 +280,8 @@ struct NextPrayerComplicationView: View {
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 3) {
-                Image(systemName: entry.symbolName)
-                    .font(.system(size: 10, weight: .medium))
+                PrayerGlyphView(name: entry.glyphName)
+                    .frame(width: 11, height: 11)
                 if entry.hasData {
                     // Degrades name → initial rather than clipping the word; the day
                     // label goes first, since the time below already implies the day.

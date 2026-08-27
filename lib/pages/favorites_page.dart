@@ -77,12 +77,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         handleUniversalDataClick(context, item,
                             source: ZikrOpenSource.favorites);
                       },
-                      onLongPress: () {
-                        if (isUserAdmin)
-                          handleUniversalDataClick(context, item,
-                              itemPage: true,
-                              source: ZikrOpenSource.favorites);
-                      },
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

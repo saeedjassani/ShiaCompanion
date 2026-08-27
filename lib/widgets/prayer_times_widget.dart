@@ -204,21 +204,13 @@ class _CardHeader extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // The date alone on this row, so a long city or "· Location
+            // services are off" never fights it for space or gets truncated
+            // — the location gets its own line underneath instead.
             Flexible(
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: dateText, style: boldText),
-                    // Date and location read as one line, so they carry the
-                    // same weight; only a failure recolours its half.
-                    TextSpan(
-                      text: " · $suffix",
-                      style: failed
-                          ? boldText.copyWith(color: colorScheme.error)
-                          : boldText,
-                    ),
-                  ],
-                ),
+              child: Text(
+                dateText,
+                style: boldText,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -263,6 +255,13 @@ class _CardHeader extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        Text(
+          suffix,
+          style: failed ? boldText.copyWith(color: colorScheme.error) : boldText,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         if (showUpdated)
           Text(

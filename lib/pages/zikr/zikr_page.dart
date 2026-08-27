@@ -89,6 +89,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   late final ValueNotifier<bool> _showCounter;
   late final ValueNotifier<int> _counterCount;
 
+  /// Whether the "show counter" FAB is currently on screen. Starts visible
+  /// so it's discoverable, then fades itself out after a few idle seconds so
+  /// a feature most readings never touch stops sitting on top of the
+  /// content — a tap anywhere on the page brings it back for another look.
+  final ValueNotifier<bool> _counterFabVisible = ValueNotifier(true);
+  Timer? _counterFabHideTimer;
+  static const Duration _counterFabIdleDuration = Duration(seconds: 4);
+
   @override
   void initState() {
     super.initState();
@@ -114,6 +122,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ));
     _readingProgress.addListener(_maybeRecordCompletion);
     _initializePageData();
+    _scheduleCounterFabHide();
   }
 
   /// Fires at most once. Opening a zikr and reciting one are different things
@@ -159,6 +168,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterOffset.dispose();
     _showCounter.dispose();
     _counterCount.dispose();
+    _counterFabHideTimer?.cancel();
+    _counterFabVisible.dispose();
     _maybeRecordCompletion();
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.dispose();
@@ -207,6 +218,29 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void _setCounterVisibility(bool isVisible) {
     _showCounter.value = isVisible;
     _persistCounterSession(isVisible: isVisible);
+  }
+
+  void _showCounterFromFab() {
+    unawaited(AnalyticsService.feature(
+      'zikr_counter_shown',
+      label: 'Tasbeeh counter shown',
+    ));
+    _setCounterVisibility(true);
+  }
+
+  /// Restarts the idle timer and, if the FAB had already faded out, brings
+  /// it back — called on any tap on the page, not just on the FAB itself.
+  void _revealCounterFab() {
+    if (_showCounter.value) return;
+    _counterFabVisible.value = true;
+    _scheduleCounterFabHide();
+  }
+
+  void _scheduleCounterFabHide() {
+    _counterFabHideTimer?.cancel();
+    _counterFabHideTimer = Timer(_counterFabIdleDuration, () {
+      if (mounted) _counterFabVisible.value = false;
+    });
   }
 
   void _updateCounterOffset(Offset offset) {
@@ -895,6 +929,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       setState(() {
         _savedBookmark = null;
       });
+      unawaited(AnalyticsService.feature(
+        'zikr_bookmark_removed',
+        label: 'Bookmark removed',
+      ));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Bookmark removed')),
       );
@@ -919,6 +957,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     setState(() {
       _savedBookmark = bookmark;
     });
+    unawaited(AnalyticsService.feature(
+      'zikr_bookmark_saved',
+      label: 'Bookmark saved',
+      parameters: {'zikr_uid': _bookmarkUid},
+    ));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Bookmark saved on this device')),
     );
@@ -1075,8 +1118,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           icon: Icon(
             _savedBookmark == null ? Icons.bookmark_border : Icons.bookmark,
           ),
-          tooltip:
-              _savedBookmark == null ? 'Save Bookmark' : 'Remove Bookmark',
+          tooltip: _savedBookmark == null ? 'Save Bookmark' : 'Remove Bookmark',
           onPressed: () => _toggleBookmark(
             pageTitle: pageTitle,
             tabContents: tabContents,
@@ -1139,7 +1181,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final readingTime = zikrReadingTimeLabel(_readingStats.duration);
 
     return PreferredSize(
-      preferredSize: const Size.fromHeight(26),
+      preferredSize: const Size.fromHeight(29),
       child: ValueListenableBuilder<double>(
         valueListenable: _readingProgress,
         builder: (context, progress, _) => Column(
@@ -1164,7 +1206,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(readingTime),
-                    Text(zikrProgressLabel(progress)),
+                    // Larger than the reading time beside it: this is the
+                    // number people glance down to check progress by, so it
+                    // carries the weight the row is there for.
+                    Text(
+                      zikrProgressLabel(progress),
+                      style: const TextStyle(fontSize: 13),
+                    ),
                   ],
                 ),
               ),
@@ -1213,118 +1261,137 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         endDrawer: ZikrSettingsPage(refreshState),
         floatingActionButton: ValueListenableBuilder<bool>(
           valueListenable: _showCounter,
-          builder: (context, visible, _) => visible
-              ? const SizedBox.shrink()
-              : FloatingActionButton(
-                  onPressed: () => _setCounterVisibility(true),
-                  tooltip: 'Show Counter',
-                  child: const Icon(tasbeehCounterIcon),
+          builder: (context, showingCounter, _) {
+            if (showingCounter) return const SizedBox.shrink();
+            return ValueListenableBuilder<bool>(
+              valueListenable: _counterFabVisible,
+              builder: (context, visible, _) => IgnorePointer(
+                ignoring: !visible,
+                child: AnimatedOpacity(
+                  opacity: visible ? 1 : 0,
+                  duration: const Duration(milliseconds: 250),
+                  child: FloatingActionButton(
+                    onPressed: _showCounterFromFab,
+                    tooltip: 'Show Counter',
+                    child: const Icon(tasbeehCounterIcon),
+                  ),
                 ),
+              ),
+            );
+          },
         ),
-        body: LayoutBuilder(
-          builder: (context, bodyConstraints) => Stack(
-            children: [
-              zikrData == null
-                  ? Center(
-                      child: _didFailToLoadZikrData
-                          ? const Text('Unable to open this dua.')
-                          : const CircularProgressIndicator(),
-                    )
-                  : !hasAnyContent && !isEditing
-                      ? const Center(child: Text('Coming soon...'))
-                      : ResponsiveContent(
-                          maxWidth: isEditing
-                              ? wideContentWidth
-                              : readingContentWidth,
-                          padding: const EdgeInsets.all(16.0),
-                          child: isEditing
-                              ? ZikrEditFormWidget(
-                                  titleController: titleController!,
-                                  slugController: slugController!,
-                                  codeController: codeController!,
-                                  orderController: orderController!,
-                                  dayController: dayController!,
-                                  meritsController: meritsController!,
-                                  dataController: dataController!,
-                                  tabControllers: tabControllers,
-                                  onAddTab: _addTabField,
-                                )
-                              : ZikrContentViewerWidget(
-                                  tabContents: tabContents,
-                                  selectedTabIndex: selectedTabIndex,
-                                  onTabChanged: (index) {
-                                    setState(() {
-                                      _selectedZikrTabIndex = index;
-                                    });
-                                    _updateReadingProgress();
-                                  },
-                                  hasMerits: hasMerits,
-                                  onShowMerits: _showMeritsSheet,
-                                  onLinkTap: _handleZikrLinkTap,
-                                  code: zikrData?['code']?.toString(),
-                                  initialBookmarkTabIndex:
-                                      _savedBookmark?.tabIndex,
-                                  initialBookmarkScrollOffset:
-                                      _savedBookmark?.scrollOffset,
-                                  onScrollPositionChanged:
-                                      _handleContentScrollPositionChanged,
-                                ),
-                        ),
-              // Counter overlay
-              ValueListenableBuilder<bool>(
-                valueListenable: _showCounter,
-                builder: (context, visible, _) {
-                  if (!visible) return const SizedBox.shrink();
-                  return ValueListenableBuilder<Offset>(
-                    valueListenable: _counterOffset,
-                    builder: (context, offset, __) {
-                      final resolvedOffset =
-                          _resolveCounterOffset(bodyConstraints, offset);
-                      return Positioned(
-                        left: resolvedOffset.dx,
-                        top: resolvedOffset.dy,
-                        child: SelectionContainer.disabled(
-                          child: GestureDetector(
-                            onPanUpdate: (details) => _handleCounterDragUpdate(
-                              details,
-                              bodyConstraints,
-                            ),
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                _buildCounterCard(),
-                                Positioned(
-                                  right: 8,
-                                  top: 8,
-                                  child: Material(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHighest,
-                                    shape: const CircleBorder(),
-                                    child: IconButton(
-                                      padding: const EdgeInsets.all(6),
-                                      constraints: const BoxConstraints(
-                                        minWidth: 32,
-                                        minHeight: 32,
+        body: Listener(
+          // Any touch on the page — not just the FAB — counts as "still
+          // here", so the FAB is there to find again without having to wait
+          // out the fade or go hunting for it.
+          onPointerDown: (_) => _revealCounterFab(),
+          behavior: HitTestBehavior.translucent,
+          child: LayoutBuilder(
+            builder: (context, bodyConstraints) => Stack(
+              children: [
+                zikrData == null
+                    ? Center(
+                        child: _didFailToLoadZikrData
+                            ? const Text('Unable to open this dua.')
+                            : const CircularProgressIndicator(),
+                      )
+                    : !hasAnyContent && !isEditing
+                        ? const Center(child: Text('Coming soon...'))
+                        : ResponsiveContent(
+                            maxWidth: isEditing
+                                ? wideContentWidth
+                                : readingContentWidth,
+                            padding: const EdgeInsets.all(16.0),
+                            child: isEditing
+                                ? ZikrEditFormWidget(
+                                    titleController: titleController!,
+                                    slugController: slugController!,
+                                    codeController: codeController!,
+                                    orderController: orderController!,
+                                    dayController: dayController!,
+                                    meritsController: meritsController!,
+                                    dataController: dataController!,
+                                    tabControllers: tabControllers,
+                                    onAddTab: _addTabField,
+                                  )
+                                : ZikrContentViewerWidget(
+                                    tabContents: tabContents,
+                                    selectedTabIndex: selectedTabIndex,
+                                    onTabChanged: (index) {
+                                      setState(() {
+                                        _selectedZikrTabIndex = index;
+                                      });
+                                      _updateReadingProgress();
+                                    },
+                                    hasMerits: hasMerits,
+                                    onShowMerits: _showMeritsSheet,
+                                    onLinkTap: _handleZikrLinkTap,
+                                    code: zikrData?['code']?.toString(),
+                                    initialBookmarkTabIndex:
+                                        _savedBookmark?.tabIndex,
+                                    initialBookmarkScrollOffset:
+                                        _savedBookmark?.scrollOffset,
+                                    onScrollPositionChanged:
+                                        _handleContentScrollPositionChanged,
+                                  ),
+                          ),
+                // Counter overlay
+                ValueListenableBuilder<bool>(
+                  valueListenable: _showCounter,
+                  builder: (context, visible, _) {
+                    if (!visible) return const SizedBox.shrink();
+                    return ValueListenableBuilder<Offset>(
+                      valueListenable: _counterOffset,
+                      builder: (context, offset, __) {
+                        final resolvedOffset =
+                            _resolveCounterOffset(bodyConstraints, offset);
+                        return Positioned(
+                          left: resolvedOffset.dx,
+                          top: resolvedOffset.dy,
+                          child: SelectionContainer.disabled(
+                            child: GestureDetector(
+                              onPanUpdate: (details) =>
+                                  _handleCounterDragUpdate(
+                                details,
+                                bodyConstraints,
+                              ),
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  _buildCounterCard(),
+                                  Positioned(
+                                    right: 8,
+                                    top: 8,
+                                    child: Material(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerHighest,
+                                      shape: const CircleBorder(),
+                                      child: IconButton(
+                                        padding: const EdgeInsets.all(6),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 32,
+                                          minHeight: 32,
+                                        ),
+                                        visualDensity: VisualDensity.compact,
+                                        icon: const Icon(Icons.close, size: 16),
+                                        tooltip: 'Hide counter',
+                                        onPressed: () =>
+                                            _setCounterVisibility(false),
                                       ),
-                                      visualDensity: VisualDensity.compact,
-                                      icon: const Icon(Icons.close, size: 16),
-                                      tooltip: 'Hide counter',
-                                      onPressed: () =>
-                                          _setCounterVisibility(false),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

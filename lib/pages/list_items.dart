@@ -290,11 +290,6 @@ class _ItemListState extends State<ItemList> {
           if (!mounted) return;
           setState(_refreshWorkingItems);
         },
-        onLongPress: () {
-          if (isUserAdmin)
-            handleUniversalDataClick(context, itemData,
-                itemPage: true, source: ZikrOpenSource.list);
-        },
         title: Text(title),
         trailing: !isParentZikr
             ? Wrap(
