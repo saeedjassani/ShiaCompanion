@@ -241,20 +241,19 @@ struct NextPrayerComplicationView: View {
     }
 
     private var corner: some View {
-        // Confirmed on-device: corner renders its main content flat in the corner
-        // and the widgetLabel curved along the bezel — they are not two lines to
-        // balance, they're one reading line the system bends for you. Putting the
-        // time there (not the icon) is what makes that line read as a clock: the
-        // icon sits fixed in the corner, the time is what curves.
-        PrayerGlyphView(name: entry.glyphName)
-            .frame(width: 15, height: 15)
-            .widgetLabel {
-                Text(entry.compactTime)
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
-                    .minimumScaleFactor(0.4)
-                    .allowsTightening(true)
-                    .lineLimit(1)
-            }
+        // One flat line — icon, then time — instead of the icon fixed in the
+        // corner with the time curving along the bezel as its own label. The
+        // curved-label split cost the time real size to fit the arc; as a
+        // single line here it gets the room back.
+        HStack(spacing: 3) {
+            PrayerGlyphView(name: entry.glyphName)
+                .frame(width: 14, height: 14)
+            Text(entry.compactTime)
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .minimumScaleFactor(0.5)
+                .allowsTightening(true)
+                .lineLimit(1)
+        }
     }
 
     private var inline: some View {

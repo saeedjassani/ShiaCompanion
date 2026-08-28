@@ -774,34 +774,74 @@ private struct PrayerGlyphView: View {
             }
         }
 
+        /// A rounded base with three overlapping bumps on top, filled — reads
+        /// as a cloud silhouette rather than the lobed-arc path the app draws,
+        /// but at this render size the silhouette is what actually shows.
         func cloud(_ cx: CGFloat, _ baseY: CGFloat, _ cloudScale: CGFloat) {
             let s = cloudScale * scale
             let bx = cx * scale
             let by = baseY * scale
+            func bump(_ dx: CGFloat, _ dy: CGFloat, _ r: CGFloat) -> CGRect {
+                CGRect(
+                    x: bx + dx * s - r * s, y: by + dy * s - r * s,
+                    width: 2 * r * s, height: 2 * r * s
+                )
+            }
             var p = Path()
-            p.addEllipse(in: CGRect(x: bx - 6.4 * s, y: by - 6.6 * s, width: 6.2 * s, height: 6.2 * s))
-            p.addEllipse(in: CGRect(x: bx - 4.3 * s, y: by - 9.2 * s, width: 8.6 * s, height: 8.6 * s))
-            p.addEllipse(in: CGRect(x: bx + 0.6 * s, y: by - 6.9 * s, width: 6.8 * s, height: 6.8 * s))
-            p.addRect(CGRect(x: bx - 6.4 * s, y: by - 4 * s, width: 13.9 * s, height: 4 * s))
+            let base = CGRect(x: bx - 6.4 * s, y: by - 2.6 * s, width: 12.8 * s, height: 2.6 * s)
+            p.addRoundedRect(in: base, cornerSize: CGSize(width: 1.3 * s, height: 1.3 * s))
+            p.addEllipse(in: bump(-3.4, -3.4, 3.2))
+            p.addEllipse(in: bump(0.4, -5.2, 4.2))
+            p.addEllipse(in: bump(4.2, -3.0, 3.0))
             ctx.fill(p, with: .color(color))
         }
 
-        func crescent(_ cx: CGFloat, _ cy: CGFloat, _ crescentScale: CGFloat) {
-            let outerR = 9 * crescentScale * scale
-            let innerR = 7.3 * crescentScale * scale
-            let outerRect = CGRect(
-                x: cx * scale - outerR, y: cy * scale - outerR,
-                width: outerR * 2, height: outerR * 2
-            )
-            let innerRect = CGRect(
-                x: cx * scale - innerR + 3.2 * crescentScale * scale,
-                y: cy * scale - innerR - 1.6 * crescentScale * scale,
-                width: innerR * 2, height: innerR * 2
-            )
+        /// A crescent, filled — an exact port of Flutter's `_crescent`, not an
+        /// approximation. The app draws it as one closed path built from two
+        /// circular arcs of *different* radii (9 and 7) strung between the
+        /// same two endpoints (`arcToPoint`), which is what gives a real
+        /// crescent its pointed horns; it is not two same-ish discs offset
+        /// and cut out with an even-odd fill, which only ever produces a
+        /// rounder, moon-with-two-parallel-rims shape no amount of offset
+        /// tuning turns into the real silhouette.
+        ///
+        /// SwiftUI's `Canvas` has no direct equivalent of `arcToPoint`, and
+        /// `Path.addArc`'s `clockwise` flag is notoriously ambiguous in a
+        /// y-down context — so instead the two arcs' centers and endpoint
+        /// angles were solved analytically offline (the standard SVG
+        /// endpoint-to-center arc conversion, applied to Flutter's own
+        /// control points and flags) and are point-sampled here the same way
+        /// `openDome` already is, sidestepping the ambiguity entirely.
+        /// `crescentScale`/`tx`/`ty` mirror Dart's `_crescent(scale, tx, ty)`
+        /// parameters exactly, so this scales and repositions identically.
+        func crescent(_ crescentScale: CGFloat, _ tx: CGFloat, _ ty: CGFloat) {
+            func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+                CGPoint(x: (tx + x * crescentScale) * scale, y: (ty + y * crescentScale) * scale)
+            }
+            let c1 = pt(12.038186, 11.961814)
+            let r1 = 9.0 * crescentScale * scale
+            let c2 = pt(16.839149, 7.160851)
+            let r2 = 7.0 * crescentScale * scale
+
             var p = Path()
-            p.addEllipse(in: outerRect)
-            p.addEllipse(in: innerRect)
-            ctx.fill(p, with: .color(color), style: FillStyle(eoFill: true))
+            let steps = 48
+            for i in 0...steps {
+                let t = CGFloat(i) / CGFloat(steps)
+                let a = (5.279866 + (264.720134 - 5.279866) * t) * .pi / 180
+                let point = CGPoint(x: c1.x + r1 * cos(a), y: c1.y + r1 * sin(a))
+                if i == 0 {
+                    p.move(to: point)
+                } else {
+                    p.addLine(to: point)
+                }
+            }
+            for i in 0...steps {
+                let t = CGFloat(i) / CGFloat(steps)
+                let a = (-143.529611 + (-306.470389 - -143.529611) * t) * .pi / 180
+                p.addLine(to: CGPoint(x: c2.x + r2 * cos(a), y: c2.y + r2 * sin(a)))
+            }
+            p.closeSubpath()
+            ctx.fill(p, with: .color(color))
         }
 
         func star(_ cx: CGFloat, _ cy: CGFloat, _ r: CGFloat) {
@@ -839,9 +879,9 @@ private struct PrayerGlyphView: View {
             rays(12, 17, 2.8, gap: 0.8, len: 1.3, angles: rays5)
             cloud(11.3, 11.2, 0.72)
         case .maghrib:
-            crescent(12, 8, 1)
+            crescent(1, 0, 0)
         case .isha:
-            crescent(13, 6.5, 0.78)
+            crescent(0.78, 3.2, -0.6)
             cloud(3.6, 21, 0.52)
         case .midnight:
             star(13, 10, 4.4)
