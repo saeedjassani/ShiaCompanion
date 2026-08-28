@@ -796,30 +796,52 @@ private struct PrayerGlyphView: View {
             ctx.fill(p, with: .color(color))
         }
 
-        /// A crescent, filled: two overlapping discs, even-odd rule. The
-        /// cut-out circle has to stay fully inside the outer one with real
-        /// margin, not just barely — right at the tangent point,
-        /// anti-aliasing at these small render sizes reads as a second
-        /// sliver on the opposite side, which is exactly what "not enough
-        /// margin" looked like here the first time (an extra thin crescent
-        /// where there should be none).
-        func crescent(_ cx: CGFloat, _ cy: CGFloat, _ crescentScale: CGFloat) {
-            let outerR = 9.0 * crescentScale * scale
-            let innerR = 6.5 * crescentScale * scale
-            let offsetX = 1.2 * crescentScale * scale
-            let offsetY = -0.6 * crescentScale * scale
-            let outerRect = CGRect(
-                x: cx * scale - outerR, y: cy * scale - outerR,
-                width: outerR * 2, height: outerR * 2
-            )
-            let innerRect = CGRect(
-                x: cx * scale + offsetX - innerR, y: cy * scale + offsetY - innerR,
-                width: innerR * 2, height: innerR * 2
-            )
+        /// A crescent, filled — an exact port of Flutter's `_crescent`, not an
+        /// approximation. The app draws it as one closed path built from two
+        /// circular arcs of *different* radii (9 and 7) strung between the
+        /// same two endpoints (`arcToPoint`), which is what gives a real
+        /// crescent its pointed horns; it is not two same-ish discs offset
+        /// and cut out with an even-odd fill, which only ever produces a
+        /// rounder, moon-with-two-parallel-rims shape no amount of offset
+        /// tuning turns into the real silhouette.
+        ///
+        /// SwiftUI's `Canvas` has no direct equivalent of `arcToPoint`, and
+        /// `Path.addArc`'s `clockwise` flag is notoriously ambiguous in a
+        /// y-down context — so instead the two arcs' centers and endpoint
+        /// angles were solved analytically offline (the standard SVG
+        /// endpoint-to-center arc conversion, applied to Flutter's own
+        /// control points and flags) and are point-sampled here the same way
+        /// `openDome` already is, sidestepping the ambiguity entirely.
+        /// `crescentScale`/`tx`/`ty` mirror Dart's `_crescent(scale, tx, ty)`
+        /// parameters exactly, so this scales and repositions identically.
+        func crescent(_ crescentScale: CGFloat, _ tx: CGFloat, _ ty: CGFloat) {
+            func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+                CGPoint(x: (tx + x * crescentScale) * scale, y: (ty + y * crescentScale) * scale)
+            }
+            let c1 = pt(12.038186, 11.961814)
+            let r1 = 9.0 * crescentScale * scale
+            let c2 = pt(16.839149, 7.160851)
+            let r2 = 7.0 * crescentScale * scale
+
             var p = Path()
-            p.addEllipse(in: outerRect)
-            p.addEllipse(in: innerRect)
-            ctx.fill(p, with: .color(color), style: FillStyle(eoFill: true))
+            let steps = 48
+            for i in 0...steps {
+                let t = CGFloat(i) / CGFloat(steps)
+                let a = (5.279866 + (264.720134 - 5.279866) * t) * .pi / 180
+                let point = CGPoint(x: c1.x + r1 * cos(a), y: c1.y + r1 * sin(a))
+                if i == 0 {
+                    p.move(to: point)
+                } else {
+                    p.addLine(to: point)
+                }
+            }
+            for i in 0...steps {
+                let t = CGFloat(i) / CGFloat(steps)
+                let a = (-143.529611 + (-306.470389 - -143.529611) * t) * .pi / 180
+                p.addLine(to: CGPoint(x: c2.x + r2 * cos(a), y: c2.y + r2 * sin(a)))
+            }
+            p.closeSubpath()
+            ctx.fill(p, with: .color(color))
         }
 
         func star(_ cx: CGFloat, _ cy: CGFloat, _ r: CGFloat) {
@@ -857,9 +879,9 @@ private struct PrayerGlyphView: View {
             rays(12, 17, 2.8, gap: 0.8, len: 1.3, angles: rays5)
             cloud(11.3, 11.2, 0.72)
         case .maghrib:
-            crescent(12, 8, 1)
+            crescent(1, 0, 0)
         case .isha:
-            crescent(13, 6.5, 0.78)
+            crescent(0.78, 3.2, -0.6)
             cloud(3.6, 21, 0.52)
         case .midnight:
             star(13, 10, 4.4)
