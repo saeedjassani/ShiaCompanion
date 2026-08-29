@@ -960,7 +960,8 @@
   },
   "E144": {
     "title": "Salawat Abul Hasan al-Zarrab al-Isfahani",
-    "slug": "salawat-abul-hasan-al-zarrab-al-isfahani"
+    "slug": "salawat-abul-hasan-al-zarrab-al-isfahani",
+    "day": "*-*-5"
   },
   "E15": {
     "title": "Dua e Hazeen",
@@ -972,7 +973,8 @@
   },
   "E154": {
     "title": "Dua-e-Ehtejaab [The Supplication of Concealment]",
-    "slug": "dua-e-ehtejaab-the-supplication-of-concealment"
+    "slug": "dua-e-ehtejaab-the-supplication-of-concealment",
+    "day": "*-*-5"
   },
   "E155": {
     "title": "Dua e Marefat - Allahumma Arrifni",
@@ -1013,19 +1015,33 @@
   },
   "E26": {
     "title": "Dua Simat",
-    "slug": "dua-simat"
+    "slug": "dua-simat",
+    "day": "*-*-5"
   },
   "E27": {
     "title": "Dua Mashlool",
-    "slug": "dua-mashlool"
+    "slug": "dua-mashlool",
+    "day": "07-27"
   },
   "E28": {
     "title": "Dua Mujeer",
-    "slug": "dua-mujeer"
+    "slug": "dua-mujeer",
+    "day": [
+      "09-13",
+      "09-14",
+      "09-15"
+    ]
   },
   "E29": {
     "title": "Dua Jawshan al-Kabeer",
-    "slug": "dua-jawshan-al-kabeer"
+    "slug": "dua-jawshan-al-kabeer",
+    "day": [
+      "09-01",
+      "09-19",
+      "09-21",
+      "09-23",
+      "*-*-5"
+    ]
   },
   "E30": {
     "title": "Dua Jawshan al Sagir",
@@ -1033,7 +1049,11 @@
   },
   "E31": {
     "title": "Dua Kumayl",
-    "slug": "dua-kumayl"
+    "slug": "dua-kumayl",
+    "day": [
+      "08-15",
+      "*-*-4"
+    ]
   },
   "E32": {
     "title": "Dua e Ne'mul Badal",
@@ -1045,7 +1065,13 @@
   },
   "E34": {
     "title": "Dua e Nudbah",
-    "slug": "dua-e-nudbah-2"
+    "slug": "dua-e-nudbah-2",
+    "day": [
+      "10-01",
+      "12-10",
+      "12-18",
+      "*-*-5"
+    ]
   },
   "E35": {
     "title": "Dua-e-Sabaah",
@@ -1114,7 +1140,8 @@
   },
   "E8": {
     "title": "Dua Alqamah",
-    "slug": "dua-alqama"
+    "slug": "dua-alqama",
+    "day": "01-10"
   },
   "E80": {
     "title": "Comprehensive dua for the world & Hereafter",

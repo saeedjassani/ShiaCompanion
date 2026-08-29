@@ -36,6 +36,18 @@ void main() {
     );
   });
 
+  test('"*-*-D" recurs on that weekday in every lunar month', () {
+    final friday = HijriCalendar.fromDate(DateTime(2024, 5, 24));
+    expect(friday.weekDay(), DateTime.friday);
+
+    // Matches regardless of the current lunar month.
+    expect(matchesLunarDatePattern('*-*-5', currentDate: friday), isTrue);
+    // Wrong weekday still misses.
+    expect(matchesLunarDatePattern('*-*-4', currentDate: friday), isFalse);
+    // A wildcard month is meaningless for a fixed MM-DD date.
+    expect(matchesLunarDatePattern('*-09', currentDate: friday), isFalse);
+  });
+
   test('todays zikrs can read comma strings and lists of lunar patterns', () {
     final date = HijriCalendar.fromDate(DateTime(2024, 6, 16));
     final matchingPattern = '${date.hMonth}-${date.hDay}';

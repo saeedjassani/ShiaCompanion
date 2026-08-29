@@ -28,7 +28,11 @@ List<String> _patternsFromValue(Object? value) {
 ///
 /// Pattern formats:
 /// - "MM-DD": Fixed date (e.g., "09-09" for 9th Zilhajj)
-/// - "MM-*-D": Recurring weekly (e.g., "10-*-0" for every Sunday of Zilqad)
+/// - "MM-*-D": Recurring weekly within one lunar month (e.g., "10-*-0" for
+///   every Sunday of Zilqad)
+/// - "*-*-D": Recurring weekly in every lunar month (e.g., "*-*-5" for every
+///   Friday, year-round) — use this for weekday-only duas that aren't tied
+///   to a particular Hijri month, instead of repeating "MM-*-D" 12 times.
 ///   Day values: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
 ///
 /// Returns true if the current date matches the pattern.
@@ -38,12 +42,13 @@ bool matchesLunarDatePattern(String pattern, {HijriCalendar? currentDate}) {
   final parts = pattern.trim().split('-');
   if (parts.length < 2) return false;
 
-  final month = int.tryParse(parts[0]);
-  if (month == null || month < 1 || month > 12) return false;
+  final isAnyMonth = parts[0] == '*';
+  final month = isAnyMonth ? null : int.tryParse(parts[0]);
+  if (!isAnyMonth && (month == null || month < 1 || month > 12)) return false;
 
-  // Check if it's a recurring pattern (MM-*-D)
+  // Check if it's a recurring pattern (MM-*-D or *-*-D)
   if (parts.length >= 3 && parts[1] == '*') {
-    if (currentDate.hMonth != month) return false;
+    if (!isAnyMonth && currentDate.hMonth != month) return false;
 
     final dayOfWeek = int.tryParse(parts[2]);
     if (dayOfWeek == null || dayOfWeek < 0 || dayOfWeek > 6) return false;
@@ -51,7 +56,8 @@ bool matchesLunarDatePattern(String pattern, {HijriCalendar? currentDate}) {
     return _sundayBasedWeekday(currentDate) == dayOfWeek;
   }
 
-  // Fixed date pattern (MM-DD)
+  // Fixed date pattern (MM-DD) - the month must be a real lunar month
+  if (isAnyMonth) return false;
   if (parts.length >= 2) {
     final day = int.tryParse(parts[1]);
     if (day == null || day < 1 || day > 30) return false;

@@ -74,9 +74,12 @@ class ZikrEditFormWidget extends StatelessWidget {
           TextField(
             controller: dayController,
             decoration: const InputDecoration(
+              helperMaxLines: 4,
               labelText: 'Lunar Date(s)',
               helperText:
-                  'MM-DD for fixed dates (e.g., 09-09 for 9th Zilhajj), or MM-*-D for recurring (e.g., 10-*-0 for every Sunday of Zilqad). Separate multiple with commas.',
+                  'MM-DD for fixed dates (e.g., 09-09 for 9th Zilhajj), MM-*-D for a weekday within one lunar month '
+                  '(e.g., 10-*-0 for every Sunday of Zilqad), or *-*-D for a weekday every month (e.g., *-*-5 for every Friday). '
+                  'Separate multiple with commas.',
             ),
           ),
           TextField(
