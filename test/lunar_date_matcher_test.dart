@@ -48,6 +48,18 @@ void main() {
     expect(matchesLunarDatePattern('*-09', currentDate: friday), isFalse);
   });
 
+  test('"MM-*" matches every day within that lunar month only', () {
+    final date = HijriCalendar.fromDate(DateTime(2024, 6, 16));
+
+    expect(matchesLunarDatePattern('${date.hMonth}-*', currentDate: date),
+        isTrue);
+    final otherMonth = (date.hMonth % 12) + 1;
+    expect(
+        matchesLunarDatePattern('$otherMonth-*', currentDate: date), isFalse);
+    // A wildcard month with a wildcard day is meaningless.
+    expect(matchesLunarDatePattern('*-*', currentDate: date), isFalse);
+  });
+
   test('todays zikrs can read comma strings and lists of lunar patterns', () {
     final date = HijriCalendar.fromDate(DateTime(2024, 6, 16));
     final matchingPattern = '${date.hMonth}-${date.hDay}';

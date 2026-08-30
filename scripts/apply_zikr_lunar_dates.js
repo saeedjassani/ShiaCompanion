@@ -73,6 +73,79 @@ const LUNAR_DATES = {
   G81: '06-13', // Janab-e-Ummul Baneen - death 13 Jamadi II
   G82: ['02-10', '07-20'], // Janab-e-Sakina - martyrdom 10 Safar, birth 20 Rajab
   G83: '01-10', // Ziyaarat-e-Aashoora Ghair Ma'roofah - 10th Muharram (Ashura, from its own title)
+
+  // --- Aamaal ---
+  // R/S/X/Y/AA/AB/AC are Mafatih al-Jinan's month-by-month Aamaal chapters
+  // (Muharram/Safar/Rajab/Sha'ban/Ramazan/Zilqad/Zilhajj respectively - the
+  // months that traditionally have a dedicated Aamaal section). Dates below
+  // come straight from each item's own title, cross-checked against
+  // assets/events.json where it also links here. Whole-month items (no
+  // single date) use the new "MM-*" pattern instead of being left unset, so
+  // e.g. Dua-e-Iftetaah surfaces every night of Ramazan.
+  //
+  // Left out entirely: the location-based shrine ziyarats (AL/AI/AH/AG/AK/
+  // AN/AJ/AE prefixes - Samarra/Kufa/Kazimayn/Karbala/Najaf/etc.), which
+  // aren't tied to a calendar date at all; and a handful of ambiguous items
+  // (X6 "first Friday of Rajab" - an ordinal weekday this format can't
+  // express; AA1, AA9, AA21 - no single clear occasion). Also genuinely
+  // missing from the corpus: events.json links "27-7"/"14-8"/three Ramazan
+  // dates/"27-9" to X18/Y9/AA28/AA39, none of which exist any more (unlike
+  // the G22/G15 cases above, there's no surviving item to redirect to -
+  // this looks like deleted content, e.g. a dedicated Shab-e-Qadr Aamaal
+  // page, rather than a renumbering).
+  R1: '01-01', // 1st Night and Day of Moharram
+  R4: '01-03', // The Third of Moharram
+  R5: '01-09', // The Ninth of Moharram
+  R6: '01-10', // The 10th Night of Moharram
+  R7: '01-10', // The 10th of Moharram
+  R9: '01-10', // Aamal of Ashoora
+  S1: '02-*', // The Month of Safar
+  S5: '02-20', // Arbaeen
+  S7: '02-20', // Ziyarah on the day of Arbaeen
+  X1: '07-*', // Importance of the month of Rajab and its Aamaal
+  X2: '07-*', // General Aamaal in Rajab
+  X3: '07-*', // Daily supplications of Rajab
+  X4: '07-*', // Ziyarah Rajabiyah - recited throughout Rajab
+  X5: '07-*', // Miscellaneous Aamaal for the Month of Rajab
+  X7: '07-01', // First Night of Rajab
+  Y3: '08-*', // Daily Salawat of Shaban
+  Y4: '08-*', // Munajaat al Shabaniyyah - recited throughout Sha'ban
+  AA2: '09-*', // Recitation of the Holy Qur'an in Ramazan
+  AA3: '09-*', // Aamal to be performed only during (Ramazan) Night
+  AA4: '09-*', // One Thousand Unit Prayers (spread across Ramazan)
+  AA5: '09-*', // Duas after every obligatory Prayer, in Ramazan
+  AA10: '09-*', // Dua-e-Iftetaah - every night of Ramazan
+  AA11: '09-*', // Dua Baha - Ramadan Suhoor Dawn
+  AA12: '09-*', // Dua-e-Abu Hamzah Sumali - Ramazan Suhoor
+  AA13: '09-*', // Ya Uddati - Ramadan
+  AA16: '09-*', // Aamal-e-Sahar in the Holy Month of Ramazan
+  AB1: '11-*-0', // Zilqad - Sunday Namaz (Sunday=0)
+  AB2: ['11-11', '11-15', '11-23'], // 11th, 15th & 23rd of Zilqad
+  AB3: '11-25', // Night & Day of 25th Zilqad (The Spreading of the Earth)
+  AB4: ['11-29', '11-30'], // The Last Day of Zilqad (29 or 30, depending on the year)
+  AC1: '12-18', // Ziyarah on the Day of Ghadeer
+  AC2: '12-18', // Another Ziyarah on the Day of Ghadeer
+  AC3: ['10-01', '12-10'], // Ziyarah on the Id al-Fitr and Id al-Azha days
+  AC4: '12-09', // Ziyarah on the day of Arafat
+  AC5: [
+    '12-01', '12-02', '12-03', '12-04', '12-05',
+    '12-06', '12-07', '12-08', '12-09', '12-10',
+  ], // First ten days of Zilhajj
+  AC7: '12-01', // 1st Day of Zilhajj
+  AC10: '12-09', // Aamaal of the Night of Arafah
+  AC11: '12-09', // Aamaal of the Day of Arafah (9th Zilhajj)
+  AC12: '12-09', // Dua of Imam Husayn (a.s.) on the Day of Arafah
+  AC13: '12-09', // Comprehensive Ziyarat especially on the Day of Arafah
+  AC14: '12-10', // The Night of Eid al-Azhaa (Qurban)
+  AC15: '12-10', // The Day of Eid al-Azhaa (Qurban)
+  AC16: '12-15', // The Fifteenth of Zilhajj
+  AC17: '12-18', // Aamaal of the Night of Eid-e-Ghadeer
+  AC18: '12-18', // Aamaal of the Day of Eid-e-Ghadeer
+  AC20: '12-18', // Seegah of Brotherhood (Ukhuwwat) on the Day of Ghadeer
+  AC21: '12-24', // The Day of Mubaahelah
+  AC22: '12-25', // The Twenty-Fifth of Zilhajj
+  AC23: ['12-29', '12-30'], // The Last Day of Zilhajj (29 or 30, depending on the year)
+  AD4: ['10-01', '12-10'], // Eid Prayer - Eid al-Fitr and Eid al-Azha
 };
 
 const DRY_RUN = process.argv.includes('--dry-run');

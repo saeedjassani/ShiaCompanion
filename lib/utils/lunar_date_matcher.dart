@@ -28,6 +28,9 @@ List<String> _patternsFromValue(Object? value) {
 ///
 /// Pattern formats:
 /// - "MM-DD": Fixed date (e.g., "09-09" for 9th Zilhajj)
+/// - "MM-*": Any day within one lunar month (e.g., "09-*" for every day of
+///   Ramazan) — use this for practices tied to a whole month rather than a
+///   single date.
 /// - "MM-*-D": Recurring weekly within one lunar month (e.g., "10-*-0" for
 ///   every Sunday of Zilqad)
 /// - "*-*-D": Recurring weekly in every lunar month (e.g., "*-*-5" for every
@@ -46,7 +49,7 @@ bool matchesLunarDatePattern(String pattern, {HijriCalendar? currentDate}) {
   final month = isAnyMonth ? null : int.tryParse(parts[0]);
   if (!isAnyMonth && (month == null || month < 1 || month > 12)) return false;
 
-  // Check if it's a recurring pattern (MM-*-D or *-*-D)
+  // Recurring weekday pattern (MM-*-D or *-*-D)
   if (parts.length >= 3 && parts[1] == '*') {
     if (!isAnyMonth && currentDate.hMonth != month) return false;
 
@@ -56,9 +59,15 @@ bool matchesLunarDatePattern(String pattern, {HijriCalendar? currentDate}) {
     return _sundayBasedWeekday(currentDate) == dayOfWeek;
   }
 
-  // Fixed date pattern (MM-DD) - the month must be a real lunar month
+  // A bare month with no day, fixed or wildcard, needs a real lunar month.
   if (isAnyMonth) return false;
-  if (parts.length >= 2) {
+  if (parts.length == 2) {
+    // Whole-month pattern (MM-*)
+    if (parts[1] == '*') {
+      return currentDate.hMonth == month;
+    }
+
+    // Fixed date pattern (MM-DD)
     final day = int.tryParse(parts[1]);
     if (day == null || day < 1 || day > 30) return false;
 
