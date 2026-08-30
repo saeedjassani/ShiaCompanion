@@ -93,10 +93,21 @@ const LUNAR_DATES = {
   // the G22/G15 cases above, there's no surviving item to redirect to -
   // this looks like deleted content, e.g. a dedicated Shab-e-Qadr Aamaal
   // page, rather than a renumbering).
+  //
+  // Items whose title is specifically the *night* of a date (not the date
+  // itself) use the "N" prefix (see lib/utils/lunar_date_matcher.dart and
+  // lib/utils/night_window.dart) - it only matches from that date's actual
+  // Maghrib through the next Fajr, not the whole civil day, so e.g. Aamaal
+  // of the Night of Arafah stops surfacing once the Day of Arafah's dawn
+  // breaks. This replaced two conflicting ad hoc values already in
+  // production - AC10 was "12-08" (the day *before*, i.e. an approximation
+  // of "that night") and AC17 was "12-17" (same idea), while AC14 was
+  // already "12-10" (the day itself, no adjustment) - all three now use the
+  // same real mechanism instead of three different guesses.
   R1: '01-01', // 1st Night and Day of Moharram
   R4: '01-03', // The Third of Moharram
   R5: '01-09', // The Ninth of Moharram
-  R6: '01-10', // The 10th Night of Moharram
+  R6: 'N01-10', // The 10th Night of Moharram (Maghrib on the 9th through Fajr on the 10th)
   R7: '01-10', // The 10th of Moharram
   R9: '01-10', // Aamal of Ashoora
   S1: '02-*', // The Month of Safar
@@ -107,7 +118,7 @@ const LUNAR_DATES = {
   X3: '07-*', // Daily supplications of Rajab
   X4: '07-*', // Ziyarah Rajabiyah - recited throughout Rajab
   X5: '07-*', // Miscellaneous Aamaal for the Month of Rajab
-  X7: '07-01', // First Night of Rajab
+  X7: 'N07-01', // First Night of Rajab (Maghrib on the last day of Jamadi II through Fajr on the 1st)
   Y3: '08-*', // Daily Salawat of Shaban
   Y4: '08-*', // Munajaat al Shabaniyyah - recited throughout Sha'ban
   AA2: '09-*', // Recitation of the Holy Qur'an in Ramazan
@@ -121,7 +132,7 @@ const LUNAR_DATES = {
   AA16: '09-*', // Aamal-e-Sahar in the Holy Month of Ramazan
   AB1: '11-*-0', // Zilqad - Sunday Namaz (Sunday=0)
   AB2: ['11-11', '11-15', '11-23'], // 11th, 15th & 23rd of Zilqad
-  AB3: '11-25', // Night & Day of 25th Zilqad (The Spreading of the Earth)
+  AB3: ['N11-25', '11-25'], // Night & Day of 25th Zilqad (The Spreading of the Earth)
   AB4: ['11-29', '11-30'], // The Last Day of Zilqad (29 or 30, depending on the year)
   AC1: '12-18', // Ziyarah on the Day of Ghadeer
   AC2: '12-18', // Another Ziyarah on the Day of Ghadeer
@@ -132,14 +143,14 @@ const LUNAR_DATES = {
     '12-06', '12-07', '12-08', '12-09', '12-10',
   ], // First ten days of Zilhajj
   AC7: '12-01', // 1st Day of Zilhajj
-  AC10: '12-09', // Aamaal of the Night of Arafah
+  AC10: 'N12-09', // Aamaal of the Night of Arafah (Maghrib on the 8th through Fajr on the 9th)
   AC11: '12-09', // Aamaal of the Day of Arafah (9th Zilhajj)
   AC12: '12-09', // Dua of Imam Husayn (a.s.) on the Day of Arafah
   AC13: '12-09', // Comprehensive Ziyarat especially on the Day of Arafah
-  AC14: '12-10', // The Night of Eid al-Azhaa (Qurban)
+  AC14: 'N12-10', // The Night of Eid al-Azhaa (Qurban) (Maghrib on the 9th through Fajr on the 10th)
   AC15: '12-10', // The Day of Eid al-Azhaa (Qurban)
   AC16: '12-15', // The Fifteenth of Zilhajj
-  AC17: '12-18', // Aamaal of the Night of Eid-e-Ghadeer
+  AC17: 'N12-18', // Aamaal of the Night of Eid-e-Ghadeer (Maghrib on the 17th through Fajr on the 18th)
   AC18: '12-18', // Aamaal of the Day of Eid-e-Ghadeer
   AC20: '12-18', // Seegah of Brotherhood (Ukhuwwat) on the Day of Ghadeer
   AC21: '12-24', // The Day of Mubaahelah
