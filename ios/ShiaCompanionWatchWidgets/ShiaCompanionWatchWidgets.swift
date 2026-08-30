@@ -241,19 +241,32 @@ struct NextPrayerComplicationView: View {
     }
 
     private var corner: some View {
-        // One flat line — icon, then time — instead of the icon fixed in the
-        // corner with the time curving along the bezel as its own label. The
-        // curved-label split cost the time real size to fit the arc; as a
-        // single line here it gets the room back.
-        HStack(spacing: 3) {
-            PrayerGlyphView(name: entry.glyphName)
-                .frame(width: 14, height: 14)
-            Text(entry.compactTime)
-                .font(.system(size: 17, weight: .semibold, design: .rounded))
-                .minimumScaleFactor(0.5)
-                .allowsTightening(true)
-                .lineLimit(1)
-        }
+        // The corner family's main content remains fixed in the corner; its
+        // `widgetLabel` is the system-provided curved bezel line. Keeping the
+        // glyph here and giving the time to that label prevents the time from
+        // being laid out across the narrow straight chord and clipped. Sized up
+        // from the initial pass, which left the corner looking sparse next to
+        // faces' own complications in the opposite corner (e.g. the date).
+        PrayerGlyphView(name: entry.glyphName)
+            .frame(width: 26, height: 26)
+            .widgetLabel {
+                Text(entry.compactTime)
+                    // `.bold`, not `.semibold`, and system rather than rounded, to
+                    // read as dark as this family's chrome allows. It still comes out
+                    // fainter than a face's own curved date band — that band is a
+                    // `bezel`-family complication, a different family the system
+                    // renders at full brightness; `corner`'s `widgetLabel` is tinted
+                    // by watchOS regardless of the weight/color set here, confirmed by
+                    // this exact change producing barely any contrast difference on
+                    // device. `.widgetAccentable()` and an explicit `.primary` are
+                    // kept anyway so this doesn't fall back to something dimmer still.
+                    .font(.system(size: 26, weight: .bold, design: .default))
+                    .foregroundStyle(.primary)
+                    .widgetAccentable()
+                    .minimumScaleFactor(0.5)
+                    .allowsTightening(true)
+                    .lineLimit(1)
+            }
     }
 
     private var inline: some View {
