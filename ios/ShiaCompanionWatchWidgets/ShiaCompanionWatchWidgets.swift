@@ -282,11 +282,11 @@ struct NextPrayerComplicationView: View {
                 PrayerGlyphView(name: entry.glyphName)
                     .frame(width: 11, height: 11)
                 if entry.hasData {
-                    // Degrades name → initial rather than clipping the word; the day
-                    // label goes first, since the time below already implies the day.
+                    // No day label: the complication is too small to spare the room
+                    // for "Tomorrow" beside the name, and the relative countdown
+                    // below already says how far off the prayer is.
                     PrayerNameText(
                         name: entry.name,
-                        dayLabel: entry.dayLabel == "Today" ? "" : entry.dayLabel,
                         font: .system(size: 12, weight: .semibold),
                         compactFont: .system(size: 10.5, weight: .semibold)
                     )
