@@ -2,6 +2,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/utils/lunar_date_matcher.dart';
+import 'package:shia_companion/utils/night_window.dart';
 
 void _insertIfAvailable(
   List<UidTitleData> workingItems,
@@ -55,10 +56,19 @@ List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) {
     today.add(Duration(days: hijriDate)),
   );
 
+  final nightDate = resolveNightAdjustedHijriDate(
+    now: today,
+    prayerTime: getPrayerTimeObject(),
+    latitude: lat,
+    longitude: long,
+    hijriDateOffsetDays: hijriDate,
+  );
+
   final lunarItems = <UidTitleData>[];
   final lunarMatchedUids = getTodaysZikrs(
     itemMetadata,
     currentDate: adjustedHijriDate,
+    nightDate: nightDate,
   );
   for (final uid in lunarMatchedUids) {
     _addIfAvailable(lunarItems, uid);

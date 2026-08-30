@@ -60,6 +60,31 @@ void main() {
     expect(matchesLunarDatePattern('*-*', currentDate: date), isFalse);
   });
 
+  test('"NMM-DD" only matches when a night window is supplied and open', () {
+    final date = HijriCalendar.fromDate(DateTime(2024, 6, 16));
+    final pattern = 'N${date.hMonth}-${date.hDay}';
+
+    // No night window supplied -> a plain "today" date is not enough.
+    expect(matchesLunarDatePattern(pattern, currentDate: date), isFalse);
+
+    // The night window is open and lands on the matching date.
+    expect(
+      matchesLunarDatePattern(pattern, currentDate: date, nightDate: date),
+      isTrue,
+    );
+
+    // Open, but for a different date - still a miss.
+    final otherNight = HijriCalendar.fromDate(DateTime(2024, 6, 17));
+    expect(
+      matchesLunarDatePattern(
+        pattern,
+        currentDate: date,
+        nightDate: otherNight,
+      ),
+      isFalse,
+    );
+  });
+
   test('todays zikrs can read comma strings and lists of lunar patterns', () {
     final date = HijriCalendar.fromDate(DateTime(2024, 6, 16));
     final matchingPattern = '${date.hMonth}-${date.hDay}';
