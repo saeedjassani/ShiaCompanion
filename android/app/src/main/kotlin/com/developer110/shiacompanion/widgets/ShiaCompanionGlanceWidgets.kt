@@ -77,8 +77,11 @@ private const val KEY_PRAYER_SECONDARY_NAME = "sc_prayer_secondary_name"
 private const val KEY_PRAYER_SECONDARY_TIME = "sc_prayer_secondary_time"
 
 private const val KEY_DAILY_PRAYER_TITLE = "sc_daily_prayer_title"
-private val dailyPrayerNameKeys = (1..6).map { "sc_daily_prayer_name_$it" }
-private val dailyPrayerTimeKeys = (1..6).map { "sc_daily_prayer_time_$it" }
+// Mirrors maxWidgetPrayerTimes in the Flutter app: the widest a user's
+// Settings selection can ever be.
+private const val MAX_DAILY_PRAYER_TIMES = 5
+private val dailyPrayerNameKeys = (1..MAX_DAILY_PRAYER_TIMES).map { "sc_daily_prayer_name_$it" }
+private val dailyPrayerTimeKeys = (1..MAX_DAILY_PRAYER_TIMES).map { "sc_daily_prayer_time_$it" }
 private const val KEY_DAILY_PRAYER_SCHEDULE = "sc_daily_prayer_schedule"
 
 // Colours live in res/values(-night)/colors.xml so the shape drawables and the
@@ -311,9 +314,11 @@ private fun DailyPrayerTimesWidgetContent() {
     val location = data.text(KEY_PRAYER_LOCATION, "Location needed")
     val nextPrayer = data.nextPrayer()
     val countdown = nextPrayer.countdownText()
-    val visiblePrayers = prayers.take(6)
-    // Six columns only fit a medium widget once the gutters tighten up.
-    val columnSpacingDp = if (visiblePrayers.size > 5) 2 else 4
+    // The user's selection tops out at MAX_DAILY_PRAYER_TIMES (5, same as the
+    // home screen card), so this is a safety clamp rather than the thing that
+    // decides the count.
+    val visiblePrayers = prayers.take(MAX_DAILY_PRAYER_TIMES)
+    val columnSpacingDp = 4
 
     WidgetSurface(clickable = true, contentPadding = 10) {
         Row(
@@ -732,7 +737,7 @@ private fun android.content.SharedPreferences.dailyPrayerTimes(): List<DailyPray
     }
 
     return items
-        .take(6)
+        .take(MAX_DAILY_PRAYER_TIMES)
         .map { DailyPrayerTimeDisplay(title = it.title, time = it.time) }
 }
 

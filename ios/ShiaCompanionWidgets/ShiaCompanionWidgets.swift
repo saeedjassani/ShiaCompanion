@@ -3,6 +3,10 @@ import WidgetKit
 
 private let appGroupID = "group.com.developer110.shiacompanion"
 
+/// Mirrors `maxWidgetPrayerTimes` in the Flutter app: the widest a user's
+/// Settings selection can ever be.
+private let maxDailyPrayerTimes = 5
+
 private enum WidgetKeys {
     static let favoritesTitle = "sc_favorites_title"
     static let favoriteItems = (1...12).map { "sc_favorites_item_\($0)" }
@@ -22,8 +26,8 @@ private enum WidgetKeys {
     static let prayerSecondaryTime = "sc_prayer_secondary_time"
 
     static let dailyPrayerTitle = "sc_daily_prayer_title"
-    static let dailyPrayerNames = (1...6).map { "sc_daily_prayer_name_\($0)" }
-    static let dailyPrayerTimes = (1...6).map { "sc_daily_prayer_time_\($0)" }
+    static let dailyPrayerNames = (1...maxDailyPrayerTimes).map { "sc_daily_prayer_name_\($0)" }
+    static let dailyPrayerTimes = (1...maxDailyPrayerTimes).map { "sc_daily_prayer_time_\($0)" }
     static let dailyPrayerSchedule = "sc_daily_prayer_schedule"
 }
 
@@ -200,7 +204,6 @@ struct DailyPrayerTimesProvider: TimelineProvider {
             title: "Prayer Times",
             items: [
                 WidgetListItem(title: "Fajr", time: "05:00 am"),
-                WidgetListItem(title: "Sunrise", time: "06:24 am"),
                 WidgetListItem(title: "Zuhr", time: "12:30 pm"),
                 WidgetListItem(title: "Asr", time: "04:15 pm"),
                 WidgetListItem(title: "Maghrib", time: "08:10 pm"),
@@ -268,9 +271,18 @@ struct DailyPrayerTimesProvider: TimelineProvider {
         // boundaries. Prefer it; fall back to the `dailyPrayerSchedule` JSON
         // and then the frozen per-slot keys only when it is empty (no sync
         // of the flat schedule yet).
+        //
+        // How many to take from it is the user's selection (3-5, chosen in
+        // Settings), never a fixed number: the frozen per-slot keys are
+        // written to exactly that count every publish, so counting the
+        // populated ones tells us how many the flat schedule should surface
+        // too. A hardcoded count here used to pull in a whole extra day's
+        // worth of prayers once the selection ran short of it.
+        let frozenItems = dailyPrayerItems(defaults: defaults)
+        let selectedCount = frozenItems.count > 0 ? frozenItems.count : maxDailyPrayerTimes
         let upcomingFromPrayerSchedule = prayerSchedule
             .filter { $0.date > now }
-            .prefix(6)
+            .prefix(selectedCount)
             .map { WidgetListItem(title: $0.name, time: $0.time) }
         let scheduledItems = currentListScheduleEntry(schedule, now: now)?.items
         let items: [WidgetListItem]
@@ -279,7 +291,7 @@ struct DailyPrayerTimesProvider: TimelineProvider {
         } else if let scheduledItems = scheduledItems, !scheduledItems.isEmpty {
             items = scheduledItems
         } else {
-            items = dailyPrayerItems(defaults: defaults)
+            items = frozenItems
         }
         let nextPrayer = prayerSchedule.first { $0.date > now }
 
@@ -549,10 +561,12 @@ struct DailyPrayerTimesView: View {
     let entry: WidgetListEntry
 
     var body: some View {
-        let visibleItems = Array(entry.items.prefix(6))
+        // The user's selection tops out at `maxDailyPrayerTimes` (5, same as
+        // the home screen card), so this is a safety clamp rather than the
+        // thing that decides the count.
+        let visibleItems = Array(entry.items.prefix(maxDailyPrayerTimes))
         let hasPrayerTimes = visibleItems.contains { !$0.time.isEmpty }
-        // Six columns only fit a medium widget once the gutters tighten up.
-        let columnSpacing: CGFloat = visibleItems.count > 5 ? 4 : 8
+        let columnSpacing: CGFloat = 8
 
         VStack(alignment: .leading, spacing: 5) {
             HStack(alignment: .center, spacing: 6) {

@@ -283,8 +283,9 @@ nonisolated func prayerInitial(for prayerName: String) -> String {
 @MainActor
 struct PrayerNameText: View {
     let name: String
-    /// "Tomorrow" and the like. The watch list names the day on its own divider, so only
-    /// the complications pass one.
+    /// "Tomorrow" and the like. Unused today — the watch list names the day on its own
+    /// divider, and the complications are too small to spare room for it beside the
+    /// name — but callers can still opt in.
     var dayLabel: String = ""
     var font: Font = .footnote
     /// One step down from `font`, for the middle rung. Both are Dynamic Type styles, so
