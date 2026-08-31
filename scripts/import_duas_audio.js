@@ -12,6 +12,11 @@
  * matches that are simply wrong (their "ziyarat-imam-mahdi-short" scores 1.00
  * against our "Namaz of Imam Mahdi", which is a different act of worship).
  *
+ * duas_audio_map.json is a local working file, not checked in - Firestore
+ * holds whatever was applied from it. Re-running therefore starts review from
+ * scratch unless a previous map is still on disk, in which case its approvals
+ * are carried forward.
+ *
  * Usage:
  *   node import_duas_audio.js                 # fetch, match, validate, write map
  *   node import_duas_audio.js --no-validate   # skip the HEAD check (faster)
