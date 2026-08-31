@@ -275,7 +275,37 @@ function buildContentPayload(data) {
     }
   }
 
+  const audio = buildAudioPayload(data?.audio);
+  if (audio.length > 0) {
+    payload.audio = audio;
+  }
+
   return payload;
+}
+
+/**
+ * Recitation tracks hosted by duas.org, hot-linked rather than mirrored, so
+ * what ships is a URL and a label. Only https is accepted: the app is served
+ * over https on web and iOS blocks cleartext, so an http URL would fail at
+ * play time on every platform rather than only some.
+ */
+function buildAudioPayload(rawAudio) {
+  if (!Array.isArray(rawAudio)) return [];
+
+  const seen = new Set();
+  const tracks = [];
+  for (const entry of rawAudio) {
+    const url = `${entry?.url ?? ''}`.trim();
+    if (!url || !url.startsWith('https://')) continue;
+    if (seen.has(url)) continue;
+    seen.add(url);
+
+    const track = {url};
+    const label = `${entry?.label ?? ''}`.trim();
+    if (label) track.label = label;
+    tracks.push(track);
+  }
+  return tracks;
 }
 
 function buildResolvedSlugData(includedUids, allDocs) {

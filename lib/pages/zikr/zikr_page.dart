@@ -15,8 +15,10 @@ import 'package:shia_companion/utils/external_launch.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 import 'package:shia_companion/utils/zikr_wakelock.dart';
+import 'package:shia_companion/models/zikr_audio_track.dart';
 import '../../constants.dart';
 import '../../widgets/responsive_content.dart';
+import '../../widgets/zikr_audio_player.dart';
 import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
@@ -1243,6 +1245,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       hideHeaderLine: tabContents.length > 1,
     );
     final isCompact = MediaQuery.of(context).size.width < _compactActionsWidth;
+    final audioTracks = ZikrAudioTrack.listFrom(zikrData?['audio']);
 
     return SelectionArea(
       child: Scaffold(
@@ -1289,52 +1292,66 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           child: LayoutBuilder(
             builder: (context, bodyConstraints) => Stack(
               children: [
-                zikrData == null
-                    ? Center(
-                        child: _didFailToLoadZikrData
-                            ? const Text('Unable to open this dua.')
-                            : const CircularProgressIndicator(),
-                      )
-                    : !hasAnyContent && !isEditing
-                        ? const Center(child: Text('Coming soon...'))
-                        : ResponsiveContent(
-                            maxWidth: isEditing
-                                ? wideContentWidth
-                                : readingContentWidth,
-                            padding: const EdgeInsets.all(16.0),
-                            child: isEditing
-                                ? ZikrEditFormWidget(
-                                    titleController: titleController!,
-                                    slugController: slugController!,
-                                    codeController: codeController!,
-                                    orderController: orderController!,
-                                    dayController: dayController!,
-                                    meritsController: meritsController!,
-                                    dataController: dataController!,
-                                    tabControllers: tabControllers,
-                                    onAddTab: _addTabField,
-                                  )
-                                : ZikrContentViewerWidget(
-                                    tabContents: tabContents,
-                                    selectedTabIndex: selectedTabIndex,
-                                    onTabChanged: (index) {
-                                      setState(() {
-                                        _selectedZikrTabIndex = index;
-                                      });
-                                      _updateReadingProgress();
-                                    },
-                                    hasMerits: hasMerits,
-                                    onShowMerits: _showMeritsSheet,
-                                    onLinkTap: _handleZikrLinkTap,
-                                    code: zikrData?['code']?.toString(),
-                                    initialBookmarkTabIndex:
-                                        _savedBookmark?.tabIndex,
-                                    initialBookmarkScrollOffset:
-                                        _savedBookmark?.scrollOffset,
-                                    onScrollPositionChanged:
-                                        _handleContentScrollPositionChanged,
-                                  ),
-                          ),
+                Column(
+                  children: [
+                    // Pinned above the reading area rather than floating: the
+                    // FAB corner belongs to the tasbeeh counter, and a player
+                    // that scrolled away would be unreachable mid-recitation.
+                    if (!isEditing && audioTracks.isNotEmpty)
+                      ZikrAudioPlayer(
+                        tracks: audioTracks,
+                        zikrUid: widget.item.getUId(),
+                      ),
+                    Expanded(
+                      child: zikrData == null
+                          ? Center(
+                              child: _didFailToLoadZikrData
+                                  ? const Text('Unable to open this dua.')
+                                  : const CircularProgressIndicator(),
+                            )
+                          : !hasAnyContent && !isEditing
+                              ? const Center(child: Text('Coming soon...'))
+                              : ResponsiveContent(
+                                  maxWidth: isEditing
+                                      ? wideContentWidth
+                                      : readingContentWidth,
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: isEditing
+                                      ? ZikrEditFormWidget(
+                                          titleController: titleController!,
+                                          slugController: slugController!,
+                                          codeController: codeController!,
+                                          orderController: orderController!,
+                                          dayController: dayController!,
+                                          meritsController: meritsController!,
+                                          dataController: dataController!,
+                                          tabControllers: tabControllers,
+                                          onAddTab: _addTabField,
+                                        )
+                                      : ZikrContentViewerWidget(
+                                          tabContents: tabContents,
+                                          selectedTabIndex: selectedTabIndex,
+                                          onTabChanged: (index) {
+                                            setState(() {
+                                              _selectedZikrTabIndex = index;
+                                            });
+                                            _updateReadingProgress();
+                                          },
+                                          hasMerits: hasMerits,
+                                          onShowMerits: _showMeritsSheet,
+                                          onLinkTap: _handleZikrLinkTap,
+                                          code: zikrData?['code']?.toString(),
+                                          initialBookmarkTabIndex:
+                                              _savedBookmark?.tabIndex,
+                                          initialBookmarkScrollOffset:
+                                              _savedBookmark?.scrollOffset,
+                                          onScrollPositionChanged:
+                                              _handleContentScrollPositionChanged,
+                                        ),
+                                ),
+                    ),
+                  ],
+                ),
                 // Counter overlay
                 ValueListenableBuilder<bool>(
                   valueListenable: _showCounter,
