@@ -28,9 +28,15 @@ void main() async {
   // Must run before any AudioPlayer is constructed - it swaps in the handler
   // that keeps zikr audio playing, with a notification, once the app is
   // backgrounded or the screen locks.
+  //
+  // The channel name is a fixed category label, shown by Android next to the
+  // app name in the notification's small header line - it can never be the
+  // playing zikr's title, since the channel exists before any zikr is ever
+  // opened. That title comes from the MediaItem each track carries instead
+  // (see ZikrAudioPlayer), which is what the notification's own title reads.
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.developer110.shia_companion.audio',
-    androidNotificationChannelName: 'Zikr recitation',
+    androidNotificationChannelName: 'Recitation playback',
     androidNotificationOngoing: true,
   );
 

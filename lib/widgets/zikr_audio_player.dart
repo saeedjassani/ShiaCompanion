@@ -47,6 +47,14 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   double? _dragValue;
   StreamSubscription<PlayerState>? _stateSub;
 
+  // setAudioSource is what attaches the MediaItem tag (the zikr/track title)
+  // that the notification and lock screen read. _togglePlay awaits this so a
+  // tap on a page that just opened can never start playback - and so the
+  // foreground-service notification - before that title is attached; without
+  // it, Android has nothing to show but the notification channel's generic
+  // name until the load catches up.
+  Future<void> _loadFuture = Future.value();
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +62,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     _stateSub = _player?.playerStateStream.listen((_) {
       if (mounted) setState(() {});
     });
-    unawaited(_load());
+    _loadFuture = _load();
   }
 
   @override
@@ -64,7 +72,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     if (oldWidget.tracks != widget.tracks) {
       _trackIndex = 0;
       _failed = false;
-      unawaited(_load());
+      _loadFuture = _load();
     }
   }
 
@@ -118,6 +126,9 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
       return;
     }
 
+    await _loadFuture;
+    if (!mounted || _failed) return;
+
     // Restart rather than no-op when the track has run to the end.
     if (player.processingState == ProcessingState.completed) {
       await player.seek(Duration.zero);
@@ -140,7 +151,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
       _dragValue = null;
     });
     await _player?.stop();
-    await _load();
+    await (_loadFuture = _load());
   }
 
   Future<void> _showTrackPicker() async {
