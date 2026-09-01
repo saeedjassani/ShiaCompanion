@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/deep_link_launch_page.dart';
@@ -23,6 +24,15 @@ void main() async {
   if (kIsWeb) {
     usePathUrlStrategy();
   }
+
+  // Must run before any AudioPlayer is constructed - it swaps in the handler
+  // that keeps zikr audio playing, with a notification, once the app is
+  // backgrounded or the screen locks.
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.developer110.shia_companion.audio',
+    androidNotificationChannelName: 'Zikr recitation',
+    androidNotificationOngoing: true,
+  );
 
   final FirebaseApp app = await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

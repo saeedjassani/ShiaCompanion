@@ -73,8 +73,7 @@ class _AboutPageState extends State<AboutPage> {
             ),
             const Divider(height: 40),
             // duas.org permit use of their recitations on condition of
-            // credit. The player carries the same acknowledgement inline;
-            // this is the standing one.
+            // credit - this is that acknowledgement.
             ListTile(
               title: const Text('Credits', textAlign: TextAlign.center),
               subtitle: Column(

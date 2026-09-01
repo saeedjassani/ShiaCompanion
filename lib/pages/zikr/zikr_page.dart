@@ -91,13 +91,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   late final ValueNotifier<bool> _showCounter;
   late final ValueNotifier<int> _counterCount;
 
-  /// Whether the "show counter" FAB is currently on screen. Starts visible
-  /// so it's discoverable, then fades itself out after a few idle seconds so
-  /// a feature most readings never touch stops sitting on top of the
-  /// content — a tap anywhere on the page brings it back for another look.
-  final ValueNotifier<bool> _counterFabVisible = ValueNotifier(true);
-  Timer? _counterFabHideTimer;
-  static const Duration _counterFabIdleDuration = Duration(seconds: 4);
+  /// Whether the floating chrome — the "show counter" FAB and the audio
+  /// player bar — is currently on screen. Starts visible so both are
+  /// discoverable, then fades out after a few idle seconds so a feature most
+  /// readings never touch stops sitting on top of the content — a tap
+  /// anywhere on the page brings it back for another look.
+  final ValueNotifier<bool> _floatingControlsVisible = ValueNotifier(true);
+  Timer? _floatingControlsHideTimer;
+  static const Duration _floatingControlsIdleDuration = Duration(seconds: 4);
 
   @override
   void initState() {
@@ -124,7 +125,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ));
     _readingProgress.addListener(_maybeRecordCompletion);
     _initializePageData();
-    _scheduleCounterFabHide();
+    _scheduleFloatingControlsHide();
   }
 
   /// Fires at most once. Opening a zikr and reciting one are different things
@@ -170,8 +171,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterOffset.dispose();
     _showCounter.dispose();
     _counterCount.dispose();
-    _counterFabHideTimer?.cancel();
-    _counterFabVisible.dispose();
+    _floatingControlsHideTimer?.cancel();
+    _floatingControlsVisible.dispose();
     _maybeRecordCompletion();
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.dispose();
@@ -230,18 +231,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _setCounterVisibility(true);
   }
 
-  /// Restarts the idle timer and, if the FAB had already faded out, brings
+  /// Restarts the idle timer and, if the chrome had already faded out, brings
   /// it back — called on any tap on the page, not just on the FAB itself.
-  void _revealCounterFab() {
-    if (_showCounter.value) return;
-    _counterFabVisible.value = true;
-    _scheduleCounterFabHide();
+  /// Unconditional: the counter FAB self-hides while the counter panel is
+  /// open regardless of this flag, so there is nothing to guard here, and the
+  /// audio bar should keep responding to taps either way.
+  void _revealFloatingControls() {
+    _floatingControlsVisible.value = true;
+    _scheduleFloatingControlsHide();
   }
 
-  void _scheduleCounterFabHide() {
-    _counterFabHideTimer?.cancel();
-    _counterFabHideTimer = Timer(_counterFabIdleDuration, () {
-      if (mounted) _counterFabVisible.value = false;
+  void _scheduleFloatingControlsHide() {
+    _floatingControlsHideTimer?.cancel();
+    _floatingControlsHideTimer = Timer(_floatingControlsIdleDuration, () {
+      if (mounted) _floatingControlsVisible.value = false;
     });
   }
 
@@ -1267,7 +1270,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           builder: (context, showingCounter, _) {
             if (showingCounter) return const SizedBox.shrink();
             return ValueListenableBuilder<bool>(
-              valueListenable: _counterFabVisible,
+              valueListenable: _floatingControlsVisible,
               builder: (context, visible, _) => IgnorePointer(
                 ignoring: !visible,
                 child: AnimatedOpacity(
@@ -1287,7 +1290,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           // Any touch on the page — not just the FAB — counts as "still
           // here", so the FAB is there to find again without having to wait
           // out the fade or go hunting for it.
-          onPointerDown: (_) => _revealCounterFab(),
+          onPointerDown: (_) => _revealFloatingControls(),
           behavior: HitTestBehavior.translucent,
           child: LayoutBuilder(
             builder: (context, bodyConstraints) => Stack(
@@ -1297,10 +1300,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                     // Pinned above the reading area rather than floating: the
                     // FAB corner belongs to the tasbeeh counter, and a player
                     // that scrolled away would be unreachable mid-recitation.
+                    // Shares the counter FAB's idle-fade so it does not sit
+                    // over the text once a reading is under way.
                     if (!isEditing && audioTracks.isNotEmpty)
-                      ZikrAudioPlayer(
-                        tracks: audioTracks,
-                        zikrUid: widget.item.getUId(),
+                      ValueListenableBuilder<bool>(
+                        valueListenable: _floatingControlsVisible,
+                        builder: (context, visible, child) => IgnorePointer(
+                          ignoring: !visible,
+                          child: AnimatedOpacity(
+                            opacity: visible ? 1 : 0,
+                            duration: const Duration(milliseconds: 250),
+                            child: child,
+                          ),
+                        ),
+                        child: ZikrAudioPlayer(
+                          tracks: audioTracks,
+                          zikrUid: widget.item.getUId(),
+                          zikrTitle: pageTitle,
+                        ),
                       ),
                     Expanded(
                       child: zikrData == null

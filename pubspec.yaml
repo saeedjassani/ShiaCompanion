@@ -45,6 +45,7 @@ dependencies:
   flutter_compass: ^0.8.1
   web: ^1.1.1
   just_audio: ^0.10.6
+  just_audio_background: ^0.0.1-beta.17
 
 
 dev_dependencies:

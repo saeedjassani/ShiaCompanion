@@ -2,30 +2,37 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
-import '../utils/external_launch.dart';
 
 /// Compact recitation player shown under the app bar on a zikr.
 ///
-/// The audio is hot-linked from duas.org, who allow it on condition of
-/// credit, so [_CreditLine] is part of the player itself rather than buried in
-/// the about page — it stays on screen whenever the audio is in use.
+/// duas.org's permission to use their recordings is conditional on credit;
+/// that acknowledgement lives on the About page rather than here, so this bar
+/// stays focused on playback.
 ///
 /// Playback is streamed, never downloaded: the corpus is about a gigabyte and
 /// individual tracks run to 39 MB. On web this works because just_audio drives
 /// a plain `<audio>` element, which is exempt from CORS; mp3.duas.org sends no
 /// `Access-Control-Allow-Origin`, so anything that read the bytes directly
 /// (`fetch`, or an element with `crossOrigin` set) would be blocked.
+///
+/// Each track carries a [MediaItem] tag so just_audio_background can show a
+/// lock-screen/notification control and keep playing once the app is
+/// backgrounded - the point of a player at all for something like Dua Kumayl,
+/// which runs half an hour.
 class ZikrAudioPlayer extends StatefulWidget {
   final List<ZikrAudioTrack> tracks;
   final String zikrUid;
+  final String zikrTitle;
 
   const ZikrAudioPlayer({
     Key? key,
     required this.tracks,
     required this.zikrUid,
+    required this.zikrTitle,
   }) : super(key: key);
 
   @override
@@ -33,8 +40,6 @@ class ZikrAudioPlayer extends StatefulWidget {
 }
 
 class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
-  static const String _creditUrl = 'https://www.duas.org';
-
   AudioPlayer? _player;
   int _trackIndex = 0;
   bool _failed = false;
@@ -71,13 +76,28 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     super.dispose();
   }
 
+  ZikrAudioTrack? get _currentTrack =>
+      _trackIndex >= 0 && _trackIndex < widget.tracks.length
+          ? widget.tracks[_trackIndex]
+          : null;
+
   Future<void> _load() async {
     final player = _player;
-    if (player == null) return;
-    if (_trackIndex < 0 || _trackIndex >= widget.tracks.length) return;
+    final track = _currentTrack;
+    if (player == null || track == null) return;
 
     try {
-      await player.setUrl(widget.tracks[_trackIndex].url);
+      await player.setAudioSource(AudioSource.uri(
+        Uri.parse(track.url),
+        tag: MediaItem(
+          // Unique per zikr+track, not just the URL, so the notification
+          // updates correctly if two zikrs ever happened to share a file.
+          id: '${widget.zikrUid}#$_trackIndex',
+          title: track.label ?? widget.zikrTitle,
+          album: widget.zikrTitle,
+          artist: 'duas.org',
+        ),
+      ));
       if (!mounted) return;
       setState(() => _failed = false);
     } catch (error) {
@@ -123,6 +143,36 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     await _load();
   }
 
+  Future<void> _showTrackPicker() async {
+    final theme = Theme.of(context);
+    final selected = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Recordings', style: theme.textTheme.titleMedium),
+              ),
+            ),
+            for (var i = 0; i < widget.tracks.length; i++)
+              RadioListTile<int>(
+                value: i,
+                groupValue: _trackIndex,
+                title: Text(widget.tracks[i].label ?? 'Track ${i + 1}'),
+                onChanged: (value) => Navigator.of(sheetContext).pop(value),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (selected != null) await _selectTrack(selected);
+  }
+
   static String _formatDuration(Duration d) {
     final hours = d.inHours;
     final minutes = d.inMinutes.remainder(60);
@@ -140,28 +190,41 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     }
 
     final theme = Theme.of(context);
-    return Material(
-      color: theme.colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 4, 12, 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                _buildPlayButton(player),
-                Expanded(child: _buildProgress(player, theme)),
-              ],
-            ),
-            if (widget.tracks.length > 1) _buildTrackSelector(theme),
-            _CreditLine(onTap: () => launchExternalUri(Uri.parse(_creditUrl))),
-          ],
+    final colorScheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      child: Material(
+        color: colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(20),
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: colorScheme.outlineVariant),
+          ),
+          padding: const EdgeInsets.fromLTRB(6, 8, 16, 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildPlayButton(player, colorScheme),
+              const SizedBox(width: 4),
+              Expanded(child: _buildBody(player, theme)),
+              if (widget.tracks.length > 1)
+                IconButton(
+                  icon: const Icon(Icons.playlist_play),
+                  tooltip: 'Choose recording',
+                  onPressed: _showTrackPicker,
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPlayButton(AudioPlayer player) {
+  Widget _buildPlayButton(AudioPlayer player, ColorScheme colorScheme) {
     return StreamBuilder<PlayerState>(
       stream: player.playerStateStream,
       builder: (context, snapshot) {
@@ -169,26 +232,54 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
         final waiting = state?.processingState == ProcessingState.loading ||
             state?.processingState == ProcessingState.buffering;
         if (waiting) {
-          return const SizedBox(
-            width: 48,
-            height: 48,
-            child: Center(
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+          return const Padding(
+            padding: EdgeInsets.all(12),
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2.5),
             ),
           );
         }
         final playing = state?.playing ?? false;
-        return IconButton(
-          iconSize: 32,
-          icon: Icon(playing ? Icons.pause_circle : Icons.play_circle),
+        return IconButton.filled(
+          style: IconButton.styleFrom(
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainer,
+            padding: const EdgeInsets.all(10),
+          ),
+          icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+              size: 28),
           tooltip: playing ? 'Pause recitation' : 'Play recitation',
           onPressed: _togglePlay,
         );
       },
+    );
+  }
+
+  Widget _buildBody(AudioPlayer player, ThemeData theme) {
+    final track = _currentTrack;
+    final label = widget.tracks.length > 1
+        ? (track?.label ?? 'Recitation')
+        : 'Recitation audio';
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        _buildProgress(player, theme),
+      ],
     );
   }
 
@@ -203,95 +294,44 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
             .clamp(0, duration.inMilliseconds)
             .toDouble();
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
+        return Row(
           children: [
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 2,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-              ),
-              child: Slider(
-                min: 0,
-                // A zero max would make the Slider assert before duration
-                // arrives, which is a frame or two after the first build.
-                max: totalMs <= 0 ? 1 : totalMs,
-                value: totalMs <= 0 ? 0 : (_dragValue ?? positionMs),
-                onChanged: totalMs <= 0
-                    ? null
-                    : (value) => setState(() => _dragValue = value),
-                onChangeEnd: totalMs <= 0
-                    ? null
-                    : (value) {
-                        _player?.seek(Duration(milliseconds: value.round()));
-                        setState(() => _dragValue = null);
-                      },
+            Text(
+              _formatDuration(
+                  Duration(milliseconds: (_dragValue ?? positionMs).round())),
+              style: theme.textTheme.bodySmall,
+            ),
+            Expanded(
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  trackHeight: 3,
+                  thumbShape:
+                      const RoundSliderThumbShape(enabledThumbRadius: 6),
+                  overlayShape:
+                      const RoundSliderOverlayShape(overlayRadius: 14),
+                ),
+                child: Slider(
+                  min: 0,
+                  // A zero max would make the Slider assert before duration
+                  // arrives, which is a frame or two after the first build.
+                  max: totalMs <= 0 ? 1 : totalMs,
+                  value: totalMs <= 0 ? 0 : (_dragValue ?? positionMs),
+                  onChanged: totalMs <= 0
+                      ? null
+                      : (value) => setState(() => _dragValue = value),
+                  onChangeEnd: totalMs <= 0
+                      ? null
+                      : (value) {
+                          _player?.seek(Duration(milliseconds: value.round()));
+                          setState(() => _dragValue = null);
+                        },
+                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4, bottom: 2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(_formatDuration(position),
-                      style: theme.textTheme.bodySmall),
-                  Text(_formatDuration(duration),
-                      style: theme.textTheme.bodySmall),
-                ],
-              ),
-            ),
+            Text(_formatDuration(duration), style: theme.textTheme.bodySmall),
           ],
         );
       },
-    );
-  }
-
-  Widget _buildTrackSelector(ThemeData theme) {
-    return SizedBox(
-      height: 36,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: widget.tracks.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 6),
-        itemBuilder: (context, index) {
-          final track = widget.tracks[index];
-          return ChoiceChip(
-            visualDensity: VisualDensity.compact,
-            label: Text(track.label ?? 'Track ${index + 1}'),
-            selected: index == _trackIndex,
-            onSelected: (_) => _selectTrack(index),
-          );
-        },
-      ),
-    );
-  }
-}
-
-/// duas.org grant use of their recordings on condition they are credited.
-class _CreditLine extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _CreditLine({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
-          child: Text(
-            'Audio courtesy of duas.org',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.primary,
-              decoration: TextDecoration.underline,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
