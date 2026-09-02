@@ -7,7 +7,9 @@ import 'package:just_audio_background/just_audio_background.dart';
 import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
 
-/// Compact recitation player shown under the app bar on a zikr.
+/// Recitation player hosted inside [ZikrActionBar], in place of its action
+/// row. It is only built once a reader taps Listen, so the ~95% of readings
+/// that never touch audio pay nothing for it.
 ///
 /// duas.org's permission to use their recordings is conditional on credit;
 /// that acknowledgement lives on the About page rather than here, so this bar
@@ -28,11 +30,16 @@ class ZikrAudioPlayer extends StatefulWidget {
   final String zikrUid;
   final String zikrTitle;
 
+  /// Dismisses the player and hands the bar back to the action row. Disposing
+  /// this widget stops playback, so closing is also how a reader stops.
+  final VoidCallback onClose;
+
   const ZikrAudioPlayer({
     Key? key,
     required this.tracks,
     required this.zikrUid,
     required this.zikrTitle,
+    required this.onClose,
   }) : super(key: key);
 
   @override
@@ -196,41 +203,59 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   @override
   Widget build(BuildContext context) {
     final player = _player;
-    if (player == null || widget.tracks.isEmpty || _failed) {
+    if (player == null || widget.tracks.isEmpty) {
       return const SizedBox.shrink();
     }
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      child: Material(
-        color: colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20),
-        clipBehavior: Clip.antiAlias,
-        elevation: 0,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          padding: const EdgeInsets.fromLTRB(6, 8, 16, 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildPlayButton(player, colorScheme),
-              const SizedBox(width: 4),
-              Expanded(child: _buildBody(player, theme)),
-              if (widget.tracks.length > 1)
-                IconButton(
-                  icon: const Icon(Icons.playlist_play),
-                  tooltip: 'Choose recording',
-                  onPressed: _showTrackPicker,
-                ),
-            ],
-          ),
+    // A track that will not load leaves the bar in place but says so, rather
+    // than vanishing: the reader asked for audio and deserves an answer.
+    // Closing returns them to the action row.
+    if (_failed) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
+        child: Row(
+          children: [
+            Icon(Icons.error_outline, size: 20, color: colorScheme.error),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'This recitation is unavailable',
+                style: theme.textTheme.bodySmall,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              tooltip: 'Close player',
+              onPressed: widget.onClose,
+            ),
+          ],
         ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(6, 0, 4, 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildPlayButton(player, colorScheme),
+          const SizedBox(width: 4),
+          Expanded(child: _buildBody(player, theme)),
+          if (widget.tracks.length > 1)
+            IconButton(
+              icon: const Icon(Icons.playlist_play),
+              tooltip: 'Choose recording',
+              onPressed: _showTrackPicker,
+            ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: 'Close player',
+            onPressed: widget.onClose,
+          ),
+        ],
       ),
     );
   }

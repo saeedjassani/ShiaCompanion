@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
@@ -18,6 +19,7 @@ import 'package:shia_companion/utils/zikr_wakelock.dart';
 import 'package:shia_companion/models/zikr_audio_track.dart';
 import '../../constants.dart';
 import '../../widgets/responsive_content.dart';
+import '../../widgets/zikr_action_bar.dart';
 import '../../widgets/zikr_audio_player.dart';
 import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/zikr_settings.dart';
@@ -29,7 +31,7 @@ import 'zikr_content_viewer.dart';
 import 'zikr_reading_stats.dart';
 import 'zikr_share_image.dart';
 
-enum _ZikrMenuAction { share, readingSettings, edit }
+enum _ZikrMenuAction { edit }
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
@@ -50,10 +52,6 @@ class ZikrPage extends StatefulWidget {
 }
 
 class _ZikrPageState extends State<ZikrPage> with RouteAware {
-  /// Below this width the app bar keeps only the bookmark icon so a long zikr
-  /// title is not squeezed out by the action row.
-  static const double _compactActionsWidth = 420;
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference zikrCollection =
       FirebaseFirestore.instance.collection('zikr');
@@ -91,14 +89,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   late final ValueNotifier<bool> _showCounter;
   late final ValueNotifier<int> _counterCount;
 
-  /// Whether the floating chrome — the "show counter" FAB and the audio
-  /// player bar — is currently on screen. Starts visible so both are
-  /// discoverable, then fades out after a few idle seconds so a feature most
-  /// readings never touch stops sitting on top of the content — a tap
-  /// anywhere on the page brings it back for another look.
-  final ValueNotifier<bool> _floatingControlsVisible = ValueNotifier(true);
-  Timer? _floatingControlsHideTimer;
-  static const Duration _floatingControlsIdleDuration = Duration(seconds: 4);
+  /// Whether the bottom action bar is on screen. It slides away when the
+  /// reader scrolls down into the text and returns when they scroll back up.
+  ///
+  /// Scroll direction rather than an idle timer: a timer fires mid-sentence
+  /// and, since the bar is anchored over the reading area, would make the
+  /// chrome flicker while someone is simply reading. Scrolling is a
+  /// deliberate signal, so the bar only moves when attention does.
+  final ValueNotifier<bool> _actionBarVisible = ValueNotifier(true);
+
+  /// Whether the bar is showing the player instead of the action row. Set by
+  /// Listen, cleared by the player's close button. The player is only built
+  /// while this is true, so audio costs nothing on a reading that never uses
+  /// it — and closing it stops playback.
+  bool _showAudioPlayer = false;
 
   @override
   void initState() {
@@ -125,7 +129,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ));
     _readingProgress.addListener(_maybeRecordCompletion);
     _initializePageData();
-    _scheduleFloatingControlsHide();
   }
 
   /// Fires at most once. Opening a zikr and reciting one are different things
@@ -171,8 +174,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterOffset.dispose();
     _showCounter.dispose();
     _counterCount.dispose();
-    _floatingControlsHideTimer?.cancel();
-    _floatingControlsVisible.dispose();
+    _actionBarVisible.dispose();
     _maybeRecordCompletion();
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.dispose();
@@ -223,7 +225,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _persistCounterSession(isVisible: isVisible);
   }
 
-  void _showCounterFromFab() {
+  void _toggleCounterFromActionBar() {
+    if (_showCounter.value) {
+      _setCounterVisibility(false);
+      return;
+    }
     unawaited(AnalyticsService.feature(
       'zikr_counter_shown',
       label: 'Tasbeeh counter shown',
@@ -231,21 +237,40 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _setCounterVisibility(true);
   }
 
-  /// Restarts the idle timer and, if the chrome had already faded out, brings
-  /// it back — called on any tap on the page, not just on the FAB itself.
-  /// Unconditional: the counter FAB self-hides while the counter panel is
-  /// open regardless of this flag, so there is nothing to guard here, and the
-  /// audio bar should keep responding to taps either way.
-  void _revealFloatingControls() {
-    _floatingControlsVisible.value = true;
-    _scheduleFloatingControlsHide();
+  void _openAudioPlayer() {
+    unawaited(AnalyticsService.feature(
+      'zikr_audio_opened',
+      label: 'Zikr audio opened',
+      parameters: {'zikr_uid': widget.item.getUId()},
+    ));
+    setState(() => _showAudioPlayer = true);
+    // Reading down the page hides the bar; opening the player has to bring it
+    // back or the reader taps Listen and sees nothing happen.
+    _actionBarVisible.value = true;
   }
 
-  void _scheduleFloatingControlsHide() {
-    _floatingControlsHideTimer?.cancel();
-    _floatingControlsHideTimer = Timer(_floatingControlsIdleDuration, () {
-      if (mounted) _floatingControlsVisible.value = false;
-    });
+  void _closeAudioPlayer() {
+    setState(() => _showAudioPlayer = false);
+  }
+
+  /// Slides the bar away as the reader moves down the text and back when they
+  /// scroll up. Held open while the player is showing: hiding transport
+  /// controls part-way through a half-hour recitation would strand them.
+  bool _handleScrollNotification(UserScrollNotification notification) {
+    if (notification.depth != 0) return false;
+    if (_showAudioPlayer) return false;
+
+    switch (notification.direction) {
+      case ScrollDirection.reverse:
+        _actionBarVisible.value = false;
+        break;
+      case ScrollDirection.forward:
+        _actionBarVisible.value = true;
+        break;
+      case ScrollDirection.idle:
+        break;
+    }
+    return false;
   }
 
   void _updateCounterOffset(Offset offset) {
@@ -1061,23 +1086,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   void _handleMenuAction(_ZikrMenuAction action) {
     switch (action) {
-      case _ZikrMenuAction.share:
-        if (!_isSharingZikr) {
-          unawaited(AnalyticsService.feature(
-            'zikr_shared',
-            label: 'Zikr shared',
-            parameters: {'zikr_uid': widget.item.getFirstUId()},
-          ));
-          _shareCurrentZikr();
-        }
-        break;
-      case _ZikrMenuAction.readingSettings:
-        _scaffoldKey.currentState?.openEndDrawer();
-        break;
       case _ZikrMenuAction.edit:
         _toggleEdit();
         break;
     }
+  }
+
+  void _shareFromActionBar() {
+    if (_isSharingZikr) return;
+    unawaited(AnalyticsService.feature(
+      'zikr_shared',
+      label: 'Zikr shared',
+      parameters: {'zikr_uid': widget.item.getFirstUId()},
+    ));
+    _shareCurrentZikr();
   }
 
   List<Widget> _buildAppBarActions({
@@ -1085,7 +1107,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     required List<String> tabContents,
     required int selectedTabIndex,
     required bool hasAnyContent,
-    required bool isCompact,
   }) {
     final settingsButton = IconButton(
       icon: const Icon(Icons.filter_list),
@@ -1116,51 +1137,16 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       ];
     }
 
-    final canShare = !_isSharingZikr;
+    // Bookmark and share now live in the bottom action bar, where they are
+    // labelled and within thumb reach. What stays here is what applies to how
+    // the page is displayed rather than to the zikr itself.
     return [
-      if (hasAnyContent)
-        IconButton(
-          icon: Icon(
-            _savedBookmark == null ? Icons.bookmark_border : Icons.bookmark,
-          ),
-          tooltip: _savedBookmark == null ? 'Save Bookmark' : 'Remove Bookmark',
-          onPressed: () => _toggleBookmark(
-            pageTitle: pageTitle,
-            tabContents: tabContents,
-            selectedTabIndex: selectedTabIndex,
-          ),
-        ),
-      if (!isCompact)
-        IconButton(
-          icon: const Icon(Icons.share),
-          tooltip: 'Share',
-          onPressed: canShare ? _shareCurrentZikr : null,
-        ),
-      PopupMenuButton<_ZikrMenuAction>(
-        tooltip: 'More options',
-        onSelected: _handleMenuAction,
-        itemBuilder: (context) => [
-          if (isCompact)
-            PopupMenuItem(
-              value: _ZikrMenuAction.share,
-              enabled: canShare,
-              child: const ListTile(
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.share),
-                title: Text('Share'),
-              ),
-            ),
-          const PopupMenuItem(
-            value: _ZikrMenuAction.readingSettings,
-            child: ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.filter_list),
-              title: Text('Reading settings'),
-            ),
-          ),
-          if (isAdmin)
+      settingsButton,
+      if (isAdmin)
+        PopupMenuButton<_ZikrMenuAction>(
+          tooltip: 'More options',
+          onSelected: _handleMenuAction,
+          itemBuilder: (context) => [
             const PopupMenuItem(
               value: _ZikrMenuAction.edit,
               child: ListTile(
@@ -1170,8 +1156,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 title: Text('Edit Zikr'),
               ),
             ),
-        ],
-      ),
+          ],
+        ),
     ];
   }
 
@@ -1247,8 +1233,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       isEditing ? const [] : tabContents,
       hideHeaderLine: tabContents.length > 1,
     );
-    final isCompact = MediaQuery.of(context).size.width < _compactActionsWidth;
     final audioTracks = ZikrAudioTrack.listFrom(zikrData?['audio']);
+    // Editing replaces the reading view with a form, and the bar's actions all
+    // act on the rendered zikr, so it has nothing to do there.
+    final showActionBar = !isEditing && zikrData != null;
 
     return SelectionArea(
       child: Scaffold(
@@ -1260,65 +1248,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             tabContents: tabContents,
             selectedTabIndex: selectedTabIndex,
             hasAnyContent: hasAnyContent,
-            isCompact: isCompact,
           ),
           bottom: _buildReadingProgressBar(context),
         ),
         endDrawer: ZikrSettingsPage(refreshState),
-        floatingActionButton: ValueListenableBuilder<bool>(
-          valueListenable: _showCounter,
-          builder: (context, showingCounter, _) {
-            if (showingCounter) return const SizedBox.shrink();
-            return ValueListenableBuilder<bool>(
-              valueListenable: _floatingControlsVisible,
-              builder: (context, visible, _) => IgnorePointer(
-                ignoring: !visible,
-                child: AnimatedOpacity(
-                  opacity: visible ? 1 : 0,
-                  duration: const Duration(milliseconds: 250),
-                  child: FloatingActionButton(
-                    onPressed: _showCounterFromFab,
-                    tooltip: 'Show Counter',
-                    child: const Icon(tasbeehCounterIcon),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-        body: Listener(
-          // Any touch on the page — not just the FAB — counts as "still
-          // here", so the FAB is there to find again without having to wait
-          // out the fade or go hunting for it.
-          onPointerDown: (_) => _revealFloatingControls(),
-          behavior: HitTestBehavior.translucent,
+        body: NotificationListener<UserScrollNotification>(
+          onNotification: _handleScrollNotification,
           child: LayoutBuilder(
             builder: (context, bodyConstraints) => Stack(
               children: [
                 Column(
                   children: [
-                    // Pinned above the reading area rather than floating: the
-                    // FAB corner belongs to the tasbeeh counter, and a player
-                    // that scrolled away would be unreachable mid-recitation.
-                    // Shares the counter FAB's idle-fade so it does not sit
-                    // over the text once a reading is under way.
-                    if (!isEditing && audioTracks.isNotEmpty)
-                      ValueListenableBuilder<bool>(
-                        valueListenable: _floatingControlsVisible,
-                        builder: (context, visible, child) => IgnorePointer(
-                          ignoring: !visible,
-                          child: AnimatedOpacity(
-                            opacity: visible ? 1 : 0,
-                            duration: const Duration(milliseconds: 250),
-                            child: child,
-                          ),
-                        ),
-                        child: ZikrAudioPlayer(
-                          tracks: audioTracks,
-                          zikrUid: widget.item.getUId(),
-                          zikrTitle: pageTitle,
-                        ),
-                      ),
                     Expanded(
                       child: zikrData == null
                           ? Center(
@@ -1332,7 +1272,19 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   maxWidth: isEditing
                                       ? wideContentWidth
                                       : readingContentWidth,
-                                  padding: const EdgeInsets.all(16.0),
+                                  // The bar floats over the reading area
+                                  // rather than sitting in the column, so
+                                  // sliding it away never resizes the scroll
+                                  // view. This reserves room for it so the
+                                  // last line can still be scrolled clear.
+                                  padding: EdgeInsets.fromLTRB(
+                                    16,
+                                    16,
+                                    16,
+                                    showActionBar
+                                        ? 16 + ZikrActionBar.barHeight
+                                        : 16,
+                                  ),
                                   child: isEditing
                                       ? ZikrEditFormWidget(
                                           titleController: titleController!,
@@ -1424,6 +1376,50 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                     );
                   },
                 ),
+                if (showActionBar)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: _actionBarVisible,
+                      builder: (context, visible, child) => AnimatedSlide(
+                        // Slides out of frame rather than collapsing: the bar
+                        // sits over the reading area, so its size never
+                        // affects the text's layout either way.
+                        offset: visible ? Offset.zero : const Offset(0, 1),
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOutCubic,
+                        child: child,
+                      ),
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _showCounter,
+                        builder: (context, counterVisible, _) => ZikrActionBar(
+                          hasAudio: audioTracks.isNotEmpty,
+                          canBookmark: hasAnyContent,
+                          isBookmarked: _savedBookmark != null,
+                          canShare: !_isSharingZikr,
+                          isCounterVisible: counterVisible,
+                          onBookmark: () => _toggleBookmark(
+                            pageTitle: pageTitle,
+                            tabContents: tabContents,
+                            selectedTabIndex: selectedTabIndex,
+                          ),
+                          onShare: _shareFromActionBar,
+                          onListen: _openAudioPlayer,
+                          onCounter: _toggleCounterFromActionBar,
+                          player: _showAudioPlayer && audioTracks.isNotEmpty
+                              ? ZikrAudioPlayer(
+                                  tracks: audioTracks,
+                                  zikrUid: widget.item.getUId(),
+                                  zikrTitle: pageTitle,
+                                  onClose: _closeAudioPlayer,
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
