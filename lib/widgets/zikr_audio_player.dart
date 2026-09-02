@@ -177,12 +177,19 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
                 child: Text('Recordings', style: theme.textTheme.titleMedium),
               ),
             ),
+            // A ListTile with a trailing check rather than RadioListTile:
+            // the radio's groupValue/onChanged pair is deprecated in favour
+            // of a RadioGroup ancestor, and picking a track is a one-shot
+            // choice that closes the sheet, not a form control to be read
+            // back later.
             for (var i = 0; i < widget.tracks.length; i++)
-              RadioListTile<int>(
-                value: i,
-                groupValue: _trackIndex,
+              ListTile(
                 title: Text(widget.tracks[i].label ?? 'Track ${i + 1}'),
-                onChanged: (value) => Navigator.of(sheetContext).pop(value),
+                trailing: i == _trackIndex
+                    ? Icon(Icons.check, color: theme.colorScheme.primary)
+                    : null,
+                selected: i == _trackIndex,
+                onTap: () => Navigator.of(sheetContext).pop(i),
               ),
           ],
         ),
