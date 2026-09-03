@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../constants.dart';
@@ -13,6 +15,73 @@ class ZikrContentScrollPosition {
   final int tabIndex;
   final double scrollOffset;
   final double maxScrollExtent;
+}
+
+/// Which line of a tab's content a bookmark saved at [scrollFraction] of the
+/// way through it (0 = top, 1 = bottom) should be pinned to, snapped back to
+/// the nearest line in [arabicLineIndexes] at or before that point - so the
+/// marker always lands on the verse showing at the top of the view, never
+/// mid-verse or straddling two.
+///
+/// A raw scroll pixel offset by itself doesn't correspond to any one line -
+/// lines wrap to different heights depending on content and the reader's own
+/// font settings, so there is no fixed pixels-per-line to invert. Treating
+/// every line as equal weight and snapping to the nearest verse start is
+/// precise enough to say "about here", without needing real layout
+/// measurements to do it.
+///
+/// Backward, not forward: this was originally forward (the nearest verse at
+/// or after the estimate), on the reasoning that reading continues past
+/// whatever was on screen. In practice a verse then stayed "current" for
+/// only the single instant the estimate sat exactly on its start index - any
+/// small scroll drift pushed the estimate just past it and the marker jumped
+/// to the next verse. Bookmarking twice in a row without deliberately
+/// scrolling could visibly creep forward one verse at a time. Snapping
+/// backward instead is stable across a verse's whole span: the marker holds
+/// steady from that verse's start up to wherever the next one begins.
+int? snapToArabicLineIndex({
+  required double scrollFraction,
+  required int lineCount,
+  required Set<int> arabicLineIndexes,
+}) {
+  if (lineCount <= 0 || arabicLineIndexes.isEmpty) return null;
+
+  final estimated = (scrollFraction.clamp(0.0, 1.0) * (lineCount - 1)).round();
+
+  int? atOrBefore;
+  for (final index in arabicLineIndexes) {
+    if (index <= estimated && (atOrBefore == null || index > atOrBefore)) {
+      atOrBefore = index;
+    }
+  }
+  // No Arabic line at or before the estimate - the reader was somewhere
+  // ahead of the first verse (an intro paragraph, say), so the first verse
+  // is the closest thing to "the top of what's visible".
+  return atOrBefore ?? arabicLineIndexes.reduce(math.min);
+}
+
+/// The span of content-line indexes, `[start, end)`, that make up one verse
+/// starting at an Arabic line - everything up to (but not including) whatever
+/// Arabic line comes next, or the end of the tab if this is the last verse.
+class BookmarkedVerseRange {
+  const BookmarkedVerseRange({required this.start, required this.end});
+
+  final int start;
+  final int end;
+
+  bool contains(int lineIndex) => lineIndex >= start && lineIndex < end;
+
+  static BookmarkedVerseRange? fromStart(
+    int? startIndex, {
+    required Set<int> arabicLineIndexes,
+    required int lineCount,
+  }) {
+    if (startIndex == null) return null;
+    final end = arabicLineIndexes
+        .where((i) => i > startIndex)
+        .fold(lineCount, math.min);
+    return BookmarkedVerseRange(start: startIndex, end: end);
+  }
 }
 
 class ZikrContentViewerWidget extends StatefulWidget {
@@ -279,6 +348,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       hideHeaderLine: hideHeaderLine,
       code: widget.code,
     );
+    final bookmarkedVerse = _bookmarkedVerseRange(
+      tabIndex,
+      controller,
+      parsedContent,
+    );
 
     // Create text styles with current settings each time this is called
     final arabicStyle = TextStyle(
@@ -328,8 +402,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             final contentIndex = showMeritsButton ? index - 1 : index;
             final str = parsedContent.lines[contentIndex].trim();
 
+            Widget line;
             if (parsedContent.arabicCodes.contains(contentIndex)) {
-              return Padding(
+              line = Padding(
                 padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
                 child: Text.rich(
                   _buildTextSpanForLine(
@@ -341,14 +416,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 ),
               );
             } else if (parsedContent.transliCodes.contains(contentIndex)) {
-              return showTransliteration
+              line = showTransliteration
                   ? Text.rich(
                       _buildTextSpanForLine(str.toUpperCase(), transliStyle),
                       textAlign: TextAlign.center,
                     )
                   : Container();
             } else if (parsedContent.translaCodes.contains(contentIndex)) {
-              return showTranslation
+              line = showTranslation
                   ? Padding(
                       padding: const EdgeInsets.only(bottom: 4.0),
                       child: Text.rich(
@@ -361,7 +436,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                     )
                   : Container();
             } else {
-              return Padding(
+              line = Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 4.0),
                 child: Text.rich(
                   _buildTextSpanForLine(
@@ -371,9 +446,60 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 ),
               );
             }
+
+            if (bookmarkedVerse == null ||
+                !bookmarkedVerse.contains(contentIndex)) {
+              return line;
+            }
+            return _BookmarkedLine(
+              // The label only belongs on the verse's first line - repeating
+              // it on the transliteration/translation lines under the same
+              // tint would just be noise.
+              showLabel: contentIndex == bookmarkedVerse.start,
+              child: line,
+            );
           },
         ),
       ),
+    );
+  }
+
+  /// The verse - a run of content-line indexes starting at an Arabic line -
+  /// that a saved bookmark should highlight, or null if this tab has no
+  /// bookmark, no Arabic to anchor one to, or has not laid out yet.
+  ///
+  /// [ScrollController.position] is only valid once the list has attached,
+  /// which has not happened yet on a tab's very first build; when that is
+  /// the case this schedules one follow-up rebuild for right after layout,
+  /// so the highlight appears on its own rather than needing a scroll or
+  /// other interaction to trigger it.
+  BookmarkedVerseRange? _bookmarkedVerseRange(
+    int tabIndex,
+    ScrollController controller,
+    ParsedZikrContent parsedContent,
+  ) {
+    if (widget.initialBookmarkTabIndex != tabIndex) return null;
+    final bookmarkOffset = widget.initialBookmarkScrollOffset;
+    if (bookmarkOffset == null || bookmarkOffset <= 0) return null;
+
+    if (!controller.hasClients || !controller.position.hasContentDimensions) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+      return null;
+    }
+
+    final maxExtent = controller.position.maxScrollExtent;
+    final fraction = maxExtent > 0 ? bookmarkOffset / maxExtent : 0.0;
+    final startIndex = snapToArabicLineIndex(
+      scrollFraction: fraction,
+      lineCount: parsedContent.lines.length,
+      arabicLineIndexes: parsedContent.arabicCodes,
+    );
+    return BookmarkedVerseRange.fromStart(
+      startIndex,
+      arabicLineIndexes: parsedContent.arabicCodes,
+      lineCount: parsedContent.lines.length,
     );
   }
 
@@ -486,6 +612,68 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The "you left off here" landmark itself - a tinted, left-bordered wash
+/// with a small label, filling whatever height [Positioned] gives it. Reuses
+/// the same primary/primaryContainer pairing as the bookmark action's own
+/// filled-pill state, so the two read as the one feature.
+/// Wraps a single line of a bookmarked verse in a tint and a left border.
+/// Every line in the verse gets one of these, not one container around the
+/// whole group - the ListView builds one item at a time, so this is what
+/// keeps the tint a property of the actual lines rather than a separate
+/// element that has to be positioned over them. Consecutive lines' tints and
+/// borders sit flush against each other, reading as one continuous block.
+class _BookmarkedLine extends StatelessWidget {
+  const _BookmarkedLine({required this.showLabel, required this.child});
+
+  /// Only the verse's first line carries the "Bookmarked" label - repeating
+  /// it on every line under the same tint would just be noise.
+  final bool showLabel;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: EdgeInsets.only(
+        left: 12,
+        right: 12,
+        top: showLabel ? 6 : 0,
+      ),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer.withValues(alpha: 0.4),
+        border: Border(
+          left: BorderSide(color: colorScheme.primary, width: 3),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (showLabel)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Bookmarked',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.4,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          child,
+        ],
+      ),
     );
   }
 }

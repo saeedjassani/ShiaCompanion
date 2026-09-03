@@ -68,6 +68,12 @@
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
 	</dict>
+	<!-- Lets a zikr recitation (Ziyarat Ashura runs ~11 minutes, Kumayl ~29)
+	     keep playing once the screen locks or another app comes forward. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used to calculate accurate prayer times for your current area, and to point the qibla compass towards Makkah.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

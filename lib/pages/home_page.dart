@@ -36,6 +36,7 @@ import 'package:shia_companion/utils/web_route_sync.dart';
 
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 
 enum _PublishStatus { success, error, timeout }
@@ -743,6 +744,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   setupPreferences() async {
     await SP.init();
+    await migrateZikrFocusModePreference();
     arabicFontSize = SP.prefs.getDouble('ara_font_size') ?? arabicFontSize;
     englishFontSize = SP.prefs.getDouble('eng_font_size') ?? englishFontSize;
 

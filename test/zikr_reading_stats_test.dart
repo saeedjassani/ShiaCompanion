@@ -11,11 +11,11 @@ void main() {
   group('analyzeZikrReadingStats', () {
     test('times Arabic tabs by their Arabic words alone', () {
       final stats = analyzeZikrReadingStats([
-        '${_arabicLine(45)}\n${_latinLine(200)}',
+        '${_arabicLine(100)}\n${_latinLine(200)}',
       ]);
 
       expect(stats.hasContent, isTrue);
-      expect(stats.tabs.single.arabicWords, 45);
+      expect(stats.tabs.single.arabicWords, 100);
       expect(stats.tabs.single.latinWords, 200);
       expect(stats.duration, const Duration(minutes: 1));
     });

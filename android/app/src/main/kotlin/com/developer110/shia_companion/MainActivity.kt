@@ -19,7 +19,7 @@ import com.developer110.shiacompanion.widgets.scheduleNextPrayerWidgetRefresh
 import com.developer110.shiacompanion.widgets.scheduleNextRecitationWidgetRefresh
 import com.developer110.shiacompanion.widgets.TodaysRecitationWidget
 import com.developer110.shiacompanion.widgets.UpcomingPrayerWidget
-import io.flutter.embedding.android.FlutterActivity
+import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
@@ -29,7 +29,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainActivity: FlutterActivity() {
+// AudioServiceActivity (from just_audio_background) instead of plain
+// FlutterActivity: it reuses the engine audio_service keeps alive in its
+// foreground service, so zikr audio survives the activity being destroyed
+// (app swiped away) while playback continues in the notification.
+class MainActivity: AudioServiceActivity() {
     private val notificationAudioChannel = "shia_companion/notification_audio"
     private val homeWidgetsChannel = "shia_companion/home_widgets"
     private val proximitySensorChannel = "shia_companion/proximity_sensor"

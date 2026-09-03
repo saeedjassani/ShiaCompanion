@@ -296,3 +296,8 @@ test_visual/specs/__screenshots__/*
 .zikr-backups/
 scripts/zikr_arabic/.patch.json
 scripts/zikr_arabic/__pycache__/
+
+# duas.org import working files: the review map is a local artifact,
+# Firestore holds the applied result.
+scripts/.cache/
+scripts/duas_audio_map.json

@@ -71,6 +71,27 @@ class _AboutPageState extends State<AboutPage> {
                 label: const Text(_supportEmail),
               ),
             ),
+            const Divider(height: 40),
+            // duas.org permit use of their recitations on condition of
+            // credit - this is that acknowledgement.
+            ListTile(
+              title: const Text('Credits', textAlign: TextAlign.center),
+              subtitle: Column(
+                children: [
+                  const Text(
+                    'Recitation audio is streamed from duas.org and used with '
+                    'their kind permission.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () =>
+                        launchExternalUri(Uri.parse('https://www.duas.org')),
+                    child: const Text('duas.org'),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
