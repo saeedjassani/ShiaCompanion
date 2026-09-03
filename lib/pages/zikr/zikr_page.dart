@@ -1047,9 +1047,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         'zikr_bookmark_removed',
         label: 'Bookmark removed',
       ));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bookmark removed')),
-      );
       return;
     }
 
@@ -1076,9 +1073,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       label: 'Bookmark saved',
       parameters: {'zikr_uid': _bookmarkUid},
     ));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Bookmark saved on this device')),
-    );
   }
 
   String? _lookupInternalItemUid(String segment) {

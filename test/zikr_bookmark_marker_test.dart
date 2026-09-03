@@ -3,30 +3,30 @@ import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 
 void main() {
   group('snapToArabicLineIndex', () {
-    test('lands on the verse at the exact fraction', () {
-      // 10 lines, Arabic starts at 0, 3, 6 - scrolling to 60% (line ~5.4,
-      // rounds to 5) should snap forward to the verse starting at 6.
+    test('lands exactly on the verse when the fraction matches it exactly', () {
+      expect(
+        snapToArabicLineIndex(
+          scrollFraction: 3 / 9,
+          lineCount: 10,
+          arabicLineIndexes: {0, 3, 6},
+        ),
+        3,
+      );
+    });
+
+    test('snaps backward to the verse already on screen, not the one ahead',
+        () {
+      // Estimated line 5 (from fraction 0.6) sits between verses at 3 and 6,
+      // closer to 6 by distance - but the verse at 3 is what is actually
+      // showing at the top of the view, so that is what gets marked, not
+      // the one still ahead that has not been reached yet.
       expect(
         snapToArabicLineIndex(
           scrollFraction: 0.6,
           lineCount: 10,
           arabicLineIndexes: {0, 3, 6},
         ),
-        6,
-      );
-    });
-
-    test('snaps forward, not to the nearest verse in either direction', () {
-      // Estimated line 4 sits between verses at 3 and 6, closer to 3, but
-      // reading continues past whatever was on screen - the verse ahead
-      // (6) is the more natural "resume from here" than the one behind.
-      expect(
-        snapToArabicLineIndex(
-          scrollFraction: 0.4,
-          lineCount: 10,
-          arabicLineIndexes: {0, 3, 6},
-        ),
-        6,
+        3,
       );
     });
 
@@ -44,14 +44,14 @@ void main() {
       }
     });
 
-    test('falls back to the last verse once past every Arabic line', () {
+    test('falls back to the first verse before reaching any Arabic line', () {
       expect(
         snapToArabicLineIndex(
-          scrollFraction: 1.0,
+          scrollFraction: 0.0,
           lineCount: 10,
-          arabicLineIndexes: {0, 3, 6},
+          arabicLineIndexes: {3, 6},
         ),
-        6,
+        3,
       );
     });
 
@@ -94,6 +94,40 @@ void main() {
         ),
         5,
       );
+    });
+
+    test(
+        'is stable across repeated calls at the same position - regression '
+        'for the reported drift', () {
+      // Bookmarking twice in a row without deliberately scrolling must
+      // return the same verse both times, not creep forward. This is a
+      // direct regression test for the original bug: forward-snapping only
+      // held for the single instant an estimate sat exactly on a verse's
+      // start index, so any small scroll jitter pushed it just past that
+      // point and the marker jumped to the next verse - repeatable, and
+      // one-directional. Backward-snapping is stable across a verse's
+      // entire span instead of a single point.
+      const arabicLines = {0, 5, 11, 20};
+      final first = snapToArabicLineIndex(
+        scrollFraction: 0.3,
+        lineCount: 40,
+        arabicLineIndexes: arabicLines,
+      );
+      final second = snapToArabicLineIndex(
+        scrollFraction: 0.3,
+        lineCount: 40,
+        arabicLineIndexes: arabicLines,
+      );
+      expect(first, second);
+
+      // A small jitter that stays within the same verse's span must not
+      // move the result either.
+      final jittered = snapToArabicLineIndex(
+        scrollFraction: 0.32,
+        lineCount: 40,
+        arabicLineIndexes: arabicLines,
+      );
+      expect(jittered, first);
     });
   });
 

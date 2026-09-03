@@ -18,9 +18,10 @@ class ZikrContentScrollPosition {
 }
 
 /// Which line of a tab's content a bookmark saved at [scrollFraction] of the
-/// way through it (0 = top, 1 = bottom) should be pinned to, snapped forward
-/// to the nearest line in [arabicLineIndexes] - so the marker always lands on
-/// the start of a verse, never mid-verse or straddling two.
+/// way through it (0 = top, 1 = bottom) should be pinned to, snapped back to
+/// the nearest line in [arabicLineIndexes] at or before that point - so the
+/// marker always lands on the verse showing at the top of the view, never
+/// mid-verse or straddling two.
 ///
 /// A raw scroll pixel offset by itself doesn't correspond to any one line -
 /// lines wrap to different heights depending on content and the reader's own
@@ -29,9 +30,15 @@ class ZikrContentScrollPosition {
 /// precise enough to say "about here", without needing real layout
 /// measurements to do it.
 ///
-/// Forward rather than to the nearest verse in either direction: reading
-/// continues past whatever was on screen, so the next verse's start is the
-/// more natural "resume from here" than the one already read.
+/// Backward, not forward: this was originally forward (the nearest verse at
+/// or after the estimate), on the reasoning that reading continues past
+/// whatever was on screen. In practice a verse then stayed "current" for
+/// only the single instant the estimate sat exactly on its start index - any
+/// small scroll drift pushed the estimate just past it and the marker jumped
+/// to the next verse. Bookmarking twice in a row without deliberately
+/// scrolling could visibly creep forward one verse at a time. Snapping
+/// backward instead is stable across a verse's whole span: the marker holds
+/// steady from that verse's start up to wherever the next one begins.
 int? snapToArabicLineIndex({
   required double scrollFraction,
   required int lineCount,
@@ -41,15 +48,16 @@ int? snapToArabicLineIndex({
 
   final estimated = (scrollFraction.clamp(0.0, 1.0) * (lineCount - 1)).round();
 
-  int? atOrAfter;
+  int? atOrBefore;
   for (final index in arabicLineIndexes) {
-    if (index >= estimated && (atOrAfter == null || index < atOrAfter)) {
-      atOrAfter = index;
+    if (index <= estimated && (atOrBefore == null || index > atOrBefore)) {
+      atOrBefore = index;
     }
   }
-  // No Arabic line at or after the estimate - the reader was somewhere in
-  // the closing lines, so the last verse is the closest thing to "here".
-  return atOrAfter ?? arabicLineIndexes.reduce(math.max);
+  // No Arabic line at or before the estimate - the reader was somewhere
+  // ahead of the first verse (an intro paragraph, say), so the first verse
+  // is the closest thing to "the top of what's visible".
+  return atOrBefore ?? arabicLineIndexes.reduce(math.min);
 }
 
 /// The span of content-line indexes, `[start, end)`, that make up one verse
