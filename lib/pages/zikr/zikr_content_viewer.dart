@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../constants.dart';
@@ -15,28 +17,63 @@ class ZikrContentScrollPosition {
   final double maxScrollExtent;
 }
 
-/// Where to paint the "you left off here" band for a bookmark saved at
-/// [savedOffset], in the ListView's own coordinate space - the distance from
-/// the top of its viewport, which is where [Positioned.top] expects it.
+/// Which line of a tab's content a bookmark saved at [scrollFraction] of the
+/// way through it (0 = top, 1 = bottom) should be pinned to, snapped forward
+/// to the nearest line in [arabicLineIndexes] - so the marker always lands on
+/// the start of a verse, never mid-verse or straddling two.
 ///
-/// Null means the saved position is currently scrolled out of view, in
-/// either direction, so nothing should be painted at all.
+/// A raw scroll pixel offset by itself doesn't correspond to any one line -
+/// lines wrap to different heights depending on content and the reader's own
+/// font settings, so there is no fixed pixels-per-line to invert. Treating
+/// every line as equal weight and snapping to the nearest verse start is
+/// precise enough to say "about here", without needing real layout
+/// measurements to do it.
 ///
-/// A bookmark records a raw scroll pixel offset, not which line was there -
-/// the reading content has no per-line index to save in the first place, and
-/// wrapped Arabic/transliteration/translation lines all resize with the
-/// reader's own font settings anyway. This paints a band roughly [bandHeight]
-/// tall at that same pixel offset instead of trying to highlight one exact
-/// line: close enough to say "around here", not exact enough to promise more.
-double? resolveBookmarkMarkerTop({
-  required double savedOffset,
-  required double currentOffset,
-  required double viewportHeight,
-  required double bandHeight,
+/// Forward rather than to the nearest verse in either direction: reading
+/// continues past whatever was on screen, so the next verse's start is the
+/// more natural "resume from here" than the one already read.
+int? snapToArabicLineIndex({
+  required double scrollFraction,
+  required int lineCount,
+  required Set<int> arabicLineIndexes,
 }) {
-  final top = savedOffset - currentOffset;
-  if (top <= -bandHeight || top >= viewportHeight) return null;
-  return top;
+  if (lineCount <= 0 || arabicLineIndexes.isEmpty) return null;
+
+  final estimated = (scrollFraction.clamp(0.0, 1.0) * (lineCount - 1)).round();
+
+  int? atOrAfter;
+  for (final index in arabicLineIndexes) {
+    if (index >= estimated && (atOrAfter == null || index < atOrAfter)) {
+      atOrAfter = index;
+    }
+  }
+  // No Arabic line at or after the estimate - the reader was somewhere in
+  // the closing lines, so the last verse is the closest thing to "here".
+  return atOrAfter ?? arabicLineIndexes.reduce(math.max);
+}
+
+/// The span of content-line indexes, `[start, end)`, that make up one verse
+/// starting at an Arabic line - everything up to (but not including) whatever
+/// Arabic line comes next, or the end of the tab if this is the last verse.
+class BookmarkedVerseRange {
+  const BookmarkedVerseRange({required this.start, required this.end});
+
+  final int start;
+  final int end;
+
+  bool contains(int lineIndex) => lineIndex >= start && lineIndex < end;
+
+  static BookmarkedVerseRange? fromStart(
+    int? startIndex, {
+    required Set<int> arabicLineIndexes,
+    required int lineCount,
+  }) {
+    if (startIndex == null) return null;
+    final end = arabicLineIndexes
+        .where((i) => i > startIndex)
+        .fold(lineCount, math.min);
+    return BookmarkedVerseRange(start: startIndex, end: end);
+  }
 }
 
 class ZikrContentViewerWidget extends StatefulWidget {
@@ -303,6 +340,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       hideHeaderLine: hideHeaderLine,
       code: widget.code,
     );
+    final bookmarkedVerse = _bookmarkedVerseRange(
+      tabIndex,
+      controller,
+      parsedContent,
+    );
 
     // Create text styles with current settings each time this is called
     final arabicStyle = TextStyle(
@@ -313,7 +355,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final transliStyle =
         TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
 
-    final scrollingContent = NotificationListener<ScrollMetricsNotification>(
+    return NotificationListener<ScrollMetricsNotification>(
       onNotification: (notification) {
         if (tabIndex == _selectedTabIndex) {
           _reportScrollPosition(tabIndex, controller);
@@ -352,8 +394,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             final contentIndex = showMeritsButton ? index - 1 : index;
             final str = parsedContent.lines[contentIndex].trim();
 
+            Widget line;
             if (parsedContent.arabicCodes.contains(contentIndex)) {
-              return Padding(
+              line = Padding(
                 padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
                 child: Text.rich(
                   _buildTextSpanForLine(
@@ -365,14 +408,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 ),
               );
             } else if (parsedContent.transliCodes.contains(contentIndex)) {
-              return showTransliteration
+              line = showTransliteration
                   ? Text.rich(
                       _buildTextSpanForLine(str.toUpperCase(), transliStyle),
                       textAlign: TextAlign.center,
                     )
                   : Container();
             } else if (parsedContent.translaCodes.contains(contentIndex)) {
-              return showTranslation
+              line = showTranslation
                   ? Padding(
                       padding: const EdgeInsets.only(bottom: 4.0),
                       child: Text.rich(
@@ -385,7 +428,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                     )
                   : Container();
             } else {
-              return Padding(
+              line = Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 4.0),
                 child: Text.rich(
                   _buildTextSpanForLine(
@@ -395,58 +438,61 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 ),
               );
             }
+
+            if (bookmarkedVerse == null ||
+                !bookmarkedVerse.contains(contentIndex)) {
+              return line;
+            }
+            return _BookmarkedLine(
+              // The label only belongs on the verse's first line - repeating
+              // it on the transliteration/translation lines under the same
+              // tint would just be noise.
+              showLabel: contentIndex == bookmarkedVerse.start,
+              child: line,
+            );
           },
         ),
       ),
     );
-
-    final bookmarkOffset = widget.initialBookmarkTabIndex == tabIndex
-        ? widget.initialBookmarkScrollOffset
-        : null;
-    if (bookmarkOffset == null || bookmarkOffset <= 0) {
-      return scrollingContent;
-    }
-
-    return Stack(
-      children: [
-        scrollingContent,
-        AnimatedBuilder(
-          animation: controller,
-          builder: (context, _) {
-            if (!controller.hasClients) return const SizedBox.shrink();
-            final top = resolveBookmarkMarkerTop(
-              savedOffset: bookmarkOffset,
-              currentOffset: controller.offset,
-              viewportHeight: controller.position.viewportDimension,
-              bandHeight: _estimatedBookmarkBandHeight(),
-            );
-            if (top == null) return const SizedBox.shrink();
-            return Positioned(
-              left: 0,
-              right: 0,
-              top: top,
-              height: _estimatedBookmarkBandHeight(),
-              // Purely a landmark painted over the content, not part of it -
-              // scrolling and text selection both need to keep reaching the
-              // real lines underneath.
-              child: const IgnorePointer(child: _BookmarkBand()),
-            );
-          },
-        ),
-      ],
-    );
   }
 
-  /// Rough height of one verse at the reader's current settings: the Arabic
-  /// line plus whichever of transliteration/translation are switched on.
-  /// Not exact - lines wrap differently per device width - but close enough
-  /// that the band reads as "about one verse" rather than a fixed size that
-  /// is visibly wrong at the font-size extremes.
-  double _estimatedBookmarkBandHeight() {
-    var height = arabicFontSize * 2.0 + 16;
-    if (showTransliteration) height += englishFontSize * 1.3;
-    if (showTranslation) height += englishFontSize * 1.3 + 4;
-    return height;
+  /// The verse - a run of content-line indexes starting at an Arabic line -
+  /// that a saved bookmark should highlight, or null if this tab has no
+  /// bookmark, no Arabic to anchor one to, or has not laid out yet.
+  ///
+  /// [ScrollController.position] is only valid once the list has attached,
+  /// which has not happened yet on a tab's very first build; when that is
+  /// the case this schedules one follow-up rebuild for right after layout,
+  /// so the highlight appears on its own rather than needing a scroll or
+  /// other interaction to trigger it.
+  BookmarkedVerseRange? _bookmarkedVerseRange(
+    int tabIndex,
+    ScrollController controller,
+    ParsedZikrContent parsedContent,
+  ) {
+    if (widget.initialBookmarkTabIndex != tabIndex) return null;
+    final bookmarkOffset = widget.initialBookmarkScrollOffset;
+    if (bookmarkOffset == null || bookmarkOffset <= 0) return null;
+
+    if (!controller.hasClients || !controller.position.hasContentDimensions) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+      return null;
+    }
+
+    final maxExtent = controller.position.maxScrollExtent;
+    final fraction = maxExtent > 0 ? bookmarkOffset / maxExtent : 0.0;
+    final startIndex = snapToArabicLineIndex(
+      scrollFraction: fraction,
+      lineCount: parsedContent.lines.length,
+      arabicLineIndexes: parsedContent.arabicCodes,
+    );
+    return BookmarkedVerseRange.fromStart(
+      startIndex,
+      arabicLineIndexes: parsedContent.arabicCodes,
+      lineCount: parsedContent.lines.length,
+    );
   }
 
   @override
@@ -566,36 +612,58 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 /// with a small label, filling whatever height [Positioned] gives it. Reuses
 /// the same primary/primaryContainer pairing as the bookmark action's own
 /// filled-pill state, so the two read as the one feature.
-class _BookmarkBand extends StatelessWidget {
-  const _BookmarkBand();
+/// Wraps a single line of a bookmarked verse in a tint and a left border.
+/// Every line in the verse gets one of these, not one container around the
+/// whole group - the ListView builds one item at a time, so this is what
+/// keeps the tint a property of the actual lines rather than a separate
+/// element that has to be positioned over them. Consecutive lines' tints and
+/// borders sit flush against each other, reading as one continuous block.
+class _BookmarkedLine extends StatelessWidget {
+  const _BookmarkedLine({required this.showLabel, required this.child});
+
+  /// Only the verse's first line carries the "Bookmarked" label - repeating
+  /// it on every line under the same tint would just be noise.
+  final bool showLabel;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      alignment: Alignment.topLeft,
+      padding: EdgeInsets.only(
+        left: 12,
+        right: 12,
+        top: showLabel ? 6 : 0,
+      ),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(10),
+        color: colorScheme.primaryContainer.withValues(alpha: 0.4),
         border: Border(
           left: BorderSide(color: colorScheme.primary, width: 3),
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
-          const SizedBox(width: 4),
-          Text(
-            'Bookmarked',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.4,
-                ),
-          ),
+          if (showLabel)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Bookmarked',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.4,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          child,
         ],
       ),
     );
