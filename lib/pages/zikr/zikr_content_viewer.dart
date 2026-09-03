@@ -15,6 +15,30 @@ class ZikrContentScrollPosition {
   final double maxScrollExtent;
 }
 
+/// Where to paint the "you left off here" band for a bookmark saved at
+/// [savedOffset], in the ListView's own coordinate space - the distance from
+/// the top of its viewport, which is where [Positioned.top] expects it.
+///
+/// Null means the saved position is currently scrolled out of view, in
+/// either direction, so nothing should be painted at all.
+///
+/// A bookmark records a raw scroll pixel offset, not which line was there -
+/// the reading content has no per-line index to save in the first place, and
+/// wrapped Arabic/transliteration/translation lines all resize with the
+/// reader's own font settings anyway. This paints a band roughly [bandHeight]
+/// tall at that same pixel offset instead of trying to highlight one exact
+/// line: close enough to say "around here", not exact enough to promise more.
+double? resolveBookmarkMarkerTop({
+  required double savedOffset,
+  required double currentOffset,
+  required double viewportHeight,
+  required double bandHeight,
+}) {
+  final top = savedOffset - currentOffset;
+  if (top <= -bandHeight || top >= viewportHeight) return null;
+  return top;
+}
+
 class ZikrContentViewerWidget extends StatefulWidget {
   final List<String> tabContents;
   final int selectedTabIndex;
@@ -289,7 +313,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final transliStyle =
         TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
 
-    return NotificationListener<ScrollMetricsNotification>(
+    final scrollingContent = NotificationListener<ScrollMetricsNotification>(
       onNotification: (notification) {
         if (tabIndex == _selectedTabIndex) {
           _reportScrollPosition(tabIndex, controller);
@@ -375,6 +399,54 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         ),
       ),
     );
+
+    final bookmarkOffset = widget.initialBookmarkTabIndex == tabIndex
+        ? widget.initialBookmarkScrollOffset
+        : null;
+    if (bookmarkOffset == null || bookmarkOffset <= 0) {
+      return scrollingContent;
+    }
+
+    return Stack(
+      children: [
+        scrollingContent,
+        AnimatedBuilder(
+          animation: controller,
+          builder: (context, _) {
+            if (!controller.hasClients) return const SizedBox.shrink();
+            final top = resolveBookmarkMarkerTop(
+              savedOffset: bookmarkOffset,
+              currentOffset: controller.offset,
+              viewportHeight: controller.position.viewportDimension,
+              bandHeight: _estimatedBookmarkBandHeight(),
+            );
+            if (top == null) return const SizedBox.shrink();
+            return Positioned(
+              left: 0,
+              right: 0,
+              top: top,
+              height: _estimatedBookmarkBandHeight(),
+              // Purely a landmark painted over the content, not part of it -
+              // scrolling and text selection both need to keep reaching the
+              // real lines underneath.
+              child: const IgnorePointer(child: _BookmarkBand()),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  /// Rough height of one verse at the reader's current settings: the Arabic
+  /// line plus whichever of transliteration/translation are switched on.
+  /// Not exact - lines wrap differently per device width - but close enough
+  /// that the band reads as "about one verse" rather than a fixed size that
+  /// is visibly wrong at the font-size extremes.
+  double _estimatedBookmarkBandHeight() {
+    var height = arabicFontSize * 2.0 + 16;
+    if (showTransliteration) height += englishFontSize * 1.3;
+    if (showTranslation) height += englishFontSize * 1.3 + 4;
+    return height;
   }
 
   @override
@@ -486,6 +558,46 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The "you left off here" landmark itself - a tinted, left-bordered wash
+/// with a small label, filling whatever height [Positioned] gives it. Reuses
+/// the same primary/primaryContainer pairing as the bookmark action's own
+/// filled-pill state, so the two read as the one feature.
+class _BookmarkBand extends StatelessWidget {
+  const _BookmarkBand();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      alignment: Alignment.topLeft,
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(10),
+        border: Border(
+          left: BorderSide(color: colorScheme.primary, width: 3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
+          const SizedBox(width: 4),
+          Text(
+            'Bookmarked',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.4,
+                ),
+          ),
+        ],
+      ),
     );
   }
 }
