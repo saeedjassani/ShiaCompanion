@@ -22,6 +22,7 @@ import '../../widgets/responsive_content.dart';
 import '../../widgets/zikr_action_bar.dart';
 import '../../widgets/zikr_audio_player.dart';
 import '../../widgets/zikr_reading_preferences.dart';
+import '../../widgets/zikr_reading_progress_bar.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
 import 'zikr_edit_form.dart';
@@ -34,14 +35,15 @@ import 'zikr_share_image.dart';
 enum _ZikrMenuAction { edit }
 
 /// Whether a scroll notification from the reading content should hide, show,
-/// or leave alone the bottom action bar. Null means no change - in
-/// particular, horizontal scrolling (swiping between tabs) is not "scrolling
-/// the reading area" and must not be read as a vertical reveal/hide signal.
+/// or leave alone the reading chrome - the progress strip and the bottom
+/// action bar, which move together. Null means no change - in particular,
+/// horizontal scrolling (swiping between tabs) is not "scrolling the reading
+/// area" and must not be read as a vertical reveal/hide signal.
 ///
 /// Kept separate from [_ZikrPageState] and free of any Flutter scroll types
 /// beyond [Axis]/[ScrollDirection] so it is trivial to unit test - building a
 /// real [UserScrollNotification] needs a live [BuildContext].
-bool? resolveActionBarVisibilityForScroll(
+bool? resolveChromeVisibilityForScroll(
   Axis axis,
   ScrollDirection direction,
 ) {
@@ -109,14 +111,19 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   late final ValueNotifier<bool> _showCounter;
   late final ValueNotifier<int> _counterCount;
 
-  /// Whether the bottom action bar is on screen. Scroll direction is the
-  /// primary signal - down hides it, up brings it back, and that alone is
-  /// enough for anything long enough to actually scroll. An idle timer is
-  /// only the fallback, for a zikr short enough that it never generates a
-  /// scroll event to react to; see [_scheduleActionBarIdleHide]. The bar is
-  /// an overlay rather than something the text is padded around, so either
-  /// way this only ever changes what is painted, never the text's layout.
-  final ValueNotifier<bool> _actionBarVisible = ValueNotifier(true);
+  /// Whether the reading chrome - the progress strip and the bottom action
+  /// bar, which move as one - is on screen. Scroll direction is the primary
+  /// signal - down hides it, up brings it back, and that alone is enough for
+  /// anything long enough to actually scroll. An idle timer is only the
+  /// fallback, for a zikr short enough that it never generates a scroll event
+  /// to react to; see [_scheduleChromeIdleHide]. Both bars are overlays
+  /// rather than something the text is padded around, so either way this
+  /// only ever changes what is painted, never the text's layout.
+  ///
+  /// Only meaningful with Focus mode on. With it off, [_setChromeVisible] is
+  /// the one place that enforces the chrome staying pinned - every writer
+  /// below goes through it rather than each having to check the setting.
+  final ValueNotifier<bool> _chromeVisible = ValueNotifier(true);
 
   /// Whether the bar is showing the player instead of the action row. Set by
   /// Listen, cleared by the player's close button. The player is only built
@@ -149,7 +156,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ));
     _readingProgress.addListener(_maybeRecordCompletion);
     _initializePageData();
-    _scheduleActionBarIdleHide();
+    _scheduleChromeIdleHide();
   }
 
   /// Fires at most once. Opening a zikr and reciting one are different things
@@ -195,8 +202,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterOffset.dispose();
     _showCounter.dispose();
     _counterCount.dispose();
-    _actionBarIdleTimer?.cancel();
-    _actionBarVisible.dispose();
+    _chromeIdleTimer?.cancel();
+    _chromeVisible.dispose();
     _maybeRecordCompletion();
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.dispose();
@@ -266,19 +273,35 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       parameters: {'zikr_uid': widget.item.getUId()},
     ));
     setState(() => _showAudioPlayer = true);
-    // Reading down the page hides the bar; opening the player has to bring it
-    // back or the reader taps Listen and sees nothing happen.
-    _actionBarVisible.value = true;
-    _actionBarIdleTimer?.cancel();
+    // Reading down the page hides the chrome; opening the player has to
+    // bring it back or the reader taps Listen and sees nothing happen. Always
+    // allowed regardless of Focus mode - true is never a hide request, so it
+    // needs no guard.
+    _chromeVisible.value = true;
+    _chromeIdleTimer?.cancel();
   }
 
   void _closeAudioPlayer() {
     setState(() => _showAudioPlayer = false);
-    _scheduleActionBarIdleHide();
+    _scheduleChromeIdleHide();
   }
 
-  /// Slides the bar away as the reader moves down the text and back when they
-  /// scroll up. Held open while the player is showing: hiding transport
+  /// Whether Focus mode is on - the reading chrome is only ever eligible to
+  /// hide when it is. Read live rather than cached: it is an in-memory prefs
+  /// read, and a cached copy would need re-syncing from the drawer, the
+  /// global settings page, and [didPopNext].
+  bool get _focusModeEnabled => zikrFocusModeEnabled();
+
+  /// The one place the chrome is hidden. With Focus mode off the chrome is
+  /// pinned, so a hide request from the scroll handler or the idle timer is
+  /// dropped here rather than having to be caught at every call site.
+  void _setChromeVisible(bool visible) {
+    if (!visible && !_focusModeEnabled) return;
+    _chromeVisible.value = visible;
+  }
+
+  /// Slides the chrome away as the reader moves down the text and back when
+  /// they scroll up. Held open while the player is showing: hiding transport
   /// controls part-way through a half-hour recitation would strand them.
   ///
   /// The reading content is a [ListView] nested inside the tab [PageView], so
@@ -286,48 +309,68 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// PageView - which, being itself a [Scrollable], bumps [depth] to 1 on the
   /// way through. Gating on `depth == 0` (as the counter FAB's old idle timer
   /// effectively assumed nothing nested) discarded every one of them, so the
-  /// bar never moved on a real read. Gating on axis instead of depth reads
+  /// chrome never moved on a real read. Gating on axis instead of depth reads
   /// correctly regardless of nesting, and as a side effect also ignores the
   /// PageView's own horizontal swipes between tabs, whose forward/reverse
   /// would otherwise mean left/right rather than up/down.
   bool _handleScrollNotification(UserScrollNotification notification) {
-    if (_showAudioPlayer) return false;
+    if (_showAudioPlayer || !_focusModeEnabled) return false;
 
-    final visible = resolveActionBarVisibilityForScroll(
+    final visible = resolveChromeVisibilityForScroll(
       notification.metrics.axis,
       notification.direction,
     );
     if (visible != null) {
-      _actionBarVisible.value = visible;
+      _setChromeVisible(visible);
       // A deliberate scroll signal always wins; the idle fallback is only
       // for the short zikr that never generates one at all.
-      _actionBarIdleTimer?.cancel();
-      if (visible) _scheduleActionBarIdleHide();
+      _chromeIdleTimer?.cancel();
+      if (visible) _scheduleChromeIdleHide();
     }
     return false;
   }
 
-  /// Brings the bar back and restarts the idle clock - called on any tap on
-  /// the page, not just on the bar itself, so a reader is never left having
-  /// to guess where to tap to get it back.
-  void _revealActionBar() {
-    _actionBarVisible.value = true;
-    _scheduleActionBarIdleHide();
+  /// Brings the chrome back and restarts the idle clock - called on any tap
+  /// on the page, not just on either bar itself, so a reader is never left
+  /// having to guess where to tap to get it back.
+  void _revealChrome() {
+    _setChromeVisible(true);
+    _scheduleChromeIdleHide();
   }
 
-  /// Fallback for a zikr short enough that it never scrolls, so the bar would
-  /// otherwise sit over the text for the entire visit. Longer than the old
-  /// counter FAB's 4s: the FAB was a rarely-needed extra, but this bar holds
-  /// Bookmark and Share, which a reader is more likely to want mid-thought,
-  /// and a shorter fallback would fight normal pauses in reading.
-  static const Duration _actionBarIdleDuration = Duration(seconds: 8);
-  Timer? _actionBarIdleTimer;
+  /// Fallback for a zikr short enough that it never scrolls, so the chrome
+  /// would otherwise sit over the text for the entire visit. Longer than the
+  /// old counter FAB's 4s: the FAB was a rarely-needed extra, but the action
+  /// bar holds Bookmark and Share, which a reader is more likely to want
+  /// mid-thought, and a shorter fallback would fight normal pauses in
+  /// reading.
+  static const Duration _chromeIdleDuration = Duration(seconds: 8);
+  Timer? _chromeIdleTimer;
 
-  void _scheduleActionBarIdleHide() {
-    _actionBarIdleTimer?.cancel();
-    _actionBarIdleTimer = Timer(_actionBarIdleDuration, () {
-      if (mounted && !_showAudioPlayer) _actionBarVisible.value = false;
+  void _scheduleChromeIdleHide() {
+    if (!_focusModeEnabled) return;
+    _chromeIdleTimer?.cancel();
+    _chromeIdleTimer = Timer(_chromeIdleDuration, () {
+      // Re-checked here, not just at scheduling time: the setting can change
+      // while this timer is already in flight.
+      if (mounted && !_showAudioPlayer && _focusModeEnabled) {
+        _setChromeVisible(false);
+      }
     });
+  }
+
+  /// Called when the reading settings change. Turning Focus mode off has to
+  /// pin the chrome back open immediately - the reader just asked for it,
+  /// and with no scroll or tap to follow, the pin would otherwise not take
+  /// effect until something happened to write the notifier.
+  void _applyFocusModePreference() {
+    if (_focusModeEnabled) {
+      _scheduleChromeIdleHide();
+    } else {
+      _chromeIdleTimer?.cancel();
+      _chromeVisible.value = true; // direct write: _setChromeVisible only
+      // ever filters out a hide, and true always needs to go through.
+    }
   }
 
   void _updateCounterOffset(Offset offset) {
@@ -1132,6 +1175,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void didPopNext() {
     _isCurrentRoute = true;
     syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
+    // Covers Focus mode being flipped from the global settings page while
+    // this route sat underneath it - refreshState only runs from this
+    // page's own drawer.
+    _applyFocusModePreference();
     _scheduleCurrentWebRouteSync(replace: true);
   }
 
@@ -1238,59 +1285,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ];
   }
 
-  PreferredSizeWidget? _buildReadingProgressBar(BuildContext context) {
-    if (!_readingStats.hasContent) return null;
-    if (SP.isInitialized && !(SP.prefs.getBool(showZikrProgressKey) ?? true)) {
-      return null;
-    }
-
-    final foreground = Theme.of(context).appBarTheme.foregroundColor ??
-        Theme.of(context).colorScheme.onSurface;
-    final readingTime = zikrReadingTimeLabel(_readingStats.duration);
-
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(29),
-      child: ValueListenableBuilder<double>(
-        valueListenable: _readingProgress,
-        builder: (context, progress, _) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            LinearProgressIndicator(
-              value: progress,
-              minHeight: 3,
-              backgroundColor: foreground.withValues(alpha: 0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(
-                foreground.withValues(alpha: 0.85),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 3, 16, 4),
-              child: DefaultTextStyle(
-                style: TextStyle(
-                  fontSize: 11,
-                  color: foreground.withValues(alpha: 0.85),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(readingTime),
-                    // Larger than the reading time beside it: this is the
-                    // number people glance down to check progress by, so it
-                    // carries the weight the row is there for.
-                    Text(
-                      zikrProgressLabel(progress),
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final merits = meritsController?.text.trim() ?? '';
@@ -1314,6 +1308,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // Editing replaces the reading view with a form, and the bar's actions all
     // act on the rendered zikr, so it has nothing to do there.
     final showActionBar = !isEditing && zikrData != null;
+    // Independent of showActionBar - a zikr with no estimable reading time
+    // (still loading, or edit mode, where _refreshReadingStats is fed no
+    // content at all) can lack one while the other still applies.
+    final showProgressBar = !isEditing && _readingStats.hasContent;
+    final readingTimeLabel = zikrReadingTimeLabel(_readingStats.duration);
 
     return SelectionArea(
       child: Scaffold(
@@ -1331,15 +1330,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             selectedTabIndex: selectedTabIndex,
             hasAnyContent: hasAnyContent,
           ),
-          bottom: _buildReadingProgressBar(context),
         ),
         endDrawer: ZikrSettingsPage(refreshState),
         body: Listener(
-          // Covers the whole reading area, not just the bar: after the idle
-          // timeout has hidden it, the reader should not have to hunt for
-          // exactly where to tap to get it back.
+          // Covers the whole reading area, not just either bar: after the
+          // idle timeout has hidden the chrome, the reader should not have to
+          // hunt for exactly where to tap to get it back.
           onPointerDown: (_) {
-            if (showActionBar) _revealActionBar();
+            if (showActionBar || showProgressBar) _revealChrome();
           },
           behavior: HitTestBehavior.translucent,
           child: NotificationListener<UserScrollNotification>(
@@ -1359,23 +1357,26 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                             : !hasAnyContent && !isEditing
                                 ? const Center(child: Text('Coming soon...'))
                                 : ValueListenableBuilder<bool>(
-                                    valueListenable: _actionBarVisible,
-                                    builder:
-                                        (context, actionBarVisible, content) {
-                                      // The bar floats over the reading area
+                                    valueListenable: _chromeVisible,
+                                    builder: (context, chromeVisible, content) {
+                                      // Both bars float over the reading area
                                       // rather than sitting in the column, so
-                                      // this - not the bar's own size - is
-                                      // what reserves room for it. Tied to
-                                      // the bar's own visibility rather than
-                                      // fixed, so the text reclaims that
-                                      // room the moment the bar slides away
-                                      // instead of leaving a standing gap
-                                      // sized for a bar that is off screen.
-                                      final barInset =
-                                          showActionBar && actionBarVisible
-                                              ? ZikrActionBar.barHeight
-                                              : 0.0;
-                                      return TweenAnimationBuilder<double>(
+                                      // this - not either bar's own size - is
+                                      // what reserves room for them. Tied to
+                                      // their shared visibility rather than
+                                      // fixed, so the text reclaims that room
+                                      // the moment they slide away instead of
+                                      // leaving a standing gap sized for
+                                      // chrome that is off screen.
+                                      final chromeInsets = EdgeInsets.only(
+                                        top: showProgressBar && chromeVisible
+                                            ? ZikrReadingProgressBar.barHeight
+                                            : 0.0,
+                                        bottom: showActionBar && chromeVisible
+                                            ? ZikrActionBar.barHeight
+                                            : 0.0,
+                                      );
+                                      return TweenAnimationBuilder<EdgeInsets>(
                                         // begin == end here always - only
                                         // `end` changing between builds is
                                         // what TweenAnimationBuilder acts on,
@@ -1384,20 +1385,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                         // first build, where it must equal
                                         // end so opening the page does not
                                         // play a spurious reveal animation.
-                                        tween: Tween<double>(
-                                          begin: barInset,
-                                          end: barInset,
+                                        tween: EdgeInsetsTween(
+                                          begin: chromeInsets,
+                                          end: chromeInsets,
                                         ),
                                         duration:
                                             const Duration(milliseconds: 220),
                                         curve: Curves.easeOutCubic,
-                                        builder: (context, inset, content) =>
+                                        builder: (context, insets, content) =>
                                             ResponsiveContent(
                                           maxWidth: isEditing
                                               ? wideContentWidth
                                               : readingContentWidth,
                                           padding: EdgeInsets.fromLTRB(
-                                              16, 16, 16, 16 + inset),
+                                            16,
+                                            16 + insets.top,
+                                            16,
+                                            16 + insets.bottom,
+                                          ),
                                           child: content!,
                                         ),
                                         child: content,
@@ -1439,6 +1444,41 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                       ),
                     ],
                   ),
+                  if (showProgressBar)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      // Stack only clips a child that overflows its *layout*;
+                      // AnimatedSlide is a paint-time translation, so without
+                      // this the strip would paint up into the app bar's
+                      // band instead of disappearing behind its edge.
+                      child: ClipRect(
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: _chromeVisible,
+                          builder: (context, visible, child) => AnimatedSlide(
+                            offset: visible ? Offset.zero : const Offset(0, -1),
+                            duration: const Duration(milliseconds: 220),
+                            curve: Curves.easeOutCubic,
+                            child: child,
+                          ),
+                          // Purely informational and sits over selectable
+                          // text - taps and drags must keep reaching the
+                          // reading column underneath.
+                          child: IgnorePointer(
+                            child: ValueListenableBuilder<double>(
+                              valueListenable: _readingProgress,
+                              builder: (context, progress, _) =>
+                                  ZikrReadingProgressBar(
+                                progress: progress,
+                                readingTimeLabel: readingTimeLabel,
+                                progressLabel: zikrProgressLabel(progress),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   // Counter overlay
                   ValueListenableBuilder<bool>(
                     valueListenable: _showCounter,
@@ -1509,7 +1549,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                       right: 0,
                       bottom: 0,
                       child: ValueListenableBuilder<bool>(
-                        valueListenable: _actionBarVisible,
+                        valueListenable: _chromeVisible,
                         builder: (context, visible, child) => AnimatedSlide(
                           // Slides out of frame rather than collapsing: the bar
                           // sits over the reading area, so its size never
@@ -1561,6 +1601,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   void refreshState() {
     syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
+    _applyFocusModePreference();
     setState(() {});
   }
 }

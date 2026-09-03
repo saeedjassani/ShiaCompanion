@@ -8,8 +8,64 @@ import '../services/preferences_sync_service.dart';
 import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
 
-/// Preference key controlling the reading progress bar on the zikr page.
-const String showZikrProgressKey = 'show_zikr_progress';
+/// Whether the reading chrome (progress strip + bottom action bar) auto-hides
+/// while reading. Replaces the old [legacyShowZikrProgressKey] switch, which
+/// controlled only the progress strip while the action bar auto-hid
+/// unconditionally — the two are now one behaviour, so read this through
+/// [zikrFocusModeEnabled] rather than the raw key, which does not know about
+/// the legacy fallback.
+const String zikrFocusModeKey = 'zikr_focus_mode';
+
+/// Focus mode is on for new installs and for anyone who has never touched
+/// either setting — see the reasoning in the commit that introduced this.
+const bool zikrFocusModeDefault = true;
+
+/// Superseded by [zikrFocusModeKey]. Kept only so [resolveZikrFocusMode] can
+/// translate whatever a returning user had it set to; never read directly
+/// elsewhere, and removed from storage by [migrateZikrFocusModePreference].
+const String legacyShowZikrProgressKey = 'show_zikr_progress';
+
+/// Pure translation from the old and new keys to one answer, so the
+/// migration logic is testable without SharedPreferences.
+///
+/// Someone who turned the old progress strip off wanted less permanent
+/// chrome over the text, so they land on Focus on. It is not a perfect
+/// translation — the strip now reappears on a scroll up rather than being
+/// gone for good — but it is the closer of the two available states.
+bool resolveZikrFocusMode({bool? focusMode, bool? legacyShowProgress}) {
+  if (focusMode != null) return focusMode;
+  if (legacyShowProgress == false) return true;
+  return zikrFocusModeDefault;
+}
+
+/// Live read of whether Focus mode is on. Safe to call before [SP.init] —
+/// the zikr page can be built from a deep link before preferences finish
+/// hydrating — in which case it simply reports the default.
+bool zikrFocusModeEnabled() {
+  if (!SP.isInitialized) return zikrFocusModeDefault;
+  return resolveZikrFocusMode(
+    focusMode: SP.prefs.getBool(zikrFocusModeKey),
+    legacyShowProgress: SP.prefs.getBool(legacyShowZikrProgressKey),
+  );
+}
+
+/// One-way, idempotent: folds [legacyShowZikrProgressKey] into
+/// [zikrFocusModeKey] and drops the old key. Deliberately safe to skip or run
+/// twice — [resolveZikrFocusMode] falls back to the legacy key on its own, so
+/// correctness never depends on this having run; it only makes the choice
+/// durable and lets the old key be retired. Call once, at startup.
+Future<void> migrateZikrFocusModePreference() async {
+  if (!SP.isInitialized) return;
+  if (!SP.prefs.containsKey(legacyShowZikrProgressKey)) return;
+
+  if (!SP.prefs.containsKey(zikrFocusModeKey)) {
+    await SP.prefs.setBool(
+      zikrFocusModeKey,
+      SP.prefs.getBool(legacyShowZikrProgressKey) == false,
+    );
+  }
+  await SP.prefs.remove(legacyShowZikrProgressKey);
+}
 
 class ZikrReadingPreferencesControls extends StatefulWidget {
   const ZikrReadingPreferencesControls({
@@ -102,13 +158,18 @@ class _ZikrReadingPreferencesControlsState
           title: const Text("Keep screen on while reciting Zikr"),
         ),
         SwitchListTile(
-          secondary: _leading(Icons.timelapse),
-          value: SP.prefs.getBool(showZikrProgressKey) ?? true,
+          secondary: _leading(Icons.center_focus_strong),
+          value: resolveZikrFocusMode(
+            focusMode: SP.prefs.getBool(zikrFocusModeKey),
+            legacyShowProgress: SP.prefs.getBool(legacyShowZikrProgressKey),
+          ),
           onChanged: (v) async {
-            await _saveBooleanPref(showZikrProgressKey, v);
+            await _saveBooleanPref(zikrFocusModeKey, v);
           },
-          title: const Text("Show Reading Progress"),
-          subtitle: const Text("Progress bar and estimated reading time."),
+          title: const Text("Focus mode"),
+          subtitle:
+              const Text("Hide the progress bar and action bar while reading. "
+                  "Scroll up or tap to bring them back."),
         ),
         SwitchListTile(
           secondary: _leading(Icons.ios_share),

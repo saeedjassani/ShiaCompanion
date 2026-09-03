@@ -128,6 +128,59 @@ void main() {
     expect(SP.prefs.getString('arabic_font'), FontPreferences.defaultFont);
   });
 
+  testWidgets('the old Show Reading Progress row is gone', (tester) async {
+    await _initPrefs(<String, Object>{});
+    await _pumpPreferences(tester);
+
+    expect(find.text('Show Reading Progress'), findsNothing);
+    expect(find.text('Focus mode'), findsOneWidget);
+  });
+
+  testWidgets('Focus mode defaults on with no prefs set at all',
+      (tester) async {
+    await _initPrefs(<String, Object>{});
+    await _pumpPreferences(tester);
+
+    expect(
+      tester
+          .widget<SwitchListTile>(find.ancestor(
+            of: find.text('Focus mode'),
+            matching: find.byType(SwitchListTile),
+          ))
+          .value,
+      isTrue,
+    );
+  });
+
+  testWidgets('Focus mode toggles and persists zikr_focus_mode',
+      (tester) async {
+    await _initPrefs(<String, Object>{});
+    await _pumpPreferences(tester);
+
+    await _tapPreference(tester, 'Focus mode');
+    expect(SP.prefs.getBool(zikrFocusModeKey), isFalse);
+
+    await _tapPreference(tester, 'Focus mode');
+    expect(SP.prefs.getBool(zikrFocusModeKey), isTrue);
+  });
+
+  testWidgets(
+      'a seeded show_zikr_progress: false renders Focus mode on, before '
+      'the migration has run', (tester) async {
+    await _initPrefs(<String, Object>{legacyShowZikrProgressKey: false});
+    await _pumpPreferences(tester);
+
+    expect(
+      tester
+          .widget<SwitchListTile>(find.ancestor(
+            of: find.text('Focus mode'),
+            matching: find.byType(SwitchListTile),
+          ))
+          .value,
+      isTrue,
+    );
+  });
+
   testWidgets('translation flags hide and show reader content', (tester) async {
     await _initPrefs(<String, Object>{});
     const content = 'Transliteration line\nاللهم صل\nTranslation line';

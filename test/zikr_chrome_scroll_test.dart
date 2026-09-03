@@ -4,27 +4,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 
 void main() {
-  group('resolveActionBarVisibilityForScroll', () {
-    test('scrolling down (reverse) hides the bar', () {
+  group('resolveChromeVisibilityForScroll', () {
+    test('scrolling down (reverse) hides the chrome', () {
       expect(
-        resolveActionBarVisibilityForScroll(
+        resolveChromeVisibilityForScroll(
             Axis.vertical, ScrollDirection.reverse),
         isFalse,
       );
     });
 
-    test('scrolling up (forward) shows the bar', () {
+    test('scrolling up (forward) shows the chrome', () {
       expect(
-        resolveActionBarVisibilityForScroll(
+        resolveChromeVisibilityForScroll(
             Axis.vertical, ScrollDirection.forward),
         isTrue,
       );
     });
 
-    test('an idle vertical notification leaves the bar alone', () {
+    test('an idle vertical notification leaves the chrome alone', () {
       expect(
-        resolveActionBarVisibilityForScroll(
-            Axis.vertical, ScrollDirection.idle),
+        resolveChromeVisibilityForScroll(Axis.vertical, ScrollDirection.idle),
         isNull,
       );
     });
@@ -39,9 +38,9 @@ void main() {
       // it, so every real read was silently filtered out.
       for (final direction in ScrollDirection.values) {
         expect(
-          resolveActionBarVisibilityForScroll(Axis.horizontal, direction),
+          resolveChromeVisibilityForScroll(Axis.horizontal, direction),
           isNull,
-          reason: 'horizontal $direction should not move the bar',
+          reason: 'horizontal $direction should not move the chrome',
         );
       }
     });
