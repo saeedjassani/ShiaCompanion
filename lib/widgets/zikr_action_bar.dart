@@ -6,9 +6,10 @@ import 'responsive_content.dart';
 /// The docked bar along the bottom of a zikr.
 ///
 /// It holds the actions that apply to the whole zikr — bookmark, share,
-/// listen, counter — as labelled targets in the thumb zone. Bookmark in
-/// particular was previously an unlabelled ribbon icon sharing a crowded app
-/// bar, which is a poor affordance for the app's single most useful action.
+/// listen, reading settings, counter — as labelled targets in the thumb
+/// zone. Bookmark in particular was previously an unlabelled ribbon icon
+/// sharing a crowded app bar, which is a poor affordance for the app's
+/// single most useful action.
 ///
 /// When a recitation is playing the same bar hosts the player instead of the
 /// action row. Both are [barHeight] tall, so swapping between them never
@@ -30,6 +31,7 @@ class ZikrActionBar extends StatelessWidget {
   final VoidCallback onBookmark;
   final VoidCallback onShare;
   final VoidCallback onListen;
+  final VoidCallback onSettings;
   final VoidCallback onCounter;
 
   const ZikrActionBar({
@@ -43,6 +45,7 @@ class ZikrActionBar extends StatelessWidget {
     required this.onBookmark,
     required this.onShare,
     required this.onListen,
+    required this.onSettings,
     required this.onCounter,
   }) : super(key: key);
 
@@ -104,6 +107,13 @@ class ZikrActionBar extends StatelessWidget {
           ),
         Expanded(
           child: _ZikrAction(
+            icon: Icons.tune,
+            label: 'Settings',
+            onTap: onSettings,
+          ),
+        ),
+        Expanded(
+          child: _ZikrAction(
             icon: tasbeehCounterIcon,
             label: 'Counter',
             isActive: isCounterVisible,
@@ -115,7 +125,12 @@ class ZikrActionBar extends StatelessWidget {
   }
 }
 
-class _ZikrAction extends StatelessWidget {
+/// One action in the bar. Toggle-style actions (bookmark, counter) render
+/// their active state as a filled pill behind the icon rather than just a
+/// tint — a reader glancing down should see at once whether the zikr is
+/// bookmarked, not have to notice a subtler color/weight change on text
+/// that scrolled away with the rest of the bar a moment ago.
+class _ZikrAction extends StatefulWidget {
   final IconData icon;
   final String label;
   final bool isActive;
@@ -129,33 +144,94 @@ class _ZikrAction extends StatelessWidget {
   });
 
   @override
+  State<_ZikrAction> createState() => _ZikrActionState();
+}
+
+class _ZikrActionState extends State<_ZikrAction>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _popController;
+  late final Animation<double> _popScale;
+
+  @override
+  void initState() {
+    super.initState();
+    _popController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 380),
+    );
+    _popScale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.35), weight: 35),
+      TweenSequenceItem(tween: Tween(begin: 1.35, end: 1.0), weight: 65),
+    ]).animate(CurvedAnimation(parent: _popController, curve: Curves.easeOut));
+  }
+
+  @override
+  void didUpdateWidget(covariant _ZikrAction oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Bookmarking is worth a little celebration; un-bookmarking is not - a
+    // bounce on the way out would read as an error shake rather than an undo.
+    if (widget.isActive && !oldWidget.isActive) {
+      _popController.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _popController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isEnabled = onTap != null;
+    final isEnabled = widget.onTap != null;
 
-    final color = !isEnabled
+    final iconColor = !isEnabled
         ? colorScheme.onSurfaceVariant.withValues(alpha: 0.38)
-        : isActive
+        : widget.isActive
+            ? colorScheme.onPrimaryContainer
+            : colorScheme.onSurfaceVariant;
+    final labelColor = !isEnabled
+        ? colorScheme.onSurfaceVariant.withValues(alpha: 0.38)
+        : widget.isActive
             ? colorScheme.primary
             : colorScheme.onSurfaceVariant;
 
     return InkWell(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // The pill's own padding already pushes the icon outward, so this
+        // outer padding is tighter than a plain icon+label would need - at
+        // 320px wide (5 actions, the real squeeze case) the two together
+        // were 1px from overflowing the bar's fixed height.
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 22, color: color),
+            ScaleTransition(
+              scale: _popScale,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                decoration: BoxDecoration(
+                  color: widget.isActive
+                      ? colorScheme.primaryContainer
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(widget.icon, size: 22, color: iconColor),
+              ),
+            ),
             const SizedBox(height: 3),
             Text(
-              label,
+              widget.label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: color,
-                    fontWeight: isActive ? FontWeight.w600 : null,
+                    color: labelColor,
+                    fontWeight: widget.isActive ? FontWeight.w600 : null,
                   ),
             ),
           ],

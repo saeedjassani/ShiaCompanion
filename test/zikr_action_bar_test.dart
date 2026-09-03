@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/widgets/zikr_action_bar.dart';
 
-/// Narrow enough to be the real squeeze case: four icon-and-label targets on
+/// Narrow enough to be the real squeeze case: five icon-and-label targets on
 /// a small phone is where the bar would overflow if it were going to.
 const Size _smallPhone = Size(320, 640);
 
@@ -28,6 +28,7 @@ ZikrActionBar _bar({
   bool isCounterVisible = false,
   VoidCallback? onBookmark,
   VoidCallback? onListen,
+  VoidCallback? onSettings,
 }) {
   return ZikrActionBar(
     player: player,
@@ -39,8 +40,43 @@ ZikrActionBar _bar({
     onBookmark: onBookmark ?? () {},
     onShare: () {},
     onListen: onListen ?? () {},
+    onSettings: onSettings ?? () {},
     onCounter: () {},
   );
+}
+
+/// The active-state pill's fill color; [Colors.transparent] when inactive.
+/// Scoped to the action's own InkWell rather than a Column - the bar itself
+/// is one too, so a Column-based search would match twice.
+Color? _pillColor(WidgetTester t, String label) {
+  final container = t.widget<AnimatedContainer>(
+    find.descendant(
+      of: find.ancestor(
+        of: find.text(label),
+        matching: find.byType(InkWell),
+      ),
+      matching: find.byType(AnimatedContainer),
+    ),
+  );
+  return (container.decoration as BoxDecoration?)?.color;
+}
+
+/// The pop animation's current scale for the action labelled [label]. Scoped
+/// the same way as [_pillColor]: every action has its own ScaleTransition, so
+/// an unscoped [find.byType] would match all five.
+double _popScale(WidgetTester t, String label) {
+  return t
+      .widget<ScaleTransition>(
+        find.descendant(
+          of: find.ancestor(
+            of: find.text(label),
+            matching: find.byType(InkWell),
+          ),
+          matching: find.byType(ScaleTransition),
+        ),
+      )
+      .scale
+      .value;
 }
 
 void main() {
@@ -54,6 +90,7 @@ void main() {
       expect(find.text('Bookmark'), findsOneWidget);
       expect(find.text('Share'), findsOneWidget);
       expect(find.text('Listen'), findsOneWidget);
+      expect(find.text('Settings'), findsOneWidget);
       expect(find.text('Counter'), findsOneWidget);
       // A RenderFlex overflow is reported as a thrown exception, so this is
       // what catches the bar being too cramped for icon-plus-label.
@@ -79,6 +116,38 @@ void main() {
       expect(find.byIcon(Icons.bookmark), findsOneWidget);
     });
 
+    testWidgets('a bookmarked action shows a filled pill, not just tinted text',
+        (t) async {
+      await t.pumpWidget(_host(_bar(isBookmarked: false)));
+      expect(_pillColor(t, 'Bookmark'), Colors.transparent);
+
+      await t.pumpWidget(_host(_bar(isBookmarked: true)));
+      await t.pump(); // let the AnimatedContainer's color tween start
+      await t.pump(const Duration(milliseconds: 250)); // and finish
+
+      final color = _pillColor(t, 'Saved');
+      expect(color, isNotNull);
+      expect(color, isNot(Colors.transparent));
+    });
+
+    testWidgets('saving a bookmark pops the icon; removing one does not',
+        (t) async {
+      Future<void> pump(bool isBookmarked) =>
+          t.pumpWidget(_host(_bar(isBookmarked: isBookmarked)));
+
+      await pump(false);
+      await pump(true);
+      await t.pump(const Duration(milliseconds: 90)); // mid pop
+      expect(_popScale(t, 'Saved'), greaterThan(1.0));
+      await t.pumpAndSettle();
+
+      await pump(false);
+      await t.pump(const Duration(milliseconds: 90));
+      // Un-bookmarking is not celebrated - a bounce on the way out would
+      // read as an error shake rather than a plain undo.
+      expect(_popScale(t, 'Bookmark'), 1.0);
+    });
+
     testWidgets('a zikr with no content cannot be bookmarked', (t) async {
       var taps = 0;
       await t.pumpWidget(_host(_bar(
@@ -97,6 +166,16 @@ void main() {
       await t.pumpWidget(_host(_bar(onListen: () => taps++)));
 
       await t.tap(find.text('Listen'));
+      await t.pump();
+
+      expect(taps, 1);
+    });
+
+    testWidgets('tapping Settings calls through', (t) async {
+      var taps = 0;
+      await t.pumpWidget(_host(_bar(onSettings: () => taps++)));
+
+      await t.tap(find.text('Settings'));
       await t.pump();
 
       expect(taps, 1);
