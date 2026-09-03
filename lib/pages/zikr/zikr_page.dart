@@ -1326,6 +1326,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         key: _scaffoldKey,
         appBar: AppBar(
           title: _buildAppBarTitle(pageTitle),
+          // Reading settings opens this same endDrawer from the bottom bar
+          // now. Without this, AppBar auto-fills an empty actions list (the
+          // common case, for any non-admin reader) with its own end-drawer
+          // button - "Open navigation menu" - duplicating that entry point.
+          automaticallyImplyActions: false,
           actions: _buildAppBarActions(
             pageTitle: pageTitle,
             tabContents: tabContents,
@@ -1359,23 +1364,51 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                               )
                             : !hasAnyContent && !isEditing
                                 ? const Center(child: Text('Coming soon...'))
-                                : ResponsiveContent(
-                                    maxWidth: isEditing
-                                        ? wideContentWidth
-                                        : readingContentWidth,
-                                    // The bar floats over the reading area
-                                    // rather than sitting in the column, so
-                                    // sliding it away never resizes the scroll
-                                    // view. This reserves room for it so the
-                                    // last line can still be scrolled clear.
-                                    padding: EdgeInsets.fromLTRB(
-                                      16,
-                                      16,
-                                      16,
-                                      showActionBar
-                                          ? 16 + ZikrActionBar.barHeight
-                                          : 16,
-                                    ),
+                                : ValueListenableBuilder<bool>(
+                                    valueListenable: _actionBarVisible,
+                                    builder:
+                                        (context, actionBarVisible, content) {
+                                      // The bar floats over the reading area
+                                      // rather than sitting in the column, so
+                                      // this - not the bar's own size - is
+                                      // what reserves room for it. Tied to
+                                      // the bar's own visibility rather than
+                                      // fixed, so the text reclaims that
+                                      // room the moment the bar slides away
+                                      // instead of leaving a standing gap
+                                      // sized for a bar that is off screen.
+                                      final barInset =
+                                          showActionBar && actionBarVisible
+                                              ? ZikrActionBar.barHeight
+                                              : 0.0;
+                                      return TweenAnimationBuilder<double>(
+                                        // begin == end here always - only
+                                        // `end` changing between builds is
+                                        // what TweenAnimationBuilder acts on,
+                                        // animating from wherever it already
+                                        // is. begin only matters on the very
+                                        // first build, where it must equal
+                                        // end so opening the page does not
+                                        // play a spurious reveal animation.
+                                        tween: Tween<double>(
+                                          begin: barInset,
+                                          end: barInset,
+                                        ),
+                                        duration:
+                                            const Duration(milliseconds: 220),
+                                        curve: Curves.easeOutCubic,
+                                        builder: (context, inset, content) =>
+                                            ResponsiveContent(
+                                          maxWidth: isEditing
+                                              ? wideContentWidth
+                                              : readingContentWidth,
+                                          padding: EdgeInsets.fromLTRB(
+                                              16, 16, 16, 16 + inset),
+                                          child: content!,
+                                        ),
+                                        child: content,
+                                      );
+                                    },
                                     child: isEditing
                                         ? ZikrEditFormWidget(
                                             titleController: titleController!,

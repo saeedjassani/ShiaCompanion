@@ -70,6 +70,10 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
       if (mounted) setState(() {});
     });
     _loadFuture = _load();
+    // Tapping the headphones icon in the action bar is what mounts this
+    // widget at all, so that tap should start the recitation, not just open
+    // a paused player that needs a second tap.
+    unawaited(_togglePlay());
   }
 
   @override
@@ -153,12 +157,16 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
 
   Future<void> _selectTrack(int index) async {
     if (index == _trackIndex) return;
+    final wasPlaying = _player?.playing ?? false;
     setState(() {
       _trackIndex = index;
       _dragValue = null;
     });
     await _player?.stop();
     await (_loadFuture = _load());
+    // Switching tracks mid-recitation should carry the "playing" state
+    // across, the same as choosing a track was never a pause action.
+    if (wasPlaying) unawaited(_togglePlay());
   }
 
   Future<void> _showTrackPicker() async {
