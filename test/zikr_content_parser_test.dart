@@ -4,68 +4,76 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_parser.dart';
+import 'package:shia_companion/utils/font_preferences.dart';
 
 void main() {
   tearDown(() {
     arabicFont = 'Qalam';
   });
 
-  test('formatArabicText leaves Qalam text untouched', () {
-    arabicFont = 'Qalam';
-    expect(ZikrContentParser.formatArabicText('وَ اَنَا وَ لِىٌّ لَهٗ'),
-        'وَ اَنَا وَ لِىٌّ لَهٗ');
+  test('formatArabicText leaves Indo-Pak letterforms and marks intact', () {
+    // The substitution table that used to rewrite these existed only because
+    // MeQuran and Uthmani could not draw them. Both fonts are gone; Qalam and
+    // Scheherazade both draw every one, so the text renders as authored.
+    const line = 'اَللّٰھُمَّ یَا سَبَبَ لَهٗ بِهٖ الْڪِتٰبُ اللہ';
+    for (final font in FontPreferences.validFonts) {
+      arabicFont = font;
+      expect(ZikrContentParser.formatArabicText(line), line,
+          reason: '$font must not rewrite Indo-Pak letterforms');
+    }
   });
 
-  test('formatArabicText flattens ulta pesh / khaṛi zer for non-Qalam fonts',
+  test('formatArabicText normalises private-use marks and spaces', () {
+    // Qalam maps U+E003/U+E004 and U+0656/U+0657 to the same glyphs, so this
+    // is invisible in Qalam and is what lets other fonts draw the marks.
+    for (final font in FontPreferences.validFonts) {
+      arabicFont = font;
+      expect(ZikrContentParser.formatArabicText('لَه بِه'),
+          'لَهٗ بِهٖ');
+      expect(ZikrContentParser.formatArabicText('وَالْحِجَارَةُ ۖ'),
+          'وَالْحِجَارَةُ ۖ');
+    }
+  });
+
+  test('formatArabicText draws the ayah medallion for fonts that compose it',
       () {
-    // Uthmani has U+0657 in its cmap but draws it as a slanted stroke that
-    // reads as a fatha, so leaving it through turns "lahu" into "laha".
-    // The marks stay intact in the stored text; only rendering flattens them.
-    arabicFont = 'Uthmani';
-    expect(ZikrContentParser.formatArabicText('لَهٗ'), 'لَهُ');
-    expect(ZikrContentParser.formatArabicText('اٰيَاتِهٖ'), 'اٰيَاتِهِ');
-    arabicFont = 'MeQuran';
-    expect(ZikrContentParser.formatArabicText('بِهٖ وَ'), 'بِهِ وَ');
+    arabicFont = 'Scheherazade';
+    expect(ZikrContentParser.formatArabicText('الرَّحِيْمِ (3)'),
+        'الرَّحِيْمِ ۝٣');
+    expect(ZikrContentParser.formatArabicText('اٰيَةُ الْكُرْسِىِّ (255)'),
+        'اٰيَةُ الْكُرْسِىِّ ۝٢٥٥');
+  });
+
+  test('formatArabicText leaves ayah numbers alone for Qalam', () {
+    // Qalam draws its own medallion from the ASCII parentheses, and renders
+    // U+06DD as an empty ornament that swallows the digits.
     arabicFont = 'Qalam';
-    expect(ZikrContentParser.formatArabicText('لَهٗ'), 'لَهٗ');
+    expect(ZikrContentParser.formatArabicText('الرَّحِيْمِ (3)'),
+        'الرَّحِيْمِ (3)');
   });
 
-  test('formatArabicText maps Indo-Pak letterforms to standard Arabic', () {
-    arabicFont = 'MeQuran';
-    expect(ZikrContentParser.formatArabicText('اَللّٰھُمَّ یَا سَبَبَ'),
-        'اَللّٰهُمَّ يَا سَبَبَ');
-    // Urdu spelling of "Allah" (ہ, not ه) must still be caught.
-    expect(ZikrContentParser.formatArabicText('اللہ'), 'اللّٰه');
+  test('formatArabicText leaves list numbering that leads a line', () {
+    // Eight lines across the corpus open with "(1)" as ordinary numbering
+    // rather than closing with a verse number.
+    arabicFont = 'Scheherazade';
+    const line = '(1) اَشْهَدُ اَنْ لَاۤ اِلٰهَ اِلَّا اللّٰهُ';
+    expect(ZikrContentParser.formatArabicText(line), line);
   });
 
-  test('formatArabicText expands the single-codepoint Allah ligature', () {
-    arabicFont = 'Uthmani';
-    // The ligature carries its own alif: the result must not double it.
-    expect(ZikrContentParser.formatArabicText('صَلَّی اﷲُ عَلٰی'),
-        'صَلَّي اللّٰهُ عَلٰي');
-    expect(ZikrContentParser.formatArabicText('اَﷲُ'), 'اَللّٰهُ');
-  });
-
-  test(
-      'formatArabicText leaves no glyph-less character in any bundled zikr',
+  test('formatArabicText leaves no glyph-less character in any bundled zikr',
       () {
-    // Characters each font's file has no glyph for, so they would be drawn
-    // from a system fallback instead of the selected font. Verified against
-    // the real cmaps by scripts/zikr_arabic/audit.py (INV-2); this test is
-    // the cheap guard that runs on every change.
-    //
-    // ٗ (ulta pesh) and ٖ (khaṛi zer) are deliberately absent from both lists:
-    // they're correct, distinct Indo-Pak marks, not something to flatten
-    // away, and all three fonts carry them.
-    const perFont = {
-      'Uthmani': ['ی', 'ہ', 'ھ', 'ک', 'ۃ', 'ﷲ'],
-      'MeQuran': ['ی', 'ہ', 'ھ', 'ک', 'ۃ', 'ﷲ', 'ؕ', 'ٮ'],
-    };
+    // Characters the shipped fonts have no glyph for, so they would be drawn
+    // from a system fallback instead. Scheherazade covers every Indo-Pak
+    // letterform, which is why this list is now only the private-use pause
+    // signs — and those are deliberately left in place for the Qalam
+    // fontFamilyFallback in the reader to resolve, because no font other
+    // than Qalam has them and no Unicode codepoint exists to move them to.
+    const alwaysAbsent = [' ', ' ', '', ''];
     final dir = Directory('assets/zikr');
     final offenders = <String>[];
 
-    for (final entry in perFont.entries) {
-      arabicFont = entry.key;
+    for (final font in FontPreferences.validFonts) {
+      arabicFont = font;
       for (final file in dir.listSync().whereType<File>()) {
         final decoded = json.decode(file.readAsStringSync());
         if (decoded is! Map) continue;
@@ -77,13 +85,11 @@ void main() {
         ];
         for (final source in sources) {
           final formatted = ZikrContentParser.formatArabicText(source);
-          for (final ch in entry.value) {
+          for (final ch in alwaysAbsent) {
             if (formatted.contains(ch)) {
-              offenders.add('${entry.key} ${file.path}: still contains $ch');
+              offenders.add('$font ${file.path}: still contains '
+                  'U+${ch.codeUnitAt(0).toRadixString(16).toUpperCase()}');
             }
-          }
-          if (formatted.contains('الله')) {
-            offenders.add('${entry.key} ${file.path}: "الله" unconverted');
           }
         }
       }

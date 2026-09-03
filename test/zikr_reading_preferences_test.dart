@@ -112,11 +112,11 @@ void main() {
     expect(SP.prefs.getDouble('eng_font_size'), 22);
 
     await _tapPreference(tester, 'Arabic Font');
-    await tester.tap(find.text('Uthmani').last);
+    await tester.tap(find.text('Scheherazade').last);
     await tester.pumpAndSettle();
 
-    expect(arabicFont, 'Uthmani');
-    expect(await FontPreferences.getSelectedFont(), 'Uthmani');
+    expect(arabicFont, 'Scheherazade');
+    expect(await FontPreferences.getSelectedFont(), 'Scheherazade');
   });
 
   testWidgets('invalid saved Arabic font falls back to default',
@@ -126,6 +126,19 @@ void main() {
     expect(
         await FontPreferences.getSelectedFont(), FontPreferences.defaultFont);
     expect(SP.prefs.getString('arabic_font'), FontPreferences.defaultFont);
+  });
+
+  testWidgets('retired fonts migrate to Scheherazade, not back to Qalam',
+      (tester) async {
+    // Someone on MeQuran or Uthmani had already declined the default, so
+    // dropping those fonts must not silently hand them Qalam.
+    for (final retired in <String>['MeQuran', 'Uthmani']) {
+      await _initPrefs(<String, Object>{'arabic_font': retired});
+
+      expect(await FontPreferences.getSelectedFont(), 'Scheherazade',
+          reason: '$retired should migrate to its replacement');
+      expect(SP.prefs.getString('arabic_font'), 'Scheherazade');
+    }
   });
 
   testWidgets('the old Show Reading Progress row is gone', (tester) async {

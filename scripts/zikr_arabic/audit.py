@@ -54,7 +54,7 @@ def main(uids=None):
         print('   ok')
 
     print('\nINV-2  codepoints with no glyph in the font that renders them')
-    for font in ('Qalam', 'Uthmani', 'MeQuran'):
+    for font in cmaps:
         miss = per_font[font]
         if miss:
             fail = True

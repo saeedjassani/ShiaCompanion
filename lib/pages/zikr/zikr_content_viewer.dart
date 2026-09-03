@@ -357,6 +357,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     // Create text styles with current settings each time this is called
     final arabicStyle = TextStyle(
       fontFamily: arabicFont,
+      // Six Indo-Pak pause signs — ص, ق, قف, وقفة, ك and the rukūʿ ع — have
+      // no Unicode codepoint at all, so Al Qalam encodes them privately and
+      // no other font can carry them. They are 1,361 marks, 0.1% of the
+      // corpus. Falling back to Qalam draws the correct sign for each one;
+      // substituting a plain letter per mark would risk printing the wrong
+      // pause, which is a worse failure than a face change on a lone glyph.
+      // A no-op when Qalam is the selected font.
+      fontFamilyFallback: const ['Qalam'],
       fontSize: arabicFontSize,
       letterSpacing: 0,
     );

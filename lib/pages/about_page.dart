@@ -89,6 +89,20 @@ class _AboutPageState extends State<AboutPage> {
                         launchExternalUri(Uri.parse('https://www.duas.org')),
                     child: const Text('duas.org'),
                   ),
+                  const SizedBox(height: 12),
+                  // Scheherazade New ships under the SIL Open Font License,
+                  // which asks that the font be acknowledged where it is used.
+                  const Text(
+                    'Arabic is set in Scheherazade New by SIL Global, used '
+                    'under the SIL Open Font License.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => launchExternalUri(
+                        Uri.parse('https://software.sil.org/scheherazade/')),
+                    child: const Text('software.sil.org/scheherazade'),
+                  ),
                 ],
               ),
             ),

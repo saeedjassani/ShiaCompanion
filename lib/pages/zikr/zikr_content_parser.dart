@@ -115,67 +115,63 @@ class ZikrContentParser {
     return englishCodes;
   }
 
-  // Maps the Indo-Pak/Qalam-style letterforms the Arabic text is authored in
-  // to standard modern Arabic, for fonts other than Qalam that lack them.
-  // Each entry replaces a single character in place, so it applies regardless
-  // of what follows (line end, punctuation, another mark).
-  //
-  // Mirrors `font_runtime` in scripts/zikr_arabic/rules.json — keep the two in
-  // step; scripts/zikr_arabic/audit.py checks the result against each font's
-  // real cmap, so drift here shows up as an INV-2 failure.
-  //
-  // الٹا پیش / ulta pesh (ٗ) and کھڑی زیر / khaṛi zer (ٖ) ARE flattened here,
-  // to a plain damma/kasra. This is a rendering decision, not a claim about
-  // the text: both marks are correct and distinct in the stored Indo-Pak
-  // text, and normalization must never strip them at the source. But the
-  // codepoint being present in a font's cmap does not mean the font draws it
-  // properly — Uthmani renders ulta pesh as a slanted stroke indistinguishable
-  // from a fatha, so "عِلْمَهٗ" would read as "عِلْمَهَ", and MeQuran collides
-  // the mark with the letter. A plain damma is the correct reading and both
-  // fonts draw it cleanly.
-  static const Map<String, String> _indoPakLetters = {
-    'ی': 'ي', // Farsi/Urdu yeh -> Arabic yeh
-    'ہ': 'ه', // Urdu heh goal -> Arabic heh
-    'ھ': 'ه', // Urdu doachashmi heh -> Arabic heh
-    'ک': 'ك', // Urdu keheh -> Arabic kaf
-    'ۃ': 'ة', // Urdu teh marbuta goal -> Arabic teh marbuta
-    'ٗ': 'ُ', // ulta pesh -> damma (Uthmani draws ٗ like a fatha)
-    'ٖ': 'ِ', // khaṛi zer -> kasra, for the same reason
+  // Al Qalam encodes the ṣilah al-hā' marks at private-use codepoints whose
+  // glyphs are named for the real ones (U+E003 -> uni0656, U+E004 -> uni0657).
+  // Qalam maps the real codepoints to the very same glyphs, so writing them
+  // out costs Qalam nothing and lets every other font draw the marks too.
+  static const Map<String, String> _privateUseMarks = {
+    '\uE003': '\u0656', // khaṛi zer / کھڑی زیر
+    '\uE004': '\u0657', // ulta pesh / الٹا پیش
   };
 
-  // MeQuran's font file carries none of the Indo-Pak letterforms above, and
-  // also nothing for these two, which Qalam and Uthmani both have. Without
-  // them the glyphs come from a system fallback font instead of the selected
-  // one, so a line renders in two different faces at once.
-  static const Map<String, String> _meQuranOnly = {
-    'ؕ': '', // small high tah, the Indo-Pak waqf mark (3.4k in the corpus)
-    'ٮ': 'ى', // dotless beh used as the dagger-alef carrier in mushaf rasm
+  // Typographic spaces that no font bundled here has ever had a glyph for,
+  // Qalam included — 619 of them across the corpus, every one a box.
+  static const Map<String, String> _spaces = {
+    '\u2002': ' ', // en space
+    '\u2003': ' ', // em space
   };
 
-  static Map<String, String> _substitutionsFor(String font) => {
-        ..._indoPakLetters,
-        if (font == 'MeQuran') ..._meQuranOnly,
-      };
+  /// Fonts that draw the ayah medallion by enclosing the Arabic-Indic digits
+  /// that follow [_endOfAyah].
+  ///
+  /// Qalam is deliberately absent. It draws its medallion from the ASCII
+  /// parentheses the corpus is authored with, and renders U+06DD as an empty
+  /// ornament with the digits swallowed — so for Qalam the text is left alone.
+  static const Set<String> _endOfAyahFonts = {'Scheherazade'};
 
+  static const String _endOfAyah = '\u06DD';
+  static const String _arabicIndicDigits = '٠١٢٣٤٥٦٧٨٩';
+
+  // Verse numbers close a line: 6,187 of them across the corpus sit at the
+  // end, 8 lead a line as ordinary list numbering, and none fall in between.
+  // Anchoring to the line end converts the verse numbers and leaves the
+  // list numbering alone.
+  static final RegExp _trailingAyahNumber = RegExp(r'\((\d+)\)\s*$');
+
+  static String _toArabicIndic(String digits) =>
+      digits.split('').map((d) => _arabicIndicDigits[int.parse(d)]).join();
+
+  /// Prepares one Arabic line for display in [arabicFont].
+  ///
+  /// This used to carry a substitution table that rewrote Indo-Pak letterforms
+  /// into standard Arabic, because neither non-Qalam font could draw them, and
+  /// that table flattened ulta pesh and khaṛi zer to a plain damma and kasra
+  /// purely because Uthmani drew ٗ as a fatha. Both fonts have been retired.
+  /// Scheherazade New draws every one of those letterforms and both marks, so
+  /// the text now renders as it was authored in every font the app ships.
   static String formatArabicText(String str) {
-    if (arabicFont == 'Qalam') {
-      return str;
-    }
     var result = str;
-    _substitutionsFor(arabicFont).forEach((from, to) {
-      result = result.replaceAll(from, to);
-    });
-    return result
-        // Must run after the ہ/ھ -> ه mapping above so "اللہ" (Urdu
-        // spelling) is also caught, not just "الله".
-        .replaceAll('الله', 'اللّٰه')
-        // Single-codepoint "Allah" ligature; Uthmani's font file has no
-        // glyph for it. The ligature already carries the initial alif, so the
-        // alif-prefixed spellings must be matched first — replacing the bare
-        // ligature inside "اﷲ" yields a doubled alif ("االلّٰه").
-        .replaceAll('اَﷲ', 'اَللّٰه')
-        .replaceAll('اﷲ', 'اللّٰه')
-        .replaceAll('ﷲ', 'اللّٰه')
-        .replaceAll('اۤ', 'ا');
+    _spaces.forEach((from, to) => result = result.replaceAll(from, to));
+    _privateUseMarks
+        .forEach((from, to) => result = result.replaceAll(from, to));
+
+    if (_endOfAyahFonts.contains(arabicFont)) {
+      result = result.replaceFirstMapped(
+        _trailingAyahNumber,
+        (match) => '$_endOfAyah${_toArabicIndic(match.group(1)!)}',
+      );
+    }
+
+    return result;
   }
 }

@@ -99,6 +99,9 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
       style = TextStyle(
         color: colors.primaryText,
         fontFamily: arabicFont,
+        // Matches the reader: the privately-encoded Indo-Pak pause signs are
+        // drawn from Qalam, which is the only font that has them.
+        fontFamilyFallback: const ['Qalam'],
         fontSize: 46,
         height: 1.38,
         letterSpacing: 0,

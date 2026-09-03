@@ -1,17 +1,26 @@
 {
-  "_doc": "Canonical Arabic orthography rules for the ShiaCompanion zikr corpus. Source of truth for scripts/zikr_arabic/*.py and for the per-font map mirrored in lib/pages/zikr/zikr_content_parser.dart. See .claude/skills/zikr-arabic/SKILL.md.",
-
+  "_doc": "Canonical Arabic orthography rules for the ShiaCompanion zikr corpus. Source of truth for scripts/zikr_arabic/*.py and for the render-time map mirrored in lib/pages/zikr/zikr_content_parser.dart. See .claude/skills/zikr-arabic/SKILL.md.",
   "source_normalization": {
     "_doc": "Applied to the stored text in Firestore. After this pass no codepoint outside `canonical_inventory` may appear in the corpus.",
-
     "sequence": {
       "_doc": "Multi-char, applied first. Hamza-on-alef -> Indo-Pak bare alef carrying the same vowel.",
-      "أَ": "اَ", "أُ": "اُ", "أِ": "اِ", "أْ": "اْ", "أً": "اً", "أٌ": "اٌ", "أٍ": "اٍ",
-      "إِ": "اِ", "إْ": "اْ", "إَ": "اَ", "إٍ": "اٍ",
-      "َٰ": "ٰ", "َٰ": "ٰ",
-      "اَﷲ": "اَللّٰه", "اﷲ": "اللّٰه", "ﷲ": "اللّٰه"
+      "أَ": "اَ",
+      "أُ": "اُ",
+      "أِ": "اِ",
+      "أْ": "اْ",
+      "أً": "اً",
+      "أٌ": "اٌ",
+      "أٍ": "اٍ",
+      "إِ": "اِ",
+      "إْ": "اْ",
+      "إَ": "اَ",
+      "إٍ": "اٍ",
+      "َٰ": "ٰ",
+      "َٰ": "ٰ",
+      "اَﷲ": "اَللّٰه",
+      "اﷲ": "اللّٰه",
+      "ﷲ": "اللّٰه"
     },
-
     "single": {
       "_doc": "Single codepoint, applied second.",
       "ٱ": "ا",
@@ -20,17 +29,24 @@
       "ڪ": "ك",
       "ے": "ي",
       "۔": ".",
-      "۰": "٠", "۱": "١", "۲": "٢", "۳": "٣", "۴": "٤",
-      "۵": "٥", "۶": "٦", "۷": "٧", "۸": "٨", "۹": "٩",
+      "۰": "٠",
+      "۱": "١",
+      "۲": "٢",
+      "۳": "٣",
+      "۴": "٤",
+      "۵": "٥",
+      "۶": "٦",
+      "۷": "٧",
+      "۸": "٨",
+      "۹": "٩",
       "ؔ": "",
       "ؚ": "",
-      "﴿": "", "﴾": ""
+      "﴿": "",
+      "﴾": ""
     },
-
     "lam_alif_marks": {
       "_doc": "Marks written AFTER the alif of a lam-alif belong before it: the vowel is the lam's, and the ligature repositions a trailing mark onto the wrong stroke. Applied as a reorder (see corpus.fix_lam_alif), not a string swap, because لاَّ must become لَّا with the shadda still on the lam. Reordered marks come out shadda-first, matching the corpus's dominant order (29,356 vs 299)."
     },
-
     "review_required": {
       "_doc": "Residue that needs a human decision, never auto-applied. Key = codepoint, value = why.",
       "أ": "bare hamza-alef with no vowel mark - the correct Indo-Pak vowel cannot be inferred mechanically",
@@ -38,36 +54,22 @@
       "ٴ": "high hamza; appears in malformed clusters e.g. مَّرِیْٓٴًﺎ - inspect each occurrence"
     }
   },
-
   "font_runtime": {
-    "_doc": "Applied at render time by ZikrContentParser.formatArabicText, per selected font. Keys are single codepoints; empty value means drop. Qalam is the authoring font and needs no substitution.",
-
-    "Qalam": {},
-
-    "Uthmani": {
-      "_doc": "Uthmani's cmap covers every canonical codepoint. These are style-only, matching an Uthmani mushaf's letterforms.",
-      "ی": "ي", "ہ": "ه", "ھ": "ه", "ک": "ك", "ۃ": "ة",
-      "ٗ": "ُ", "ٖ": "ِ"
+    "_doc": "Applied at render time by ZikrContentParser.formatArabicText. The per-font Indo-Pak substitution tables are gone: they existed only for MeQuran and Uthmani, both retired in favour of Scheherazade New, which draws every Indo-Pak letterform and both silah al-ha’ marks natively. What is left applies to every font.",
+    "common": {
+      "_doc": "Typographic spaces no bundled font has ever had a glyph for, and the two silah al-ha’ marks Al Qalam encodes privately. Qalam maps U+E003/U+E004 and U+0656/U+0657 to the very same glyphs, so rewriting to the real codepoints is invisible in Qalam and is what lets any other font draw them.",
+      " ": " ",
+      " ": " ",
+      "": "ٖ",
+      "": "ٗ"
     },
-
-    "MeQuran": {
-      "_doc": "MeQuran's cmap has no glyph for any Indo-Pak letterform, nor for ؕ or ٮ. Without these the glyphs come from a system fallback font instead of the selected one.",
-      "ی": "ي", "ہ": "ه", "ھ": "ه", "ک": "ك", "ۃ": "ة",
-      "ٗ": "ُ", "ٖ": "ِ",
-      "ؕ": "",
-      "ٮ": "ى"
-    }
+    "end_of_ayah_fonts": [
+      "Scheherazade"
+    ],
+    "_end_of_ayah_doc": "Fonts that draw the ayah medallion by enclosing the Arabic-Indic digits following U+06DD. A trailing \"(N)\" on an Arabic line becomes U+06DD plus those digits. Qalam is excluded: it draws its medallion from the ASCII parentheses the corpus is authored with, and renders U+06DD as an empty ornament that swallows the digits."
   },
-
-  "font_runtime_sequence": {
-    "_doc": "Multi-char runtime substitutions, applied after the single-codepoint table. Same for every non-Qalam font.",
-    "الله": "اللّٰه",
-    "اۤ": "ا"
-  },
-
   "fonts": {
     "Qalam": "assets/fonts/qalam",
-    "MeQuran": "assets/fonts/me_quran.ttf",
-    "Uthmani": "assets/fonts/uthmani.otf"
+    "Scheherazade": "assets/fonts/scheherazade.ttf"
   }
 }

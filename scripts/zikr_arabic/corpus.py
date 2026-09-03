@@ -116,7 +116,7 @@ def arabic_strings(uids=None, include_quran=False, source='auto'):
                 yield uid, path, s
 
 def font_cmaps():
-    """{font_name: set(codepoints)} for the three bundled fonts."""
+    """{font_name: set(codepoints)} for the bundled fonts."""
     from fontTools.ttLib import TTFont
     out = {}
     for name, rel in RULES['fonts'].items():
@@ -130,14 +130,26 @@ def font_cmaps():
 def _clean(d):
     return {k: v for k, v in d.items() if not k.startswith('_')}
 
+AYAH_NUMBER = re.compile(r'\((\d+)\)\s*$')
+ARABIC_INDIC = '٠١٢٣٤٥٦٧٨٩'
+
 def render_for_font(s, font):
-    """Mirror of ZikrContentParser.formatArabicText for `font`."""
-    if font == 'Qalam':
-        return s
-    for a, b in _clean(RULES['font_runtime'][font]).items():
+    """Mirror of ZikrContentParser.formatArabicText for `font`.
+
+    The per-font substitution tables are gone with MeQuran and Uthmani; what
+    remains applies everywhere, plus the ayah medallion for the fonts that
+    compose U+06DD. Applied per line, because the medallion is anchored to the
+    end of a line so that leading list numbering is left alone.
+    """
+    for a, b in _clean(RULES['font_runtime']['common']).items():
         s = s.replace(a, b)
-    for a, b in _clean(RULES['font_runtime_sequence']).items():
-        s = s.replace(a, b)
+    if font in RULES['font_runtime']['end_of_ayah_fonts']:
+        s = '\n'.join(
+            AYAH_NUMBER.sub(
+                lambda m: '۝' + ''.join(ARABIC_INDIC[int(d)]
+                                             for d in m.group(1)),
+                line)
+            for line in s.split('\n'))
     return s
 
 LAM_ALIF = re.compile('\u0644\u0627([\u064E\u0651]+)')

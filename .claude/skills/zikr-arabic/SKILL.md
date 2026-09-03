@@ -1,13 +1,13 @@
 ---
 name: zikr-arabic
-description: Proofread and correct the Arabic text of the zikr corpus, batch by batch — normalizing orthography so it renders identically in Qalam, Uthmani and MeQuran, and applying the ṣilah al-hā' (ulta pesh / khaṛi zer) rule. Use when asked to fix, proof, normalize, or audit zikr Arabic, when a character renders wrong in one font, or when continuing the batch-by-batch pass.
+description: Proofread and correct the Arabic text of the zikr corpus, batch by batch — normalizing orthography so it renders identically in Qalam and Scheherazade New, and applying the ṣilah al-hā' (ulta pesh / khaṛi zer) rule. Use when asked to fix, proof, normalize, or audit zikr Arabic, when a character renders wrong in one font, or when continuing the batch-by-batch pass.
 ---
 
 # Zikr Arabic
 
 Corrects the Arabic in the `zikr` corpus so that every zikr uses one consistent
 orthography and renders from the selected font alone — no fallback glyphs, no
-stray marks, no codepoint that only one of the three bundled fonts can draw.
+stray marks, no codepoint that only one of the two bundled fonts can draw.
 
 Everything here is deterministic and lives in `scripts/zikr_arabic/`. Run the
 scripts; do not re-derive the rules by reading the corpus.
@@ -55,16 +55,23 @@ Arabic-Indic digits to Arabic ones, and outright junk deleted — stray `ؔ`
 takhallus marks attached to no letter, one `ؚ` no font can draw.
 
 **Runtime font map** — `ZikrContentParser.formatArabicText`, mirroring
-`font_runtime` in rules.json. Qalam is the authoring font and gets nothing.
-Uthmani gets the Indo-Pak letterforms mapped for style. MeQuran additionally
-needs `ؕ` dropped and `ٮ→ى`, because its font file has no glyph for either.
+`font_runtime` in rules.json. There is no longer a per-font letterform table.
+MeQuran and Uthmani were retired in favour of **Scheherazade New**, which draws
+every Indo-Pak letterform (`ڪ ٮ ی ک ہ ھ ؕ`) natively, so the corpus renders as
+authored in both shipped fonts. What remains applies to every font: typographic
+spaces collapsed, and Al Qalam's private `U+E003`/`U+E004` rewritten to the real
+`U+0656`/`U+0657` (Qalam maps both pairs to the same glyphs). Scheherazade
+additionally gets a trailing `(N)` turned into a `U+06DD` ayah medallion, which
+it composes with the digits inside; Qalam draws its own medallion from the
+parentheses and must keep them.
 
-**`ٗ` (ulta pesh) and `ٖ` (khaṛi zer): keep in the source, flatten at render.**
+**`ٗ` (ulta pesh) and `ٖ` (khaṛi zer): keep them, and render them.**
 They are correct, distinct marks — the content's author confirmed this, and
-source normalization must never strip them. But **Uthmani draws `ٗ` as a slanted
-stroke indistinguishable from a fatha**, so `عِلْمَهٗ` reads as `عِلْمَهَ`, and
-MeQuran collides the mark with the letter. The runtime map therefore converts
-`ٗ→ُ` and `ٖ→ِ` for both non-Qalam fonts.
+source normalization must never strip them. They used to be flattened to a plain
+damma and kasra at render time, because **Uthmani drew `ٗ` as a slanted stroke
+indistinguishable from a fatha**, turning `عِلْمَهٗ` into `عِلْمَهَ`, and MeQuran
+collided the mark with the letter. Both fonts are gone. Qalam and Scheherazade
+each draw both marks correctly, so nothing is flattened any more.
 
 **A codepoint being in a font's cmap does not mean the font draws it.** This was
 assumed once and was wrong — INV-2 only proves a glyph exists. Anything about
@@ -131,14 +138,23 @@ hundred distinct words, which fits on a review sheet.
 
 ## Known gaps, not yet resolved
 
-**Private Use Area characters (1,385, in ~120 zikr).** Nine codepoints in
-U+E003–U+E022. Qalam defines glyphs for all nine; Uthmani and MeQuran define
-none. They are almost certainly waqf/sajdah symbols carried over from whatever
-Indo-Pak source the text was copied from. Until each is identified and mapped to
-its standard Unicode equivalent (U+06D6–U+06ED, which every font carries), these
-are Qalam-only content that silently disappears in the other fonts. `audit.py`
-reports them as INV-3. Identifying them means rendering Qalam's glyphs and
-looking at them.
+**Private Use Area characters (~1,360, in ~120 zikr).** Nine codepoints in
+U+E003–U+E022, of which two are resolved: `U+E003`/`U+E004` are the ṣilah al-hā'
+marks and are rewritten at render time to `U+0656`/`U+0657`.
+
+The other seven were rendered from Qalam and identified by eye: `U+E01B` ص,
+`U+E01C` ق, `U+E01D` صل, `U+E01E` قف, `U+E01F` وقفة, `U+E020` ك, `U+E022` the
+rukūʿ ع — plus `U+E01A`, which has **not** been identified with confidence.
+These are Indo-Pak pause signs, and unlike `U+06D6`–`U+06DC` they have **no
+Unicode codepoint at all**, so there is nothing to map them to. The reader
+therefore sets `fontFamilyFallback: ['Qalam']` on the Arabic style, which draws
+the correct sign for each. Substituting a plain letter per mark was considered
+and rejected: `U+E01A` alone is 244 occurrences, and printing the wrong pause
+sign is a worse failure than a face change on an isolated glyph.
+
+`audit.py` still reports them as INV-3, deliberately — they remain font-private
+content, and dropping Qalam would break them. Do not "fix" INV-3 by stripping
+the marks.
 
 **Combining-mark order is inconsistent.** Shadda-before-vowel (`U+0651 U+064E`)
 appears 29,356 times; vowel-before-shadda 299 times, and `U+0650 U+0651` 2,738
@@ -147,11 +163,11 @@ times. Normalize toward the dominant shadda-first order — roughly 3,000 words.
 combining classes put shadda *after* the vowel, so NFC rewrites 40,521 words
 into the minority order. Verified, not assumed.
 
-**Stacked marks Uthmani cannot shape.** `U+0670 U+0653` (superscript alef +
-maddah, as in `اُولٰٓئِكَ`, `عَلٰٓى`) — 604 occurrences — renders with a dotted
-circle in Uthmani. This is a shaping failure, not a missing glyph, so INV-2 does
-not catch it; detecting it needs HarfBuzz (`uharfbuzz`, not currently installed)
-or rasterising and looking for U+25CC.
+**Stacked marks.** `U+0670 U+0653` (superscript alef + maddah, as in
+`اُولٰٓئِكَ`, `عَلٰٓى`) — 604 occurrences — used to render with a dotted circle in
+Uthmani, which is now retired. Re-check it in Scheherazade before assuming it is
+gone: this is a shaping failure, not a missing glyph, so INV-2 does not catch
+it. Detecting it needs HarfBuzz or rasterising and looking for U+25CC.
 
 ## Working a batch
 
@@ -201,8 +217,8 @@ Needs the content author's sign-off:
 - **Restyling a whole document.** The 47 imports are a restyle, not bug-fixing.
   Keep that decision separate and explicit.
 - **Open question, unanswered twice:** should `وَ` always be glued to the
-  following word with no space? Recommended yes (standard orthography, Uthmani
-  mushaf convention, and by far the largest source of diff noise), but it must
+  following word with no space? Recommended yes (standard orthography, mushaf
+  convention, and by far the largest source of diff noise), but it must
   run *after* word-split fixes so that a standalone `وَ` is unambiguously the
   conjunction.
 

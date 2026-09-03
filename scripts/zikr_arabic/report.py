@@ -6,7 +6,7 @@ One row per rule, not per occurrence — 8,000 changes come from ~25 rules, and 
 reviewer signs off on the rule, not on each instance. Items that genuinely need
 a per-case decision get their own rows at the end.
 
-  python3 scripts/zikr_arabic/report.py [--fonts Qalam,Uthmani] [-o out.html] [uid …]
+  python3 scripts/zikr_arabic/report.py [--fonts Qalam,Scheherazade] [-o out.html] [uid …]
 """
 import sys, os, json, base64, collections, html, datetime
 sys.path.insert(0, __file__.rsplit('/', 1)[0])
@@ -150,7 +150,7 @@ def vowel_sheet(fonts, out, uids=None):
     print(f'{sum(r["n"] for r in rows)} occurrences / {len(rows)} words -> {out}')
 
 def main(argv):
-    fonts = ['Qalam', 'Uthmani']
+    fonts = ['Qalam', 'Scheherazade']
     out = os.path.join(ROOT, 'scripts/zikr_arabic/review.html')
     args = []
     i = 0
