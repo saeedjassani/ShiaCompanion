@@ -1,12 +1,11 @@
-import 'dart:math' as math;
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import '../../constants.dart';
 import '../../utils/quran_index.dart';
 import 'zikr_content_parser.dart';
 
-/// Where a reader is in a surah, and whether they got there by reading.
+/// Where a reader is in the Quran, and whether they got there by reading.
 ///
 /// [fromUserScroll] is the whole point of this type. Landing on 23:56 from a
 /// shared link is a lookup, not recitation, so it must not become the reader's
@@ -26,17 +25,12 @@ class QuranReadingPosition {
   final bool fromUserScroll;
 }
 
-/// A verse the reader tapped, and everything the page needs to act on it.
-///
-/// [scrollOffset] is carried because it is only knowable here: bookmarking is
-/// stored as a scroll position, and the viewer is the only thing that can say
-/// where a given verse sits in the list. Null when the verse's geometry cannot
-/// be read, in which case the page falls back to bookmarking the view.
+/// A verse the reader tapped, and what the page needs to act on it.
 class AyahActionRequest {
   const AyahActionRequest({
     required this.verse,
     required this.text,
-    required this.scrollOffset,
+    required this.lineIndex,
   });
 
   /// Which verse was tapped, surah included - in a juz the surah is not the
@@ -46,7 +40,8 @@ class AyahActionRequest {
   /// The verse as text worth copying or sharing.
   final String text;
 
-  final double? scrollOffset;
+  /// The content line the verse starts on, which is what a bookmark records.
+  final int lineIndex;
 }
 
 class ZikrContentScrollPosition {
@@ -54,78 +49,70 @@ class ZikrContentScrollPosition {
     required this.tabIndex,
     required this.scrollOffset,
     this.maxScrollExtent = 0,
+    this.lineIndex,
   });
 
   final int tabIndex;
   final double scrollOffset;
   final double maxScrollExtent;
+
+  /// The content line sitting at the top of the view at this offset, measured
+  /// from the laid-out list, or null when the list has not been laid out yet.
+  /// This is what a bookmark taken here records, so the "you left off here"
+  /// marker lands on the very line the offset was read off.
+  final int? lineIndex;
 }
 
-/// Which line of a tab's content a bookmark saved at [scrollFraction] of the
-/// way through it (0 = top, 1 = bottom) should be pinned to, snapped back to
-/// the nearest line in [arabicLineIndexes] at or before that point - so the
-/// marker always lands on the verse showing at the top of the view, never
-/// mid-verse or straddling two.
+/// How much of a line may sit above the top of the viewport before the line
+/// below it counts as the one being read. Guards against a line whose bottom
+/// edge lands exactly on the viewport top being picked over its successor.
+const double _lineEdgeTolerance = 0.5;
+
+/// Whether line [index] draws anything at all under the current reading
+/// settings. A transliteration or translation line the reader has switched
+/// off renders as an empty, zero-height box, so the bookmark tint has to skip
+/// it - tinting it would paint a stray sliver of border and padding for a line
+/// that is not there.
+bool isZikrLineVisible(ParsedZikrContent content, int index) {
+  if (index < 0 || index >= content.lines.length) return false;
+  // Mirrors the renderer's own order: Arabic wins over either English set.
+  if (content.arabicCodes.contains(index)) return true;
+  if (content.transliCodes.contains(index)) return showTransliteration;
+  if (content.translaCodes.contains(index)) return showTranslation;
+  return true;
+}
+
+/// The span of content lines the bookmark marker covers, given the line the
+/// bookmark was actually taken on.
 ///
-/// A raw scroll pixel offset by itself doesn't correspond to any one line -
-/// lines wrap to different heights depending on content and the reader's own
-/// font settings, so there is no fixed pixels-per-line to invert. Treating
-/// every line as equal weight and snapping to the nearest verse start is
-/// precise enough to say "about here", without needing real layout
-/// measurements to do it.
+/// A bookmark taken anywhere in an Arabic triplet - on the Arabic itself, or
+/// on its transliteration or translation - marks the whole triplet, starting
+/// from its first line, so the marker never cuts a verse in half. A bookmark
+/// on a line that stands on its own (a heading, an instruction) marks just
+/// that line.
 ///
-/// Backward, not forward: this was originally forward (the nearest verse at
-/// or after the estimate), on the reasoning that reading continues past
-/// whatever was on screen. In practice a verse then stayed "current" for
-/// only the single instant the estimate sat exactly on its start index - any
-/// small scroll drift pushed the estimate just past it and the marker jumped
-/// to the next verse. Bookmarking twice in a row without deliberately
-/// scrolling could visibly creep forward one verse at a time. Snapping
-/// backward instead is stable across a verse's whole span: the marker holds
-/// steady from that verse's start up to wherever the next one begins.
-int? snapToArabicLineIndex({
-  required double scrollFraction,
-  required int lineCount,
-  required Set<int> arabicLineIndexes,
+/// This deliberately takes no scroll measurements. The line index is fixed
+/// when the bookmark is saved, so the marker cannot drift or vanish when
+/// something later changes the layout - the audio player opening, the reading
+/// chrome sliding away, or transliteration being switched off.
+ZikrLineGroup? bookmarkedLineRange({
+  required int? bookmarkLineIndex,
+  required ParsedZikrContent content,
 }) {
-  if (lineCount <= 0 || arabicLineIndexes.isEmpty) return null;
-
-  final estimated = (scrollFraction.clamp(0.0, 1.0) * (lineCount - 1)).round();
-
-  int? atOrBefore;
-  for (final index in arabicLineIndexes) {
-    if (index <= estimated && (atOrBefore == null || index > atOrBefore)) {
-      atOrBefore = index;
-    }
-  }
-  // No Arabic line at or before the estimate - the reader was somewhere
-  // ahead of the first verse (an intro paragraph, say), so the first verse
-  // is the closest thing to "the top of what's visible".
-  return atOrBefore ?? arabicLineIndexes.reduce(math.min);
+  final index = bookmarkLineIndex;
+  if (index == null || index < 0 || index >= content.lines.length) return null;
+  return content.groupContaining(index) ??
+      ZikrLineGroup(start: index, end: index + 1);
 }
 
-/// The span of content-line indexes, `[start, end)`, that make up one verse
-/// starting at an Arabic line - everything up to (but not including) whatever
-/// Arabic line comes next, or the end of the tab if this is the last verse.
-class BookmarkedVerseRange {
-  const BookmarkedVerseRange({required this.start, required this.end});
-
-  final int start;
-  final int end;
-
-  bool contains(int lineIndex) => lineIndex >= start && lineIndex < end;
-
-  static BookmarkedVerseRange? fromStart(
-    int? startIndex, {
-    required Set<int> arabicLineIndexes,
-    required int lineCount,
-  }) {
-    if (startIndex == null) return null;
-    final end = arabicLineIndexes
-        .where((i) => i > startIndex)
-        .fold(lineCount, math.min);
-    return BookmarkedVerseRange(start: startIndex, end: end);
+/// The first line of [range] that actually draws something, which is where
+/// the "Bookmarked" label goes. Null when every line in the range is switched
+/// off, in which case there is nothing to mark at all.
+int? firstVisibleLineInRange(ZikrLineGroup range, ParsedZikrContent content) {
+  for (var index = range.start; index < range.end; index++) {
+    if (isZikrLineVisible(content, index)) return index;
   }
+  return null;
 }
 
 class ZikrContentViewerWidget extends StatefulWidget {
@@ -138,7 +125,17 @@ class ZikrContentViewerWidget extends StatefulWidget {
   final Future<void> Function(String href) onLinkTap;
   final int? initialBookmarkTabIndex;
   final double? initialBookmarkScrollOffset;
+
+  /// The content line the saved bookmark sits on, when it has one. This is
+  /// what the marker is drawn on; the offset above is only used to scroll
+  /// back there.
+  final int? initialBookmarkLineIndex;
   final ValueChanged<ZikrContentScrollPosition>? onScrollPositionChanged;
+
+  /// Reports the line a bookmark saved without one turns out to sit on, once
+  /// the list has been restored to its offset and measured, so the bookmark
+  /// can be rewritten with it and stop depending on the offset.
+  final ValueChanged<int>? onBookmarkLineResolved;
 
   /// Which surah this is, when the document being read is one of the 114.
   ///
@@ -158,14 +155,14 @@ class ZikrContentViewerWidget extends StatefulWidget {
   ///
   /// A juz portion is several surahs stitched together, so its verse numbers
   /// restart partway through and its surah headings are known only to whoever
-  /// assembled it. When this is supplied it is used as-is; otherwise the viewer
-  /// derives an index from [surahNumber] as before.
+  /// assembled it. When supplied it is used as-is; otherwise the viewer derives
+  /// an index from [surahNumber].
   final AyahIndex? ayahIndex;
 
-  /// Fires with the topmost ayah on screen. Only meaningful in ayah mode.
+  /// Fires with the topmost verse on screen. Only meaningful in ayah mode.
   final ValueChanged<QuranReadingPosition>? onAyahPositionChanged;
 
-  /// Opens the per-ayah menu. Null leaves verses untappable.
+  /// Opens the per-verse menu. Null leaves verses untappable.
   final ValueChanged<AyahActionRequest>? onAyahAction;
 
   const ZikrContentViewerWidget({
@@ -179,7 +176,9 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.code,
     this.initialBookmarkTabIndex,
     this.initialBookmarkScrollOffset,
+    this.initialBookmarkLineIndex,
     this.onScrollPositionChanged,
+    this.onBookmarkLineResolved,
     this.surahNumber,
     this.initialVerse,
     this.ayahIndex,
@@ -196,32 +195,25 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   late PageController _pageController;
   late List<ScrollController> _tabScrollControllers;
   late List<GlobalKey> _tabHeaderKeys;
-  late int _selectedTabIndex;
-  late final int? _initialBookmarkTabIndex;
-  late final double? _initialBookmarkScrollOffset;
-  bool _didRestoreInitialBookmark = false;
+  late List<GlobalKey> _tabListKeys;
 
   /// Parsing and indexing a tab is pure work over a string that rarely
   /// changes, but [_buildTabContent] runs on every build. Al-Baqarah is 858
   /// lines, so caching by content keeps a scroll from re-parsing it each frame.
   final Map<int, _TabContentCache> _contentCaches = {};
 
-  /// One key per ayah block of the selected tab, so a verse can be scrolled to
-  /// exactly once it is built, and so the topmost one can be identified from
-  /// real geometry rather than an estimate.
-  final Map<int, GlobalKey> _ayahKeys = {};
-
   /// Whether this reader has actually been dragged. Set only by real drag
-  /// gestures - never by [_scrollToAyah] or a bookmark restore - so a lookup
-  /// can be told apart from recitation. See [QuranReadingPosition].
+  /// gestures - never by a jump to a linked verse or a bookmark restore - so a
+  /// lookup can be told apart from recitation. See [QuranReadingPosition].
   bool _sawUserDrag = false;
 
-  bool _didScrollToInitialAyah = false;
-  bool _ayahReportScheduled = false;
+  bool _didScrollToInitialVerse = false;
+  bool _verseReportScheduled = false;
   VerseKey? _reportedVerse;
-
-  GlobalKey _ayahKey(int spanIndex) =>
-      _ayahKeys.putIfAbsent(spanIndex, () => GlobalKey());
+  late int _selectedTabIndex;
+  late final int? _initialBookmarkTabIndex;
+  late final double? _initialBookmarkScrollOffset;
+  bool _didRestoreInitialBookmark = false;
 
   TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
     final linkStyle = baseStyle.copyWith(
@@ -257,6 +249,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     _pageController = PageController(initialPage: _selectedTabIndex);
     _tabScrollControllers = [];
     _tabHeaderKeys = [];
+    _tabListKeys = [];
     _syncTabState(widget.tabContents.length);
   }
 
@@ -273,6 +266,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     if (count <= 0) {
       _selectedTabIndex = 0;
       _syncTabHeaderKeys(0);
+      _syncTabListKeys(0);
       _syncTabScrollControllers(0);
       return;
     }
@@ -292,6 +286,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
 
     _syncTabHeaderKeys(count);
+    _syncTabListKeys(count);
     _syncTabScrollControllers(count);
   }
 
@@ -301,6 +296,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
     while (_tabHeaderKeys.length > count) {
       _tabHeaderKeys.removeLast();
+    }
+  }
+
+  void _syncTabListKeys(int count) {
+    while (_tabListKeys.length < count) {
+      _tabListKeys.add(GlobalKey());
+    }
+    while (_tabListKeys.length > count) {
+      _tabListKeys.removeLast();
     }
   }
 
@@ -327,8 +331,189 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         tabIndex: tabIndex,
         scrollOffset: position.pixels,
         maxScrollExtent: position.maxScrollExtent,
+        lineIndex: _topLineIndex(tabIndex, controller),
       ),
     );
+  }
+
+  /// The content line at the top of the view, in every mode.
+  ///
+  /// [topContentLineIndex] measures the topmost *item*, and in ayah mode an
+  /// item is a whole verse rather than a line - so its answer is a span index
+  /// there and has to be turned back into a line before anything that speaks
+  /// in lines, the bookmark above all, is handed it.
+  int? _topLineIndex(int tabIndex, ScrollController controller) {
+    final topIndex = topContentLineIndex(tabIndex, controller);
+    if (topIndex == null) return null;
+
+    final ayahIndex = _ayahIndexFor(tabIndex);
+    if (ayahIndex == null) return topIndex;
+    if (topIndex < 0 || topIndex >= ayahIndex.spans.length) return null;
+    return ayahIndex.spans[topIndex].start;
+  }
+
+  /// Queues a verse report for the end of the current frame.
+  ///
+  /// The measurement has to happen after layout, not during the scroll
+  /// notification that prompts it: a scroll notification is dispatched when the
+  /// offset changes, which is before the children have been laid out at their
+  /// new positions. Reading geometry there returns the previous frame's, and a
+  /// gesture producing many updates before a single layout - a fling, or a
+  /// synthesised drag - would read the same stale position every time and never
+  /// notice the reader had moved.
+  void _scheduleVerseReport(int tabIndex, ScrollController controller) {
+    if (_verseReportScheduled) return;
+
+    _verseReportScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _verseReportScheduled = false;
+      if (!mounted) return;
+      _reportTopmostVerse(tabIndex, controller);
+    });
+  }
+
+  /// Publishes the verse at the top of the view, when reading Quran.
+  void _reportTopmostVerse(int tabIndex, ScrollController controller) {
+    final callback = widget.onAyahPositionChanged;
+    final ayahIndex = _ayahIndexFor(tabIndex);
+    if (callback == null || ayahIndex == null || !controller.hasClients) return;
+
+    final spanIndex = topContentLineIndex(tabIndex, controller);
+    if (spanIndex == null) return;
+
+    final verse = ayahIndex.verseAtSpanIndex(spanIndex);
+    if (verse == null || verse == _reportedVerse) return;
+
+    _reportedVerse = verse;
+    callback(
+      QuranReadingPosition(verse: verse, fromUserScroll: _sawUserDrag),
+    );
+  }
+
+  /// Brings [verse] to the top of the view.
+  ///
+  /// A `ListView.builder` cannot seek to an index, and lines wrap to different
+  /// heights so there is no fixed extent to invert. This estimates an offset,
+  /// lets the frame build, and then - now that the target is on screen - reads
+  /// back which item actually ended up on top and corrects. In ayah mode the
+  /// items are whole verses rather than single lines, so the estimate is close
+  /// enough that this settles in a pass or two.
+  Future<void> _scrollToVerse(
+    int tabIndex,
+    AyahIndex ayahIndex,
+    VerseKey verse,
+    int leadingItems,
+  ) async {
+    final spanIndex = ayahIndex.nearestSpanIndexForVerse(verse);
+    if (spanIndex == null || tabIndex >= _tabScrollControllers.length) return;
+
+    final controller = _tabScrollControllers[tabIndex];
+    final itemCount = ayahIndex.spans.length + leadingItems;
+
+    for (var attempt = 0; attempt < 5; attempt++) {
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted || !controller.hasClients) return;
+
+      final position = controller.position;
+      if (!position.hasContentDimensions || position.maxScrollExtent <= 0) {
+        return;
+      }
+
+      final landed = topContentLineIndex(tabIndex, controller);
+      if (landed == spanIndex) return;
+
+      // Aim by proportion, then let the next pass correct off the real
+      // position rather than trusting the estimate.
+      final target = landed == null
+          ? position.maxScrollExtent *
+              ((spanIndex + leadingItems) / itemCount)
+          : position.pixels +
+              (spanIndex - landed) *
+                  (position.maxScrollExtent / itemCount);
+
+      controller.jumpTo(
+        target
+            .clamp(position.minScrollExtent, position.maxScrollExtent)
+            .toDouble(),
+      );
+    }
+  }
+
+  /// Runs the one-off jump to [ZikrContentViewerWidget.initialVerse].
+  ///
+  /// Guarded rather than driven from `initState` because the list has no
+  /// scroll position until it has laid out, and the ayah index does not exist
+  /// until the tab's content has been parsed.
+  void _scheduleInitialVerseScroll(
+    int tabIndex,
+    AyahIndex ayahIndex,
+    int leadingItems,
+  ) {
+    final verse = widget.initialVerse;
+    if (_didScrollToInitialVerse || verse == null || verse.ayah == null) return;
+
+    _didScrollToInitialVerse = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _scrollToVerse(tabIndex, ayahIndex, verse, leadingItems);
+    });
+  }
+
+  /// How many list items sit ahead of the content itself - just the Merits
+  /// button, on the tab that has one - so a list item index can be turned
+  /// into a content line index.
+  int _leadingItemCount(int tabIndex) =>
+      widget.hasMerits && tabIndex == 0 ? 1 : 0;
+
+  /// The content line currently at the top of tab [tabIndex]'s view, read off
+  /// the laid-out list, or null if it has not been laid out yet.
+  ///
+  /// This is the line a bookmark taken now records. It is measured rather
+  /// than estimated from the scroll fraction: line heights vary with the
+  /// content, the font settings and the width, so there is no pixels-per-line
+  /// to invert, and an estimate drifts to a different line whenever anything
+  /// changes the layout underneath it.
+  int? topContentLineIndex(int tabIndex, ScrollController controller) {
+    if (!controller.hasClients || tabIndex >= _tabListKeys.length) return null;
+
+    final renderObject =
+        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    if (renderObject == null) return null;
+    final sliver = _findSliverList(renderObject);
+    if (sliver == null) return null;
+
+    final scrollOffset = controller.position.pixels;
+    // Children are held in index order, so the first one whose bottom edge is
+    // still below the top of the viewport is the line being read. Lines the
+    // reader has switched off lay out at zero height and are skipped by the
+    // same test.
+    RenderBox? child = sliver.firstChild;
+    while (child != null) {
+      final parentData = child.parentData;
+      if (parentData is SliverMultiBoxAdaptorParentData && child.hasSize) {
+        final layoutOffset = parentData.layoutOffset;
+        final index = parentData.index;
+        if (layoutOffset != null &&
+            index != null &&
+            scrollOffset <
+                layoutOffset + child.size.height - _lineEdgeTolerance) {
+          // The Merits button is not content; a reader still up at it is at
+          // the top of the content just below it.
+          final contentIndex = index - _leadingItemCount(tabIndex);
+          return contentIndex < 0 ? 0 : contentIndex;
+        }
+      }
+      child = sliver.childAfter(child);
+    }
+    return null;
+  }
+
+  RenderSliverMultiBoxAdaptor? _findSliverList(RenderObject node) {
+    if (node is RenderSliverMultiBoxAdaptor) return node;
+    RenderSliverMultiBoxAdaptor? found;
+    node.visitChildren((child) {
+      found ??= _findSliverList(child);
+    });
+    return found;
   }
 
   /// Publishes the position of a tab that has not been scrolled yet, so
@@ -341,198 +526,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       _reportScrollPosition(tabIndex, _tabScrollControllers[tabIndex]);
     });
   }
-
-  /// The parsed content and ayah index for a tab, reparsed only when the tab's
-  /// raw text or the settings that shape parsing actually change.
-  _TabContentCache _cacheFor(
-    int tabIndex,
-    String rawContent, {
-    required bool hideHeaderLine,
-  }) {
-    final cached = _contentCaches[tabIndex];
-    if (cached != null &&
-        cached.rawContent == rawContent &&
-        cached.hideHeaderLine == hideHeaderLine &&
-        cached.code == widget.code) {
-      return cached;
-    }
-
-    final parsed = ZikrContentParser.parseContent(
-      rawContent,
-      hideHeaderLine: hideHeaderLine,
-      code: widget.code,
-    );
-
-    // Only the first tab is Quran text. Surah documents are single-tab today,
-    // but guarding on the index means a tabbed one would degrade to line
-    // rendering on its extra tabs rather than mis-number them.
-    final surah = widget.surahNumber;
-    final ayahIndex = tabIndex != 0
-        ? null
-        : widget.ayahIndex ??
-            (surah == null
-                ? null
-                : AyahIndex.fromParsedContent(parsed, surah: surah));
-
-    final cache = _TabContentCache(
-      rawContent: rawContent,
-      hideHeaderLine: hideHeaderLine,
-      code: widget.code,
-      parsed: parsed,
-      ayahIndex: ayahIndex != null && !ayahIndex.isEmpty ? ayahIndex : null,
-    );
-    _contentCaches[tabIndex] = cache;
-    return cache;
-  }
-
-  /// Brings [ayah] to the top of the view.
-  ///
-  /// A `ListView.builder` cannot seek to an index, and lines wrap to different
-  /// heights so there is no fixed extent to invert. This estimates an offset,
-  /// lets the frame build, and then - now that the target widget exists - hands
-  /// off to [Scrollable.ensureVisible], which is exact. In ayah mode the items
-  /// are whole verses rather than single lines, so the estimate is close enough
-  /// that this usually settles on the first pass; the loop is the safety net
-  /// for a surah whose verses vary a lot in length.
-  Future<void> _scrollToVerse(
-    int tabIndex,
-    AyahIndex ayahIndex,
-    VerseKey verse,
-    int itemCount,
-  ) async {
-    final spanIndex = ayahIndex.nearestSpanIndexForVerse(verse);
-    if (spanIndex == null || tabIndex >= _tabScrollControllers.length) return;
-
-    final controller = _tabScrollControllers[tabIndex];
-    final itemIndex = spanIndex + (itemCount - ayahIndex.spans.length);
-
-    for (var attempt = 0; attempt < 4; attempt++) {
-      await WidgetsBinding.instance.endOfFrame;
-      if (!mounted || !controller.hasClients) return;
-
-      final targetContext = _ayahKey(spanIndex).currentContext;
-      if (targetContext != null) {
-        await Scrollable.ensureVisible(
-          targetContext,
-          alignment: 0,
-          duration: Duration.zero,
-        );
-        return;
-      }
-
-      final position = controller.position;
-      if (!position.hasContentDimensions || position.maxScrollExtent <= 0) {
-        continue;
-      }
-      final estimate = position.maxScrollExtent * (itemIndex / itemCount);
-      controller.jumpTo(
-        estimate
-            .clamp(position.minScrollExtent, position.maxScrollExtent)
-            .toDouble(),
-      );
-    }
-  }
-
-  /// Queues a position report for the end of the current frame.
-  ///
-  /// The read has to happen after layout, not during the scroll notification
-  /// that prompts it: a scroll notification is dispatched when the offset
-  /// changes, which is before the children have been laid out at their new
-  /// positions. Reading geometry there returns the previous frame's, and a
-  /// gesture that produces many updates before a single layout - a fling, or a
-  /// synthesised drag - would read the same stale positions every time and
-  /// never notice the reader had moved at all. Coalescing to one read per
-  /// frame is also simply cheaper than one per notification.
-  void _scheduleAyahReport(AyahIndex ayahIndex, ScrollController controller) {
-    if (_ayahReportScheduled) return;
-
-    _ayahReportScheduled = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _ayahReportScheduled = false;
-      if (!mounted) return;
-      _reportTopmostAyah(ayahIndex, controller);
-    });
-  }
-
-  /// Publishes the ayah sitting at the top of the view.
-  ///
-  /// Reads the real position of the blocks currently built rather than
-  /// estimating from a scroll fraction, so the answer is the verse the reader
-  /// is actually looking at.
-  void _reportTopmostAyah(AyahIndex ayahIndex, ScrollController controller) {
-    final callback = widget.onAyahPositionChanged;
-    if (callback == null || !controller.hasClients) return;
-
-    final viewportTop = _viewportTopGlobalY(controller);
-    if (viewportTop == null) return;
-
-    int? topmost;
-    var bestY = double.negativeInfinity;
-    _ayahKeys.forEach((spanIndex, key) {
-      final renderObject = key.currentContext?.findRenderObject();
-      if (renderObject is! RenderBox || !renderObject.attached) return;
-
-      final y = renderObject.localToGlobal(Offset.zero).dy;
-      // The topmost block whose start is at or above the fold - the one the
-      // reader has reached - rather than the first one merely visible.
-      if (y <= viewportTop + _ayahTopSlack && y > bestY) {
-        bestY = y;
-        topmost = spanIndex;
-      }
-    });
-
-    final spanIndex = topmost;
-    if (spanIndex == null) return;
-
-    final verse = ayahIndex.verseAtSpanIndex(spanIndex);
-    if (verse == null || verse == _reportedVerse) return;
-
-    _reportedVerse = verse;
-    callback(
-      QuranReadingPosition(verse: verse, fromUserScroll: _sawUserDrag),
-    );
-  }
-
-  /// Where a verse sits in the list, as a scroll offset.
-  ///
-  /// This is what makes "bookmark this verse" possible: the bookmark store
-  /// records a scroll position, and only the laid-out block knows what position
-  /// it is at. Null when the block is not currently built or measured.
-  double? _scrollOffsetOfSpan(int tabIndex, int spanIndex) {
-    if (tabIndex >= _tabScrollControllers.length) return null;
-
-    final controller = _tabScrollControllers[tabIndex];
-    if (!controller.hasClients) return null;
-
-    final viewportTop = _viewportTopGlobalY(controller);
-    final renderObject = _ayahKeys[spanIndex]?.currentContext?.findRenderObject();
-    if (viewportTop == null ||
-        renderObject is! RenderBox ||
-        !renderObject.attached) {
-      return null;
-    }
-
-    final offset =
-        controller.offset + (renderObject.localToGlobal(Offset.zero).dy - viewportTop);
-    return offset.clamp(
-      controller.position.minScrollExtent,
-      controller.position.maxScrollExtent,
-    );
-  }
-
-  /// The screen-space y of the top of the scrolling list itself - not of this
-  /// widget, which on a tabbed zikr also contains the tab header strip.
-  double? _viewportTopGlobalY(ScrollController controller) {
-    final renderObject =
-        controller.position.context.storageContext.findRenderObject();
-    if (renderObject is! RenderBox || !renderObject.attached) return null;
-    return renderObject.localToGlobal(Offset.zero).dy;
-  }
-
-  /// How far past the fold a verse can start and still count as the one being
-  /// read. Without it, scrolling a verse's first pixel off the top would jump
-  /// the reported position forward a verse early.
-  static const double _ayahTopSlack = 48;
 
   void _restoreInitialBookmarkIfNeeded(
     int tabIndex,
@@ -559,12 +552,23 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           .toDouble();
       controller.jumpTo(targetOffset);
       _didRestoreInitialBookmark = true;
-      widget.onScrollPositionChanged?.call(
-        ZikrContentScrollPosition(
-          tabIndex: tabIndex,
-          scrollOffset: targetOffset,
-        ),
-      );
+
+      // The jump only takes effect at the next layout, so the line under the
+      // restored offset can only be measured a frame later. That measurement
+      // is what a bookmark saved before line indexes existed adopts as its
+      // line, which is exactly the line it was taken on.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !controller.hasClients) return;
+        _reportScrollPosition(tabIndex, controller);
+        if (widget.initialBookmarkLineIndex != null) return;
+        // _topLineIndex, not topContentLineIndex: in ayah mode an item is a
+        // whole verse, so the raw measurement is a span index and storing it
+        // as a line would point the marker at the wrong text.
+        final resolvedLine = _topLineIndex(tabIndex, controller);
+        if (resolvedLine != null) {
+          widget.onBookmarkLineResolved?.call(resolvedLine);
+        }
+      });
     });
   }
 
@@ -622,6 +626,52 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return 'Tab ${index + 1}';
   }
 
+  /// The parsed content and ayah index for a tab, reparsed only when the tab's
+  /// raw text or the settings that shape parsing actually change.
+  _TabContentCache _cacheFor(
+    int tabIndex,
+    String rawContent, {
+    required bool hideHeaderLine,
+  }) {
+    final cached = _contentCaches[tabIndex];
+    if (cached != null &&
+        cached.rawContent == rawContent &&
+        cached.hideHeaderLine == hideHeaderLine &&
+        cached.code == widget.code) {
+      return cached;
+    }
+
+    final parsed = ZikrContentParser.parseContent(
+      rawContent,
+      hideHeaderLine: hideHeaderLine,
+      code: widget.code,
+    );
+
+    // Only the first tab is Quran text. Surah documents are single-tab today,
+    // but guarding on the index means a tabbed one would degrade to line
+    // rendering on its extra tabs rather than mis-number them.
+    final surah = widget.surahNumber;
+    final ayahIndex = tabIndex != 0
+        ? null
+        : widget.ayahIndex ??
+            (surah == null
+                ? null
+                : AyahIndex.fromParsedContent(parsed, surah: surah));
+
+    final cache = _TabContentCache(
+      rawContent: rawContent,
+      hideHeaderLine: hideHeaderLine,
+      code: widget.code,
+      parsed: parsed,
+      ayahIndex: ayahIndex != null && !ayahIndex.isEmpty ? ayahIndex : null,
+    );
+    _contentCaches[tabIndex] = cache;
+    return cache;
+  }
+
+  /// The ayah index in force for a tab, or null when it renders line by line.
+  AyahIndex? _ayahIndexFor(int tabIndex) => _contentCaches[tabIndex]?.ayahIndex;
+
   Widget _buildTabContent(
     String rawContent,
     ScrollController controller, {
@@ -629,11 +679,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     required bool hideHeaderLine,
     required bool showMeritsButton,
   }) {
-    _restoreInitialBookmarkIfNeeded(tabIndex, controller);
-    if (tabIndex == _selectedTabIndex) {
-      _scheduleScrollPositionReport(tabIndex);
-    }
-
     final cache = _cacheFor(
       tabIndex,
       rawContent,
@@ -641,11 +686,20 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     );
     final parsedContent = cache.parsed;
     final ayahIndex = cache.ayahIndex;
-    final bookmarkedVerse = _bookmarkedVerseRange(
-      tabIndex,
-      controller,
-      parsedContent,
-    );
+
+    _restoreInitialBookmarkIfNeeded(tabIndex, controller);
+    if (tabIndex == _selectedTabIndex) {
+      _scheduleScrollPositionReport(tabIndex);
+    }
+    final bookmarkedRange = tabIndex == widget.initialBookmarkTabIndex
+        ? bookmarkedLineRange(
+            bookmarkLineIndex: widget.initialBookmarkLineIndex,
+            content: parsedContent,
+          )
+        : null;
+    final bookmarkLabelLine = bookmarkedRange == null
+        ? null
+        : firstVisibleLineInRange(bookmarkedRange, parsedContent);
 
     // Create text styles with current settings each time this is called
     final arabicStyle = TextStyle(
@@ -664,12 +718,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final transliStyle =
         TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
 
-    final meritsOffset = showMeritsButton ? 1 : 0;
-    final itemCount = meritsOffset +
-        (ayahIndex != null ? ayahIndex.spans.length : parsedContent.lines.length);
+    final leadingItems = showMeritsButton ? 1 : 0;
+    final itemCount = leadingItems +
+        (ayahIndex != null
+            ? ayahIndex.spans.length
+            : parsedContent.lines.length);
 
     if (ayahIndex != null && tabIndex == _selectedTabIndex) {
-      _scheduleInitialAyahScroll(tabIndex, ayahIndex, itemCount);
+      _scheduleInitialVerseScroll(tabIndex, ayahIndex, leadingItems);
     }
 
     return NotificationListener<ScrollNotification>(
@@ -682,7 +738,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           _sawUserDrag = true;
         }
         if (tabIndex == _selectedTabIndex && ayahIndex != null) {
-          _scheduleAyahReport(ayahIndex, controller);
+          _scheduleVerseReport(tabIndex, controller);
         }
         return false;
       },
@@ -696,6 +752,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         child: Scrollbar(
           controller: controller,
           child: ListView.builder(
+            key: _tabListKeys[tabIndex],
             controller: controller,
             itemCount: itemCount,
             itemBuilder: (BuildContext context, int index) {
@@ -721,17 +778,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 );
               }
 
-              final contentIndex = index - meritsOffset;
+              final contentIndex = index - leadingItems;
 
               if (ayahIndex != null) {
                 return _buildAyahBlock(
-                  tabIndex: tabIndex,
                   ayahIndex: ayahIndex,
                   spanIndex: contentIndex,
                   parsedContent: parsedContent,
                   arabicStyle: arabicStyle,
                   transliStyle: transliStyle,
-                  bookmarkedVerse: bookmarkedVerse,
+                  bookmarkedRange: bookmarkedRange,
                 );
               }
 
@@ -742,15 +798,19 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 transliStyle,
               );
 
-              if (bookmarkedVerse == null ||
-                  !bookmarkedVerse.contains(contentIndex)) {
+              if (bookmarkedRange == null ||
+                  bookmarkLabelLine == null ||
+                  !bookmarkedRange.contains(contentIndex) ||
+                  !isZikrLineVisible(parsedContent, contentIndex)) {
                 return line;
               }
               return _BookmarkedLine(
-                // The label only belongs on the verse's first line - repeating
-                // it on the transliteration/translation lines under the same
-                // tint would just be noise.
-                showLabel: contentIndex == bookmarkedVerse.start,
+                // The label only belongs on the first line of the marked
+                // triplet that is actually showing - repeating it on the
+                // transliteration/translation lines under the same tint would
+                // just be noise, and a switched-off line draws nothing to
+                // carry it.
+                showLabel: contentIndex == bookmarkLabelLine,
                 child: line,
               );
             },
@@ -825,13 +885,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// One whole verse - its Arabic, transliteration and translation together -
   /// as a single tappable item.
   Widget _buildAyahBlock({
-    required int tabIndex,
     required AyahIndex ayahIndex,
     required int spanIndex,
     required ParsedZikrContent parsedContent,
     required TextStyle arabicStyle,
     required TextStyle transliStyle,
-    required BookmarkedVerseRange? bookmarkedVerse,
+    required ZikrLineGroup? bookmarkedRange,
   }) {
     final span = ayahIndex.spans[spanIndex];
     final lines = <Widget>[
@@ -841,17 +900,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
     final verse = span.verse;
     return _AyahBlock(
-      key: _ayahKey(spanIndex),
       ayah: span.ayah,
       startsSurah: span.startsSurah,
-      isBookmarked: bookmarkedVerse != null && bookmarkedVerse.start == span.start,
+      isBookmarked: bookmarkedRange != null && span.contains(bookmarkedRange.start),
       onAction: verse == null || widget.onAyahAction == null
           ? null
           : () => widget.onAyahAction!(
                 AyahActionRequest(
                   verse: verse,
                   text: _ayahPlainText(parsedContent, span),
-                  scrollOffset: _scrollOffsetOfSpan(tabIndex, spanIndex),
+                  lineIndex: span.start,
                 ),
               ),
       children: lines,
@@ -865,76 +923,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final parts = <String>[];
     for (var i = span.start; i < span.end; i++) {
       final line = parsedContent.lines[i].trim();
-      if (line.isEmpty) continue;
-      if (parsedContent.arabicCodes.contains(i)) {
-        parts.add(line);
-      } else if (parsedContent.transliCodes.contains(i)) {
-        if (showTransliteration) parts.add(line);
-      } else if (parsedContent.translaCodes.contains(i)) {
-        if (showTranslation) parts.add(line);
-      } else {
-        parts.add(line);
-      }
+      if (line.isEmpty || !isZikrLineVisible(parsedContent, i)) continue;
+      parts.add(line);
     }
     return parts.join('\n');
-  }
-
-  /// Runs the one-off jump to [ZikrContentViewerWidget.initialAyah].
-  ///
-  /// Guarded rather than driven from `initState` because the list has no
-  /// scroll position until it has laid out, and the ayah index does not exist
-  /// until the tab's content has been parsed.
-  void _scheduleInitialAyahScroll(
-    int tabIndex,
-    AyahIndex ayahIndex,
-    int itemCount,
-  ) {
-    final verse = widget.initialVerse;
-    if (_didScrollToInitialAyah || verse == null || verse.ayah == null) return;
-
-    _didScrollToInitialAyah = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _scrollToVerse(tabIndex, ayahIndex, verse, itemCount);
-    });
-  }
-
-  /// The verse - a run of content-line indexes starting at an Arabic line -
-  /// that a saved bookmark should highlight, or null if this tab has no
-  /// bookmark, no Arabic to anchor one to, or has not laid out yet.
-  ///
-  /// [ScrollController.position] is only valid once the list has attached,
-  /// which has not happened yet on a tab's very first build; when that is
-  /// the case this schedules one follow-up rebuild for right after layout,
-  /// so the highlight appears on its own rather than needing a scroll or
-  /// other interaction to trigger it.
-  BookmarkedVerseRange? _bookmarkedVerseRange(
-    int tabIndex,
-    ScrollController controller,
-    ParsedZikrContent parsedContent,
-  ) {
-    if (widget.initialBookmarkTabIndex != tabIndex) return null;
-    final bookmarkOffset = widget.initialBookmarkScrollOffset;
-    if (bookmarkOffset == null || bookmarkOffset <= 0) return null;
-
-    if (!controller.hasClients || !controller.position.hasContentDimensions) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() {});
-      });
-      return null;
-    }
-
-    final maxExtent = controller.position.maxScrollExtent;
-    final fraction = maxExtent > 0 ? bookmarkOffset / maxExtent : 0.0;
-    final startIndex = snapToArabicLineIndex(
-      scrollFraction: fraction,
-      lineCount: parsedContent.lines.length,
-      arabicLineIndexes: parsedContent.arabicCodes,
-    );
-    return BookmarkedVerseRange.fromStart(
-      startIndex,
-      arabicLineIndexes: parsedContent.arabicCodes,
-      lineCount: parsedContent.lines.length,
-    );
   }
 
   @override
@@ -1065,9 +1057,60 @@ class _TabContentCache {
   final String? code;
   final ParsedZikrContent parsed;
 
-  /// Null for everything that is not a surah, which is what keeps every other
+  /// Null for everything that is not Quran, which is what keeps every other
   /// zikr on the line-by-line rendering path.
   final AyahIndex? ayahIndex;
+}
+
+/// Names the surah a juz has just moved into.
+///
+/// Only ever drawn inside a portion that spans surahs. Reading a single surah
+/// needs no such marker - the page title is already its name - so this is
+/// absent from that path entirely rather than duplicating it.
+class _SurahHeading extends StatelessWidget {
+  const _SurahHeading({required this.surah});
+
+  final SurahInfo surah;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 20, bottom: 8),
+      child: Column(
+        children: [
+          Divider(color: theme.colorScheme.outlineVariant),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              '${surah.number}. ${surah.englishName}',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (surah.arabicName.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                surah.arabicName,
+                textAlign: TextAlign.center,
+                textDirection: TextDirection.rtl,
+                style: TextStyle(
+                  fontFamily: arabicFont,
+                  fontFamilyFallback: const ['Qalam'],
+                  fontSize: 20,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 /// One verse of the Quran, drawn as a single item.
@@ -1078,7 +1121,6 @@ class _TabContentCache {
 /// scanning: small, muted, and at the start where the eye lands.
 class _AyahBlock extends StatelessWidget {
   const _AyahBlock({
-    super.key,
     required this.ayah,
     required this.startsSurah,
     required this.isBookmarked,
@@ -1086,13 +1128,14 @@ class _AyahBlock extends StatelessWidget {
     required this.children,
   });
 
+  /// Null for the Bismillah heading a surah, which is drawn without a badge
+  /// because it is not a numbered verse.
+  final int? ayah;
+
   /// Set on the first verse of each surah in a juz, where the reader crosses
   /// from one surah into the next and the page title cannot say which.
   final SurahInfo? startsSurah;
 
-  /// Null for the Bismillah heading a surah, which is drawn without a badge
-  /// because it is not a numbered verse.
-  final int? ayah;
   final bool isBookmarked;
   final VoidCallback? onAction;
   final List<Widget> children;
@@ -1156,57 +1199,6 @@ class _AyahBlock extends StatelessWidget {
       onTap: onAction,
       onLongPress: onAction,
       child: decorated,
-    );
-  }
-}
-
-/// Names the surah a juz has just moved into.
-///
-/// Only ever drawn inside a portion that spans surahs. Reading a single surah
-/// needs no such marker - the page title is already its name - so this is
-/// absent from that path entirely rather than duplicating it.
-class _SurahHeading extends StatelessWidget {
-  const _SurahHeading({required this.surah});
-
-  final SurahInfo surah;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 8),
-      child: Column(
-        children: [
-          Divider(color: theme.colorScheme.outlineVariant),
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Text(
-              '${surah.number}. ${surah.englishName}',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          if (surah.arabicName.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                surah.arabicName,
-                textAlign: TextAlign.center,
-                textDirection: TextDirection.rtl,
-                style: TextStyle(
-                  fontFamily: arabicFont,
-                  fontFamilyFallback: const ['Qalam'],
-                  fontSize: 20,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

@@ -48,10 +48,7 @@ void main() {
           reason: 'juz ${part.number} does not begin where it should',
         );
       }
-    },
-        // Juz 4 begins at 3:93, one of the ayahs missing from the corpus, so
-        // it currently begins one verse late. Unskips with the repair.
-        skip: 'pending the separate Quran corpus repair');
+    });
 
     test('a juz runs across the surah boundary, which is the whole point',
         () async {

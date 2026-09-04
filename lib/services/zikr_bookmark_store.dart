@@ -13,6 +13,7 @@ class ZikrBookmark {
     required this.updatedAt,
     this.tabTitle,
     this.ayah,
+    this.lineIndex,
     this.version = ZikrBookmarkStore.schemaVersion,
   });
 
@@ -34,6 +35,9 @@ class ZikrBookmark {
       ayah: json['ayah'] is int
           ? json['ayah'] as int
           : int.tryParse(json['ayah']?.toString() ?? ''),
+      lineIndex: json['lineIndex'] is int
+          ? json['lineIndex'] as int
+          : int.tryParse(json['lineIndex']?.toString() ?? ''),
       updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
@@ -48,15 +52,39 @@ class ZikrBookmark {
 
   /// The verse this bookmark sits on, for a surah.
   ///
-  /// Added in v2 and optional on purpose: a bookmark written before it existed
-  /// has none, and still restores by [scrollOffset] exactly as it always did.
-  /// Where it is present it is preferred, because a verse number is an exact
-  /// anchor where the offset was only ever an estimate - and because a verse
-  /// stays meaningful across documents, which is what lets a bookmark set while
-  /// reading a juz land correctly in the surah's own page.
+  /// Optional on purpose: a bookmark written before it existed has none, and
+  /// still restores by [lineIndex] or [scrollOffset] exactly as it did. Where
+  /// it is present it is preferred, because a verse stays meaningful across
+  /// documents - which is what lets a bookmark set while reading a juz land
+  /// correctly in the surah's own page, where a line index measured inside the
+  /// juz would point at the wrong text entirely.
   final int? ayah;
 
+  /// The content line that was at the top of the view when the bookmark was
+  /// taken - the very line the [scrollOffset] was read off, measured from the
+  /// laid-out list rather than estimated from it. This is what the "you left
+  /// off here" marker is drawn on, so the marker stays put no matter what
+  /// later changes the layout: showing the audio player, hiding the reading
+  /// chrome, or turning transliteration off.
+  ///
+  /// Null for bookmarks saved before this was recorded; those adopt a line
+  /// the first time the bookmark is restored, and are rewritten with it.
+  final int? lineIndex;
   final DateTime updatedAt;
+
+  ZikrBookmark copyWith({int? lineIndex}) {
+    return ZikrBookmark(
+      uid: uid,
+      title: title,
+      tabIndex: tabIndex,
+      tabTitle: tabTitle,
+      ayah: ayah,
+      scrollOffset: scrollOffset,
+      lineIndex: lineIndex ?? this.lineIndex,
+      updatedAt: updatedAt,
+      version: version,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -67,6 +95,7 @@ class ZikrBookmark {
       if (tabTitle != null && tabTitle!.trim().isNotEmpty) 'tabTitle': tabTitle,
       if (ayah != null) 'ayah': ayah,
       'scrollOffset': scrollOffset,
+      if (lineIndex != null) 'lineIndex': lineIndex,
       'updatedAt': updatedAt.toUtc().toIso8601String(),
     };
   }

@@ -292,9 +292,9 @@ void main() {
 
       expect(request, isNotNull);
       expect(
-        request!.scrollOffset,
+        request!.lineIndex,
         greaterThan(0),
-        reason: 'a verse scrolled to must report a position past the top',
+        reason: 'a verse scrolled to must report a line past the first',
       );
     });
 

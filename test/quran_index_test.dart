@@ -345,12 +345,7 @@ void main() {
       }
 
       expect(incomplete, isEmpty);
-    },
-        // The corpus is missing ~68 ayahs across surahs 3, 5, 16 and 38, and
-        // that repair is being handled separately. Drop this skip once it
-        // lands: this is the check that says it is complete, and afterwards it
-        // guards against the gaps coming back.
-        skip: 'pending the separate Quran corpus repair');
+    });
   });
 }
 
