@@ -9,45 +9,21 @@
     "Tahlilaat (hymns of God's unity)\nIt is recommended to say the following doxology (zikr), which is reported from Imam Ali Ameer al-Momineen (a.s.), on the first ten days of Zilhajj. An excellent reward has been reported for those saying this doxology (zikr), which should preferably be repeated ten times a day:\nلَاۤ اِلٰهَ اِلَّا اللّٰهُ عَدَدَ اللَّيَالِيْ وَ الدُّهُوْرِ \nLAA ELAAHA ILLAL LAAHO A'DADAL LAYAALEE WAD DOHOORE \nThere is no god save Allah as many as nights and ages. \nلَاۤ اِلٰهَ اِلَّا اللّٰهُ عَدَدَ اَمْوَاجِ الْبُحُوْرِ \nLAA ELAAHA ILLAL LAAHO A'DADA AMWAAJIL BOHOORE \nThere is no god save Allah as many as the waves of oceans. \nلَاۤ اِلٰهَ اِلَّا اللّٰهُ وَ رَحْمَتُهٗ خَيْرٌ مِمَّا يَجْمَعُوْنَ \nLAA ELAAHA ILLAL LAAHO WA RAHMATOHU KHAYRUN MIMMAA YAJ-MA-O'ONA \nThere is no god save Allah and His mercy is better than what they amass. \nلَاۤ اِلٰهَ اِلَّا اللّٰهُ عَدَدَ الشَّوْكِ وَ الشَّجَرِ \nLAA ELAAHA ILLAL LAAHO A'DADASH SHAWKE WASH SHAJARE \nThere is no god save Allah as many as thorns and trees. \nلَاۤ اِلٰهَ اِلَّا اللّٰهُ عَدَدَ الشَّعْرِ وَ الْوَبَرِ \nLAA ELAAHA ILLAL LAAHO A'DADASH SHA’RE WAL WABARE \nThere is no god save Allah as many as hairs and piles. \nلَاۤ اِلٰهَ اِلَّا اللّٰهُ عَدَدَ الْحَجَرِ وَ الْمَدَرِ \nLAA ELAAHA ILLAL LAAHO A'DADAL HAJARE WAL MADARE\nThere is no god save Allah as many as stones and loams. \nلَاۤ اِلٰهَ اِلَّا اللّٰهُ عَدَدَ لَمْحِ الْعُيُوْنِ \nLAA ELAAHA ILLAL LAAHO A'DADA LAMHIL O'YOONE \nThere is no god save Allah as many as sights of eyes. \nلَاۤ اِلٰهَ اِلَّا اللّٰهُ فِي اللَّيْلِ اِذَا عَسْعَسَ وَ الصُّبْحِ اِذَا تَنَفَّسَ \nLAA ELAAHA ILLAL LAAHO FIL LAYLE EZAA A'S-A'SA WA FISH SUBHE EZAA TANAFFASA \nThere is no god save Allah in the night when it departs and in the morning when it brightens. \nلَاۤ اِلٰهَ اِلَّا اللّٰهُ عَدَدَ الرِّيَاحِ فِي الْبَرَارِيْ وَ الصُّخُوْرِ \nLAA ELAAHA ILLAL LAAHO A'DADAR REYAAHE FIL BARAAREE WAS-SOKHOORE \nThere is no god save Allah as much as wind in lands and rocks. \nلَاۤ اِلٰهَ اِلَّا اللّٰهُ مِنَ الْيَوْمِ اِلٰى يَوْمِ يُنْفَخُ فِي الصُّوْرِ.\nLAA ELAAHA ILLAL LAAHO MENAL YAWME ELAA YAWMIN YUNFAKHO FIS SOORE.\nThere is no god save Allah from this day up to the day when the Trumpet will be blown."
   ],
   "audio": [
-    [
-      [
-        "url",
-        "https://mp3.duas.org/zilhajj-salat-ayat.mp3"
-      ],
-      [
-        "label",
-        "Salaat between Maghrib and Isha"
-      ]
-    ],
-    [
-      [
-        "url",
-        "https://mp3.duas.org/zilhajj%20allahumahazaayam.mp3"
-      ],
-      [
-        "label",
-        "Dua after Fajr and Before Magrib"
-      ]
-    ],
-    [
-      [
-        "url",
-        "https://mp3.duas.org/zilhajj%201st%2010%20days%205%20duas%20ashhadu.mp3"
-      ],
-      [
-        "label",
-        "Five Tasbih - Zilhajj 10 days"
-      ]
-    ],
-    [
-      [
-        "url",
-        "https://mp3.duas.org/zilhajj10-tahlil.mp3"
-      ],
-      [
-        "label",
-        "Tahlilaat (hymns of God's unity)"
-      ]
-    ]
+    {
+      "url": "https://mp3.duas.org/zilhajj-salat-ayat.mp3",
+      "label": "Salaat between Maghrib and Isha"
+    },
+    {
+      "url": "https://mp3.duas.org/zilhajj%20allahumahazaayam.mp3",
+      "label": "Dua after Fajr and Before Magrib"
+    },
+    {
+      "url": "https://mp3.duas.org/zilhajj%201st%2010%20days%205%20duas%20ashhadu.mp3",
+      "label": "Five Tasbih - Zilhajj 10 days"
+    },
+    {
+      "url": "https://mp3.duas.org/zilhajj10-tahlil.mp3",
+      "label": "Tahlilaat (hymns of God's unity)"
+    }
   ]
 }
