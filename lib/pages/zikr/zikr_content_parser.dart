@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../../constants.dart';
 
 class ZikrLineSegment {
@@ -9,18 +11,42 @@ class ZikrLineSegment {
   bool get hasHref => href != null && href!.trim().isNotEmpty;
 }
 
+/// One Arabic line together with the transliteration and translation lines
+/// that belong to it - the "triplet" a reader sees as a single unit. [start]
+/// is inclusive, [end] exclusive, and the two are the outermost member lines
+/// however the tab's code orders them (transliteration leads the Arabic in
+/// code 102, follows it in 012).
+class ZikrLineGroup {
+  const ZikrLineGroup({required this.start, required this.end});
+
+  final int start;
+  final int end;
+
+  bool contains(int lineIndex) => lineIndex >= start && lineIndex < end;
+}
+
 class ParsedZikrContent {
   final List<String> lines;
   final Set<int> arabicCodes;
   final Set<int> transliCodes;
   final Set<int> translaCodes;
 
+  /// The triplet each member line belongs to, keyed by every one of its
+  /// member indexes so a lookup works from the Arabic line, its
+  /// transliteration or its translation alike. Lines that stand on their own
+  /// - headings, instructions, blank lines - are simply absent.
+  final Map<int, ZikrLineGroup> groupForLine;
+
   const ParsedZikrContent({
     required this.lines,
     required this.arabicCodes,
     required this.transliCodes,
     required this.translaCodes,
+    this.groupForLine = const {},
   });
+
+  /// The triplet [lineIndex] belongs to, or null when it stands alone.
+  ZikrLineGroup? groupContaining(int lineIndex) => groupForLine[lineIndex];
 }
 
 class ZikrContentParser {
@@ -43,11 +69,48 @@ class ZikrContentParser {
       }
     }
 
+    final transliCodes = <int>{};
+    final translaCodes = <int>{};
+    final groupForLine = <int, ZikrLineGroup>{};
+
+    for (final arabicIndex in arabicCodes) {
+      final members = <int>[arabicIndex];
+      final transliIndex = _englishCodeFor(arabicIndex, true, code);
+      final translaIndex = _englishCodeFor(arabicIndex, false, code);
+
+      // An index that is itself Arabic is another verse, not this one's
+      // English: the renderer already treats Arabic first, and letting it
+      // into the triplet would stretch the span over two verses.
+      if (transliIndex != null &&
+          transliIndex >= 0 &&
+          transliIndex < split.length &&
+          !arabicCodes.contains(transliIndex)) {
+        transliCodes.add(transliIndex);
+        members.add(transliIndex);
+      }
+      if (translaIndex != null &&
+          translaIndex >= 0 &&
+          translaIndex < split.length &&
+          !arabicCodes.contains(translaIndex)) {
+        translaCodes.add(translaIndex);
+        members.add(translaIndex);
+      }
+
+      final group = ZikrLineGroup(
+        start: members.reduce(math.min),
+        end: members.reduce(math.max) + 1,
+      );
+      for (final member in members) {
+        groupForLine[member] = group;
+      }
+    }
+
     return ParsedZikrContent(
       lines: split,
       arabicCodes: arabicCodes,
-      transliCodes: _generateEnglishCodes(arabicCodes, true, code),
-      translaCodes: _generateEnglishCodes(arabicCodes, false, code),
+      transliCodes: transliCodes,
+      translaCodes: translaCodes,
+      groupForLine: groupForLine,
     );
   }
 
@@ -93,26 +156,24 @@ class ZikrContentParser {
     return segments;
   }
 
-  static Set<int> _generateEnglishCodes(
-    Set<int> arabicCodes,
+  /// Where the transliteration (or translation) of the Arabic line at
+  /// [arabicIndex] sits, per the tab's layout code, or null when the layout
+  /// has no such line at all. The index is not range-checked here.
+  static int? _englishCodeFor(
+    int arabicIndex,
     bool transliteration,
     String? code,
   ) {
-    final englishCodes = <int>{};
-    if (code == "102") {
-      for (final i in arabicCodes) {
-        englishCodes.add(transliteration ? i - 1 : i + 1);
-      }
-    } else if (code == "012") {
-      for (final i in arabicCodes) {
-        englishCodes.add(transliteration ? i + 1 : i + 2);
-      }
-    } else if (code == "02" && !transliteration) {
-      for (final i in arabicCodes) {
-        englishCodes.add(i + 1);
-      }
+    switch (code) {
+      case '102':
+        return transliteration ? arabicIndex - 1 : arabicIndex + 1;
+      case '012':
+        return transliteration ? arabicIndex + 1 : arabicIndex + 2;
+      case '02':
+        return transliteration ? null : arabicIndex + 1;
+      default:
+        return null;
     }
-    return englishCodes;
   }
 
   // Al Qalam encodes the ṣilah al-hā' marks at private-use codepoints whose
