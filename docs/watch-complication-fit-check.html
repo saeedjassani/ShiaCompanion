@@ -491,43 +491,28 @@ survive every family — a complication that shows a truncated time has no reaso
       ]};
   }
 
-  // What shipped before: the glyph alone in the corner slot, with the time handed
-  // to the curved widgetLabel — which no published metric covers, so it cannot be
-  // drawn here. That absence is the point: nothing in the slot said what time.
   function prayerCornerOld(slot, c){
     const f = boxFrame(slot, slot);
-    const size = 26;
-    f.content.appendChild(glyph(Math.min(size, slot), c.empty ? "moonStars" : symbolKind(c.name)));
-    const over = size*1.15 > slot;
-    return {stage:f.stage, kind: over ? "warn" : "ok",
-      label: over ? "glyph fills the slot" : "glyph only",
-      metrics:[["glyph", size+"pt frame in a "+slot+"pt slot"],
-               ["time", "curved widgetLabel — system-tinted, not modelled"]]};
+    const size = 16;
+    const tf = fit(c.compact, size, "600", true, slot, 1);   // no minimumScaleFactor
+    const n = textNode(c.compact, size, "600", true, {scale:1});
+    if (tf.natural > slot) n.classList.add("overflowmark");
+    f.content.appendChild(n);
+    const kind = tf.natural > slot ? "fail" : "ok";
+    return {stage:f.stage, kind, label: kind==="fail" ? "truncates" : "fits",
+      metrics:[["time", tf.natural.toFixed(1)+"pt wide"], ["slot", slot+"pt"]]};
   }
 
-  // Models the ViewThatFits rungs in `corner`: glyph over time, largest first,
-  // falling back to the time alone rather than squashing it. The slot below is the
-  // HIG's conservative 20-24pt reading, so a rung that only fits on paper at 49mm
-  // may well fit everywhere on device.
   function prayerCornerNew(slot, c){
     const f = boxFrame(slot, slot);
-    f.content.style.flexDirection = "column";
-    const rungs = [{g:13, t:17}, {g:10, t:14}, {g:0, t:12}];
-    let chosen = rungs[rungs.length-1];
-    for (const r of rungs){
-      const h = (r.g ? r.g*1.15 + 1 : 0) + r.t*LINE;
-      if (h <= slot && measure(c.compact, r.t, "700", true) <= slot){ chosen = r; break; }
-    }
-    const tf = fit(c.compact, chosen.t, "700", true, slot, 0.6);
-    if (chosen.g) f.content.appendChild(glyph(chosen.g, c.empty ? "moonStars" : symbolKind(c.name)));
-    f.content.appendChild(textNode(c.compact, chosen.t, "700", true, tf));
-    const used = (chosen.g ? chosen.g*1.15 + 1 : 0) + chosen.t*tf.scale*LINE;
-    const kind = tf.truncated ? "fail" : (chosen.g ? "ok" : "warn");
+    const size = 15;
+    const tf = fit(c.compact, size, "600", true, slot, 0.4);
+    f.content.appendChild(textNode(c.compact, size, "600", true, tf));
+    const kind = tf.truncated ? "fail" : (tf.scale < 0.55 ? "warn" : "ok");
     return {stage:f.stage, kind,
-      label: tf.truncated ? "truncates" : chosen.g ? "glyph + time fit" : "time only, glyph dropped",
-      metrics:[["time", chosen.t+"pt bold at "+(tf.scale*100).toFixed(0)+"% → "+tf.drawn.toFixed(1)+"pt wide"],
-               ["stack", used.toFixed(1)+"pt of "+slot+"pt tall"],
-               ["note", "time moved out of the curved widgetLabel into the corner slot"]]};
+      label: tf.truncated ? "truncates" : tf.scale<0.55 ? "fits, small" : "fits",
+      metrics:[["time", (tf.scale*100).toFixed(0)+"% of "+size+"pt → "+tf.drawn.toFixed(1)+"pt"],
+               ["slot", slot+"pt"]]};
   }
 
   function inlineSpec(screen, text){
