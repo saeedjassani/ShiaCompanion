@@ -70,9 +70,25 @@ android {
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
             }
-            minifyEnabled false
-            shrinkResources false
+            // R8 strips the code nothing reaches; shrinkResources does the
+            // same for resources. What normally makes both unsafe is anything
+            // found by name at runtime, and both such cases here are already
+            // covered: every Android component is declared in
+            // AndroidManifest.xml, from which AGP generates keep rules, and
+            // res/raw/keep.xml pins @drawable/* and @raw/* against the
+            // resource shrinker — flutter_local_notifications resolves the
+            // azan sounds and the notification icon through
+            // Resources.getIdentifier(), which no static analysis can see.
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // Obfuscated frames would make every release crash report
+            // unreadable, so state the upload rather than leaning on the
+            // plugin's default staying true.
+            firebaseCrashlytics {
+                mappingFileUploadEnabled true
+            }
         }
         debug {
             applicationIdSuffix ".debug"
