@@ -220,7 +220,9 @@ struct NextPrayerComplicationView: View {
                 PrayerGlyphView(name: entry.glyphName)
                     .frame(width: side * 0.22, height: side * 0.22)
                 Text(entry.compactTime)
-                    .font(.system(size: side * 0.34, weight: .semibold, design: .rounded))
+                    // `.bold`: the time is the one thing read at a glance here, and
+                    // the glyph above it is a line drawing rather than a filled shape.
+                    .font(.system(size: side * 0.34, weight: .bold, design: .rounded))
                     .minimumScaleFactor(0.45)
                     .allowsTightening(true)
                     .lineLimit(1)
@@ -235,33 +237,50 @@ struct NextPrayerComplicationView: View {
         .widgetAccentable()
     }
 
+    /// Glyph over time, both inside the corner's own content slot.
+    ///
+    /// The time used to live in the `widgetLabel`, the curved band along the bezel.
+    /// That band is drawn by watchOS in its own tinted, size-capped style — the
+    /// previous pass set it to 26pt `.bold` and the device barely changed, so there
+    /// is no knob left there to turn. Moving the time into the content slot is what
+    /// makes it bigger and full-brightness; the glyph moves with it so this family
+    /// still says which prayer, like the other three.
+    ///
+    /// The published corner slot is 20-24pt square and the real one is somewhat
+    /// more generous, so the rungs are tried largest first and `ViewThatFits` takes
+    /// the first that the slot actually accommodates. The last rung drops the glyph
+    /// rather than the time: a squashed, half-scaled time would undo the point of
+    /// the change.
     private var corner: some View {
-        // The corner family's main content remains fixed in the corner; its
-        // `widgetLabel` is the system-provided curved bezel line. Keeping the
-        // glyph here and giving the time to that label prevents the time from
-        // being laid out across the narrow straight chord and clipped. Sized up
-        // from the initial pass, which left the corner looking sparse next to
-        // faces' own complications in the opposite corner (e.g. the date).
-        PrayerGlyphView(name: entry.glyphName)
-            .frame(width: 26, height: 26)
-            .widgetLabel {
-                Text(entry.compactTime)
-                    // `.bold`, not `.semibold`, and system rather than rounded, to
-                    // read as dark as this family's chrome allows. It still comes out
-                    // fainter than a face's own curved date band — that band is a
-                    // `bezel`-family complication, a different family the system
-                    // renders at full brightness; `corner`'s `widgetLabel` is tinted
-                    // by watchOS regardless of the weight/color set here, confirmed by
-                    // this exact change producing barely any contrast difference on
-                    // device. `.widgetAccentable()` and an explicit `.primary` are
-                    // kept anyway so this doesn't fall back to something dimmer still.
-                    .font(.system(size: 26, weight: .bold, design: .default))
-                    .foregroundStyle(.primary)
-                    .widgetAccentable()
-                    .minimumScaleFactor(0.5)
-                    .allowsTightening(true)
-                    .lineLimit(1)
+        Group {
+            if #available(watchOS 10.0, *) {
+                ViewThatFits(in: .vertical) {
+                    cornerStack(glyph: 13, time: 17)
+                    cornerStack(glyph: 10, time: 14)
+                    cornerTime(12)
+                }
+            } else {
+                cornerStack(glyph: 10, time: 14)
             }
+        }
+        .widgetAccentable()
+    }
+
+    private func cornerStack(glyph: CGFloat, time: CGFloat) -> some View {
+        VStack(spacing: 1) {
+            PrayerGlyphView(name: entry.glyphName)
+                .frame(width: glyph, height: glyph)
+            cornerTime(time)
+        }
+    }
+
+    private func cornerTime(_ size: CGFloat) -> some View {
+        Text(entry.compactTime)
+            .font(.system(size: size, weight: .bold, design: .rounded))
+            .foregroundStyle(.primary)
+            .minimumScaleFactor(0.6)
+            .allowsTightening(true)
+            .lineLimit(1)
     }
 
     private var inline: some View {
@@ -270,8 +289,10 @@ struct NextPrayerComplicationView: View {
             // owns, and it elides rather than scales.
             Text(entry.hasData ? entry.compactTime : "Open iPhone app")
         } icon: {
-            PrayerGlyphView(name: entry.glyphName)
-                .frame(width: 14, height: 14)
+            // An SF Symbol, not `PrayerGlyphView`: watchOS composes this family
+            // itself and renders only an `Image` in the icon slot, so the drawn
+            // glyph came out blank and the complication showed a bare time.
+            Image(systemName: prayerSymbolName(for: entry.glyphName))
         }
     }
 

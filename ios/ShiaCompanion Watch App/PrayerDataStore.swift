@@ -366,6 +366,28 @@ nonisolated func prayerGlyphType(for prayerName: String) -> PrayerGlyphType {
     return .unknown
 }
 
+/// The nearest SF Symbol to each hand-drawn glyph, for the one place a
+/// `PrayerGlyphView` cannot go: `accessoryInline`. That family is composed by
+/// watchOS as a single line of system-styled text plus an image, and it only
+/// renders an `Image` — a `Canvas`-drawn view in the icon slot draws nothing,
+/// which is why the inline complication came out as a bare time. Everywhere
+/// else keeps the drawn glyph, which matches the phone app.
+nonisolated func prayerSymbolName(for prayerName: String) -> String {
+    switch prayerGlyphType(for: prayerName) {
+    case .fajr: return "sunrise"
+    case .sunrise: return "sunrise.fill"
+    case .zuhr: return "sun.max"
+    case .asr: return "sun.min"
+    // Sunset and Maghrib are separate selectable times — Maghrib comes after
+    // sunset — so they cannot share a symbol.
+    case .sunset: return "sunset"
+    case .maghrib: return "sunset.fill"
+    case .isha: return "moon.stars"
+    case .midnight: return "moon"
+    case .unknown: return "clock"
+    }
+}
+
 /// Drop-in replacement for `Image(systemName: prayerSymbolName(for: name))`:
 /// draws the same horizon/sun/crescent/star glyphs the Flutter app paints in
 /// `PrayerGlyph` (`lib/widgets/prayer_glyph.dart`) instead of borrowing SF
