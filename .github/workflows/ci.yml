@@ -102,7 +102,11 @@ jobs:
           printf '### Release APK\n\n**%s** (%s bytes)\n\n' \
             "$(numfmt --to=iec --suffix=B "$bytes")" "$bytes" >> "$GITHUB_STEP_SUMMARY"
           printf 'Largest entries:\n\n```\n' >> "$GITHUB_STEP_SUMMARY"
-          unzip -l "$apk" | sort -rn -k1 | head -15 >> "$GITHUB_STEP_SUMMARY"
+          # Through a file rather than a pipe into head: head closes the pipe
+          # on its fifteenth line and sort dies of SIGPIPE mid-write, which
+          # logs "sort: write error" on an otherwise green step.
+          unzip -l "$apk" | sort -rn -k1 > /tmp/apk-entries.txt
+          head -15 /tmp/apk-entries.txt >> "$GITHUB_STEP_SUMMARY"
           printf '```\n' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload APK
