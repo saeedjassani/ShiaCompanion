@@ -1,0 +1,19 @@
+{
+  "name": "shia-companion-store-screenshots",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Captures App Store and Play screenshots from the Flutter web build and frames them.",
+  "scripts": {
+    "setup": "node setup.js",
+    "capture": "node capture.js",
+    "frame": "node build.js",
+    "all": "node run.js"
+  },
+  "devDependencies": {
+    "@fontsource/noto-sans-arabic": "^5.1.0",
+    "@fontsource/roboto": "^5.1.0",
+    "esbuild": "^0.24.0",
+    "firebase": "12.14.0",
+    "playwright": "^1.62.1"
+  }
+}
