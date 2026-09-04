@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,7 +12,9 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
+import 'package:shia_companion/services/quran_progress_store.dart';
 import 'package:shia_companion/utils/deep_links.dart';
+import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/external_launch.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
@@ -63,10 +66,15 @@ class ZikrPage extends StatefulWidget {
   /// home grid or a shared link is what actually brings people to a zikr.
   final String source;
 
+  /// The verse to open at, when this zikr is a surah and the reader arrived
+  /// from a `/quran/23/56` link, the go-to-verse box, or a resumed recitation.
+  final int? initialAyah;
+
   ZikrPage(
     this.item, {
     this.startEditing = false,
     this.source = ZikrOpenSource.unknown,
+    this.initialAyah,
   });
 
   @override
@@ -131,10 +139,21 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// it — and closing it stops playback.
   bool _showAudioPlayer = false;
 
+  /// Which surah this is, or null when the zikr is not one of the 114. Null is
+  /// the ordinary case and keeps this page on its existing behaviour
+  /// throughout — nothing below it does anything at all for a non-surah.
+  int? _surahNumber;
+
+  /// The last ayah reported as being read, so a debounced save has something
+  /// to write and repeat reports of the same verse cost nothing.
+  int? _pendingProgressAyah;
+  Timer? _progressSaveTimer;
+
   @override
   void initState() {
     super.initState();
     isAdmin = isUserAdmin;
+    _surahNumber = surahForUid(widget.item.getFirstUId());
     _counterSessionId = widget.item.getFirstUId();
     final counterState =
         ZikrCounterSessionStore.instance.read(_counterSessionId);
@@ -184,8 +203,160 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ));
   }
 
+  /// Records the reader's place in their recitation - but only once they have
+  /// actually been reading.
+  ///
+  /// Arriving at 23:56 from a link or the go-to-verse box reports the position
+  /// too, with [QuranReadingPosition.fromUserScroll] false, and that case is
+  /// dropped here: a lookup should never cost someone the place they had
+  /// reached. Scrolling on from there does count, which is what makes a lookup
+  /// that turns into real reading become the new place on its own.
+  void _handleAyahPositionChanged(QuranReadingPosition position) {
+    final surah = _surahNumber;
+    if (surah == null || !position.fromUserScroll) return;
+    if (position.ayah == _pendingProgressAyah) return;
+
+    _pendingProgressAyah = position.ayah;
+    // Scrolling reports continuously; a save per frame would be pointless
+    // churn, so wait for the reader to settle.
+    _progressSaveTimer?.cancel();
+    _progressSaveTimer = Timer(const Duration(seconds: 1), _flushReadingProgress);
+  }
+
+  /// Writes the pending position out.
+  ///
+  /// Also called from [dispose], because leaving the page is the most likely
+  /// moment for a debounced write to still be waiting - closing a surah right
+  /// after reading a verse is the ordinary way to finish, and losing that last
+  /// move is exactly the place someone would notice.
+  void _flushReadingProgress() {
+    final surah = _surahNumber;
+    final ayah = _pendingProgressAyah;
+    if (surah == null || ayah == null) return;
+
+    _pendingProgressAyah = null;
+    unawaited(
+      QuranProgressStore.instance.save(
+        QuranProgress(
+          surah: surah,
+          ayah: ayah,
+          surahTitle: widget.item.getTitle(),
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      ),
+    );
+  }
+
+  /// The per-ayah menu: what you can do with one verse rather than the whole
+  /// surah, which is all the action bar has ever offered.
+  Future<void> _showAyahActions(AyahActionRequest request) async {
+    final surah = _surahNumber;
+    if (surah == null) return;
+
+    final ayah = request.ayah;
+    final text = request.text;
+    final verse = VerseKey(surah, ayah);
+    final link = buildQuranDeepLinkUrl(surah: surah, ayah: ayah);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              dense: true,
+              title: Text(
+                '${widget.item.getTitle()} · $verse',
+                style: Theme.of(sheetContext).textTheme.labelLarge,
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.copy),
+              title: const Text('Copy verse'),
+              onTap: () async {
+                Navigator.pop(sheetContext);
+                await Clipboard.setData(ClipboardData(text: text));
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Copied $verse')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: const Text('Copy link'),
+              onTap: () async {
+                Navigator.pop(sheetContext);
+                await Clipboard.setData(ClipboardData(text: link));
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Link copied')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Share verse'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                unawaited(
+                  SharePlus.instance.share(ShareParams(text: '$text\n\n$link')),
+                );
+              },
+            ),
+            if (request.scrollOffset != null)
+              ListTile(
+                leading: const Icon(Icons.bookmark_outline),
+                title: const Text('Bookmark this verse'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  unawaited(_bookmarkAyah(verse, request.scrollOffset!));
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Moves the zikr's one bookmark onto a verse the reader picked.
+  ///
+  /// Writes the same [ZikrBookmark] the action bar does - there is still one
+  /// bookmark per zikr - so the marker, the restore on reopen and the filled
+  /// bookmark button all keep working unchanged. All this adds is the ability
+  /// to choose which verse it lands on instead of taking whatever is at the
+  /// top of the view.
+  Future<void> _bookmarkAyah(VerseKey verse, double scrollOffset) async {
+    final bookmark = ZikrBookmark(
+      uid: _bookmarkUid,
+      title: widget.item.getTitle(),
+      tabIndex: _selectedZikrTabIndex,
+      scrollOffset: scrollOffset,
+      updatedAt: DateTime.now().toUtc(),
+    );
+
+    await ZikrBookmarkStore.instance.save(bookmark);
+    if (!mounted) return;
+    setState(() {
+      _savedBookmark = bookmark;
+    });
+    unawaited(AnalyticsService.feature(
+      'zikr_bookmark_saved',
+      label: 'Bookmark saved',
+      parameters: {'zikr_uid': _bookmarkUid},
+    ));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Bookmarked $verse')),
+    );
+  }
+
   @override
   void dispose() {
+    _progressSaveTimer?.cancel();
+    _flushReadingProgress();
     if (_pageRoute != null) {
       routeObserver.unsubscribe(this);
     }
@@ -226,11 +397,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   String get _bookmarkUid => widget.item.getFirstUId();
 
+  /// The verse to open at, once for this page.
+  ///
+  /// Only meaningful for a surah - an ayah number means nothing in a dua, and
+  /// passing one through would put the viewer into ayah mode for a document
+  /// that has no ayahs.
+  int? get _initialAyah => _surahNumber == null ? null : widget.initialAyah;
+
   void _loadSavedBookmark() {
     final bookmark = ZikrBookmarkStore.instance.read(_bookmarkUid);
     if (bookmark == null) return;
 
     _savedBookmark = bookmark;
+
+    // An explicit destination wins over restoring the bookmark's position:
+    // someone opening 23:56 asked for that verse, not for wherever they last
+    // bookmarked this surah. The bookmark itself is kept, and still drawn.
+    if (_initialAyah != null) return;
+
     _selectedZikrTabIndex = bookmark.tabIndex;
     _currentTabScrollOffsets[bookmark.tabIndex] = bookmark.scrollOffset;
   }
@@ -1439,6 +1623,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                                 _savedBookmark?.scrollOffset,
                                             onScrollPositionChanged:
                                                 _handleContentScrollPositionChanged,
+                                            surahNumber: _surahNumber,
+                                            initialAyah: _initialAyah,
+                                            onAyahPositionChanged:
+                                                _handleAyahPositionChanged,
+                                            onAyahAction: _surahNumber == null
+                                                ? null
+                                                : _showAyahActions,
                                           ),
                                   ),
                       ),

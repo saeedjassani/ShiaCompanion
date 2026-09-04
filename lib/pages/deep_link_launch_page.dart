@@ -5,9 +5,12 @@ import '../services/deep_link_resolver.dart';
 import '../services/library_service.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/deep_links.dart';
+import '../utils/quran_index.dart';
+import '../constants.dart';
 import 'chapter_list_page.dart';
 import 'chapter_page.dart';
 import 'deep_link_not_found_page.dart';
+import 'quran/quran_page.dart';
 import 'zikr/zikr_page.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 
@@ -62,6 +65,11 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
   }
 
   Future<Widget?> _resolveDestination() async {
+    // A bare /quran is the one link with nothing after it - it names the Quran
+    // screen rather than anything inside it.
+    if (widget.target.type == quranDeepLinkType) {
+      return _resolveQuranDestination();
+    }
     if (widget.target.segments.isEmpty) return null;
 
     switch (widget.target.type) {
@@ -75,6 +83,26 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
       default:
         return null;
     }
+  }
+
+  Widget? _resolveQuranDestination() {
+    final destination =
+        DeepLinkResolver.resolveQuranDestination(widget.target);
+    if (destination == null) return null;
+    if (destination.isHome) return const QuranPage();
+
+    // A juz link opens at the verse the juz begins on; there is no separate
+    // juz document to show.
+    final verse = destination.verse ??
+        allJuz()[destination.juz! - 1].start;
+    final info = surahInfoFor(verse.surah);
+    if (info == null) return null;
+
+    return ZikrPage(
+      UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
+      source: ZikrOpenSource.deepLink,
+      initialAyah: verse.ayah,
+    );
   }
 
   Future<Widget?> _resolveLibraryDestination() async {

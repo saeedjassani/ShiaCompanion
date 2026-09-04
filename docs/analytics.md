@@ -47,6 +47,10 @@ Library, Favorites, …), `tasbeeh_session` (+`count`), `qaza_updated`
 `flight_added` / `flight_edited`, `prayer_times_selection_changed`
 (+`prayer_times`), `search`, `search_opened`, `zikr_source_*`.
 
+The home menu's ids come from the tile labels, so a genuine rename forks the
+counter by design. `home_menu_surahs` stopped accumulating when that tile became
+`home_menu_quran`; the old key keeps its history and is not merged in.
+
 ### `source` values
 
 See `ZikrOpenSource`. The ids are database keys, so they never change; the

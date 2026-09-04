@@ -148,6 +148,18 @@ class ZikrContentParser {
   // list numbering alone.
   static final RegExp _trailingAyahNumber = RegExp(r'\((\d+)\)\s*$');
 
+  /// The ayah number an Arabic line ends with, or null when it carries none -
+  /// the Bismillah that heads every surah but at-Tawbah, and every line of a
+  /// zikr that is not Quran at all.
+  ///
+  /// Reads the same marker [formatArabicText] converts into a medallion, so
+  /// the number the reader sees and the number the app indexes by are by
+  /// construction the same one.
+  static int? ayahNumberOf(String line) {
+    final match = _trailingAyahNumber.firstMatch(line.trim());
+    return match == null ? null : int.tryParse(match.group(1)!);
+  }
+
   static String _toArabicIndic(String digits) =>
       digits.split('').map((d) => _arabicIndicDigits[int.parse(d)]).join();
 

@@ -3,6 +3,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constants.dart';
 import '../data/uid_title_data.dart';
 import '../utils/deep_links.dart';
+import '../utils/quran_index.dart';
+
+/// Where a `/quran/...` link lands: the Quran screen, one juz, or one verse.
+class QuranDeepLinkDestination {
+  const QuranDeepLinkDestination.home()
+      : verse = null,
+        juz = null;
+  const QuranDeepLinkDestination.verse(VerseKey this.verse) : juz = null;
+  const QuranDeepLinkDestination.juz(int this.juz) : verse = null;
+
+  /// The surah, and the ayah within it when the link named one.
+  final VerseKey? verse;
+  final int? juz;
+
+  bool get isHome => verse == null && juz == null;
+}
 
 /// Turns a zikr deep-link target into the item it names.
 ///
@@ -40,6 +56,30 @@ class DeepLinkResolver {
     }
 
     return _fetchFromFirestore(primarySegment);
+  }
+
+  /// What a `/quran/...` target actually points at, or null when it names no
+  /// verse in the Quran.
+  ///
+  /// This is where range is decided - the link parser only checks shape - so
+  /// `2/300` clamps to al-Baqarah's last verse and `115/1` resolves to nothing.
+  static QuranDeepLinkDestination? resolveQuranDestination(
+    DeepLinkTarget target,
+  ) {
+    final segments = target.segments;
+    if (segments.isEmpty) {
+      return const QuranDeepLinkDestination.home();
+    }
+
+    if (segments.first.toLowerCase() == quranJuzSegment) {
+      final juz = int.tryParse(segments.length > 1 ? segments[1] : '');
+      if (juz == null || juz < 1 || juz > 30) return null;
+      return QuranDeepLinkDestination.juz(juz);
+    }
+
+    final verse = VerseKey.tryParse(segments.join(':'));
+    if (verse == null) return null;
+    return QuranDeepLinkDestination.verse(verse);
   }
 
   static Future<UidTitleData?> _fetchFromFirestore(String segment) async {

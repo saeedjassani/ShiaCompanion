@@ -212,5 +212,143 @@ void main() {
       expect(parseLaunchRouteName('/widget-preview'), isNull);
       expect(parseLaunchRouteName('/callback'), isNull);
     });
+
+    test('claims quran links', () {
+      final surah = parseLaunchRouteName('/quran/23');
+      expect(surah, isNotNull);
+      expect(surah!.type, quranDeepLinkType);
+      expect(surah.segments, ['23']);
+
+      final verse = parseLaunchRouteName('/quran/23/56');
+      expect(verse!.type, quranDeepLinkType);
+      expect(verse.segments, ['23', '56']);
+    });
+  });
+
+  group('quran links', () {
+    DeepLinkTarget? parse(String path) =>
+        parseDeepLinkUri(Uri.parse('https://shia-companion.web.app$path'));
+
+    test('a bare /quran names the Quran screen', () {
+      final target = parse('/quran');
+
+      expect(target, isNotNull);
+      expect(target!.type, quranDeepLinkType);
+      expect(target.segments, isEmpty);
+    });
+
+    test('opens a whole surah', () {
+      final target = parse('/quran/23');
+
+      expect(target!.type, quranDeepLinkType);
+      expect(target.segments, ['23']);
+    });
+
+    test('opens a verse in either path form', () {
+      for (final path in ['/quran/23/56', '/quran/23:56']) {
+        final target = parse(path);
+        expect(target, isNotNull, reason: 'failed on $path');
+        expect(target!.type, quranDeepLinkType, reason: 'failed on $path');
+        expect(target.segments, ['23', '56'], reason: 'failed on $path');
+      }
+    });
+
+    test('normalises every single-segment separator to one shape', () {
+      // "." and "-" both reach us in shared text; a reader should not have to
+      // know which one the app prefers.
+      for (final separator in [':', '.', '-']) {
+        final target = parse('/quran/23${separator}56');
+        expect(target?.segments, ['23', '56'],
+            reason: 'failed on separator "$separator"');
+      }
+    });
+
+    test('reads a juz', () {
+      final target = parse('/quran/juz/5');
+
+      expect(target!.type, quranDeepLinkType);
+      expect(target.segments, [quranJuzSegment, '5']);
+    });
+
+    test('works through a hash route the same as a path', () {
+      final target = parseDeepLinkUri(
+        Uri.parse('https://shia-companion.web.app/#/quran/23/56'),
+      );
+
+      expect(target!.type, quranDeepLinkType);
+      expect(target.segments, ['23', '56']);
+    });
+
+    test('rejects shapes that are not verses', () {
+      for (final path in [
+        '/quran/al-baqarah',
+        '/quran/23/56/78',
+        '/quran/juz',
+        '/quran/juz/five',
+        '/quran/23:',
+      ]) {
+        expect(parse(path), isNull, reason: 'accepted $path');
+      }
+    });
+
+    test('never falls through to the legacy bare-slug branch', () {
+      // Without "quran" being reserved, a malformed Quran link would resolve
+      // as a zikr slug and open the wrong thing rather than a not-found page.
+      final target = parse('/quran/al-baqarah');
+      expect(target, isNull);
+    });
+
+    test('builds the canonical path and url', () {
+      expect(buildQuranDeepLinkPath(surah: 23, ayah: 56), '/quran/23/56');
+      expect(buildQuranDeepLinkPath(surah: 23), '/quran/23');
+      expect(buildQuranJuzDeepLinkPath(5), '/quran/juz/5');
+      expect(
+        buildQuranDeepLinkUrl(surah: 23, ayah: 56),
+        'https://shia-companion.web.app/quran/23/56',
+      );
+    });
+  });
+
+  group('links that worked before still work', () {
+    // Adding the Quran type reserved a new path prefix and added a branch to
+    // the parser. These are the forms already in the wild.
+    DeepLinkTarget? parse(String url) => parseDeepLinkUri(Uri.parse(url));
+
+    test('clean zikr slugs', () {
+      final target = parse('https://shia-companion.web.app/zikr/2-al-baqarah');
+      expect(target!.type, zikrDeepLinkType);
+      expect(target.segments, ['2-al-baqarah']);
+    });
+
+    test('numeric zikr uids', () {
+      final target = parse('https://shia-companion.web.app/0/A6');
+      expect(target!.type, zikrDeepLinkType);
+      expect(target.segments, ['A6']);
+    });
+
+    test('legacy root-level slugs', () {
+      final target = parse('https://shia-companion.web.app/2-al-baqarah');
+      expect(target!.type, zikrDeepLinkType);
+      expect(target.segments, ['2-al-baqarah']);
+    });
+
+    test('library books and chapters', () {
+      final target =
+          parse('https://shia-companion.web.app/library/some-book/chapter-1');
+      expect(target!.type, libraryDeepLinkType);
+      expect(target.segments, ['some-book', 'chapter-1']);
+    });
+
+    test('hash-routed links', () {
+      final target =
+          parse('https://shia-companion.web.app/#/zikr/ziyarat-e-ashura');
+      expect(target!.type, zikrDeepLinkType);
+      expect(target.segments, ['ziyarat-e-ashura']);
+    });
+
+    test('reserved paths are still not zikrs', () {
+      expect(parse('https://shia-companion.web.app/delete-account'), isNull);
+      expect(parse('https://shia-companion.web.app/callback'), isNull);
+    });
   });
 }
