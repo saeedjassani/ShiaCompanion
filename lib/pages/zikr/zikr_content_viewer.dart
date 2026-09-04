@@ -1,7 +1,6 @@
-import 'dart:math' as math;
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import '../../constants.dart';
 import 'zikr_content_parser.dart';
 
@@ -10,78 +9,70 @@ class ZikrContentScrollPosition {
     required this.tabIndex,
     required this.scrollOffset,
     this.maxScrollExtent = 0,
+    this.lineIndex,
   });
 
   final int tabIndex;
   final double scrollOffset;
   final double maxScrollExtent;
+
+  /// The content line sitting at the top of the view at this offset, measured
+  /// from the laid-out list, or null when the list has not been laid out yet.
+  /// This is what a bookmark taken here records, so the "you left off here"
+  /// marker lands on the very line the offset was read off.
+  final int? lineIndex;
 }
 
-/// Which line of a tab's content a bookmark saved at [scrollFraction] of the
-/// way through it (0 = top, 1 = bottom) should be pinned to, snapped back to
-/// the nearest line in [arabicLineIndexes] at or before that point - so the
-/// marker always lands on the verse showing at the top of the view, never
-/// mid-verse or straddling two.
+/// How much of a line may sit above the top of the viewport before the line
+/// below it counts as the one being read. Guards against a line whose bottom
+/// edge lands exactly on the viewport top being picked over its successor.
+const double _lineEdgeTolerance = 0.5;
+
+/// Whether line [index] draws anything at all under the current reading
+/// settings. A transliteration or translation line the reader has switched
+/// off renders as an empty, zero-height box, so the bookmark tint has to skip
+/// it - tinting it would paint a stray sliver of border and padding for a line
+/// that is not there.
+bool isZikrLineVisible(ParsedZikrContent content, int index) {
+  if (index < 0 || index >= content.lines.length) return false;
+  // Mirrors the renderer's own order: Arabic wins over either English set.
+  if (content.arabicCodes.contains(index)) return true;
+  if (content.transliCodes.contains(index)) return showTransliteration;
+  if (content.translaCodes.contains(index)) return showTranslation;
+  return true;
+}
+
+/// The span of content lines the bookmark marker covers, given the line the
+/// bookmark was actually taken on.
 ///
-/// A raw scroll pixel offset by itself doesn't correspond to any one line -
-/// lines wrap to different heights depending on content and the reader's own
-/// font settings, so there is no fixed pixels-per-line to invert. Treating
-/// every line as equal weight and snapping to the nearest verse start is
-/// precise enough to say "about here", without needing real layout
-/// measurements to do it.
+/// A bookmark taken anywhere in an Arabic triplet - on the Arabic itself, or
+/// on its transliteration or translation - marks the whole triplet, starting
+/// from its first line, so the marker never cuts a verse in half. A bookmark
+/// on a line that stands on its own (a heading, an instruction) marks just
+/// that line.
 ///
-/// Backward, not forward: this was originally forward (the nearest verse at
-/// or after the estimate), on the reasoning that reading continues past
-/// whatever was on screen. In practice a verse then stayed "current" for
-/// only the single instant the estimate sat exactly on its start index - any
-/// small scroll drift pushed the estimate just past it and the marker jumped
-/// to the next verse. Bookmarking twice in a row without deliberately
-/// scrolling could visibly creep forward one verse at a time. Snapping
-/// backward instead is stable across a verse's whole span: the marker holds
-/// steady from that verse's start up to wherever the next one begins.
-int? snapToArabicLineIndex({
-  required double scrollFraction,
-  required int lineCount,
-  required Set<int> arabicLineIndexes,
+/// This deliberately takes no scroll measurements. The line index is fixed
+/// when the bookmark is saved, so the marker cannot drift or vanish when
+/// something later changes the layout - the audio player opening, the reading
+/// chrome sliding away, or transliteration being switched off.
+ZikrLineGroup? bookmarkedLineRange({
+  required int? bookmarkLineIndex,
+  required ParsedZikrContent content,
 }) {
-  if (lineCount <= 0 || arabicLineIndexes.isEmpty) return null;
-
-  final estimated = (scrollFraction.clamp(0.0, 1.0) * (lineCount - 1)).round();
-
-  int? atOrBefore;
-  for (final index in arabicLineIndexes) {
-    if (index <= estimated && (atOrBefore == null || index > atOrBefore)) {
-      atOrBefore = index;
-    }
-  }
-  // No Arabic line at or before the estimate - the reader was somewhere
-  // ahead of the first verse (an intro paragraph, say), so the first verse
-  // is the closest thing to "the top of what's visible".
-  return atOrBefore ?? arabicLineIndexes.reduce(math.min);
+  final index = bookmarkLineIndex;
+  if (index == null || index < 0 || index >= content.lines.length) return null;
+  return content.groupContaining(index) ??
+      ZikrLineGroup(start: index, end: index + 1);
 }
 
-/// The span of content-line indexes, `[start, end)`, that make up one verse
-/// starting at an Arabic line - everything up to (but not including) whatever
-/// Arabic line comes next, or the end of the tab if this is the last verse.
-class BookmarkedVerseRange {
-  const BookmarkedVerseRange({required this.start, required this.end});
-
-  final int start;
-  final int end;
-
-  bool contains(int lineIndex) => lineIndex >= start && lineIndex < end;
-
-  static BookmarkedVerseRange? fromStart(
-    int? startIndex, {
-    required Set<int> arabicLineIndexes,
-    required int lineCount,
-  }) {
-    if (startIndex == null) return null;
-    final end = arabicLineIndexes
-        .where((i) => i > startIndex)
-        .fold(lineCount, math.min);
-    return BookmarkedVerseRange(start: startIndex, end: end);
+/// The first line of [range] that actually draws something, which is where
+/// the "Bookmarked" label goes. Null when every line in the range is switched
+/// off, in which case there is nothing to mark at all.
+int? firstVisibleLineInRange(ZikrLineGroup range, ParsedZikrContent content) {
+  for (var index = range.start; index < range.end; index++) {
+    if (isZikrLineVisible(content, index)) return index;
   }
+  return null;
 }
 
 class ZikrContentViewerWidget extends StatefulWidget {
@@ -94,7 +85,17 @@ class ZikrContentViewerWidget extends StatefulWidget {
   final Future<void> Function(String href) onLinkTap;
   final int? initialBookmarkTabIndex;
   final double? initialBookmarkScrollOffset;
+
+  /// The content line the saved bookmark sits on, when it has one. This is
+  /// what the marker is drawn on; the offset above is only used to scroll
+  /// back there.
+  final int? initialBookmarkLineIndex;
   final ValueChanged<ZikrContentScrollPosition>? onScrollPositionChanged;
+
+  /// Reports the line a bookmark saved without one turns out to sit on, once
+  /// the list has been restored to its offset and measured, so the bookmark
+  /// can be rewritten with it and stop depending on the offset.
+  final ValueChanged<int>? onBookmarkLineResolved;
 
   const ZikrContentViewerWidget({
     Key? key,
@@ -107,7 +108,9 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.code,
     this.initialBookmarkTabIndex,
     this.initialBookmarkScrollOffset,
+    this.initialBookmarkLineIndex,
     this.onScrollPositionChanged,
+    this.onBookmarkLineResolved,
   }) : super(key: key);
 
   @override
@@ -119,6 +122,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   late PageController _pageController;
   late List<ScrollController> _tabScrollControllers;
   late List<GlobalKey> _tabHeaderKeys;
+  late List<GlobalKey> _tabListKeys;
   late int _selectedTabIndex;
   late final int? _initialBookmarkTabIndex;
   late final double? _initialBookmarkScrollOffset;
@@ -158,6 +162,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     _pageController = PageController(initialPage: _selectedTabIndex);
     _tabScrollControllers = [];
     _tabHeaderKeys = [];
+    _tabListKeys = [];
     _syncTabState(widget.tabContents.length);
   }
 
@@ -174,6 +179,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     if (count <= 0) {
       _selectedTabIndex = 0;
       _syncTabHeaderKeys(0);
+      _syncTabListKeys(0);
       _syncTabScrollControllers(0);
       return;
     }
@@ -193,6 +199,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
 
     _syncTabHeaderKeys(count);
+    _syncTabListKeys(count);
     _syncTabScrollControllers(count);
   }
 
@@ -202,6 +209,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
     while (_tabHeaderKeys.length > count) {
       _tabHeaderKeys.removeLast();
+    }
+  }
+
+  void _syncTabListKeys(int count) {
+    while (_tabListKeys.length < count) {
+      _tabListKeys.add(GlobalKey());
+    }
+    while (_tabListKeys.length > count) {
+      _tabListKeys.removeLast();
     }
   }
 
@@ -228,8 +244,67 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         tabIndex: tabIndex,
         scrollOffset: position.pixels,
         maxScrollExtent: position.maxScrollExtent,
+        lineIndex: topContentLineIndex(tabIndex, controller),
       ),
     );
+  }
+
+  /// How many list items sit ahead of the content itself - just the Merits
+  /// button, on the tab that has one - so a list item index can be turned
+  /// into a content line index.
+  int _leadingItemCount(int tabIndex) =>
+      widget.hasMerits && tabIndex == 0 ? 1 : 0;
+
+  /// The content line currently at the top of tab [tabIndex]'s view, read off
+  /// the laid-out list, or null if it has not been laid out yet.
+  ///
+  /// This is the line a bookmark taken now records. It is measured rather
+  /// than estimated from the scroll fraction: line heights vary with the
+  /// content, the font settings and the width, so there is no pixels-per-line
+  /// to invert, and an estimate drifts to a different line whenever anything
+  /// changes the layout underneath it.
+  int? topContentLineIndex(int tabIndex, ScrollController controller) {
+    if (!controller.hasClients || tabIndex >= _tabListKeys.length) return null;
+
+    final renderObject =
+        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    if (renderObject == null) return null;
+    final sliver = _findSliverList(renderObject);
+    if (sliver == null) return null;
+
+    final scrollOffset = controller.position.pixels;
+    // Children are held in index order, so the first one whose bottom edge is
+    // still below the top of the viewport is the line being read. Lines the
+    // reader has switched off lay out at zero height and are skipped by the
+    // same test.
+    RenderBox? child = sliver.firstChild;
+    while (child != null) {
+      final parentData = child.parentData;
+      if (parentData is SliverMultiBoxAdaptorParentData && child.hasSize) {
+        final layoutOffset = parentData.layoutOffset;
+        final index = parentData.index;
+        if (layoutOffset != null &&
+            index != null &&
+            scrollOffset <
+                layoutOffset + child.size.height - _lineEdgeTolerance) {
+          // The Merits button is not content; a reader still up at it is at
+          // the top of the content just below it.
+          final contentIndex = index - _leadingItemCount(tabIndex);
+          return contentIndex < 0 ? 0 : contentIndex;
+        }
+      }
+      child = sliver.childAfter(child);
+    }
+    return null;
+  }
+
+  RenderSliverMultiBoxAdaptor? _findSliverList(RenderObject node) {
+    if (node is RenderSliverMultiBoxAdaptor) return node;
+    RenderSliverMultiBoxAdaptor? found;
+    node.visitChildren((child) {
+      found ??= _findSliverList(child);
+    });
+    return found;
   }
 
   /// Publishes the position of a tab that has not been scrolled yet, so
@@ -268,12 +343,20 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           .toDouble();
       controller.jumpTo(targetOffset);
       _didRestoreInitialBookmark = true;
-      widget.onScrollPositionChanged?.call(
-        ZikrContentScrollPosition(
-          tabIndex: tabIndex,
-          scrollOffset: targetOffset,
-        ),
-      );
+
+      // The jump only takes effect at the next layout, so the line under the
+      // restored offset can only be measured a frame later. That measurement
+      // is what a bookmark saved before line indexes existed adopts as its
+      // line, which is exactly the line it was taken on.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !controller.hasClients) return;
+        _reportScrollPosition(tabIndex, controller);
+        if (widget.initialBookmarkLineIndex != null) return;
+        final resolvedLine = topContentLineIndex(tabIndex, controller);
+        if (resolvedLine != null) {
+          widget.onBookmarkLineResolved?.call(resolvedLine);
+        }
+      });
     });
   }
 
@@ -348,11 +431,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       hideHeaderLine: hideHeaderLine,
       code: widget.code,
     );
-    final bookmarkedVerse = _bookmarkedVerseRange(
-      tabIndex,
-      controller,
-      parsedContent,
-    );
+    final bookmarkedRange = tabIndex == widget.initialBookmarkTabIndex
+        ? bookmarkedLineRange(
+            bookmarkLineIndex: widget.initialBookmarkLineIndex,
+            content: parsedContent,
+          )
+        : null;
+    final bookmarkLabelLine = bookmarkedRange == null
+        ? null
+        : firstVisibleLineInRange(bookmarkedRange, parsedContent);
 
     // Create text styles with current settings each time this is called
     final arabicStyle = TextStyle(
@@ -381,6 +468,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       child: Scrollbar(
         controller: controller,
         child: ListView.builder(
+          key: _tabListKeys[tabIndex],
           controller: controller,
           itemCount: parsedContent.lines.length + (showMeritsButton ? 1 : 0),
           itemBuilder: (BuildContext context, int index) {
@@ -455,59 +543,24 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
               );
             }
 
-            if (bookmarkedVerse == null ||
-                !bookmarkedVerse.contains(contentIndex)) {
+            if (bookmarkedRange == null ||
+                bookmarkLabelLine == null ||
+                !bookmarkedRange.contains(contentIndex) ||
+                !isZikrLineVisible(parsedContent, contentIndex)) {
               return line;
             }
             return _BookmarkedLine(
-              // The label only belongs on the verse's first line - repeating
-              // it on the transliteration/translation lines under the same
-              // tint would just be noise.
-              showLabel: contentIndex == bookmarkedVerse.start,
+              // The label only belongs on the first line of the marked
+              // triplet that is actually showing - repeating it on the
+              // transliteration/translation lines under the same tint would
+              // just be noise, and a switched-off line draws nothing to
+              // carry it.
+              showLabel: contentIndex == bookmarkLabelLine,
               child: line,
             );
           },
         ),
       ),
-    );
-  }
-
-  /// The verse - a run of content-line indexes starting at an Arabic line -
-  /// that a saved bookmark should highlight, or null if this tab has no
-  /// bookmark, no Arabic to anchor one to, or has not laid out yet.
-  ///
-  /// [ScrollController.position] is only valid once the list has attached,
-  /// which has not happened yet on a tab's very first build; when that is
-  /// the case this schedules one follow-up rebuild for right after layout,
-  /// so the highlight appears on its own rather than needing a scroll or
-  /// other interaction to trigger it.
-  BookmarkedVerseRange? _bookmarkedVerseRange(
-    int tabIndex,
-    ScrollController controller,
-    ParsedZikrContent parsedContent,
-  ) {
-    if (widget.initialBookmarkTabIndex != tabIndex) return null;
-    final bookmarkOffset = widget.initialBookmarkScrollOffset;
-    if (bookmarkOffset == null || bookmarkOffset <= 0) return null;
-
-    if (!controller.hasClients || !controller.position.hasContentDimensions) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() {});
-      });
-      return null;
-    }
-
-    final maxExtent = controller.position.maxScrollExtent;
-    final fraction = maxExtent > 0 ? bookmarkOffset / maxExtent : 0.0;
-    final startIndex = snapToArabicLineIndex(
-      scrollFraction: fraction,
-      lineCount: parsedContent.lines.length,
-      arabicLineIndexes: parsedContent.arabicCodes,
-    );
-    return BookmarkedVerseRange.fromStart(
-      startIndex,
-      arabicLineIndexes: parsedContent.arabicCodes,
-      lineCount: parsedContent.lines.length,
     );
   }
 

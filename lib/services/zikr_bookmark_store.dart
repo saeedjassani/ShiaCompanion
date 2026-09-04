@@ -12,6 +12,7 @@ class ZikrBookmark {
     required this.scrollOffset,
     required this.updatedAt,
     this.tabTitle,
+    this.lineIndex,
     this.version = ZikrBookmarkStore.schemaVersion,
   });
 
@@ -30,6 +31,9 @@ class ZikrBookmark {
       scrollOffset: json['scrollOffset'] is num
           ? (json['scrollOffset'] as num).toDouble()
           : double.tryParse(json['scrollOffset']?.toString() ?? '') ?? 0,
+      lineIndex: json['lineIndex'] is int
+          ? json['lineIndex'] as int
+          : int.tryParse(json['lineIndex']?.toString() ?? ''),
       updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
@@ -41,7 +45,31 @@ class ZikrBookmark {
   final int tabIndex;
   final String? tabTitle;
   final double scrollOffset;
+
+  /// The content line that was at the top of the view when the bookmark was
+  /// taken - the very line the [scrollOffset] was read off, measured from the
+  /// laid-out list rather than estimated from it. This is what the "you left
+  /// off here" marker is drawn on, so the marker stays put no matter what
+  /// later changes the layout: showing the audio player, hiding the reading
+  /// chrome, or turning transliteration off.
+  ///
+  /// Null for bookmarks saved before this was recorded; those adopt a line
+  /// the first time the bookmark is restored, and are rewritten with it.
+  final int? lineIndex;
   final DateTime updatedAt;
+
+  ZikrBookmark copyWith({int? lineIndex}) {
+    return ZikrBookmark(
+      uid: uid,
+      title: title,
+      tabIndex: tabIndex,
+      tabTitle: tabTitle,
+      scrollOffset: scrollOffset,
+      lineIndex: lineIndex ?? this.lineIndex,
+      updatedAt: updatedAt,
+      version: version,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -51,6 +79,7 @@ class ZikrBookmark {
       'tabIndex': tabIndex,
       if (tabTitle != null && tabTitle!.trim().isNotEmpty) 'tabTitle': tabTitle,
       'scrollOffset': scrollOffset,
+      if (lineIndex != null) 'lineIndex': lineIndex,
       'updatedAt': updatedAt.toUtc().toIso8601String(),
     };
   }
@@ -60,7 +89,7 @@ class ZikrBookmarkStore {
   ZikrBookmarkStore._();
 
   static final ZikrBookmarkStore instance = ZikrBookmarkStore._();
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
 
   static const String _storagePrefix = 'zikr_bookmark_v1';
 

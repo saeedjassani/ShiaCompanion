@@ -101,6 +101,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final Map<int, double> _currentTabScrollOffsets = {};
   final Map<int, double> _currentTabMaxScrollExtents = {};
+
+  /// The content line at the top of each tab's view, measured from the laid
+  /// out list. This is what a bookmark records alongside the raw offset, so
+  /// the marker is drawn on the very line the offset was read off.
+  final Map<int, int> _currentTabTopLineIndexes = {};
   final ValueNotifier<double> _readingProgress = ValueNotifier<double>(0);
   bool _hasRecordedCompletion = false;
   DateTime? _openedAt;
@@ -1025,7 +1030,25 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   ) {
     _currentTabScrollOffsets[position.tabIndex] = position.scrollOffset;
     _currentTabMaxScrollExtents[position.tabIndex] = position.maxScrollExtent;
+    final lineIndex = position.lineIndex;
+    if (lineIndex != null) {
+      _currentTabTopLineIndexes[position.tabIndex] = lineIndex;
+    }
     _updateReadingProgress();
+  }
+
+  /// Gives a bookmark saved before line indexes existed the line it turns out
+  /// to sit on, measured once its offset has been restored, and rewrites it
+  /// so the marker no longer depends on the offset surviving a relayout.
+  void _handleBookmarkLineResolved(int lineIndex) {
+    final bookmark = _savedBookmark;
+    if (bookmark == null || bookmark.lineIndex != null) return;
+
+    final upgraded = bookmark.copyWith(lineIndex: lineIndex);
+    setState(() {
+      _savedBookmark = upgraded;
+    });
+    unawaited(ZikrBookmarkStore.instance.save(upgraded));
   }
 
   /// Recomputes the reading estimate only when the rendered text changed, since
@@ -1103,6 +1126,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           ? _tabHeaderForContent(selectedContent, selectedTabIndex)
           : null,
       scrollOffset: _currentTabScrollOffsets[selectedTabIndex] ?? 0,
+      lineIndex: _currentTabTopLineIndexes[selectedTabIndex],
       updatedAt: DateTime.now().toUtc(),
     );
 
@@ -1437,8 +1461,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                                 _savedBookmark?.tabIndex,
                                             initialBookmarkScrollOffset:
                                                 _savedBookmark?.scrollOffset,
+                                            initialBookmarkLineIndex:
+                                                _savedBookmark?.lineIndex,
                                             onScrollPositionChanged:
                                                 _handleContentScrollPositionChanged,
+                                            onBookmarkLineResolved:
+                                                _handleBookmarkLineResolved,
                                           ),
                                   ),
                       ),
