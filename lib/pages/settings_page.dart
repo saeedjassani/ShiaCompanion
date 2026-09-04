@@ -421,7 +421,16 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS)
         ListTile(
-          leading: Image.asset('assets/images/apple_logo.png', height: 24.0),
+          // A flat black silhouette, so it has to be tinted rather than drawn
+          // as-is: untinted it was black-on-dark and all but invisible in dark
+          // mode. Apple's own guidance is the same — black mark on light
+          // backgrounds, white on dark. The Google logo above is multicolour
+          // and must not be recoloured, so it is left alone.
+          leading: Image.asset(
+            'assets/images/apple_logo.png',
+            height: 24.0,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           title: const Text('Sign in with Apple'),
           subtitle: const Text("Use your Apple ID to sign in."),
           onTap: () async {
