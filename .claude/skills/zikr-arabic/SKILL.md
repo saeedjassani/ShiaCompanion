@@ -104,6 +104,26 @@ the app always reads the target, and `build_zikr_release.js` emits no asset for
 an alias. Eight alias docs still carry a vestigial `data` field in Firestore;
 nothing reads it, so do not spend a batch on them.
 
+**Internal cross-references use `[label](uid)`, resolved at runtime.**
+`ZikrPage._handleZikrLinkTap` / `_lookupInternalItemUid` treat a markdown-style
+link in `data`/`merits` as in-app navigation when its target is a known uid or
+slug, falling back to an external URL otherwise. Plain-text mentions of
+another zikr by name — "recite Surah al-Tawheed", "the third comprehensive
+Ziyarah (Ziyaarah al-Jaame'ah)", a bare list of other things to visit at a
+shrine — are candidates for this treatment, and most of the corpus has never
+had this pass run over it: it was applied only to Quran surah names, a
+handful of well-known named duas/ziyarat, and the one shrine-complex list
+found in `AG14`, all as one-off content sessions (not a `scripts/zikr_arabic/`
+script). **Never invent a target.** Only link a mention when the exact
+personality/surah/dua it names has its own uid in the corpus and the mention
+isn't the entry's own self-description (a repeated header, or a comment
+naming what the reader is already looking at) — an ambiguous name with more
+than one plausible target (e.g. more than one "Dua Faraj", more than one
+"Ziyarat Warith") needs the content author's call on which uid wins by
+default, the way `E19` and `G6` were confirmed as defaults here. This is the
+same judgement call as the truncation fix above: link what's real and
+findable, remove what isn't.
+
 ### Vowel on a word-initial alif
 
 Two hamzas, different behaviour, and the corpus conflates them
@@ -168,6 +188,56 @@ into the minority order. Verified, not assumed.
 Uthmani, which is now retired. Re-check it in Scheherazade before assuming it is
 gone: this is a shaping failure, not a missing glyph, so INV-2 does not catch
 it. Detecting it needs HarfBuzz or rasterising and looking for U+25CC.
+
+**Import truncation and scrape artifacts (English side, imports only).** The
+47 duas.org imports carry a second kind of defect that has nothing to do with
+Arabic orthography: the scrape sometimes cut a page short or dragged in text
+that was never part of the dua. Two shapes, both English/structural rather
+than diacritic, so `normalize.py`/`silah.py` never see them:
+
+- **Dangling promise.** The prose says "...you may say the following words:",
+  "...composed the following poetic verses:", "Another Salwaat Imam
+  Mahdi(ajtfs) Friday" — and then either nothing follows, or what follows is
+  unrelated junk (`AG18` had "the following verses:" run straight into
+  "Mesuseum in the shrine"). Grep every import for `the following[^.:\n]*:`
+  and check what comes right after: if it's Arabic/transliteration/an actual
+  quoted line, it's fine (this is the overwhelmingly common case — most
+  "following:" mentions in the 47 are genuinely fulfilled); if it's empty, a
+  short unrelated fragment, or another unfulfilled "following:", the promise
+  and everything after it back to the last complete sentence is dead weight.
+- **Stray site chrome.** Fragments of the source website leaking into the
+  content: a view-toggle label (`ARABIC ONLY`, mid-paragraph in `AL11`), nav
+  text and a stranger's personal dedication note glued to the end of the
+  ziyarah (`AN1`: "Previous Translation / Special visit / --> Al-Fatiha
+  <names>... Arabic only"), a dead footnote reference to the print source
+  that lost its target (`AI16`: "...following statement: \"...\" See dua4").
+  These read as obviously not-dua the moment you see them — no ambiguity, no
+  judgement call about content.
+
+**The fix is the same shape as internal cross-references (see below): if
+the dangling text names a real, findable person/ziyarah/dua, that's not
+actually a truncation — check the corpus for a matching uid and link it
+(`[label](uid)`) instead of deleting it.** Genuinely dead text — a promise
+with nothing behind it, or site chrome — gets deleted back to the last
+complete sentence, not just blanked to whitespace. `AG14`'s "Other Ziarat
+inside shrine complex" list was exactly this ambiguity resolved the right
+way: three of its four bare names had nothing to link to and one (Habib ibn
+Mazahir) matched `G58` and got linked instead of removed.
+
+Fixed so far by this method: `AG18` (two unfulfilled verse-promises),
+`AH10` (a "2 Common Ziarats" section that was 100% unfulfilled setup, zero
+payoff), `AI16` ("See dua4"), `AL11` ("ARABIC ONLY"), `AL15` ("Another
+Salwaat Imam Mahdi(ajtfs) Friday"), `AN1` (the trailing site-chrome block).
+**Not a completed audit** — these were found by sweeping the
+Karbala/Kazimayn/Kufa/Najaf/Samarra/Balad shrine-guide batch
+(`AG`/`AH`/`AI`/`AJ`/`AK`/`AL`/`AN` prefixes) plus a handful of other
+high-confidence imports, using the `ٱ أ إ ﭐ` notation measure above to find
+them (41 files scored clean-import at >5 marks per 1,000 Arabic characters,
+plus `AK5`/`AN1`/`AL17` which mix in a little authored-style noise). That
+list is short of the confirmed 47 by a few — the exact roster still needs
+pinning down — and the remaining imports (the `E`/`H`/`AA` one-offs: `E155`,
+`AA9`, `AA11`, `AA13`, `G78`, `H20`-`H27`) have not been swept for this
+issue at all. Do that before assuming the imports are clean.
 
 ## Working a batch
 
