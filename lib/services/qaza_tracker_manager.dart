@@ -66,9 +66,32 @@ class QazaTrackerManager extends ChangeNotifier {
   String _guestImportMergedStorageKey(String userId) =>
       'qaza_tracker_guest_import_merged_$userId';
 
-  Future<void> loadQaza() async {
+  /// True when the in-memory qaza state already belongs to the current user
+  /// and the live listener that keeps it fresh is still attached.
+  ///
+  /// See [FavoritesManager] for the reasoning: a reload costs a remote read
+  /// plus a listener re-attach, and the qaza page was paying both on every
+  /// visit for state the listener already had current.
+  bool get _isLoadedForCurrentUser {
+    if (!_hasLoadedQaza) return false;
+
+    final userId = _auth.currentUser?.uid;
+    if (_loadedUserId != userId) return false;
+
+    return userId == null || _listener != null;
+  }
+
+  /// Loads the qaza state, reusing what is already loaded when it is valid.
+  ///
+  /// Pass [force] after an auth change, where the remote document has to be
+  /// re-read and merged rather than assumed current.
+  Future<void> loadQaza({bool force = false}) async {
     if (_loadQazaFuture != null) {
       return _loadQazaFuture!;
+    }
+
+    if (!force && _isLoadedForCurrentUser) {
+      return;
     }
 
     final completer = Completer<void>();

@@ -69,7 +69,6 @@ flutter:
     - assets/airports.tsv
     - assets/books.json
     - assets/events.json
-    - assets/items.json
     - assets/logo.png
     - assets/retired_slugs.json
     - assets/zikr.json

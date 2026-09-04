@@ -43,8 +43,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _refreshAfterAuthChange() async {
     await SessionRefreshService.refreshSessionState();
-    await FavoritesManager.instance.loadFavorites();
-    await QazaTrackerManager.instance.loadQaza();
+    await FavoritesManager.instance.loadFavorites(force: true);
+    await QazaTrackerManager.instance.loadQaza(force: true);
     await PreferencesSyncService.instance.pullOrSeed();
     await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
