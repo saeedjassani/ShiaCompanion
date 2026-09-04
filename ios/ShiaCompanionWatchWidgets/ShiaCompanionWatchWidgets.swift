@@ -233,11 +233,6 @@ struct NextPrayerComplicationView: View {
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .widgetAccentable()
-        // Faces with a label slot draw the name outside the circle — the only
-        // room on this family that the time isn't already using.
-        .widgetLabel {
-            Text(entry.name)
-        }
     }
 
     private var corner: some View {
@@ -273,7 +268,7 @@ struct NextPrayerComplicationView: View {
         Label {
             // Kept short: the inline slot is the one family whose width the system
             // owns, and it elides rather than scales.
-            Text(entry.hasData ? "\(entry.name) \(entry.compactTime)" : "Open iPhone app")
+            Text(entry.hasData ? entry.compactTime : "Open iPhone app")
         } icon: {
             PrayerGlyphView(name: entry.glyphName)
                 .frame(width: 14, height: 14)
