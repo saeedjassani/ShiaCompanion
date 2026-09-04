@@ -472,8 +472,8 @@ survive every family — a complication that shows a truncated time has no reaso
     const f = circleFrame(side);
     const symSize = side*0.20, timeSize = side*0.34, boxW = side*0.70;
     f.content.appendChild(glyph(symSize, c.empty ? "moonStars" : symbolKind(c.name)));
-    const tf = fit(c.compact, timeSize, "600", true, boxW, 0.45);
-    const n = textNode(c.compact, timeSize, "600", true, tf);
+    const tf = fit(c.compact, timeSize, "700", true, boxW, 0.45);
+    const n = textNode(c.compact, timeSize, "700", true, tf);
     n.style.width = px(boxW); n.style.textAlign="center";
     f.content.appendChild(n);
     const lh = timeSize*LINE, dy = (symSize*1.15)/2;

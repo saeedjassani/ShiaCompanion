@@ -220,7 +220,9 @@ struct NextPrayerComplicationView: View {
                 PrayerGlyphView(name: entry.glyphName)
                     .frame(width: side * 0.22, height: side * 0.22)
                 Text(entry.compactTime)
-                    .font(.system(size: side * 0.34, weight: .semibold, design: .rounded))
+                    // `.bold`: the time is the one thing read at a glance here, and
+                    // the glyph above it is a line drawing rather than a filled shape.
+                    .font(.system(size: side * 0.34, weight: .bold, design: .rounded))
                     .minimumScaleFactor(0.45)
                     .allowsTightening(true)
                     .lineLimit(1)
@@ -270,8 +272,10 @@ struct NextPrayerComplicationView: View {
             // owns, and it elides rather than scales.
             Text(entry.hasData ? entry.compactTime : "Open iPhone app")
         } icon: {
-            PrayerGlyphView(name: entry.glyphName)
-                .frame(width: 14, height: 14)
+            // An SF Symbol, not `PrayerGlyphView`: watchOS composes this family
+            // itself and renders only an `Image` in the icon slot, so the drawn
+            // glyph came out blank and the complication showed a bare time.
+            Image(systemName: prayerSymbolName(for: entry.glyphName))
         }
     }
 
