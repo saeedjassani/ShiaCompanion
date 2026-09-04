@@ -20,6 +20,7 @@ import 'package:shia_companion/pages/deep_link_not_found_page.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/utils/quran_index.dart';
+import 'package:shia_companion/utils/quran_portion.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
@@ -160,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage>
     // Checked before the empty-segment guard: a bare /quran names the Quran
     // screen, and is the one link that carries nothing after its prefix.
     if (target.type == quranDeepLinkType) {
-      _resolveQuranDeepLink(target);
+      await _resolveQuranDeepLink(target);
       return;
     }
 
@@ -198,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  void _resolveQuranDeepLink(DeepLinkTarget target) {
+  Future<void> _resolveQuranDeepLink(DeepLinkTarget target) async {
     final destination = DeepLinkResolver.resolveQuranDestination(target);
     if (destination == null) {
       _openDeepLinkNotFound(target.segments.join('/'));
@@ -214,8 +215,28 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
-    // A juz opens at the verse it begins on - there is no juz document.
-    final verse = destination.verse ?? allJuz()[destination.juz! - 1].start;
+    final juz = destination.juz;
+    if (juz != null) {
+      // A juz is assembled rather than loaded - it spans surahs.
+      final portion = await loadJuzPortion(juz, DefaultAssetBundle.of(context));
+      if (!mounted) return;
+      if (portion == null || portion.isEmpty) {
+        _openDeepLinkNotFound(target.segments.join('/'));
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final route = ZikrPage(
+          UidTitleData(quranJuzUid(juz), portion.title),
+          source: ZikrOpenSource.deepLink,
+          portion: portion,
+        );
+        pushRootPageRoute(route) ?? pushPageRoute(context, route);
+      });
+      return;
+    }
+
+    final verse = destination.verse!;
     final info = surahInfoFor(verse.surah);
     if (info == null) {
       _openDeepLinkNotFound(target.segments.join('/'));
@@ -227,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage>
       final route = ZikrPage(
         UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
         source: ZikrOpenSource.deepLink,
-        initialAyah: verse.ayah,
+        initialVerse: verse,
       );
       pushRootPageRoute(route) ?? pushPageRoute(context, route);
     });

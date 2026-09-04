@@ -200,9 +200,10 @@ void main() {
   });
 
   group('AyahIndex', () {
-    AyahIndex indexOf(String data, {String code = '012'}) {
+    AyahIndex indexOf(String data, {String code = '012', int surah = 1}) {
       return AyahIndex.fromParsedContent(
         ZikrContentParser.parseContent(data, hideHeaderLine: false, code: code),
+        surah: surah,
       );
     }
 
@@ -219,10 +220,10 @@ void main() {
         'The Beneficent',
       );
 
-      expect(index.ayahNumbers, [1, 2]);
+      expect(index.verses, [const VerseKey(1, 1), const VerseKey(1, 2)]);
       expect(index.spans.first.ayah, isNull, reason: 'Bismillah is not an ayah');
-      expect(index.spanIndexForAyah(1), 1);
-      expect(index.spanIndexForAyah(2), 2);
+      expect(index.spanIndexForVerse(const VerseKey(1, 1)), 1);
+      expect(index.spanIndexForVerse(const VerseKey(1, 2)), 2);
     });
 
     test('a span covers its ayah and the lines belonging to it', () {
@@ -251,7 +252,7 @@ void main() {
         'A declaration of immunity',
       );
 
-      expect(index.spanIndexForAyah(1), 0);
+      expect(index.spanIndexForVerse(const VerseKey(1, 1)), 0);
     });
 
     test('falls back to the nearest earlier ayah when one is absent', () {
@@ -264,16 +265,25 @@ void main() {
         'The Beneficent',
       );
 
-      expect(index.spanIndexForAyah(2), isNull);
-      expect(index.nearestSpanIndexForAyah(2), index.spanIndexForAyah(1));
-      expect(index.nearestSpanIndexForAyah(3), index.spanIndexForAyah(3));
-      expect(index.nearestSpanIndexForAyah(99), index.spanIndexForAyah(3));
+      expect(index.spanIndexForVerse(const VerseKey(1, 2)), isNull);
+      expect(
+        index.nearestSpanIndexForVerse(const VerseKey(1, 2)),
+        index.spanIndexForVerse(const VerseKey(1, 1)),
+      );
+      expect(
+        index.nearestSpanIndexForVerse(const VerseKey(1, 3)),
+        index.spanIndexForVerse(const VerseKey(1, 3)),
+      );
+      expect(
+        index.nearestSpanIndexForVerse(const VerseKey(1, 99)),
+        index.spanIndexForVerse(const VerseKey(1, 3)),
+      );
     });
 
     test('is empty for content with no Arabic at all', () {
       final index = indexOf('Just an English note\nAnd another');
       expect(index.isEmpty, isTrue);
-      expect(index.nearestSpanIndexForAyah(1), isNull);
+      expect(index.nearestSpanIndexForVerse(const VerseKey(1, 1)), isNull);
     });
   });
 
@@ -293,6 +303,7 @@ void main() {
           hideHeaderLine: false,
           code: document['code']?.toString(),
         ),
+        surah: surah,
       );
     }
 
@@ -323,7 +334,10 @@ void main() {
     test('every surah document holds exactly its canonical ayahs', () {
       final incomplete = <String>[];
       for (var surah = 1; surah <= surahCount; surah++) {
-        final found = indexOfSurah(surah).ayahNumbers;
+        final found = indexOfSurah(surah)
+            .verses
+            .map((verse) => verse.ayah!)
+            .toList();
         final expected = List.generate(ayahCountOf(surah)!, (i) => i + 1);
         if (found.length != expected.length || !_sameNumbers(found, expected)) {
           incomplete.add('surah $surah: ${found.length}/${expected.length}');

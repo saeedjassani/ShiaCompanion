@@ -11,6 +11,7 @@ class QuranProgress {
     required this.ayah,
     required this.surahTitle,
     required this.updatedAt,
+    this.juz,
     this.version = QuranProgressStore.schemaVersion,
   });
 
@@ -27,6 +28,9 @@ class QuranProgress {
           ? json['ayah'] as int
           : int.tryParse(json['ayah']?.toString() ?? '') ?? 0,
       surahTitle: json['surahTitle']?.toString() ?? '',
+      juz: json['juz'] is int
+          ? json['juz'] as int
+          : int.tryParse(json['juz']?.toString() ?? ''),
       updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
@@ -36,6 +40,14 @@ class QuranProgress {
   final int surah;
   final int ayah;
   final String surahTitle;
+
+  /// The juz being read, when the position was reached inside one.
+  ///
+  /// Someone working through juz 5 over a week should be returned to the juz,
+  /// not dropped into whichever surah they happened to stop in. Null when the
+  /// surah was being read on its own.
+  final int? juz;
+
   final DateTime updatedAt;
 
   Map<String, dynamic> toJson() {
@@ -44,6 +56,7 @@ class QuranProgress {
       'surah': surah,
       'ayah': ayah,
       'surahTitle': surahTitle,
+      if (juz != null) 'juz': juz,
       'updatedAt': updatedAt.toUtc().toIso8601String(),
     };
   }

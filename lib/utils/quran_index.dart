@@ -159,10 +159,19 @@ SurahInfo? surahInfoFor(int surah) {
 /// bookmark highlight already uses.
 class AyahSpan {
   const AyahSpan({
+    required this.surah,
     required this.ayah,
     required this.start,
     required this.end,
+    this.startsSurah,
   });
+
+  /// Which surah this verse belongs to.
+  ///
+  /// Carried per span rather than per index because a juz runs across surah
+  /// boundaries, so the index as a whole cannot answer it. Everything that
+  /// records or links to a position speaks in `(surah, ayah)` for that reason.
+  final int surah;
 
   /// The ayah number from the line's `(n)` marker, or null for an unnumbered
   /// leading line - the Bismillah that heads every surah but at-Tawbah.
@@ -170,75 +179,134 @@ class AyahSpan {
   final int start;
   final int end;
 
+  /// Set on the first span of each surah in a portion that spans several, so
+  /// the reader can draw a heading where one surah gives way to the next.
+  /// Null everywhere else, including throughout a single-surah reading, where
+  /// the page's own title already says which surah this is.
+  final SurahInfo? startsSurah;
+
+  VerseKey? get verse => ayah == null ? null : VerseKey(surah, ayah);
+
   bool contains(int lineIndex) => lineIndex >= start && lineIndex < end;
+
+  AyahSpan shifted(int lineOffset, {SurahInfo? startsSurah}) => AyahSpan(
+        surah: surah,
+        ayah: ayah,
+        start: start + lineOffset,
+        end: end + lineOffset,
+        startsSurah: startsSurah ?? this.startsSurah,
+      );
 }
 
-/// The ayahs of one surah document, in document order.
+/// The ayahs of a readable stretch of Quran, in reading order.
+///
+/// Usually one surah, but a juz portion is several stitched together - hence
+/// keying by `(surah, ayah)` rather than by ayah alone, which repeats once more
+/// than one surah is in play.
 ///
 /// Built from the `(n)` markers the corpus already carries rather than by
 /// counting Arabic lines, so an unnumbered Bismillah - present in 113 surahs,
 /// absent in at-Tawbah - shifts nothing.
 class AyahIndex {
-  const AyahIndex._(this.spans, this._lineIndexByAyah);
+  const AyahIndex._(this.spans, this._spanIndexByVerse);
 
-  factory AyahIndex.fromParsedContent(ParsedZikrContent content) {
-    final arabicLines = content.arabicCodes.toList()..sort();
-    final spans = <AyahSpan>[];
-    final lineIndexByAyah = <int, int>{};
-
-    for (var i = 0; i < arabicLines.length; i++) {
-      final start = arabicLines[i];
-      final end =
-          i + 1 < arabicLines.length ? arabicLines[i + 1] : content.lines.length;
-      final ayah = ZikrContentParser.ayahNumberOf(content.lines[start]);
-      spans.add(AyahSpan(ayah: ayah, start: start, end: end));
+  factory AyahIndex.fromSpans(List<AyahSpan> spans) {
+    final spanIndexByVerse = <String, int>{};
+    for (var i = 0; i < spans.length; i++) {
+      final verse = spans[i].verse;
       // First marker wins: a duplicate number should not move an ayah that
       // was already placed correctly.
-      if (ayah != null) lineIndexByAyah.putIfAbsent(ayah, () => spans.length - 1);
+      if (verse != null) spanIndexByVerse.putIfAbsent(_verseKey(verse), () => i);
     }
 
-    return AyahIndex._(List.unmodifiable(spans), Map.unmodifiable(lineIndexByAyah));
+    return AyahIndex._(
+      List.unmodifiable(spans),
+      Map.unmodifiable(spanIndexByVerse),
+    );
   }
 
-  /// Every span in document order, the unnumbered Bismillah header included -
-  /// it is content the reader has to draw, it just is not an ayah.
+  /// Indexes one surah document.
+  factory AyahIndex.fromParsedContent(
+    ParsedZikrContent content, {
+    required int surah,
+  }) {
+    return AyahIndex.fromSpans(spansOfParsedContent(content, surah: surah));
+  }
+
+  /// Every span in reading order, the unnumbered Bismillah headers included -
+  /// they are content the reader has to draw, they just are not ayahs.
   final List<AyahSpan> spans;
 
-  final Map<int, int> _lineIndexByAyah;
+  final Map<String, int> _spanIndexByVerse;
 
   bool get isEmpty => spans.isEmpty;
 
-  /// The ayah numbers actually present, ascending.
-  List<int> get ayahNumbers => _lineIndexByAyah.keys.toList()..sort();
+  /// Every verse present, in reading order.
+  List<VerseKey> get verses =>
+      spans.map((span) => span.verse).whereType<VerseKey>().toList();
 
-  /// The index into [spans] for ayah [ayah], by marker value rather than by
-  /// position, or null when the document does not carry that ayah.
-  int? spanIndexForAyah(int ayah) => _lineIndexByAyah[ayah];
+  /// The index into [spans] holding [verse], by marker value rather than by
+  /// position, or null when this portion does not carry it.
+  int? spanIndexForVerse(VerseKey verse) => _spanIndexByVerse[_verseKey(verse)];
 
-  /// [spanIndexForAyah], falling back to the nearest ayah at or before [ayah]
-  /// when the document does not carry it.
+  /// [spanIndexForVerse], falling back to the nearest earlier verse of the same
+  /// surah when this portion does not carry the one asked for.
   ///
   /// Landing a reader somewhere sensible beats landing them nowhere, so a link
-  /// to a verse a document happens not to hold still opens the surah near it
-  /// rather than at the top.
-  int? nearestSpanIndexForAyah(int ayah) {
-    final exact = _lineIndexByAyah[ayah];
+  /// to a verse a document happens not to hold still opens near it rather than
+  /// at the top.
+  int? nearestSpanIndexForVerse(VerseKey verse) {
+    final exact = spanIndexForVerse(verse);
     if (exact != null) return exact;
+    if (verse.ayah == null) return null;
 
     int? best;
     var bestAyah = 0;
-    _lineIndexByAyah.forEach((candidate, spanIndex) {
-      if (candidate <= ayah && candidate > bestAyah) {
-        bestAyah = candidate;
-        best = spanIndex;
+    for (var i = 0; i < spans.length; i++) {
+      final ayah = spans[i].ayah;
+      if (spans[i].surah != verse.surah || ayah == null) continue;
+      if (ayah <= verse.ayah! && ayah > bestAyah) {
+        bestAyah = ayah;
+        best = i;
       }
-    });
+    }
     return best;
   }
 
-  /// The ayah showing at [spanIndex], or null when that span is the header.
-  int? ayahAtSpanIndex(int spanIndex) =>
-      spanIndex >= 0 && spanIndex < spans.length ? spans[spanIndex].ayah : null;
+  /// The verse showing at [spanIndex], or null when that span is a Bismillah.
+  VerseKey? verseAtSpanIndex(int spanIndex) =>
+      spanIndex >= 0 && spanIndex < spans.length ? spans[spanIndex].verse : null;
+
+  static String _verseKey(VerseKey verse) => '${verse.surah}:${verse.ayah}';
+}
+
+/// The spans of one parsed surah document, before any trimming or stitching.
+///
+/// Split out from [AyahIndex.fromParsedContent] so a portion builder can take
+/// the spans of several surahs, keep the ones it wants and shift them onto its
+/// own line numbering.
+List<AyahSpan> spansOfParsedContent(
+  ParsedZikrContent content, {
+  required int surah,
+}) {
+  final arabicLines = content.arabicCodes.toList()..sort();
+  final spans = <AyahSpan>[];
+
+  for (var i = 0; i < arabicLines.length; i++) {
+    final start = arabicLines[i];
+    final end =
+        i + 1 < arabicLines.length ? arabicLines[i + 1] : content.lines.length;
+    spans.add(
+      AyahSpan(
+        surah: surah,
+        ayah: ZikrContentParser.ayahNumberOf(content.lines[start]),
+        start: start,
+        end: end,
+      ),
+    );
+  }
+
+  return spans;
 }
 
 /// A `surah:ayah` reference, as typed by a reader or carried in a link.

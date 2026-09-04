@@ -15,11 +15,14 @@ import 'zikr_content_parser.dart';
 /// page to guess from scroll offsets.
 class QuranReadingPosition {
   const QuranReadingPosition({
-    required this.ayah,
+    required this.verse,
     required this.fromUserScroll,
   });
 
-  final int ayah;
+  /// The surah as well as the ayah: a juz runs across surahs, so an ayah
+  /// number on its own does not say where the reader is.
+  final VerseKey verse;
+
   final bool fromUserScroll;
 }
 
@@ -31,12 +34,14 @@ class QuranReadingPosition {
 /// be read, in which case the page falls back to bookmarking the view.
 class AyahActionRequest {
   const AyahActionRequest({
-    required this.ayah,
+    required this.verse,
     required this.text,
     required this.scrollOffset,
   });
 
-  final int ayah;
+  /// Which verse was tapped, surah included - in a juz the surah is not the
+  /// one the page as a whole is showing.
+  final VerseKey verse;
 
   /// The verse as text worth copying or sharing.
   final String text;
@@ -143,8 +148,19 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// tapped, scrolled to and reported on.
   final int? surahNumber;
 
-  /// The ayah to open at, for a `/quran/23/56` link or a resumed recitation.
-  final int? initialAyah;
+  /// The verse to open at, for a `/quran/23/56` link or a resumed recitation.
+  ///
+  /// A whole verse rather than an ayah number, because in a juz the number
+  /// alone is ambiguous - ayah 12 exists in every surah the portion covers.
+  final VerseKey? initialVerse;
+
+  /// A prebuilt index, for content the viewer cannot index by itself.
+  ///
+  /// A juz portion is several surahs stitched together, so its verse numbers
+  /// restart partway through and its surah headings are known only to whoever
+  /// assembled it. When this is supplied it is used as-is; otherwise the viewer
+  /// derives an index from [surahNumber] as before.
+  final AyahIndex? ayahIndex;
 
   /// Fires with the topmost ayah on screen. Only meaningful in ayah mode.
   final ValueChanged<QuranReadingPosition>? onAyahPositionChanged;
@@ -165,7 +181,8 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.initialBookmarkScrollOffset,
     this.onScrollPositionChanged,
     this.surahNumber,
-    this.initialAyah,
+    this.initialVerse,
+    this.ayahIndex,
     this.onAyahPositionChanged,
     this.onAyahAction,
   }) : super(key: key);
@@ -201,7 +218,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
   bool _didScrollToInitialAyah = false;
   bool _ayahReportScheduled = false;
-  int? _reportedAyah;
+  VerseKey? _reportedVerse;
 
   GlobalKey _ayahKey(int spanIndex) =>
       _ayahKeys.putIfAbsent(spanIndex, () => GlobalKey());
@@ -346,12 +363,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       code: widget.code,
     );
 
-    // Only the first tab of a surah is Quran text. Surah documents are
-    // single-tab today, but guarding on the index means a tabbed one would
-    // degrade to line rendering on its extra tabs rather than mis-number them.
-    final ayahIndex = widget.surahNumber != null && tabIndex == 0
-        ? AyahIndex.fromParsedContent(parsed)
-        : null;
+    // Only the first tab is Quran text. Surah documents are single-tab today,
+    // but guarding on the index means a tabbed one would degrade to line
+    // rendering on its extra tabs rather than mis-number them.
+    final surah = widget.surahNumber;
+    final ayahIndex = tabIndex != 0
+        ? null
+        : widget.ayahIndex ??
+            (surah == null
+                ? null
+                : AyahIndex.fromParsedContent(parsed, surah: surah));
 
     final cache = _TabContentCache(
       rawContent: rawContent,
@@ -373,13 +394,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// are whole verses rather than single lines, so the estimate is close enough
   /// that this usually settles on the first pass; the loop is the safety net
   /// for a surah whose verses vary a lot in length.
-  Future<void> _scrollToAyah(
+  Future<void> _scrollToVerse(
     int tabIndex,
     AyahIndex ayahIndex,
-    int ayah,
+    VerseKey verse,
     int itemCount,
   ) async {
-    final spanIndex = ayahIndex.nearestSpanIndexForAyah(ayah);
+    final spanIndex = ayahIndex.nearestSpanIndexForVerse(verse);
     if (spanIndex == null || tabIndex >= _tabScrollControllers.length) return;
 
     final controller = _tabScrollControllers[tabIndex];
@@ -463,12 +484,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final spanIndex = topmost;
     if (spanIndex == null) return;
 
-    final ayah = ayahIndex.ayahAtSpanIndex(spanIndex);
-    if (ayah == null || ayah == _reportedAyah) return;
+    final verse = ayahIndex.verseAtSpanIndex(spanIndex);
+    if (verse == null || verse == _reportedVerse) return;
 
-    _reportedAyah = ayah;
+    _reportedVerse = verse;
     callback(
-      QuranReadingPosition(ayah: ayah, fromUserScroll: _sawUserDrag),
+      QuranReadingPosition(verse: verse, fromUserScroll: _sawUserDrag),
     );
   }
 
@@ -818,15 +839,17 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         _buildLine(parsedContent, i, arabicStyle, transliStyle),
     ];
 
+    final verse = span.verse;
     return _AyahBlock(
       key: _ayahKey(spanIndex),
       ayah: span.ayah,
+      startsSurah: span.startsSurah,
       isBookmarked: bookmarkedVerse != null && bookmarkedVerse.start == span.start,
-      onAction: span.ayah == null || widget.onAyahAction == null
+      onAction: verse == null || widget.onAyahAction == null
           ? null
           : () => widget.onAyahAction!(
                 AyahActionRequest(
-                  ayah: span.ayah!,
+                  verse: verse,
                   text: _ayahPlainText(parsedContent, span),
                   scrollOffset: _scrollOffsetOfSpan(tabIndex, spanIndex),
                 ),
@@ -866,12 +889,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     AyahIndex ayahIndex,
     int itemCount,
   ) {
-    final ayah = widget.initialAyah;
-    if (_didScrollToInitialAyah || ayah == null) return;
+    final verse = widget.initialVerse;
+    if (_didScrollToInitialAyah || verse == null || verse.ayah == null) return;
 
     _didScrollToInitialAyah = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _scrollToAyah(tabIndex, ayahIndex, ayah, itemCount);
+      if (mounted) _scrollToVerse(tabIndex, ayahIndex, verse, itemCount);
     });
   }
 
@@ -1057,10 +1080,15 @@ class _AyahBlock extends StatelessWidget {
   const _AyahBlock({
     super.key,
     required this.ayah,
+    required this.startsSurah,
     required this.isBookmarked,
     required this.onAction,
     required this.children,
   });
+
+  /// Set on the first verse of each surah in a juz, where the reader crosses
+  /// from one surah into the next and the page title cannot say which.
+  final SurahInfo? startsSurah;
 
   /// Null for the Bismillah heading a surah, which is drawn without a badge
   /// because it is not a numbered verse.
@@ -1078,6 +1106,7 @@ class _AyahBlock extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (startsSurah != null) _SurahHeading(surah: startsSurah!),
           if (ayah != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -1127,6 +1156,57 @@ class _AyahBlock extends StatelessWidget {
       onTap: onAction,
       onLongPress: onAction,
       child: decorated,
+    );
+  }
+}
+
+/// Names the surah a juz has just moved into.
+///
+/// Only ever drawn inside a portion that spans surahs. Reading a single surah
+/// needs no such marker - the page title is already its name - so this is
+/// absent from that path entirely rather than duplicating it.
+class _SurahHeading extends StatelessWidget {
+  const _SurahHeading({required this.surah});
+
+  final SurahInfo surah;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 20, bottom: 8),
+      child: Column(
+        children: [
+          Divider(color: theme.colorScheme.outlineVariant),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              '${surah.number}. ${surah.englishName}',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (surah.arabicName.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                surah.arabicName,
+                textAlign: TextAlign.center,
+                textDirection: TextDirection.rtl,
+                style: TextStyle(
+                  fontFamily: arabicFont,
+                  fontFamilyFallback: const ['Qalam'],
+                  fontSize: 20,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

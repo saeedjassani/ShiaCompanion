@@ -42,6 +42,45 @@ void main() {
     expect(progress.surahTitle, isEmpty);
   });
 
+  test('progress reached inside a juz remembers the juz', () {
+    final progress = QuranProgress(
+      surah: 5,
+      ayah: 12,
+      surahTitle: '5: Al-Maidah',
+      juz: 6,
+      updatedAt: DateTime.utc(2026, 6, 7, 10, 30),
+    );
+
+    expect(progress.toJson()['juz'], 6);
+    expect(QuranProgress.fromJson(progress.toJson()).juz, 6);
+  });
+
+  test('progress from reading a surah alone carries no juz', () {
+    final progress = QuranProgress(
+      surah: 5,
+      ayah: 12,
+      surahTitle: '5: Al-Maidah',
+      updatedAt: DateTime.utc(2026, 6, 7, 10, 30),
+    );
+
+    expect(progress.toJson().containsKey('juz'), isFalse);
+    expect(QuranProgress.fromJson(progress.toJson()).juz, isNull);
+  });
+
+  test('a record written before juz existed still reads back', () {
+    final progress = QuranProgress.fromJson({
+      'version': 1,
+      'surah': 2,
+      'ayah': 156,
+      'surahTitle': '2: Al-Baqarah',
+      'updatedAt': '2026-06-07T10:30:00.000Z',
+    });
+
+    expect(progress.juz, isNull);
+    expect(progress.surah, 2);
+    expect(progress.ayah, 156);
+  });
+
   test('reading before preferences are ready is not an error', () {
     // The Quran screen reads this in initState, which can run before
     // SharedPreferences has been initialised in a cold start.

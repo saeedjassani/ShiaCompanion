@@ -7,6 +7,7 @@ import '../../services/analytics_service.dart';
 import '../../services/favorites_manager.dart';
 import '../../services/quran_progress_store.dart';
 import '../../utils/quran_index.dart';
+import '../../utils/quran_portion.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/responsive_content.dart';
 import '../zikr/zikr_page.dart';
@@ -30,7 +31,32 @@ Future<void> openQuranVerse(
     ZikrPage(
       UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
       source: source,
-      initialAyah: verse.ayah,
+      initialVerse: verse,
+    ),
+  );
+}
+
+/// Opens a juz as one continuous reading, optionally at a verse inside it.
+///
+/// A juz is not a document in the corpus - 28 of the 30 run across two or more
+/// surahs - so it is assembled first and then handed to the reader whole. That
+/// is why this is async where [openQuranVerse] is not.
+Future<void> openQuranJuz(
+  BuildContext context,
+  int juz, {
+  VerseKey? at,
+  String source = ZikrOpenSource.quran,
+}) async {
+  final portion = await loadJuzPortion(juz, DefaultAssetBundle.of(context));
+  if (portion == null || portion.isEmpty || !context.mounted) return;
+
+  await pushPageRoute(
+    context,
+    ZikrPage(
+      UidTitleData(quranJuzUid(juz), portion.title),
+      source: source,
+      portion: portion,
+      initialVerse: at,
     ),
   );
 }
@@ -68,6 +94,36 @@ class _QuranPageState extends State<QuranPage> {
     setState(() => _progress = QuranProgressStore.instance.read());
   }
 
+  /// Picks up where the reader left off - in the juz if that is where they
+  /// were, since someone working through a juz over a week means the juz, not
+  /// whichever surah they happened to stop inside.
+  Future<void> _resumeReading() async {
+    final progress = _progress;
+    if (progress == null) return;
+
+    final verse = VerseKey(progress.surah, progress.ayah);
+    final juz = progress.juz;
+    if (juz != null) {
+      await openQuranJuz(
+        context,
+        juz,
+        at: verse,
+        source: ZikrOpenSource.quranResume,
+      );
+      if (!mounted) return;
+      setState(() => _progress = QuranProgressStore.instance.read());
+      return;
+    }
+
+    await _open(verse, source: ZikrOpenSource.quranResume);
+  }
+
+  Future<void> _openJuz(int juz) async {
+    await openQuranJuz(context, juz);
+    if (!mounted) return;
+    setState(() => _progress = QuranProgressStore.instance.read());
+  }
+
   Future<void> _clearProgress() async {
     await QuranProgressStore.instance.clear();
     if (!mounted) return;
@@ -99,10 +155,7 @@ class _QuranPageState extends State<QuranPage> {
                   if (_progress != null)
                     _ContinueRecitingCard(
                       progress: _progress!,
-                      onTap: () => _open(
-                        VerseKey(_progress!.surah, _progress!.ayah),
-                        source: ZikrOpenSource.quranResume,
-                      ),
+                      onTap: _resumeReading,
                       onDismiss: _clearProgress,
                     ),
                   _GoToVerseField(onSubmit: _open),
@@ -113,7 +166,7 @@ class _QuranPageState extends State<QuranPage> {
               child: TabBarView(
                 children: [
                   _SurahList(surahs: _surahs, onOpen: _open),
-                  _JuzList(juz: _juz, onOpen: _open),
+                  _JuzList(juz: _juz, onOpenJuz: _openJuz),
                 ],
               ),
             ),
@@ -159,7 +212,9 @@ class _ContinueRecitingCard extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          '$name · ayah ${progress.ayah}',
+          progress.juz == null
+              ? '$name · ayah ${progress.ayah}'
+              : 'Juz ${progress.juz} · $name ${progress.ayah}',
           style: theme.textTheme.titleSmall?.copyWith(
             color: theme.colorScheme.onSecondaryContainer,
           ),
@@ -309,10 +364,10 @@ class _SurahList extends StatelessWidget {
 }
 
 class _JuzList extends StatelessWidget {
-  const _JuzList({required this.juz, required this.onOpen});
+  const _JuzList({required this.juz, required this.onOpenJuz});
 
   final List<Juz> juz;
-  final void Function(VerseKey verse) onOpen;
+  final void Function(int juz) onOpenJuz;
 
   @override
   Widget build(BuildContext context) {
@@ -342,9 +397,7 @@ class _JuzList extends StatelessWidget {
             subtitle: Text(
               '${_verseLabel(part.start)} → ${_verseLabel(part.end)}',
             ),
-            // A juz opens where it begins; it is a starting point for a day's
-            // recitation, not a document of its own.
-            onTap: () => onOpen(part.start),
+            onTap: () => onOpenJuz(part.number),
           );
         },
       ),

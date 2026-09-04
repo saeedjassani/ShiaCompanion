@@ -6,6 +6,7 @@ import '../services/library_service.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/deep_links.dart';
 import '../utils/quran_index.dart';
+import '../utils/quran_portion.dart';
 import '../constants.dart';
 import 'chapter_list_page.dart';
 import 'chapter_page.dart';
@@ -68,7 +69,7 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
     // A bare /quran is the one link with nothing after it - it names the Quran
     // screen rather than anything inside it.
     if (widget.target.type == quranDeepLinkType) {
-      return _resolveQuranDestination();
+      return await _resolveQuranDestination();
     }
     if (widget.target.segments.isEmpty) return null;
 
@@ -85,23 +86,32 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
     }
   }
 
-  Widget? _resolveQuranDestination() {
+  Future<Widget?> _resolveQuranDestination() async {
     final destination =
         DeepLinkResolver.resolveQuranDestination(widget.target);
     if (destination == null) return null;
     if (destination.isHome) return const QuranPage();
 
-    // A juz link opens at the verse the juz begins on; there is no separate
-    // juz document to show.
-    final verse = destination.verse ??
-        allJuz()[destination.juz! - 1].start;
+    final juz = destination.juz;
+    if (juz != null) {
+      // A juz is assembled rather than loaded - it spans surahs.
+      final portion = await loadJuzPortion(juz, DefaultAssetBundle.of(context));
+      if (portion == null || portion.isEmpty) return null;
+      return ZikrPage(
+        UidTitleData(quranJuzUid(juz), portion.title),
+        source: ZikrOpenSource.deepLink,
+        portion: portion,
+      );
+    }
+
+    final verse = destination.verse!;
     final info = surahInfoFor(verse.surah);
     if (info == null) return null;
 
     return ZikrPage(
       UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
       source: ZikrOpenSource.deepLink,
-      initialAyah: verse.ayah,
+      initialVerse: verse,
     );
   }
 
