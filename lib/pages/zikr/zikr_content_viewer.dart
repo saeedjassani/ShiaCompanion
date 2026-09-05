@@ -130,6 +130,14 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// what the marker is drawn on; the offset above is only used to scroll
   /// back there.
   final int? initialBookmarkLineIndex;
+
+  /// The verse the saved bookmark marks, for when no line index came with it.
+  ///
+  /// A bookmark taken while reading a juz records the verse but not a line:
+  /// the line was measured inside the portion and means nothing in the surah's
+  /// own document. The verse does mean something in both, so the line is
+  /// resolved here, against whichever content is actually being shown.
+  final VerseKey? initialBookmarkVerse;
   final ValueChanged<ZikrContentScrollPosition>? onScrollPositionChanged;
 
   /// Reports the line a bookmark saved without one turns out to sit on, once
@@ -177,6 +185,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.initialBookmarkTabIndex,
     this.initialBookmarkScrollOffset,
     this.initialBookmarkLineIndex,
+    this.initialBookmarkVerse,
     this.onScrollPositionChanged,
     this.onBookmarkLineResolved,
     this.surahNumber,
@@ -669,6 +678,22 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return cache;
   }
 
+  /// Which line the bookmark marker belongs on.
+  ///
+  /// A recorded line index wins - it is exact, and it is what was measured when
+  /// the bookmark was taken. Falling back to the verse is what lets a bookmark
+  /// made in a juz still mark its verse when the surah is opened on its own,
+  /// where the juz's line numbering does not apply.
+  int? _bookmarkLineIndex(int? lineIndex, AyahIndex? ayahIndex) {
+    if (lineIndex != null) return lineIndex;
+
+    final verse = widget.initialBookmarkVerse;
+    if (verse == null || ayahIndex == null) return null;
+
+    final spanIndex = ayahIndex.spanIndexForVerse(verse);
+    return spanIndex == null ? null : ayahIndex.spans[spanIndex].start;
+  }
+
   /// The ayah index in force for a tab, or null when it renders line by line.
   AyahIndex? _ayahIndexFor(int tabIndex) => _contentCaches[tabIndex]?.ayahIndex;
 
@@ -693,7 +718,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
     final bookmarkedRange = tabIndex == widget.initialBookmarkTabIndex
         ? bookmarkedLineRange(
-            bookmarkLineIndex: widget.initialBookmarkLineIndex,
+            bookmarkLineIndex:
+                _bookmarkLineIndex(widget.initialBookmarkLineIndex, ayahIndex),
             content: parsedContent,
           )
         : null;
@@ -1076,20 +1102,20 @@ class _SurahHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // No rule of its own. At a surah boundary the preceding verse's separator
+    // already draws one, and adding a second stacked a few pixels under it;
+    // at the top of a portion there is nothing above, so it drew a line
+    // floating in space. Room and type mark the transition instead.
     return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 8),
+      padding: const EdgeInsets.only(top: 32, bottom: 8),
       child: Column(
         children: [
-          Divider(color: theme.colorScheme.outlineVariant),
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Text(
-              '${surah.number}. ${surah.englishName}',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
+          Text(
+            '${surah.number}. ${surah.englishName}',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
             ),
           ),
           if (surah.arabicName.isNotEmpty)

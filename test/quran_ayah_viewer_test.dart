@@ -23,6 +23,8 @@ Future<void> _pump(
   ValueChanged<QuranReadingPosition>? onAyahPosition,
   ValueChanged<AyahActionRequest>? onAyahAction,
   AyahIndex? ayahIndex,
+  int? bookmarkLineIndex,
+  VerseKey? bookmarkVerse,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -38,6 +40,10 @@ Future<void> _pump(
           surahNumber: surahNumber,
           initialVerse: initialVerse,
           ayahIndex: ayahIndex,
+          initialBookmarkTabIndex:
+              bookmarkLineIndex == null && bookmarkVerse == null ? null : 0,
+          initialBookmarkLineIndex: bookmarkLineIndex,
+          initialBookmarkVerse: bookmarkVerse,
           onAyahPositionChanged: onAyahPosition,
           onAyahAction: onAyahAction,
         ),
@@ -99,6 +105,30 @@ void main() {
     });
 
     tearDown(() => items = {});
+
+    testWidgets('draws no rule of its own above the first surah name',
+        (tester) async {
+      // A divider here sat with nothing above it at the top of a juz, and
+      // stacked under the previous verse's separator at a boundary.
+      final portion = _portion();
+      await _pump(
+        tester,
+        content: portion.data,
+        ayahIndex: portion.index,
+      );
+
+      final heading = find.text('4. An-Nisa');
+      expect(heading, findsOneWidget);
+      // The heading's own Column is the innermost one around it; the outer
+      // ones belong to the block and the list, which do draw separators.
+      expect(
+        find.descendant(
+          of: find.ancestor(of: heading, matching: find.byType(Column)).first,
+          matching: find.byType(Divider),
+        ),
+        findsNothing,
+      );
+    });
 
     testWidgets('names each surah where the reading crosses into it',
         (tester) async {
@@ -189,6 +219,75 @@ void main() {
         5,
         reason: 'scrolling past the join is reading al-Maidah, not an-Nisa',
       );
+    });
+  });
+
+  group('the bookmark marker', () {
+    setUp(() {
+      items = {'A8': '4: An-Nisa النساء', 'A9': '5: Al-Maidah المائدة'};
+    });
+
+    tearDown(() => items = {});
+
+    testWidgets('a bookmark with only an ayah still marks its verse',
+        (tester) async {
+      // The reported bug: a bookmark taken while reading a juz carries the
+      // verse but no line index, because the line was measured inside the
+      // portion. Nothing resolved it, so the surah's own page drew nothing.
+      await _pump(
+        tester,
+        content: _surahContent(),
+        surahNumber: 1,
+        bookmarkVerse: const VerseKey(1, 2),
+      );
+
+      expect(find.text('Bookmarked'), findsNothing,
+          reason: 'the ayah path marks the block, not a line label');
+      final marked = tester.widget<Container>(
+        find
+            .ancestor(
+              of: find.text('Translation of ayah 2'),
+              matching: find.byType(Container),
+            )
+            .last,
+      );
+      expect(marked.decoration, isNotNull);
+    });
+
+    testWidgets('the verse is resolved against the portion being shown',
+        (tester) async {
+      final portion = _portion();
+      await _pump(
+        tester,
+        content: portion.data,
+        ayahIndex: portion.index,
+        bookmarkVerse: const VerseKey(4, 2),
+      );
+
+      // 4:2 and 5:2 share an ayah number; only the right surah's block is
+      // marked, which is what a line index alone could never express.
+      expect(find.text('Translation of 4:2'), findsOneWidget);
+    });
+
+    testWidgets('a recorded line index still wins over the verse',
+        (tester) async {
+      await _pump(
+        tester,
+        content: _surahContent(),
+        surahNumber: 1,
+        bookmarkLineIndex: 1,
+        bookmarkVerse: const VerseKey(1, 3),
+      );
+
+      // Line 1 is ayah 1's Arabic. If the verse had won, ayah 3 would be
+      // marked instead.
+      expect(find.text('Translation of ayah 1'), findsOneWidget);
+    });
+
+    testWidgets('no bookmark at all marks nothing', (tester) async {
+      await _pump(tester, content: _surahContent(), surahNumber: 1);
+
+      expect(find.text('Bookmarked'), findsNothing);
     });
   });
 
