@@ -18,6 +18,7 @@ void main() {
         HomeGlyphType.rakaat,
         HomeGlyphType.taqeebat,
         HomeGlyphType.todaysRecitations,
+        HomeGlyphType.ziyaraat,
       ]));
     });
 

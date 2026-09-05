@@ -19,10 +19,10 @@ enum HomeGlyphType {
   /// Traditional illuminated Islamic lantern (Fanoos) for holy night vigils.
   aamaal,
 
-  /// Intimate nocturnal crescent moon with gentle whispering prayer waves and star.
+  /// Intimate nocturnal crescent moon cradling a devotional heart and celestial stars.
   munajaat,
 
-  /// Sacred Turbah (sajdah stone) with concentric proximity count waves.
+  /// Worshipper in sacred Sajdah (prostration) upon the Turbah with tally counter.
   rakaat,
 
   /// Mihrab prayer arch with prayer beads draped across it.
@@ -30,6 +30,9 @@ enum HomeGlyphType {
 
   /// Open sacred book illuminated with morning dawn rays.
   todaysRecitations,
+
+  /// The Holy Shrine of Ahlulbayt with golden dome, minarets, and the waving Alam.
+  ziyaraat,
 }
 
 /// A custom-drawn vector glyph for the home screen grid, built from a shared
@@ -115,6 +118,8 @@ class _HomeGlyphPainter extends CustomPainter {
         _paintTaqeebat(canvas, strokePaint, detailPaint, fillPaint);
       case HomeGlyphType.todaysRecitations:
         _paintTodaysRecitations(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.ziyaraat:
+        _paintZiyaraat(canvas, strokePaint, detailPaint, fillPaint);
     }
 
     canvas.restore();
@@ -151,35 +156,37 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawPath(lamp, fill);
   }
 
-  /// 2. DUAS: Cupped hands raised upward in supplication (Qunoot / Dua).
+  /// 2. DUAS: Organic cupped hands raised upward in supplication (Qunoot / Dua).
   void _paintDuas(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // Left hand
+    // Left hand: solid cupped palm tilted gracefully toward center
     final leftHand = Path()
-      ..moveTo(6.5, 21.5)
-      ..cubicTo(5.2, 16.5, 4.6, 12.0, 5.8, 7.8) // pinky
-      ..cubicTo(6.4, 5.8, 8.2, 5.2, 9.0, 5.5) // fingertips
-      ..cubicTo(9.6, 7.0, 10.2, 9.0, 10.8, 11.2) // thumb
-      ..cubicTo(10.5, 14.5, 9.8, 18.2, 9.2, 21.5);
-    canvas.drawPath(leftHand, stroke);
+      ..moveTo(10.8, 20.0)
+      ..lineTo(8.2, 20.0)
+      ..cubicTo(6.8, 19.8, 5.5, 16.5, 5.2, 13.0) // blade of hand
+      ..cubicTo(5.0, 9.8, 6.0, 7.0, 7.6, 5.8) // fingers curve
+      ..cubicTo(8.6, 5.0, 10.0, 5.5, 10.5, 7.5) // fingertips
+      ..cubicTo(10.8, 9.0, 10.8, 11.5, 11.0, 14.2) // inner palm
+      ..close();
+    canvas.drawPath(leftHand, fill);
 
-    // Right hand (mirrored)
+    // Right hand: mirrored across x = 12.0
     final rightHand = Path()
-      ..moveTo(17.5, 21.5)
-      ..cubicTo(18.8, 16.5, 19.4, 12.0, 18.2, 7.8) // pinky
-      ..cubicTo(17.6, 5.8, 15.8, 5.2, 15.0, 5.5) // fingertips
-      ..cubicTo(14.4, 7.0, 13.8, 9.0, 13.2, 11.2) // thumb
-      ..cubicTo(13.5, 14.5, 14.2, 18.2, 14.8, 21.5);
-    canvas.drawPath(rightHand, stroke);
+      ..moveTo(13.2, 20.0)
+      ..lineTo(15.8, 20.0)
+      ..cubicTo(17.2, 19.8, 18.5, 16.5, 18.8, 13.0) // blade of hand
+      ..cubicTo(19.0, 9.8, 18.0, 7.0, 16.4, 5.8) // fingers curve
+      ..cubicTo(15.4, 5.0, 14.0, 5.5, 13.5, 7.5) // fingertips
+      ..cubicTo(13.2, 9.0, 13.2, 11.5, 13.0, 14.2) // inner palm
+      ..close();
+    canvas.drawPath(rightHand, fill);
 
-    // Blessing rays / sparkle rising between the palms
-    canvas.drawLine(const Offset(12, 5.8), const Offset(12, 2.5), detail);
-    canvas.drawLine(const Offset(9.8, 4.2), const Offset(8.8, 2.2), detail);
-    canvas.drawLine(const Offset(14.2, 4.2), const Offset(15.2, 2.2), detail);
+    // Divine blessing light / 8-pointed sparkle above the cupped hands
+    _drawStar(canvas, fill, 12.0, 4.2, 2.6);
   }
 
   /// 3. SURAHS: The Holy Quran resting on a traditional wooden Rihal stand.
@@ -314,7 +321,7 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawLine(const Offset(18.8, 11.8), const Offset(20.8, 11.8), detail);
   }
 
-  /// 6. MUNAJAAT: Nocturnal crescent moon with whispering prayer ripples and star.
+  /// 6. MUNAJAAT: Nocturnal crescent moon cradling a devotional heart and celestial stars.
   void _paintMunajaat(
     Canvas canvas,
     Paint stroke,
@@ -323,52 +330,130 @@ class _HomeGlyphPainter extends CustomPainter {
   ) {
     // Slender crescent moon on the left
     final crescent = Path()
-      ..moveTo(10.5, 3.2)
+      ..moveTo(10.0, 3.2)
       ..arcToPoint(
-        const Offset(10.5, 20.8),
-        radius: const Radius.circular(9.5),
+        const Offset(10.0, 20.8),
+        radius: const Radius.circular(9.2),
         largeArc: true,
       )
       ..arcToPoint(
-        const Offset(10.5, 3.2),
-        radius: const Radius.circular(7.8),
+        const Offset(10.0, 3.2),
+        radius: const Radius.circular(7.5),
         clockwise: false,
       )
       ..close();
     canvas.drawPath(crescent, fill);
 
-    // Sparkling 4-point star on upper right
-    _drawStar(canvas, fill, 17.0, 6.2, 2.6);
+    // Warm devotional heart nestled in the crescent's embrace
+    final heart = Path()
+      ..moveTo(15.5, 12.0)
+      ..cubicTo(15.5, 12.0, 14.2, 10.2, 12.8, 10.8)
+      ..cubicTo(11.5, 11.4, 11.5, 13.2, 12.5, 14.4)
+      ..lineTo(15.5, 17.5)
+      ..lineTo(18.5, 14.4)
+      ..cubicTo(19.5, 13.2, 19.5, 11.4, 18.2, 10.8)
+      ..cubicTo(16.8, 10.2, 15.5, 12.0, 15.5, 12.0)
+      ..close();
+    canvas.drawPath(heart, fill);
 
-    // Whispering prayer waves radiating softly on lower right
-    _drawArc(canvas, detail, const Offset(13.2, 16.2), 3.2, -0.4, 1.2);
-    _drawArc(canvas, detail, const Offset(13.2, 16.2), 5.5, -0.4, 1.2);
-    _drawArc(canvas, detail, const Offset(13.2, 16.2), 7.8, -0.4, 1.2);
+    // Primary celestial sparkle star in upper night sky
+    _drawStar(canvas, fill, 17.0, 5.5, 2.5);
+
+    // Secondary soft sparkle star
+    _drawStar(canvas, fill, 12.5, 8.2, 1.4);
   }
 
-  /// 7. RAKAAT COUNTER: Sacred Turbah (sajdah stone) with count pulse rings.
+  /// 7. RAKAAT COUNTER: Worshipper in sacred Sajdah (prostration) upon Turbah with tally counter.
   void _paintRakaat(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // The Turbah: rounded clay tablet
-    final turbahRect = RRect.fromRectAndRadius(
-      Rect.fromCenter(center: const Offset(12, 15.0), width: 14.5, height: 8.5),
-      const Radius.circular(4.2),
+    // Ground line
+    canvas.drawLine(const Offset(2.0, 20.8), const Offset(22.0, 20.8), stroke);
+
+    // Small sacred Turbah under the forehead
+    canvas.drawOval(
+      Rect.fromCenter(center: const Offset(6.5, 20.0), width: 4.2, height: 1.6),
+      fill,
     );
-    canvas.drawRRect(turbahRect, stroke);
 
-    // Inner embossed seal of Turbah
-    canvas.drawCircle(const Offset(12, 15.0), 1.8, stroke);
+    // Worshipper's head bowed in Sajdah
+    canvas.drawCircle(const Offset(6.6, 16.2), 1.8, fill);
 
-    // Concentric proximity count waves above the Turbah
-    _drawArc(canvas, detail, const Offset(12, 11.0), 3.8, -math.pi * 0.8, math.pi * 0.6);
-    _drawArc(canvas, detail, const Offset(12, 11.0), 6.5, -math.pi * 0.8, math.pi * 0.6);
+    // Worshipper's body: arms resting on ground, arched back, folded thighs
+    final body = Path()
+      ..moveTo(5.2, 20.5)
+      ..lineTo(7.5, 17.2)
+      ..lineTo(9.8, 16.5)
+      ..cubicTo(12.5, 12.8, 15.0, 12.5, 17.0, 14.5)
+      ..lineTo(18.5, 20.5);
+    canvas.drawPath(body, stroke);
 
-    // Center pulse dot
-    canvas.drawCircle(const Offset(12, 3.2), 1.2, fill);
+    // Circular tally counter badge in upper sky
+    final counterCenter = const Offset(15.5, 6.0);
+    canvas.drawCircle(counterCenter, 4.2, stroke);
+
+    // Counter mechanical push button / tick on top
+    canvas.drawLine(const Offset(15.5, 1.8), const Offset(15.5, 3.2), stroke);
+
+    // Two sajdah count pips inside the counter badge (representing the 2 sajdahs)
+    canvas.drawCircle(const Offset(13.8, 6.0), 1.1, fill);
+    canvas.drawCircle(const Offset(17.2, 6.0), 1.1, fill);
+  }
+
+  /// 10. ZIYARAAT: The Holy Shrine of Ahlulbayt with golden dome, twin minarets, and the waving Alam (flag of Karbala).
+  void _paintZiyaraat(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    // Ground line
+    canvas.drawLine(const Offset(2.0, 21.0), const Offset(22.0, 21.0), stroke);
+
+    // Left minaret
+    canvas.drawLine(const Offset(3.5, 21.0), const Offset(3.5, 8.5), stroke);
+    canvas.drawLine(const Offset(5.5, 21.0), const Offset(5.5, 8.5), stroke);
+    canvas.drawLine(const Offset(2.5, 8.5), const Offset(6.5, 8.5), stroke); // balcony
+    canvas.drawLine(const Offset(4.5, 8.5), const Offset(4.5, 5.0), detail); // lantern shaft
+    canvas.drawCircle(const Offset(4.5, 4.2), 1.0, fill); // spire peak
+
+    // Right minaret
+    canvas.drawLine(const Offset(18.5, 21.0), const Offset(18.5, 8.5), stroke);
+    canvas.drawLine(const Offset(20.5, 21.0), const Offset(20.5, 8.5), stroke);
+    canvas.drawLine(const Offset(17.5, 8.5), const Offset(21.5, 8.5), stroke); // balcony
+    canvas.drawLine(const Offset(19.5, 8.5), const Offset(19.5, 5.0), detail); // lantern shaft
+    canvas.drawCircle(const Offset(19.5, 4.2), 1.0, fill); // spire peak
+
+    // Central Shrine Dome (swelling onion dome)
+    final dome = Path()
+      ..moveTo(7.5, 14.5)
+      ..cubicTo(7.2, 10.5, 9.2, 7.0, 12.0, 5.6)
+      ..cubicTo(14.8, 7.0, 16.8, 10.5, 16.5, 14.5)
+      ..close();
+    canvas.drawPath(dome, stroke);
+    canvas.drawLine(const Offset(7.5, 14.5), const Offset(16.5, 14.5), stroke);
+
+    // Sacred Flag of Karbala (Alam) mounted on the dome pinnacle
+    canvas.drawLine(const Offset(12.0, 5.6), const Offset(12.0, 2.0), detail); // pole
+    final flag = Path()
+      ..moveTo(12.0, 2.0)
+      ..quadraticBezierTo(14.0, 1.5, 16.0, 2.4)
+      ..lineTo(15.2, 4.0)
+      ..quadraticBezierTo(13.6, 3.2, 12.0, 4.2)
+      ..close();
+    canvas.drawPath(flag, fill);
+
+    // Grand arched portal / Iwan entrance
+    final portal = Path()
+      ..moveTo(9.8, 21.0)
+      ..lineTo(9.8, 17.5)
+      ..cubicTo(9.8, 16.0, 10.8, 15.0, 12.0, 15.0)
+      ..cubicTo(13.2, 15.0, 14.2, 16.0, 14.2, 17.5)
+      ..lineTo(14.2, 21.0);
+    canvas.drawPath(portal, detail);
   }
 
   /// 8. TAQEEBAT: Prayer arch with cascading prayer beads.
