@@ -106,6 +106,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Ziyarats',
+    glyphType: HomeGlyphType.ziyaraat,
     icon: Icons.mosque_rounded,
     pageBuilder: () => ItemList("G", "Ziyarats"),
   ),
