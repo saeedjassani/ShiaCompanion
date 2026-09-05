@@ -866,6 +866,11 @@ class _SettingsPageState extends State<SettingsPage> {
       if (firebaseUser == null) {
         final authResult = await AccountService.signInWithGoogle();
 
+        unawaited(AnalyticsService.feature(
+          'account_signed_in',
+          label: 'Signed in',
+          parameters: {'method': 'google'},
+        ));
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
           content: new Text("Login Successful"),
         ));
@@ -909,6 +914,11 @@ class _SettingsPageState extends State<SettingsPage> {
           rawNonce: rawNonce,
         );
         final authResult = await _auth.signInWithCredential(credential);
+        unawaited(AnalyticsService.feature(
+          'account_signed_in',
+          label: 'Signed in',
+          parameters: {'method': 'apple'},
+        ));
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
           content: new Text("Login Successful"),
         ));

@@ -12,8 +12,11 @@ Those counters are what the in-app **Usage Dashboard** reads, and they are live.
 
 Home grid → **Usage** (admin only; the tile is not built for anyone else).
 Ranges: Today / 7 days / 30 days / All time. It shows most-opened zikrs,
-features actually used, screens, library books by chapters read, and live
-streams.
+features actually used (grouped — see below), screens, library books by
+chapters read, and live streams. Every ranked row also shows its share of that
+section's total, and the three headline tiles (zikr opens, distinct zikrs,
+feature uses) show the change against the equivalent previous period — All
+time has no "previous" to compare against, so it skips the delta.
 
 The tile comes from `adminHomeMenuItems`, kept out of `homeMenuItems` so the
 grid every user gets stays a compile-time constant and admin state — which
@@ -40,12 +43,35 @@ Flip `AnalyticsService.recordUsageInDebug` to exercise the pipeline locally.
 
 ### `feature_use` values
 
-`home_menu_*` (one per home menu item — Qibla, Tasbeeh, Qaza, Calendar, Flights,
-Library, Favorites, …), `tasbeeh_session` (+`count`), `qaza_updated`
-(+`operation`), `favorite_added` (+`content_type`), `zikr_shared` (+`zikr_uid`),
-`azaan_selected` (+`azaan_id`), `rakaat_prayer_completed` (+`total_rakaat`),
-`flight_added` / `flight_edited`, `prayer_times_selection_changed`
-(+`prayer_times`), `search`, `search_opened`, `zikr_source_*`.
+The dashboard sorts every one of these into a [`FeatureGroup`](#features-used-grouped)
+before ranking them; the grouping below mirrors that.
+
+**Zikr & library reading** — `zikr_counter_shown`, `zikr_audio_opened` /
+`zikr_audio_play` (+`zikr_uid`), `zikr_bookmark_saved` (+`zikr_uid`) /
+`zikr_bookmark_removed`, `zikr_shared` (+`zikr_uid`), `zikr_keep_awake_toggled`,
+`zikr_focus_mode_toggled`, `zikr_share_as_image_toggled`,
+`zikr_show_transliteration_toggled`, `zikr_show_translation_toggled` (all four
++`enabled`), `arabic_font_size_changed`, `english_font_size_changed`,
+`arabic_font_changed` (+`font`), `library_shared` (+`book_uid`, `chapter_uid`,
+`scope`), `zikr_source_*`.
+
+**Home menu** — `home_menu_*`, one per home menu item (Qibla, Tasbeeh, Qaza,
+Calendar, Flights, Library, Favorites, …) (+`menu_item`).
+
+**Prayer & azaan** — `azaan_selected` (+`azaan_id`),
+`azaan_notifications_toggled` (+`enabled`), `azaan_opt_in` (+`choice`),
+`rakaat_prayer_completed` (+`total_rakaat`), `prayer_times_selection_changed`
+(+`prayer_times`).
+
+**Account & tools** — `account_deleted`, `account_signed_in` (+`method`),
+`favorite_added` (+`content_type`), `flight_added` / `flight_edited`,
+`qaza_updated` (+`operation`), `tasbeeh_session` (+`count`).
+
+**Search** — `search`, `search_opened`.
+
+A key nothing above recognises still shows up on the dashboard, just under an
+"Other" heading instead of a named group — see `FeatureGroup.other` in
+`usage_dashboard_page.dart`.
 
 ### `source` values
 
@@ -69,6 +95,19 @@ them do not explain themselves.
 The two link sources are worth keeping apart: `deep_link` measures sharing and
 `zikr_link` measures cross-references in the corpus. A shared link that lands on
 a zikr whose text then links onward produces one of each.
+
+## Features used, grouped
+
+`featureGroupFor` (in `usage_dashboard_page.dart`) buckets every `feature_use`
+key into a `FeatureGroup` before the dashboard ranks it, so "Features used"
+reads as a handful of sections instead of one flat list mixing home-menu taps,
+zikr actions, prayer settings, account changes and search. It matches
+`home_menu_*` and `zikr_source_*` by prefix and everything else against a fixed
+set per group (see the list above) — a key that matches nothing falls into
+`FeatureGroup.other` rather than vanishing from the ranking, which is also the
+safety net for a `feature()` call nobody has sorted into a group yet.
+`groupFeatureRows` does the actual split and is unit tested directly, so a
+regrouping mistake shows up without a live database.
 
 ## Why `zikr_view` lives in `ZikrPage`, not in the tap handlers
 
@@ -113,6 +152,19 @@ moment it lays out. Scroll position alone would therefore rank a stray tap on a
 two-line dua above a real recitation of Dua Kumayl. Completion additionally
 requires time on the page of at least half the estimated reciting duration,
 floored at 10 seconds.
+
+## The headline tiles' period-over-period delta
+
+Today / 7 days / 30 days each read one extra window — the equal-length period
+immediately before the one on screen (yesterday, the previous 7 days, the
+previous 30 days) — and `periodDelta` turns the pair into the "+12%" (or "New",
+or "±0%") shown under each headline tile. All time has no previous period to
+compare against, so it shows no delta at all rather than a meaningless one.
+
+The previous window is read the same way the current one is — one
+`orderByKey().startAt(...).endAt(...)` range query — and reduced to just the
+three headline numbers by `previousTotalsFrom`, so a range change never pays
+for a second full breakdown it will not render.
 
 ## Database layout
 
@@ -194,6 +246,7 @@ Admin → Custom definitions → Create custom dimension, scope **Event**:
 | Menu item | `menu_item` |
 | Azaan | `azaan_id` |
 | Prayer times shown | `prayer_times` |
+| Sign-in method | `method` |
 
 The cap is 50 event-scoped dimensions, so there is plenty of headroom.
 Registration is **not** retroactive — data only appears from the day you create

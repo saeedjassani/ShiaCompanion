@@ -32,6 +32,25 @@ void main() {
     });
   });
 
+  group('new feature_use keys match what database.rules.json accepts', () {
+    const newKeys = [
+      'account_signed_in',
+      'library_shared',
+      'zikr_keep_awake_toggled',
+      'zikr_focus_mode_toggled',
+      'zikr_share_as_image_toggled',
+      'zikr_show_transliteration_toggled',
+      'zikr_show_translation_toggled',
+    ];
+
+    for (final key in newKeys) {
+      test(key, () {
+        expect(AnalyticsService.safeKey(key), key);
+        expect(RegExp(r'^[A-Za-z0-9_~-]{1,60}$').hasMatch(key), isTrue);
+      });
+    }
+  });
+
   group('AnalyticsService.safeKey', () {
     test('leaves a zikr uid untouched, case and tilde included', () {
       expect(AnalyticsService.safeKey('L4~2'), 'L4~2');
@@ -152,6 +171,136 @@ void main() {
       ]);
 
       expect(rows.map((row) => row.key), ['G2']);
+    });
+  });
+
+  group('featureGroupFor', () {
+    test('groups every feature_use key the app currently records', () {
+      const expected = {
+        // Zikr & library reading — the fixed keys, plus a sample of the
+        // dynamic zikr_source_* and home_menu_* families below.
+        'zikr_counter_shown': FeatureGroup.zikrReading,
+        'zikr_audio_opened': FeatureGroup.zikrReading,
+        'zikr_audio_play': FeatureGroup.zikrReading,
+        'zikr_bookmark_saved': FeatureGroup.zikrReading,
+        'zikr_bookmark_removed': FeatureGroup.zikrReading,
+        'zikr_shared': FeatureGroup.zikrReading,
+        'zikr_keep_awake_toggled': FeatureGroup.zikrReading,
+        'zikr_focus_mode_toggled': FeatureGroup.zikrReading,
+        'zikr_share_as_image_toggled': FeatureGroup.zikrReading,
+        'zikr_show_transliteration_toggled': FeatureGroup.zikrReading,
+        'zikr_show_translation_toggled': FeatureGroup.zikrReading,
+        'arabic_font_size_changed': FeatureGroup.zikrReading,
+        'english_font_size_changed': FeatureGroup.zikrReading,
+        'arabic_font_changed': FeatureGroup.zikrReading,
+        'library_shared': FeatureGroup.zikrReading,
+        'zikr_source_search': FeatureGroup.zikrReading,
+        'zikr_source_deep_link': FeatureGroup.zikrReading,
+        // Navigation
+        'home_menu_qibla': FeatureGroup.navigation,
+        'home_menu_tasbeeh': FeatureGroup.navigation,
+        // Prayer & azaan
+        'azaan_selected': FeatureGroup.prayerAndAzaan,
+        'azaan_notifications_toggled': FeatureGroup.prayerAndAzaan,
+        'azaan_opt_in': FeatureGroup.prayerAndAzaan,
+        'rakaat_prayer_completed': FeatureGroup.prayerAndAzaan,
+        'prayer_times_selection_changed': FeatureGroup.prayerAndAzaan,
+        // Account & tools
+        'account_deleted': FeatureGroup.accountAndTools,
+        'account_signed_in': FeatureGroup.accountAndTools,
+        'favorite_added': FeatureGroup.accountAndTools,
+        'flight_added': FeatureGroup.accountAndTools,
+        'flight_edited': FeatureGroup.accountAndTools,
+        'qaza_updated': FeatureGroup.accountAndTools,
+        'tasbeeh_session': FeatureGroup.accountAndTools,
+        // Search
+        'search': FeatureGroup.search,
+        'search_opened': FeatureGroup.search,
+      };
+
+      expected.forEach((key, group) {
+        expect(featureGroupFor(key), group, reason: key);
+      });
+    });
+
+    test('falls back to Other instead of dropping an unclassified key', () {
+      // The safety net: a future feature() call nobody has sorted into a
+      // group yet must still show up on the dashboard.
+      expect(
+        featureGroupFor('brand_new_feature_nobody_classified_yet'),
+        FeatureGroup.other,
+      );
+    });
+  });
+
+  group('groupFeatureRows', () {
+    test('keeps rank order within a group and omits empty groups', () {
+      final rows = const [
+        UsageRow(key: 'home_menu_qibla', label: 'Qibla', count: 50),
+        UsageRow(key: 'search', label: 'Search', count: 40),
+        UsageRow(key: 'home_menu_tasbeeh', label: 'Tasbeeh', count: 10),
+      ];
+
+      final grouped = groupFeatureRows(rows);
+
+      expect(
+        grouped[FeatureGroup.navigation]?.map((row) => row.key).toList(),
+        ['home_menu_qibla', 'home_menu_tasbeeh'],
+      );
+      expect(grouped[FeatureGroup.search]?.map((row) => row.key).toList(),
+          ['search']);
+      expect(grouped.containsKey(FeatureGroup.prayerAndAzaan), isFalse);
+    });
+  });
+
+  group('previousTotalsFrom', () {
+    test('sums opens, drops completions, and counts distinct zikrs', () {
+      final totals = previousTotalsFrom({
+        'zikr': {'G1': 10, 'G1~done': 3, 'G2': 5},
+        'feature': {'search': 4, 'zikr_shared': 2},
+      });
+
+      expect(totals.zikrOpens, 15);
+      expect(totals.distinctZikrs, 2);
+      expect(totals.featureUses, 6);
+    });
+
+    test('returns zeros for an empty counts map', () {
+      final totals = previousTotalsFrom(const {});
+      expect(totals.zikrOpens, 0);
+      expect(totals.distinctZikrs, 0);
+      expect(totals.featureUses, 0);
+    });
+  });
+
+  group('periodDelta', () {
+    test('reports a percentage increase', () {
+      final delta = periodDelta(120, 100);
+      expect(delta?.label, '+20%');
+      expect(delta?.direction, DeltaDirection.up);
+    });
+
+    test('reports a percentage decrease', () {
+      final delta = periodDelta(80, 100);
+      expect(delta?.label, '-20%');
+      expect(delta?.direction, DeltaDirection.down);
+    });
+
+    test('labels a previously-zero metric New instead of dividing by zero',
+        () {
+      final delta = periodDelta(5, 0);
+      expect(delta?.label, 'New');
+      expect(delta?.direction, DeltaDirection.isNew);
+    });
+
+    test('returns null when neither period has anything to report', () {
+      expect(periodDelta(0, 0), isNull);
+    });
+
+    test('rounds a sub-percent change to flat rather than +0%/-0%', () {
+      final delta = periodDelta(1001, 1000);
+      expect(delta?.label, '±0%');
+      expect(delta?.direction, DeltaDirection.flat);
     });
   });
 }
