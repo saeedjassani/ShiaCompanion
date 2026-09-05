@@ -416,46 +416,60 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
+  /// Waits for the Cloud Function to finish rebuilding the index.
+  ///
+  /// A snapshot listener rather than a poll: polling the request document once
+  /// a second billed a read per second for the whole 20-second window, where
+  /// the listener costs one read plus the updates the function actually
+  /// writes.
   Future<_PublishStatus> _waitForPublishCompletion(String requestId) async {
-    final deadline = DateTime.now().add(const Duration(seconds: 20));
+    final completer = Completer<_PublishStatus>();
 
-    while (DateTime.now().isBefore(deadline)) {
-      await Future.delayed(const Duration(seconds: 1));
-      final status = await _getPublishStatus(requestId);
-      if (status != null) {
-        return status;
-      }
+    void finish(_PublishStatus status) {
+      if (completer.isCompleted) return;
+      completer.complete(status);
     }
 
-    return _PublishStatus.timeout;
+    final subscription = FirebaseFirestore.instance
+        .doc('zikr_meta/publish_requests')
+        .snapshots()
+        .listen(
+      (doc) {
+        final status = _publishStatusFor(doc.data(), requestId);
+        if (status != null) finish(status);
+      },
+      onError: (_) => finish(_PublishStatus.error),
+    );
+
+    final timeout = Timer(
+      const Duration(seconds: 20),
+      () => finish(_PublishStatus.timeout),
+    );
+
+    try {
+      return await completer.future;
+    } finally {
+      timeout.cancel();
+      await subscription.cancel();
+    }
   }
 
-  Future<_PublishStatus?> _getPublishStatus(String requestId) async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .doc('zikr_meta/publish_requests')
-          .get();
-      final data = doc.data();
-      if (data == null) {
-        return null;
-      }
+  /// Reads the outcome of [requestId] out of the request document, or null
+  /// while the function has not yet processed that request.
+  _PublishStatus? _publishStatusFor(
+    Map<String, dynamic>? data,
+    String requestId,
+  ) {
+    if (data == null) return null;
 
-      final processedRequestId = data['processedRequestId']?.toString() ?? '';
-      if (processedRequestId != requestId) {
-        return null;
-      }
+    final processedRequestId = data['processedRequestId']?.toString() ?? '';
+    if (processedRequestId != requestId) return null;
 
-      final status = data['status']?.toString() ?? '';
-      if (status == 'success') {
-        return _PublishStatus.success;
-      }
-      if (status == 'error') {
-        return _PublishStatus.error;
-      }
-      return null;
-    } catch (_) {
-      return null;
-    }
+    return switch (data['status']?.toString() ?? '') {
+      'success' => _PublishStatus.success,
+      'error' => _PublishStatus.error,
+      _ => null,
+    };
   }
 
   @override

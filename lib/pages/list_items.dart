@@ -189,21 +189,30 @@ class _ItemListState extends State<ItemList> {
     setState(_refreshWorkingItems);
   }
 
+  /// Every uid that deleting [uidTitleData] should take with it: the zikr
+  /// itself plus the alias documents (`SOMETHING|canonical`) that point at it.
+  ///
+  /// Alias ids can only be matched by suffix, which Firestore cannot query, so
+  /// the set has to be found by looking at every id. Doing that against the
+  /// loaded index rather than the `zikr` collection keeps the confirmation
+  /// dialog free — the collection scan used to run before the dialog, so even
+  /// cancelling cost one billed read per zikr document.
+  Set<String> _uidsToDelete(UidTitleData uidTitleData) {
+    final canonicalUid = uidTitleData.getFirstUId();
+    return {
+      for (final uid in items.keys)
+        if (uid == canonicalUid ||
+            (uid.contains('|')
+                ? uid.split('|').last.trim() == canonicalUid
+                : uid == uidTitleData.uid))
+          uid,
+    };
+  }
+
   Future<void> _deleteZikr(UidTitleData uidTitleData) async {
     final canonicalUid = uidTitleData.getFirstUId();
-    final snapshot = await _zikrCollection.get();
-    final docsToDelete = snapshot.docs.where((doc) {
-      final docUid = doc.id;
-      if (docUid == canonicalUid) {
-        return true;
-      }
-      if (!docUid.contains('|')) {
-        return docUid == uidTitleData.uid;
-      }
-      return docUid.split('|').last.trim() == canonicalUid;
-    }).toList();
-
-    final aliasCount = docsToDelete.length > 1 ? docsToDelete.length - 1 : 0;
+    final localUids = _uidsToDelete(uidTitleData);
+    final aliasCount = localUids.length > 1 ? localUids.length - 1 : 0;
     final shouldDelete = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
@@ -229,6 +238,21 @@ class _ItemListState extends State<ItemList> {
         false;
 
     if (!shouldDelete) return;
+
+    // Only now, once the delete is actually going ahead, pay for the scan —
+    // the published index can omit a document that still exists in Firestore,
+    // and leaving one of those behind would orphan it.
+    final snapshot = await _zikrCollection.get();
+    final docsToDelete = snapshot.docs.where((doc) {
+      final docUid = doc.id;
+      if (localUids.contains(docUid) || docUid == canonicalUid) {
+        return true;
+      }
+      if (!docUid.contains('|')) {
+        return docUid == uidTitleData.uid;
+      }
+      return docUid.split('|').last.trim() == canonicalUid;
+    }).toList();
 
     for (final doc in docsToDelete) {
       await doc.reference.delete();
