@@ -7,7 +7,7 @@ enum HomeGlyphType {
   /// Sacred Mihrab (prayer arch) framing a hanging sanctuary lamp.
   namaz,
 
-  /// Cupped hands raised upward in supplication (Qunoot / Dua).
+  /// Sacred book of supplications illuminated with an 8-pointed star.
   duas,
 
   /// The Holy Quran resting upon a traditional wooden Rihal (X-stand).
@@ -19,10 +19,10 @@ enum HomeGlyphType {
   /// Traditional illuminated Islamic lantern (Fanoos) for holy night vigils.
   aamaal,
 
-  /// Intimate nocturnal crescent moon cradling a devotional heart and celestial stars.
+  /// Nocturnal crescent moon with celestial stars for intimate night supplication.
   munajaat,
 
-  /// Worshipper in sacred Sajdah (prostration) upon the Turbah with tally counter.
+  /// Sacred Turbah (sajdah stone) with concentric count pulse rings.
   rakaat,
 
   /// Mihrab prayer arch with prayer beads draped across it.
@@ -156,37 +156,55 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawPath(lamp, fill);
   }
 
-  /// 2. DUAS: Organic cupped hands raised upward in supplication (Qunoot / Dua).
+  /// 2. DUAS: Sacred book of supplications with ribbon, illuminated with an 8-pointed star.
   void _paintDuas(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // Left hand: solid cupped palm tilted gracefully toward center
-    final leftHand = Path()
-      ..moveTo(10.8, 20.0)
-      ..lineTo(8.2, 20.0)
-      ..cubicTo(6.8, 19.8, 5.5, 16.5, 5.2, 13.0) // blade of hand
-      ..cubicTo(5.0, 9.8, 6.0, 7.0, 7.6, 5.8) // fingers curve
-      ..cubicTo(8.6, 5.0, 10.0, 5.5, 10.5, 7.5) // fingertips
-      ..cubicTo(10.8, 9.0, 10.8, 11.5, 11.0, 14.2) // inner palm
-      ..close();
-    canvas.drawPath(leftHand, fill);
+    // 8-pointed Islamic Star (Rub el Hizb) of answered supplication floating above
+    _draw8PointStar(canvas, fill, 12.0, 4.8, 3.0, 1.8);
 
-    // Right hand: mirrored across x = 12.0
-    final rightHand = Path()
-      ..moveTo(13.2, 20.0)
-      ..lineTo(15.8, 20.0)
-      ..cubicTo(17.2, 19.8, 18.5, 16.5, 18.8, 13.0) // blade of hand
-      ..cubicTo(19.0, 9.8, 18.0, 7.0, 16.4, 5.8) // fingers curve
-      ..cubicTo(15.4, 5.0, 14.0, 5.5, 13.5, 7.5) // fingertips
-      ..cubicTo(13.2, 9.0, 13.2, 11.5, 13.0, 14.2) // inner palm
-      ..close();
-    canvas.drawPath(rightHand, fill);
+    // Flanking celestial blessing sparkles
+    _drawStar(canvas, fill, 5.2, 5.0, 1.4);
+    _drawStar(canvas, fill, 18.8, 5.0, 1.4);
 
-    // Divine blessing light / 8-pointed sparkle above the cupped hands
-    _drawStar(canvas, fill, 12.0, 4.2, 2.6);
+    // Sacred Book of Supplications
+    // Left page
+    final leftPage = Path()
+      ..moveTo(12.0, 11.2)
+      ..cubicTo(9.5, 9.8, 6.0, 10.4, 3.8, 11.8)
+      ..lineTo(3.8, 18.0)
+      ..cubicTo(6.0, 16.6, 9.5, 16.4, 12.0, 18.0)
+      ..close();
+    canvas.drawPath(leftPage, stroke);
+
+    // Right page
+    final rightPage = Path()
+      ..moveTo(12.0, 11.2)
+      ..cubicTo(14.5, 9.8, 18.0, 10.4, 20.2, 11.8)
+      ..lineTo(20.2, 18.0)
+      ..cubicTo(18.0, 16.6, 14.5, 16.4, 12.0, 18.0)
+      ..close();
+    canvas.drawPath(rightPage, stroke);
+
+    // Book spine
+    canvas.drawLine(const Offset(12.0, 11.0), const Offset(12.0, 18.2), stroke);
+
+    // Silk bookmark ribbon hanging gracefully below the spine
+    final ribbon = Path()
+      ..moveTo(11.0, 18.0)
+      ..lineTo(11.0, 22.0)
+      ..lineTo(12.0, 21.0)
+      ..lineTo(13.0, 22.0)
+      ..lineTo(13.0, 18.0)
+      ..close();
+    canvas.drawPath(ribbon, fill);
+
+    // Delicate text line hints on pages
+    canvas.drawLine(const Offset(6.2, 13.6), const Offset(9.8, 13.2), detail);
+    canvas.drawLine(const Offset(14.2, 13.2), const Offset(17.8, 13.6), detail);
   }
 
   /// 3. SURAHS: The Holy Quran resting on a traditional wooden Rihal stand.
@@ -321,86 +339,54 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawLine(const Offset(18.8, 11.8), const Offset(20.8, 11.8), detail);
   }
 
-  /// 6. MUNAJAAT: Nocturnal crescent moon cradling a devotional heart and celestial stars.
+  /// 6. MUNAJAAT: Nocturnal crescent moon with celestial stars (intimate night supplication).
   void _paintMunajaat(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // Slender crescent moon on the left
+    // Slender crescent moon comfortably padded on the left (no clipping)
     final crescent = Path()
-      ..moveTo(10.0, 3.2)
-      ..arcToPoint(
-        const Offset(10.0, 20.8),
-        radius: const Radius.circular(9.2),
-        largeArc: true,
-      )
-      ..arcToPoint(
-        const Offset(10.0, 3.2),
-        radius: const Radius.circular(7.5),
-        clockwise: false,
-      )
+      ..moveTo(11.5, 3.5)
+      ..cubicTo(5.2, 4.5, 5.2, 19.5, 11.5, 20.5)
+      ..cubicTo(7.8, 17.5, 7.8, 6.5, 11.5, 3.5)
       ..close();
     canvas.drawPath(crescent, fill);
 
-    // Warm devotional heart nestled in the crescent's embrace
-    final heart = Path()
-      ..moveTo(15.5, 12.0)
-      ..cubicTo(15.5, 12.0, 14.2, 10.2, 12.8, 10.8)
-      ..cubicTo(11.5, 11.4, 11.5, 13.2, 12.5, 14.4)
-      ..lineTo(15.5, 17.5)
-      ..lineTo(18.5, 14.4)
-      ..cubicTo(19.5, 13.2, 19.5, 11.4, 18.2, 10.8)
-      ..cubicTo(16.8, 10.2, 15.5, 12.0, 15.5, 12.0)
-      ..close();
-    canvas.drawPath(heart, fill);
-
     // Primary celestial sparkle star in upper night sky
-    _drawStar(canvas, fill, 17.0, 5.5, 2.5);
+    _drawStar(canvas, fill, 17.2, 6.2, 2.6);
 
-    // Secondary soft sparkle star
-    _drawStar(canvas, fill, 12.5, 8.2, 1.4);
+    // Secondary sparkle star in mid night sky
+    _drawStar(canvas, fill, 14.5, 12.8, 1.8);
+
+    // Tertiary subtle sparkle star in lower night sky
+    _drawStar(canvas, fill, 18.0, 17.5, 1.4);
   }
 
-  /// 7. RAKAAT COUNTER: Worshipper in sacred Sajdah (prostration) upon Turbah with tally counter.
+  /// 7. RAKAAT COUNTER: Sacred Turbah (sajdah stone) with count pulse rings.
   void _paintRakaat(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // Ground line
-    canvas.drawLine(const Offset(2.0, 20.8), const Offset(22.0, 20.8), stroke);
-
-    // Small sacred Turbah under the forehead
-    canvas.drawOval(
-      Rect.fromCenter(center: const Offset(6.5, 20.0), width: 4.2, height: 1.6),
-      fill,
+    // The Turbah: rounded clay tablet
+    final turbahRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: const Offset(12, 15.0), width: 14.5, height: 8.5),
+      const Radius.circular(4.2),
     );
+    canvas.drawRRect(turbahRect, stroke);
 
-    // Worshipper's head bowed in Sajdah
-    canvas.drawCircle(const Offset(6.6, 16.2), 1.8, fill);
+    // Inner embossed seal of Turbah
+    canvas.drawCircle(const Offset(12, 15.0), 1.8, stroke);
 
-    // Worshipper's body: arms resting on ground, arched back, folded thighs
-    final body = Path()
-      ..moveTo(5.2, 20.5)
-      ..lineTo(7.5, 17.2)
-      ..lineTo(9.8, 16.5)
-      ..cubicTo(12.5, 12.8, 15.0, 12.5, 17.0, 14.5)
-      ..lineTo(18.5, 20.5);
-    canvas.drawPath(body, stroke);
+    // Concentric proximity count waves above the Turbah
+    _drawArc(canvas, detail, const Offset(12, 11.0), 3.8, -math.pi * 0.8, math.pi * 0.6);
+    _drawArc(canvas, detail, const Offset(12, 11.0), 6.5, -math.pi * 0.8, math.pi * 0.6);
 
-    // Circular tally counter badge in upper sky
-    final counterCenter = const Offset(15.5, 6.0);
-    canvas.drawCircle(counterCenter, 4.2, stroke);
-
-    // Counter mechanical push button / tick on top
-    canvas.drawLine(const Offset(15.5, 1.8), const Offset(15.5, 3.2), stroke);
-
-    // Two sajdah count pips inside the counter badge (representing the 2 sajdahs)
-    canvas.drawCircle(const Offset(13.8, 6.0), 1.1, fill);
-    canvas.drawCircle(const Offset(17.2, 6.0), 1.1, fill);
+    // Center pulse dot
+    canvas.drawCircle(const Offset(12, 3.2), 1.2, fill);
   }
 
   /// 10. ZIYARAAT: The Holy Shrine of Ahlulbayt with golden dome, twin minarets, and the waving Alam (flag of Karbala).
@@ -558,6 +544,31 @@ class _HomeGlyphPainter extends CustomPainter {
       ..quadraticBezierTo(cx - i * 0.6, cy + i * 0.6, cx - r, cy)
       ..quadraticBezierTo(cx - i * 0.6, cy - i * 0.6, cx, cy - r)
       ..close();
+    canvas.drawPath(path, fill);
+  }
+
+  /// Eight-pointed Islamic star (Rub el Hizb / Khatim).
+  static void _draw8PointStar(
+    Canvas canvas,
+    Paint fill,
+    double cx,
+    double cy,
+    double rOuter,
+    double rInner,
+  ) {
+    final path = Path();
+    for (int i = 0; i < 16; i++) {
+      final angle = i * math.pi / 8.0 - math.pi / 2.0;
+      final r = (i % 2 == 0) ? rOuter : rInner;
+      final x = cx + r * math.cos(angle);
+      final y = cy + r * math.sin(angle);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    path.close();
     canvas.drawPath(path, fill);
   }
 
