@@ -755,7 +755,13 @@ class _UsageSection extends StatefulWidget {
 }
 
 class _UsageSectionState extends State<_UsageSection> {
+  // Whether every row beyond the top ten is showing — independent of
+  // [_sectionCollapsed], which hides the section's rows entirely.
   bool _expanded = false;
+
+  // Starts open: collapsing is something the admin opts into per section, not
+  // a default that would hide numbers nobody asked to hide.
+  bool _sectionCollapsed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -774,39 +780,69 @@ class _UsageSectionState extends State<_UsageSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            widget.title,
-            style: widget.dense
-                ? theme.textTheme.titleSmall
-                : theme.textTheme.titleMedium,
+          InkWell(
+            onTap: () => setState(() => _sectionCollapsed = !_sectionCollapsed),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: widget.dense
+                            ? theme.textTheme.titleSmall
+                            : theme.textTheme.titleMedium,
+                      ),
+                      if (widget.subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.subtitle!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (_sectionCollapsed) ...[
+                  Text(
+                    widget.countFormat.format(total),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Icon(
+                  _sectionCollapsed ? Icons.expand_more : Icons.expand_less,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
           ),
-          if (widget.subtitle != null) ...[
-            const SizedBox(height: 2),
-            Text(
-              widget.subtitle!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+          if (!_sectionCollapsed) ...[
+            const SizedBox(height: 8),
+            for (var i = 0; i < visible.length; i++)
+              _UsageBar(
+                rank: i + 1,
+                row: visible[i],
+                fraction: max == 0 ? 0 : visible[i].count / max,
+                percentOfTotal: total == 0 ? 0 : visible[i].count / total,
+                countFormat: widget.countFormat,
+                percentFormat: widget.percentFormat,
               ),
-            ),
+            if (hidden > 0 || _expanded)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () => setState(() => _expanded = !_expanded),
+                  child: Text(_expanded ? 'Show less' : 'Show $hidden more'),
+                ),
+              ),
           ],
-          const SizedBox(height: 8),
-          for (var i = 0; i < visible.length; i++)
-            _UsageBar(
-              rank: i + 1,
-              row: visible[i],
-              fraction: max == 0 ? 0 : visible[i].count / max,
-              percentOfTotal: total == 0 ? 0 : visible[i].count / total,
-              countFormat: widget.countFormat,
-              percentFormat: widget.percentFormat,
-            ),
-          if (hidden > 0 || _expanded)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: () => setState(() => _expanded = !_expanded),
-                child: Text(_expanded ? 'Show less' : 'Show $hidden more'),
-              ),
-            ),
         ],
       ),
     );
