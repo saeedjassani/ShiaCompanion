@@ -90,11 +90,33 @@ them do not explain themselves.
 | `deep_link` | A URL from **outside** the app — a shared link, opened cold by the web launch route or while running by the home page's deep-link handler |
 | `zikr_link` | A link **inside another zikr's own text**, resolved to a local uid by `extractZikrLinkSegment` and pushed by `ZikrPage._handleZikrLinkTap` |
 | `admin` | Opened from the admin zikr list |
+| `home_widget_favorites` | Tapped an item in the Favorites home screen widget |
+| `home_widget_recitation` | Tapped an item in the Today's Recitation home screen widget |
 | `unknown` | Default — an entry point that forgot to pass a source |
 
 The two link sources are worth keeping apart: `deep_link` measures sharing and
 `zikr_link` measures cross-references in the corpus. A shared link that lands on
 a zikr whose text then links onward produces one of each.
+
+### Attributing a home screen widget tap
+
+Both widgets open a URL `HomeScreenWidgetService` already builds with
+`buildZikrDeepLinkUrl` / `buildLibraryDeepLinkUrl` — the same call a shared
+link uses — so without anything extra a widget tap would be indistinguishable
+from `deep_link`. `HomeScreenWidgetService` tags its own URLs with a `?src=`
+marker (`_withWidgetSource`); `parseDeepLinkUri` reads it into
+`DeepLinkTarget.source`, and the deep-link resolvers in `home_page.dart` and
+`deep_link_launch_page.dart` use it in place of the default `deep_link` when
+it's present. No native widget code was touched — both the iOS WidgetKit
+widget and the Android Glance widgets just open whatever URL Dart already
+wrote into shared storage, so tagging it there is enough. Library favorites
+carry the same marker for consistency, but nothing reads it yet: `library_view`
+has no per-source breakdown the way `zikr_view` does.
+
+This only counts a *tap*. It says nothing about how many people have a widget
+sitting on their home screen without ever tapping it — that would need native
+code (`onEnabled` / `onDeleted` on Android; nothing comparably reliable exists
+on iOS) and is deliberately out of scope here.
 
 ## Features used, grouped
 

@@ -41,6 +41,11 @@ void main() {
       'zikr_share_as_image_toggled',
       'zikr_show_transliteration_toggled',
       'zikr_show_translation_toggled',
+      // The combined key a home-widget tap actually lands under (see
+      // AnalyticsService.zikrView) — the raw ZikrOpenSource ids never pass
+      // through safeKey / the rules on their own.
+      'zikr_source_${ZikrOpenSource.homeWidgetFavorites}',
+      'zikr_source_${ZikrOpenSource.homeWidgetRecitation}',
     ];
 
     for (final key in newKeys) {
@@ -123,7 +128,10 @@ void main() {
         '2026-08-24': {
           'screen': {'Home-Page': 5.0},
         },
-      }, ['2026-08-23', '2026-08-24']);
+      }, [
+        '2026-08-23',
+        '2026-08-24'
+      ]);
 
       expect(result.counts['screen']?['Home-Page'], 8);
       expect(result.trend['2026-08-23'], 3);
@@ -135,7 +143,9 @@ void main() {
         '2026-01-01': {
           'screen': {'Home-Page': 99.0},
         },
-      }, ['2026-08-23']);
+      }, [
+        '2026-08-23'
+      ]);
 
       expect(result.counts, isEmpty);
       expect(result.trend['2026-08-23'], 0);
@@ -196,6 +206,8 @@ void main() {
         'library_shared': FeatureGroup.zikrReading,
         'zikr_source_search': FeatureGroup.zikrReading,
         'zikr_source_deep_link': FeatureGroup.zikrReading,
+        'zikr_source_home_widget_favorites': FeatureGroup.zikrReading,
+        'zikr_source_home_widget_recitation': FeatureGroup.zikrReading,
         // Navigation
         'home_menu_qibla': FeatureGroup.navigation,
         'home_menu_tasbeeh': FeatureGroup.navigation,
@@ -286,8 +298,7 @@ void main() {
       expect(delta?.direction, DeltaDirection.down);
     });
 
-    test('labels a previously-zero metric New instead of dividing by zero',
-        () {
+    test('labels a previously-zero metric New instead of dividing by zero', () {
       final delta = periodDelta(5, 0);
       expect(delta?.label, 'New');
       expect(delta?.direction, DeltaDirection.isNew);
