@@ -15,12 +15,17 @@ import 'zikr_content_parser.dart';
 class QuranReadingPosition {
   const QuranReadingPosition({
     required this.verse,
+    required this.text,
     required this.fromUserScroll,
   });
 
   /// The surah as well as the ayah: a juz runs across surahs, so an ayah
   /// number on its own does not say where the reader is.
   final VerseKey verse;
+
+  /// The verse as shown, so saving it from the action bar can keep an excerpt
+  /// without the reader having opened the per-verse menu first.
+  final String text;
 
   final bool fromUserScroll;
 }
@@ -131,13 +136,12 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// back there.
   final int? initialBookmarkLineIndex;
 
-  /// The verse the saved bookmark marks, for when no line index came with it.
+  /// Verses the reader has kept, marked with a small icon as they read.
   ///
-  /// A bookmark taken while reading a juz records the verse but not a line:
-  /// the line was measured inside the portion and means nothing in the surah's
-  /// own document. The verse does mean something in both, so the line is
-  /// resolved here, against whichever content is actually being shown.
-  final VerseKey? initialBookmarkVerse;
+  /// Deliberately not the bookmark: a bookmark is one marker saying where you
+  /// stopped, these are a collection meant to be kept, so they are drawn
+  /// unobtrusively rather than washing the block.
+  final Set<VerseKey> savedVerses;
   final ValueChanged<ZikrContentScrollPosition>? onScrollPositionChanged;
 
   /// Reports the line a bookmark saved without one turns out to sit on, once
@@ -185,7 +189,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.initialBookmarkTabIndex,
     this.initialBookmarkScrollOffset,
     this.initialBookmarkLineIndex,
-    this.initialBookmarkVerse,
+    this.savedVerses = const {},
     this.onScrollPositionChanged,
     this.onBookmarkLineResolved,
     this.surahNumber,
@@ -393,9 +397,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final verse = ayahIndex.verseAtSpanIndex(spanIndex);
     if (verse == null || verse == _reportedVerse) return;
 
+    final parsed = _contentCaches[tabIndex]?.parsed;
     _reportedVerse = verse;
     callback(
-      QuranReadingPosition(verse: verse, fromUserScroll: _sawUserDrag),
+      QuranReadingPosition(
+        verse: verse,
+        text: parsed == null
+            ? ''
+            : _ayahPlainText(parsed, ayahIndex.spans[spanIndex]),
+        fromUserScroll: _sawUserDrag,
+      ),
     );
   }
 
@@ -678,22 +689,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return cache;
   }
 
-  /// Which line the bookmark marker belongs on.
-  ///
-  /// A recorded line index wins - it is exact, and it is what was measured when
-  /// the bookmark was taken. Falling back to the verse is what lets a bookmark
-  /// made in a juz still mark its verse when the surah is opened on its own,
-  /// where the juz's line numbering does not apply.
-  int? _bookmarkLineIndex(int? lineIndex, AyahIndex? ayahIndex) {
-    if (lineIndex != null) return lineIndex;
-
-    final verse = widget.initialBookmarkVerse;
-    if (verse == null || ayahIndex == null) return null;
-
-    final spanIndex = ayahIndex.spanIndexForVerse(verse);
-    return spanIndex == null ? null : ayahIndex.spans[spanIndex].start;
-  }
-
   /// The ayah index in force for a tab, or null when it renders line by line.
   AyahIndex? _ayahIndexFor(int tabIndex) => _contentCaches[tabIndex]?.ayahIndex;
 
@@ -718,8 +713,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
     final bookmarkedRange = tabIndex == widget.initialBookmarkTabIndex
         ? bookmarkedLineRange(
-            bookmarkLineIndex:
-                _bookmarkLineIndex(widget.initialBookmarkLineIndex, ayahIndex),
+            bookmarkLineIndex: widget.initialBookmarkLineIndex,
             content: parsedContent,
           )
         : null;
@@ -928,6 +922,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return _AyahBlock(
       ayah: span.ayah,
       startsSurah: span.startsSurah,
+      isSaved: verse != null && widget.savedVerses.contains(verse),
       isBookmarked: bookmarkedRange != null && span.contains(bookmarkedRange.start),
       onAction: verse == null || widget.onAyahAction == null
           ? null
@@ -1149,6 +1144,7 @@ class _AyahBlock extends StatelessWidget {
   const _AyahBlock({
     required this.ayah,
     required this.startsSurah,
+    required this.isSaved,
     required this.isBookmarked,
     required this.onAction,
     required this.children,
@@ -1161,6 +1157,10 @@ class _AyahBlock extends StatelessWidget {
   /// Set on the first verse of each surah in a juz, where the reader crosses
   /// from one surah into the next and the page title cannot say which.
   final SurahInfo? startsSurah;
+
+  /// Whether the reader has kept this verse. Drawn as a small mark beside the
+  /// number rather than a tint, so a page of saved verses still reads calmly.
+  final bool isSaved;
 
   final bool isBookmarked;
   final VoidCallback? onAction;
@@ -1195,6 +1195,14 @@ class _AyahBlock extends StatelessWidget {
                           letterSpacing: 0.4,
                         ),
                   ),
+                  if (isSaved) ...[
+                    const SizedBox(width: 6),
+                    Icon(
+                      Icons.bookmark,
+                      size: 13,
+                      color: colorScheme.primary.withValues(alpha: 0.85),
+                    ),
+                  ],
                 ],
               ),
             ),

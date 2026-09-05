@@ -12,7 +12,6 @@ class ZikrBookmark {
     required this.scrollOffset,
     required this.updatedAt,
     this.tabTitle,
-    this.ayah,
     this.lineIndex,
     this.version = ZikrBookmarkStore.schemaVersion,
   });
@@ -32,9 +31,6 @@ class ZikrBookmark {
       scrollOffset: json['scrollOffset'] is num
           ? (json['scrollOffset'] as num).toDouble()
           : double.tryParse(json['scrollOffset']?.toString() ?? '') ?? 0,
-      ayah: json['ayah'] is int
-          ? json['ayah'] as int
-          : int.tryParse(json['ayah']?.toString() ?? ''),
       lineIndex: json['lineIndex'] is int
           ? json['lineIndex'] as int
           : int.tryParse(json['lineIndex']?.toString() ?? ''),
@@ -49,16 +45,6 @@ class ZikrBookmark {
   final int tabIndex;
   final String? tabTitle;
   final double scrollOffset;
-
-  /// The verse this bookmark sits on, for a surah.
-  ///
-  /// Optional on purpose: a bookmark written before it existed has none, and
-  /// still restores by [lineIndex] or [scrollOffset] exactly as it did. Where
-  /// it is present it is preferred, because a verse stays meaningful across
-  /// documents - which is what lets a bookmark set while reading a juz land
-  /// correctly in the surah's own page, where a line index measured inside the
-  /// juz would point at the wrong text entirely.
-  final int? ayah;
 
   /// The content line that was at the top of the view when the bookmark was
   /// taken - the very line the [scrollOffset] was read off, measured from the
@@ -78,7 +64,6 @@ class ZikrBookmark {
       title: title,
       tabIndex: tabIndex,
       tabTitle: tabTitle,
-      ayah: ayah,
       scrollOffset: scrollOffset,
       lineIndex: lineIndex ?? this.lineIndex,
       updatedAt: updatedAt,
@@ -93,7 +78,6 @@ class ZikrBookmark {
       'title': title,
       'tabIndex': tabIndex,
       if (tabTitle != null && tabTitle!.trim().isNotEmpty) 'tabTitle': tabTitle,
-      if (ayah != null) 'ayah': ayah,
       'scrollOffset': scrollOffset,
       if (lineIndex != null) 'lineIndex': lineIndex,
       'updatedAt': updatedAt.toUtc().toIso8601String(),

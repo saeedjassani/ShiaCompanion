@@ -6,6 +6,7 @@ import '../../data/universal_data.dart';
 import '../../services/analytics_service.dart';
 import '../../services/favorites_manager.dart';
 import '../../services/quran_progress_store.dart';
+import '../../services/saved_verses_store.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/quran_portion.dart';
 import '../../widgets/favorite_icon.dart';
@@ -74,6 +75,7 @@ class QuranPage extends StatefulWidget {
 
 class _QuranPageState extends State<QuranPage> {
   QuranProgress? _progress;
+  List<SavedVerse> _saved = const [];
   late final List<SurahInfo> _surahs;
   late final List<Juz> _juz;
 
@@ -84,14 +86,20 @@ class _QuranPageState extends State<QuranPage> {
     _surahs = allSurahs();
     _juz = allJuz();
     _progress = QuranProgressStore.instance.read();
+    _saved = SavedVersesStore.instance.readAll();
+  }
+
+  /// Both the place and the kept verses can have moved while the reader was
+  /// away, so they are re-read together whenever the screen comes back.
+  void _refresh() {
+    _progress = QuranProgressStore.instance.read();
+    _saved = SavedVersesStore.instance.readAll();
   }
 
   Future<void> _open(VerseKey verse, {String source = ZikrOpenSource.quran}) async {
     await openQuranVerse(context, verse, source: source);
     if (!mounted) return;
-    // Reading is what moves the saved place, so the card can be stale by the
-    // time the reader comes back.
-    setState(() => _progress = QuranProgressStore.instance.read());
+    setState(_refresh);
   }
 
   /// Picks up where the reader left off - in the juz if that is where they
@@ -111,7 +119,7 @@ class _QuranPageState extends State<QuranPage> {
         source: ZikrOpenSource.quranResume,
       );
       if (!mounted) return;
-      setState(() => _progress = QuranProgressStore.instance.read());
+      setState(_refresh);
       return;
     }
 
@@ -121,7 +129,13 @@ class _QuranPageState extends State<QuranPage> {
   Future<void> _openJuz(int juz) async {
     await openQuranJuz(context, juz);
     if (!mounted) return;
-    setState(() => _progress = QuranProgressStore.instance.read());
+    setState(_refresh);
+  }
+
+  Future<void> _removeSaved(SavedVerse saved) async {
+    await SavedVersesStore.instance.remove(saved.verse);
+    if (!mounted) return;
+    setState(_refresh);
   }
 
   Future<void> _clearProgress() async {
@@ -133,7 +147,7 @@ class _QuranPageState extends State<QuranPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       initialIndex: widget.initialTabIndex,
       child: Scaffold(
         appBar: AppBar(
@@ -142,6 +156,7 @@ class _QuranPageState extends State<QuranPage> {
             tabs: [
               Tab(text: 'Surahs'),
               Tab(text: 'Juz'),
+              Tab(text: 'Saved'),
             ],
           ),
         ),
@@ -167,6 +182,11 @@ class _QuranPageState extends State<QuranPage> {
                 children: [
                   _SurahList(surahs: _surahs, onOpen: _open),
                   _JuzList(juz: _juz, onOpenJuz: _openJuz),
+                  _SavedVerseList(
+                    saved: _saved,
+                    onOpen: _open,
+                    onRemove: _removeSaved,
+                  ),
                 ],
               ),
             ),
@@ -407,5 +427,100 @@ class _JuzList extends StatelessWidget {
   String _verseLabel(VerseKey verse) {
     final name = surahInfoFor(verse.surah)?.englishName ?? 'Surah ${verse.surah}';
     return '$name ${verse.ayah}';
+  }
+}
+
+/// The verses the reader has kept.
+///
+/// In mushaf order rather than most-recent-first: this is a reference list
+/// someone builds up and returns to, so it should read like an index of their
+/// own Quran rather than a feed of recent activity.
+class _SavedVerseList extends StatelessWidget {
+  const _SavedVerseList({
+    required this.saved,
+    required this.onOpen,
+    required this.onRemove,
+  });
+
+  final List<SavedVerse> saved;
+  final void Function(VerseKey verse) onOpen;
+  final void Function(SavedVerse saved) onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    if (saved.isEmpty) {
+      return ResponsiveContent(
+        maxWidth: listContentWidth,
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.bookmark_outline,
+                size: 40,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'No saved verses yet',
+                style: theme.textTheme.titleSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Tap a verse while reading to keep it here.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ResponsiveContent(
+      maxWidth: listContentWidth,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        separatorBuilder: (context, index) => const Divider(height: 1),
+        itemCount: saved.length,
+        itemBuilder: (context, index) {
+          final verse = saved[index];
+          final name = verse.surahName.isNotEmpty
+              ? verse.surahName
+              : surahInfoFor(verse.surah)?.englishName ?? 'Surah ${verse.surah}';
+
+          return ListTile(
+            title: Text('$name ${verse.ayah}'),
+            subtitle: verse.excerpt.isEmpty
+                ? null
+                : Text(
+                    verse.excerpt,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                    textDirection: TextDirection.rtl,
+                    style: TextStyle(
+                      fontFamily: arabicFont,
+                      fontFamilyFallback: const ['Qalam'],
+                      fontSize: 16,
+                    ),
+                  ),
+            trailing: IconButton(
+              icon: const Icon(Icons.close),
+              tooltip: 'Remove',
+              onPressed: () => onRemove(verse),
+            ),
+            onTap: () => onOpen(verse.verse),
+          );
+        },
+      ),
+    );
   }
 }

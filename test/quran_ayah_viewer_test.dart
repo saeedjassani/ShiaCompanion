@@ -24,7 +24,7 @@ Future<void> _pump(
   ValueChanged<AyahActionRequest>? onAyahAction,
   AyahIndex? ayahIndex,
   int? bookmarkLineIndex,
-  VerseKey? bookmarkVerse,
+  Set<VerseKey> savedVerses = const {},
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -40,10 +40,9 @@ Future<void> _pump(
           surahNumber: surahNumber,
           initialVerse: initialVerse,
           ayahIndex: ayahIndex,
-          initialBookmarkTabIndex:
-              bookmarkLineIndex == null && bookmarkVerse == null ? null : 0,
+          initialBookmarkTabIndex: bookmarkLineIndex == null ? null : 0,
           initialBookmarkLineIndex: bookmarkLineIndex,
-          initialBookmarkVerse: bookmarkVerse,
+          savedVerses: savedVerses,
           onAyahPositionChanged: onAyahPosition,
           onAyahAction: onAyahAction,
         ),
@@ -222,72 +221,69 @@ void main() {
     });
   });
 
-  group('the bookmark marker', () {
+  group('saved verses', () {
     setUp(() {
       items = {'A8': '4: An-Nisa النساء', 'A9': '5: Al-Maidah المائدة'};
     });
 
     tearDown(() => items = {});
 
-    testWidgets('a bookmark with only an ayah still marks its verse',
+    testWidgets('a kept verse is marked as the reader passes it',
         (tester) async {
-      // The reported bug: a bookmark taken while reading a juz carries the
-      // verse but no line index, because the line was measured inside the
-      // portion. Nothing resolved it, so the surah's own page drew nothing.
       await _pump(
         tester,
         content: _surahContent(),
         surahNumber: 1,
-        bookmarkVerse: const VerseKey(1, 2),
+        savedVerses: {const VerseKey(1, 2)},
       );
 
-      expect(find.text('Bookmarked'), findsNothing,
-          reason: 'the ayah path marks the block, not a line label');
-      final marked = tester.widget<Container>(
-        find
-            .ancestor(
-              of: find.text('Translation of ayah 2'),
-              matching: find.byType(Container),
-            )
-            .last,
-      );
-      expect(marked.decoration, isNotNull);
+      // One mark, on the one saved verse - not a wash over the block, so a
+      // page of saved verses still reads calmly.
+      expect(find.byIcon(Icons.bookmark), findsOneWidget);
     });
 
-    testWidgets('the verse is resolved against the portion being shown',
-        (tester) async {
+    testWidgets('nothing is marked when nothing is kept', (tester) async {
+      await _pump(tester, content: _surahContent(), surahNumber: 1);
+
+      expect(find.byIcon(Icons.bookmark), findsNothing);
+    });
+
+    testWidgets('several verses of one surah are all marked', (tester) async {
+      // The point of a collection: keeping 1:2 does not displace 1:1.
+      await _pump(
+        tester,
+        content: _surahContent(),
+        surahNumber: 1,
+        savedVerses: {const VerseKey(1, 1), const VerseKey(1, 2)},
+      );
+
+      expect(find.byIcon(Icons.bookmark), findsNWidgets(2));
+    });
+
+    testWidgets('a verse of another surah is not marked here', (tester) async {
+      await _pump(
+        tester,
+        content: _surahContent(),
+        surahNumber: 1,
+        savedVerses: {const VerseKey(5, 2)},
+      );
+
+      expect(find.byIcon(Icons.bookmark), findsNothing);
+    });
+
+    testWidgets('in a juz the right surah is marked', (tester) async {
+      // 4:2 and 5:2 share an ayah number, so this only works because saved
+      // verses are keyed by surah and ayah together.
       final portion = _portion();
       await _pump(
         tester,
         content: portion.data,
         ayahIndex: portion.index,
-        bookmarkVerse: const VerseKey(4, 2),
+        savedVerses: {const VerseKey(4, 2)},
       );
 
-      // 4:2 and 5:2 share an ayah number; only the right surah's block is
-      // marked, which is what a line index alone could never express.
+      expect(find.byIcon(Icons.bookmark), findsOneWidget);
       expect(find.text('Translation of 4:2'), findsOneWidget);
-    });
-
-    testWidgets('a recorded line index still wins over the verse',
-        (tester) async {
-      await _pump(
-        tester,
-        content: _surahContent(),
-        surahNumber: 1,
-        bookmarkLineIndex: 1,
-        bookmarkVerse: const VerseKey(1, 3),
-      );
-
-      // Line 1 is ayah 1's Arabic. If the verse had won, ayah 3 would be
-      // marked instead.
-      expect(find.text('Translation of ayah 1'), findsOneWidget);
-    });
-
-    testWidgets('no bookmark at all marks nothing', (tester) async {
-      await _pump(tester, content: _surahContent(), surahNumber: 1);
-
-      expect(find.text('Bookmarked'), findsNothing);
     });
   });
 

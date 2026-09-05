@@ -13,6 +13,7 @@ import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/services/quran_progress_store.dart';
+import 'package:shia_companion/services/saved_verses_store.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/quran_portion.dart';
@@ -61,45 +62,18 @@ bool? resolveChromeVisibilityForScroll(
 
 /// Which verse a Quran reading should open at.
 ///
-/// [requested] is where the caller asked to go, [bookmarked] the verse the
-/// reader had marked. A requested verse only counts when it actually names an
-/// ayah: opening a surah from the list passes its `VerseKey` with a null ayah,
-/// meaning "this surah" rather than "the top of it", and letting that through
-/// was what stopped a bookmark from ever being resumed to.
+/// A destination only counts when it actually names an ayah: opening a surah
+/// from the list passes its `VerseKey` with a null ayah, meaning "this surah"
+/// rather than "the top of it".
+///
+/// Resuming is deliberately not part of this. Where someone left off is
+/// [QuranProgressStore]'s job, surfaced by the Continue reciting card, and
+/// saved verses are a collection to keep rather than a place to return to.
 ///
 /// Pure and top-level, like [resolveChromeVisibilityForScroll], so the rule can
 /// be tested without standing up a page.
-VerseKey? resolveInitialVerse({
-  required VerseKey? requested,
-  required VerseKey? bookmarked,
-}) {
-  if (requested?.ayah != null) return requested;
-  // A verse-anchored bookmark is itself a destination, and an exact one where
-  // the saved scroll offset was only ever an estimate.
-  return bookmarked;
-}
-
-/// The bookmarked verse a portion contains, if any.
-///
-/// Bookmarks are stored per surah, so finding the one inside a juz means asking
-/// each surah the juz covers - [ayahBookmarkedIn] does that lookup. A surah
-/// being in range is not enough on its own: a juz can take only part of one, so
-/// the verse itself has to be in the portion.
-VerseKey? bookmarkedVerseInPortion(
-  AyahIndex index,
-  int? Function(int surah) ayahBookmarkedIn,
-) {
-  final surahs = <int>{for (final span in index.spans) span.surah};
-
-  for (final surah in surahs) {
-    final ayah = ayahBookmarkedIn(surah);
-    if (ayah == null) continue;
-
-    final verse = VerseKey(surah, ayah);
-    if (index.spanIndexForVerse(verse) != null) return verse;
-  }
-  return null;
-}
+VerseKey? resolveInitialVerse(VerseKey? requested) =>
+    requested?.ayah != null ? requested : null;
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
@@ -203,17 +177,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// throughout — nothing below it does anything at all for a non-surah.
   int? _surahNumber;
 
-  /// Which verse is bookmarked in what is currently open.
-  ///
-  /// The page's single answer to that, because [_savedBookmark] cannot be one:
-  /// bookmarks are stored per surah, and a juz is not a surah, so reading juz 6
-  /// there is always null even when a verse on screen is marked.
-  VerseKey? _bookmarkedVerse;
+  /// Verses the reader has kept, so the reader can mark them as they pass.
+  Set<VerseKey> _savedVerses = const {};
 
   /// The verse at the top of the view right now, however the reader got there.
   /// Distinct from [_pendingProgressVerse], which only follows real scrolling
   /// because it feeds the saved recitation position.
   VerseKey? _currentVerse;
+
+  /// That verse's text, so the bar can save an excerpt without the reader
+  /// having had to open the per-verse menu.
+  String _currentVerseText = '';
 
   /// The last verse reported as being read, so a debounced save has something
   /// to write and repeat reports of the same verse cost nothing.
@@ -235,6 +209,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _showCounter = ValueNotifier(counterState.isVisible);
     _counterCount = ValueNotifier(counterState.count);
     _loadSavedBookmark();
+    _loadSavedVerses();
     if (widget.startEditing) {
       isEditing = true;
     }
@@ -287,6 +262,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// that turns into real reading become the new place on its own.
   void _handleAyahPositionChanged(QuranReadingPosition position) {
     _currentVerse = position.verse;
+    _currentVerseText = position.text;
     if (!position.fromUserScroll) return;
     if (position.verse == _pendingProgressVerse) return;
 
@@ -339,6 +315,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final surah = verse.surah;
     final surahTitle = surahInfoFor(surah)?.fullTitle ?? widget.item.getTitle();
     final link = buildQuranDeepLinkUrl(surah: surah, ayah: ayah);
+    final isSaved = _savedVerses.contains(verse);
 
     await showModalBottomSheet<void>(
       context: context,
@@ -389,11 +366,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.bookmark_outline),
-              title: const Text('Bookmark this verse'),
+              leading: Icon(
+                isSaved ? Icons.bookmark : Icons.bookmark_outline,
+              ),
+              title: Text(isSaved ? 'Remove from saved' : 'Save verse'),
               onTap: () {
                 Navigator.pop(sheetContext);
-                unawaited(_bookmarkVerse(verse, request.lineIndex));
+                unawaited(_toggleSavedVerse(verse, text));
               },
             ),
           ],
@@ -410,60 +389,56 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// makes this possible is that the bookmark now carries the ayah, which is
   /// meaningful in both the juz and the surah, where a scroll offset measured
   /// inside a juz would be meaningless in the surah's own document.
-  /// Clears the bookmark on [verse], from its own surah.
-  Future<void> _removeVerseBookmark(VerseKey verse) async {
-    final uid = uidForSurah(verse.surah);
-    if (uid == null) return;
+  /// Keeps [verse], or lets it go if it was already kept.
+  ///
+  /// A collection rather than a marker: saving a second verse of a surah does
+  /// not displace the first, which is exactly what a [ZikrBookmark] would have
+  /// done. Where the reader left off is tracked separately, by
+  /// [QuranProgressStore].
+  Future<void> _toggleSavedVerse(VerseKey verse, String text) async {
+    final ayah = verse.ayah;
+    if (ayah == null) return;
 
-    await ZikrBookmarkStore.instance.remove(uid);
+    final store = SavedVersesStore.instance;
+    final wasSaved = _savedVerses.contains(verse);
+
+    if (wasSaved) {
+      await store.remove(verse);
+    } else {
+      await store.add(
+        SavedVerse(
+          surah: verse.surah,
+          ayah: ayah,
+          surahName: surahInfoFor(verse.surah)?.englishName ?? '',
+          // The first line of the verse as the reader sees it, kept so the
+          // saved list can be read without loading a surah document per row.
+          excerpt: _excerptOf(text),
+          savedAt: DateTime.now().toUtc(),
+        ),
+      );
+    }
+
     if (!mounted) return;
-    setState(() {
-      _bookmarkedVerse = null;
-      if (uid == _bookmarkUid) _savedBookmark = null;
-    });
+    setState(_loadSavedVerses);
     unawaited(AnalyticsService.feature(
-      'zikr_bookmark_removed',
-      label: 'Bookmark removed',
+      wasSaved ? 'quran_verse_unsaved' : 'quran_verse_saved',
+      label: wasSaved ? 'Quran verse unsaved' : 'Quran verse saved',
+      parameters: {'verse': verse.toString()},
     ));
-  }
 
-  Future<void> _bookmarkVerse(VerseKey verse, [int? lineIndex]) async {
-    final info = surahInfoFor(verse.surah);
-    if (info == null || verse.ayah == null) return;
-
-    // The line index only means anything in the document it was measured in,
-    // so it is kept when this page is that surah and dropped when a juz is
-    // marking a verse in a surah it merely passes through. The ayah is what
-    // carries across; the surah's own page re-derives its line from that.
-    final sameDocument = info.uid == _bookmarkUid;
-    final bookmark = ZikrBookmark(
-      uid: info.uid,
-      title: info.fullTitle,
-      tabIndex: sameDocument ? _selectedZikrTabIndex : 0,
-      ayah: verse.ayah,
-      lineIndex: sameDocument ? lineIndex : null,
-      scrollOffset: 0,
-      updatedAt: DateTime.now().toUtc(),
-    );
-
-    await ZikrBookmarkStore.instance.save(bookmark);
-    if (!mounted) return;
-    setState(() {
-      // The mark shows wherever the reader is: in a juz it is drawn from the
-      // verse, so it appears immediately even though the bookmark itself lives
-      // under the surah rather than under this page.
-      _bookmarkedVerse = verse;
-      if (sameDocument) _savedBookmark = bookmark;
-    });
-    unawaited(AnalyticsService.feature(
-      'zikr_bookmark_saved',
-      label: 'Bookmark saved',
-      parameters: {'zikr_uid': info.uid},
-    ));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Bookmarked $verse in ${info.englishName}')),
+      SnackBar(content: Text(wasSaved ? 'Removed $verse' : 'Saved $verse')),
     );
+  }
+
+  /// The opening of a verse, for the saved list.
+  static String _excerptOf(String text) {
+    final first = text
+        .split('\n')
+        .map((line) => line.trim())
+        .firstWhere((line) => line.isNotEmpty, orElse: () => '');
+    return first.length <= 90 ? first : '${first.substring(0, 90)}…';
   }
 
   @override
@@ -510,50 +485,34 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   String get _bookmarkUid => widget.item.getFirstUId();
 
-  /// The bookmarked verse this portion actually contains, if any.
-  ///
-  /// Bookmarks are stored per surah, so finding the one inside a juz means
-  /// asking each surah the juz covers. That is at most 37 reads of local
-  /// preferences, done once when the page opens.
-  VerseKey? _bookmarkedVerseInPortion(QuranPortion portion) {
-    return bookmarkedVerseInPortion(portion.index, (surah) {
-      final uid = uidForSurah(surah);
-      return uid == null ? null : ZikrBookmarkStore.instance.read(uid)?.ayah;
-    });
-  }
-
   /// The verse to open at, once for this page.
   ///
   /// Only meaningful for a surah - an ayah number means nothing in a dua, and
   /// passing one through would put the viewer into ayah mode for a document
   /// that has no ayahs.
-  VerseKey? get _initialVerse => _isQuran
-      ? resolveInitialVerse(
-          requested: widget.initialVerse,
-          bookmarked: _bookmarkedVerse,
-        )
-      : null;
+  VerseKey? get _initialVerse =>
+      _isQuran ? resolveInitialVerse(widget.initialVerse) : null;
 
   /// Whether what is open is Quran at all - one surah, or a juz spanning
   /// several. False for every other zikr, which is what keeps them on the
   /// unchanged rendering and reporting paths.
   bool get _isQuran => _surahNumber != null || widget.portion != null;
 
+  void _loadSavedVerses() {
+    if (!_isQuran) return;
+    _savedVerses = {
+      for (final saved in SavedVersesStore.instance.readAll()) saved.verse,
+    };
+  }
+
   void _loadSavedBookmark() {
-    final portion = widget.portion;
-    if (portion != null) {
-      _bookmarkedVerse = _bookmarkedVerseInPortion(portion);
-      return;
-    }
+    // A portion is not a document bookmarks can be stored against.
+    if (widget.portion != null) return;
 
     final bookmark = ZikrBookmarkStore.instance.read(_bookmarkUid);
     if (bookmark == null) return;
 
     _savedBookmark = bookmark;
-    final surah = _surahNumber;
-    if (surah != null && bookmark.ayah != null) {
-      _bookmarkedVerse = VerseKey(surah, bookmark.ayah);
-    }
 
     // An explicit destination wins over restoring the bookmark's position:
     // someone opening 23:56 asked for that verse, not for wherever they last
@@ -1438,17 +1397,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     required List<String> tabContents,
     required int selectedTabIndex,
   }) async {
-    // A juz is not a document a bookmark can be stored against, so the bar
-    // marks the verse on screen against that verse's own surah - the same
-    // thing the per-verse menu does, rather than a second parallel model.
-    if (widget.portion != null) {
-      final marked = _bookmarkedVerse;
-      if (marked != null) {
-        await _removeVerseBookmark(marked);
-        return;
-      }
+    // Reading Quran, the bar keeps the verse on screen rather than marking a
+    // place: resuming is the Continue reciting card's job, so one bookmark
+    // icon means one thing throughout the Quran.
+    if (_isQuran) {
       final verse = _currentVerse;
-      if (verse != null) await _bookmarkVerse(verse);
+      if (verse != null) await _toggleSavedVerse(verse, _currentVerseText);
       return;
     }
 
@@ -1458,7 +1412,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       if (!mounted) return;
       setState(() {
         _savedBookmark = null;
-        _bookmarkedVerse = null;
       });
       unawaited(AnalyticsService.feature(
         'zikr_bookmark_removed',
@@ -1478,9 +1431,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           : null,
       scrollOffset: _currentTabScrollOffsets[selectedTabIndex] ?? 0,
       lineIndex: _currentTabTopLineIndexes[selectedTabIndex],
-      // Recorded for a surah too, so a bookmark taken here is one a juz
-      // covering this verse can find later.
-      ayah: _currentVerse?.surah == _surahNumber ? _currentVerse?.ayah : null,
       updatedAt: DateTime.now().toUtc(),
     );
 
@@ -1488,10 +1438,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (!mounted) return;
     setState(() {
       _savedBookmark = bookmark;
-      final surah = _surahNumber;
-      _bookmarkedVerse = surah == null || bookmark.ayah == null
-          ? null
-          : VerseKey(surah, bookmark.ayah);
     });
     unawaited(AnalyticsService.feature(
       'zikr_bookmark_saved',
@@ -1821,8 +1767,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                                 _savedBookmark?.scrollOffset,
                                             initialBookmarkLineIndex:
                                                 _savedBookmark?.lineIndex,
-                                            initialBookmarkVerse:
-                                                _bookmarkedVerse,
+                                            savedVerses: _savedVerses,
                                             onScrollPositionChanged:
                                                 _handleContentScrollPositionChanged,
                                             surahNumber: _surahNumber,
@@ -1961,8 +1906,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                               ZikrActionBar(
                             hasAudio: audioTracks.isNotEmpty,
                             canBookmark: hasAnyContent,
-                            isBookmarked: _savedBookmark != null ||
-                                _bookmarkedVerse != null,
+                            isBookmarked: _isQuran
+                                ? (_currentVerse != null &&
+                                    _savedVerses.contains(_currentVerse))
+                                : _savedBookmark != null,
                             canShare: !_isSharingZikr,
                             isCounterVisible: counterVisible,
                             onBookmark: () => _toggleBookmark(
