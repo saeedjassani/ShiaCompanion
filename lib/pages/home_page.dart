@@ -620,8 +620,7 @@ class _MyHomePageState extends State<MyHomePage>
                                       radius: avatarRadius,
                                       backgroundColor:
                                           Theme.of(context).primaryColor,
-                                      child: Icon(
-                                        menuItem.icon,
+                                      child: menuItem.buildIcon(
                                         size: iconSize,
                                         color: Colors.white,
                                       ),
@@ -830,8 +829,10 @@ class _MyHomePageState extends State<MyHomePage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(menuItem.icon,
-                size: 48, color: Theme.of(context).primaryColor),
+            menuItem.buildIcon(
+              size: 48,
+              color: Theme.of(context).primaryColor,
+            ),
             SizedBox(height: 8),
             Text(
               menuItem.label,
