@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 
@@ -99,6 +100,25 @@ void main() {
           reason: 'horizontal $delta should not move the chrome',
         );
       }
+    });
+  });
+
+  group('shouldClearSelectionForScroll', () {
+    test('a scroll the reader drives drops the selection', () {
+      // Either direction, and either axis: a vertical scroll recycles the
+      // selected line out of the ListView, and a horizontal one swipes its
+      // whole tab away. Both dispose the Selectable the selection sits in,
+      // which is what leaves SelectableRegion's overlay pointing at text that
+      // is no longer in the tree.
+      expect(shouldClearSelectionForScroll(ScrollDirection.reverse), isTrue);
+      expect(shouldClearSelectionForScroll(ScrollDirection.forward), isTrue);
+    });
+
+    test('an idle scroll leaves the selection alone', () {
+      // SelectableRegion auto-scrolls the list with jumpTo while a selection
+      // handle is dragged past its edge, and jumpTo reports idle. Acting on it
+      // would cancel the selection being made.
+      expect(shouldClearSelectionForScroll(ScrollDirection.idle), isFalse);
     });
   });
 }
