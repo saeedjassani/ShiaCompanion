@@ -32,7 +32,7 @@ Flip `AnalyticsService.recordUsageInDebug` to exercise the pipeline locally.
 
 | Event | Fired from | Parameters |
 |---|---|---|
-| `screen_view` | `trackScreen()` on 22 pages | `screen_name`, `screen_class` |
+| `screen_view` | `trackScreen()` on 23 pages | `screen_name`, `screen_class` |
 | `zikr_view` | `ZikrPage.initState` | `zikr_uid`, `zikr_title`, `source` |
 | `zikr_completed` | reader reaches the end *and* dwells | `zikr_uid`, `zikr_title` |
 | `select_content` | alongside `zikr_view` | `content_type`, `item_id` |
@@ -53,7 +53,8 @@ before ranking them; the grouping below mirrors that.
 `zikr_show_transliteration_toggled`, `zikr_show_translation_toggled` (all four
 +`enabled`), `arabic_font_size_changed`, `english_font_size_changed`,
 `arabic_font_changed` (+`font`), `library_shared` (+`book_uid`, `chapter_uid`,
-`scope`), `zikr_source_*`.
+`scope`), `library_offline_saved` / `library_offline_removed` (+`book_uid`),
+`zikr_source_*`.
 
 **Home menu** — `home_menu_*`, one per home menu item (Qibla, Tasbeeh, Qaza,
 Calendar, Flights, Library, Favorites, …) (+`menu_item`).
@@ -61,13 +62,19 @@ Calendar, Flights, Library, Favorites, …) (+`menu_item`).
 **Prayer & azaan** — `azaan_selected` (+`azaan_id`),
 `azaan_notifications_toggled` (+`enabled`), `azaan_opt_in` (+`choice`),
 `rakaat_prayer_completed` (+`total_rakaat`), `prayer_times_selection_changed`
-(+`prayer_times`).
+(+`prayer_times`), `qibla_target_changed` (+`target`).
 
 **Account & tools** — `account_deleted`, `account_signed_in` (+`method`),
-`favorite_added` (+`content_type`), `flight_added` / `flight_edited`,
-`qaza_updated` (+`operation`), `tasbeeh_session` (+`count`).
+`favorite_added` / `favorite_removed` (+`content_type`), `favorite_reordered`,
+`flight_added` / `flight_edited`, `qaza_updated` (+`operation`),
+`tasbeeh_session` (+`count`).
 
 **Search** — `search`, `search_opened`.
+
+**Other** — `dark_mode_toggled` (+`enabled`), `feedback_email_opened`. Neither
+fits a domain group (dark mode and feedback aren't zikr-, prayer- or
+account-specific), so both fall to `FeatureGroup.other` on purpose rather than
+being force-fit into one that would misdescribe them.
 
 A key nothing above recognises still shows up on the dashboard, just under an
 "Other" heading instead of a named group — see `FeatureGroup.other` in
@@ -269,6 +276,7 @@ Admin → Custom definitions → Create custom dimension, scope **Event**:
 | Azaan | `azaan_id` |
 | Prayer times shown | `prayer_times` |
 | Sign-in method | `method` |
+| Qibla target | `target` |
 
 The cap is 50 event-scoped dimensions, so there is plenty of headroom.
 Registration is **not** retroactive — data only appears from the day you create

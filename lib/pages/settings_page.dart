@@ -853,7 +853,14 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _launchURL() async {
     final launched =
         await launchSupportEmail(subject: "Shia Companion | Feedback");
-    if (!launched && mounted) {
+    if (launched) {
+      unawaited(AnalyticsService.feature(
+        'feedback_email_opened',
+        label: 'Feedback email opened',
+      ));
+      return;
+    }
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
         content: new Text("No email app found"),
       ));

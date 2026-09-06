@@ -46,6 +46,13 @@ void main() {
       // through safeKey / the rules on their own.
       'zikr_source_${ZikrOpenSource.homeWidgetFavorites}',
       'zikr_source_${ZikrOpenSource.homeWidgetRecitation}',
+      'favorite_removed',
+      'favorite_reordered',
+      'library_offline_saved',
+      'library_offline_removed',
+      'qibla_target_changed',
+      'dark_mode_toggled',
+      'feedback_email_opened',
     ];
 
     for (final key in newKeys) {
@@ -204,6 +211,8 @@ void main() {
         'english_font_size_changed': FeatureGroup.zikrReading,
         'arabic_font_changed': FeatureGroup.zikrReading,
         'library_shared': FeatureGroup.zikrReading,
+        'library_offline_saved': FeatureGroup.zikrReading,
+        'library_offline_removed': FeatureGroup.zikrReading,
         'zikr_source_search': FeatureGroup.zikrReading,
         'zikr_source_deep_link': FeatureGroup.zikrReading,
         'zikr_source_home_widget_favorites': FeatureGroup.zikrReading,
@@ -217,10 +226,13 @@ void main() {
         'azaan_opt_in': FeatureGroup.prayerAndAzaan,
         'rakaat_prayer_completed': FeatureGroup.prayerAndAzaan,
         'prayer_times_selection_changed': FeatureGroup.prayerAndAzaan,
+        'qibla_target_changed': FeatureGroup.prayerAndAzaan,
         // Account & tools
         'account_deleted': FeatureGroup.accountAndTools,
         'account_signed_in': FeatureGroup.accountAndTools,
         'favorite_added': FeatureGroup.accountAndTools,
+        'favorite_removed': FeatureGroup.accountAndTools,
+        'favorite_reordered': FeatureGroup.accountAndTools,
         'flight_added': FeatureGroup.accountAndTools,
         'flight_edited': FeatureGroup.accountAndTools,
         'qaza_updated': FeatureGroup.accountAndTools,
@@ -228,6 +240,9 @@ void main() {
         // Search
         'search': FeatureGroup.search,
         'search_opened': FeatureGroup.search,
+        // Other — genuinely domain-less, not just unclassified yet.
+        'dark_mode_toggled': FeatureGroup.other,
+        'feedback_email_opened': FeatureGroup.other,
       };
 
       expected.forEach((key, group) {

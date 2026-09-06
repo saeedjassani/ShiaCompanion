@@ -134,6 +134,11 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
     try {
       if (_isSaved) {
         await LibraryService.removeSavedBook(widget.slug);
+        unawaited(AnalyticsService.feature(
+          'library_offline_removed',
+          label: 'Offline copy removed',
+          parameters: {'book_uid': widget.slug},
+        ));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Offline copy removed')),
@@ -141,6 +146,11 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
         }
       } else {
         await LibraryService.saveBookForOffline(widget.slug, widget.title);
+        unawaited(AnalyticsService.feature(
+          'library_offline_saved',
+          label: 'Saved for offline',
+          parameters: {'book_uid': widget.slug},
+        ));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('${widget.title} saved for offline')),

@@ -159,7 +159,8 @@ enum FeatureGroup {
   navigation('Home menu', 'Which home-screen tile people tap'),
   prayerAndAzaan(
     'Prayer & azaan',
-    'Azaan choice, notifications, rakaat counting and prayer times shown',
+    'Azaan choice, notifications, rakaat counting, prayer times shown and '
+        'the Qibla target',
   ),
   accountAndTools(
     'Account & tools',
@@ -193,6 +194,8 @@ const Set<String> _zikrReadingFeatureKeys = {
   'english_font_size_changed',
   'arabic_font_changed',
   'library_shared',
+  'library_offline_saved',
+  'library_offline_removed',
 };
 
 const Set<String> _prayerAndAzaanFeatureKeys = {
@@ -201,12 +204,15 @@ const Set<String> _prayerAndAzaanFeatureKeys = {
   'azaan_opt_in',
   'rakaat_prayer_completed',
   'prayer_times_selection_changed',
+  'qibla_target_changed',
 };
 
 const Set<String> _accountAndToolsFeatureKeys = {
   'account_deleted',
   'account_signed_in',
   'favorite_added',
+  'favorite_removed',
+  'favorite_reordered',
   'flight_added',
   'flight_edited',
   'qaza_updated',

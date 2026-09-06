@@ -875,6 +875,12 @@ class FavoritesManager extends ChangeNotifier {
     final normalizedItem = _normalizeFavorite(item);
     if (!isFavorite(normalizedItem)) return;
 
+    unawaited(AnalyticsService.feature(
+      'favorite_removed',
+      label: 'Favorite removed',
+      parameters: {'content_type': normalizedItem.type},
+    ));
+
     final nextFavorites = List<UniversalData>.from(_favorites)
       ..remove(normalizedItem);
 
@@ -921,6 +927,11 @@ class FavoritesManager extends ChangeNotifier {
     if (fromIndex < 0 || fromIndex >= reordered.length) return;
     final destination = toIndex.clamp(0, reordered.length - 1);
     if (destination == fromIndex) return;
+
+    unawaited(AnalyticsService.feature(
+      'favorite_reordered',
+      label: 'Favorites reordered',
+    ));
 
     reordered.insert(destination, reordered.removeAt(fromIndex));
     _updateFavoritesData(reordered, isUserMutation: true);
