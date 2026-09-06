@@ -17,7 +17,10 @@ import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/chapter_list_page.dart';
 import 'package:shia_companion/pages/chapter_page.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
+import 'package:shia_companion/pages/quran/quran_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
+import 'package:shia_companion/utils/quran_index.dart';
+import 'package:shia_companion/utils/quran_portion.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
@@ -155,6 +158,13 @@ class _MyHomePageState extends State<MyHomePage>
     final target = _pendingDeepLink!;
     _pendingDeepLink = null;
 
+    // Checked before the empty-segment guard: a bare /quran names the Quran
+    // screen, and is the one link that carries nothing after its prefix.
+    if (target.type == quranDeepLinkType) {
+      await _resolveQuranDeepLink(target);
+      return;
+    }
+
     if (target.segments.isEmpty) {
       _openDeepLinkNotFound(target.key);
       return;
@@ -177,20 +187,74 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
-    // A home-screen widget's own URL carries which widget it was tapped
-    // from; an ordinary shared link carries none, and falls back to the
-    // generic deepLink source it always has.
+    final verse = zikrLinkVerse(target, resolvedItem);
+    // A home-screen widget's own URL carries which widget it was tapped from;
+    // an ordinary shared link carries none, and falls back to the generic
+    // deepLink source it always has.
     final source = target.source ?? ZikrOpenSource.deepLink;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final route = ZikrPage(
+        resolvedItem,
+        source: source,
+        initialVerse: verse,
+      );
+      pushRootPageRoute(route) ?? pushPageRoute(context, route);
+    });
+  }
+
+  Future<void> _resolveQuranDeepLink(DeepLinkTarget target) async {
+    final destination = DeepLinkResolver.resolveQuranDestination(target);
+    if (destination == null) {
+      _openDeepLinkNotFound(target.segments.join('/'));
+      return;
+    }
+
+    if (destination.isHome) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        const route = QuranPage();
+        pushRootPageRoute(route) ?? pushPageRoute(context, route);
+      });
+      return;
+    }
+
+    final juz = destination.juz;
+    if (juz != null) {
+      // A juz is assembled rather than loaded - it spans surahs.
+      final portion = await loadJuzPortion(juz, DefaultAssetBundle.of(context));
+      if (!mounted) return;
+      if (portion == null || portion.isEmpty) {
+        _openDeepLinkNotFound(target.segments.join('/'));
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final route = ZikrPage(
+          UidTitleData(quranJuzUid(juz), portion.title),
+          source: ZikrOpenSource.deepLink,
+          portion: portion,
+        );
+        pushRootPageRoute(route) ?? pushPageRoute(context, route);
+      });
+      return;
+    }
+
+    final verse = destination.verse!;
+    final info = surahInfoFor(verse.surah);
+    if (info == null) {
+      _openDeepLinkNotFound(target.segments.join('/'));
+      return;
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      pushRootPageRoute(
-            ZikrPage(resolvedItem, source: source),
-          ) ??
-          pushPageRoute(
-            context,
-            ZikrPage(resolvedItem, source: source),
-          );
+      final route = ZikrPage(
+        UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
+        source: ZikrOpenSource.deepLink,
+        initialVerse: verse,
+      );
+      pushRootPageRoute(route) ?? pushPageRoute(context, route);
     });
   }
 

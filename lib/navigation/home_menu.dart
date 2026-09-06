@@ -12,6 +12,7 @@ import '../pages/list_items.dart';
 import '../pages/prayer_counter_page.dart';
 import '../pages/qaza_tracker_page.dart';
 import '../pages/qibla_finder.dart';
+import '../pages/quran/quran_page.dart';
 import '../pages/settings_page.dart';
 import '../pages/todays_recitation_page.dart';
 import '../widgets/home_glyph.dart';
@@ -110,11 +111,14 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     icon: Icons.mosque_rounded,
     pageBuilder: () => ItemList("G", "Ziyarats"),
   ),
+  // Renamed from 'Surahs', which deliberately forks the usage counter: the
+  // analytics id comes from the label, so Quran counts start fresh under
+  // home_menu_quran and the historical Surahs numbers stay where they are.
   HomeMenuItem(
-    label: 'Surahs',
+    label: 'Quran',
     glyphType: HomeGlyphType.surahs,
     icon: Icons.menu_book_rounded,
-    pageBuilder: () => ItemList("A", "Surahs"),
+    pageBuilder: () => const QuranPage(),
   ),
   HomeMenuItem(
     label: 'Aamaal',
