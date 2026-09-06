@@ -301,3 +301,8 @@ scripts/zikr_arabic/__pycache__/
 # Firestore holds the applied result.
 scripts/.cache/
 scripts/duas_audio_map.json
+
+# Quran scraping cache
+scripts/juz_cache/
+__pycache__/
+*.pyc
