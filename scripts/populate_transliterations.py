@@ -43,9 +43,32 @@ CONSONANTS = {
     'ى': 'AA', 'ة': 'T', 'آ': 'AA', 'أ': 'A', 'إ': 'E', 'ا': 'A'
 }
 
+# Urdu/Farsi letterforms that appear in this corpus but aren't in CONSONANTS.
+# Left unmapped, the rule-based engine silently drops them instead of erroring
+# (e.g. 'عَلَیْکُمْ' -> 'A’ALAM' instead of 'A’LAYKUM') rather than transliterating
+# them. Normalize to their standard-Arabic equivalents up front so both the
+# lexicon lookup and the rule engine see a letter they recognize.
+URDU_FARSI_LETTERFORMS = {
+    'ی': 'ي',  # FARSI YEH -> ARABIC YEH
+    'ک': 'ك',  # KEHEH -> ARABIC KAF
+    'ڪ': 'ك',  # SWASH KAF -> ARABIC KAF
+    'ھ': 'ه',  # HEH DOACHASHMEE -> ARABIC HEH
+    'ہ': 'ه',  # HEH GOAL -> ARABIC HEH
+    'ے': 'ي',  # YEH BARREE -> ARABIC YEH
+    'ٴ': 'ء',  # HIGH HAMZA -> ARABIC HAMZA (already maps to '')
+    'ﺎ': 'ا',  # ARABIC PRESENTATION FORM ALEF -> ARABIC ALEF
+}
+
+def normalize_letterforms(s):
+    """Map Urdu/Farsi letterform variants to their standard-Arabic equivalents."""
+    for src, dst in URDU_FARSI_LETTERFORMS.items():
+        s = s.replace(src, dst)
+    return s
+
 def clean_arabic_verse(ar_line):
     """Normalize typography, merge broken words, and strip pause marks."""
     s = ar_line.strip()
+    s = normalize_letterforms(s)
     # Strip trailing verse number annotations: (1), [1], ۝۱, etc.
     s = re.sub(r'[\(\[\{]\s*\d+\s*[\)\]\}]\s*$', '', s).strip()
     s = re.sub(r'[\u06DD\u06DE\u06DF\u06E0-\u06ED\u0600-\u0605\uFD3E\uFD3F]+', '', s).strip()
@@ -54,6 +77,12 @@ def clean_arabic_verse(ar_line):
     s = s.replace('\u06E1', '\u0652')
 
     # Merge broken typography
+    # A stray space after word-initial alef-fatha splits many words in two
+    # (e.g. 'اَ لِيْمٍ' for 'اَلِيْمٍ' aleem, 'اَ ذًى' for 'اَذًى' adha).
+    # Left alone it tokenizes as a bare 'اَ', which also happens to collide
+    # with a bad full_quran_lexicon.json entry ('اَ' -> 'A’ZAABAN'), so glue
+    # it back onto whatever follows before tokenizing.
+    s = re.sub(r'\bاَ\s+', 'اَ', s)
     s = re.sub(r'\bذٰ\s+لِكَ\b', 'ذٰلِكَ', s)
     s = re.sub(r'\bهٰ\s+ذَا\b', 'هٰذَا', s)
     s = re.sub(r'\bهٰ\s+ذِهِ\b', 'هٰذِهِ', s)
@@ -64,6 +93,7 @@ def clean_arabic_verse(ar_line):
 
 def normalize_token(s):
     """Clean token for lexicon matching."""
+    s = normalize_letterforms(s)
     s = re.sub(r'[\u06D6-\u06DC\u06DF-\u06ED\u200B-\u200F\uFEFFۣۙۚۖۗۛۜۥۦ۪ۭۧۨ‏\uE000-\uF8FF]', '', s).strip()
     s = s.replace('\u06E1', '\u0652')
     return s.strip()
