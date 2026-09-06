@@ -16,9 +16,12 @@ import '../utils/shared_preferences.dart';
 /// the legacy fallback.
 const String zikrFocusModeKey = 'zikr_focus_mode';
 
-/// Focus mode is on for new installs and for anyone who has never touched
-/// either setting — see the reasoning in the commit that introduced this.
-const bool zikrFocusModeDefault = true;
+/// Focus mode is off for new installs and for anyone who has never touched
+/// either setting: chrome that comes and goes on its own is a surprise to a
+/// first-time reader, who has no way to know the progress strip and the
+/// action bar exist at all once they have slid away. It stays a deliberate
+/// opt-in from the reading settings.
+const bool zikrFocusModeDefault = false;
 
 /// Superseded by [zikrFocusModeKey]. Kept only so [resolveZikrFocusMode] can
 /// translate whatever a returning user had it set to; never read directly
