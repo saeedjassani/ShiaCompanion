@@ -361,6 +361,9 @@ class _ChapterPageState extends State<ChapterPage>
   /// page size, so a change to either can only be answered by measuring again.
   void _remeasure() {
     if (!_paginationReady) return;
+    // The pages, and every Selectable in them, are gone by the end of this
+    // frame.
+    _clearTextSelection();
     final controller = _pageController;
     setState(() {
       _paginationReady = false;
@@ -429,7 +432,7 @@ class _ChapterPageState extends State<ChapterPage>
     if (bookSlug == null) return;
 
     _saveProgress();
-    _hasTextSelection = false;
+    _clearTextSelection();
 
     final chapter = widget.chapters[targetIndex];
     final previousController = _pageController;
@@ -607,7 +610,7 @@ class _ChapterPageState extends State<ChapterPage>
 
     // Any selection belonged to the page we just left, and its text may be
     // disposed without reporting the change.
-    _hasTextSelection = false;
+    _clearTextSelection();
 
     setState(() {
       _currentPageIndex = contentIndex;
@@ -625,6 +628,23 @@ class _ChapterPageState extends State<ChapterPage>
   /// the tap handler, so there's nothing to rebuild.
   void _onSelectionChanged(SelectedContent? content) {
     _hasTextSelection = (content?.plainText.trim().isNotEmpty) ?? false;
+  }
+
+  /// Drops a live selection before the text it was made in is replaced.
+  ///
+  /// A page's [SelectionArea] keeps its handles and toolbar against the
+  /// [Selectable]s the selection was made in; turning a page, re-measuring at
+  /// a new font size, or flowing into the next chapter all take those out of
+  /// the tree, and an overlay still pointing at them is what trips the
+  /// framework's null checks (flutter/flutter#124078, #123378).
+  ///
+  /// Focus is handed back to the reader's own node rather than simply dropped:
+  /// losing focus is how [SelectableRegion] clears itself, and the reader
+  /// still needs the keyboard for the arrow keys afterwards.
+  void _clearTextSelection() {
+    if (!_hasTextSelection) return;
+    _hasTextSelection = false;
+    _keyboardFocusNode.requestFocus();
   }
 
   void _onPointerDown(PointerDownEvent event) {

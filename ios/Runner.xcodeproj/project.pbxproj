@@ -10,9 +10,10 @@
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		187E6CC48D5087BE903ECCE5 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBF36F8DEAAA8A5CFA3CED5E /* Pods_Runner.framework */; };
 		269E8F57DDE0693B2494F2CE /* ShiaCompanionWatchWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 250484A52DC11923320C9200 /* ShiaCompanionWatchWidgets.swift */; };
-		3F8E45D2C6B107A94E2D5810 /* CounterComplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7C21A0E5D9F3648A0C17BD /* CounterComplication.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		3F8E45D2C6B107A94E2D5810 /* CounterComplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7C21A0E5D9F3648A0C17BD /* CounterComplication.swift */; };
 		4CAE388974BE61D3EF242F9A /* ShiaCompanionWatchWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 016B3362B4A86CF32988DFEB /* ShiaCompanionWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7E2B91D6C0A4F35B8D617C29 /* CounterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C4A7F0E92B3D5610F8A2E44 /* CounterView.swift */; };
 		89F14A100BAF05857E7603E0 /* PrayerDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A798C59F54A09C6B1B342036 /* PrayerDataStore.swift */; };
 		9052139B252E516B00BAF811 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9052139A252E516B00BAF811 /* GoogleService-Info.plist */; };
 		906A431A253A043A00AC66A1 /* azan.caf in Resources */ = {isa = PBXBuildFile; fileRef = 906A4319253A043A00AC66A1 /* azan.caf */; };
@@ -26,7 +27,6 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		7E2B91D6C0A4F35B8D617C29 /* CounterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C4A7F0E92B3D5610F8A2E44 /* CounterView.swift */; };
 		A9E7D16CCA4BF1EA31B08C69 /* WatchConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0322238FD9DB24F0F877BD /* WatchConnectivityManager.swift */; };
 		B11118556C6FA8E39EBEF513 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5C76E41B18AD0B8D05FA189 /* SwiftUI.framework */; };
 		B71D044ACA3FE22A0A6137B7 /* ShiaCompanionWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17589C5BFD2ED398A0A8F70B /* ShiaCompanionWidgets.swift */; };
@@ -108,10 +108,10 @@
 /* Begin PBXFileReference section */
 		016B3362B4A86CF32988DFEB /* ShiaCompanionWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShiaCompanionWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D0322238FD9DB24F0F877BD /* WatchConnectivityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchConnectivityManager.swift; sourceTree = "<group>"; };
-		1C4A7F0E92B3D5610F8A2E44 /* CounterView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CounterView.swift; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		17589C5BFD2ED398A0A8F70B /* ShiaCompanionWidgets.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShiaCompanionWidgets.swift; sourceTree = "<group>"; };
+		1C4A7F0E92B3D5610F8A2E44 /* CounterView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CounterView.swift; sourceTree = "<group>"; };
 		250484A52DC11923320C9200 /* ShiaCompanionWatchWidgets.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShiaCompanionWatchWidgets.swift; sourceTree = "<group>"; };
 		286DE4045B724D6A06A7B160 /* ShiaCompanionWatchWidgets.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = ShiaCompanionWatchWidgets.entitlements; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
@@ -528,6 +528,7 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/package_info_plus/package_info_plus_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/share_plus/share_plus_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin/sqflite_darwin_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios/url_launcher_ios_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/wakelock_plus/wakelock_plus_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview_privacy.bundle",
@@ -568,6 +569,7 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/package_info_plus_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/share_plus_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/shared_preferences_foundation_privacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sqflite_darwin_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/url_launcher_ios_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/wakelock_plus_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/webview_flutter_wkwebview_privacy.bundle",
@@ -615,23 +617,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		902F14812512BD420022C90F /* ShellScript */ = {
+		902F14812512BD420022C90F /* Upload Crashlytics dSYMs */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"",
 			);
+			name = "Upload Crashlytics dSYMs";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f \"${PODS_ROOT}/FirebaseCrashlytics/run\" ]; then\n  \"${PODS_ROOT}/FirebaseCrashlytics/run\"\nelse\n  echo \"warning: FirebaseCrashlytics run script not found; skipping dSYM upload\"\nfi\n";
+			shellScript = "UPLOAD_SYMBOLS=\"${PODS_ROOT}/FirebaseCrashlytics/upload-symbols\"\n\nif [ ! -x \"$UPLOAD_SYMBOLS\" ]; then\n  echo \"warning: FirebaseCrashlytics upload-symbols not found; skipping dSYM upload\"\n  exit 0\nfi\n\n# Debug builds are compiled with DEBUG_INFORMATION_FORMAT=dwarf, so there is no\n# dSYM to send and nothing to gain from slowing the build down.\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n  exit 0\nfi\n\n# Deliberately NOT calling \"${PODS_ROOT}/FirebaseCrashlytics/run\". The last line\n# of that script forks upload-symbols into the background with its output sent\n# to /dev/null (\"Symbol uploading will proceed in the background\"). On CI the\n# archive step returns and the build machine is torn down seconds later, killing\n# the orphaned uploader mid-flight, so every release silently ends up with a\n# missing dSYM. Upload in the foreground instead and log what happens.\n\"$UPLOAD_SYMBOLS\" --build-phase --validate || exit $?\nif ! \"$UPLOAD_SYMBOLS\" --build-phase; then\n  echo \"warning: Crashlytics dSYM upload failed; run ios/scripts/upload_dsyms_to_crashlytics.sh against the archive\"\nfi\n";
 		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;

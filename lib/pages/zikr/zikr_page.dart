@@ -55,6 +55,25 @@ bool? resolveChromeVisibilityForScroll(
   };
 }
 
+/// Whether a scroll notification from the reading content should drop a live
+/// text selection.
+///
+/// Any scroll the reader drives should: the reading column is a lazily built
+/// list, so scrolling disposes the very [Selectable] a selection edge sits in
+/// and leaves the selection overlay reading geometry that is no longer in the
+/// tree - the crash in `SelectableRegion` this guards against.
+///
+/// Idle is the carve-out, and it is not a nicety. `SelectableRegion`
+/// auto-scrolls the list by `jumpTo` while a selection handle is dragged past
+/// its edge, and `jumpTo` reports its scroll as idle. Acting on that would
+/// cancel the selection the reader is in the middle of making.
+///
+/// Kept out of [_ZikrPageState] for the same reason as
+/// [resolveChromeVisibilityForScroll]: a real [UserScrollNotification] needs a
+/// live [BuildContext] to build.
+bool shouldClearSelectionForScroll(ScrollDirection direction) =>
+    direction != ScrollDirection.idle;
+
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
   final bool startEditing;
@@ -99,6 +118,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   List<String> _slugAliases = const [];
   ZikrBookmark? _savedBookmark;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /// Focus for the reading area's [SelectionArea]. Held here, rather than left
+  /// to the node the widget would make for itself, so the page can drop a live
+  /// selection through [_clearTextSelection] before the text it was made in
+  /// goes away.
+  final FocusNode _selectionFocusNode =
+      FocusNode(debugLabel: 'ZikrPage selection');
+
   final Map<int, double> _currentTabScrollOffsets = {};
   final Map<int, double> _currentTabMaxScrollExtents = {};
 
@@ -209,6 +236,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterCount.dispose();
     _chromeIdleTimer?.cancel();
     _chromeVisible.dispose();
+    _selectionFocusNode.dispose();
     _maybeRecordCompletion();
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.dispose();
@@ -319,6 +347,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// PageView's own horizontal swipes between tabs, whose forward/reverse
   /// would otherwise mean left/right rather than up/down.
   bool _handleScrollNotification(UserScrollNotification notification) {
+    // Ahead of the chrome logic and its guards: a selection has to be dropped
+    // on every scroll the reader drives, not only the ones that also move the
+    // bars.
+    if (shouldClearSelectionForScroll(notification.direction)) {
+      _clearTextSelection();
+    }
+
     if (_showAudioPlayer || !_focusModeEnabled) return false;
 
     final visible = resolveChromeVisibilityForScroll(
@@ -333,6 +368,28 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       if (visible) _scheduleChromeIdleHide();
     }
     return false;
+  }
+
+  /// Drops any live text selection.
+  ///
+  /// A [SelectionArea] holds its handles and its toolbar against the
+  /// [Selectable]s the selection was made in, and asks them for their geometry
+  /// again on every rebuild of the overlay. The reading column is a lazily
+  /// built [ListView] inside the tab [PageView], so those Selectables are
+  /// disposed the moment their line leaves the list's cache or their tab is
+  /// swiped away - and a selection that outlives them leaves the overlay
+  /// reading an edge that is no longer in the tree, which is where the
+  /// framework's null checks fire (flutter/flutter#124078, #123378). Dropping
+  /// the selection wherever the text under it is about to change keeps the two
+  /// in step.
+  ///
+  /// Unfocusing rather than reaching into the region's state: losing focus is
+  /// already how [SelectableRegion] clears itself, and the focus manager
+  /// applies the change in a microtask, so this is safe to call from a scroll
+  /// notification that arrives mid-layout.
+  void _clearTextSelection() {
+    if (!_selectionFocusNode.hasFocus) return;
+    _selectionFocusNode.unfocus();
   }
 
   /// Brings the chrome back and restarts the idle clock - called on any tap
@@ -1209,6 +1266,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void didPushNext() {
     _isCurrentRoute = false;
+    // The selection toolbar lives in the enclosing Overlay, so it would
+    // otherwise float over the route that just covered this one.
+    _clearTextSelection();
     syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
   }
 
@@ -1339,6 +1399,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final readingTimeLabel = zikrReadingTimeLabel(_readingStats.duration);
 
     return SelectionArea(
+      focusNode: _selectionFocusNode,
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -1448,6 +1509,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                             tabContents: tabContents,
                                             selectedTabIndex: selectedTabIndex,
                                             onTabChanged: (index) {
+                                              // A swiped tab change is already
+                                              // covered by the scroll handler;
+                                              // this is the tab header being
+                                              // tapped, which animates the
+                                              // pager without ever reporting a
+                                              // user scroll.
+                                              _clearTextSelection();
                                               setState(() {
                                                 _selectedZikrTabIndex = index;
                                               });
@@ -1628,6 +1696,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   void refreshState() {
+    // Reading settings - font, size, transliteration - relay every line of the
+    // column out from under whatever was selected in it.
+    _clearTextSelection();
     syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
     _applyFocusModePreference();
     setState(() {});
