@@ -14,6 +14,7 @@ import '../pages/qaza_tracker_page.dart';
 import '../pages/qibla_finder.dart';
 import '../pages/settings_page.dart';
 import '../pages/todays_recitation_page.dart';
+import '../widgets/home_glyph.dart';
 import '../widgets/tasbeeh_widget.dart';
 
 typedef HomeMenuPageBuilder = Widget Function();
@@ -28,12 +29,23 @@ class HomeMenuItem {
     required this.label,
     required this.icon,
     required this.pageBuilder,
+    this.glyphType,
     this.countsAsFeatureUse = true,
   });
 
   final String label;
   final IconData icon;
+  final HomeGlyphType? glyphType;
   final HomeMenuPageBuilder pageBuilder;
+
+  /// Builds the icon widget for the home screen grid, rendering a custom
+  /// [HomeGlyph] when defined or falling back to a standard [Icon].
+  Widget buildIcon({required double size, required Color color}) {
+    if (glyphType != null) {
+      return HomeGlyph(type: glyphType!, size: size, color: color);
+    }
+    return Icon(icon, size: size, color: color);
+  }
 
   /// False for admin tools. The usage dashboard would otherwise appear in the
   /// feature ranking it exists to display, and every visit to check the numbers
@@ -65,47 +77,54 @@ class HomeMenuItem {
 final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   HomeMenuItem(
     label: 'Favorites',
-    icon: Icons.favorite,
+    icon: Icons.favorite_rounded,
     pageBuilder: () => FavoritesPage(),
   ),
   HomeMenuItem(
     label: "Today's Recitations",
-    icon: Icons.book,
+    glyphType: HomeGlyphType.todaysRecitations,
+    icon: Icons.auto_stories_rounded,
     pageBuilder: () => TodaysRecitationPage(),
   ),
   HomeMenuItem(
     label: 'Taqeebat e Namaz',
-    icon: Icons.bookmark,
+    glyphType: HomeGlyphType.taqeebat,
+    icon: Icons.bookmarks_rounded,
     pageBuilder: () => ItemList("D", "Taqeebat e Namaz"),
   ),
   HomeMenuItem(
     label: 'Namaz',
-    icon: Icons.wb_sunny,
+    glyphType: HomeGlyphType.namaz,
+    icon: Icons.wb_twilight_rounded,
     pageBuilder: () => ItemList("F", "Namaz"),
   ),
   HomeMenuItem(
     label: 'Duas',
-    icon: Icons.menu_book,
+    glyphType: HomeGlyphType.duas,
+    icon: Icons.front_hand_rounded,
     pageBuilder: () => ItemList("E", "Duas"),
   ),
   HomeMenuItem(
     label: 'Ziyarats',
-    icon: Icons.mosque,
+    glyphType: HomeGlyphType.ziyaraat,
+    icon: Icons.mosque_rounded,
     pageBuilder: () => ItemList("G", "Ziyarats"),
   ),
   HomeMenuItem(
     label: 'Surahs',
-    icon: Icons.menu_book,
+    glyphType: HomeGlyphType.surahs,
+    icon: Icons.menu_book_rounded,
     pageBuilder: () => ItemList("A", "Surahs"),
   ),
   HomeMenuItem(
     label: 'Aamaal',
-    icon: Icons.check_circle,
+    glyphType: HomeGlyphType.aamaal,
+    icon: Icons.light_mode_rounded,
     pageBuilder: () => ItemList("C", "Aamaal"),
   ),
   HomeMenuItem(
     label: 'Calendar & Prayer Times',
-    icon: Icons.calendar_today,
+    icon: Icons.calendar_month_rounded,
     pageBuilder: () => Scaffold(
       appBar: AppBar(title: Text('Calendar')),
       body: CalendarPage(),
@@ -113,7 +132,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Library',
-    icon: Icons.library_books,
+    icon: Icons.local_library_rounded,
     pageBuilder: () => Scaffold(
       appBar: AppBar(title: Text('Library')),
       body: LibraryPage(),
@@ -121,43 +140,46 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Munajaat',
-    icon: Icons.menu_book,
+    glyphType: HomeGlyphType.munajaat,
+    icon: Icons.nights_stay_rounded,
     pageBuilder: () => ItemList("H", "Munajaat"),
   ),
   HomeMenuItem(
     label: 'Baaqeyaat As Saalehaat',
-    icon: Icons.list_alt,
+    icon: Icons.history_edu_rounded,
     pageBuilder: () => ItemList("I", "Baaqeyaat As Saalehaat"),
   ),
   HomeMenuItem(
     label: 'Qibla Finder',
-    icon: Icons.explore,
+    icon: Icons.explore_rounded,
     pageBuilder: () => const QiblaFinder(),
   ),
   HomeMenuItem(
     label: 'Tasbeeh Counter',
-    icon: tasbeehCounterIcon,
+    glyphType: HomeGlyphType.tasbeeh,
+    icon: Icons.adjust_rounded,
     pageBuilder: () => TasbeehWidget(),
   ),
   HomeMenuItem(
     label: 'Qaza Tracker',
-    icon: Icons.event_available_rounded,
+    icon: Icons.event_repeat_rounded,
     pageBuilder: () => const QazaTrackerPage(),
   ),
   if (supportsPrayerCounterOnCurrentPlatform)
     HomeMenuItem(
       label: 'Rakaat Counter',
-      icon: Icons.sensor_occupied_rounded,
+      glyphType: HomeGlyphType.rakaat,
+      icon: Icons.touch_app_rounded,
       pageBuilder: () => const PrayerCounterPage(),
     ),
   HomeMenuItem(
     label: 'Prayer Times in Flight',
-    icon: Icons.flight,
+    icon: Icons.flight_takeoff_rounded,
     pageBuilder: () => const FlightsPage(),
   ),
   HomeMenuItem(
     label: 'Preferences',
-    icon: Icons.settings,
+    icon: Icons.settings_rounded,
     pageBuilder: () => Scaffold(
       appBar: AppBar(title: Text('Preferences')),
       body: SettingsPage(),
@@ -171,7 +193,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
 final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
   HomeMenuItem(
     label: 'Usage',
-    icon: Icons.query_stats,
+    icon: Icons.query_stats_rounded,
     pageBuilder: () => const UsageDashboardPage(),
     countsAsFeatureUse: false,
   ),

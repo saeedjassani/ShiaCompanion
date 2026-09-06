@@ -177,14 +177,19 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
+    // A home-screen widget's own URL carries which widget it was tapped
+    // from; an ordinary shared link carries none, and falls back to the
+    // generic deepLink source it always has.
+    final source = target.source ?? ZikrOpenSource.deepLink;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       pushRootPageRoute(
-            ZikrPage(resolvedItem, source: ZikrOpenSource.deepLink),
+            ZikrPage(resolvedItem, source: source),
           ) ??
           pushPageRoute(
             context,
-            ZikrPage(resolvedItem, source: ZikrOpenSource.deepLink),
+            ZikrPage(resolvedItem, source: source),
           );
     });
   }
@@ -615,8 +620,7 @@ class _MyHomePageState extends State<MyHomePage>
                                       radius: avatarRadius,
                                       backgroundColor:
                                           Theme.of(context).primaryColor,
-                                      child: Icon(
-                                        menuItem.icon,
+                                      child: menuItem.buildIcon(
                                         size: iconSize,
                                         color: Colors.white,
                                       ),
@@ -825,8 +829,10 @@ class _MyHomePageState extends State<MyHomePage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(menuItem.icon,
-                size: 48, color: Theme.of(context).primaryColor),
+            menuItem.buildIcon(
+              size: 48,
+              color: Theme.of(context).primaryColor,
+            ),
             SizedBox(height: 8),
             Text(
               menuItem.label,

@@ -16,9 +16,12 @@ import '../utils/shared_preferences.dart';
 /// the legacy fallback.
 const String zikrFocusModeKey = 'zikr_focus_mode';
 
-/// Focus mode is on for new installs and for anyone who has never touched
-/// either setting — see the reasoning in the commit that introduced this.
-const bool zikrFocusModeDefault = true;
+/// Focus mode is off for new installs and for anyone who has never touched
+/// either setting: chrome that comes and goes on its own is a surprise to a
+/// first-time reader, who has no way to know the progress strip and the
+/// action bar exist at all once they have slid away. It stays a deliberate
+/// opt-in from the reading settings.
+const bool zikrFocusModeDefault = false;
 
 /// Superseded by [zikrFocusModeKey]. Kept only so [resolveZikrFocusMode] can
 /// translate whatever a returning user had it set to; never read directly
@@ -153,7 +156,12 @@ class _ZikrReadingPreferencesControlsState
           secondary: _leading(Icons.screen_lock_portrait),
           value: SP.prefs.getBool('keep_awake') ?? true,
           onChanged: (v) async {
-            await _saveBooleanPref("keep_awake", v);
+            await _saveBooleanPref(
+              "keep_awake",
+              v,
+              feature: 'zikr_keep_awake_toggled',
+              label: 'Keep screen on toggled',
+            );
           },
           title: const Text("Keep screen on while reciting Zikr"),
         ),
@@ -164,7 +172,12 @@ class _ZikrReadingPreferencesControlsState
             legacyShowProgress: SP.prefs.getBool(legacyShowZikrProgressKey),
           ),
           onChanged: (v) async {
-            await _saveBooleanPref(zikrFocusModeKey, v);
+            await _saveBooleanPref(
+              zikrFocusModeKey,
+              v,
+              feature: 'zikr_focus_mode_toggled',
+              label: 'Focus mode toggled',
+            );
           },
           title: const Text("Focus mode"),
           subtitle:
@@ -175,7 +188,12 @@ class _ZikrReadingPreferencesControlsState
           secondary: _leading(Icons.ios_share),
           value: SP.prefs.getBool('share_zikr_image') ?? true,
           onChanged: (v) async {
-            await _saveBooleanPref('share_zikr_image', v);
+            await _saveBooleanPref(
+              'share_zikr_image',
+              v,
+              feature: 'zikr_share_as_image_toggled',
+              label: 'Share as image toggled',
+            );
           },
           title: const Text("Share Zikr as Image"),
           subtitle: const Text("Create a formatted image when sharing."),
@@ -185,7 +203,12 @@ class _ZikrReadingPreferencesControlsState
           value: SP.prefs.getBool('showTransliteration') ?? true,
           onChanged: (v) async {
             showTransliteration = v;
-            await _saveBooleanPref("showTransliteration", v);
+            await _saveBooleanPref(
+              "showTransliteration",
+              v,
+              feature: 'zikr_show_transliteration_toggled',
+              label: 'Show transliteration toggled',
+            );
           },
           title: const Text("Show Transliteration"),
         ),
@@ -194,7 +217,12 @@ class _ZikrReadingPreferencesControlsState
           value: SP.prefs.getBool('showTranslation') ?? true,
           onChanged: (v) async {
             showTranslation = v;
-            await _saveBooleanPref("showTranslation", v);
+            await _saveBooleanPref(
+              "showTranslation",
+              v,
+              feature: 'zikr_show_translation_toggled',
+              label: 'Show translation toggled',
+            );
           },
           title: const Text("Show Translation"),
         ),
@@ -232,8 +260,18 @@ class _ZikrReadingPreferencesControlsState
     unawaited(push());
   }
 
-  Future<void> _saveBooleanPref(String key, bool value) async {
+  Future<void> _saveBooleanPref(
+    String key,
+    bool value, {
+    required String feature,
+    required String label,
+  }) async {
     await SP.prefs.setBool(key, value);
+    unawaited(AnalyticsService.feature(
+      feature,
+      label: label,
+      parameters: {'enabled': value ? 'on' : 'off'},
+    ));
     widget.onChanged?.call();
     if (!mounted) return;
     setState(() {});

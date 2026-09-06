@@ -257,6 +257,15 @@ class _ChapterPageState extends State<ChapterPage>
       await SharePlus.instance.share(
         ShareParams(text: '$_title\n$deepLink'),
       );
+      unawaited(AnalyticsService.feature(
+        'library_shared',
+        label: 'Library shared',
+        parameters: {
+          'book_uid': bookSlug,
+          'chapter_uid': chapterSlug,
+          'scope': 'chapter',
+        },
+      ));
     } finally {
       if (mounted) setState(() => _isSharing = false);
     }

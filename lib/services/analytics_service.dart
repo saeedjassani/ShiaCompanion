@@ -126,6 +126,10 @@ class AnalyticsService {
         'the app)',
     ZikrOpenSource.zikrLink: 'Zikr opened from a link inside another zikr',
     ZikrOpenSource.admin: 'Zikr opened from the admin list',
+    ZikrOpenSource.homeWidgetFavorites:
+        'Zikr opened from the Favorites home screen widget',
+    ZikrOpenSource.homeWidgetRecitation:
+        "Zikr opened from the Today's Recitation home screen widget",
     ZikrOpenSource.unknown: 'Zikr opened from an untagged entry point',
   };
 
@@ -315,4 +319,15 @@ class ZikrOpenSource {
   static const String deepLink = 'deep_link';
   static const String zikrLink = 'zikr_link';
   static const String admin = 'admin';
+
+  /// Tapped an item in the Favorites home screen widget (iOS WidgetKit /
+  /// Android Glance). These reach [ZikrPage] through the same `?src=` marker
+  /// [HomeScreenWidgetService] writes into the widget's URL as any other
+  /// deep link, so without this they would be indistinguishable from
+  /// [deepLink].
+  static const String homeWidgetFavorites = 'home_widget_favorites';
+
+  /// Tapped an item in the Today's Recitation home screen widget. See
+  /// [homeWidgetFavorites].
+  static const String homeWidgetRecitation = 'home_widget_recitation';
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
@@ -10,8 +12,19 @@ import 'package:shia_companion/widgets/favorite_icon.dart';
 import '../constants.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 
-class TodaysRecitationPage extends StatelessWidget {
+class TodaysRecitationPage extends StatefulWidget {
   const TodaysRecitationPage({super.key});
+
+  @override
+  State<TodaysRecitationPage> createState() => _TodaysRecitationPageState();
+}
+
+class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(trackScreen('Todays Recitation Page'));
+  }
 
   @override
   Widget build(BuildContext context) {
