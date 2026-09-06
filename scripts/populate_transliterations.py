@@ -17,6 +17,16 @@ if os.path.exists(LEXICON_PATH):
     with open(LEXICON_PATH, 'r', encoding='utf-8') as f:
         LEXICON = json.load(f)
 
+# Context-aware overrides for words whose transliteration legitimately changes
+# with what follows (definite-article liaison, noon-sakin/tanween assimilation
+# - e.g. min/mim/mir, inna/innal). Mined from the hand-verified surahs by
+# scripts/build_context_lexicon.py; see that script for how a key is formed.
+CONTEXT_LEXICON_PATH = os.path.join(os.path.dirname(__file__), 'context_lexicon.json')
+CONTEXT_LEXICON = {}
+if os.path.exists(CONTEXT_LEXICON_PATH):
+    with open(CONTEXT_LEXICON_PATH, 'r', encoding='utf-8') as f:
+        CONTEXT_LEXICON = json.load(f)
+
 # Unicode constants
 FATHATAN = '\u064B'
 DAMMATAN = '\u064C'
@@ -229,11 +239,31 @@ def rule_based_word(word):
     word_result = prefix + ''.join(out)
     return word_result
 
-def transliterate_word(raw_token):
-    """Lookup in lexicon first (with common prefix stripping), fallback to rules."""
+CONTEXT_SEP = '␟'  # unit separator - matches scripts/build_context_lexicon.py
+
+def context_bucket(next_norm_token):
+    """Classify what follows a word, for CONTEXT_LEXICON lookups.
+
+    Must stay in sync with the same function in build_context_lexicon.py -
+    the key format is shared between the file that mines this table and the
+    file that reads it.
+    """
+    if not next_norm_token:
+        return 'END'
+    if next_norm_token.startswith('ال') or next_norm_token.startswith('اَل'):
+        return 'AL'
+    return next_norm_token[0]
+
+def transliterate_word(raw_token, next_norm_token=None):
+    """Lookup context-lexicon first, then plain lexicon (with common prefix
+    stripping), fallback to rules."""
     norm = normalize_token(raw_token)
     if not norm:
         return ""
+
+    ctx_key = f"{norm}{CONTEXT_SEP}{context_bucket(next_norm_token)}"
+    if ctx_key in CONTEXT_LEXICON:
+        return CONTEXT_LEXICON[ctx_key]
 
     if norm in LEXICON:
         return LEXICON[norm]
@@ -260,10 +290,12 @@ def transliterate_verse(ar_text):
         return "BISMIL LAAHIR RAHMAANIR RAHEEM"
 
     tokens = cleaned.split()
+    norm_tokens = [normalize_token(t) for t in tokens]
     tr_tokens = []
-    
-    for token in tokens:
-        tr = transliterate_word(token)
+
+    for idx, token in enumerate(tokens):
+        nxt = norm_tokens[idx + 1] if idx + 1 < len(norm_tokens) else None
+        tr = transliterate_word(token, nxt)
         if tr:
             tr_tokens.append(tr)
 
