@@ -34,8 +34,9 @@ void main() {
 
     expect(titlesFrom(snapshot), ['Dua Kumayl', 'Nahjul Balagha']);
     expect(urlsFrom(snapshot), [
-      'https://shia-companion.web.app/0/101',
-      'https://shia-companion.web.app/library/nahjul-balagha',
+      'https://shia-companion.web.app/0/101?src=home_widget_favorites',
+      'https://shia-companion.web.app/library/nahjul-balagha'
+          '?src=home_widget_favorites',
     ]);
   });
 
@@ -46,7 +47,10 @@ void main() {
 
     expect(
       urlsFrom(snapshot),
-      ['https://shia-companion.web.app/library/mafatih-al-jinan'],
+      [
+        'https://shia-companion.web.app/library/mafatih-al-jinan'
+            '?src=home_widget_favorites',
+      ],
     );
   });
 
@@ -57,8 +61,24 @@ void main() {
 
     expect(
       urlsFrom(snapshot),
-      ['https://shia-companion.web.app/zikr/dua-kumayl'],
+      [
+        'https://shia-companion.web.app/zikr/dua-kumayl'
+            '?src=home_widget_favorites',
+      ],
     );
+  });
+
+  test('every widget URL is tagged with where it was tapped from', () {
+    // So a tap on the widget shows up on the dashboard as its own source
+    // instead of collapsing into the generic "shared link" one.
+    final snapshot = snapshotFor([
+      UniversalData('101', 'Dua Kumayl', 0),
+      UniversalData('nahjul-balagha', 'Nahjul Balagha', 1),
+    ]);
+
+    for (final url in urlsFrom(snapshot)) {
+      expect(Uri.parse(url).queryParameters['src'], 'home_widget_favorites');
+    }
   });
 
   test('shrines and channels stay out, having nothing to open', () {

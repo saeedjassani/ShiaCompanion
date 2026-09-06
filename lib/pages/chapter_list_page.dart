@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
@@ -7,6 +9,7 @@ import 'package:shia_companion/utils/web_route_sync.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 
 import '../constants.dart';
+import '../services/analytics_service.dart';
 import 'chapter_page.dart';
 
 class ChapterListPage extends StatefulWidget {
@@ -102,6 +105,11 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
       await SharePlus.instance.share(
         ShareParams(text: '${widget.title}\n$deepLink'),
       );
+      unawaited(AnalyticsService.feature(
+        'library_shared',
+        label: 'Library shared',
+        parameters: {'book_uid': widget.slug, 'scope': 'book'},
+      ));
     } finally {
       if (mounted) setState(() => _isSharing = false);
     }
@@ -126,6 +134,11 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
     try {
       if (_isSaved) {
         await LibraryService.removeSavedBook(widget.slug);
+        unawaited(AnalyticsService.feature(
+          'library_offline_removed',
+          label: 'Offline copy removed',
+          parameters: {'book_uid': widget.slug},
+        ));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Offline copy removed')),
@@ -133,6 +146,11 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
         }
       } else {
         await LibraryService.saveBookForOffline(widget.slug, widget.title);
+        unawaited(AnalyticsService.feature(
+          'library_offline_saved',
+          label: 'Saved for offline',
+          parameters: {'book_uid': widget.slug},
+        ));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('${widget.title} saved for offline')),

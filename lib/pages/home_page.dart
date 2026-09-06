@@ -177,14 +177,19 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
+    // A home-screen widget's own URL carries which widget it was tapped
+    // from; an ordinary shared link carries none, and falls back to the
+    // generic deepLink source it always has.
+    final source = target.source ?? ZikrOpenSource.deepLink;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       pushRootPageRoute(
-            ZikrPage(resolvedItem, source: ZikrOpenSource.deepLink),
+            ZikrPage(resolvedItem, source: source),
           ) ??
           pushPageRoute(
             context,
-            ZikrPage(resolvedItem, source: ZikrOpenSource.deepLink),
+            ZikrPage(resolvedItem, source: source),
           );
     });
   }

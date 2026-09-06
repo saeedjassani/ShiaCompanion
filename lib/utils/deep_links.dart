@@ -2,9 +2,16 @@ class DeepLinkTarget {
   final int type;
   final List<String> segments;
 
+  /// The `src` query parameter off the URL, when the link itself knows where
+  /// it was tapped from — currently only the home-screen widgets set this
+  /// (see [HomeScreenWidgetService]). Null for an ordinary shared link, in
+  /// which case the caller falls back to its own default source.
+  final String? source;
+
   const DeepLinkTarget({
     required this.type,
     required this.segments,
+    this.source,
   });
 
   String get key => '$type/${segments.join('/')}';
@@ -69,15 +76,25 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
   final segments = _extractSegments(uri);
   if (segments.isEmpty) return null;
 
+  final source = _extractSource(uri);
+
   final type = int.tryParse(segments.first);
   if (type != null) {
     if (segments.length < 2) return null;
-    return DeepLinkTarget(type: type, segments: segments.sublist(1));
+    return DeepLinkTarget(
+      type: type,
+      segments: segments.sublist(1),
+      source: source,
+    );
   }
 
   if (segments.first == 'zikr') {
     if (segments.length != 2) return null;
-    return DeepLinkTarget(type: zikrDeepLinkType, segments: [segments[1]]);
+    return DeepLinkTarget(
+      type: zikrDeepLinkType,
+      segments: [segments[1]],
+      source: source,
+    );
   }
 
   if (segments.first == 'library') {
@@ -85,6 +102,7 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
     return DeepLinkTarget(
       type: libraryDeepLinkType,
       segments: segments.sublist(1),
+      source: source,
     );
   }
 
@@ -94,7 +112,11 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
 
   // Legacy root-level slug paths like /ziyarat-e-ashura still resolve to zikr.
   if (segments.length == 1) {
-    return DeepLinkTarget(type: zikrDeepLinkType, segments: segments);
+    return DeepLinkTarget(
+      type: zikrDeepLinkType,
+      segments: segments,
+      source: source,
+    );
   }
 
   return null;
@@ -173,6 +195,15 @@ bool _isAppDeepLinkHost(String host) {
 List<String> _extractSegments(Uri uri) {
   final pathUri = _fragmentPathUri(uri) ?? uri;
   return pathUri.pathSegments.where((segment) => segment.isNotEmpty).toList();
+}
+
+/// The `src` query parameter, read off whichever URI actually carries the
+/// query — the fragment's own URI for a hash-based link (`#/zikr/G1?src=x`),
+/// the outer one otherwise. Blank is treated the same as absent.
+String? _extractSource(Uri uri) {
+  final pathUri = _fragmentPathUri(uri) ?? uri;
+  final source = pathUri.queryParameters['src']?.trim();
+  return (source == null || source.isEmpty) ? null : source;
 }
 
 Uri? _fragmentPathUri(Uri uri) {

@@ -1,10 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 
-class DeepLinkNotFoundPage extends StatelessWidget {
+import '../constants.dart';
+
+class DeepLinkNotFoundPage extends StatefulWidget {
   final String? target;
 
   const DeepLinkNotFoundPage({super.key, this.target});
+
+  @override
+  State<DeepLinkNotFoundPage> createState() => _DeepLinkNotFoundPageState();
+}
+
+class _DeepLinkNotFoundPageState extends State<DeepLinkNotFoundPage> {
+  @override
+  void initState() {
+    super.initState();
+    // A link landing here is itself the diagnostic signal — how often a
+    // shared link or a home-widget tap fails to resolve — so the screen
+    // count is the whole metric; no separate feature event needed.
+    unawaited(trackScreen('Deep Link Not Found Page'));
+  }
+
+  String? get target => widget.target;
 
   @override
   Widget build(BuildContext context) {
