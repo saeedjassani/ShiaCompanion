@@ -483,6 +483,10 @@
     "slug": "ya-uddati-ramadan",
     "day": "09-*"
   },
+  "AA14": {
+    "title": "Dua e Sahar يَامَفْزَعِيْ عِنْدَ كُرْبَتِي",
+    "slug": "dua-e-sahar"
+  },
   "AA16": {
     "title": "Aamal-e-Sahar in the Holy Month of Ramazan",
     "slug": "aamal-e-sahar-in-the-holy-month-of-ramazan",
@@ -931,6 +935,10 @@
     "title": "Ta'qeebaat e Namaz e Isha",
     "slug": "taqeebaat-e-namaz-e-isha-1"
   },
+  "D11": {
+    "title": "Taqeebaat e Namaz e Isha (2)",
+    "slug": "taqeebaat-e-namaz-e-isha-2"
+  },
   "D12": {
     "title": "Dua After Namaz For Seeking Sustenance",
     "slug": "dua-after-namaz-for-seeking-sustenance"
@@ -987,6 +995,10 @@
     "title": "Dua-e-Sayfee Sagheer (Dua Qaamoos)",
     "slug": "dua-sayfi-al-sagir-dua-qamoos"
   },
+  "E130": {
+    "title": "Salawat upon Lady Fatimah",
+    "slug": "salawat-upon-lady-fatimah"
+  },
   "E14": {
     "title": "Hadees-e-Kisaa",
     "slug": "hadees-e-kisaa"
@@ -999,6 +1011,10 @@
   "E15": {
     "title": "Dua e Hazeen",
     "slug": "dua-e-hazeen"
+  },
+  "E152": {
+    "title": "True incident of fulfillment of desires",
+    "slug": "true-incident-of-fulfillment-of-desires"
   },
   "E153": {
     "title": "Dua e Noor Kabir",
@@ -1130,17 +1146,37 @@
     "title": "Dua Adilah",
     "slug": "dua-adilah"
   },
+  "E41": {
+    "title": "Dua for Fending Off Distress, Grief, and Fear",
+    "slug": "dua-for-fending-off-distress-grief-and-fear"
+  },
+  "E42": {
+    "title": "Dua for fulfillment of wishes",
+    "slug": "dua-for-fulfillment-of-wishes"
+  },
   "E44": {
     "title": "Dua for Glorifying Allah (s.w.t.)",
     "slug": "dua-for-glorifying-allah-s-w-t"
+  },
+  "E45": {
+    "title": "Dua for Immediate Fulfillment",
+    "slug": "dua-for-immediate-fulfillment"
   },
   "E46": {
     "title": "Dua for Istekhaarah fom Holy Quran",
     "slug": "dua-for-istikharah-fom-holy-quran"
   },
+  "E49": {
+    "title": "Dua for Pardoning of sins",
+    "slug": "dua-for-pardoning-of-sins"
+  },
   "E5": {
     "title": "Dua al-Hujjah اِلٰهِيْ بِحَقِّ مَنْ نَاجَاكَ",
     "slug": "dua-al-hujjah"
+  },
+  "E50": {
+    "title": "Dua for Protection of the house from damage & theft",
+    "slug": "dua-for-protection-of-the-house-from-damage-theft"
   },
   "E52": {
     "title": "Dua for rejuvenating the Hearts",
@@ -1167,9 +1203,17 @@
     "order": 12,
     "slug": "dua-for-safety-from-fire-al-evil-throughout-the-day"
   },
+  "E63": {
+    "title": "Dua for seeking forgiveness which leads to more knowledge & more Fortune",
+    "slug": "dua-for-seeking-forgiveness-which-leads-to-more-knowledge-more-fortune"
+  },
   "E7": {
     "title": "Dua Allahumma Asleh اَللّٰهُمَّ اَصْلِحْ عَبْدَكَ",
     "slug": "dua-allahumma-asleh"
+  },
+  "E79": {
+    "title": "Dua for the one who wishes to see the Prophet (s) or Holy Imams (a) or one of the Dead or one of his Parents",
+    "slug": "dua-for-the-one-who-wishes-to-see-the-prophet-or-holy-imams-or-the-dead-or-his-parents"
   },
   "E8": {
     "title": "Dua Alqamah",
@@ -1181,13 +1225,37 @@
     "order": 12,
     "slug": "comprehensive-dua-for-the-world-hereafter"
   },
+  "E81": {
+    "title": "Dua & Medicine for Good Memory",
+    "slug": "dua-medicine-for-good-memory"
+  },
+  "E82": {
+    "title": "An effective daily prayer",
+    "slug": "an-effective-daily-prayer"
+  },
+  "E84": {
+    "title": "A famous Dua for Sustenance",
+    "slug": "a-famous-dua-for-sustenance"
+  },
   "E85": {
     "title": "A Proven dua",
     "slug": "a-proven-dua"
   },
+  "E89": {
+    "title": "Dua at Bedtime and at the time of waking up",
+    "slug": "dua-at-bedtime-and-at-the-time-of-waking-up"
+  },
   "E9": {
     "title": "Dua Amaan (The Supplication for Security)",
     "slug": "dua-amaan-the-supplication-for-security"
+  },
+  "E91": {
+    "title": "Dua before going to Sleep",
+    "slug": "dua-before-going-to-sleep"
+  },
+  "E96": {
+    "title": "Dua for Solving Difficulties",
+    "slug": "dua-for-solving-difficulties"
   },
   "F11": {
     "title": "Namaz of Jafar-e-Tayyaar",
@@ -1298,6 +1366,10 @@
   "G23|J3": {
     "title": "Friday - Ziyarah of Imam al Mahdi (a.t.f.s.)",
     "slug": "friday-ziyarah-of-imam-al-mahdi-a-t-f-s"
+  },
+  "G3": {
+    "title": "Ziyarat e Arbaeen The 20th of Safar",
+    "slug": "ziyarat-e-arbaeen-the-20th-of-safar"
   },
   "G4": {
     "title": "Ziyaarat-e-Ashoora",
