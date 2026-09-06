@@ -57,6 +57,26 @@ reason, e.g.:
   script: sh "$CM_BUILD_DIR/ios/scripts/upload_dsyms_to_crashlytics.sh"
 ```
 
+## Follow-up: this phase must not run on a plain (non-archive) build
+
+Confirmed against real CI: `ACTION` is what distinguishes the two. `xcodebuild
+archive` runs script phases with `ACTION=install`; a plain `xcodebuild build`
+(what `flutter build ios` invokes, and what GitHub Actions' CI "iOS build" job
+runs as a build-only sanity check, with no archive after it) runs them with
+`ACTION=build`. The build phase now exits immediately unless `ACTION=install`.
+
+Without this guard, GitHub Actions' `flutter build ios --release --no-codesign`
+step hit the build phase too (Release config, not Debug) and tried to run
+`upload-symbols --build-phase` in the foreground against this repo's live
+GoogleService-Info.plist - a real network call to Firebase from a runner that
+never needed one. `upload-symbols` has no timeout of its own, and that runner
+apparently has no usable path to the Crashlytics upload endpoint, so the step
+hung indefinitely (observed: 40+ minutes with zero output before being
+cancelled, vs. ~15-25 minutes for the same step end-to-end before this PR).
+Every other job in the same CI run (Analyze/test, Android, Web) passed in
+minutes, which is what pointed at this phase specifically rather than
+something wrong with the build itself.
+
 ## Nothing to change on Codemagic itself
 
 This was purely an in-repo build-phase bug, not a Codemagic setting. No
