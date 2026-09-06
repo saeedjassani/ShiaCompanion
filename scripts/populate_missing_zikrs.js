@@ -14,7 +14,10 @@ const {
 } = require('./import_dua_from_url');
 
 const ASSETS = path.join(__dirname, '..', 'assets');
-const ITEMS_PATH = path.join(ASSETS, 'items.json');
+// The legacy index this backfill diffs against. It used to live in assets/
+// and shipped inside the app for nothing — the app has read zikr.json since
+// assets/items/ was dropped — so it now sits next to its only reader.
+const ITEMS_PATH = path.join(__dirname, 'legacy_items_index.json');
 const ZIKR_PATH = path.join(ASSETS, 'zikr.json');
 
 const DEFAULT_SEEDS = [

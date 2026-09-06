@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,25 +40,71 @@ import 'zikr_share_image.dart';
 
 enum _ZikrMenuAction { edit }
 
-/// Whether a scroll notification from the reading content should hide, show,
-/// or leave alone the reading chrome - the progress strip and the bottom
-/// action bar, which move together. Null means no change - in particular,
-/// horizontal scrolling (swiping between tabs) is not "scrolling the reading
-/// area" and must not be read as a vertical reveal/hide signal.
+/// How far the text has to actually travel in one direction before the
+/// reading chrome reacts.
 ///
-/// Kept separate from [_ZikrPageState] and free of any Flutter scroll types
-/// beyond [Axis]/[ScrollDirection] so it is trivial to unit test - building a
-/// real [UserScrollNotification] needs a live [BuildContext].
-bool? resolveChromeVisibilityForScroll(
-  Axis axis,
-  ScrollDirection direction,
-) {
-  if (axis != Axis.vertical) return null;
-  return switch (direction) {
-    ScrollDirection.reverse => false,
-    ScrollDirection.forward => true,
-    ScrollDirection.idle => null,
-  };
+/// This replaces reacting to [UserScrollNotification]'s direction, which
+/// flips the instant a finger wobbles back by a pixel: on a normal read that
+/// meant the progress strip and action bar popping in and back out several
+/// times a gesture. A deliberate scroll crosses this in a frame or two; the
+/// wobble inside one never does.
+const double kZikrChromeScrollThreshold = 36.0;
+
+/// Turns the reading area's stream of scroll deltas into hide/show decisions
+/// for the reading chrome - the progress strip and the bottom action bar,
+/// which move together. [update] returns true to show, false to hide, and
+/// null - by far the common case - for "leave it exactly as it is".
+///
+/// Kept free of Flutter's scroll notification types (which need a live
+/// [BuildContext] to build) so the whole hysteresis rule is unit testable.
+class ZikrChromeScrollTracker {
+  /// Signed pixels travelled since the last decision, positive downwards.
+  /// Reset rather than carried whenever the reader reverses, so a scroll up
+  /// starts earning its reveal from zero instead of from a debt built up
+  /// scrolling down.
+  double _accumulated = 0.0;
+
+  /// Called at the start and end of every gesture: a new gesture always
+  /// starts from zero, and momentum left over from the last one must not
+  /// count towards the next one's threshold.
+  void reset() {
+    _accumulated = 0.0;
+  }
+
+  bool? update({
+    required Axis axis,
+    required double delta,
+    required bool outOfRange,
+    required bool chromeVisible,
+    double threshold = kZikrChromeScrollThreshold,
+  }) {
+    // Horizontal scrolling is a swipe between tabs, not reading movement.
+    // The reading list is nested inside the tabs' PageView, so its
+    // notifications and the PageView's own arrive at the same listener.
+    if (axis != Axis.vertical) return null;
+    // An overscroll bounce reverses under its own momentum with no reader
+    // input at all; letting that count would reveal the chrome every time a
+    // read hit the end of a zikr.
+    if (outOfRange) {
+      _accumulated = 0.0;
+      return null;
+    }
+    if (delta == 0) return null;
+    if (_accumulated != 0 && _accumulated.isNegative != delta.isNegative) {
+      _accumulated = 0.0;
+    }
+    _accumulated += delta;
+
+    if (_accumulated >= threshold) {
+      _accumulated = 0.0;
+      return chromeVisible ? false : null;
+    }
+    if (_accumulated <= -threshold) {
+      _accumulated = 0.0;
+      return chromeVisible ? null : true;
+    }
+    return null;
+  }
 }
 
 /// Which verse a Quran reading should open at.
@@ -74,6 +121,25 @@ bool? resolveChromeVisibilityForScroll(
 /// be tested without standing up a page.
 VerseKey? resolveInitialVerse(VerseKey? requested) =>
     requested?.ayah != null ? requested : null;
+
+/// Whether a scroll notification from the reading content should drop a live
+/// text selection.
+///
+/// Any scroll the reader drives should: the reading column is a lazily built
+/// list, so scrolling disposes the very [Selectable] a selection edge sits in
+/// and leaves the selection overlay reading geometry that is no longer in the
+/// tree - the crash in `SelectableRegion` this guards against.
+///
+/// Idle is the carve-out, and it is not a nicety. `SelectableRegion`
+/// auto-scrolls the list by `jumpTo` while a selection handle is dragged past
+/// its edge, and `jumpTo` reports its scroll as idle. Acting on that would
+/// cancel the selection the reader is in the middle of making.
+///
+/// Kept out of [_ZikrPageState] for the same reason as
+/// [resolveChromeVisibilityForScroll]: a real [UserScrollNotification] needs a
+/// live [BuildContext] to build.
+bool shouldClearSelectionForScroll(ScrollDirection direction) =>
+    direction != ScrollDirection.idle;
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
@@ -135,6 +201,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   List<String> _slugAliases = const [];
   ZikrBookmark? _savedBookmark;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /// Focus for the reading area's [SelectionArea]. Held here, rather than left
+  /// to the node the widget would make for itself, so the page can drop a live
+  /// selection through [_clearTextSelection] before the text it was made in
+  /// goes away.
+  final FocusNode _selectionFocusNode =
+      FocusNode(debugLabel: 'ZikrPage selection');
+
   final Map<int, double> _currentTabScrollOffsets = {};
   final Map<int, double> _currentTabMaxScrollExtents = {};
 
@@ -463,6 +537,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterCount.dispose();
     _chromeIdleTimer?.cancel();
     _chromeVisible.dispose();
+    _selectionFocusNode.dispose();
     _maybeRecordCompletion();
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.dispose();
@@ -592,25 +667,52 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _chromeVisible.value = visible;
   }
 
+  /// Accumulates scroll deltas so the chrome only moves on a scroll the
+  /// reader meant; see [ZikrChromeScrollTracker].
+  final ZikrChromeScrollTracker _chromeScrollTracker =
+      ZikrChromeScrollTracker();
+
   /// Slides the chrome away as the reader moves down the text and back when
   /// they scroll up. Held open while the player is showing: hiding transport
   /// controls part-way through a half-hour recitation would strand them.
+  ///
+  /// Driven by [ScrollUpdateNotification]'s deltas rather than
+  /// [UserScrollNotification]'s direction, which reverses on the smallest
+  /// wobble and so made the bars flicker mid-read.
   ///
   /// The reading content is a [ListView] nested inside the tab [PageView], so
   /// its scroll notifications arrive here having already bubbled past the
   /// PageView - which, being itself a [Scrollable], bumps [depth] to 1 on the
   /// way through. Gating on `depth == 0` (as the counter FAB's old idle timer
   /// effectively assumed nothing nested) discarded every one of them, so the
-  /// chrome never moved on a real read. Gating on axis instead of depth reads
-  /// correctly regardless of nesting, and as a side effect also ignores the
-  /// PageView's own horizontal swipes between tabs, whose forward/reverse
-  /// would otherwise mean left/right rather than up/down.
-  bool _handleScrollNotification(UserScrollNotification notification) {
+  /// chrome never moved on a real read. The tracker gates on axis instead,
+  /// which reads correctly regardless of nesting and as a side effect also
+  /// ignores the PageView's own horizontal swipes between tabs.
+  bool _handleScrollNotification(ScrollNotification notification) {
+    // Ahead of the chrome logic and its guards: a selection has to be dropped
+    // on every scroll the reader drives, not only the ones that also move the
+    // bars.
+    if (notification is UserScrollNotification &&
+        shouldClearSelectionForScroll(notification.direction)) {
+      _clearTextSelection();
+    }
+
+    if (notification is ScrollStartNotification ||
+        notification is ScrollEndNotification) {
+      _chromeScrollTracker.reset();
+      return false;
+    }
+    if (notification is! ScrollUpdateNotification) return false;
     if (_showAudioPlayer || !_focusModeEnabled) return false;
 
-    final visible = resolveChromeVisibilityForScroll(
-      notification.metrics.axis,
-      notification.direction,
+    final delta = notification.scrollDelta;
+    if (delta == null) return false;
+
+    final visible = _chromeScrollTracker.update(
+      axis: notification.metrics.axis,
+      delta: delta,
+      outOfRange: notification.metrics.outOfRange,
+      chromeVisible: _chromeVisible.value,
     );
     if (visible != null) {
       _setChromeVisible(visible);
@@ -622,12 +724,69 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return false;
   }
 
+  /// Drops any live text selection.
+  ///
+  /// A [SelectionArea] holds its handles and its toolbar against the
+  /// [Selectable]s the selection was made in, and asks them for their geometry
+  /// again on every rebuild of the overlay. The reading column is a lazily
+  /// built [ListView] inside the tab [PageView], so those Selectables are
+  /// disposed the moment their line leaves the list's cache or their tab is
+  /// swiped away - and a selection that outlives them leaves the overlay
+  /// reading an edge that is no longer in the tree, which is where the
+  /// framework's null checks fire (flutter/flutter#124078, #123378). Dropping
+  /// the selection wherever the text under it is about to change keeps the two
+  /// in step.
+  ///
+  /// Unfocusing rather than reaching into the region's state: losing focus is
+  /// already how [SelectableRegion] clears itself, and the focus manager
+  /// applies the change in a microtask, so this is safe to call from a scroll
+  /// notification that arrives mid-layout.
+  void _clearTextSelection() {
+    if (!_selectionFocusNode.hasFocus) return;
+    _selectionFocusNode.unfocus();
+  }
+
   /// Brings the chrome back and restarts the idle clock - called on any tap
   /// on the page, not just on either bar itself, so a reader is never left
   /// having to guess where to tap to get it back.
   void _revealChrome() {
     _setChromeVisible(true);
     _scheduleChromeIdleHide();
+  }
+
+  /// Where the current touch went down, and whether it has since travelled
+  /// far enough to be a scroll rather than a tap. Tracked by hand instead of
+  /// with a [GestureDetector]: the reading text is inside a [SelectionArea],
+  /// whose own recognisers would compete for the tap in the arena and swallow
+  /// it, and this listener must never take a gesture away from them.
+  Offset? _chromePointerDownPosition;
+  bool _chromePointerMoved = false;
+
+  void _handleChromePointerDown(PointerDownEvent event) {
+    _chromePointerDownPosition = event.position;
+    _chromePointerMoved = false;
+  }
+
+  void _handleChromePointerMove(PointerMoveEvent event) {
+    final downPosition = _chromePointerDownPosition;
+    if (downPosition == null || _chromePointerMoved) return;
+    if ((event.position - downPosition).distance > kTouchSlop) {
+      _chromePointerMoved = true;
+    }
+  }
+
+  void _handleChromePointerCancel(PointerCancelEvent event) {
+    _chromePointerDownPosition = null;
+    _chromePointerMoved = false;
+  }
+
+  /// True when the touch that just ended was a tap in place rather than the
+  /// beginning of a scroll. Clears the tracking either way.
+  bool _consumeChromeTap() {
+    final wasTap = _chromePointerDownPosition != null && !_chromePointerMoved;
+    _chromePointerDownPosition = null;
+    _chromePointerMoved = false;
+    return wasTap;
   }
 
   /// Fallback for a zikr short enough that it never scrolls, so the chrome
@@ -1513,6 +1672,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void didPushNext() {
     _isCurrentRoute = false;
+    // The selection toolbar lives in the enclosing Overlay, so it would
+    // otherwise float over the route that just covered this one.
+    _clearTextSelection();
     syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
   }
 
@@ -1643,6 +1805,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final readingTimeLabel = zikrReadingTimeLabel(_readingStats.duration);
 
     return SelectionArea(
+      focusNode: _selectionFocusNode,
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -1664,11 +1827,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           // Covers the whole reading area, not just either bar: after the
           // idle timeout has hidden the chrome, the reader should not have to
           // hunt for exactly where to tap to get it back.
-          onPointerDown: (_) {
+          //
+          // On the finished tap, not on pointer-down: a scroll starts with a
+          // pointer-down too, so revealing there flashed both bars onto the
+          // screen at the start of every single scroll gesture, for the
+          // scroll itself to slide them straight back out.
+          onPointerDown: _handleChromePointerDown,
+          onPointerMove: _handleChromePointerMove,
+          onPointerCancel: _handleChromePointerCancel,
+          onPointerUp: (_) {
+            if (!_consumeChromeTap()) return;
             if (showActionBar || showProgressBar) _revealChrome();
           },
           behavior: HitTestBehavior.translucent,
-          child: NotificationListener<UserScrollNotification>(
+          child: NotificationListener<ScrollNotification>(
             onNotification: _handleScrollNotification,
             child: LayoutBuilder(
               builder: (context, bodyConstraints) => Stack(
@@ -1684,58 +1856,37 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                               )
                             : !hasAnyContent && !isEditing
                                 ? const Center(child: Text('Coming soon...'))
-                                : ValueListenableBuilder<bool>(
-                                    valueListenable: _chromeVisible,
-                                    builder: (context, chromeVisible, content) {
-                                      // Both bars float over the reading area
-                                      // rather than sitting in the column, so
-                                      // this - not either bar's own size - is
-                                      // what reserves room for them. Tied to
-                                      // their shared visibility rather than
-                                      // fixed, so the text reclaims that room
-                                      // the moment they slide away instead of
-                                      // leaving a standing gap sized for
-                                      // chrome that is off screen.
-                                      final chromeInsets = EdgeInsets.only(
-                                        top: showProgressBar && chromeVisible
-                                            ? ZikrReadingProgressBar.barHeight
-                                            : 0.0,
-                                        bottom: showActionBar && chromeVisible
-                                            ? ZikrActionBar.barHeight
-                                            : 0.0,
-                                      );
-                                      return TweenAnimationBuilder<EdgeInsets>(
-                                        // begin == end here always - only
-                                        // `end` changing between builds is
-                                        // what TweenAnimationBuilder acts on,
-                                        // animating from wherever it already
-                                        // is. begin only matters on the very
-                                        // first build, where it must equal
-                                        // end so opening the page does not
-                                        // play a spurious reveal animation.
-                                        tween: EdgeInsetsTween(
-                                          begin: chromeInsets,
-                                          end: chromeInsets,
-                                        ),
-                                        duration:
-                                            const Duration(milliseconds: 220),
-                                        curve: Curves.easeOutCubic,
-                                        builder: (context, insets, content) =>
-                                            ResponsiveContent(
-                                          maxWidth: isEditing
-                                              ? wideContentWidth
-                                              : readingContentWidth,
-                                          padding: EdgeInsets.fromLTRB(
-                                            16,
-                                            16 + insets.top,
-                                            16,
-                                            16 + insets.bottom,
-                                          ),
-                                          child: content!,
-                                        ),
-                                        child: content,
-                                      );
-                                    },
+                                : ResponsiveContent(
+                                    maxWidth: isEditing
+                                        ? wideContentWidth
+                                        : readingContentWidth,
+                                    // Both bars float over the reading area
+                                    // rather than sitting in the column, so
+                                    // this - not either bar's own size - is
+                                    // what keeps the text out from under
+                                    // them.
+                                    //
+                                    // Reserved for as long as a bar exists at
+                                    // all, rather than following
+                                    // [_chromeVisible]: letting it follow the
+                                    // chrome meant every hide and reveal
+                                    // re-laid out the whole reading list, and
+                                    // the top inset shifted the text under
+                                    // the reader's eyes mid-scroll. A
+                                    // standing gap behind a hidden bar is the
+                                    // cheaper of the two costs by far.
+                                    padding: EdgeInsets.fromLTRB(
+                                      16,
+                                      16 +
+                                          (showProgressBar
+                                              ? ZikrReadingProgressBar.barHeight
+                                              : 0.0),
+                                      16,
+                                      16 +
+                                          (showActionBar
+                                              ? ZikrActionBar.barHeight
+                                              : 0.0),
+                                    ),
                                     child: isEditing
                                         ? ZikrEditFormWidget(
                                             titleController: titleController!,
@@ -1752,6 +1903,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                             tabContents: tabContents,
                                             selectedTabIndex: selectedTabIndex,
                                             onTabChanged: (index) {
+                                              // A swiped tab change is already
+                                              // covered by the scroll handler;
+                                              // this is the tab header being
+                                              // tapped, which animates the
+                                              // pager without ever reporting a
+                                              // user scroll.
+                                              _clearTextSelection();
                                               setState(() {
                                                 _selectedZikrTabIndex = index;
                                               });
@@ -1944,6 +2102,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   void refreshState() {
+    // Reading settings - font, size, transliteration - relay every line of the
+    // column out from under whatever was selected in it.
+    _clearTextSelection();
     syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
     _applyFocusModePreference();
     setState(() {});

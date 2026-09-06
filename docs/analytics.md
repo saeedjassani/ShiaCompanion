@@ -12,8 +12,11 @@ Those counters are what the in-app **Usage Dashboard** reads, and they are live.
 
 Home grid → **Usage** (admin only; the tile is not built for anyone else).
 Ranges: Today / 7 days / 30 days / All time. It shows most-opened zikrs,
-features actually used, screens, library books by chapters read, and live
-streams.
+features actually used (grouped — see below), screens, library books by
+chapters read, and live streams. Every ranked row also shows its share of that
+section's total, and the three headline tiles (zikr opens, distinct zikrs,
+feature uses) show the change against the equivalent previous period — All
+time has no "previous" to compare against, so it skips the delta.
 
 The tile comes from `adminHomeMenuItems`, kept out of `homeMenuItems` so the
 grid every user gets stays a compile-time constant and admin state — which
@@ -29,7 +32,7 @@ Flip `AnalyticsService.recordUsageInDebug` to exercise the pipeline locally.
 
 | Event | Fired from | Parameters |
 |---|---|---|
-| `screen_view` | `trackScreen()` on 22 pages | `screen_name`, `screen_class` |
+| `screen_view` | `trackScreen()` on 23 pages | `screen_name`, `screen_class` |
 | `zikr_view` | `ZikrPage.initState` | `zikr_uid`, `zikr_title`, `source` |
 | `zikr_completed` | reader reaches the end *and* dwells | `zikr_uid`, `zikr_title` |
 | `select_content` | alongside `zikr_view` | `content_type`, `item_id` |
@@ -40,12 +43,42 @@ Flip `AnalyticsService.recordUsageInDebug` to exercise the pipeline locally.
 
 ### `feature_use` values
 
-`home_menu_*` (one per home menu item — Qibla, Tasbeeh, Qaza, Calendar, Flights,
-Library, Favorites, …), `tasbeeh_session` (+`count`), `qaza_updated`
-(+`operation`), `favorite_added` (+`content_type`), `zikr_shared` (+`zikr_uid`),
-`azaan_selected` (+`azaan_id`), `rakaat_prayer_completed` (+`total_rakaat`),
-`flight_added` / `flight_edited`, `prayer_times_selection_changed`
-(+`prayer_times`), `search`, `search_opened`, `zikr_source_*`.
+The dashboard sorts every one of these into a [`FeatureGroup`](#features-used-grouped)
+before ranking them; the grouping below mirrors that.
+
+**Zikr & library reading** — `zikr_counter_shown`, `zikr_audio_opened` /
+`zikr_audio_play` (+`zikr_uid`), `zikr_bookmark_saved` (+`zikr_uid`) /
+`zikr_bookmark_removed`, `zikr_shared` (+`zikr_uid`), `zikr_keep_awake_toggled`,
+`zikr_focus_mode_toggled`, `zikr_share_as_image_toggled`,
+`zikr_show_transliteration_toggled`, `zikr_show_translation_toggled` (all four
++`enabled`), `arabic_font_size_changed`, `english_font_size_changed`,
+`arabic_font_changed` (+`font`), `library_shared` (+`book_uid`, `chapter_uid`,
+`scope`), `library_offline_saved` / `library_offline_removed` (+`book_uid`),
+`zikr_source_*`.
+
+**Home menu** — `home_menu_*`, one per home menu item (Qibla, Tasbeeh, Qaza,
+Calendar, Flights, Library, Favorites, …) (+`menu_item`).
+
+**Prayer & azaan** — `azaan_selected` (+`azaan_id`),
+`azaan_notifications_toggled` (+`enabled`), `azaan_opt_in` (+`choice`),
+`rakaat_prayer_completed` (+`total_rakaat`), `prayer_times_selection_changed`
+(+`prayer_times`), `qibla_target_changed` (+`target`).
+
+**Account & tools** — `account_deleted`, `account_signed_in` (+`method`),
+`favorite_added` / `favorite_removed` (+`content_type`), `favorite_reordered`,
+`flight_added` / `flight_edited`, `qaza_updated` (+`operation`),
+`tasbeeh_session` (+`count`).
+
+**Search** — `search`, `search_opened`.
+
+**Other** — `dark_mode_toggled` (+`enabled`), `feedback_email_opened`. Neither
+fits a domain group (dark mode and feedback aren't zikr-, prayer- or
+account-specific), so both fall to `FeatureGroup.other` on purpose rather than
+being force-fit into one that would misdescribe them.
+
+A key nothing above recognises still shows up on the dashboard, just under an
+"Other" heading instead of a named group — see `FeatureGroup.other` in
+`usage_dashboard_page.dart`.
 
 The home menu's ids come from the tile labels, so a genuine rename forks the
 counter by design. `home_menu_surahs` stopped accumulating when that tile became
@@ -68,11 +101,46 @@ them do not explain themselves.
 | `deep_link` | A URL from **outside** the app — a shared link, opened cold by the web launch route or while running by the home page's deep-link handler |
 | `zikr_link` | A link **inside another zikr's own text**, resolved to a local uid by `extractZikrLinkSegment` and pushed by `ZikrPage._handleZikrLinkTap` |
 | `admin` | Opened from the admin zikr list |
+| `home_widget_favorites` | Tapped an item in the Favorites home screen widget |
+| `home_widget_recitation` | Tapped an item in the Today's Recitation home screen widget |
 | `unknown` | Default — an entry point that forgot to pass a source |
 
 The two link sources are worth keeping apart: `deep_link` measures sharing and
 `zikr_link` measures cross-references in the corpus. A shared link that lands on
 a zikr whose text then links onward produces one of each.
+
+### Attributing a home screen widget tap
+
+Both widgets open a URL `HomeScreenWidgetService` already builds with
+`buildZikrDeepLinkUrl` / `buildLibraryDeepLinkUrl` — the same call a shared
+link uses — so without anything extra a widget tap would be indistinguishable
+from `deep_link`. `HomeScreenWidgetService` tags its own URLs with a `?src=`
+marker (`_withWidgetSource`); `parseDeepLinkUri` reads it into
+`DeepLinkTarget.source`, and the deep-link resolvers in `home_page.dart` and
+`deep_link_launch_page.dart` use it in place of the default `deep_link` when
+it's present. No native widget code was touched — both the iOS WidgetKit
+widget and the Android Glance widgets just open whatever URL Dart already
+wrote into shared storage, so tagging it there is enough. Library favorites
+carry the same marker for consistency, but nothing reads it yet: `library_view`
+has no per-source breakdown the way `zikr_view` does.
+
+This only counts a *tap*. It says nothing about how many people have a widget
+sitting on their home screen without ever tapping it — that would need native
+code (`onEnabled` / `onDeleted` on Android; nothing comparably reliable exists
+on iOS) and is deliberately out of scope here.
+
+## Features used, grouped
+
+`featureGroupFor` (in `usage_dashboard_page.dart`) buckets every `feature_use`
+key into a `FeatureGroup` before the dashboard ranks it, so "Features used"
+reads as a handful of sections instead of one flat list mixing home-menu taps,
+zikr actions, prayer settings, account changes and search. It matches
+`home_menu_*` and `zikr_source_*` by prefix and everything else against a fixed
+set per group (see the list above) — a key that matches nothing falls into
+`FeatureGroup.other` rather than vanishing from the ranking, which is also the
+safety net for a `feature()` call nobody has sorted into a group yet.
+`groupFeatureRows` does the actual split and is unit tested directly, so a
+regrouping mistake shows up without a live database.
 
 ## Why `zikr_view` lives in `ZikrPage`, not in the tap handlers
 
@@ -117,6 +185,19 @@ moment it lays out. Scroll position alone would therefore rank a stray tap on a
 two-line dua above a real recitation of Dua Kumayl. Completion additionally
 requires time on the page of at least half the estimated reciting duration,
 floored at 10 seconds.
+
+## The headline tiles' period-over-period delta
+
+Today / 7 days / 30 days each read one extra window — the equal-length period
+immediately before the one on screen (yesterday, the previous 7 days, the
+previous 30 days) — and `periodDelta` turns the pair into the "+12%" (or "New",
+or "±0%") shown under each headline tile. All time has no previous period to
+compare against, so it shows no delta at all rather than a meaningless one.
+
+The previous window is read the same way the current one is — one
+`orderByKey().startAt(...).endAt(...)` range query — and reduced to just the
+three headline numbers by `previousTotalsFrom`, so a range change never pays
+for a second full breakdown it will not render.
 
 ## Database layout
 
@@ -198,6 +279,8 @@ Admin → Custom definitions → Create custom dimension, scope **Event**:
 | Menu item | `menu_item` |
 | Azaan | `azaan_id` |
 | Prayer times shown | `prayer_times` |
+| Sign-in method | `method` |
+| Qibla target | `target` |
 
 The cap is 50 event-scoped dimensions, so there is plenty of headroom.
 Registration is **not** retroactive — data only appears from the day you create

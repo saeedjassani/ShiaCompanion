@@ -75,9 +75,36 @@ class FavoritesManager extends ChangeNotifier {
   String _pendingOrderStorageKey(String userId) =>
       'favorites_pending_order_$userId';
 
-  Future<void> loadFavorites() async {
+  /// True when the in-memory favorites already belong to the current user and
+  /// nothing has torn down the live listener that keeps them fresh.
+  ///
+  /// A reload is not free: it re-reads the remote index document and cancels
+  /// and re-attaches the snapshot listener, and Firestore bills a read for
+  /// each. Screens that merely want to be sure favorites exist before they
+  /// draw — the favorites page, the home page — used to pay that on every
+  /// visit, even though the listener already had them up to date.
+  bool get _isLoadedForCurrentUser {
+    if (!_hasLoadedFavorites) return false;
+
+    final userId = _auth.currentUser?.uid;
+    if (_loadedUserId != userId) return false;
+
+    // A signed-in load leaves a listener behind. Without one the cached state
+    // can drift from the account, so reload rather than trust it.
+    return userId == null || _listener != null;
+  }
+
+  /// Loads favorites, reusing what is already loaded when it is still valid.
+  ///
+  /// Pass [force] after an auth change, or anywhere else the remote document
+  /// has to be re-read and merged rather than assumed current.
+  Future<void> loadFavorites({bool force = false}) async {
     if (_loadFavoritesFuture != null) {
       return _loadFavoritesFuture!;
+    }
+
+    if (!force && _isLoadedForCurrentUser) {
+      return;
     }
 
     final completer = Completer<void>();
@@ -875,6 +902,12 @@ class FavoritesManager extends ChangeNotifier {
     final normalizedItem = _normalizeFavorite(item);
     if (!isFavorite(normalizedItem)) return;
 
+    unawaited(AnalyticsService.feature(
+      'favorite_removed',
+      label: 'Favorite removed',
+      parameters: {'content_type': normalizedItem.type},
+    ));
+
     final nextFavorites = List<UniversalData>.from(_favorites)
       ..remove(normalizedItem);
 
@@ -921,6 +954,11 @@ class FavoritesManager extends ChangeNotifier {
     if (fromIndex < 0 || fromIndex >= reordered.length) return;
     final destination = toIndex.clamp(0, reordered.length - 1);
     if (destination == fromIndex) return;
+
+    unawaited(AnalyticsService.feature(
+      'favorite_reordered',
+      label: 'Favorites reordered',
+    ));
 
     reordered.insert(destination, reordered.removeAt(fromIndex));
     _updateFavoritesData(reordered, isUserMutation: true);

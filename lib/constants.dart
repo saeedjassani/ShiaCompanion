@@ -37,7 +37,7 @@ bool isUserAdmin = false;
 
 final String appName = "Shia Companion";
 final Color appColor = Colors.brown;
-const IconData tasbeehCounterIcon = Icons.exposure_plus_1;
+const IconData tasbeehCounterIcon = Icons.adjust_rounded;
 int hijriDate = 0;
 double arabicFontSize = 32.0;
 double englishFontSize = 16.0;

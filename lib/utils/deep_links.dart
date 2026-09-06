@@ -2,9 +2,16 @@ class DeepLinkTarget {
   final int type;
   final List<String> segments;
 
+  /// The `src` query parameter off the URL, when the link itself knows where
+  /// it was tapped from — currently only the home-screen widgets set this
+  /// (see [HomeScreenWidgetService]). Null for an ordinary shared link, in
+  /// which case the caller falls back to its own default source.
+  final String? source;
+
   const DeepLinkTarget({
     required this.type,
     required this.segments,
+    this.source,
   });
 
   String get key => '$type/${segments.join('/')}';
@@ -90,19 +97,29 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
   final segments = _extractSegments(uri);
   if (segments.isEmpty) return null;
 
+  final source = _extractSource(uri);
+
   final type = int.tryParse(segments.first);
   if (type != null) {
     if (segments.length < 2) return null;
-    return DeepLinkTarget(type: type, segments: segments.sublist(1));
+    return DeepLinkTarget(
+      type: type,
+      segments: segments.sublist(1),
+      source: source,
+    );
   }
 
   if (segments.first == 'zikr') {
     if (segments.length < 2 || segments.length > 3) return null;
-    return _zikrTarget(segments[1], segments.length == 3 ? segments[2] : null);
+    return _zikrTarget(
+      segments[1],
+      segments.length == 3 ? segments[2] : null,
+      source,
+    );
   }
 
   if (segments.first == 'quran') {
-    return _parseQuranSegments(segments.sublist(1));
+    return _parseQuranSegments(segments.sublist(1), source);
   }
 
   if (segments.first == 'library') {
@@ -110,6 +127,7 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
     return DeepLinkTarget(
       type: libraryDeepLinkType,
       segments: segments.sublist(1),
+      source: source,
     );
   }
 
@@ -119,7 +137,11 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
 
   // Legacy root-level slug paths like /ziyarat-e-ashura still resolve to zikr.
   if (segments.length == 1) {
-    return DeepLinkTarget(type: zikrDeepLinkType, segments: segments);
+    return DeepLinkTarget(
+      type: zikrDeepLinkType,
+      segments: segments,
+      source: source,
+    );
   }
 
   return null;
@@ -181,7 +203,11 @@ String? extractZikrLinkSegment(String href) {
 ///
 /// An ayah on a zikr that is not a surah is not an error: the zikr still
 /// opens, the number simply has nothing to point at.
-DeepLinkTarget? _zikrTarget(String slugSegment, String? ayahSegment) {
+DeepLinkTarget? _zikrTarget(
+  String slugSegment,
+  String? ayahSegment,
+  String? source,
+) {
   var slug = slugSegment;
   var ayah = ayahSegment;
 
@@ -199,6 +225,7 @@ DeepLinkTarget? _zikrTarget(String slugSegment, String? ayahSegment) {
   return DeepLinkTarget(
     type: zikrDeepLinkType,
     segments: [slug, if (ayah != null) ayah],
+    source: source,
   );
 }
 
@@ -217,9 +244,13 @@ int? zikrDeepLinkAyah(DeepLinkTarget target) {
 /// Deliberately only checks shape, not range: this file stays free of any
 /// dependency on the Quran's structure so it remains a pure, cheaply testable
 /// parser. Whether surah 200 exists is decided when the link is resolved.
-DeepLinkTarget? _parseQuranSegments(List<String> segments) {
+DeepLinkTarget? _parseQuranSegments(List<String> segments, String? source) {
   if (segments.isEmpty) {
-    return const DeepLinkTarget(type: quranDeepLinkType, segments: []);
+    return DeepLinkTarget(
+      type: quranDeepLinkType,
+      segments: const [],
+      source: source,
+    );
   }
 
   if (segments.first.toLowerCase() == quranJuzSegment) {
@@ -227,6 +258,7 @@ DeepLinkTarget? _parseQuranSegments(List<String> segments) {
     return DeepLinkTarget(
       type: quranDeepLinkType,
       segments: [quranJuzSegment, segments[1]],
+      source: source,
     );
   }
 
@@ -239,13 +271,18 @@ DeepLinkTarget? _parseQuranSegments(List<String> segments) {
     return DeepLinkTarget(
       type: quranDeepLinkType,
       segments: [match.group(1)!, if (ayah != null) ayah],
+      source: source,
     );
   }
 
   if (segments.length == 2 &&
       _isNumber(segments[0]) &&
       _isNumber(segments[1])) {
-    return DeepLinkTarget(type: quranDeepLinkType, segments: segments);
+    return DeepLinkTarget(
+      type: quranDeepLinkType,
+      segments: segments,
+      source: source,
+    );
   }
 
   return null;
@@ -286,6 +323,15 @@ bool _isAppDeepLinkHost(String host) {
 List<String> _extractSegments(Uri uri) {
   final pathUri = _fragmentPathUri(uri) ?? uri;
   return pathUri.pathSegments.where((segment) => segment.isNotEmpty).toList();
+}
+
+/// The `src` query parameter, read off whichever URI actually carries the
+/// query — the fragment's own URI for a hash-based link (`#/zikr/G1?src=x`),
+/// the outer one otherwise. Blank is treated the same as absent.
+String? _extractSource(Uri uri) {
+  final pathUri = _fragmentPathUri(uri) ?? uri;
+  final source = pathUri.queryParameters['src']?.trim();
+  return (source == null || source.isEmpty) ? null : source;
 }
 
 Uri? _fragmentPathUri(Uri uri) {

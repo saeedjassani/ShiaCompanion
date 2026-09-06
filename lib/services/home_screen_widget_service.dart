@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
@@ -461,11 +462,19 @@ class HomeScreenWidgetService {
     final uid = item.canonicalUid;
     switch (item.type) {
       case zikrDeepLinkType:
-        return buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]);
+        return _withWidgetSource(
+          buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]),
+          ZikrOpenSource.homeWidgetFavorites,
+        );
       case libraryDeepLinkType:
         // A library favourite is saved straight from the book list, where the
-        // uid already is the book's slug.
-        return buildLibraryDeepLinkUrl(bookSlug: uid);
+        // uid already is the book's slug. Library opens have no per-source
+        // breakdown the way zikr opens do, so the marker rides along for
+        // free but nothing reads it yet.
+        return _withWidgetSource(
+          buildLibraryDeepLinkUrl(bookSlug: uid),
+          ZikrOpenSource.homeWidgetFavorites,
+        );
       default:
         return '';
     }
@@ -481,7 +490,23 @@ class HomeScreenWidgetService {
     if (item == null) return '';
     if (item.getUId().contains('~')) return '';
     final uid = item.getFirstUId();
-    return buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]);
+    return _withWidgetSource(
+      buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]),
+      ZikrOpenSource.homeWidgetRecitation,
+    );
+  }
+
+  /// Tags a widget's own deep link with where it was tapped from, so a
+  /// widget open reads as its own [ZikrOpenSource] on the dashboard instead
+  /// of collapsing into the generic "shared link" one — see
+  /// [DeepLinkTarget.source]. A no-op on an item with nothing to open.
+  String _withWidgetSource(String url, String source) {
+    if (url.isEmpty) return url;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return url;
+    return uri.replace(
+      queryParameters: {...uri.queryParameters, 'src': source},
+    ).toString();
   }
 
   T? _itemAt<T>(List<T> items, int index) {

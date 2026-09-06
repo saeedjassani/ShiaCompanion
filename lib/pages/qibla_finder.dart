@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../constants.dart';
 import '../data/holy_sites.dart';
 import '../models/compass_reading.dart';
+import '../services/analytics_service.dart';
 import '../services/compass_service.dart';
 import '../services/location_service.dart';
 import '../utils/geo_utils.dart';
@@ -252,6 +253,11 @@ class _QiblaFinderState extends State<QiblaFinder> {
     if (SP.isInitialized) {
       unawaited(SP.prefs.setString(_targetPreferenceKey, chosen.id));
     }
+    unawaited(AnalyticsService.feature(
+      'qibla_target_changed',
+      label: 'Qibla target changed',
+      parameters: {'target': chosen.id},
+    ));
   }
 
   Future<void> _refreshLocation() async {

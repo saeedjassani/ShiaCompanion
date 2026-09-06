@@ -149,7 +149,7 @@ void main() {
     expect(find.text('Focus mode'), findsOneWidget);
   });
 
-  testWidgets('Focus mode defaults on with no prefs set at all',
+  testWidgets('Focus mode defaults off with no prefs set at all',
       (tester) async {
     await _initPrefs(<String, Object>{});
     await _pumpPreferences(tester);
@@ -161,7 +161,7 @@ void main() {
             matching: find.byType(SwitchListTile),
           ))
           .value,
-      isTrue,
+      isFalse,
     );
   });
 
@@ -171,10 +171,10 @@ void main() {
     await _pumpPreferences(tester);
 
     await _tapPreference(tester, 'Focus mode');
-    expect(SP.prefs.getBool(zikrFocusModeKey), isFalse);
+    expect(SP.prefs.getBool(zikrFocusModeKey), isTrue);
 
     await _tapPreference(tester, 'Focus mode');
-    expect(SP.prefs.getBool(zikrFocusModeKey), isTrue);
+    expect(SP.prefs.getBool(zikrFocusModeKey), isFalse);
   });
 
   testWidgets(

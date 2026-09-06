@@ -23,6 +23,15 @@ enum UsageRange {
   final int days;
 
   bool get isAllTime => days == 0;
+
+  /// What the headline tiles' period-over-period delta is measured against.
+  /// Empty for All time, which has no equal-length "previous" period.
+  String get previousPeriodLabel => switch (this) {
+        UsageRange.today => 'yesterday',
+        UsageRange.week => 'the previous 7 days',
+        UsageRange.month => 'the previous 30 days',
+        UsageRange.allTime => '',
+      };
 }
 
 /// One row of the ranking.
@@ -39,6 +48,7 @@ class UsageSnapshot {
   const UsageSnapshot({
     required this.metrics,
     required this.trend,
+    this.previous,
   });
 
   static const UsageSnapshot empty =
@@ -51,12 +61,194 @@ class UsageSnapshot {
   /// no days to plot.
   final List<MapEntry<String, int>> trend;
 
+  /// The equal-length period immediately before this one, for the headline
+  /// tiles' delta. Null for All time, which has nothing to compare against.
+  final PreviousPeriodTotals? previous;
+
   List<UsageRow> rowsFor(String metric) => metrics[metric] ?? const [];
 
   int totalFor(String metric) =>
       rowsFor(metric).fold<int>(0, (sum, row) => sum + row.count);
 
   bool get isEmpty => metrics.values.every((rows) => rows.isEmpty);
+}
+
+/// The three headline numbers, aggregated for the period immediately before
+/// the one being viewed. Nothing else on the dashboard needs a
+/// previous-period figure, so this stops short of building and labelling a
+/// whole second [UsageSnapshot].
+class PreviousPeriodTotals {
+  const PreviousPeriodTotals({
+    required this.zikrOpens,
+    required this.distinctZikrs,
+    required this.featureUses,
+  });
+
+  final int zikrOpens;
+  final int distinctZikrs;
+  final int featureUses;
+}
+
+/// Reduces a parsed counts map (see [parseUsageDays]) down to
+/// [PreviousPeriodTotals]. A standalone function so the headline delta logic
+/// is testable without a live database, the same way [parseUsageTotals] is.
+@visibleForTesting
+PreviousPeriodTotals previousTotalsFrom(Map<String, Map<String, int>> counts) {
+  final zikrOpenEntries = (counts[AnalyticsService.metricZikr] ?? const {})
+      .entries
+      .where((entry) => !entry.key.endsWith(zikrCompletionSuffix));
+  final zikrOpens =
+      zikrOpenEntries.fold<int>(0, (sum, entry) => sum + entry.value);
+  final featureUses = (counts[AnalyticsService.metricFeature] ?? const {})
+      .values
+      .fold<int>(0, (sum, count) => sum + count);
+  return PreviousPeriodTotals(
+    zikrOpens: zikrOpens,
+    distinctZikrs: zikrOpenEntries.length,
+    featureUses: featureUses,
+  );
+}
+
+/// Which way a [PeriodDelta] points, so the widget layer can colour and icon
+/// it without re-deriving the sign from the label text.
+enum DeltaDirection { up, down, flat, isNew }
+
+/// A headline tile's change versus the previous period, already formatted.
+class PeriodDelta {
+  const PeriodDelta({required this.label, required this.direction});
+
+  final String label;
+  final DeltaDirection direction;
+}
+
+/// Compares a headline number to its previous-period figure.
+///
+/// Null when both are zero — a metric nobody has touched in either period is
+/// not a trend worth reporting. A previous figure of zero is reported as
+/// "New" rather than a division by zero or a meaningless "+∞%".
+@visibleForTesting
+PeriodDelta? periodDelta(int current, int previous) {
+  if (current == 0 && previous == 0) return null;
+  if (previous == 0) {
+    return const PeriodDelta(label: 'New', direction: DeltaDirection.isNew);
+  }
+
+  final percent = ((current - previous) / previous * 100).round();
+  if (percent == 0) {
+    return const PeriodDelta(label: '±0%', direction: DeltaDirection.flat);
+  }
+  final sign = percent > 0 ? '+' : '';
+  return PeriodDelta(
+    label: '$sign$percent%',
+    direction: percent > 0 ? DeltaDirection.up : DeltaDirection.down,
+  );
+}
+
+/// Which area of the app a `feature` metric key belongs to, so "Features
+/// used" reads as a handful of groups instead of one flat list mixing
+/// home-menu taps, zikr actions, prayer settings, account changes and search.
+///
+/// [other] is the safety net: a feature key nothing below recognises still
+/// renders, just outside any named group, rather than silently vanishing from
+/// the ranking the way an unhandled key would in a `switch` with no default.
+enum FeatureGroup {
+  zikrReading(
+    'Zikr & library reading',
+    'Bookmarks, sharing, audio, fonts and where the open came from',
+  ),
+  navigation('Home menu', 'Which home-screen tile people tap'),
+  prayerAndAzaan(
+    'Prayer & azaan',
+    'Azaan choice, notifications, rakaat counting, prayer times shown and '
+        'the Qibla target',
+  ),
+  accountAndTools(
+    'Account & tools',
+    'Favorites, flights, the qaza tracker, sign-in and account deletion',
+  ),
+  search('Search', 'Reaching for search, and searches actually run'),
+  other('Other', 'Not yet sorted into a group');
+
+  const FeatureGroup(this.title, this.subtitle);
+
+  final String title;
+  final String subtitle;
+}
+
+/// Feature keys with no shared prefix to match on, grouped by [FeatureGroup].
+/// Keys under a shared prefix (`home_menu_*`, `zikr_source_*`) are matched in
+/// [featureGroupFor] instead, so they don't need an entry here.
+const Set<String> _zikrReadingFeatureKeys = {
+  'zikr_counter_shown',
+  'zikr_audio_opened',
+  'zikr_audio_play',
+  'zikr_bookmark_saved',
+  'zikr_bookmark_removed',
+  'zikr_shared',
+  'zikr_keep_awake_toggled',
+  'zikr_focus_mode_toggled',
+  'zikr_share_as_image_toggled',
+  'zikr_show_transliteration_toggled',
+  'zikr_show_translation_toggled',
+  'arabic_font_size_changed',
+  'english_font_size_changed',
+  'arabic_font_changed',
+  'library_shared',
+  'library_offline_saved',
+  'library_offline_removed',
+};
+
+const Set<String> _prayerAndAzaanFeatureKeys = {
+  'azaan_selected',
+  'azaan_notifications_toggled',
+  'azaan_opt_in',
+  'rakaat_prayer_completed',
+  'prayer_times_selection_changed',
+  'qibla_target_changed',
+};
+
+const Set<String> _accountAndToolsFeatureKeys = {
+  'account_deleted',
+  'account_signed_in',
+  'favorite_added',
+  'favorite_removed',
+  'favorite_reordered',
+  'flight_added',
+  'flight_edited',
+  'qaza_updated',
+  'tasbeeh_session',
+};
+
+const Set<String> _searchFeatureKeys = {'search', 'search_opened'};
+
+/// See [FeatureGroup].
+@visibleForTesting
+FeatureGroup featureGroupFor(String key) {
+  if (key.startsWith('home_menu_')) return FeatureGroup.navigation;
+  if (key.startsWith('zikr_source_') || _zikrReadingFeatureKeys.contains(key)) {
+    return FeatureGroup.zikrReading;
+  }
+  if (_prayerAndAzaanFeatureKeys.contains(key)) {
+    return FeatureGroup.prayerAndAzaan;
+  }
+  if (_accountAndToolsFeatureKeys.contains(key)) {
+    return FeatureGroup.accountAndTools;
+  }
+  if (_searchFeatureKeys.contains(key)) return FeatureGroup.search;
+  return FeatureGroup.other;
+}
+
+/// Splits already-ranked `feature` rows into their [FeatureGroup]s, each list
+/// keeping the overall rank order. A group with nothing in it is left out of
+/// the map entirely, so callers can render "one section per present key"
+/// without an extra emptiness check.
+@visibleForTesting
+Map<FeatureGroup, List<UsageRow>> groupFeatureRows(List<UsageRow> rows) {
+  final grouped = <FeatureGroup, List<UsageRow>>{};
+  for (final row in rows) {
+    grouped.putIfAbsent(featureGroupFor(row.key), () => []).add(row);
+  }
+  return grouped;
 }
 
 /// Suffix [AnalyticsService.zikrCompleted] appends so completions can share the
@@ -94,8 +286,8 @@ Map<String, Map<String, int>> parseUsageTotals(Object? value) {
 /// totals and the day-by-day trend. See [parseUsageTotals] for why `count`
 /// is checked against `num` rather than `int`.
 @visibleForTesting
-({Map<String, Map<String, int>> counts, Map<String, int> trend})
-    parseUsageDays(Object? value, List<String> wantedDays) {
+({Map<String, Map<String, int>> counts, Map<String, int> trend}) parseUsageDays(
+    Object? value, List<String> wantedDays) {
   final counts = <String, Map<String, int>>{};
   final trend = <String, int>{for (final day in wantedDays) day: 0};
 
@@ -158,6 +350,8 @@ class UsageDashboardPage extends StatefulWidget {
 class _UsageDashboardPageState extends State<UsageDashboardPage> {
   static final DateFormat _dayFormat = DateFormat('yyyy-MM-dd');
   static final NumberFormat _countFormat = NumberFormat.decimalPattern();
+  static final NumberFormat _percentFormat =
+      NumberFormat.decimalPercentPattern(decimalDigits: 0);
 
   UsageRange _range = UsageRange.week;
   late Future<UsageSnapshot> _snapshot;
@@ -191,23 +385,57 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
       (offset) => _dayFormat.format(today.subtract(Duration(days: offset))),
     ).reversed.toList();
 
+    // Started together, not awaited in sequence: the three reads are
+    // independent, so there is no reason to pay their latency one after
+    // another.
+    //
     // Day keys are ISO dates, so they sort lexicographically and the range can
     // be pushed to the server. Reading the whole tree and filtering here would
     // download every retained day — up to 400 of them — to show thirty.
-    final snapshot = await FirebaseDatabase.instance
+    final daysFuture = FirebaseDatabase.instance
         .ref('usage/daily')
         .orderByKey()
         .startAt(wanted.first)
         .endAt(wanted.last)
         .get();
-    final labels = await _loadLabels();
+    final labelsFuture = _loadLabels();
+    final previousFuture =
+        _loadPreviousPeriodTotals(days, before: wanted.first);
+
+    final snapshot = await daysFuture;
+    final labels = await labelsFuture;
+    final previous = await previousFuture;
 
     final parsed = parseUsageDays(snapshot.value, wanted);
     return _toSnapshot(
       parsed.counts,
       labels,
       wanted.map((day) => MapEntry(day, parsed.trend[day] ?? 0)).toList(),
+      previous: previous,
     );
+  }
+
+  /// The equal-length window immediately before [before], read the same way
+  /// [_loadDays] reads its own window — day keys sort lexicographically, so
+  /// this still pushes the range to the server instead of scanning history.
+  Future<PreviousPeriodTotals> _loadPreviousPeriodTotals(
+    int days, {
+    required String before,
+  }) async {
+    final beforeDate = _dayFormat.parse(before);
+    final wanted = List.generate(
+      days,
+      (offset) =>
+          _dayFormat.format(beforeDate.subtract(Duration(days: offset + 1))),
+    ).reversed.toList();
+
+    final snapshot = await FirebaseDatabase.instance
+        .ref('usage/daily')
+        .orderByKey()
+        .startAt(wanted.first)
+        .endAt(wanted.last)
+        .get();
+    return previousTotalsFrom(parseUsageDays(snapshot.value, wanted).counts);
   }
 
   Future<Map<String, String>> _loadLabels() async {
@@ -226,8 +454,9 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
   UsageSnapshot _toSnapshot(
     Map<String, Map<String, int>> counts,
     Map<String, String> labels,
-    List<MapEntry<String, int>> trend,
-  ) {
+    List<MapEntry<String, int>> trend, {
+    PreviousPeriodTotals? previous,
+  }) {
     final metrics = <String, List<UsageRow>>{};
     counts.forEach((metric, keys) {
       final rows = keys.entries
@@ -240,7 +469,7 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
         ..sort((a, b) => b.count.compareTo(a.count));
       metrics[metric] = rows;
     });
-    return UsageSnapshot(metrics: metrics, trend: trend);
+    return UsageSnapshot(metrics: metrics, trend: trend, previous: previous);
   }
 
   /// Prefers the label recorded alongside the counter, falls back to the live
@@ -312,28 +541,31 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
                     subtitle: 'Aliases counted with the zikr they point at',
                     rows: _zikrRows(data),
                     countFormat: _countFormat,
+                    percentFormat: _percentFormat,
                   ),
-                  _UsageSection(
-                    title: 'Features used',
-                    subtitle: 'Actions taken, not just screens opened',
+                  _FeatureUsageSections(
                     rows: data.rowsFor(AnalyticsService.metricFeature),
                     countFormat: _countFormat,
+                    percentFormat: _percentFormat,
                   ),
                   _UsageSection(
                     title: 'Screens',
                     rows: data.rowsFor(AnalyticsService.metricScreen),
                     countFormat: _countFormat,
+                    percentFormat: _percentFormat,
                   ),
                   _UsageSection(
                     title: 'Library',
                     subtitle: 'Chapters opened, by book',
                     rows: data.rowsFor(AnalyticsService.metricLibrary),
                     countFormat: _countFormat,
+                    percentFormat: _percentFormat,
                   ),
                   _UsageSection(
                     title: 'Live streams',
                     rows: data.rowsFor(AnalyticsService.metricStream),
                     countFormat: _countFormat,
+                    percentFormat: _percentFormat,
                   ),
                 ],
               ],
@@ -367,29 +599,45 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
   }
 
   Widget _buildHeadlines(BuildContext context, UsageSnapshot data) {
-    final zikrOpens = _zikrRows(data).fold<int>(0, (sum, r) => sum + r.count);
+    final zikrRows = _zikrRows(data);
+    final zikrOpens = zikrRows.fold<int>(0, (sum, r) => sum + r.count);
+    final distinctZikrs = zikrRows.length;
+    final featureUses = data.totalFor(AnalyticsService.metricFeature);
+    final previous = data.previous;
+    final previousCaption = _range.previousPeriodLabel;
+
     return Row(
       children: [
         Expanded(
           child: _StatTile(
             label: 'Zikr opens',
             value: _countFormat.format(zikrOpens),
+            delta: previous == null
+                ? null
+                : periodDelta(zikrOpens, previous.zikrOpens),
+            deltaCaption: previousCaption,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _StatTile(
             label: 'Distinct zikrs',
-            value: _countFormat.format(_zikrRows(data).length),
+            value: _countFormat.format(distinctZikrs),
+            delta: previous == null
+                ? null
+                : periodDelta(distinctZikrs, previous.distinctZikrs),
+            deltaCaption: previousCaption,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _StatTile(
             label: 'Feature uses',
-            value: _countFormat.format(
-              data.totalFor(AnalyticsService.metricFeature),
-            ),
+            value: _countFormat.format(featureUses),
+            delta: previous == null
+                ? null
+                : periodDelta(featureUses, previous.featureUses),
+            deltaCaption: previousCaption,
           ),
         ),
       ],
@@ -398,14 +646,28 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
 }
 
 class _StatTile extends StatelessWidget {
-  const _StatTile({required this.label, required this.value});
+  const _StatTile({
+    required this.label,
+    required this.value,
+    this.delta,
+    this.deltaCaption,
+  });
 
   final String label;
   final String value;
 
+  /// Change versus the previous equal-length period. Null when that period
+  /// doesn't apply (All time) or when both periods are zero.
+  final PeriodDelta? delta;
+
+  /// What [delta] is measured against, e.g. "the previous 7 days" — shown in
+  /// a tooltip so the tile itself stays a single short line.
+  final String? deltaCaption;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final delta = this.delta;
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -421,10 +683,51 @@ class _StatTile extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
+            if (delta != null) ...[
+              const SizedBox(height: 4),
+              Tooltip(
+                message: deltaCaption == null ? '' : 'vs $deltaCaption',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _iconFor(delta.direction),
+                      size: 14,
+                      color: _colorFor(delta.direction, theme),
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      delta.label,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: _colorFor(delta.direction, theme),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  IconData _iconFor(DeltaDirection direction) => switch (direction) {
+        DeltaDirection.up || DeltaDirection.isNew => Icons.arrow_upward,
+        DeltaDirection.down => Icons.arrow_downward,
+        DeltaDirection.flat => Icons.remove,
+      };
+
+  Color _colorFor(DeltaDirection direction, ThemeData theme) {
+    final dark = theme.brightness == Brightness.dark;
+    return switch (direction) {
+      DeltaDirection.up ||
+      DeltaDirection.isNew =>
+        dark ? Colors.green.shade300 : Colors.green.shade700,
+      DeltaDirection.down => theme.colorScheme.error,
+      DeltaDirection.flat => theme.colorScheme.onSurfaceVariant,
+    };
   }
 }
 
@@ -435,7 +738,9 @@ class _UsageSection extends StatefulWidget {
     required this.title,
     required this.rows,
     required this.countFormat,
+    required this.percentFormat,
     this.subtitle,
+    this.dense = false,
   });
 
   static const int _collapsedRowCount = 10;
@@ -444,13 +749,25 @@ class _UsageSection extends StatefulWidget {
   final String? subtitle;
   final List<UsageRow> rows;
   final NumberFormat countFormat;
+  final NumberFormat percentFormat;
+
+  /// True for a subsection nested under a group heading (see
+  /// [_FeatureUsageSections]): a smaller title and no extra top margin, since
+  /// the group heading above it already carries both.
+  final bool dense;
 
   @override
   State<_UsageSection> createState() => _UsageSectionState();
 }
 
 class _UsageSectionState extends State<_UsageSection> {
+  // Whether every row beyond the top ten is showing — independent of
+  // [_sectionCollapsed], which hides the section's rows entirely.
   bool _expanded = false;
+
+  // Starts open: collapsing is something the admin opts into per section, not
+  // a default that would hide numbers nobody asked to hide.
+  bool _sectionCollapsed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -458,42 +775,130 @@ class _UsageSectionState extends State<_UsageSection> {
 
     final theme = Theme.of(context);
     final max = widget.rows.first.count;
+    final total = widget.rows.fold<int>(0, (sum, row) => sum + row.count);
     final visible = _expanded
         ? widget.rows
         : widget.rows.take(_UsageSection._collapsedRowCount).toList();
     final hidden = widget.rows.length - visible.length;
 
     return Padding(
+      padding: EdgeInsets.only(top: widget.dense ? 16 : 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: () => setState(() => _sectionCollapsed = !_sectionCollapsed),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: widget.dense
+                            ? theme.textTheme.titleSmall
+                            : theme.textTheme.titleMedium,
+                      ),
+                      if (widget.subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.subtitle!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (_sectionCollapsed) ...[
+                  Text(
+                    widget.countFormat.format(total),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Icon(
+                  _sectionCollapsed ? Icons.expand_more : Icons.expand_less,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
+          if (!_sectionCollapsed) ...[
+            const SizedBox(height: 8),
+            for (var i = 0; i < visible.length; i++)
+              _UsageBar(
+                rank: i + 1,
+                row: visible[i],
+                fraction: max == 0 ? 0 : visible[i].count / max,
+                percentOfTotal: total == 0 ? 0 : visible[i].count / total,
+                countFormat: widget.countFormat,
+                percentFormat: widget.percentFormat,
+              ),
+            if (hidden > 0 || _expanded)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () => setState(() => _expanded = !_expanded),
+                  child: Text(_expanded ? 'Show less' : 'Show $hidden more'),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// "Features used", broken into its [FeatureGroup]s. A group with no rows for
+/// the current range is left out entirely rather than shown empty.
+class _FeatureUsageSections extends StatelessWidget {
+  const _FeatureUsageSections({
+    required this.rows,
+    required this.countFormat,
+    required this.percentFormat,
+  });
+
+  final List<UsageRow> rows;
+  final NumberFormat countFormat;
+  final NumberFormat percentFormat;
+
+  @override
+  Widget build(BuildContext context) {
+    if (rows.isEmpty) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final grouped = groupFeatureRows(rows);
+
+    return Padding(
       padding: const EdgeInsets.only(top: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(widget.title, style: theme.textTheme.titleMedium),
-          if (widget.subtitle != null) ...[
-            const SizedBox(height: 2),
-            Text(
-              widget.subtitle!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+          Text('Features used', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 2),
+          Text(
+            'Actions taken, not just screens opened, grouped by area of the '
+            'app',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          for (final group in FeatureGroup.values)
+            if (grouped[group] case final groupRows? when groupRows.isNotEmpty)
+              _UsageSection(
+                title: group.title,
+                subtitle: group.subtitle,
+                rows: groupRows,
+                countFormat: countFormat,
+                percentFormat: percentFormat,
+                dense: true,
               ),
-            ),
-          ],
-          const SizedBox(height: 8),
-          for (var i = 0; i < visible.length; i++)
-            _UsageBar(
-              rank: i + 1,
-              row: visible[i],
-              fraction: max == 0 ? 0 : visible[i].count / max,
-              countFormat: widget.countFormat,
-            ),
-          if (hidden > 0 || _expanded)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: () => setState(() => _expanded = !_expanded),
-                child: Text(_expanded ? 'Show less' : 'Show $hidden more'),
-              ),
-            ),
         ],
       ),
     );
@@ -505,13 +910,22 @@ class _UsageBar extends StatelessWidget {
     required this.rank,
     required this.row,
     required this.fraction,
+    required this.percentOfTotal,
     required this.countFormat,
+    required this.percentFormat,
   });
 
   final int rank;
   final UsageRow row;
+
+  /// Share of the section's top row, for the proportional bar.
   final double fraction;
+
+  /// Share of the section's total, shown next to the count.
+  final double percentOfTotal;
+
   final NumberFormat countFormat;
+  final NumberFormat percentFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -545,6 +959,13 @@ class _UsageBar extends StatelessWidget {
                 countFormat.format(row.count),
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '(${percentFormat.format(percentOfTotal)})',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),

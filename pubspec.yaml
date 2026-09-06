@@ -69,12 +69,17 @@ flutter:
     - assets/airports.tsv
     - assets/books.json
     - assets/events.json
-    - assets/items.json
     - assets/logo.png
     - assets/retired_slugs.json
     - assets/zikr.json
     - assets/hadith/
-    - assets/images/
+    # Listed file by file rather than as a directory: a directory entry
+    # bundles whatever is sitting in it, which is how a Finder .DS_Store came
+    # to ship inside the app. assets/hadith/ and assets/zikr/ hold hundreds of
+    # generated files and have to stay directory entries, so
+    # test/bundled_assets_test.dart guards those instead.
+    - assets/images/google_logo.png
+    - assets/images/apple_logo.png
     - assets/zikr/
 
   fonts:

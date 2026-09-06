@@ -32,3 +32,30 @@
 }
 
 -keepclassmembers enum * { *; }
+
+## Crashlytics
+# R8 renames classes and drops line numbers, which turns every release stack
+# trace into noise. Keeping these attributes lets the mapping file that
+# build.gradle uploads put the original frames back.
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
+
+## flutter_local_notifications
+# Scheduled notifications are rebuilt from state persisted before the process
+# died, and the plugin reads that state back reflectively.
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
+-keep class * extends com.dexterous.flutterlocalnotifications.** { *; }
+
+## audio_service / just_audio_background
+# The service and the media button receiver are instantiated by the system
+# from the names in AndroidManifest.xml. AGP keeps manifest components on its
+# own; this covers the classes they reach through the media session, which it
+# does not see.
+-keep class com.ryanheise.audioservice.** { *; }
+-keep class com.ryanheise.just_audio.** { *; }
+
+## Glance app widgets
+# Same shape: the receivers are in the manifest, but Glance resolves the
+# GlanceAppWidget each one names at runtime.
+-keep class com.developer110.shiacompanion.widgets.** { *; }
+-keep class androidx.glance.appwidget.** { *; }

@@ -34,6 +34,47 @@ void main() {
     expect(target?.segments, ['ziyarat-e-ashura']);
   });
 
+  test('parseDeepLinkUri captures a home-widget src marker on a clean path',
+      () {
+    final target = parseDeepLinkUri(
+      Uri.parse(
+        'https://shia-companion.web.app/zikr/ziyarat-e-ashura'
+        '?src=home_widget_favorites',
+      ),
+    );
+
+    expect(target?.segments, ['ziyarat-e-ashura']);
+    expect(target?.source, 'home_widget_favorites');
+  });
+
+  test('parseDeepLinkUri captures a src marker from inside a hash route', () {
+    final target = parseDeepLinkUri(
+      Uri.parse(
+        'https://shia-companion.web.app/#/zikr/ziyarat-e-ashura'
+        '?src=home_widget_recitation',
+      ),
+    );
+
+    expect(target?.segments, ['ziyarat-e-ashura']);
+    expect(target?.source, 'home_widget_recitation');
+  });
+
+  test('parseDeepLinkUri leaves source null for an ordinary shared link', () {
+    final target = parseDeepLinkUri(
+      Uri.parse('https://shia-companion.web.app/zikr/ziyarat-e-ashura'),
+    );
+
+    expect(target?.source, isNull);
+  });
+
+  test('parseDeepLinkUri treats a blank src as no source at all', () {
+    final target = parseDeepLinkUri(
+      Uri.parse('https://shia-companion.web.app/zikr/ziyarat-e-ashura?src='),
+    );
+
+    expect(target?.source, isNull);
+  });
+
   test('parseDeepLinkUri decodes path segments exactly once', () {
     final target = parseDeepLinkUri(
       Uri.parse('https://shia-companion.web.app/#/zikr/dua%25percent'),

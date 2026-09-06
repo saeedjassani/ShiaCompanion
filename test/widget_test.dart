@@ -9,8 +9,20 @@ void main() {
     final icons = homeMenuItems.map((item) => item.icon).toList();
 
     expect(labels.toSet(), hasLength(labels.length));
+    expect(
+      icons.toSet(),
+      hasLength(icons.length),
+      reason: 'Home menu icons must not be repeated; duplicate icons found.',
+    );
     expect(zikr, equals(labels));
     expect(zikrIcons, equals(icons));
+  });
+
+  test('all home menu items build valid icons or custom glyphs', () {
+    for (final item in homeMenuItems) {
+      final iconWidget = item.buildIcon(size: 24, color: Colors.white);
+      expect(iconWidget, isNotNull, reason: item.label);
+    }
   });
 
   test('all home menu labels resolve to a concrete page', () {
