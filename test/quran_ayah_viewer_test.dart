@@ -492,6 +492,31 @@ void main() {
       expect(find.text('Translation of ayah 1'), findsNothing);
     });
 
+    testWidgets('lands on the start of the verse, not partway through it',
+        (tester) async {
+      // The bug this guards: the loop used to stop as soon as the target was
+      // "the top item", which is true of a verse 95% scrolled past - so it
+      // settled with only the verse's last line showing.
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 40),
+        surahNumber: 1,
+        initialVerse: const VerseKey(1, 25),
+      );
+
+      final arabic = find.textContaining('(25)');
+      expect(arabic, findsOneWidget);
+
+      // Every line of the verse is on screen, in order, starting near the top.
+      final arabicTop = tester.getTopLeft(arabic).dy;
+      expect(arabicTop, greaterThanOrEqualTo(0));
+      expect(arabicTop, lessThan(120), reason: 'the verse starts at the top');
+      expect(
+        tester.getTopLeft(find.text('Translation of ayah 25')).dy,
+        greaterThan(arabicTop),
+      );
+    });
+
     testWidgets('opens at the top when no verse is asked for', (tester) async {
       await _pump(
         tester,

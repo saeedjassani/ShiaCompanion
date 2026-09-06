@@ -5,6 +5,23 @@ import '../data/uid_title_data.dart';
 import '../utils/deep_links.dart';
 import '../utils/quran_index.dart';
 
+/// The verse a zikr link points at, once the zikr it names is known.
+///
+/// Only a surah has verses, so an ayah on any other zikr resolves to null and
+/// the zikr simply opens at the top - the link is not treated as broken for
+/// carrying a number that has nothing to point at. Out-of-range ayahs clamp
+/// through [VerseKey.tryParse], so `/zikr/3-aal-e-imraan/999` opens at the
+/// surah's last verse rather than nowhere.
+VerseKey? zikrLinkVerse(DeepLinkTarget target, UidTitleData item) {
+  final ayah = zikrDeepLinkAyah(target);
+  if (ayah == null) return null;
+
+  final surah = surahForUid(item.getFirstUId());
+  if (surah == null) return null;
+
+  return VerseKey.tryParse('$surah:$ayah');
+}
+
 /// Where a `/quran/...` link lands: the Quran screen, one juz, or one verse.
 class QuranDeepLinkDestination {
   const QuranDeepLinkDestination.home()

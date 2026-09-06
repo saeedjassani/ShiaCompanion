@@ -78,7 +78,11 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
         final item = await DeepLinkResolver.resolveZikrItem(widget.target);
         return item == null
             ? null
-            : ZikrPage(item, source: ZikrOpenSource.deepLink);
+            : ZikrPage(
+                item,
+                source: ZikrOpenSource.deepLink,
+                initialVerse: zikrLinkVerse(widget.target, item),
+              );
       case libraryDeepLinkType:
         return _resolveLibraryDestination();
       default:

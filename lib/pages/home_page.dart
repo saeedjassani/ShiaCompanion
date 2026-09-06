@@ -187,15 +187,15 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
+    final verse = zikrLinkVerse(target, resolvedItem);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      pushRootPageRoute(
-            ZikrPage(resolvedItem, source: ZikrOpenSource.deepLink),
-          ) ??
-          pushPageRoute(
-            context,
-            ZikrPage(resolvedItem, source: ZikrOpenSource.deepLink),
-          );
+      final route = ZikrPage(
+        resolvedItem,
+        source: ZikrOpenSource.deepLink,
+        initialVerse: verse,
+      );
+      pushRootPageRoute(route) ?? pushPageRoute(context, route);
     });
   }
 

@@ -410,14 +410,44 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     );
   }
 
+  /// A little air above a verse scrolled to, so it does not sit flush against
+  /// the reading chrome.
+  static const double _scrollToVerseMargin = 8;
+
+  /// Where item [itemIndex] begins, in scroll coordinates, or null when it is
+  /// not currently built and so has no measured position.
+  double? _itemScrollOffset(int tabIndex, int itemIndex) {
+    if (tabIndex >= _tabListKeys.length) return null;
+
+    final renderObject = _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    if (renderObject == null) return null;
+    final sliver = _findSliverList(renderObject);
+    if (sliver == null) return null;
+
+    RenderBox? child = sliver.firstChild;
+    while (child != null) {
+      final parentData = child.parentData;
+      if (parentData is SliverMultiBoxAdaptorParentData &&
+          parentData.index == itemIndex) {
+        return parentData.layoutOffset;
+      }
+      child = sliver.childAfter(child);
+    }
+    return null;
+  }
+
   /// Brings [verse] to the top of the view.
   ///
   /// A `ListView.builder` cannot seek to an index, and lines wrap to different
-  /// heights so there is no fixed extent to invert. This estimates an offset,
-  /// lets the frame build, and then - now that the target is on screen - reads
-  /// back which item actually ended up on top and corrects. In ayah mode the
-  /// items are whole verses rather than single lines, so the estimate is close
-  /// enough that this settles in a pass or two.
+  /// heights so there is no fixed extent to invert. So: estimate an offset, let
+  /// the frame build, and then - now that the target is built - read its real
+  /// layout offset and land on it exactly.
+  ///
+  /// Aligning the item's *start* is the point. An earlier version stopped as
+  /// soon as [topContentLineIndex] named the target, but that reports the item
+  /// whose bottom edge is still below the fold - true of a verse scrolled 95%
+  /// past - so it settled with the verse mostly above the view and only its
+  /// last line showing.
   Future<void> _scrollToVerse(
     int tabIndex,
     AyahIndex ayahIndex,
@@ -429,8 +459,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
     final controller = _tabScrollControllers[tabIndex];
     final itemCount = ayahIndex.spans.length + leadingItems;
+    final itemIndex = spanIndex + leadingItems;
 
-    for (var attempt = 0; attempt < 5; attempt++) {
+    // The reading chrome's inset animates in, which moves every item under it,
+    // so a landing is only trusted once it has held still for a frame.
+    var settledFrames = 0;
+    for (var attempt = 0; attempt < 12; attempt++) {
       await WidgetsBinding.instance.endOfFrame;
       if (!mounted || !controller.hasClients) return;
 
@@ -439,23 +473,24 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         return;
       }
 
-      final landed = topContentLineIndex(tabIndex, controller);
-      if (landed == spanIndex) return;
+      final itemOffset = _itemScrollOffset(tabIndex, itemIndex);
+      final target = itemOffset == null
+          // Not built yet: aim by proportion to bring it into range, then
+          // measure properly on the next pass.
+          ? position.maxScrollExtent * (itemIndex / itemCount)
+          : itemOffset - _scrollToVerseMargin;
 
-      // Aim by proportion, then let the next pass correct off the real
-      // position rather than trusting the estimate.
-      final target = landed == null
-          ? position.maxScrollExtent *
-              ((spanIndex + leadingItems) / itemCount)
-          : position.pixels +
-              (spanIndex - landed) *
-                  (position.maxScrollExtent / itemCount);
+      final clamped = target
+          .clamp(position.minScrollExtent, position.maxScrollExtent)
+          .toDouble();
 
-      controller.jumpTo(
-        target
-            .clamp(position.minScrollExtent, position.maxScrollExtent)
-            .toDouble(),
-      );
+      if (itemOffset != null && (position.pixels - clamped).abs() <= 1) {
+        if (++settledFrames >= 2) return;
+        continue;
+      }
+
+      settledFrames = 0;
+      controller.jumpTo(clamped);
     }
   }
 

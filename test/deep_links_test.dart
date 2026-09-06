@@ -309,6 +309,55 @@ void main() {
     });
   });
 
+  group('a zikr link with an ayah on it', () {
+    DeepLinkTarget? parse(String path) =>
+        parseDeepLinkUri(Uri.parse('https://shia-companion.web.app$path'));
+
+    test('takes the slash form someone would type', () {
+      final target = parse('/zikr/3-aal-e-imraan/91');
+
+      expect(target!.type, zikrDeepLinkType);
+      expect(target.segments, ['3-aal-e-imraan', '91']);
+      expect(zikrDeepLinkAyah(target), 91);
+    });
+
+    test('takes the colon form too', () {
+      final target = parse('/zikr/3-aal-e-imraan:35');
+
+      expect(target!.type, zikrDeepLinkType);
+      expect(target.segments, ['3-aal-e-imraan', '35']);
+      expect(zikrDeepLinkAyah(target), 35);
+    });
+
+    test('a slug with digits and hyphens survives either form', () {
+      // The slug itself is full of the characters being split on, so this is
+      // the case a naive split would get wrong.
+      expect(parse('/zikr/3-aal-e-imraan')!.segments, ['3-aal-e-imraan']);
+      expect(parse('/zikr/2-al-baqarah/255')!.segments, ['2-al-baqarah', '255']);
+    });
+
+    test('a plain slug still carries no ayah', () {
+      final target = parse('/zikr/ziyarat-e-ashura');
+
+      expect(target!.segments, ['ziyarat-e-ashura']);
+      expect(zikrDeepLinkAyah(target), isNull);
+    });
+
+    test('rejects a trailing part that is not a number', () {
+      expect(parse('/zikr/3-aal-e-imraan/notaverse'), isNull);
+      expect(parse('/zikr/3-aal-e-imraan:notaverse'), isNull);
+    });
+
+    test('rejects an empty slug', () {
+      expect(parse('/zikr/:35'), isNull);
+    });
+
+    test('the launch route claims it too', () {
+      final target = parseLaunchRouteName('/zikr/3-aal-e-imraan/91');
+      expect(target!.segments, ['3-aal-e-imraan', '91']);
+    });
+  });
+
   group('links that worked before still work', () {
     // Adding the Quran type reserved a new path prefix and added a branch to
     // the parser. These are the forms already in the wild.

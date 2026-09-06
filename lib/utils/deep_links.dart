@@ -97,8 +97,8 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
   }
 
   if (segments.first == 'zikr') {
-    if (segments.length != 2) return null;
-    return DeepLinkTarget(type: zikrDeepLinkType, segments: [segments[1]]);
+    if (segments.length < 2 || segments.length > 3) return null;
+    return _zikrTarget(segments[1], segments.length == 3 ? segments[2] : null);
   }
 
   if (segments.first == 'quran') {
@@ -170,6 +170,46 @@ String? extractZikrLinkSegment(String href) {
   }
 
   return null;
+}
+
+/// A zikr link, with the ayah it names when it names one.
+///
+/// `/zikr/<slug>` is what the app itself writes, but someone reading a surah
+/// will reasonably tack a verse onto it by hand. Both shapes people actually
+/// type are taken - `/zikr/3-aal-e-imraan/91` and `/zikr/3-aal-e-imraan:91` -
+/// and normalised to the same two segments, so callers see one form.
+///
+/// An ayah on a zikr that is not a surah is not an error: the zikr still
+/// opens, the number simply has nothing to point at.
+DeepLinkTarget? _zikrTarget(String slugSegment, String? ayahSegment) {
+  var slug = slugSegment;
+  var ayah = ayahSegment;
+
+  if (ayah == null) {
+    final colon = slug.lastIndexOf(':');
+    if (colon >= 0) {
+      ayah = slug.substring(colon + 1);
+      slug = slug.substring(0, colon);
+    }
+  }
+
+  if (slug.isEmpty) return null;
+  if (ayah != null && !_isNumber(ayah)) return null;
+
+  return DeepLinkTarget(
+    type: zikrDeepLinkType,
+    segments: [slug, if (ayah != null) ayah],
+  );
+}
+
+/// The ayah a zikr link named, or null when it named none or is not a zikr
+/// link at all.
+int? zikrDeepLinkAyah(DeepLinkTarget target) {
+  if (target.type != zikrDeepLinkType || target.segments.length < 2) {
+    return null;
+  }
+  final ayah = int.tryParse(target.segments[1]);
+  return ayah != null && ayah > 0 ? ayah : null;
 }
 
 /// Reads the part of a Quran link after `/quran`.
