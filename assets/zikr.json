@@ -2094,13 +2094,101 @@
     "title": "Short Duas for the Days of Ramazan",
     "slug": "short-duas-for-the-days-of-ramazan"
   },
+  "Z10": {
+    "title": "9th Day",
+    "slug": "9th-day"
+  },
+  "Z11": {
+    "title": "10th Day",
+    "slug": "10th-day"
+  },
+  "Z12": {
+    "title": "11th Day",
+    "slug": "11th-day"
+  },
+  "Z13": {
+    "title": "12th Day",
+    "slug": "12th-day"
+  },
+  "Z14": {
+    "title": "13th Day",
+    "slug": "13th-day"
+  },
+  "Z15": {
+    "title": "14th Day",
+    "slug": "14th-day"
+  },
+  "Z16": {
+    "title": "15th Day",
+    "slug": "15th-day"
+  },
+  "Z17": {
+    "title": "16th Day",
+    "slug": "16th-day"
+  },
+  "Z18": {
+    "title": "17th Day",
+    "slug": "17th-day"
+  },
+  "Z19": {
+    "title": "18th Day",
+    "slug": "18th-day"
+  },
   "Z2": {
     "title": "1st Day",
     "slug": "1st-day"
   },
+  "Z20": {
+    "title": "19th Day",
+    "slug": "19th-day"
+  },
+  "Z21": {
+    "title": "20th Day",
+    "slug": "20th-day"
+  },
+  "Z22": {
+    "title": "21st Day",
+    "slug": "21st-day"
+  },
+  "Z23": {
+    "title": "22nd Day",
+    "slug": "22nd-day"
+  },
+  "Z24": {
+    "title": "23rd Day",
+    "slug": "23rd-day"
+  },
+  "Z25": {
+    "title": "24th Day",
+    "slug": "24th-day"
+  },
+  "Z26": {
+    "title": "25th Day",
+    "slug": "25th-day"
+  },
+  "Z27": {
+    "title": "26th Day",
+    "slug": "26th-day"
+  },
+  "Z28": {
+    "title": "27th Day",
+    "slug": "27th-day"
+  },
+  "Z29": {
+    "title": "28th Day",
+    "slug": "28th-day"
+  },
   "Z3": {
     "title": "2nd Day",
     "slug": "2nd-day"
+  },
+  "Z30": {
+    "title": "29th Day",
+    "slug": "29th-day"
+  },
+  "Z31": {
+    "title": "30th Day",
+    "slug": "30th-day"
   },
   "Z4": {
     "title": "3rd Day",
@@ -2110,6 +2198,10 @@
     "title": "4th Day",
     "slug": "4th-day"
   },
+  "Z6": {
+    "title": "5th Day",
+    "slug": "5th-day"
+  },
   "Z7": {
     "title": "6th Day",
     "slug": "6th-day"
@@ -2117,5 +2209,9 @@
   "Z8": {
     "title": "7th Day",
     "slug": "7th-day"
+  },
+  "Z9": {
+    "title": "8th Day",
+    "slug": "8th-day"
   }
 }
