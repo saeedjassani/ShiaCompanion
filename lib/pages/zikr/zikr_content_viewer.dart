@@ -75,6 +75,35 @@ int? firstVisibleLineInRange(ZikrLineGroup range, ParsedZikrContent content) {
   return null;
 }
 
+/// Renders [rawLine] as a [TextSpan], turning any `[label](href)`
+/// markdown-style links embedded in it (cross-references to another zikr's
+/// uid, mostly - a Quran surah cited from a merits note, say) into tappable
+/// spans styled with [linkStyle]. Shared by the tab content viewer below and
+/// by the merits sheet in zikr_page.dart, so a link reads and behaves the
+/// same whether it sits in the dua text or in its merits.
+TextSpan buildZikrTextSpanWithLinks({
+  required String rawLine,
+  required TextStyle baseStyle,
+  required TextStyle linkStyle,
+  required void Function(String href) onLinkTap,
+}) {
+  final segments = ZikrContentParser.parseLineSegments(rawLine);
+  return TextSpan(
+    style: baseStyle,
+    children: segments.map((segment) {
+      if (!segment.hasHref) {
+        return TextSpan(text: segment.text);
+      }
+      return TextSpan(
+        text: segment.text,
+        style: linkStyle,
+        recognizer: TapGestureRecognizer()
+          ..onTap = () => onLinkTap(segment.href!),
+      );
+    }).toList(),
+  );
+}
+
 class ZikrContentViewerWidget extends StatefulWidget {
   final List<String> tabContents;
   final int selectedTabIndex;
@@ -129,27 +158,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   bool _didRestoreInitialBookmark = false;
 
   TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
-    final linkStyle = baseStyle.copyWith(
-      color: Theme.of(context).colorScheme.primary,
-      decoration: TextDecoration.underline,
-    );
-
-    final segments = ZikrContentParser.parseLineSegments(rawLine);
-    return TextSpan(
-      style: baseStyle,
-      children: segments.map((segment) {
-        if (!segment.hasHref) {
-          return TextSpan(text: segment.text);
-        }
-        return TextSpan(
-          text: segment.text,
-          style: linkStyle,
-          recognizer: TapGestureRecognizer()
-            ..onTap = () {
-              widget.onLinkTap(segment.href!);
-            },
-        );
-      }).toList(),
+    return buildZikrTextSpanWithLinks(
+      rawLine: rawLine,
+      baseStyle: baseStyle,
+      linkStyle: baseStyle.copyWith(
+        color: Theme.of(context).colorScheme.primary,
+        decoration: TextDecoration.underline,
+      ),
+      onLinkTap: (href) => widget.onLinkTap(href),
     );
   }
 

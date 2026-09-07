@@ -8,6 +8,7 @@ import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shia_companion/data/retired_zikr_redirects.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
@@ -738,15 +739,26 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   Future<bool> _loadZikrDataFromAssets() async {
+    // A retired uid (dropped from the corpus, usually for duplicating
+    // another entry) has no assets/zikr/<uid> file of its own any more, but
+    // a favorite or shared link saved before the retirement still carries
+    // its bare uid - see retired_zikr_redirects.dart. Load the uid it was
+    // folded into instead of failing outright, and land on the specific tab
+    // its content now lives in, if any.
+    final redirect = retiredZikrRedirects[widget.item.getFirstUId()];
+    final assetUid = redirect?.targetUid ?? widget.item.getFirstUId();
     try {
-      final raw = await DefaultAssetBundle.of(context)
-          .loadString('assets/zikr/${widget.item.getFirstUId()}');
+      final raw =
+          await DefaultAssetBundle.of(context).loadString('assets/zikr/$assetUid');
       final decoded = json.decode(raw);
       if (decoded is! Map) {
         return false;
       }
 
       _applyZikrData(Map<String, dynamic>.from(decoded));
+      if (redirect?.tabIndex != null) {
+        _selectedZikrTabIndex = redirect!.tabIndex! + 1;
+      }
       return true;
     } catch (e) {
       debugPrint('Error loading zikr from assets: $e');
@@ -986,9 +998,19 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                   controller: scrollController,
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
                   children: [
-                    SelectableText(
-                      merits,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                    SelectableText.rich(
+                      buildZikrTextSpanWithLinks(
+                        rawLine: merits,
+                        baseStyle: Theme.of(context).textTheme.bodyLarge ??
+                            const TextStyle(),
+                        linkStyle: (Theme.of(context).textTheme.bodyLarge ??
+                                const TextStyle())
+                            .copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          decoration: TextDecoration.underline,
+                        ),
+                        onLinkTap: (href) => _handleZikrLinkTap(href),
+                      ),
                     ),
                   ],
                 ),
