@@ -435,31 +435,28 @@ class _HomeGlyphPainter extends CustomPainter {
 
     // Central Shrine Dome (swelling onion dome)
     final dome = Path()
-      ..moveTo(7.5, 14.5)
-      ..cubicTo(7.2, 10.5, 9.2, 7.0, 12.0, 5.6)
-      ..cubicTo(14.8, 7.0, 16.8, 10.5, 16.5, 14.5)
+      ..moveTo(7.8, 14.5)
+      ..cubicTo(7.6, 10.2, 9.4, 6.6, 12.0, 5.2)
+      ..cubicTo(14.6, 6.6, 16.4, 10.2, 16.2, 14.5)
       ..close();
     canvas.drawPath(dome, stroke);
-    canvas.drawLine(const Offset(7.5, 14.5), const Offset(16.5, 14.5), stroke);
+
+    // Wider Shrine Hall Roofline (wider than the dome)
+    canvas.drawLine(const Offset(6.0, 14.5), const Offset(18.0, 14.5), stroke);
+
+    // Shrine Hall Side Walls down to ground line
+    canvas.drawLine(const Offset(6.8, 14.5), const Offset(6.8, 21.0), stroke);
+    canvas.drawLine(const Offset(17.2, 14.5), const Offset(17.2, 21.0), stroke);
 
     // Sacred Flag of Karbala (Alam) mounted on the dome pinnacle
-    canvas.drawLine(const Offset(12.0, 5.6), const Offset(12.0, 2.0), detail); // pole
+    canvas.drawLine(const Offset(12.0, 5.2), const Offset(12.0, 1.8), detail); // pole
     final flag = Path()
-      ..moveTo(12.0, 2.0)
-      ..quadraticBezierTo(14.0, 1.5, 16.0, 2.4)
-      ..lineTo(15.2, 4.0)
-      ..quadraticBezierTo(13.6, 3.2, 12.0, 4.2)
+      ..moveTo(12.0, 1.8)
+      ..quadraticBezierTo(14.0, 1.3, 16.0, 2.2)
+      ..lineTo(15.2, 3.8)
+      ..quadraticBezierTo(13.6, 3.0, 12.0, 4.0)
       ..close();
     canvas.drawPath(flag, fill);
-
-    // Grand arched portal / Iwan entrance
-    final portal = Path()
-      ..moveTo(9.8, 21.0)
-      ..lineTo(9.8, 17.5)
-      ..cubicTo(9.8, 16.0, 10.8, 15.0, 12.0, 15.0)
-      ..cubicTo(13.2, 15.0, 14.2, 16.0, 14.2, 17.5)
-      ..lineTo(14.2, 21.0);
-    canvas.drawPath(portal, detail);
   }
 
   /// 8. TAQEEBAT: Prayer arch with cascading prayer beads.
