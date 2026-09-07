@@ -412,29 +412,44 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawPath(path, fill);
   }
 
-  /// 7. RAKAAT COUNTER: Sacred Turbah (sajdah stone) with count pulse rings.
+  /// 7. RAKAAT COUNTER: Physical Sajdagah / Rakaat counter prayer device with empty readout window and sajdah Turbah.
   void _paintRakaat(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // The Turbah: rounded clay tablet
-    final turbahRect = RRect.fromRectAndRadius(
-      Rect.fromCenter(center: const Offset(12, 15.0), width: 14.5, height: 8.5),
-      const Radius.circular(4.2),
+    // Outer pointed arch casing with subtle saddle-curve base
+    final casing = Path()
+      ..moveTo(12.0, 1.6)
+      ..cubicTo(9.6, 3.0, 5.0, 6.6, 5.0, 11.2)
+      ..lineTo(5.0, 19.5)
+      ..cubicTo(5.0, 21.0, 6.5, 21.8, 8.0, 21.6)
+      ..cubicTo(10.2, 21.3, 13.8, 21.3, 16.0, 21.6)
+      ..cubicTo(17.5, 21.8, 19.0, 21.0, 19.0, 19.5)
+      ..lineTo(19.0, 11.2)
+      ..cubicTo(19.0, 6.6, 14.4, 3.0, 12.0, 1.6)
+      ..close();
+    canvas.drawPath(casing, stroke);
+
+    // Inner compartment divider bar
+    canvas.drawLine(const Offset(5.4, 11.4), const Offset(18.6, 11.4), detail);
+
+    // Empty square counter readout window in upper arch
+    final counterWindow = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(10.2, 5.0, 3.6, 3.6),
+      const Radius.circular(0.8),
     );
-    canvas.drawRRect(turbahRect, stroke);
+    canvas.drawRRect(counterWindow, detail);
 
-    // Inner embossed seal of Turbah
-    canvas.drawCircle(const Offset(12, 15.0), 1.8, stroke);
-
-    // Concentric proximity count waves above the Turbah
-    _drawArc(canvas, detail, const Offset(12, 11.0), 3.8, -math.pi * 0.8, math.pi * 0.6);
-    _drawArc(canvas, detail, const Offset(12, 11.0), 6.5, -math.pi * 0.8, math.pi * 0.6);
-
-    // Center pulse dot
-    canvas.drawCircle(const Offset(12, 3.2), 1.2, fill);
+    // Lower Sajdah Turbah tablet (recessed clay pad)
+    final turbah = Path()
+      ..moveTo(7.2, 13.4)
+      ..cubicTo(7.2, 12.6, 16.8, 12.6, 16.8, 13.4)
+      ..lineTo(16.8, 18.8)
+      ..cubicTo(16.8, 19.8, 7.2, 19.8, 7.2, 18.8)
+      ..close();
+    canvas.drawPath(turbah, stroke);
   }
 
   /// 10. ZIYARAAT: The Holy Shrine of Ahlulbayt with golden dome, twin minarets, and the waving Alam (flag of Karbala).
@@ -575,18 +590,7 @@ class _HomeGlyphPainter extends CustomPainter {
 
 
 
-  /// Arc helper.
-  static void _drawArc(
-    Canvas canvas,
-    Paint paint,
-    Offset center,
-    double radius,
-    double startAngle,
-    double sweepAngle,
-  ) {
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
-  }
+
 
   @override
   bool shouldRepaint(covariant _HomeGlyphPainter oldDelegate) {
