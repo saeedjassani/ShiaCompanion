@@ -28,7 +28,7 @@ enum HomeGlyphType {
   /// Mihrab prayer arch with prayer beads draped across it.
   taqeebat,
 
-  /// Open sacred book illuminated with morning dawn rays.
+  /// Material Symbols auto_stories (open book with dynamic turning page).
   todaysRecitations,
 
   /// The Holy Shrine of Ahlulbayt with golden dome, minarets, and the waving Alam.
@@ -556,53 +556,82 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawCircle(const Offset(12, 19.2), 0.9, fill);
   }
 
-  /// 9. TODAY'S RECITATIONS: Open sacred book with rising dawn rays.
+  /// 9. TODAY'S RECITATIONS: Material Symbols auto_stories (open book with dynamic turning page).
   void _paintTodaysRecitations(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // Open book pages at bottom
-    final leftPage = Path()
-      ..moveTo(12, 13.5)
-      ..cubicTo(9.5, 12.2, 6.2, 12.8, 4.2, 14.0)
-      ..lineTo(4.2, 20.0)
-      ..cubicTo(6.2, 18.8, 9.5, 18.5, 12, 19.8)
+    final path = Path()
+      ..fillType = PathFillType.evenOdd
+      // Outer book frame & pages
+      ..moveTo(12.0, 19.55)
+      ..quadraticBezierTo(11.72, 19.55, 11.46, 19.48)
+      ..quadraticBezierTo(11.2, 19.4, 10.97, 19.27)
+      ..quadraticBezierTo(9.95, 18.65, 8.82, 18.32)
+      ..quadraticBezierTo(7.7, 18.0, 6.5, 18.0)
+      ..quadraticBezierTo(5.45, 18.0, 4.44, 18.27)
+      ..quadraticBezierTo(3.42, 18.55, 2.5, 19.05)
+      ..quadraticBezierTo(1.98, 19.32, 1.49, 19.02)
+      ..quadraticBezierTo(1.0, 18.73, 1.0, 18.15)
+      ..lineTo(1.0, 6.1)
+      ..quadraticBezierTo(1.0, 5.83, 1.14, 5.58)
+      ..quadraticBezierTo(1.27, 5.33, 1.55, 5.2)
+      ..quadraticBezierTo(2.7, 4.6, 3.95, 4.3)
+      ..quadraticBezierTo(5.2, 4.0, 6.5, 4.0)
+      ..quadraticBezierTo(7.95, 4.0, 9.34, 4.38)
+      ..quadraticBezierTo(10.72, 4.75, 12.0, 5.5)
+      ..lineTo(12.0, 17.6)
+      ..quadraticBezierTo(13.28, 16.8, 14.68, 16.4)
+      ..quadraticBezierTo(16.07, 16.0, 17.5, 16.0)
+      ..quadraticBezierTo(18.4, 16.0, 19.26, 16.15)
+      ..quadraticBezierTo(20.12, 16.3, 21.0, 16.6)
+      ..lineTo(21.0, 4.6)
+      ..quadraticBezierTo(21.38, 4.72, 21.74, 4.86)
+      ..quadraticBezierTo(22.1, 5.0, 22.45, 5.2)
+      ..quadraticBezierTo(22.73, 5.33, 22.86, 5.58)
+      ..quadraticBezierTo(23.0, 5.83, 23.0, 6.1)
+      ..lineTo(23.0, 18.15)
+      ..quadraticBezierTo(23.0, 18.73, 22.51, 19.02)
+      ..quadraticBezierTo(22.02, 19.32, 21.5, 19.05)
+      ..quadraticBezierTo(20.57, 18.55, 19.56, 18.27)
+      ..quadraticBezierTo(18.55, 18.0, 17.5, 18.0)
+      ..quadraticBezierTo(16.3, 18.0, 15.18, 18.32)
+      ..quadraticBezierTo(14.05, 18.65, 13.03, 19.27)
+      ..quadraticBezierTo(12.8, 19.4, 12.54, 19.48)
+      ..quadraticBezierTo(12.28, 19.55, 12.0, 19.55)
+      ..close()
+      // Center turning page
+      ..moveTo(14.82, 14.25)
+      ..quadraticBezierTo(14.57, 14.47, 14.29, 14.34)
+      ..quadraticBezierTo(14.0, 14.2, 14.0, 13.88)
+      ..lineTo(14.0, 5.7)
+      ..quadraticBezierTo(14.0, 5.6, 14.04, 5.51)
+      ..quadraticBezierTo(14.07, 5.42, 14.15, 5.35)
+      ..lineTo(18.15, 1.35)
+      ..quadraticBezierTo(18.4, 1.1, 18.7, 1.23)
+      ..quadraticBezierTo(19.0, 1.35, 19.0, 1.7)
+      ..lineTo(19.0, 10.28)
+      ..quadraticBezierTo(19.0, 10.4, 18.95, 10.49)
+      ..quadraticBezierTo(18.9, 10.57, 18.82, 10.65)
+      ..lineTo(14.82, 14.25)
+      ..close()
+      // Left page cutout
+      ..moveTo(10.0, 16.62)
+      ..lineTo(10.0, 6.72)
+      ..quadraticBezierTo(9.18, 6.38, 8.29, 6.19)
+      ..quadraticBezierTo(7.4, 6.0, 6.5, 6.0)
+      ..quadraticBezierTo(5.58, 6.0, 4.7, 6.17)
+      ..quadraticBezierTo(3.83, 6.35, 3.0, 6.7)
+      ..lineTo(3.0, 16.62)
+      ..quadraticBezierTo(3.88, 16.3, 4.74, 16.15)
+      ..quadraticBezierTo(5.6, 16.0, 6.5, 16.0)
+      ..quadraticBezierTo(7.4, 16.0, 8.26, 16.15)
+      ..quadraticBezierTo(9.12, 16.3, 10.0, 16.62)
       ..close();
-    canvas.drawPath(leftPage, stroke);
 
-    final rightPage = Path()
-      ..moveTo(12, 13.5)
-      ..cubicTo(14.5, 12.2, 17.8, 12.8, 19.8, 14.0)
-      ..lineTo(19.8, 20.0)
-      ..cubicTo(17.8, 18.8, 14.5, 18.5, 12, 19.8)
-      ..close();
-    canvas.drawPath(rightPage, stroke);
-
-    // Spine
-    canvas.drawLine(const Offset(12, 13.5), const Offset(12, 19.8), stroke);
-
-    // Rising sun half-disc above the book
-    final sunDome = Path()
-      ..moveTo(9.2, 13.0)
-      ..arcToPoint(const Offset(14.8, 13.0), radius: const Radius.circular(2.8));
-    canvas.drawPath(sunDome, stroke);
-
-    // 5 radiating dawn rays
-    const angles = [30.0, 60.0, 90.0, 120.0, 150.0];
-    const cx = 12.0;
-    const cy = 13.0;
-    const rInner = 3.6;
-    const rOuter = 6.8;
-    for (final deg in angles) {
-      final rad = deg * math.pi / 180.0;
-      final x1 = cx + rInner * math.cos(rad);
-      final y1 = cy - rInner * math.sin(rad);
-      final x2 = cx + rOuter * math.cos(rad);
-      final y2 = cy - rOuter * math.sin(rad);
-      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), detail);
-    }
+    canvas.drawPath(path, fill);
   }
 
   /// 11. LIBRARY: Three library volumes on a shelf plinth with the right tome resting against the centerpiece.
