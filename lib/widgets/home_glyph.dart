@@ -239,37 +239,49 @@ class _HomeGlyphPainter extends CustomPainter {
     Paint detail,
     Paint fill,
   ) {
-    // Rihal stand legs (crossing in X)
-    canvas.drawLine(const Offset(5.2, 21), const Offset(18.8, 10.5), stroke);
-    canvas.drawLine(const Offset(18.8, 21), const Offset(5.2, 10.5), stroke);
+    // Rear crossing legs
+    final rearLegs = Path()
+      ..moveTo(6.4, 14.2)
+      ..lineTo(2.6, 17.0)
+      ..lineTo(2.6, 20.2)
+      ..lineTo(12.0, 16.2)
+      ..lineTo(21.4, 20.2)
+      ..lineTo(21.4, 17.0)
+      ..lineTo(17.6, 14.2);
+    canvas.drawPath(rearLegs, stroke);
 
-    // Base feet bar
-    canvas.drawLine(const Offset(4, 21), const Offset(6.5, 21), stroke);
-    canvas.drawLine(const Offset(17.5, 21), const Offset(20, 21), stroke);
+    // Front Rihal board & outer wings (continuous outer boundary)
+    final frontBoard = Path()
+      ..moveTo(5.0, 5.2)
+      ..lineTo(3.0, 5.2)
+      ..lineTo(3.0, 12.6)
+      ..lineTo(12.0, 16.2)
+      ..lineTo(21.0, 12.6)
+      ..lineTo(21.0, 5.2)
+      ..lineTo(19.0, 5.2);
+    canvas.drawPath(frontBoard, stroke);
 
-    // The Holy Quran pages resting in the cradle
+    // Open Holy Quran pages
+    // Left page
     final leftPage = Path()
-      ..moveTo(12, 6.2)
-      ..cubicTo(9.5, 5.2, 6.2, 5.8, 4.5, 6.8)
-      ..lineTo(4.5, 12.2)
-      ..cubicTo(6.5, 11.2, 9.8, 11.0, 12, 12.5)
+      ..moveTo(12.0, 5.2)
+      ..cubicTo(9.8, 3.6, 6.8, 3.8, 5.0, 5.2)
+      ..lineTo(5.0, 12.0)
+      ..cubicTo(6.8, 11.0, 9.8, 11.4, 12.0, 13.2)
       ..close();
     canvas.drawPath(leftPage, stroke);
 
+    // Right page
     final rightPage = Path()
-      ..moveTo(12, 6.2)
-      ..cubicTo(14.5, 5.2, 17.8, 5.8, 19.5, 6.8)
-      ..lineTo(19.5, 12.2)
-      ..cubicTo(17.5, 11.2, 14.2, 11.0, 12, 12.5)
+      ..moveTo(12.0, 5.2)
+      ..cubicTo(14.2, 3.6, 17.2, 3.8, 19.0, 5.2)
+      ..lineTo(19.0, 12.0)
+      ..cubicTo(17.2, 11.0, 14.2, 11.4, 12.0, 13.2)
       ..close();
     canvas.drawPath(rightPage, stroke);
 
-    // Center book spine
-    canvas.drawLine(const Offset(12, 6.0), const Offset(12, 12.8), stroke);
-
-    // Elegant text line hints on the pages
-    canvas.drawLine(const Offset(6.8, 8.6), const Offset(10.2, 8.2), detail);
-    canvas.drawLine(const Offset(13.8, 8.2), const Offset(17.2, 8.6), detail);
+    // Center spine crease
+    canvas.drawLine(const Offset(12.0, 5.2), const Offset(12.0, 13.2), stroke);
   }
 
   /// 4. TASBEEH: Loop of prayer beads with an Imam bead and tassel.
