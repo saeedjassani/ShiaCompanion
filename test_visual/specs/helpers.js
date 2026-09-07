@@ -107,6 +107,21 @@ function sampleGeneratedZikrPages(limit = 5) {
     .slice(0, limit);
 }
 
+/** A stable, alphabetical sample of the generated `/0/<uid>` redirect pages. */
+function sampleGeneratedUidRedirectPages(limit = 5) {
+  const redirectDir = path.join(BUILD_DIR, '0');
+  if (!fs.existsSync(redirectDir)) return [];
+  return fs
+    .readdirSync(redirectDir, {withFileTypes: true})
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .filter((uid) =>
+      fs.existsSync(path.join(redirectDir, uid, 'index.html')),
+    )
+    .sort()
+    .slice(0, limit);
+}
+
 /**
  * Compares against a committed baseline when one exists, and seeds it when one
  * does not.
@@ -160,5 +175,6 @@ module.exports = {
   bootFlutterApp,
   expectScreenshot,
   sampleGeneratedZikrPages,
+  sampleGeneratedUidRedirectPages,
   watchForFailures,
 };

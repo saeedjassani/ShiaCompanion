@@ -3,7 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 const {test, expect} = require('@playwright/test');
-const {BUILD_DIR, sampleGeneratedZikrPages} = require('./helpers');
+const {
+  BUILD_DIR,
+  sampleGeneratedZikrPages,
+  sampleGeneratedUidRedirectPages,
+} = require('./helpers');
 
 // The origin baked into the generated sitemap. Matches the default in
 // scripts/generate_zikr_seo_pages.js and the site-origin input on the
@@ -138,6 +142,49 @@ test.describe('sitemap.xml', () => {
       redirected,
       'sitemap URLs must be the final URL, not one that redirects',
     ).toEqual([]);
+  });
+});
+
+test.describe('legacy uid redirects', () => {
+  // The app itself falls back to this numeric `/0/<uid>` form (see
+  // zikrDeepLinkType in lib/utils/deep_links.dart) whenever it shares a link
+  // before it knows an item's slug, and old shares out in the wild use it
+  // too. The app rewrites it client-side once Flutter boots, but a crawler or
+  // a chat app's link-unfurler never runs that JS — these pages exist so
+  // those get a real title, a canonical link, and an instant redirect
+  // without it.
+  test('serves a real, title-bearing redirect page rather than the app shell', async ({request}) => {
+    const uids = sampleGeneratedUidRedirectPages(5);
+    expect(uids.length, 'no generated /0/<uid> redirect pages in the bundle').toBeGreaterThan(0);
+
+    for (const uid of uids) {
+      const response = await request.get(`/0/${uid}`, {maxRedirects: 0});
+      expect(response.status(), `/0/${uid}`).toBe(200);
+
+      const body = await response.text();
+      expect(body, `/0/${uid} is serving the Flutter app shell, not a redirect page`)
+        .not.toContain('id="app-loading"');
+
+      const canonical = body.match(/<link rel="canonical" href="([^"]+)">/)?.[1];
+      expect(canonical, `/0/${uid} has no canonical link`).toBeTruthy();
+      expect(canonical).toMatch(new RegExp(`^${SITE_ORIGIN}/zikr/`));
+
+      const refreshTarget = body.match(
+        /<meta http-equiv="refresh" content="0; url=([^"]+)">/,
+      )?.[1];
+      expect(refreshTarget, `/0/${uid} has no meta-refresh redirect`).toBeTruthy();
+      expect(canonical.endsWith(refreshTarget)).toBe(true);
+    }
+  });
+
+  test('is not what the sitemap points at', async ({request}) => {
+    const locs = locsFrom(await (await request.get('/sitemap.xml')).text());
+
+    // The sitemap must only ever list the canonical /zikr/<slug> page a
+    // redirect page points at — never the /0/<uid> page itself, or Google
+    // indexes the stub instead of consolidating it into the real page.
+    const uidPaths = locs.filter((loc) => /^https?:\/\/[^/]+\/0\//.test(loc));
+    expect(uidPaths).toEqual([]);
   });
 });
 
