@@ -7,7 +7,7 @@ enum HomeGlyphType {
   /// Sacred Mihrab (prayer arch) framing a hanging sanctuary lamp.
   namaz,
 
-  /// Sacred book of supplications illuminated with an 8-pointed star.
+  /// Cupped hands raised in supplication (Dua / Qunoot).
   duas,
 
   /// The Holy Quran resting upon a traditional wooden Rihal (X-stand).
@@ -156,55 +156,75 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawPath(lamp, fill);
   }
 
-  /// 2. DUAS: Sacred book of supplications with ribbon, illuminated with an 8-pointed star.
+  /// 2. DUAS: Cupped hands raised in supplication (Dua / Qunoot).
   void _paintDuas(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // 8-pointed Islamic Star (Rub el Hizb) of answered supplication floating above
-    _draw8PointStar(canvas, fill, 12.0, 4.8, 3.0, 1.8);
+    final handStroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.75
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
 
-    // Flanking celestial blessing sparkles
-    _drawStar(canvas, fill, 5.2, 5.0, 1.4);
-    _drawStar(canvas, fill, 18.8, 5.0, 1.4);
+    final handDetail = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.35
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
 
-    // Sacred Book of Supplications
-    // Left page
-    final leftPage = Path()
-      ..moveTo(12.0, 11.2)
-      ..cubicTo(9.5, 9.8, 6.0, 10.4, 3.8, 11.8)
-      ..lineTo(3.8, 18.0)
-      ..cubicTo(6.0, 16.6, 9.5, 16.4, 12.0, 18.0)
-      ..close();
-    canvas.drawPath(leftPage, stroke);
+    void drawHand() {
+      // Outer hand contour (outer wrist -> thumb -> 3 fingertips -> inner edge -> inner wrist)
+      final hand = Path()
+        ..moveTo(2.6, 21.0)
+        ..cubicTo(1.5, 19.2, 0.9, 17.0, 0.9, 14.8)
+        ..cubicTo(0.9, 13.0, 1.2, 11.5, 1.5, 9.8)
+        ..cubicTo(1.6, 8.5, 2.0, 7.8, 2.6, 7.8)
+        ..cubicTo(3.2, 7.8, 3.5, 8.4, 3.6, 9.3)
+        ..cubicTo(3.7, 10.0, 3.8, 10.6, 4.3, 11.0)
+        ..cubicTo(4.8, 9.2, 5.8, 6.2, 6.8, 4.2)
+        ..cubicTo(7.2, 3.3, 7.8, 3.5, 7.7, 4.7)
+        ..cubicTo(7.9, 3.5, 8.5, 2.8, 9.1, 2.9)
+        ..cubicTo(9.6, 3.0, 9.8, 3.8, 9.6, 4.8)
+        ..cubicTo(9.9, 3.8, 10.6, 3.8, 10.9, 4.6)
+        ..cubicTo(11.2, 5.5, 11.3, 7.0, 11.3, 9.2)
+        ..cubicTo(11.2, 11.0, 10.1, 12.2, 9.9, 13.8)
+        ..cubicTo(9.8, 15.2, 10.6, 16.5, 10.6, 17.6)
+        ..cubicTo(10.5, 18.8, 9.9, 20.0, 9.2, 21.0);
+      canvas.drawPath(hand, handStroke);
 
-    // Right page
-    final rightPage = Path()
-      ..moveTo(12.0, 11.2)
-      ..cubicTo(14.5, 9.8, 18.0, 10.4, 20.2, 11.8)
-      ..lineTo(20.2, 18.0)
-      ..cubicTo(18.0, 16.6, 14.5, 16.4, 12.0, 18.0)
-      ..close();
-    canvas.drawPath(rightPage, stroke);
+      // Finger divider 1 (between index and middle finger)
+      final div1 = Path()
+        ..moveTo(7.7, 4.7)
+        ..cubicTo(7.9, 6.8, 7.2, 8.8, 5.8, 11.0);
+      canvas.drawPath(div1, handDetail);
 
-    // Book spine
-    canvas.drawLine(const Offset(12.0, 11.0), const Offset(12.0, 18.2), stroke);
+      // Finger divider 2 (between middle and inner finger)
+      final div2 = Path()
+        ..moveTo(9.6, 4.8)
+        ..cubicTo(9.8, 6.8, 9.2, 9.0, 8.0, 11.4);
+      canvas.drawPath(div2, handDetail);
 
-    // Silk bookmark ribbon hanging gracefully below the spine
-    final ribbon = Path()
-      ..moveTo(11.0, 18.0)
-      ..lineTo(11.0, 22.0)
-      ..lineTo(12.0, 21.0)
-      ..lineTo(13.0, 22.0)
-      ..lineTo(13.0, 18.0)
-      ..close();
-    canvas.drawPath(ribbon, fill);
+      // Thumb crease line separating thenar eminence from palm
+      final thumbCrease = Path()
+        ..moveTo(4.3, 11.0)
+        ..cubicTo(4.3, 12.8, 4.1, 14.2, 5.8, 15.6);
+      canvas.drawPath(thumbCrease, handDetail);
+    }
 
-    // Delicate text line hints on pages
-    canvas.drawLine(const Offset(6.2, 13.6), const Offset(9.8, 13.2), detail);
-    canvas.drawLine(const Offset(14.2, 13.2), const Offset(17.8, 13.6), detail);
+    // Left hand
+    drawHand();
+
+    // Right hand (mirrored across vertical center x = 12.0)
+    canvas.save();
+    canvas.translate(24.0, 0.0);
+    canvas.scale(-1.0, 1.0);
+    drawHand();
+    canvas.restore();
   }
 
   /// 3. SURAHS: The Holy Quran resting on a traditional wooden Rihal stand.
@@ -547,30 +567,6 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawPath(path, fill);
   }
 
-  /// Eight-pointed Islamic star (Rub el Hizb / Khatim).
-  static void _draw8PointStar(
-    Canvas canvas,
-    Paint fill,
-    double cx,
-    double cy,
-    double rOuter,
-    double rInner,
-  ) {
-    final path = Path();
-    for (int i = 0; i < 16; i++) {
-      final angle = i * math.pi / 8.0 - math.pi / 2.0;
-      final r = (i % 2 == 0) ? rOuter : rInner;
-      final x = cx + r * math.cos(angle);
-      final y = cy + r * math.sin(angle);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
-    canvas.drawPath(path, fill);
-  }
 
   /// Arc helper.
   static void _drawArc(
