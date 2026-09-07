@@ -359,29 +359,57 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawLine(const Offset(18.8, 11.8), const Offset(20.8, 11.8), detail);
   }
 
-  /// 6. MUNAJAAT: Nocturnal crescent moon with celestial stars (intimate night supplication).
+  /// 6. MUNAJAAT: Material Symbols moon_stars (night crescent with twin celestial stars).
   void _paintMunajaat(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // Slender crescent moon comfortably padded on the left (no clipping)
-    final crescent = Path()
-      ..moveTo(11.5, 3.5)
-      ..cubicTo(5.2, 4.5, 5.2, 19.5, 11.5, 20.5)
-      ..cubicTo(7.8, 17.5, 7.8, 6.5, 11.5, 3.5)
+    final path = Path()
+      ..fillType = PathFillType.evenOdd
+      // Star 1 (upper diamond)
+      ..moveTo(15.0, 8.0)
+      ..lineTo(12.0, 5.0)
+      ..lineTo(15.0, 2.0)
+      ..lineTo(18.0, 5.0)
+      ..close()
+      // Star 2 (lower diamond)
+      ..moveTo(20.0, 11.0)
+      ..lineTo(18.0, 9.0)
+      ..lineTo(20.0, 7.0)
+      ..lineTo(22.0, 9.0)
+      ..close()
+      // Crescent Moon Outer Contour
+      ..moveTo(12.07, 22.0)
+      ..quadraticBezierTo(9.97, 22.0, 8.14, 21.2)
+      ..quadraticBezierTo(6.30, 20.4, 4.94, 19.04)
+      ..quadraticBezierTo(3.58, 17.68, 2.77, 15.84)
+      ..quadraticBezierTo(1.98, 14.0, 1.98, 11.9)
+      ..quadraticBezierTo(1.98, 8.25, 4.30, 5.46)
+      ..quadraticBezierTo(6.62, 2.67, 10.22, 2.0)
+      ..quadraticBezierTo(9.78, 4.47, 10.50, 6.84)
+      ..quadraticBezierTo(11.22, 9.20, 13.00, 10.97)
+      ..quadraticBezierTo(14.78, 12.75, 17.14, 13.47)
+      ..quadraticBezierTo(19.50, 14.2, 21.98, 13.75)
+      ..quadraticBezierTo(21.32, 17.35, 18.52, 19.68)
+      ..quadraticBezierTo(15.72, 22.0, 12.07, 22.0)
+      ..close()
+      // Crescent Moon Inner Cutout (Hollow outline)
+      ..moveTo(12.07, 20.0)
+      ..quadraticBezierTo(14.28, 20.0, 16.15, 18.9)
+      ..quadraticBezierTo(18.02, 17.8, 19.10, 15.88)
+      ..quadraticBezierTo(16.95, 15.68, 15.03, 14.79)
+      ..quadraticBezierTo(13.10, 13.9, 11.57, 12.38)
+      ..quadraticBezierTo(10.05, 10.85, 9.15, 8.93)
+      ..quadraticBezierTo(8.25, 7.0, 8.07, 4.85)
+      ..quadraticBezierTo(6.15, 5.92, 5.06, 7.81)
+      ..quadraticBezierTo(3.98, 9.7, 3.98, 11.9)
+      ..quadraticBezierTo(3.98, 15.28, 6.34, 17.64)
+      ..quadraticBezierTo(8.70, 20.0, 12.07, 20.0)
       ..close();
-    canvas.drawPath(crescent, fill);
 
-    // Primary celestial sparkle star in upper night sky
-    _drawStar(canvas, fill, 17.2, 6.2, 2.6);
-
-    // Secondary sparkle star in mid night sky
-    _drawStar(canvas, fill, 14.5, 12.8, 1.8);
-
-    // Tertiary subtle sparkle star in lower night sky
-    _drawStar(canvas, fill, 18.0, 17.5, 1.4);
+    canvas.drawPath(path, fill);
   }
 
   /// 7. RAKAAT COUNTER: Sacred Turbah (sajdah stone) with count pulse rings.
@@ -545,24 +573,6 @@ class _HomeGlyphPainter extends CustomPainter {
     }
   }
 
-  /// Four-pointed sparkle star.
-  static void _drawStar(
-    Canvas canvas,
-    Paint fill,
-    double cx,
-    double cy,
-    double r,
-  ) {
-    final i = r * 0.36;
-    final path = Path()
-      ..moveTo(cx, cy - r)
-      ..quadraticBezierTo(cx + i * 0.6, cy - i * 0.6, cx + r, cy)
-      ..quadraticBezierTo(cx + i * 0.6, cy + i * 0.6, cx, cy + r)
-      ..quadraticBezierTo(cx - i * 0.6, cy + i * 0.6, cx - r, cy)
-      ..quadraticBezierTo(cx - i * 0.6, cy - i * 0.6, cx, cy - r)
-      ..close();
-    canvas.drawPath(path, fill);
-  }
 
 
   /// Arc helper.
