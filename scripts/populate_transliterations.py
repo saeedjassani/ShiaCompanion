@@ -53,12 +53,16 @@ CONSONANTS = {
     'ى': 'AA', 'ة': 'T', 'آ': 'AA', 'أ': 'A', 'إ': 'E', 'ا': 'A'
 }
 
-# Urdu/Farsi letterforms that appear in this corpus but aren't in CONSONANTS.
-# Left unmapped, the rule-based engine silently drops them instead of erroring
-# (e.g. 'عَلَیْکُمْ' -> 'A’ALAM' instead of 'A’LAYKUM') rather than transliterating
-# them. Normalize to their standard-Arabic equivalents up front so both the
-# lexicon lookup and the rule engine see a letter they recognize.
-URDU_FARSI_LETTERFORMS = {
+# Letterform variants (Urdu/Farsi glyphs, and distinct Unicode codepoints for
+# standard Quranic orthography marks) that appear in this corpus but aren't in
+# CONSONANTS. Left unmapped, the rule-based engine silently drops them instead
+# of erroring - e.g. 'عَلَیْکُمْ' -> 'A’ALAM' instead of 'A’LAYKUM' (Urdu yeh/kaf),
+# or 'ٱلْجَنَّةِ' -> 'LJANATE' instead of 'AL-JANNATE' (alef wasla - some surahs'
+# Arabic source used the dedicated hamzat-al-wasl codepoint U+0671 instead of
+# plain alef U+0627 for the elidable "the"). Normalize to their standard-Arabic
+# equivalents up front so both the lexicon lookup and the rule engine see a
+# letter they recognize.
+LETTERFORM_VARIANTS = {
     'ی': 'ي',  # FARSI YEH -> ARABIC YEH
     'ک': 'ك',  # KEHEH -> ARABIC KAF
     'ڪ': 'ك',  # SWASH KAF -> ARABIC KAF
@@ -67,11 +71,12 @@ URDU_FARSI_LETTERFORMS = {
     'ے': 'ي',  # YEH BARREE -> ARABIC YEH
     'ٴ': 'ء',  # HIGH HAMZA -> ARABIC HAMZA (already maps to '')
     'ﺎ': 'ا',  # ARABIC PRESENTATION FORM ALEF -> ARABIC ALEF
+    'ٱ': 'ا',  # ALEF WASLA (hamzat al-wasl) -> plain ARABIC ALEF
 }
 
 def normalize_letterforms(s):
-    """Map Urdu/Farsi letterform variants to their standard-Arabic equivalents."""
-    for src, dst in URDU_FARSI_LETTERFORMS.items():
+    """Map letterform variants to their standard-Arabic equivalents."""
+    for src, dst in LETTERFORM_VARIANTS.items():
         s = s.replace(src, dst)
     return s
 
@@ -280,13 +285,29 @@ def transliterate_word(raw_token, next_norm_token=None):
 
     return rule_based_word(norm)
 
+# Vowel marks and other combining diacritics stripped for the Bismillah
+# check below - different Arabic sources spell the same word with different
+# (equally valid) diacritic conventions, e.g. shadda+fatha vs shadda+dagger-
+# alif both spelling "Allah". An exact literal-string match against a fixed
+# list of variants missed the Uthmani-script surahs (57, 68), which spell
+# the whole phrase with a different diacritic style and fell through to the
+# general per-word engine - inconsistent with the fixed rendering every
+# other surah's Bismillah gets. Comparing consonant skeletons instead is
+# robust to any vowel-marking convention.
+_VOWEL_MARKS = set('\u064B\u064C\u064D\u064E\u064F\u0650\u0651\u0652\u0670')
+
+def _consonant_skeleton(s):
+    return ''.join(ch for ch in s if ch not in _VOWEL_MARKS)
+
+BISMILLAH_SKELETON = _consonant_skeleton('بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ')
+
 def transliterate_verse(ar_text):
     """Full verse transliteration adhering to ShiaCompanion phonetics and user feedback."""
     cleaned = clean_arabic_verse(ar_text)
     if not cleaned:
         return ""
 
-    if cleaned in ('بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ', 'بِسۡمِ اللهِ الرَّحۡمٰنِ الرَّحِيۡمِ', 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ'):
+    if _consonant_skeleton(cleaned) == BISMILLAH_SKELETON:
         return "BISMIL LAAHIR RAHMAANIR RAHEEM"
 
     tokens = cleaned.split()
