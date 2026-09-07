@@ -132,6 +132,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Library',
+    glyphType: HomeGlyphType.library,
     icon: Icons.local_library_rounded,
     pageBuilder: () => Scaffold(
       appBar: AppBar(title: Text('Library')),

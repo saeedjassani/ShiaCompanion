@@ -33,6 +33,9 @@ enum HomeGlyphType {
 
   /// The Holy Shrine of Ahlulbayt with golden dome, minarets, and the waving Alam.
   ziyaraat,
+
+  /// Three library volumes on a shelf plinth with the right tome resting against the centerpiece.
+  library,
 }
 
 /// A custom-drawn vector glyph for the home screen grid, built from a shared
@@ -120,6 +123,8 @@ class _HomeGlyphPainter extends CustomPainter {
         _paintTodaysRecitations(canvas, strokePaint, detailPaint, fillPaint);
       case HomeGlyphType.ziyaraat:
         _paintZiyaraat(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.library:
+        _paintLibrary(canvas, strokePaint, detailPaint, fillPaint);
     }
 
     canvas.restore();
@@ -588,9 +593,51 @@ class _HomeGlyphPainter extends CustomPainter {
     }
   }
 
+  /// 11. LIBRARY: Three library volumes on a shelf plinth with the right tome resting against the centerpiece.
+  void _paintLibrary(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    // Shelf baseline plinth
+    canvas.drawLine(const Offset(2.2, 21.0), const Offset(21.8, 21.0), stroke);
 
+    // Book 1 (Left upright volume)
+    final book1 = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(3.6, 6.8, 4.0, 14.2),
+      const Radius.circular(1.0),
+    );
+    canvas.drawRRect(book1, stroke);
+    canvas.drawLine(const Offset(3.6, 10.0), const Offset(7.6, 10.0), detail);
+    canvas.drawLine(const Offset(3.6, 17.6), const Offset(7.6, 17.6), detail);
 
+    // Book 2 (Middle upright volume, centerpiece)
+    final book2 = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(8.6, 3.6, 4.2, 17.4),
+      const Radius.circular(1.0),
+    );
+    canvas.drawRRect(book2, stroke);
+    canvas.drawLine(const Offset(8.6, 7.2), const Offset(12.8, 7.2), detail);
+    canvas.drawLine(const Offset(8.6, 17.6), const Offset(12.8, 17.6), detail);
 
+    // Book 3 (Right volume: rotated counter-clockwise by -15.5° to lean left against Book 2)
+    const pivotX = 16.6;
+    canvas.save();
+    canvas.translate(pivotX, 21.0);
+    canvas.rotate(-15.5 * math.pi / 180.0);
+    canvas.translate(-pivotX, -21.0);
+
+    final book3 = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(pivotX, 6.8, 4.0, 14.2),
+      const Radius.circular(1.0),
+    );
+    canvas.drawRRect(book3, stroke);
+    canvas.drawLine(const Offset(pivotX, 10.0), const Offset(pivotX + 4.0, 10.0), detail);
+    canvas.drawLine(const Offset(pivotX, 17.6), const Offset(pivotX + 4.0, 17.6), detail);
+
+    canvas.restore();
+  }
 
   @override
   bool shouldRepaint(covariant _HomeGlyphPainter oldDelegate) {
