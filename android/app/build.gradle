@@ -84,10 +84,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             // Obfuscated frames would make every release crash report
-            // unreadable, so state the upload rather than leaning on the
-            // plugin's default staying true.
+            // unreadable, so the mapping file still gets uploaded - just not
+            // as part of this task graph. mappingFileUploadEnabled true wires
+            // uploadCrashlyticsMappingFileRelease as a dependency of assemble/
+            // bundleRelease, so a transient failure talking to Crashlytics'
+            // ingest endpoint (seen on Codemagic: "503 Service Unavailable")
+            // fails the whole release build over a step that has nothing to
+            // do with producing the APK/AAB. false only stops that automatic
+            // wiring; the task itself is still registered and gets run
+            // explicitly, with retries, by
+            // android/scripts/upload_crashlytics_mapping_with_retry.sh as a
+            // separate CI step after the build succeeds.
             firebaseCrashlytics {
-                mappingFileUploadEnabled true
+                mappingFileUploadEnabled false
             }
         }
         debug {
