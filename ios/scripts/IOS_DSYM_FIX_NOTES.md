@@ -84,6 +84,30 @@ Codemagic UI change is required for the primary fix. The standalone script
 above is an optional extra safety net you can wire in if you want a second,
 independent upload path.
 
+## Follow-up: the same missing timeout then hung a real Codemagic archive
+
+The `ACTION=install` guard above was correct but incomplete: it only skips
+the *non-archive* case. Codemagic's `flutter build ipa` does run a real
+archive (`xcodebuild archive`, `ACTION=install`), so the guard deliberately
+lets this phase through there — and it hit the exact same underlying bug:
+`upload-symbols` has no timeout of its own. On Codemagic the build log
+showed `Running Xcode build...` and then nothing else until the whole CI
+job was cancelled for exceeding its time limit, with no indication of which
+build phase was actually stuck.
+
+Fix: both `upload-symbols` invocations (`--build-phase --validate` and
+`--build-phase`) are now wrapped in a small `run_with_timeout` helper (POSIX
+`sh`, no dependency on GNU `timeout`/`gtimeout` which isn't guaranteed to be
+on a macOS runner) that backgrounds the call and force-kills it after
+`UPLOAD_SYMBOLS_TIMEOUT` (180s) if it hasn't returned. A kill shows up as
+exit status 137 (128 + SIGKILL); the validate step treats that specifically
+as "network problem, not a config problem" and warns + skips the upload
+rather than failing the whole archive, while a genuine (non-timeout)
+validate failure still fails the build as before. The real upload call was
+already non-fatal on failure and stays that way — a timeout there now just
+falls into the same "warning, use the fallback script" branch instead of
+hanging forever.
+
 ## Verification performed
 
 - `xcodebuild -showBuildSettings` confirmed dSYM generation and script
