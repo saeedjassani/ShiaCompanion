@@ -42,9 +42,8 @@ decoupled the mapping upload from the task graph that produces the
 APK/AAB:
 
 - `android/app/build.gradle`: `mappingFileUploadEnabled` is now `false`.
-  This only stops AGP from auto-wiring `uploadCrashlyticsMappingFileRelease`
-  into `assembleRelease`/`bundleRelease` - the task itself is still
-  registered and runnable on its own.
+  This stops AGP from auto-wiring `uploadCrashlyticsMappingFileRelease`
+  into `assembleRelease`/`bundleRelease`.
 - `android/scripts/upload_crashlytics_mapping_with_retry.sh`: runs
   `./gradlew uploadCrashlyticsMappingFileRelease` after the app has already
   built, retrying with backoff (4 attempts, 10s/20s/40s) before failing.
@@ -52,6 +51,46 @@ APK/AAB:
 This means an occasional 503 no longer fails the build that produces the
 release artifact; it only delays (and, on the flaky-only case, eventually
 resolves) the separate mapping upload.
+
+## Follow-up: `mappingFileUploadEnabled false` also deregisters the task
+
+Confirmed against a real Codemagic run: the assumption above that
+"`mappingFileUploadEnabled false` only stops the automatic wiring; the task
+itself is still registered and runnable on its own" was wrong for the
+Crashlytics Gradle plugin version this project uses (`3.0.7`). With it
+`false`, running the upload script's own separate
+`./gradlew uploadCrashlyticsMappingFileRelease` failed immediately with:
+
+```
+Task 'uploadCrashlyticsMappingFileRelease' not found in root project 'android' and its subprojects.
+```
+
+i.e. the task isn't just excluded from `assembleRelease`'s dependencies -
+it's never registered on the project at all when the flag is `false`, so
+there was nothing left for the retry script to invoke after the main build
+finished. That's a real regression this fix's original design didn't
+anticipate: builds since it landed never actually re-attempted the mapping
+upload; they just skipped it silently.
+
+`android/app/build.gradle` now reads `mappingFileUploadEnabled` from a
+project property instead of a hardcoded `false`:
+
+```groovy
+firebaseCrashlytics {
+    mappingFileUploadEnabled project.hasProperty('enableCrashlyticsMappingUpload') &&
+        project.property('enableCrashlyticsMappingUpload').toString().toBoolean()
+}
+```
+
+With no property passed (the normal `flutter build` / `./gradlew
+assembleRelease` / `./gradlew bundleRelease` invocation, on Codemagic or
+anywhere else), this still resolves to `false` exactly as before - the task
+still doesn't exist, and the release build is still never blocked by
+Crashlytics. `upload_crashlytics_mapping_with_retry.sh` now passes
+`-PenableCrashlyticsMappingUpload=true` on its own, separate `./gradlew
+uploadCrashlyticsMappingFileRelease` invocation only, which flips the flag
+to `true` for that one process - so the task actually gets registered
+there, and the script's retries have something to run.
 
 ## Codemagic change still needed (not made here)
 
@@ -83,6 +122,18 @@ those releases will show obfuscated frames.
   `uploadCrashlyticsMappingFileRelease` has succeeded on every CI run since
   32c21f5, using the same `google-services.json` and Gradle config as
   Codemagic - supporting a transient/CI-environment cause over a config bug.
+- The exact "Task ... not found" failure was reproduced from a real
+  Codemagic run log (see the follow-up section above), which is what
+  surfaced the `mappingFileUploadEnabled false` deregistration bug in the
+  first place.
+- The `project.hasProperty(...) && project.property(...).toString().toBoolean()`
+  conditional was verified against a standalone Gradle build file with a
+  stand-in `firebaseCrashlytics {}` extension (same shape as the real one):
+  confirmed it resolves to `false` with no property passed, `true` with
+  `-PenableCrashlyticsMappingUpload=true`, and `false` with
+  `-PenableCrashlyticsMappingUpload=false` - all as intended. The real
+  Firebase Crashlytics Gradle plugin extension wasn't available to test
+  against directly in this environment.
 - Not verified: an actual end-to-end retry against a live 503 from
   Crashlytics (needs the failure to reproduce with network credentials this
   environment doesn't have). The next Codemagic release build - and whether

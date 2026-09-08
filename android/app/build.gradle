@@ -90,13 +90,26 @@ android {
             // bundleRelease, so a transient failure talking to Crashlytics'
             // ingest endpoint (seen on Codemagic: "503 Service Unavailable")
             // fails the whole release build over a step that has nothing to
-            // do with producing the APK/AAB. false only stops that automatic
-            // wiring; the task itself is still registered and gets run
-            // explicitly, with retries, by
-            // android/scripts/upload_crashlytics_mapping_with_retry.sh as a
-            // separate CI step after the build succeeds.
+            // do with producing the APK/AAB.
+            //
+            // Confirmed the hard way: mappingFileUploadEnabled false does NOT
+            // just skip that automatic wiring - with this plugin version it
+            // stops uploadCrashlyticsMappingFileRelease from being registered
+            // at all ("Task 'uploadCrashlyticsMappingFileRelease' not found
+            // in root project 'android' and its subprojects"), so there was
+            // no task left for
+            // android/scripts/upload_crashlytics_mapping_with_retry.sh to run
+            // on its own afterwards. Gating on a project property instead:
+            // the default (no property passed) keeps it false so the normal
+            // `flutter build` step Codemagic/CI runs is never blocked by
+            // Crashlytics. Passing -PenableCrashlyticsMappingUpload=true -
+            // which only the retry script's own, separate `./gradlew
+            // uploadCrashlyticsMappingFileRelease` invocation does - flips it
+            // to true for just that invocation, so the task actually exists
+            // to run (with retries) after the build has already succeeded.
             firebaseCrashlytics {
-                mappingFileUploadEnabled false
+                mappingFileUploadEnabled project.hasProperty('enableCrashlyticsMappingUpload') &&
+                    project.property('enableCrashlyticsMappingUpload').toString().toBoolean()
             }
         }
         debug {
