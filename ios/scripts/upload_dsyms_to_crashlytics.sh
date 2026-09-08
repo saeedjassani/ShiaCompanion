@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
 # Upload every dSYM produced by an iOS release build to Firebase Crashlytics,
-# synchronously, failing loudly if anything goes wrong.
+# synchronously, retrying on failure, so a transient hiccup talking to
+# Crashlytics doesn't leave a release permanently missing its dSYMs.
 #
 # WHY THIS EXISTS
 # ---------------
@@ -17,21 +18,38 @@
 # and nothing is logged, which is exactly the "Missing dSYM" email arriving for
 # every single release.
 #
-# Run this AFTER the archive step instead. It uploads in the foreground and
-# returns non-zero if the upload fails.
+# The in-archive build phase (ios/Runner.xcodeproj's "Upload Crashlytics
+# dSYMs" phase) already fixes that by uploading in the foreground - but it
+# has also been observed timing out against Crashlytics' endpoint from CI
+# (see IOS_DSYM_FIX_NOTES.md), and it only gets one bounded attempt before
+# it gives up and warns rather than failing the archive. This script is the
+# second, independent attempt: run it AFTER the archive step so a dSYM that
+# the in-archive phase warned about (rather than uploaded) still has a real
+# chance of reaching Crashlytics, with retries this time.
 #
 # USAGE (from the repo root)
 #   ios/scripts/upload_dsyms_to_crashlytics.sh [path/to/Runner.xcarchive | path/to/dSYMs]
 #
 # With no argument it looks for the archive that `flutter build ipa` produces at
-# build/ios/archive/*.xcarchive. On Codemagic add it as a post-build script:
-#   sh "$CM_BUILD_DIR/ios/scripts/upload_dsyms_to_crashlytics.sh"
+# build/ios/archive/*.xcarchive.
+#
+# This project configures Codemagic through the Workflow Editor UI rather
+# than a codemagic.yaml, so add this as a Script step in the iOS workflow,
+# directly after the existing `flutter build ipa` step:
+#   Name:   Upload dSYMs to Crashlytics
+#   Script: sh "$CM_BUILD_DIR/ios/scripts/upload_dsyms_to_crashlytics.sh"
+#
+# It only needs the archive to already exist - it doesn't depend on signing
+# or publishing having run first, so it's safe to place right after the
+# build step regardless of what comes later in the workflow.
 
 set -euo pipefail
 
 REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 UPLOAD_SYMBOLS="${UPLOAD_SYMBOLS:-$REPO_ROOT/ios/Pods/FirebaseCrashlytics/upload-symbols}"
 GOOGLE_SERVICE_PLIST="${GOOGLE_SERVICE_PLIST:-$REPO_ROOT/ios/Runner/GoogleService-Info.plist}"
+MAX_ATTEMPTS="${MAX_ATTEMPTS:-4}"
+INITIAL_DELAY_SECONDS="${INITIAL_DELAY_SECONDS:-10}"
 
 if [[ ! -x "$UPLOAD_SYMBOLS" ]]; then
   echo "error: upload-symbols not found at $UPLOAD_SYMBOLS." >&2
@@ -85,10 +103,28 @@ for dsym in "${DSYMS[@]}"; do
   dwarfdump --uuid "$dsym" 2>/dev/null | sed 's/^/      /' || true
 done
 
-echo "==> Uploading to Crashlytics (synchronous)..."
-"$UPLOAD_SYMBOLS" \
-  --google-service-plist "$GOOGLE_SERVICE_PLIST" \
-  --platform ios \
-  -- "${DSYMS[@]}"
+delay="$INITIAL_DELAY_SECONDS"
+attempt=1
+while true; do
+  echo "==> Uploading to Crashlytics (attempt $attempt/$MAX_ATTEMPTS, synchronous)..."
+  if "$UPLOAD_SYMBOLS" \
+    --google-service-plist "$GOOGLE_SERVICE_PLIST" \
+    --platform ios \
+    -- "${DSYMS[@]}"; then
+    echo "==> Crashlytics dSYM upload finished for ${#DSYMS[@]} bundle(s)."
+    exit 0
+  fi
 
-echo "==> Crashlytics dSYM upload finished for ${#DSYMS[@]} bundle(s)."
+  if [[ "$attempt" -ge "$MAX_ATTEMPTS" ]]; then
+    echo "error: dSYM upload failed after $MAX_ATTEMPTS attempts." >&2
+    echo "       Crash reports for this build will show as 'Missing dSYM' until" >&2
+    echo "       this is uploaded (re-run this script once network access to" >&2
+    echo "       Crashlytics is confirmed working)." >&2
+    exit 1
+  fi
+
+  echo "==> Upload failed, retrying in ${delay}s..."
+  sleep "$delay"
+  delay=$((delay * 2))
+  attempt=$((attempt + 1))
+done
