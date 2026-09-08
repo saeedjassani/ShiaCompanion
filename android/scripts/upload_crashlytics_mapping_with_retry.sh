@@ -31,9 +31,11 @@
 # USAGE (from the repo root)
 #   android/scripts/upload_crashlytics_mapping_with_retry.sh
 #
-# On Codemagic, add it as a step *after* the Android build step:
-#   - name: Upload Crashlytics mapping file
-#     script: sh "$CM_BUILD_DIR/android/scripts/upload_crashlytics_mapping_with_retry.sh"
+# This project configures Codemagic through the Workflow Editor UI rather
+# than a codemagic.yaml, so add this as a Script step in the Android
+# workflow, directly after the existing build step:
+#   Name:   Upload Crashlytics mapping file
+#   Script: sh "$CM_BUILD_DIR/android/scripts/upload_crashlytics_mapping_with_retry.sh"
 
 set -euo pipefail
 

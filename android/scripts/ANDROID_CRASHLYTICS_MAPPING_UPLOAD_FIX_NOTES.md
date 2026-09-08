@@ -55,15 +55,21 @@ resolves) the separate mapping upload.
 
 ## Codemagic change still needed (not made here)
 
-This script isn't wired into Codemagic's build automatically - Codemagic's
-build steps live in its own dashboard config, not in this repo (there's no
-`codemagic.yaml` here; see the badge in `README.md` for the app itself).
-Add a step **after** the existing Android build step:
+This script isn't wired into Codemagic's build automatically. This project
+configures its workflow through Codemagic's Workflow Editor UI, not a
+`codemagic.yaml` in the repo (see the badge in `README.md` for the app
+itself). In the Workflow Editor, on the Android workflow, add a **Script**
+step directly **after** the existing Flutter/Android build step:
 
-```yaml
-- name: Upload Crashlytics mapping file
-  script: sh "$CM_BUILD_DIR/android/scripts/upload_crashlytics_mapping_with_retry.sh"
-```
+- **Name**: `Upload Crashlytics mapping file`
+- **Script**:
+  ```sh
+  sh "$CM_BUILD_DIR/android/scripts/upload_crashlytics_mapping_with_retry.sh"
+  ```
+
+It only needs the build step to have already succeeded - it doesn't depend
+on signing or publishing having run first, so it's safe to place right
+after the build step regardless of what comes later in the workflow.
 
 Until that step is added, release builds on Codemagic will produce a valid
 APK/AAB but won't upload the mapping file at all, so crash reports for
