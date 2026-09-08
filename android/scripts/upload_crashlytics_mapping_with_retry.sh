@@ -22,11 +22,25 @@
 # GitHub Actions' CI, so the fix is not to change what gets uploaded but to
 # stop a flaky upload from blocking the build that produces the APK/AAB.
 #
-# mappingFileUploadEnabled is now false, which only stops AGP from wiring
-# the task in automatically - uploadCrashlyticsMappingFileRelease is still
-# registered and can be run on its own. This script runs it after the app
-# has already built successfully, with retries, so an occasional 503 costs
-# a few extra seconds instead of a failed build.
+# mappingFileUploadEnabled defaults to false (build.gradle), which was
+# meant to only stop AGP from wiring the task in automatically - but with
+# the Crashlytics Gradle plugin version this project uses, disabling it
+# stops uploadCrashlyticsMappingFileRelease from being *registered* at all:
+#
+#   Task 'uploadCrashlyticsMappingFileRelease' not found in root project
+#   'android' and its subprojects.
+#
+# So this script cannot just run that task name against the default
+# config - it has to flip mappingFileUploadEnabled back to true for its own
+# invocation only, via the enableCrashlyticsMappingUpload project property
+# build.gradle reads. Passing it here doesn't affect anyone else's build:
+# nothing else in CI or locally sets that property, so `flutter build` and
+# any plain `./gradlew assembleRelease`/`bundleRelease` still see the
+# property absent, mappingFileUploadEnabled still false, and the task still
+# never gets wired into (or able to fail) the build that produces the
+# APK/AAB. This script runs after that build has already succeeded, with
+# retries, so an occasional 503 costs a few extra seconds instead of a
+# failed build.
 #
 # USAGE (from the repo root)
 #   android/scripts/upload_crashlytics_mapping_with_retry.sh
@@ -54,7 +68,7 @@ delay="$INITIAL_DELAY_SECONDS"
 attempt=1
 while true; do
   echo "==> Uploading Crashlytics mapping file (attempt $attempt/$MAX_ATTEMPTS)..."
-  if ./gradlew uploadCrashlyticsMappingFileRelease; then
+  if ./gradlew uploadCrashlyticsMappingFileRelease -PenableCrashlyticsMappingUpload=true; then
     echo "==> Crashlytics mapping file uploaded."
     exit 0
   fi
