@@ -1066,6 +1066,10 @@
     "title": "Dua Tawassul",
     "slug": "dua-tawassul-2"
   },
+  "E25": {
+    "title": "Another Dua Tawassul",
+    "slug": "another-dua-tawassul"
+  },
   "E26": {
     "title": "Dua Simat",
     "slug": "dua-simat",
@@ -1173,6 +1177,10 @@
   "E46": {
     "title": "Dua for Istekhaarah fom Holy Quran",
     "slug": "dua-for-istikharah-fom-holy-quran"
+  },
+  "E47": {
+    "title": "Dua for Longevity",
+    "slug": "dua-for-longevity"
   },
   "E49": {
     "title": "Dua for Pardoning of sins",
@@ -1288,6 +1296,10 @@
   "E96": {
     "title": "Dua for Solving Difficulties",
     "slug": "dua-for-solving-difficulties"
+  },
+  "F10": {
+    "title": "Namaz e Maghferat e Waaledain",
+    "slug": "namaz-e-maghferat-e-waaledain"
   },
   "F11": {
     "title": "Namaz of Jafar-e-Tayyaar",
@@ -1764,6 +1776,10 @@
   "I11": {
     "title": "Rosary made of the turbat of Imam al-Husayn (a.s.)",
     "slug": "rosary-made-of-the-turbat-of-imam-husayn-a-s"
+  },
+  "I12": {
+    "title": "Merits of reciting Ayah Kursi (2: 255), Ayah Al Shahadah, Ayah Al Mulk after every Namaz",
+    "slug": "merits-of-reciting-ayah-kursi-ayah-al-shahadah-ayah-al-mulk-after-every-namaz"
   },
   "I14": {
     "title": "General Ta'qeebaat-2",
