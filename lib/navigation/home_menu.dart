@@ -166,7 +166,21 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
 ]);
 
-/// Menu entries only an admin sees. Kept out of [homeMenuItems] so the grid
+/// The Quran revamp's entry point (ayah browsing, juz reading, saved verses,
+/// resume). Dark-launched: for now this *replaces* 'Surahs' in
+/// [visibleHomeMenuItems], but only for an admin, rather than shipping to
+/// every user the moment this lands on master. Once it is ready for
+/// everyone, fold it into [homeMenuItems] in place of 'Surahs' directly (see
+/// ZikrPage._surahNumber and DeepLinkResolver.resolveQuranDestination for the
+/// other two gates that need lifting alongside it).
+final HomeMenuItem quranMenuItem = HomeMenuItem(
+  label: 'Quran',
+  icon: Icons.menu_book_rounded,
+  pageBuilder: () => const QuranPage(),
+);
+
+/// Menu entries only an admin sees, added on top of the regular grid rather
+/// than replacing anything in it. Kept out of [homeMenuItems] so the grid
 /// every user gets stays a compile-time constant, and so admin state — which
 /// arrives after the session refresh, not at startup — is read at build time.
 final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
@@ -176,28 +190,27 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
     pageBuilder: () => const UsageDashboardPage(),
     countsAsFeatureUse: false,
   ),
-  // The Quran revamp (ayah browsing, juz reading, saved verses, resume) is
-  // dark-launched: it sits behind the same admin gate as the usage
-  // dashboard rather than replacing 'Surahs' above, so it ships to master
-  // without going out to every user. Once it is ready for everyone, fold
-  // this into homeMenuItems in place of 'Surahs' (see
-  // ZikrPage._surahNumber and DeepLinkResolver.resolveQuranDestination for
-  // the other two gates that need lifting alongside it).
-  HomeMenuItem(
-    label: 'Quran',
-    icon: Icons.menu_book_rounded,
-    pageBuilder: () => const QuranPage(),
-  ),
 ]);
 
-/// Every menu screen there is, admin-gated ones included, so the render test
-/// covers an admin entry the same day it is added.
-final List<HomeMenuItem> allHomeMenuItems =
-    List.unmodifiable([...homeMenuItems, ...adminHomeMenuItems]);
+/// Every menu screen there is, dark-launched and admin-gated ones included,
+/// so the render test covers a new entry the same day it is added — even one
+/// like Quran that never appears in [visibleHomeMenuItems] side by side with
+/// the item it replaces there.
+final List<HomeMenuItem> allHomeMenuItems = List.unmodifiable(
+  [...homeMenuItems, quranMenuItem, ...adminHomeMenuItems],
+);
 
 /// What the home grid shows right now, which depends on who is signed in.
-List<HomeMenuItem> get visibleHomeMenuItems =>
-    isUserAdmin ? allHomeMenuItems : homeMenuItems;
+/// An admin sees 'Surahs' replaced by the dark-launched Quran screen, plus
+/// admin-only tools appended after; everyone else gets the plain grid.
+List<HomeMenuItem> get visibleHomeMenuItems {
+  if (!isUserAdmin) return homeMenuItems;
+  return List.unmodifiable([
+    for (final item in homeMenuItems)
+      if (item.label == 'Surahs') quranMenuItem else item,
+    ...adminHomeMenuItems,
+  ]);
+}
 
 HomeMenuItem? getHomeMenuItem(String label) {
   for (final item in homeMenuItems) {
