@@ -487,6 +487,10 @@
     "title": "Dua e Sahar يَامَفْزَعِيْ عِنْدَ كُرْبَتِي",
     "slug": "dua-e-sahar"
   },
+  "AA15": {
+    "title": "Aamal & Duas to be recited in every night of Ramadhan",
+    "slug": "aamal-duas-to-be-recited-in-every-night-of-ramadhan"
+  },
   "AA16": {
     "title": "Aamal-e-Sahar in the Holy Month of Ramazan",
     "slug": "aamal-e-sahar-in-the-holy-month-of-ramazan",
@@ -1595,6 +1599,10 @@
     "title": "Ziyarat-e-Imam Husain (a.s.) on the Day of Arafah",
     "slug": "ziyarat-e-imam-husain-a-s-on-the-day-of-arafah",
     "day": "12-09"
+  },
+  "G76": {
+    "title": "Ziyarat After Namaz",
+    "slug": "ziyarat-after-namaz"
   },
   "G78": {
     "title": "Ziyarat of H. Masooma-e-Qum (s.a.)",
