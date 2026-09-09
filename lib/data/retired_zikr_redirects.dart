@@ -39,4 +39,16 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'E106': RetiredZikrRedirect('I9', tabIndex: 2),
   'E151': RetiredZikrRedirect('I21', tabIndex: 1),
   'I16': RetiredZikrRedirect('I14', tabIndex: 0),
+
+  /// Found during the top-20 favorited-missing-zikr restoration pass: E53's
+  /// old content ("Ya 'Imada man la 'Imada lahu...", from al-Khisal, taught
+  /// to Imam Ali by the Prophet) is the same nineteen-phrase supplication
+  /// E38 already carries in full (from Kaf'ami's al-Balad al-Ameen, plus a
+  /// bonus dua from Imam al-Jawad) - restoring it standalone would just
+  /// duplicate E38. Several other live entries (E27 Dua Mashlool, E29
+  /// Jawshan al-Kabeer, E96 Dua for Solving Difficulties, R1) quote the same
+  /// "Ya 'imada man la 'imada lahu..." opening formula as part of otherwise
+  /// distinct content - checked side by side and kept standalone, per the
+  /// false-positive warning in RESTORING_MISSING_ZIKRS.md Step 1.5.
+  'E53': RetiredZikrRedirect('E38'),
 };
