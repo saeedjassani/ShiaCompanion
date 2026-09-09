@@ -275,8 +275,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // A portion spans surahs, so it has no single surah of its own; its index
     // carries one per verse instead.
     isAdmin = isUserAdmin && widget.portion == null;
-    _surahNumber =
-        widget.portion == null ? surahForUid(widget.item.getFirstUId()) : null;
+    // The Quran revamp (ayah-grouped reading, verse links, resume) is
+    // dark-launched behind the admin flag: everyone else keeps the flat,
+    // line-per-row rendering every zikr — surahs included — has always had.
+    // See home_menu.dart's adminHomeMenuItems and
+    // DeepLinkResolver.resolveQuranDestination for the other two gates this
+    // one is paired with.
+    _surahNumber = (!isUserAdmin || widget.portion != null)
+        ? null
+        : surahForUid(widget.item.getFirstUId());
     _counterSessionId = widget.item.getFirstUId();
     final counterState =
         ZikrCounterSessionStore.instance.read(_counterSessionId);

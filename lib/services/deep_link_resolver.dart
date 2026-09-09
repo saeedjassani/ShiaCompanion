@@ -80,9 +80,17 @@ class DeepLinkResolver {
   ///
   /// This is where range is decided - the link parser only checks shape - so
   /// `2/300` clamps to al-Baqarah's last verse and `115/1` resolves to nothing.
+  ///
+  /// Dark-launch gate: the Quran screen, and juz reading in particular, only
+  /// exist for admins right now (see home_menu.dart's adminHomeMenuItems and
+  /// ZikrPage._surahNumber), so a `/quran/...` link resolves to nothing for
+  /// everyone else and lands on the same not-found page an unrecognised link
+  /// would. Lift this once the feature is ready for every user.
   static QuranDeepLinkDestination? resolveQuranDestination(
     DeepLinkTarget target,
   ) {
+    if (!isUserAdmin) return null;
+
     final segments = target.segments;
     if (segments.isEmpty) {
       return const QuranDeepLinkDestination.home();
