@@ -56,6 +56,12 @@ const LUNAR_DATES = {
   G55: '08-11', // Ali Akbar - birth 11 Sha'ban
   G56: '08-07', // Shohadaa-e-Karbala (collective) - linked from Qasim ibn-e-Hasan's birth, 7 Sha'ban; no dedicated Qasim ziyarat exists
   G57: '08-04', // Hazrat Abbas - birth 4 Sha'ban
+  // G7-G9: alternate ziyarat texts for a person already tagged above -
+  // same occasion, different wording.
+  G7: '08-04', // Ziyarat-e-Hazrat Abbas (alternate text) - same occasion as G57
+  G8: ['02-17', '02-29', '11-11', '11-23'], // Ziyarat-e-Imam Reza (alternate text) - same occasions as G68
+  G9: '08-15', // Ziyarat-e-Imam-e-Zamana (alternate text) - same occasion as G72
+  G60: '12-09', // Ziyarate Janabe Muslim ibn Aqeel - martyred 9th Zilhajj (Day of Arafah), per events.json
   G64: ['01-25', '05-15', '08-05'], // Imam Zainul Abideen - martyrdom 25 Muharram, birth (2 riwayat)
   G65: ['07-01', '12-07'], // Imam Mohammad Baqir - birth 1 Rajab, martyrdom 7 Zilhajj
   G66: ['10-25', '03-17'], // Imam Jafar Sadiq - martyrdom 25 Shawwal, birth 17 Rabi al-Awwal (shared with the Prophet's, see G50)
