@@ -172,6 +172,12 @@ which also writes the full machine-readable version (all 274 favorited UIDs,
 including the 10 already retired via `retiredZikrRedirects` — see Step 1.5)
 to [scripts/favorited_missing_zikrs.json](favorited_missing_zikrs.json).
 
+**Progress:** the top 20 rows by distinct users (E92 through AA29, i.e. down
+through and including the two 7-user rows) were restored on 2026-09-09 - all
+19 as standalone `assets/zikr/<uid>` entries except E53, which turned out to
+duplicate the already-live E38 (see `retiredZikrRedirects`) and was retired
+there instead per Step 1.5. Pick up at E113 (6 users) for the next batch.
+
 **As of 2026-09-08:** 483 UIDs are missing from `assets/zikr.json`; of those,
 274 are favorited by at least one real user, across 890 favorite-entries and
 131 distinct users (out of 269 users who have any favorites at all). The
