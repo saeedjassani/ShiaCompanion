@@ -1003,9 +1003,21 @@
     "title": "Dua Yastasheer",
     "slug": "dua-yastasheer"
   },
+  "E115": {
+    "title": "Imam Baqir's (a) dua",
+    "slug": "imam-baqirs-a-dua"
+  },
   "E12": {
     "title": "Dua of Imam Mahdi (a.t.f.s.) اَللّٰهُمَّ ادْفَعْ عَنْ وَلِيِّكَ...",
     "slug": "dua-of-imam-mahdi-a-t-f-s"
+  },
+  "E126": {
+    "title": "Imam al-Mahdi's Supplication",
+    "slug": "imam-al-mahdis-supplication"
+  },
+  "E128": {
+    "title": "Salawat upon the Holy Prophet",
+    "slug": "salawat-upon-the-holy-prophet"
   },
   "E13": {
     "title": "Dua-e-Sayfee Sagheer (Dua Qaamoos)",
@@ -1018,6 +1030,10 @@
   "E14": {
     "title": "Hadees-e-Kisaa",
     "slug": "hadees-e-kisaa"
+  },
+  "E140": {
+    "title": "Salawat upon The Awaited Imam",
+    "slug": "salawat-upon-the-awaited-imam"
   },
   "E143": {
     "title": "Prayer for fulfillment of desires",
@@ -1077,6 +1093,10 @@
   "E22": {
     "title": "Dua-e-Hifz-e-Eemaan رَضِيْتُ بِاللّٰهِ رَبًّا",
     "slug": "dua-e-hifz-e-eemaan"
+  },
+  "E23": {
+    "title": "Dua e Hifz e Imaan (another)",
+    "slug": "dua-e-hifz-e-imaan-another"
   },
   "E24": {
     "title": "Dua Tawassul",
@@ -1222,6 +1242,10 @@
     "title": "Dua for repaying the Debts",
     "slug": "dua-for-repaying-the-debts"
   },
+  "E57": {
+    "title": "Dua for repayment of debts 1",
+    "slug": "dua-for-repayment-of-debts-1"
+  },
   "E58": {
     "title": "Dua for Repelling the Evil of Iblis",
     "slug": "dua-for-repelling-the-evil-of-iblis"
@@ -1364,6 +1388,10 @@
   "F33|K2": {
     "title": "Namaz on Saturdays",
     "slug": "namaz-on-saturdays"
+  },
+  "F46": {
+    "title": "Namaz for Gaining Intelligence and Good Memory",
+    "slug": "namaz-for-gaining-intelligence-and-good-memory"
   },
   "F5": {
     "title": "Namaz-e-Ghofaylah",
@@ -1876,6 +1904,10 @@
   "I5": {
     "title": "Etiquettes of attending Mosques",
     "slug": "etiquettes-of-attending-mosques"
+  },
+  "I52": {
+    "title": "Taweez against Private Parts Pains",
+    "slug": "taweez-against-private-parts-pains"
   },
   "I6": {
     "title": "Pre-Prayer Supplications",
