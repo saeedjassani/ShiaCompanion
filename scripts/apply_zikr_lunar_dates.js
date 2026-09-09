@@ -62,6 +62,7 @@ const LUNAR_DATES = {
   G8: ['02-17', '02-29', '11-11', '11-23'], // Ziyarat-e-Imam Reza (alternate text) - same occasions as G68
   G9: '08-15', // Ziyarat-e-Imam-e-Zamana (alternate text) - same occasion as G72
   G60: '12-09', // Ziyarate Janabe Muslim ibn Aqeel - martyred 9th Zilhajj (Day of Arafah), per events.json
+  G61: '12-09', // Ziyarate Janabe Hani ibn Urwah - executed alongside Muslim ibn Aqeel, same day; not in events.json, per explicit request
   G64: ['01-25', '05-15', '08-05'], // Imam Zainul Abideen - martyrdom 25 Muharram, birth (2 riwayat)
   G65: ['07-01', '12-07'], // Imam Mohammad Baqir - birth 1 Rajab, martyrdom 7 Zilhajj
   G66: ['10-25', '03-17'], // Imam Jafar Sadiq - martyrdom 25 Shawwal, birth 17 Rabi al-Awwal (shared with the Prophet's, see G50)
