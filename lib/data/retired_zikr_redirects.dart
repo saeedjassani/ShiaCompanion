@@ -51,4 +51,12 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// distinct content - checked side by side and kept standalone, per the
   /// false-positive warning in RESTORING_MISSING_ZIKRS.md Step 1.5.
   'E53': RetiredZikrRedirect('E38'),
+
+  /// Found while restoring the per-Imam supplication set: E118's old content
+  /// ("Ya man azharal jameela wa sataral qabeeha...") is word-for-word the
+  /// dua F11 ("Namaz of Jafar-e-Tayyaar") already carries in its first tab
+  /// ("Special Namaz") - taught there by Imam al-Sadiq for a request to be
+  /// granted, rather than as one of the Imams' own supplications. Restoring
+  /// it standalone would just duplicate that tab.
+  'E118': RetiredZikrRedirect('F11', tabIndex: 0),
 };
