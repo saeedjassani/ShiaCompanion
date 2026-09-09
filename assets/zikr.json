@@ -496,6 +496,10 @@
     "slug": "aamal-e-sahar-in-the-holy-month-of-ramazan",
     "day": "09-*"
   },
+  "AA17": {
+    "title": "Tasbeehat at the time of Sehar",
+    "slug": "tasbeehat-at-the-time-of-sehar"
+  },
   "AA19": {
     "title": "Tasbeehat & Salawat for every day in Ramadhan",
     "slug": "tasbeehat-and-salawat-for-every-day-in-ramadhan"
@@ -517,6 +521,10 @@
     "title": "Aamal to be performed only during Night",
     "slug": "aamal-to-be-performed-only-during-night",
     "day": "09-*"
+  },
+  "AA30": {
+    "title": "19th Night of Ramadhan",
+    "slug": "19th-night-of-ramadhan"
   },
   "AA34": {
     "title": "23rd Night of Ramadhan",
@@ -999,6 +1007,10 @@
     "title": "Dua of Imam Husayn (a) on the day of Ashura بِحَقِّ يٰسٓ وَالْقُرْاٰنِ الْحَكِيْمِ",
     "slug": "dua-of-imam-husayn-a-on-the-day-of-ashura"
   },
+  "E105": {
+    "title": "Dua of the Noon (Zuhr)",
+    "slug": "dua-of-the-noon-zuhr"
+  },
   "E107": {
     "title": "Dua taught by Jibrael to the Holy Prophet (s)",
     "slug": "dua-taught-by-jibrael-to-the-holy-prophet-s"
@@ -1006,6 +1018,10 @@
   "E108": {
     "title": "Dua to remember the things that Satan makes you forget",
     "slug": "dua-to-remember-the-things-that-satan-makes-you-forget"
+  },
+  "E109": {
+    "title": "Dua when intending to leave the Mosque",
+    "slug": "dua-when-intending-to-leave-the-mosque"
   },
   "E11": {
     "title": "Dua Yastasheer",
@@ -1339,6 +1355,10 @@
     "title": "Dua for Sustenance",
     "slug": "dua-for-sustenance"
   },
+  "E65": {
+    "title": "Dua for the Deceased",
+    "slug": "dua-for-the-deceased"
+  },
   "E66": {
     "title": "Duas for each hour of the Day",
     "slug": "duas-for-each-hour-of-the-day"
@@ -1425,6 +1445,10 @@
     "title": "Dua in the Mornings and Evenings",
     "slug": "dua-in-the-mornings-and-evenings"
   },
+  "E88": {
+    "title": "Dua Maknoon and its merits",
+    "slug": "dua-maknoon-and-its-merits"
+  },
   "E89": {
     "title": "Dua at Bedtime and at the time of waking up",
     "slug": "dua-at-bedtime-and-at-the-time-of-waking-up"
@@ -1505,14 +1529,26 @@
     "title": "Namaz e Aayaat",
     "slug": "namaz-e-aayaat"
   },
+  "F45": {
+    "title": "Namaz for Forgiveness",
+    "slug": "namaz-for-forgiveness"
+  },
   "F46": {
     "title": "Namaz for Gaining Intelligence and Good Memory",
     "slug": "namaz-for-gaining-intelligence-and-good-memory"
+  },
+  "F48": {
+    "title": "Namaz for Seeking Allah's help In the name of Lady Fatimah (S)",
+    "slug": "namaz-for-seeking-allahs-help-in-the-name-of-lady-fatimah"
   },
   "F5": {
     "title": "Namaz-e-Ghofaylah",
     "order": 1,
     "slug": "namaz-e-ghofaylah"
+  },
+  "F56": {
+    "title": "Namaz for the removal of difficulties.",
+    "slug": "namaz-for-the-removal-of-difficulties"
   },
   "F59": {
     "title": "Namaz of Imam Sadiq (a) to ward off evil",
@@ -1521,6 +1557,10 @@
   "F62": {
     "title": "Namaz of Will",
     "slug": "namaz-of-will"
+  },
+  "F8": {
+    "title": "Namaz e Nawafil",
+    "slug": "namaz-e-nawafil"
   },
   "F9": {
     "title": "Namaz e Wahshat Namaz for the Night of Burial",
@@ -1562,6 +1602,10 @@
   "G2": {
     "title": "Ziyarat-e-Ameenullah",
     "slug": "ziyarat-e-ameenullah"
+  },
+  "G20": {
+    "title": "Tuesday - Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a)",
+    "slug": "tuesday-ziyarah-of-imam-zayn-al-abidin-imam-muhammad-al-baqir-and-imam-jafar-al-sadiq"
   },
   "G20|N3": {
     "title": "Tuesday - Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a)",
@@ -1949,6 +1993,10 @@
     "title": "Merits of reciting Ayah Kursi (2: 255), Ayah Al Shahadah, Ayah Al Mulk after every Namaz",
     "slug": "merits-of-reciting-ayah-kursi-ayah-al-shahadah-ayah-al-mulk-after-every-namaz"
   },
+  "I13": {
+    "title": "Merits of reciting Ayah Kursi after every Namaz",
+    "slug": "merits-of-reciting-ayah-kursi-after-every-namaz"
+  },
   "I14": {
     "title": "General Ta'qeebaat-2",
     "slug": "general-ta-qeebaat-10-15"
@@ -1993,6 +2041,10 @@
     "title": "Cleansing the Teeth",
     "slug": "cleansing-the-teeth"
   },
+  "I31": {
+    "title": "Recitations for Fending Off Evil Self Inspirations",
+    "slug": "recitations-for-fending-off-evil-self-inspirations"
+  },
   "I32": {
     "title": "Prayer of Istekhaarah with Sheets",
     "slug": "prayer-of-istekhaarah-with-sheets"
@@ -2025,6 +2077,10 @@
     "title": "Taweez against Private Parts Pains",
     "slug": "taweez-against-private-parts-pains"
   },
+  "I57": {
+    "title": "Taweez for Fending Off Devils and Sorcerers",
+    "slug": "taweez-for-fending-off-devils-and-sorcerers"
+  },
   "I6": {
     "title": "Pre-Prayer Supplications",
     "slug": "etiquettes-of-prayers"
@@ -2032,6 +2088,10 @@
   "I60": {
     "title": "Taweez against Evil Eyes",
     "slug": "taweez-against-evil-eyes"
+  },
+  "I61": {
+    "title": "Taweez against Satan's Evil Insinuations",
+    "slug": "taweez-against-satans-evil-insinuations"
   },
   "I7": {
     "title": "Other Etiquettes of Namaz",
@@ -2088,6 +2148,10 @@
   "I98": {
     "title": "Things taught by Holy Prophet (s.a.w.a.) to Lady Fatimah (s.a.)",
     "slug": "things-taught-by-holy-prophet-s-to-lady-fatimah-a"
+  },
+  "I99": {
+    "title": "Three devotional acts before going to sleep",
+    "slug": "three-devotional-acts-before-going-to-sleep"
   },
   "J1": {
     "title": "Merits & Rituals of Friday Night & Day",

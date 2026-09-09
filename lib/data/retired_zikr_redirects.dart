@@ -59,4 +59,13 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// granted, rather than as one of the Imams' own supplications. Restoring
   /// it standalone would just duplicate that tab.
   'E118': RetiredZikrRedirect('F11', tabIndex: 0),
+
+  /// Found in a "low hanging fruit" restoration pass: E148's old content
+  /// ("Thanksgiving Prostration - Sajdah al Shukr") is already fully
+  /// covered live - the "shukran shukran"/"afwan afwan" (100x) formula is
+  /// in I20 ("Supplicatory Utterances of the Thanksgiving Prostration")
+  /// and the "shukran lillah" (3x) formula is in I19's own merits field,
+  /// both under the same Imam al-Rida narrations E148 quotes. I19 is the
+  /// closer title match and carries the exact phrase E148 leads with.
+  'E148': RetiredZikrRedirect('I19'),
 };
