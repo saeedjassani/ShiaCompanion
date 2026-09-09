@@ -935,10 +935,6 @@
     "title": "Ta'qeebaat e Namaz e Isha",
     "slug": "taqeebaat-e-namaz-e-isha-1"
   },
-  "D11": {
-    "title": "Taqeebaat e Namaz e Isha (2)",
-    "slug": "taqeebaat-e-namaz-e-isha-2"
-  },
   "D12": {
     "title": "Dua After Namaz For Seeking Sustenance",
     "slug": "dua-after-namaz-for-seeking-sustenance"
@@ -1213,7 +1209,7 @@
   },
   "E79": {
     "title": "Dua for the one who wishes to see the Prophet (s) or Holy Imams (a) or one of the Dead or one of his Parents",
-    "slug": "dua-for-the-one-who-wishes-to-see-the-prophet-or-holy-imams-or-the-dead-or-his-parents"
+    "slug": "dua-for-the-one-who-wishes-to-see-the-prophet-s-a-w-a-or-holy-imams-a-s-or-one-of-the-dead-or-one-of-his-parents"
   },
   "E8": {
     "title": "Dua Alqamah",
@@ -1306,6 +1302,10 @@
     "order": 1,
     "slug": "namaz-e-ghofaylah"
   },
+  "F59": {
+    "title": "Namaz of Imam Sadiq (a) to ward off evil",
+    "slug": "namaz-of-imam-sadiq-a-to-ward-off-evil"
+  },
   "F62": {
     "title": "Namaz of Will",
     "slug": "namaz-of-will"
@@ -1372,7 +1372,7 @@
     "slug": "ziyarat-e-arbaeen-the-20th-of-safar"
   },
   "G4": {
-    "title": "Ziyaarat-e-Ashoora",
+    "title": "Ziyarat Ashura",
     "order": 0,
     "slug": "ziyarat-e-ashura"
   },
@@ -1589,7 +1589,7 @@
     ]
   },
   "G83": {
-    "title": "Ziyaarat-e-Aashoora Ghair Ma'roofah",
+    "title": "Ziyarat Ashura Ghair Ma'roofah",
     "slug": "ziyaarat-e-aashoora-gair-ma-roofah",
     "day": "01-10"
   },

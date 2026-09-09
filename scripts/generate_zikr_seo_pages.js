@@ -9,6 +9,9 @@ const BUILD_WEB_DIR = process.env.WEB_BUILD_DIR
   : path.join(REPO_ROOT, 'web');
 const FLUTTER_INDEX_PATH = path.join(BUILD_WEB_DIR, 'index.html');
 const GENERATED_ZIKR_DIR = path.join(BUILD_WEB_DIR, 'zikr');
+// Matches zikrDeepLinkType (0) in lib/utils/deep_links.dart: the numeric
+// fallback path the app shares when it doesn't yet know an item's slug.
+const GENERATED_UID_REDIRECT_DIR = path.join(BUILD_WEB_DIR, '0');
 const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shia-companion.web.app')
   .replace(/\/+$/, '');
 const MAX_SECTION_LINES = 80;
@@ -294,6 +297,34 @@ function insertStaticContent(html, staticContent) {
   return html.replace(/<body([^>]*)>/i, `<body$1>\n${staticContent}`);
 }
 
+// Old shares and any link built before the app resolved a slug use this
+// numeric `/0/<uid>` form (see zikrDeepLinkType in lib/utils/deep_links.dart).
+// The app already rewrites that to `/zikr/<slug>` itself once Flutter boots,
+// but a crawler or a chat app's link-unfurler never runs that JS and was
+// seeing the bare, title-less app shell instead. A tiny static page at the
+// same path puts a real title, a canonical link, and an instant redirect in
+// front of them without waiting on Flutter — see the "0/<uid>" section of
+// scripts/generate_zikr_seo_pages.js's test coverage for what depends on it.
+function buildRedirectPageHtml({title, canonicalPath, canonicalUrl}) {
+  const safeTitle = escapeHtml(title);
+  return [
+    '<!doctype html>',
+    '<html lang="en">',
+    '<head>',
+    '  <meta charset="utf-8">',
+    `  <title>${safeTitle} | Shia Companion</title>`,
+    `  <link rel="canonical" href="${escapeHtml(canonicalUrl)}">`,
+    `  <meta http-equiv="refresh" content="0; url=${escapeHtml(canonicalPath)}">`,
+    '</head>',
+    '<body>',
+    `  <p>Redirecting to <a href="${escapeHtml(canonicalPath)}">${safeTitle}</a>&hellip;</p>`,
+    `  <script>location.replace(${JSON.stringify(canonicalPath)});</script>`,
+    '</body>',
+    '</html>',
+    '',
+  ].join('\n');
+}
+
 function writePage(relativePath, html) {
   const directoryPath = path.join(BUILD_WEB_DIR, relativePath);
   fs.mkdirSync(directoryPath, {recursive: true});
@@ -436,6 +467,27 @@ function main() {
     }
   }
 
+  fs.rmSync(GENERATED_UID_REDIRECT_DIR, {recursive: true, force: true});
+  let redirectCount = 0;
+  for (const page of pages) {
+    // `~` (list headers) and `|` (aliases) uids need percent-encoding in a
+    // URL path segment. They're rare in shared links (the app only ever
+    // shares a plain uid this way), so leave them to the app's own
+    // client-side rewrite rather than risk a directory name Hosting won't
+    // match byte-for-byte against the encoded request path.
+    if (page.uid.includes('~') || page.uid.includes('|')) continue;
+
+    writePage(
+      path.join('0', page.uid),
+      buildRedirectPageHtml({
+        title: page.title,
+        canonicalPath: page.canonicalPath,
+        canonicalUrl: `${SITE_ORIGIN}${page.canonicalPath}`,
+      }),
+    );
+    redirectCount += 1;
+  }
+
   const sitemap = buildSitemap(pages.map((page) => page.canonicalPath));
   for (const filename of SITEMAP_FILENAMES) {
     fs.writeFileSync(path.join(BUILD_WEB_DIR, filename), sitemap, 'utf8');
@@ -448,6 +500,9 @@ function main() {
 
   console.log(`Generated ${pages.length} zikr SEO pages in ${GENERATED_ZIKR_DIR}`);
   console.log(`Generated ${aliasCount} zikr alias pages`);
+  console.log(
+    `Generated ${redirectCount} legacy uid redirect pages in ${GENERATED_UID_REDIRECT_DIR}`,
+  );
   console.log(
     `Generated ${SITEMAP_FILENAMES.join(', ')} with `
     + `${(sitemap.match(/<loc>/g) ?? []).length} URLs`,

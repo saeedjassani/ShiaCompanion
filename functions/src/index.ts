@@ -194,8 +194,18 @@ function buildResolvedSlugData(
 ): Map<string, ResolvedSlugData> {
   const slugOwners = new Map<string, string>();
   const resolvedByUid = new Map<string, ResolvedSlugData>();
+  // Aliases ("Q4|E31") show the same content as their canonical target
+  // (uid.split("|").last) — resolve every non-alias uid first, then let
+  // aliases borrow the canonical's slug in a final pass, so an alias never
+  // needs a distinct "-2" identity of its own.
+  const aliasUids: string[] = [];
 
   for (const uid of [...includedUids].sort()) {
+    if (uid.includes("|")) {
+      aliasUids.push(uid);
+      continue;
+    }
+
     const data = allDocs.get(uid);
     const explicitSlug = normalizeSlug(data?.slug);
     const explicitAliases = normalizeSlugAliases(data?.slugAliases, explicitSlug);
@@ -216,6 +226,8 @@ function buildResolvedSlugData(
   }
 
   for (const uid of [...includedUids].sort()) {
+    if (uid.includes("|")) continue;
+
     const data = allDocs.get(uid);
     const resolved = resolvedByUid.get(uid);
     if (resolved?.slug) continue;
@@ -237,6 +249,44 @@ function buildResolvedSlugData(
     });
   }
 
+  for (const uid of aliasUids) {
+    const data = allDocs.get(uid);
+    const explicitSlug = normalizeSlug(data?.slug);
+    const explicitAliases = normalizeSlugAliases(data?.slugAliases, explicitSlug);
+
+    if (explicitSlug) {
+      // The alias doc set its own slug explicitly; honor it as-is.
+      if (!slugOwners.has(explicitSlug)) {
+        slugOwners.set(explicitSlug, uid);
+      }
+      resolvedByUid.set(uid, { slug: explicitSlug, slugAliases: explicitAliases });
+      continue;
+    }
+
+    const canonicalUid = uid.split("|").pop() ?? "";
+    const canonicalSlug = resolvedByUid.get(canonicalUid)?.slug;
+
+    if (canonicalSlug) {
+      resolvedByUid.set(uid, { slug: canonicalSlug, slugAliases: explicitAliases });
+      continue;
+    }
+
+    // Canonical target isn't in the index (a broken alias) — fall back to a
+    // normal generated slug so it still gets something usable.
+    const generatedSlug = makeUniqueSlug(
+      slugOwners,
+      buildSlugSeed({
+        uid,
+        title: `${data?.title ?? ""}`.trim(),
+        rawSlug: data?.slug,
+      }),
+      uid,
+    );
+
+    slugOwners.set(generatedSlug, uid);
+    resolvedByUid.set(uid, { slug: generatedSlug, slugAliases: explicitAliases });
+  }
+
   return resolvedByUid;
 }
 
@@ -250,7 +300,13 @@ function addSlugLookup(
 
   const existingOwner = slugLookup[slug];
   if (existingOwner && existingOwner !== uid) {
-    console.warn(`Duplicate ${label} "${slug}" for ${uid}; keeping ${existingOwner}`);
+    // An alias sharing its canonical target's slug is expected, not a
+    // collision worth logging.
+    const isExpectedAliasShare =
+      uid.includes("|") && uid.split("|").pop() === existingOwner;
+    if (!isExpectedAliasShare) {
+      console.warn(`Duplicate ${label} "${slug}" for ${uid}; keeping ${existingOwner}`);
+    }
     return;
   }
   slugLookup[slug] = uid;

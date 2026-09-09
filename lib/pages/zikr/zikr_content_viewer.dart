@@ -73,6 +73,12 @@ class ZikrContentScrollPosition {
 /// edge lands exactly on the viewport top being picked over its successor.
 const double _lineEdgeTolerance = 0.5;
 
+/// Whether the Arabic-only reading layout applies: both English aids are
+/// switched off, so translation/transliteration lines draw nothing anyway,
+/// and consecutive Arabic verses can flow together as one prose paragraph
+/// instead of stacking as separate centered lines with a gap between each.
+bool get isArabicOnlyReadingView => !showTransliteration && !showTranslation;
+
 /// Whether line [index] draws anything at all under the current reading
 /// settings. A transliteration or translation line the reader has switched
 /// off renders as an empty, zero-height box, so the bookmark tint has to skip
@@ -118,6 +124,121 @@ int? firstVisibleLineInRange(ZikrLineGroup range, ParsedZikrContent content) {
     if (isZikrLineVisible(content, index)) return index;
   }
   return null;
+}
+
+/// Renders [rawLine] as a [TextSpan], turning any `[label](href)`
+/// markdown-style links embedded in it (cross-references to another zikr's
+/// uid, mostly - a Quran surah cited from a merits note, say) into tappable
+/// spans styled with [linkStyle]. Shared by the tab content viewer below and
+/// by the merits sheet in zikr_page.dart, so a link reads and behaves the
+/// same whether it sits in the dua text or in its merits.
+TextSpan buildZikrTextSpanWithLinks({
+  required String rawLine,
+  required TextStyle baseStyle,
+  required TextStyle linkStyle,
+  required void Function(String href) onLinkTap,
+}) {
+  final segments = ZikrContentParser.parseLineSegments(rawLine);
+  return TextSpan(
+    style: baseStyle,
+    children: segments.map((segment) {
+      if (!segment.hasHref) {
+        return TextSpan(text: segment.text);
+      }
+      return TextSpan(
+        text: segment.text,
+        style: linkStyle,
+        recognizer: TapGestureRecognizer()
+          ..onTap = () => onLinkTap(segment.href!),
+      );
+    }).toList(),
+  );
+}
+
+/// One item the reading list actually renders. Ordinarily this is a single
+/// content line, same as always. In [isArabicOnlyReadingView], a run of
+/// consecutive Arabic verses - possibly with a switched-off transliteration
+/// or translation line folded in between them - collapses into one item so
+/// the verses can be laid out as a single flowing paragraph rather than
+/// separate centered lines.
+class _ReadingListItem {
+  const _ReadingListItem(this.lineIndexes);
+
+  /// The content-line indexes this item covers, in source order. A plain
+  /// line has exactly one; a merged Arabic paragraph has one per verse - the
+  /// folded-in hidden lines are not members, since they draw nothing and
+  /// contribute no text.
+  final List<int> lineIndexes;
+
+  int get firstLineIndex => lineIndexes.first;
+}
+
+/// Splits [content] into the units the reading list renders. Outside
+/// [isArabicOnlyReadingView] this is just one item per line, unchanged from
+/// the line-per-item layout the rest of the app still uses. See
+/// [_ReadingListItem].
+List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
+  final total = content.lines.length;
+  final items = <_ReadingListItem>[];
+
+  if (!isArabicOnlyReadingView) {
+    for (var i = 0; i < total; i++) {
+      items.add(_ReadingListItem([i]));
+    }
+    return items;
+  }
+
+  var i = 0;
+  while (i < total) {
+    if (!content.arabicCodes.contains(i)) {
+      items.add(_ReadingListItem([i]));
+      i++;
+      continue;
+    }
+
+    final verses = <int>[i];
+    var j = i + 1;
+    while (j < total) {
+      if (content.arabicCodes.contains(j)) {
+        verses.add(j);
+        j++;
+      } else if (content.transliCodes.contains(j) ||
+          content.translaCodes.contains(j)) {
+        // Switched off in this view - draws nothing, but does not break the
+        // paragraph the Arabic verses around it are flowing into.
+        j++;
+      } else {
+        break;
+      }
+    }
+    items.add(_ReadingListItem(verses));
+    i = j;
+  }
+  return items;
+}
+
+/// The small "Bookmarked" marker - a bookmark icon plus label - shared by
+/// the bordered per-line marker ([_BookmarkedLine]) and the inline paragraph
+/// marker that sits above a flowing Arabic paragraph in
+/// [isArabicOnlyReadingView], where the highlight lives on the verse's own
+/// text rather than on a container wrapping the whole line.
+Widget _bookmarkLabelRow(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
+      const SizedBox(width: 4),
+      Text(
+        'Bookmarked',
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.4,
+            ),
+      ),
+    ],
+  );
 }
 
 class ZikrContentViewerWidget extends StatefulWidget {
@@ -228,28 +349,83 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   late final double? _initialBookmarkScrollOffset;
   bool _didRestoreInitialBookmark = false;
 
+  /// The reading-list items built for each tab on its last build, keyed by
+  /// tab index. [topContentLineIndex] reads this to turn the list index a
+  /// scroll position measures back into a content-line index - the two only
+  /// coincide one-to-one when [isArabicOnlyReadingView] is off.
+  final Map<int, List<_ReadingListItem>> _tabReadingListItems = {};
+
   TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
-    final linkStyle = baseStyle.copyWith(
-      color: Theme.of(context).colorScheme.primary,
-      decoration: TextDecoration.underline,
+    return buildZikrTextSpanWithLinks(
+      rawLine: rawLine,
+      baseStyle: baseStyle,
+      linkStyle: baseStyle.copyWith(
+        color: Theme.of(context).colorScheme.primary,
+        decoration: TextDecoration.underline,
+      ),
+      onLinkTap: (href) => widget.onLinkTap(href),
+    );
+  }
+
+  /// Renders one [isArabicOnlyReadingView] list item: [item]'s verses joined
+  /// into a single right-aligned, justified paragraph, so a run of Arabic
+  /// lines flows as prose instead of stacking as separate centered lines.
+  ///
+  /// A verse this item covers that is also the reader's bookmark gets its
+  /// own text tinted in place - the paragraph itself is never tinted, since
+  /// that would mark every verse sharing it, not the one actually bookmarked
+  /// - with a small "Bookmarked" label above the paragraph, the closest a
+  /// label can sit to a highlight that lives inside shared running text.
+  Widget _buildArabicParagraphItem(
+    _ReadingListItem item,
+    ParsedZikrContent parsedContent,
+    int? bookmarkLabelLine,
+    TextStyle arabicStyle,
+  ) {
+    final highlightedIndex =
+        bookmarkLabelLine != null && item.lineIndexes.contains(bookmarkLabelLine)
+            ? bookmarkLabelLine
+            : null;
+
+    final spans = <InlineSpan>[];
+    for (var k = 0; k < item.lineIndexes.length; k++) {
+      final lineIndex = item.lineIndexes[k];
+      final verseSpan = _buildTextSpanForLine(
+        ZikrContentParser.formatArabicText(parsedContent.lines[lineIndex]),
+        arabicStyle,
+      );
+      if (lineIndex == highlightedIndex) {
+        spans.add(TextSpan(
+          style: TextStyle(
+            backgroundColor: Theme.of(context)
+                .colorScheme
+                .primaryContainer
+                .withValues(alpha: 0.55),
+          ),
+          children: [verseSpan],
+        ));
+      } else {
+        spans.add(verseSpan);
+      }
+      if (k != item.lineIndexes.length - 1) {
+        spans.add(const TextSpan(text: ' '));
+      }
+    }
+
+    final paragraph = Padding(
+      padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
+      child: Text.rich(
+        TextSpan(style: arabicStyle, children: spans),
+        textAlign: TextAlign.justify,
+        textDirection: TextDirection.rtl,
+      ),
     );
 
-    final segments = ZikrContentParser.parseLineSegments(rawLine);
-    return TextSpan(
-      style: baseStyle,
-      children: segments.map((segment) {
-        if (!segment.hasHref) {
-          return TextSpan(text: segment.text);
-        }
-        return TextSpan(
-          text: segment.text,
-          style: linkStyle,
-          recognizer: TapGestureRecognizer()
-            ..onTap = () {
-              widget.onLinkTap(segment.href!);
-            },
-        );
-      }).toList(),
+    if (highlightedIndex == null) return paragraph;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [_bookmarkLabelRow(context), paragraph],
     );
   }
 
@@ -553,8 +729,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 layoutOffset + child.size.height - _lineEdgeTolerance) {
           // The Merits button is not content; a reader still up at it is at
           // the top of the content just below it.
-          final contentIndex = index - _leadingItemCount(tabIndex);
-          return contentIndex < 0 ? 0 : contentIndex;
+          final itemIndex = index - _leadingItemCount(tabIndex);
+          if (itemIndex < 0) return 0;
+          // In isArabicOnlyReadingView a list item can cover several merged
+          // verses, so the item index has to be translated back to the
+          // content-line index its first verse actually sits at.
+          final items = _tabReadingListItems[tabIndex];
+          if (items == null || itemIndex >= items.length) return itemIndex;
+          return items[itemIndex].firstLineIndex;
         }
       }
       child = sliver.childAfter(child);
@@ -755,6 +937,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final bookmarkLabelLine = bookmarkedRange == null
         ? null
         : firstVisibleLineInRange(bookmarkedRange, parsedContent);
+    final readingItems = _buildReadingListItems(parsedContent);
+    _tabReadingListItems[tabIndex] = readingItems;
 
     // Create text styles with current settings each time this is called
     final arabicStyle = TextStyle(
@@ -775,9 +959,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
     final leadingItems = showMeritsButton ? 1 : 0;
     final itemCount = leadingItems +
-        (ayahIndex != null
-            ? ayahIndex.spans.length
-            : parsedContent.lines.length);
+        (ayahIndex != null ? ayahIndex.spans.length : readingItems.length);
 
     if (ayahIndex != null && tabIndex == _selectedTabIndex) {
       _scheduleInitialVerseScroll(tabIndex, ayahIndex, leadingItems);
@@ -833,9 +1015,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 );
               }
 
-              final contentIndex = index - leadingItems;
-
+              // A surah in ayah mode has one item per verse; every other
+              // zikr is one item per reading-list entry, which is one item
+              // per content line except when Arabic-only paragraph flow
+              // folds a run of verses into one.
               if (ayahIndex != null) {
+                final contentIndex = index - leadingItems;
                 return _buildAyahBlock(
                   ayahIndex: ayahIndex,
                   spanIndex: contentIndex,
@@ -846,6 +1031,21 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 );
               }
 
+              final itemIndex = index - leadingItems;
+              final item = readingItems[itemIndex];
+
+              if (isArabicOnlyReadingView &&
+                  parsedContent.arabicCodes.contains(item.firstLineIndex)) {
+                return _buildArabicParagraphItem(
+                  item,
+                  parsedContent,
+                  bookmarkLabelLine,
+                  arabicStyle,
+                );
+              }
+
+              // Every non-paragraph item covers exactly one content line.
+              final contentIndex = item.firstLineIndex;
               final line = _buildLine(
                 parsedContent,
                 contentIndex,
@@ -1311,21 +1511,7 @@ class _BookmarkedLine extends StatelessWidget {
           if (showLabel)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Bookmarked',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.4,
-                        ),
-                  ),
-                ],
-              ),
+              child: _bookmarkLabelRow(context),
             ),
           child,
         ],

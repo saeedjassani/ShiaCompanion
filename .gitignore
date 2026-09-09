@@ -280,6 +280,7 @@ scripts/search_config.json
 
 # Generated SEO pages (regenerated on pre-push)
 web/zikr/
+web/0/
 
 
 # Playwright visual tests
