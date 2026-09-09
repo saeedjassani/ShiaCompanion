@@ -979,6 +979,10 @@
     "title": "Dua taught by Jibrael to the Holy Prophet (s)",
     "slug": "dua-taught-by-jibrael-to-the-holy-prophet-s"
   },
+  "E108": {
+    "title": "Dua to remember the things that Satan makes you forget",
+    "slug": "dua-to-remember-the-things-that-satan-makes-you-forget"
+  },
   "E11": {
     "title": "Dua Yastasheer",
     "slug": "dua-yastasheer"
@@ -1150,6 +1154,10 @@
     "title": "Dua for fulfillment of wishes",
     "slug": "dua-for-fulfillment-of-wishes"
   },
+  "E43": {
+    "title": "Dua for getting Male Child",
+    "slug": "dua-for-getting-male-child"
+  },
   "E44": {
     "title": "Dua for Glorifying Allah (s.w.t.)",
     "slug": "dua-for-glorifying-allah-s-w-t"
@@ -1199,9 +1207,17 @@
     "order": 12,
     "slug": "dua-for-safety-from-fire-al-evil-throughout-the-day"
   },
+  "E62": {
+    "title": "Dua for safety from illness and ailments",
+    "slug": "dua-for-safety-from-illness-and-ailments"
+  },
   "E63": {
     "title": "Dua for seeking forgiveness which leads to more knowledge & more Fortune",
     "slug": "dua-for-seeking-forgiveness-which-leads-to-more-knowledge-more-fortune"
+  },
+  "E64": {
+    "title": "Dua for Sustenance",
+    "slug": "dua-for-sustenance"
   },
   "E7": {
     "title": "Dua Allahumma Asleh اَللّٰهُمَّ اَصْلِحْ عَبْدَكَ",
@@ -1248,6 +1264,14 @@
   "E91": {
     "title": "Dua before going to Sleep",
     "slug": "dua-before-going-to-sleep"
+  },
+  "E92": {
+    "title": "Dua before leaving the house",
+    "slug": "dua-before-leaving-the-house"
+  },
+  "E93": {
+    "title": "Dua before reading a book",
+    "slug": "dua-before-reading-a-book"
   },
   "E96": {
     "title": "Dua for Solving Difficulties",
