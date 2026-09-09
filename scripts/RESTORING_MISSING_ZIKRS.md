@@ -176,7 +176,16 @@ to [scripts/favorited_missing_zikrs.json](favorited_missing_zikrs.json).
 through and including the two 7-user rows) were restored on 2026-09-09 - all
 19 as standalone `assets/zikr/<uid>` entries except E53, which turned out to
 duplicate the already-live E38 (see `retiredZikrRedirects`) and was retired
-there instead per Step 1.5. Pick up at E113 (6 users) for the next batch.
+there instead per Step 1.5.
+
+A second batch of 20 (E113 through I72, i.e. down through and including the
+6-user rows and all four 5-user rows) was restored the same day, all as
+standalone `assets/zikr/<uid>` entries - no further duplicates found in this
+batch. AA19 was the largest item so far (a ten-part/hundred-phrase tasbih
+litany plus several salawat and duas for every day of Ramadan); its captured
+record opens mid-list at "Second" with no "First" surviving in history, the
+same situation as AA15 and AA34, so the orphaned ordinal labels were dropped
+per that precedent. Pick up at Z10 (5 users) for the next batch.
 
 **As of 2026-09-08:** 483 UIDs are missing from `assets/zikr.json`; of those,
 274 are favorited by at least one real user, across 890 favorite-entries and
