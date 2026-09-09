@@ -58,7 +58,7 @@ const LUNAR_DATES = {
   G57: '08-04', // Hazrat Abbas - birth 4 Sha'ban
   G64: ['01-25', '05-15', '08-05'], // Imam Zainul Abideen - martyrdom 25 Muharram, birth (2 riwayat)
   G65: ['07-01', '12-07'], // Imam Mohammad Baqir - birth 1 Rajab, martyrdom 7 Zilhajj
-  G66: '10-25', // Imam Jafar Sadiq - martyrdom 25 Shawwal
+  G66: ['10-25', '03-17'], // Imam Jafar Sadiq - martyrdom 25 Shawwal, birth 17 Rabi al-Awwal (shared with the Prophet's, see G50)
   G67: ['02-07', '07-25'], // Imam Musa Kazim - birth 7 Safar, martyrdom 25 Rajab
   G68: ['02-17', '02-29', '11-11', '11-23'], // Imam Ali Raza - martyrdom (2 riwayat) + birth/martyrdom in Zilqad
   G69: ['07-10', '11-29'], // Imam Mohammad Taqi - birth 10 Rajab, martyrdom 29 Zilqad
