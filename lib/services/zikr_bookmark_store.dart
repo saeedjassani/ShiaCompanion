@@ -91,6 +91,8 @@ class ZikrBookmarkStore {
   static final ZikrBookmarkStore instance = ZikrBookmarkStore._();
   static const int schemaVersion = 2;
 
+  // The key is deliberately still v1: v2 only added an optional field, so old
+  // records stay readable and must keep being read rather than orphaned.
   static const String _storagePrefix = 'zikr_bookmark_v1';
 
   String _keyForUid(String uid) => '${_storagePrefix}_$uid';
