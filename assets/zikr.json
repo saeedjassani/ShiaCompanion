@@ -514,6 +514,10 @@
     "slug": "aamal-to-be-performed-only-during-night",
     "day": "09-*"
   },
+  "AA34": {
+    "title": "23rd Night of Ramadhan",
+    "slug": "23rd-night-of-ramadhan"
+  },
   "AA4": {
     "title": "One Thousand Unit Prayers",
     "slug": "one-thousand-unit-prayers",
@@ -1038,6 +1042,10 @@
   "E140": {
     "title": "Salawat upon The Awaited Imam",
     "slug": "salawat-upon-the-awaited-imam"
+  },
+  "E142": {
+    "title": "Merits of reciting the Dua اعددت لکل هول",
+    "slug": "merits-of-reciting-the-dua-aadadtu-li-kulli-hawl"
   },
   "E143": {
     "title": "Prayer for fulfillment of desires",
