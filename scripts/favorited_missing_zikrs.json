@@ -1,0 +1,1941 @@
+{
+  "generatedAt": "2026-09-09T05:27:21.385Z",
+  "method": "collectionGroup('favorites') over every users/{uid}/favorites/index doc, filtered to type:0 (zikr) entries whose canonicalized uid (alias split on trailing '|') is in the missing-uid list (git history union of every historical assets/zikr.json version's keys, minus the current file's keys). Regenerate with scripts/query_favorited_missing_zikrs.js.",
+  "totalUsersWithAnyFavorites": 269,
+  "totalUsersHittingMissingZikrBug": 131,
+  "totalFavoriteEntriesOnMissingUids": 890,
+  "distinctMissingUidsFavorited": 274,
+  "totalMissingUidsChecked": 483,
+  "alreadyRetiredSkipStandaloneRestore": {
+    "D11": "D12",
+    "AA6": "AA5[0]",
+    "AA7": "AA5[1]",
+    "I26": "I24[1]",
+    "E48": "I20[0]",
+    "I25": "I24[0]",
+    "E56": "I17[2]",
+    "E106": "I9[2]",
+    "E151": "I21[1]",
+    "I16": "I14[0]"
+  },
+  "results": [
+    {
+      "uid": "AA6",
+      "title": "Dua after every obligatory Prayers (2) يَا عَلِيُّ يَا عَظِيْمُ",
+      "favoriteEntries": 27,
+      "distinctUsers": 27,
+      "note": "already retired to AA5[0] via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "AA7",
+      "title": "Dua after every obligatory Prayers (3) اَللّٰهُمَّ اَدْخِلْ عَلٰٓى اَهْلِ الْقُبُوْرِ",
+      "favoriteEntries": 22,
+      "distinctUsers": 22,
+      "note": "already retired to AA5[1] via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "D11",
+      "title": "Taqeebaat e Namaz e Isha (2)",
+      "favoriteEntries": 11,
+      "distinctUsers": 11,
+      "note": "already retired to D12 via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "E92",
+      "title": "Dua before leaving the house",
+      "favoriteEntries": 11,
+      "distinctUsers": 11,
+      "note": ""
+    },
+    {
+      "uid": "E93",
+      "title": "Dua before reading a book",
+      "favoriteEntries": 11,
+      "distinctUsers": 11,
+      "note": ""
+    },
+    {
+      "uid": "E101",
+      "title": "Dua of Imam Husayn (a) on the day of Ashura بِحَقِّ يٰسٓ وَالْقُرْاٰنِ الْحَكِيْمِ",
+      "favoriteEntries": 10,
+      "distinctUsers": 10,
+      "note": ""
+    },
+    {
+      "uid": "E108",
+      "title": "Dua to rememeber the things that Satan makes you forget",
+      "favoriteEntries": 10,
+      "distinctUsers": 10,
+      "note": ""
+    },
+    {
+      "uid": "E143",
+      "title": "Prayer for fulfillment of desires",
+      "favoriteEntries": 10,
+      "distinctUsers": 10,
+      "note": ""
+    },
+    {
+      "uid": "E55",
+      "title": "Dua for repaying the Debts",
+      "favoriteEntries": 10,
+      "distinctUsers": 10,
+      "note": ""
+    },
+    {
+      "uid": "E62",
+      "title": "Dua for safety from illness and ailments",
+      "favoriteEntries": 10,
+      "distinctUsers": 10,
+      "note": ""
+    },
+    {
+      "uid": "E10",
+      "title": "Dua Asharat",
+      "favoriteEntries": 9,
+      "distinctUsers": 9,
+      "note": ""
+    },
+    {
+      "uid": "E53",
+      "title": "Dua for Release from Grief",
+      "favoriteEntries": 9,
+      "distinctUsers": 9,
+      "note": ""
+    },
+    {
+      "uid": "E64",
+      "title": "Dua for Sustenance",
+      "favoriteEntries": 9,
+      "distinctUsers": 9,
+      "note": ""
+    },
+    {
+      "uid": "E86",
+      "title": "Dua for whoever wants to see his request in the dream",
+      "favoriteEntries": 9,
+      "distinctUsers": 9,
+      "note": ""
+    },
+    {
+      "uid": "I12",
+      "title": "Merits of reciting Ayah Kursi (2: 255), Ayah Al Shahadah, Ayah Al Mulk after every Namaz",
+      "favoriteEntries": 9,
+      "distinctUsers": 9,
+      "note": ""
+    },
+    {
+      "uid": "E25",
+      "title": "Another Dua Tawassul",
+      "favoriteEntries": 8,
+      "distinctUsers": 8,
+      "note": ""
+    },
+    {
+      "uid": "E43",
+      "title": "Dua for getting Male Child",
+      "favoriteEntries": 8,
+      "distinctUsers": 8,
+      "note": ""
+    },
+    {
+      "uid": "E47",
+      "title": "Dua for Longevity",
+      "favoriteEntries": 8,
+      "distinctUsers": 8,
+      "note": ""
+    },
+    {
+      "uid": "E87",
+      "title": "Dua in the Mornings and Evenings",
+      "favoriteEntries": 8,
+      "distinctUsers": 8,
+      "note": ""
+    },
+    {
+      "uid": "F10",
+      "title": "Namaz e Maghferat e Waaledain",
+      "favoriteEntries": 8,
+      "distinctUsers": 8,
+      "note": ""
+    },
+    {
+      "uid": "G76",
+      "title": "Ziyarat After Namaz",
+      "favoriteEntries": 8,
+      "distinctUsers": 8,
+      "note": ""
+    },
+    {
+      "uid": "AA15",
+      "title": "Aamal & Duas to be recited in every night of Ramadhan",
+      "favoriteEntries": 7,
+      "distinctUsers": 7,
+      "note": ""
+    },
+    {
+      "uid": "AA29",
+      "title": "Common Aamal at each of the three Qadr Nights",
+      "favoriteEntries": 7,
+      "distinctUsers": 7,
+      "note": ""
+    },
+    {
+      "uid": "E114",
+      "title": "Hirz Zayn al Abidin (a)",
+      "favoriteEntries": 7,
+      "distinctUsers": 7,
+      "note": ""
+    },
+    {
+      "uid": "E40",
+      "title": "Dua for delaying death (Ajal)",
+      "favoriteEntries": 7,
+      "distinctUsers": 7,
+      "note": ""
+    },
+    {
+      "uid": "F39",
+      "title": "Namaz for more Sustenance",
+      "favoriteEntries": 7,
+      "distinctUsers": 7,
+      "note": ""
+    },
+    {
+      "uid": "G14",
+      "title": "Ziyarah of Imam Husayn (a) at the Qadr Nights",
+      "favoriteEntries": 7,
+      "distinctUsers": 7,
+      "note": ""
+    },
+    {
+      "uid": "I64",
+      "title": "Repelling The Evils of Jinn & Horrifying Authorities",
+      "favoriteEntries": 7,
+      "distinctUsers": 7,
+      "note": ""
+    },
+    {
+      "uid": "AA18",
+      "title": "Aamal & Duas for the days of Ramadhan",
+      "favoriteEntries": 6,
+      "distinctUsers": 6,
+      "note": ""
+    },
+    {
+      "uid": "E113",
+      "title": "Everyday Supplications",
+      "favoriteEntries": 6,
+      "distinctUsers": 6,
+      "note": ""
+    },
+    {
+      "uid": "E126",
+      "title": "Imam al-Mahdi’s Supplication",
+      "favoriteEntries": 6,
+      "distinctUsers": 6,
+      "note": ""
+    },
+    {
+      "uid": "E141",
+      "title": "Isteghfar e Maujiz e Aasaa",
+      "favoriteEntries": 6,
+      "distinctUsers": 6,
+      "note": ""
+    },
+    {
+      "uid": "E142",
+      "title": "Merits of reciting the Dua اعددت لکل هول",
+      "favoriteEntries": 6,
+      "distinctUsers": 6,
+      "note": ""
+    },
+    {
+      "uid": "E17",
+      "title": "Dua during the Occultation of Imam Mahdi (a) - LONG اَللّٰهُمَّ عَرِّفْنِيْ نَفْسَكَ",
+      "favoriteEntries": 6,
+      "distinctUsers": 6,
+      "note": ""
+    },
+    {
+      "uid": "E57",
+      "title": "Dua for repayment of debts 1",
+      "favoriteEntries": 6,
+      "distinctUsers": 6,
+      "note": ""
+    },
+    {
+      "uid": "E59",
+      "title": "Dua for Restoration of Health",
+      "favoriteEntries": 6,
+      "distinctUsers": 6,
+      "note": ""
+    },
+    {
+      "uid": "Y9",
+      "title": "Fifteenth Night of Shaban",
+      "favoriteEntries": 6,
+      "distinctUsers": 6,
+      "note": ""
+    },
+    {
+      "uid": "AA19",
+      "title": "Tasbeehat & Salawat for every day in Ramadhan",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "AA34",
+      "title": "23rd Night of Ramadhan",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "E115",
+      "title": "Imam Baqir's (a) dua",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "E128",
+      "title": "Salawat upon the Holy Prophet",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "E140",
+      "title": "Salawat upon The Awaited Imam",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "E23",
+      "title": "Dua e Hifz e Imaan (another)",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "E56",
+      "title": "Dua for repayment of debts",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": "already retired to I17[2] via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "E94",
+      "title": "Dua between Sunset and Bedtime",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "F4",
+      "title": "Namaz e Aayaat",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "F46",
+      "title": "Namaz for Gaining Intelligence and Good Memory",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "I52",
+      "title": "Taweez against Private Parts Pains",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "I60",
+      "title": "Taweez against Evil Eyes",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "I72",
+      "title": "Lightening fast Prayer (for worldly desires)",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "Z10",
+      "title": "9th Day",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "Z15",
+      "title": "14th Day",
+      "favoriteEntries": 5,
+      "distinctUsers": 5,
+      "note": ""
+    },
+    {
+      "uid": "AA17",
+      "title": "Tasbeehat at the time of Sehar",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "AA30",
+      "title": "19th Night of Ramadhan",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E102",
+      "title": "Dua of Mother for her child who is ailing.",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E103",
+      "title": "Dua of Prostration of thanksgiving",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E105",
+      "title": "Dua of the Noon (Zuhr)",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E109",
+      "title": "Dua when intending to leave the Mosque",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E112",
+      "title": "Duas at Daybreak and Sunset",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E117",
+      "title": "Imam al-Husayn’s supplication",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E146",
+      "title": "Supplications at Sunrise & Sunset",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E148",
+      "title": "Thanksgiving Prostration - Sajdah al Shukr",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E48",
+      "title": "Dua for one's brother in faith while in prostration",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": "already retired to I20[0] via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "E65",
+      "title": "Dua for the Deceased",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E67",
+      "title": "Dua for the First Hour",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E88",
+      "title": "Dua Maknoon and its merits",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "E90",
+      "title": "Dua Before and After Ritual Prayers",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "F45",
+      "title": "Namaz for Forgiveness",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "F48",
+      "title": "Namaz for Seeking Allah's help In the name of Lady Fatimah (S)",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "F56",
+      "title": "Namaz for the removal of difficulties.",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "F8",
+      "title": "Namaz e Nawafil",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "G10",
+      "title": "Ziyarat e Taziyah Condolence to Holy Prophet (s) and His Immaculate progeny",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "G20",
+      "title": "Tuesday - Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a)",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "I13",
+      "title": "Merits of reciting Ayah Kursi after every Namaz",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "I26",
+      "title": "Fear of Wet Dreams",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": "already retired to I24[1] via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "I31",
+      "title": "Recitations for Fending Off Evil Self Inspirations",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "I57",
+      "title": "Taweez for Fending Off Devils and Sorcerers",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "I58",
+      "title": "Ayah Al Sakharah",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "I61",
+      "title": "Taweez against Satan's Evil Insinuations",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "I99",
+      "title": "Three devotional acts before going to sleep",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "Z11",
+      "title": "10th Day",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "Z21",
+      "title": "20th Day",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "Z22",
+      "title": "21st Day",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "Z24",
+      "title": "23rd Day",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "Z6",
+      "title": "5th Day",
+      "favoriteEntries": 4,
+      "distinctUsers": 4,
+      "note": ""
+    },
+    {
+      "uid": "A3",
+      "title": "Dua Khatme Quran",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "AA32",
+      "title": "Aamal of the last ten Nights of Ramadhan",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "AA47",
+      "title": "Farewell Prayer of Ramadhan",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E100",
+      "title": "Dua of Exaltation",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E104",
+      "title": "Dua of Takbir",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E111",
+      "title": "Dua when you see a Diseased or Defected Person",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E116",
+      "title": "Imam al-Hasan’s supplication",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E118",
+      "title": "Imam Zayn al-’Abidin’s supplication",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E120",
+      "title": "Imam al-Sadiq’s supplication",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E121",
+      "title": "Imam al-Kazim’s supplication",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E122",
+      "title": "Imam al-Reza’s supplication",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E123",
+      "title": "Imam al-Jawad’s supplication",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E124",
+      "title": "Imam al-Hadi’s supplication",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E125",
+      "title": "Imam al-’Askari’s supplication",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E147",
+      "title": "Supplicatory Prayers for Healing",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E69",
+      "title": "Dua for the Third Hour",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "E95",
+      "title": "Dua Muqatil ibn Sulayman",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "F14",
+      "title": "Namaz of Lady Fatimah Zehra (s.a.)",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "F54",
+      "title": "Namaz for Solving Difficulties",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "F7",
+      "title": "Namaz e Mayyat",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "I10",
+      "title": "General Ta'qeebaat - 1",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "I15",
+      "title": "Virtues of the \"Effective Veneration\"",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "I25",
+      "title": "Fear of Scorpion",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": "already retired to I24[0] via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "I30",
+      "title": "Dedication To The Dead",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "I39",
+      "title": "Taweez against Migraine",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "I53",
+      "title": "Taweez against Knee Pains",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "I56",
+      "title": "Taweez for Neutralizing Sorcery",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "I65",
+      "title": "Emphasis on sending Gifts to the Dead",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "I68",
+      "title": "Evil-Repelling Prayers and Supplicatory Amulets",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "X15",
+      "title": "(h) Aamal of Laylat al Mab'as (27th Night)",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Y1",
+      "title": "Importance of the Month of Shaban",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Y2",
+      "title": "General Aamal in Shaban",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z12",
+      "title": "11th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z13",
+      "title": "12th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z14",
+      "title": "13th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z16",
+      "title": "15th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z17",
+      "title": "16th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z18",
+      "title": "17th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z19",
+      "title": "18th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z20",
+      "title": "19th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z23",
+      "title": "22nd Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z25",
+      "title": "24th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z26",
+      "title": "25th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z27",
+      "title": "26th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z28",
+      "title": "27th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z29",
+      "title": "28th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z30",
+      "title": "29th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z31",
+      "title": "30th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "Z9",
+      "title": "8th Day",
+      "favoriteEntries": 3,
+      "distinctUsers": 3,
+      "note": ""
+    },
+    {
+      "uid": "A2",
+      "title": "Dua after reciting Holy Quran",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA22",
+      "title": "Other Aamal of The First Night",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA25",
+      "title": "The 13th Night of Ramadhan",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA26",
+      "title": "The 15th Night of Ramadhan",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA31",
+      "title": "Aamal of the 21st Night of Ramadhan",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA33",
+      "title": "Dua on the 22nd Night of Ramadhan",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA35",
+      "title": "Dua for the 23rd Night of Ramadhan",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA39",
+      "title": "27th Night of Ramadan",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA40",
+      "title": "Dua for the 27th Night of Ramadhan",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA43",
+      "title": "Last Night of Ramadhan",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AC6",
+      "title": "Salat of وَ وَاعَدْنَا",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "C16",
+      "title": "Aamal of the day of Navroz",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E106",
+      "title": "Dua Shaybah Al Hudhali",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": "already retired to I9[2] via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "E110",
+      "title": "Dua when someone Sees the Dead",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E119",
+      "title": "Imam al-Baqir’s supplication",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E149",
+      "title": "The Holy Infallibles And The Days Of The Week",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E150",
+      "title": "The Holy Prophet's (s) dua",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E151",
+      "title": "The Noon Obligatory Prayer اللهم رب هذه الدعوة التامه",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": "already retired to I21[1] via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "E3",
+      "title": "Dua Aaliyah al Mazameen Dua to be recited after the Ziyarah of every Masoomeen (a)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E51",
+      "title": "Dua for protection of valubales and precious things (that are concealed)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E66",
+      "title": "Duas for each hour of the Day",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E68",
+      "title": "Dua for the Second Hour",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E70",
+      "title": "Dua for the Fourth Hour",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E71",
+      "title": "Dua for the Fifth Hour",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E72",
+      "title": "Dua for the Sixth Hour",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E73",
+      "title": "Dua for the Seventh Hour",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E74",
+      "title": "Dua for the Eighth Hour",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E75",
+      "title": "Dua for the Nineth Hour",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E78",
+      "title": "Dua for the Twelfth Hour",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E83",
+      "title": "Another Dua for Ailing Diseases",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E97",
+      "title": "Dua of Ailing Diseases",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "E99",
+      "title": "Dua of Covenant with Almighty Allah (s.w.t)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F13",
+      "title": "Namaz of Holy Prophet(s)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F15",
+      "title": "Namaz of Imam Ali (a.s.)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F34",
+      "title": "Namaz for fulfillment of needs (1)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F40",
+      "title": "Another Namaz for more Sustenance",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F44",
+      "title": "Namaz for Fending Off Evil Self Inspirations",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F47",
+      "title": "Namaz for Seeking (divine) help.",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F49",
+      "title": "Namaz For Seeking Allah's help in The Name of The Prophet (s) and Imam Ali (a)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F55",
+      "title": "Namaz for Travel",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F58",
+      "title": "Namaz of Imam Muhammad Taqi (a) to ward of evil",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F6",
+      "title": "Namaz e Kamilah",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "F60",
+      "title": "Namaz of Pardon",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "G24",
+      "title": "Story of Sayyid Al Rashti",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "G30",
+      "title": "The comprehensive Ziyarat of the Imams (a)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "G74",
+      "title": "Ziyarat e Imam Husain (a) ",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "G77",
+      "title": "Ziyarat of Imam Al Hujjah (a.t.f.s.) ",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I110",
+      "title": "Importance of Writing Bismillah on the House Door",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I111",
+      "title": "Importance of reciting of Qulho wallaho Ahad",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I115",
+      "title": "Writing of Will before death",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I16",
+      "title": "Merits of reciting Surah Tawheed after every Namaz",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": "already retired to I14[0] via retiredZikrRedirects — skip standalone restore"
+    },
+    {
+      "uid": "I18",
+      "title": "Merit of reciting Bismillah along with La Haula Wa La Quwwata",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I43",
+      "title": "Taweez for Chest Pains",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I44",
+      "title": "Taweez for Curing of Coughing & against Stomach Pains",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I54",
+      "title": "Taweez against Eye aches",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I66",
+      "title": "Acquiring lesson from the Dead",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I78",
+      "title": "Pocket Taweez",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I86",
+      "title": "Ten duas for fufillment of petitions (requests)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I88",
+      "title": "Special Features of Surah Qadr, Tawheed & Ayah Al Kursi",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "I94",
+      "title": "Verses to restore the lost things",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "X10",
+      "title": "(d) Fifteenth of Rajab (Namaz e Salman)",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "X11",
+      "title": "(e) Thirteenth of Rajab",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "X14",
+      "title": "(g) Aamal & Dua of Umme Dawood",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "Y10",
+      "title": "Fifteenth day of Shaban",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "Y11",
+      "title": "Ziyarah on the 15th of Shaban",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "Y12",
+      "title": "Last Night of Shaban",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "Y7",
+      "title": "Third of Shaban",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "Y8",
+      "title": "Thirteenth Night Of Shaban",
+      "favoriteEntries": 2,
+      "distinctUsers": 2,
+      "note": ""
+    },
+    {
+      "uid": "AA20",
+      "title": "First Night of Ramadhan",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AA23",
+      "title": "The 1st Day of Ramadhan",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AA27",
+      "title": "The 17th Night of Ramadhan",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AA28",
+      "title": "Aamal of Shab Qadr",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AA37",
+      "title": "Dua for the 25th Night of Ramadhan",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AA38",
+      "title": "Dua for the 26th Night of Ramadhan",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AA46",
+      "title": "Prayers for the nights of Ramadhan",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AC19",
+      "title": "Namaz on the Day of Ghadeer",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AD2",
+      "title": "Prayers & Du'as of Night of Eid ul Fitr",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AD3",
+      "title": "Aamal for the day of Eid ul Fitr",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AG19",
+      "title": "Stature and Position of Al Abbas",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AG2",
+      "title": "Etiquettes to be observed during Journey to Imam Husayn's (a) tomb and inside his Holy Shrine",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AI12",
+      "title": "Prayer for fulfillment of desires at Al Kufah Mosque",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AK13",
+      "title": "Seventh Ziyarah",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AP2",
+      "title": "Method of Ziyarah of Holy Prophet (s) in Madinah",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "AP4",
+      "title": "Ziyarah of Lady Fatimah Al-Zahra'",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "B3",
+      "title": "Etiquettes of Ziyarah",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "B4",
+      "title": "Verbal harassment to a female pilgrim talking with Na Mahram",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "B6",
+      "title": "Another Izn Dukhool",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "E127",
+      "title": "Salawat upon The Holy Infallibles",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "E129",
+      "title": "Salawat upon the Commander of the Faithful",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "E76",
+      "title": "Dua for the Tenth Hour",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "E77",
+      "title": "Dua for the Eleventh Hour",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F1",
+      "title": "Merits of Namaz e Shab",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F12",
+      "title": "Namaz Hadiyah Masoomeen (a)",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F17",
+      "title": "Namaz of Imam al-Husayn (a)",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F23",
+      "title": "Namaz of Imam al-Jawad (a)",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F35",
+      "title": "Namaz for fulfillment of needs (2)",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F38",
+      "title": "Namaz for fulfillment of needs (5)",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F41",
+      "title": "Namaz of Imam Al-Mahdi (a) at the Jamkaran Mosque",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F43",
+      "title": "Namaz at Seeing a non-Muslims",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F51",
+      "title": "Namaz for Settling the Debts and Saving from Despotic Rulers",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F52",
+      "title": "Namaz for Settling the Needs",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F53",
+      "title": "Namaz for Settling urgent Needs",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F57",
+      "title": "Namaz of Imam Kazim (a) to ward of evil",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "F64",
+      "title": "Namaz for Settling of Debts",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "G26",
+      "title": "Supplications after the Ziyarat",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "G29",
+      "title": "Visiting the Graves of the Faithful Believers",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I108",
+      "title": "Prohibition on Shaving Beard",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I109",
+      "title": "Prohibition on Inclination towards the Wrongdoers",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I112",
+      "title": "Importance of a ring of Aqeeq and looking at it in the morning and while praying",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I119",
+      "title": "The Ritual Bathing (Ghusl) of The Deceased",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I28",
+      "title": "Salawat of immense rewards",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I29",
+      "title": "Letter of Yusha the son of Nun",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I37",
+      "title": "Etiquettes of Praying for fulfillment of needs",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I38",
+      "title": "Taweez against Headache & Ear ache",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I41",
+      "title": "Taweez against Mouthache",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I51",
+      "title": "Taweez against Mange, Furuncle & Herpes",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I55",
+      "title": "Suffering from Nosebleed",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I62",
+      "title": "Taweez against Thieves",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I63",
+      "title": "Taweez against Scorpions and Serpents",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I67",
+      "title": "Tawassul with Holy Prophet (s) and H. Ali (s)",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I69",
+      "title": "Protection from fleas & beasts",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I70",
+      "title": "Brief Supplications for this World and other worldly desires",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I87",
+      "title": "Special Qualities of some the Qur'anic Chapters And Verses",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I96",
+      "title": "Merits of Surah Zilzal",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "I97",
+      "title": "Some Merits of other Surahs & verses",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "P13",
+      "title": "Recite 100 times between Nafilah Fajr and Namaz of Fajr سُبْحَانَ رَبِّيَ الْعَظِيْمِ",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "P15",
+      "title": "Recitations near Friday Dawn (Fajr)",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "P6",
+      "title": "The Namaaz of Ameer al-Momineen (a.s.)",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "R10",
+      "title": "Ziyarah of Condolence to Holy Prophet (s) and His Immaculate progeny",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "R11",
+      "title": "Ziyarah on the day of Ashura",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "R14",
+      "title": "More Confirmations",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "R15",
+      "title": "Second Ziyarah on day of Ashura; lesser known version",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "T2",
+      "title": "Aamal from 12th to 17th nights of Rabi al Awwal",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "W1",
+      "title": "3rd Jamadi al Akhirah (Martyrdom of Lady Fatimah al-Zahra (s))",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "W2",
+      "title": "20th Jamadi al Akhirah (Birthday of Lady Fatima al-Zahra (s))",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "W3",
+      "title": "Aamal in Jamadi al Akhirah",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "X13",
+      "title": "Ziyarah on the 15th of Rajab",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "X8",
+      "title": "(c) First Day of Rajab",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "Y5",
+      "title": "First Night of Shaban",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    },
+    {
+      "uid": "Y6",
+      "title": "First Day of Shaban",
+      "favoriteEntries": 1,
+      "distinctUsers": 1,
+      "note": ""
+    }
+  ]
+}
