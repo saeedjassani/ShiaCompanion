@@ -1003,6 +1003,10 @@
     "title": "Dua Yastasheer",
     "slug": "dua-yastasheer"
   },
+  "E113": {
+    "title": "Everyday Supplications",
+    "slug": "everyday-supplications"
+  },
   "E115": {
     "title": "Imam Baqir's (a) dua",
     "slug": "imam-baqirs-a-dua"
@@ -1337,6 +1341,10 @@
     "title": "Dua before reading a book",
     "slug": "dua-before-reading-a-book"
   },
+  "E94": {
+    "title": "Dua between Sunset and Bedtime",
+    "slug": "dua-between-sunset-and-bedtime"
+  },
   "E96": {
     "title": "Dua for Solving Difficulties",
     "slug": "dua-for-solving-difficulties"
@@ -1388,6 +1396,10 @@
   "F33|K2": {
     "title": "Namaz on Saturdays",
     "slug": "namaz-on-saturdays"
+  },
+  "F4": {
+    "title": "Namaz e Aayaat",
+    "slug": "namaz-e-aayaat"
   },
   "F46": {
     "title": "Namaz for Gaining Intelligence and Good Memory",
@@ -1912,6 +1924,10 @@
   "I6": {
     "title": "Pre-Prayer Supplications",
     "slug": "etiquettes-of-prayers"
+  },
+  "I60": {
+    "title": "Taweez against Evil Eyes",
+    "slug": "taweez-against-evil-eyes"
   },
   "I7": {
     "title": "Other Etiquettes of Namaz",
