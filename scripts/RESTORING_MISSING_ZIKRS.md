@@ -13,14 +13,15 @@ real, correctly-formatted content — not just a title.
 
 ## Step 0: regenerate the missing-UID list (if you don't already have it)
 
-```js
-// Union every historical assets/zikr.json version's keys (git log --follow),
-// subtract the current file's keys.
-```
-501 UIDs as of 2026-09-05. Don't confuse this with `scripts/missing_zikrs.json`
-(545 entries) — that file is `populate_missing_zikrs.js`'s diff of the old
-`legacy_items_index.json` against current `zikr.json`, a different project
-(finding content to backfill from duas.org from scratch).
+`scripts/query_favorited_missing_zikrs.js` does this as its first step (union
+every historical `assets/zikr.json` version's keys via `git log --follow`,
+subtract the current file's keys), then cross-references against Firestore
+favorites — see the Prioritizing section below. 483 UIDs missing as of
+2026-09-08 (501 at the original 2026-09-05 count, minus UIDs restored since).
+Don't confuse this with `scripts/missing_zikrs.json` (545 entries) — that
+file is `populate_missing_zikrs.js`'s diff of the old `legacy_items_index.json`
+against current `zikr.json`, a different project (finding content to backfill
+from duas.org from scratch).
 
 ## Step 1: check `assets/items/<uid>` in git history FIRST
 
@@ -53,9 +54,12 @@ Some "missing" UIDs actually already have full content shipping today — not
 under their own UID, but as one of another live UID's `tabs[]` entries. e.g.
 `AA6`/`AA7` ("Dua after every obligatory Prayers (2)/(3)") are `AA5`'s
 `tabs[0]`/`tabs[1]` verbatim. For these, **don't create a standalone
-`assets/zikr/<uid>` entry** — the app will eventually get backward-compat
-routing so the UID opens the right tab of its owner. Check for this before
-doing any restoration work on a UID.
+`assets/zikr/<uid>` entry** — instead add it to
+[lib/data/retired_zikr_redirects.dart](../lib/data/retired_zikr_redirects.dart),
+which `ZikrPage` already consults so the UID opens the right tab of its
+owner. That map currently covers 10 UIDs (`D11`→`D12` full duplicate, plus 9
+tab-covered ones); check it — and check for new candidates — before doing any
+restoration work on a UID.
 
 The tempting shortcut — compare a chunk of the UID's own historic Arabic
 against every live `tabs[]` entry's Arabic, look for a substring match — is
@@ -152,10 +156,228 @@ node -e "const d=JSON.parse(require('fs').readFileSync('assets/zikr/<UID>','utf8
 Line count should be a multiple of 3 (plus however many trailing plain-text
 lines you appended, e.g. a closing "you may then mention your needs" note).
 
-## Prioritizing which of the 501 to do first
+## Prioritizing: which missing UIDs are actually favorited by users
 
-Not all 501 are equally worth the effort — cross-reference against real
-favorites before picking (see `favorites-firestore-path` memory note for the
-collection-group-query technique). As of 2026-09-05, 292 of the 501 are
-favorited by at least one real user across 1,150 favorite-entries and 146
-distinct users; the top offenders by users-affected are worth doing first.
+Not all missing UIDs are equally worth the effort. Cross-referencing against
+real favorites needs live Firestore admin access (`scripts/serviceAccountKey.json`),
+which a remote/cloud session usually doesn't have — so the list below is a
+**committed, static snapshot** generated locally, not something you need to
+re-query Firestore for. Regenerate it with:
+
+```bash
+node scripts/query_favorited_missing_zikrs.js
+```
+
+which also writes the full machine-readable version (all 274 favorited UIDs,
+including the 10 already retired via `retiredZikrRedirects` — see Step 1.5)
+to [scripts/favorited_missing_zikrs.json](favorited_missing_zikrs.json).
+
+**As of 2026-09-08:** 483 UIDs are missing from `assets/zikr.json`; of those,
+274 are favorited by at least one real user, across 890 favorite-entries and
+131 distinct users (out of 269 users who have any favorites at all). The
+table below is every missing, not-yet-retired UID favorited by **2 or more**
+users (202 total), ranked by distinct users affected — the single-favorite
+tail (72 more UIDs) is in the JSON file only. Note the run of `Z*` (Muharram
+"Nth Day") and `Y*`/`AA*` (Shaban/Ramadhan) series UIDs — these look like
+whole calendar-day series that got purged together, so restoring one likely
+means restoring several siblings by the same pattern.
+
+| UID | Users | Entries | Title |
+|---|---|---|---|
+| E92 | 11 | 11 | Dua before leaving the house |
+| E93 | 11 | 11 | Dua before reading a book |
+| E101 | 10 | 10 | Dua of Imam Husayn (a) on the day of Ashura بِحَقِّ يٰسٓ وَالْقُرْاٰنِ الْحَكِيْمِ |
+| E108 | 10 | 10 | Dua to rememeber the things that Satan makes you forget |
+| E143 | 10 | 10 | Prayer for fulfillment of desires |
+| E55 | 10 | 10 | Dua for repaying the Debts |
+| E62 | 10 | 10 | Dua for safety from illness and ailments |
+| E10 | 9 | 9 | Dua Asharat |
+| E53 | 9 | 9 | Dua for Release from Grief |
+| E64 | 9 | 9 | Dua for Sustenance |
+| E86 | 9 | 9 | Dua for whoever wants to see his request in the dream |
+| I12 | 9 | 9 | Merits of reciting Ayah Kursi (2: 255), Ayah Al Shahadah, Ayah Al Mulk after every Namaz |
+| E25 | 8 | 8 | Another Dua Tawassul |
+| E43 | 8 | 8 | Dua for getting Male Child |
+| E47 | 8 | 8 | Dua for Longevity |
+| E87 | 8 | 8 | Dua in the Mornings and Evenings |
+| F10 | 8 | 8 | Namaz e Maghferat e Waaledain |
+| G76 | 8 | 8 | Ziyarat After Namaz |
+| AA15 | 7 | 7 | Aamal & Duas to be recited in every night of Ramadhan |
+| AA29 | 7 | 7 | Common Aamal at each of the three Qadr Nights |
+| E114 | 7 | 7 | Hirz Zayn al Abidin (a) |
+| E40 | 7 | 7 | Dua for delaying death (Ajal) |
+| F39 | 7 | 7 | Namaz for more Sustenance |
+| G14 | 7 | 7 | Ziyarah of Imam Husayn (a) at the Qadr Nights |
+| I64 | 7 | 7 | Repelling The Evils of Jinn & Horrifying Authorities |
+| AA18 | 6 | 6 | Aamal & Duas for the days of Ramadhan |
+| E113 | 6 | 6 | Everyday Supplications |
+| E126 | 6 | 6 | Imam al-Mahdi's Supplication |
+| E141 | 6 | 6 | Isteghfar e Maujiz e Aasaa |
+| E142 | 6 | 6 | Merits of reciting the Dua اعددت لکل هول |
+| E17 | 6 | 6 | Dua during the Occultation of Imam Mahdi (a) - LONG اَللّٰهُمَّ عَرِّفْنِيْ نَفْسَكَ |
+| E57 | 6 | 6 | Dua for repayment of debts 1 |
+| E59 | 6 | 6 | Dua for Restoration of Health |
+| Y9 | 6 | 6 | Fifteenth Night of Shaban |
+| AA19 | 5 | 5 | Tasbeehat & Salawat for every day in Ramadhan |
+| AA34 | 5 | 5 | 23rd Night of Ramadhan |
+| E115 | 5 | 5 | Imam Baqir's (a) dua |
+| E128 | 5 | 5 | Salawat upon the Holy Prophet |
+| E140 | 5 | 5 | Salawat upon The Awaited Imam |
+| E23 | 5 | 5 | Dua e Hifz e Imaan (another) |
+| E94 | 5 | 5 | Dua between Sunset and Bedtime |
+| F4 | 5 | 5 | Namaz e Aayaat |
+| F46 | 5 | 5 | Namaz for Gaining Intelligence and Good Memory |
+| I52 | 5 | 5 | Taweez against Private Parts Pains |
+| I60 | 5 | 5 | Taweez against Evil Eyes |
+| I72 | 5 | 5 | Lightening fast Prayer (for worldly desires) |
+| Z10 | 5 | 5 | 9th Day |
+| Z15 | 5 | 5 | 14th Day |
+| AA17 | 4 | 4 | Tasbeehat at the time of Sehar |
+| AA30 | 4 | 4 | 19th Night of Ramadhan |
+| E102 | 4 | 4 | Dua of Mother for her child who is ailing. |
+| E103 | 4 | 4 | Dua of Prostration of thanksgiving |
+| E105 | 4 | 4 | Dua of the Noon (Zuhr) |
+| E109 | 4 | 4 | Dua when intending to leave the Mosque |
+| E112 | 4 | 4 | Duas at Daybreak and Sunset |
+| E117 | 4 | 4 | Imam al-Husayn's supplication |
+| E146 | 4 | 4 | Supplications at Sunrise & Sunset |
+| E148 | 4 | 4 | Thanksgiving Prostration - Sajdah al Shukr |
+| E65 | 4 | 4 | Dua for the Deceased |
+| E67 | 4 | 4 | Dua for the First Hour |
+| E88 | 4 | 4 | Dua Maknoon and its merits |
+| E90 | 4 | 4 | Dua Before and After Ritual Prayers |
+| F45 | 4 | 4 | Namaz for Forgiveness |
+| F48 | 4 | 4 | Namaz for Seeking Allah's help In the name of Lady Fatimah (S) |
+| F56 | 4 | 4 | Namaz for the removal of difficulties. |
+| F8 | 4 | 4 | Namaz e Nawafil |
+| G10 | 4 | 4 | Ziyarat e Taziyah Condolence to Holy Prophet (s) and His Immaculate progeny |
+| G20 | 4 | 4 | Tuesday - Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a) |
+| I13 | 4 | 4 | Merits of reciting Ayah Kursi after every Namaz |
+| I31 | 4 | 4 | Recitations for Fending Off Evil Self Inspirations |
+| I57 | 4 | 4 | Taweez for Fending Off Devils and Sorcerers |
+| I58 | 4 | 4 | Ayah Al Sakharah |
+| I61 | 4 | 4 | Taweez against Satan's Evil Insinuations |
+| I99 | 4 | 4 | Three devotional acts before going to sleep |
+| Z11 | 4 | 4 | 10th Day |
+| Z21 | 4 | 4 | 20th Day |
+| Z22 | 4 | 4 | 21st Day |
+| Z24 | 4 | 4 | 23rd Day |
+| Z6 | 4 | 4 | 5th Day |
+| A3 | 3 | 3 | Dua Khatme Quran |
+| AA32 | 3 | 3 | Aamal of the last ten Nights of Ramadhan |
+| AA47 | 3 | 3 | Farewell Prayer of Ramadhan |
+| E100 | 3 | 3 | Dua of Exaltation |
+| E104 | 3 | 3 | Dua of Takbir |
+| E111 | 3 | 3 | Dua when you see a Diseased or Defected Person |
+| E116 | 3 | 3 | Imam al-Hasan's supplication |
+| E118 | 3 | 3 | Imam Zayn al-'Abidin's supplication |
+| E120 | 3 | 3 | Imam al-Sadiq's supplication |
+| E121 | 3 | 3 | Imam al-Kazim's supplication |
+| E122 | 3 | 3 | Imam al-Reza's supplication |
+| E123 | 3 | 3 | Imam al-Jawad's supplication |
+| E124 | 3 | 3 | Imam al-Hadi's supplication |
+| E125 | 3 | 3 | Imam al-'Askari's supplication |
+| E147 | 3 | 3 | Supplicatory Prayers for Healing |
+| E69 | 3 | 3 | Dua for the Third Hour |
+| E95 | 3 | 3 | Dua Muqatil ibn Sulayman |
+| F14 | 3 | 3 | Namaz of Lady Fatimah Zehra (s.a.) |
+| F54 | 3 | 3 | Namaz for Solving Difficulties |
+| F7 | 3 | 3 | Namaz e Mayyat |
+| I10 | 3 | 3 | General Ta'qeebaat - 1 |
+| I15 | 3 | 3 | Virtues of the "Effective Veneration" |
+| I30 | 3 | 3 | Dedication To The Dead |
+| I39 | 3 | 3 | Taweez against Migraine |
+| I53 | 3 | 3 | Taweez against Knee Pains |
+| I56 | 3 | 3 | Taweez for Neutralizing Sorcery |
+| I65 | 3 | 3 | Emphasis on sending Gifts to the Dead |
+| I68 | 3 | 3 | Evil-Repelling Prayers and Supplicatory Amulets |
+| X15 | 3 | 3 | (h) Aamal of Laylat al Mab'as (27th Night) |
+| Y1 | 3 | 3 | Importance of the Month of Shaban |
+| Y2 | 3 | 3 | General Aamal in Shaban |
+| Z12 | 3 | 3 | 11th Day |
+| Z13 | 3 | 3 | 12th Day |
+| Z14 | 3 | 3 | 13th Day |
+| Z16 | 3 | 3 | 15th Day |
+| Z17 | 3 | 3 | 16th Day |
+| Z18 | 3 | 3 | 17th Day |
+| Z19 | 3 | 3 | 18th Day |
+| Z20 | 3 | 3 | 19th Day |
+| Z23 | 3 | 3 | 22nd Day |
+| Z25 | 3 | 3 | 24th Day |
+| Z26 | 3 | 3 | 25th Day |
+| Z27 | 3 | 3 | 26th Day |
+| Z28 | 3 | 3 | 27th Day |
+| Z29 | 3 | 3 | 28th Day |
+| Z30 | 3 | 3 | 29th Day |
+| Z31 | 3 | 3 | 30th Day |
+| Z9 | 3 | 3 | 8th Day |
+| A2 | 2 | 2 | Dua after reciting Holy Quran |
+| AA22 | 2 | 2 | Other Aamal of The First Night |
+| AA25 | 2 | 2 | The 13th Night of Ramadhan |
+| AA26 | 2 | 2 | The 15th Night of Ramadhan |
+| AA31 | 2 | 2 | Aamal of the 21st Night of Ramadhan |
+| AA33 | 2 | 2 | Dua on the 22nd Night of Ramadhan |
+| AA35 | 2 | 2 | Dua for the 23rd Night of Ramadhan |
+| AA39 | 2 | 2 | 27th Night of Ramadan |
+| AA40 | 2 | 2 | Dua for the 27th Night of Ramadhan |
+| AA43 | 2 | 2 | Last Night of Ramadhan |
+| AC6 | 2 | 2 | Salat of وَ وَاعَدْنَا |
+| C16 | 2 | 2 | Aamal of the day of Navroz |
+| E110 | 2 | 2 | Dua when someone Sees the Dead |
+| E119 | 2 | 2 | Imam al-Baqir's supplication |
+| E149 | 2 | 2 | The Holy Infallibles And The Days Of The Week |
+| E150 | 2 | 2 | The Holy Prophet's (s) dua |
+| E3 | 2 | 2 | Dua Aaliyah al Mazameen Dua to be recited after the Ziyarah of every Masoomeen (a) |
+| E51 | 2 | 2 | Dua for protection of valubales and precious things (that are concealed) |
+| E66 | 2 | 2 | Duas for each hour of the Day |
+| E68 | 2 | 2 | Dua for the Second Hour |
+| E70 | 2 | 2 | Dua for the Fourth Hour |
+| E71 | 2 | 2 | Dua for the Fifth Hour |
+| E72 | 2 | 2 | Dua for the Sixth Hour |
+| E73 | 2 | 2 | Dua for the Seventh Hour |
+| E74 | 2 | 2 | Dua for the Eighth Hour |
+| E75 | 2 | 2 | Dua for the Nineth Hour |
+| E78 | 2 | 2 | Dua for the Twelfth Hour |
+| E83 | 2 | 2 | Another Dua for Ailing Diseases |
+| E97 | 2 | 2 | Dua of Ailing Diseases |
+| E99 | 2 | 2 | Dua of Covenant with Almighty Allah (s.w.t) |
+| F13 | 2 | 2 | Namaz of Holy Prophet(s) |
+| F15 | 2 | 2 | Namaz of Imam Ali (a.s.) |
+| F34 | 2 | 2 | Namaz for fulfillment of needs (1) |
+| F40 | 2 | 2 | Another Namaz for more Sustenance |
+| F44 | 2 | 2 | Namaz for Fending Off Evil Self Inspirations |
+| F47 | 2 | 2 | Namaz for Seeking (divine) help. |
+| F49 | 2 | 2 | Namaz For Seeking Allah's help in The Name of The Prophet (s) and Imam Ali (a) |
+| F55 | 2 | 2 | Namaz for Travel |
+| F58 | 2 | 2 | Namaz of Imam Muhammad Taqi (a) to ward of evil |
+| F6 | 2 | 2 | Namaz e Kamilah |
+| F60 | 2 | 2 | Namaz of Pardon |
+| G24 | 2 | 2 | Story of Sayyid Al Rashti |
+| G30 | 2 | 2 | The comprehensive Ziyarat of the Imams (a) |
+| G74 | 2 | 2 | Ziyarat e Imam Husain (a)  |
+| G77 | 2 | 2 | Ziyarat of Imam Al Hujjah (a.t.f.s.)  |
+| I110 | 2 | 2 | Importance of Writing Bismillah on the House Door |
+| I111 | 2 | 2 | Importance of reciting of Qulho wallaho Ahad |
+| I115 | 2 | 2 | Writing of Will before death |
+| I18 | 2 | 2 | Merit of reciting Bismillah along with La Haula Wa La Quwwata |
+| I43 | 2 | 2 | Taweez for Chest Pains |
+| I44 | 2 | 2 | Taweez for Curing of Coughing & against Stomach Pains |
+| I54 | 2 | 2 | Taweez against Eye aches |
+| I66 | 2 | 2 | Acquiring lesson from the Dead |
+| I78 | 2 | 2 | Pocket Taweez |
+| I86 | 2 | 2 | Ten duas for fufillment of petitions (requests) |
+| I88 | 2 | 2 | Special Features of Surah Qadr, Tawheed & Ayah Al Kursi |
+| I94 | 2 | 2 | Verses to restore the lost things |
+| X10 | 2 | 2 | (d) Fifteenth of Rajab (Namaz e Salman) |
+| X11 | 2 | 2 | (e) Thirteenth of Rajab |
+| X14 | 2 | 2 | (g) Aamal & Dua of Umme Dawood |
+| Y10 | 2 | 2 | Fifteenth day of Shaban |
+| Y11 | 2 | 2 | Ziyarah on the 15th of Shaban |
+| Y12 | 2 | 2 | Last Night of Shaban |
+| Y7 | 2 | 2 | Third of Shaban |
+| Y8 | 2 | 2 | Thirteenth Night Of Shaban |
+
+The single-favorite tail (72 more UIDs, plus the 10 already-retired ones with
+their own redirect target) is in
+[scripts/favorited_missing_zikrs.json](favorited_missing_zikrs.json) if you
+work through this table and want more.
