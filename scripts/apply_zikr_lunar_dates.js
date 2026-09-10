@@ -56,9 +56,16 @@ const LUNAR_DATES = {
   G55: '08-11', // Ali Akbar - birth 11 Sha'ban
   G56: '08-07', // Shohadaa-e-Karbala (collective) - linked from Qasim ibn-e-Hasan's birth, 7 Sha'ban; no dedicated Qasim ziyarat exists
   G57: '08-04', // Hazrat Abbas - birth 4 Sha'ban
+  // G7-G9: alternate ziyarat texts for a person already tagged above -
+  // same occasion, different wording.
+  G7: '08-04', // Ziyarat-e-Hazrat Abbas (alternate text) - same occasion as G57
+  G8: ['02-17', '02-29', '11-11', '11-23'], // Ziyarat-e-Imam Reza (alternate text) - same occasions as G68
+  G9: '08-15', // Ziyarat-e-Imam-e-Zamana (alternate text) - same occasion as G72
+  G60: '12-09', // Ziyarate Janabe Muslim ibn Aqeel - martyred 9th Zilhajj (Day of Arafah), per events.json
+  G61: '12-09', // Ziyarate Janabe Hani ibn Urwah - executed alongside Muslim ibn Aqeel, same day; not in events.json, per explicit request
   G64: ['01-25', '05-15', '08-05'], // Imam Zainul Abideen - martyrdom 25 Muharram, birth (2 riwayat)
   G65: ['07-01', '12-07'], // Imam Mohammad Baqir - birth 1 Rajab, martyrdom 7 Zilhajj
-  G66: '10-25', // Imam Jafar Sadiq - martyrdom 25 Shawwal
+  G66: ['10-25', '03-17'], // Imam Jafar Sadiq - martyrdom 25 Shawwal, birth 17 Rabi al-Awwal (shared with the Prophet's, see G50)
   G67: ['02-07', '07-25'], // Imam Musa Kazim - birth 7 Safar, martyrdom 25 Rajab
   G68: ['02-17', '02-29', '11-11', '11-23'], // Imam Ali Raza - martyrdom (2 riwayat) + birth/martyrdom in Zilqad
   G69: ['07-10', '11-29'], // Imam Mohammad Taqi - birth 10 Rajab, martyrdom 29 Zilqad
@@ -73,6 +80,7 @@ const LUNAR_DATES = {
   G81: '06-13', // Janab-e-Ummul Baneen - death 13 Jamadi II
   G82: ['02-10', '07-20'], // Janab-e-Sakina - martyrdom 10 Safar, birth 20 Rajab
   G83: '01-10', // Ziyaarat-e-Aashoora Ghair Ma'roofah - 10th Muharram (Ashura, from its own title)
+  G3: '02-20', // Ziyarat e Arbaeen - 20th Safar (same occasion as S5/S7, from its own title)
 
   // --- Aamaal ---
   // R/S/X/Y/AA/AB/AC are Mafatih al-Jinan's month-by-month Aamaal chapters
@@ -129,6 +137,7 @@ const LUNAR_DATES = {
   AA11: '09-*', // Dua Baha - Ramadan Suhoor Dawn
   AA12: '09-*', // Dua-e-Abu Hamzah Sumali - Ramazan Suhoor
   AA13: '09-*', // Ya Uddati - Ramadan
+  AA14: '09-*', // Dua e Sahar - Ramazan pre-dawn dua, from Iqbal al-A'mal per its own text
   AA16: '09-*', // Aamal-e-Sahar in the Holy Month of Ramazan
   AB1: '11-*-0', // Zilqad - Sunday Namaz (Sunday=0)
   AB2: ['11-11', '11-15', '11-23'], // 11th, 15th & 23rd of Zilqad
@@ -157,6 +166,22 @@ const LUNAR_DATES = {
   AC22: '12-25', // The Twenty-Fifth of Zilhajj
   AC23: ['12-29', '12-30'], // The Last Day of Zilhajj (29 or 30, depending on the year)
   AD4: ['10-01', '12-10'], // Eid Prayer - Eid al-Fitr and Eid al-Azha
+
+  // --- Other ---
+  // Outside the prefix groups above; dates are from each item's own title
+  // and content.
+  V1: ['05-13', '05-14', '05-15'], // 13th-15th Jumada al-Ula - Lady Fatimah al-Zahra's likely martyrdom days
+  // Z2-Z8: "Short Duas for the Days of Ramazan" (Z1), one per day of the
+  // month - only days 1-4, 6 & 7 exist in the corpus (day 5 / "Z6" is
+  // missing, and it stops at day 7), so this only covers what's actually
+  // there. Z1 itself is left untagged: it's the chapter's intro paragraph,
+  // not a recitation.
+  Z2: '09-01',
+  Z3: '09-02',
+  Z4: '09-03',
+  Z5: '09-04',
+  Z7: '09-06',
+  Z8: '09-07',
 };
 
 const DRY_RUN = process.argv.includes('--dry-run');
