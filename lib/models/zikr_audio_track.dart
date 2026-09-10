@@ -21,9 +21,8 @@ class ZikrAudioTrack {
     for (final entry in raw) {
       if (entry is! Map) continue;
       final url = entry['url']?.toString().trim() ?? '';
-      // Mirrors buildAudioPayload in scripts/build_zikr_release.js: iOS blocks
-      // cleartext and the web build is served over https, so an http track
-      // could never play anyway.
+      // iOS blocks cleartext and the web build is served over https, so an
+      // http track could never play anyway.
       if (!url.startsWith('https://')) continue;
       if (!seen.add(url)) continue;
 

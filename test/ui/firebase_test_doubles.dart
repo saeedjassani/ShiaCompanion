@@ -10,9 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 ///
 ///   * Construction. `FavoritesManager` and `QazaTrackerManager` hold
 ///     `FirebaseFirestore.instance`, `FirebaseAuth.instance` and
-///     `FirebaseDatabase.instance` in field initialisers, and `ItemList` builds
-///     a collection reference the same way. Every one of those throws
-///     `[core/no-app]` until an app exists, which is what
+///     `FirebaseDatabase.instance` in field initialisers. Every one of those
+///     throws `[core/no-app]` until an app exists, which is what
 ///     [setupFirebaseCoreMocks] plus `Firebase.initializeApp` provides.
 ///   * Calls. Screens then read from those instances, usually unawaited from
 ///     `initState`. With no plugin behind the channel the call raises

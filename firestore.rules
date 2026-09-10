@@ -2,21 +2,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    match /zikr/{docId} {
-      allow read: if true;
-      allow update: if request.auth.token.admin == true;
-      allow write: if request.auth.token.admin == true;
-    }
-
-    match /zikr_meta/index {
-      allow read: if request.auth != null && request.auth.token.admin == true;
-      allow write: if request.auth != null && request.auth.token.admin == true;
-    }
-
-    match /zikr_meta/publish_requests {
-      allow read: if request.auth != null && request.auth.token.admin == true;
-      allow write: if request.auth != null && request.auth.token.admin == true;
-    }
+    // zikr content lives in assets/zikr/* in git now, not Firestore - see
+    // scripts/RESTORING_MISSING_ZIKRS.md. The old zikr/zikr_meta collections
+    // are retired; no rule is declared for them here, so they default-deny.
 
     match /users/{userId}/favorites/{docId} {
       allow read, write: if request.auth.uid == userId;

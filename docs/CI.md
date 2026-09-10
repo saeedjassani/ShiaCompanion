@@ -134,13 +134,13 @@ entry is covered the day it is added. Nothing needs adding here for it.
 
 **Firebase.** Screens reach it two ways, and `test/ui/firebase_test_doubles.dart`
 answers both. `FavoritesManager` and `QazaTrackerManager` hold Firestore, Auth
-and Database instances in field initialisers and `ItemList` builds a collection
-reference the same way, so `setupFirebaseCoreMocks` plus `Firebase.initializeApp`
-runs first or every one of them throws `[core/no-app]`. The reads those screens
-start in `initState` are then answered with empty results by mock channel
-handlers; without them the call raises `MissingPluginException`, which surfaces
-as an unhandled async error and fails the test for a reason unrelated to
-rendering. Screens render their empty state, which is what a new user sees.
+and Database instances in field initialisers, so `setupFirebaseCoreMocks` plus
+`Firebase.initializeApp` runs first or every one of them throws
+`[core/no-app]`. The reads those screens start in `initState` are then
+answered with empty results by mock channel handlers; without them the call
+raises `MissingPluginException`, which surfaces as an unhandled async error
+and fails the test for a reason unrelated to rendering. Screens render their
+empty state, which is what a new user sees.
 
 **Excluded:** `Qibla Finder`, which hosts a `WebViewWidget` and asserts unless a
 `WebViewPlatform` is registered. Registering a fake means implementing the

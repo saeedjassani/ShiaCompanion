@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -28,15 +27,7 @@ class SessionRefreshService {
       }
     }
 
-    if (isUserAdmin) {
-      await loadItemsFromFirebase();
-    } else {
-      await loadItemsFromAssets();
-    }
-
-    if (items.isEmpty) {
-      await loadItemsFromAssets();
-    }
+    await loadItemsFromAssets();
   }
 
   static Future<void> loadItemsFromAssets() async {
@@ -72,60 +63,6 @@ class SessionRefreshService {
       });
     } catch (e) {
       debugPrint("Error loading zikr index from assets: $e");
-    }
-  }
-
-  static Future<void> loadItemsFromFirebase() async {
-    try {
-      final doc = await FirebaseFirestore.instance.doc('zikr_meta/index').get();
-      final data = doc.data();
-      final rawItems = data?['items'];
-      if (doc.exists && rawItems is Map) {
-        items = {};
-        itemOrder = {};
-        itemMetadata = {};
-        clearLocalSlugMaps();
-        final visibleUids = <String>{};
-
-        rawItems.forEach((rawKey, value) {
-          final key = rawKey.toString();
-          final title = value is Map
-              ? value['title']?.toString().trim() ?? ''
-              : value?.toString().trim() ?? '';
-          if (title.isEmpty) return;
-
-          final hasData = value is Map ? value['hasData'] == true : true;
-          final order = value is Map ? value['order'] : null;
-          final slug = value is Map ? value['slug'] : null;
-          final slugAliases = value is Map ? value['slugAliases'] : null;
-          final day = value is Map ? value['day'] : null;
-
-          if (isUserAdmin || hasData) {
-            items[key] = title;
-            visibleUids.add(key.toString());
-            if (order is num) itemOrder[key] = order.toDouble();
-            if (day != null) {
-              itemMetadata[key] = {'day': day};
-            }
-            setLocalSlugData(
-              key.toString(),
-              slug: slug?.toString(),
-              aliases: slugAliases is Iterable ? slugAliases : null,
-            );
-          }
-        });
-        final rawSlugLookup = data?['slugLookup'];
-        if (rawSlugLookup is Map) {
-          applySlugLookupMap(rawSlugLookup, visibleUids);
-        }
-      } else {
-        items = {};
-        itemOrder = {};
-        itemMetadata = {};
-        clearLocalSlugMaps();
-      }
-    } catch (e) {
-      debugPrint("Error loading zikr index: $e");
     }
   }
 }

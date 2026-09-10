@@ -1,65 +1,66 @@
 #!/usr/bin/env node
-// Restore the `zikr` collection from a snapshot written by backup.js.
-// This is the revert path — NOT `git checkout` on assets/zikr, which are a
-// lossy projection of the Firestore documents (slug is computed at build time,
-// and only title/code/data/merits/tabs are copied out).
+// Restore assets/zikr/* from a snapshot written by backup.js. Mostly
+// superseded by `git checkout` on the affected files, but useful when a
+// batch touched files you can no longer cleanly separate out of later
+// commits, or when working from a snapshot taken mid-session.
 //
 //   node scripts/zikr_arabic/restore.js .zikr-backups/zikr-<stamp>.json --dry-run
 //   node scripts/zikr_arabic/restore.js .zikr-backups/zikr-<stamp>.json
 //   …             --only AA9,AA13        restore just these documents
 //
-// Only writes documents whose content actually differs from what is live, and
+// Only writes files whose content actually differs from what is on disk, and
 // prints which fields differ. Takes a fresh backup of current state first, so
 // a restore is itself revertible.
 
 const fs = require('fs');
 const path = require('path');
-const admin = require('firebase-admin');
 
+const ZIKR_DIR = path.join(__dirname, '..', '..', 'assets', 'zikr');
 const DRY_RUN = process.argv.includes('--dry-run');
 const snapFile = process.argv[2];
 const onlyArg = process.argv.indexOf('--only');
 const only = onlyArg > -1 ? new Set(process.argv[onlyArg + 1].split(',')) : null;
 
-function serviceAccountPath() {
-  const env = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-  if (env && fs.existsSync(env)) return env;
-  return [
-    path.join(__dirname, '..', 'serviceAccountKey.json'),
-    path.join(__dirname, '..', '..', 'serviceAccountKey.json'),
-  ].find((p) => fs.existsSync(p));
-}
-
 const stable = (v) => JSON.stringify(v, Object.keys(v || {}).sort());
 
-async function main() {
+function readLocal(uid) {
+  const p = path.join(ZIKR_DIR, uid);
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+  } catch (e) {
+    return null;
+  }
+}
+
+function readCorpus() {
+  const out = {};
+  for (const uid of fs.readdirSync(ZIKR_DIR)) {
+    const p = path.join(ZIKR_DIR, uid);
+    if (!fs.statSync(p).isFile()) continue;
+    const doc = readLocal(uid);
+    if (doc) out[uid] = doc;
+  }
+  return out;
+}
+
+function main() {
   if (!snapFile) throw new Error('usage: restore.js <snapshot.json> [--dry-run] [--only a,b]');
   const snap = JSON.parse(fs.readFileSync(snapFile, 'utf8'));
-
-  const key = serviceAccountPath();
-  if (!key) throw new Error('No serviceAccountKey.json found.');
-  admin.initializeApp({ credential: admin.credential.cert(require(path.resolve(key))) });
-  const db = admin.firestore();
 
   if (!DRY_RUN) {
     const dir = path.join(__dirname, '..', '..', '.zikr-backups');
     fs.mkdirSync(dir, { recursive: true });
-    const live = await db.collection('zikr').get();
-    const out = {};
-    live.forEach((d) => { out[d.id] = d.data(); });
     const f = path.join(dir, `pre-restore-${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
-    fs.writeFileSync(f, JSON.stringify(out, null, 1));
+    fs.writeFileSync(f, JSON.stringify(readCorpus(), null, 1));
     console.log(`current state saved to ${f}\n`);
   }
 
   let changed = 0, same = 0;
-  let batch = db.batch(), pending = 0;
 
   for (const [uid, doc] of Object.entries(snap)) {
     if (only && !only.has(uid)) continue;
-    const ref = db.collection('zikr').doc(uid);
-    const live = await ref.get();
-    const cur = live.exists ? live.data() : null;
+    const cur = readLocal(uid);
 
     if (cur && stable(cur) === stable(doc)) { same++; continue; }
 
@@ -69,13 +70,10 @@ async function main() {
     changed++;
     if (DRY_RUN) continue;
 
-    batch.set(ref, doc);
-    if (++pending >= 400) { await batch.commit(); batch = db.batch(); pending = 0; }
+    fs.writeFileSync(path.join(ZIKR_DIR, uid), `${JSON.stringify(doc, null, 2)}\n`, 'utf8');
   }
 
-  if (!DRY_RUN && pending) await batch.commit();
   console.log(`\n${DRY_RUN ? '[dry-run] ' : ''}${changed} restored, ${same} already identical`);
-  if (!DRY_RUN && changed) console.log('Now rebuild assets: node scripts/build_zikr_release.js');
 }
 
-main().then(() => process.exit(0)).catch((e) => { console.error(e.message); process.exit(1); });
+main();
