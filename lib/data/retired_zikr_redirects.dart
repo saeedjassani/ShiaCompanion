@@ -39,4 +39,33 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'E106': RetiredZikrRedirect('I9', tabIndex: 2),
   'E151': RetiredZikrRedirect('I21', tabIndex: 1),
   'I16': RetiredZikrRedirect('I14', tabIndex: 0),
+
+  /// Found during the top-20 favorited-missing-zikr restoration pass: E53's
+  /// old content ("Ya 'Imada man la 'Imada lahu...", from al-Khisal, taught
+  /// to Imam Ali by the Prophet) is the same nineteen-phrase supplication
+  /// E38 already carries in full (from Kaf'ami's al-Balad al-Ameen, plus a
+  /// bonus dua from Imam al-Jawad) - restoring it standalone would just
+  /// duplicate E38. Several other live entries (E27 Dua Mashlool, E29
+  /// Jawshan al-Kabeer, E96 Dua for Solving Difficulties, R1) quote the same
+  /// "Ya 'imada man la 'imada lahu..." opening formula as part of otherwise
+  /// distinct content - checked side by side and kept standalone, per the
+  /// false-positive warning in RESTORING_MISSING_ZIKRS.md Step 1.5.
+  'E53': RetiredZikrRedirect('E38'),
+
+  /// Found while restoring the per-Imam supplication set: E118's old content
+  /// ("Ya man azharal jameela wa sataral qabeeha...") is word-for-word the
+  /// dua F11 ("Namaz of Jafar-e-Tayyaar") already carries in its first tab
+  /// ("Special Namaz") - taught there by Imam al-Sadiq for a request to be
+  /// granted, rather than as one of the Imams' own supplications. Restoring
+  /// it standalone would just duplicate that tab.
+  'E118': RetiredZikrRedirect('F11', tabIndex: 0),
+
+  /// Found in a "low hanging fruit" restoration pass: E148's old content
+  /// ("Thanksgiving Prostration - Sajdah al Shukr") is already fully
+  /// covered live - the "shukran shukran"/"afwan afwan" (100x) formula is
+  /// in I20 ("Supplicatory Utterances of the Thanksgiving Prostration")
+  /// and the "shukran lillah" (3x) formula is in I19's own merits field,
+  /// both under the same Imam al-Rida narrations E148 quotes. I19 is the
+  /// closer title match and carries the exact phrase E148 leads with.
+  'E148': RetiredZikrRedirect('I19'),
 };

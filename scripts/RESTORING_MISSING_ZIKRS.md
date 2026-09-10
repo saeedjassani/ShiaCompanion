@@ -172,6 +172,59 @@ which also writes the full machine-readable version (all 274 favorited UIDs,
 including the 10 already retired via `retiredZikrRedirects` — see Step 1.5)
 to [scripts/favorited_missing_zikrs.json](favorited_missing_zikrs.json).
 
+**Progress:** the top 20 rows by distinct users (E92 through AA29, i.e. down
+through and including the two 7-user rows) were restored on 2026-09-09 - all
+19 as standalone `assets/zikr/<uid>` entries except E53, which turned out to
+duplicate the already-live E38 (see `retiredZikrRedirects`) and was retired
+there instead per Step 1.5.
+
+A second batch of 20 (E113 through I72, i.e. down through and including the
+6-user rows and twelve of the fourteen 5-user rows - all but Z10 and Z15,
+picked up below) was restored the same day, all as standalone
+`assets/zikr/<uid>` entries - no further duplicates found in this batch.
+AA19 was the largest item so far (a ten-part/hundred-phrase tasbih litany
+plus several salawat and duas for every day of Ramadan); its captured
+record opens mid-list at "Second" with no "First" surviving in history, the
+same situation as AA15 and AA34, so the orphaned ordinal labels were dropped
+per that precedent.
+
+After that, rather than continuing strictly by rank, a "low hanging fruit"
+pass picked off three self-contained, uniform clusters scattered through
+the remaining rows (all restored 2026-09-09):
+- **Z6, Z9-Z31** (24 UIDs, including the previously-skipped Z10 and Z15):
+  the rest of the daily Ramadan duas. These already carried complete
+  transliteration/english in history (matching the convention the live
+  Z1/Z7/Z8 use, not the house style used elsewhere), so almost no authoring
+  was needed.
+- **E116, E117, E119-E125** (9 UIDs): the individual Imam-supplication set
+  (Hasan through al-'Askari; Ali/Baqir/Mahdi were already covered). E118
+  ("Zayn al-'Abidin's") turned out to duplicate F11's "Special Namaz" tab
+  word-for-word and was retired there instead (`retiredZikrRedirects`).
+- **E66-E75, E78** (11 UIDs): the twelve-hours-of-the-day tawassul duas
+  (hours 1-9 and 12; hours 10-11 are missing but unfavorited, so stayed
+  out of scope).
+
+That's 44 more UIDs (43 standalone + 1 retired) beyond the first two
+batches - the entire 5-user tier is now done.
+
+A fourth pass (also 2026-09-09) restored 15 more short-to-moderate UIDs
+from the 4-user tier - AA17, AA30, E65, E88, E105, E109, F8, F45, F48,
+F56, I13, I31, I57, I61, I99 - plus one retirement: E148 ("Thanksgiving
+Prostration") turned out to duplicate content already live across I19 and
+I20 and was retired to I19. I57 linked to the already-restored I58 instead
+of repeating Ayah al-Sakhkhara, and AA30's third item linked to AA19's
+already-restored "Ya dhal-ladhi kana qabla kulli shay" dua rather than
+repeating it - both per Step 1.5.
+
+Across the four passes, 90 UIDs remain unrestored in the 2+-favorite
+table (starting at **E114**, still in the 4-user tier - E67 and E117,
+also 4-user, were already covered by the hours-of-the-day and per-Imam
+clusters), plus the 72-UID single-favorite tail in
+favorited_missing_zikrs.json untouched. What's left is more
+heterogeneous and, in several cases (E102, E103, E112, E90, G10, G24, G30,
+G74, the remaining AA-series Ramadan-night compilations), considerably
+longer than anything above - pick up at E114 for the next pass.
+
 **As of 2026-09-08:** 483 UIDs are missing from `assets/zikr.json`; of those,
 274 are favorited by at least one real user, across 890 favorite-entries and
 131 distinct users (out of 269 users who have any favorites at all). The
