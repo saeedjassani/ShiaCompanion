@@ -2,4 +2,6 @@
 <resources>
     <!-- Android 12+ hosts clip widgets to the system radius; match it exactly. -->
     <dimen name="widget_corner_radius">@android:dimen/system_app_widget_background_radius</dimen>
+    <!-- The host insets widgets itself from Android 12, so the card must not. -->
+    <dimen name="widget_outer_margin">0dp</dimen>
 </resources>

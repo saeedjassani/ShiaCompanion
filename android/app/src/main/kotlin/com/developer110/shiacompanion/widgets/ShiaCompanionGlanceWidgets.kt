@@ -13,6 +13,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.GlanceAppWidget
@@ -41,6 +42,8 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.unit.ColorProvider
@@ -91,8 +94,40 @@ private val bodyTextColor = ColorProvider(R.color.widget_body_text)
 private val secondaryTextColor = ColorProvider(R.color.widget_secondary_text)
 private val accentColor = ColorProvider(R.color.widget_accent)
 
+// Size buckets for SizeMode.Responsive. Glance builds one layout per bucket and
+// the host swaps between them as the user resizes, so every shape gets type and
+// spacing tuned for it instead of the 4x2 layout stretched to fit. SizeMode.Exact
+// reports the host's raw size options below API 31, where those options are the
+// stale portrait/landscape hints rather than the widget's real size - that is
+// what made these widgets lay out at the wrong proportions on older launchers.
+private val listWidgetSizes = setOf(
+    DpSize(150.dp, 68.dp),
+    DpSize(250.dp, 110.dp),
+    DpSize(250.dp, 260.dp),
+    DpSize(330.dp, 110.dp),
+    DpSize(330.dp, 260.dp)
+)
+
+private val prayerWidgetSizes = setOf(
+    DpSize(100.dp, 48.dp),
+    DpSize(110.dp, 110.dp),
+    DpSize(110.dp, 150.dp),
+    DpSize(180.dp, 110.dp),
+    DpSize(180.dp, 200.dp)
+)
+
+// The daily widget's row of five prayer columns is what sets its narrowest
+// useful width, so it grows rather than shrinks: minResizeWidth in
+// res/xml/daily_prayer_widget_info.xml matches this smallest bucket.
+private val dailyPrayerWidgetSizes = setOf(
+    DpSize(250.dp, 100.dp),
+    DpSize(250.dp, 200.dp),
+    DpSize(330.dp, 110.dp),
+    DpSize(330.dp, 260.dp)
+)
+
 class FavoritesWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
+    override val sizeMode: SizeMode = SizeMode.Responsive(listWidgetSizes)
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
@@ -112,7 +147,7 @@ class FavoritesWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 class TodaysRecitationWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
+    override val sizeMode: SizeMode = SizeMode.Responsive(listWidgetSizes)
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
@@ -133,7 +168,7 @@ class TodaysRecitationWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 class UpcomingPrayerWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
+    override val sizeMode: SizeMode = SizeMode.Responsive(prayerWidgetSizes)
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
@@ -147,7 +182,7 @@ class UpcomingPrayerWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 class DailyPrayerTimesWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
+    override val sizeMode: SizeMode = SizeMode.Responsive(dailyPrayerWidgetSizes)
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
@@ -194,6 +229,7 @@ private fun WidgetListContent(
     scheduleKey: String? = null
 ) {
     val context = LocalContext.current
+    val size = LocalSize.current
     val data = context.widgetData()
     val items = data.scheduledWidgetItems(scheduleKey) ?: itemKeys.mapIndexedNotNull { index, key ->
         val title = data.text(key, if (index == 0) firstItemFallback else "")
@@ -207,17 +243,30 @@ private fun WidgetListContent(
         }
     }
 
-    WidgetSurface(clickable = false) {
+    // A one-row-tall widget has no height to spare for the usual title and
+    // 26dp rows, and a wide one can afford larger type; both read as cramped or
+    // stretched when a single set of sizes is used everywhere.
+    val short = size.height < 84.dp
+    val wide = size.width >= 300.dp
+    val titleFontSize = if (short) 13 else if (wide) 17 else 16
+    val itemFontSize = if (wide) 14 else 12
+    val rowHeightDp = when {
+        short -> 22
+        size.height >= 260.dp -> 30
+        else -> 26
+    }
+
+    WidgetSurface(clickable = false, contentPadding = if (short) 10 else 14) {
         Text(
             text = data.text(titleKey, titleFallback),
             style = TextStyle(
                 color = primaryTextColor,
-                fontSize = 16.sp,
+                fontSize = titleFontSize.sp,
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 1
         )
-        Spacer(GlanceModifier.height(8.dp))
+        Spacer(GlanceModifier.height(if (short) 4.dp else 8.dp))
         if (items.size == 1 && items.first().url.isBlank()) {
             Spacer(GlanceModifier.defaultWeight())
             Text(
@@ -225,7 +274,7 @@ private fun WidgetListContent(
                 modifier = GlanceModifier.fillMaxWidth(),
                 style = TextStyle(
                     color = bodyTextColor,
-                    fontSize = 12.sp,
+                    fontSize = itemFontSize.sp,
                     textAlign = TextAlign.Center
                 ),
                 maxLines = 2
@@ -241,8 +290,8 @@ private fun WidgetListContent(
                     ?: GlanceModifier
                 Text(
                     text = if (item.url.isNotBlank()) "${item.title}  ›" else item.title,
-                    modifier = modifier.fillMaxWidth().height(26.dp),
-                    style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
+                    modifier = modifier.fillMaxWidth().height(rowHeightDp.dp),
+                    style = TextStyle(color = bodyTextColor, fontSize = itemFontSize.sp),
                     maxLines = 1
                 )
             }
@@ -253,11 +302,62 @@ private fun WidgetListContent(
 @Composable
 private fun PrayerWidgetContent() {
     val context = LocalContext.current
+    val size = LocalSize.current
     val data = context.widgetData()
     val prayer = data.nextPrayer()
     val footer = prayer.secondaryText.ifBlank { prayer.location }
 
-    WidgetSurface(clickable = true, contentPadding = 14) {
+    // Resized down to a single row there is no room for the stacked card, so
+    // swap in a one-line layout rather than clipping the stack.
+    if (size.height < 84.dp) {
+        WidgetSurface(clickable = true, contentPadding = 10) {
+            Row(
+                modifier = GlanceModifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                PrayerIconBadge(prayer.name, containerSizeDp = 22, iconSizeDp = 12)
+                Spacer(GlanceModifier.width(7.dp))
+                Text(
+                    text = prayer.name,
+                    modifier = GlanceModifier.defaultWeight(),
+                    style = TextStyle(
+                        color = primaryTextColor,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    maxLines = 1
+                )
+                Spacer(GlanceModifier.width(6.dp))
+                Text(
+                    text = prayer.time,
+                    style = TextStyle(
+                        color = bodyTextColor,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    maxLines = 1
+                )
+            }
+        }
+        return
+    }
+
+    // Glance has no equivalent of iOS's minimumScaleFactor, so the type steps up
+    // with the placed size instead of a 2x2 layout floating in a 4x4 cell.
+    val timeFontSize = when {
+        size.height >= 170.dp -> 34
+        size.height >= 130.dp -> 29
+        else -> 25
+    }
+    val nameFontSize = when {
+        size.height >= 170.dp -> 20
+        size.height >= 130.dp -> 18
+        else -> 16
+    }
+    val roomy = size.width >= 160.dp
+    val badgeSizeDp = if (roomy) 30 else 24
+
+    WidgetSurface(clickable = true, contentPadding = if (roomy) 16 else 14) {
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -269,12 +369,16 @@ private fun PrayerWidgetContent() {
                 modifier = GlanceModifier.defaultWeight(),
                 style = TextStyle(
                     color = secondaryTextColor,
-                    fontSize = 11.sp,
+                    fontSize = if (roomy) 12.sp else 11.sp,
                     fontWeight = FontWeight.Bold
                 ),
                 maxLines = 1
             )
-            PrayerIconBadge(prayer.name, containerSizeDp = 24, iconSizeDp = 13)
+            PrayerIconBadge(
+                prayer.name,
+                containerSizeDp = badgeSizeDp,
+                iconSizeDp = badgeSizeDp - 11
+            )
         }
         Spacer(GlanceModifier.height(2.dp))
         Text(
@@ -282,7 +386,7 @@ private fun PrayerWidgetContent() {
             modifier = GlanceModifier.fillMaxWidth(),
             style = TextStyle(
                 color = primaryTextColor,
-                fontSize = 16.sp,
+                fontSize = nameFontSize.sp,
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 1
@@ -292,7 +396,7 @@ private fun PrayerWidgetContent() {
             text = prayer.time,
             style = TextStyle(
                 color = bodyTextColor,
-                fontSize = 25.sp,
+                fontSize = timeFontSize.sp,
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 1
@@ -300,7 +404,10 @@ private fun PrayerWidgetContent() {
         Spacer(GlanceModifier.defaultWeight())
         Text(
             text = footer,
-            style = TextStyle(color = secondaryTextColor, fontSize = 10.sp),
+            style = TextStyle(
+                color = secondaryTextColor,
+                fontSize = if (roomy) 11.sp else 10.sp
+            ),
             maxLines = 1
         )
     }
@@ -309,6 +416,7 @@ private fun PrayerWidgetContent() {
 @Composable
 private fun DailyPrayerTimesWidgetContent() {
     val context = LocalContext.current
+    val size = LocalSize.current
     val data = context.widgetData()
     val prayers = data.dailyPrayerTimes()
     val location = data.text(KEY_PRAYER_LOCATION, "Location needed")
@@ -318,9 +426,24 @@ private fun DailyPrayerTimesWidgetContent() {
     // home screen card), so this is a safety clamp rather than the thing that
     // decides the count.
     val visiblePrayers = prayers.take(MAX_DAILY_PRAYER_TIMES)
+    val hasPrayerTimes = visiblePrayers.any { it.time.isNotBlank() }
     val columnSpacingDp = 4
+    val contentPaddingDp = if (size.width >= 300.dp) 12 else 10
+    val columnWidthDp = (
+        size.width.value - 2 * contentPaddingDp -
+            columnSpacingDp * (visiblePrayers.size - 1).coerceAtLeast(0)
+        ) / visiblePrayers.size.coerceAtLeast(1)
+    // Stretched tall, a single row of columns leaves a band of empty card, so
+    // the prayers reflow into one line each - but only once every selected
+    // prayer gets a legible row, since a row that does not fit is a prayer the
+    // user cannot see at all.
+    val stackRowHeightDp = (
+        (size.height.value - 2 * contentPaddingDp - 22) /
+            visiblePrayers.size.coerceAtLeast(1)
+        ).toInt()
+    val stacked = size.height >= 170.dp && stackRowHeightDp >= 24
 
-    WidgetSurface(clickable = true, contentPadding = 10) {
+    WidgetSurface(clickable = true, contentPadding = contentPaddingDp) {
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -363,14 +486,38 @@ private fun DailyPrayerTimesWidgetContent() {
             }
         }
         Spacer(GlanceModifier.defaultWeight())
-        Row(
-            modifier = GlanceModifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            visiblePrayers.forEachIndexed { index, prayer ->
-                PrayerTimeColumn(prayer)
-                if (index != visiblePrayers.lastIndex) {
-                    Spacer(GlanceModifier.width(columnSpacingDp.dp))
+        if (!hasPrayerTimes) {
+            Text(
+                text = visiblePrayers.firstOrNull()?.title.orEmpty()
+                    .ifBlank { "Open app to refresh" },
+                modifier = GlanceModifier.fillMaxWidth(),
+                style = TextStyle(
+                    color = bodyTextColor,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center
+                ),
+                maxLines = 2
+            )
+        } else if (stacked) {
+            visiblePrayers.forEach { prayer ->
+                PrayerTimeRow(prayer, rowHeightDp = stackRowHeightDp.coerceAtMost(34))
+            }
+        } else {
+            val badgeSizeDp = if (columnWidthDp >= 52f) 30 else 25
+            val labelFontSize = if (columnWidthDp >= 52f) 11 else 10
+            Row(
+                modifier = GlanceModifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                visiblePrayers.forEachIndexed { index, prayer ->
+                    PrayerTimeColumn(
+                        prayer,
+                        badgeSizeDp = badgeSizeDp,
+                        labelFontSize = labelFontSize
+                    )
+                    if (index != visiblePrayers.lastIndex) {
+                        Spacer(GlanceModifier.width(columnSpacingDp.dp))
+                    }
                 }
             }
         }
@@ -379,19 +526,27 @@ private fun DailyPrayerTimesWidgetContent() {
 }
 
 @Composable
-private fun RowScope.PrayerTimeColumn(prayer: DailyPrayerTimeDisplay) {
+private fun RowScope.PrayerTimeColumn(
+    prayer: DailyPrayerTimeDisplay,
+    badgeSizeDp: Int,
+    labelFontSize: Int
+) {
     Column(
         modifier = GlanceModifier.defaultWeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PrayerIconBadge(prayer.title, containerSizeDp = 25, iconSizeDp = 14)
+        PrayerIconBadge(
+            prayer.title,
+            containerSizeDp = badgeSizeDp,
+            iconSizeDp = badgeSizeDp - 11
+        )
         Spacer(GlanceModifier.height(4.dp))
         Text(
             text = prayer.title,
             modifier = GlanceModifier.fillMaxWidth(),
             style = TextStyle(
                 color = secondaryTextColor,
-                fontSize = 10.sp,
+                fontSize = labelFontSize.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             ),
@@ -402,9 +557,49 @@ private fun RowScope.PrayerTimeColumn(prayer: DailyPrayerTimeDisplay) {
             modifier = GlanceModifier.fillMaxWidth(),
             style = TextStyle(
                 color = bodyTextColor,
-                fontSize = 10.sp,
+                fontSize = labelFontSize.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
+            ),
+            maxLines = 1
+        )
+    }
+}
+
+/**
+ * The narrow/tall counterpart to [PrayerTimeColumn]: one prayer per line, name
+ * left and time right, for widgets too narrow for five columns or tall enough
+ * that columns would leave a band of empty card.
+ */
+@Composable
+private fun PrayerTimeRow(prayer: DailyPrayerTimeDisplay, rowHeightDp: Int) {
+    Row(
+        modifier = GlanceModifier.fillMaxWidth().height(rowHeightDp.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PrayerIconBadge(
+            prayer.title,
+            containerSizeDp = rowHeightDp - 6,
+            iconSizeDp = rowHeightDp - 17
+        )
+        Spacer(GlanceModifier.width(8.dp))
+        Text(
+            text = prayer.title,
+            modifier = GlanceModifier.defaultWeight(),
+            style = TextStyle(
+                color = secondaryTextColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            maxLines = 1
+        )
+        Spacer(GlanceModifier.width(6.dp))
+        Text(
+            text = prayer.time,
+            style = TextStyle(
+                color = bodyTextColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
             ),
             maxLines = 1
         )
@@ -442,9 +637,8 @@ private fun WidgetSurface(
     val context = LocalContext.current
     // GlanceModifier.cornerRadius() is a no-op below API 31, so the rounded
     // surface comes from a shape drawable instead of a flat colour + radius.
-    val modifier = GlanceModifier
+    val cardModifier = GlanceModifier
         .fillMaxSize()
-        .appWidgetBackground()
         .background(ImageProvider(R.drawable.widget_surface))
         .let {
             if (clickable) {
@@ -455,12 +649,35 @@ private fun WidgetSurface(
         }
         .padding(contentPadding.dp)
 
-    Column(
-        modifier = modifier,
-        verticalAlignment = Alignment.Top,
-        horizontalAlignment = Alignment.Start,
-        content = content
-    )
+    // API 31+ hosts inset widgets themselves; older ones hand over the whole
+    // cell, where a card drawn edge to edge reads as a full-bleed block with its
+    // rounded corners buried under the neighbouring icons. Hence the margin
+    // below API 31 (see res/values(-v31)/dimens.xml), which is what made these
+    // look mis-shapen next to the iOS widgets.
+    Box(
+        modifier = GlanceModifier
+            .fillMaxSize()
+            // appWidgetBackground() belongs on the root view: it is the id the
+            // host looks for to clip the widget and to theme its background.
+            .appWidgetBackground()
+            .padding(widgetOuterMargin())
+    ) {
+        Column(
+            modifier = cardModifier,
+            verticalAlignment = Alignment.Top,
+            horizontalAlignment = Alignment.Start,
+            content = content
+        )
+    }
+}
+
+@Composable
+private fun widgetOuterMargin(): Dp {
+    val resources = LocalContext.current.resources
+    return (
+        resources.getDimension(R.dimen.widget_outer_margin) /
+            resources.displayMetrics.density
+        ).dp
 }
 
 private fun Context.widgetData() = getSharedPreferences(WIDGET_PREFS, Context.MODE_PRIVATE)
