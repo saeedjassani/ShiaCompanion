@@ -834,6 +834,8 @@ class _MyHomePageState extends State<MyHomePage>
     showTranslation = SP.prefs.getBool('showTranslation') ?? showTranslation;
     showTransliteration =
         SP.prefs.getBool('showTransliteration') ?? showTransliteration;
+    showArabicAsParagraph =
+        SP.prefs.getBool('showArabicAsParagraph') ?? showArabicAsParagraph;
 
     hijriDate = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
 
