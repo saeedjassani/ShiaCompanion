@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="widget_corner_radius">16dp</dimen>
+    <!-- Pre-Android 12 hosts hand the widget the whole cell and add no inset of
+         their own, so the card carries its own margin to stop it rendering as a
+         full-bleed block. Android 12+ overrides this to 0dp. -->
+    <dimen name="widget_outer_margin">8dp</dimen>
 </resources>
