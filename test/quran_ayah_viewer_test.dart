@@ -287,6 +287,30 @@ void main() {
     });
   });
 
+  group('Imam Ali (as) badge', () {
+    testWidgets('marks a curated verse and nothing else', (tester) async {
+      // Surah 98 (al-Bayyina) has only 8 ayahs, and 98:7 is one of the
+      // curated verses - short enough to render whole in a widget test.
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 8),
+        surahNumber: 98,
+      );
+
+      expect(find.byIcon(Icons.star_rounded), findsOneWidget);
+    });
+
+    testWidgets('an uncurated surah shows no badge at all', (tester) async {
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 3),
+        surahNumber: 1,
+      );
+
+      expect(find.byIcon(Icons.star_rounded), findsNothing);
+    });
+  });
+
   group('non-surah zikrs are untouched', () {
     // The whole compatibility guarantee of ayah mode is that it is opt-in.
     // Every other zikr must keep the line-by-line rendering it has always had.
