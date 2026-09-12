@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../constants.dart';
+import '../../data/quran_ali_verses.dart';
 import '../../utils/quran_index.dart';
 import 'zikr_content_parser.dart';
 
@@ -1161,6 +1162,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       startsSurah: span.startsSurah,
       isSaved: verse != null && widget.savedVerses.contains(verse),
       isBookmarked: bookmarkedRange != null && span.contains(bookmarkedRange.start),
+      aliNote: verse == null ? null : aliRelatedNoteFor(verse),
       onAction: verse == null || widget.onAyahAction == null
           ? null
           : () => widget.onAyahAction!(
@@ -1383,6 +1385,7 @@ class _AyahBlock extends StatelessWidget {
     required this.startsSurah,
     required this.isSaved,
     required this.isBookmarked,
+    required this.aliNote,
     required this.onAction,
     required this.children,
   });
@@ -1400,6 +1403,13 @@ class _AyahBlock extends StatelessWidget {
   final bool isSaved;
 
   final bool isBookmarked;
+
+  /// Set when this verse is one Shia tafsir cites as being about Imam Ali
+  /// (as); its text is the occasion or title the verse is known by, shown as
+  /// a tooltip on the badge. Null for every other verse, which is most of
+  /// them, so the badge stays rare enough to mean something when it appears.
+  final String? aliNote;
+
   final VoidCallback? onAction;
   final List<Widget> children;
 
@@ -1440,6 +1450,10 @@ class _AyahBlock extends StatelessWidget {
                       color: colorScheme.primary.withValues(alpha: 0.85),
                     ),
                   ],
+                  if (aliNote != null) ...[
+                    const SizedBox(width: 6),
+                    _AliBadge(note: aliNote!),
+                  ],
                 ],
               ),
             ),
@@ -1470,6 +1484,67 @@ class _AyahBlock extends StatelessWidget {
       onTap: onAction,
       onLongPress: onAction,
       child: decorated,
+    );
+  }
+}
+
+/// The mark beside a verse's number when Shia tafsir cites it as being about
+/// Imam Ali (as) - see [quranAliVerses]. A small gold seal with "علي" set
+/// inside it, rather than a plain icon: the name itself is the point, not a
+/// generic "this is special" glyph. A `Tooltip` rather than a tappable chip -
+/// the whole ayah block is already a tap target for [AyahActionRequest], so
+/// the seal only needs to answer "why is this marked" on long-press/hover,
+/// not compete for the tap itself.
+///
+/// The gold is a fixed pair of colors rather than anything drawn from the
+/// theme: a seal reads as gold in both light and dark reading modes, the way
+/// actual wax or foil would, not as "whatever the app's primary color is."
+class _AliBadge extends StatelessWidget {
+  const _AliBadge({required this.note});
+
+  final String note;
+
+  static const _sealHighlight = Color(0xFFE7C878);
+  static const _sealShadow = Color(0xFF8F6B1E);
+  static const _sealInk = Color(0xFF2C2109);
+
+  @override
+  Widget build(BuildContext context) {
+    // The ring the seal sits in is cut from the page behind it, so the gold
+    // never collides with a bookmark tint or the primary-container wash a
+    // saved verse already gets.
+    final ringColor = Theme.of(context).colorScheme.surface;
+
+    return Tooltip(
+      message: note,
+      triggerMode: TooltipTriggerMode.longPress,
+      child: Container(
+        width: 22,
+        height: 22,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const RadialGradient(
+            center: Alignment(-0.3, -0.35),
+            colors: [_sealHighlight, _sealShadow],
+          ),
+          border: Border.all(color: ringColor, width: 1.4),
+          boxShadow: [
+            BoxShadow(color: _sealShadow.withValues(alpha: 0.65), spreadRadius: 0.6),
+          ],
+        ),
+        child: Text(
+          'علي',
+          style: TextStyle(
+            fontFamily: arabicFont,
+            fontFamilyFallback: const ['Qalam'],
+            fontSize: 10,
+            height: 1,
+            fontWeight: FontWeight.w700,
+            color: _sealInk,
+          ),
+        ),
+      ),
     );
   }
 }
