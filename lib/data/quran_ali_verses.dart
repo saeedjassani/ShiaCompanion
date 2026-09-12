@@ -13,7 +13,7 @@ import '../utils/quran_index.dart';
 ///
 /// Keyed by [VerseKey] rather than surah/ayah ints so it composes directly
 /// with the saved-verse and bookmark lookups the ayah viewer already does.
-const Map<VerseKey, String> quranAliVerses = {
+final Map<VerseKey, String> quranAliVerses = {
   // Laylat al-Mabit: Ali took the Prophet's place in his bed the night of
   // the Hijra, so the assassins watching the house would strike him instead.
   VerseKey(2, 207):
