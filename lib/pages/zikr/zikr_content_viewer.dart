@@ -346,6 +346,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
   bool _didScrollToInitialVerse = false;
 
+  /// The tab being scrolled to its opening verse, kept invisible until it
+  /// lands - see [_hideWhileLanding].
+  int? _landingTabIndex;
+
   /// While [_scrollToVerse] is bringing an unbuilt item into view: which
   /// tab and list-item index it is scrolling to, tagged with the key that
   /// item is built with for the rest of the scroll, so
@@ -752,8 +756,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     if (_didScrollToInitialVerse || verse == null || verse.ayah == null) return;
 
     _didScrollToInitialVerse = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _scrollToVerse(tabIndex, ayahIndex, verse, leadingItems);
+    // Set during build, before this tab's list is, so even the first frame
+    // is drawn hidden.
+    _landingTabIndex = tabIndex;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      try {
+        await _scrollToVerse(tabIndex, ayahIndex, verse, leadingItems);
+      } finally {
+        // Every way out of the landing shows the list again - including one
+        // that gave up - so a failed jump can never leave a blank page.
+        if (mounted) setState(() => _landingTabIndex = null);
+      }
     });
   }
 
@@ -1054,103 +1068,121 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           }
           return false;
         },
-        child: Scrollbar(
-          controller: controller,
-          child: ListView.builder(
-            key: _tabListKeys[tabIndex],
+        child: _hideWhileLanding(
+          tabIndex,
+          Scrollbar(
             controller: controller,
-            itemCount: itemCount,
-            itemBuilder: (BuildContext context, int index) {
-              // Show merits button at the top of first tab
-              if (showMeritsButton && index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16.0,
-                    top: 12.0,
-                    right: 16.0,
-                    bottom: 12.0,
-                  ),
-                  child: InkWell(
-                    onTap: widget.onShowMerits,
-                    child: Text(
-                      'Merits',
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        fontSize: 14,
+            child: ListView.builder(
+              key: _tabListKeys[tabIndex],
+              controller: controller,
+              itemCount: itemCount,
+              itemBuilder: (BuildContext context, int index) {
+                // Show merits button at the top of first tab
+                if (showMeritsButton && index == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      top: 12.0,
+                      right: 16.0,
+                      bottom: 12.0,
+                    ),
+                    child: InkWell(
+                      onTap: widget.onShowMerits,
+                      child: Text(
+                        'Merits',
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }
-
-              // A surah in ayah mode has one item per verse; every other
-              // zikr is one item per reading-list entry, which is one item
-              // per content line except when Arabic-only paragraph flow
-              // folds a run of verses into one.
-              if (ayahIndex != null) {
-                final contentIndex = index - leadingItems;
-                final block = _buildAyahBlock(
-                  ayahIndex: ayahIndex,
-                  spanIndex: contentIndex,
-                  parsedContent: parsedContent,
-                  arabicStyle: arabicStyle,
-                  transliStyle: transliStyle,
-                  bookmarkedRange: bookmarkedRange,
-                );
-
-                // Tag the item _scrollToVerse is currently seeking, if this is
-                // it, so it can find this item's real BuildContext as soon as
-                // it exists.
-                final pending = _pendingScrollTarget;
-                if (pending != null &&
-                    pending.tabIndex == tabIndex &&
-                    pending.itemIndex == index) {
-                  return KeyedSubtree(key: pending.key, child: block);
+                  );
                 }
-                return block;
-              }
 
-              final itemIndex = index - leadingItems;
-              final item = readingItems[itemIndex];
+                // A surah in ayah mode has one item per verse; every other
+                // zikr is one item per reading-list entry, which is one item
+                // per content line except when Arabic-only paragraph flow
+                // folds a run of verses into one.
+                if (ayahIndex != null) {
+                  final contentIndex = index - leadingItems;
+                  final block = _buildAyahBlock(
+                    ayahIndex: ayahIndex,
+                    spanIndex: contentIndex,
+                    parsedContent: parsedContent,
+                    arabicStyle: arabicStyle,
+                    transliStyle: transliStyle,
+                    bookmarkedRange: bookmarkedRange,
+                  );
 
-              if (isArabicOnlyReadingView &&
-                  parsedContent.arabicCodes.contains(item.firstLineIndex)) {
-                return _buildArabicParagraphItem(
-                  item,
+                  // Tag the item _scrollToVerse is currently seeking, if this is
+                  // it, so it can find this item's real BuildContext as soon as
+                  // it exists.
+                  final pending = _pendingScrollTarget;
+                  if (pending != null &&
+                      pending.tabIndex == tabIndex &&
+                      pending.itemIndex == index) {
+                    return KeyedSubtree(key: pending.key, child: block);
+                  }
+                  return block;
+                }
+
+                final itemIndex = index - leadingItems;
+                final item = readingItems[itemIndex];
+
+                if (isArabicOnlyReadingView &&
+                    parsedContent.arabicCodes.contains(item.firstLineIndex)) {
+                  return _buildArabicParagraphItem(
+                    item,
+                    parsedContent,
+                    bookmarkLabelLine,
+                    arabicStyle,
+                  );
+                }
+
+                // Every non-paragraph item covers exactly one content line.
+                final contentIndex = item.firstLineIndex;
+                final line = _buildLine(
                   parsedContent,
-                  bookmarkLabelLine,
+                  contentIndex,
                   arabicStyle,
+                  transliStyle,
                 );
-              }
 
-              // Every non-paragraph item covers exactly one content line.
-              final contentIndex = item.firstLineIndex;
-              final line = _buildLine(
-                parsedContent,
-                contentIndex,
-                arabicStyle,
-                transliStyle,
-              );
-
-              if (bookmarkedRange == null ||
-                  bookmarkLabelLine == null ||
-                  !bookmarkedRange.contains(contentIndex) ||
-                  !isZikrLineVisible(parsedContent, contentIndex)) {
-                return line;
-              }
-              return _BookmarkedLine(
-                // The label only belongs on the first line of the marked
-                // triplet that is actually showing - repeating it on the
-                // transliteration/translation lines under the same tint would
-                // just be noise, and a switched-off line draws nothing to
-                // carry it.
-                showLabel: contentIndex == bookmarkLabelLine,
-                child: line,
-              );
-            },
+                if (bookmarkedRange == null ||
+                    bookmarkLabelLine == null ||
+                    !bookmarkedRange.contains(contentIndex) ||
+                    !isZikrLineVisible(parsedContent, contentIndex)) {
+                  return line;
+                }
+                return _BookmarkedLine(
+                  // The label only belongs on the first line of the marked
+                  // triplet that is actually showing - repeating it on the
+                  // transliteration/translation lines under the same tint would
+                  // just be noise, and a switched-off line draws nothing to
+                  // carry it.
+                  showLabel: contentIndex == bookmarkLabelLine,
+                  child: line,
+                );
+              },
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Keeps tab [tabIndex] invisible while it is being scrolled to its opening
+  /// verse.
+  ///
+  /// Finding a verse the list has not built yet takes a few frames of jumps,
+  /// and each would otherwise paint - a flicker through unrelated verses
+  /// before the right one settles. Opacity rather than leaving the list out:
+  /// the landing measures the laid-out list, so it has to stay laid out.
+  Widget _hideWhileLanding(int tabIndex, Widget child) {
+    final hidden = _landingTabIndex == tabIndex;
+    return IgnorePointer(
+      ignoring: hidden,
+      child: Opacity(opacity: hidden ? 0 : 1, child: child),
     );
   }
 
