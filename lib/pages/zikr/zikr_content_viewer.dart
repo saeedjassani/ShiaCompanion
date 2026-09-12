@@ -593,26 +593,69 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// the reading chrome.
   static const double _scrollToVerseMargin = 8;
 
-  /// Where item [itemIndex] begins, in scroll coordinates, or null when it is
-  /// not currently built and so has no measured position.
-  double? _itemScrollOffset(int tabIndex, int itemIndex) {
-    if (tabIndex >= _tabListKeys.length) return null;
+  /// Where item [itemIndex] should land, judged from whatever children of
+  /// [tabIndex]'s list are currently built.
+  ///
+  /// Exact when the item itself is built. Otherwise interpolated from the
+  /// nearest built item using the average extent of the built range, falling
+  /// back to [fallback] when nothing at all is built yet. The interpolated
+  /// guess matters: ayahs vary hugely in length (a couple of words versus a
+  /// full paragraph), so treating the whole list as uniform-height - a plain
+  /// `index / itemCount` proportion of the total scroll extent - can miss the
+  /// target by many items whenever the surah's ayahs near the jump-off point
+  /// are unusually long or short, and the loop calling this has no other
+  /// signal to correct itself with once that guess lands outside the list's
+  /// build cache.
+  ({double offset, bool exact}) _estimateItemOffset(
+    int tabIndex,
+    int itemIndex,
+    double fallback,
+  ) {
+    if (tabIndex >= _tabListKeys.length) return (offset: fallback, exact: false);
 
     final renderObject = _tabListKeys[tabIndex].currentContext?.findRenderObject();
-    if (renderObject == null) return null;
-    final sliver = _findSliverList(renderObject);
-    if (sliver == null) return null;
+    final sliver = renderObject == null ? null : _findSliverList(renderObject);
+    if (sliver == null) return (offset: fallback, exact: false);
+
+    int? nearestIndex;
+    double? nearestOffset;
+    int? firstIndex, lastIndex;
+    double? firstOffset, lastOffset;
 
     RenderBox? child = sliver.firstChild;
     while (child != null) {
       final parentData = child.parentData;
-      if (parentData is SliverMultiBoxAdaptorParentData &&
-          parentData.index == itemIndex) {
-        return parentData.layoutOffset;
+      if (parentData is SliverMultiBoxAdaptorParentData) {
+        final index = parentData.index;
+        final offset = parentData.layoutOffset;
+        if (index != null && offset != null) {
+          if (index == itemIndex) return (offset: offset, exact: true);
+
+          firstIndex ??= index;
+          firstOffset ??= offset;
+          lastIndex = index;
+          lastOffset = offset;
+          if (nearestIndex == null ||
+              (index - itemIndex).abs() < (nearestIndex - itemIndex).abs()) {
+            nearestIndex = index;
+            nearestOffset = offset;
+          }
+        }
       }
       child = sliver.childAfter(child);
     }
-    return null;
+
+    if (nearestIndex == null || nearestOffset == null) {
+      return (offset: fallback, exact: false);
+    }
+    if (firstIndex == null || lastIndex == firstIndex) {
+      // Only one item is built - no local extent to measure yet.
+      return (offset: fallback, exact: false);
+    }
+
+    final localExtent = (lastOffset! - firstOffset!) / (lastIndex! - firstIndex);
+    final estimate = nearestOffset + localExtent * (itemIndex - nearestIndex);
+    return (offset: estimate, exact: false);
   }
 
   /// Brings [verse] to the top of the view.
@@ -652,18 +695,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         return;
       }
 
-      final itemOffset = _itemScrollOffset(tabIndex, itemIndex);
-      final target = itemOffset == null
-          // Not built yet: aim by proportion to bring it into range, then
-          // measure properly on the next pass.
-          ? position.maxScrollExtent * (itemIndex / itemCount)
-          : itemOffset - _scrollToVerseMargin;
+      final fallback = position.maxScrollExtent * (itemIndex / itemCount);
+      final estimate = _estimateItemOffset(tabIndex, itemIndex, fallback);
+      final target =
+          estimate.exact ? estimate.offset - _scrollToVerseMargin : estimate.offset;
 
       final clamped = target
           .clamp(position.minScrollExtent, position.maxScrollExtent)
           .toDouble();
 
-      if (itemOffset != null && (position.pixels - clamped).abs() <= 1) {
+      if (estimate.exact && (position.pixels - clamped).abs() <= 1) {
         if (++settledFrames >= 2) return;
         continue;
       }
