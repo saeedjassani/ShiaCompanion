@@ -1487,24 +1487,61 @@ class _AyahBlock extends StatelessWidget {
 }
 
 /// The mark beside a verse's number when Shia tafsir cites it as being about
-/// Imam Ali (as) - see [quranAliVerses]. A `Tooltip` rather than a tappable
-/// chip: the whole ayah block is already a tap target for [AyahActionRequest],
-/// so the badge only needs to answer "why is this marked" on long-press/hover,
+/// Imam Ali (as) - see [quranAliVerses]. A small gold seal with "علي" set
+/// inside it, rather than a plain icon: the name itself is the point, not a
+/// generic "this is special" glyph. A `Tooltip` rather than a tappable chip -
+/// the whole ayah block is already a tap target for [AyahActionRequest], so
+/// the seal only needs to answer "why is this marked" on long-press/hover,
 /// not compete for the tap itself.
+///
+/// The gold is a fixed pair of colors rather than anything drawn from the
+/// theme: a seal reads as gold in both light and dark reading modes, the way
+/// actual wax or foil would, not as "whatever the app's primary color is."
 class _AliBadge extends StatelessWidget {
   const _AliBadge({required this.note});
 
   final String note;
 
+  static const _sealHighlight = Color(0xFFE7C878);
+  static const _sealShadow = Color(0xFF8F6B1E);
+  static const _sealInk = Color(0xFF2C2109);
+
   @override
   Widget build(BuildContext context) {
+    // The ring the seal sits in is cut from the page behind it, so the gold
+    // never collides with a bookmark tint or the primary-container wash a
+    // saved verse already gets.
+    final ringColor = Theme.of(context).colorScheme.surface;
+
     return Tooltip(
       message: note,
       triggerMode: TooltipTriggerMode.longPress,
-      child: Icon(
-        Icons.star_rounded,
-        size: 14,
-        color: Colors.green.shade600,
+      child: Container(
+        width: 22,
+        height: 22,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const RadialGradient(
+            center: Alignment(-0.3, -0.35),
+            colors: [_sealHighlight, _sealShadow],
+          ),
+          border: Border.all(color: ringColor, width: 1.4),
+          boxShadow: [
+            BoxShadow(color: _sealShadow.withValues(alpha: 0.65), spreadRadius: 0.6),
+          ],
+        ),
+        child: Text(
+          'علي',
+          style: TextStyle(
+            fontFamily: arabicFont,
+            fontFamilyFallback: const ['Qalam'],
+            fontSize: 10,
+            height: 1,
+            fontWeight: FontWeight.w700,
+            color: _sealInk,
+          ),
+        ),
       ),
     );
   }

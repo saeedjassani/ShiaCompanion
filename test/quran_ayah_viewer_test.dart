@@ -299,7 +299,9 @@ void main() {
       );
 
       await _scrollTo(tester, find.text('Translation of ayah 7'));
-      expect(find.byIcon(Icons.star_rounded), findsOneWidget);
+      // The seal is a Container carrying the Arabic name, not an Icon - the
+      // name itself is what a test (and a reader) can actually spot.
+      expect(find.text('علي'), findsOneWidget);
     });
 
     testWidgets('an uncurated surah shows no badge at all', (tester) async {
@@ -309,7 +311,7 @@ void main() {
         surahNumber: 1,
       );
 
-      expect(find.byIcon(Icons.star_rounded), findsNothing);
+      expect(find.text('علي'), findsNothing);
     });
   });
 
