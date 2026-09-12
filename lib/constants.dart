@@ -56,6 +56,14 @@ String appVersion = '1.0';
 
 bool showTranslation = true, showTransliteration = true;
 
+/// Whether, in [isArabicOnlyReadingView](in zikr_content_viewer.dart) - both
+/// English aids switched off - consecutive Arabic verses flow together as one
+/// prose paragraph instead of staying as separate centered lines. Off by
+/// default: it changes how the Arabic itself is laid out, not just what sits
+/// alongside it, so it stays an opt-in rather than kicking in the moment a
+/// reader turns off translation and transliteration.
+bool showArabicAsParagraph = false;
+
 const MethodChannel _notificationAudioChannel =
     MethodChannel('shia_companion/notification_audio');
 const String azaanPreferenceKey = 'azaan_preference';
