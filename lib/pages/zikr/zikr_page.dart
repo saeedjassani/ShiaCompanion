@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/retired_zikr_redirects.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
@@ -32,14 +30,11 @@ import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/zikr_reading_progress_bar.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
-import 'zikr_edit_form.dart';
 import 'zikr_form_helpers.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_content_viewer.dart';
 import 'zikr_reading_stats.dart';
 import 'zikr_share_image.dart';
-
-enum _ZikrMenuAction { edit }
 
 /// How far the text has to actually travel in one direction before the
 /// reading chrome reacts.
@@ -144,7 +139,6 @@ bool shouldClearSelectionForScroll(ScrollDirection direction) =>
 
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
-  final bool startEditing;
 
   /// Where the open came from, so the dashboard can say whether search, the
   /// home grid or a shared link is what actually brings people to a zikr.
@@ -166,7 +160,6 @@ class ZikrPage extends StatefulWidget {
 
   ZikrPage(
     this.item, {
-    this.startEditing = false,
     this.source = ZikrOpenSource.unknown,
     this.initialVerse,
     this.portion,
@@ -177,29 +170,13 @@ class ZikrPage extends StatefulWidget {
 }
 
 class _ZikrPageState extends State<ZikrPage> with RouteAware {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final CollectionReference zikrCollection =
-      FirebaseFirestore.instance.collection('zikr');
-
-  bool isAdmin = false;
-  bool isEditing = false;
   bool _isSharingZikr = false;
   bool _isCurrentRoute = false;
   bool _didFailToLoadZikrData = false;
   int _selectedZikrTabIndex = 0;
-  String? userId;
   Map<String, dynamic>? zikrData;
-  TextEditingController? titleController;
-  TextEditingController? slugController;
-  TextEditingController? codeController;
-  TextEditingController? dataController;
-  TextEditingController? meritsController;
-  TextEditingController? orderController;
-  TextEditingController? dayController;
-  final List<TextEditingController> tabControllers = [];
   PageRoute? _pageRoute;
   Uri? _previousBrowserUri;
-  List<String> _slugAliases = const [];
   ZikrBookmark? _savedBookmark;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -273,14 +250,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void initState() {
     super.initState();
     // A portion spans surahs, so it has no single surah of its own; its index
-    // carries one per verse instead.
-    isAdmin = isUserAdmin && widget.portion == null;
-    // The Quran revamp (ayah-grouped reading, verse links, resume) is
-    // dark-launched behind the admin flag: everyone else keeps the flat,
-    // line-per-row rendering every zikr — surahs included — has always had.
-    // See home_menu.dart's visibleHomeMenuItems and
-    // DeepLinkResolver.resolveQuranDestination for the other two gates this
-    // one is paired with.
+    // carries one per verse instead. The Quran revamp (ayah-grouped reading,
+    // verse links, resume) is dark-launched behind the admin flag: everyone
+    // else keeps the flat, line-per-row rendering every zikr — surahs
+    // included — has always had. See home_menu.dart's visibleHomeMenuItems
+    // and DeepLinkResolver.resolveQuranDestination for the other two gates
+    // this one is paired with.
     _surahNumber = (!isUserAdmin || widget.portion != null)
         ? null
         : surahForUid(widget.item.getFirstUId());
@@ -292,9 +267,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterCount = ValueNotifier(counterState.count);
     _loadSavedBookmark();
     _loadSavedVerses();
-    if (widget.startEditing) {
-      isEditing = true;
-    }
     // The one place a zikr open is counted, so every entry point lands in the
     // same bucket exactly once.
     _openedAt = DateTime.now();
@@ -529,16 +501,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _flushReadingProgress();
     if (_pageRoute != null) {
       routeObserver.unsubscribe(this);
-    }
-    titleController?.dispose();
-    slugController?.dispose();
-    codeController?.dispose();
-    dataController?.dispose();
-    meritsController?.dispose();
-    orderController?.dispose();
-    dayController?.dispose();
-    for (final controller in tabControllers) {
-      controller.dispose();
     }
     _counterOffset.dispose();
     _showCounter.dispose();
@@ -855,26 +817,19 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   String _currentWebRoutePath() {
-    final controllerSlug = normalizeSlug(slugController?.text.trim() ?? '');
     final dataSlug = normalizeSlug(zikrData?['slug']?.toString() ?? '');
     final cachedSlug = itemSlugs[widget.item.uid];
 
     return buildZikrDeepLinkPath(
       uid: widget.item.uid,
-      slug: controllerSlug.isNotEmpty
-          ? controllerSlug
-          : dataSlug.isNotEmpty
-              ? dataSlug
-              : cachedSlug,
+      slug: dataSlug.isNotEmpty ? dataSlug : cachedSlug,
     );
   }
 
   String? _currentShareSlug() {
-    final controllerSlug = normalizeSlug(slugController?.text.trim() ?? '');
     final dataSlug = normalizeSlug(zikrData?['slug']?.toString() ?? '');
     final cachedSlug = itemSlugs[widget.item.uid];
 
-    if (controllerSlug.isNotEmpty) return controllerSlug;
     if (dataSlug.isNotEmpty) return dataSlug;
     return cachedSlug;
   }
@@ -960,28 +915,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return ZikrActionBar.barHeight + MediaQuery.of(context).padding.bottom + 8;
   }
 
-  Future<void> _checkAdmin() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      if (mounted) {
-        setState(() {
-          userId = user.uid;
-        });
-      }
-      try {
-        final idTokenResult =
-            await user.getIdTokenResult().timeout(const Duration(seconds: 4));
-        final claims = idTokenResult.claims;
-        if (!mounted) return;
-        setState(() {
-          isAdmin = claims != null && claims['admin'] == true;
-        });
-      } catch (error) {
-        debugPrint('Unable to refresh zikr admin claim: $error');
-      }
-    }
-  }
-
   Future<void> _initializePageData() async {
     final portion = widget.portion;
     if (portion != null) {
@@ -991,51 +924,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       return;
     }
 
-    if (isAdmin) {
-      await _checkAdmin();
-      final loaded = await _fetchZikrData();
-      if (!loaded) _markZikrDataUnavailable();
-      return;
-    }
-
     final loaded = await _loadZikrDataFromAssets();
     if (!loaded) _markZikrDataUnavailable();
-    _refreshAdminDataIfNeeded();
   }
 
   void _applyZikrData(Map<String, dynamic> data) {
-    final currentSlug = normalizeSlug(data['slug']?.toString() ?? '');
-    final currentAliases = normalizeSlugAliases(
-      data['slugAliases'] is Iterable ? data['slugAliases'] : null,
-      exclude: currentSlug,
-    );
     setState(() {
       _didFailToLoadZikrData = false;
       zikrData = data;
-      titleController = TextEditingController(text: zikrData?['title']);
-      slugController = TextEditingController(text: currentSlug);
-      codeController = TextEditingController(text: zikrData?['code']);
-      dataController = TextEditingController(text: zikrData?['data']);
-      meritsController = TextEditingController(text: zikrData?['merits']);
-      dayController = TextEditingController(
-        text: formatZikrDayValue(zikrData?['day']),
-      );
-      _slugAliases = currentAliases;
-      final rawTabs = zikrData?['tabs'];
-      if (rawTabs is List) {
-        for (final controller in tabControllers) {
-          controller.dispose();
-        }
-        tabControllers.clear();
-        for (final tab in rawTabs) {
-          tabControllers
-              .add(TextEditingController(text: tab?.toString() ?? ''));
-        }
-      }
-      final double? currentOrder = itemOrder[widget.item.uid];
-      orderController = TextEditingController(
-        text: formatZikrOrderValue(currentOrder),
-      );
     });
     _scheduleCurrentWebRouteSync(replace: true);
   }
@@ -1068,42 +964,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
   }
 
-  Future<bool> _loadZikrDataFromFirestore() async {
-    try {
-      final doc = await zikrCollection.doc(widget.item.getFirstUId()).get();
-      if (!doc.exists) {
-        return false;
-      }
-
-      final data = doc.data() as Map<String, dynamic>;
-      _applyZikrData(data);
-      return true;
-    } catch (e) {
-      debugPrint('Error loading zikr from Firestore: $e');
-      return false;
-    }
-  }
-
-  Future<bool> _fetchZikrData() async {
-    if (!isAdmin) {
-      return _loadZikrDataFromAssets();
-    }
-
-    final loadedFromFirestore = await _loadZikrDataFromFirestore();
-    if (loadedFromFirestore) return true;
-    return _loadZikrDataFromAssets();
-  }
-
-  Future<void> _refreshAdminDataIfNeeded() async {
-    await _checkAdmin();
-    if (!mounted || !isAdmin) return;
-
-    final loadedFromFirestore = await _loadZikrDataFromFirestore();
-    if (!loadedFromFirestore && zikrData == null) {
-      _markZikrDataUnavailable();
-    }
-  }
-
   void _markZikrDataUnavailable() {
     if (!mounted || zikrData != null) return;
     setState(() {
@@ -1111,152 +971,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     });
   }
 
-  void _resetControllersFromCurrentData() {
-    final currentSlug = normalizeSlug(zikrData?['slug']?.toString() ?? '');
-    titleController?.text = zikrData?['title']?.toString() ?? '';
-    slugController?.text = currentSlug;
-    codeController?.text = zikrData?['code']?.toString() ?? '';
-    dataController?.text = zikrData?['data']?.toString() ?? '';
-    meritsController?.text = zikrData?['merits']?.toString() ?? '';
-    dayController?.text = formatZikrDayValue(zikrData?['day']);
-    final currentOrder = itemOrder[widget.item.uid];
-    orderController?.text = formatZikrOrderValue(currentOrder);
-    final rawSlugAliases = zikrData?['slugAliases'];
-    _slugAliases = normalizeSlugAliases(
-      rawSlugAliases is Iterable ? rawSlugAliases : null,
-      exclude: currentSlug,
-    );
-
-    for (final controller in tabControllers) {
-      controller.dispose();
-    }
-    tabControllers.clear();
-    final rawTabs = zikrData?['tabs'];
-    if (rawTabs is List) {
-      for (final tab in rawTabs) {
-        tabControllers.add(TextEditingController(text: tab?.toString() ?? ''));
-      }
-    }
-  }
-
-  void _toggleEdit() {
-    setState(() {
-      if (isEditing) {
-        _resetControllersFromCurrentData();
-      }
-      isEditing = !isEditing;
-    });
-  }
-
-  Future<void> _saveEdits() async {
-    if (zikrData != null) {
-      final trimmedTitle = titleController?.text.trim() ?? '';
-      final rawOrder = orderController?.text.trim() ?? '';
-      final rawDay = dayController?.text.trim() ?? '';
-      final savedTabs = tabControllers
-          .map((controller) => controller.text)
-          .where((content) => content.trim().isNotEmpty)
-          .toList();
-      final existingSlug = normalizeSlug(zikrData?['slug']?.toString() ?? '');
-      final enteredSlug = slugController?.text.trim() ?? '';
-      final normalizedEnteredSlug = normalizeSlug(enteredSlug);
-      if (enteredSlug.isNotEmpty && normalizedEnteredSlug.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Slug must contain letters or numbers'),
-        ));
-        return;
-      }
-      if (!isValidZikrOrderInput(rawOrder)) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Order must be a number (examples: -2, 5, 5.5) or left blank'),
-        ));
-        return;
-      }
-      final parsedOrder = rawOrder.isEmpty ? null : double.parse(rawOrder);
-      final nextSlug = enteredSlug.isNotEmpty
-          ? normalizedEnteredSlug
-          : existingSlug.isNotEmpty
-              ? existingSlug
-              : makeUniqueSlug(
-                  buildSlugSeed(
-                    uid: widget.item.uid,
-                    title: trimmedTitle,
-                  ),
-                  currentUid: widget.item.uid,
-                );
-      if (!isSlugAvailable(nextSlug, currentUid: widget.item.uid)) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Slug is already in use. Please choose another one.'),
-        ));
-        return;
-      }
-      final nextSlugAliases = normalizeSlugAliases(
-        [
-          ..._slugAliases,
-          if (existingSlug.isNotEmpty && existingSlug != nextSlug) existingSlug,
-        ],
-        exclude: nextSlug,
-      );
-
-      final dayValue = parseZikrDayInput(rawDay);
-
-      await zikrCollection.doc(widget.item.uid).update({
-        'title': titleController?.text,
-        'slug': nextSlug,
-        'slugAliases':
-            nextSlugAliases.isEmpty ? FieldValue.delete() : nextSlugAliases,
-        'code': codeController?.text,
-        'data': dataController?.text,
-        'merits': (meritsController?.text.trim().isEmpty ?? true)
-            ? FieldValue.delete()
-            : meritsController?.text,
-        'day': dayValue == null ? FieldValue.delete() : dayValue,
-        'tabs': savedTabs.isEmpty ? FieldValue.delete() : savedTabs,
-        'order': parsedOrder ?? FieldValue.delete(),
-      });
-      if (parsedOrder == null) {
-        itemOrder.remove(widget.item.uid);
-      } else {
-        itemOrder[widget.item.uid] = parsedOrder;
-      }
-      if (dayValue == null) {
-        itemMetadata.remove(widget.item.uid);
-      } else {
-        itemMetadata[widget.item.uid] = {'day': dayValue};
-      }
-      items[widget.item.uid] = titleController?.text ?? widget.item.title;
-      widget.item.title = titleController?.text ?? widget.item.title;
-      setLocalSlugData(
-        widget.item.uid,
-        slug: nextSlug,
-        aliases: nextSlugAliases,
-      );
-      setState(() {
-        isEditing = false;
-        zikrData?['title'] = titleController?.text;
-        zikrData?['slug'] = nextSlug;
-        zikrData?['slugAliases'] = nextSlugAliases;
-        zikrData?['code'] = codeController?.text;
-        zikrData?['data'] = dataController?.text;
-        zikrData?['merits'] = meritsController?.text;
-        zikrData?['day'] = dayValue;
-        zikrData?['tabs'] = savedTabs;
-        slugController?.text = nextSlug;
-        _slugAliases = nextSlugAliases;
-      });
-      _scheduleCurrentWebRouteSync(replace: true);
-    }
-  }
-
-  void _addTabField() {
-    setState(() {
-      tabControllers.add(TextEditingController());
-    });
-  }
-
   void _showMeritsSheet() {
-    final merits = meritsController?.text.trim() ?? '';
+    final merits = zikrData?['merits']?.toString().trim() ?? '';
     if (merits.isEmpty) return;
 
     showModalBottomSheet<void>(
@@ -1325,55 +1041,16 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   List<String> _buildVisibleTabContents() {
-    final primary = dataController?.text ?? zikrData?['data']?.toString() ?? '';
-    final extraTabs = <String>[];
+    final primary = zikrData?['data']?.toString() ?? '';
     final rawTabs = zikrData?['tabs'];
-
-    if (tabControllers.isNotEmpty) {
-      extraTabs.addAll(tabControllers.map((controller) => controller.text));
-    } else if (rawTabs is List) {
-      extraTabs.addAll(rawTabs.map((tab) => tab?.toString() ?? ''));
-    }
+    final extraTabs = rawTabs is List
+        ? rawTabs.map((tab) => tab?.toString() ?? '')
+        : const <String>[];
 
     return buildVisibleZikrTabContents(
       primary: primary,
       extraTabs: extraTabs,
     );
-  }
-
-  Future<void> _deleteZikr() async {
-    final shouldDelete = await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: const Text('Delete Zikr?'),
-            content: Text(
-              'This will permanently delete "${titleController?.text ?? widget.item.title}".',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-
-    if (!shouldDelete) return;
-
-    await zikrCollection.doc(widget.item.uid).delete();
-    items.remove(widget.item.uid);
-    itemOrder.remove(widget.item.uid);
-    itemMetadata.remove(widget.item.uid);
-    removeLocalSlugData(widget.item.uid);
-
-    if (!mounted) return;
-    Navigator.pop(context);
   }
 
   int _clampedSelectedTabIndex(List<String> tabContents) {
@@ -1411,8 +1088,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   Future<void> _shareCurrentZikr() async {
     if (_isSharingZikr) return;
 
-    final title = titleController?.text.trim().isNotEmpty == true
-        ? titleController!.text.trim()
+    final title = zikrData?['title']?.toString().trim().isNotEmpty == true
+        ? zikrData!['title'].toString().trim()
         : widget.item.title;
     final deepLink = buildZikrDeepLinkUrl(
       uid: widget.item.uid,
@@ -1728,14 +1405,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  void _handleMenuAction(_ZikrMenuAction action) {
-    switch (action) {
-      case _ZikrMenuAction.edit:
-        _toggleEdit();
-        break;
-    }
-  }
-
   void _shareFromActionBar() {
     if (_isSharingZikr) return;
     unawaited(AnalyticsService.feature(
@@ -1746,91 +1415,39 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _shareCurrentZikr();
   }
 
-  List<Widget> _buildAppBarActions({
-    required String pageTitle,
-    required List<String> tabContents,
-    required int selectedTabIndex,
-    required bool hasAnyContent,
-  }) {
-    final settingsButton = IconButton(
-      icon: const Icon(Icons.filter_list),
-      tooltip: 'Reading settings',
-      onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-    );
-
-    if (zikrData == null) return [settingsButton];
-
-    if (isEditing) {
-      if (!isAdmin) return [settingsButton];
-      return [
-        IconButton(
-          icon: const Icon(Icons.delete),
-          tooltip: 'Delete Zikr',
-          onPressed: _deleteZikr,
-        ),
-        IconButton(
-          icon: const Icon(Icons.done),
-          tooltip: 'Save Changes',
-          onPressed: _saveEdits,
-        ),
-        IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: 'Stop editing',
-          onPressed: _toggleEdit,
-        ),
-      ];
-    }
-
-    // Bookmark, share and reading settings now live in the bottom action
-    // bar, where they are labelled and within thumb reach. All that stays
-    // here is admin-only.
+  // Bookmark, share and reading settings live in the bottom action bar, where
+  // they are labelled and within thumb reach. The app bar keeps only the
+  // drawer opener - it used to also carry admin-only editing entry points.
+  List<Widget> _buildAppBarActions() {
     return [
-      if (isAdmin)
-        PopupMenuButton<_ZikrMenuAction>(
-          tooltip: 'More options',
-          onSelected: _handleMenuAction,
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: _ZikrMenuAction.edit,
-              child: ListTile(
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.edit),
-                title: Text('Edit Zikr'),
-              ),
-            ),
-          ],
-        ),
+      IconButton(
+        icon: const Icon(Icons.filter_list),
+        tooltip: 'Reading settings',
+        onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+      ),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    final merits = meritsController?.text.trim() ?? '';
+    final merits = zikrData?['merits']?.toString().trim() ?? '';
     final hasMerits = merits.isNotEmpty;
     final tabContents = _buildVisibleTabContents();
-    final pageTitle = isEditing
-        ? (titleController?.text.trim().isNotEmpty == true
-            ? titleController!.text.trim()
-            : widget.item.title)
-        : (zikrData?['title']?.toString().trim().isNotEmpty == true
-            ? zikrData!['title'].toString().trim()
-            : widget.item.title);
+    final pageTitle = zikrData?['title']?.toString().trim().isNotEmpty == true
+        ? zikrData!['title'].toString().trim()
+        : widget.item.title;
     final hasAnyContent =
         tabContents.any((content) => content.trim().isNotEmpty);
     final selectedTabIndex = _clampedSelectedTabIndex(tabContents);
     _refreshReadingStats(
-      isEditing ? const [] : tabContents,
+      tabContents,
       hideHeaderLine: tabContents.length > 1,
     );
     final audioTracks = ZikrAudioTrack.listFrom(zikrData?['audio']);
-    // Editing replaces the reading view with a form, and the bar's actions all
-    // act on the rendered zikr, so it has nothing to do there.
-    final showActionBar = !isEditing && zikrData != null;
+    final showActionBar = zikrData != null;
     // Independent of showActionBar - a zikr with no estimable reading time
-    // (still loading, or edit mode, where _refreshReadingStats is fed no
-    // content at all) can lack one while the other still applies.
-    final showProgressBar = !isEditing && _readingStats.hasContent;
+    // (still loading) can lack one while the other still applies.
+    final showProgressBar = _readingStats.hasContent;
     final readingTimeLabel = zikrReadingTimeLabel(_readingStats.duration);
 
     return SelectionArea(
@@ -1840,16 +1457,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         appBar: AppBar(
           title: _buildAppBarTitle(pageTitle),
           // Reading settings opens this same endDrawer from the bottom bar
-          // now. Without this, AppBar auto-fills an empty actions list (the
-          // common case, for any non-admin reader) with its own end-drawer
-          // button - "Open navigation menu" - duplicating that entry point.
+          // now. Without this, an AppBar with an endDrawer set auto-fills its
+          // own "Open navigation menu" button whenever actions is empty,
+          // duplicating that entry point.
           automaticallyImplyActions: false,
-          actions: _buildAppBarActions(
-            pageTitle: pageTitle,
-            tabContents: tabContents,
-            selectedTabIndex: selectedTabIndex,
-            hasAnyContent: hasAnyContent,
-          ),
+          actions: _buildAppBarActions(),
         ),
         endDrawer: ZikrSettingsPage(refreshState),
         body: Listener(
@@ -1883,12 +1495,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                     ? const Text('Unable to open this dua.')
                                     : const CircularProgressIndicator(),
                               )
-                            : !hasAnyContent && !isEditing
+                            : !hasAnyContent
                                 ? const Center(child: Text('Coming soon...'))
                                 : ResponsiveContent(
-                                    maxWidth: isEditing
-                                        ? wideContentWidth
-                                        : readingContentWidth,
+                                    maxWidth: readingContentWidth,
                                     // Both bars float over the reading area
                                     // rather than sitting in the column, so
                                     // this - not either bar's own size - is
@@ -1916,58 +1526,44 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                               ? ZikrActionBar.barHeight
                                               : 0.0),
                                     ),
-                                    child: isEditing
-                                        ? ZikrEditFormWidget(
-                                            titleController: titleController!,
-                                            slugController: slugController!,
-                                            codeController: codeController!,
-                                            orderController: orderController!,
-                                            dayController: dayController!,
-                                            meritsController: meritsController!,
-                                            dataController: dataController!,
-                                            tabControllers: tabControllers,
-                                            onAddTab: _addTabField,
-                                          )
-                                        : ZikrContentViewerWidget(
-                                            tabContents: tabContents,
-                                            selectedTabIndex: selectedTabIndex,
-                                            onTabChanged: (index) {
-                                              // A swiped tab change is already
-                                              // covered by the scroll handler;
-                                              // this is the tab header being
-                                              // tapped, which animates the
-                                              // pager without ever reporting a
-                                              // user scroll.
-                                              _clearTextSelection();
-                                              setState(() {
-                                                _selectedZikrTabIndex = index;
-                                              });
-                                              _updateReadingProgress();
-                                            },
-                                            hasMerits: hasMerits,
-                                            onShowMerits: _showMeritsSheet,
-                                            onLinkTap: _handleZikrLinkTap,
-                                            code: zikrData?['code']?.toString(),
-                                            initialBookmarkTabIndex:
-                                                _savedBookmark?.tabIndex,
-                                            initialBookmarkScrollOffset:
-                                                _savedBookmark?.scrollOffset,
-                                            initialBookmarkLineIndex:
-                                                _savedBookmark?.lineIndex,
-                                            savedVerses: _savedVerses,
-                                            onScrollPositionChanged:
-                                                _handleContentScrollPositionChanged,
-                                            surahNumber: _surahNumber,
-                                            initialVerse: _initialVerse,
-                                            ayahIndex: widget.portion?.index,
-                                            onAyahPositionChanged:
-                                                _handleAyahPositionChanged,
-                                            onAyahAction: _isQuran
-                                                ? _showAyahActions
-                                                : null,
-                                            onBookmarkLineResolved:
-                                                _handleBookmarkLineResolved,
-                                          ),
+                                    child: ZikrContentViewerWidget(
+                                      tabContents: tabContents,
+                                      selectedTabIndex: selectedTabIndex,
+                                      onTabChanged: (index) {
+                                        // A swiped tab change is already
+                                        // covered by the scroll handler; this
+                                        // is the tab header being tapped,
+                                        // which animates the pager without
+                                        // ever reporting a user scroll.
+                                        _clearTextSelection();
+                                        setState(() {
+                                          _selectedZikrTabIndex = index;
+                                        });
+                                        _updateReadingProgress();
+                                      },
+                                      hasMerits: hasMerits,
+                                      onShowMerits: _showMeritsSheet,
+                                      onLinkTap: _handleZikrLinkTap,
+                                      code: zikrData?['code']?.toString(),
+                                      initialBookmarkTabIndex:
+                                          _savedBookmark?.tabIndex,
+                                      initialBookmarkScrollOffset:
+                                          _savedBookmark?.scrollOffset,
+                                      initialBookmarkLineIndex:
+                                          _savedBookmark?.lineIndex,
+                                      savedVerses: _savedVerses,
+                                      onScrollPositionChanged:
+                                          _handleContentScrollPositionChanged,
+                                      surahNumber: _surahNumber,
+                                      initialVerse: _initialVerse,
+                                      ayahIndex: widget.portion?.index,
+                                      onAyahPositionChanged:
+                                          _handleAyahPositionChanged,
+                                      onAyahAction:
+                                          _isQuran ? _showAyahActions : null,
+                                      onBookmarkLineResolved:
+                                          _handleBookmarkLineResolved,
+                                    ),
                                   ),
                       ),
                     ],

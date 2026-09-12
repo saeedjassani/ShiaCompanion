@@ -14,16 +14,21 @@ scripts; do not re-derive the rules by reading the corpus.
 
 ## Where the text actually lives
 
-Firestore `zikr` collection is the source of truth. `scripts/build_zikr_release.js`
-reads it, runs `scripts/zikr_text_normalization.js`, and writes `assets/zikr/*`,
-which is what ships. Non-admin users only ever read the bundled assets
-(`lib/pages/zikr/zikr_page.dart` `_fetchZikrData()`).
+`assets/zikr/<uid>` is the source of truth, edited directly in git — every
+reader loads it straight from the bundled assets
+(`lib/pages/zikr/zikr_page.dart` `_loadZikrDataFromAssets()`). There used to
+be a Firestore `zikr` collection sitting in front of it that a build step
+regenerated these files from; that indirection is retired (see
+`scripts/RESTORING_MISSING_ZIKRS.md`), so a fix lands in these files directly
+and ships in the next release — no separate publish step.
 
-So: **a fix must land in Firestore, then the assets get rebuilt, then it ships in
-a release.** Editing `assets/zikr/*` by hand is pointless — the next build wipes it.
+`scripts/zikr_arabic/backup.js`/`restore.js` snapshot and restore
+`assets/zikr/*` itself now (a local JSON blob under `.zikr-backups/`, not a
+Firestore collection dump) — see "Working a batch" below.
 
 `scripts/zikr/*`, `scripts/all_zikr.json`, `scripts/zikr.json`, `scripts/zikr.csv`
-are stale legacy scrape dumps. Ignore them.
+are stale legacy scrape dumps. Ignore them. (`assets/zikr.json` is different —
+that's the live per-uid index of `{title, slug, order, day}`, not a scrape dump.)
 
 ## Three lineages, three different jobs
 
@@ -33,9 +38,8 @@ are stale legacy scrape dumps. Ignore them.
 | Quran surahs | 115 | Every `A<n>` uid. Mushaf text, full of `ؕ` waqf marks and `ٮ`. **Excluded from every editing pass** — `corpus.load_corpus()` skips them unless asked by name. Still audited, since they ship and still have to render. Detect by uid, not by title: `A4` is Ayat al-Kursi and has no `2:` prefix. |
 | Imported du'a | 47 | duas.org imports — **confirmed by the repo owner**, not inferred. Standard-Arabic notation: `ٱ`, `أ`, `إ`, no ṣilah marks. These are what the normalization pass is mostly for. |
 
-Nothing in Firestore records provenance — none of the 936 documents carries a
-source field, and `scripts/import_dua_from_url.js` does not write one. The
-lineage above is recoverable only from notation: measure `ٱ أ إ ﭐ` against
+Nothing in the corpus records provenance — no `assets/zikr/<uid>` file carries
+a source field. The lineage above is recoverable only from notation: measure `ٱ أ إ ﭐ` against
 `ی ہ ھ ۃ ک ٮ ؕ`, normalised per 1,000 Arabic characters. The authored files
 have zero `ٱ` and 20 `أ` across 833k characters; the imports have thousands.
 
@@ -48,7 +52,7 @@ already match the dominant form.
 
 All of them live in `scripts/zikr_arabic/rules.json`. Two layers:
 
-**Source normalization** — applied once, permanently, in Firestore. Brings the
+**Source normalization** — applied once, permanently, in `assets/zikr/*`. Brings the
 stored text into the canonical inventory: `ٱ→ا`, `أَ→اَ` (and `أُ أِ أْ أً`,
 `إِ`…), presentation forms (`ﭐ ﺎ ﷲ ﴿﴾`) to their plain equivalents, Extended
 Arabic-Indic digits to Arabic ones, and outright junk deleted — stray `ؔ`
@@ -100,9 +104,9 @@ errors and need a human.
 
 **Alias documents are pointers — skip them.** A uid containing `|` is
 `alias|target`. `UidTitleData.getFirstUId()` returns `uid.split("|").last`, so
-the app always reads the target, and `build_zikr_release.js` emits no asset for
-an alias. Eight alias docs still carry a vestigial `data` field in Firestore;
-nothing reads it, so do not spend a batch on them.
+the app always reads the target, and there is no `assets/zikr/<uid>` content
+file for an alias to begin with — `load_corpus()` never yields one, so there
+is nothing to spend a batch on.
 
 **Internal cross-references use `[label](uid)`, resolved at runtime.**
 `ZikrPage._handleZikrLinkTap` / `_lookupInternalItemUid` treat a markdown-style
@@ -253,9 +257,9 @@ python3 scripts/zikr_arabic/batch.py plan <uid…>  # report + write .patch.json
 node    scripts/zikr_arabic/backup.js           # REQUIRED before any write
 node    scripts/zikr_arabic/apply_patch.js scripts/zikr_arabic/.patch.json --dry-run
 node    scripts/zikr_arabic/apply_patch.js scripts/zikr_arabic/.patch.json
-node    scripts/build_zikr_release.js           # regenerate assets/zikr/*
 flutter test test/zikr_content_parser_test.dart
 python3 scripts/zikr_arabic/batch.py done <uid…>
+git add assets/zikr && git commit
 ```
 
 `normalize.py` and `silah.py` can be run standalone on named zikr for a closer
@@ -263,10 +267,11 @@ look; both take `--out`/`--json` to dump a patch.
 
 ## Guardrails
 
-- **Firestore has no revision history for this collection.** `apply_patch.js`
-  refuses to write without a snapshot in `.zikr-backups/`. Never bypass that.
+- **`apply_patch.js` refuses to write without a snapshot in `.zikr-backups/`.**
+  Never bypass that — it is the one-command revert path (`restore.js`) for a
+  whole batch, cheaper than walking `git log` across dozens of files.
 - Every patch entry carries the exact `before` text. `apply_patch.js` re-reads
-  the document and skips anything that has drifted rather than overwriting it.
+  the file and skips anything that has drifted rather than overwriting it.
 - These transforms are 1:1 or shrink-only. Character count is a cheap assertion.
 - `audit.py` must exit 0 before shipping. INV-1 = nothing non-canonical stored;
   INV-2 = nothing rendered from a font that lacks the glyph.

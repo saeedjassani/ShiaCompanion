@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
-import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -42,8 +40,6 @@ import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 
-enum _PublishStatus { success, error, timeout }
-
 class MyHomePage extends StatefulWidget {
   MyHomePage({
     required this.title,
@@ -60,15 +56,12 @@ class _MyHomePageState extends State<MyHomePage>
   String hadith = '';
   DateTime today = DateTime.now();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   List<LiveStreamingData>? holyShrine, liveChannel;
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
   MethodChannel? _widgetLinkChannel;
   DeepLinkTarget? _pendingDeepLink;
   bool _itemsLoaded = false;
-  bool _isPublishingIndex = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
 
@@ -341,206 +334,6 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  void _showAddItemDialog() {
-    final _formKey = GlobalKey<FormState>();
-    String _uid = '';
-    String _title = '';
-    String? _linkTargetUid;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Add New Item'),
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'UID (Document ID)',
-                      hintText: 'e.g. G100',
-                    ),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Required' : null,
-                    onSaved: (value) => _uid = value!,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Title'),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Required' : null,
-                    onSaved: (value) => _title = value!,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Link Target UID (Optional)',
-                      hintText: 'e.g. A1',
-                    ),
-                    onSaved: (value) => _linkTargetUid = value,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-
-                  String finalUid = _uid;
-                  if (_linkTargetUid != null && _linkTargetUid!.isNotEmpty) {
-                    finalUid = '$_uid|$_linkTargetUid';
-                  }
-
-                  try {
-                    final docRef = FirebaseFirestore.instance
-                        .collection('zikr')
-                        .doc(finalUid);
-                    final docSnap = await docRef.get();
-                    if (docSnap.exists) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content:
-                              Text('Error: Item $finalUid already exists')));
-                      return;
-                    }
-                    await docRef.set({
-                      'title': _title,
-                    }, SetOptions(merge: true));
-                    Navigator.pop(context);
-                    // Manually update local list since we aren't fetching from server anymore.
-                    items[finalUid] = _title;
-                    setState(() {});
-                    if (_linkTargetUid == null || _linkTargetUid!.isEmpty) {
-                      pushPageRoute(
-                          context,
-                          ZikrPage(UidTitleData(finalUid, _title),
-                              startEditing: true,
-                              source: ZikrOpenSource.admin));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Item linked successfully')));
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text('Error: $e')));
-                  }
-                }
-              },
-              child: Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _publishZikrIndex() async {
-    if (_isPublishingIndex) return;
-
-    setState(() {
-      _isPublishingIndex = true;
-    });
-
-    try {
-      final requestId =
-          '${DateTime.now().millisecondsSinceEpoch}-${_auth.currentUser?.uid ?? 'admin'}';
-      await FirebaseFirestore.instance.doc('zikr_meta/publish_requests').set({
-        'requestId': requestId,
-        'status': 'requested',
-        'requestedAt': FieldValue.serverTimestamp(),
-        'requestedBy': _auth.currentUser?.uid,
-      }, SetOptions(merge: true));
-
-      final publishStatus = await _waitForPublishCompletion(requestId);
-      if (publishStatus == _PublishStatus.success && isUserAdmin) {
-        await SessionRefreshService.loadItemsFromFirebase();
-      }
-
-      if (!mounted) return;
-      setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(switch (publishStatus) {
-          _PublishStatus.success => 'Publish finished. Admin index refreshed.',
-          _PublishStatus.error => 'Publish failed. Check Cloud Function logs.',
-          _PublishStatus.timeout =>
-            'Publish requested. Rebuild is taking longer than expected.',
-        }),
-      ));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Publish failed: $e')));
-    } finally {
-      if (!mounted) return;
-      setState(() {
-        _isPublishingIndex = false;
-      });
-    }
-  }
-
-  /// Waits for the Cloud Function to finish rebuilding the index.
-  ///
-  /// A snapshot listener rather than a poll: polling the request document once
-  /// a second billed a read per second for the whole 20-second window, where
-  /// the listener costs one read plus the updates the function actually
-  /// writes.
-  Future<_PublishStatus> _waitForPublishCompletion(String requestId) async {
-    final completer = Completer<_PublishStatus>();
-
-    void finish(_PublishStatus status) {
-      if (completer.isCompleted) return;
-      completer.complete(status);
-    }
-
-    final subscription = FirebaseFirestore.instance
-        .doc('zikr_meta/publish_requests')
-        .snapshots()
-        .listen(
-      (doc) {
-        final status = _publishStatusFor(doc.data(), requestId);
-        if (status != null) finish(status);
-      },
-      onError: (_) => finish(_PublishStatus.error),
-    );
-
-    final timeout = Timer(
-      const Duration(seconds: 20),
-      () => finish(_PublishStatus.timeout),
-    );
-
-    try {
-      return await completer.future;
-    } finally {
-      timeout.cancel();
-      await subscription.cancel();
-    }
-  }
-
-  /// Reads the outcome of [requestId] out of the request document, or null
-  /// while the function has not yet processed that request.
-  _PublishStatus? _publishStatusFor(
-    Map<String, dynamic>? data,
-    String requestId,
-  ) {
-    if (data == null) return null;
-
-    final processedRequestId = data['processedRequestId']?.toString() ?? '';
-    if (processedRequestId != requestId) return null;
-
-    return switch (data['status']?.toString() ?? '') {
-      'success' => _PublishStatus.success,
-      'error' => _PublishStatus.error,
-      _ => null,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
@@ -551,24 +344,6 @@ class _MyHomePageState extends State<MyHomePage>
         appBar: AppBar(
           title: Text(widget.title),
           actions: <Widget>[
-            if (isUserAdmin) ...[
-              IconButton(
-                icon: _isPublishingIndex
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.publish),
-                tooltip: 'Publish changes',
-                onPressed: _isPublishingIndex ? null : _publishZikrIndex,
-              ),
-              IconButton(
-                icon: const Icon(Icons.add),
-                tooltip: 'Add item',
-                onPressed: _showAddItemDialog,
-              ),
-            ],
             IconButton(
               icon: Icon(Icons.search),
               onPressed: _openSearch,

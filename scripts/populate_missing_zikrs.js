@@ -377,7 +377,7 @@ function persistSkips(skippedUids) {
   saveSkipped(existing);
 }
 
-async function matchLoop(missing, { store, regenerate, engine, searchFn = searchWeb }) {
+async function matchLoop(missing, { store, engine, searchFn = searchWeb }) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   const approved = [];
   const skipped = [];
@@ -450,11 +450,11 @@ async function matchLoop(missing, { store, regenerate, engine, searchFn = search
     }
 
     preview(doc, item.uid);
-    const decision = await ask(rl, '  Store to Firebase? [y/N/s]: ');
+    const decision = await ask(rl, '  Store locally? [y/N/s]: ');
     if (decision === 'y' || decision === 'yes') {
       const finalDoc = doc;
       if (store) {
-        await storeDocument(item.uid, finalDoc, { regenerate: false, skipConfirm: true });
+        await storeDocument(item.uid, finalDoc, { skipConfirm: true });
         storedCount += 1;
       } else {
         approved.push({ uid: item.uid, url, doc: finalDoc });
@@ -475,15 +475,6 @@ async function matchLoop(missing, { store, regenerate, engine, searchFn = search
     console.log(`\nWrote ${approved.length} approved (dry-run) entries to approved_zikrs.json`);
   }
   console.log(`\nStored: ${storedCount}, Skipped: ${skipped.length}`);
-
-  if (store && regenerate && storedCount > 0) {
-    console.log('Regenerating local assets via build_zikr_release.js ...');
-    const { execFileSync } = require('child_process');
-    execFileSync('node', [path.join(__dirname, 'build_zikr_release.js')], {
-      stdio: 'inherit',
-      cwd: __dirname,
-    });
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -549,7 +540,6 @@ async function main() {
     console.log('For each, the top duas.org search results are shown; approve (y) to store.\n');
     await matchLoop(missing, {
       store: has('--store'),
-      regenerate: has('--regenerate'),
       engine,
     });
     return;
@@ -558,12 +548,12 @@ async function main() {
   console.log(`Usage:
   node populate_missing_zikrs.js diff                       # list missing zikrs
   node populate_missing_zikrs.js crawl [--seeds s.json]     # (optional) build a local corpus
-  node populate_missing_zikrs.js match [--store] [--regenerate] [--engine ddg|google] [--limit N] [--uid UID]
+  node populate_missing_zikrs.js match [--store] [--engine ddg|google] [--limit N] [--uid UID]
                                                            # interactive: search + approve each
 
 Matching searches the web for each missing title and offers the top duas.org
-results; you approve (y) each one before any Firebase write. Without --store it
-records approvals to approved_zikrs.json.
+results; you approve (y) each one before any local write (assets/zikr/<uid> +
+assets/zikr.json). Without --store it records approvals to approved_zikrs.json.
   --engine ddg     DuckDuckGo HTML scrape (default, no key needed)
   --engine google  Google Custom Search (needs GOOGLE_CSE_API_KEY + GOOGLE_CSE_CX,
                    via env or scripts/search_config.json)
