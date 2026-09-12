@@ -969,8 +969,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         });
       }
       try {
+        // Force a refresh - see SessionRefreshService.refreshSessionState for
+        // why a cached token cannot be trusted to carry a claim change yet.
         final idTokenResult =
-            await user.getIdTokenResult().timeout(const Duration(seconds: 4));
+            await user.getIdTokenResult(true).timeout(const Duration(seconds: 4));
         final claims = idTokenResult.claims;
         if (!mounted) return;
         setState(() {

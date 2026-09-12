@@ -16,8 +16,14 @@ class SessionRefreshService {
 
     if (user != null) {
       try {
-        final idTokenResult =
-            await user!.getIdTokenResult().timeout(const Duration(seconds: 4));
+        // Force a refresh: a cached ID token carries whatever claims were
+        // true when it was minted, up to an hour ago, so a claim granted or
+        // revoked since then would otherwise not show up until it happens to
+        // expire on its own - "the admin flag doesn't seem to be taking" on a
+        // long-lived session that never restarts.
+        final idTokenResult = await user!
+            .getIdTokenResult(true)
+            .timeout(const Duration(seconds: 4));
         final claims = idTokenResult.claims;
         if (claims != null && claims['admin'] == true) {
           isUserAdmin = true;
