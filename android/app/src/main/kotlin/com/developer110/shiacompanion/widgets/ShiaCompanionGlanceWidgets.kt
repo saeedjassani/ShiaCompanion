@@ -13,7 +13,11 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.action.Action
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -234,14 +238,23 @@ private fun WidgetListContent(
             return@WidgetSurface
         }
         LazyColumn(modifier = GlanceModifier.defaultWeight()) {
-            items(items) { item ->
-                val modifier = item.url
+            items(items, itemId = { it.title.hashCode().toLong() }) { item ->
+                // Every row in a Glance LazyColumn must carry a click action.
+                // Android's RemoteViews ListView recycles rows by layout, and a
+                // row that never had setOnClickFillInIntent() called on it can
+                // still receive a stale click listener from a recycled row that
+                // did — firing the trampoline Activity with no target intent
+                // (IllegalArgumentException: "List adapter activity trampoline
+                // invoked without specifying target intent"). Giving items
+                // without a URL a no-op action keeps every row's fill-in intent
+                // populated.
+                val action: Action = item.url
                     .takeIf { it.isNotBlank() }
-                    ?.let { GlanceModifier.clickable(actionStartActivity(context.openUrlIntent(it))) }
-                    ?: GlanceModifier
+                    ?.let { actionStartActivity(context.openUrlIntent(it)) }
+                    ?: actionRunCallback<NoOpWidgetAction>()
                 Text(
                     text = if (item.url.isNotBlank()) "${item.title}  ›" else item.title,
-                    modifier = modifier.fillMaxWidth().height(26.dp),
+                    modifier = GlanceModifier.clickable(action).fillMaxWidth().height(26.dp),
                     style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
                     maxLines = 1
                 )
@@ -521,6 +534,20 @@ fun scheduleNextRecitationWidgetRefresh(context: Context) {
         }
     } catch (_: SecurityException) {
         alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+    }
+}
+
+/**
+ * Does nothing. Used so every row in a widget's LazyColumn has a click action
+ * (see the comment at its usage site) even when that row has no URL to open.
+ */
+class NoOpWidgetAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        // Intentionally empty.
     }
 }
 
