@@ -89,6 +89,13 @@ class _ZikrReadingPreferencesControlsState
     extends State<ZikrReadingPreferencesControls> {
   @override
   Widget build(BuildContext context) {
+    // The paragraph flow only ever shows up once both English aids are
+    // hidden - see isArabicOnlyReadingView - so the switch is disabled until
+    // then rather than letting the reader turn it on with nothing to show
+    // for it.
+    final bothAidsOff = !(SP.prefs.getBool('showTransliteration') ?? true) &&
+        !(SP.prefs.getBool('showTranslation') ?? true);
+
     return Column(
       children: _withDividers([
         ListTile(
@@ -229,20 +236,23 @@ class _ZikrReadingPreferencesControlsState
         SwitchListTile(
           secondary: _leading(Icons.wrap_text),
           value: SP.prefs.getBool('showArabicAsParagraph') ?? false,
-          onChanged: (v) async {
-            showArabicAsParagraph = v;
-            await _saveBooleanPref(
-              "showArabicAsParagraph",
-              v,
-              feature: 'zikr_show_arabic_as_paragraph_toggled',
-              label: 'Show Arabic as paragraph toggled',
-            );
-          },
+          onChanged: !bothAidsOff
+              ? null
+              : (v) async {
+                  showArabicAsParagraph = v;
+                  await _saveBooleanPref(
+                    "showArabicAsParagraph",
+                    v,
+                    feature: 'zikr_show_arabic_as_paragraph_toggled',
+                    label: 'Show Arabic as paragraph toggled',
+                  );
+                },
           title: const Text("Show Arabic as Paragraph"),
-          subtitle: const Text(
-              "When Transliteration and Translation are both off, flow the "
-              "Arabic verses together as one paragraph instead of separate "
-              "lines."),
+          subtitle: Text(bothAidsOff
+              ? "Flow the Arabic verses together as one paragraph instead "
+                  "of separate lines."
+              : "Turn off Transliteration and Translation above to use "
+                  "this."),
         ),
       ]),
     );
