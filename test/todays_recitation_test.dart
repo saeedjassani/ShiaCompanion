@@ -48,4 +48,31 @@ void main() {
       ['Z99', 'L1', 'E18', 'G6', 'G4', 'E37'],
     );
   });
+
+  test(
+      'a recurring weekday match (e.g. Dua Simat on Friday) survives a '
+      "moon-sighting hijri date adjustment", () {
+    final friday = DateTime(2024, 6, 21);
+    expect(friday.weekday, DateTime.friday);
+
+    items = {
+      'E18': 'Dua e Ahad',
+      'G6': 'Ziyarat e Waritha',
+      'G4': 'Ziyarat e Ashura',
+      'E37': 'Dua e Sanamay Quraish',
+      'E26': 'Dua Simat',
+    };
+    itemOrder = {};
+    itemMetadata = {
+      'E26': {'day': '*-*-5'},
+    };
+    // A user with their Hijri calendar nudged by a day for local moon
+    // sighting should still see Dua Simat on the actual Friday, not shifted
+    // to the day next to it.
+    hijriDate = 1;
+
+    final recitations = buildTodaysRecitationItems(now: friday);
+
+    expect(recitations.map((item) => item.uid), contains('E26'));
+  });
 }

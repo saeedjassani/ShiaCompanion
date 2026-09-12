@@ -69,6 +69,11 @@ List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) {
     itemMetadata,
     currentDate: adjustedHijriDate,
     nightDate: nightDate,
+    // Recurring weekday patterns (e.g. "*-*-5" for Friday) should follow the
+    // real calendar day, not the moon-sighting-adjusted Hijri date: the
+    // `adjust_hijri_date` setting shifts which lunar date today is, but it
+    // has no bearing on which civil weekday today actually is.
+    weekdayAnchor: today,
   );
   for (final uid in lunarMatchedUids) {
     _addIfAvailable(lunarItems, uid);
