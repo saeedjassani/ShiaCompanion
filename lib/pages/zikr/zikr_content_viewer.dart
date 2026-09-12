@@ -345,6 +345,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   bool _sawUserDrag = false;
 
   bool _didScrollToInitialVerse = false;
+
+  /// While [_scrollToVerse] is bringing an unbuilt item into view: which
+  /// tab and list-item index it is scrolling to, tagged with the key that
+  /// item is built with for the rest of the scroll, so
+  /// [Scrollable.ensureVisible] can find it as soon as it exists.
+  ({int tabIndex, int itemIndex, GlobalKey key})? _pendingScrollTarget;
+
   bool _verseReportScheduled = false;
   VerseKey? _reportedVerse;
   late int _selectedTabIndex;
@@ -593,29 +600,23 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// the reading chrome.
   static const double _scrollToVerseMargin = 8;
 
-  /// Where item [itemIndex] should land, judged from whatever children of
-  /// [tabIndex]'s list are currently built.
+  /// A coarse guess at where item [itemIndex] begins, for the phase before it
+  /// is built at all: interpolated from the nearest built item using the
+  /// average extent of the currently built range, falling back to [fallback]
+  /// when nothing is built yet.
   ///
-  /// Exact when the item itself is built. Otherwise interpolated from the
-  /// nearest built item using the average extent of the built range, falling
-  /// back to [fallback] when nothing at all is built yet. The interpolated
-  /// guess matters: ayahs vary hugely in length (a couple of words versus a
-  /// full paragraph), so treating the whole list as uniform-height - a plain
-  /// `index / itemCount` proportion of the total scroll extent - can miss the
-  /// target by many items whenever the surah's ayahs near the jump-off point
-  /// are unusually long or short, and the loop calling this has no other
-  /// signal to correct itself with once that guess lands outside the list's
-  /// build cache.
-  ({double offset, bool exact}) _estimateItemOffset(
-    int tabIndex,
-    int itemIndex,
-    double fallback,
-  ) {
-    if (tabIndex >= _tabListKeys.length) return (offset: fallback, exact: false);
+  /// The interpolation matters even as a rough guess: ayahs vary hugely in
+  /// length (a couple of words versus a full paragraph), so treating the
+  /// whole list as uniform-height - a plain `index / itemCount` proportion of
+  /// the total scroll extent - can miss badly enough that the target never
+  /// enters the list's build range, and [_scrollToVerse] has nothing else to
+  /// correct itself with.
+  double _estimateCoarseOffset(int tabIndex, int itemIndex, double fallback) {
+    if (tabIndex >= _tabListKeys.length) return fallback;
 
     final renderObject = _tabListKeys[tabIndex].currentContext?.findRenderObject();
     final sliver = renderObject == null ? null : _findSliverList(renderObject);
-    if (sliver == null) return (offset: fallback, exact: false);
+    if (sliver == null) return fallback;
 
     int? nearestIndex;
     double? nearestOffset;
@@ -629,8 +630,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         final index = parentData.index;
         final offset = parentData.layoutOffset;
         if (index != null && offset != null) {
-          if (index == itemIndex) return (offset: offset, exact: true);
-
           firstIndex ??= index;
           firstOffset ??= offset;
           lastIndex = index;
@@ -645,31 +644,33 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       child = sliver.childAfter(child);
     }
 
-    if (nearestIndex == null || nearestOffset == null) {
-      return (offset: fallback, exact: false);
-    }
-    if (firstIndex == null || lastIndex == firstIndex) {
-      // Only one item is built - no local extent to measure yet.
-      return (offset: fallback, exact: false);
+    if (nearestIndex == null ||
+        nearestOffset == null ||
+        firstIndex == null ||
+        lastIndex == firstIndex) {
+      return fallback;
     }
 
     final localExtent = (lastOffset! - firstOffset!) / (lastIndex! - firstIndex);
-    final estimate = nearestOffset + localExtent * (itemIndex - nearestIndex);
-    return (offset: estimate, exact: false);
+    return nearestOffset + localExtent * (itemIndex - nearestIndex);
   }
 
   /// Brings [verse] to the top of the view.
   ///
   /// A `ListView.builder` cannot seek to an index, and lines wrap to different
-  /// heights so there is no fixed extent to invert. So: estimate an offset, let
-  /// the frame build, and then - now that the target is built - read its real
-  /// layout offset and land on it exactly.
+  /// heights so there is no fixed extent to invert. So: tag the target item
+  /// with a key, coarse-jump to bring it into the list's build range, and
+  /// once it is actually built, hand the exact landing to
+  /// [Scrollable.ensureVisible] - which reads the item's real layout rather
+  /// than a hand-computed offset - instead of re-deriving its position from
+  /// [SliverMultiBoxAdaptorParentData] by hand.
   ///
   /// Aligning the item's *start* is the point. An earlier version stopped as
-  /// soon as [topContentLineIndex] named the target, but that reports the item
-  /// whose bottom edge is still below the fold - true of a verse scrolled 95%
-  /// past - so it settled with the verse mostly above the view and only its
-  /// last line showing.
+  /// soon as the top item was merely on screen, which is true of a verse
+  /// scrolled 95% past - so it settled with the verse mostly above the view
+  /// and only its last line showing. And the reading chrome's inset animates
+  /// in, moving every item under it, so a landing is only trusted once it has
+  /// held still across a couple of frames.
   Future<void> _scrollToVerse(
     int tabIndex,
     AyahIndex ayahIndex,
@@ -683,34 +684,57 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final itemCount = ayahIndex.spans.length + leadingItems;
     final itemIndex = spanIndex + leadingItems;
 
-    // The reading chrome's inset animates in, which moves every item under it,
-    // so a landing is only trusted once it has held still for a frame.
-    var settledFrames = 0;
-    for (var attempt = 0; attempt < 12; attempt++) {
-      await WidgetsBinding.instance.endOfFrame;
-      if (!mounted || !controller.hasClients) return;
+    final targetKey = GlobalKey();
+    setState(() {
+      _pendingScrollTarget =
+          (tabIndex: tabIndex, itemIndex: itemIndex, key: targetKey);
+    });
 
-      final position = controller.position;
-      if (!position.hasContentDimensions || position.maxScrollExtent <= 0) {
-        return;
+    try {
+      double? lastLanding;
+      for (var attempt = 0; attempt < 12; attempt++) {
+        await WidgetsBinding.instance.endOfFrame;
+        if (!mounted || !controller.hasClients) return;
+
+        final targetContext = targetKey.currentContext;
+        if (targetContext == null) {
+          lastLanding = null;
+          final position = controller.position;
+          if (!position.hasContentDimensions || position.maxScrollExtent <= 0) {
+            return;
+          }
+          final fallback = position.maxScrollExtent * (itemIndex / itemCount);
+          final estimate = _estimateCoarseOffset(tabIndex, itemIndex, fallback);
+          controller.jumpTo(
+            estimate
+                .clamp(position.minScrollExtent, position.maxScrollExtent)
+                .toDouble(),
+          );
+          continue;
+        }
+
+        await Scrollable.ensureVisible(
+          targetContext,
+          alignment: 0,
+          duration: Duration.zero,
+        );
+        if (!mounted || !controller.hasClients) return;
+
+        // A little air above the verse, so it does not sit flush against the
+        // reading chrome.
+        final position = controller.position;
+        final landing = (position.pixels - _scrollToVerseMargin)
+            .clamp(position.minScrollExtent, position.maxScrollExtent)
+            .toDouble();
+        controller.jumpTo(landing);
+
+        if (lastLanding != null && (landing - lastLanding).abs() <= 1) return;
+        lastLanding = landing;
       }
-
-      final fallback = position.maxScrollExtent * (itemIndex / itemCount);
-      final estimate = _estimateItemOffset(tabIndex, itemIndex, fallback);
-      final target =
-          estimate.exact ? estimate.offset - _scrollToVerseMargin : estimate.offset;
-
-      final clamped = target
-          .clamp(position.minScrollExtent, position.maxScrollExtent)
-          .toDouble();
-
-      if (estimate.exact && (position.pixels - clamped).abs() <= 1) {
-        if (++settledFrames >= 2) return;
-        continue;
+    } finally {
+      if (mounted && _pendingScrollTarget?.key == targetKey) {
+        setState(() => _pendingScrollTarget = null);
       }
-
-      settledFrames = 0;
-      controller.jumpTo(clamped);
     }
   }
 
@@ -1065,7 +1089,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
               // folds a run of verses into one.
               if (ayahIndex != null) {
                 final contentIndex = index - leadingItems;
-                return _buildAyahBlock(
+                final block = _buildAyahBlock(
                   ayahIndex: ayahIndex,
                   spanIndex: contentIndex,
                   parsedContent: parsedContent,
@@ -1073,6 +1097,17 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                   transliStyle: transliStyle,
                   bookmarkedRange: bookmarkedRange,
                 );
+
+                // Tag the item _scrollToVerse is currently seeking, if this is
+                // it, so it can find this item's real BuildContext as soon as
+                // it exists.
+                final pending = _pendingScrollTarget;
+                if (pending != null &&
+                    pending.tabIndex == tabIndex &&
+                    pending.itemIndex == index) {
+                  return KeyedSubtree(key: pending.key, child: block);
+                }
+                return block;
               }
 
               final itemIndex = index - leadingItems;
