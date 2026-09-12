@@ -75,9 +75,11 @@ const double _lineEdgeTolerance = 0.5;
 
 /// Whether the Arabic-only reading layout applies: both English aids are
 /// switched off, so translation/transliteration lines draw nothing anyway,
-/// and consecutive Arabic verses can flow together as one prose paragraph
-/// instead of stacking as separate centered lines with a gap between each.
-bool get isArabicOnlyReadingView => !showTransliteration && !showTranslation;
+/// the reader has opted into paragraph flow via [showArabicAsParagraph], and
+/// consecutive Arabic verses can flow together as one prose paragraph instead
+/// of stacking as separate centered lines with a gap between each.
+bool get isArabicOnlyReadingView =>
+    !showTransliteration && !showTranslation && showArabicAsParagraph;
 
 /// Whether line [index] draws anything at all under the current reading
 /// settings. A transliteration or translation line the reader has switched

@@ -226,6 +226,24 @@ class _ZikrReadingPreferencesControlsState
           },
           title: const Text("Show Translation"),
         ),
+        SwitchListTile(
+          secondary: _leading(Icons.wrap_text),
+          value: SP.prefs.getBool('showArabicAsParagraph') ?? false,
+          onChanged: (v) async {
+            showArabicAsParagraph = v;
+            await _saveBooleanPref(
+              "showArabicAsParagraph",
+              v,
+              feature: 'zikr_show_arabic_as_paragraph_toggled',
+              label: 'Show Arabic as paragraph toggled',
+            );
+          },
+          title: const Text("Show Arabic as Paragraph"),
+          subtitle: const Text(
+              "When Transliteration and Translation are both off, flow the "
+              "Arabic verses together as one paragraph instead of separate "
+              "lines."),
+        ),
       ]),
     );
   }
