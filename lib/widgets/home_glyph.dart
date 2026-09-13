@@ -345,7 +345,7 @@ class _HomeGlyphPainter extends CustomPainter {
     final outlinePaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.50
+      ..strokeWidth = 0.70
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
     canvas.drawPath(path, outlinePaint);
