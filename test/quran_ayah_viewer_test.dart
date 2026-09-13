@@ -25,6 +25,7 @@ Future<void> _pump(
   AyahIndex? ayahIndex,
   int? bookmarkLineIndex,
   Set<VerseKey> savedVerses = const {},
+  bool settle = true,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -49,8 +50,17 @@ Future<void> _pump(
       ),
     ),
   );
-  await tester.pumpAndSettle();
+  if (settle) await tester.pumpAndSettle();
 }
+
+/// The opacity the reading list is currently drawn at.
+double _listOpacity(WidgetTester tester) => tester
+    .widget<Opacity>(
+      find
+          .ancestor(of: find.byType(ListView), matching: find.byType(Opacity))
+          .first,
+    )
+    .opacity;
 
 /// Two short surahs stitched together, the way a juz portion arrives.
 ({String data, AyahIndex index}) _portion() {
@@ -543,6 +553,35 @@ void main() {
         tester.getTopLeft(find.text('Translation of ayah 25')).dy,
         greaterThan(arabicTop),
       );
+    });
+
+    testWidgets('is hidden while it lands, and shown once it has',
+        (tester) async {
+      // The landing takes several frames of jumps through unrelated verses;
+      // those must not be seen. But a list left hidden is a blank page, so
+      // it has to come back.
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 40),
+        surahNumber: 1,
+        initialVerse: const VerseKey(1, 25),
+        settle: false,
+      );
+      expect(_listOpacity(tester), 0, reason: 'the first frame is hidden');
+
+      await tester.pumpAndSettle();
+      expect(_listOpacity(tester), 1);
+      expect(find.text('Translation of ayah 25'), findsOneWidget);
+    });
+
+    testWidgets('is never hidden when no verse is asked for', (tester) async {
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 40),
+        surahNumber: 1,
+        settle: false,
+      );
+      expect(_listOpacity(tester), 1);
     });
 
     testWidgets('opens at the top when no verse is asked for', (tester) async {

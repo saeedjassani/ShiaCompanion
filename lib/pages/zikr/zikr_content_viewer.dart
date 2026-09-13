@@ -345,6 +345,17 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   bool _sawUserDrag = false;
 
   bool _didScrollToInitialVerse = false;
+
+  /// The tab being scrolled to its opening verse, kept invisible until it
+  /// lands - see [_hideWhileLanding].
+  int? _landingTabIndex;
+
+  /// While [_scrollToVerse] is bringing an unbuilt item into view: which
+  /// tab and list-item index it is scrolling to, tagged with the key that
+  /// item is built with for the rest of the scroll, so
+  /// [Scrollable.ensureVisible] can find it as soon as it exists.
+  ({int tabIndex, int itemIndex, GlobalKey key})? _pendingScrollTarget;
+
   bool _verseReportScheduled = false;
   VerseKey? _reportedVerse;
   late int _selectedTabIndex;
@@ -593,40 +604,77 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// the reading chrome.
   static const double _scrollToVerseMargin = 8;
 
-  /// Where item [itemIndex] begins, in scroll coordinates, or null when it is
-  /// not currently built and so has no measured position.
-  double? _itemScrollOffset(int tabIndex, int itemIndex) {
-    if (tabIndex >= _tabListKeys.length) return null;
+  /// A coarse guess at where item [itemIndex] begins, for the phase before it
+  /// is built at all: interpolated from the nearest built item using the
+  /// average extent of the currently built range, falling back to [fallback]
+  /// when nothing is built yet.
+  ///
+  /// The interpolation matters even as a rough guess: ayahs vary hugely in
+  /// length (a couple of words versus a full paragraph), so treating the
+  /// whole list as uniform-height - a plain `index / itemCount` proportion of
+  /// the total scroll extent - can miss badly enough that the target never
+  /// enters the list's build range, and [_scrollToVerse] has nothing else to
+  /// correct itself with.
+  double _estimateCoarseOffset(int tabIndex, int itemIndex, double fallback) {
+    if (tabIndex >= _tabListKeys.length) return fallback;
 
     final renderObject = _tabListKeys[tabIndex].currentContext?.findRenderObject();
-    if (renderObject == null) return null;
-    final sliver = _findSliverList(renderObject);
-    if (sliver == null) return null;
+    final sliver = renderObject == null ? null : _findSliverList(renderObject);
+    if (sliver == null) return fallback;
+
+    int? nearestIndex;
+    double? nearestOffset;
+    int? firstIndex, lastIndex;
+    double? firstOffset, lastOffset;
 
     RenderBox? child = sliver.firstChild;
     while (child != null) {
       final parentData = child.parentData;
-      if (parentData is SliverMultiBoxAdaptorParentData &&
-          parentData.index == itemIndex) {
-        return parentData.layoutOffset;
+      if (parentData is SliverMultiBoxAdaptorParentData) {
+        final index = parentData.index;
+        final offset = parentData.layoutOffset;
+        if (index != null && offset != null) {
+          firstIndex ??= index;
+          firstOffset ??= offset;
+          lastIndex = index;
+          lastOffset = offset;
+          if (nearestIndex == null ||
+              (index - itemIndex).abs() < (nearestIndex - itemIndex).abs()) {
+            nearestIndex = index;
+            nearestOffset = offset;
+          }
+        }
       }
       child = sliver.childAfter(child);
     }
-    return null;
+
+    if (nearestIndex == null ||
+        nearestOffset == null ||
+        firstIndex == null ||
+        lastIndex == firstIndex) {
+      return fallback;
+    }
+
+    final localExtent = (lastOffset! - firstOffset!) / (lastIndex! - firstIndex);
+    return nearestOffset + localExtent * (itemIndex - nearestIndex);
   }
 
   /// Brings [verse] to the top of the view.
   ///
   /// A `ListView.builder` cannot seek to an index, and lines wrap to different
-  /// heights so there is no fixed extent to invert. So: estimate an offset, let
-  /// the frame build, and then - now that the target is built - read its real
-  /// layout offset and land on it exactly.
+  /// heights so there is no fixed extent to invert. So: tag the target item
+  /// with a key, coarse-jump to bring it into the list's build range, and
+  /// once it is actually built, hand the exact landing to
+  /// [Scrollable.ensureVisible] - which reads the item's real layout rather
+  /// than a hand-computed offset - instead of re-deriving its position from
+  /// [SliverMultiBoxAdaptorParentData] by hand.
   ///
   /// Aligning the item's *start* is the point. An earlier version stopped as
-  /// soon as [topContentLineIndex] named the target, but that reports the item
-  /// whose bottom edge is still below the fold - true of a verse scrolled 95%
-  /// past - so it settled with the verse mostly above the view and only its
-  /// last line showing.
+  /// soon as the top item was merely on screen, which is true of a verse
+  /// scrolled 95% past - so it settled with the verse mostly above the view
+  /// and only its last line showing. And the reading chrome's inset animates
+  /// in, moving every item under it, so a landing is only trusted once it has
+  /// held still across a couple of frames.
   Future<void> _scrollToVerse(
     int tabIndex,
     AyahIndex ayahIndex,
@@ -640,36 +688,57 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final itemCount = ayahIndex.spans.length + leadingItems;
     final itemIndex = spanIndex + leadingItems;
 
-    // The reading chrome's inset animates in, which moves every item under it,
-    // so a landing is only trusted once it has held still for a frame.
-    var settledFrames = 0;
-    for (var attempt = 0; attempt < 12; attempt++) {
-      await WidgetsBinding.instance.endOfFrame;
-      if (!mounted || !controller.hasClients) return;
+    final targetKey = GlobalKey();
+    setState(() {
+      _pendingScrollTarget =
+          (tabIndex: tabIndex, itemIndex: itemIndex, key: targetKey);
+    });
 
-      final position = controller.position;
-      if (!position.hasContentDimensions || position.maxScrollExtent <= 0) {
-        return;
+    try {
+      double? lastLanding;
+      for (var attempt = 0; attempt < 12; attempt++) {
+        await WidgetsBinding.instance.endOfFrame;
+        if (!mounted || !controller.hasClients) return;
+
+        final targetContext = targetKey.currentContext;
+        if (targetContext == null) {
+          lastLanding = null;
+          final position = controller.position;
+          if (!position.hasContentDimensions || position.maxScrollExtent <= 0) {
+            return;
+          }
+          final fallback = position.maxScrollExtent * (itemIndex / itemCount);
+          final estimate = _estimateCoarseOffset(tabIndex, itemIndex, fallback);
+          controller.jumpTo(
+            estimate
+                .clamp(position.minScrollExtent, position.maxScrollExtent)
+                .toDouble(),
+          );
+          continue;
+        }
+
+        await Scrollable.ensureVisible(
+          targetContext,
+          alignment: 0,
+          duration: Duration.zero,
+        );
+        if (!mounted || !controller.hasClients) return;
+
+        // A little air above the verse, so it does not sit flush against the
+        // reading chrome.
+        final position = controller.position;
+        final landing = (position.pixels - _scrollToVerseMargin)
+            .clamp(position.minScrollExtent, position.maxScrollExtent)
+            .toDouble();
+        controller.jumpTo(landing);
+
+        if (lastLanding != null && (landing - lastLanding).abs() <= 1) return;
+        lastLanding = landing;
       }
-
-      final itemOffset = _itemScrollOffset(tabIndex, itemIndex);
-      final target = itemOffset == null
-          // Not built yet: aim by proportion to bring it into range, then
-          // measure properly on the next pass.
-          ? position.maxScrollExtent * (itemIndex / itemCount)
-          : itemOffset - _scrollToVerseMargin;
-
-      final clamped = target
-          .clamp(position.minScrollExtent, position.maxScrollExtent)
-          .toDouble();
-
-      if (itemOffset != null && (position.pixels - clamped).abs() <= 1) {
-        if (++settledFrames >= 2) return;
-        continue;
+    } finally {
+      if (mounted && _pendingScrollTarget?.key == targetKey) {
+        setState(() => _pendingScrollTarget = null);
       }
-
-      settledFrames = 0;
-      controller.jumpTo(clamped);
     }
   }
 
@@ -687,8 +756,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     if (_didScrollToInitialVerse || verse == null || verse.ayah == null) return;
 
     _didScrollToInitialVerse = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _scrollToVerse(tabIndex, ayahIndex, verse, leadingItems);
+    // Set during build, before this tab's list is, so even the first frame
+    // is drawn hidden.
+    _landingTabIndex = tabIndex;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      try {
+        await _scrollToVerse(tabIndex, ayahIndex, verse, leadingItems);
+      } finally {
+        // Every way out of the landing shows the list again - including one
+        // that gave up - so a failed jump can never leave a blank page.
+        if (mounted) setState(() => _landingTabIndex = null);
+      }
     });
   }
 
@@ -989,92 +1068,121 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           }
           return false;
         },
-        child: Scrollbar(
-          controller: controller,
-          child: ListView.builder(
-            key: _tabListKeys[tabIndex],
+        child: _hideWhileLanding(
+          tabIndex,
+          Scrollbar(
             controller: controller,
-            itemCount: itemCount,
-            itemBuilder: (BuildContext context, int index) {
-              // Show merits button at the top of first tab
-              if (showMeritsButton && index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16.0,
-                    top: 12.0,
-                    right: 16.0,
-                    bottom: 12.0,
-                  ),
-                  child: InkWell(
-                    onTap: widget.onShowMerits,
-                    child: Text(
-                      'Merits',
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        fontSize: 14,
+            child: ListView.builder(
+              key: _tabListKeys[tabIndex],
+              controller: controller,
+              itemCount: itemCount,
+              itemBuilder: (BuildContext context, int index) {
+                // Show merits button at the top of first tab
+                if (showMeritsButton && index == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      top: 12.0,
+                      right: 16.0,
+                      bottom: 12.0,
+                    ),
+                    child: InkWell(
+                      onTap: widget.onShowMerits,
+                      child: Text(
+                        'Merits',
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }
+                  );
+                }
 
-              // A surah in ayah mode has one item per verse; every other
-              // zikr is one item per reading-list entry, which is one item
-              // per content line except when Arabic-only paragraph flow
-              // folds a run of verses into one.
-              if (ayahIndex != null) {
-                final contentIndex = index - leadingItems;
-                return _buildAyahBlock(
-                  ayahIndex: ayahIndex,
-                  spanIndex: contentIndex,
-                  parsedContent: parsedContent,
-                  arabicStyle: arabicStyle,
-                  transliStyle: transliStyle,
-                  bookmarkedRange: bookmarkedRange,
-                );
-              }
+                // A surah in ayah mode has one item per verse; every other
+                // zikr is one item per reading-list entry, which is one item
+                // per content line except when Arabic-only paragraph flow
+                // folds a run of verses into one.
+                if (ayahIndex != null) {
+                  final contentIndex = index - leadingItems;
+                  final block = _buildAyahBlock(
+                    ayahIndex: ayahIndex,
+                    spanIndex: contentIndex,
+                    parsedContent: parsedContent,
+                    arabicStyle: arabicStyle,
+                    transliStyle: transliStyle,
+                    bookmarkedRange: bookmarkedRange,
+                  );
 
-              final itemIndex = index - leadingItems;
-              final item = readingItems[itemIndex];
+                  // Tag the item _scrollToVerse is currently seeking, if this is
+                  // it, so it can find this item's real BuildContext as soon as
+                  // it exists.
+                  final pending = _pendingScrollTarget;
+                  if (pending != null &&
+                      pending.tabIndex == tabIndex &&
+                      pending.itemIndex == index) {
+                    return KeyedSubtree(key: pending.key, child: block);
+                  }
+                  return block;
+                }
 
-              if (isArabicOnlyReadingView &&
-                  parsedContent.arabicCodes.contains(item.firstLineIndex)) {
-                return _buildArabicParagraphItem(
-                  item,
+                final itemIndex = index - leadingItems;
+                final item = readingItems[itemIndex];
+
+                if (isArabicOnlyReadingView &&
+                    parsedContent.arabicCodes.contains(item.firstLineIndex)) {
+                  return _buildArabicParagraphItem(
+                    item,
+                    parsedContent,
+                    bookmarkLabelLine,
+                    arabicStyle,
+                  );
+                }
+
+                // Every non-paragraph item covers exactly one content line.
+                final contentIndex = item.firstLineIndex;
+                final line = _buildLine(
                   parsedContent,
-                  bookmarkLabelLine,
+                  contentIndex,
                   arabicStyle,
+                  transliStyle,
                 );
-              }
 
-              // Every non-paragraph item covers exactly one content line.
-              final contentIndex = item.firstLineIndex;
-              final line = _buildLine(
-                parsedContent,
-                contentIndex,
-                arabicStyle,
-                transliStyle,
-              );
-
-              if (bookmarkedRange == null ||
-                  bookmarkLabelLine == null ||
-                  !bookmarkedRange.contains(contentIndex) ||
-                  !isZikrLineVisible(parsedContent, contentIndex)) {
-                return line;
-              }
-              return _BookmarkedLine(
-                // The label only belongs on the first line of the marked
-                // triplet that is actually showing - repeating it on the
-                // transliteration/translation lines under the same tint would
-                // just be noise, and a switched-off line draws nothing to
-                // carry it.
-                showLabel: contentIndex == bookmarkLabelLine,
-                child: line,
-              );
-            },
+                if (bookmarkedRange == null ||
+                    bookmarkLabelLine == null ||
+                    !bookmarkedRange.contains(contentIndex) ||
+                    !isZikrLineVisible(parsedContent, contentIndex)) {
+                  return line;
+                }
+                return _BookmarkedLine(
+                  // The label only belongs on the first line of the marked
+                  // triplet that is actually showing - repeating it on the
+                  // transliteration/translation lines under the same tint would
+                  // just be noise, and a switched-off line draws nothing to
+                  // carry it.
+                  showLabel: contentIndex == bookmarkLabelLine,
+                  child: line,
+                );
+              },
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Keeps tab [tabIndex] invisible while it is being scrolled to its opening
+  /// verse.
+  ///
+  /// Finding a verse the list has not built yet takes a few frames of jumps,
+  /// and each would otherwise paint - a flicker through unrelated verses
+  /// before the right one settles. Opacity rather than leaving the list out:
+  /// the landing measures the laid-out list, so it has to stay laid out.
+  Widget _hideWhileLanding(int tabIndex, Widget child) {
+    final hidden = _landingTabIndex == tabIndex;
+    return IgnorePointer(
+      ignoring: hidden,
+      child: Opacity(opacity: hidden ? 0 : 1, child: child),
     );
   }
 
