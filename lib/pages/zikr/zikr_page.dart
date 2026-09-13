@@ -213,6 +213,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   final Map<int, double> _currentTabScrollOffsets = {};
   final Map<int, double> _currentTabMaxScrollExtents = {};
 
+  /// Each tab's scroll fraction, smoothed against the transient dips
+  /// [zikrSmoothedTabFraction] guards against. Keyed separately from
+  /// [_currentTabMaxScrollExtents] since the raw and smoothed values diverge
+  /// mid-scroll.
+  final Map<int, double> _currentTabScrollFractions = {};
+
   /// The content line at the top of each tab's view, measured from the laid
   /// out list. This is what a bookmark records alongside the raw offset, so
   /// the marker is drawn on the very line the offset was read off.
@@ -1511,12 +1517,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void _handleContentScrollPositionChanged(
     ZikrContentScrollPosition position,
   ) {
-    _currentTabScrollOffsets[position.tabIndex] = position.scrollOffset;
-    _currentTabMaxScrollExtents[position.tabIndex] = position.maxScrollExtent;
+    final tabIndex = position.tabIndex;
+    final previousScrollOffset = _currentTabScrollOffsets[tabIndex];
+    _currentTabScrollOffsets[tabIndex] = position.scrollOffset;
+    _currentTabMaxScrollExtents[tabIndex] = position.maxScrollExtent;
     final lineIndex = position.lineIndex;
     if (lineIndex != null) {
-      _currentTabTopLineIndexes[position.tabIndex] = lineIndex;
+      _currentTabTopLineIndexes[tabIndex] = lineIndex;
     }
+
+    _currentTabScrollFractions[tabIndex] = zikrSmoothedTabFraction(
+      rawFraction: zikrTabScrollFraction(
+        scrollOffset: position.scrollOffset,
+        maxScrollExtent: position.maxScrollExtent,
+      ),
+      scrollOffset: position.scrollOffset,
+      previousScrollOffset: previousScrollOffset,
+      previousDisplayedFraction: _currentTabScrollFractions[tabIndex],
+    );
     _updateReadingProgress();
   }
 
@@ -1564,14 +1582,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (weights.isEmpty) return 0;
 
     final tabIndex = _selectedZikrTabIndex.clamp(0, weights.length - 1);
-    final maxScrollExtent = _currentTabMaxScrollExtents[tabIndex];
     // An unmeasured tab has not been laid out yet, so nothing is read.
-    final tabFraction = maxScrollExtent == null
-        ? 0.0
-        : zikrTabScrollFraction(
-            scrollOffset: _currentTabScrollOffsets[tabIndex] ?? 0,
-            maxScrollExtent: maxScrollExtent,
-          );
+    final tabFraction = _currentTabMaxScrollExtents.containsKey(tabIndex)
+        ? (_currentTabScrollFractions[tabIndex] ?? 0.0)
+        : 0.0;
 
     return zikrReadingProgress(
       tabWeights: weights,
