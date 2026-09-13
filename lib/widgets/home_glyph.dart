@@ -1,0 +1,963 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+
+/// Which custom glyph to paint for home menu grid items.
+enum HomeGlyphType {
+  /// Muslim worshipper seated in prayer posture (Tashahhud / Jalsah).
+  namaz,
+
+  /// Cupped hands raised in supplication (Dua / Qunoot).
+  duas,
+
+  /// The Holy Quran resting upon a traditional wooden Rihal (X-stand).
+  surahs,
+
+  /// Looped strand of prayer beads with an Imam bead and dangling tassel.
+  tasbeeh,
+
+  /// Traditional illuminated Islamic lantern (Fanoos) for holy night vigils.
+  aamaal,
+
+  /// Nocturnal crescent moon with celestial stars for intimate night supplication.
+  munajaat,
+
+  /// Sacred Turbah (sajdah stone) with concentric count pulse rings.
+  rakaat,
+
+  /// Traditional Sajadah (prayer rug) with inner Mihrab arch.
+  taqeebat,
+
+  /// Material Symbols auto_stories (open book with dynamic turning page).
+  todaysRecitations,
+
+  /// The Holy Shrine of Ahlulbayt with golden dome, minarets, and the waving Alam.
+  ziyaraat,
+
+  /// Three library volumes on a shelf plinth with the right tome resting against the centerpiece.
+  library,
+
+  /// Classical leather-bound volume with ornate spine, cover medallion, and dangling silk ribbon bookmark.
+  baqeyaat,
+}
+
+/// A custom-drawn vector glyph for the home screen grid, built from a shared
+/// geometric grammar to complement [PrayerGlyph].
+///
+/// Drop-in replacement for [Icon] inside the home screen tile avatars.
+class HomeGlyph extends StatelessWidget {
+  const HomeGlyph({
+    super.key,
+    required this.type,
+    required this.size,
+    required this.color,
+  });
+
+  final HomeGlyphType type;
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _HomeGlyphPainter(type, color),
+      ),
+    );
+  }
+}
+
+class _HomeGlyphPainter extends CustomPainter {
+  _HomeGlyphPainter(this.type, this.color);
+
+  final HomeGlyphType type;
+  final Color color;
+
+  /// Primary outline stroke width.
+  static const double _strokePrimary = 1.9;
+
+  /// Secondary detail stroke width.
+  static const double _strokeDetail = 1.5;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final scale = size.width / 24.0;
+    canvas.save();
+    canvas.scale(scale);
+
+    final strokePaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _strokePrimary
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final detailPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _strokeDetail
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final fillPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    switch (type) {
+      case HomeGlyphType.namaz:
+        _paintNamaz(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.duas:
+        _paintDuas(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.surahs:
+        _paintSurahs(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.tasbeeh:
+        _paintTasbeeh(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.aamaal:
+        _paintAamaal(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.munajaat:
+        _paintMunajaat(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.rakaat:
+        _paintRakaat(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.taqeebat:
+        _paintTaqeebat(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.todaysRecitations:
+        _paintTodaysRecitations(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.ziyaraat:
+        _paintZiyaraat(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.library:
+        _paintLibrary(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.baqeyaat:
+        _paintBaqeyaat(canvas, strokePaint, detailPaint, fillPaint);
+    }
+
+    canvas.restore();
+  }
+
+  /// 1. NAMAZ: Muslim worshipper seated in prayer posture (Tashahhud / Jalsah).
+  void _paintNamaz(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    final path = Path()
+      ..fillType = PathFillType.evenOdd
+      // Subpath 0
+      ..moveTo(13.79, 2.0)
+      ..lineTo(14.91, 2.09)
+      ..lineTo(15.59, 2.43)
+      ..lineTo(16.36, 3.2)
+      ..lineTo(16.87, 4.22)
+      ..lineTo(16.79, 5.5)
+      ..lineTo(16.61, 5.59)
+      ..lineTo(16.61, 5.76)
+      ..lineTo(16.27, 5.93)
+      ..lineTo(16.19, 6.27)
+      ..lineTo(15.85, 6.53)
+      ..lineTo(15.59, 7.73)
+      ..lineTo(15.25, 7.98)
+      ..lineTo(14.91, 7.98)
+      ..lineTo(14.82, 8.15)
+      ..lineTo(14.65, 8.15)
+      ..lineTo(14.39, 8.58)
+      ..lineTo(13.97, 8.67)
+      ..lineTo(13.97, 11.57)
+      ..lineTo(14.14, 11.66)
+      ..lineTo(14.56, 12.6)
+      ..lineTo(14.73, 12.68)
+      ..lineTo(15.25, 13.62)
+      ..lineTo(15.5, 13.79)
+      ..lineTo(15.5, 13.96)
+      ..lineTo(15.76, 14.14)
+      ..lineTo(15.76, 14.31)
+      ..lineTo(17.04, 15.59)
+      ..lineTo(17.56, 15.84)
+      ..lineTo(17.64, 16.19)
+      ..lineTo(18.5, 16.96)
+      ..lineTo(18.5, 17.13)
+      ..lineTo(18.75, 17.38)
+      ..lineTo(18.84, 18.32)
+      ..lineTo(18.5, 19.09)
+      ..lineTo(18.32, 19.18)
+      ..lineTo(18.32, 20.8)
+      ..lineTo(17.9, 21.49)
+      ..lineTo(5.76, 21.49)
+      ..lineTo(5.33, 21.14)
+      ..lineTo(5.25, 20.89)
+      ..lineTo(5.25, 20.46)
+      ..lineTo(5.76, 19.78)
+      ..lineTo(5.93, 19.78)
+      ..lineTo(6.36, 19.26)
+      ..lineTo(6.53, 19.26)
+      ..lineTo(7.04, 18.84)
+      ..lineTo(7.98, 18.75)
+      ..lineTo(8.33, 18.24)
+      ..lineTo(8.67, 18.07)
+      ..lineTo(9.35, 18.07)
+      ..lineTo(8.67, 16.27)
+      ..lineTo(8.33, 14.48)
+      ..lineTo(8.41, 12.51)
+      ..lineTo(9.01, 9.78)
+      ..lineTo(9.27, 9.01)
+      ..lineTo(9.95, 7.73)
+      ..lineTo(10.89, 6.7)
+      ..lineTo(11.32, 6.53)
+      ..lineTo(11.4, 6.1)
+      ..lineTo(11.83, 5.5)
+      ..lineTo(11.83, 4.73)
+      ..lineTo(12.0, 4.05)
+      ..lineTo(12.51, 2.85)
+      ..lineTo(13.11, 2.26)
+      ..lineTo(13.79, 2.0)
+      ..close()
+      // Subpath 1
+      ..moveTo(13.97, 2.6)
+      ..lineTo(13.45, 2.77)
+      ..lineTo(13.03, 3.2)
+      ..lineTo(12.51, 4.48)
+      ..lineTo(12.43, 5.76)
+      ..lineTo(12.0, 6.19)
+      ..lineTo(12.09, 6.7)
+      ..lineTo(12.43, 6.87)
+      ..lineTo(13.54, 8.07)
+      ..lineTo(14.05, 8.07)
+      ..lineTo(14.14, 7.64)
+      ..lineTo(14.48, 7.56)
+      ..lineTo(14.56, 7.38)
+      ..lineTo(15.08, 7.3)
+      ..lineTo(15.08, 6.79)
+      ..lineTo(15.33, 6.19)
+      ..lineTo(15.67, 5.93)
+      ..lineTo(15.85, 5.42)
+      ..lineTo(16.19, 5.33)
+      ..lineTo(16.27, 5.16)
+      ..lineTo(16.27, 4.39)
+      ..lineTo(15.93, 3.62)
+      ..lineTo(15.16, 2.85)
+      ..lineTo(14.39, 2.6)
+      ..lineTo(13.97, 2.6)
+      ..close()
+      // Subpath 2
+      ..moveTo(11.49, 7.13)
+      ..lineTo(11.15, 7.3)
+      ..lineTo(10.29, 8.32)
+      ..lineTo(9.52, 10.2)
+      ..lineTo(8.92, 13.37)
+      ..lineTo(9.01, 15.08)
+      ..lineTo(9.44, 16.7)
+      ..lineTo(10.03, 17.98)
+      ..lineTo(12.09, 18.49)
+      ..lineTo(13.71, 18.58)
+      ..lineTo(13.88, 18.75)
+      ..lineTo(13.88, 19.09)
+      ..lineTo(12.43, 19.18)
+      ..lineTo(10.46, 18.67)
+      ..lineTo(8.92, 18.67)
+      ..lineTo(8.5, 19.01)
+      ..lineTo(8.24, 19.69)
+      ..lineTo(8.33, 20.72)
+      ..lineTo(8.75, 20.89)
+      ..lineTo(17.56, 20.89)
+      ..lineTo(17.81, 20.37)
+      ..lineTo(17.81, 19.52)
+      ..lineTo(17.64, 19.18)
+      ..lineTo(16.27, 17.9)
+      ..lineTo(16.1, 17.9)
+      ..lineTo(14.99, 16.87)
+      ..lineTo(14.82, 16.87)
+      ..lineTo(13.28, 15.33)
+      ..lineTo(13.28, 15.16)
+      ..lineTo(12.34, 14.14)
+      ..lineTo(12.34, 13.96)
+      ..lineTo(11.83, 13.37)
+      ..lineTo(11.74, 13.02)
+      ..lineTo(11.57, 12.94)
+      ..lineTo(11.23, 12.26)
+      ..lineTo(10.89, 11.14)
+      ..lineTo(11.06, 10.97)
+      ..lineTo(11.4, 10.97)
+      ..lineTo(12.0, 12.43)
+      ..lineTo(12.17, 12.51)
+      ..lineTo(12.85, 13.79)
+      ..lineTo(13.79, 14.82)
+      ..lineTo(13.79, 14.99)
+      ..lineTo(15.16, 16.36)
+      ..lineTo(15.33, 16.36)
+      ..lineTo(15.67, 16.79)
+      ..lineTo(15.85, 16.79)
+      ..lineTo(16.27, 17.21)
+      ..lineTo(16.87, 16.36)
+      ..lineTo(16.87, 16.1)
+      ..lineTo(16.7, 16.1)
+      ..lineTo(15.33, 14.73)
+      ..lineTo(15.33, 14.56)
+      ..lineTo(14.48, 13.62)
+      ..lineTo(14.39, 13.28)
+      ..lineTo(14.05, 12.94)
+      ..lineTo(13.97, 12.6)
+      ..lineTo(13.79, 12.51)
+      ..lineTo(13.62, 12.0)
+      ..lineTo(13.45, 11.91)
+      ..lineTo(12.94, 10.89)
+      ..lineTo(12.94, 10.63)
+      ..lineTo(12.43, 9.69)
+      ..lineTo(12.34, 9.09)
+      ..lineTo(12.51, 8.92)
+      ..lineTo(12.77, 8.92)
+      ..lineTo(13.03, 9.26)
+      ..lineTo(13.2, 9.95)
+      ..lineTo(13.37, 10.03)
+      ..lineTo(13.37, 8.75)
+      ..lineTo(12.85, 8.24)
+      ..lineTo(12.68, 8.24)
+      ..lineTo(11.66, 7.13)
+      ..lineTo(11.49, 7.13)
+      ..close()
+      // Subpath 3
+      ..moveTo(17.38, 16.7)
+      ..lineTo(17.13, 16.96)
+      ..lineTo(17.04, 17.3)
+      ..lineTo(16.79, 17.47)
+      ..lineTo(16.79, 17.64)
+      ..lineTo(17.13, 17.81)
+      ..lineTo(17.98, 18.67)
+      ..lineTo(18.24, 18.15)
+      ..lineTo(18.24, 17.73)
+      ..lineTo(17.38, 16.7)
+      ..close()
+      // Subpath 4
+      ..moveTo(7.56, 19.35)
+      ..lineTo(7.21, 19.43)
+      ..lineTo(6.79, 19.86)
+      ..lineTo(6.62, 19.86)
+      ..lineTo(6.27, 20.29)
+      ..lineTo(6.1, 20.29)
+      ..lineTo(5.85, 20.8)
+      ..lineTo(7.73, 20.89)
+      ..lineTo(7.73, 19.35)
+      ..lineTo(7.56, 19.35)
+      ..close();
+    canvas.drawPath(path, fill);
+
+    // Balanced stroke expansion to match optical presence of surrounding glyphs.
+    final outlinePaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.70
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(path, outlinePaint);
+  }
+
+  /// 2. DUAS: Cupped hands raised in supplication (Dua / Qunoot).
+  void _paintDuas(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    final handStroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.75
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final handDetail = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.35
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    void drawHand() {
+      // Outer hand contour (outer wrist -> thumb -> 3 fingertips -> inner edge -> inner wrist)
+      final hand = Path()
+        ..moveTo(2.6, 21.0)
+        ..cubicTo(1.5, 19.2, 0.9, 17.0, 0.9, 14.8)
+        ..cubicTo(0.9, 13.0, 1.2, 11.5, 1.5, 9.8)
+        ..cubicTo(1.6, 8.5, 2.0, 7.8, 2.6, 7.8)
+        ..cubicTo(3.2, 7.8, 3.5, 8.4, 3.6, 9.3)
+        ..cubicTo(3.7, 10.0, 3.8, 10.6, 4.3, 11.0)
+        ..cubicTo(4.8, 9.2, 5.8, 6.2, 6.8, 4.2)
+        ..cubicTo(7.2, 3.3, 7.8, 3.5, 7.7, 4.7)
+        ..cubicTo(7.9, 3.5, 8.5, 2.8, 9.1, 2.9)
+        ..cubicTo(9.6, 3.0, 9.8, 3.8, 9.6, 4.8)
+        ..cubicTo(9.9, 3.8, 10.6, 3.8, 10.9, 4.6)
+        ..cubicTo(11.2, 5.5, 11.3, 7.0, 11.3, 9.2)
+        ..cubicTo(11.2, 11.0, 10.1, 12.2, 9.9, 13.8)
+        ..cubicTo(9.8, 15.2, 10.6, 16.5, 10.6, 17.6)
+        ..cubicTo(10.5, 18.8, 9.9, 20.0, 9.2, 21.0);
+      canvas.drawPath(hand, handStroke);
+
+      // Finger divider 1 (between index and middle finger)
+      final div1 = Path()
+        ..moveTo(7.7, 4.7)
+        ..cubicTo(7.9, 6.8, 7.2, 8.8, 5.8, 11.0);
+      canvas.drawPath(div1, handDetail);
+
+      // Finger divider 2 (between middle and inner finger)
+      final div2 = Path()
+        ..moveTo(9.6, 4.8)
+        ..cubicTo(9.8, 6.8, 9.2, 9.0, 8.0, 11.4);
+      canvas.drawPath(div2, handDetail);
+
+      // Thumb crease line separating thenar eminence from palm
+      final thumbCrease = Path()
+        ..moveTo(4.3, 11.0)
+        ..cubicTo(4.3, 12.8, 4.1, 14.2, 5.8, 15.6);
+      canvas.drawPath(thumbCrease, handDetail);
+    }
+
+    // Left hand
+    drawHand();
+
+    // Right hand (mirrored across vertical center x = 12.0)
+    canvas.save();
+    canvas.translate(24.0, 0.0);
+    canvas.scale(-1.0, 1.0);
+    drawHand();
+    canvas.restore();
+  }
+
+  /// 3. SURAHS: The Holy Quran resting on a traditional wooden Rihal stand.
+  void _paintSurahs(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    // Rear crossing legs
+    final rearLegs = Path()
+      ..moveTo(6.4, 14.2)
+      ..lineTo(2.6, 17.0)
+      ..lineTo(2.6, 20.2)
+      ..lineTo(12.0, 16.2)
+      ..lineTo(21.4, 20.2)
+      ..lineTo(21.4, 17.0)
+      ..lineTo(17.6, 14.2);
+    canvas.drawPath(rearLegs, stroke);
+
+    // Front Rihal board & outer wings (continuous outer boundary)
+    final frontBoard = Path()
+      ..moveTo(5.0, 5.2)
+      ..lineTo(3.0, 5.2)
+      ..lineTo(3.0, 12.6)
+      ..lineTo(12.0, 16.2)
+      ..lineTo(21.0, 12.6)
+      ..lineTo(21.0, 5.2)
+      ..lineTo(19.0, 5.2);
+    canvas.drawPath(frontBoard, stroke);
+
+    // Open Holy Quran pages
+    // Left page
+    final leftPage = Path()
+      ..moveTo(12.0, 5.2)
+      ..cubicTo(9.8, 3.6, 6.8, 3.8, 5.0, 5.2)
+      ..lineTo(5.0, 12.0)
+      ..cubicTo(6.8, 11.0, 9.8, 11.4, 12.0, 13.2)
+      ..close();
+    canvas.drawPath(leftPage, stroke);
+
+    // Right page
+    final rightPage = Path()
+      ..moveTo(12.0, 5.2)
+      ..cubicTo(14.2, 3.6, 17.2, 3.8, 19.0, 5.2)
+      ..lineTo(19.0, 12.0)
+      ..cubicTo(17.2, 11.0, 14.2, 11.4, 12.0, 13.2)
+      ..close();
+    canvas.drawPath(rightPage, stroke);
+
+    // Center spine crease
+    canvas.drawLine(const Offset(12.0, 5.2), const Offset(12.0, 13.2), stroke);
+  }
+
+  /// 4. TASBEEH: Loop of prayer beads with an Imam bead and tassel.
+  void _paintTasbeeh(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    const cx = 12.0;
+    const cy = 8.5;
+    const rx = 6.2;
+    const ry = 5.2;
+
+    // Draw string loop
+    final loop = Path()
+      ..addOval(Rect.fromCenter(center: const Offset(cx, cy), width: rx * 2, height: ry * 2));
+    canvas.drawPath(loop, detail);
+
+    // 10 beads around the loop
+    const numBeads = 10;
+    for (int i = 0; i < numBeads; i++) {
+      final angle = i * (2 * math.pi / numBeads) - math.pi / 2;
+      final bx = cx + rx * math.cos(angle);
+      final by = cy + ry * math.sin(angle);
+      canvas.drawCircle(Offset(bx, by), 1.35, fill);
+    }
+
+    // Imam bead at bottom junction
+    final imamBead = Path()
+      ..moveTo(11.0, 13.8)
+      ..lineTo(13.0, 13.8)
+      ..lineTo(12.6, 17.2)
+      ..lineTo(11.4, 17.2)
+      ..close();
+    canvas.drawPath(imamBead, fill);
+
+    // Tassel knot
+    canvas.drawCircle(const Offset(12, 17.8), 0.9, fill);
+
+    // Dangling silk tassels
+    canvas.drawLine(const Offset(12, 18.2), const Offset(9.8, 22.0), detail);
+    canvas.drawLine(const Offset(12, 18.2), const Offset(12.0, 22.5), detail);
+    canvas.drawLine(const Offset(12, 18.2), const Offset(14.2, 22.0), detail);
+  }
+
+  /// 5. AAMAAL: Traditional Islamic Lantern (Fanoos) for blessed night devotions.
+  void _paintAamaal(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    // Hanging ring at top
+    canvas.drawCircle(const Offset(12, 3.2), 1.6, detail);
+
+    // Lantern cap (pointed hood)
+    final cap = Path()
+      ..moveTo(12, 4.8)
+      ..lineTo(7.2, 7.8)
+      ..lineTo(16.8, 7.8)
+      ..close();
+    canvas.drawPath(cap, stroke);
+
+    // Lantern glass body
+    final body = Path()
+      ..moveTo(7.8, 7.8)
+      ..lineTo(8.8, 16.0)
+      ..lineTo(15.2, 16.0)
+      ..lineTo(16.2, 7.8);
+    canvas.drawPath(body, stroke);
+
+    // Base plinth
+    final base = Path()
+      ..moveTo(8.2, 16.0)
+      ..lineTo(7.0, 19.2)
+      ..lineTo(17.0, 19.2)
+      ..lineTo(15.8, 16.0);
+    canvas.drawPath(base, stroke);
+    canvas.drawLine(const Offset(6.0, 19.2), const Offset(18.0, 19.2), stroke);
+
+    // Inner glowing flame (solid droplet)
+    final flame = Path()
+      ..moveTo(12, 10.2)
+      ..cubicTo(10.8, 11.5, 10.8, 13.5, 12, 14.5)
+      ..cubicTo(13.2, 13.5, 13.2, 11.5, 12, 10.2)
+      ..close();
+    canvas.drawPath(flame, fill);
+
+    // Light rays radiating from the sides
+    canvas.drawLine(const Offset(5.2, 11.8), const Offset(3.2, 11.8), detail);
+    canvas.drawLine(const Offset(18.8, 11.8), const Offset(20.8, 11.8), detail);
+  }
+
+  /// 6. MUNAJAAT: Material Symbols moon_stars (night crescent with twin celestial stars).
+  void _paintMunajaat(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    final path = Path()
+      ..fillType = PathFillType.evenOdd
+      // Star 1 (upper diamond)
+      ..moveTo(15.0, 8.0)
+      ..lineTo(12.0, 5.0)
+      ..lineTo(15.0, 2.0)
+      ..lineTo(18.0, 5.0)
+      ..close()
+      // Star 2 (lower diamond)
+      ..moveTo(20.0, 11.0)
+      ..lineTo(18.0, 9.0)
+      ..lineTo(20.0, 7.0)
+      ..lineTo(22.0, 9.0)
+      ..close()
+      // Crescent Moon Outer Contour
+      ..moveTo(12.07, 22.0)
+      ..quadraticBezierTo(9.97, 22.0, 8.14, 21.2)
+      ..quadraticBezierTo(6.30, 20.4, 4.94, 19.04)
+      ..quadraticBezierTo(3.58, 17.68, 2.77, 15.84)
+      ..quadraticBezierTo(1.98, 14.0, 1.98, 11.9)
+      ..quadraticBezierTo(1.98, 8.25, 4.30, 5.46)
+      ..quadraticBezierTo(6.62, 2.67, 10.22, 2.0)
+      ..quadraticBezierTo(9.78, 4.47, 10.50, 6.84)
+      ..quadraticBezierTo(11.22, 9.20, 13.00, 10.97)
+      ..quadraticBezierTo(14.78, 12.75, 17.14, 13.47)
+      ..quadraticBezierTo(19.50, 14.2, 21.98, 13.75)
+      ..quadraticBezierTo(21.32, 17.35, 18.52, 19.68)
+      ..quadraticBezierTo(15.72, 22.0, 12.07, 22.0)
+      ..close()
+      // Crescent Moon Inner Cutout (Hollow outline)
+      ..moveTo(12.07, 20.0)
+      ..quadraticBezierTo(14.28, 20.0, 16.15, 18.9)
+      ..quadraticBezierTo(18.02, 17.8, 19.10, 15.88)
+      ..quadraticBezierTo(16.95, 15.68, 15.03, 14.79)
+      ..quadraticBezierTo(13.10, 13.9, 11.57, 12.38)
+      ..quadraticBezierTo(10.05, 10.85, 9.15, 8.93)
+      ..quadraticBezierTo(8.25, 7.0, 8.07, 4.85)
+      ..quadraticBezierTo(6.15, 5.92, 5.06, 7.81)
+      ..quadraticBezierTo(3.98, 9.7, 3.98, 11.9)
+      ..quadraticBezierTo(3.98, 15.28, 6.34, 17.64)
+      ..quadraticBezierTo(8.70, 20.0, 12.07, 20.0)
+      ..close();
+
+    canvas.drawPath(path, fill);
+  }
+
+  /// 7. RAKAAT COUNTER: Physical Sajdagah / Rakaat counter prayer device with empty readout window and sajdah Turbah.
+  void _paintRakaat(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    // Outer pointed arch casing with subtle saddle-curve base
+    final casing = Path()
+      ..moveTo(12.0, 1.6)
+      ..cubicTo(9.6, 3.0, 5.0, 6.6, 5.0, 11.2)
+      ..lineTo(5.0, 19.5)
+      ..cubicTo(5.0, 21.0, 6.5, 21.8, 8.0, 21.6)
+      ..cubicTo(10.2, 21.3, 13.8, 21.3, 16.0, 21.6)
+      ..cubicTo(17.5, 21.8, 19.0, 21.0, 19.0, 19.5)
+      ..lineTo(19.0, 11.2)
+      ..cubicTo(19.0, 6.6, 14.4, 3.0, 12.0, 1.6)
+      ..close();
+    canvas.drawPath(casing, stroke);
+
+    // Inner compartment divider bar
+    canvas.drawLine(const Offset(5.4, 11.4), const Offset(18.6, 11.4), detail);
+
+    // Empty square counter readout window in upper arch
+    final counterWindow = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(10.2, 5.0, 3.6, 3.6),
+      const Radius.circular(0.8),
+    );
+    canvas.drawRRect(counterWindow, detail);
+
+    // Lower Sajdah Turbah tablet (recessed clay pad)
+    final turbah = Path()
+      ..moveTo(7.2, 13.4)
+      ..cubicTo(7.2, 12.6, 16.8, 12.6, 16.8, 13.4)
+      ..lineTo(16.8, 18.8)
+      ..cubicTo(16.8, 19.8, 7.2, 19.8, 7.2, 18.8)
+      ..close();
+    canvas.drawPath(turbah, stroke);
+  }
+
+  /// 10. ZIYARAAT: The Holy Shrine of Ahlulbayt with golden dome, twin minarets, and the waving Alam (flag of Karbala).
+  void _paintZiyaraat(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    // Ground line
+    canvas.drawLine(const Offset(2.0, 21.0), const Offset(22.0, 21.0), stroke);
+
+    // Left minaret
+    canvas.drawLine(const Offset(3.5, 21.0), const Offset(3.5, 8.5), stroke);
+    canvas.drawLine(const Offset(5.5, 21.0), const Offset(5.5, 8.5), stroke);
+    canvas.drawLine(const Offset(2.5, 8.5), const Offset(6.5, 8.5), stroke); // balcony
+    canvas.drawLine(const Offset(4.5, 8.5), const Offset(4.5, 5.0), detail); // lantern shaft
+    canvas.drawCircle(const Offset(4.5, 4.2), 1.0, fill); // spire peak
+
+    // Right minaret
+    canvas.drawLine(const Offset(18.5, 21.0), const Offset(18.5, 8.5), stroke);
+    canvas.drawLine(const Offset(20.5, 21.0), const Offset(20.5, 8.5), stroke);
+    canvas.drawLine(const Offset(17.5, 8.5), const Offset(21.5, 8.5), stroke); // balcony
+    canvas.drawLine(const Offset(19.5, 8.5), const Offset(19.5, 5.0), detail); // lantern shaft
+    canvas.drawCircle(const Offset(19.5, 4.2), 1.0, fill); // spire peak
+
+    // Central Shrine Dome (swelling onion dome)
+    final dome = Path()
+      ..moveTo(7.8, 14.5)
+      ..cubicTo(7.6, 10.2, 9.4, 6.6, 12.0, 5.2)
+      ..cubicTo(14.6, 6.6, 16.4, 10.2, 16.2, 14.5)
+      ..close();
+    canvas.drawPath(dome, stroke);
+
+    // Wider Shrine Hall Roofline (wider than the dome)
+    canvas.drawLine(const Offset(6.0, 14.5), const Offset(18.0, 14.5), stroke);
+
+    // Shrine Hall Side Walls down to ground line
+    canvas.drawLine(const Offset(6.8, 14.5), const Offset(6.8, 21.0), stroke);
+    canvas.drawLine(const Offset(17.2, 14.5), const Offset(17.2, 21.0), stroke);
+
+    // Sacred Flag of Karbala (Alam) mounted on the dome pinnacle
+    canvas.drawLine(const Offset(12.0, 5.2), const Offset(12.0, 1.8), detail); // pole
+    final flag = Path()
+      ..moveTo(12.0, 1.8)
+      ..quadraticBezierTo(14.0, 1.3, 16.0, 2.2)
+      ..lineTo(15.2, 3.8)
+      ..quadraticBezierTo(13.6, 3.0, 12.0, 4.0)
+      ..close();
+    canvas.drawPath(flag, fill);
+  }
+
+  /// 8. TAQEEBAT: Traditional Sajadah (prayer rug) with inner Mihrab arch.
+  void _paintTaqeebat(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    final rugPaint = Paint()
+      ..color = stroke.color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.30
+      ..strokeCap = StrokeCap.square
+      ..strokeJoin = StrokeJoin.miter;
+
+    final archPaint = Paint()
+      ..color = stroke.color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.15
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final divPaint = Paint()
+      ..color = stroke.color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.05
+      ..strokeCap = StrokeCap.square
+      ..strokeJoin = StrokeJoin.miter;
+
+    // Outer prayer rug rectangle: 5.5 to 18.5, 2.0 to 22.0
+    canvas.drawRect(const Rect.fromLTRB(5.5, 2.0, 18.5, 22.0), rugPaint);
+
+    // Top border divider line
+    canvas.drawLine(const Offset(5.5, 3.6), const Offset(18.5, 3.6), divPaint);
+
+    // Bottom border divider line
+    canvas.drawLine(const Offset(5.5, 20.4), const Offset(18.5, 20.4), divPaint);
+
+    // Inner Mihrab arch shape
+    final arch = Path()
+      ..moveTo(7.85, 18.9)
+      ..lineTo(16.15, 18.9)
+      ..lineTo(16.15, 8.25)
+      ..lineTo(14.7, 8.25)
+      ..cubicTo(14.7, 7.15, 13.0, 5.7, 12.0, 5.0)
+      ..cubicTo(11.0, 5.7, 9.3, 7.15, 9.3, 8.25)
+      ..lineTo(7.85, 8.25)
+      ..close();
+
+    canvas.drawPath(arch, archPaint);
+  }
+
+  /// 9. TODAY'S RECITATIONS: Material Symbols auto_stories (open book with dynamic turning page).
+  void _paintTodaysRecitations(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    final path = Path()
+      ..fillType = PathFillType.evenOdd
+      // Outer book frame & pages
+      ..moveTo(12.0, 19.55)
+      ..quadraticBezierTo(11.72, 19.55, 11.46, 19.48)
+      ..quadraticBezierTo(11.2, 19.4, 10.97, 19.27)
+      ..quadraticBezierTo(9.95, 18.65, 8.82, 18.32)
+      ..quadraticBezierTo(7.7, 18.0, 6.5, 18.0)
+      ..quadraticBezierTo(5.45, 18.0, 4.44, 18.27)
+      ..quadraticBezierTo(3.42, 18.55, 2.5, 19.05)
+      ..quadraticBezierTo(1.98, 19.32, 1.49, 19.02)
+      ..quadraticBezierTo(1.0, 18.73, 1.0, 18.15)
+      ..lineTo(1.0, 6.1)
+      ..quadraticBezierTo(1.0, 5.83, 1.14, 5.58)
+      ..quadraticBezierTo(1.27, 5.33, 1.55, 5.2)
+      ..quadraticBezierTo(2.7, 4.6, 3.95, 4.3)
+      ..quadraticBezierTo(5.2, 4.0, 6.5, 4.0)
+      ..quadraticBezierTo(7.95, 4.0, 9.34, 4.38)
+      ..quadraticBezierTo(10.72, 4.75, 12.0, 5.5)
+      ..lineTo(12.0, 17.6)
+      ..quadraticBezierTo(13.28, 16.8, 14.68, 16.4)
+      ..quadraticBezierTo(16.07, 16.0, 17.5, 16.0)
+      ..quadraticBezierTo(18.4, 16.0, 19.26, 16.15)
+      ..quadraticBezierTo(20.12, 16.3, 21.0, 16.6)
+      ..lineTo(21.0, 4.6)
+      ..quadraticBezierTo(21.38, 4.72, 21.74, 4.86)
+      ..quadraticBezierTo(22.1, 5.0, 22.45, 5.2)
+      ..quadraticBezierTo(22.73, 5.33, 22.86, 5.58)
+      ..quadraticBezierTo(23.0, 5.83, 23.0, 6.1)
+      ..lineTo(23.0, 18.15)
+      ..quadraticBezierTo(23.0, 18.73, 22.51, 19.02)
+      ..quadraticBezierTo(22.02, 19.32, 21.5, 19.05)
+      ..quadraticBezierTo(20.57, 18.55, 19.56, 18.27)
+      ..quadraticBezierTo(18.55, 18.0, 17.5, 18.0)
+      ..quadraticBezierTo(16.3, 18.0, 15.18, 18.32)
+      ..quadraticBezierTo(14.05, 18.65, 13.03, 19.27)
+      ..quadraticBezierTo(12.8, 19.4, 12.54, 19.48)
+      ..quadraticBezierTo(12.28, 19.55, 12.0, 19.55)
+      ..close()
+      // Center turning page
+      ..moveTo(14.82, 14.25)
+      ..quadraticBezierTo(14.57, 14.47, 14.29, 14.34)
+      ..quadraticBezierTo(14.0, 14.2, 14.0, 13.88)
+      ..lineTo(14.0, 5.7)
+      ..quadraticBezierTo(14.0, 5.6, 14.04, 5.51)
+      ..quadraticBezierTo(14.07, 5.42, 14.15, 5.35)
+      ..lineTo(18.15, 1.35)
+      ..quadraticBezierTo(18.4, 1.1, 18.7, 1.23)
+      ..quadraticBezierTo(19.0, 1.35, 19.0, 1.7)
+      ..lineTo(19.0, 10.28)
+      ..quadraticBezierTo(19.0, 10.4, 18.95, 10.49)
+      ..quadraticBezierTo(18.9, 10.57, 18.82, 10.65)
+      ..lineTo(14.82, 14.25)
+      ..close()
+      // Left page cutout
+      ..moveTo(10.0, 16.62)
+      ..lineTo(10.0, 6.72)
+      ..quadraticBezierTo(9.18, 6.38, 8.29, 6.19)
+      ..quadraticBezierTo(7.4, 6.0, 6.5, 6.0)
+      ..quadraticBezierTo(5.58, 6.0, 4.7, 6.17)
+      ..quadraticBezierTo(3.83, 6.35, 3.0, 6.7)
+      ..lineTo(3.0, 16.62)
+      ..quadraticBezierTo(3.88, 16.3, 4.74, 16.15)
+      ..quadraticBezierTo(5.6, 16.0, 6.5, 16.0)
+      ..quadraticBezierTo(7.4, 16.0, 8.26, 16.15)
+      ..quadraticBezierTo(9.12, 16.3, 10.0, 16.62)
+      ..close();
+
+    canvas.drawPath(path, fill);
+  }
+
+  /// 11. LIBRARY: Three library volumes on a shelf plinth with the right tome resting against the centerpiece.
+  void _paintLibrary(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    // Shelf baseline plinth
+    canvas.drawLine(const Offset(2.2, 21.0), const Offset(21.8, 21.0), stroke);
+
+    // Book 1 (Left upright volume)
+    final book1 = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(3.6, 6.8, 4.0, 14.2),
+      const Radius.circular(1.0),
+    );
+    canvas.drawRRect(book1, stroke);
+    canvas.drawLine(const Offset(3.6, 10.0), const Offset(7.6, 10.0), detail);
+    canvas.drawLine(const Offset(3.6, 17.6), const Offset(7.6, 17.6), detail);
+
+    // Book 2 (Middle upright volume, centerpiece)
+    final book2 = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(8.6, 3.6, 4.2, 17.4),
+      const Radius.circular(1.0),
+    );
+    canvas.drawRRect(book2, stroke);
+    canvas.drawLine(const Offset(8.6, 7.2), const Offset(12.8, 7.2), detail);
+    canvas.drawLine(const Offset(8.6, 17.6), const Offset(12.8, 17.6), detail);
+
+    // Book 3 (Right volume: rotated counter-clockwise by -15.5° to lean left against Book 2)
+    const pivotX = 16.6;
+    canvas.save();
+    canvas.translate(pivotX, 21.0);
+    canvas.rotate(-15.5 * math.pi / 180.0);
+    canvas.translate(-pivotX, -21.0);
+
+    final book3 = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(pivotX, 6.8, 4.0, 14.2),
+      const Radius.circular(1.0),
+    );
+    canvas.drawRRect(book3, stroke);
+    canvas.drawLine(const Offset(pivotX, 10.0), const Offset(pivotX + 4.0, 10.0), detail);
+    canvas.drawLine(const Offset(pivotX, 17.6), const Offset(pivotX + 4.0, 17.6), detail);
+
+    canvas.restore();
+  }
+
+  /// 12. BAAQEYAAT AS SAALEHAAT: Classical leather-bound volume with ornate spine, cover medallion, and dangling silk ribbon bookmark.
+  void _paintBaqeyaat(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    final bookStroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.30
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final bookDetail = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.95
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final dotFill = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Book outer cover: Rect with rounded right corners
+    final bookCover = RRect.fromRectAndCorners(
+      const Rect.fromLTWH(4.5, 3.2, 14.8, 17.6),
+      topLeft: const Radius.circular(2.5),
+      bottomLeft: const Radius.circular(2.5),
+      topRight: const Radius.circular(1.8),
+      bottomRight: const Radius.circular(1.8),
+    );
+    canvas.drawRRect(bookCover, bookStroke);
+
+    // Spine divider on the left
+    canvas.drawLine(const Offset(7.6, 3.2), const Offset(7.6, 20.8), bookStroke);
+
+    // Three spine embossed raised bands
+    canvas.drawLine(const Offset(4.5, 6.8), const Offset(7.6, 6.8), bookDetail);
+    canvas.drawLine(const Offset(4.5, 12.0), const Offset(7.6, 12.0), bookDetail);
+    canvas.drawLine(const Offset(4.5, 17.2), const Offset(7.6, 17.2), bookDetail);
+
+    // Inner decorative border frame on the cover
+    final innerFrame = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(9.6, 5.2, 8.0, 13.6),
+      const Radius.circular(1.2),
+    );
+    canvas.drawRRect(innerFrame, bookDetail);
+
+    // Central Islamic diamond / cartouche medallion
+    final diamond = Path()
+      ..moveTo(13.6, 9.8)
+      ..lineTo(15.6, 12.0)
+      ..lineTo(13.6, 14.2)
+      ..lineTo(11.6, 12.0)
+      ..close();
+    canvas.drawPath(diamond, bookStroke);
+
+    // Center accent point
+    canvas.drawCircle(const Offset(13.6, 12.0), 0.75, dotFill);
+
+    // Dangling silk ribbon bookmark emerging from bottom
+    final ribbon = Path()
+      ..moveTo(12.4, 20.8)
+      ..lineTo(12.4, 23.2)
+      ..lineTo(13.6, 22.3) // swallowtail notch
+      ..lineTo(14.8, 23.2)
+      ..lineTo(14.8, 20.8);
+    canvas.drawPath(ribbon, bookStroke);
+  }
+
+  @override
+  bool shouldRepaint(covariant _HomeGlyphPainter oldDelegate) {
+    return oldDelegate.type != type || oldDelegate.color != color;
+  }
+}
