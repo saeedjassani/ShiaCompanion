@@ -5,6 +5,11 @@ int _sundayBasedWeekday(HijriCalendar date) {
   return weekday == DateTime.sunday ? 0 : weekday;
 }
 
+int _sundayBasedWeekdayFromDateTime(DateTime date) {
+  final weekday = date.weekday;
+  return weekday == DateTime.sunday ? 0 : weekday;
+}
+
 List<String> _patternsFromValue(Object? value) {
   if (value is String) {
     return value
@@ -42,11 +47,21 @@ List<String> _patternsFromValue(Object? value) {
 ///   9th Zilhajj — distinct from "12-09", the Day of Arafah). Only matches
 ///   when [nightDate] is supplied — see [resolveNightAdjustedHijriDate].
 ///
+/// [weekdayAnchor], when supplied, is the real-world date whose weekday is
+/// used to evaluate a recurring weekday pattern (MM-*-D or *-*-D). This
+/// matters because [currentDate] may be a manually moon-sighting-adjusted
+/// Hijri date (see the `adjust_hijri_date` setting): shifting it by a day to
+/// correct which lunar date it is would otherwise also shift which weekday
+/// "Friday" is taken to fall on, even though the civil day of the week is
+/// unaffected by that adjustment. Defaults to [currentDate]'s own weekday
+/// when omitted.
+///
 /// Returns true if the current date matches the pattern.
 bool matchesLunarDatePattern(
   String pattern, {
   HijriCalendar? currentDate,
   HijriCalendar? nightDate,
+  DateTime? weekdayAnchor,
 }) {
   currentDate ??= HijriCalendar.now();
 
@@ -57,10 +72,18 @@ bool matchesLunarDatePattern(
     return _matchesDatePattern(trimmed.substring(1), nightDate);
   }
 
-  return _matchesDatePattern(trimmed, currentDate);
+  return _matchesDatePattern(
+    trimmed,
+    currentDate,
+    weekdayAnchor: weekdayAnchor,
+  );
 }
 
-bool _matchesDatePattern(String datePattern, HijriCalendar date) {
+bool _matchesDatePattern(
+  String datePattern,
+  HijriCalendar date, {
+  DateTime? weekdayAnchor,
+}) {
   final parts = datePattern.split('-');
   if (parts.length < 2) return false;
 
@@ -75,7 +98,10 @@ bool _matchesDatePattern(String datePattern, HijriCalendar date) {
     final dayOfWeek = int.tryParse(parts[2]);
     if (dayOfWeek == null || dayOfWeek < 0 || dayOfWeek > 6) return false;
 
-    return _sundayBasedWeekday(date) == dayOfWeek;
+    final actualWeekday = weekdayAnchor == null
+        ? _sundayBasedWeekday(date)
+        : _sundayBasedWeekdayFromDateTime(weekdayAnchor);
+    return actualWeekday == dayOfWeek;
   }
 
   // A bare month with no day, fixed or wildcard, needs a real lunar month.
@@ -101,6 +127,7 @@ bool matchesAnyLunarPattern(
   Iterable<String>? patterns, {
   HijriCalendar? currentDate,
   HijriCalendar? nightDate,
+  DateTime? weekdayAnchor,
 }) {
   if (patterns == null || patterns.isEmpty) return false;
   currentDate ??= HijriCalendar.now();
@@ -109,6 +136,7 @@ bool matchesAnyLunarPattern(
       pattern,
       currentDate: currentDate,
       nightDate: nightDate,
+      weekdayAnchor: weekdayAnchor,
     ),
   );
 }
@@ -117,11 +145,15 @@ bool matchesAnyLunarPattern(
 ///
 /// [nightDate], when supplied, lets "N"-prefixed patterns (see
 /// [matchesLunarDatePattern]) match against the currently-open Shab (night)
-/// window rather than the plain calendar date.
+/// window rather than the plain calendar date. [weekdayAnchor], when
+/// supplied, anchors recurring weekday patterns (e.g. "*-*-5" for Friday) to
+/// that real-world date rather than to [currentDate]'s own weekday — see
+/// [matchesLunarDatePattern].
 List<String> getTodaysZikrs(
   Map<String, dynamic> zikrData, {
   HijriCalendar? currentDate,
   HijriCalendar? nightDate,
+  DateTime? weekdayAnchor,
 }) {
   final today = <String>[];
   currentDate ??= HijriCalendar.now();
@@ -136,6 +168,7 @@ List<String> getTodaysZikrs(
       patterns,
       currentDate: currentDate,
       nightDate: nightDate,
+      weekdayAnchor: weekdayAnchor,
     )) {
       today.add(uid);
     }
