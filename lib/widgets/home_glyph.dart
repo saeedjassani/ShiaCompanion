@@ -25,7 +25,7 @@ enum HomeGlyphType {
   /// Sacred Turbah (sajdah stone) with concentric count pulse rings.
   rakaat,
 
-  /// Mihrab prayer arch with prayer beads draped across it.
+  /// Traditional Sajadah (prayer rug) with inner Mihrab arch.
   taqeebat,
 
   /// Material Symbols auto_stories (open book with dynamic turning page).
@@ -695,41 +695,34 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawPath(flag, fill);
   }
 
-  /// 8. TAQEEBAT: Prayer arch with cascading prayer beads.
+  /// 8. TAQEEBAT: Traditional Sajadah (prayer rug) with inner Mihrab arch.
   void _paintTaqeebat(
     Canvas canvas,
     Paint stroke,
     Paint detail,
     Paint fill,
   ) {
-    // Base line
-    canvas.drawLine(const Offset(4, 21), const Offset(20, 21), stroke);
+    // Outer prayer rug rectangle
+    canvas.drawRect(const Rect.fromLTRB(5.2, 1.6, 18.8, 22.4), detail);
 
-    // Outer arch
+    // Top border divider line
+    canvas.drawLine(const Offset(5.2, 4.4), const Offset(18.8, 4.4), detail);
+
+    // Bottom border divider line
+    canvas.drawLine(const Offset(5.2, 19.6), const Offset(18.8, 19.6), detail);
+
+    // Inner Mihrab arch shape
     final arch = Path()
-      ..moveTo(6, 21)
-      ..lineTo(6, 12.5)
-      ..cubicTo(6, 7.8, 9.5, 4.2, 12, 3.6)
-      ..cubicTo(14.5, 4.2, 18, 7.8, 18, 12.5)
-      ..lineTo(18, 21);
-    canvas.drawPath(arch, stroke);
+      ..moveTo(7.65, 17.0)
+      ..lineTo(16.35, 17.0)
+      ..lineTo(16.35, 9.1)
+      ..lineTo(14.8, 9.1)
+      ..cubicTo(14.8, 8.0, 13.1, 7.3, 12.0, 6.8)
+      ..cubicTo(10.9, 7.3, 9.2, 8.0, 9.2, 9.1)
+      ..lineTo(7.65, 9.1)
+      ..close();
 
-    // Draped tasbeeh string across the arch
-    final beadArc = Path()
-      ..moveTo(7.5, 10.5)
-      ..cubicTo(8.5, 14.8, 15.5, 14.8, 16.5, 10.5);
-    canvas.drawPath(beadArc, detail);
-
-    // Beads along the draped arc
-    canvas.drawCircle(const Offset(8.0, 11.2), 1.1, fill);
-    canvas.drawCircle(const Offset(9.8, 13.0), 1.1, fill);
-    canvas.drawCircle(const Offset(12.0, 13.8), 1.3, fill); // center bead
-    canvas.drawCircle(const Offset(14.2, 13.0), 1.1, fill);
-    canvas.drawCircle(const Offset(16.0, 11.2), 1.1, fill);
-
-    // Center tassel hanging down from center bead
-    canvas.drawLine(const Offset(12, 14.5), const Offset(12, 18.5), detail);
-    canvas.drawCircle(const Offset(12, 19.2), 0.9, fill);
+    canvas.drawPath(arch, detail);
   }
 
   /// 9. TODAY'S RECITATIONS: Material Symbols auto_stories (open book with dynamic turning page).
