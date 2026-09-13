@@ -97,6 +97,59 @@ void main() {
     });
   });
 
+  group('zikrSmoothedTabFraction', () {
+    test('passes through the first measurement of a tab', () {
+      expect(
+        zikrSmoothedTabFraction(
+          rawFraction: 0.4,
+          scrollOffset: 100,
+          previousScrollOffset: null,
+          previousDisplayedFraction: null,
+        ),
+        0.4,
+      );
+    });
+
+    test('holds the best-so-far value against a dip while moving forward',
+        () {
+      // ListView.builder revised its maxScrollExtent estimate upward, so the
+      // fraction dropped even though the offset kept increasing.
+      expect(
+        zikrSmoothedTabFraction(
+          rawFraction: 0.3,
+          scrollOffset: 150,
+          previousScrollOffset: 100,
+          previousDisplayedFraction: 0.4,
+        ),
+        0.4,
+      );
+    });
+
+    test('adopts a higher fraction once it overtakes the held value', () {
+      expect(
+        zikrSmoothedTabFraction(
+          rawFraction: 0.5,
+          scrollOffset: 150,
+          previousScrollOffset: 100,
+          previousDisplayedFraction: 0.4,
+        ),
+        0.5,
+      );
+    });
+
+    test('lets a real backward scroll bring the fraction back down', () {
+      expect(
+        zikrSmoothedTabFraction(
+          rawFraction: 0.2,
+          scrollOffset: 50,
+          previousScrollOffset: 100,
+          previousDisplayedFraction: 0.4,
+        ),
+        0.2,
+      );
+    });
+  });
+
   group('zikrReadingProgress', () {
     test('counts earlier tabs as complete', () {
       expect(
