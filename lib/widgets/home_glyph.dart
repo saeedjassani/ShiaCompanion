@@ -702,27 +702,35 @@ class _HomeGlyphPainter extends CustomPainter {
     Paint detail,
     Paint fill,
   ) {
-    // Outer prayer rug rectangle
-    canvas.drawRect(const Rect.fromLTRB(5.2, 1.6, 18.8, 22.4), detail);
+    // Exact thin stroke matching reference vector art
+    final rugPaint = Paint()
+      ..color = stroke.color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.75
+      ..strokeCap = StrokeCap.square
+      ..strokeJoin = StrokeJoin.miter;
+
+    // Outer prayer rug rectangle: 5.5 to 18.5, 2.0 to 22.0
+    canvas.drawRect(const Rect.fromLTRB(5.5, 2.0, 18.5, 22.0), rugPaint);
 
     // Top border divider line
-    canvas.drawLine(const Offset(5.2, 4.4), const Offset(18.8, 4.4), detail);
+    canvas.drawLine(const Offset(5.5, 3.4), const Offset(18.5, 3.4), rugPaint);
 
     // Bottom border divider line
-    canvas.drawLine(const Offset(5.2, 19.6), const Offset(18.8, 19.6), detail);
+    canvas.drawLine(const Offset(5.5, 20.6), const Offset(18.5, 20.6), rugPaint);
 
     // Inner Mihrab arch shape
     final arch = Path()
-      ..moveTo(7.65, 17.0)
-      ..lineTo(16.35, 17.0)
-      ..lineTo(16.35, 9.1)
-      ..lineTo(14.8, 9.1)
-      ..cubicTo(14.8, 8.0, 13.1, 7.3, 12.0, 6.8)
-      ..cubicTo(10.9, 7.3, 9.2, 8.0, 9.2, 9.1)
-      ..lineTo(7.65, 9.1)
+      ..moveTo(7.85, 18.9)
+      ..lineTo(16.15, 18.9)
+      ..lineTo(16.15, 8.25)
+      ..lineTo(14.7, 8.25)
+      ..cubicTo(14.7, 7.15, 13.0, 5.7, 12.0, 5.0)
+      ..cubicTo(11.0, 5.7, 9.3, 7.15, 9.3, 8.25)
+      ..lineTo(7.85, 8.25)
       ..close();
 
-    canvas.drawPath(arch, detail);
+    canvas.drawPath(arch, rugPaint);
   }
 
   /// 9. TODAY'S RECITATIONS: Material Symbols auto_stories (open book with dynamic turning page).
