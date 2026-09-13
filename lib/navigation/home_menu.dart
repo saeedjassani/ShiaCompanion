@@ -147,6 +147,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Baaqeyaat As Saalehaat',
+    glyphType: HomeGlyphType.baqeyaat,
     icon: Icons.history_edu_rounded,
     pageBuilder: () => ItemList("I", "Baaqeyaat As Saalehaat"),
   ),

@@ -20,6 +20,7 @@ void main() {
         HomeGlyphType.todaysRecitations,
         HomeGlyphType.ziyaraat,
         HomeGlyphType.library,
+        HomeGlyphType.baqeyaat,
       ]));
     });
 

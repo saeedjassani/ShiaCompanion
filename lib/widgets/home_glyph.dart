@@ -36,6 +36,9 @@ enum HomeGlyphType {
 
   /// Three library volumes on a shelf plinth with the right tome resting against the centerpiece.
   library,
+
+  /// Classical leather-bound volume with ornate spine, cover medallion, and dangling silk ribbon bookmark.
+  baqeyaat,
 }
 
 /// A custom-drawn vector glyph for the home screen grid, built from a shared
@@ -125,6 +128,8 @@ class _HomeGlyphPainter extends CustomPainter {
         _paintZiyaraat(canvas, strokePaint, detailPaint, fillPaint);
       case HomeGlyphType.library:
         _paintLibrary(canvas, strokePaint, detailPaint, fillPaint);
+      case HomeGlyphType.baqeyaat:
+        _paintBaqeyaat(canvas, strokePaint, detailPaint, fillPaint);
     }
 
     canvas.restore();
@@ -335,6 +340,15 @@ class _HomeGlyphPainter extends CustomPainter {
       ..lineTo(7.56, 19.35)
       ..close();
     canvas.drawPath(path, fill);
+
+    // Balanced stroke expansion to match optical presence of surrounding glyphs.
+    final outlinePaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.50
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(path, outlinePaint);
   }
 
   /// 2. DUAS: Cupped hands raised in supplication (Dua / Qunoot).
@@ -702,11 +716,24 @@ class _HomeGlyphPainter extends CustomPainter {
     Paint detail,
     Paint fill,
   ) {
-    // Exact thin stroke matching reference vector art
     final rugPaint = Paint()
       ..color = stroke.color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.75
+      ..strokeWidth = 1.30
+      ..strokeCap = StrokeCap.square
+      ..strokeJoin = StrokeJoin.miter;
+
+    final archPaint = Paint()
+      ..color = stroke.color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.15
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final divPaint = Paint()
+      ..color = stroke.color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.05
       ..strokeCap = StrokeCap.square
       ..strokeJoin = StrokeJoin.miter;
 
@@ -714,10 +741,10 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawRect(const Rect.fromLTRB(5.5, 2.0, 18.5, 22.0), rugPaint);
 
     // Top border divider line
-    canvas.drawLine(const Offset(5.5, 3.4), const Offset(18.5, 3.4), rugPaint);
+    canvas.drawLine(const Offset(5.5, 3.6), const Offset(18.5, 3.6), divPaint);
 
     // Bottom border divider line
-    canvas.drawLine(const Offset(5.5, 20.6), const Offset(18.5, 20.6), rugPaint);
+    canvas.drawLine(const Offset(5.5, 20.4), const Offset(18.5, 20.4), divPaint);
 
     // Inner Mihrab arch shape
     final arch = Path()
@@ -730,7 +757,7 @@ class _HomeGlyphPainter extends CustomPainter {
       ..lineTo(7.85, 8.25)
       ..close();
 
-    canvas.drawPath(arch, rugPaint);
+    canvas.drawPath(arch, archPaint);
   }
 
   /// 9. TODAY'S RECITATIONS: Material Symbols auto_stories (open book with dynamic turning page).
@@ -855,6 +882,78 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawLine(const Offset(pivotX, 17.6), const Offset(pivotX + 4.0, 17.6), detail);
 
     canvas.restore();
+  }
+
+  /// 12. BAAQEYAAT AS SAALEHAAT: Classical leather-bound volume with ornate spine, cover medallion, and dangling silk ribbon bookmark.
+  void _paintBaqeyaat(
+    Canvas canvas,
+    Paint stroke,
+    Paint detail,
+    Paint fill,
+  ) {
+    final bookStroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.30
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final bookDetail = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.95
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final dotFill = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Book outer cover: Rect with rounded right corners
+    final bookCover = RRect.fromRectAndCorners(
+      const Rect.fromLTWH(4.5, 3.2, 14.8, 17.6),
+      topLeft: const Radius.circular(2.5),
+      bottomLeft: const Radius.circular(2.5),
+      topRight: const Radius.circular(1.8),
+      bottomRight: const Radius.circular(1.8),
+    );
+    canvas.drawRRect(bookCover, bookStroke);
+
+    // Spine divider on the left
+    canvas.drawLine(const Offset(7.6, 3.2), const Offset(7.6, 20.8), bookStroke);
+
+    // Three spine embossed raised bands
+    canvas.drawLine(const Offset(4.5, 6.8), const Offset(7.6, 6.8), bookDetail);
+    canvas.drawLine(const Offset(4.5, 12.0), const Offset(7.6, 12.0), bookDetail);
+    canvas.drawLine(const Offset(4.5, 17.2), const Offset(7.6, 17.2), bookDetail);
+
+    // Inner decorative border frame on the cover
+    final innerFrame = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(9.6, 5.2, 8.0, 13.6),
+      const Radius.circular(1.2),
+    );
+    canvas.drawRRect(innerFrame, bookDetail);
+
+    // Central Islamic diamond / cartouche medallion
+    final diamond = Path()
+      ..moveTo(13.6, 9.8)
+      ..lineTo(15.6, 12.0)
+      ..lineTo(13.6, 14.2)
+      ..lineTo(11.6, 12.0)
+      ..close();
+    canvas.drawPath(diamond, bookStroke);
+
+    // Center accent point
+    canvas.drawCircle(const Offset(13.6, 12.0), 0.75, dotFill);
+
+    // Dangling silk ribbon bookmark emerging from bottom
+    final ribbon = Path()
+      ..moveTo(12.4, 20.8)
+      ..lineTo(12.4, 23.2)
+      ..lineTo(13.6, 22.3) // swallowtail notch
+      ..lineTo(14.8, 23.2)
+      ..lineTo(14.8, 20.8);
+    canvas.drawPath(ribbon, bookStroke);
   }
 
   @override
