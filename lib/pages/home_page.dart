@@ -619,7 +619,9 @@ class _MyHomePageState extends State<MyHomePage>
                           ),
                         ),
                       ),
-                      child: HomePrayerTimesCard(),
+                      child: HomePrayerTimesCard(
+                        onTap: () => _openHomeMenuItem(calendarMenuItem),
+                      ),
                     ),
                   ),
                 ),

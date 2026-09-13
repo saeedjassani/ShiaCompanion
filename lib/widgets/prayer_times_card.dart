@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
+import 'package:shia_companion/widgets/prayer_notifications_sheet.dart';
 import '../constants.dart';
 import '../utils/shared_preferences.dart';
 
@@ -57,11 +59,7 @@ class PrayerTimesState extends State<PrayerTimesCard> {
               prayerEntry.canNotify &&
               !kIsWeb &&
               SP.isInitialized,
-          onNotificationTap: () async {
-            await inversePref(notificationPreferenceKeyForPrayer(
-                prayerEntry.notificationPrayerName!));
-            await setUpNotifications();
-          },
+          onNotificationTap: () => setState(() {}),
         );
       },
     );
@@ -128,25 +126,11 @@ class _PrayerTimeRow extends StatelessWidget {
             ),
           ),
           if (notificationsEnabled)
-            Padding(
-              padding: const EdgeInsets.only(left: 12.0),
-              child: InkWell(
-                onTap: onNotificationTap,
-                borderRadius: BorderRadius.circular(18.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Icon(
-                    SP.prefs.getBool(notificationPreferenceKeyForPrayer(
-                                prayerEntry.notificationPrayerName!)) ??
-                            false
-                        ? Icons.volume_up
-                        : Icons.block,
-                    size: 20,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            )
+            _PrayerNotificationButton(
+              prayerName: prayerEntry.notificationPrayerName!,
+              displayName: prayerEntry.name,
+              onChanged: onNotificationTap,
+            ),
         ],
       ),
     );
@@ -213,6 +197,93 @@ class _PrayerTimesUnavailable extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+}
+
+class _PrayerNotificationButton extends StatelessWidget {
+  const _PrayerNotificationButton({
+    required this.prayerName,
+    required this.displayName,
+    required this.onChanged,
+  });
+
+  final String prayerName;
+  final String displayName;
+  final VoidCallback onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final notifKey = notificationPreferenceKeyForPrayer(prayerName);
+    final isEnabled = SP.isInitialized && (SP.prefs.getBool(notifKey) ?? false);
+    final soundOption = getAzaanOptionForPrayer(prayerName);
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 12.0),
+      child: Tooltip(
+        message: isEnabled
+            ? '$displayName reminder on (${soundOption.name}). Tap to toggle, long-press to customize.'
+            : '$displayName reminder off. Tap to enable, long-press to customize.',
+        child: InkWell(
+          onTap: () async {
+            final nextValue = !isEnabled;
+            await SP.prefs.setBool(notifKey, nextValue);
+            if (nextValue) {
+              await SP.prefs.setBool(AzaanOptInService.askedKey, true);
+              await requestNotificationPermissions();
+            }
+            await setUpNotifications();
+            onChanged();
+
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  duration: const Duration(seconds: 3),
+                  content: Text(
+                    nextValue
+                        ? '$displayName reminder enabled (${soundOption.name})'
+                        : '$displayName reminder muted',
+                  ),
+                  action: nextValue
+                      ? SnackBarAction(
+                          label: 'SOUND',
+                          onPressed: () async {
+                            final changed = await showPrayerNotificationsSheet(
+                              context,
+                              highlightPrayer: prayerName,
+                            );
+                            if (changed) onChanged();
+                          },
+                        )
+                      : null,
+                ),
+              );
+            }
+          },
+          onLongPress: () async {
+            final changed = await showPrayerNotificationsSheet(
+              context,
+              highlightPrayer: prayerName,
+            );
+            if (changed) onChanged();
+          },
+          borderRadius: BorderRadius.circular(18.0),
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Icon(
+              isEnabled
+                  ? Icons.notifications_active
+                  : Icons.notifications_off_outlined,
+              size: 20,
+              color: isEnabled
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

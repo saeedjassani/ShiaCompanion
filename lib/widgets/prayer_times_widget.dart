@@ -5,12 +5,16 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
+import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
+import 'package:shia_companion/widgets/prayer_notifications_sheet.dart';
 import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
-  HomePrayerTimesCard();
+  const HomePrayerTimesCard({super.key, this.onTap});
+
+  final VoidCallback? onTap;
 
   @override
   PrayerTimesState createState() => PrayerTimesState();
@@ -65,6 +69,11 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     if (changed && mounted) setState(() {});
   }
 
+  Future<void> _editNotifications() async {
+    final changed = await showPrayerNotificationsSheet(context);
+    if (changed && mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     DateTime now = debugNow();
@@ -106,6 +115,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                   location: _location,
                   onRefresh: _refreshLocation,
                   onEditTimesShown: _editTimesShown,
+                  onEditNotifications: _editNotifications,
                 )
               // No coordinates yet: nothing to name the location with, so
               // just the date — _LocationEmptyState below explains why.
@@ -143,7 +153,11 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
       // people who prod at a thing before hunting for its button. Only once
       // there are times to customise — the empty state owns its own tap.
       child: hasReadings
-          ? InkWell(onLongPress: _editTimesShown, child: content)
+          ? InkWell(
+              onTap: widget.onTap,
+              onLongPress: _editTimesShown,
+              child: content,
+            )
           : content,
     );
   }
@@ -163,12 +177,14 @@ class _CardHeader extends StatelessWidget {
     required this.location,
     required this.onRefresh,
     required this.onEditTimesShown,
+    required this.onEditNotifications,
   });
 
   final String dateText;
   final LocationService location;
   final VoidCallback onRefresh;
   final VoidCallback onEditTimesShown;
+  final VoidCallback onEditNotifications;
 
   @override
   Widget build(BuildContext context) {
@@ -251,6 +267,21 @@ class _CardHeader extends StatelessWidget {
                   Icons.tune,
                   size: 16,
                   color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: onEditNotifications,
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Icon(
+                  AzaanOptInService.isEnabled
+                      ? Icons.notifications_active
+                      : Icons.notifications_outlined,
+                  size: 16,
+                  color: AzaanOptInService.isEnabled
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
