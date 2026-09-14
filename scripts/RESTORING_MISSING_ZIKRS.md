@@ -256,6 +256,65 @@ via `retiredZikrRedirects` rather than needing standalone restoration), plus
 the untouched single-favorite tail - pick up at **AA18** (or skip straight to
 **E102**, the next short-to-moderate row) for the next pass.
 
+A sixth pass (also 2026-09-14) restored 50 more UIDs in one go - rather than
+working strictly by rank, this pass swept the **shortest remaining
+`assets/items/<uid>` histories first** (roughly 300 bytes to 4.7KB), skipping
+past the still-untouched 4-user tier's longer rows (E102, E103, E112, E90,
+G10 among them) and AA18 in favor of tractable ones further down the table:
+**F54, E51, I39, I94, E150, I110, F60, I88, E97, I56, E111, AA39, E83, F40,
+AA25, F49, I58, I18, F58, X11, A2, I53, F47, I44, F44, I68, E147, AA26, E110,
+I66, A3, Y1, E95, I78, AA35, E104, E100, E99, I111, E149, I10, Y10, F34,
+I115, I30, F55, I65, AA33, I54, C16** - all restored as standalone
+`assets/zikr/<uid>` entries, none of them (this time) needing a `merits`
+field. I58 ("Ayah Al Sakharah") was a priority pickup regardless of size:
+I57 (restored in the fourth pass) already carries a dangling
+`[Ayah al-Sakhkhara](I58)` link waiting for this UID to exist.
+
+Four originally-picked candidates from this size tier turned out to be
+unrestorable or duplicates and were swapped out (per Step 1.5 and the
+"dangling promise" pattern the `zikr-arabic` skill documents for imports -
+the same defect turns out to also appear in a few of this native-authored
+corpus's own historic entries): **Y12** and **Y8** had no dua text at all in
+history (an attribution/cross-reference setup with nothing following it -
+Y8 just points back at Rajab's already-covered White Nights prayers), **I86**
+promised "ten supplicatory prayers" and delivered none, and **I15** turned
+out to be a genuine Step-1.5 duplicate - its entire "Twelfth" through
+"Sixteenth" content is already live word-for-word inside **I14**
+("General Ta'qeebaat-2"), under I14's own inline heading "Virtues of the
+'Effective Veneration'" (I15's exact title) - retired to I14 via
+`retiredZikrRedirects` instead of restored standalone. They were replaced
+with the next four rows by size: I65, AA33, I54, C16.
+
+One further false-positive-shaped case was resolved without dropping the
+UID: **F44**'s "Tawakkaltu 'alal hayyil lazee laa yamoot..." litany (taught
+by the Prophet to a man complaining of debts) is the same wording **E54**
+already carries in full (taught by al-Kaf'ami for poverty and ailment) -
+per the false-positive warning in Step 1.5, this didn't disqualify F44 as a
+whole (its other two duas are unrelated), so F44 keeps its own entry but
+links to E54 for that one shared litany instead of re-transcribing it.
+
+As in the fifth pass, none of the 50 had a usable historic transliteration
+(a few - AA33, AA35, C16, F55 - did have full transliteration and/or English
+already in history and needed only cross-checking), so the rest was authored
+fresh matching each entry's own house style, and is flagged for a
+native-speaker review pass. Quran citations (Surah al-Fatihah, al-Tawheed,
+Yasin, al-Mulk, al-Qadr, al-Kawthar, al-Kafirun, al-Falaq, al-Nas, Ayat
+al-Kursi, and a couple of single-verse citations from al-Fath and al-Nur)
+were linked to their existing `A<n>` entries per Step 2 rather than
+re-transcribed, and Dua al-Mujeer references were linked to the already-live
+**E28**. Ran `zikr_arabic/normalize.py` and `silah.py` against all 50 before
+finishing, same as the fifth pass: normalize.py found nothing to change,
+and silah.py's first pass caught 38 missing marks across 20 entries (all
+fixed, including a mid-fix slip on one line of E83 that briefly marked the
+wrong of two `بِهِ` occurrences - caught and corrected by re-running
+silah.py after applying the batch); a final pass came back clean, and
+`audit.py`'s per-font check (INV-2) passed with no glyph gaps.
+
+34 UIDs now remain unrestored in the 2+-favorite table (38 rows still
+missing, of which 4 - E53, E118, E148, I15 - are retired), plus the
+untouched single-favorite tail. AA18 is still the largest outstanding row;
+pick up at **E102** for the next pass.
+
 **As of 2026-09-08:** 483 UIDs are missing from `assets/zikr.json`; of those,
 274 are favorited by at least one real user, across 890 favorite-entries and
 131 distinct users (out of 269 users who have any favorites at all). The
