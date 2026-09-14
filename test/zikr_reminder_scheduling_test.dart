@@ -1,8 +1,128 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/models/zikr_reminder.dart';
 import 'package:shia_companion/utils/zikr_reminder_scheduling.dart';
 
+ZikrReminder _fixed(int id, Set<int> days) => ZikrReminder(
+      id: 'r$id',
+      notificationBaseId: 40000 + id * 100,
+      title: 'Reminder $id',
+      daysOfWeek: days,
+      mode: ZikrReminderTimeMode.fixedTime,
+    );
+
+ZikrReminder _relative(int id, Set<int> days, {bool enabled = true}) =>
+    ZikrReminder(
+      id: 'r$id',
+      notificationBaseId: 40000 + id * 100,
+      title: 'Reminder $id',
+      daysOfWeek: days,
+      mode: ZikrReminderTimeMode.relativeToPrayer,
+      enabled: enabled,
+    );
+
 void main() {
+  group('zikrReminderIdealNotificationDemand', () {
+    test('is zero with no reminders', () {
+      expect(zikrReminderIdealNotificationDemand(const []), 0);
+    });
+
+    test('counts one id per selected day for a fixed-time reminder', () {
+      final reminders = [_fixed(1, {DateTime.tuesday, DateTime.friday})];
+      expect(zikrReminderIdealNotificationDemand(reminders), 2);
+    });
+
+    test(
+        'counts zikrReminderRelativeOccurrenceCount ids per selected day for a '
+        'prayer-relative reminder', () {
+      final reminders = [
+        _relative(1, {DateTime.thursday}),
+      ];
+      expect(
+        zikrReminderIdealNotificationDemand(reminders),
+        zikrReminderRelativeOccurrenceCount,
+      );
+    });
+
+    test('ignores disabled reminders and reminders with no selected days', () {
+      final reminders = [
+        _relative(1, {DateTime.thursday}, enabled: false),
+        _fixed(2, {}),
+      ];
+      expect(zikrReminderIdealNotificationDemand(reminders), 0);
+    });
+
+    test('sums demand across several reminders', () {
+      final reminders = [
+        _fixed(1, {DateTime.tuesday}), // 1
+        _relative(2, {DateTime.thursday, DateTime.friday}), // 2 * 5 = 10
+      ];
+      expect(
+        zikrReminderIdealNotificationDemand(reminders),
+        1 + 2 * zikrReminderRelativeOccurrenceCount,
+      );
+    });
+  });
+
+  group('zikrReminderRelativeOccurrenceCountFor', () {
+    test('uses the full count when demand is well within budget', () {
+      final reminders = [_relative(1, {DateTime.thursday})];
+      expect(
+        zikrReminderRelativeOccurrenceCountFor(
+          reminders: reminders,
+          budget: zikrReminderMaxIosNotificationBudget,
+        ),
+        zikrReminderRelativeOccurrenceCount,
+      );
+    });
+
+    test('trims proportionally to fit a tight budget', () {
+      // 4 reminder-days want the full 5 occurrences each (20 ideal); a
+      // budget of 8 only fits 2 each.
+      final reminders = [
+        _relative(1, {DateTime.monday, DateTime.tuesday}),
+        _relative(2, {DateTime.thursday, DateTime.friday}),
+      ];
+      expect(
+        zikrReminderRelativeOccurrenceCountFor(reminders: reminders, budget: 8),
+        2,
+      );
+    });
+
+    test('never trims below 1, even under an impossibly tight budget', () {
+      final reminders = [
+        _relative(1, {DateTime.monday, DateTime.tuesday, DateTime.wednesday}),
+      ];
+      expect(
+        zikrReminderRelativeOccurrenceCountFor(reminders: reminders, budget: 0),
+        1,
+      );
+    });
+
+    test('gives fixed-time reminders their full share before trimming the '
+        'relative ones', () {
+      final reminders = [
+        _fixed(1, {DateTime.monday, DateTime.tuesday, DateTime.wednesday}),
+        _relative(2, {DateTime.thursday}),
+      ];
+      // Budget 8: fixed-time claims 3 (always honoured in full), leaving 5
+      // for the one relative reminder-day — its full uncapped count.
+      expect(
+        zikrReminderRelativeOccurrenceCountFor(reminders: reminders, budget: 8),
+        5,
+      );
+    });
+
+    test('is unaffected by fixed-time reminders when there are no '
+        'prayer-relative ones', () {
+      final reminders = [_fixed(1, {DateTime.monday})];
+      expect(
+        zikrReminderRelativeOccurrenceCountFor(reminders: reminders, budget: 0),
+        zikrReminderRelativeOccurrenceCount,
+      );
+    });
+  });
+
   group('zikrReminderNotificationId', () {
     test('is stable and distinct per weekday/occurrence within a reminder', () {
       final tuesdayFirst = zikrReminderNotificationId(
