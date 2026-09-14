@@ -22,6 +22,7 @@ import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
 import '../utils/widget_prayer_time_selection.dart';
+import '../widgets/prayer_notifications_sheet.dart';
 import '../widgets/responsive_content.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
@@ -159,6 +160,18 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: Text(_azaanNotificationsSubtitle()),
                   value: AzaanOptInService.isEnabled,
                   onChanged: _setAzaanNotifications,
+                ),
+                ListTile(
+                  leading: const Icon(Icons.tune),
+                  title: const Text("Prayer Notifications"),
+                  subtitle: Text(_prayerNotificationsSubtitle()),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    final changed = await showPrayerNotificationsSheet(context);
+                    if (changed && mounted) {
+                      setState(() {});
+                    }
+                  },
                 ),
                 ListTile(
                   leading: const Icon(Icons.volume_up),
@@ -600,8 +613,23 @@ class _SettingsPageState extends State<SettingsPage> {
     final enabledCount =
         enabledPrayerNotificationCount(getPrayerNotificationPrayerNames());
     return enabledCount == 1
-        ? "On for 1 prayer. Tap a prayer on the home page to change which."
-        : "On for $enabledCount prayers. Tap a prayer on the home page to change which.";
+        ? "On for 1 prayer."
+        : "On for $enabledCount prayers.";
+  }
+
+  String _prayerNotificationsSubtitle() {
+    if (!AzaanOptInService.isEnabled) {
+      return "All prayer notifications are off.";
+    }
+    final enabledPrayers = enabledPrayerNotificationNames(kPrayerNotificationList);
+
+    if (enabledPrayers.isEmpty) {
+      return "All prayer notifications are off.";
+    }
+    if (enabledPrayers.length == kPrayerNotificationList.length) {
+      return "All prayers enabled. Tap to customize sound.";
+    }
+    return "${enabledPrayers.join(', ')}. Tap to customize.";
   }
 
   /// The master switch, and the way back for anyone who said "Not now" on first

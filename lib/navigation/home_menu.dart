@@ -63,6 +63,15 @@ class HomeMenuItem {
       .replaceAll(RegExp(r'^_|_$'), '');
 }
 
+final HomeMenuItem calendarMenuItem = HomeMenuItem(
+  label: 'Calendar & Prayer Times',
+  icon: Icons.calendar_today,
+  pageBuilder: () => Scaffold(
+    appBar: AppBar(title: Text('Calendar')),
+    body: CalendarPage(),
+  ),
+);
+
 final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   HomeMenuItem(
     label: 'Favorites',
@@ -104,14 +113,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     icon: Icons.check_circle,
     pageBuilder: () => ItemList("C", "Aamaal"),
   ),
-  HomeMenuItem(
-    label: 'Calendar & Prayer Times',
-    icon: Icons.calendar_today,
-    pageBuilder: () => Scaffold(
-      appBar: AppBar(title: Text('Calendar')),
-      body: CalendarPage(),
-    ),
-  ),
+  calendarMenuItem,
   HomeMenuItem(
     label: 'Library',
     icon: Icons.library_books,

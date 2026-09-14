@@ -198,7 +198,9 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   final prayerNames = getPrayerNotificationPrayerNames();
   final enabledPrayerKeys = prayerNames.map((prayerName) {
     final key = notificationPreferenceKeyForPrayer(prayerName);
-    return '$key:${SP.prefs.getBool(key) == true ? 1 : 0}';
+    final soundKey = soundPreferenceKeyForPrayer(prayerName);
+    final soundId = SP.prefs.getString(soundKey) ?? '';
+    return '$key:${SP.prefs.getBool(key) == true ? 1 : 0}:$soundId';
   }).join(',');
   final azaanId = resolveAzaanPreferenceIdForCurrentPlatform(
       SP.prefs.getString(azaanPreferenceKey));
@@ -714,16 +716,22 @@ bool areAnyPrayerNotificationsEnabled(List<String> prayerNames) {
   return enabledPrayerNotificationCount(prayerNames) > 0;
 }
 
-int enabledPrayerNotificationCount(List<String> prayerNames) {
-  var enabledCount = 0;
-  for (final prayerName in prayerNames) {
-    if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
-        true) {
-      enabledCount++;
-    }
-  }
-  return enabledCount;
+/// Which of [prayerNames] currently raise a notification.
+///
+/// The shared source for anything that needs to say *which* prayers are on —
+/// [enabledPrayerNotificationCount] included — so a subtitle listing them by
+/// name and a count summing them can never disagree.
+List<String> enabledPrayerNotificationNames(List<String> prayerNames) {
+  if (!SP.isInitialized) return const [];
+  return prayerNames
+      .where((prayerName) =>
+          SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
+          true)
+      .toList(growable: false);
 }
+
+int enabledPrayerNotificationCount(List<String> prayerNames) =>
+    enabledPrayerNotificationNames(prayerNames).length;
 
 int prayerNotificationScheduleDays(int enabledPrayerCount) {
   const defaultScheduleDays = 12;
@@ -764,8 +772,6 @@ Future<void> setUpNotifications() async {
   await initializeNotificationTimeZone();
   await refreshLegacyAndroidPrayerNotificationChannelsIfNeeded();
 
-  final selectedAzaanId = resolveAzaanPreferenceIdForCurrentPlatform(
-      SP.isInitialized ? SP.prefs.getString(azaanPreferenceKey) : null);
   final prayerNames = getPrayerNotificationPrayerNames();
   final enabledPrayerCount = enabledPrayerNotificationCount(prayerNames);
   final scheduleDays = prayerNotificationScheduleDays(enabledPrayerCount);
@@ -806,11 +812,12 @@ Future<void> setUpNotifications() async {
       longitude: long!,
     );
     entries.asMap().forEach((index, entry) {
+      final prayerAzaan = getAzaanOptionForPrayer(entry.name);
       schedulingTasks.add(schedulePrayerTimeNotification(
         (100 * (index + 1)) + i,
         entry.dateTime,
         entry.name,
-        azaanId: selectedAzaanId,
+        azaanId: prayerAzaan.id,
       ));
     });
   }
@@ -962,6 +969,8 @@ String _androidPrayerChannelId(AzaanOption azaan, {String? customSoundUri}) {
       return 'prayer_takbir_$_androidPrayerChannelVersion';
     case 'system_default':
       return 'prayer_system_default_$_androidPrayerChannelVersion';
+    case 'silent':
+      return 'prayer_silent_$_androidPrayerChannelVersion';
     case 'custom':
       return 'prayer_custom_${_stableHash(customSoundUri ?? 'missing')}_$_androidPrayerChannelVersion';
     case 'azaan':
@@ -1019,6 +1028,8 @@ String _androidPrayerChannelName(AzaanOption azaan) {
       return 'Prayer Times - Takbir';
     case 'system_default':
       return 'Prayer Times - System Default';
+    case 'silent':
+      return 'Prayer Times - Silent';
     case 'custom':
       return 'Prayer Times - Custom Sound';
     case 'azaan':
@@ -1029,6 +1040,18 @@ String _androidPrayerChannelName(AzaanOption azaan) {
 
 Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
     AzaanOption azaan) async {
+  if (azaan.id == 'silent') {
+    return AndroidNotificationDetails(
+      _androidPrayerChannelId(azaan),
+      _androidPrayerChannelName(azaan),
+      channelDescription: 'Silent prayer time notifications',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: false,
+      enableVibration: false,
+    );
+  }
+
   AndroidNotificationSound? sound;
   String? customSoundUri;
 
@@ -1060,6 +1083,11 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
 }
 
 DarwinNotificationDetails _iosPrayerNotificationDetails(AzaanOption azaan) {
+  if (azaan.id == 'silent') {
+    return const DarwinNotificationDetails(
+      presentSound: false,
+    );
+  }
   if (azaan.id == 'system_default' || azaan.id == 'custom') {
     return DarwinNotificationDetails();
   }
@@ -1132,6 +1160,54 @@ String notificationPreferenceKeyForPrayer(String prayerName) {
     return 'dhuhr_notification';
   }
   return '${normalizedName}_notification';
+}
+
+String soundPreferenceKeyForPrayer(String prayerName) {
+  final normalizedName = prayerName.trim().toLowerCase();
+  if (normalizedName == 'dhuhr' || normalizedName == 'zuhr') {
+    return 'dhuhr_notification_sound';
+  }
+  return '${normalizedName}_notification_sound';
+}
+
+/// Returns the effective azaan option for a specific prayer time.
+/// Defaults to global [getSelectedAzaan()] if not set or if set to 'app_default'.
+AzaanOption getAzaanOptionForPrayer(String prayerName) {
+  if (!SP.isInitialized) return getSelectedAzaan();
+  final key = soundPreferenceKeyForPrayer(prayerName);
+  final soundId = SP.prefs.getString(key);
+  if (soundId == null || soundId.isEmpty || soundId == 'app_default') {
+    return getSelectedAzaan();
+  }
+  final resolved = resolveAzaanOptionForCurrentPlatform(soundId);
+  // Custom audio has no per-prayer file of its own — only the single file
+  // backing the global azaan preference (see getCustomAudioFilePath) — so a
+  // per-prayer override of 'custom' can't be honoured. Fall back to the app's
+  // default rather than silently scheduling a notification with no sound.
+  if (resolved.isCustom) return getSelectedAzaan();
+  return resolved;
+}
+
+/// Returns true if this specific prayer has a custom sound chosen,
+/// rather than following the app's global notification sound.
+bool hasCustomAzaanPreferenceForPrayer(String prayerName) {
+  if (!SP.isInitialized) return false;
+  final key = soundPreferenceKeyForPrayer(prayerName);
+  final soundId = SP.prefs.getString(key);
+  return soundId != null && soundId.isNotEmpty && soundId != 'app_default';
+}
+
+/// Saves the sound preference for a specific prayer time.
+/// Pass 'app_default' to reset to following the global setting.
+Future<void> saveAzaanPreferenceForPrayer(
+    String prayerName, String soundId) async {
+  if (!SP.isInitialized) return;
+  final key = soundPreferenceKeyForPrayer(prayerName);
+  if (soundId == 'app_default') {
+    await SP.prefs.remove(key);
+  } else {
+    await SP.prefs.setString(key, soundId);
+  }
 }
 
 /// Asks the OS for permission to post notifications.
