@@ -388,7 +388,13 @@ class _PrayerNotificationsSheetState extends State<PrayerNotificationsSheet> {
                                 color: colorScheme.outline,
                               ),
                             ),
-                      trailing: Switch.adaptive(
+                      // A plain Switch, not .adaptive: every other switch in
+                      // Settings (dark mode, Azan Notifications, the Zikr
+                      // reading toggles) stays Material and picks up the
+                      // app's brown ColorScheme. Adaptive renders as the
+                      // Cupertino switch on iOS, which defaults to green and
+                      // would be the only one in the app that doesn't match.
+                      trailing: Switch(
                         value: isEnabled,
                         onChanged: (bool val) {
                           setState(() {
