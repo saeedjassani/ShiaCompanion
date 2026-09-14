@@ -16,7 +16,6 @@ import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
-import 'package:shia_companion/utils/zikr_reminder_scheduling.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
@@ -212,18 +211,12 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   // rounding of raw coordinates into this string would flip on GPS jitter and
   // force a full reschedule on the next app open.
   return [
-    'v8',
+    'v7',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'tz:${tz.local.name}',
     'azaan:$azaanId',
     'custom:${customAudioPath ?? ''}',
     'prayers:$enabledPrayerKeys',
-    // Zikr reminders share iOS's 64-pending-notification cap with Azan (see
-    // zikrReminderMaxIosNotificationBudget), so changing how many of them
-    // want a slice of it must also flip this — otherwise a reminder added
-    // after Azan was last scheduled would only shrink Azan's window the next
-    // time something else happened to trigger a reschedule.
-    'zikr:${zikrIosNotificationReservation()}',
   ].join('|');
 }
 
@@ -736,52 +729,14 @@ int enabledPrayerNotificationCount(List<String> prayerNames) {
   return enabledCount;
 }
 
-/// How many ids Azan gives up to zikr reminders from iOS's shared
-/// 64-pending-notification budget, right now.
-///
-/// Zero on other platforms (no such cap to share) or with no reminders
-/// configured — a user who never touches the reminders feature sees no
-/// change to their Azan schedule. See
-/// [zikrReminderMaxIosNotificationBudget] for the ceiling this is capped at,
-/// and why 16 leaves Azan's own floor of at least one scheduled day never
-/// having to compete for room.
-int zikrIosNotificationReservation() {
-  if (kIsWeb || !Platform.isIOS) return 0;
-  return zikrReminderIdealNotificationDemand(ZikrReminderService.instance.reminders)
-      .clamp(0, zikrReminderMaxIosNotificationBudget);
-}
+int prayerNotificationScheduleDays(int enabledPrayerCount) {
+  const defaultScheduleDays = 12;
+  if (!Platform.isIOS || enabledPrayerCount <= 0) return defaultScheduleDays;
 
-const int _defaultPrayerNotificationScheduleDays = 12;
-
-/// The pure arithmetic behind [prayerNotificationScheduleDays]'s iOS branch,
-/// factored out so it can be unit tested on any host platform rather than
-/// only ever running for real on an actual iOS device.
-int iosPrayerNotificationScheduleDays(
-  int enabledPrayerCount, {
-  int reservedForOtherNotifications = 0,
-}) {
-  if (enabledPrayerCount <= 0) return _defaultPrayerNotificationScheduleDays;
-
-  // iOS keeps only 64 pending notifications total, shared with the
-  // reminder nag below (1 slot) and whatever zikr reminders have claimed
-  // (reservedForOtherNotifications, capped well short of this budget so
-  // Azan is never squeezed below one scheduled day).
+  // iOS keeps only 64 pending notifications. Reserve one slot for the reminder.
   const maxIosPrayerNotifications = 63;
-  final budget = (maxIosPrayerNotifications - reservedForOtherNotifications)
-      .clamp(enabledPrayerCount, maxIosPrayerNotifications);
-  final iosDays = budget ~/ enabledPrayerCount;
-  return iosDays.clamp(1, _defaultPrayerNotificationScheduleDays).toInt();
-}
-
-int prayerNotificationScheduleDays(
-  int enabledPrayerCount, {
-  int reservedForOtherNotifications = 0,
-}) {
-  if (!Platform.isIOS) return _defaultPrayerNotificationScheduleDays;
-  return iosPrayerNotificationScheduleDays(
-    enabledPrayerCount,
-    reservedForOtherNotifications: reservedForOtherNotifications,
-  );
+  final iosDays = maxIosPrayerNotifications ~/ enabledPrayerCount;
+  return iosDays.clamp(1, defaultScheduleDays).toInt();
 }
 
 Iterable<int> prayerNotificationIds(
@@ -817,15 +772,7 @@ Future<void> setUpNotifications() async {
       SP.isInitialized ? SP.prefs.getString(azaanPreferenceKey) : null);
   final prayerNames = getPrayerNotificationPrayerNames();
   final enabledPrayerCount = enabledPrayerNotificationCount(prayerNames);
-  // Needed before zikrIosNotificationReservation() below can see the current
-  // reminder set; SP.isInitialized mirrors the same guard the azaan-id read
-  // above already uses, since this can run before SP.init() in a few test
-  // paths that construct the plugin directly.
-  if (SP.isInitialized) await ZikrReminderService.instance.load();
-  final scheduleDays = prayerNotificationScheduleDays(
-    enabledPrayerCount,
-    reservedForOtherNotifications: zikrIosNotificationReservation(),
-  );
+  final scheduleDays = prayerNotificationScheduleDays(enabledPrayerCount);
   final scheduleFingerprint = buildPrayerNotificationScheduleFingerprint();
 
   await cancelPrayerNotifications();

@@ -1,5 +1,4 @@
 import 'package:shia_companion/constants.dart';
-import 'package:shia_companion/models/zikr_reminder.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 
 /// Local-notification ids reserved per zikr reminder, starting at its
@@ -18,68 +17,6 @@ const int zikrReminderIdSlotsPerReminder = 100;
 /// already reschedules on every cold start and on a meaningful location
 /// change, so this only needs to outlast a reasonably long gap between opens.
 const int zikrReminderRelativeOccurrenceCount = 5;
-
-/// The most notification ids zikr reminders are ever allowed to claim from
-/// iOS's 64-pending-notification cap.
-///
-/// That cap is shared with Azan: `setUpNotifications` already schedules up to
-/// 63 prayer notifications plus a "come back to the app" reminder, which can
-/// leave nothing for reminders on a device with several prayers enabled. So
-/// the two sides split the budget instead of each assuming it owns all of
-/// it — see [zikrReminderIdealNotificationDemand] (what Azan gives up) and
-/// [zikrReminderRelativeOccurrenceCountFor] (how reminders live within that)
-/// — sized so that even at 8 enabled prayers, Azan's own floor of at least
-/// one scheduled day never has to compete with this for room.
-const int zikrReminderMaxIosNotificationBudget = 16;
-
-/// How many notification ids the given reminders would use if every
-/// prayer-relative one got the full [zikrReminderRelativeOccurrenceCount]
-/// occurrences and every fixed-time one its single recurring id.
-///
-/// This is the *ideal* figure, used only to decide how much of the shared iOS
-/// budget Azan should give up (see [zikrReminderMaxIosNotificationBudget]) —
-/// the actual schedule may use fewer, once
-/// [zikrReminderRelativeOccurrenceCountFor] trims prayer-relative reminders
-/// to fit.
-int zikrReminderIdealNotificationDemand(Iterable<ZikrReminder> reminders) {
-  var total = 0;
-  for (final reminder in reminders) {
-    if (!reminder.enabled || reminder.daysOfWeek.isEmpty) continue;
-    final perDay = reminder.mode == ZikrReminderTimeMode.fixedTime
-        ? 1
-        : zikrReminderRelativeOccurrenceCount;
-    total += reminder.daysOfWeek.length * perDay;
-  }
-  return total;
-}
-
-/// How many upcoming occurrences each prayer-relative reminder-day should
-/// actually schedule so the whole set — plus every fixed-time reminder's
-/// single id, always honoured in full since that's the cheap case and it
-/// recurs forever on its own — fits within [budget] ids.
-///
-/// Never returns less than 1: a configured reminder always fires at its next
-/// occurrence at minimum, however tight the budget.
-int zikrReminderRelativeOccurrenceCountFor({
-  required Iterable<ZikrReminder> reminders,
-  required int budget,
-}) {
-  var fixedDemand = 0;
-  var relativeDayCount = 0;
-  for (final reminder in reminders) {
-    if (!reminder.enabled || reminder.daysOfWeek.isEmpty) continue;
-    if (reminder.mode == ZikrReminderTimeMode.fixedTime) {
-      fixedDemand += reminder.daysOfWeek.length;
-    } else {
-      relativeDayCount += reminder.daysOfWeek.length;
-    }
-  }
-  if (relativeDayCount == 0) return zikrReminderRelativeOccurrenceCount;
-
-  final remaining = budget - fixedDemand;
-  final perDay = remaining ~/ relativeDayCount;
-  return perDay.clamp(1, zikrReminderRelativeOccurrenceCount);
-}
 
 /// The local-notification id for one occurrence of a reminder.
 ///

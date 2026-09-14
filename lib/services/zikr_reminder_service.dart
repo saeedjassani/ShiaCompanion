@@ -96,7 +96,6 @@ class ZikrReminderService extends ChangeNotifier {
       parameters: {'mode': mode.name, 'days': daysOfWeek.length},
     ));
 
-    await _resyncAzanBudget();
     await rescheduleAll();
     return reminder;
   }
@@ -116,7 +115,6 @@ class ZikrReminderService extends ChangeNotifier {
       parameters: {'mode': updated.mode.name},
     ));
 
-    await _resyncAzanBudget();
     await rescheduleAll();
   }
 
@@ -142,7 +140,6 @@ class ZikrReminderService extends ChangeNotifier {
       label: 'Zikr reminder deleted',
     ));
 
-    await _resyncAzanBudget();
     await _cancelReminderNotifications(removed);
   }
 
@@ -159,7 +156,6 @@ class ZikrReminderService extends ChangeNotifier {
     _reminders = const [];
     await _persist();
     notifyListeners();
-    await _resyncAzanBudget();
     await Future.wait(existing.map(_cancelReminderNotifications));
   }
 
@@ -174,20 +170,7 @@ class ZikrReminderService extends ChangeNotifier {
     await _persist();
     notifyListeners();
 
-    await _resyncAzanBudget();
     await rescheduleAll();
-  }
-
-  /// Lets Azan re-right-size its own iOS schedule window for the reminder set
-  /// that just changed — see [zikrReminderMaxIosNotificationBudget] for why
-  /// the two share a budget at all. A no-op on web, before the notifications
-  /// plugin exists, or on any platform other than iOS, where there is no such
-  /// cap to renegotiate.
-  Future<void> _resyncAzanBudget() async {
-    if (kIsWeb || !Platform.isIOS || flutterLocalNotificationsPlugin == null) {
-      return;
-    }
-    await setUpNotifications();
   }
 
   /// Cancels this reminder's whole reserved id block in parallel — mirrors
@@ -221,33 +204,14 @@ class ZikrReminderService extends ChangeNotifier {
     if (_reminders.isEmpty) return;
 
     await initializeNotificationTimeZone();
-    if (_reminders.any((reminder) => reminder.enabled)) {
-      // Azan already asks for this once a prayer is enabled, but someone who
-      // sets a zikr reminder without ever touching Azan settings would
-      // otherwise never be asked — and on Android 13+ an unasked permission
-      // means the notification silently never shows.
-      await requestNotificationPermissions();
-    }
-    // iOS shares its 64-pending-notification cap with Azan (see
-    // zikrReminderMaxIosNotificationBudget), so the occurrence count per
-    // prayer-relative reminder-day is trimmed to fit inside that shared slice
-    // rather than always using the full zikrReminderRelativeOccurrenceCount.
-    // Elsewhere there is no such cap, so nothing is trimmed.
-    final relativeOccurrenceCount = Platform.isIOS
-        ? zikrReminderRelativeOccurrenceCountFor(
-            reminders: _reminders,
-            budget: zikrReminderMaxIosNotificationBudget,
-          )
-        : zikrReminderRelativeOccurrenceCount;
-    await Future.wait(_reminders.map(
-      (reminder) => _scheduleReminder(plugin, reminder, relativeOccurrenceCount),
-    ));
+    await Future.wait(
+      _reminders.map((reminder) => _scheduleReminder(plugin, reminder)),
+    );
   }
 
   Future<void> _scheduleReminder(
     FlutterLocalNotificationsPlugin plugin,
     ZikrReminder reminder,
-    int relativeOccurrenceCount,
   ) async {
     await _cancelReminderNotifications(reminder);
     if (!reminder.enabled || reminder.daysOfWeek.isEmpty) return;
@@ -304,7 +268,7 @@ class ZikrReminderService extends ChangeNotifier {
         offsetMinutes: reminder.offsetMinutes,
         latitude: lat!,
         longitude: long!,
-        count: relativeOccurrenceCount,
+        count: zikrReminderRelativeOccurrenceCount,
       );
 
       for (var index = 0; index < occurrences.length; index++) {
