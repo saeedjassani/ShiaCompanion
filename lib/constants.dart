@@ -15,6 +15,7 @@ import 'package:shia_companion/services/analytics_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
+import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
@@ -537,6 +538,9 @@ Future<bool> initializeLocation(
     }
     if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
       await setUpNotifications();
+      // Prayer-relative zikr reminders (e.g. "30 min after Maghrib") shift
+      // with location exactly like Azan times do.
+      await ZikrReminderService.instance.rescheduleAll();
     }
     return true;
   } catch (e) {

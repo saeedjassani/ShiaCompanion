@@ -28,6 +28,7 @@ import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
 import 'delete_account_page.dart';
 import 'scheduled_notifications_page.dart';
+import 'zikr_reminders_page.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage();
@@ -175,6 +176,20 @@ class _SettingsPageState extends State<SettingsPage> {
                       const Text("Schedule a sample notification in a moment."),
                   onTap: () {
                     _testNotification();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: const Text("Zikr Reminders"),
+                  subtitle: const Text(
+                      "Get reminded about a zikr or dua on the days you choose."),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ZikrRemindersPage(),
+                      ),
+                    );
                   },
                 ),
                 if (_showPrecisePrayerAlarmSetting)
