@@ -1031,6 +1031,10 @@
     "title": "Everyday Supplications",
     "slug": "everyday-supplications"
   },
+  "E114": {
+    "title": "Hirz Zayn al Abidin (a)",
+    "slug": "hirz-zayn-al-abidin-a"
+  },
   "E115": {
     "title": "Imam Baqir's (a) dua",
     "slug": "imam-baqirs-a-dua"
@@ -1265,6 +1269,10 @@
   "E4": {
     "title": "Dua Adilah",
     "slug": "dua-adilah"
+  },
+  "E40": {
+    "title": "Dua for delaying death (Ajal)",
+    "slug": "dua-for-delaying-death-ajal"
   },
   "E41": {
     "title": "Dua for Fending Off Distress, Grief, and Fear",
@@ -1525,6 +1533,10 @@
     "title": "Namaz on Saturdays",
     "slug": "namaz-on-saturdays"
   },
+  "F39": {
+    "title": "Namaz for more Sustenance",
+    "slug": "namaz-for-more-sustenance"
+  },
   "F4": {
     "title": "Namaz e Aayaat",
     "slug": "namaz-e-aayaat"
@@ -1586,6 +1598,10 @@
   "G13": {
     "title": "Ziyaarat-e-Jaameah Kabeerah",
     "slug": "ziyaarat-e-jaameah-kabeerah"
+  },
+  "G14": {
+    "title": "Ziyarah of Imam Husayn (a) at the Qadr Nights",
+    "slug": "ziyarah-of-imam-husayn-a-at-the-qadr-nights"
   },
   "G15": {
     "title": "Ziyarat of Saturday",
@@ -2092,6 +2108,10 @@
   "I61": {
     "title": "Taweez against Satan's Evil Insinuations",
     "slug": "taweez-against-satans-evil-insinuations"
+  },
+  "I64": {
+    "title": "Repelling The Evils of Jinn & Horrifying Authorities",
+    "slug": "repelling-the-evils-of-jinn-horrifying-authorities"
   },
   "I7": {
     "title": "Other Etiquettes of Namaz",
