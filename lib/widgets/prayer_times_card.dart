@@ -218,12 +218,18 @@ class _PrayerNotificationButton extends StatelessWidget {
     final notifKey = notificationPreferenceKeyForPrayer(prayerName);
     final isEnabled = SP.isInitialized && (SP.prefs.getBool(notifKey) ?? false);
     final soundOption = getAzaanOptionForPrayer(prayerName);
+    // Distinguishes a sound this prayer picked for itself from one it is only
+    // following on the app's global default, so the tooltip/snackbar don't
+    // imply a choice the user never actually made for this prayer.
+    final soundLabel = hasCustomAzaanPreferenceForPrayer(prayerName)
+        ? '${soundOption.name} (custom)'
+        : soundOption.name;
 
     return Padding(
       padding: const EdgeInsets.only(left: 12.0),
       child: Tooltip(
         message: isEnabled
-            ? '$displayName reminder on (${soundOption.name}). Tap to toggle, long-press to customize.'
+            ? '$displayName reminder on ($soundLabel). Tap to toggle, long-press to customize.'
             : '$displayName reminder off. Tap to enable, long-press to customize.',
         child: InkWell(
           onTap: () async {
@@ -234,40 +240,42 @@ class _PrayerNotificationButton extends StatelessWidget {
               await requestNotificationPermissions();
             }
             await setUpNotifications();
+            // setUpNotifications() can take a while (it schedules up to 12
+            // days x 8 prayers), so the widget owning onChanged may already
+            // be gone by the time it returns — never setState past that.
+            if (!context.mounted) return;
             onChanged();
 
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  duration: const Duration(seconds: 3),
-                  content: Text(
-                    nextValue
-                        ? '$displayName reminder enabled (${soundOption.name})'
-                        : '$displayName reminder muted',
-                  ),
-                  action: nextValue
-                      ? SnackBarAction(
-                          label: 'SOUND',
-                          onPressed: () async {
-                            final changed = await showPrayerNotificationsSheet(
-                              context,
-                              highlightPrayer: prayerName,
-                            );
-                            if (changed) onChanged();
-                          },
-                        )
-                      : null,
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                duration: const Duration(seconds: 3),
+                content: Text(
+                  nextValue
+                      ? '$displayName reminder enabled ($soundLabel)'
+                      : '$displayName reminder muted',
                 ),
-              );
-            }
+                action: nextValue
+                    ? SnackBarAction(
+                        label: 'SOUND',
+                        onPressed: () async {
+                          final changed = await showPrayerNotificationsSheet(
+                            context,
+                            highlightPrayer: prayerName,
+                          );
+                          if (changed && context.mounted) onChanged();
+                        },
+                      )
+                    : null,
+              ),
+            );
           },
           onLongPress: () async {
             final changed = await showPrayerNotificationsSheet(
               context,
               highlightPrayer: prayerName,
             );
-            if (changed) onChanged();
+            if (changed && context.mounted) onChanged();
           },
           borderRadius: BorderRadius.circular(18.0),
           child: Padding(

@@ -621,10 +621,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (!AzaanOptInService.isEnabled) {
       return "All prayer notifications are off.";
     }
-    final enabledPrayers = kPrayerNotificationList.where((p) {
-      final key = notificationPreferenceKeyForPrayer(p);
-      return SP.isInitialized && SP.prefs.getBool(key) == true;
-    }).toList();
+    final enabledPrayers = enabledPrayerNotificationNames(kPrayerNotificationList);
 
     if (enabledPrayers.isEmpty) {
       return "All prayer notifications are off.";

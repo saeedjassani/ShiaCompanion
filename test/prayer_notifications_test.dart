@@ -44,6 +44,18 @@ void main() {
       await saveAzaanPreferenceForPrayer('Asr', 'silent');
       expect(getAzaanOptionForPrayer('Asr').id, 'silent');
     });
+
+    test(
+        'getAzaanOptionForPrayer falls back rather than resolving to custom',
+        () async {
+      // There is only one custom audio file on disk, backing the global
+      // azaan preference — a per-prayer 'custom' override has no file of its
+      // own to point at, so it must fall back to the app default rather than
+      // silently scheduling a notification with no sound.
+      await saveAzaanPreferenceForPrayer('Fajr', 'custom');
+      expect(getAzaanOptionForPrayer('Fajr').id, isNot('custom'));
+      expect(getAzaanOptionForPrayer('Fajr').id, getSelectedAzaan().id);
+    });
   });
 
   group('PrayerNotificationsSheet widget', () {
@@ -131,6 +143,40 @@ void main() {
           isFalse,
         );
       }
+    });
+
+    testWidgets('per-prayer sound picker excludes Custom Audio',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () => showPrayerNotificationsSheet(context),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Obligatory Only'));
+      await tester.pumpAndSettle();
+
+      // Fajr is now enabled and shows its sound row ("Default (...)") first
+      // in the list — tap it to open the per-prayer sound picker.
+      await tester.tap(find.textContaining('Default').first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Fajr Notification Sound'), findsOneWidget);
+      expect(find.text('App Default'), findsOneWidget);
+      // Custom Audio has no per-prayer file of its own to point at (there is
+      // only the one file backing the global azaan preference), so it must
+      // not be offered here.
+      expect(find.text('Custom Audio'), findsNothing);
     });
   });
 

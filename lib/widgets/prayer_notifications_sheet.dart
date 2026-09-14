@@ -90,7 +90,14 @@ class _PrayerNotificationsSheetState extends State<PrayerNotificationsSheet> {
   }
 
   Future<void> _pickSoundForPrayer(String prayer) async {
-    final availableOptions = getAvailableAzaanOptions();
+    // Custom Audio is excluded here: there is only ever one custom sound file
+    // on disk — the one backing the global azaan preference — so a per-prayer
+    // "custom" choice has no file of its own to point at. Picking it would
+    // silently play no sound instead of the file the user expects (see
+    // getAzaanOptionForPrayer). Custom stays a global-only option.
+    final availableOptions = getAvailableAzaanOptions()
+        .where((option) => !option.isCustom)
+        .toList(growable: false);
     final globalOption = getSelectedAzaan();
     final currentSound = _sounds[prayer] ?? 'app_default';
 

@@ -716,16 +716,22 @@ bool areAnyPrayerNotificationsEnabled(List<String> prayerNames) {
   return enabledPrayerNotificationCount(prayerNames) > 0;
 }
 
-int enabledPrayerNotificationCount(List<String> prayerNames) {
-  var enabledCount = 0;
-  for (final prayerName in prayerNames) {
-    if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
-        true) {
-      enabledCount++;
-    }
-  }
-  return enabledCount;
+/// Which of [prayerNames] currently raise a notification.
+///
+/// The shared source for anything that needs to say *which* prayers are on —
+/// [enabledPrayerNotificationCount] included — so a subtitle listing them by
+/// name and a count summing them can never disagree.
+List<String> enabledPrayerNotificationNames(List<String> prayerNames) {
+  if (!SP.isInitialized) return const [];
+  return prayerNames
+      .where((prayerName) =>
+          SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
+          true)
+      .toList(growable: false);
 }
+
+int enabledPrayerNotificationCount(List<String> prayerNames) =>
+    enabledPrayerNotificationNames(prayerNames).length;
 
 int prayerNotificationScheduleDays(int enabledPrayerCount) {
   const defaultScheduleDays = 12;
@@ -1173,7 +1179,13 @@ AzaanOption getAzaanOptionForPrayer(String prayerName) {
   if (soundId == null || soundId.isEmpty || soundId == 'app_default') {
     return getSelectedAzaan();
   }
-  return resolveAzaanOptionForCurrentPlatform(soundId);
+  final resolved = resolveAzaanOptionForCurrentPlatform(soundId);
+  // Custom audio has no per-prayer file of its own — only the single file
+  // backing the global azaan preference (see getCustomAudioFilePath) — so a
+  // per-prayer override of 'custom' can't be honoured. Fall back to the app's
+  // default rather than silently scheduling a notification with no sound.
+  if (resolved.isCustom) return getSelectedAzaan();
+  return resolved;
 }
 
 /// Returns true if this specific prayer has a custom sound chosen,
