@@ -218,6 +218,37 @@ heterogeneous and, in several cases (E102, E103, E112, E90, G10, G24, G30,
 G74, the remaining AA-series Ramadan-night compilations), considerably
 longer than anything above - pick up at E114 for the next pass.
 
+A fifth pass (2026-09-14) restored the top five rows of what was left -
+**E114, E40, F39, G14, I64** (the 7-user tier) - all as standalone
+`assets/zikr/<uid>` entries, no duplicates of live `tabs[]` content found for
+any of them (checked per Step 1.5, including the stock ziyarah-greeting
+formula in G14 that also appears in the unrelated Day-of-Arafah ziyarat
+G75/AC4 - a shared stock phrase, not a shared entry). All five had full old
+content in `assets/items/<uid>` history; only G14 needed a `merits` field
+(the multi-paragraph hadith preamble on the virtues of visiting Imam Husayn
+at the Qadr Nights, ahead of the four ziyarah passages themselves in `data`).
+None had a usable historic transliteration, so all of it was authored fresh
+in this pass, matching the house style spot-checked against F45/G76/I60/E94
+(not F2/A4's older Indo-Pak convention, which predates the house style and is
+preserved as-is only where it already existed) - flagged here for a
+native-speaker review pass rather than trusted as verbatim-sourced. Also ran
+`scripts/zikr_arabic/normalize.py` and `silah.py` (see the `zikr-arabic`
+skill) against the five new entries before finishing: normalize.py found no
+non-canonical codepoints, and silah.py's first pass caught 18 missing
+ṣilah al-hā' marks across four of the five entries (all fixed; a second pass
+came back clean, and `zikr_arabic/audit.py`'s per-font check passed for all
+five with no INV-2 glyph gaps).
+
+AA18 (the 6-user-tier "Aamal & Duas for the days of Ramadhan") was skipped
+this pass - its `assets/items/AA18` history is ~34KB, in the same
+considerably-longer-than-usual bracket as the UIDs called out above.
+
+85 UIDs now remain unrestored in the 2+-favorite table (88 rows still
+missing from `assets/zikr.json`, of which 3 - E53, E118, E148 - are retired
+via `retiredZikrRedirects` rather than needing standalone restoration), plus
+the untouched single-favorite tail - pick up at **AA18** (or skip straight to
+**E102**, the next short-to-moderate row) for the next pass.
+
 **As of 2026-09-08:** 483 UIDs are missing from `assets/zikr.json`; of those,
 274 are favorited by at least one real user, across 890 favorite-entries and
 131 distinct users (out of 269 users who have any favorites at all). The
