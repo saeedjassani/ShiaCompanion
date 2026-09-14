@@ -10,10 +10,20 @@ import 'zikr_picker_page.dart';
 /// Add/edit form for a single [ZikrReminder].
 ///
 /// Pass [existing] to edit a reminder in place; omit it to create a new one.
+/// When creating one, [initialZikrUid]/[initialTitle] prefill the zikr link
+/// and title — how the "Set Reminder" entry point on a zikr's own page opens
+/// this already pointed at that zikr, rather than empty.
 class ZikrReminderFormPage extends StatefulWidget {
-  const ZikrReminderFormPage({super.key, this.existing});
+  const ZikrReminderFormPage({
+    super.key,
+    this.existing,
+    this.initialZikrUid,
+    this.initialTitle,
+  });
 
   final ZikrReminder? existing;
+  final String? initialZikrUid;
+  final String? initialTitle;
 
   @override
   State<ZikrReminderFormPage> createState() => _ZikrReminderFormPageState();
@@ -56,8 +66,10 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
   void initState() {
     super.initState();
     final existing = widget.existing;
-    _titleController = TextEditingController(text: existing?.title ?? '');
-    _zikrUid = existing?.zikrUid;
+    _titleController = TextEditingController(
+      text: existing?.title ?? widget.initialTitle ?? '',
+    );
+    _zikrUid = existing?.zikrUid ?? widget.initialZikrUid;
     _selectedDays = existing != null ? Set.of(existing.daysOfWeek) : <int>{};
     _mode = existing?.mode ?? ZikrReminderTimeMode.fixedTime;
     _time = existing != null

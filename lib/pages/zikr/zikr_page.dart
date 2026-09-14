@@ -32,6 +32,7 @@ import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/zikr_reading_progress_bar.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
+import '../zikr_reminder_form_page.dart';
 import 'zikr_edit_form.dart';
 import 'zikr_form_helpers.dart';
 import 'zikr_content_parser.dart';
@@ -39,7 +40,7 @@ import 'zikr_content_viewer.dart';
 import 'zikr_reading_stats.dart';
 import 'zikr_share_image.dart';
 
-enum _ZikrMenuAction { edit }
+enum _ZikrMenuAction { remind, edit }
 
 /// How far the text has to actually travel in one direction before the
 /// reading chrome reacts.
@@ -1154,6 +1155,33 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     });
   }
 
+  /// The title shown in the app bar and used for a new reminder's default
+  /// text — the edited draft while editing, the saved zikr's own title
+  /// otherwise, falling back to what the caller opened this page with.
+  String _currentDisplayTitle() {
+    if (isEditing) {
+      final draftTitle = titleController?.text.trim() ?? '';
+      return draftTitle.isNotEmpty ? draftTitle : widget.item.title;
+    }
+    final savedTitle = zikrData?['title']?.toString().trim() ?? '';
+    return savedTitle.isNotEmpty ? savedTitle : widget.item.title;
+  }
+
+  Future<void> _openReminderForm() async {
+    unawaited(AnalyticsService.feature(
+      'zikr_reminder_entry_point_opened',
+      label: 'Set Reminder opened from a zikr',
+      parameters: {'zikr_uid': _bookmarkUid},
+    ));
+    await pushPageRoute(
+      context,
+      ZikrReminderFormPage(
+        initialZikrUid: _bookmarkUid,
+        initialTitle: _currentDisplayTitle(),
+      ),
+    );
+  }
+
   Future<void> _saveEdits() async {
     if (zikrData != null) {
       final trimmedTitle = titleController?.text.trim() ?? '';
@@ -1744,6 +1772,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   void _handleMenuAction(_ZikrMenuAction action) {
     switch (action) {
+      case _ZikrMenuAction.remind:
+        unawaited(_openReminderForm());
+        break;
       case _ZikrMenuAction.edit:
         _toggleEdit();
         break;
@@ -1795,15 +1826,25 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       ];
     }
 
-    // Bookmark, share and reading settings now live in the bottom action
-    // bar, where they are labelled and within thumb reach. All that stays
-    // here is admin-only.
+    // Bookmark, share and reading settings live in the bottom action bar,
+    // where they are labelled and within thumb reach — that bar is already
+    // at its five-action width limit (see zikr_action_bar.dart), so a less
+    // frequent action like this belongs in the overflow menu instead.
     return [
-      if (isAdmin)
-        PopupMenuButton<_ZikrMenuAction>(
-          tooltip: 'More options',
-          onSelected: _handleMenuAction,
-          itemBuilder: (context) => [
+      PopupMenuButton<_ZikrMenuAction>(
+        tooltip: 'More options',
+        onSelected: _handleMenuAction,
+        itemBuilder: (context) => [
+          const PopupMenuItem(
+            value: _ZikrMenuAction.remind,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(Icons.notifications_active_outlined),
+              title: Text('Set Reminder'),
+            ),
+          ),
+          if (isAdmin)
             const PopupMenuItem(
               value: _ZikrMenuAction.edit,
               child: ListTile(
@@ -1813,8 +1854,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 title: Text('Edit Zikr'),
               ),
             ),
-          ],
-        ),
+        ],
+      ),
     ];
   }
 
@@ -1823,13 +1864,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final merits = meritsController?.text.trim() ?? '';
     final hasMerits = merits.isNotEmpty;
     final tabContents = _buildVisibleTabContents();
-    final pageTitle = isEditing
-        ? (titleController?.text.trim().isNotEmpty == true
-            ? titleController!.text.trim()
-            : widget.item.title)
-        : (zikrData?['title']?.toString().trim().isNotEmpty == true
-            ? zikrData!['title'].toString().trim()
-            : widget.item.title);
+    final pageTitle = _currentDisplayTitle();
     final hasAnyContent =
         tabContents.any((content) => content.trim().isNotEmpty);
     final selectedTabIndex = _clampedSelectedTabIndex(tabContents);
