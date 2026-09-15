@@ -66,7 +66,10 @@ jobs:
     needs: gate
     if: needs.gate.outputs.run == 'true'
     runs-on: macos-latest
-    timeout-minutes: 25
+    # A cold `pod install` alone takes ~22 minutes here (see ci.yml's iOS
+    # build job for comparison) — 25 minutes cut this off mid-build, not
+    # mid-hang.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
 
