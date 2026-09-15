@@ -7,6 +7,7 @@
 | `ci.yml` | push to `master`, every PR, manual | Analysis, tests, web build + visual checks, Android APK, iOS build |
 | `web-preview.yml` | push to `master`, every PR, manual | Deploys a Firebase preview channel. Never touches production. |
 | `web-release.yml` | push to `master` that changes the version in `pubspec.yaml`, manual | The only workflow that writes to the live site |
+| `smoke-test.yml` | manual (`workflow_dispatch`) | Runs the automated smoke crawler integration test on both an iOS Simulator and an Android emulator |
 
 `ci.yml` runs analysis and tests first, on Ubuntu, and only starts the slow
 platform builds once they pass. A failing test is reported in about three
@@ -215,6 +216,28 @@ Regenerate deliberately after an intended UI change:
 ```bash
 cd test_visual && npm run test:update
 ```
+
+### 4. Cross-platform smoke crawler — `integration_test/`
+
+Uses Flutter's built-in `integration_test` framework to boot the real app on
+an iOS Simulator and an Android emulator, dismiss initial popups, crawl
+through all core navigation sections, and test search without throwing
+uncaught exceptions. One test file covers both platforms.
+
+See [`docs/SMOKE_TESTS.md`](SMOKE_TESTS.md) for full configuration, local
+execution via `scripts/run_ios_smoke_test.sh` (iOS) or `flutter test` directly
+(Android), and GitHub Actions workflow `.github/workflows/smoke-test.yml`.
+
+### 5. Android Robo test — Google Play Pre-launch report
+
+Exercises the Android release APK on real and virtual devices across
+different Android OS versions and form factors, autonomously, beyond the
+fixed set of screens the smoke crawler above visits. This runs entirely
+through the Play Console on every upload to a testing track — there is no
+CI workflow for it.
+
+See [`docs/ROBO_TESTS.md`](ROBO_TESTS.md) for the guided Robo script
+(`android/robo_script.json`) and how to configure it in Play Console.
 
 ## iOS builds and Xcode
 

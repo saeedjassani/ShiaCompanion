@@ -53,6 +53,8 @@ dev_dependencies:
     sdk: flutter
   flutter_driver:
     sdk: flutter
+  integration_test:
+    sdk: flutter
 
 flutter_icons:
   android: true
