@@ -44,6 +44,13 @@ class AzaanOptions {
     description: 'Use your device\'s default notification sound',
   );
 
+  // Silent notification (no sound)
+  static const AzaanOption silent = AzaanOption(
+    id: 'silent',
+    name: 'Silent',
+    description: 'Notification banner only (no sound)',
+  );
+
   // Custom audio file (will be configured by user)
   static const AzaanOption custom = AzaanOption(
     id: 'custom',
@@ -57,6 +64,7 @@ class AzaanOptions {
     takbir,
     azaan,
     systemDefault,
+    silent,
     custom,
   ];
 
