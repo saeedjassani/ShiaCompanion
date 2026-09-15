@@ -68,4 +68,13 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// both under the same Imam al-Rida narrations E148 quotes. I19 is the
   /// closer title match and carries the exact phrase E148 leads with.
   'E148': RetiredZikrRedirect('I19'),
+
+  /// Found during the 2026-09-14 restoration pass: I15's old content ("Twelfth"
+  /// through "Sixteenth" - the ten-times tahlil statement, Prophet Joseph's
+  /// dua, the "Your forgiveness is more hopeful than my deeds" dua, etc.) is
+  /// word-for-word already live inside I14 ("General Ta'qeebaat-2"), under
+  /// its own inline heading "Virtues of the 'Effective Veneration'" - I15's
+  /// exact title. Restoring it standalone would just duplicate that section
+  /// of I14's main data.
+  'I15': RetiredZikrRedirect('I14'),
 };
