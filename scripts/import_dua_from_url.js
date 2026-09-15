@@ -1,10 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const { execFileSync } = require('child_process');
-const admin = require('firebase-admin');
-const axios = require('axios');
 
-const ZIKR_COLLECTION = 'zikr';
+const ASSETS_DIR = path.join(__dirname, '..', 'assets');
+const ZIKR_DIR = path.join(ASSETS_DIR, 'zikr');
+const INDEX_PATH = path.join(ASSETS_DIR, 'zikr.json');
 
 function printUsage() {
   console.log(`Usage:
@@ -12,39 +11,17 @@ function printUsage() {
 
   Modes:
     (default)            Dry run. Parse the page and print the document that
-                         would be stored. Nothing is written.
-    --store             Write the parsed document to Firestore (zikr/<uid>).
+                         would be written. Nothing is written.
+    --store             Write assets/zikr/<uid> and update assets/zikr.json.
 
   Options:
     --url <url>         Source page URL (duas.org mobile page).
-    --uid <uid>         Firestore document id, e.g. D13.
+    --uid <uid>         Zikr uid, e.g. D13.
     --title <title>     Override the dua title (defaults to cleaned page title).
     --slug <slug>       Override the URL slug (defaults to slugified title).
     --merits <text>     Optional merits/notes text.
-    --regenerate        After storing, regenerate local assets (assets/zikr.*)
-                        by running build_zikr_release.js. Implies --store.
     --yes               Skip the confirmation prompt when storing.
 `);
-}
-
-function getServiceAccount() {
-  const envJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (envJson) return JSON.parse(envJson);
-
-  const envB64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
-  if (envB64) return JSON.parse(Buffer.from(envB64, 'base64').toString('utf8'));
-
-  const candidates = [
-    path.join(__dirname, 'serviceAccountKey.json'),
-    path.join(__dirname, '..', 'serviceAccountKey.json'),
-  ];
-  const found = candidates.find((c) => fs.existsSync(c));
-  if (!found) {
-    throw new Error(
-      'No service account found. Set FIREBASE_SERVICE_ACCOUNT_JSON/BASE64 or place serviceAccountKey.json.',
-    );
-  }
-  return require(path.resolve(found));
 }
 
 function normalizeSlug(value) {
@@ -80,6 +57,7 @@ function cleanTitle(rawTitle) {
 }
 
 async function fetchHtml(url) {
+  const axios = require('axios');
   try {
     const response = await axios.get(url, {
       responseType: 'text',
@@ -137,10 +115,10 @@ function extractTriplets(paneHtml) {
 
   const minCount = Math.min(arabic.length, transliteration.length, translation.length);
   const countsDiffer = arabic.length !== transliteration.length || arabic.length !== translation.length;
-  
+
   let arabicStartIndex = 0;
   let effectiveCount = minCount;
-  
+
   if (countsDiffer && arabic.length > minCount) {
     // Skip the first Arabic element when counts differ
     arabicStartIndex = 1;
@@ -191,7 +169,7 @@ function buildDocument({ uid, url, title, slug, merits, triplets }) {
 
 function previewDocument(doc, uid, triplets) {
   console.log('='.repeat(72));
-  console.log(`Would store zikr/${uid}`);
+  console.log(`Would write assets/zikr/${uid}`);
   console.log('='.repeat(72));
   console.log(`title : ${doc.title}`);
   console.log(`code  : ${doc.code}`);
@@ -203,47 +181,52 @@ function previewDocument(doc, uid, triplets) {
   console.log(doc.data.split('\n').slice(0, 12).join('\n'));
   if (triplets.length * 3 > 12) console.log('...');
   console.log('-'.repeat(72));
-  console.log('Full Firestore document:');
+  console.log('Full document:');
   console.log(JSON.stringify({ uid, ...doc }, null, 2));
   console.log('='.repeat(72));
 }
 
-function getFirestoreDb() {
-  if (admin.apps.length > 0) {
-    return admin.firestore();
-  }
-  const serviceAccount = getServiceAccount();
-  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-  return admin.firestore();
-}
-
-async function storeDocument(uid, doc, { regenerate, skipConfirm }) {
+/**
+ * Writes assets/zikr/<uid> (the content file: title/code/data/merits) and
+ * adds/updates the matching entry in assets/zikr.json (title/slug), which is
+ * the corpus's own index - see scripts/RESTORING_MISSING_ZIKRS.md. These two
+ * files are the source of truth; there is no separate store-then-regenerate
+ * step any more.
+ */
+async function storeDocument(uid, doc, { skipConfirm } = {}) {
   if (doc.data.trim().length === 0) {
     throw new Error('Refusing to store: parsed data is empty. Check the source URL.');
   }
 
   if (!skipConfirm) {
-    console.log(`\nAbout to write zikr/${uid} to Firestore.`);
+    console.log(`\nAbout to write assets/zikr/${uid}.`);
     console.log('Title :', doc.title);
     console.log('Verses:', (doc.data.match(/\n/g)?.length ?? 0) + 1, 'lines');
     console.log("Re-run with --yes to skip this prompt.\n");
     return false;
   }
 
-  const db = getFirestoreDb();
+  const content = { title: doc.title, code: doc.code };
+  if (doc.data && doc.data.trim()) content.data = doc.data;
+  if (doc.merits && doc.merits.trim()) content.merits = doc.merits;
+  fs.mkdirSync(ZIKR_DIR, { recursive: true });
+  fs.writeFileSync(
+    path.join(ZIKR_DIR, uid),
+    `${JSON.stringify(content, null, 2)}\n`,
+    'utf8',
+  );
 
-  await db.collection(ZIKR_COLLECTION).doc(uid).set(doc);
-  console.log(`✅ Stored zikr/${uid} (${doc.title})`);
+  const index = fs.existsSync(INDEX_PATH)
+    ? JSON.parse(fs.readFileSync(INDEX_PATH, 'utf8'))
+    : {};
+  const entry = { title: doc.title };
+  if (doc.slug) entry.slug = doc.slug;
+  index[uid] = entry;
+  const sorted = {};
+  for (const key of Object.keys(index).sort()) sorted[key] = index[key];
+  fs.writeFileSync(INDEX_PATH, `${JSON.stringify(sorted, null, 2)}\n`, 'utf8');
 
-  if (regenerate) {
-    console.log('Regenerating local assets via build_zikr_release.js ...');
-    execFileSync('node', [path.join(__dirname, 'build_zikr_release.js')], {
-      stdio: 'inherit',
-      cwd: __dirname,
-    });
-  } else {
-    console.log('Run `node scripts/build_zikr_release.js` to refresh local assets.');
-  }
+  console.log(`✅ Wrote assets/zikr/${uid} and updated assets/zikr.json (${doc.title})`);
   return true;
 }
 
@@ -264,8 +247,7 @@ async function main() {
   const titleOverride = getArg('--title');
   const slugOverride = getArg('--slug');
   const merits = getArg('--merits');
-  const doStore = args.includes('--store') || args.includes('--regenerate');
-  const regenerate = args.includes('--regenerate');
+  const doStore = args.includes('--store');
   const skipConfirm = args.includes('--yes');
 
   if (!uid || !url) {
@@ -299,15 +281,14 @@ async function main() {
   previewDocument(doc, uid, triplets);
 
   if (!doStore) {
-    console.log('\nDry run complete. Re-run with --store to write to Firestore.');
+    console.log('\nDry run complete. Re-run with --store to write assets/zikr/<uid>.');
     return;
   }
 
-  await storeDocument(uid, doc, { regenerate, skipConfirm });
+  await storeDocument(uid, doc, { skipConfirm });
 }
 
 module.exports = {
-  ZIKR_COLLECTION,
   fetchHtml,
   extractTitle,
   extractPaneOne,

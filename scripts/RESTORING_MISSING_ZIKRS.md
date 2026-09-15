@@ -123,29 +123,22 @@ If `transliteration` was empty in the old item (the common case):
 
 ## Step 4: writing the result
 
-Two places, and they are NOT the same source of truth:
+`assets/zikr.json` and `assets/zikr/<uid>` are the source of truth now —
+edited directly in git, committed like any other file. (This used to run
+through Firestore, with a build script regenerating these two files from it
+on every release; that indirection is retired — see the top of this repo's
+`scripts/` history around the "remove Firestore as the zikr source of truth"
+commit if you want the old process.)
 
-- **Firestore `zikr/{uid}`** — the actual source of truth. Fields: `title`,
-  `code` (almost always `"012"`), `data`, `merits` (optional), `slug`
-  (optional, kebab-case of the title).
-- **`assets/zikr.json`** (adds `{title, slug}` under the uid — keys are kept
+Write both files by hand:
+
+- **`assets/zikr.json`** — add `{title, slug}` under the uid. Keys are kept
   in strict lexicographic string order, so find the alphabetical insertion
-  point) and **`assets/zikr/<uid>`** (the full `{title, code, data, merits}`
-  content file) — these are a **generated build artifact**.
-  `scripts/build_zikr_release.js` regenerates both from Firestore. If you
-  only edit the local files and someone runs that script before Firestore
-  is updated, your restoration is silently wiped.
+  point.
+- **`assets/zikr/<uid>`** — the full content file: `{title, code, data,
+  merits}`. `code` is almost always `"012"`; `merits` is optional.
 
-So: write Firestore first, then either run
-`node scripts/build_zikr_release.js` or hand-edit the two local files to
-match (matching by hand is fine for a one-off if Firestore write access
-isn't available in the moment, but treat it as provisional until Firestore
-actually has the doc).
-
-Use `scripts/restore_zikr_to_firestore.js <uid> <draft.json> [--regenerate]`
-for the Firestore write — point it at a draft JSON shaped
-`{title, code, data, merits, slug}`. Draft JSONs for UIDs already restored
-this way live in `scripts/zikr_restore_drafts/`.
+Then validate (Step 5) and commit.
 
 ## Step 5: validate before moving on
 

@@ -5,30 +5,11 @@ import json, os, re
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RULES = json.load(open(os.path.join(ROOT, 'scripts/zikr_arabic/rules.json'), encoding='utf-8'))
 ZIKR_DIR = os.path.join(ROOT, 'assets/zikr')
+# Where backup.js/restore.js keep their point-in-time snapshots of ZIKR_DIR -
+# the revert safety net apply_patch.js requires before it will write. Not an
+# alternate content source: assets/zikr/* is read directly below, since it is
+# the corpus's source of truth (see scripts/RESTORING_MISSING_ZIKRS.md).
 BACKUP_DIR = os.path.join(ROOT, '.zikr-backups')
-
-def latest_snapshot():
-    """Newest Firestore snapshot from backup.js, or None.
-
-    Patches must be built from Firestore, not from assets/zikr: the assets are a
-    lossy projection (build_zikr_release.js computes `slug` and copies only
-    title/code/data/merits/tabs), and a local build can leave them out of step
-    with the cloud. apply_patch.js verifies `before` against the live document,
-    so an assets-built patch gets rejected as drifted.
-    """
-    if not os.path.isdir(BACKUP_DIR):
-        return None
-    snaps = sorted(f for f in os.listdir(BACKUP_DIR)
-                   if f.startswith('zikr-') and f.endswith('.json'))
-    return os.path.join(BACKUP_DIR, snaps[-1]) if snaps else None
-
-_SNAP = None
-def snapshot_docs():
-    global _SNAP
-    if _SNAP is None:
-        f = latest_snapshot()
-        _SNAP = json.load(open(f, encoding='utf-8')) if f else {}
-    return _SNAP
 
 HA = 'هہھ'
 ULTA, KHARI = 'ٗ', 'ٖ'          # ulta pesh, khari zer
@@ -73,25 +54,9 @@ def uid_key(uid):
     m = re.match(r'^([A-Za-z]*)(\d*)', uid)
     return (m.group(1), int(m.group(2) or 0), uid)
 
-def load_corpus(uids=None, include_quran=False, source='auto'):
-    """Yield (uid, document) in natural uid order.
-
-    source='auto'      newest Firestore snapshot if one exists, else the assets
-    source='firestore' snapshot only (raises if there is none)
-    source='assets'    the bundled assets, for render/audit checks
-    """
-    if source in ('auto', 'firestore'):
-        docs = snapshot_docs()
-        if not docs and source == 'firestore':
-            raise SystemExit('No snapshot in .zikr-backups/. Run: node scripts/zikr_arabic/backup.js')
-        if docs:
-            for uid in sorted(docs, key=uid_key):
-                if uids and uid not in uids:
-                    continue
-                if not include_quran and is_quran(uid, docs[uid].get('title', '')):
-                    continue
-                yield uid, docs[uid]
-            return
+def load_corpus(uids=None, include_quran=False):
+    """Yield (uid, document) in natural uid order, reading assets/zikr/<uid>
+    directly - the corpus's source of truth."""
     for fn in sorted(os.listdir(ZIKR_DIR), key=uid_key):
         if uids and fn not in uids:
             continue
@@ -108,9 +73,9 @@ def load_corpus(uids=None, include_quran=False, source='auto'):
             continue
         yield fn, doc
 
-def arabic_strings(uids=None, include_quran=False, source='auto'):
+def arabic_strings(uids=None, include_quran=False):
     """Yield (uid, json_path, string) for strings that contain Arabic."""
-    for uid, doc in load_corpus(uids, include_quran, source):
+    for uid, doc in load_corpus(uids, include_quran):
         for path, s in iter_strings(doc):
             if AR.search(s):
                 yield uid, path, s
