@@ -13,9 +13,9 @@ on:
   workflow_dispatch:
     inputs:
       simulator_device:
-        description: 'iOS Simulator device name (e.g. iPhone 16)'
+        description: 'iOS Simulator device name (e.g. iPhone 17). Leave blank to auto-detect an available simulator.'
         required: false
-        default: 'iPhone 16'
+        default: ''
         type: string
       android_api_level:
         description: 'Android emulator API level'
@@ -85,7 +85,28 @@ jobs:
 
       - name: Boot Simulator and Run Smoke Test
         run: |
-          DEVICE_NAME="${{ inputs.simulator_device || 'iPhone 16' }}"
+          set -euo pipefail
+          REQUESTED="${{ inputs.simulator_device }}"
+
+          if [ -n "$REQUESTED" ]; then
+            DEVICE_NAME="$REQUESTED"
+          else
+            # No explicit override: pick whatever iPhone simulator this
+            # runner's Xcode actually ships pre-created, instead of a
+            # hardcoded name that goes stale the moment Apple's default
+            # lineup rolls over (this is what broke "iPhone 16" here).
+            DEVICE_NAME=$(xcrun simctl list devices available \
+              | grep -E '^ +iPhone [0-9]+ \(' \
+              | tail -1 \
+              | sed -E 's/^ *(iPhone [0-9]+) *\(.*/\1/')
+            if [ -z "$DEVICE_NAME" ]; then
+              echo "::error::No available iPhone simulator found on this runner."
+              xcrun simctl list devices available
+              exit 1
+            fi
+          fi
+          echo "DEVICE_NAME=$DEVICE_NAME" >> "$GITHUB_ENV"
+
           echo "==> Booting iOS Simulator: ${DEVICE_NAME}"
           xcrun simctl boot "${DEVICE_NAME}" || true
 
@@ -95,11 +116,11 @@ jobs:
       - name: Report Results
         if: always()
         run: |
-          cat << 'SUMMARY' >> "$GITHUB_STEP_SUMMARY"
+          cat << SUMMARY >> "$GITHUB_STEP_SUMMARY"
           ### iOS Smoke Crawler Test
 
-          - **Device Target:** `${{ inputs.simulator_device || 'iPhone 16' }}`
-          - **Test:** `integration_test/smoke_crawler_test.dart`
+          - **Device Target:** \`${DEVICE_NAME:-unknown}\`
+          - **Test:** \`integration_test/smoke_crawler_test.dart\`
           - **Status:** Complete
           SUMMARY
 
