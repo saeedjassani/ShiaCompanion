@@ -66,6 +66,7 @@ jobs:
     needs: gate
     if: needs.gate.outputs.run == 'true'
     runs-on: macos-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
 
@@ -110,6 +111,13 @@ jobs:
           echo "==> Booting iOS Simulator: ${DEVICE_NAME}"
           xcrun simctl boot "${DEVICE_NAME}" || true
 
+          # `simctl boot` returns as soon as the boot is requested, not once
+          # the simulator is actually reachable — starting `flutter test`
+          # immediately left it stuck in device-discovery's retry loop on a
+          # still-cold-booting sim. Block here instead until it's ready.
+          echo "==> Waiting for simulator to finish booting..."
+          xcrun simctl bootstatus "${DEVICE_NAME}" -b
+
           echo "==> Running Smoke Crawler Integration Test..."
           flutter test integration_test/smoke_crawler_test.dart -d "${DEVICE_NAME}"
 
@@ -128,6 +136,7 @@ jobs:
     name: Run Android Smoke Crawler
     needs: gate
     if: needs.gate.outputs.run == 'true'
+    timeout-minutes: 25
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
