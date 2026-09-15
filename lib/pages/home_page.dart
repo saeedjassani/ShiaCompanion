@@ -28,6 +28,7 @@ import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/preferences_sync_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
+import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
@@ -554,6 +555,9 @@ class _MyHomePageState extends State<MyHomePage>
       } else {
         debugPrint("Azan notifications not scheduled");
       }
+      // Cheap once there are no reminders, so this runs on every cold start
+      // rather than trying to track whether anything changed.
+      await ZikrReminderService.instance.rescheduleAll();
     }
     await HomeScreenWidgetService.instance.publishAll();
     setState(() {});

@@ -30,6 +30,7 @@ import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/zikr_reading_progress_bar.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
+import '../zikr_reminder_form_page.dart';
 import 'zikr_form_helpers.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_content_viewer.dart';
@@ -977,6 +978,29 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     });
   }
 
+  /// The title shown in the app bar and used for a new reminder's default
+  /// text — the saved zikr's own title, falling back to what the caller
+  /// opened this page with.
+  String _currentDisplayTitle() {
+    final savedTitle = zikrData?['title']?.toString().trim() ?? '';
+    return savedTitle.isNotEmpty ? savedTitle : widget.item.title;
+  }
+
+  Future<void> _openReminderForm() async {
+    unawaited(AnalyticsService.feature(
+      'zikr_reminder_entry_point_opened',
+      label: 'Set Reminder opened from a zikr',
+      parameters: {'zikr_uid': _bookmarkUid},
+    ));
+    await pushPageRoute(
+      context,
+      ZikrReminderFormPage(
+        initialZikrUid: _bookmarkUid,
+        initialTitle: _currentDisplayTitle(),
+      ),
+    );
+  }
+
   void _showMeritsSheet() {
     final merits = zikrData?['merits']?.toString().trim() ?? '';
     if (merits.isEmpty) return;
@@ -1430,10 +1454,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   // Bookmark, share and reading settings live in the bottom action bar, where
-  // they are labelled and within thumb reach. The app bar keeps only the
-  // drawer opener - it used to also carry admin-only editing entry points.
+  // they are labelled and within thumb reach - that bar is already at its
+  // five-action width limit (see zikr_action_bar.dart). The app bar keeps the
+  // drawer opener plus the one other action frequent enough to earn a
+  // permanent spot: setting a reminder for the zikr being read.
   List<Widget> _buildAppBarActions() {
     return [
+      IconButton(
+        icon: const Icon(Icons.notifications_active_outlined),
+        tooltip: 'Set Reminder',
+        onPressed: () => unawaited(_openReminderForm()),
+      ),
       IconButton(
         icon: const Icon(Icons.filter_list),
         tooltip: 'Reading settings',
@@ -1447,9 +1478,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final merits = zikrData?['merits']?.toString().trim() ?? '';
     final hasMerits = merits.isNotEmpty;
     final tabContents = _buildVisibleTabContents();
-    final pageTitle = zikrData?['title']?.toString().trim().isNotEmpty == true
-        ? zikrData!['title'].toString().trim()
-        : widget.item.title;
+    final pageTitle = _currentDisplayTitle();
     final hasAnyContent =
         tabContents.any((content) => content.trim().isNotEmpty);
     final selectedTabIndex = _clampedSelectedTabIndex(tabContents);
