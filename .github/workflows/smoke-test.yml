@@ -66,10 +66,11 @@ jobs:
     needs: gate
     if: needs.gate.outputs.run == 'true'
     runs-on: macos-latest
-    # A cold `pod install` alone takes ~22 minutes here (see ci.yml's iOS
-    # build job for comparison) — 25 minutes cut this off mid-build, not
-    # mid-hang.
-    timeout-minutes: 45
+    # A cold build here runs ~5min pod install + ~33min Xcode build before
+    # the crawler test itself even starts (measured directly: see commit
+    # history). 45 minutes cut this off right as the build finished, with
+    # no room left for the test run. Give it real headroom.
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v5
 
