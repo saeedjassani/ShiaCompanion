@@ -1,6 +1,15 @@
 name: Cross-Platform Smoke Crawler Test
 
+# Fires on a version bump: a push to master that changes the `version:` line
+# in pubspec.yaml specifically (not just any edit to the file, e.g. adding a
+# dependency), so the two emulator boots only run when there is actually a
+# new build worth smoke-testing.
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'pubspec.yaml'
   workflow_dispatch:
     inputs:
       simulator_device:
@@ -22,8 +31,40 @@ env:
   FLUTTER_VERSION: '3.44.8'
 
 jobs:
+  gate:
+    name: Decide whether this is a version bump
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Check whether the version line actually changed
+        id: decide
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          before=$(git show "${{ github.event.before }}:pubspec.yaml" 2>/dev/null | grep -m1 '^version:' || true)
+          after=$(grep -m1 '^version:' pubspec.yaml)
+
+          if [ "$before" != "$after" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Version changed ($before -> $after) — running the smoke crawler."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "pubspec.yaml changed but the version line did not — skipping."
+          fi
+
   ios-smoke-test:
     name: Run iOS Smoke Crawler
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
@@ -64,6 +105,8 @@ jobs:
 
   android-smoke-test:
     name: Run Android Smoke Crawler
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

@@ -7,7 +7,7 @@
 | `ci.yml` | push to `master`, every PR, manual | Analysis, tests, web build + visual checks, Android APK, iOS build |
 | `web-preview.yml` | push to `master`, every PR, manual | Deploys a Firebase preview channel. Never touches production. |
 | `web-release.yml` | push to `master` that changes the version in `pubspec.yaml`, manual | The only workflow that writes to the live site |
-| `smoke-test.yml` | manual (`workflow_dispatch`) | Runs the automated smoke crawler integration test on both an iOS Simulator and an Android emulator |
+| `smoke-test.yml` | push to `master` that bumps the version in `pubspec.yaml`, manual | Runs the automated smoke crawler integration test on both an iOS Simulator and an Android emulator |
 
 `ci.yml` runs analysis and tests first, on Ubuntu, and only starts the slow
 platform builds once they pass. A failing test is reported in about three

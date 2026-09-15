@@ -126,15 +126,28 @@ force on separately.
 
 A single workflow is available at
 [`.github/workflows/smoke-test.yml`](../.github/workflows/smoke-test.yml),
-with one job per platform:
+with a gate job followed by one job per platform:
 
+- **`gate`** — `ubuntu-latest`, diffs the `version:` line in `pubspec.yaml`
+  against the previous commit (`git show ${{ github.event.before }}:pubspec.yaml`)
+  and only lets the platform jobs run if it actually changed. This mirrors
+  `web-release.yml`'s release gate, so a `pubspec.yaml` edit that isn't a
+  version bump (adding a dependency, say) doesn't boot two emulators for
+  nothing.
 - **`ios-smoke-test`** — `macos-latest`, boots the requested iOS Simulator.
 - **`android-smoke-test`** — `ubuntu-latest`, boots an Android emulator via
   [`reactivecircus/android-emulator-runner`](https://github.com/reactivecircus/android-emulator-runner)
   (KVM is enabled first, since GitHub-hosted Ubuntu runners need it explicitly
   for the emulator to run at usable speed).
 
-### How to Trigger:
+### How to Trigger
+
+**Automatically:** any push to `master` that changes the `version:` line in
+`pubspec.yaml` — i.e. the same `node scripts/bump_version.js` step that cuts
+a web release (see [`docs/CI.md`](CI.md)) also kicks off the smoke crawler on
+both platforms.
+
+**Manually:**
 1. In GitHub, go to **Actions**.
 2. Select **Cross-Platform Smoke Crawler Test** in the left sidebar.
 3. Click **Run workflow** (optionally override the iOS simulator device name
