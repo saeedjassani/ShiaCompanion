@@ -322,7 +322,7 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DropdownButtonFormField<String>(
-          value: prayerNames.contains(_prayerName)
+          initialValue: prayerNames.contains(_prayerName)
               ? _prayerName
               : prayerNames.first,
           decoration: const InputDecoration(
