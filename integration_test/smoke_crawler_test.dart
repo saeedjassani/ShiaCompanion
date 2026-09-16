@@ -87,6 +87,16 @@ void main() {
       }
 
       if (itemFinder.evaluate().isNotEmpty) {
+        // Being found above only means Flutter has *built* the widget —
+        // grid/list views build somewhat beyond the visible viewport
+        // (cacheExtent), so a just-found item can still be off-screen.
+        // Tapping it then hits nothing (a silent WidgetController warning)
+        // and previously cascaded into every section for the rest of the
+        // run reporting "not visible" instead of the real cause. Scroll it
+        // fully into view first.
+        await tester.ensureVisible(itemFinder.first);
+        await settleBounded(tester, duration: const Duration(milliseconds: 300));
+
         // Tap section
         await tester.tap(itemFinder.first);
         await settleBounded(tester, duration: const Duration(seconds: 2));
