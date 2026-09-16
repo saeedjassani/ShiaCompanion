@@ -10,13 +10,13 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Plays the full Azan as real, app-controlled audio rather than a plain
-/// notification sound.
+/// Plays the full Azan - or, on Android, a user's Custom Audio choice - as
+/// real, app-controlled audio rather than a plain notification sound.
 ///
 /// A notification's `sound:` field is a short OS ringtone: any other
 /// notification, an incoming call, or the user simply touching the phone can
 /// cut it off, and there is no player behind it to resume or stop. This
-/// service instead runs the Azan through the same just_audio +
+/// service instead runs the recording through the same just_audio +
 /// just_audio_background pipeline `ZikrAudioPlayer` already uses for
 /// recitation - a real foreground media-playback service with its own audio
 /// focus and a lock-screen/notification media control - so it survives being
@@ -28,8 +28,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// [schedule]) - the one mechanism on this platform that can run Dart code
 /// at a precise wall-clock time even if the app was never opened. iOS has no
 /// equivalent (no background execution at an arbitrary future time without
-/// the app already running), so there the full Azan instead starts from
-/// [playNow] when the user taps the prayer notification.
+/// the app already running), so there Full Azan instead starts from
+/// [playNow] when the user taps the prayer notification; Custom Audio isn't
+/// offered on iOS at all.
 class AzanPlaybackService {
   AzanPlaybackService._();
 
@@ -58,6 +59,7 @@ class AzanPlaybackService {
     required DateTime fireTime,
     required String prayerName,
     required bool exact,
+    String? customFilePath,
   }) async {
     if (kIsWeb || !Platform.isAndroid) return;
     if (fireTime.isBefore(DateTime.now())) return;
@@ -75,7 +77,10 @@ class AzanPlaybackService {
       allowWhileIdle: true,
       wakeup: true,
       rescheduleOnReboot: false,
-      params: {'prayerName': prayerName},
+      params: {
+        'prayerName': prayerName,
+        if (customFilePath != null) 'customFilePath': customFilePath,
+      },
     );
   }
 
@@ -94,22 +99,32 @@ class AzanPlaybackService {
       int id, Map<String, dynamic>? params) async {
     WidgetsFlutterBinding.ensureInitialized();
     final prayerName = params?['prayerName'] as String? ?? 'Prayer';
-    await _startPlayback(prayerName);
+    final customFilePath = params?['customFilePath'] as String?;
+    await _startPlayback(prayerName, customFilePath: customFilePath);
   }
 
-  /// Starts the full Azan on demand from the running app - the only trigger
+  /// Starts the Azan on demand from the running app - the only trigger
   /// available on iOS (fired from a tap on the prayer notification, since
   /// iOS has no background alarm callback), and a replay/preview affordance
   /// on Android.
-  static Future<void> playNow({required String prayerName}) async {
-    await _startPlayback(prayerName);
+  ///
+  /// [customFilePath] plays that file (the Custom Audio option) in place of
+  /// the bundled Full Azan recording - null plays the bundled recording.
+  static Future<void> playNow({
+    required String prayerName,
+    String? customFilePath,
+  }) async {
+    await _startPlayback(prayerName, customFilePath: customFilePath);
   }
 
   static AudioPlayer? _activePlayer;
   static ReceivePort? _stopPort;
   static StreamSubscription<PlayerState>? _completionSub;
 
-  static Future<void> _startPlayback(String prayerName) async {
+  static Future<void> _startPlayback(
+    String prayerName, {
+    String? customFilePath,
+  }) async {
     // A stale or duplicate alarm firing while one Azan is still playing must
     // not start overlapping audio.
     if (await isPlaying()) return;
@@ -139,15 +154,16 @@ class AzanPlaybackService {
       }
     });
 
+    final tag = MediaItem(
+      id: 'azan-$prayerName',
+      title: '$prayerName Azan',
+      album: 'Shia Companion',
+    );
+
     try {
-      await player.setAudioSource(AudioSource.asset(
-        'assets/sounds/full_azan.mp3',
-        tag: MediaItem(
-          id: 'azan-$prayerName',
-          title: '$prayerName Azan',
-          album: 'Shia Companion',
-        ),
-      ));
+      await player.setAudioSource(customFilePath != null
+          ? AudioSource.uri(Uri.file(customFilePath), tag: tag)
+          : AudioSource.asset('assets/sounds/full_azan.mp3', tag: tag));
       await player.play();
     } catch (e) {
       debugPrint('Azan playback failed: $e');
