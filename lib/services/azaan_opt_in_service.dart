@@ -26,6 +26,13 @@ class AzaanOptInService {
   /// Set once the user has answered, whichever way they answered.
   static const String askedKey = 'azaan_opt_in_asked';
 
+  /// The prayers that were on when the master switch last muted everything.
+  ///
+  /// This is what makes the switch reversible: without it, "off then on"
+  /// replaced whatever the user had chosen with [defaultEnabledPrayerKeys],
+  /// silently discarding a selection they may have spent real time on.
+  static const String _restoreSetKey = 'azaan_restore_set';
+
   /// Every prayer that can raise a notification, as preference keys.
   ///
   /// [getPrayerNotificationPrayerNames] derives the same set from the prayer
@@ -121,17 +128,39 @@ class AzaanOptInService {
 
   static Future<void> _apply(bool enabled, {required bool reschedule}) async {
     await SP.prefs.setBool(askedKey, true);
-    for (final key in allPrayerKeys) {
-      await SP.prefs
-          .setBool(key, enabled && defaultEnabledPrayerKeys.contains(key));
+
+    if (enabled) {
+      // Restore the selection this switch last muted, not the hardcoded three.
+      // Overwriting with the defaults is what used to destroy a hand-picked
+      // set the moment someone toggled the switch off and on again.
+      final remembered = SP.prefs.getStringList(_restoreSetKey);
+      final toEnable = (remembered == null || remembered.isEmpty)
+          ? defaultEnabledPrayerKeys
+          : remembered;
+      for (final key in allPrayerKeys) {
+        await SP.prefs.setBool(key, toEnable.contains(key));
+      }
+      await SP.prefs.remove(_restoreSetKey);
+
+      // Only now, and only for a user who wants azan. Asking the OS for
+      // notification permission we have no use for spends the single prompt
+      // Android and iOS allow on nothing.
+      await requestNotificationPermissions();
+    } else {
+      // Snapshot before muting so turning the switch back on is lossless. An
+      // empty selection is not worth remembering — it would just mask the
+      // defaults on the way back.
+      final currentlyEnabled = allPrayerKeys
+          .where((key) => SP.prefs.getBool(key) == true)
+          .toList(growable: false);
+      if (currentlyEnabled.isNotEmpty) {
+        await SP.prefs.setStringList(_restoreSetKey, currentlyEnabled);
+      }
+      for (final key in allPrayerKeys) {
+        await SP.prefs.setBool(key, false);
+      }
     }
 
-    // Only now, and only for a user who wants azan. Asking the OS for
-    // notification permission we have no use for spends the single prompt
-    // Android and iOS allow on nothing.
-    if (enabled) {
-      await requestNotificationPermissions();
-    }
     if (reschedule) {
       await setUpNotifications();
     }
@@ -141,6 +170,7 @@ class AzaanOptInService {
   static Future<void> resetForTest() async {
     if (!SP.isInitialized) return;
     await SP.prefs.remove(askedKey);
+    await SP.prefs.remove(_restoreSetKey);
     for (final key in allPrayerKeys) {
       await SP.prefs.remove(key);
     }
