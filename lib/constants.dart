@@ -14,6 +14,7 @@ import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
+import 'package:shia_companion/pages/zikr_reminders_page.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
@@ -1121,6 +1122,15 @@ String? prayerNameForNotificationId(int id) {
 /// invokes whichever one matches where the tap arrived.
 Future<void> handlePrayerNotificationResponse(
     NotificationResponse response) async {
+  final payload = response.payload;
+  if (payload != null &&
+      payload.startsWith(ZikrReminderService.payloadPrefix)) {
+    await _openZikrReminderNotification(
+      payload.substring(ZikrReminderService.payloadPrefix.length),
+    );
+    return;
+  }
+
   final id = response.id;
   if (id == null) return;
   final prayerName = prayerNameForNotificationId(id);
@@ -1135,6 +1145,35 @@ Future<void> handlePrayerNotificationResponse(
         ? _customAudioPathForPlayback(prayerName)
         : null,
   );
+}
+
+/// Opens what a tapped zikr reminder notification was for: the linked zikr
+/// itself when it was created by picking one from the library, or the
+/// reminders list for a free-text reminder with nothing to open directly.
+///
+/// Meant only for the main isolate (a foreground tap, or the
+/// launched-from-terminated path in home_page.dart that runs once the app is
+/// up, both after `SP.init()`) - [appNavigatorKey] has no navigator attached
+/// from the background isolate [handlePrayerNotificationResponseBackground]
+/// can run in, and that isolate never called `SP.init()` either, so this
+/// bails out on the same `SP.isInitialized` guard the rest of this file uses
+/// rather than crashing on the unguarded `SP.prefs` read underneath.
+Future<void> _openZikrReminderNotification(String reminderId) async {
+  if (!SP.isInitialized) return;
+  final reminder = await ZikrReminderService.instance.byId(reminderId);
+  if (reminder == null) return;
+
+  final zikrUid = reminder.zikrUid;
+  final title = zikrUid == null ? null : items[zikrUid];
+  if (zikrUid != null && title is String && title.isNotEmpty) {
+    pushRootPageRoute(ZikrPage(
+      UidTitleData(zikrUid, title),
+      source: ZikrOpenSource.reminder,
+    ));
+    return;
+  }
+
+  pushRootPageRoute(const ZikrRemindersPage());
 }
 
 /// Background-isolate counterpart of [handlePrayerNotificationResponse], for

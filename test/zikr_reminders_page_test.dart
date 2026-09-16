@@ -104,4 +104,37 @@ void main() {
     final titleField = tester.widget<TextField>(find.byType(TextField).first);
     expect(titleField.controller?.text, 'Dua Kumail');
   });
+
+  group('byId', () {
+    test('finds a reminder created earlier by its id', () async {
+      final reminder = await ZikrReminderService.instance.addReminder(
+        title: 'Dua Tawassul',
+        zikrUid: 'Z1',
+        daysOfWeek: {DateTime.tuesday},
+        mode: ZikrReminderTimeMode.fixedTime,
+        hour: 21,
+        minute: 0,
+      );
+
+      final found = await ZikrReminderService.instance.byId(reminder.id);
+
+      expect(found, isNotNull);
+      expect(found!.id, reminder.id);
+      expect(found.zikrUid, 'Z1');
+    });
+
+    test('returns null for an id that was never created or was deleted',
+        () async {
+      expect(await ZikrReminderService.instance.byId('nope'), isNull);
+
+      final reminder = await ZikrReminderService.instance.addReminder(
+        title: 'Dua Kumail',
+        daysOfWeek: {DateTime.thursday},
+        mode: ZikrReminderTimeMode.fixedTime,
+      );
+      await ZikrReminderService.instance.deleteReminder(reminder.id);
+
+      expect(await ZikrReminderService.instance.byId(reminder.id), isNull);
+    });
+  });
 }
