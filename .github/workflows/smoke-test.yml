@@ -185,11 +185,11 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: true
-          script: |
-            flutter drive \
-              --driver=test_driver/integration_test.dart \
-              --target=integration_test/smoke_crawler_test.dart \
-              -d emulator-5554
+          # One line deliberately: this action's `script` field only picked
+          # up the first line when given a multi-line value with backslash
+          # continuations, passing a literal trailing "\" through to Flutter
+          # as its target-file argument.
+          script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/smoke_crawler_test.dart -d emulator-5554
 
       - name: Upload screenshots
         if: always()
