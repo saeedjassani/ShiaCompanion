@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
@@ -74,8 +75,8 @@ const String _azaanCustomNotificationSourcePathKey =
     'azaan_custom_notification_source_path';
 const String _androidPrayerChannelMigrationKey =
     'android_prayer_notification_channel_migration';
-const int _androidPrayerChannelMigrationVersion = 2;
-const String _androidPrayerChannelVersion = 'v2';
+const int _androidPrayerChannelMigrationVersion = 3;
+const String _androidPrayerChannelVersion = 'v3';
 
 /// Why the most recent [initializeLocation] gave up, so callers can say
 /// something more useful than "failed". Cleared on every success.
@@ -110,8 +111,6 @@ String defaultAzaanPreferenceId() {
 
 bool isAzaanOptionAvailableOnCurrentPlatform(AzaanOption option) {
   if (!kIsWeb && Platform.isIOS) {
-    // Full Azan runs past the 30 seconds iOS allows a notification sound.
-    if (option.id == AzaanOptions.azaan.id) return false;
     // Custom audio has never actually worked on iOS: UNNotificationSound only
     // resolves names inside the app bundle or Library/Sounds, the picked file
     // was copied to Documents instead, and _iosPrayerNotificationDetails never
@@ -780,6 +779,7 @@ Future<void> cancelPrayerNotifications({bool includeReminder = true}) async {
   }
 
   await Future.wait(notificationIds.map((id) => plugin.cancel(id: id)));
+  await Future.wait(notificationIds.map(AzanPlaybackService.cancel));
 }
 
 Future<void> setUpNotifications() async {
@@ -1025,13 +1025,19 @@ Future<void> refreshLegacyAndroidPrayerNotificationChannelsIfNeeded() async {
     'prayer_full_azaan_v1',
     'prayer_takbir_v1',
     'prayer_system_default_v1',
+    // v2 -> v3: Full Azan's channel stopped carrying its own sound (the
+    // audio now comes from AzanPlaybackService instead), which Android would
+    // otherwise keep playing from the old channel's cached settings forever.
+    'prayer_full_azaan_v2',
+    'prayer_takbir_v2',
+    'prayer_system_default_v2',
   };
 
   try {
     final channels = await androidImplementation.getNotificationChannels();
     for (final channel in channels ?? const <AndroidNotificationChannel>[]) {
       if (channel.id.startsWith('prayer_custom_') &&
-          channel.id.endsWith('_v1')) {
+          (channel.id.endsWith('_v1') || channel.id.endsWith('_v2'))) {
         legacyChannelIds.add(channel.id);
       }
     }
@@ -1100,9 +1106,15 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
         sound = UriAndroidNotificationSound(customSoundUri);
       }
     }
-  } else {
+  } else if (azaan.id != AzaanOptions.azaan.id) {
     sound = RawResourceAndroidNotificationSound(azaan.androidFile ?? 'sharif');
   }
+  // Full Azan gets no channel sound of its own: AzanPlaybackService plays
+  // the real recording as app-controlled audio (see schedulePrayerTimeNotification),
+  // so a notification-channel sound here would just be a second, competing
+  // copy racing it - and the whole reason for that separate player is that a
+  // channel sound cannot outlast a phone unlock or another app's ping.
+  final playSound = azaan.id != AzaanOptions.azaan.id;
 
   return AndroidNotificationDetails(
     _androidPrayerChannelId(azaan, customSoundUri: customSoundUri),
@@ -1110,8 +1122,8 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
     channelDescription: 'Prayer time notifications',
     importance: Importance.max,
     priority: Priority.high,
-    sound: sound,
-    playSound: true,
+    sound: playSound ? sound : null,
+    playSound: playSound,
     enableVibration: true,
   );
 }
@@ -1165,9 +1177,82 @@ Future<void> schedulePrayerTimeNotification(
             formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
         body: "It's time for " + prayerName.toLowerCase(),
         payload: dateTime.toIso8601String());
+
+    // Android only: the notification above is now silent for Full Azan (see
+    // _androidPrayerNotificationDetails), so this alarm is what actually
+    // plays it, as real app-controlled audio that survives being
+    // backgrounded rather than a notification sound any other ping can cut
+    // off. iOS has no equivalent background trigger - there, full playback
+    // starts from a tap on the notification instead (see
+    // handlePrayerNotificationResponse).
+    if (azaan.id == AzaanOptions.azaan.id) {
+      await AzanPlaybackService.schedule(
+        alarmId: id,
+        fireTime: dateTime,
+        prayerName: prayerName,
+        exact: canScheduleExactPrayerNotifications,
+      );
+    } else {
+      await AzanPlaybackService.cancel(id);
+    }
   } else {
     await flutterLocalNotificationsPlugin?.cancel(id: id);
+    await AzanPlaybackService.cancel(id);
   }
+}
+
+/// Which prayer a scheduled prayer-time notification's id was built for -
+/// the inverse of the `(100 * (prayerIndex + 1)) + dayOffset` scheme
+/// [setUpNotifications] assigns ids with. Used to work out, when a
+/// notification is tapped, which prayer (and so which Azan preference) it
+/// was for.
+String? prayerNameForNotificationId(int id) {
+  final dayOffset = id % 100;
+  // The reminder notification (id 786) and the test notification (id 999)
+  // both sit inside the same (100 * (prayerIndex + 1)) + dayOffset range as
+  // real prayer ids and would otherwise decode to whichever prayer happens
+  // to occupy that slot. Real schedules never run a month out, so a
+  // generously-bounded dayOffset is enough to tell them apart without
+  // hardcoding those two ids specifically.
+  if (dayOffset >= 31) return null;
+
+  final prayerNames = getPrayerNotificationPrayerNames();
+  final prayerIndex = (id ~/ 100) - 1;
+  if (prayerIndex < 0 || prayerIndex >= prayerNames.length) return null;
+  return prayerNames[prayerIndex];
+}
+
+/// Starts the full Azan when a tapped notification was for a prayer whose
+/// chosen sound is Full Azan.
+///
+/// This is iOS's only trigger for full-length playback: the platform has no
+/// background alarm equivalent to Android's, so its notification sound stays
+/// capped at the ~30 seconds Apple allows, and this is what plays the rest
+/// once the user actually opens it. On Android it doubles as a way to replay
+/// an Azan that already finished.
+///
+/// Shared by the foreground callback and
+/// [handlePrayerNotificationResponseBackground] - flutter_local_notifications
+/// invokes whichever one matches where the tap arrived.
+Future<void> handlePrayerNotificationResponse(
+    NotificationResponse response) async {
+  final id = response.id;
+  if (id == null) return;
+  final prayerName = prayerNameForNotificationId(id);
+  if (prayerName == null) return;
+  final azaan = getAzaanOptionForPrayer(prayerName);
+  if (azaan.id != AzaanOptions.azaan.id) return;
+  await AzanPlaybackService.playNow(prayerName: prayerName);
+}
+
+/// Background-isolate counterpart of [handlePrayerNotificationResponse], for
+/// a tap that arrives while the app process isn't already running.
+/// flutter_local_notifications requires this to be a distinct top-level
+/// function carrying this pragma.
+@pragma('vm:entry-point')
+void handlePrayerNotificationResponseBackground(
+    NotificationResponse response) {
+  handlePrayerNotificationResponse(response);
 }
 
 /// Fires a sample notification.
@@ -1192,6 +1277,15 @@ Future<void> testNotification(
 
   final platformChannelSpecifics =
       await prayerNotificationDetails(azaan, prayerName: prayerName);
+
+  // Full Azan no longer carries its own notification sound (see
+  // _androidPrayerNotificationDetails) - without this, testing that choice
+  // would fire a silent notification and the person trying it would hear
+  // nothing at all.
+  if (azaan.id == AzaanOptions.azaan.id) {
+    unawaited(
+        AzanPlaybackService.playNow(prayerName: prayerName ?? 'Prayer'));
+  }
 
   // Schedule for 2 seconds in the future to ensure it fires
   await flutterLocalNotificationsPlugin.zonedSchedule(

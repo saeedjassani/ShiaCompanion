@@ -36,6 +36,7 @@ import 'package:shia_companion/utils/hadith_loader.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
+import 'package:shia_companion/widgets/azan_playing_banner.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
@@ -351,6 +352,7 @@ class _MyHomePageState extends State<MyHomePage>
             )
           ],
         ),
+        bottomSheet: kIsWeb ? null : const AzanPlayingBanner(),
         body: ResponsiveScrollableContent(
           maxWidth: wideContentWidth,
           padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
@@ -527,7 +529,23 @@ class _MyHomePageState extends State<MyHomePage>
           iOS: initializationSettingsIOS);
       await flutterLocalNotificationsPlugin?.initialize(
         settings: initializationSettings,
+        onDidReceiveNotificationResponse: handlePrayerNotificationResponse,
+        onDidReceiveBackgroundNotificationResponse:
+            handlePrayerNotificationResponseBackground,
       );
+      // A tap that launched the app from fully terminated arrives here
+      // rather than through onDidReceiveNotificationResponse above - that
+      // callback only fires for a tap while flutterLocalNotificationsPlugin
+      // is already initialized. This is iOS's only way to ever play a Full
+      // Azan past its notification sound's ~30 second cap when the app
+      // wasn't already running (see handlePrayerNotificationResponse).
+      final launchDetails =
+          await flutterLocalNotificationsPlugin?.getNotificationAppLaunchDetails();
+      final launchResponse = launchDetails?.notificationResponse;
+      if (launchDetails?.didNotificationLaunchApp == true &&
+          launchResponse != null) {
+        await handlePrayerNotificationResponse(launchResponse);
+      }
       // Two prompts back to back is one too many, so the OS permission dialog
       // is skipped on the launch we ask our own question; the opt-in requests
       // it itself, and only if the user actually wants azan.
