@@ -12,6 +12,7 @@ import '../../utils/quran_portion.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/responsive_content.dart';
 import '../zikr/zikr_page.dart';
+import 'recitation_tracker_tab.dart';
 
 /// Opens a surah, at a verse when one is named.
 ///
@@ -147,7 +148,7 @@ class _QuranPageState extends State<QuranPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       initialIndex: widget.initialTabIndex,
       child: Scaffold(
         appBar: AppBar(
@@ -157,6 +158,7 @@ class _QuranPageState extends State<QuranPage> {
               Tab(text: 'Surahs'),
               Tab(text: 'Juz'),
               Tab(text: 'Saved'),
+              Tab(text: 'Recitations'),
             ],
           ),
         ),
@@ -187,6 +189,7 @@ class _QuranPageState extends State<QuranPage> {
                     onOpen: _open,
                     onRemove: _removeSaved,
                   ),
+                  const RecitationTrackerTab(),
                 ],
               ),
             ),

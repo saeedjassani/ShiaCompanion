@@ -27,6 +27,7 @@ import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/preferences_sync_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
+import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
@@ -503,6 +504,7 @@ class _MyHomePageState extends State<MyHomePage>
     // Initialize synced user data from SharedPreferences or Firestore.
     await FavoritesManager.instance.loadFavorites();
     await QazaTrackerManager.instance.loadQaza();
+    await RecitationTrackerManager.instance.loadRecitations();
     await PreferencesSyncService.instance.pullOrSeed();
 
     // On web, keep first load quiet and let the prayer card request location
