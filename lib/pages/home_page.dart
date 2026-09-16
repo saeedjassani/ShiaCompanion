@@ -28,6 +28,7 @@ import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/preferences_sync_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
+import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
@@ -36,8 +37,10 @@ import 'package:shia_companion/utils/hadith_loader.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
+import 'package:shia_companion/widgets/azan_playing_banner.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/whats_new_dialog.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 
@@ -351,6 +354,7 @@ class _MyHomePageState extends State<MyHomePage>
             )
           ],
         ),
+        bottomSheet: kIsWeb ? null : const AzanPlayingBanner(),
         body: ResponsiveScrollableContent(
           maxWidth: wideContentWidth,
           padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
@@ -527,7 +531,23 @@ class _MyHomePageState extends State<MyHomePage>
           iOS: initializationSettingsIOS);
       await flutterLocalNotificationsPlugin?.initialize(
         settings: initializationSettings,
+        onDidReceiveNotificationResponse: handlePrayerNotificationResponse,
+        onDidReceiveBackgroundNotificationResponse:
+            handlePrayerNotificationResponseBackground,
       );
+      // A tap that launched the app from fully terminated arrives here
+      // rather than through onDidReceiveNotificationResponse above - that
+      // callback only fires for a tap while flutterLocalNotificationsPlugin
+      // is already initialized. This is iOS's only way to ever play a Full
+      // Azan past its notification sound's ~30 second cap when the app
+      // wasn't already running (see handlePrayerNotificationResponse).
+      final launchDetails =
+          await flutterLocalNotificationsPlugin?.getNotificationAppLaunchDetails();
+      final launchResponse = launchDetails?.notificationResponse;
+      if (launchDetails?.didNotificationLaunchApp == true &&
+          launchResponse != null) {
+        await handlePrayerNotificationResponse(launchResponse);
+      }
       // Two prompts back to back is one too many, so the OS permission dialog
       // is skipped on the launch we ask our own question; the opt-in requests
       // it itself, and only if the user actually wants azan.
@@ -540,6 +560,16 @@ class _MyHomePageState extends State<MyHomePage>
       await refreshExactPrayerAlarmPermissionStatus();
       if (askingAboutAzaan && mounted) {
         await _askAboutAzaan();
+      }
+
+      // Never fires alongside the two prompts above: a fresh install has
+      // nothing to catch up on (see WhatsNewService), and an install that has
+      // already answered the opt-in question is exactly the "existing
+      // install" this is for.
+      final whatsNew = await WhatsNewService.pending();
+      await WhatsNewService.markSeen();
+      if (whatsNew.isNotEmpty && mounted) {
+        await showWhatsNewDialog(context, whatsNew);
       }
 
       final List<PendingNotificationRequest>? pendingNotificationRequests =
@@ -635,7 +665,6 @@ class _MyHomePageState extends State<MyHomePage>
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     appVersion = packageInfo.version;
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) => showAlertDialog());
     initializeData();
   }
 
@@ -693,40 +722,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   Shader l = LinearGradient(colors: <Color>[Colors.black, Colors.white])
       .createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
-
-  showAlertDialog() async {
-    // set up the button
-    Widget okButton = TextButton(
-      child: Text("OK"),
-      onPressed: () {
-        Navigator.pop(context);
-      },
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("What's New"),
-      content: Text(
-          "1. Azan notification added. By default Fajr, Dhuhr and Magrib are turned on.\n2. Live Holy Shrines and Islamic Channels\n3. Islamic calendar with events."),
-      actions: [
-        okButton,
-      ],
-    );
-
-    // show the dialog
-    int bnFromPref = SP.prefs.getInt('buildNumber') ?? 0;
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    // Show What's New Dialog only when build number is greater or in release mode
-    if (int.parse(packageInfo.buildNumber) > bnFromPref && kReleaseMode) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        },
-      );
-      await SP.prefs.setInt('buildNumber', int.parse(packageInfo.buildNumber));
-    }
-  }
 
   @override
   void dispose() async {

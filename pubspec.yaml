@@ -1,7 +1,7 @@
 name: shia_companion
 description: All the features needed by the lovers of Ahle Bayt (may Allah's peace and blessings be upon them) in one app
 
-version: 3.4.4+110
+version: 3.5.0+111
 environment:
   sdk: ^3.4.0
 
@@ -46,6 +46,7 @@ dependencies:
   web: ^1.1.1
   just_audio: ^0.10.6
   just_audio_background: ^0.0.1-beta.17
+  android_alarm_manager_plus: ^5.1.1
 
 
 dev_dependencies:
@@ -82,6 +83,7 @@ flutter:
     # test/bundled_assets_test.dart guards those instead.
     - assets/images/google_logo.png
     - assets/images/apple_logo.png
+    - assets/sounds/full_azan.mp3
     - assets/zikr/
 
   fonts:

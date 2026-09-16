@@ -4,14 +4,13 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
@@ -65,8 +64,6 @@ bool showTranslation = true, showTransliteration = true;
 /// reader turns off translation and transliteration.
 bool showArabicAsParagraph = false;
 
-const MethodChannel _notificationAudioChannel =
-    MethodChannel('shia_companion/notification_audio');
 const String azaanPreferenceKey = 'azaan_preference';
 const String azaanCustomFilePathKey = 'azaan_custom_file_path';
 const String _azaanCustomNotificationUriKey = 'azaan_custom_notification_uri';
@@ -74,8 +71,8 @@ const String _azaanCustomNotificationSourcePathKey =
     'azaan_custom_notification_source_path';
 const String _androidPrayerChannelMigrationKey =
     'android_prayer_notification_channel_migration';
-const int _androidPrayerChannelMigrationVersion = 2;
-const String _androidPrayerChannelVersion = 'v2';
+const int _androidPrayerChannelMigrationVersion = 3;
+const String _androidPrayerChannelVersion = 'v3';
 
 /// Why the most recent [initializeLocation] gave up, so callers can say
 /// something more useful than "failed". Cleared on every success.
@@ -110,8 +107,6 @@ String defaultAzaanPreferenceId() {
 
 bool isAzaanOptionAvailableOnCurrentPlatform(AzaanOption option) {
   if (!kIsWeb && Platform.isIOS) {
-    // Full Azan runs past the 30 seconds iOS allows a notification sound.
-    if (option.id == AzaanOptions.azaan.id) return false;
     // Custom audio has never actually worked on iOS: UNNotificationSound only
     // resolves names inside the app bundle or Library/Sounds, the picked file
     // was copied to Documents instead, and _iosPrayerNotificationDetails never
@@ -780,6 +775,7 @@ Future<void> cancelPrayerNotifications({bool includeReminder = true}) async {
   }
 
   await Future.wait(notificationIds.map((id) => plugin.cancel(id: id)));
+  await Future.wait(notificationIds.map(AzanPlaybackService.cancel));
 }
 
 Future<void> setUpNotifications() async {
@@ -871,128 +867,7 @@ Future<void> _storePrayerScheduleAnchor(String scheduleFingerprint) async {
   }
 }
 
-/// Prepares custom audio file for notification playback
-/// On iOS: Handles restricted file locations and copies to app documents
-/// On Android: Registers a MediaStore content URI for notification channels
-Future<dynamic> prepareCustomAudioForNotification(String filePath) async {
-  try {
-    debugPrint('Preparing audio file: $filePath');
-
-    // On iOS, file picker might return security-restricted paths
-    // We need to handle this carefully
-    if (Platform.isIOS) {
-      try {
-        final file = File(filePath);
-
-        // Try to read file first to check accessibility
-        final exists = await file.exists();
-        if (!exists) {
-          debugPrint('iOS: File does not exist: $filePath');
-          return 'file://$filePath'; // Fallback - let iOS handle it
-        }
-
-        // Try to copy to documents directory
-        try {
-          final appDocDir = await getApplicationDocumentsDirectory();
-          final fileName = file.path.split('/').last;
-          final targetPath = '${appDocDir.path}/$fileName';
-
-          debugPrint('iOS: Copying file to documents: $targetPath');
-          final copiedFile = await file.copy(targetPath);
-          final documentUrl = 'file://${copiedFile.path}';
-          debugPrint('iOS: File copied successfully to: $documentUrl');
-          return documentUrl;
-        } catch (copyError) {
-          // If copy fails, try using original path as file:// URL
-          debugPrint('iOS: Copy failed ($copyError), using original path');
-          return 'file://$filePath';
-        }
-      } catch (e) {
-        debugPrint('iOS: Error handling file: $e');
-        // Last resort fallback
-        return 'file://$filePath';
-      }
-    } else if (Platform.isAndroid) {
-      final file = File(filePath);
-      if (!await file.exists()) {
-        debugPrint('Android: File does not exist: $filePath');
-        return null;
-      }
-
-      final mediaStoreUri = await _registerAndroidNotificationSound(filePath);
-      if (mediaStoreUri != null && mediaStoreUri.isNotEmpty) {
-        debugPrint('Android: Registered custom sound URI: $mediaStoreUri');
-        return mediaStoreUri;
-      }
-
-      final appDocDir = await getApplicationDocumentsDirectory();
-      final fileName = file.path.split('/').last;
-      final targetPath = '${appDocDir.path}/azaan_$fileName';
-      final copiedFile = await file.copy(targetPath);
-      final fileUri = Uri.file(copiedFile.path).toString();
-      debugPrint('Android: Copied custom sound to: $fileUri');
-      return fileUri;
-    }
-  } catch (e) {
-    debugPrint('Error preparing custom audio: $e');
-    return null;
-  }
-
-  return null;
-}
-
-/// Where the MediaStore URI registered for one source file is remembered.
-///
-/// Keyed by the file rather than stored as a single global pair: with custom
-/// audio now per-prayer there can be several registered files alive at once,
-/// and a one-slot cache would re-register on every schedule rebuild.
-String _registeredNotificationSoundKey(String filePath) =>
-    'azaan_custom_notification_uri_${_stableHash(filePath)}';
-
-Future<void> _forgetRegisteredNotificationSound(String? filePath) async {
-  if (!SP.isInitialized || filePath == null || filePath.isEmpty) return;
-  await SP.prefs.remove(_registeredNotificationSoundKey(filePath));
-}
-
-Future<String?> _registerAndroidNotificationSound(String filePath) async {
-  if (!SP.isInitialized) return null;
-
-  final cacheKey = _registeredNotificationSoundKey(filePath);
-  final cachedUri = SP.prefs.getString(cacheKey);
-  if (cachedUri != null && cachedUri.isNotEmpty) {
-    return cachedUri;
-  }
-
-  try {
-    final uri = await _notificationAudioChannel.invokeMethod<String>(
-      'registerNotificationSound',
-      {'path': filePath},
-    );
-    if (uri != null && uri.isNotEmpty) {
-      await SP.prefs.setString(cacheKey, uri);
-    }
-    return uri;
-  } on MissingPluginException catch (e) {
-    debugPrint('Android custom sound helper is unavailable: $e');
-  } on PlatformException catch (e) {
-    debugPrint('Android custom sound registration failed: ${e.message}');
-  } catch (e) {
-    debugPrint('Android custom sound registration failed: $e');
-  }
-
-  return null;
-}
-
-String _stableHash(String input) {
-  var hash = 0x811c9dc5;
-  for (final codeUnit in input.codeUnits) {
-    hash ^= codeUnit;
-    hash = (hash * 0x01000193) & 0xffffffff;
-  }
-  return hash.toRadixString(16).padLeft(8, '0');
-}
-
-String _androidPrayerChannelId(AzaanOption azaan, {String? customSoundUri}) {
+String _androidPrayerChannelId(AzaanOption azaan) {
   switch (azaan.id) {
     case 'takbir':
       return 'prayer_takbir_$_androidPrayerChannelVersion';
@@ -1001,7 +876,10 @@ String _androidPrayerChannelId(AzaanOption azaan, {String? customSoundUri}) {
     case 'silent':
       return 'prayer_silent_$_androidPrayerChannelVersion';
     case 'custom':
-      return 'prayer_custom_${_stableHash(customSoundUri ?? 'missing')}_$_androidPrayerChannelVersion';
+      // No longer keyed by the file (there is no longer a channel sound to
+      // key at all - see _androidPrayerNotificationDetails), so every custom
+      // choice shares this one channel instead of minting a new one per file.
+      return 'prayer_custom_$_androidPrayerChannelVersion';
     case 'azaan':
     default:
       return 'prayer_full_azaan_$_androidPrayerChannelVersion';
@@ -1025,13 +903,24 @@ Future<void> refreshLegacyAndroidPrayerNotificationChannelsIfNeeded() async {
     'prayer_full_azaan_v1',
     'prayer_takbir_v1',
     'prayer_system_default_v1',
+    // v2 -> v3: Full Azan's channel stopped carrying its own sound (the
+    // audio now comes from AzanPlaybackService instead), which Android would
+    // otherwise keep playing from the old channel's cached settings forever.
+    'prayer_full_azaan_v2',
+    'prayer_takbir_v2',
+    'prayer_system_default_v2',
   };
 
   try {
     final channels = await androidImplementation.getNotificationChannels();
     for (final channel in channels ?? const <AndroidNotificationChannel>[]) {
+      // Sweeps every per-file custom channel, current version included: a
+      // device that already ran the build where Custom Audio still minted
+      // one channel per file (before it shared the one fixed
+      // prayer_custom_v3 channel below) would otherwise keep an orphaned
+      // channel behind for each file it ever picked.
       if (channel.id.startsWith('prayer_custom_') &&
-          channel.id.endsWith('_v1')) {
+          channel.id != _androidPrayerChannelId(AzaanOptions.custom)) {
         legacyChannelIds.add(channel.id);
       }
     }
@@ -1082,36 +971,28 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
     );
   }
 
-  AndroidNotificationSound? sound;
-  String? customSoundUri;
+  // Full Azan and Custom Audio both get no channel sound of their own:
+  // AzanPlaybackService plays the real file as app-controlled audio instead
+  // (see schedulePrayerTimeNotification), so a notification-channel sound
+  // here would just be a second, competing copy racing it - and the whole
+  // reason for that separate player is that a channel sound cannot outlast a
+  // phone unlock or another app's ping the way real playback can.
+  final playsViaAzanPlaybackService =
+      azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id;
 
-  if (azaan.id == 'system_default') {
-    sound = null;
-  } else if (azaan.id == 'custom') {
-    // Whichever file this particular prayer points at — its own when it chose
-    // custom for itself, the global one when it is following the app default.
-    final customAudioPath = prayerName != null
-        ? getCustomAudioFilePathForPrayer(prayerName)
-        : getCustomAudioFilePath();
-    if (customAudioPath != null && customAudioPath.isNotEmpty) {
-      customSoundUri =
-          await prepareCustomAudioForNotification(customAudioPath) as String?;
-      if (customSoundUri != null && customSoundUri.isNotEmpty) {
-        sound = UriAndroidNotificationSound(customSoundUri);
-      }
-    }
-  } else {
+  AndroidNotificationSound? sound;
+  if (!playsViaAzanPlaybackService && azaan.id != 'system_default') {
     sound = RawResourceAndroidNotificationSound(azaan.androidFile ?? 'sharif');
   }
 
   return AndroidNotificationDetails(
-    _androidPrayerChannelId(azaan, customSoundUri: customSoundUri),
+    _androidPrayerChannelId(azaan),
     _androidPrayerChannelName(azaan),
     channelDescription: 'Prayer time notifications',
     importance: Importance.max,
     priority: Priority.high,
-    sound: sound,
-    playSound: true,
+    sound: playsViaAzanPlaybackService ? null : sound,
+    playSound: !playsViaAzanPlaybackService,
     enableVibration: true,
   );
 }
@@ -1165,9 +1046,105 @@ Future<void> schedulePrayerTimeNotification(
             formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
         body: "It's time for " + prayerName.toLowerCase(),
         payload: dateTime.toIso8601String());
+
+    // Android only: the notification above is now silent for Full Azan and
+    // Custom Audio (see _androidPrayerNotificationDetails), so this alarm is
+    // what actually plays them, as real app-controlled audio that survives
+    // being backgrounded rather than a notification sound any other ping can
+    // cut off. iOS has no equivalent background trigger - there, full
+    // playback starts from a tap on the notification instead (see
+    // handlePrayerNotificationResponse); Custom Audio isn't offered on iOS
+    // at all (see isAzaanOptionAvailableOnCurrentPlatform).
+    if (azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id) {
+      await AzanPlaybackService.schedule(
+        alarmId: id,
+        fireTime: dateTime,
+        prayerName: prayerName,
+        exact: canScheduleExactPrayerNotifications,
+        customFilePath: azaan.id == AzaanOptions.custom.id
+            ? _customAudioPathForPlayback(prayerName)
+            : null,
+      );
+    } else {
+      await AzanPlaybackService.cancel(id);
+    }
   } else {
     await flutterLocalNotificationsPlugin?.cancel(id: id);
+    await AzanPlaybackService.cancel(id);
   }
+}
+
+/// The custom audio file a Full-Azan-or-Custom-Audio notification should
+/// play through AzanPlaybackService, mirroring the same "own file, or follow
+/// the app default" resolution [getCustomAudioFilePathForPrayer] already
+/// does. Null (nothing recorded to play) is handled by AzanPlaybackService
+/// itself, the same way a missing custom file has always degraded here.
+String? _customAudioPathForPlayback(String? prayerName) {
+  return prayerName != null
+      ? getCustomAudioFilePathForPrayer(prayerName)
+      : getCustomAudioFilePath();
+}
+
+/// Which prayer a scheduled prayer-time notification's id was built for -
+/// the inverse of the `(100 * (prayerIndex + 1)) + dayOffset` scheme
+/// [setUpNotifications] assigns ids with. Used to work out, when a
+/// notification is tapped, which prayer (and so which Azan preference) it
+/// was for.
+String? prayerNameForNotificationId(int id) {
+  final dayOffset = id % 100;
+  // The reminder notification (id 786) and the test notification (id 999)
+  // both sit inside the same (100 * (prayerIndex + 1)) + dayOffset range as
+  // real prayer ids and would otherwise decode to whichever prayer happens
+  // to occupy that slot. Real schedules never run a month out, so a
+  // generously-bounded dayOffset is enough to tell them apart without
+  // hardcoding those two ids specifically.
+  if (dayOffset >= 31) return null;
+
+  final prayerNames = getPrayerNotificationPrayerNames();
+  final prayerIndex = (id ~/ 100) - 1;
+  if (prayerIndex < 0 || prayerIndex >= prayerNames.length) return null;
+  return prayerNames[prayerIndex];
+}
+
+/// Starts the full Azan when a tapped notification was for a prayer whose
+/// chosen sound is Full Azan or Custom Audio.
+///
+/// This is iOS's only trigger for full-length Full-Azan playback: the
+/// platform has no background alarm equivalent to Android's, so its
+/// notification sound stays capped at the ~30 seconds Apple allows, and this
+/// is what plays the rest once the user actually opens it (Custom Audio
+/// isn't offered on iOS at all). On Android it doubles as a way to replay an
+/// Azan that already finished.
+///
+/// Shared by the foreground callback and
+/// [handlePrayerNotificationResponseBackground] - flutter_local_notifications
+/// invokes whichever one matches where the tap arrived.
+Future<void> handlePrayerNotificationResponse(
+    NotificationResponse response) async {
+  final id = response.id;
+  if (id == null) return;
+  final prayerName = prayerNameForNotificationId(id);
+  if (prayerName == null) return;
+  final azaan = getAzaanOptionForPrayer(prayerName);
+  if (azaan.id != AzaanOptions.azaan.id && azaan.id != AzaanOptions.custom.id) {
+    return;
+  }
+  await AzanPlaybackService.playNow(
+    prayerName: prayerName,
+    customFilePath: azaan.id == AzaanOptions.custom.id
+        ? _customAudioPathForPlayback(prayerName)
+        : null,
+  );
+}
+
+/// Background-isolate counterpart of [handlePrayerNotificationResponse], for
+/// a tap that arrives while the app process isn't already running.
+/// flutter_local_notifications requires this to be a distinct top-level
+/// function carrying this pragma.
+@pragma('vm:entry-point')
+void handlePrayerNotificationResponseBackground(
+    NotificationResponse response) {
+  handlePrayerNotificationResponse(response);
 }
 
 /// Fires a sample notification.
@@ -1192,6 +1169,19 @@ Future<void> testNotification(
 
   final platformChannelSpecifics =
       await prayerNotificationDetails(azaan, prayerName: prayerName);
+
+  // Full Azan and Custom Audio no longer carry their own notification sound
+  // (see _androidPrayerNotificationDetails) - without this, testing either
+  // choice would fire a silent notification and the person trying it would
+  // hear nothing at all.
+  if (azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id) {
+    unawaited(AzanPlaybackService.playNow(
+      prayerName: prayerName ?? 'Prayer',
+      customFilePath: azaan.id == AzaanOptions.custom.id
+          ? _customAudioPathForPlayback(prayerName)
+          : null,
+    ));
+  }
 
   // Schedule for 2 seconds in the future to ensure it fires
   await flutterLocalNotificationsPlugin.zonedSchedule(
@@ -1228,9 +1218,7 @@ String soundPreferenceKeyForPrayer(String prayerName) {
 ///
 /// Custom audio used to be global-only — a single file and a single pointer to
 /// it — so a per-prayer "custom" choice had nothing of its own to name and was
-/// made to fall back to the app default. Each prayer now owns a path. The
-/// Android channel id already hashes the resolved sound URI, so two prayers
-/// pointing at two different files land on two channels for free.
+/// made to fall back to the app default. Each prayer now owns a path.
 String customAudioPathKeyForPrayer(String prayerName) {
   return '${_normalizedPrayerKeyName(prayerName)}_notification_sound_custom_path';
 }
@@ -1275,12 +1263,7 @@ String? getCustomAudioFilePathForPrayer(String prayerName) {
 Future<void> saveCustomAudioFilePathForPrayer(
     String prayerName, String filePath) async {
   if (!SP.isInitialized) return;
-  final key = customAudioPathKeyForPrayer(prayerName);
-  final previousPath = SP.prefs.getString(key);
-  await SP.prefs.setString(key, filePath);
-  if (previousPath != null && previousPath != filePath) {
-    await _forgetRegisteredNotificationSound(previousPath);
-  }
+  await SP.prefs.setString(customAudioPathKeyForPrayer(prayerName), filePath);
 }
 
 /// Returns true if this specific prayer has a custom sound chosen,
