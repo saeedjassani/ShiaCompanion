@@ -14,6 +14,7 @@ show_help() {
 Usage: $(basename "$0") [OPTIONS]
 
 Runs the automated Flutter smoke crawler on an iOS Simulator or connected device.
+Screenshots of each crawled screen are saved to build/integration_test_screenshots/.
 
 Options:
   -d, --device <ID/Name>   Target iOS Simulator/Device name or UDID
@@ -72,8 +73,9 @@ if [[ -z "$DEVICE_ID" ]]; then
 fi
 
 CMD=(
-  flutter test
-  "$TEST_TARGET"
+  flutter drive
+  --driver=test_driver/integration_test.dart
+  --target="$TEST_TARGET"
   -d "$DEVICE_ID"
 )
 

@@ -32,12 +32,22 @@ void main() {
     }
   }
 
+  /// integration_test screenshot names become filenames on disk, so section
+  /// labels (which may contain spaces, apostrophes, "&") need sanitizing.
+  String screenshotSafeName(String label) =>
+      label.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');
+
   testWidgets('Automated Smoke Crawler: explore home menu and core screens',
       (WidgetTester tester) async {
     // 1. Launch the real application entry point
     debugPrint('==> Smoke Crawler: Booting app...');
     app.main();
     await settleBounded(tester, duration: const Duration(seconds: 4));
+
+    // Required on Android before the first screenshot, to switch from
+    // SurfaceView-based rendering to a normal View so the platform can
+    // actually capture a frame; a documented no-op on iOS.
+    await binding.convertFlutterSurfaceToImage();
 
     // 2. Dismiss initial Azan opt-in dialog if presented on first run
     final notNowFinder = find.text('Not now');
@@ -51,11 +61,15 @@ void main() {
     expect(find.byType(Scaffold), findsWidgets,
         reason: 'App failed to render Home Scaffold');
     debugPrint('==> Smoke Crawler: Home screen successfully mounted.');
+    await tester.pump();
+    await binding.takeScreenshot('00_home');
 
     // 4. Every section on the home grid, in the order it renders there.
-    final sectionsToCrawl = visibleHomeMenuItems.map((item) => item.label);
+    final sectionsToCrawl =
+        visibleHomeMenuItems.map((item) => item.label).toList();
 
-    for (final section in sectionsToCrawl) {
+    for (var i = 0; i < sectionsToCrawl.length; i++) {
+      final section = sectionsToCrawl[i];
       debugPrint('==> Smoke Crawler: Navigating to "$section"...');
 
       // Locate section card/label on home screen, scrolling further down each
@@ -84,6 +98,9 @@ void main() {
         // Verify page content rendered
         expect(find.byType(Scaffold), findsWidgets,
             reason: '"$section" did not present a Scaffold');
+
+        await binding.takeScreenshot(
+            '${(i + 1).toString().padLeft(2, '0')}_${screenshotSafeName(section)}');
 
         // Test gentle scrolling on the opened page
         final pageScrollables = find.byType(Scrollable);
@@ -126,6 +143,8 @@ void main() {
       await settleBounded(tester, duration: const Duration(seconds: 1));
       expect(tester.takeException(), isNull,
           reason: 'Exception thrown during search query entry');
+
+      await binding.takeScreenshot('99_search');
 
       // Dismiss search
       final searchBackButtons = find.byType(BackButton);

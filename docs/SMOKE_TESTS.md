@@ -67,6 +67,14 @@ described in [`docs/ROBO_TESTS.md`](ROBO_TESTS.md).
 5. **Bounded Frame Drainage**: Uses `settleBounded()` instead of unbounded
    `pumpAndSettle()` to avoid timeouts from repeating background timers
    (such as prayer countdowns or audio players).
+6. **Screenshots**: Takes a screenshot after the home screen mounts, after
+   each section opens, and after entering a search query
+   (`binding.takeScreenshot(name)`), numbered so they sort in crawl order
+   (`00_home`, `01_favorites`, …, `99_search`). Getting these off the device
+   requires `flutter drive` rather than `flutter test` — the driver at
+   [`test_driver/integration_test.dart`](../test_driver/integration_test.dart)
+   writes each one to `build/integration_test_screenshots/<name>.png` as it
+   comes back. See section 5 below for where CI publishes them.
 
 None of the crawled screens show a permission dialog just from being opened
 — confirmed by reading each one rather than assumed, since a native OS
@@ -153,3 +161,17 @@ both platforms.
 3. Click **Run workflow** (optionally override the iOS simulator device name
    and/or the Android API level).
 4. View each job's run summary and test output directly in the Actions tab.
+
+### Viewing screenshots from a run
+
+Each platform job runs via `flutter drive` (not `flutter test`) specifically
+so the screenshots described in section 2 can be pulled off the
+simulator/emulator, and uploads them regardless of whether the job passed or
+failed:
+
+1. Open the workflow run in the **Actions** tab.
+2. Scroll to **Artifacts** at the bottom of the run summary page.
+3. Download `ios-smoke-screenshots` and/or `android-smoke-screenshots` — a
+   zip of PNGs named in crawl order (`00_home.png`, `01_favorites.png`, …).
+
+Artifacts are retained for 14 days.

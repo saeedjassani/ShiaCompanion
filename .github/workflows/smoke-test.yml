@@ -123,7 +123,19 @@ jobs:
           xcrun simctl bootstatus "${DEVICE_NAME}" -b
 
           echo "==> Running Smoke Crawler Integration Test..."
-          flutter test integration_test/smoke_crawler_test.dart -d "${DEVICE_NAME}"
+          flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/smoke_crawler_test.dart \
+            -d "${DEVICE_NAME}"
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-smoke-screenshots
+          path: build/integration_test_screenshots/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Report Results
         if: always()
@@ -173,7 +185,20 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: true
-          script: flutter test integration_test/smoke_crawler_test.dart -d emulator-5554
+          script: |
+            flutter drive \
+              --driver=test_driver/integration_test.dart \
+              --target=integration_test/smoke_crawler_test.dart \
+              -d emulator-5554
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-smoke-screenshots
+          path: build/integration_test_screenshots/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Report Results
         if: always()
