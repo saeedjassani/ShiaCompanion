@@ -214,25 +214,29 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildSectionLabel(theme, 'What'),
+            Text(
+              'Pick a zikr from the library, or just type a title below.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+              ),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _pickZikr,
+              icon: const Icon(Icons.menu_book),
+              label: Text(
+                _zikrUid == null
+                    ? 'Choose from the zikr library'
+                    : 'Change zikr',
+              ),
+            ),
+            const SizedBox(height: 16),
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(
                 labelText: 'Title',
                 hintText: 'e.g. Dua Tawassul',
                 border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: _pickZikr,
-                icon: const Icon(Icons.menu_book),
-                label: Text(
-                  _zikrUid == null
-                      ? 'Choose from the zikr library'
-                      : 'Change zikr',
-                ),
               ),
             ),
             const SizedBox(height: 20),
