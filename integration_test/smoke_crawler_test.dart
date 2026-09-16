@@ -125,6 +125,25 @@ void main() {
         }
 
         await settleBounded(tester, duration: const Duration(seconds: 2));
+
+        // Captured before the assertions below so that if one fails, the
+        // artifact still shows exactly what was left on screen.
+        await binding.takeScreenshot(
+            '${(i + 1).toString().padLeft(2, '0')}b_after_${screenshotSafeName(section)}');
+
+        // Verify we actually returned to a live Home screen. This was
+        // previously unchecked, so a failed pop — or an exception thrown
+        // asynchronously during a section's teardown — went completely
+        // undetected: the loop kept running, but every subsequent
+        // find.text(section) silently found nothing for the rest of the
+        // test, logging each remaining section as "not visible, skipped"
+        // instead of surfacing the real failure at its actual source.
+        expect(tester.takeException(), isNull,
+            reason: 'Exception thrown returning from "$section" to Home');
+        expect(find.byType(Scrollable), findsWidgets,
+            reason:
+                'Did not return to a scrollable Home screen after "$section"');
+
         debugPrint('==> Smoke Crawler: "$section" passed cleanly.');
       } else {
         debugPrint('==> Smoke Crawler: Section "$section" was not visible, skipped.');
