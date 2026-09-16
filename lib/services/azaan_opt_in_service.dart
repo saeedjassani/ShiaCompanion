@@ -70,7 +70,12 @@ class AzaanOptInService {
   /// as an upgrading one the moment they opened the app twice — and someone
   /// whose first launch had no location fix yet, and so was never asked, would
   /// then never be asked at all.
-  static const List<String> _priorInstallMarkerKeys = <String>[
+  ///
+  /// Public because [WhatsNewService] needs the same "has this install run a
+  /// build older than mine" signal, for the same reason: a brand new install
+  /// has nothing to be told it is new to, any more than it has an opt-in
+  /// answer to adopt.
+  static const List<String> priorInstallMarkerKeys = <String>[
     ...allPrayerKeys,
     azaanPreferenceKey,
   ];
@@ -94,7 +99,7 @@ class AzaanOptInService {
   /// Call once per launch, right after preferences are loaded.
   static Future<void> adoptChoiceFromExistingInstall() async {
     if (!SP.isInitialized || hasBeenAsked) return;
-    if (!_priorInstallMarkerKeys.any(SP.prefs.containsKey)) return;
+    if (!priorInstallMarkerKeys.any(SP.prefs.containsKey)) return;
 
     await SP.prefs.setBool(askedKey, true);
   }

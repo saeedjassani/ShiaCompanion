@@ -154,9 +154,14 @@ class AzanPlaybackService {
       }
     });
 
+    // This notification, not the app, is what a reader actually sees at the
+    // moment audio starts unprompted - often with the phone locked, having
+    // never opened the app. Its title is the one place that can tell them
+    // what is happening and that pause/stop is right there, so it reads as a
+    // sentence rather than a music-player-style track name.
     final tag = MediaItem(
       id: 'azan-$prayerName',
-      title: '$prayerName Azan',
+      title: '$prayerName Azan is playing',
       album: 'Shia Companion',
     );
 
