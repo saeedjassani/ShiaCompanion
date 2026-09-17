@@ -25,7 +25,116 @@ void _collectContentBlocks(dynamic node, List<String> out) {
   }
 }
 
+/// Where the transliteration (or translation) of the Arabic line at
+/// [arabicIndex] sits, per the tab's layout code - a copy of
+/// ZikrContentParser's private `_englishCodeFor`, which this test needs to
+/// walk the very same triplets the reader builds.
+int? _englishCodeFor(int arabicIndex, bool transliteration, String? code) {
+  switch (code) {
+    case '102':
+      return transliteration ? arabicIndex - 1 : arabicIndex + 1;
+    case '012':
+      return transliteration ? arabicIndex + 1 : arabicIndex + 2;
+    case '02':
+      return transliteration ? null : arabicIndex + 1;
+    default:
+      return null;
+  }
+}
+
+/// Fraction of [s]'s letters that are uppercase, or null when it has none.
+/// Across the corpus transliteration lines are ~78% uppercase on average
+/// (e.g. "YAA MOHAMMADO YAA A'LIYYO") and translation lines are ~5% (plain
+/// sentence-case prose) - a strong, cheap signature for telling the two
+/// apart without understanding either language.
+double? _uppercaseRatio(String s) {
+  final letters = _latinLetter.allMatches(s).map((m) => s[m.start]).toList();
+  if (letters.isEmpty) return null;
+  final upper = letters.where((c) => c == c.toUpperCase()).length;
+  return upper / letters.length;
+}
+
 void main() {
+  test(
+    'transliteration and translation lines are not swapped',
+    () {
+      // A real bug (assets/zikr/G6, "Ziyarat e Waaresa"): one verse's
+      // translation and transliteration lines sat in each other's place -
+      // "and His Prophets and His Messenger." printed where the
+      // transliteration belongs, and "WA AMBEYAAA-AHU WA ROSOLAHU" printed
+      // as if it were the translation. ZikrContentParser locates each line
+      // purely by its fixed offset from the Arabic line (see
+      // _englishCodeFor), so a swap like this renders exactly as authored -
+      // nothing catches it at parse time.
+      //
+      // This walks every "012"/"102" tab the same way the reader does and
+      // flags any triplet whose transliteration slot reads like prose
+      // (mostly lowercase) while its translation slot reads like
+      // transliteration (mostly uppercase) - the signature a swap leaves
+      // behind.
+      final offenders = <String>[];
+
+      for (final file in Directory('assets/zikr').listSync().whereType<File>()) {
+        final dynamic decoded = jsonDecode(file.readAsStringSync());
+        if (decoded is! Map) continue;
+
+        final code = decoded['code']?.toString();
+        if (code != '012' && code != '102') continue;
+
+        final blocks = <String>[
+          if (decoded['data'] is String) decoded['data'] as String,
+          if (decoded['tabs'] is List)
+            for (final tab in decoded['tabs'] as List)
+              if (tab is String) tab,
+        ];
+
+        for (final block in blocks) {
+          final lines = block.split('\n').map((l) => l.trim()).toList();
+          final arabicIndexes = [
+            for (var i = 0; i < lines.length; i++)
+              if (lines[i].isNotEmpty && ZikrContentParser.isArabic(lines[i]))
+                i,
+          ];
+
+          for (final arabicIndex in arabicIndexes) {
+            final ti = _englishCodeFor(arabicIndex, true, code);
+            final ta = _englishCodeFor(arabicIndex, false, code);
+            if (ti == null ||
+                ta == null ||
+                ti < 0 ||
+                ta < 0 ||
+                ti >= lines.length ||
+                ta >= lines.length ||
+                arabicIndexes.contains(ti) ||
+                arabicIndexes.contains(ta)) {
+              continue;
+            }
+
+            final transliLine = lines[ti];
+            final translaLine = lines[ta];
+            if (transliLine.isEmpty || translaLine.isEmpty) continue;
+
+            final transliRatio = _uppercaseRatio(transliLine);
+            final translaRatio = _uppercaseRatio(translaLine);
+            if (transliRatio == null || translaRatio == null) continue;
+
+            if (transliRatio < 0.5 && translaRatio > 0.5) {
+              offenders.add('${file.path}: transliteration slot has '
+                  '"$transliLine", translation slot has "$translaLine"');
+            }
+          }
+        }
+      }
+
+      expect(
+        offenders,
+        isEmpty,
+        reason: 'These triplets look like the transliteration and '
+            'translation lines were swapped:\n${offenders.join('\n')}',
+      );
+    },
+  );
+
   test(
     'no zikr line is misclassified as Arabic by a stray Arabic character',
     () {
