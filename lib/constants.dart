@@ -1134,6 +1134,19 @@ Future<void> handlePrayerNotificationResponse(
   if (id == null) return;
   final prayerName = prayerNameForNotificationId(id);
   if (prayerName == null) return;
+
+  // Tapping a prayer notification while the app is already running (the
+  // common case: backgrounded, not terminated) resumes it on whatever
+  // screen it was left on, not the home page - and the Full Azan banner
+  // and stop control only live on the home page's Scaffold (see
+  // AzanPlayingBanner). Without this, a reader who tapped the notification
+  // to silence the Azan had to manually navigate back to home first. A
+  // terminated-app launch already lands on home for free, so this is a
+  // no-op there. No-op too from the background isolate
+  // (handlePrayerNotificationResponseBackground) - there is no navigator
+  // attached to appNavigatorKey outside the main isolate.
+  appNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+
   final azaan = getAzaanOptionForPrayer(prayerName);
   if (azaan.id != AzaanOptions.azaan.id && azaan.id != AzaanOptions.custom.id) {
     return;
