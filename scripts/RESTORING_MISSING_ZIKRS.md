@@ -261,7 +261,9 @@ I115, I30, F55, I65, AA33, I54, C16** - all restored as standalone
 `assets/zikr/<uid>` entries, none of them (this time) needing a `merits`
 field. I58 ("Ayah Al Sakharah") was a priority pickup regardless of size:
 I57 (restored in the fourth pass) already carries a dangling
-`[Ayah al-Sakhkhara](I58)` link waiting for this UID to exist.
+`[Ayah al-Sakhkhara](I58)` link waiting for this UID to exist. (A2, A3 and
+I10 were part of this original 50 - see the 2026-09-17 correction below for
+why they didn't make it into the final PR.)
 
 Four originally-picked candidates from this size tier turned out to be
 unrestorable or duplicates and were swapped out (per Step 1.5 and the
@@ -303,10 +305,26 @@ wrong of two `بِهِ` occurrences - caught and corrected by re-running
 silah.py after applying the batch); a final pass came back clean, and
 `audit.py`'s per-font check (INV-2) passed with no glyph gaps.
 
-34 UIDs now remain unrestored in the 2+-favorite table (38 rows still
-missing, of which 4 - E53, E118, E148, I15 - are retired), plus the
+**Post-PR review correction (2026-09-17):** two more problems surfaced in
+review of the sixth pass's PR before merge. **I10** turned out to be the
+same Step-1.5 duplicate case as I15 but missed the first time round: its
+title ("General Ta'qeebaat - 1") and content are the same Tasbih al-Zahra'
+method-and-merits text as the already-live **I9**'s ("General
+Ta'qeebaat-1"), just reworded - retired to I9 via `retiredZikrRedirects`
+instead of restored standalone, dropped from the 50-count above. Separately,
+**A2** ("Dua after reciting Holy Quran") and **A3** ("Dua Khatme Quran")
+were pulled from this pass and deferred - not restored, not retired, still
+missing - pending further review; no replacement candidates were picked up
+in their place. This pass's final standalone-restored count is therefore
+**47**, not 50, and its retired count is **2** (I15, I10), not 1.
+
+36 UIDs now remain unrestored in the 2+-favorite table (41 rows still
+missing, of which 5 - E53, E118, E148, I15, I10 - are retired), plus the
 untouched single-favorite tail. AA18 is still the largest outstanding row;
-pick up at **E102** for the next pass.
+pick up at **E102** for the next pass (A2 and A3 are also available to
+revisit sooner, since their content already exists in
+`scripts/zikr_restore_drafts/` history - they were pulled for reasons
+unrelated to sourcing).
 
 **As of 2026-09-08:** 483 UIDs are missing from `assets/zikr.json`; of those,
 274 are favorited by at least one real user, across 890 favorite-entries and

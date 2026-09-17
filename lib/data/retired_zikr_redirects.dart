@@ -77,4 +77,12 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// exact title. Restoring it standalone would just duplicate that section
   /// of I14's main data.
   'I15': RetiredZikrRedirect('I14'),
+
+  /// Caught in review of the 2026-09-14 sixth restoration pass: I10's title
+  /// ("General Ta'qeebaat - 1") is the same entry as the already-live I9's
+  /// ("General Ta'qeebaat-1"), and I10's content is the same Tasbih
+  /// al-Zahra' method-and-merits text as I9's main `data` field, just
+  /// reworded/retranslated - restoring it standalone would just duplicate
+  /// I9.
+  'I10': RetiredZikrRedirect('I9'),
 };
