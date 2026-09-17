@@ -58,6 +58,48 @@ void main() {
     });
   });
 
+  group('previewing a sound', () {
+    test('always plays the option tapped, not the prayer\'s saved choice',
+        () async {
+      // Fajr is set to Full Azan, but previewing System Default for it -
+      // e.g. from the per-prayer sound picker - must play System Default,
+      // not the Full Azan Fajr already has saved. Regression test for a bug
+      // where tapping "preview" on any option in the per-prayer picker
+      // ignored the tapped option and replayed whatever that prayer was
+      // already configured to, which meant previewing a short/silent sound
+      // could unexpectedly start the full azan playing.
+      await saveAzaanPreferenceForPrayer('Fajr', 'azaan');
+      expect(getAzaanOptionForPrayer('Fajr').id, 'azaan');
+
+      expect(
+        azaanOptionForPreview(azaanId: 'system_default', prayerName: 'Fajr')
+            .id,
+        'system_default',
+      );
+      expect(
+        azaanOptionForPreview(azaanId: 'takbir', prayerName: 'Fajr').id,
+        'takbir',
+      );
+    });
+
+    test('falls back to the prayer\'s own sound with no explicit option',
+        () async {
+      await saveAzaanPreferenceForPrayer('Fajr', 'takbir');
+      expect(
+        azaanOptionForPreview(prayerName: 'Fajr').id,
+        'takbir',
+      );
+    });
+
+    test('falls back to the app default with neither an option nor a prayer',
+        () async {
+      expect(
+        azaanOptionForPreview().id,
+        getSelectedAzaan().id,
+      );
+    });
+  });
+
   group('per-prayer custom audio', () {
     test('resolves to the file that prayer recorded for itself', () async {
       await saveCustomAudioFilePathForPrayer('Maghrib', '/tmp/my-azan.mp3');
@@ -201,17 +243,15 @@ void main() {
 
       expect(find.text('Done'), findsNothing);
 
-      // The first row switch after the master one is Fajr.
+      // The first row switch is Fajr.
       final switches = find.byType(Switch);
-      await tester.tap(switches.at(1));
+      await tester.tap(switches.at(0));
       await tester.pumpAndSettle();
 
       expect(
         SP.prefs.getBool(notificationPreferenceKeyForPrayer('Fajr')),
         isTrue,
       );
-      // And the change is announced with a way back out of it.
-      expect(find.text('UNDO'), findsOneWidget);
     });
 
     testWidgets('an explicit change counts as answering the opt-in question',
@@ -219,7 +259,7 @@ void main() {
       expect(AzaanOptInService.hasBeenAsked, isFalse);
 
       await pumpPage(tester);
-      await tester.tap(find.byType(Switch).at(1));
+      await tester.tap(find.byType(Switch).at(0));
       await tester.pumpAndSettle();
 
       // Otherwise the first-run dialog could still ambush someone who has
