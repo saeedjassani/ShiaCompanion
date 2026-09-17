@@ -348,6 +348,52 @@ are also available to revisit sooner, since their content already exists in
 `scripts/zikr_restore_drafts/` history - they were pulled for reasons
 unrelated to sourcing).
 
+## Full-corpus duplicate sweep (2026-09-17)
+
+Separately from restoring missing UIDs, an Arabic-text shingle-overlap sweep
+was run across all ~576 *already-live* entries in `assets/zikr/` to check
+whether the old corpus (not just this restoration project's own additions)
+carries duplicates too. It found six more, all retired via
+`retiredZikrRedirects` or converted to a `|`-alias the same way `G20|N3`
+already worked:
+
+- **AH10 → AH5**, **I12 → I9** (tab 1), **E49 → I14** (tab 1), **E47 → I14**
+  (tab 1), **E50 → I24** (tab 2, also covers tab 3 - see the code comment)
+  are the same reworded/verbatim-contained pattern as I10/I18/E99/E40
+  above, just found in older, previously-live content instead of this
+  pass's new restorations. I12 and E47 in particular trace back to an
+  earlier restoration pass ("batch 3 of top-20", commit `d72bc84`) that
+  missed the duplicate at the time.
+- **G20** turned out to be a stale leftover: it was restored standalone in
+  an earlier pass ("Restore a third low-hanging-fruit batch...", commit
+  `cd2b3c6`) without noticing `G20|N3` already existed as a correct alias
+  to the identical `N3` ("Ziyarat on Tuesday") - so the corpus carried both
+  the alias and a rougher plain duplicate, double-listing the same ziyarah
+  in the general Ziyarat list. The plain `G20` is now retired to `N3`; the
+  `G20|N3` alias is untouched.
+- **G15 → `G15|K3`**, **S7 → `S7|G3`**, **AC4 → `AC4|G75`**: these three
+  were confirmed byte-identical (G15/K3, AC4/G75) or near-identical
+  (G3/S7, differing only in a one-line heading) full duplicates,
+  deliberately cross-listed under two browsing categories (a general
+  Ziyarat/topic list plus a weekday- or calendar-specific collection) - the
+  exact shape the `|`-alias convention exists for (see `G16|L3`, `R11|G4`,
+  etc.). Converted to aliases instead of retired, since both list entries
+  are meant to stay reachable; only the duplicate content file was dropped.
+
+A handful of other high-overlap pairs the sweep surfaced were checked and
+left alone as intentional, not bugs: **AC4/G75 and G3/S7's shared text with
+G6** (a stock ziyarah-greeting phrase, same false-positive shape already
+documented above for G14), **AK5** (an explicit "(All Forms)" compilation
+whose tabs[0] is verbatim **G2**'s "Ziyarat-e-Ameenullah" - a named ziyarah
+intentionally nested in a larger compiled entry), **D3** (similarly nests
+the "Ya Malik al-Riqaab" dua that **I83** is built from), and **E15**
+(Dua-e-Hazeen, explicitly labeled "recite this after Namaz-e-Shab" inline
+in both **F2** and **F3**). The rest of the sweep's matches were coincidental
+shared Quranic verses (17:111, Dua Yunus 21:87-88) or universal stock
+formulas (tasbeeh, "laa hawla wa laa quwwata") independently quoted by
+otherwise-unrelated entries - the exact false-positive shape this doc's
+Step 1.5 section already warns about.
+
 **As of 2026-09-08:** 483 UIDs are missing from `assets/zikr.json`; of those,
 274 are favorited by at least one real user, across 890 favorite-entries and
 131 distinct users (out of 269 users who have any favorites at all). The

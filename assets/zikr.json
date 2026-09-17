@@ -700,7 +700,7 @@
       "12-10"
     ]
   },
-  "AC4": {
+  "AC4|G75": {
     "title": "Ziyarah on the day of Arafat",
     "order": 8,
     "slug": "ziyarah-on-the-day-of-arafat",
@@ -798,10 +798,6 @@
   "AG8": {
     "title": "Ziyarah of Imam Husayn (a.s.) — Karbala (All 6 General Forms)",
     "slug": "ziyarah-imam-hussain-karbala-all-forms"
-  },
-  "AH10": {
-    "title": "Entrance Permission & Farewell — Kazimayn (Imam al-Kazim & Imam al-Jawad)",
-    "slug": "entrance-farewell-kazimayn"
   },
   "AH2": {
     "title": "Ziyarah of Imam Musa al-Kazim (a.s.) — Kazimayn",
@@ -1346,21 +1342,9 @@
     "title": "Dua for Istekhaarah fom Holy Quran",
     "slug": "dua-for-istikharah-fom-holy-quran"
   },
-  "E47": {
-    "title": "Dua for Longevity",
-    "slug": "dua-for-longevity"
-  },
-  "E49": {
-    "title": "Dua for Pardoning of sins",
-    "slug": "dua-for-pardoning-of-sins"
-  },
   "E5": {
     "title": "Dua al-Hujjah اِلٰهِيْ بِحَقِّ مَنْ نَاجَاكَ",
     "slug": "dua-al-hujjah"
-  },
-  "E50": {
-    "title": "Dua for Protection of the house from damage & theft",
-    "slug": "dua-for-protection-of-the-house-from-damage-theft"
   },
   "E51": {
     "title": "Dua for protection of valubales and precious things (that are concealed)",
@@ -1703,7 +1687,7 @@
     "title": "Ziyarah of Imam Husayn (a) at the Qadr Nights",
     "slug": "ziyarah-of-imam-husayn-a-at-the-qadr-nights"
   },
-  "G15": {
+  "G15|K3": {
     "title": "Ziyarat of Saturday",
     "slug": "ziyarat-of-saturday"
   },
@@ -1718,10 +1702,6 @@
   "G2": {
     "title": "Ziyarat-e-Ameenullah",
     "slug": "ziyarat-e-ameenullah"
-  },
-  "G20": {
-    "title": "Tuesday - Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a)",
-    "slug": "tuesday-ziyarah-of-imam-zayn-al-abidin-imam-muhammad-al-baqir-and-imam-jafar-al-sadiq"
   },
   "G20|N3": {
     "title": "Tuesday - Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a)",
@@ -2117,10 +2097,6 @@
     "title": "Writing of Will before death",
     "slug": "writing-of-will-before-death"
   },
-  "I12": {
-    "title": "Merits of reciting Ayah Kursi (2: 255), Ayah Al Shahadah, Ayah Al Mulk after every Namaz",
-    "slug": "merits-of-reciting-ayah-kursi-ayah-al-shahadah-ayah-al-mulk-after-every-namaz"
-  },
   "I13": {
     "title": "Merits of reciting Ayah Kursi after every Namaz",
     "slug": "merits-of-reciting-ayah-kursi-after-every-namaz"
@@ -2513,7 +2489,7 @@
     "slug": "20th-safar-arbaeen-40th-day",
     "day": "02-20"
   },
-  "S7": {
+  "S7|G3": {
     "title": "Ziyarah on the day of Arbaeen; The Twentieth of Safar",
     "slug": "ziyarah-on-the-day-of-arbaeen-the-twentieth-of-safar",
     "day": "02-20"

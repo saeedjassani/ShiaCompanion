@@ -107,4 +107,59 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// narration and the same core dhikr, just under a different numbering
   /// scheme.
   'E40': RetiredZikrRedirect('I17', tabIndex: 1),
+
+  /// Found in a full-corpus duplicate sweep (2026-09-17), unrelated to the
+  /// missing-zikr restoration project - these are old, previously-live
+  /// entries that turned out to duplicate other old, previously-live
+  /// entries.
+  ///
+  /// AH10's entire content ("Entrance Permission & Farewell - Kazimayn") is
+  /// verbatim the entrance/Izn-Dukhool preamble already embedded at the top
+  /// of AH5's main data ("Ziyarah of Imam Muhammad al-Jawad - Kazimayn").
+  /// AH10 also never actually delivers on its own title: it has zero
+  /// farewell/wida content despite promising it.
+  'AH10': RetiredZikrRedirect('AH5'),
+
+  /// I12 ("Merits of reciting Ayah Kursi, Ayah Al Shahadah, Ayah Al Mulk
+  /// after every Namaz") is a reworded/retranslated duplicate of I9's
+  /// second tab, which carries the identical Imam al-Sadiq hadith and the
+  /// same four-verse list (al-Faatehah, Ayat al-Kursi, Ayah al-Shahadah,
+  /// Ayah al-Mulk) under its own "Eighth:" numbered section - the same
+  /// reworded-duplicate shape as the already-retired I10/I9 pair. Restored
+  /// standalone in "batch 3 of top-20" (commit d72bc84) without the
+  /// duplicate being caught.
+  'I12': RetiredZikrRedirect('I9', tabIndex: 1),
+
+  /// E49 ("Dua for Pardoning of sins") is the bare "Ya man laa
+  /// yashghaluhu sam'un..." supplication with none of its narrative frame.
+  /// I14's second tab carries the same dua in full context (Imam Ali's
+  /// encounter with Prophet Khizr at the Ka'bah, per Muhammad ibn
+  /// al-Hanafiyyah, also reported by al-Kaf'ami in al-Balad al-Ameen).
+  'E49': RetiredZikrRedirect('I14', tabIndex: 1),
+
+  /// E47 ("Dua for Longevity") is the bare "Allaahumma salli ala
+  /// Muhammadin..." supplication with no narrative. I14's second tab
+  /// carries the same dua under its own "Twenty-first:" numbered section,
+  /// with the full frame it's missing: an old, lonely man asking Imam
+  /// al-Sadiq for a way to live longer (Jameel ibn Darraaj, via Sayyid Ibn
+  /// Tawus) - matching E47's own title exactly.
+  'E47': RetiredZikrRedirect('I14', tabIndex: 1),
+
+  /// E50 ("Dua for Protection of the house from damage & theft") is
+  /// verbatim I24's tabs[2] ("Fear of House Collapse") *and* tabs[3]
+  /// ("Fear of Thieves") concatenated - the sibling entries I24 tabs[0] and
+  /// tabs[1] were already retired above as I25/I26; E50 is the same
+  /// pattern for the other two tabs, just missed at the time. This map only
+  /// supports one target tab, so this redirect lands on tabs[2]; tabs[3]
+  /// ("Fear of Thieves") is one swipe away from there in the reader.
+  'E50': RetiredZikrRedirect('I24', tabIndex: 2),
+
+  /// G20 was restored standalone ("Restore a third low-hanging-fruit
+  /// batch...", commit cd2b3c6) without noticing that 'G20|N3' already
+  /// existed as a proper alias to N3's identical "Ziyarat on Tuesday"
+  /// content - the corpus ended up with both a stale plain 'G20' entry
+  /// (its own rougher, non-transliterated text) and the correct alias,
+  /// double-listing the same ziyarah in the general Ziyarat list. The
+  /// 'G20|N3' alias stays; this retires the leftover plain 'G20'.
+  'G20': RetiredZikrRedirect('N3'),
 };
