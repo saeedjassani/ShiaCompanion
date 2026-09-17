@@ -120,6 +120,22 @@ android {
         disable 'InvalidPackage'
     }
     namespace 'com.developer110.shiacompanion'
+
+    // Defaults to false for minSdk 29+: native libs ship uncompressed and are
+    // mmap'd straight out of the split APK/AAB instead of being extracted to
+    // disk at install time. That's the config behind the "Could not find
+    // 'libflutter.so' ... but only found: []" crash reported in production —
+    // the split carrying lib/<abi>/libflutter.so mmaps incorrectly (or the
+    // config split never installed) and FlutterJNI finds no native lib
+    // directory at all, on a device whose ABI Flutter otherwise supports.
+    // Forcing legacy packaging goes back to compress-and-extract-on-install,
+    // which sidesteps that mmap path entirely at the cost of a larger
+    // on-disk footprint per install.
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 flutter {
