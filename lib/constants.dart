@@ -14,7 +14,6 @@ import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
-import 'package:shia_companion/pages/zikr_reminders_page.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
@@ -1148,8 +1147,8 @@ Future<void> handlePrayerNotificationResponse(
 }
 
 /// Opens what a tapped zikr reminder notification was for: the linked zikr
-/// itself when it was created by picking one from the library, or the
-/// reminders list for a free-text reminder with nothing to open directly.
+/// itself when it was created by picking one from the library, or just the
+/// app's home page for a free-text reminder with nothing to open directly.
 ///
 /// Meant only for the main isolate (a foreground tap, or the
 /// launched-from-terminated path in home_page.dart that runs once the app is
@@ -1173,7 +1172,9 @@ Future<void> _openZikrReminderNotification(String reminderId) async {
     return;
   }
 
-  pushRootPageRoute(const ZikrRemindersPage());
+  // The home page is already the navigator's root route - just surface it
+  // rather than pushing the reminders list on top of it.
+  appNavigatorKey.currentState?.popUntil((route) => route.isFirst);
 }
 
 /// Background-isolate counterpart of [handlePrayerNotificationResponse], for
@@ -1184,6 +1185,24 @@ Future<void> _openZikrReminderNotification(String reminderId) async {
 void handlePrayerNotificationResponseBackground(
     NotificationResponse response) {
   handlePrayerNotificationResponse(response);
+}
+
+/// Which azaan a preview should actually play.
+///
+/// [azaanId] is always the sound the caller is trying to preview and wins
+/// whenever it is given - the sound picker passes one for every concrete
+/// option, including when previewing a per-prayer sound that differs from
+/// what that prayer is actually configured to play. [prayerName] alone (no
+/// azaanId) is what a real prayer notification's own preview - one with
+/// nothing explicit chosen - resolves through instead. Putting prayerName
+/// first used to mean every preview in the per-prayer picker ignored the
+/// tapped option and played whatever that prayer was already set to - e.g.
+/// tapping "preview" on System Default would play a Full Azan the prayer
+/// happened to have saved.
+AzaanOption azaanOptionForPreview({String? azaanId, String? prayerName}) {
+  if (azaanId != null) return resolveAzaanOptionForCurrentPlatform(azaanId);
+  if (prayerName != null) return getAzaanOptionForPrayer(prayerName);
+  return getSelectedAzaan();
 }
 
 /// Fires a sample notification.
@@ -1197,14 +1216,7 @@ Future<void> testNotification(
     {String? azaanId,
     String? prayerName}) async {
   await initializeNotificationTimeZone();
-  final AzaanOption azaan;
-  if (prayerName != null) {
-    azaan = getAzaanOptionForPrayer(prayerName);
-  } else if (azaanId != null) {
-    azaan = resolveAzaanOptionForCurrentPlatform(azaanId);
-  } else {
-    azaan = getSelectedAzaan();
-  }
+  final azaan = azaanOptionForPreview(azaanId: azaanId, prayerName: prayerName);
 
   final platformChannelSpecifics =
       await prayerNotificationDetails(azaan, prayerName: prayerName);

@@ -171,7 +171,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   leading: const Icon(Icons.notifications_active_outlined),
                   title: const Text("Zikr Reminders"),
                   subtitle: const Text(
-                      "Get reminded about a zikr or dua on the days you choose."),
+                      "Get reminded about a zikr on the days you choose."),
                   onTap: () {
                     Navigator.push(
                       context,
