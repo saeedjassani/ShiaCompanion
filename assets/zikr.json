@@ -821,7 +821,7 @@
   },
   "AI10|H17": {
     "title": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)",
-    "slug": "the-whispered-prayer-munajaat-of-ameerul-momeneen-a-ai10"
+    "slug": "the-whispered-prayer-munajaat-of-ameerul-momeneen-a"
   },
   "AI11": {
     "title": "Devotional Acts at Imam al-Sadiq's Bench — Masjid al-Kufah",
@@ -900,10 +900,7 @@
   },
   "AL18|E18": {
     "title": "Dua e Ahad",
-    "slug": "dua-e-ahad-al18",
-    "slugAliases": [
-      "dua-e-ahad-2"
-    ]
+    "slug": "dua-e-ahad"
   },
   "AL5": {
     "title": "Ziyarah of Imam Ali al-Naqi al-Hadi (a.s.) — Samarra",
@@ -1189,7 +1186,10 @@
   "E154": {
     "title": "Dua-e-Ehtejaab [The Supplication of Concealment]",
     "slug": "dua-e-ehtejaab-the-supplication-of-concealment",
-    "day": "*-*-5"
+    "day": "*-*-5",
+    "slugAliases": [
+      "dua-e-ehtejaab-the-supplication-of-concealment-2"
+    ]
   },
   "E155": {
     "title": "Dua e Marefat - Allahumma Arrifni",
@@ -1206,7 +1206,10 @@
   },
   "E18": {
     "title": "Dua e Ahad",
-    "slug": "dua-e-ahad"
+    "slug": "dua-e-ahad",
+    "slugAliases": [
+      "dua-e-ahad-2"
+    ]
   },
   "E19": {
     "title": "Dua-e-Faraj اَللّٰهُمَّ كُنْ لِوَلِيِّكَ",
@@ -1283,6 +1286,9 @@
     "day": [
       "08-15",
       "*-*-4"
+    ],
+    "slugAliases": [
+      "dua-kumayl-2"
     ]
   },
   "E32": {
@@ -1563,21 +1569,15 @@
   },
   "F27|L2": {
     "title": "Namaz of Sundays",
-    "slug": "namaz-of-sundays-f27",
-    "slugAliases": [
-      "namaz-of-sundays-2"
-    ]
+    "slug": "namaz-of-sundays"
   },
   "F28|M2": {
     "title": "Namaz on Mondays",
-    "slug": "namaz-on-mondays-f28",
-    "slugAliases": [
-      "namaz-on-mondays-2"
-    ]
+    "slug": "namaz-on-mondays"
   },
   "F29|N2": {
     "title": "Namaz of Tuesdays",
-    "slug": "namaz-of-tuesdays-f29"
+    "slug": "namaz-of-tuesdays"
   },
   "F3": {
     "title": "Namaz e Shab (Short)",
@@ -1585,22 +1585,19 @@
   },
   "F30|O2": {
     "title": "Namaz on Wednesdays",
-    "slug": "namaz-on-wednesdays-f30",
-    "slugAliases": [
-      "namaz-on-wednesdays-2"
-    ]
+    "slug": "namaz-on-wednesdays"
   },
   "F31|Q2": {
     "title": "Namaz on Thursdays",
-    "slug": "namaz-on-thursdays-f31"
+    "slug": "namaz-on-thursdays"
   },
   "F32|J9": {
     "title": "Namaz on Fridays",
-    "slug": "namaz-on-fridays-f32"
+    "slug": "namaz-on-fridays"
   },
   "F33|K2": {
     "title": "Namaz on Saturdays",
-    "slug": "namaz-on-saturdays-f33"
+    "slug": "namaz-on-saturdays"
   },
   "F34": {
     "title": "Namaz for fulfillment of needs (1)",
@@ -1972,7 +1969,7 @@
   },
   "G84|AL17": {
     "title": "Ziyarat of Imam Mahdi (a.t.f.s.) after the Fajr Prayers (Allaahumma Balligh)",
-    "slug": "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh-g84"
+    "slug": "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh"
   },
   "G9": {
     "title": "Ziyarat-e-Hazrat Imam-e-Zamana (a.t.f.s.)",
@@ -2347,7 +2344,7 @@
   },
   "J2|E34": {
     "title": "Dua-e-Nudbah",
-    "slug": "dua-e-nudbah-j2"
+    "slug": "dua-e-nudbah"
   },
   "J3": {
     "title": "Ziyarat on Friday",
@@ -2401,7 +2398,10 @@
   },
   "L2": {
     "title": "Namaz of Sundays",
-    "slug": "namaz-of-sundays"
+    "slug": "namaz-of-sundays",
+    "slugAliases": [
+      "namaz-of-sundays-2"
+    ]
   },
   "L3": {
     "title": "Ziyarat of Sunday",
@@ -2413,7 +2413,10 @@
   },
   "M2": {
     "title": "Namaz on Mondays",
-    "slug": "namaz-on-mondays"
+    "slug": "namaz-on-mondays",
+    "slugAliases": [
+      "namaz-on-mondays-2"
+    ]
   },
   "M3": {
     "title": "Ziyarat on Monday",
@@ -2436,7 +2439,7 @@
   },
   "N4|E24": {
     "title": "Dua Tawassul",
-    "slug": "dua-tawassul-n4"
+    "slug": "dua-tawassul"
   },
   "O1": {
     "title": "The Supplication of Wednesday",
@@ -2444,7 +2447,10 @@
   },
   "O2": {
     "title": "Namaz on Wednesdays",
-    "slug": "namaz-on-wednesdays"
+    "slug": "namaz-on-wednesdays",
+    "slugAliases": [
+      "namaz-on-wednesdays-2"
+    ]
   },
   "O3": {
     "title": "Ziyarat of Wednesday",
@@ -2467,17 +2473,11 @@
   },
   "Q4|E154": {
     "title": "Dua-e-Ehtejaab (The Supplication of Concealment)",
-    "slug": "dua-e-ehtejaab-the-supplication-of-concealment-q4",
-    "slugAliases": [
-      "dua-e-ehtejaab-the-supplication-of-concealment-2"
-    ]
+    "slug": "dua-e-ehtejaab-the-supplication-of-concealment"
   },
   "Q4|E31": {
     "title": "Dua Kumayl",
-    "slug": "dua-kumayl-q4",
-    "slugAliases": [
-      "dua-kumayl-2"
-    ]
+    "slug": "dua-kumayl"
   },
   "R1": {
     "title": "Aamaal for the 1st Night and Day of the Month of Moharram",
