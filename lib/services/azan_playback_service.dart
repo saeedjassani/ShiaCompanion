@@ -98,6 +98,16 @@ class AzanPlaybackService {
   static Future<void> alarmCallback(
       int id, Map<String, dynamic>? params) async {
     WidgetsFlutterBinding.ensureInitialized();
+    // This isolate is always fresh - android_alarm_manager_plus runs it
+    // headless, so main()'s JustAudioBackground.init() never ran here and
+    // this is the one call that actually takes effect. [playNow] never needs
+    // this: it only ever runs in the main isolate, where main() already did
+    // it once - see the crash note on [_startPlayback].
+    await JustAudioBackground.init(
+      androidNotificationChannelId: 'com.developer110.shia_companion.azan',
+      androidNotificationChannelName: 'Azan playback',
+      androidNotificationOngoing: true,
+    );
     final prayerName = params?['prayerName'] as String? ?? 'Prayer';
     final customFilePath = params?['customFilePath'] as String?;
     await _startPlayback(prayerName, customFilePath: customFilePath);
@@ -129,19 +139,14 @@ class AzanPlaybackService {
     // not start overlapping audio.
     if (await isPlaying()) return;
 
-    try {
-      await JustAudioBackground.init(
-        androidNotificationChannelId: 'com.developer110.shia_companion.azan',
-        androidNotificationChannelName: 'Azan playback',
-        androidNotificationOngoing: true,
-      );
-    } catch (_) {
-      // Already initialized in this isolate - true whenever playNow() runs
-      // from the main app, which already called this in main(). The alarm
-      // callback isolate is always fresh, so there init is the one that
-      // actually takes effect.
-    }
-
+    // JustAudioBackground.init() must never run a second time in an isolate
+    // that already called it - on iOS this isn't a catchable Dart exception
+    // but a native crash, which previously took the whole app down the
+    // instant a reader tapped a prayer notification or a sound preview
+    // (playNow's only callers), since main() already initializes it before
+    // runApp(). The alarm-callback isolate is the one place that genuinely
+    // needs its own call - see [alarmCallback], Android-only and always a
+    // fresh isolate.
     final player = AudioPlayer();
     _activePlayer = player;
     _registerStopPort();
