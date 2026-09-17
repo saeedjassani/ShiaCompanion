@@ -85,4 +85,26 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// reworded/retranslated - restoring it standalone would just duplicate
   /// I9.
   'I10': RetiredZikrRedirect('I9'),
+
+  /// Caught in the same review sweep: I18's entire content ("Merit of
+  /// reciting Bismillah along with La Haula Wa La Quwwata") is word-for-word
+  /// already live inside I17 ("Ta'qeebaat of the Dawn (Fajr) Prayers")'s
+  /// second tab, under I17's own "Seventh:" numbered section (Sayyid Ibn
+  /// Tawus / Imam al-Rida narration on the Bismillah+la-hawla doxology).
+  'I18': RetiredZikrRedirect('I17', tabIndex: 1),
+
+  /// E99's entire content ("Dua of Covenant with Almighty Allah") is
+  /// word-for-word already live inside I17's fourth tab, spanning I17's own
+  /// "Eleventh:" and "Twelfth:" numbered sections (the Prophet's morning/
+  /// evening covenant and the post-fajr salutation formula).
+  'E99': RetiredZikrRedirect('I17', tabIndex: 3),
+
+  /// E40's entire content ("Dua for delaying death (Ajal)") is the same
+  /// Prophetic hadith and the same "Subhaanallaahi mil'al meezaan..."
+  /// glorification as I17's second tab, under I17's own "Sixth:" numbered
+  /// section - I17 additionally carries a "wa sa'atal kursiyy" tail and a
+  /// follow-on Alhamdulillah variant that E40 lacks, but it's the same
+  /// narration and the same core dhikr, just under a different numbering
+  /// scheme.
+  'E40': RetiredZikrRedirect('I17', tabIndex: 1),
 };

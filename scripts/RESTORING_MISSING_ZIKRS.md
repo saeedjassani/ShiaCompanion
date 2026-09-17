@@ -261,9 +261,9 @@ I115, I30, F55, I65, AA33, I54, C16** - all restored as standalone
 `assets/zikr/<uid>` entries, none of them (this time) needing a `merits`
 field. I58 ("Ayah Al Sakharah") was a priority pickup regardless of size:
 I57 (restored in the fourth pass) already carries a dangling
-`[Ayah al-Sakhkhara](I58)` link waiting for this UID to exist. (A2, A3 and
-I10 were part of this original 50 - see the 2026-09-17 correction below for
-why they didn't make it into the final PR.)
+`[Ayah al-Sakhkhara](I58)` link waiting for this UID to exist. (A2, A3, I10,
+I18, E99 and E40 were part of this original 50 - see the 2026-09-17
+correction below for why they didn't make it into the final PR.)
 
 Four originally-picked candidates from this size tier turned out to be
 unrestorable or duplicates and were swapped out (per Step 1.5 and the
@@ -315,14 +315,36 @@ instead of restored standalone, dropped from the 50-count above. Separately,
 **A2** ("Dua after reciting Holy Quran") and **A3** ("Dua Khatme Quran")
 were pulled from this pass and deferred - not restored, not retired, still
 missing - pending further review; no replacement candidates were picked up
-in their place. This pass's final standalone-restored count is therefore
-**47**, not 50, and its retired count is **2** (I15, I10), not 1.
+in their place.
 
-36 UIDs now remain unrestored in the 2+-favorite table (41 rows still
-missing, of which 5 - E53, E118, E148, I15, I10 - are retired), plus the
-untouched single-favorite tail. AA18 is still the largest outstanding row;
-pick up at **E102** for the next pass (A2 and A3 are also available to
-revisit sooner, since their content already exists in
+A follow-up sweep of the remaining 53 new entries (same day) caught three
+more Step-1.5 misses: **I18** ("Merit of reciting Bismillah along with La
+Haula Wa La Quwwata") is word-for-word I17's "Seventh:" numbered section,
+**E99** ("Dua of Covenant with Almighty Allah") is word-for-word I17's
+"Eleventh:"+"Twelfth:" sections, and **E40** ("Dua for delaying death
+(Ajal)") is the same hadith and the same core "Subhaanallaahi mil'al
+meezaan..." glorification as I17's "Sixth:" section (I17 carries a longer
+tail E40 lacks, but it's the same narration under a different numbering
+scheme) - all three retired to **I17** via `retiredZikrRedirects` (tab
+index 1, 3, and 1 respectively) instead of restored standalone. Two entries
+the sweep also flagged were checked and kept as-is: **I53**'s knee-pain dua
+overlaps one paragraph of the already-live **E39** but, per the same
+precedent already established for F44/E54, its other two components are
+unrelated so it keeps its own standalone entry; **AA33** and **AA35** share
+an extensive closing petition with each other, but each has its own
+distinct night-specific opening invocation and the shared closing reads as
+authentic traditional content (the same phenomenon documented for shared
+stock formulas elsewhere in this doc), not a restoration artifact - no
+action taken.
+
+This pass's final standalone-restored count is therefore **44**, not 50,
+and its retired count is **5** (I15, I10, I18, E99, E40), not 1.
+
+36 UIDs now remain unrestored in the 2+-favorite table (44 rows still
+missing, of which 8 - E53, E118, E148, I15, I10, I18, E99, E40 - are
+retired), plus the untouched single-favorite tail. AA18 is still the
+largest outstanding row; pick up at **E102** for the next pass (A2 and A3
+are also available to revisit sooner, since their content already exists in
 `scripts/zikr_restore_drafts/` history - they were pulled for reasons
 unrelated to sourcing).
 
