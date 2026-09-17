@@ -32,3 +32,25 @@
     one dua - tab-aware aliasing/deep-linking would let these be properly
     cross-referenced instead of living as separate, drift-prone content
     files forever.
+
+- **The alias/canonical slug-collision guard is gone; watch for new
+  `-2`-suffixed slugs.** Commit `cce1219` ("Let alias zikr entries reuse
+  their canonical slug") taught the slug-index builder that an alias
+  (`"<uid>|<targetUid>"`) sharing its canonical's exact title should inherit
+  the canonical's slug instead of minting its own colliding one. That logic
+  lived in `functions/src/index.ts`'s `buildZikrIndex` Cloud Function, which
+  `d74a4e0` ("Remove Firestore as the zikr content source of truth") deleted
+  wholesale three days later - the client-side replacement
+  (`lib/utils/slug_registry.dart`) has no equivalent, it just reads whatever
+  `slug` string is on each `zikr.json` entry.
+  Found 14 entries still carrying the exact bug this was meant to prevent
+  (alias/canonical pairs with identical titles, one side stuck with an
+  auto-generated `-2`) and manually cleaned them up in PR #104: canonical
+  keeps the clean base slug, alias gets `<base>-<its-own-short-id>`, and
+  every previously-working slug string was preserved via `slugAliases` so
+  no old link breaks. This was a one-time manual fix, not a mechanism - if
+  a *new* alias is added later without an explicit, distinct `slug`, nothing
+  stops the same `-2` collision from reappearing. Either restore the
+  inherit-canonical-slug behavior somewhere in the client (e.g. in
+  `setLocalSlugData`/`applySlugLookupMap`), or make it a habit to always
+  give a new alias its own explicit slug at creation time.
