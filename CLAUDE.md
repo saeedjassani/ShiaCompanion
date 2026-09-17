@@ -44,13 +44,18 @@
   (`lib/utils/slug_registry.dart`) has no equivalent, it just reads whatever
   `slug` string is on each `zikr.json` entry.
   Found 14 entries still carrying the exact bug this was meant to prevent
-  (alias/canonical pairs with identical titles, one side stuck with an
-  auto-generated `-2`) and manually cleaned them up in PR #104: canonical
-  keeps the clean base slug, alias gets `<base>-<its-own-short-id>`, and
-  every previously-working slug string was preserved via `slugAliases` so
-  no old link breaks. This was a one-time manual fix, not a mechanism - if
-  a *new* alias is added later without an explicit, distinct `slug`, nothing
-  stops the same `-2` collision from reappearing. Either restore the
-  inherit-canonical-slug behavior somewhere in the client (e.g. in
-  `setLocalSlugData`/`applySlugLookupMap`), or make it a habit to always
-  give a new alias its own explicit slug at creation time.
+  (alias/canonical pairs whose titles are the same, or differ only in
+  punctuation that normalizes away - e.g. `(...)` vs `[...]` - so they'd
+  slugify identically anyway) and manually cleaned them up in PR #104:
+  **the rule applied was cce1219's original one - an alias reuses its
+  canonical's exact slug string when the title is the same, and only gets
+  a slug of its own when the title genuinely differs.** No new slug text
+  was minted for any of the 14; each old `-2` string was preserved via
+  `slugAliases` on the canonical side so no old link breaks. This was a
+  one-time manual fix, not a mechanism - if a *new* alias is added later
+  sharing its canonical's title without deliberately copying the
+  canonical's slug, nothing stops the same `-2` collision from
+  reappearing. Either restore the inherit-canonical-slug behavior
+  somewhere in the client (e.g. in `setLocalSlugData`/`applySlugLookupMap`
+  in `lib/utils/slug_registry.dart`), or make it a habit: same title ->
+  copy the canonical's slug verbatim; different title -> give it its own.
