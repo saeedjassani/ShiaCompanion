@@ -450,19 +450,26 @@ class RecitationTrackerManager extends ChangeNotifier {
     }
   }
 
-  /// Logs a recitation under [label] (trimmed; not persisted if empty),
-  /// defaulting to now.
+  /// Logs [fromAyah]–[toAyah] of [surah] as recited under [label] (trimmed;
+  /// not persisted if empty, or if the range is invalid), defaulting to now.
   Future<void> logRecitation({
     required String label,
+    required int surah,
+    required int fromAyah,
+    required int toAyah,
     DateTime? recitedAt,
   }) {
     final trimmedLabel = label.trim();
     if (trimmedLabel.isEmpty) return Future.value();
+    if (surah < 1 || fromAyah < 1 || toAyah < fromAyah) return Future.value();
 
     final entry = RecitationEntry(
       id: _newEntryId(),
       label: trimmedLabel,
       recitedAt: recitedAt ?? DateTime.now(),
+      surah: surah,
+      fromAyah: fromAyah,
+      toAyah: toAyah,
     );
     return _applyOperation(PendingRecitationOperation.add(entry));
   }

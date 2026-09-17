@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/recitation_tracker_state.dart';
+import '../../services/quran_progress_store.dart';
 import '../../services/recitation_tracker_manager.dart';
+import '../../utils/quran_index.dart';
 import '../../widgets/responsive_content.dart';
 
-/// Recitations logged under a label ("Family", "Personal", ...) with the
-/// numbers that make keeping the habit visible: a streak, a heatmap and a
-/// per-label breakdown, all derived from [RecitationTrackerState].
+/// Recitations logged under a label ("Family", "Personal", ...) as a real
+/// verse range, with the numbers that make keeping the habit visible: a
+/// streak, a heatmap and a per-label breakdown — all counted in verses
+/// actually recited, not in how many times the log button was tapped.
 class RecitationTrackerTab extends StatefulWidget {
   const RecitationTrackerTab({super.key});
 
@@ -101,8 +104,8 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Log one under a label like "Family" or "Personal"\n'
-              'to start tracking streaks and totals.',
+              'Log the verses you read under a label like "Family"\n'
+              'or "Personal" to start tracking streaks and totals.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -117,8 +120,8 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
   Widget _buildSummary(BuildContext context, RecitationTrackerState state) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final thisWeek =
-        state.countSince(DateTime.now().subtract(const Duration(days: 7)));
+    final versesThisWeek =
+        state.versesSince(DateTime.now().subtract(const Duration(days: 7)));
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -158,7 +161,8 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${state.totalSessions} total · $thisWeek this week',
+                      '${state.totalVersesRecited} verses recited · '
+                      '$versesThisWeek this week',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onPrimaryContainer
                             .withValues(alpha: 0.76),
@@ -236,7 +240,7 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
   Widget _buildHeatmap(BuildContext context, RecitationTrackerState state) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final counts = state.dailyCounts(_heatmapDays);
+    final counts = state.dailyVerseCounts(_heatmapDays);
     final sortedDays = counts.keys.toList()..sort();
 
     // Pad the front so columns line up on calendar weeks (Sun..Sat).
@@ -258,7 +262,7 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Last 12 weeks',
+          'Verses recited, last 12 weeks',
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -316,7 +320,7 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
 
     return Tooltip(
       message: '${_dayFormat.format(day)}: '
-          '$count ${count == 1 ? 'session' : 'sessions'}',
+          '$count ${count == 1 ? 'verse' : 'verses'}',
       child: Container(
         width: 13,
         height: 13,
@@ -363,7 +367,8 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
   ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final count = state.countsByLabel[label] ?? 0;
+    final verses = state.versesByLabel[label] ?? 0;
+    final sessions = state.sessionsByLabel[label] ?? 0;
     final last = state.lastRecitedFor(label);
 
     return Container(
@@ -405,7 +410,8 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
                 Text(
                   last == null
                       ? 'No sessions yet'
-                      : 'Last · ${_dayFormat.format(last.toLocal())}',
+                      : 'Last · ${_dayFormat.format(last.toLocal())} · '
+                          '$sessions ${sessions == 1 ? 'session' : 'sessions'}',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -418,13 +424,13 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '$count',
+                '$verses',
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
               ),
               Text(
-                count == 1 ? 'session' : 'sessions',
+                verses == 1 ? 'verse' : 'verses',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -464,8 +470,10 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
                 color: theme.colorScheme.primary,
               ),
             ),
-            title: Text(entry.label),
-            subtitle: Text(_dayTimeFormat.format(entry.recitedAt.toLocal())),
+            title: Text(_rangeLabel(entry)),
+            subtitle: Text(
+              '${entry.label} · ${_dayTimeFormat.format(entry.recitedAt.toLocal())}',
+            ),
             trailing: IconButton(
               icon: const Icon(Icons.close, size: 20),
               tooltip: 'Remove',
@@ -477,106 +485,215 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
     );
   }
 
+  String _rangeLabel(RecitationEntry entry) {
+    final surahName =
+        surahInfoFor(entry.surah)?.englishName ?? 'Surah ${entry.surah}';
+    final range = entry.fromAyah == entry.toAyah
+        ? '${entry.fromAyah}'
+        : '${entry.fromAyah}–${entry.toAyah}';
+    final verses = entry.versesRecited;
+    return '$surahName $range · $verses ${verses == 1 ? 'verse' : 'verses'}';
+  }
+
+  /// Parses "2:1"-style input for both ends of a range. Null unless both
+  /// sides name the same surah and the range runs forward — that is the one
+  /// shape a verse count can be derived from without guessing.
+  ({int surah, int fromAyah, int toAyah})? _tryParseRange(
+    String fromText,
+    String toText,
+  ) {
+    final from = VerseKey.tryParse(fromText);
+    final to = VerseKey.tryParse(toText);
+    if (from?.ayah == null || to?.ayah == null) return null;
+    if (from!.surah != to!.surah) return null;
+    if (to.ayah! < from.ayah!) return null;
+    return (surah: from.surah, fromAyah: from.ayah!, toAyah: to.ayah!);
+  }
+
   Future<void> _showLogDialog(
     BuildContext context,
     RecitationTrackerState state,
   ) async {
-    final controller = TextEditingController();
+    final labelController = TextEditingController();
+    final fromController = TextEditingController();
+    final toController = TextEditingController();
     String? selectedExisting;
     var selectedDate = DateTime.now();
     final existingLabels = state.labels;
+    final lastProgress = QuranProgressStore.instance.read();
 
     try {
       final result = await showDialog<_LogResult>(
         context: context,
         builder: (_) => StatefulBuilder(
-          builder: (dialogContext, setDialogState) => AlertDialog(
-            title: const Text('Log a recitation'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (existingLabels.isNotEmpty) ...[
-                    Text('Label', style: Theme.of(dialogContext).textTheme.labelMedium),
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final label in existingLabels)
-                          ChoiceChip(
-                            label: Text(label),
-                            selected: selectedExisting == label,
-                            onSelected: (selected) => setDialogState(() {
-                              selectedExisting = selected ? label : null;
-                              if (selected) controller.clear();
-                            }),
-                          ),
-                      ],
+          builder: (dialogContext, setDialogState) {
+            final range =
+                _tryParseRange(fromController.text, toController.text);
+
+            return AlertDialog(
+              title: const Text('Log a recitation'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (existingLabels.isNotEmpty) ...[
+                      Text(
+                        'Label',
+                        style: Theme.of(dialogContext).textTheme.labelMedium,
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final label in existingLabels)
+                            ChoiceChip(
+                              label: Text(label),
+                              selected: selectedExisting == label,
+                              onSelected: (selected) => setDialogState(() {
+                                selectedExisting = selected ? label : null;
+                                if (selected) labelController.clear();
+                              }),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                    ],
+                    TextField(
+                      controller: labelController,
+                      autofocus: existingLabels.isEmpty,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(
+                        labelText: 'Or a new label',
+                        hintText: 'e.g. Family, Personal',
+                      ),
+                      onChanged: (_) =>
+                          setDialogState(() => selectedExisting = null),
                     ),
                     const SizedBox(height: 14),
-                  ],
-                  TextField(
-                    controller: controller,
-                    autofocus: existingLabels.isEmpty,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Or a new label',
-                      hintText: 'e.g. Family, Personal',
+                    Text(
+                      'Verses recited',
+                      style: Theme.of(dialogContext).textTheme.labelMedium,
                     ),
-                    onChanged: (_) => setDialogState(() => selectedExisting = null),
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text('Date: ${_dayFormat.format(selectedDate)}'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          final now = DateTime.now();
-                          final picked = await showDatePicker(
-                            context: dialogContext,
-                            initialDate: selectedDate,
-                            firstDate: now.subtract(const Duration(days: 3650)),
-                            lastDate: now,
-                          );
-                          if (picked != null) {
-                            setDialogState(() => selectedDate = DateTime(
-                                  picked.year,
-                                  picked.month,
-                                  picked.day,
-                                  now.hour,
-                                  now.minute,
-                                ));
-                          }
-                        },
-                        child: const Text('Change'),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: fromController,
+                            decoration: const InputDecoration(
+                              labelText: 'From',
+                              hintText: 'e.g. 2:1',
+                            ),
+                            onChanged: (_) => setDialogState(() {}),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: toController,
+                            decoration: const InputDecoration(
+                              labelText: 'To',
+                              hintText: 'e.g. 2:20',
+                            ),
+                            onChanged: (_) => setDialogState(() {}),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (lastProgress != null) ...[
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: () => setDialogState(() {
+                            fromController.text =
+                                '${lastProgress.surah}:${lastProgress.ayah}';
+                            toController.text =
+                                '${lastProgress.surah}:${lastProgress.ayah}';
+                          }),
+                          icon: const Icon(Icons.replay, size: 18),
+                          label: const Text('Use where I left off'),
+                        ),
                       ),
                     ],
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    Text(
+                      range == null
+                          ? 'Both verses in one surah, e.g. 2:1 to 2:20'
+                          : '${surahInfoFor(range.surah)?.englishName ?? "Surah ${range.surah}"} '
+                              '${range.fromAyah}–${range.toAyah} · '
+                              '${range.toAyah - range.fromAyah + 1} '
+                              '${range.toAyah - range.fromAyah + 1 == 1 ? "verse" : "verses"}',
+                      style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
+                            color: range == null
+                                ? Theme.of(dialogContext).colorScheme.error
+                                : Theme.of(dialogContext)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                          ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text('Date: ${_dayFormat.format(selectedDate)}'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            final now = DateTime.now();
+                            final picked = await showDatePicker(
+                              context: dialogContext,
+                              initialDate: selectedDate,
+                              firstDate: now.subtract(const Duration(days: 3650)),
+                              lastDate: now,
+                            );
+                            if (picked != null) {
+                              setDialogState(() => selectedDate = DateTime(
+                                    picked.year,
+                                    picked.month,
+                                    picked.day,
+                                    now.hour,
+                                    now.minute,
+                                  ));
+                            }
+                          },
+                          child: const Text('Change'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () {
-                  final label = (selectedExisting ?? controller.text).trim();
-                  if (label.isEmpty) return;
-                  Navigator.pop(
-                    dialogContext,
-                    _LogResult(label: label, recitedAt: selectedDate),
-                  );
-                },
-                child: const Text('Log'),
-              ),
-            ],
-          ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: range == null
+                      ? null
+                      : () {
+                          final label =
+                              (selectedExisting ?? labelController.text).trim();
+                          if (label.isEmpty) return;
+                          Navigator.pop(
+                            dialogContext,
+                            _LogResult(
+                              label: label,
+                              recitedAt: selectedDate,
+                              surah: range.surah,
+                              fromAyah: range.fromAyah,
+                              toAyah: range.toAyah,
+                            ),
+                          );
+                        },
+                  child: const Text('Log'),
+                ),
+              ],
+            );
+          },
         ),
       );
 
@@ -584,16 +701,30 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
       await RecitationTrackerManager.instance.logRecitation(
         label: result.label,
         recitedAt: result.recitedAt,
+        surah: result.surah,
+        fromAyah: result.fromAyah,
+        toAyah: result.toAyah,
       );
     } finally {
-      controller.dispose();
+      labelController.dispose();
+      fromController.dispose();
+      toController.dispose();
     }
   }
 }
 
 class _LogResult {
-  const _LogResult({required this.label, required this.recitedAt});
+  const _LogResult({
+    required this.label,
+    required this.recitedAt,
+    required this.surah,
+    required this.fromAyah,
+    required this.toAyah,
+  });
 
   final String label;
   final DateTime recitedAt;
+  final int surah;
+  final int fromAyah;
+  final int toAyah;
 }

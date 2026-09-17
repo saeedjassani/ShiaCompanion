@@ -9,6 +9,9 @@ void main() {
         id: 'r_1',
         label: 'Family',
         recitedAt: DateTime.utc(2026, 1, 1),
+        surah: 2,
+        fromAyah: 1,
+        toAyah: 20,
       );
       final operation = PendingRecitationOperation.add(entry);
       final restored = PendingRecitationOperation.fromJson(operation.toJson());
@@ -17,6 +20,7 @@ void main() {
       expect(restored!.kind, RecitationOperationKind.add);
       expect(restored.entryId, 'r_1');
       expect(restored.entry?.label, 'Family');
+      expect(restored.entry?.versesRecited, 20);
     });
 
     test('remove serializes with no entry payload', () {
@@ -50,6 +54,9 @@ void main() {
         id: 'r_1',
         label: 'Family',
         recitedAt: DateTime.utc(2026, 1, 1),
+        surah: 2,
+        fromAyah: 1,
+        toAyah: 1,
       );
       final operation = PendingRecitationOperation.add(entry);
 
@@ -65,7 +72,14 @@ void main() {
 
     test('remove is idempotent — replaying it after the id is gone is a no-op', () {
       final state = RecitationTrackerState.empty.setEntry(
-        RecitationEntry(id: 'r_1', label: 'Family', recitedAt: DateTime.utc(2026, 1, 1)),
+        RecitationEntry(
+          id: 'r_1',
+          label: 'Family',
+          recitedAt: DateTime.utc(2026, 1, 1),
+          surah: 2,
+          fromAyah: 1,
+          toAyah: 1,
+        ),
       );
       final operation = PendingRecitationOperation.remove('r_1');
 
@@ -77,8 +91,22 @@ void main() {
     });
 
     test('applyPendingRecitationOperations applies a queue of add/remove in order', () {
-      final entryA = RecitationEntry(id: 'a', label: 'Family', recitedAt: DateTime.utc(2026, 1, 1));
-      final entryB = RecitationEntry(id: 'b', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 2));
+      final entryA = RecitationEntry(
+        id: 'a',
+        label: 'Family',
+        recitedAt: DateTime.utc(2026, 1, 1),
+        surah: 2,
+        fromAyah: 1,
+        toAyah: 1,
+      );
+      final entryB = RecitationEntry(
+        id: 'b',
+        label: 'Personal',
+        recitedAt: DateTime.utc(2026, 1, 2),
+        surah: 2,
+        fromAyah: 1,
+        toAyah: 1,
+      );
 
       final state = applyPendingRecitationOperations(RecitationTrackerState.empty, [
         PendingRecitationOperation.add(entryA),

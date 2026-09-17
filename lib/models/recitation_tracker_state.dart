@@ -1,14 +1,21 @@
 import 'package:flutter/foundation.dart';
 
-/// One logged recitation — someone reciting Quran under a label of their own
-/// choosing ("Family", "Personal", "Majlis"), so the same person can keep
-/// separate counts and streaks for separate contexts.
+/// One logged recitation — a real verse range someone read, under a label of
+/// their own choosing ("Family", "Personal", "Majlis"), so the same person
+/// can keep separate counts and streaks for separate contexts.
+///
+/// Carrying the verse range rather than a bare "I recited today" checkbox is
+/// deliberate: it is what lets every stat on the tracker answer "how many
+/// verses", not just "how many times was this tapped".
 @immutable
 class RecitationEntry {
   const RecitationEntry({
     required this.id,
     required this.label,
     required this.recitedAt,
+    required this.surah,
+    required this.fromAyah,
+    required this.toAyah,
   });
 
   /// Returns null rather than a placeholder entry, so a corrupt row is
@@ -19,19 +26,45 @@ class RecitationEntry {
     final id = value['id']?.toString().trim() ?? '';
     final label = value['label']?.toString().trim() ?? '';
     final recitedAt = DateTime.tryParse(value['recitedAt']?.toString() ?? '');
-    if (id.isEmpty || label.isEmpty || recitedAt == null) return null;
+    final surah = int.tryParse(value['surah']?.toString() ?? '');
+    final fromAyah = int.tryParse(value['fromAyah']?.toString() ?? '');
+    final toAyah = int.tryParse(value['toAyah']?.toString() ?? '');
 
-    return RecitationEntry(id: id, label: label, recitedAt: recitedAt);
+    if (id.isEmpty || label.isEmpty || recitedAt == null) return null;
+    if (surah == null || surah < 1) return null;
+    if (fromAyah == null || fromAyah < 1) return null;
+    if (toAyah == null || toAyah < fromAyah) return null;
+
+    return RecitationEntry(
+      id: id,
+      label: label,
+      recitedAt: recitedAt,
+      surah: surah,
+      fromAyah: fromAyah,
+      toAyah: toAyah,
+    );
   }
 
   final String id;
   final String label;
   final DateTime recitedAt;
 
+  /// The surah recited. A range is always within one surah — spanning a juz
+  /// across surahs is logged as one entry per surah, the same way the reader
+  /// itself treats a juz as several documents stitched together.
+  final int surah;
+  final int fromAyah;
+  final int toAyah;
+
+  int get versesRecited => toAyah - fromAyah + 1;
+
   Map<String, Object> toJson() => {
         'id': id,
         'label': label,
         'recitedAt': recitedAt.toUtc().toIso8601String(),
+        'surah': surah,
+        'fromAyah': fromAyah,
+        'toAyah': toAyah,
       };
 }
 
@@ -92,12 +125,17 @@ class RecitationTrackerState {
 
   // ---------------------------------------------------------------------
   // Stats — everything below is derived from the entries above, so the
-  // dashboard never has to keep a counter in sync by hand.
+  // dashboard never has to keep a counter in sync by hand, and every number
+  // reflects verses actually recited rather than how many times a button was
+  // tapped.
   // ---------------------------------------------------------------------
 
   int get totalSessions => entries.length;
 
-  Map<String, int> get countsByLabel {
+  int get totalVersesRecited =>
+      entries.values.fold(0, (sum, entry) => sum + entry.versesRecited);
+
+  Map<String, int> get sessionsByLabel {
     final counts = <String, int>{};
     for (final entry in entries.values) {
       counts[entry.label] = (counts[entry.label] ?? 0) + 1;
@@ -105,14 +143,23 @@ class RecitationTrackerState {
     return counts;
   }
 
-  /// Distinct labels, most-logged first, so "Family" and "Personal" settle
-  /// into a stable order instead of jumping around alphabetically.
+  Map<String, int> get versesByLabel {
+    final counts = <String, int>{};
+    for (final entry in entries.values) {
+      counts[entry.label] = (counts[entry.label] ?? 0) + entry.versesRecited;
+    }
+    return counts;
+  }
+
+  /// Distinct labels, most-recited first (by verses, not by tap count), so
+  /// "Family" and "Personal" settle into a stable order instead of jumping
+  /// around alphabetically.
   List<String> get labels {
-    final counts = countsByLabel;
-    return counts.keys.toList()
+    final verses = versesByLabel;
+    return verses.keys.toList()
       ..sort((a, b) {
-        final byCount = counts[b]!.compareTo(counts[a]!);
-        if (byCount != 0) return byCount;
+        final byVerses = verses[b]!.compareTo(verses[a]!);
+        if (byVerses != 0) return byVerses;
         return a.toLowerCase().compareTo(b.toLowerCase());
       });
   }
@@ -133,7 +180,8 @@ class RecitationTrackerState {
       .toSet();
 
   /// Consecutive days up to and including today (or yesterday, so logging
-  /// tonight's recitation tomorrow morning does not reset it to zero).
+  /// tonight's recitation tomorrow morning does not reset it to zero) on
+  /// which at least one verse was recited.
   int get currentStreak {
     final days = _recitedLocalDays;
     if (days.isEmpty) return 0;
@@ -165,15 +213,22 @@ class RecitationTrackerState {
     return longest;
   }
 
-  int countSince(DateTime sinceLocal) {
+  int sessionsSince(DateTime sinceLocal) {
     return entries.values
         .where((entry) => !entry.recitedAt.toLocal().isBefore(sinceLocal))
         .length;
   }
 
-  /// Sessions per local calendar day for the trailing [days] days (today
-  /// included), for a GitHub-style contribution heatmap.
-  Map<DateTime, int> dailyCounts(int days) {
+  int versesSince(DateTime sinceLocal) {
+    return entries.values
+        .where((entry) => !entry.recitedAt.toLocal().isBefore(sinceLocal))
+        .fold(0, (sum, entry) => sum + entry.versesRecited);
+  }
+
+  /// Verses recited per local calendar day for the trailing [days] days
+  /// (today included), for a GitHub-style contribution heatmap — a heavy
+  /// day of recitation reads darker than a two-verse glance.
+  Map<DateTime, int> dailyVerseCounts(int days) {
     final today = _dateOnly(DateTime.now());
     final start = today.subtract(Duration(days: days - 1));
     final counts = <DateTime, int>{
@@ -183,7 +238,7 @@ class RecitationTrackerState {
     for (final entry in entries.values) {
       final day = _dateOnly(entry.recitedAt.toLocal());
       if (day.isBefore(start) || day.isAfter(today)) continue;
-      counts[day] = (counts[day] ?? 0) + 1;
+      counts[day] = (counts[day] ?? 0) + entry.versesRecited;
     }
     return counts;
   }
