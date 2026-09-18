@@ -13,7 +13,6 @@ Future<bool?> showRatingPromptDialog(BuildContext context) {
   return showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      icon: const Icon(Icons.favorite_border),
       title: const Text('Enjoying Shia Companion?'),
       content: const Text(
         "We'd love to hear how it's going for you - your feedback helps us "
@@ -31,4 +30,32 @@ Future<bool?> showRatingPromptDialog(BuildContext context) {
       ],
     ),
   );
+}
+
+/// Shown after a "Not really" - asks before jumping straight to the mail app,
+/// since that would otherwise fire the moment someone admits they aren't
+/// enjoying the app, whether or not they actually wanted to write anything.
+/// Returns whether to open the feedback email.
+Future<bool> showRatingFeedbackDialog(BuildContext context) async {
+  final sendFeedback = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('Sorry to hear that'),
+      content: const Text(
+        "Would you mind telling us what's not working? It helps us improve "
+        'the app.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, false),
+          child: const Text('No thanks'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(dialogContext, true),
+          child: const Text('Send feedback'),
+        ),
+      ],
+    ),
+  );
+  return sendFeedback ?? false;
 }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_review/in_app_review.dart';
 
 import '../utils/shared_preferences.dart';
+import 'azaan_opt_in_service.dart';
 
 /// Owns the "enjoying the app?" rating prompt: when it is fair to ask, and
 /// handing off to the OS's own review sheet once someone says yes.
@@ -14,6 +15,12 @@ import '../utils/shared_preferences.dart';
 /// tells us whether it was shown or what was picked - so [markAsked] is the
 /// only bookkeeping this side does, regardless of which button the caller's
 /// own pre-screen dialog got.
+///
+/// [adoptExistingInstall] keeps an install that predates this feature from
+/// having its clock reset to zero the moment it updates: without it, someone
+/// who has had the app for years would be treated exactly like a fresh
+/// install on the update that ships this file, and made to wait out the age
+/// and launch thresholds all over again.
 class RatingPromptService {
   const RatingPromptService._();
 
@@ -35,6 +42,28 @@ class RatingPromptService {
   /// need it - Android and Windows resolve the store listing from the app's
   /// own package id instead.
   static const String _appStoreId = '1492517189';
+
+  /// Backfills an install that predates this feature as already past the age
+  /// and launch thresholds, using the same "has this install run a build
+  /// older than mine" signal [AzaanOptInService.adoptChoiceFromExistingInstall]
+  /// and [WhatsNewService] already rely on. A genuinely fresh install has none
+  /// of those markers and is left alone, to start its clock at zero exactly
+  /// as [recordLaunch] would anyway.
+  ///
+  /// Call once per launch, before [recordLaunch] - it only ever writes once,
+  /// the first time this build's tracking keys don't exist yet.
+  static Future<void> adoptExistingInstall() async {
+    if (!SP.isInitialized) return;
+    if (SP.prefs.containsKey(_firstSeenKey)) return;
+    if (!AzaanOptInService.priorInstallMarkerKeys.any(SP.prefs.containsKey)) {
+      return;
+    }
+
+    final backfilledFirstSeen =
+        DateTime.now().subtract(_minAgeSinceInstall).millisecondsSinceEpoch;
+    await SP.prefs.setInt(_firstSeenKey, backfilledFirstSeen);
+    await SP.prefs.setInt(_launchCountKey, _minLaunches);
+  }
 
   /// Records a cold start. Call once per launch, before [shouldAsk] - it is
   /// what [shouldAsk] measures "how long installed" and "how many launches"

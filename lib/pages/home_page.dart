@@ -673,6 +673,10 @@ class _MyHomePageState extends State<MyHomePage>
     // recognises it as never having been asked; an install that predates the
     // opt-in keeps whatever it already had.
     await AzaanOptInService.adoptChoiceFromExistingInstall();
+    // Same idea for the rating prompt: an install that predates it is
+    // backfilled as already past its age/launch thresholds rather than
+    // started fresh (see RatingPromptService.adoptExistingInstall).
+    await RatingPromptService.adoptExistingInstall();
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     appVersion = packageInfo.version;
@@ -696,8 +700,10 @@ class _MyHomePageState extends State<MyHomePage>
 
   /// Puts the "enjoying the app?" pre-screen to the user, then routes to
   /// whichever follow-up the answer earns: the OS review sheet for a "yes",
-  /// a feedback email for a "no". A dismissal counts as neither and just
-  /// starts the cooldown, same as an explicit "not now" would.
+  /// a second, skippable ask before a feedback email for a "no" - jumping
+  /// straight to the mail app the moment someone admits they aren't enjoying
+  /// it would be its own bad experience. A dismissal counts as neither and
+  /// just starts the cooldown, same as an explicit "not now" would.
   Future<void> _askForRating() async {
     final enjoying = await showRatingPromptDialog(context);
     await RatingPromptService.markAsked();
@@ -715,8 +721,16 @@ class _MyHomePageState extends State<MyHomePage>
 
     if (enjoying == true) {
       await RatingPromptService.requestNativeReview();
-    } else if (enjoying == false) {
-      await launchSupportEmail(subject: 'Shia Companion | Feedback');
+    } else if (enjoying == false && mounted) {
+      final sendFeedback = await showRatingFeedbackDialog(context);
+      unawaited(AnalyticsService.feature(
+        'rating_prompt_feedback',
+        label: 'Rating prompt feedback follow-up',
+        parameters: {'choice': sendFeedback ? 'sent' : 'declined'},
+      ));
+      if (sendFeedback) {
+        await launchSupportEmail(subject: 'Shia Companion | Feedback');
+      }
     }
   }
 

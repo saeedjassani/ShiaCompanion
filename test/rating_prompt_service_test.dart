@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
@@ -67,6 +68,36 @@ void main() {
             DateTime.now().millisecondsSinceEpoch - 121 * dayMs,
       });
       expect(RatingPromptService.shouldAsk(), isTrue);
+    });
+  });
+
+  group('adoptExistingInstall', () {
+    test('leaves a genuinely fresh install untouched', () async {
+      await withPrefs({});
+      await RatingPromptService.adoptExistingInstall();
+      expect(SP.prefs.containsKey('rating_prompt_first_seen_at'), isFalse);
+      expect(RatingPromptService.shouldAsk(), isFalse);
+    });
+
+    test('backfills an install that predates this feature as already '
+        'past the thresholds', () async {
+      await withPrefs({azaanPreferenceKey: 'makkah'});
+      await RatingPromptService.adoptExistingInstall();
+      expect(RatingPromptService.shouldAsk(), isTrue);
+    });
+
+    test('never overwrites a first-seen stamp this build already wrote',
+        () async {
+      await withPrefs({azaanPreferenceKey: 'makkah'});
+      await RatingPromptService.recordLaunch();
+      final stampFromThisBuild =
+          SP.prefs.getInt('rating_prompt_first_seen_at');
+
+      await RatingPromptService.adoptExistingInstall();
+      expect(
+        SP.prefs.getInt('rating_prompt_first_seen_at'),
+        stampFromThisBuild,
+      );
     });
   });
 
