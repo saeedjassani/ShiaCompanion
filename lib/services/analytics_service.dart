@@ -126,10 +126,13 @@ class AnalyticsService {
         'the app)',
     ZikrOpenSource.zikrLink: 'Zikr opened from a link inside another zikr',
     ZikrOpenSource.admin: 'Zikr opened from the admin list',
+    ZikrOpenSource.quran: 'Surah opened from the Quran screen',
+    ZikrOpenSource.quranResume: 'Recitation resumed from where it left off',
     ZikrOpenSource.homeWidgetFavorites:
         'Zikr opened from the Favorites home screen widget',
     ZikrOpenSource.homeWidgetRecitation:
         "Zikr opened from the Today's Recitation home screen widget",
+    ZikrOpenSource.reminder: 'Zikr opened from a reminder notification',
     ZikrOpenSource.unknown: 'Zikr opened from an untagged entry point',
   };
 
@@ -319,6 +322,19 @@ class ZikrOpenSource {
   static const String deepLink = 'deep_link';
   static const String zikrLink = 'zikr_link';
   static const String admin = 'admin';
+
+  /// Opened by tapping a zikr reminder notification (see
+  /// ZikrReminderService).
+  static const String reminder = 'zikr_reminder';
+
+  /// Opened from the Quran screen - its surah list, juz list, go-to-verse box
+  /// or Continue card. Separate from [list] so Quran reading can be told apart
+  /// from browsing the categories generally.
+  static const String quran = 'quran';
+
+  /// Resumed from the Continue card, which is the signal that says whether
+  /// daily recitation is actually being kept up.
+  static const String quranResume = 'quran_resume';
 
   /// Tapped an item in the Favorites home screen widget (iOS WidgetKit /
   /// Android Glance). These reach [ZikrPage] through the same `?src=` marker

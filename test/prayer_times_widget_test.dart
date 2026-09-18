@@ -225,6 +225,30 @@ void main() {
 
     expect(find.textContaining('updated 1d ago'), findsOneWidget);
   });
+
+  testWidgets('invokes onTap when card is tapped', (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    GeolocatorPlatform.instance = _FakeGeolocator();
+
+    var tapped = false;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: HomePrayerTimesCard(
+          onTap: () {
+            tapped = true;
+          },
+        ),
+      ),
+    ));
+
+    expect(find.text('Fajr'), findsOneWidget);
+    await tester.tap(find.text('Fajr'));
+    await tester.pumpAndSettle();
+
+    expect(tapped, isTrue);
+  });
 }
 
 class _FakeGeolocator extends GeolocatorPlatform {

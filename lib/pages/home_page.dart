@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
-import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -17,7 +15,10 @@ import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/chapter_list_page.dart';
 import 'package:shia_companion/pages/chapter_page.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
+import 'package:shia_companion/pages/quran/quran_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
+import 'package:shia_companion/utils/quran_index.dart';
+import 'package:shia_companion/utils/quran_portion.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
@@ -27,6 +28,8 @@ import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/preferences_sync_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
+import 'package:shia_companion/services/whats_new_service.dart';
+import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
@@ -34,12 +37,12 @@ import 'package:shia_companion/utils/hadith_loader.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
+import 'package:shia_companion/widgets/azan_playing_banner.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/whats_new_dialog.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
-
-enum _PublishStatus { success, error, timeout }
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({
@@ -57,15 +60,12 @@ class _MyHomePageState extends State<MyHomePage>
   String hadith = '';
   DateTime today = DateTime.now();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   List<LiveStreamingData>? holyShrine, liveChannel;
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
   MethodChannel? _widgetLinkChannel;
   DeepLinkTarget? _pendingDeepLink;
   bool _itemsLoaded = false;
-  bool _isPublishingIndex = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
 
@@ -155,6 +155,13 @@ class _MyHomePageState extends State<MyHomePage>
     final target = _pendingDeepLink!;
     _pendingDeepLink = null;
 
+    // Checked before the empty-segment guard: a bare /quran names the Quran
+    // screen, and is the one link that carries nothing after its prefix.
+    if (target.type == quranDeepLinkType) {
+      await _resolveQuranDeepLink(target);
+      return;
+    }
+
     if (target.segments.isEmpty) {
       _openDeepLinkNotFound(target.key);
       return;
@@ -177,20 +184,74 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
-    // A home-screen widget's own URL carries which widget it was tapped
-    // from; an ordinary shared link carries none, and falls back to the
-    // generic deepLink source it always has.
+    final verse = zikrLinkVerse(target, resolvedItem);
+    // A home-screen widget's own URL carries which widget it was tapped from;
+    // an ordinary shared link carries none, and falls back to the generic
+    // deepLink source it always has.
     final source = target.source ?? ZikrOpenSource.deepLink;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final route = ZikrPage(
+        resolvedItem,
+        source: source,
+        initialVerse: verse,
+      );
+      pushRootPageRoute(route) ?? pushPageRoute(context, route);
+    });
+  }
+
+  Future<void> _resolveQuranDeepLink(DeepLinkTarget target) async {
+    final destination = DeepLinkResolver.resolveQuranDestination(target);
+    if (destination == null) {
+      _openDeepLinkNotFound(target.segments.join('/'));
+      return;
+    }
+
+    if (destination.isHome) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        const route = QuranPage();
+        pushRootPageRoute(route) ?? pushPageRoute(context, route);
+      });
+      return;
+    }
+
+    final juz = destination.juz;
+    if (juz != null) {
+      // A juz is assembled rather than loaded - it spans surahs.
+      final portion = await loadJuzPortion(juz, DefaultAssetBundle.of(context));
+      if (!mounted) return;
+      if (portion == null || portion.isEmpty) {
+        _openDeepLinkNotFound(target.segments.join('/'));
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final route = ZikrPage(
+          UidTitleData(quranJuzUid(juz), portion.title),
+          source: ZikrOpenSource.deepLink,
+          portion: portion,
+        );
+        pushRootPageRoute(route) ?? pushPageRoute(context, route);
+      });
+      return;
+    }
+
+    final verse = destination.verse!;
+    final info = surahInfoFor(verse.surah);
+    if (info == null) {
+      _openDeepLinkNotFound(target.segments.join('/'));
+      return;
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      pushRootPageRoute(
-            ZikrPage(resolvedItem, source: source),
-          ) ??
-          pushPageRoute(
-            context,
-            ZikrPage(resolvedItem, source: source),
-          );
+      final route = ZikrPage(
+        UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
+        source: ZikrOpenSource.deepLink,
+        initialVerse: verse,
+      );
+      pushRootPageRoute(route) ?? pushPageRoute(context, route);
     });
   }
 
@@ -277,206 +338,6 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  void _showAddItemDialog() {
-    final _formKey = GlobalKey<FormState>();
-    String _uid = '';
-    String _title = '';
-    String? _linkTargetUid;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Add New Item'),
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'UID (Document ID)',
-                      hintText: 'e.g. G100',
-                    ),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Required' : null,
-                    onSaved: (value) => _uid = value!,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Title'),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Required' : null,
-                    onSaved: (value) => _title = value!,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Link Target UID (Optional)',
-                      hintText: 'e.g. A1',
-                    ),
-                    onSaved: (value) => _linkTargetUid = value,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-
-                  String finalUid = _uid;
-                  if (_linkTargetUid != null && _linkTargetUid!.isNotEmpty) {
-                    finalUid = '$_uid|$_linkTargetUid';
-                  }
-
-                  try {
-                    final docRef = FirebaseFirestore.instance
-                        .collection('zikr')
-                        .doc(finalUid);
-                    final docSnap = await docRef.get();
-                    if (docSnap.exists) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content:
-                              Text('Error: Item $finalUid already exists')));
-                      return;
-                    }
-                    await docRef.set({
-                      'title': _title,
-                    }, SetOptions(merge: true));
-                    Navigator.pop(context);
-                    // Manually update local list since we aren't fetching from server anymore.
-                    items[finalUid] = _title;
-                    setState(() {});
-                    if (_linkTargetUid == null || _linkTargetUid!.isEmpty) {
-                      pushPageRoute(
-                          context,
-                          ZikrPage(UidTitleData(finalUid, _title),
-                              startEditing: true,
-                              source: ZikrOpenSource.admin));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Item linked successfully')));
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text('Error: $e')));
-                  }
-                }
-              },
-              child: Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _publishZikrIndex() async {
-    if (_isPublishingIndex) return;
-
-    setState(() {
-      _isPublishingIndex = true;
-    });
-
-    try {
-      final requestId =
-          '${DateTime.now().millisecondsSinceEpoch}-${_auth.currentUser?.uid ?? 'admin'}';
-      await FirebaseFirestore.instance.doc('zikr_meta/publish_requests').set({
-        'requestId': requestId,
-        'status': 'requested',
-        'requestedAt': FieldValue.serverTimestamp(),
-        'requestedBy': _auth.currentUser?.uid,
-      }, SetOptions(merge: true));
-
-      final publishStatus = await _waitForPublishCompletion(requestId);
-      if (publishStatus == _PublishStatus.success && isUserAdmin) {
-        await SessionRefreshService.loadItemsFromFirebase();
-      }
-
-      if (!mounted) return;
-      setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(switch (publishStatus) {
-          _PublishStatus.success => 'Publish finished. Admin index refreshed.',
-          _PublishStatus.error => 'Publish failed. Check Cloud Function logs.',
-          _PublishStatus.timeout =>
-            'Publish requested. Rebuild is taking longer than expected.',
-        }),
-      ));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Publish failed: $e')));
-    } finally {
-      if (!mounted) return;
-      setState(() {
-        _isPublishingIndex = false;
-      });
-    }
-  }
-
-  /// Waits for the Cloud Function to finish rebuilding the index.
-  ///
-  /// A snapshot listener rather than a poll: polling the request document once
-  /// a second billed a read per second for the whole 20-second window, where
-  /// the listener costs one read plus the updates the function actually
-  /// writes.
-  Future<_PublishStatus> _waitForPublishCompletion(String requestId) async {
-    final completer = Completer<_PublishStatus>();
-
-    void finish(_PublishStatus status) {
-      if (completer.isCompleted) return;
-      completer.complete(status);
-    }
-
-    final subscription = FirebaseFirestore.instance
-        .doc('zikr_meta/publish_requests')
-        .snapshots()
-        .listen(
-      (doc) {
-        final status = _publishStatusFor(doc.data(), requestId);
-        if (status != null) finish(status);
-      },
-      onError: (_) => finish(_PublishStatus.error),
-    );
-
-    final timeout = Timer(
-      const Duration(seconds: 20),
-      () => finish(_PublishStatus.timeout),
-    );
-
-    try {
-      return await completer.future;
-    } finally {
-      timeout.cancel();
-      await subscription.cancel();
-    }
-  }
-
-  /// Reads the outcome of [requestId] out of the request document, or null
-  /// while the function has not yet processed that request.
-  _PublishStatus? _publishStatusFor(
-    Map<String, dynamic>? data,
-    String requestId,
-  ) {
-    if (data == null) return null;
-
-    final processedRequestId = data['processedRequestId']?.toString() ?? '';
-    if (processedRequestId != requestId) return null;
-
-    return switch (data['status']?.toString() ?? '') {
-      'success' => _PublishStatus.success,
-      'error' => _PublishStatus.error,
-      _ => null,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
@@ -487,30 +348,13 @@ class _MyHomePageState extends State<MyHomePage>
         appBar: AppBar(
           title: Text(widget.title),
           actions: <Widget>[
-            if (isUserAdmin) ...[
-              IconButton(
-                icon: _isPublishingIndex
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.publish),
-                tooltip: 'Publish changes',
-                onPressed: _isPublishingIndex ? null : _publishZikrIndex,
-              ),
-              IconButton(
-                icon: const Icon(Icons.add),
-                tooltip: 'Add item',
-                onPressed: _showAddItemDialog,
-              ),
-            ],
             IconButton(
               icon: Icon(Icons.search),
               onPressed: _openSearch,
             )
           ],
         ),
+        bottomSheet: kIsWeb ? null : const AzanPlayingBanner(),
         body: ResponsiveScrollableContent(
           maxWidth: wideContentWidth,
           padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
@@ -555,7 +399,9 @@ class _MyHomePageState extends State<MyHomePage>
                           ),
                         ),
                       ),
-                      child: HomePrayerTimesCard(),
+                      child: HomePrayerTimesCard(
+                        onTap: () => _openHomeMenuItem(calendarMenuItem),
+                      ),
                     ),
                   ),
                 ),
@@ -684,7 +530,23 @@ class _MyHomePageState extends State<MyHomePage>
           iOS: initializationSettingsIOS);
       await flutterLocalNotificationsPlugin?.initialize(
         settings: initializationSettings,
+        onDidReceiveNotificationResponse: handlePrayerNotificationResponse,
+        onDidReceiveBackgroundNotificationResponse:
+            handlePrayerNotificationResponseBackground,
       );
+      // A tap that launched the app from fully terminated arrives here
+      // rather than through onDidReceiveNotificationResponse above - that
+      // callback only fires for a tap while flutterLocalNotificationsPlugin
+      // is already initialized. This is iOS's only way to ever play a Full
+      // Azan past its notification sound's ~30 second cap when the app
+      // wasn't already running (see handlePrayerNotificationResponse).
+      final launchDetails =
+          await flutterLocalNotificationsPlugin?.getNotificationAppLaunchDetails();
+      final launchResponse = launchDetails?.notificationResponse;
+      if (launchDetails?.didNotificationLaunchApp == true &&
+          launchResponse != null) {
+        await handlePrayerNotificationResponse(launchResponse);
+      }
       // Two prompts back to back is one too many, so the OS permission dialog
       // is skipped on the launch we ask our own question; the opt-in requests
       // it itself, and only if the user actually wants azan.
@@ -697,6 +559,16 @@ class _MyHomePageState extends State<MyHomePage>
       await refreshExactPrayerAlarmPermissionStatus();
       if (askingAboutAzaan && mounted) {
         await _askAboutAzaan();
+      }
+
+      // Never fires alongside the two prompts above: a fresh install has
+      // nothing to catch up on (see WhatsNewService), and an install that has
+      // already answered the opt-in question is exactly the "existing
+      // install" this is for.
+      final whatsNew = await WhatsNewService.pending();
+      await WhatsNewService.markSeen();
+      if (whatsNew.isNotEmpty && mounted) {
+        await showWhatsNewDialog(context, whatsNew);
       }
 
       final List<PendingNotificationRequest>? pendingNotificationRequests =
@@ -712,6 +584,9 @@ class _MyHomePageState extends State<MyHomePage>
       } else {
         debugPrint("Azan notifications not scheduled");
       }
+      // Cheap once there are no reminders, so this runs on every cold start
+      // rather than trying to track whether anything changed.
+      await ZikrReminderService.instance.rescheduleAll();
     }
     await HomeScreenWidgetService.instance.publishAll();
     setState(() {});
@@ -769,6 +644,8 @@ class _MyHomePageState extends State<MyHomePage>
     showTranslation = SP.prefs.getBool('showTranslation') ?? showTranslation;
     showTransliteration =
         SP.prefs.getBool('showTransliteration') ?? showTransliteration;
+    showArabicAsParagraph =
+        SP.prefs.getBool('showArabicAsParagraph') ?? showArabicAsParagraph;
 
     hijriDate = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
 
@@ -787,7 +664,6 @@ class _MyHomePageState extends State<MyHomePage>
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     appVersion = packageInfo.version;
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) => showAlertDialog());
     initializeData();
   }
 
@@ -847,40 +723,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   Shader l = LinearGradient(colors: <Color>[Colors.black, Colors.white])
       .createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
-
-  showAlertDialog() async {
-    // set up the button
-    Widget okButton = TextButton(
-      child: Text("OK"),
-      onPressed: () {
-        Navigator.pop(context);
-      },
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("What's New"),
-      content: Text(
-          "1. Azan notification added. By default Fajr, Dhuhr and Magrib are turned on.\n2. Live Holy Shrines and Islamic Channels\n3. Islamic calendar with events."),
-      actions: [
-        okButton,
-      ],
-    );
-
-    // show the dialog
-    int bnFromPref = SP.prefs.getInt('buildNumber') ?? 0;
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    // Show What's New Dialog only when build number is greater or in release mode
-    if (int.parse(packageInfo.buildNumber) > bnFromPref && kReleaseMode) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        },
-      );
-      await SP.prefs.setInt('buildNumber', int.parse(packageInfo.buildNumber));
-    }
-  }
 
   @override
   void dispose() async {

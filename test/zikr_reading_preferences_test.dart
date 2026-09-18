@@ -194,6 +194,44 @@ void main() {
     );
   });
 
+  testWidgets(
+      'Show Arabic as Paragraph is disabled while either English aid is on',
+      (tester) async {
+    await _initPrefs(<String, Object>{});
+    await _pumpPreferences(tester);
+
+    SwitchListTile switchTile() => tester.widget<SwitchListTile>(
+          find.ancestor(
+            of: find.text('Show Arabic as Paragraph'),
+            matching: find.byType(SwitchListTile),
+          ),
+        );
+
+    expect(switchTile().onChanged, isNull);
+
+    await _tapPreference(tester, 'Show Arabic as Paragraph');
+    expect(SP.prefs.getBool('showArabicAsParagraph'), isNull,
+        reason: 'a disabled switch must not respond to a tap');
+
+    await _tapPreference(tester, 'Show Transliteration');
+    // Translation is still on, so the paragraph switch stays disabled.
+    expect(switchTile().onChanged, isNull);
+
+    await _tapPreference(tester, 'Show Translation');
+    // Now both aids are off, so the paragraph switch becomes usable.
+    expect(switchTile().onChanged, isNotNull);
+
+    await _tapPreference(tester, 'Show Arabic as Paragraph');
+    expect(SP.prefs.getBool('showArabicAsParagraph'), isTrue);
+    expect(showArabicAsParagraph, isTrue);
+
+    // Turning either aid back on disables it again, without losing the
+    // saved preference underneath.
+    await _tapPreference(tester, 'Show Translation');
+    expect(switchTile().onChanged, isNull);
+    expect(SP.prefs.getBool('showArabicAsParagraph'), isTrue);
+  });
+
   testWidgets('translation flags hide and show reader content', (tester) async {
     await _initPrefs(<String, Object>{});
     const content = 'Transliteration line\nاللهم صل\nTranslation line';
@@ -273,4 +311,5 @@ void _resetReadingGlobals() {
   arabicFont = FontPreferences.defaultFont;
   showTranslation = true;
   showTransliteration = true;
+  showArabicAsParagraph = false;
 }

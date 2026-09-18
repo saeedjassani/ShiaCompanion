@@ -48,6 +48,35 @@ void main() {
     expect(matchesLunarDatePattern('*-09', currentDate: friday), isFalse);
   });
 
+  test(
+      '"*-*-D" follows weekdayAnchor rather than a moon-sighting-adjusted '
+      'currentDate', () {
+    // The user's `adjust_hijri_date` setting shifts which lunar date "today"
+    // is, but it must not shift which civil weekday a recurring pattern like
+    // Friday fires on: Dua Simat ("*-*-5") should still appear on the actual
+    // Friday, not on the day next to it just because the Hijri date was
+    // nudged by a day.
+    final actualFriday = DateTime(2024, 5, 24);
+    final shiftedByAdjustment =
+        HijriCalendar.fromDate(actualFriday.subtract(const Duration(days: 1)));
+    expect(shiftedByAdjustment.weekDay(), DateTime.thursday);
+
+    // Without an anchor, the pattern follows the shifted date and misses.
+    expect(
+      matchesLunarDatePattern('*-*-5', currentDate: shiftedByAdjustment),
+      isFalse,
+    );
+    // With the real-world date anchored, it correctly matches on Friday.
+    expect(
+      matchesLunarDatePattern(
+        '*-*-5',
+        currentDate: shiftedByAdjustment,
+        weekdayAnchor: actualFriday,
+      ),
+      isTrue,
+    );
+  });
+
   test('"MM-*" matches every day within that lunar month only', () {
     final date = HijriCalendar.fromDate(DateTime(2024, 6, 16));
 

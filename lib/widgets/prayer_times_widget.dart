@@ -10,7 +10,9 @@ import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
-  HomePrayerTimesCard();
+  const HomePrayerTimesCard({super.key, this.onTap});
+
+  final VoidCallback? onTap;
 
   @override
   PrayerTimesState createState() => PrayerTimesState();
@@ -143,7 +145,11 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
       // people who prod at a thing before hunting for its button. Only once
       // there are times to customise — the empty state owns its own tap.
       child: hasReadings
-          ? InkWell(onLongPress: _editTimesShown, child: content)
+          ? InkWell(
+              onTap: widget.onTap,
+              onLongPress: _editTimesShown,
+              child: content,
+            )
           : content,
     );
   }

@@ -5,9 +5,13 @@ import '../services/deep_link_resolver.dart';
 import '../services/library_service.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/deep_links.dart';
+import '../utils/quran_index.dart';
+import '../utils/quran_portion.dart';
+import '../constants.dart';
 import 'chapter_list_page.dart';
 import 'chapter_page.dart';
 import 'deep_link_not_found_page.dart';
+import 'quran/quran_page.dart';
 import 'zikr/zikr_page.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 
@@ -62,6 +66,11 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
   }
 
   Future<Widget?> _resolveDestination() async {
+    // A bare /quran is the one link with nothing after it - it names the Quran
+    // screen rather than anything inside it.
+    if (widget.target.type == quranDeepLinkType) {
+      return await _resolveQuranDestination();
+    }
     if (widget.target.segments.isEmpty) return null;
 
     switch (widget.target.type) {
@@ -72,12 +81,42 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
             : ZikrPage(
                 item,
                 source: widget.target.source ?? ZikrOpenSource.deepLink,
+                initialVerse: zikrLinkVerse(widget.target, item),
               );
       case libraryDeepLinkType:
         return _resolveLibraryDestination();
       default:
         return null;
     }
+  }
+
+  Future<Widget?> _resolveQuranDestination() async {
+    final destination =
+        DeepLinkResolver.resolveQuranDestination(widget.target);
+    if (destination == null) return null;
+    if (destination.isHome) return const QuranPage();
+
+    final juz = destination.juz;
+    if (juz != null) {
+      // A juz is assembled rather than loaded - it spans surahs.
+      final portion = await loadJuzPortion(juz, DefaultAssetBundle.of(context));
+      if (portion == null || portion.isEmpty) return null;
+      return ZikrPage(
+        UidTitleData(quranJuzUid(juz), portion.title),
+        source: ZikrOpenSource.deepLink,
+        portion: portion,
+      );
+    }
+
+    final verse = destination.verse!;
+    final info = surahInfoFor(verse.surah);
+    if (info == null) return null;
+
+    return ZikrPage(
+      UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
+      source: ZikrOpenSource.deepLink,
+      initialVerse: verse,
+    );
   }
 
   Future<Widget?> _resolveLibraryDestination() async {

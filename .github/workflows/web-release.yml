@@ -115,7 +115,6 @@ jobs:
       - uses: ./.github/actions/build-web
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          firebase-service-account-json: ${{ secrets.FIREBASE_ZIKR_SERVICE_ACCOUNT_JSON || secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
 
       # The last gate before production: if the built bundle does not boot or a
       # page regressed visually, the deploy never runs.

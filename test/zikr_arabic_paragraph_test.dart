@@ -63,11 +63,13 @@ void main() {
   setUp(() {
     showTransliteration = true;
     showTranslation = true;
+    showArabicAsParagraph = true;
   });
 
   tearDown(() {
     showTransliteration = true;
     showTranslation = true;
+    showArabicAsParagraph = false;
   });
 
   testWidgets(
@@ -84,7 +86,24 @@ void main() {
   );
 
   testWidgets(
-    'flows consecutive Arabic verses into one paragraph in Arabic-only view',
+    'keeps each verse on its own line in Arabic-only view when the setting '
+    'is off',
+    (tester) async {
+      showTransliteration = false;
+      showTranslation = false;
+      showArabicAsParagraph = false;
+      await _pumpViewer(tester);
+
+      expect(find.text(_verse0), findsOneWidget);
+      expect(find.text(_verse1), findsOneWidget);
+      expect(find.text(_verse2), findsOneWidget);
+      expect(find.text(_mergedParagraph), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'flows consecutive Arabic verses into one paragraph in Arabic-only view '
+    'when the setting is on',
     (tester) async {
       showTransliteration = false;
       showTranslation = false;

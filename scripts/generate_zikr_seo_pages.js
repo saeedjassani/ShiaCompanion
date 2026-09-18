@@ -422,7 +422,14 @@ function main() {
 
     const slug = safeSlug(entry.slug);
     if (slugs.has(slug)) {
-      throw new Error(`Duplicate zikr slug "${slug}" for ${uid} and ${slugs.get(slug)}`);
+      const existingUid = slugs.get(slug);
+      // A `|`-alias deliberately reuses its canonical target's exact slug
+      // when they share the same title (see uid_title_data.dart's `|`
+      // convention) - contentUidFor resolves both sides to the same
+      // assets/zikr/<uid> file, so this is the same page twice, not a
+      // conflict. Keep whichever claimed the slug first; skip the other.
+      if (contentUidFor(uid) === contentUidFor(existingUid)) continue;
+      throw new Error(`Duplicate zikr slug "${slug}" for ${uid} and ${existingUid}`);
     }
     slugs.set(slug, uid);
 

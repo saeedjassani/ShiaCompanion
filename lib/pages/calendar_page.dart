@@ -1,9 +1,12 @@
 import 'dart:convert';
 
 import 'package:date_format/date_format.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:shia_companion/pages/prayer_notifications_page.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/prayer_times_card.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -517,7 +520,71 @@ class _SelectedDateSummary extends StatelessWidget {
             date: gregorianDate,
             compact: true,
           ),
+          const _PrayerNotificationsLink(),
         ],
+      ),
+    );
+  }
+}
+
+/// The calendar's one way into prayer notifications.
+///
+/// It replaces the per-row bells that used to sit on the times above. Those
+/// were global settings rendered against whichever date the calendar happened
+/// to be showing, so tapping the Fajr bell on some date in Ramadan looked like
+/// it applied to that date when it actually applied forever. A single labelled
+/// row says what is on and where it leads, which is also easier to find than
+/// eight unlabelled icons.
+class _PrayerNotificationsLink extends StatefulWidget {
+  const _PrayerNotificationsLink();
+
+  @override
+  State<_PrayerNotificationsLink> createState() =>
+      _PrayerNotificationsLinkState();
+}
+
+class _PrayerNotificationsLinkState extends State<_PrayerNotificationsLink> {
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb || !SP.isInitialized) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final enabled = enabledPrayerNotificationNames(kPrayerNotificationList);
+    final anyOn = enabled.isNotEmpty;
+
+    // Its own Material: the day panel this sits in paints a background, and a
+    // ListTile inside a DecoratedBox has its ink splashes swallowed by it —
+    // Flutter asserts on exactly that rather than letting the tap look dead.
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(
+          anyOn ? Icons.notifications_active : Icons.notifications_off_outlined,
+          color: anyOn ? colorScheme.primary : colorScheme.onSurfaceVariant,
+        ),
+        title: Text(
+          'Prayer notifications',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        subtitle: Text(
+          anyOn
+              ? '${enabled.length} of ${kPrayerNotificationList.length} on'
+              : 'Off for every prayer',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        trailing:
+            Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+        onTap: () async {
+          await showPrayerNotificationsPage(context);
+          if (mounted) setState(() {});
+        },
       ),
     );
   }

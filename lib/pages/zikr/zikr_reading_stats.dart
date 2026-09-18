@@ -132,6 +132,34 @@ double zikrTabScrollFraction({
   return (scrollOffset / maxScrollExtent).clamp(0.0, 1.0).toDouble();
 }
 
+/// Guards a tab's scroll fraction against transient dips.
+///
+/// `ListView.builder` estimates `maxScrollExtent` from the average size of the
+/// children it has laid out so far, and revises that estimate as further,
+/// differently-sized children get built while the reader keeps scrolling.
+/// Because the on-screen percentage is `scrollOffset / maxScrollExtent`, a
+/// revised (larger) estimate can make the fraction momentarily drop even
+/// though the reader has only moved forward - so it reads as progress going
+/// backwards. Holding the displayed fraction at its best-so-far value while
+/// the reader keeps moving forward (or stands still) hides that noise; an
+/// actual backward scroll - the offset itself decreasing - is the one case
+/// let through, since that is the reader deliberately looking back up.
+double zikrSmoothedTabFraction({
+  required double rawFraction,
+  required double scrollOffset,
+  required double? previousScrollOffset,
+  required double? previousDisplayedFraction,
+}) {
+  final scrolledBackward =
+      previousScrollOffset != null && scrollOffset < previousScrollOffset;
+  if (scrolledBackward || previousDisplayedFraction == null) {
+    return rawFraction;
+  }
+  return rawFraction > previousDisplayedFraction
+      ? rawFraction
+      : previousDisplayedFraction;
+}
+
 /// Overall progress through a zikr, weighting each tab by its reading time.
 double zikrReadingProgress({
   required List<double> tabWeights,

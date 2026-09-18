@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:crypto/crypto.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +9,6 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../constants.dart';
 import '../services/account_service.dart';
 import '../services/analytics_service.dart';
-import '../services/azaan_opt_in_service.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
@@ -22,12 +19,14 @@ import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
 import '../utils/widget_prayer_time_selection.dart';
+import 'prayer_notifications_page.dart';
 import '../widgets/responsive_content.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
 import 'delete_account_page.dart';
 import 'scheduled_notifications_page.dart';
+import 'zikr_reminders_page.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage();
@@ -153,28 +152,33 @@ class _SettingsPageState extends State<SettingsPage> {
               context,
               title: 'Notifications',
               children: [
-                SwitchListTile(
-                  secondary: const Icon(Icons.notifications_active),
-                  title: const Text("Azan Notifications"),
-                  subtitle: Text(_azaanNotificationsSubtitle()),
-                  value: AzaanOptInService.isEnabled,
-                  onChanged: _setAzaanNotifications,
-                ),
+                // One door instead of four. "Azan Notifications", "Prayer
+                // Notifications" and "Notification Sound" all wrote overlapping
+                // state, and the master switch among them overwrote whatever
+                // the other two had set. The sound picker and the sample
+                // notification now live beside the prayers they belong to.
                 ListTile(
-                  leading: const Icon(Icons.volume_up),
-                  title: const Text("Notification Sound"),
-                  subtitle: Text(_getCurrentAzaanName()),
-                  onTap: () {
-                    _showAzaanSelectionDialog(context);
+                  leading: const Icon(Icons.notifications_active),
+                  title: const Text("Prayer notifications"),
+                  subtitle: Text(_prayerNotificationsSubtitle()),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    await showPrayerNotificationsPage(context);
+                    if (mounted) setState(() {});
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.play_arrow),
-                  title: const Text("Test Azaan Notification"),
-                  subtitle:
-                      const Text("Schedule a sample notification in a moment."),
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: const Text("Zikr Reminders"),
+                  subtitle: const Text(
+                      "Get reminded about a zikr on the days you choose."),
                   onTap: () {
-                    _testNotification();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ZikrRemindersPage(),
+                      ),
+                    );
                   },
                 ),
                 if (_showPrecisePrayerAlarmSetting)
@@ -593,180 +597,15 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {});
   }
 
-  String _azaanNotificationsSubtitle() {
-    if (!AzaanOptInService.isEnabled) {
+  String _prayerNotificationsSubtitle() {
+    final enabled = enabledPrayerNotificationNames(kPrayerNotificationList);
+    if (enabled.isEmpty) {
       return "Off. Turn on to be notified at prayer times.";
     }
-    final enabledCount =
-        enabledPrayerNotificationCount(getPrayerNotificationPrayerNames());
-    return enabledCount == 1
-        ? "On for 1 prayer. Tap a prayer on the home page to change which."
-        : "On for $enabledCount prayers. Tap a prayer on the home page to change which.";
-  }
-
-  /// The master switch, and the way back for anyone who said "Not now" on first
-  /// run. Turning it on restores the default Fajr / Zuhr / Maghrib set — the
-  /// per-prayer choice itself lives on the prayer times card.
-  Future<void> _setAzaanNotifications(bool enabled) async {
-    await AzaanOptInService.setEnabled(enabled);
-    unawaited(AnalyticsService.feature(
-      'azaan_notifications_toggled',
-      label: 'Azan notifications',
-      parameters: {'enabled': enabled ? 'on' : 'off'},
-    ));
-    if (!mounted) return;
-    setState(() {});
-  }
-
-  String _getCurrentAzaanName() {
-    final azaan = getSelectedAzaan();
-    if (azaan.id == 'custom') {
-      final customPath = SP.prefs.getString(azaanCustomFilePathKey);
-      if (customPath != null && customPath.isNotEmpty) {
-        final fileName = customPath.split('/').last;
-        return 'Custom: $fileName';
-      }
-      return 'Custom Audio';
+    if (enabled.length == kPrayerNotificationList.length) {
+      return "On for all ${enabled.length} times.";
     }
-    return azaan.name;
-  }
-
-  Future<void> _pickCustomAudioFile() async {
-    try {
-      FilePickerResult? result = await FilePicker.pickFiles(
-        type: FileType.audio,
-      );
-
-      if (result != null) {
-        File file = File(result.files.single.path!);
-        final filePath = file.path;
-        final fileName = file.path.split('/').last;
-
-        // Verify file exists and is readable
-        if (!await file.exists()) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: Audio file not found')),
-            );
-          }
-          return;
-        }
-
-        await saveCustomAudioFilePath(filePath);
-        await saveAzaanPreference('custom');
-        // IMPORTANT: Await the notification setup to catch any errors
-        await setUpNotifications();
-
-        if (mounted) {
-          setState(() {});
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Selected: $fileName'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('Error picking audio file: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Error: Unable to pick file. Please try again.')),
-        );
-      }
-    }
-  }
-
-  void _showAzaanSelectionDialog(BuildContext context) {
-    List<Widget> options = [];
-    final currentAzaanId = getSelectedAzaan().id;
-
-    for (final azaan in getAvailableAzaanOptions()) {
-      options.add(SimpleDialogOption(
-        child: InkWell(
-          onTap: () async {
-            if (azaan.id == 'custom') {
-              // Show file picker for custom audio
-              Navigator.pop(context);
-              await _pickCustomAudioFile();
-            } else {
-              // Save standard option preference
-              await saveAzaanPreference(azaan.id);
-              await setUpNotifications();
-              Navigator.pop(context);
-              if (mounted) {
-                setState(() {});
-              }
-            }
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    currentAzaanId == azaan.id
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                    size: 24,
-                  ),
-                  SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        azaan.name,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 4),
-                      SizedBox(
-                        width: 250,
-                        child: Text(
-                          azaan.description,
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ));
-    }
-
-    SimpleDialog dialog = SimpleDialog(
-      title: Text("Notification Sound"),
-      children: options,
-    );
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return dialog;
-      },
-    );
-  }
-
-  Future<void> _testNotification() async {
-    if (flutterLocalNotificationsPlugin == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Notification system not initialized')),
-      );
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Test notification scheduled in a few seconds'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-
-    await testNotification(flutterLocalNotificationsPlugin!);
+    return "${enabled.join(', ')} · ${enabled.length} of ${kPrayerNotificationList.length} on";
   }
 
   String _precisePrayerAlarmSubtitle() {

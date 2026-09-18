@@ -30,7 +30,7 @@ def main(uids=None):
     per_font = {f: collections.Counter() for f in cmaps}
     where = collections.defaultdict(set)
 
-    for uid, _path, s in arabic_strings(uids, include_quran=True, source='assets'):
+    for uid, _path, s in arabic_strings(uids, include_quran=True):
         for ch in s:
             if is_arabic(ch):
                 stored[ch] += 1
@@ -65,7 +65,7 @@ def main(uids=None):
             print(f'   {font}: ok')
 
     pua = collections.Counter()
-    for uid, _path, s2 in arabic_strings(uids, include_quran=True, source='assets'):
+    for uid, _path, s2 in arabic_strings(uids, include_quran=True):
         for ch in s2:
             if 0xE000 <= ord(ch) <= 0xF8FF:
                 pua[ch] += 1

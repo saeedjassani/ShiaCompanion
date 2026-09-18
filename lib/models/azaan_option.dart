@@ -28,13 +28,16 @@ class AzaanOptions {
     description: 'Short takbir notification sound',
   );
 
-  // Full azaan option (traditional Android default).
+  // Full azaan option (traditional Android default). The full recording
+  // plays through an app-controlled player rather than the notification's
+  // own (short, easily-interrupted) sound - see AzanPlaybackService.
   static const AzaanOption azaan = AzaanOption(
     id: 'azaan',
     name: 'Full Azan',
     androidFile: 'sharif',
     iosFile: 'azan.caf',
-    description: 'Full azan on Android; short alert on iOS',
+    description: 'Full azan, played automatically on Android; '
+        'on iOS, played in full when you open the notification',
   );
 
   // System default notification sound
@@ -42,6 +45,13 @@ class AzaanOptions {
     id: 'system_default',
     name: 'System Default',
     description: 'Use your device\'s default notification sound',
+  );
+
+  // Silent notification (no sound)
+  static const AzaanOption silent = AzaanOption(
+    id: 'silent',
+    name: 'Silent',
+    description: 'Notification banner only (no sound)',
   );
 
   // Custom audio file (will be configured by user)
@@ -57,6 +67,7 @@ class AzaanOptions {
     takbir,
     azaan,
     systemDefault,
+    silent,
     custom,
   ];
 

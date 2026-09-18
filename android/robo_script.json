@@ -1,0 +1,142 @@
+[
+  {
+    "eventType": "VIEW_CLICKED",
+    "timestamp": 1000,
+    "elementDescriptors": [
+      {
+        "text": "Not now"
+      }
+    ],
+    "canFail": true
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "timestamp": 2000,
+    "elementDescriptors": [
+      {
+        "text": "While using the app"
+      }
+    ],
+    "canFail": true
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "timestamp": 3000,
+    "elementDescriptors": [
+      {
+        "text": "Allow"
+      }
+    ],
+    "canFail": true
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "timestamp": 4000,
+    "elementDescriptors": [
+      {
+        "text": "Duas"
+      }
+    ],
+    "canFail": true
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "timestamp": 6000,
+    "delayTime": 2000,
+    "canFail": true
+  },
+  {
+    "eventType": "KEY_EVENT",
+    "timestamp": 7000,
+    "keyCode": 4,
+    "canFail": true
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "timestamp": 8000,
+    "elementDescriptors": [
+      {
+        "text": "Ziyarats"
+      }
+    ],
+    "canFail": true
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "timestamp": 10000,
+    "delayTime": 2000,
+    "canFail": true
+  },
+  {
+    "eventType": "KEY_EVENT",
+    "timestamp": 11000,
+    "keyCode": 4,
+    "canFail": true
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "timestamp": 12000,
+    "elementDescriptors": [
+      {
+        "text": "Surahs"
+      }
+    ],
+    "canFail": true
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "timestamp": 14000,
+    "delayTime": 2000,
+    "canFail": true
+  },
+  {
+    "eventType": "KEY_EVENT",
+    "timestamp": 15000,
+    "keyCode": 4,
+    "canFail": true
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "timestamp": 16000,
+    "elementDescriptors": [
+      {
+        "text": "Calendar & Prayer Times"
+      }
+    ],
+    "canFail": true
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "timestamp": 18000,
+    "delayTime": 2000,
+    "canFail": true
+  },
+  {
+    "eventType": "KEY_EVENT",
+    "timestamp": 19000,
+    "keyCode": 4,
+    "canFail": true
+  },
+  {
+    "eventType": "VIEW_CLICKED",
+    "timestamp": 20000,
+    "elementDescriptors": [
+      {
+        "text": "Preferences"
+      }
+    ],
+    "canFail": true
+  },
+  {
+    "eventType": "DELAYED_MESSAGE_POSTED",
+    "timestamp": 22000,
+    "delayTime": 2000,
+    "canFail": true
+  },
+  {
+    "eventType": "KEY_EVENT",
+    "timestamp": 23000,
+    "keyCode": 4,
+    "canFail": true
+  }
+]

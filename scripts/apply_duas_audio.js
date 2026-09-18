@@ -1,23 +1,23 @@
 /**
- * Writes the approved rows of duas_audio_map.json onto the Firestore zikr
- * docs as an `audio` array. Run import_duas_audio.js first, review the map,
- * flip `"approved": true` on the rows you accept, then run this.
+ * Writes the approved rows of duas_audio_map.json onto assets/zikr/<uid> as
+ * an `audio` array. Run import_duas_audio.js first, review the map, flip
+ * `"approved": true` on the rows you accept, then run this.
  *
- * Firestore is the source of truth; build_zikr_release.js is what bakes the
- * field into assets/zikr/<uid> afterwards.
+ * assets/zikr/<uid> is the source of truth - see
+ * scripts/RESTORING_MISSING_ZIKRS.md - so this writes it directly; there is
+ * no separate build/regenerate step afterwards.
  *
  * Usage:
  *   node apply_duas_audio.js                    # dry run, prints the diff
- *   node apply_duas_audio.js --store            # write to Firestore
+ *   node apply_duas_audio.js --store            # write assets/zikr/<uid>
  *   node apply_duas_audio.js --only G4 --store  # write one zikr only
  *   node apply_duas_audio.js --clear            # remove the audio field
  */
 
 const fs = require('fs');
 const path = require('path');
-const admin = require('firebase-admin');
 
-const ZIKR_COLLECTION = 'zikr';
+const ZIKR_DIR = path.join(__dirname, '..', 'assets', 'zikr');
 const MAP_FILE = path.join(__dirname, 'duas_audio_map.json');
 
 const argv = process.argv.slice(2);
@@ -33,27 +33,6 @@ const ONLY = (() => {
   if (!uids.length) throw new Error('--only needs at least one uid, e.g. --only G4');
   return new Set(uids);
 })();
-
-function getServiceAccount() {
-  const envJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (envJson) return JSON.parse(envJson);
-
-  const envB64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
-  if (envB64) return JSON.parse(Buffer.from(envB64, 'base64').toString('utf8'));
-
-  const candidates = [
-    path.join(__dirname, 'serviceAccountKey.json'),
-    path.join(__dirname, '..', 'serviceAccountKey.json'),
-  ];
-  const found = candidates.find((c) => fs.existsSync(c));
-  if (!found) {
-    throw new Error(
-      'No service account found. Set FIREBASE_SERVICE_ACCOUNT_JSON/BASE64 or '
-      + 'place serviceAccountKey.json.',
-    );
-  }
-  return require(path.resolve(found));
-}
 
 /** Several approved pages can point at one zikr, so tracks are merged and
  * de-duplicated by URL rather than the last page winning. */
@@ -77,33 +56,40 @@ function buildAudioByUid(rows) {
   return byUid;
 }
 
-async function main() {
+function readLocal(uid) {
+  const p = path.join(ZIKR_DIR, uid);
+  if (!fs.existsSync(p)) return null;
+  return JSON.parse(fs.readFileSync(p, 'utf8'));
+}
+
+function writeLocal(uid, doc) {
+  fs.writeFileSync(path.join(ZIKR_DIR, uid), `${JSON.stringify(doc, null, 2)}\n`, 'utf8');
+}
+
+function main() {
   if (!fs.existsSync(MAP_FILE)) {
     throw new Error(`${path.basename(MAP_FILE)} not found. Run import_duas_audio.js first.`);
   }
   const map = JSON.parse(fs.readFileSync(MAP_FILE, 'utf8'));
   const rows = map.rows || [];
 
-  admin.initializeApp({credential: admin.credential.cert(getServiceAccount())});
-  const db = admin.firestore();
-
   if (CLEAR) {
-    const snap = await db.collection(ZIKR_COLLECTION).get();
-    const targets = [];
-    snap.forEach((doc) => {
-      if (doc.data()?.audio !== undefined) targets.push(doc.id);
+    const targets = fs.readdirSync(ZIKR_DIR).filter((uid) => {
+      if (!fs.statSync(path.join(ZIKR_DIR, uid)).isFile()) return false;
+      const doc = readLocal(uid);
+      return doc?.audio !== undefined;
     });
-    console.log(`${targets.length} docs carry an audio field`);
+    console.log(`${targets.length} files carry an audio field`);
     if (!STORE) {
       console.log('Dry run. Re-run with --store --clear to remove.');
       return;
     }
     for (const uid of targets) {
-      await db.collection(ZIKR_COLLECTION).doc(uid).update({
-        audio: admin.firestore.FieldValue.delete(),
-      });
+      const doc = readLocal(uid);
+      delete doc.audio;
+      writeLocal(uid, doc);
     }
-    console.log(`Cleared audio from ${targets.length} docs`);
+    console.log(`Cleared audio from ${targets.length} files`);
     return;
   }
 
@@ -118,14 +104,10 @@ async function main() {
   }
 
   // Verify every target exists before writing, so a stale uid in the map
-  // surfaces as an error rather than creating a junk document.
-  const missing = [];
-  for (const uid of byUid.keys()) {
-    const doc = await db.collection(ZIKR_COLLECTION).doc(uid).get();
-    if (!doc.exists) missing.push(uid);
-  }
+  // surfaces as an error rather than creating a junk file.
+  const missing = [...byUid.keys()].filter((uid) => !fs.existsSync(path.join(ZIKR_DIR, uid)));
   if (missing.length) {
-    throw new Error(`These uids are not in Firestore: ${missing.join(', ')}`);
+    throw new Error(`These uids have no assets/zikr/<uid> file: ${missing.join(', ')}`);
   }
 
   for (const [uid, tracks] of byUid) {
@@ -134,22 +116,23 @@ async function main() {
   }
 
   if (!STORE) {
-    console.log('\nDry run. Re-run with --store to write to Firestore.');
+    console.log('\nDry run. Re-run with --store to write assets/zikr/<uid>.');
     return;
   }
 
   let written = 0;
   for (const [uid, tracks] of byUid) {
-    await db.collection(ZIKR_COLLECTION).doc(uid).update({audio: tracks});
+    const doc = readLocal(uid);
+    doc.audio = tracks;
+    writeLocal(uid, doc);
     written += 1;
   }
-  console.log(`\nWrote audio to ${written} zikr docs.`);
-  console.log('Next: node build_zikr_release.js to bake it into assets.');
+  console.log(`\nWrote audio to ${written} zikr files.`);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((e) => {
-    console.error(e.message || e);
-    process.exit(1);
-  });
+try {
+  main();
+} catch (e) {
+  console.error(e.message || e);
+  process.exit(1);
+}

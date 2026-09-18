@@ -62,4 +62,5 @@ void main() {
     expect(bookmark.copyWith(lineIndex: 4).lineIndex, 4);
     expect(bookmark.copyWith(lineIndex: 4).scrollOffset, 128.5);
   });
+
 }

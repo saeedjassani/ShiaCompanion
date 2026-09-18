@@ -1,0 +1,212 @@
+name: Cross-Platform Smoke Crawler Test
+
+# Fires on a version bump: a push to master that changes the `version:` line
+# in pubspec.yaml specifically (not just any edit to the file, e.g. adding a
+# dependency), so the two emulator boots only run when there is actually a
+# new build worth smoke-testing.
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'pubspec.yaml'
+  workflow_dispatch:
+    inputs:
+      simulator_device:
+        description: 'iOS Simulator device name (e.g. iPhone 17). Leave blank to auto-detect an available simulator.'
+        required: false
+        default: ''
+        type: string
+      android_api_level:
+        description: 'Android emulator API level'
+        required: false
+        default: '33'
+        type: string
+
+concurrency:
+  group: smoke-test-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.44.8'
+
+jobs:
+  gate:
+    name: Decide whether this is a version bump
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Check whether the version line actually changed
+        id: decide
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          before=$(git show "${{ github.event.before }}:pubspec.yaml" 2>/dev/null | grep -m1 '^version:' || true)
+          after=$(grep -m1 '^version:' pubspec.yaml)
+
+          if [ "$before" != "$after" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Version changed ($before -> $after) — running the smoke crawler."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "pubspec.yaml changed but the version line did not — skipping."
+          fi
+
+  ios-smoke-test:
+    name: Run iOS Smoke Crawler
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: macos-latest
+    # A cold build here runs ~5min pod install + ~33min Xcode build before
+    # the crawler test itself even starts (measured directly: see commit
+    # history). 45 minutes cut this off right as the build finished, with
+    # no room left for the test run. Give it real headroom.
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Select Xcode
+        run: |
+          xcode-select -p
+          xcodebuild -version
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Boot Simulator and Run Smoke Test
+        run: |
+          set -euo pipefail
+          REQUESTED="${{ inputs.simulator_device }}"
+
+          if [ -n "$REQUESTED" ]; then
+            DEVICE_NAME="$REQUESTED"
+          else
+            # No explicit override: pick whatever iPhone simulator this
+            # runner's Xcode actually ships pre-created, instead of a
+            # hardcoded name that goes stale the moment Apple's default
+            # lineup rolls over (this is what broke "iPhone 16" here).
+            DEVICE_NAME=$(xcrun simctl list devices available \
+              | grep -E '^ +iPhone [0-9]+ \(' \
+              | tail -1 \
+              | sed -E 's/^ *(iPhone [0-9]+) *\(.*/\1/')
+            if [ -z "$DEVICE_NAME" ]; then
+              echo "::error::No available iPhone simulator found on this runner."
+              xcrun simctl list devices available
+              exit 1
+            fi
+          fi
+          echo "DEVICE_NAME=$DEVICE_NAME" >> "$GITHUB_ENV"
+
+          echo "==> Booting iOS Simulator: ${DEVICE_NAME}"
+          xcrun simctl boot "${DEVICE_NAME}" || true
+
+          # `simctl boot` returns as soon as the boot is requested, not once
+          # the simulator is actually reachable — starting `flutter test`
+          # immediately left it stuck in device-discovery's retry loop on a
+          # still-cold-booting sim. Block here instead until it's ready.
+          echo "==> Waiting for simulator to finish booting..."
+          xcrun simctl bootstatus "${DEVICE_NAME}" -b
+
+          echo "==> Running Smoke Crawler Integration Test..."
+          flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/smoke_crawler_test.dart \
+            -d "${DEVICE_NAME}"
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-smoke-screenshots
+          path: build/integration_test_screenshots/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Report Results
+        if: always()
+        run: |
+          cat << SUMMARY >> "$GITHUB_STEP_SUMMARY"
+          ### iOS Smoke Crawler Test
+
+          - **Device Target:** \`${DEVICE_NAME:-unknown}\`
+          - **Test:** \`integration_test/smoke_crawler_test.dart\`
+          - **Status:** Complete
+          SUMMARY
+
+  android-smoke-test:
+    name: Run Android Smoke Crawler
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    timeout-minutes: 25
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Enable KVM (required for the emulator to run at usable speed)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Boot Emulator and Run Smoke Test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ fromJSON(inputs.android_api_level || '33') }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          # One line deliberately: this action's `script` field only picked
+          # up the first line when given a multi-line value with backslash
+          # continuations, passing a literal trailing "\" through to Flutter
+          # as its target-file argument.
+          script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/smoke_crawler_test.dart -d emulator-5554
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-smoke-screenshots
+          path: build/integration_test_screenshots/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Report Results
+        if: always()
+        run: |
+          cat << 'SUMMARY' >> "$GITHUB_STEP_SUMMARY"
+          ### Android Smoke Crawler Test
+
+          - **API Level:** `${{ inputs.android_api_level || '33' }}`
+          - **Test:** `integration_test/smoke_crawler_test.dart`
+          - **Status:** Complete
+          SUMMARY

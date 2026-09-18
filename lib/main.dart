@@ -7,8 +7,10 @@ import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
+import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:shia_companion/utils/crash_reporting.dart';
 import 'package:shia_companion/utils/network_utils.dart';
 import 'package:shia_companion/utils/webview_registry.dart'
     if (dart.library.js_interop) 'package:shia_companion/utils/webview_registry_web.dart';
@@ -40,6 +42,11 @@ void main() async {
     androidNotificationOngoing: true,
   );
 
+  // Registers android_alarm_manager_plus's dispatch so a prayer-time alarm
+  // fired while the app isn't running can still reach AzanPlaybackService's
+  // callback. No-op off Android.
+  await AzanPlaybackService.initialize();
+
   final FirebaseApp app = await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -47,7 +54,16 @@ void main() async {
 
   // Set up Crashlytics for native platforms
   if (!kIsWeb) {
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    FlutterError.onError = (FlutterErrorDetails details) {
+      // See isKnownSelectionGeometryNullCheckError: an open Flutter framework
+      // bug, not something app code caused or can fully prevent, so it's
+      // downgraded to non-fatal rather than taking the app down.
+      if (isKnownSelectionGeometryNullCheckError(details)) {
+        FirebaseCrashlytics.instance.recordFlutterError(details, fatal: false);
+        return;
+      }
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    };
   }
 
   // Setup WebView for web platform

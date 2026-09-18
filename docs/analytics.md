@@ -80,6 +80,10 @@ A key nothing above recognises still shows up on the dashboard, just under an
 "Other" heading instead of a named group — see `FeatureGroup.other` in
 `usage_dashboard_page.dart`.
 
+The home menu's ids come from the tile labels, so a genuine rename forks the
+counter by design. `home_menu_surahs` stopped accumulating when that tile became
+`home_menu_quran`; the old key keeps its history and is not merged in.
+
 ### `source` values
 
 See `ZikrOpenSource`. The ids are database keys, so they never change; the
