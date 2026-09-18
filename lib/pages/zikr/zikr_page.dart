@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/rendering.dart' show ScrollDirection;
@@ -1458,13 +1459,19 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   // five-action width limit (see zikr_action_bar.dart). The app bar keeps the
   // drawer opener plus the one other action frequent enough to earn a
   // permanent spot: setting a reminder for the zikr being read.
+  //
+  // Hidden on web: ZikrReminderService.rescheduleAll() no-ops under kIsWeb
+  // (flutter_local_notifications has no web target), so a reminder set here
+  // would silently never fire. Settings hides its whole "Zikr Reminders"
+  // entry point on web for the same reason.
   List<Widget> _buildAppBarActions() {
     return [
-      IconButton(
-        icon: const Icon(Icons.notifications_active_outlined),
-        tooltip: 'Set Reminder',
-        onPressed: () => unawaited(_openReminderForm()),
-      ),
+      if (!kIsWeb)
+        IconButton(
+          icon: const Icon(Icons.notifications_active_outlined),
+          tooltip: 'Set Reminder',
+          onPressed: () => unawaited(_openReminderForm()),
+        ),
       IconButton(
         icon: const Icon(Icons.filter_list),
         tooltip: 'Reading settings',
