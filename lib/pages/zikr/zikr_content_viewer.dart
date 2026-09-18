@@ -1037,13 +1037,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
               final itemIndex = index - leadingItems;
               final item = readingItems[itemIndex];
 
+              final isLastItem = itemIndex == readingItems.length - 1;
+
               if (isArabicOnlyReadingView &&
                   parsedContent.arabicCodes.contains(item.firstLineIndex)) {
-                return _buildArabicParagraphItem(
-                  item,
-                  parsedContent,
-                  bookmarkLabelLine,
-                  arabicStyle,
+                return _withParagraphDivider(
+                  _buildArabicParagraphItem(
+                    item,
+                    parsedContent,
+                    bookmarkLabelLine,
+                    arabicStyle,
+                  ),
+                  showDivider: !isLastItem,
                 );
               }
 
@@ -1056,25 +1061,59 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 transliStyle,
               );
 
+              final Widget content;
               if (bookmarkedRange == null ||
                   bookmarkLabelLine == null ||
                   !bookmarkedRange.contains(contentIndex) ||
                   !isZikrLineVisible(parsedContent, contentIndex)) {
-                return line;
+                content = line;
+              } else {
+                content = _BookmarkedLine(
+                  // The label only belongs on the first line of the marked
+                  // triplet that is actually showing - repeating it on the
+                  // transliteration/translation lines under the same tint
+                  // would just be noise, and a switched-off line draws
+                  // nothing to carry it.
+                  showLabel: contentIndex == bookmarkLabelLine,
+                  child: line,
+                );
               }
-              return _BookmarkedLine(
-                // The label only belongs on the first line of the marked
-                // triplet that is actually showing - repeating it on the
-                // transliteration/translation lines under the same tint would
-                // just be noise, and a switched-off line draws nothing to
-                // carry it.
-                showLabel: contentIndex == bookmarkLabelLine,
-                child: line,
+
+              // Only the last line of an Arabic/transliteration/translation
+              // triplet closes it off - a standalone heading or instruction
+              // line (absent from groupForLine) never gets a trailing
+              // divider of its own.
+              final group = parsedContent.groupForLine[contentIndex];
+              final closesGroup = group != null && contentIndex == group.end - 1;
+              return _withParagraphDivider(
+                content,
+                showDivider: closesGroup && !isLastItem,
               );
             },
           ),
         ),
       ),
+    );
+  }
+
+  /// Appends the same thin divider [_AyahBlock] draws between verses, below
+  /// [content], so a zikr's paragraphs read as separated steps the way a
+  /// surah's verses already do. Omitted for the last paragraph of a tab,
+  /// where there is nothing left to separate it from.
+  Widget _withParagraphDivider(Widget content, {required bool showDivider}) {
+    if (!showDivider) return content;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        content,
+        Divider(
+          height: 20,
+          color: Theme.of(context)
+              .colorScheme
+              .outlineVariant
+              .withValues(alpha: 0.5),
+        ),
+      ],
     );
   }
 

@@ -327,7 +327,14 @@ void main() {
       // Each line is still its own item, so the translation lines are separate
       // widgets rather than children of a verse block.
       expect(find.text('Translation of ayah 1'), findsOneWidget);
-      expect(find.byType(Divider), findsNothing);
+      // No ayah blocks, but the same paragraph divider ayah mode uses still
+      // closes off each triplet - every one but the last, which has nothing
+      // left to separate it from. (The Bismillah's own would-be triplet gets
+      // no divider: code 012 points its "translation" member at ayah 1's
+      // transliteration line, and ayah 1's own triplet claims that line for
+      // itself right after, so nothing left in the map still points back to
+      // the Bismillah's group by the time rendering reads it.)
+      expect(find.byType(Divider), findsNWidgets(2));
     });
 
     testWidgets('a verse cannot be tapped when there is no ayah index',
