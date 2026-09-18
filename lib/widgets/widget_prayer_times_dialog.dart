@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../services/analytics_service.dart';
 import '../services/home_screen_widget_service.dart';
+import '../services/prayer_preferences_sync_service.dart';
 import '../utils/widget_prayer_time_selection.dart';
 import 'prayer_glyph.dart';
 
@@ -87,6 +88,7 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
 
   final ids = selected.toList();
   await saveWidgetPrayerTimes(ids);
+  unawaited(PrayerPreferencesSyncService.instance.pushWidgetPrayerTimes());
   await HomeScreenWidgetService.instance.publishAll();
   // Saving without having changed anything is not a modification, and counting
   // it would make the metric a measure of how often the dialog is opened.

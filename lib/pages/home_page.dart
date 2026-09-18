@@ -25,6 +25,7 @@ import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/services/location_service.dart';
+import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/services/preferences_sync_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
@@ -503,6 +504,7 @@ class _MyHomePageState extends State<MyHomePage>
     await FavoritesManager.instance.loadFavorites();
     await QazaTrackerManager.instance.loadQaza();
     await PreferencesSyncService.instance.pullOrSeed();
+    await PrayerPreferencesSyncService.instance.pullOrSeed();
 
     // On web, keep first load quiet and let the prayer card request location
     // only after the user taps it.

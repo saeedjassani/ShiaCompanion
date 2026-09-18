@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../firebase_auth_config.dart';
 import '../firebase_options.dart';
 import 'favorites_manager.dart';
+import 'prayer_preferences_sync_service.dart';
 import 'preferences_sync_service.dart';
 import 'qaza_tracker_manager.dart';
 
@@ -92,6 +93,8 @@ class AccountService {
       await FavoritesManager.instance.deleteAllFavorites(deletionUser.uid);
       await QazaTrackerManager.instance.deleteAllQazaData(deletionUser.uid);
       await PreferencesSyncService.instance
+          .deleteSyncedPreferences(deletionUser.uid);
+      await PrayerPreferencesSyncService.instance
           .deleteSyncedPreferences(deletionUser.uid);
       await _deleteUserWithFallbackReauth(deletionUser);
     } on AccountActionException {

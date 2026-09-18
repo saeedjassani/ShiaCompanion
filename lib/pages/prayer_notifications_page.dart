@@ -7,6 +7,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
+import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 
@@ -129,6 +130,7 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
     await SP.prefs.setBool(AzaanOptInService.askedKey, true);
     if (value) await requestNotificationPermissions();
 
+    unawaited(PrayerPreferencesSyncService.instance.pushNotificationToggle(key));
     _scheduleReschedule();
     if (!mounted) return;
     setState(() {});
@@ -378,8 +380,12 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       if (!picked) return;
     } else if (_isPerPrayer) {
       await saveAzaanPreferenceForPrayer(widget.prayerName!, soundId);
+      unawaited(
+        PrayerPreferencesSyncService.instance.pushPrayerSound(widget.prayerName!),
+      );
     } else {
       await saveAzaanPreference(soundId);
+      unawaited(PrayerPreferencesSyncService.instance.pushAzaanSound());
     }
 
     _changed = true;
@@ -417,9 +423,13 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       if (_isPerPrayer) {
         await saveCustomAudioFilePathForPrayer(widget.prayerName!, path);
         await saveAzaanPreferenceForPrayer(widget.prayerName!, 'custom');
+        unawaited(
+          PrayerPreferencesSyncService.instance.pushPrayerSound(widget.prayerName!),
+        );
       } else {
         await saveCustomAudioFilePath(path);
         await saveAzaanPreference('custom');
+        unawaited(PrayerPreferencesSyncService.instance.pushAzaanSound());
       }
       return true;
     } catch (e) {

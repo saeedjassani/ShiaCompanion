@@ -12,6 +12,7 @@ import '../services/analytics_service.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
+import '../services/prayer_preferences_sync_service.dart';
 import '../services/preferences_sync_service.dart';
 import '../services/qaza_tracker_manager.dart';
 import '../services/session_refresh_service.dart';
@@ -45,6 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await FavoritesManager.instance.loadFavorites(force: true);
     await QazaTrackerManager.instance.loadQaza(force: true);
     await PreferencesSyncService.instance.pullOrSeed();
+    await PrayerPreferencesSyncService.instance.pullOrSeed();
     await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
     setState(() {});
