@@ -251,7 +251,7 @@ class RecitationTrackerManager extends ChangeNotifier {
     try {
       final snapshot = await _doc(userId).get();
       return _RemoteRecitationRead.success(
-        state: RecitationTrackerState.fromJson(snapshot.data()?['entries']),
+        state: RecitationTrackerState.fromJson(snapshot.data()?['state']),
       );
     } catch (error) {
       debugPrint('RecitationTrackerManager: Error loading remote state: $error');
@@ -341,12 +341,12 @@ class RecitationTrackerManager extends ChangeNotifier {
       final ref = _doc(userId);
       final snapshot = await transaction.get(ref);
       final current = snapshot.exists
-          ? RecitationTrackerState.fromJson(snapshot.data()?['entries'])
+          ? RecitationTrackerState.fromJson(snapshot.data()?['state'])
           : RecitationTrackerState.empty;
       final nextState = current.plus(addition);
       transaction.set(ref, {
-        'version': 1,
-        'entries': nextState.toJson(),
+        'version': 2,
+        'state': nextState.toJson(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
     });
@@ -360,12 +360,12 @@ class RecitationTrackerManager extends ChangeNotifier {
       final ref = _doc(userId);
       final snapshot = await transaction.get(ref);
       final current = snapshot.exists
-          ? RecitationTrackerState.fromJson(snapshot.data()?['entries'])
+          ? RecitationTrackerState.fromJson(snapshot.data()?['state'])
           : RecitationTrackerState.empty;
       final nextState = applyPendingRecitationOperation(current, operation);
       transaction.set(ref, {
-        'version': 1,
-        'entries': nextState.toJson(),
+        'version': 2,
+        'state': nextState.toJson(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
     });
@@ -390,7 +390,7 @@ class RecitationTrackerManager extends ChangeNotifier {
         }
 
         var remoteState = RecitationTrackerState.fromJson(
-          snapshot.data()?['entries'],
+          snapshot.data()?['state'],
         );
         if (_pendingGuestImportUserId == user.uid &&
             !_pendingGuestImportState.isEmpty &&
@@ -452,19 +452,25 @@ class RecitationTrackerManager extends ChangeNotifier {
 
   /// Logs [fromAyah]–[toAyah] of [surah] as recited under [label] (trimmed;
   /// not persisted if empty, or if the range is invalid), defaulting to now.
+  ///
+  /// Pass [id] to upsert an existing entry rather than create a new one —
+  /// the reader uses this to keep extending the same session's entry as
+  /// someone keeps scrolling, rather than logging a fresh one every time the
+  /// debounce fires.
   Future<void> logRecitation({
     required String label,
     required int surah,
     required int fromAyah,
     required int toAyah,
     DateTime? recitedAt,
+    String? id,
   }) {
     final trimmedLabel = label.trim();
     if (trimmedLabel.isEmpty) return Future.value();
     if (surah < 1 || fromAyah < 1 || toAyah < fromAyah) return Future.value();
 
     final entry = RecitationEntry(
-      id: _newEntryId(),
+      id: id ?? _newEntryId(),
       label: trimmedLabel,
       recitedAt: recitedAt ?? DateTime.now(),
       surah: surah,
@@ -477,6 +483,18 @@ class RecitationTrackerManager extends ChangeNotifier {
   Future<void> removeEntry(String entryId) {
     if (!_state.entries.containsKey(entryId)) return Future.value();
     return _applyOperation(PendingRecitationOperation.remove(entryId));
+  }
+
+  /// Registers a new recitation track with no history yet, so it can show up
+  /// as a "start reading" card before its first entry. A no-op for a name
+  /// already known (including the reserved [unlabeledRecitationLabel]).
+  Future<void> addLabel(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty || trimmed == unlabeledRecitationLabel) {
+      return Future.value();
+    }
+    if (_state.customLabels.contains(trimmed)) return Future.value();
+    return _applyOperation(PendingRecitationOperation.addLabel(trimmed));
   }
 
   String _newEntryId() => 'r_${DateTime.now().microsecondsSinceEpoch}';

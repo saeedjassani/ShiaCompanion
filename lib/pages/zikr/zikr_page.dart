@@ -12,7 +12,8 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
-import 'package:shia_companion/services/quran_progress_store.dart';
+import 'package:shia_companion/models/recitation_tracker_state.dart';
+import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/quran_index.dart';
@@ -110,9 +111,10 @@ class ZikrChromeScrollTracker {
 /// from the list passes its `VerseKey` with a null ayah, meaning "this surah"
 /// rather than "the top of it".
 ///
-/// Resuming is deliberately not part of this. Where someone left off is
-/// [QuranProgressStore]'s job, surfaced by the Continue reciting card, and
-/// saved verses are a collection to keep rather than a place to return to.
+/// Resuming is deliberately not part of this. Where someone left off is a
+/// recitation track's own job — each label's resume card opens at
+/// [RecitationTrackerState.resumePositionFor] — and saved verses are a
+/// collection to keep rather than a place to return to.
 ///
 /// Pure and top-level, like [resolveChromeVisibilityForScroll], so the rule can
 /// be tested without standing up a page.
@@ -159,11 +161,19 @@ class ZikrPage extends StatefulWidget {
   /// second reader keeps audio, focus mode, fonts, progress and sharing.
   final QuranPortion? portion;
 
+  /// The recitation track this read belongs to ("Family", "Personal", ...),
+  /// set only when opened by tapping that track's resume card. Null for
+  /// every other entry point — browsing, search, a deep link — which is what
+  /// routes genuine reading there into [unlabeledRecitationLabel] instead of
+  /// silently attributing it to whichever track was last used.
+  final String? recitationLabel;
+
   ZikrPage(
     this.item, {
     this.source = ZikrOpenSource.unknown,
     this.initialVerse,
     this.portion,
+    this.recitationLabel,
   });
 
   @override
@@ -253,6 +263,18 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   VerseKey? _pendingProgressVerse;
   Timer? _progressSaveTimer;
 
+  /// The lowest and highest ayah reached by genuine reading this visit, per
+  /// surah touched — a juz session can cross into several. Committed to the
+  /// recitation tracker on the same debounce as [_pendingProgressVerse], and
+  /// flushed once more on [dispose] so the last move before leaving is never
+  /// lost.
+  final Map<int, (int, int)> _recitedRangesThisSession = {};
+
+  /// One stable entry id per surah touched this visit, so repeated flushes
+  /// as the reader keeps scrolling extend the same recitation-tracker entry
+  /// instead of logging a fresh one every time the debounce fires.
+  final Map<int, String> _recitationEntryIdsThisSession = {};
+
   @override
   void initState() {
     super.initState();
@@ -325,43 +347,56 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _currentVerse = position.verse;
     _currentVerseText = position.text;
     if (!position.fromUserScroll) return;
+    final ayah = position.verse.ayah;
+    if (ayah == null) return;
     if (position.verse == _pendingProgressVerse) return;
 
     _pendingProgressVerse = position.verse;
-    // Scrolling reports continuously; a save per frame would be pointless
+    final surah = position.verse.surah;
+    final existingRange = _recitedRangesThisSession[surah];
+    _recitedRangesThisSession[surah] = existingRange == null
+        ? (ayah, ayah)
+        : (
+            math.min(existingRange.$1, ayah),
+            math.max(existingRange.$2, ayah),
+          );
+
+    // Scrolling reports continuously; logging per frame would be pointless
     // churn, so wait for the reader to settle.
     _progressSaveTimer?.cancel();
-    _progressSaveTimer = Timer(const Duration(seconds: 1), _flushReadingProgress);
+    _progressSaveTimer =
+        Timer(const Duration(seconds: 1), _flushRecitationProgress);
   }
 
-  /// Writes the pending position out.
+  /// Commits every surah's range touched by genuine reading this visit to
+  /// the recitation tracker, under [ZikrPage.recitationLabel] or, absent one,
+  /// [unlabeledRecitationLabel].
   ///
   /// Also called from [dispose], because leaving the page is the most likely
   /// moment for a debounced write to still be waiting - closing a surah right
-  /// after reading a verse is the ordinary way to finish, and losing that last
-  /// move is exactly the place someone would notice.
-  void _flushReadingProgress() {
-    final verse = _pendingProgressVerse;
-    final ayah = verse?.ayah;
-    if (verse == null || ayah == null) return;
+  /// after reading a verse is the ordinary way to finish, and losing that
+  /// last move is exactly the place someone would notice. Each surah keeps
+  /// the same entry id for the life of this page, so a flush mid-session
+  /// extends that entry rather than logging a new one, and this is safe to
+  /// call repeatedly - an unchanged range is a no-op in the manager.
+  void _flushRecitationProgress() {
+    if (_recitedRangesThisSession.isEmpty) return;
 
-    _pendingProgressVerse = null;
-    unawaited(
-      QuranProgressStore.instance.save(
-        QuranProgress(
-          surah: verse.surah,
-          ayah: ayah,
-          // The surah's own name, not the page title, which in a juz is
-          // "Juz 5" and would make the Continue card say the wrong thing.
-          surahTitle: surahInfoFor(verse.surah)?.fullTitle ??
-              widget.item.getTitle(),
-          // Recorded so someone working through a juz over a week comes back
-          // to the juz rather than to a lone surah.
-          juz: widget.portion?.juz,
-          updatedAt: DateTime.now().toUtc(),
-        ),
-      ),
-    );
+    for (final touched in _recitedRangesThisSession.entries) {
+      final surah = touched.key;
+      final (fromAyah, toAyah) = touched.value;
+      final id = _recitationEntryIdsThisSession.putIfAbsent(
+        surah,
+        () => 'auto_${_openedAt?.microsecondsSinceEpoch ?? DateTime.now().microsecondsSinceEpoch}_$surah',
+      );
+      unawaited(RecitationTrackerManager.instance.logRecitation(
+        id: id,
+        label: widget.recitationLabel ?? unlabeledRecitationLabel,
+        surah: surah,
+        fromAyah: fromAyah,
+        toAyah: toAyah,
+      ));
+    }
   }
 
   /// The per-ayah menu: what you can do with one verse rather than the whole
@@ -454,8 +489,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   ///
   /// A collection rather than a marker: saving a second verse of a surah does
   /// not displace the first, which is exactly what a [ZikrBookmark] would have
-  /// done. Where the reader left off is tracked separately, by
-  /// [QuranProgressStore].
+  /// done. Where the reader left off is tracked separately, per recitation
+  /// track, by the recitation tracker.
   Future<void> _toggleSavedVerse(VerseKey verse, String text) async {
     final ayah = verse.ayah;
     if (ayah == null) return;
@@ -505,7 +540,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void dispose() {
     _progressSaveTimer?.cancel();
-    _flushReadingProgress();
+    _flushRecitationProgress();
     if (_pageRoute != null) {
       routeObserver.unsubscribe(this);
     }
@@ -1301,8 +1336,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     required int selectedTabIndex,
   }) async {
     // Reading Quran, the bar keeps the verse on screen rather than marking a
-    // place: resuming is the Continue reciting card's job, so one bookmark
-    // icon means one thing throughout the Quran.
+    // place: resuming is a recitation track's own resume card's job, so one
+    // bookmark icon means one thing throughout the Quran.
     if (_isQuran) {
       final verse = _currentVerse;
       if (verse != null) await _toggleSavedVerse(verse, _currentVerseText);

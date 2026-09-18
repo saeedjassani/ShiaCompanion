@@ -13,7 +13,8 @@ void main() {
 
     test('a surah with no ayah opens at the top, not somewhere else', () {
       // The list passes VerseKey(5) meaning "this surah". It is not a verse
-      // destination, and resuming is the Continue reciting card's job.
+      // destination, and resuming is a recitation track's own resume card's
+      // job.
       expect(resolveInitialVerse(const VerseKey(5)), isNull);
     });
 

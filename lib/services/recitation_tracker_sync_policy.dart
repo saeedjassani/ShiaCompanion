@@ -1,11 +1,12 @@
 import '../models/recitation_tracker_state.dart';
 
-enum RecitationOperationKind { add, remove }
+enum RecitationOperationKind { add, remove, addLabel }
 
 extension RecitationOperationKindInfo on RecitationOperationKind {
   String get key => switch (this) {
         RecitationOperationKind.add => 'add',
         RecitationOperationKind.remove => 'remove',
+        RecitationOperationKind.addLabel => 'add_label',
       };
 }
 
@@ -19,16 +20,18 @@ RecitationOperationKind? recitationOperationKindFromKey(String key) {
 /// A mutation queued while offline (or while a Firestore write is in
 /// flight), replayed against the remote doc once it succeeds.
 ///
-/// Both kinds are naturally idempotent because entries are keyed by id: an
-/// [add] replayed twice just sets the same id twice, and a [remove] replayed
-/// against an id that is already gone is a no-op. So unlike the qaza
-/// tracker's delta queue, this one needs no separate merge arithmetic.
+/// All three kinds are naturally idempotent: an [add] replayed twice just
+/// sets the same entry id twice, a [remove] replayed against an id that is
+/// already gone is a no-op, and [addLabel] replayed twice unions into the
+/// same set entry. So unlike the qaza tracker's delta queue, this one needs
+/// no separate merge arithmetic.
 class PendingRecitationOperation {
   const PendingRecitationOperation({
     required this.id,
     required this.kind,
-    required this.entryId,
+    this.entryId,
     this.entry,
+    this.labelName,
   });
 
   factory PendingRecitationOperation.add(RecitationEntry entry) {
@@ -48,16 +51,26 @@ class PendingRecitationOperation {
     );
   }
 
+  factory PendingRecitationOperation.addLabel(String labelName) {
+    return PendingRecitationOperation(
+      id: 'add_label_$labelName',
+      kind: RecitationOperationKind.addLabel,
+      labelName: labelName,
+    );
+  }
+
   final String id;
   final RecitationOperationKind kind;
-  final String entryId;
+  final String? entryId;
   final RecitationEntry? entry;
+  final String? labelName;
 
   Map<String, Object> toJson() => {
         'id': id,
         'kind': kind.key,
-        'entryId': entryId,
+        if (entryId != null) 'entryId': entryId!,
         if (entry != null) 'entry': entry!.toJson(),
+        if (labelName != null) 'labelName': labelName!,
       };
 
   static PendingRecitationOperation? fromJson(dynamic value) {
@@ -65,16 +78,22 @@ class PendingRecitationOperation {
 
     final id = value['id']?.toString().trim() ?? '';
     final kind = recitationOperationKindFromKey(value['kind']?.toString() ?? '');
-    final entryId = value['entryId']?.toString().trim() ?? '';
-    if (id.isEmpty || kind == null || entryId.isEmpty) return null;
+    if (id.isEmpty || kind == null) return null;
 
-    if (kind == RecitationOperationKind.add) {
-      final entry = RecitationEntry.fromJson(value['entry']);
-      if (entry == null) return null;
-      return PendingRecitationOperation.add(entry);
+    switch (kind) {
+      case RecitationOperationKind.add:
+        final entry = RecitationEntry.fromJson(value['entry']);
+        if (entry == null) return null;
+        return PendingRecitationOperation.add(entry);
+      case RecitationOperationKind.remove:
+        final entryId = value['entryId']?.toString().trim() ?? '';
+        if (entryId.isEmpty) return null;
+        return PendingRecitationOperation.remove(entryId);
+      case RecitationOperationKind.addLabel:
+        final labelName = value['labelName']?.toString().trim() ?? '';
+        if (labelName.isEmpty) return null;
+        return PendingRecitationOperation.addLabel(labelName);
     }
-
-    return PendingRecitationOperation.remove(entryId);
   }
 }
 
@@ -96,6 +115,11 @@ RecitationTrackerState applyPendingRecitationOperation(
   return switch (operation.kind) {
     RecitationOperationKind.add =>
       operation.entry == null ? state : state.setEntry(operation.entry!),
-    RecitationOperationKind.remove => state.removeEntry(operation.entryId),
+    RecitationOperationKind.remove => operation.entryId == null
+        ? state
+        : state.removeEntry(operation.entryId!),
+    RecitationOperationKind.addLabel => operation.labelName == null
+        ? state
+        : state.addCustomLabel(operation.labelName!),
   };
 }

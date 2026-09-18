@@ -33,6 +33,16 @@ void main() {
       expect(restored.entry, isNull);
     });
 
+    test('addLabel serializes and restores the label name', () {
+      final operation = PendingRecitationOperation.addLabel('Family');
+      final restored = PendingRecitationOperation.fromJson(operation.toJson());
+
+      expect(restored, isNotNull);
+      expect(restored!.kind, RecitationOperationKind.addLabel);
+      expect(restored.labelName, 'Family');
+      expect(restored.entryId, isNull);
+    });
+
     test('fromJson rejects malformed rows', () {
       expect(PendingRecitationOperation.fromJson(null), isNull);
       expect(PendingRecitationOperation.fromJson('garbage'), isNull);
@@ -86,8 +96,21 @@ void main() {
       final once = applyPendingRecitationOperation(state, operation);
       final twice = applyPendingRecitationOperation(once, operation);
 
-      expect(once.isEmpty, isTrue);
-      expect(twice.isEmpty, isTrue);
+      expect(once.entries, isEmpty);
+      expect(twice.entries, isEmpty);
+    });
+
+    test('addLabel is idempotent — replaying it twice registers the track once', () {
+      final operation = PendingRecitationOperation.addLabel('Family');
+
+      final once = applyPendingRecitationOperation(
+        RecitationTrackerState.empty,
+        operation,
+      );
+      final twice = applyPendingRecitationOperation(once, operation);
+
+      expect(once.labels, ['Family']);
+      expect(twice.labels, ['Family']);
     });
 
     test('applyPendingRecitationOperations applies a queue of add/remove in order', () {

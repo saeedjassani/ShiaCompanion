@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/recitation_tracker_state.dart';
-import '../../services/quran_progress_store.dart';
+import '../../services/analytics_service.dart';
 import '../../services/recitation_tracker_manager.dart';
 import '../../utils/quran_index.dart';
 import '../../widgets/responsive_content.dart';
+import 'quran_navigation.dart';
 
 /// Recitations logged under a label ("Family", "Personal", ...) as a real
 /// verse range, with the numbers that make keeping the habit visible: a
@@ -58,10 +59,8 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
                         _buildSummary(context, state),
                         const SizedBox(height: 18),
                         _buildHeatmap(context, state),
-                        if (state.labels.isNotEmpty) ...[
-                          const SizedBox(height: 18),
-                          _buildLabelBreakdown(context, state),
-                        ],
+                        const SizedBox(height: 18),
+                        _buildLabelBreakdown(context, state),
                         const SizedBox(height: 18),
                         _buildRecentList(context, state),
                       ],
@@ -337,7 +336,7 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
     RecitationTrackerState state,
   ) {
     final theme = Theme.of(context);
-    final labels = state.labels;
+    final labels = [...state.labels, unlabeledRecitationLabel];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,78 +366,126 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
   ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isUnlabeled = label == unlabeledRecitationLabel;
     final verses = state.versesByLabel[label] ?? 0;
     final sessions = state.sessionsByLabel[label] ?? 0;
     final last = state.lastRecitedFor(label);
+    final percent = state.percentCompleteFor(label);
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
+    return Material(
+      color: colorScheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.menu_book_rounded,
-              color: colorScheme.primary,
-              size: 21,
-            ),
+        onTap: () => _resumeLabel(context, state, label),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: colorScheme.outlineVariant),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isUnlabeled
+                          ? Icons.menu_book_outlined
+                          : Icons.menu_book_rounded,
+                      color: colorScheme.primary,
+                      size: 21,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          last == null
+                              ? 'No sessions yet'
+                              : 'Last · ${_dayFormat.format(last.toLocal())} · '
+                                  '$sessions ${sessions == 1 ? 'session' : 'sessions'}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '$verses',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        verses == 1 ? 'verse' : 'verses',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              if (percent > 0) ...[
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: (percent / 100).clamp(0.0, 1.0),
+                    minHeight: 6,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
-                  last == null
-                      ? 'No sessions yet'
-                      : 'Last · ${_dayFormat.format(last.toLocal())} · '
-                          '$sessions ${sessions == 1 ? 'session' : 'sessions'}',
-                  style: theme.textTheme.bodySmall?.copyWith(
+                  '${percent.toStringAsFixed(percent < 10 ? 1 : 0)}% of the Quran completed',
+                  style: theme.textTheme.labelSmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '$verses',
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              Text(
-                verses == 1 ? 'verse' : 'verses',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
             ],
           ),
-        ],
+        ),
       ),
+    );
+  }
+
+  Future<void> _resumeLabel(
+    BuildContext context,
+    RecitationTrackerState state,
+    String label,
+  ) async {
+    final resume = state.resumePositionFor(label);
+    await openQuranVerse(
+      context,
+      resume ?? const VerseKey(1),
+      source: ZikrOpenSource.quranResume,
+      recitationLabel: label,
     );
   }
 
@@ -474,15 +521,98 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
             subtitle: Text(
               '${entry.label} · ${_dayTimeFormat.format(entry.recitedAt.toLocal())}',
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.close, size: 20),
-              tooltip: 'Remove',
-              onPressed: () =>
-                  RecitationTrackerManager.instance.removeEntry(entry.id),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.label_outline, size: 20),
+                  tooltip: 'Move to another label',
+                  onPressed: () => _showRelabelDialog(context, state, entry),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  tooltip: 'Remove',
+                  onPressed: () =>
+                      RecitationTrackerManager.instance.removeEntry(entry.id),
+                ),
+              ],
             ),
           ),
       ],
     );
+  }
+
+  Future<void> _showRelabelDialog(
+    BuildContext context,
+    RecitationTrackerState state,
+    RecitationEntry entry,
+  ) async {
+    final controller = TextEditingController();
+    final choices = [...state.labels, unlabeledRecitationLabel]
+        .where((label) => label != entry.label)
+        .toList(growable: false);
+
+    try {
+      final newLabel = await showDialog<String>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('Move "${_rangeLabel(entry)}"'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (choices.isNotEmpty) ...[
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final label in choices)
+                        ActionChip(
+                          label: Text(label),
+                          onPressed: () => Navigator.pop(dialogContext, label),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                ],
+                TextField(
+                  controller: controller,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                    labelText: 'Or a new label',
+                  ),
+                  onSubmitted: (value) => Navigator.pop(dialogContext, value),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, controller.text),
+              child: const Text('Move'),
+            ),
+          ],
+        ),
+      );
+
+      final trimmed = newLabel?.trim() ?? '';
+      if (trimmed.isEmpty || trimmed == entry.label) return;
+      await RecitationTrackerManager.instance.logRecitation(
+        id: entry.id,
+        label: trimmed,
+        recitedAt: entry.recitedAt,
+        surah: entry.surah,
+        fromAyah: entry.fromAyah,
+        toAyah: entry.toAyah,
+      );
+    } finally {
+      controller.dispose();
+    }
   }
 
   String _rangeLabel(RecitationEntry entry) {
@@ -520,7 +650,6 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
     String? selectedExisting;
     var selectedDate = DateTime.now();
     final existingLabels = state.labels;
-    final lastProgress = QuranProgressStore.instance.read();
 
     try {
       final result = await showDialog<_LogResult>(
@@ -602,22 +731,6 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
                         ),
                       ],
                     ),
-                    if (lastProgress != null) ...[
-                      const SizedBox(height: 6),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton.icon(
-                          onPressed: () => setDialogState(() {
-                            fromController.text =
-                                '${lastProgress.surah}:${lastProgress.ayah}';
-                            toController.text =
-                                '${lastProgress.surah}:${lastProgress.ayah}';
-                          }),
-                          icon: const Icon(Icons.replay, size: 18),
-                          label: const Text('Use where I left off'),
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: 6),
                     Text(
                       range == null

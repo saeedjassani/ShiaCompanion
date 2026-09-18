@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
+import 'package:shia_companion/utils/quran_index.dart';
 
 RecitationEntry _entry({
   required String id,
@@ -134,7 +135,13 @@ void main() {
       expect(overwritten.totalVersesRecited, 5);
 
       final removed = overwritten.removeEntry('r_1');
-      expect(removed.isEmpty, isTrue);
+      expect(removed.entries, isEmpty);
+      expect(
+        removed.customLabels,
+        {'Family', 'Personal'},
+        reason: 'a label stays registered as a track after its entries are '
+            'removed, so it can still be resumed from empty',
+      );
       expect(identical(removed.removeEntry('r_1'), removed), isTrue);
     });
 
@@ -156,15 +163,52 @@ void main() {
     test('toJson/fromJson round trip and drop corrupt rows', () {
       final state = RecitationTrackerState.empty
           .setEntry(_entry(id: 'r_1', recitedAt: DateTime.utc(2026, 1, 1), fromAyah: 1, toAyah: 10))
-          .setEntry(_entry(id: 'r_2', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 2)));
+          .setEntry(_entry(id: 'r_2', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 2)))
+          .addCustomLabel('Majlis');
 
       final json = Map<String, dynamic>.from(state.toJson());
-      json['r_3'] = {'id': 'r_3', 'label': ''};
+      (json['entries'] as Map)['r_3'] = {'id': 'r_3', 'label': ''};
 
       final restored = RecitationTrackerState.fromJson(json);
       expect(restored.totalSessions, 2);
       expect(restored.totalVersesRecited, 11);
+      expect(restored.customLabels, {'Family', 'Personal', 'Majlis'});
       expect(RecitationTrackerState.fromJson('garbage').isEmpty, isTrue);
+    });
+
+    test('addCustomLabel registers a track with no history, idempotently', () {
+      final state = RecitationTrackerState.empty.addCustomLabel('Family');
+      expect(state.isEmpty, isFalse);
+      expect(state.labels, ['Family']);
+      expect(state.resumePositionFor('Family'), isNull);
+
+      final again = state.addCustomLabel('Family');
+      expect(identical(again, state), isTrue);
+
+      expect(
+        identical(state.addCustomLabel(unlabeledRecitationLabel), state),
+        isTrue,
+        reason: 'the reserved bucket cannot become a custom label',
+      );
+    });
+
+    test('setEntry registers a brand new label automatically, but not Unlabeled', () {
+      final withCustom = RecitationTrackerState.empty.setEntry(
+        _entry(id: 'a', label: 'Tahajjud', recitedAt: DateTime.utc(2026, 1, 1)),
+      );
+      expect(withCustom.customLabels, {'Tahajjud'});
+
+      final withUnlabeled = RecitationTrackerState.empty.setEntry(
+        _entry(id: 'b', label: unlabeledRecitationLabel, recitedAt: DateTime.utc(2026, 1, 1)),
+      );
+      expect(withUnlabeled.customLabels, isEmpty);
+      expect(withUnlabeled.labels, isEmpty);
+    });
+
+    test('plus unions custom labels too', () {
+      final a = RecitationTrackerState.empty.addCustomLabel('Family');
+      final b = RecitationTrackerState.empty.addCustomLabel('Personal');
+      expect(a.plus(b).customLabels, {'Family', 'Personal'});
     });
 
     test('versesByLabel sums verse ranges, not tap counts', () {
@@ -256,6 +300,41 @@ void main() {
       expect(state.versesSince(now.subtract(const Duration(days: 7))), 9);
       expect(state.sessionsSince(now.subtract(const Duration(days: 60))), 2);
       expect(state.versesSince(now.subtract(const Duration(days: 60))), 10);
+    });
+
+    test('resumePositionFor points at the tail of the most recent entry', () {
+      final state = RecitationTrackerState.empty
+          .setEntry(_entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), surah: 2, fromAyah: 1, toAyah: 20))
+          .setEntry(_entry(id: 'b', recitedAt: DateTime.utc(2026, 1, 10), surah: 3, fromAyah: 5, toAyah: 9));
+
+      expect(state.resumePositionFor('Family'), const VerseKey(3, 9));
+      expect(state.resumePositionFor('Nonexistent'), isNull);
+    });
+
+    test('distinctVersesRecitedFor merges overlapping and adjacent ranges, not raw sums', () {
+      final state = RecitationTrackerState.empty
+          .setEntry(_entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), surah: 1, fromAyah: 1, toAyah: 5))
+          // Overlaps 3-5 from the first entry: only 6-10 is new.
+          .setEntry(_entry(id: 'b', recitedAt: DateTime.utc(2026, 1, 2), surah: 1, fromAyah: 3, toAyah: 10))
+          // A separate surah entirely, so it adds on top rather than merging.
+          .setEntry(_entry(id: 'c', recitedAt: DateTime.utc(2026, 1, 3), surah: 2, fromAyah: 1, toAyah: 3));
+
+      // versesByLabel counts every re-read: 5 + 8 + 3 = 16.
+      expect(state.versesByLabel['Family'], 16);
+      // distinct coverage is deduplicated: surah 1 is 1-10 (10) once merged,
+      // plus surah 2's 1-3 (3) = 13, not 16.
+      expect(state.distinctVersesRecitedFor('Family'), 13);
+    });
+
+    test('percentCompleteFor is distinct verses over the whole Quran', () {
+      final state = RecitationTrackerState.empty.setEntry(
+        _entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), surah: 1, fromAyah: 1, toAyah: 7),
+      );
+      expect(
+        state.percentCompleteFor('Family'),
+        closeTo(7 / quranTotalAyahCount * 100, 0.0001),
+      );
+      expect(state.percentCompleteFor('Nonexistent'), 0);
     });
 
     test('dailyVerseCounts buckets verses by local calendar day within the window', () {
