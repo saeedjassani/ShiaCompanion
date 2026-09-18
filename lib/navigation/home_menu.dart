@@ -201,6 +201,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
 /// other two gates that need lifting alongside it).
 final HomeMenuItem quranMenuItem = HomeMenuItem(
   label: 'Quran',
+  glyphType: HomeGlyphType.surahs,
   icon: Icons.menu_book_rounded,
   pageBuilder: () => const QuranPage(),
 );
