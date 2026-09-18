@@ -28,11 +28,13 @@ import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/services/preferences_sync_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
+import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
+import 'package:shia_companion/utils/external_launch.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/hadith_loader.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -40,6 +42,7 @@ import 'package:shia_companion/utils/web_route_sync.dart';
 
 import 'package:shia_companion/widgets/azan_playing_banner.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
+import 'package:shia_companion/widgets/rating_prompt_dialog.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/whats_new_dialog.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
@@ -573,6 +576,14 @@ class _MyHomePageState extends State<MyHomePage>
         await showWhatsNewDialog(context, whatsNew);
       }
 
+      // Counted, then asked about, only after the azan/what's-new prompts have
+      // had their turn - three dialogs racing on one cold start would be
+      // exactly the pile-up WhatsNewService already avoids for its own case.
+      await RatingPromptService.recordLaunch();
+      if (mounted && RatingPromptService.shouldAsk()) {
+        await _askForRating();
+      }
+
       final List<PendingNotificationRequest>? pendingNotificationRequests =
           await flutterLocalNotificationsPlugin?.pendingNotificationRequests();
       pendingNotificationRequests
@@ -681,6 +692,32 @@ class _MyHomePageState extends State<MyHomePage>
       label: 'Azan opt-in',
       parameters: {'choice': enabled ? 'enabled' : 'declined'},
     ));
+  }
+
+  /// Puts the "enjoying the app?" pre-screen to the user, then routes to
+  /// whichever follow-up the answer earns: the OS review sheet for a "yes",
+  /// a feedback email for a "no". A dismissal counts as neither and just
+  /// starts the cooldown, same as an explicit "not now" would.
+  Future<void> _askForRating() async {
+    final enjoying = await showRatingPromptDialog(context);
+    await RatingPromptService.markAsked();
+    unawaited(AnalyticsService.feature(
+      'rating_prompt',
+      label: 'Rating prompt',
+      parameters: {
+        'choice': switch (enjoying) {
+          true => 'enjoying',
+          false => 'not_enjoying',
+          null => 'dismissed',
+        },
+      },
+    ));
+
+    if (enjoying == true) {
+      await RatingPromptService.requestNativeReview();
+    } else if (enjoying == false) {
+      await launchSupportEmail(subject: 'Shia Companion | Feedback');
+    }
   }
 
   buildBody(BuildContext c, int i) {
