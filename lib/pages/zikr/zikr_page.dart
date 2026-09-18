@@ -1456,9 +1456,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   // Bookmark, share and reading settings live in the bottom action bar, where
   // they are labelled and within thumb reach - that bar is already at its
-  // five-action width limit (see zikr_action_bar.dart). The app bar keeps the
-  // drawer opener plus the one other action frequent enough to earn a
-  // permanent spot: setting a reminder for the zikr being read.
+  // five-action width limit (see zikr_action_bar.dart). Reading settings is
+  // also just a right-edge swipe away, since it's the endDrawer. That leaves
+  // the app bar with just the drawer opener plus the one other action
+  // frequent enough to earn a permanent spot: setting a reminder for the
+  // zikr being read.
   //
   // Hidden on web: ZikrReminderService.rescheduleAll() no-ops under kIsWeb
   // (flutter_local_notifications has no web target), so a reminder set here
@@ -1472,11 +1474,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           tooltip: 'Set Reminder',
           onPressed: () => unawaited(_openReminderForm()),
         ),
-      IconButton(
-        icon: const Icon(Icons.filter_list),
-        tooltip: 'Reading settings',
-        onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-      ),
     ];
   }
 
