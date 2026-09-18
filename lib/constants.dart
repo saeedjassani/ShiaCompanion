@@ -1007,7 +1007,14 @@ DarwinNotificationDetails _iosPrayerNotificationDetails(AzaanOption azaan) {
     return DarwinNotificationDetails();
   }
 
-  return DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
+  // Full Azan runs well past the ~30 seconds Apple allows a notification
+  // sound to play before it silently falls back to the default system tone
+  // (see handlePrayerNotificationResponse) - so on iOS its notification
+  // always carries the Takbir Only clip instead, the same one that option
+  // plays, rather than a sound of its own. The full recording still plays in
+  // full once the user taps in; this is only about what they hear the
+  // instant the notification itself arrives.
+  return DarwinNotificationDetails(sound: AzaanOptions.takbir.iosFile);
 }
 
 Future<NotificationDetails> prayerNotificationDetails(
