@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
@@ -467,6 +468,30 @@ void main() {
       );
 
       await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pumpAndSettle();
+
+      expect(reports, isNotEmpty);
+      expect(reports.last.fromUserScroll, isTrue);
+      expect(reports.last.verse.ayah!, greaterThan(1));
+    });
+
+    testWidgets('a mouse-wheel or trackpad scroll is reported as reading too',
+        (tester) async {
+      // Desktop and web readers rarely drag; they turn the wheel or swipe a
+      // trackpad, which arrives as a PointerScrollEvent rather than a drag
+      // gesture. That must count as reading just as much as a touch drag.
+      final reports = <QuranReadingPosition>[];
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 40),
+        surahNumber: 1,
+        onAyahPosition: reports.add,
+      );
+
+      final listCentre = tester.getCenter(find.byType(ListView));
+      final pointer = TestPointer(1, PointerDeviceKind.mouse);
+      await tester.sendEventToBinding(pointer.hover(listCentre));
+      await tester.sendEventToBinding(pointer.scroll(const Offset(0, 600)));
       await tester.pumpAndSettle();
 
       expect(reports, isNotEmpty);

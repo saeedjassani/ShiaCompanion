@@ -46,37 +46,23 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return Stack(
-          children: [
-            ResponsiveScrollableContent(
-              maxWidth: listContentWidth,
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-              child: state.isEmpty
-                  ? _buildEmptyState(context)
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildSummary(context, state),
-                        const SizedBox(height: 18),
-                        _buildHeatmap(context, state),
-                        const SizedBox(height: 18),
-                        _buildLabelBreakdown(context, state),
-                        const SizedBox(height: 18),
-                        _buildRecentList(context, state),
-                      ],
-                    ),
-            ),
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: FloatingActionButton.extended(
-                heroTag: 'log_recitation_fab',
-                onPressed: () => _showLogDialog(context, state),
-                icon: const Icon(Icons.add),
-                label: const Text('Log recitation'),
-              ),
-            ),
-          ],
+        return ResponsiveScrollableContent(
+          maxWidth: listContentWidth,
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          child: state.isEmpty
+              ? _buildEmptyState(context)
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildSummary(context, state),
+                    const SizedBox(height: 18),
+                    _buildHeatmap(context, state),
+                    const SizedBox(height: 18),
+                    _buildLabelBreakdown(context, state),
+                    const SizedBox(height: 18),
+                    _buildRecentList(context, state),
+                  ],
+                ),
         );
       },
     );
@@ -103,8 +89,9 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Log the verses you read under a label like "Family"\n'
-              'or "Personal" to start tracking streaks and totals.',
+              'Open a surah and start reading — verses you actually recite\n'
+              'are tracked automatically. Add a track for "Family" or\n'
+              '"Personal" from the Quran page to keep them separate.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -625,219 +612,4 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
     return '$surahName $range · $verses ${verses == 1 ? 'verse' : 'verses'}';
   }
 
-  /// Parses "2:1"-style input for both ends of a range. Null unless both
-  /// sides name the same surah and the range runs forward — that is the one
-  /// shape a verse count can be derived from without guessing.
-  ({int surah, int fromAyah, int toAyah})? _tryParseRange(
-    String fromText,
-    String toText,
-  ) {
-    final from = VerseKey.tryParse(fromText);
-    final to = VerseKey.tryParse(toText);
-    if (from?.ayah == null || to?.ayah == null) return null;
-    if (from!.surah != to!.surah) return null;
-    if (to.ayah! < from.ayah!) return null;
-    return (surah: from.surah, fromAyah: from.ayah!, toAyah: to.ayah!);
-  }
-
-  Future<void> _showLogDialog(
-    BuildContext context,
-    RecitationTrackerState state,
-  ) async {
-    final labelController = TextEditingController();
-    final fromController = TextEditingController();
-    final toController = TextEditingController();
-    String? selectedExisting;
-    var selectedDate = DateTime.now();
-    final existingLabels = state.labels;
-
-    try {
-      final result = await showDialog<_LogResult>(
-        context: context,
-        builder: (_) => StatefulBuilder(
-          builder: (dialogContext, setDialogState) {
-            final range =
-                _tryParseRange(fromController.text, toController.text);
-
-            return AlertDialog(
-              title: const Text('Log a recitation'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (existingLabels.isNotEmpty) ...[
-                      Text(
-                        'Label',
-                        style: Theme.of(dialogContext).textTheme.labelMedium,
-                      ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          for (final label in existingLabels)
-                            ChoiceChip(
-                              label: Text(label),
-                              selected: selectedExisting == label,
-                              onSelected: (selected) => setDialogState(() {
-                                selectedExisting = selected ? label : null;
-                                if (selected) labelController.clear();
-                              }),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                    ],
-                    TextField(
-                      controller: labelController,
-                      autofocus: existingLabels.isEmpty,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Or a new label',
-                        hintText: 'e.g. Family, Personal',
-                      ),
-                      onChanged: (_) =>
-                          setDialogState(() => selectedExisting = null),
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      'Verses recited',
-                      style: Theme.of(dialogContext).textTheme.labelMedium,
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: fromController,
-                            decoration: const InputDecoration(
-                              labelText: 'From',
-                              hintText: 'e.g. 2:1',
-                            ),
-                            onChanged: (_) => setDialogState(() {}),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: toController,
-                            decoration: const InputDecoration(
-                              labelText: 'To',
-                              hintText: 'e.g. 2:20',
-                            ),
-                            onChanged: (_) => setDialogState(() {}),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      range == null
-                          ? 'Both verses in one surah, e.g. 2:1 to 2:20'
-                          : '${surahInfoFor(range.surah)?.englishName ?? "Surah ${range.surah}"} '
-                              '${range.fromAyah}–${range.toAyah} · '
-                              '${range.toAyah - range.fromAyah + 1} '
-                              '${range.toAyah - range.fromAyah + 1 == 1 ? "verse" : "verses"}',
-                      style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
-                            color: range == null
-                                ? Theme.of(dialogContext).colorScheme.error
-                                : Theme.of(dialogContext)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text('Date: ${_dayFormat.format(selectedDate)}'),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            final now = DateTime.now();
-                            final picked = await showDatePicker(
-                              context: dialogContext,
-                              initialDate: selectedDate,
-                              firstDate: now.subtract(const Duration(days: 3650)),
-                              lastDate: now,
-                            );
-                            if (picked != null) {
-                              setDialogState(() => selectedDate = DateTime(
-                                    picked.year,
-                                    picked.month,
-                                    picked.day,
-                                    now.hour,
-                                    now.minute,
-                                  ));
-                            }
-                          },
-                          child: const Text('Change'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: const Text('Cancel'),
-                ),
-                FilledButton(
-                  onPressed: range == null
-                      ? null
-                      : () {
-                          final label =
-                              (selectedExisting ?? labelController.text).trim();
-                          if (label.isEmpty) return;
-                          Navigator.pop(
-                            dialogContext,
-                            _LogResult(
-                              label: label,
-                              recitedAt: selectedDate,
-                              surah: range.surah,
-                              fromAyah: range.fromAyah,
-                              toAyah: range.toAyah,
-                            ),
-                          );
-                        },
-                  child: const Text('Log'),
-                ),
-              ],
-            );
-          },
-        ),
-      );
-
-      if (result == null) return;
-      await RecitationTrackerManager.instance.logRecitation(
-        label: result.label,
-        recitedAt: result.recitedAt,
-        surah: result.surah,
-        fromAyah: result.fromAyah,
-        toAyah: result.toAyah,
-      );
-    } finally {
-      labelController.dispose();
-      fromController.dispose();
-      toController.dispose();
-    }
-  }
-}
-
-class _LogResult {
-  const _LogResult({
-    required this.label,
-    required this.recitedAt,
-    required this.surah,
-    required this.fromAyah,
-    required this.toAyah,
-  });
-
-  final String label;
-  final DateTime recitedAt;
-  final int surah;
-  final int fromAyah;
-  final int toAyah;
 }
