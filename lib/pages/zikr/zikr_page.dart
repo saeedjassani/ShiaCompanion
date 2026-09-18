@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/retired_zikr_redirects.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/services/quran_progress_store.dart';
@@ -312,6 +313,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       uid: widget.item.getUId(),
       title: widget.item.getTitle(),
     ));
+    unawaited(RatingPromptService.recordZikrCompleted()
+        .then((_) => RatingPromptService.maybeAsk(context)));
   }
 
   /// Records the reader's place in their recitation - but only once they have

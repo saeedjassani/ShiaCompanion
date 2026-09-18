@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
@@ -26,24 +27,24 @@ void main() {
   });
 
   group('an install old and used enough', () {
-    Future<void> withAge(int days, {required int launches}) => withPrefs({
+    Future<void> withAge(int days, {required int completions}) => withPrefs({
           'rating_prompt_first_seen_at':
               DateTime.now().millisecondsSinceEpoch - days * dayMs,
-          'rating_prompt_launch_count': launches,
+          'rating_prompt_completion_count': completions,
         });
 
     test('is not asked before the minimum age', () async {
-      await withAge(6, launches: 10);
+      await withAge(6, completions: 10);
       expect(RatingPromptService.shouldAsk(), isFalse);
     });
 
-    test('is not asked before the minimum launch count', () async {
-      await withAge(30, launches: 4);
+    test('is not asked before the minimum completion count', () async {
+      await withAge(30, completions: 2);
       expect(RatingPromptService.shouldAsk(), isFalse);
     });
 
     test('is asked once both thresholds are met', () async {
-      await withAge(30, launches: 10);
+      await withAge(30, completions: 3);
       expect(RatingPromptService.shouldAsk(), isTrue);
     });
   });
@@ -53,7 +54,7 @@ void main() {
       await withPrefs({
         'rating_prompt_first_seen_at':
             DateTime.now().millisecondsSinceEpoch - 30 * dayMs,
-        'rating_prompt_launch_count': 10,
+        'rating_prompt_completion_count': 3,
       });
       await RatingPromptService.markAsked();
       expect(RatingPromptService.shouldAsk(), isFalse);
@@ -63,10 +64,26 @@ void main() {
       await withPrefs({
         'rating_prompt_first_seen_at':
             DateTime.now().millisecondsSinceEpoch - 300 * dayMs,
-        'rating_prompt_launch_count': 10,
+        'rating_prompt_completion_count': 3,
         'rating_prompt_last_asked_at':
             DateTime.now().millisecondsSinceEpoch - 121 * dayMs,
       });
+      expect(RatingPromptService.shouldAsk(), isTrue);
+    });
+  });
+
+  group('recordZikrCompleted', () {
+    test('counts towards the completion threshold', () async {
+      await withPrefs({
+        'rating_prompt_first_seen_at':
+            DateTime.now().millisecondsSinceEpoch - 30 * dayMs,
+      });
+
+      await RatingPromptService.recordZikrCompleted();
+      await RatingPromptService.recordZikrCompleted();
+      expect(RatingPromptService.shouldAsk(), isFalse);
+
+      await RatingPromptService.recordZikrCompleted();
       expect(RatingPromptService.shouldAsk(), isTrue);
     });
   });
@@ -108,6 +125,95 @@ void main() {
 
     await RatingPromptService.recordLaunch();
     expect(SP.prefs.getInt('rating_prompt_first_seen_at'), firstStamp);
-    expect(SP.prefs.getInt('rating_prompt_launch_count'), 2);
+  });
+
+  group('maybeAsk', () {
+    Future<BuildContext> pumpContext(WidgetTester tester) async {
+      late BuildContext context;
+      await tester.pumpWidget(MaterialApp(home: Builder(builder: (c) {
+        context = c;
+        return const SizedBox();
+      })));
+      return context;
+    }
+
+    Future<void> withEligibleInstall() => withPrefs({
+          'rating_prompt_first_seen_at':
+              DateTime.now().millisecondsSinceEpoch - 30 * dayMs,
+          'rating_prompt_completion_count': 3,
+        });
+
+    testWidgets('does nothing when shouldAsk is false', (tester) async {
+      await withPrefs({});
+      final context = await pumpContext(tester);
+
+      var promptShown = false;
+      await RatingPromptService.maybeAsk(
+        context,
+        prompt: (_) async {
+          promptShown = true;
+          return true;
+        },
+      );
+
+      expect(promptShown, isFalse);
+    });
+
+    testWidgets('a "yes" starts the cooldown and skips the feedback prompt',
+        (tester) async {
+      await withEligibleInstall();
+      final context = await pumpContext(tester);
+
+      var feedbackPromptShown = false;
+      await RatingPromptService.maybeAsk(
+        context,
+        prompt: (_) async => true,
+        feedbackPrompt: (_) async {
+          feedbackPromptShown = true;
+          return false;
+        },
+      );
+
+      expect(feedbackPromptShown, isFalse);
+      expect(RatingPromptService.shouldAsk(), isFalse);
+    });
+
+    testWidgets('a "no" asks the feedback follow-up, and starts the cooldown '
+        'either way', (tester) async {
+      await withEligibleInstall();
+      final context = await pumpContext(tester);
+
+      var feedbackPromptShown = false;
+      await RatingPromptService.maybeAsk(
+        context,
+        prompt: (_) async => false,
+        feedbackPrompt: (_) async {
+          feedbackPromptShown = true;
+          return false;
+        },
+      );
+
+      expect(feedbackPromptShown, isTrue);
+      expect(RatingPromptService.shouldAsk(), isFalse);
+    });
+
+    testWidgets('a dismissal starts the cooldown without asking for feedback',
+        (tester) async {
+      await withEligibleInstall();
+      final context = await pumpContext(tester);
+
+      var feedbackPromptShown = false;
+      await RatingPromptService.maybeAsk(
+        context,
+        prompt: (_) async => null,
+        feedbackPrompt: (_) async {
+          feedbackPromptShown = true;
+          return false;
+        },
+      );
+
+      expect(feedbackPromptShown, isFalse);
+      expect(RatingPromptService.shouldAsk(), isFalse);
+    });
   });
 }
