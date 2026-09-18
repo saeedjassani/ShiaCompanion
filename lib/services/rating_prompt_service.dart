@@ -21,7 +21,9 @@ typedef RatingFeedbackPrompt = Future<bool> Function(BuildContext context);
 /// Never asks on a new install - [shouldAsk] requires an install old enough,
 /// and enough real recitations behind it, to have an opinion worth asking
 /// about - and never asks too often after that, tracked by [_lastAskedKey].
-/// It does not gate on how many times the app has been opened: [maybeAsk] is
+/// A "yes" stops it from ever asking again at all, tracked by
+/// [_hasAcceptedKey] - see that field for why. It does not gate on how many
+/// times the app has been opened: [maybeAsk] is
 /// meant to be called right after a real moment of engagement (see
 /// [recordZikrCompleted] and zikr_page.dart's `_maybeRecordCompletion`, which
 /// already tells a finished recitation apart from a stray tap), and that is a
@@ -45,6 +47,15 @@ class RatingPromptService {
   static const String _firstSeenKey = 'rating_prompt_first_seen_at';
   static const String _completionCountKey = 'rating_prompt_completion_count';
   static const String _lastAskedKey = 'rating_prompt_last_asked_at';
+
+  /// Set the moment someone taps "Yes!" - once true, [shouldAsk] refuses
+  /// forever, cooldown or not. Neither StoreKit nor the Play In-App Review
+  /// API ever tells us whether a rating was actually left, so this is the
+  /// closest proxy we get: someone who already said yes has nothing to gain
+  /// from being asked again, only annoyance to lose. A "no" or a dismissal
+  /// leaves this unset, so [_cooldown] still applies to them - their answer
+  /// might genuinely change after more time with the app.
+  static const String _hasAcceptedKey = 'rating_prompt_has_accepted';
 
   /// However positive someone feels on day one, they have not used the app
   /// enough yet to have an opinion worth asking about.
@@ -110,6 +121,7 @@ class RatingPromptService {
   /// the user - called right before [maybeAsk] actually does.
   static bool shouldAsk() {
     if (!SP.isInitialized) return false;
+    if (SP.prefs.getBool(_hasAcceptedKey) == true) return false;
 
     final firstSeenMs = SP.prefs.getInt(_firstSeenKey);
     if (firstSeenMs == null) return false;
@@ -168,6 +180,7 @@ class RatingPromptService {
     ));
 
     if (enjoying == true) {
+      await SP.prefs.setBool(_hasAcceptedKey, true);
       await requestNativeReview();
       return;
     }
@@ -216,5 +229,6 @@ class RatingPromptService {
     await SP.prefs.remove(_firstSeenKey);
     await SP.prefs.remove(_completionCountKey);
     await SP.prefs.remove(_lastAskedKey);
+    await SP.prefs.remove(_hasAcceptedKey);
   }
 }

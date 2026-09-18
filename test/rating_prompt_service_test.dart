@@ -215,5 +215,53 @@ void main() {
       expect(feedbackPromptShown, isFalse);
       expect(RatingPromptService.shouldAsk(), isFalse);
     });
+
+    testWidgets('a past "yes" is never asked again, even once the cooldown '
+        'would otherwise have elapsed', (tester) async {
+      await withPrefs({
+        'rating_prompt_first_seen_at':
+            DateTime.now().millisecondsSinceEpoch - 300 * dayMs,
+        'rating_prompt_completion_count': 3,
+        'rating_prompt_last_asked_at':
+            DateTime.now().millisecondsSinceEpoch - 121 * dayMs,
+        'rating_prompt_has_accepted': true,
+      });
+      final context = await pumpContext(tester);
+
+      var promptShown = false;
+      await RatingPromptService.maybeAsk(
+        context,
+        prompt: (_) async {
+          promptShown = true;
+          return true;
+        },
+      );
+
+      expect(promptShown, isFalse);
+    });
+
+    testWidgets('a past "no" is asked again once the cooldown elapses',
+        (tester) async {
+      await withPrefs({
+        'rating_prompt_first_seen_at':
+            DateTime.now().millisecondsSinceEpoch - 300 * dayMs,
+        'rating_prompt_completion_count': 3,
+        'rating_prompt_last_asked_at':
+            DateTime.now().millisecondsSinceEpoch - 121 * dayMs,
+      });
+      final context = await pumpContext(tester);
+
+      var promptShown = false;
+      await RatingPromptService.maybeAsk(
+        context,
+        prompt: (_) async {
+          promptShown = true;
+          return false;
+        },
+        feedbackPrompt: (_) async => false,
+      );
+
+      expect(promptShown, isTrue);
+    });
   });
 }
