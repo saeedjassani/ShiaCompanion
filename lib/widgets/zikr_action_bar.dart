@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
+import 'home_glyph.dart';
 import 'responsive_content.dart';
 
 /// The docked bar along the bottom of a zikr.
@@ -115,6 +116,7 @@ class ZikrActionBar extends StatelessWidget {
         Expanded(
           child: _ZikrAction(
             icon: tasbeehCounterIcon,
+            glyphType: HomeGlyphType.tasbeeh,
             label: 'Counter',
             isActive: isCounterVisible,
             onTap: onCounter,
@@ -132,12 +134,14 @@ class ZikrActionBar extends StatelessWidget {
 /// that scrolled away with the rest of the bar a moment ago.
 class _ZikrAction extends StatefulWidget {
   final IconData icon;
+  final HomeGlyphType? glyphType;
   final String label;
   final bool isActive;
   final VoidCallback? onTap;
 
   const _ZikrAction({
     required this.icon,
+    this.glyphType,
     required this.label,
     this.isActive = false,
     required this.onTap,
@@ -221,7 +225,13 @@ class _ZikrActionState extends State<_ZikrAction>
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(widget.icon, size: 22, color: iconColor),
+                child: widget.glyphType != null
+                    ? HomeGlyph(
+                        type: widget.glyphType!,
+                        size: 22,
+                        color: iconColor,
+                      )
+                    : Icon(widget.icon, size: 22, color: iconColor),
               ),
             ),
             const SizedBox(height: 3),
