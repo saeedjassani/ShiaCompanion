@@ -31,6 +31,11 @@ class RatingPromptService {
   /// anyway.
   static const Duration _cooldown = Duration(days: 120);
 
+  /// App Store Connect > General > App Information > Apple ID. Only iOS/macOS
+  /// need it - Android and Windows resolve the store listing from the app's
+  /// own package id instead.
+  static const String _appStoreId = '1492517189';
+
   /// Records a cold start. Call once per launch, before [shouldAsk] - it is
   /// what [shouldAsk] measures "how long installed" and "how many launches"
   /// against.
@@ -86,6 +91,19 @@ class RatingPromptService {
       await inAppReview.requestReview();
     } catch (error) {
       debugPrint('RatingPromptService: requestReview failed: $error');
+    }
+  }
+
+  /// Opens the store listing directly - no quota, no cooldown, no gating on
+  /// [shouldAsk]. This is the permanent "Rate us" entry point in Settings,
+  /// which the plugin's own guidance calls for precisely because
+  /// [requestNativeReview] can never be relied on to actually show anything.
+  static Future<void> openStoreListing() async {
+    if (kIsWeb) return;
+    try {
+      await InAppReview.instance.openStoreListing(appStoreId: _appStoreId);
+    } catch (error) {
+      debugPrint('RatingPromptService: openStoreListing failed: $error');
     }
   }
 
