@@ -28,6 +28,7 @@ import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/services/preferences_sync_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
+import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
@@ -573,6 +574,11 @@ class _MyHomePageState extends State<MyHomePage>
         await showWhatsNewDialog(context, whatsNew);
       }
 
+      // Only tracks install age here - the rating prompt itself is asked
+      // from a real moment of engagement (see zikr_page.dart's
+      // _maybeRecordCompletion), not on cold start.
+      await RatingPromptService.recordLaunch();
+
       final List<PendingNotificationRequest>? pendingNotificationRequests =
           await flutterLocalNotificationsPlugin?.pendingNotificationRequests();
       pendingNotificationRequests
@@ -662,6 +668,10 @@ class _MyHomePageState extends State<MyHomePage>
     // recognises it as never having been asked; an install that predates the
     // opt-in keeps whatever it already had.
     await AzaanOptInService.adoptChoiceFromExistingInstall();
+    // Same idea for the rating prompt: an install that predates it is
+    // backfilled as already past its age/launch thresholds rather than
+    // started fresh (see RatingPromptService.adoptExistingInstall).
+    await RatingPromptService.adoptExistingInstall();
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     appVersion = packageInfo.version;
