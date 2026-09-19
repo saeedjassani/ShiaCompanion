@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/widgets/azaan_opt_in_dialog.dart';
+import 'package:shia_companion/models/azaan_option.dart';
 
 /// Azan used to switch itself on the first time the app ran. These pin the
 /// replacement: nothing is enabled until the user says so, the question is
@@ -164,6 +166,32 @@ void main() {
 
       expect(AzaanOptInService.hasBeenAsked, isFalse);
       expect(AzaanOptInService.shouldAsk(hasLocation: true), isTrue);
+    });
+  });
+
+  group('what iOS users are told', () {
+    test('the opt-in dialog explains the takbir-then-tap behaviour on iOS only',
+        () {
+      expect(azaanOptInMessage(isIOS: true), contains('tap'));
+      expect(azaanOptInMessage(isIOS: false), isNot(contains('iPhone')));
+    });
+
+    test('a Full Azan banner on iOS says to tap; nothing else does', () {
+      const tapHint = 'Tap to hear the full azan';
+      expect(
+        prayerNotificationBody('Fajr', AzaanOptions.azaan, isIOS: true),
+        "It's time for fajr · $tapHint",
+      );
+      expect(
+        prayerNotificationBody('Fajr', AzaanOptions.azaan, isIOS: false),
+        "It's time for fajr",
+      );
+      // The Takbir clip already plays in full on iOS, so there is nothing to
+      // tap for.
+      expect(
+        prayerNotificationBody('Fajr', AzaanOptions.takbir, isIOS: true),
+        "It's time for fajr",
+      );
     });
   });
 }

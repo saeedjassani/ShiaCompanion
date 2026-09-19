@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/models/azaan_option.dart';
@@ -520,7 +521,7 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       if (path != null && path.isNotEmpty) return path.split('/').last;
       return option.description;
     }
-    return option.description;
+    return option.descriptionFor(isIOS: !kIsWeb && Platform.isIOS);
   }
 
   String _footnote() {

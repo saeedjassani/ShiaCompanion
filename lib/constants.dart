@@ -221,8 +221,11 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   // hasPrayerScheduleLocationMoved(), which applies a distance threshold. Any
   // rounding of raw coordinates into this string would flip on GPS jitter and
   // force a full reschedule on the next app open.
+  // Bumped to v9 when the Full Azan notification body gained its iOS "tap to
+  // hear" hint (see prayerNotificationBody): the body is fixed at schedule
+  // time, so already-scheduled notifications have to be rebuilt.
   return [
-    'v8',
+    'v9',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'tz:${tz.local.name}',
     'azaan:$azaanId',
@@ -1029,6 +1032,21 @@ Future<NotificationDetails> prayerNotificationDetails(
   );
 }
 
+/// The text under a prayer notification's title.
+///
+/// On iOS the Full Azan notification only carries the short Takbir clip (see
+/// _iosPrayerNotificationDetails) and the full recording starts from a tap on
+/// it, so the banner has to say so - nothing else on it does.
+String prayerNotificationBody(String prayerName, AzaanOption azaan,
+    {bool? isIOS}) {
+  final body = "It's time for ${prayerName.toLowerCase()}";
+  final onIOS = isIOS ?? (!kIsWeb && Platform.isIOS);
+  if (onIOS && azaan.id == AzaanOptions.azaan.id) {
+    return '$body · Tap to hear the full azan';
+  }
+  return body;
+}
+
 Future<void> schedulePrayerTimeNotification(
     int id, DateTime dateTime, String prayerName,
     {String? azaanId}) async {
@@ -1051,7 +1069,7 @@ Future<void> schedulePrayerTimeNotification(
             : AndroidScheduleMode.inexactAllowWhileIdle,
         title:
             formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
-        body: "It's time for " + prayerName.toLowerCase(),
+        body: prayerNotificationBody(prayerName, azaan),
         payload: dateTime.toIso8601String());
 
     // Android only: the notification above is now silent for Full Azan and

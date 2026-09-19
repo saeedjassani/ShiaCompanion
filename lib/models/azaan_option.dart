@@ -3,6 +3,9 @@ class AzaanOption {
   final String id;
   final String name;
   final String description;
+  // Shown instead of [description] on iOS, for options that behave
+  // differently there.
+  final String? iosDescription;
   final String? androidFile; // raw resource name (null for custom/default)
   final String? iosFile; // asset filename (null for custom/default)
   final bool isCustom;
@@ -11,10 +14,14 @@ class AzaanOption {
     required this.id,
     required this.name,
     required this.description,
+    this.iosDescription,
     this.androidFile,
     this.iosFile,
     this.isCustom = false,
   });
+
+  String descriptionFor({required bool isIOS}) =>
+      isIOS ? iosDescription ?? description : description;
 }
 
 /// Predefined azaan options available to users
@@ -38,9 +45,9 @@ class AzaanOptions {
     id: 'azaan',
     name: 'Full Azan',
     androidFile: 'sharif',
-    description: 'Full azan, played automatically on Android; '
-        'on iOS, the notification plays the Takbir sound and the full azan '
-        'plays when you open it',
+    description: 'Full azan, played automatically',
+    iosDescription: 'The notification plays the Takbir; '
+        'tap it to hear the full azan',
   );
 
   // System default notification sound

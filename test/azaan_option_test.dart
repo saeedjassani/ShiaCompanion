@@ -28,4 +28,21 @@ void main() {
     expect(AzaanOptions.systemDefault.androidFile, isNull);
     expect(AzaanOptions.systemDefault.iosFile, isNull);
   });
+
+  test('Full Azan tells iOS users to tap, and other platforms nothing extra',
+      () {
+    final ios = AzaanOptions.azaan.descriptionFor(isIOS: true);
+    expect(ios, contains('tap'));
+    expect(ios, isNot(contains('Android')));
+    expect(AzaanOptions.azaan.descriptionFor(isIOS: false),
+        AzaanOptions.azaan.description);
+  });
+
+  test('options without an iOS description use the shared one on iOS', () {
+    for (final option
+        in AzaanOptions.all.where((o) => o.iosDescription == null)) {
+      expect(option.descriptionFor(isIOS: true), option.description,
+          reason: option.id);
+    }
+  });
 }
