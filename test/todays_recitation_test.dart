@@ -75,4 +75,30 @@ void main() {
 
     expect(recitations.map((item) => item.uid), contains('E26'));
   });
+
+  test(
+      'a weekday-prefixed alias does not duplicate its target when both '
+      'match the same weekday (e.g. Dua Nudbah on Friday)', () {
+    final friday = DateTime(2024, 6, 21);
+    expect(friday.weekday, DateTime.friday);
+
+    items = {
+      'E18': 'Dua e Ahad',
+      'G6': 'Ziyarat e Waritha',
+      'G4': 'Ziyarat e Ashura',
+      'E37': 'Dua e Sanamay Quraish',
+      'E34': 'Dua e Nudbah',
+      'J2|E34': 'Dua-e-Nudbah',
+    };
+    itemOrder = {};
+    itemMetadata = {
+      'E34': {'day': '*-*-5'},
+    };
+    hijriDate = 0;
+
+    final recitations = buildTodaysRecitationItems(now: friday);
+
+    expect(recitations.where((item) => item.uid == 'E34'), hasLength(1));
+    expect(recitations.map((item) => item.uid), isNot(contains('J2|E34')));
+  });
 }

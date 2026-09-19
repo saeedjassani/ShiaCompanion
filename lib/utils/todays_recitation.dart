@@ -4,6 +4,12 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/utils/lunar_date_matcher.dart';
 import 'package:shia_companion/utils/night_window.dart';
 
+// Aliases are uids of the form "aliasUid|targetUid"; the part after the
+// last "|" is the canonical uid they point to. Comparing canonical uids
+// (instead of raw ones) stops an alias and its target — or two aliases of
+// the same target — from both showing up as separate rows.
+String _canonicalUid(String uid) => uid.split('|').last;
+
 void _insertIfAvailable(
   List<UidTitleData> workingItems,
   int index,
@@ -11,7 +17,11 @@ void _insertIfAvailable(
 ) {
   final title = items[uid];
   if (title is! String || title.trim().isEmpty) return;
-  if (workingItems.any((item) => item.uid == uid)) return;
+  if (workingItems.any(
+    (item) => _canonicalUid(item.uid) == _canonicalUid(uid),
+  )) {
+    return;
+  }
   workingItems.insert(
     index.clamp(0, workingItems.length),
     UidTitleData(uid, title),
