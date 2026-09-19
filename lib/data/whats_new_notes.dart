@@ -41,7 +41,6 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       'On Android, Custom Audio works the same way, with a file per prayer.',
       'Prayer notification and sound choices now sync across your devices '
           'when you are signed in.',
-      'Dividers between zikr steps, and corrected text in a few duas.',
     ],
   ),
 ];
