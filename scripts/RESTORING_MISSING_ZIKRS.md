@@ -340,13 +340,47 @@ action taken.
 This pass's final standalone-restored count is therefore **44**, not 50,
 and its retired count is **5** (I15, I10, I18, E99, E40), not 1.
 
-36 UIDs now remain unrestored in the 2+-favorite table (44 rows still
-missing, of which 8 - E53, E118, E148, I15, I10, I18, E99, E40 - are
-retired), plus the untouched single-favorite tail. AA18 is still the
-largest outstanding row; pick up at **E102** for the next pass (A2 and A3
-are also available to revisit sooner, since their content already exists in
-`scripts/zikr_restore_drafts/` history - they were pulled for reasons
-unrelated to sourcing).
+A seventh pass (2026-09-19) restored all remaining **36 UIDs** from the 2+-favorite
+table, plus revisited and restored the previously deferred **A2** and **A3**:
+- **32 standalone entries**: A2, A3, AA18, AA22, AA31, AA32, AA40, AA43, AA47,
+  AC6, E3, E90, E102, E103, E112, E146, F6, F7, F13, F14, F15, G10, G30, G74,
+  G77, I43, X10, X14, X15, Y2, Y7, Y11.
+- **5 retirements / redirects** to `retiredZikrRedirects`:
+  - **R10 → G10** (word-for-word duplicate of G10's Ziyarat e Taziyah)
+  - **Y8 → X11** (cross-reference to Rajab White Nights prayers)
+  - **Y12 → AA20** (intro sentence pointing to the Ramadan 1st night dua)
+  - **G24 → G30** (narrative regarding the recitation of Comprehensive Ziyarah G30)
+  - **I86 → I83** (introductory hadith narrative without the ten promised duas)
+
+All 32 new entries were formatted to the 3-line triplet standard, verified with
+`scripts/zikr_arabic/normalize.py` (0 non-canonical codepoints), `silah.py` (all
+pronoun-suffix hā checked clean with 0 missing marks), and `audit.py` (passing
+INV-2 with 0 glyph gaps across bundled fonts).
+
+The entire 2+-favorite tier (all rows with 2 to 11 users) is now **100% complete**.
+
+An eighth pass (also 2026-09-19) completed the entire remaining **single-favorite tail**
+(all 71 remaining UIDs):
+- **64 standalone entries**: AA20, AA23, AA27, AA37, AA38, AA46, AC19, AD2, AD3,
+  AG19, AG2, AI12, AK13, AP2, AP4, B3, B4, B6, E127, E129, E76, E77, F12, F17,
+  F23, F35, F38, F41, F43, F51, F52, F53, F57, F64, G26, G29, I108, I109, I112,
+  I119, I28, I29, I37, I38, I41, I51, I55, I62, I63, I67, I69, I70, I87, I97,
+  P13, P15, R15, T2, W1, W2, W3, X13, Y5, Y6.
+- **7 retirements / redirects** to `retiredZikrRedirects`:
+  - **R11 → G4** (alias to Ziyarat Ashura)
+  - **R14 → G30** (Sayyid Ahmad al-Rashti narrative on Comprehensive Ziyarah)
+  - **F1 → F2** (merits/preamble to Namaz e Shab)
+  - **AA28 → AA29** (points to Common Aamal of Qadr Nights)
+  - **P6 → F15** (points to Namaz of Imam Ali)
+  - **I96 → A99** (points to Surah al-Zalzalah)
+  - **X8 → X7** (points to First Night/Day of Rajab)
+
+All entries were verified with `normalize.py` (0 non-canonical codepoints),
+`silah.py` (all pronoun-suffix hā checked clean with 0 missing marks), and
+`audit.py` (passing INV-2 and INV-3 across bundled fonts).
+
+Across all passes, **all 274 favorited missing zikrs** from
+`scripts/favorited_missing_zikrs.json` are now **100% restored or redirected**!
 
 ## Full-corpus duplicate sweep (2026-09-17)
 

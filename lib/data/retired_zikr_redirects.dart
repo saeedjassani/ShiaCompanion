@@ -162,4 +162,48 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// double-listing the same ziyarah in the general Ziyarat list. The
   /// 'G20|N3' alias stays; this retires the leftover plain 'G20'.
   'G20': RetiredZikrRedirect('N3'),
+
+  /// R10 ("Ziyarah of Condolence to Holy Prophet (s) and His Immaculate
+  /// progeny") is a word-for-word duplicate of G10 ("Ziyarat e Taziyah
+  /// Condolence to Holy Prophet (s) and His Immaculate progeny").
+  'R10': RetiredZikrRedirect('G10'),
+
+  /// Y8 ("Thirteenth Night Of Shaban") contains only a cross-reference
+  /// pointing back to the Rajab White Nights prayers (X11).
+  'Y8': RetiredZikrRedirect('X11'),
+
+  /// Y12 ("Last Night of Shaban") contains only an introductory sentence
+  /// pointing to the last night of Shaban / first night of Ramadan dua (AA20).
+  'Y12': RetiredZikrRedirect('AA20'),
+
+  /// G24 ("Story of Sayyid Al Rashti") is the narrative regarding the virtues
+  /// and recitation of the comprehensive form of Ziyarah (G30).
+  'G24': RetiredZikrRedirect('G30'),
+
+  /// I86 ("Ten duas for fufillment of petitions (requests)") contains only
+  /// the introductory hadith narrative without the 10 duas.
+  'I86': RetiredZikrRedirect('I83'),
+
+  /// R11 ("Ziyarah on the day of Ashura") is an alias to the famous Ziyarat
+  /// Ashura (G4).
+  'R11': RetiredZikrRedirect('G4'),
+
+  /// R14 ("More Confirmations") is the narrative of Sayyid Ahmad al-Rashti
+  /// regarding the Comprehensive Ziyarah (G30).
+  'R14': RetiredZikrRedirect('G30'),
+
+  /// F1 ("Merits of Namaz e Shab") is the merits/preamble to Namaz e Shab (F2).
+  'F1': RetiredZikrRedirect('F2'),
+
+  /// AA28 ("Aamal of Shab Qadr") points to the Common Aamal of Qadr Nights (AA29).
+  'AA28': RetiredZikrRedirect('AA29'),
+
+  /// P6 ("The Namaaz of Ameer al-Momineen (a.s.)") points to Namaz of Imam Ali (F15).
+  'P6': RetiredZikrRedirect('F15'),
+
+  /// I96 ("Merits of Surah Zilzal") points to Surah al-Zalzalah (A99).
+  'I96': RetiredZikrRedirect('A99'),
+
+  /// X8 ("(c) First Day of Rajab") points to the First Night/Day of Rajab rites (X7).
+  'X8': RetiredZikrRedirect('X7'),
 };
