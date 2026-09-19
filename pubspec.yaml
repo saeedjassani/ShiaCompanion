@@ -85,6 +85,7 @@ flutter:
     - assets/images/google_logo.png
     - assets/images/apple_logo.png
     - assets/sounds/full_azan.mp3
+    - assets/sounds/azan_halawaji.mp3
     - assets/zikr/
 
   fonts:

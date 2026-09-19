@@ -880,6 +880,8 @@ String _androidPrayerChannelId(AzaanOption azaan) {
       // key at all - see _androidPrayerNotificationDetails), so every custom
       // choice shares this one channel instead of minting a new one per file.
       return 'prayer_custom_$_androidPrayerChannelVersion';
+    case 'azaan_halawaji':
+      return 'prayer_full_azaan_halawaji_$_androidPrayerChannelVersion';
     case 'azaan':
     default:
       return 'prayer_full_azaan_$_androidPrayerChannelVersion';
@@ -950,6 +952,8 @@ String _androidPrayerChannelName(AzaanOption azaan) {
       return 'Prayer Times - Silent';
     case 'custom':
       return 'Prayer Times - Custom Sound';
+    case 'azaan_halawaji':
+      return 'Prayer Times - Full Azan (Al-Halawaji)';
     case 'azaan':
     default:
       return 'Prayer Times - Full Azan';
@@ -977,8 +981,7 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
   // here would just be a second, competing copy racing it - and the whole
   // reason for that separate player is that a channel sound cannot outlast a
   // phone unlock or another app's ping the way real playback can.
-  final playsViaAzanPlaybackService =
-      azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id;
+  final playsViaAzanPlaybackService = azaan.playsViaPlaybackService;
 
   AndroidNotificationSound? sound;
   if (!playsViaAzanPlaybackService && azaan.id != 'system_default') {
@@ -1010,11 +1013,12 @@ DarwinNotificationDetails _iosPrayerNotificationDetails(AzaanOption azaan) {
   // Full Azan runs well past the ~30 seconds Apple allows a notification
   // sound to play before it silently falls back to the default system tone
   // (see handlePrayerNotificationResponse) - so on iOS its notification
-  // always carries the Takbir Only clip instead, the same one that option
-  // plays, rather than a sound of its own. The full recording still plays in
-  // full once the user taps in; this is only about what they hear the
-  // instant the notification itself arrives.
-  return DarwinNotificationDetails(sound: AzaanOptions.takbir.iosFile);
+  // carries a short clip instead: the option's own if it ships one, else the
+  // Takbir Only clip. The full recording still plays in full once the user
+  // taps in; this is only about what they hear the instant the notification
+  // itself arrives.
+  return DarwinNotificationDetails(
+      sound: azaan.iosFile ?? AzaanOptions.takbir.iosFile);
 }
 
 Future<NotificationDetails> prayerNotificationDetails(
@@ -1062,7 +1066,7 @@ Future<void> schedulePrayerTimeNotification(
     // playback starts from a tap on the notification instead (see
     // handlePrayerNotificationResponse); Custom Audio isn't offered on iOS
     // at all (see isAzaanOptionAvailableOnCurrentPlatform).
-    if (azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id) {
+    if (azaan.playsViaPlaybackService) {
       await AzanPlaybackService.schedule(
         alarmId: id,
         fireTime: dateTime,
@@ -1071,6 +1075,7 @@ Future<void> schedulePrayerTimeNotification(
         customFilePath: azaan.id == AzaanOptions.custom.id
             ? _customAudioPathForPlayback(prayerName)
             : null,
+        assetPath: azaan.playbackAsset,
       );
     } else {
       await AzanPlaybackService.cancel(id);
@@ -1155,14 +1160,13 @@ Future<void> handlePrayerNotificationResponse(
   appNavigatorKey.currentState?.popUntil((route) => route.isFirst);
 
   final azaan = getAzaanOptionForPrayer(prayerName);
-  if (azaan.id != AzaanOptions.azaan.id && azaan.id != AzaanOptions.custom.id) {
-    return;
-  }
+  if (!azaan.playsViaPlaybackService) return;
   await AzanPlaybackService.playNow(
     prayerName: prayerName,
     customFilePath: azaan.id == AzaanOptions.custom.id
         ? _customAudioPathForPlayback(prayerName)
         : null,
+    assetPath: azaan.playbackAsset,
   );
 }
 
@@ -1245,12 +1249,13 @@ Future<void> testNotification(
   // (see _androidPrayerNotificationDetails) - without this, testing either
   // choice would fire a silent notification and the person trying it would
   // hear nothing at all.
-  if (azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id) {
+  if (azaan.playsViaPlaybackService) {
     unawaited(AzanPlaybackService.playNow(
       prayerName: prayerName ?? 'Prayer',
       customFilePath: azaan.id == AzaanOptions.custom.id
           ? _customAudioPathForPlayback(prayerName)
           : null,
+      assetPath: azaan.playbackAsset,
     ));
   }
 
