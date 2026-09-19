@@ -34,13 +34,12 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
     versionName: '3.5.4',
     bullets: [
       'Zikr Reminders: get reminded about a zikr or dua on the days you '
-          'choose. In Settings, on the app only.',
+          'choose.',
       'Full Azan now plays in full, without other notifications cutting it '
           'off, and has a Stop button on the home screen. On iPhone, tap '
           'the notification to start it.',
-      'On Android, Custom Audio works the same way, with a file per prayer.',
-      'Prayer notification and sound choices now sync across your devices '
-          'when you are signed in.',
+      'On Android, Custom Audio works the same way.',
+      'You can now choose a notification sound for each prayer.',
     ],
   ),
 ];
