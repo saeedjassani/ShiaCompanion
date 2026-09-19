@@ -371,7 +371,7 @@ class _MyHomePageState extends State<MyHomePage>
                     onTap: () {
                       SharePlus.instance.share(ShareParams(
                         text:
-                            '$hadith\n\nShared via Shia Companion - https://www.onelink.to/ShiaCompanion',
+                            '$hadith\n\nShared via Shia Companion - https://shia-companion.web.app/',
                         sharePositionOrigin: Rect.fromLTWH(
                             MediaQuery.of(context).size.width / 2, 0, 2, 2),
                       ));
