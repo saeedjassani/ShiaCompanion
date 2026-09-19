@@ -70,8 +70,8 @@ void main() {
       whatsNewNotes
         ..clear()
         ..addAll(const [
-          WhatsNewEntry(buildNumber: 100, title: 'A', bullets: ['a']),
-          WhatsNewEntry(buildNumber: 105, title: 'B', bullets: ['b']),
+          WhatsNewEntry(buildNumber: 100, versionName: '1.0.0', bullets: ['a']),
+          WhatsNewEntry(buildNumber: 105, versionName: '1.0.5', bullets: ['b']),
         ]);
       addTearDown(() {
         whatsNewNotes

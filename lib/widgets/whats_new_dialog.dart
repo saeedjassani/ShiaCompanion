@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../data/whats_new_notes.dart';
 
 /// Shows the accumulated [entries] from [WhatsNewService.pending] as one
-/// dialog. Plain, short, and dismissed with a single tap — this is meant to
-/// take a few seconds to read, not to be a release-notes page.
+/// dialog: "What's new in x.y.z" for a single release, or a "What's new"
+/// dialog with one heading per version for someone who skipped several.
+/// Plain, short, and dismissed with a single tap — this is meant to take a
+/// few seconds to read, not to be a release-notes page.
 Future<void> showWhatsNewDialog(
   BuildContext context,
   List<WhatsNewEntry> entries,
@@ -14,7 +16,9 @@ Future<void> showWhatsNewDialog(
   return showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(entries.length == 1 ? entries.first.title : "What's new"),
+      title: Text(entries.length == 1
+          ? "What's new in ${entries.first.versionName}"
+          : "What's new"),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -22,7 +26,7 @@ Future<void> showWhatsNewDialog(
           children: [
             for (final entry in entries) ...[
               if (entries.length > 1) ...[
-                Text(entry.title,
+                Text('Version ${entry.versionName}',
                     style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
               ],

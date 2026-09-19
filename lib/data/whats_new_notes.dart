@@ -4,7 +4,7 @@
 class WhatsNewEntry {
   const WhatsNewEntry({
     required this.buildNumber,
-    required this.title,
+    required this.versionName,
     required this.bullets,
   });
 
@@ -13,10 +13,14 @@ class WhatsNewEntry {
   /// correct relative to the entries around it, not globally unique in any
   /// other sense.
   final int buildNumber;
-  final String title;
+
+  /// The version people see in the store (pubspec.yaml's `x.y.z`), shown as
+  /// "What's new in x.y.z".
+  final String versionName;
 
   /// Short, plain-language points — this is read by people who did not ask
-  /// for a changelog, not a commit log entry. Two or three is plenty.
+  /// for a changelog, not a commit log entry. Say only what a person would
+  /// notice, and name the platform when something is not the same on both.
   final List<String> bullets;
 }
 
@@ -27,13 +31,33 @@ class WhatsNewEntry {
 final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
   const WhatsNewEntry(
     buildNumber: 111,
-    title: 'Azan now plays in full',
+    versionName: '3.5.0',
     bullets: [
-      'Full Azan and Custom Audio now keep playing even if another '
-          'notification arrives or you pick up your phone — they no longer '
-          'cut off partway through.',
-      'A Stop button is always available, in the notification and in the '
-          'app, to end it early whenever you want.',
+      'Full Azan now plays as real audio. On Android it starts at prayer '
+          'time even if the app is closed, and other notifications or '
+          'touching your phone no longer cut it off. On iPhone it plays in '
+          'full when you tap the prayer notification.',
+      'While the Azan is playing, you can stop it from the Stop button on '
+          'the home screen or from the playback notification.',
+      'On Android, Custom Audio plays the same way, and you can now pick a '
+          'different file for each prayer.',
+      'Prayer notification settings are now on one page: Settings > Prayer '
+          'notifications.',
+    ],
+  ),
+  const WhatsNewEntry(
+    buildNumber: 114,
+    versionName: '3.5.4',
+    bullets: [
+      'The home screen has a redesigned set of icons.',
+      'Zikr pages now separate each step with a thin divider, like the '
+          'Quran does between verses.',
+      'When you are signed in, your prayer notification and sound choices '
+          'now follow your account to your other devices.',
+      'Tapping a prayer notification now always takes you to the home '
+          'screen, where the Stop button is.',
+      'Fixed mix-ups in the transliteration and English text of a few '
+          'duas, including Dua e Faraj.',
     ],
   ),
 ];
