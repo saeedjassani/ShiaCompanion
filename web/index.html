@@ -236,8 +236,16 @@
         return isAndroid ? androidStoreUrl : iosStoreUrl;
       }
 
+      function isBannerDismissedForever() {
+        try {
+          return window.localStorage.getItem(bannerDismissedKey) === '1';
+        } catch (_) {
+          return false;
+        }
+      }
+
       function createDownloadAppBanner() {
-        if (sessionStorage.getItem(bannerDismissedKey) === '1') {
+        if (isBannerDismissedForever()) {
           return;
         }
 
@@ -291,7 +299,12 @@
           'flex:0 0 auto;border:0;background:transparent;color:#6d5d55;font:700 18px system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;padding:4px 2px;'
         );
         close.addEventListener('click', function () {
-          sessionStorage.setItem(bannerDismissedKey, '1');
+          try {
+            window.localStorage.setItem(bannerDismissedKey, '1');
+          } catch (_) {
+            // Storage unavailable (e.g. private browsing); banner will
+            // reappear next session, which is the previous behavior.
+          }
           banner.remove();
         });
 
