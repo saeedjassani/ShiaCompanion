@@ -28,10 +28,10 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('a single release is titled with its version', (tester) async {
+  testWidgets('a single release has no version heading', (tester) async {
     await open(tester, [newer]);
 
-    expect(find.text("What's new in 1.0.5"), findsOneWidget);
+    expect(find.text("What's new"), findsOneWidget);
     expect(find.text('newer bullet'), findsOneWidget);
     expect(find.text('Version 1.0.5'), findsNothing);
   });
