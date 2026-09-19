@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
@@ -128,6 +129,28 @@ void main() {
   });
 
   group('maybeAsk', () {
+    // A "yes" hands off to RatingPromptService.requestNativeReview, which
+    // reaches the in_app_review plugin's real platform channel. Without a
+    // mock handler, flutter_test buffers the call rather than rejecting it,
+    // so isAvailable() never completes and the test hangs until its timeout
+    // instead of failing fast - this stands in for "no App Store on this
+    // CI runner" and makes it resolve to false immediately, same as
+    // production would on a device the plugin doesn't support.
+    const inAppReviewChannel = MethodChannel('dev.britannio.in_app_review');
+
+    setUp(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(inAppReviewChannel, (call) async {
+        if (call.method == 'isAvailable') return false;
+        return null;
+      });
+    });
+
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(inAppReviewChannel, null);
+    });
+
     Future<BuildContext> pumpContext(WidgetTester tester) async {
       late BuildContext context;
       await tester.pumpWidget(MaterialApp(home: Builder(builder: (c) {
