@@ -38,27 +38,11 @@ class WhatsNewService {
   /// that is what actually advances the "last seen" mark, for a fresh
   /// install as much as one that was just shown something.
   ///
-  /// On the web, bullets marked [WhatsNewBullet.appOnly] are left out, and an
-  /// entry with nothing left to say is dropped entirely so the dialog never
-  /// opens empty. [isWeb] exists only so tests can exercise that.
+  /// Always empty on the web: these notes describe app behavior (notification
+  /// sounds, Azan playback, reminders) that the website does not have.
+  /// [isWeb] exists only so tests can exercise that.
   static Future<List<WhatsNewEntry>> pending({bool isWeb = kIsWeb}) async {
-    final entries = await _unfilteredPending();
-    if (!isWeb) return entries;
-
-    return entries
-        .map((entry) => WhatsNewEntry(
-              buildNumber: entry.buildNumber,
-              versionName: entry.versionName,
-              bullets: entry.bullets
-                  .where((bullet) => !bullet.appOnly)
-                  .toList(growable: false),
-            ))
-        .where((entry) => entry.bullets.isNotEmpty)
-        .toList(growable: false);
-  }
-
-  static Future<List<WhatsNewEntry>> _unfilteredPending() async {
-    if (!SP.isInitialized) return const [];
+    if (isWeb || !SP.isInitialized) return const [];
 
     final currentBuild = await _currentBuildNumber();
     if (currentBuild <= 0) return const [];

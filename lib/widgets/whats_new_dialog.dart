@@ -35,7 +35,7 @@ Future<void> showWhatsNewDialog(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('•  '),
-                      Expanded(child: Text(bullet.text)),
+                      Expanded(child: Text(bullet)),
                     ],
                   ),
                 ),
