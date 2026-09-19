@@ -30,34 +30,29 @@ class WhatsNewEntry {
 /// need to touch.
 final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
   const WhatsNewEntry(
-    buildNumber: 111,
-    versionName: '3.5.0',
-    bullets: [
-      'Full Azan now plays as real audio. On Android it starts at prayer '
-          'time even if the app is closed, and other notifications or '
-          'touching your phone no longer cut it off. On iPhone it plays in '
-          'full when you tap the prayer notification.',
-      'While the Azan is playing, you can stop it from the Stop button on '
-          'the home screen or from the playback notification.',
-      'On Android, Custom Audio plays the same way, and you can now pick a '
-          'different file for each prayer.',
-      'Prayer notification settings are now on one page: Settings > Prayer '
-          'notifications.',
-    ],
-  ),
-  const WhatsNewEntry(
     buildNumber: 114,
     versionName: '3.5.4',
     bullets: [
-      'The home screen has a redesigned set of icons.',
-      'Zikr pages now separate each step with a thin divider, like the '
-          'Quran does between verses.',
+      'Zikr Reminders: get reminded about any zikr or dua on the days you '
+          'choose, at a fixed time or a set number of minutes before or '
+          'after a prayer. Find it in Settings, or tap the bell on a '
+          "zikr's page. Not available on the website.",
+      'Prayer notifications are now on one page, Settings > Prayer '
+          'notifications, where each prayer has its own switch and its own '
+          'sound.',
+      'Full Azan now plays as real audio. On Android it starts at prayer '
+          'time even if the app is closed, and other notifications or '
+          'touching your phone no longer cut it off. On iPhone it plays in '
+          'full when you tap the prayer notification. While it plays, stop '
+          'it from the Stop button on the home screen or from the '
+          'playback notification.',
+      'On Android, Custom Audio plays the same way, and you can pick a '
+          'different file for each prayer.',
       'When you are signed in, your prayer notification and sound choices '
           'now follow your account to your other devices.',
-      'Tapping a prayer notification now always takes you to the home '
-          'screen, where the Stop button is.',
-      'Fixed mix-ups in the transliteration and English text of a few '
-          'duas, including Dua e Faraj.',
+      'A redesigned set of home screen icons, thin dividers between the '
+          'steps of a zikr, and corrected transliteration and English text '
+          'in a few duas, including Dua e Faraj.',
     ],
   ),
 ];
