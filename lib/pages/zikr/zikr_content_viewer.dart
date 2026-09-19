@@ -159,9 +159,12 @@ TextSpan buildZikrTextSpanWithLinks({
 }
 
 /// One item the reading list actually renders. Ordinarily this is a single
-/// content line, same as always. In [isArabicOnlyReadingView], a run of
+/// content line, same as always. A run of consecutive standalone lines -
+/// narration, commentary, a heading, a citation - collapses into one item
+/// so they render as a single continuous block instead of one separately
+/// bordered fragment per line. In [isArabicOnlyReadingView], a run of
 /// consecutive Arabic verses - possibly with a switched-off transliteration
-/// or translation line folded in between them - collapses into one item so
+/// or translation line folded in between them - collapses the same way so
 /// the verses can be laid out as a single flowing paragraph rather than
 /// separate centered lines.
 class _ReadingListItem {
@@ -177,45 +180,55 @@ class _ReadingListItem {
 }
 
 /// Splits [content] into the units the reading list renders. Outside
-/// [isArabicOnlyReadingView] this is just one item per line, unchanged from
-/// the line-per-item layout the rest of the app still uses. See
-/// [_ReadingListItem].
+/// [isArabicOnlyReadingView] this is one item per line except for a run of
+/// standalone lines, which always collapses into one item regardless of
+/// view mode. See [_ReadingListItem].
 List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
   final total = content.lines.length;
   final items = <_ReadingListItem>[];
 
-  if (!isArabicOnlyReadingView) {
-    for (var i = 0; i < total; i++) {
-      items.add(_ReadingListItem([i]));
-    }
-    return items;
-  }
+  bool isStandalone(int i) =>
+      !content.arabicCodes.contains(i) &&
+      !content.transliCodes.contains(i) &&
+      !content.translaCodes.contains(i);
 
   var i = 0;
   while (i < total) {
-    if (!content.arabicCodes.contains(i)) {
-      items.add(_ReadingListItem([i]));
-      i++;
+    if (isStandalone(i)) {
+      final lines = <int>[i];
+      var j = i + 1;
+      while (j < total && isStandalone(j)) {
+        lines.add(j);
+        j++;
+      }
+      items.add(_ReadingListItem(lines));
+      i = j;
       continue;
     }
 
-    final verses = <int>[i];
-    var j = i + 1;
-    while (j < total) {
-      if (content.arabicCodes.contains(j)) {
-        verses.add(j);
-        j++;
-      } else if (content.transliCodes.contains(j) ||
-          content.translaCodes.contains(j)) {
-        // Switched off in this view - draws nothing, but does not break the
-        // paragraph the Arabic verses around it are flowing into.
-        j++;
-      } else {
-        break;
+    if (isArabicOnlyReadingView && content.arabicCodes.contains(i)) {
+      final verses = <int>[i];
+      var j = i + 1;
+      while (j < total) {
+        if (content.arabicCodes.contains(j)) {
+          verses.add(j);
+          j++;
+        } else if (content.transliCodes.contains(j) ||
+            content.translaCodes.contains(j)) {
+          // Switched off in this view - draws nothing, but does not break
+          // the paragraph the Arabic verses around it are flowing into.
+          j++;
+        } else {
+          break;
+        }
       }
+      items.add(_ReadingListItem(verses));
+      i = j;
+      continue;
     }
-    items.add(_ReadingListItem(verses));
-    i = j;
+
+    items.add(_ReadingListItem([i]));
+    i++;
   }
   return items;
 }
@@ -1052,6 +1065,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 );
               }
 
+              // No trailing divider here: a standalone line never closed a
+              // group before either (groupForLine only covers Arabic
+              // triplets), so this preserves that - the block's own border
+              // already sets it apart from what follows.
+              if (item.lineIndexes.length > 1) {
+                return _buildFootnoteBlock(
+                  item,
+                  parsedContent,
+                  bookmarkLabelLine,
+                );
+              }
+
               // Every non-paragraph item covers exactly one content line.
               final contentIndex = item.firstLineIndex;
               final line = _buildLine(
@@ -1169,11 +1194,73 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
 
     // A standalone line that isn't part of an Arabic/transliteration/
-    // translation triplet is narration, personal commentary, or a source
-    // citation - never Arabic script that could wrap right-to-left, so a
-    // start-edge accent unambiguously marks "quoted/reference material"
-    // without an italic slant, matching the reader's own blockquote
-    // treatment (see readerStyleSheet in reader_style.dart).
+    // translation triplet is narration, personal commentary, a heading, or a
+    // source citation.
+    return _footnoteBox(
+      Text.rich(_buildTextSpanForLine(str, const TextStyle())),
+    );
+  }
+
+  /// Renders a run of consecutive standalone lines - narration, commentary,
+  /// a heading, a citation - as one continuous block, so the accent reads as
+  /// a single unbroken rule instead of a separately margined, separately
+  /// bordered box per line. [_buildReadingListItems] is what folds such a
+  /// run into one [_ReadingListItem] in the first place.
+  ///
+  /// A bookmark can in principle land on one of these lines - it is just
+  /// whatever line was topmost when the reader last left the tab - so
+  /// [bookmarkLabelLine], when it names one of this block's own lines, gets
+  /// the same "Bookmarked" label and tint a single bookmarked line would
+  /// otherwise carry via [_BookmarkedLine].
+  Widget _buildFootnoteBlock(
+    _ReadingListItem item,
+    ParsedZikrContent parsedContent,
+    int? bookmarkLabelLine,
+  ) {
+    final paragraphs = <Widget>[];
+    for (final lineIndex in item.lineIndexes) {
+      if (paragraphs.isNotEmpty) paragraphs.add(const SizedBox(height: 10));
+      final isBookmarked = lineIndex == bookmarkLabelLine;
+      if (isBookmarked) {
+        paragraphs.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: _bookmarkLabelRow(context),
+          ),
+        );
+      }
+      final str = parsedContent.lines[lineIndex].trim();
+      final textSpan = _buildTextSpanForLine(str, const TextStyle());
+      paragraphs.add(
+        Text.rich(
+          isBookmarked
+              ? TextSpan(
+                  style: TextStyle(
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .primaryContainer
+                        .withValues(alpha: 0.4),
+                  ),
+                  children: [textSpan],
+                )
+              : textSpan,
+        ),
+      );
+    }
+    return _footnoteBox(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: paragraphs,
+      ),
+    );
+  }
+
+  /// The start-edge accent that marks a standalone line's text as
+  /// quoted/reference material - never Arabic script that could wrap
+  /// right-to-left, so a directional border reads correctly - without an
+  /// italic slant, matching the reader's own blockquote treatment (see
+  /// readerStyleSheet in reader_style.dart).
+  Widget _footnoteBox(Widget child) {
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 4.0),
       padding: const EdgeInsetsDirectional.only(start: 14.0),
@@ -1185,7 +1272,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           ),
         ),
       ),
-      child: Text.rich(_buildTextSpanForLine(str, const TextStyle())),
+      child: child,
     );
   }
 
