@@ -60,7 +60,6 @@ class AzanPlaybackService {
     required String prayerName,
     required bool exact,
     String? customFilePath,
-    String? assetPath,
   }) async {
     if (kIsWeb || !Platform.isAndroid) return;
     if (fireTime.isBefore(DateTime.now())) return;
@@ -81,7 +80,6 @@ class AzanPlaybackService {
       params: {
         'prayerName': prayerName,
         if (customFilePath != null) 'customFilePath': customFilePath,
-        if (assetPath != null) 'assetPath': assetPath,
       },
     );
   }
@@ -112,9 +110,7 @@ class AzanPlaybackService {
     );
     final prayerName = params?['prayerName'] as String? ?? 'Prayer';
     final customFilePath = params?['customFilePath'] as String?;
-    final assetPath = params?['assetPath'] as String?;
-    await _startPlayback(prayerName,
-        customFilePath: customFilePath, assetPath: assetPath);
+    await _startPlayback(prayerName, customFilePath: customFilePath);
   }
 
   /// Starts the Azan on demand from the running app - the only trigger
@@ -124,15 +120,11 @@ class AzanPlaybackService {
   ///
   /// [customFilePath] plays that file (the Custom Audio option) in place of
   /// the bundled Full Azan recording - null plays the bundled recording.
-  /// [assetPath] picks a different bundled recording (default: the Full Azan
-  /// one); ignored when [customFilePath] is set.
   static Future<void> playNow({
     required String prayerName,
     String? customFilePath,
-    String? assetPath,
   }) async {
-    await _startPlayback(prayerName,
-        customFilePath: customFilePath, assetPath: assetPath);
+    await _startPlayback(prayerName, customFilePath: customFilePath);
   }
 
   static AudioPlayer? _activePlayer;
@@ -142,7 +134,6 @@ class AzanPlaybackService {
   static Future<void> _startPlayback(
     String prayerName, {
     String? customFilePath,
-    String? assetPath,
   }) async {
     // A stale or duplicate alarm firing while one Azan is still playing must
     // not start overlapping audio.
@@ -182,8 +173,7 @@ class AzanPlaybackService {
     try {
       await player.setAudioSource(customFilePath != null
           ? AudioSource.uri(Uri.file(customFilePath), tag: tag)
-          : AudioSource.asset(assetPath ?? 'assets/sounds/full_azan.mp3',
-              tag: tag));
+          : AudioSource.asset('assets/sounds/full_azan.mp3', tag: tag));
       await player.play();
     } catch (e) {
       debugPrint('Azan playback failed: $e');
