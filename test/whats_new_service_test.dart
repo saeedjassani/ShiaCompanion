@@ -70,8 +70,8 @@ void main() {
       whatsNewNotes
         ..clear()
         ..addAll(const [
-          WhatsNewEntry(buildNumber: 100, title: 'A', bullets: ['a']),
-          WhatsNewEntry(buildNumber: 105, title: 'B', bullets: ['b']),
+          WhatsNewEntry(buildNumber: 100, versionName: '1.0.0', bullets: ['a']),
+          WhatsNewEntry(buildNumber: 105, versionName: '1.0.5', bullets: ['b']),
         ]);
       addTearDown(() {
         whatsNewNotes
@@ -87,5 +87,12 @@ void main() {
       final pending = await WhatsNewService.pending();
       expect(pending.map((e) => e.buildNumber), [100, 105]);
     });
+  });
+
+  test('the web is never shown anything, even an existing install', () async {
+    await withPrefs({azaanPreferenceKey: 'makkah'});
+
+    expect(await WhatsNewService.pending(isWeb: true), isEmpty);
+    expect(await WhatsNewService.pending(isWeb: false), isNotEmpty);
   });
 }
