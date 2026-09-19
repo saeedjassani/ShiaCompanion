@@ -1168,14 +1168,24 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           : Container();
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 4.0),
-      child: Text.rich(
-        _buildTextSpanForLine(
-          str,
-          const TextStyle(fontStyle: FontStyle.italic),
+    // A standalone line that isn't part of an Arabic/transliteration/
+    // translation triplet is narration, personal commentary, or a source
+    // citation - never Arabic script that could wrap right-to-left, so a
+    // start-edge accent unambiguously marks "quoted/reference material"
+    // without an italic slant, matching the reader's own blockquote
+    // treatment (see readerStyleSheet in reader_style.dart).
+    return Container(
+      margin: const EdgeInsets.only(top: 8, bottom: 4.0),
+      padding: const EdgeInsetsDirectional.only(start: 14.0),
+      decoration: BoxDecoration(
+        border: BorderDirectional(
+          start: BorderSide(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
+            width: 3,
+          ),
         ),
       ),
+      child: Text.rich(_buildTextSpanForLine(str, const TextStyle())),
     );
   }
 
