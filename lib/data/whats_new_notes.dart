@@ -21,7 +21,18 @@ class WhatsNewEntry {
   /// Short, plain-language points — this is read by people who did not ask
   /// for a changelog, not a commit log entry. Say only what a person would
   /// notice, and name the platform when something is not the same on both.
-  final List<String> bullets;
+  final List<WhatsNewBullet> bullets;
+}
+
+class WhatsNewBullet {
+  const WhatsNewBullet(this.text, {this.appOnly = false});
+
+  final String text;
+
+  /// True for something the website does not have, so the web build leaves
+  /// this bullet out rather than announcing a feature its readers cannot
+  /// use. See WhatsNewService.pending.
+  final bool appOnly;
 }
 
 /// Add one entry per release that changes something a person would notice —
@@ -33,13 +44,21 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
     buildNumber: 114,
     versionName: '3.5.4',
     bullets: [
-      'Zikr Reminders: get reminded about a zikr or dua on the days you '
-          'choose.',
-      'Full Azan now plays in full, without other notifications cutting it '
-          'off, and has a Stop button on the home screen. On iPhone, tap '
-          'the notification to start it.',
-      'On Android, Custom Audio works the same way.',
-      'You can now choose a notification sound for each prayer.',
+      WhatsNewBullet(
+        'Zikr Reminders: get reminded about a zikr or dua on the days you '
+        'choose.',
+        appOnly: true,
+      ),
+      WhatsNewBullet(
+        'Azan now plays in full, without other notifications cutting it '
+        'off, and has a Stop button on the home screen. On iPhone, tap '
+        'the notification to start it.',
+        appOnly: true,
+      ),
+      WhatsNewBullet(
+        'You can now choose a notification sound for each prayer.',
+        appOnly: true,
+      ),
     ],
   ),
 ];

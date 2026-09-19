@@ -7,12 +7,12 @@ void main() {
   const older = WhatsNewEntry(
     buildNumber: 100,
     versionName: '1.0.0',
-    bullets: ['older bullet'],
+    bullets: [WhatsNewBullet('older bullet')],
   );
   const newer = WhatsNewEntry(
     buildNumber: 105,
     versionName: '1.0.5',
-    bullets: ['newer bullet'],
+    bullets: [WhatsNewBullet('newer bullet')],
   );
 
   Future<void> open(WidgetTester tester, List<WhatsNewEntry> entries) async {

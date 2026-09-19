@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../data/whats_new_notes.dart';
@@ -36,7 +37,27 @@ class WhatsNewService {
   /// up. Call [markSeen] once this launch regardless of what comes back:
   /// that is what actually advances the "last seen" mark, for a fresh
   /// install as much as one that was just shown something.
-  static Future<List<WhatsNewEntry>> pending() async {
+  ///
+  /// On the web, bullets marked [WhatsNewBullet.appOnly] are left out, and an
+  /// entry with nothing left to say is dropped entirely so the dialog never
+  /// opens empty. [isWeb] exists only so tests can exercise that.
+  static Future<List<WhatsNewEntry>> pending({bool isWeb = kIsWeb}) async {
+    final entries = await _unfilteredPending();
+    if (!isWeb) return entries;
+
+    return entries
+        .map((entry) => WhatsNewEntry(
+              buildNumber: entry.buildNumber,
+              versionName: entry.versionName,
+              bullets: entry.bullets
+                  .where((bullet) => !bullet.appOnly)
+                  .toList(growable: false),
+            ))
+        .where((entry) => entry.bullets.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  static Future<List<WhatsNewEntry>> _unfilteredPending() async {
     if (!SP.isInitialized) return const [];
 
     final currentBuild = await _currentBuildNumber();

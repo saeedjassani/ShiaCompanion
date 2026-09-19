@@ -70,8 +70,14 @@ void main() {
       whatsNewNotes
         ..clear()
         ..addAll(const [
-          WhatsNewEntry(buildNumber: 100, versionName: '1.0.0', bullets: ['a']),
-          WhatsNewEntry(buildNumber: 105, versionName: '1.0.5', bullets: ['b']),
+          WhatsNewEntry(
+              buildNumber: 100,
+              versionName: '1.0.0',
+              bullets: [WhatsNewBullet('a')]),
+          WhatsNewEntry(
+              buildNumber: 105,
+              versionName: '1.0.5',
+              bullets: [WhatsNewBullet('b')]),
         ]);
       addTearDown(() {
         whatsNewNotes
@@ -86,6 +92,53 @@ void main() {
 
       final pending = await WhatsNewService.pending();
       expect(pending.map((e) => e.buildNumber), [100, 105]);
+    });
+  });
+
+  group('on the web', () {
+    late List<WhatsNewEntry> original;
+
+    setUp(() {
+      original = List<WhatsNewEntry>.of(whatsNewNotes);
+      whatsNewNotes
+        ..clear()
+        ..addAll(const [
+          WhatsNewEntry(buildNumber: 100, versionName: '1.0.0', bullets: [
+            WhatsNewBullet('shared'),
+            WhatsNewBullet('app only', appOnly: true),
+          ]),
+          WhatsNewEntry(buildNumber: 105, versionName: '1.0.5', bullets: [
+            WhatsNewBullet('only for the app', appOnly: true),
+          ]),
+        ]);
+    });
+
+    tearDown(() {
+      whatsNewNotes
+        ..clear()
+        ..addAll(original);
+    });
+
+    test('app-only bullets are left out and emptied entries dropped', () async {
+      await withPrefs({
+        azaanPreferenceKey: 'makkah',
+        'whats_new_last_seen_build': 99,
+      }, build: 105);
+
+      final pending = await WhatsNewService.pending(isWeb: true);
+      expect(pending.map((e) => e.buildNumber), [100]);
+      expect(pending.single.bullets.map((b) => b.text), ['shared']);
+    });
+
+    test('the app still sees every bullet', () async {
+      await withPrefs({
+        azaanPreferenceKey: 'makkah',
+        'whats_new_last_seen_build': 99,
+      }, build: 105);
+
+      final pending = await WhatsNewService.pending(isWeb: false);
+      expect(pending.map((e) => e.buildNumber), [100, 105]);
+      expect(pending.first.bullets, hasLength(2));
     });
   });
 }
