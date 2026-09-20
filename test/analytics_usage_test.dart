@@ -241,9 +241,9 @@ void main() {
         'search': 8,
       });
 
-      expect(totals[FeatureGroup.navigation], 25);
-      expect(totals[FeatureGroup.search], 8);
-      expect(totals.containsKey(FeatureGroup.prayerAndAzaan), isFalse);
+      // home_menu_* and search share findingContent — see featureGroupFor.
+      expect(totals[FeatureGroup.findingContent], 33);
+      expect(totals.containsKey(FeatureGroup.prayerAndWorship), isFalse);
     });
 
     test('returns an empty map when there is no previous period', () {
@@ -254,54 +254,53 @@ void main() {
   group('featureGroupFor', () {
     test('groups every feature_use key the app currently records', () {
       const expected = {
-        // Zikr & library reading — the fixed keys, plus a sample of the
-        // dynamic zikr_source_* and home_menu_* families below.
-        'zikr_counter_shown': FeatureGroup.zikrReading,
-        'zikr_audio_opened': FeatureGroup.zikrReading,
-        'zikr_audio_play': FeatureGroup.zikrReading,
-        'zikr_bookmark_saved': FeatureGroup.zikrReading,
-        'zikr_bookmark_removed': FeatureGroup.zikrReading,
-        'zikr_shared': FeatureGroup.zikrReading,
-        'zikr_keep_awake_toggled': FeatureGroup.zikrReading,
-        'zikr_focus_mode_toggled': FeatureGroup.zikrReading,
-        'zikr_share_as_image_toggled': FeatureGroup.zikrReading,
-        'zikr_show_transliteration_toggled': FeatureGroup.zikrReading,
-        'zikr_show_translation_toggled': FeatureGroup.zikrReading,
-        'arabic_font_size_changed': FeatureGroup.zikrReading,
-        'english_font_size_changed': FeatureGroup.zikrReading,
-        'arabic_font_changed': FeatureGroup.zikrReading,
-        'library_shared': FeatureGroup.zikrReading,
-        'library_offline_saved': FeatureGroup.zikrReading,
-        'library_offline_removed': FeatureGroup.zikrReading,
-        'zikr_source_search': FeatureGroup.zikrReading,
-        'zikr_source_deep_link': FeatureGroup.zikrReading,
-        'zikr_source_home_widget_favorites': FeatureGroup.zikrReading,
-        'zikr_source_home_widget_recitation': FeatureGroup.zikrReading,
-        // Navigation
-        'home_menu_qibla': FeatureGroup.navigation,
-        'home_menu_tasbeeh': FeatureGroup.navigation,
-        // Prayer & azaan
-        'azaan_selected': FeatureGroup.prayerAndAzaan,
-        'azaan_notifications_toggled': FeatureGroup.prayerAndAzaan,
-        'azaan_opt_in': FeatureGroup.prayerAndAzaan,
-        'rakaat_prayer_completed': FeatureGroup.prayerAndAzaan,
-        'prayer_times_selection_changed': FeatureGroup.prayerAndAzaan,
-        'qibla_target_changed': FeatureGroup.prayerAndAzaan,
-        // Account & tools
-        'account_deleted': FeatureGroup.accountAndTools,
-        'account_signed_in': FeatureGroup.accountAndTools,
-        'favorite_added': FeatureGroup.accountAndTools,
-        'favorite_removed': FeatureGroup.accountAndTools,
-        'favorite_reordered': FeatureGroup.accountAndTools,
-        'flight_added': FeatureGroup.accountAndTools,
-        'flight_edited': FeatureGroup.accountAndTools,
-        'qaza_updated': FeatureGroup.accountAndTools,
-        'tasbeeh_session': FeatureGroup.accountAndTools,
-        // Search
-        'search': FeatureGroup.search,
-        'search_opened': FeatureGroup.search,
+        // Reading the content — the fixed keys.
+        'zikr_counter_shown': FeatureGroup.readingContent,
+        'zikr_audio_opened': FeatureGroup.readingContent,
+        'zikr_audio_play': FeatureGroup.readingContent,
+        'zikr_bookmark_saved': FeatureGroup.readingContent,
+        'zikr_bookmark_removed': FeatureGroup.readingContent,
+        'zikr_shared': FeatureGroup.readingContent,
+        'zikr_keep_awake_toggled': FeatureGroup.readingContent,
+        'zikr_focus_mode_toggled': FeatureGroup.readingContent,
+        'zikr_share_as_image_toggled': FeatureGroup.readingContent,
+        'zikr_show_transliteration_toggled': FeatureGroup.readingContent,
+        'zikr_show_translation_toggled': FeatureGroup.readingContent,
+        'arabic_font_size_changed': FeatureGroup.readingContent,
+        'english_font_size_changed': FeatureGroup.readingContent,
+        'arabic_font_changed': FeatureGroup.readingContent,
+        'library_shared': FeatureGroup.readingContent,
+        'library_offline_saved': FeatureGroup.readingContent,
+        'library_offline_removed': FeatureGroup.readingContent,
+        // Finding content — home menu taps, search, and where a zikr open
+        // came from (the dynamic zikr_source_* and home_menu_* families).
+        'zikr_source_search': FeatureGroup.findingContent,
+        'zikr_source_deep_link': FeatureGroup.findingContent,
+        'zikr_source_home_widget_favorites': FeatureGroup.findingContent,
+        'zikr_source_home_widget_recitation': FeatureGroup.findingContent,
+        'home_menu_qibla': FeatureGroup.findingContent,
+        'home_menu_tasbeeh': FeatureGroup.findingContent,
+        'search': FeatureGroup.findingContent,
+        'search_opened': FeatureGroup.findingContent,
+        // Prayer & worship tools
+        'azaan_selected': FeatureGroup.prayerAndWorship,
+        'azaan_notifications_toggled': FeatureGroup.prayerAndWorship,
+        'azaan_opt_in': FeatureGroup.prayerAndWorship,
+        'rakaat_prayer_completed': FeatureGroup.prayerAndWorship,
+        'prayer_times_selection_changed': FeatureGroup.prayerAndWorship,
+        'qibla_target_changed': FeatureGroup.prayerAndWorship,
+        'qaza_updated': FeatureGroup.prayerAndWorship,
+        'tasbeeh_session': FeatureGroup.prayerAndWorship,
+        'flight_added': FeatureGroup.prayerAndWorship,
+        'flight_edited': FeatureGroup.prayerAndWorship,
+        // Personalization & account
+        'account_deleted': FeatureGroup.personalizationAndAccount,
+        'account_signed_in': FeatureGroup.personalizationAndAccount,
+        'favorite_added': FeatureGroup.personalizationAndAccount,
+        'favorite_removed': FeatureGroup.personalizationAndAccount,
+        'favorite_reordered': FeatureGroup.personalizationAndAccount,
+        'dark_mode_toggled': FeatureGroup.personalizationAndAccount,
         // Other — genuinely domain-less, not just unclassified yet.
-        'dark_mode_toggled': FeatureGroup.other,
         'feedback_email_opened': FeatureGroup.other,
       };
 
@@ -330,13 +329,13 @@ void main() {
 
       final grouped = groupFeatureRows(rows);
 
+      // home_menu_* and search are both wayfinding, so they share
+      // findingContent — rank order within the group survives the merge.
       expect(
-        grouped[FeatureGroup.navigation]?.map((row) => row.key).toList(),
-        ['home_menu_qibla', 'home_menu_tasbeeh'],
+        grouped[FeatureGroup.findingContent]?.map((row) => row.key).toList(),
+        ['home_menu_qibla', 'search', 'home_menu_tasbeeh'],
       );
-      expect(grouped[FeatureGroup.search]?.map((row) => row.key).toList(),
-          ['search']);
-      expect(grouped.containsKey(FeatureGroup.prayerAndAzaan), isFalse);
+      expect(grouped.containsKey(FeatureGroup.prayerAndWorship), isFalse);
     });
   });
 

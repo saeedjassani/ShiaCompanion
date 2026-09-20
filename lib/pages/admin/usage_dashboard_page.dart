@@ -168,28 +168,40 @@ PeriodDelta? periodDelta(int current, int previous) {
 }
 
 /// Which area of the app a `feature` metric key belongs to, so "Features
-/// used" reads as a handful of groups instead of one flat list mixing
-/// home-menu taps, zikr actions, prayer settings, account changes and search.
+/// used" reads as a handful of groups instead of one flat list.
+///
+/// Grouped by what someone was *doing*, not by which screen the action
+/// happened to fire from — "how did they get to this zikr" and "did they
+/// search" are both wayfinding, whether the tap was on the home screen, in
+/// search, or via a deep link, so they share [findingContent] rather than
+/// splitting into a "Home menu" group and a separate "Search" group each too
+/// thin to read as its own trend. Likewise the qaza tracker, the tasbeeh
+/// counter and flight-aware prayer times are worship tools first, so they
+/// sit in [prayerAndWorship] rather than the old catch-all "Account & tools".
 ///
 /// [other] is the safety net: a feature key nothing below recognises still
 /// renders, just outside any named group, rather than silently vanishing from
 /// the ranking the way an unhandled key would in a `switch` with no default.
 enum FeatureGroup {
-  zikrReading(
-    'Zikr & library reading',
-    'Bookmarks, sharing, audio, fonts and where the open came from',
+  readingContent(
+    'Reading the content',
+    'Bookmarks, sharing, audio, fonts, and translation/transliteration '
+        'toggles while reading a zikr or library chapter',
   ),
-  navigation('Home menu', 'Which home-screen tile people tap'),
-  prayerAndAzaan(
-    'Prayer & azaan',
-    'Azaan choice, notifications, rakaat counting, prayer times shown and '
-        'the Qibla target',
+  findingContent(
+    'Finding content',
+    'Home-screen taps, search, and how a zikr was reached — a deep link, a '
+        'widget, or search itself',
   ),
-  accountAndTools(
-    'Account & tools',
-    'Favorites, flights, the qaza tracker, sign-in and account deletion',
+  prayerAndWorship(
+    'Prayer & worship tools',
+    'Azaan, rakaat counting, prayer times (including while flying), the '
+        'Qibla target, the qaza tracker and the tasbeeh counter',
   ),
-  search('Search', 'Reaching for search, and searches actually run'),
+  personalizationAndAccount(
+    'Personalization & account',
+    'Favorites, dark mode, sign-in and account deletion',
+  ),
   other('Other', 'Not yet sorted into a group');
 
   const FeatureGroup(this.title, this.subtitle);
@@ -201,7 +213,7 @@ enum FeatureGroup {
 /// Feature keys with no shared prefix to match on, grouped by [FeatureGroup].
 /// Keys under a shared prefix (`home_menu_*`, `zikr_source_*`) are matched in
 /// [featureGroupFor] instead, so they don't need an entry here.
-const Set<String> _zikrReadingFeatureKeys = {
+const Set<String> _readingContentFeatureKeys = {
   'zikr_counter_shown',
   'zikr_audio_opened',
   'zikr_audio_play',
@@ -221,43 +233,47 @@ const Set<String> _zikrReadingFeatureKeys = {
   'library_offline_removed',
 };
 
-const Set<String> _prayerAndAzaanFeatureKeys = {
+const Set<String> _findingContentFeatureKeys = {'search', 'search_opened'};
+
+const Set<String> _prayerAndWorshipFeatureKeys = {
   'azaan_selected',
   'azaan_notifications_toggled',
   'azaan_opt_in',
   'rakaat_prayer_completed',
   'prayer_times_selection_changed',
   'qibla_target_changed',
+  'qaza_updated',
+  'tasbeeh_session',
+  'flight_added',
+  'flight_edited',
 };
 
-const Set<String> _accountAndToolsFeatureKeys = {
+const Set<String> _personalizationAndAccountFeatureKeys = {
   'account_deleted',
   'account_signed_in',
   'favorite_added',
   'favorite_removed',
   'favorite_reordered',
-  'flight_added',
-  'flight_edited',
-  'qaza_updated',
-  'tasbeeh_session',
+  'dark_mode_toggled',
 };
-
-const Set<String> _searchFeatureKeys = {'search', 'search_opened'};
 
 /// See [FeatureGroup].
 @visibleForTesting
 FeatureGroup featureGroupFor(String key) {
-  if (key.startsWith('home_menu_')) return FeatureGroup.navigation;
-  if (key.startsWith('zikr_source_') || _zikrReadingFeatureKeys.contains(key)) {
-    return FeatureGroup.zikrReading;
+  if (key.startsWith('home_menu_') ||
+      key.startsWith('zikr_source_') ||
+      _findingContentFeatureKeys.contains(key)) {
+    return FeatureGroup.findingContent;
   }
-  if (_prayerAndAzaanFeatureKeys.contains(key)) {
-    return FeatureGroup.prayerAndAzaan;
+  if (_readingContentFeatureKeys.contains(key)) {
+    return FeatureGroup.readingContent;
   }
-  if (_accountAndToolsFeatureKeys.contains(key)) {
-    return FeatureGroup.accountAndTools;
+  if (_prayerAndWorshipFeatureKeys.contains(key)) {
+    return FeatureGroup.prayerAndWorship;
   }
-  if (_searchFeatureKeys.contains(key)) return FeatureGroup.search;
+  if (_personalizationAndAccountFeatureKeys.contains(key)) {
+    return FeatureGroup.personalizationAndAccount;
+  }
   return FeatureGroup.other;
 }
 
@@ -942,6 +958,7 @@ class _UsageSection extends StatefulWidget {
     required this.percentFormat,
     this.subtitle,
     this.dense = false,
+    this.accentColor,
     this.previousTotal,
     this.previousByKey,
     this.previousCaption,
@@ -959,6 +976,13 @@ class _UsageSection extends StatefulWidget {
   /// [_FeatureUsageSections]): a smaller title and no extra top margin, since
   /// the group heading above it already carries both.
   final bool dense;
+
+  /// This group's fixed slot in the categorical palette — the same color as
+  /// its swatch in the share bar above, so a group reads as one visual
+  /// identity wherever it shows up. Only ever set on a [dense] group section;
+  /// null renders the plain (no card, default-colored bars) look the
+  /// top-level sections use.
+  final Color? accentColor;
 
   /// The previous equal-length period's total for this section, for the
   /// header's change % chip. Null when there's no previous period (All time)
@@ -1005,85 +1029,120 @@ class _UsageSectionState extends State<_UsageSection> {
     final sectionDelta = widget.previousTotal == null
         ? null
         : periodDelta(total, widget.previousTotal!);
+    final accent = widget.accentColor;
 
-    return Padding(
-      padding: EdgeInsets.only(top: widget.dense ? 16 : 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          InkWell(
-            onTap: () => setState(() => _sectionCollapsed = !_sectionCollapsed),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.title,
-                        style: widget.dense
-                            ? theme.textTheme.titleSmall
-                            : theme.textTheme.titleMedium,
-                      ),
-                      if (widget.subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          widget.subtitle!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ],
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _sectionCollapsed = !_sectionCollapsed),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (accent != null) ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration:
+                        BoxDecoration(color: accent, shape: BoxShape.circle),
                   ),
                 ),
-                if (sectionDelta != null) ...[
-                  _DeltaChip(
-                      delta: sectionDelta, caption: widget.previousCaption),
-                  const SizedBox(width: 8),
-                ],
-                if (_sectionCollapsed) ...[
-                  Text(
-                    widget.countFormat.format(total),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                ],
-                Icon(
-                  _sectionCollapsed ? Icons.expand_more : Icons.expand_less,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                const SizedBox(width: 8),
               ],
-            ),
-          ),
-          if (!_sectionCollapsed) ...[
-            const SizedBox(height: 8),
-            for (var i = 0; i < visible.length; i++)
-              _UsageBar(
-                rank: i + 1,
-                row: visible[i],
-                fraction: max == 0 ? 0 : visible[i].count / max,
-                percentOfTotal: total == 0 ? 0 : visible[i].count / total,
-                countFormat: widget.countFormat,
-                percentFormat: widget.percentFormat,
-                delta: widget.previousByKey == null
-                    ? null
-                    : periodDelta(visible[i].count,
-                        widget.previousByKey![visible[i].key] ?? 0),
-              ),
-            if (hidden > 0 || _expanded)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () => setState(() => _expanded = !_expanded),
-                  child: Text(_expanded ? 'Show less' : 'Show $hidden more'),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: widget.dense
+                          ? theme.textTheme.titleSmall
+                          : theme.textTheme.titleMedium,
+                    ),
+                    if (widget.subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        widget.subtitle!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-          ],
+              if (sectionDelta != null) ...[
+                _DeltaChip(
+                    delta: sectionDelta, caption: widget.previousCaption),
+                const SizedBox(width: 8),
+              ],
+              if (_sectionCollapsed) ...[
+                Text(
+                  widget.countFormat.format(total),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: 4),
+              ],
+              Icon(
+                _sectionCollapsed ? Icons.expand_more : Icons.expand_less,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+        if (!_sectionCollapsed) ...[
+          const SizedBox(height: 8),
+          for (var i = 0; i < visible.length; i++)
+            _UsageBar(
+              rank: i + 1,
+              row: visible[i],
+              fraction: max == 0 ? 0 : visible[i].count / max,
+              percentOfTotal: total == 0 ? 0 : visible[i].count / total,
+              countFormat: widget.countFormat,
+              percentFormat: widget.percentFormat,
+              accentColor: accent,
+              delta: widget.previousByKey == null
+                  ? null
+                  : periodDelta(visible[i].count,
+                      widget.previousByKey![visible[i].key] ?? 0),
+            ),
+          if (hidden > 0 || _expanded)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: () => setState(() => _expanded = !_expanded),
+                child: Text(_expanded ? 'Show less' : 'Show $hidden more'),
+              ),
+            ),
         ],
+      ],
+    );
+
+    // A group section gets its own tinted card, in its fixed accent color, so
+    // "Features used" reads as a row of distinct panels rather than one long
+    // list with subheadings. Top-level sections (accent == null) keep the
+    // plain look — they aren't part of a group of siblings that need telling
+    // apart.
+    if (accent == null) {
+      return Padding(
+        padding: EdgeInsets.only(top: widget.dense ? 16 : 24),
+        child: content,
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: accent.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border(left: BorderSide(color: accent, width: 3)),
+        ),
+        child: content,
       ),
     );
   }
@@ -1156,6 +1215,8 @@ class _FeatureUsageSections extends StatelessWidget {
                 countFormat: countFormat,
                 percentFormat: percentFormat,
                 dense: true,
+                accentColor: categoricalColor(
+                    FeatureGroup.values.indexOf(group), brightness),
                 previousTotal:
                     previousByKey == null ? null : previousTotals[group] ?? 0,
                 previousByKey: previousByKey,
@@ -1175,6 +1236,7 @@ class _UsageBar extends StatelessWidget {
     required this.percentOfTotal,
     required this.countFormat,
     required this.percentFormat,
+    this.accentColor,
     this.delta,
   });
 
@@ -1189,6 +1251,11 @@ class _UsageBar extends StatelessWidget {
 
   final NumberFormat countFormat;
   final NumberFormat percentFormat;
+
+  /// The bar's own color, when this row belongs to a group with a fixed
+  /// identity color (see [_UsageSection.accentColor]). Null keeps the
+  /// default primary-colored bar the top-level sections use.
+  final Color? accentColor;
 
   /// This row's own change % versus the previous equal-length period. Null
   /// when there's no previous period to compare (All time).
@@ -1249,6 +1316,7 @@ class _UsageBar extends StatelessWidget {
                 value: fraction.clamp(0.0, 1.0),
                 minHeight: 6,
                 backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                color: accentColor,
               ),
             ),
           ),
