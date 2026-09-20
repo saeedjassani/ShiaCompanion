@@ -352,10 +352,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// lines, so caching by content keeps a scroll from re-parsing it each frame.
   final Map<int, _TabContentCache> _contentCaches = {};
 
-  /// Whether this reader has actually been dragged. Set only by real drag
-  /// gestures - never by a jump to a linked verse or a bookmark restore - so a
-  /// lookup can be told apart from recitation. See [QuranReadingPosition].
-  bool _sawUserDrag = false;
+  /// Whether this reader has actually moved the list by hand - touch drag,
+  /// mouse drag, or a wheel/trackpad scroll. Set only by real user input -
+  /// never by a jump to a linked verse or a bookmark restore, both of which
+  /// scroll via [ScrollPosition.jumpTo] and so never fire a pointer event -
+  /// so a lookup can be told apart from recitation. See [QuranReadingPosition].
+  bool _sawUserScrollInput = false;
 
   bool _didScrollToInitialVerse = false;
   bool _verseReportScheduled = false;
@@ -398,10 +400,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     int? bookmarkLabelLine,
     TextStyle arabicStyle,
   ) {
-    final highlightedIndex =
-        bookmarkLabelLine != null && item.lineIndexes.contains(bookmarkLabelLine)
-            ? bookmarkLabelLine
-            : null;
+    final highlightedIndex = bookmarkLabelLine != null &&
+            item.lineIndexes.contains(bookmarkLabelLine)
+        ? bookmarkLabelLine
+        : null;
 
     final spans = <InlineSpan>[];
     for (var k = 0; k < item.lineIndexes.length; k++) {
@@ -597,7 +599,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         text: parsed == null
             ? ''
             : _ayahPlainText(parsed, ayahIndex.spans[spanIndex]),
-        fromUserScroll: _sawUserDrag,
+        fromUserScroll: _sawUserScrollInput,
       ),
     );
   }
@@ -611,7 +613,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   double? _itemScrollOffset(int tabIndex, int itemIndex) {
     if (tabIndex >= _tabListKeys.length) return null;
 
-    final renderObject = _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    final renderObject =
+        _tabListKeys[tabIndex].currentContext?.findRenderObject();
     if (renderObject == null) return null;
     final sliver = _findSliverList(renderObject);
     if (sliver == null) return null;
@@ -981,140 +984,149 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       _scheduleInitialVerseScroll(tabIndex, ayahIndex, leadingItems);
     }
 
-    return NotificationListener<ScrollNotification>(
-      onNotification: (notification) {
-        // Only a real drag counts as reading. A jump to a linked verse and a
-        // bookmark restore both scroll this list too, and neither should move
-        // the reader's saved place.
-        if (notification is ScrollStartNotification &&
-            notification.dragDetails != null) {
-          _sawUserDrag = true;
-        }
-        if (tabIndex == _selectedTabIndex && ayahIndex != null) {
-          _scheduleVerseReport(tabIndex, controller);
-        }
-        return false;
+    return Listener(
+      // Only real input counts as reading. A jump to a linked verse and a
+      // bookmark restore both scroll this list too, but do it via jumpTo,
+      // which never raises a pointer event - so catching input here, rather
+      // than trusting ScrollStartNotification.dragDetails alone, is what
+      // makes a mouse-wheel or trackpad scroll (desktop, web) count the same
+      // way a touch drag does.
+      onPointerSignal: (event) {
+        if (event is PointerScrollEvent) _sawUserScrollInput = true;
       },
-      child: NotificationListener<ScrollMetricsNotification>(
+      onPointerPanZoomStart: (event) => _sawUserScrollInput = true,
+      child: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
-          if (tabIndex == _selectedTabIndex) {
-            _reportScrollPosition(tabIndex, controller);
+          if (notification is ScrollStartNotification &&
+              notification.dragDetails != null) {
+            _sawUserScrollInput = true;
+          }
+          if (tabIndex == _selectedTabIndex && ayahIndex != null) {
+            _scheduleVerseReport(tabIndex, controller);
           }
           return false;
         },
-        child: Scrollbar(
-          controller: controller,
-          child: ListView.builder(
-            key: _tabListKeys[tabIndex],
+        child: NotificationListener<ScrollMetricsNotification>(
+          onNotification: (notification) {
+            if (tabIndex == _selectedTabIndex) {
+              _reportScrollPosition(tabIndex, controller);
+            }
+            return false;
+          },
+          child: Scrollbar(
             controller: controller,
-            itemCount: itemCount,
-            itemBuilder: (BuildContext context, int index) {
-              // Show merits button at the top of first tab
-              if (showMeritsButton && index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16.0,
-                    top: 12.0,
-                    right: 16.0,
-                    bottom: 12.0,
-                  ),
-                  child: InkWell(
-                    onTap: widget.onShowMerits,
-                    child: Text(
-                      'Merits',
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        fontSize: 14,
+            child: ListView.builder(
+              key: _tabListKeys[tabIndex],
+              controller: controller,
+              itemCount: itemCount,
+              itemBuilder: (BuildContext context, int index) {
+                // Show merits button at the top of first tab
+                if (showMeritsButton && index == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      top: 12.0,
+                      right: 16.0,
+                      bottom: 12.0,
+                    ),
+                    child: InkWell(
+                      onTap: widget.onShowMerits,
+                      child: Text(
+                        'Merits',
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }
+                  );
+                }
 
-              // A surah in ayah mode has one item per verse; every other
-              // zikr is one item per reading-list entry, which is one item
-              // per content line except when Arabic-only paragraph flow
-              // folds a run of verses into one.
-              if (ayahIndex != null) {
-                final contentIndex = index - leadingItems;
-                return _buildAyahBlock(
-                  ayahIndex: ayahIndex,
-                  spanIndex: contentIndex,
-                  parsedContent: parsedContent,
-                  arabicStyle: arabicStyle,
-                  transliStyle: transliStyle,
-                  bookmarkedRange: bookmarkedRange,
-                );
-              }
+                // A surah in ayah mode has one item per verse; every other
+                // zikr is one item per reading-list entry, which is one item
+                // per content line except when Arabic-only paragraph flow
+                // folds a run of verses into one.
+                if (ayahIndex != null) {
+                  final contentIndex = index - leadingItems;
+                  return _buildAyahBlock(
+                    ayahIndex: ayahIndex,
+                    spanIndex: contentIndex,
+                    parsedContent: parsedContent,
+                    arabicStyle: arabicStyle,
+                    transliStyle: transliStyle,
+                    bookmarkedRange: bookmarkedRange,
+                  );
+                }
 
-              final itemIndex = index - leadingItems;
-              final item = readingItems[itemIndex];
+                final itemIndex = index - leadingItems;
+                final item = readingItems[itemIndex];
 
-              final isLastItem = itemIndex == readingItems.length - 1;
+                final isLastItem = itemIndex == readingItems.length - 1;
 
-              if (isArabicOnlyReadingView &&
-                  parsedContent.arabicCodes.contains(item.firstLineIndex)) {
-                return _withParagraphDivider(
-                  _buildArabicParagraphItem(
+                if (isArabicOnlyReadingView &&
+                    parsedContent.arabicCodes.contains(item.firstLineIndex)) {
+                  return _withParagraphDivider(
+                    _buildArabicParagraphItem(
+                      item,
+                      parsedContent,
+                      bookmarkLabelLine,
+                      arabicStyle,
+                    ),
+                    showDivider: !isLastItem,
+                  );
+                }
+
+                // No trailing divider here: a standalone line never closed a
+                // group before either (groupForLine only covers Arabic
+                // triplets), so this preserves that - the block's own border
+                // already sets it apart from what follows.
+                if (item.lineIndexes.length > 1) {
+                  return _buildFootnoteBlock(
                     item,
                     parsedContent,
                     bookmarkLabelLine,
-                    arabicStyle,
-                  ),
-                  showDivider: !isLastItem,
-                );
-              }
+                  );
+                }
 
-              // No trailing divider here: a standalone line never closed a
-              // group before either (groupForLine only covers Arabic
-              // triplets), so this preserves that - the block's own border
-              // already sets it apart from what follows.
-              if (item.lineIndexes.length > 1) {
-                return _buildFootnoteBlock(
-                  item,
+                // Every non-paragraph item covers exactly one content line.
+                final contentIndex = item.firstLineIndex;
+                final line = _buildLine(
                   parsedContent,
-                  bookmarkLabelLine,
+                  contentIndex,
+                  arabicStyle,
+                  transliStyle,
                 );
-              }
 
-              // Every non-paragraph item covers exactly one content line.
-              final contentIndex = item.firstLineIndex;
-              final line = _buildLine(
-                parsedContent,
-                contentIndex,
-                arabicStyle,
-                transliStyle,
-              );
+                final Widget content;
+                if (bookmarkedRange == null ||
+                    bookmarkLabelLine == null ||
+                    !bookmarkedRange.contains(contentIndex) ||
+                    !isZikrLineVisible(parsedContent, contentIndex)) {
+                  content = line;
+                } else {
+                  content = _BookmarkedLine(
+                    // The label only belongs on the first line of the marked
+                    // triplet that is actually showing - repeating it on the
+                    // transliteration/translation lines under the same tint
+                    // would just be noise, and a switched-off line draws
+                    // nothing to carry it.
+                    showLabel: contentIndex == bookmarkLabelLine,
+                    child: line,
+                  );
+                }
 
-              final Widget content;
-              if (bookmarkedRange == null ||
-                  bookmarkLabelLine == null ||
-                  !bookmarkedRange.contains(contentIndex) ||
-                  !isZikrLineVisible(parsedContent, contentIndex)) {
-                content = line;
-              } else {
-                content = _BookmarkedLine(
-                  // The label only belongs on the first line of the marked
-                  // triplet that is actually showing - repeating it on the
-                  // transliteration/translation lines under the same tint
-                  // would just be noise, and a switched-off line draws
-                  // nothing to carry it.
-                  showLabel: contentIndex == bookmarkLabelLine,
-                  child: line,
+                // Only the last line of an Arabic/transliteration/translation
+                // triplet closes it off - a standalone heading or instruction
+                // line (absent from groupForLine) never gets a trailing
+                // divider of its own.
+                final group = parsedContent.groupForLine[contentIndex];
+                final closesGroup = group != null && contentIndex == group.end - 1;
+                return _withParagraphDivider(
+                  content,
+                  showDivider: closesGroup && !isLastItem,
                 );
-              }
-
-              // Only the last line of an Arabic/transliteration/translation
-              // triplet closes it off - a standalone heading or instruction
-              // line (absent from groupForLine) never gets a trailing
-              // divider of its own.
-              final group = parsedContent.groupForLine[contentIndex];
-              final closesGroup = group != null && contentIndex == group.end - 1;
-              return _withParagraphDivider(
-                content,
-                showDivider: closesGroup && !isLastItem,
-              );
-            },
+              },
+            ),
           ),
         ),
       ),
@@ -1297,7 +1309,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       ayah: span.ayah,
       startsSurah: span.startsSurah,
       isSaved: verse != null && widget.savedVerses.contains(verse),
-      isBookmarked: bookmarkedRange != null && span.contains(bookmarkedRange.start),
+      isBookmarked:
+          bookmarkedRange != null && span.contains(bookmarkedRange.start),
       aliNote: verse == null ? null : aliRelatedNoteFor(verse),
       onAction: verse == null || widget.onAyahAction == null
           ? null
@@ -1666,7 +1679,8 @@ class _AliBadge extends StatelessWidget {
           ),
           border: Border.all(color: ringColor, width: 1.4),
           boxShadow: [
-            BoxShadow(color: _sealShadow.withValues(alpha: 0.65), spreadRadius: 0.6),
+            BoxShadow(
+                color: _sealShadow.withValues(alpha: 0.65), spreadRadius: 0.6),
           ],
         ),
         child: Text(
