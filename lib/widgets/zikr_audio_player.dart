@@ -182,7 +182,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Recordings', style: theme.textTheme.titleMedium),
+                child: Text('Audio list', style: theme.textTheme.titleMedium),
               ),
             ),
             // A ListTile with a trailing check rather than RadioListTile:

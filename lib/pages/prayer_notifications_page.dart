@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
+import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 
@@ -121,21 +122,6 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
     });
   }
 
-  bool get _isEnabled => SP.isInitialized && AzaanOptInService.isEnabled;
-
-  List<String> get _enabledPrayers =>
-      enabledPrayerNotificationNames(kPrayerNotificationList);
-
-  Future<void> _setMaster(bool enabled) async {
-    await AzaanOptInService.setEnabled(enabled);
-    unawaited(AnalyticsService.feature(
-      'prayer_notifications_master_toggled',
-      label: 'Prayer notifications master switch',
-      parameters: {'enabled': enabled ? 'on' : 'off'},
-    ));
-    if (mounted) setState(() {});
-  }
-
   Future<void> _togglePrayer(String prayer, bool value) async {
     final key = notificationPreferenceKeyForPrayer(prayer);
     await SP.prefs.setBool(key, value);
@@ -145,22 +131,10 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
     await SP.prefs.setBool(AzaanOptInService.askedKey, true);
     if (value) await requestNotificationPermissions();
 
+    unawaited(PrayerPreferencesSyncService.instance.pushNotificationToggle(key));
     _scheduleReschedule();
     if (!mounted) return;
     setState(() {});
-
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 4),
-        content: Text(value ? '$prayer reminder on' : '$prayer reminder off'),
-        action: SnackBarAction(
-          label: 'UNDO',
-          onPressed: () => _togglePrayer(prayer, !value),
-        ),
-      ),
-    );
   }
 
   Future<void> _openSound({String? prayer}) async {
@@ -185,24 +159,11 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final enabledCount = _enabledPrayers.length;
-    final masterOn = _isEnabled;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Prayer notifications')),
       body: ListView(
         children: [
-          SwitchListTile(
-            title: const Text('All prayer notifications'),
-            subtitle: Text(
-              masterOn
-                  ? '$enabledCount of ${kPrayerNotificationList.length} on · turning off keeps your choices'
-                  : 'Off. Turning on restores what you had before.',
-            ),
-            value: masterOn,
-            onChanged: _setMaster,
-          ),
-          const Divider(height: 1),
           ListTile(
             leading: Icon(Icons.volume_up, color: colorScheme.onSurfaceVariant),
             title: const Text('Default sound'),
@@ -237,14 +198,7 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
               onToggle: (value) => _togglePrayer(prayer, value),
               onOpenSound: () => _openSound(prayer: prayer),
             ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-            child: Text(
-              'Changes save as you make them.',
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: colorScheme.onSurfaceVariant),
-            ),
-          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -338,7 +292,7 @@ class _PrayerRow extends StatelessWidget {
                             if (enabled) ...[
                               const SizedBox(height: 2),
                               Text(
-                                overridden ? '$soundLabel · changed' : soundLabel,
+                                soundLabel,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.bodySmall?.copyWith(
@@ -427,8 +381,12 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       if (!picked) return;
     } else if (_isPerPrayer) {
       await saveAzaanPreferenceForPrayer(widget.prayerName!, soundId);
+      unawaited(
+        PrayerPreferencesSyncService.instance.pushPrayerSound(widget.prayerName!),
+      );
     } else {
       await saveAzaanPreference(soundId);
+      unawaited(PrayerPreferencesSyncService.instance.pushAzaanSound());
     }
 
     _changed = true;
@@ -466,9 +424,13 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       if (_isPerPrayer) {
         await saveCustomAudioFilePathForPrayer(widget.prayerName!, path);
         await saveAzaanPreferenceForPrayer(widget.prayerName!, 'custom');
+        unawaited(
+          PrayerPreferencesSyncService.instance.pushPrayerSound(widget.prayerName!),
+        );
       } else {
         await saveCustomAudioFilePath(path);
         await saveAzaanPreference('custom');
+        unawaited(PrayerPreferencesSyncService.instance.pushAzaanSound());
       }
       return true;
     } catch (e) {
@@ -559,14 +521,10 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       if (path != null && path.isNotEmpty) return path.split('/').last;
       return option.description;
     }
-    return option.description;
+    return option.descriptionFor(isIOS: !kIsWeb && Platform.isIOS);
   }
 
   String _footnote() {
-    if (!kIsWeb && Platform.isIOS) {
-      return 'iOS limits notification sounds to short bundled files, so the '
-          'full azan and custom audio are unavailable here.';
-    }
     return _isPerPrayer
         ? 'This time keeps its own sound. Everything else follows the default.'
         : 'Every time follows this unless you give it a sound of its own.';

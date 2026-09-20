@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/rendering.dart' show ScrollDirection;
@@ -10,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/retired_zikr_redirects.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
@@ -333,6 +335,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       uid: widget.item.getUId(),
       title: widget.item.getTitle(),
     ));
+    unawaited(RatingPromptService.recordZikrCompleted()
+        .then((_) => RatingPromptService.maybeAsk(context)));
   }
 
   /// Records the reader's place in their recitation - but only once they have
@@ -1490,21 +1494,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   // Bookmark, share and reading settings live in the bottom action bar, where
   // they are labelled and within thumb reach - that bar is already at its
-  // five-action width limit (see zikr_action_bar.dart). The app bar keeps the
-  // drawer opener plus the one other action frequent enough to earn a
-  // permanent spot: setting a reminder for the zikr being read.
+  // five-action width limit (see zikr_action_bar.dart). Reading settings is
+  // also just a right-edge swipe away, since it's the endDrawer. That leaves
+  // the app bar with just the drawer opener plus the one other action
+  // frequent enough to earn a permanent spot: setting a reminder for the
+  // zikr being read.
+  //
+  // Hidden on web: ZikrReminderService.rescheduleAll() no-ops under kIsWeb
+  // (flutter_local_notifications has no web target), so a reminder set here
+  // would silently never fire. Settings hides its whole "Zikr Reminders"
+  // entry point on web for the same reason.
   List<Widget> _buildAppBarActions() {
     return [
-      IconButton(
-        icon: const Icon(Icons.notifications_active_outlined),
-        tooltip: 'Set Reminder',
-        onPressed: () => unawaited(_openReminderForm()),
-      ),
-      IconButton(
-        icon: const Icon(Icons.filter_list),
-        tooltip: 'Reading settings',
-        onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-      ),
+      if (!kIsWeb)
+        IconButton(
+          icon: const Icon(Icons.notifications_active_outlined),
+          tooltip: 'Set Reminder',
+          onPressed: () => unawaited(_openReminderForm()),
+        ),
     ];
   }
 

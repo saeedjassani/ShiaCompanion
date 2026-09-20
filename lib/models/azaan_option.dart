@@ -3,6 +3,9 @@ class AzaanOption {
   final String id;
   final String name;
   final String description;
+  // Shown instead of [description] on iOS, for options that behave
+  // differently there.
+  final String? iosDescription;
   final String? androidFile; // raw resource name (null for custom/default)
   final String? iosFile; // asset filename (null for custom/default)
   final bool isCustom;
@@ -11,10 +14,14 @@ class AzaanOption {
     required this.id,
     required this.name,
     required this.description,
+    this.iosDescription,
     this.androidFile,
     this.iosFile,
     this.isCustom = false,
   });
+
+  String descriptionFor({required bool isIOS}) =>
+      isIOS ? iosDescription ?? description : description;
 }
 
 /// Predefined azaan options available to users
@@ -30,14 +37,17 @@ class AzaanOptions {
 
   // Full azaan option (traditional Android default). The full recording
   // plays through an app-controlled player rather than the notification's
-  // own (short, easily-interrupted) sound - see AzanPlaybackService.
+  // own (short, easily-interrupted) sound - see AzanPlaybackService. No
+  // iosFile of its own: iOS's ~30s notification-sound cap rules out the full
+  // recording there, so the notification itself always borrows
+  // AzaanOptions.takbir.iosFile instead (see _iosPrayerNotificationDetails).
   static const AzaanOption azaan = AzaanOption(
     id: 'azaan',
     name: 'Full Azan',
     androidFile: 'sharif',
-    iosFile: 'azan.caf',
-    description: 'Full azan, played automatically on Android; '
-        'on iOS, played in full when you open the notification',
+    description: 'Full azan, played automatically',
+    iosDescription: 'The notification plays the Takbir; '
+        'tap it to hear the full azan',
   );
 
   // System default notification sound

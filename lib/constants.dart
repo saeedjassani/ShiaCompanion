@@ -37,7 +37,7 @@ bool isUserAdmin = false;
 
 final String appName = "Shia Companion";
 final Color appColor = Colors.brown;
-const IconData tasbeehCounterIcon = Icons.exposure_plus_1;
+const IconData tasbeehCounterIcon = Icons.adjust_rounded;
 int hijriDate = 0;
 double arabicFontSize = 32.0;
 double englishFontSize = 16.0;
@@ -221,8 +221,11 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   // hasPrayerScheduleLocationMoved(), which applies a distance threshold. Any
   // rounding of raw coordinates into this string would flip on GPS jitter and
   // force a full reschedule on the next app open.
+  // Bumped to v9 when the Full Azan notification body gained its iOS "tap to
+  // hear" hint (see prayerNotificationBody): the body is fixed at schedule
+  // time, so already-scheduled notifications have to be rebuilt.
   return [
-    'v8',
+    'v9',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'tz:${tz.local.name}',
     'azaan:$azaanId',
@@ -1007,7 +1010,14 @@ DarwinNotificationDetails _iosPrayerNotificationDetails(AzaanOption azaan) {
     return DarwinNotificationDetails();
   }
 
-  return DarwinNotificationDetails(sound: azaan.iosFile ?? 'azan.caf');
+  // Full Azan runs well past the ~30 seconds Apple allows a notification
+  // sound to play before it silently falls back to the default system tone
+  // (see handlePrayerNotificationResponse) - so on iOS its notification
+  // always carries the Takbir Only clip instead, the same one that option
+  // plays, rather than a sound of its own. The full recording still plays in
+  // full once the user taps in; this is only about what they hear the
+  // instant the notification itself arrives.
+  return DarwinNotificationDetails(sound: AzaanOptions.takbir.iosFile);
 }
 
 Future<NotificationDetails> prayerNotificationDetails(
@@ -1020,6 +1030,21 @@ Future<NotificationDetails> prayerNotificationDetails(
         : null,
     iOS: Platform.isIOS ? _iosPrayerNotificationDetails(azaan) : null,
   );
+}
+
+/// The text under a prayer notification's title.
+///
+/// On iOS the Full Azan notification only carries the short Takbir clip (see
+/// _iosPrayerNotificationDetails) and the full recording starts from a tap on
+/// it, so the banner has to say so - nothing else on it does.
+String prayerNotificationBody(String prayerName, AzaanOption azaan,
+    {bool? isIOS}) {
+  final body = "It's time for ${prayerName.toLowerCase()}";
+  final onIOS = isIOS ?? (!kIsWeb && Platform.isIOS);
+  if (onIOS && azaan.id == AzaanOptions.azaan.id) {
+    return '$body · Tap to hear the full azan';
+  }
+  return body;
 }
 
 Future<void> schedulePrayerTimeNotification(
@@ -1044,7 +1069,7 @@ Future<void> schedulePrayerTimeNotification(
             : AndroidScheduleMode.inexactAllowWhileIdle,
         title:
             formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
-        body: "It's time for " + prayerName.toLowerCase(),
+        body: prayerNotificationBody(prayerName, azaan),
         payload: dateTime.toIso8601String());
 
     // Android only: the notification above is now silent for Full Azan and
@@ -1121,10 +1146,32 @@ String? prayerNameForNotificationId(int id) {
 /// invokes whichever one matches where the tap arrived.
 Future<void> handlePrayerNotificationResponse(
     NotificationResponse response) async {
+  final payload = response.payload;
+  if (payload != null &&
+      payload.startsWith(ZikrReminderService.payloadPrefix)) {
+    await _openZikrReminderNotification(
+      payload.substring(ZikrReminderService.payloadPrefix.length),
+    );
+    return;
+  }
+
   final id = response.id;
   if (id == null) return;
   final prayerName = prayerNameForNotificationId(id);
   if (prayerName == null) return;
+
+  // Tapping a prayer notification while the app is already running (the
+  // common case: backgrounded, not terminated) resumes it on whatever
+  // screen it was left on, not the home page - and the Full Azan banner
+  // and stop control only live on the home page's Scaffold (see
+  // AzanPlayingBanner). Without this, a reader who tapped the notification
+  // to silence the Azan had to manually navigate back to home first. A
+  // terminated-app launch already lands on home for free, so this is a
+  // no-op there. No-op too from the background isolate
+  // (handlePrayerNotificationResponseBackground) - there is no navigator
+  // attached to appNavigatorKey outside the main isolate.
+  appNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+
   final azaan = getAzaanOptionForPrayer(prayerName);
   if (azaan.id != AzaanOptions.azaan.id && azaan.id != AzaanOptions.custom.id) {
     return;
@@ -1137,6 +1184,37 @@ Future<void> handlePrayerNotificationResponse(
   );
 }
 
+/// Opens what a tapped zikr reminder notification was for: the linked zikr
+/// itself when it was created by picking one from the library, or just the
+/// app's home page for a free-text reminder with nothing to open directly.
+///
+/// Meant only for the main isolate (a foreground tap, or the
+/// launched-from-terminated path in home_page.dart that runs once the app is
+/// up, both after `SP.init()`) - [appNavigatorKey] has no navigator attached
+/// from the background isolate [handlePrayerNotificationResponseBackground]
+/// can run in, and that isolate never called `SP.init()` either, so this
+/// bails out on the same `SP.isInitialized` guard the rest of this file uses
+/// rather than crashing on the unguarded `SP.prefs` read underneath.
+Future<void> _openZikrReminderNotification(String reminderId) async {
+  if (!SP.isInitialized) return;
+  final reminder = await ZikrReminderService.instance.byId(reminderId);
+  if (reminder == null) return;
+
+  final zikrUid = reminder.zikrUid;
+  final title = zikrUid == null ? null : items[zikrUid];
+  if (zikrUid != null && title is String && title.isNotEmpty) {
+    pushRootPageRoute(ZikrPage(
+      UidTitleData(zikrUid, title),
+      source: ZikrOpenSource.reminder,
+    ));
+    return;
+  }
+
+  // The home page is already the navigator's root route - just surface it
+  // rather than pushing the reminders list on top of it.
+  appNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+}
+
 /// Background-isolate counterpart of [handlePrayerNotificationResponse], for
 /// a tap that arrives while the app process isn't already running.
 /// flutter_local_notifications requires this to be a distinct top-level
@@ -1145,6 +1223,24 @@ Future<void> handlePrayerNotificationResponse(
 void handlePrayerNotificationResponseBackground(
     NotificationResponse response) {
   handlePrayerNotificationResponse(response);
+}
+
+/// Which azaan a preview should actually play.
+///
+/// [azaanId] is always the sound the caller is trying to preview and wins
+/// whenever it is given - the sound picker passes one for every concrete
+/// option, including when previewing a per-prayer sound that differs from
+/// what that prayer is actually configured to play. [prayerName] alone (no
+/// azaanId) is what a real prayer notification's own preview - one with
+/// nothing explicit chosen - resolves through instead. Putting prayerName
+/// first used to mean every preview in the per-prayer picker ignored the
+/// tapped option and played whatever that prayer was already set to - e.g.
+/// tapping "preview" on System Default would play a Full Azan the prayer
+/// happened to have saved.
+AzaanOption azaanOptionForPreview({String? azaanId, String? prayerName}) {
+  if (azaanId != null) return resolveAzaanOptionForCurrentPlatform(azaanId);
+  if (prayerName != null) return getAzaanOptionForPrayer(prayerName);
+  return getSelectedAzaan();
 }
 
 /// Fires a sample notification.
@@ -1158,14 +1254,7 @@ Future<void> testNotification(
     {String? azaanId,
     String? prayerName}) async {
   await initializeNotificationTimeZone();
-  final AzaanOption azaan;
-  if (prayerName != null) {
-    azaan = getAzaanOptionForPrayer(prayerName);
-  } else if (azaanId != null) {
-    azaan = resolveAzaanOptionForCurrentPlatform(azaanId);
-  } else {
-    azaan = getSelectedAzaan();
-  }
+  final azaan = azaanOptionForPreview(azaanId: azaanId, prayerName: prayerName);
 
   final platformChannelSpecifics =
       await prayerNotificationDetails(azaan, prayerName: prayerName);

@@ -4,7 +4,7 @@
 class WhatsNewEntry {
   const WhatsNewEntry({
     required this.buildNumber,
-    required this.title,
+    required this.versionName,
     required this.bullets,
   });
 
@@ -13,10 +13,14 @@ class WhatsNewEntry {
   /// correct relative to the entries around it, not globally unique in any
   /// other sense.
   final int buildNumber;
-  final String title;
+
+  /// The version people see in the store (pubspec.yaml's `x.y.z`), used as
+  /// the "Version x.y.z" heading when someone is shown more than one entry.
+  final String versionName;
 
   /// Short, plain-language points — this is read by people who did not ask
-  /// for a changelog, not a commit log entry. Two or three is plenty.
+  /// for a changelog, not a commit log entry. Say only what a person would
+  /// notice, and name the platform when something is not the same on both.
   final List<String> bullets;
 }
 
@@ -26,14 +30,15 @@ class WhatsNewEntry {
 /// need to touch.
 final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
   const WhatsNewEntry(
-    buildNumber: 111,
-    title: 'Azan now plays in full',
+    buildNumber: 114,
+    versionName: '3.5.4',
     bullets: [
-      'Full Azan and Custom Audio now keep playing even if another '
-          'notification arrives or you pick up your phone — they no longer '
-          'cut off partway through.',
-      'A Stop button is always available, in the notification and in the '
-          'app, to end it early whenever you want.',
+      'Zikr Reminders: get reminded about a zikr or dua on the days you '
+          'choose.',
+      'Azan now plays in full, without other notifications cutting it '
+          'off, and has a Stop button on the home screen. On iPhone, tap '
+          'the notification to start it.',
+      'You can now choose a notification sound for each prayer.',
     ],
   ),
 ];

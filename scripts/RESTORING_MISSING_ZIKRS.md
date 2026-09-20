@@ -218,6 +218,182 @@ heterogeneous and, in several cases (E102, E103, E112, E90, G10, G24, G30,
 G74, the remaining AA-series Ramadan-night compilations), considerably
 longer than anything above - pick up at E114 for the next pass.
 
+A fifth pass (2026-09-14) restored the top five rows of what was left -
+**E114, E40, F39, G14, I64** (the 7-user tier) - all as standalone
+`assets/zikr/<uid>` entries, no duplicates of live `tabs[]` content found for
+any of them (checked per Step 1.5, including the stock ziyarah-greeting
+formula in G14 that also appears in the unrelated Day-of-Arafah ziyarat
+G75/AC4 - a shared stock phrase, not a shared entry). All five had full old
+content in `assets/items/<uid>` history; only G14 needed a `merits` field
+(the multi-paragraph hadith preamble on the virtues of visiting Imam Husayn
+at the Qadr Nights, ahead of the four ziyarah passages themselves in `data`).
+None had a usable historic transliteration, so all of it was authored fresh
+in this pass, matching the house style spot-checked against F45/G76/I60/E94
+(not F2/A4's older Indo-Pak convention, which predates the house style and is
+preserved as-is only where it already existed) - flagged here for a
+native-speaker review pass rather than trusted as verbatim-sourced. Also ran
+`scripts/zikr_arabic/normalize.py` and `silah.py` (see the `zikr-arabic`
+skill) against the five new entries before finishing: normalize.py found no
+non-canonical codepoints, and silah.py's first pass caught 18 missing
+ṣilah al-hā' marks across four of the five entries (all fixed; a second pass
+came back clean, and `zikr_arabic/audit.py`'s per-font check passed for all
+five with no INV-2 glyph gaps).
+
+AA18 (the 6-user-tier "Aamal & Duas for the days of Ramadhan") was skipped
+this pass - its `assets/items/AA18` history is ~34KB, in the same
+considerably-longer-than-usual bracket as the UIDs called out above.
+
+85 UIDs now remain unrestored in the 2+-favorite table (88 rows still
+missing from `assets/zikr.json`, of which 3 - E53, E118, E148 - are retired
+via `retiredZikrRedirects` rather than needing standalone restoration), plus
+the untouched single-favorite tail - pick up at **AA18** (or skip straight to
+**E102**, the next short-to-moderate row) for the next pass.
+
+A sixth pass (also 2026-09-14) restored 50 more UIDs in one go - rather than
+working strictly by rank, this pass swept the **shortest remaining
+`assets/items/<uid>` histories first** (roughly 300 bytes to 4.7KB), skipping
+past the still-untouched 4-user tier's longer rows (E102, E103, E112, E90,
+G10 among them) and AA18 in favor of tractable ones further down the table:
+**F54, E51, I39, I94, E150, I110, F60, I88, E97, I56, E111, AA39, E83, F40,
+AA25, F49, I58, I18, F58, X11, A2, I53, F47, I44, F44, I68, E147, AA26, E110,
+I66, A3, Y1, E95, I78, AA35, E104, E100, E99, I111, E149, I10, Y10, F34,
+I115, I30, F55, I65, AA33, I54, C16** - all restored as standalone
+`assets/zikr/<uid>` entries, none of them (this time) needing a `merits`
+field. I58 ("Ayah Al Sakharah") was a priority pickup regardless of size:
+I57 (restored in the fourth pass) already carries a dangling
+`[Ayah al-Sakhkhara](I58)` link waiting for this UID to exist. (A2, A3, I10,
+I18, E99 and E40 were part of this original 50 - see the 2026-09-17
+correction below for why they didn't make it into the final PR.)
+
+Four originally-picked candidates from this size tier turned out to be
+unrestorable or duplicates and were swapped out (per Step 1.5 and the
+"dangling promise" pattern the `zikr-arabic` skill documents for imports -
+the same defect turns out to also appear in a few of this native-authored
+corpus's own historic entries): **Y12** and **Y8** had no dua text at all in
+history (an attribution/cross-reference setup with nothing following it -
+Y8 just points back at Rajab's already-covered White Nights prayers), **I86**
+promised "ten supplicatory prayers" and delivered none, and **I15** turned
+out to be a genuine Step-1.5 duplicate - its entire "Twelfth" through
+"Sixteenth" content is already live word-for-word inside **I14**
+("General Ta'qeebaat-2"), under I14's own inline heading "Virtues of the
+'Effective Veneration'" (I15's exact title) - retired to I14 via
+`retiredZikrRedirects` instead of restored standalone. They were replaced
+with the next four rows by size: I65, AA33, I54, C16.
+
+One further false-positive-shaped case was resolved without dropping the
+UID: **F44**'s "Tawakkaltu 'alal hayyil lazee laa yamoot..." litany (taught
+by the Prophet to a man complaining of debts) is the same wording **E54**
+already carries in full (taught by al-Kaf'ami for poverty and ailment) -
+per the false-positive warning in Step 1.5, this didn't disqualify F44 as a
+whole (its other two duas are unrelated), so F44 keeps its own entry but
+links to E54 for that one shared litany instead of re-transcribing it.
+
+As in the fifth pass, none of the 50 had a usable historic transliteration
+(a few - AA33, AA35, C16, F55 - did have full transliteration and/or English
+already in history and needed only cross-checking), so the rest was authored
+fresh matching each entry's own house style, and is flagged for a
+native-speaker review pass. Quran citations (Surah al-Fatihah, al-Tawheed,
+Yasin, al-Mulk, al-Qadr, al-Kawthar, al-Kafirun, al-Falaq, al-Nas, Ayat
+al-Kursi, and a couple of single-verse citations from al-Fath and al-Nur)
+were linked to their existing `A<n>` entries per Step 2 rather than
+re-transcribed, and Dua al-Mujeer references were linked to the already-live
+**E28**. Ran `zikr_arabic/normalize.py` and `silah.py` against all 50 before
+finishing, same as the fifth pass: normalize.py found nothing to change,
+and silah.py's first pass caught 38 missing marks across 20 entries (all
+fixed, including a mid-fix slip on one line of E83 that briefly marked the
+wrong of two `بِهِ` occurrences - caught and corrected by re-running
+silah.py after applying the batch); a final pass came back clean, and
+`audit.py`'s per-font check (INV-2) passed with no glyph gaps.
+
+**Post-PR review correction (2026-09-17):** two more problems surfaced in
+review of the sixth pass's PR before merge. **I10** turned out to be the
+same Step-1.5 duplicate case as I15 but missed the first time round: its
+title ("General Ta'qeebaat - 1") and content are the same Tasbih al-Zahra'
+method-and-merits text as the already-live **I9**'s ("General
+Ta'qeebaat-1"), just reworded - retired to I9 via `retiredZikrRedirects`
+instead of restored standalone, dropped from the 50-count above. Separately,
+**A2** ("Dua after reciting Holy Quran") and **A3** ("Dua Khatme Quran")
+were pulled from this pass and deferred - not restored, not retired, still
+missing - pending further review; no replacement candidates were picked up
+in their place.
+
+A follow-up sweep of the remaining 53 new entries (same day) caught three
+more Step-1.5 misses: **I18** ("Merit of reciting Bismillah along with La
+Haula Wa La Quwwata") is word-for-word I17's "Seventh:" numbered section,
+**E99** ("Dua of Covenant with Almighty Allah") is word-for-word I17's
+"Eleventh:"+"Twelfth:" sections, and **E40** ("Dua for delaying death
+(Ajal)") is the same hadith and the same core "Subhaanallaahi mil'al
+meezaan..." glorification as I17's "Sixth:" section (I17 carries a longer
+tail E40 lacks, but it's the same narration under a different numbering
+scheme) - all three retired to **I17** via `retiredZikrRedirects` (tab
+index 1, 3, and 1 respectively) instead of restored standalone. Two entries
+the sweep also flagged were checked and kept as-is: **I53**'s knee-pain dua
+overlaps one paragraph of the already-live **E39** but, per the same
+precedent already established for F44/E54, its other two components are
+unrelated so it keeps its own standalone entry; **AA33** and **AA35** share
+an extensive closing petition with each other, but each has its own
+distinct night-specific opening invocation and the shared closing reads as
+authentic traditional content (the same phenomenon documented for shared
+stock formulas elsewhere in this doc), not a restoration artifact - no
+action taken.
+
+This pass's final standalone-restored count is therefore **44**, not 50,
+and its retired count is **5** (I15, I10, I18, E99, E40), not 1.
+
+36 UIDs now remain unrestored in the 2+-favorite table (44 rows still
+missing, of which 8 - E53, E118, E148, I15, I10, I18, E99, E40 - are
+retired), plus the untouched single-favorite tail. AA18 is still the
+largest outstanding row; pick up at **E102** for the next pass (A2 and A3
+are also available to revisit sooner, since their content already exists in
+`scripts/zikr_restore_drafts/` history - they were pulled for reasons
+unrelated to sourcing).
+
+## Full-corpus duplicate sweep (2026-09-17)
+
+Separately from restoring missing UIDs, an Arabic-text shingle-overlap sweep
+was run across all ~576 *already-live* entries in `assets/zikr/` to check
+whether the old corpus (not just this restoration project's own additions)
+carries duplicates too. It found six more, all retired via
+`retiredZikrRedirects` or converted to a `|`-alias the same way `G20|N3`
+already worked:
+
+- **AH10 → AH5**, **I12 → I9** (tab 1), **E49 → I14** (tab 1), **E47 → I14**
+  (tab 1), **E50 → I24** (tab 2, also covers tab 3 - see the code comment)
+  are the same reworded/verbatim-contained pattern as I10/I18/E99/E40
+  above, just found in older, previously-live content instead of this
+  pass's new restorations. I12 and E47 in particular trace back to an
+  earlier restoration pass ("batch 3 of top-20", commit `d72bc84`) that
+  missed the duplicate at the time.
+- **G20** turned out to be a stale leftover: it was restored standalone in
+  an earlier pass ("Restore a third low-hanging-fruit batch...", commit
+  `cd2b3c6`) without noticing `G20|N3` already existed as a correct alias
+  to the identical `N3` ("Ziyarat on Tuesday") - so the corpus carried both
+  the alias and a rougher plain duplicate, double-listing the same ziyarah
+  in the general Ziyarat list. The plain `G20` is now retired to `N3`; the
+  `G20|N3` alias is untouched.
+- **G15 → `G15|K3`**, **S7 → `S7|G3`**, **AC4 → `AC4|G75`**: these three
+  were confirmed byte-identical (G15/K3, AC4/G75) or near-identical
+  (G3/S7, differing only in a one-line heading) full duplicates,
+  deliberately cross-listed under two browsing categories (a general
+  Ziyarat/topic list plus a weekday- or calendar-specific collection) - the
+  exact shape the `|`-alias convention exists for (see `G16|L3`, `R11|G4`,
+  etc.). Converted to aliases instead of retired, since both list entries
+  are meant to stay reachable; only the duplicate content file was dropped.
+
+A handful of other high-overlap pairs the sweep surfaced were checked and
+left alone as intentional, not bugs: **AC4/G75 and G3/S7's shared text with
+G6** (a stock ziyarah-greeting phrase, same false-positive shape already
+documented above for G14), **AK5** (an explicit "(All Forms)" compilation
+whose tabs[0] is verbatim **G2**'s "Ziyarat-e-Ameenullah" - a named ziyarah
+intentionally nested in a larger compiled entry), **D3** (similarly nests
+the "Ya Malik al-Riqaab" dua that **I83** is built from), and **E15**
+(Dua-e-Hazeen, explicitly labeled "recite this after Namaz-e-Shab" inline
+in both **F2** and **F3**). The rest of the sweep's matches were coincidental
+shared Quranic verses (17:111, Dua Yunus 21:87-88) or universal stock
+formulas (tasbeeh, "laa hawla wa laa quwwata") independently quoted by
+otherwise-unrelated entries - the exact false-positive shape this doc's
+Step 1.5 section already warns about.
+
 **As of 2026-09-08:** 483 UIDs are missing from `assets/zikr.json`; of those,
 274 are favorited by at least one real user, across 890 favorite-entries and
 131 distinct users (out of 269 users who have any favorites at all). The

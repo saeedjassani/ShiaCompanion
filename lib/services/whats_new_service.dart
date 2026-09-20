@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../data/whats_new_notes.dart';
@@ -36,8 +37,12 @@ class WhatsNewService {
   /// up. Call [markSeen] once this launch regardless of what comes back:
   /// that is what actually advances the "last seen" mark, for a fresh
   /// install as much as one that was just shown something.
-  static Future<List<WhatsNewEntry>> pending() async {
-    if (!SP.isInitialized) return const [];
+  ///
+  /// Always empty on the web: these notes describe app behavior (notification
+  /// sounds, Azan playback, reminders) that the website does not have.
+  /// [isWeb] exists only so tests can exercise that.
+  static Future<List<WhatsNewEntry>> pending({bool isWeb = kIsWeb}) async {
+    if (isWeb || !SP.isInitialized) return const [];
 
     final currentBuild = await _currentBuildNumber();
     if (currentBuild <= 0) return const [];

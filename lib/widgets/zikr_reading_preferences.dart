@@ -193,7 +193,7 @@ class _ZikrReadingPreferencesControlsState
         ),
         SwitchListTile(
           secondary: _leading(Icons.ios_share),
-          value: SP.prefs.getBool('share_zikr_image') ?? true,
+          value: SP.prefs.getBool('share_zikr_image') ?? false,
           onChanged: (v) async {
             await _saveBooleanPref(
               'share_zikr_image',

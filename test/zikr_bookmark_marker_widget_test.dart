@@ -60,7 +60,12 @@ Finder _lineFinder(int index) {
 Finder _tintedLines() => find.byWidgetPredicate((widget) {
       if (widget is! Container) return false;
       final decoration = widget.decoration;
-      return decoration is BoxDecoration && decoration.border != null;
+      // Both the color and the border: a border alone also matches the
+      // paragraph divider the reading list now draws between triplets,
+      // which is not a tint.
+      return decoration is BoxDecoration &&
+          decoration.color != null &&
+          decoration.border != null;
     });
 
 void main() {

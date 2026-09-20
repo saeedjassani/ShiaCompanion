@@ -29,6 +29,11 @@ class ZikrReminderService extends ChangeNotifier {
   static const String _nextBaseIdKey = 'zikr_reminders_next_base_id';
   static const int _baseIdStart = 40000;
 
+  /// Prefix on every notification [payload] this service schedules, so
+  /// [handlePrayerNotificationResponse] can tell a zikr reminder tap apart
+  /// from a prayer/Azan one and route it to the right reminder.
+  static const String payloadPrefix = 'zikr_reminder:';
+
   static const String _androidChannelId = 'zikr_reminders';
   static const String _androidChannelName = 'Zikr Reminders';
 
@@ -38,6 +43,17 @@ class ZikrReminderService extends ChangeNotifier {
 
   List<ZikrReminder> get reminders => List.unmodifiable(_reminders);
   bool get hasLoaded => _loaded;
+
+  /// Looks up one reminder by id — for a tapped notification to find which
+  /// reminder (and so which zikr, if any) it was for. Null if it was since
+  /// deleted.
+  Future<ZikrReminder?> byId(String id) async {
+    await load();
+    for (final reminder in _reminders) {
+      if (reminder.id == id) return reminder;
+    }
+    return null;
+  }
 
   Future<void> load() async {
     if (_loaded) return;
@@ -245,7 +261,7 @@ class ZikrReminderService extends ChangeNotifier {
           notificationDetails: details,
           androidScheduleMode: scheduleMode,
           matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-          payload: 'zikr_reminder:${reminder.id}',
+          payload: '$payloadPrefix${reminder.id}',
         ));
       }
       await Future.wait(schedulingTasks);
@@ -284,7 +300,7 @@ class ZikrReminderService extends ChangeNotifier {
           scheduledDate: tz.TZDateTime.from(occurrences[index], tz.local),
           notificationDetails: details,
           androidScheduleMode: scheduleMode,
-          payload: 'zikr_reminder:${reminder.id}',
+          payload: '$payloadPrefix${reminder.id}',
         ));
       }
     }

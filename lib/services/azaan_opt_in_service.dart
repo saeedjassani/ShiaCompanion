@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/azaan_opt_in_dialog.dart';
 
@@ -165,6 +168,8 @@ class AzaanOptInService {
         await SP.prefs.setBool(key, false);
       }
     }
+
+    unawaited(PrayerPreferencesSyncService.instance.pushAzaanOptInBulk());
 
     if (reschedule) {
       await setUpNotifications();

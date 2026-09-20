@@ -12,9 +12,11 @@ import '../services/analytics_service.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
+import '../services/prayer_preferences_sync_service.dart';
 import '../services/preferences_sync_service.dart';
 import '../services/qaza_tracker_manager.dart';
 import '../services/recitation_tracker_manager.dart';
+import '../services/rating_prompt_service.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
@@ -47,6 +49,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await QazaTrackerManager.instance.loadQaza(force: true);
     await RecitationTrackerManager.instance.loadRecitations(force: true);
     await PreferencesSyncService.instance.pullOrSeed();
+    await PrayerPreferencesSyncService.instance.pullOrSeed();
     await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
     setState(() {});
@@ -173,7 +176,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   leading: const Icon(Icons.notifications_active_outlined),
                   title: const Text("Zikr Reminders"),
                   subtitle: const Text(
-                      "Get reminded about a zikr or dua on the days you choose."),
+                      "Get reminded about a zikr on the days you choose."),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -239,6 +242,23 @@ class _SettingsPageState extends State<SettingsPage> {
             context,
             title: 'Support',
             children: [
+              // Not gated behind RatingPromptService.shouldAsk() at all -
+              // that cooldown is for the automatic pre-screen dialog on
+              // launch. This is the always-available door to the store,
+              // which openStoreListing() itself needs no quota for.
+              if (!kIsWeb)
+                ListTile(
+                  leading: const Icon(Icons.star_rate),
+                  title: const Text("Rate Shia Companion"),
+                  subtitle: const Text("Enjoying the app? Leave us a rating."),
+                  onTap: () {
+                    unawaited(RatingPromptService.openStoreListing());
+                    unawaited(AnalyticsService.feature(
+                      'rate_us_settings',
+                      label: 'Rate us opened from Settings',
+                    ));
+                  },
+                ),
               ListTile(
                 leading: const Icon(Icons.feedback),
                 title: const Text("Feedback"),
