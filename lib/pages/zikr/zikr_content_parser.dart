@@ -192,6 +192,7 @@ class ZikrContentParser {
     '\uE01A': '\u08D5', // small high sad
     '\uE01B': '\u08D5', // small high sad
     '\uE01C': '\u08D7', // small high qaf
+    '\uE01D': '\u06D6', // small high sad-lam-alef (sal)
     '\uE01E': '\u08DE', // small high word qif
     '\uE01F': '\u08DF', // small high word waqfa
     '\uE021': '\u06D9', // small high lam alef
@@ -205,7 +206,6 @@ class ZikrContentParser {
   /// elevated Quranic pause sign that does not collide.
   static const Map<String, String> _qalamPuaMarks = {
     '\uE01E': '\uE01C', // small high qaf
-    '\uE01D': '\u06D6', // small high sad-lam-alef (sal)
   };
 
   // Typographic spaces that no font bundled here has ever had a glyph for,
@@ -234,22 +234,31 @@ class ZikrContentParser {
     r'\s+([\u0615\u06D6-\u06DC\u08D5\u08D7-\u08DF\uE01A-\uE01C\uE021])',
   );
 
-  // When Uthmani waqf marks (06D6, 06D7) are adjacent to Indo-Pak marks (E01A-E022),
+  // When Uthmani waqf marks (06D6, 06D7) are adjacent to Indo-Pak marks (E01A-E021),
   // retain the Indo-Pak mark consistent with the corpus and Qalam font.
+  // The ruku mark \uE022 is a different kind of sign, not a pause mark, so it is
+  // never merged with a neighbouring pause mark: 9 Quran lines in the corpus
+  // end in a pause mark followed by it (e.g. Waqi'ah 40) and must keep both.
   static final RegExp _uthmaniBeforeIndoPakWaqf =
-      RegExp(r'[\u06D6\u06D7]\s*([\uE01A-\uE022])');
+      RegExp(r'[\u06D6\u06D7]\s*([\uE01A-\uE021])');
   static final RegExp _indoPakBeforeUthmaniWaqf =
-      RegExp(r'([\uE01A-\uE022])\s*[\u06D6\u06D7]');
+      RegExp(r'([\uE01A-\uE021])\s*[\u06D6\u06D7]');
 
-  // When two or more waqf marks are adjacent, keep the first one.
+  // When two or more pause marks are adjacent, keep the first one. The ruku
+  // marks \uE022 and \u08D6 are left out for the reason above.
   static final RegExp _adjacentWaqfMarks = RegExp(
-    r'([\u0615\u06D6-\u06DC\u08D5-\u08DF\uE01A-\uE022])\s*[\u0615\u06D6-\u06DC\u08D5-\u08DF\uE01A-\uE022]+',
+    r'([\u0615\u06D6-\u06DC\u08D5\u08D7-\u08DF\uE01A-\uE021])\s*[\u0615\u06D6-\u06DC\u08D5\u08D7-\u08DF\uE01A-\uE021]+',
   );
 
-  // Ensure a space after a waqf mark when followed by an Arabic character, so the
-  // subsequent word is not glued to the mark.
+  // Ensure a space after a waqf mark when the next word follows it directly, so
+  // the word is not glued to the mark. Deliberately narrow:
+  // - Only a base letter counts as "the next word". A mark, a ZWNJ or a
+  //   combining character after a pause mark belongs to the same cluster
+  //   (`\u0615\u0614`), and a space there tears it apart.
+  // - \u06D7 and \u06DC are left out. Indo-Pak text uses them mid-word as
+  //   letter marks (\u0634\u064E\u0627\u06D7\u0621\u064E, \u0627\u064F\u0648\u0644\u0670\u06D7\u0649\u0650\u0655\u0643\u064E, \u064A\u064E\u0628\u0652\u0635\u064F\u06DC\u0637\u064F), where a space splits the word.
   static final RegExp _waqfFollowedByLetter = RegExp(
-    r'([\u0615\u06D6-\u06DC\u08D5-\u08DF\uE01A-\uE022])([^\s\(\)\u200f\u06DD])',
+    r'([\u0615\u06D6\u06D8-\u06DB\u08D5-\u08DF\uE01A-\uE022])(?=[\u0621-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06FA-\u06FC\u06FF\u0750-\u077F])',
   );
 
   // Ensure clean spacing between preceding word and ruku mark \uE022 / \u08D6.
@@ -263,7 +272,8 @@ class ZikrContentParser {
   ///
   /// Qalam is deliberately absent. It draws its medallion from the ASCII
   /// parentheses the corpus is authored with, and renders U+06DD as an empty
-  /// ornament with the digits swallowed — so for Qalam the text is left alone.
+  /// ornament with the digits swallowed — so for Qalam the number stays as
+  /// ASCII `(n)`, only re-spaced.
   static const Set<String> _endOfAyahFonts = {'Scheherazade'};
 
   static const String _endOfAyah = '\u06DD';
@@ -290,32 +300,41 @@ class ZikrContentParser {
   static String _toArabicIndic(String digits) =>
       digits.split('').map((d) => _arabicIndicDigits[int.parse(d)]).join();
 
+  // Every step of [formatArabicText] is triggered by one of these: a
+  // typographic space, a private-use mark, a waqf or ruku mark, or a trailing
+  // (n). Most lines carry none of them, so they skip the regex passes below,
+  // which run on every rebuild of a scrolling surah.
+  static final RegExp _needsFormatting = RegExp(
+    r'[\u2002\u2003\uE003\uE004\u0615\u06D6-\u06DC\u08D5-\u08DF\uE01A-\uE022]|\(\d+\)\s*$',
+  );
+
   /// Prepares one Arabic line for display in [arabicFont].
   ///
   /// This normalises waqf (pause) signs by:
+  /// - Deduplicating conflicting/overlapping pause marks from mixed Uthmani
+  ///   and Indo-Pak traditions. The ruku mark is never merged into one.
   /// - Stripping errant pause marks immediately preceding the ayah medallion
   ///   so they do not collide or get swallowed into the medallion (e.g. `(1 قف)`).
-  /// - Preserving the rukūʿ mark (`\uE022`) outside the medallion with clean spacing.
+  ///   This runs after the deduplication, which can leave such a mark
+  ///   directly against the medallion.
   /// - Mapping proprietary PUA pause marks to standard Unicode Quranic marks
   ///   for non-Qalam fonts (like Scheherazade) and to non-colliding high marks
   ///   for Qalam.
   /// - Removing whitespace before combining waqf marks so they attach directly
   ///   to the preceding word rather than floating detached.
-  /// - Deduplicating conflicting/overlapping marks from mixed Uthmani and
-  ///   Indo-Pak traditions.
-  /// - Ensuring clean spacing before the ayah medallion `(n)`.
+  /// - Separating a pause mark from a next word that follows it directly.
+  /// - Preserving the rukūʿ mark (`\uE022`) outside the medallion with clean spacing.
+  /// - Ensuring clean spacing before the ayah medallion `(n)`, which for
+  ///   Qalam replaces the RLM the corpus authors before it with a plain space.
   static String formatArabicText(String str) {
+    if (!_needsFormatting.hasMatch(str)) return str;
+
     var result = str;
     _spaces.forEach((from, to) => result = result.replaceAll(from, to));
     _privateUseMarks
         .forEach((from, to) => result = result.replaceAll(from, to));
 
-    // 1. Remove pause marks immediately before trailing ayah medallion so they
-    // do not collide with the last word or get pulled inside the medallion (e.g. '(1 قف)').
-    // The ruku mark \uE022 is preserved.
-    result = result.replaceAll(_trailingWaqfBeforeAyah, '');
-
-    // 2. Deduplicate conflicting / adjacent waqf marks while in common encoding.
+    // 1. Deduplicate conflicting / adjacent waqf marks while in common encoding.
     result = result.replaceAllMapped(
       _uthmaniBeforeIndoPakWaqf,
       (match) => match.group(1)!,
@@ -328,6 +347,12 @@ class ZikrContentParser {
       _adjacentWaqfMarks,
       (match) => match.group(1)!,
     );
+
+    // 2. Remove pause marks immediately before trailing ayah medallion so they
+    // do not collide with the last word or get pulled inside the medallion (e.g. '(1 قف)').
+    // After step 1, so a mark it leaves behind is not shielded by a neighbour
+    // it would have removed. The ruku mark \uE022 is preserved.
+    result = result.replaceAll(_trailingWaqfBeforeAyah, '');
 
     // 3. Map font-specific pause marks.
     if (_endOfAyahFonts.contains(arabicFont)) {
@@ -349,7 +374,7 @@ class ZikrContentParser {
     // 5. Ensure a space separates the waqf mark from the next word.
     result = result.replaceAllMapped(
       _waqfFollowedByLetter,
-      (match) => '${match.group(1)} ${match.group(2)}',
+      (match) => '${match.group(1)} ',
     );
 
     // 6. Ensure clean spacing before ruku mark so it sits nicely before the medallion.
@@ -359,17 +384,12 @@ class ZikrContentParser {
     );
 
     // 7. Ensure clean spacing before the ayah medallion so marks do not overlap it.
-    if (_endOfAyahFonts.contains(arabicFont)) {
-      result = result.replaceFirstMapped(
-        _trailingAyahSpacing,
-        (match) => ' $_endOfAyah${_toArabicIndic(match.group(1)!)}',
-      );
-    } else {
-      result = result.replaceFirstMapped(
-        _trailingAyahSpacing,
-        (match) => ' (${match.group(1)})',
-      );
-    }
+    result = result.replaceFirstMapped(_trailingAyahSpacing, (match) {
+      final number = match.group(1)!;
+      return _endOfAyahFonts.contains(arabicFont)
+          ? ' $_endOfAyah${_toArabicIndic(number)}'
+          : ' ($number)';
+    });
 
     return result;
   }

@@ -28,8 +28,7 @@ void main() {
     // is invisible in Qalam and is what lets other fonts draw the marks.
     for (final font in FontPreferences.validFonts) {
       arabicFont = font;
-      expect(ZikrContentParser.formatArabicText('لَه بِه'),
-          'لَهٗ بِهٖ');
+      expect(ZikrContentParser.formatArabicText('لَه بِه'), 'لَهٗ بِهٖ');
       expect(ZikrContentParser.formatArabicText('وَالْحِجَارَةُ ۖ'),
           'وَالْحِجَارَةُۖ');
     }
@@ -94,6 +93,80 @@ void main() {
       ),
       'الٓرٰ\u08DE تِلْكَ اٰيٰتُ الْكِتٰبِ الْمُبِيْن ۝١',
     );
+  });
+
+  test('formatArabicText does not split a word at a mid-word mark', () {
+    // Indo-Pak text uses U+06D7 and U+06DC as letter marks inside a word
+    // (Ayat al-Kursi's شَاۗءَ and اُولٰۗىِٕكَ, at-Tur's يَبْصُۜطُ), and stacks
+    // combining marks (U+0615 U+0614) that must stay one cluster.
+    const lines = [
+      'شَا\u06D7ءَ',
+      'اُولٰ\u06D7ىِٕكَ',
+      'يَبْصُ\u06DCطُ',
+      'فِيْهَا\u0615\u0614 اَلَا',
+    ];
+    for (final font in FontPreferences.validFonts) {
+      arabicFont = font;
+      for (final line in lines) {
+        expect(ZikrContentParser.formatArabicText(line), line,
+            reason: '$font must not add a space inside a word');
+      }
+    }
+  });
+
+  test('formatArabicText still separates a pause mark glued to the next word',
+      () {
+    // U+E01B directly followed by the next word's waw, as authored in A11.
+    arabicFont = 'Qalam';
+    expect(ZikrContentParser.formatArabicText('اَلْحَمْدْ\uE01Bوَ'),
+        'اَلْحَمْدْ\uE01B وَ');
+    arabicFont = 'Scheherazade';
+    expect(ZikrContentParser.formatArabicText('اَلْحَمْدْ\uE01Bوَ'),
+        'اَلْحَمْدْ\u08D5 وَ');
+  });
+
+  test('formatArabicText keeps the ruku mark after a pause mark', () {
+    // Waqi'ah 40 is authored as U+0615 then the ruku mark then (40); nine
+    // Quran lines end this way and must keep both signs.
+    const line = 'الْاٰخِرِيْنَ\u0615\uE022\u200F(40)';
+    arabicFont = 'Qalam';
+    expect(ZikrContentParser.formatArabicText(line),
+        'الْاٰخِرِيْنَ\u0615 \uE022 (40)');
+    arabicFont = 'Scheherazade';
+    expect(ZikrContentParser.formatArabicText(line),
+        'الْاٰخِرِيْنَ\u0615 \u08D6 ۝٤٠');
+  });
+
+  test('formatArabicText strips a pause mark left against the medallion', () {
+    // The Uthmani mark next to the Indo-Pak one is deduplicated away, which
+    // leaves the Indo-Pak mark against (n) - that one must go too (90:11).
+    arabicFont = 'Qalam';
+    expect(
+      ZikrContentParser.formatArabicText('الْعَقَبَةَ\uE01A\u06D6\u200F(11)'),
+      'الْعَقَبَةَ (11)',
+    );
+    expect(
+      ZikrContentParser.formatArabicText('سَلَامٌ \uE01E \u06D6(3)'),
+      'سَلَامٌ (3)',
+    );
+  });
+
+  test('formatArabicText maps E01D to a glyph Scheherazade has', () {
+    // Qalam draws U+E01D itself, so it is left as authored there.
+    arabicFont = 'Qalam';
+    expect(
+        ZikrContentParser.formatArabicText('كَذَا\uE01D وَ'), 'كَذَا\uE01D وَ');
+    arabicFont = 'Scheherazade';
+    expect(
+        ZikrContentParser.formatArabicText('كَذَا\uE01D وَ'), 'كَذَا\u06D6 وَ');
+  });
+
+  test('formatArabicText returns a line with nothing to normalise as is', () {
+    for (final font in FontPreferences.validFonts) {
+      arabicFont = font;
+      const line = 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ';
+      expect(ZikrContentParser.formatArabicText(line), line);
+    }
   });
 
   test('formatArabicText draws the ayah medallion for fonts that compose it',
