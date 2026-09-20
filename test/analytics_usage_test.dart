@@ -157,6 +157,28 @@ void main() {
       expect(result.counts, isEmpty);
       expect(result.trend['2026-08-23'], 0);
     });
+
+    test('also tracks each metric\'s own day-by-day trend', () {
+      final result = parseUsageDays({
+        '2026-08-23': {
+          'screen': {'Home-Page': 3},
+          'zikr': {'G1': 2},
+        },
+        '2026-08-24': {
+          'screen': {'Home-Page': 5},
+        },
+      }, [
+        '2026-08-23',
+        '2026-08-24',
+      ]);
+
+      expect(result.metricTrend['screen'], {'2026-08-23': 3, '2026-08-24': 5});
+      // zikr had no events on the 24th, so that day is still present as zero
+      // rather than missing — every series shares the same day axis.
+      expect(result.metricTrend['zikr'], {'2026-08-23': 2, '2026-08-24': 0});
+      // A metric that never appears in the range gets no entry at all.
+      expect(result.metricTrend.containsKey('feature'), isFalse);
+    });
   });
 
   group('splitZikrCompletions', () {
@@ -188,6 +210,44 @@ void main() {
       ]);
 
       expect(rows.map((row) => row.key), ['G2']);
+    });
+  });
+
+  group('zikrPreviousByKey', () {
+    test('drops completion counters and keeps only opens', () {
+      final byKey = zikrPreviousByKey({
+        'zikr': {'G1': 10, 'G1~done': 3, 'G2': 5},
+      });
+
+      expect(byKey, {'G1': 10, 'G2': 5});
+    });
+
+    test('returns an empty map when there is no previous zikr data', () {
+      expect(zikrPreviousByKey(null), isEmpty);
+      expect(zikrPreviousByKey(const {}), isEmpty);
+      expect(
+          zikrPreviousByKey(const {
+            'screen': {'Home-Page': 4}
+          }),
+          isEmpty);
+    });
+  });
+
+  group('groupPreviousTotals', () {
+    test('sums the previous period\'s counts by feature group', () {
+      final totals = groupPreviousTotals({
+        'home_menu_qibla': 20,
+        'home_menu_tasbeeh': 5,
+        'search': 8,
+      });
+
+      expect(totals[FeatureGroup.navigation], 25);
+      expect(totals[FeatureGroup.search], 8);
+      expect(totals.containsKey(FeatureGroup.prayerAndAzaan), isFalse);
+    });
+
+    test('returns an empty map when there is no previous period', () {
+      expect(groupPreviousTotals(null), isEmpty);
     });
   });
 
