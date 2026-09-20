@@ -12,6 +12,9 @@ service cloud.firestore {
     match /users/{userId}/qaza_tracker/{docId} {
       allow read, write: if request.auth.uid == userId;
     }
+    match /users/{userId}/recitation_tracker/{docId} {
+      allow read, write: if request.auth.uid == userId;
+    }
     match /users/{userId}/settings/{docId} {
       allow read, write: if request.auth.uid == userId;
     }

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
-import 'package:shia_companion/services/quran_progress_store.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -12,14 +11,15 @@ import 'ui/firebase_test_doubles.dart';
 
 void main() {
   setUpAll(() async {
-    // The surah rows carry a favourite toggle, which reaches for Firestore.
+    // The surah rows carry a favourite toggle, and the recitation cards read
+    // the tracker's Firestore doc for a signed-in user - both reach for
+    // Firestore even though these tests run signed out.
     await setUpFirebaseForRenderTests();
   });
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await SP.init();
-    await QuranProgressStore.instance.clear();
     await SavedVersesStore.instance.clear();
     items = {
       for (var surah = 1; surah <= surahCount; surah++)
@@ -63,27 +63,13 @@ void main() {
     expect(find.text('Try something like 23:56'), findsOneWidget);
   });
 
-  testWidgets('shows no Continue card until reading has recorded a place',
+  testWidgets(
+      'the Unlabeled recitation track always shows, with nothing to resume yet',
       (tester) async {
     await pump(tester);
 
-    expect(find.text('Continue reciting'), findsNothing);
-  });
-
-  testWidgets('shows where the reader left off once there is progress',
-      (tester) async {
-    await QuranProgressStore.instance.save(
-      QuranProgress(
-        surah: 2,
-        ayah: 156,
-        surahTitle: '2: Surah2',
-        updatedAt: DateTime.now().toUtc(),
-      ),
-    );
-    await pump(tester);
-
-    expect(find.text('Continue reciting'), findsOneWidget);
-    expect(find.text('Surah2 · ayah 156'), findsOneWidget);
+    expect(find.text('Unlabeled'), findsOneWidget);
+    expect(find.text('Start reading'), findsOneWidget);
   });
 
   testWidgets('the Saved tab says so when nothing is kept', (tester) async {
@@ -138,23 +124,5 @@ void main() {
 
     expect(find.text('No saved verses yet'), findsOneWidget);
     expect(SavedVersesStore.instance.readAll(), isEmpty);
-  });
-
-  testWidgets('the Continue card can be cleared', (tester) async {
-    await QuranProgressStore.instance.save(
-      QuranProgress(
-        surah: 2,
-        ayah: 156,
-        surahTitle: '2: Surah2',
-        updatedAt: DateTime.now().toUtc(),
-      ),
-    );
-    await pump(tester);
-
-    await tester.tap(find.byTooltip('Clear'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Continue reciting'), findsNothing);
-    expect(QuranProgressStore.instance.read(), isNull);
   });
 }

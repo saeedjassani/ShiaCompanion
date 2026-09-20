@@ -1,71 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
-import '../../data/uid_title_data.dart';
 import '../../data/universal_data.dart';
+import '../../models/recitation_tracker_state.dart';
 import '../../services/analytics_service.dart';
 import '../../services/favorites_manager.dart';
-import '../../services/quran_progress_store.dart';
+import '../../services/recitation_tracker_manager.dart';
 import '../../services/saved_verses_store.dart';
 import '../../utils/quran_index.dart';
-import '../../utils/quran_portion.dart';
 import '../../utils/quran_text_index.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/responsive_content.dart';
-import '../zikr/zikr_page.dart';
 import 'listen_and_follow_sheet.dart';
+import 'quran_navigation.dart';
+import 'recitation_tracker_tab.dart';
 
-/// Opens a surah, at a verse when one is named.
-///
-/// Every Quran entry point goes through here - the surah list, the juz list,
-/// the go-to-verse box, the Continue card and the `/quran/...` links - so they
-/// all open the same reader the same way, and a surah with no document yet
-/// fails in one place rather than four.
-Future<void> openQuranVerse(
-  BuildContext context,
-  VerseKey verse, {
-  String source = ZikrOpenSource.quran,
-}) async {
-  final info = surahInfoFor(verse.surah);
-  if (info == null) return;
-
-  await pushPageRoute(
-    context,
-    ZikrPage(
-      UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
-      source: source,
-      initialVerse: verse,
-    ),
-  );
-}
-
-/// Opens a juz as one continuous reading, optionally at a verse inside it.
-///
-/// A juz is not a document in the corpus - 28 of the 30 run across two or more
-/// surahs - so it is assembled first and then handed to the reader whole. That
-/// is why this is async where [openQuranVerse] is not.
-Future<void> openQuranJuz(
-  BuildContext context,
-  int juz, {
-  VerseKey? at,
-  String source = ZikrOpenSource.quran,
-}) async {
-  final portion = await loadJuzPortion(juz, DefaultAssetBundle.of(context));
-  if (portion == null || portion.isEmpty || !context.mounted) return;
-
-  await pushPageRoute(
-    context,
-    ZikrPage(
-      UidTitleData(quranJuzUid(juz), portion.title),
-      source: source,
-      portion: portion,
-      initialVerse: at,
-    ),
-  );
-}
-
-/// The Quran screen: where you left off, a way to jump to any verse, and the
-/// two ways of browsing - by surah and by juz.
+/// The Quran screen: your recitation tracks, a way to jump to any verse, and
+/// the two ways of browsing - by surah and by juz.
 class QuranPage extends StatefulWidget {
   const QuranPage({super.key, this.initialTabIndex = 0});
 
@@ -76,7 +29,6 @@ class QuranPage extends StatefulWidget {
 }
 
 class _QuranPageState extends State<QuranPage> {
-  QuranProgress? _progress;
   List<SavedVerse> _saved = const [];
   late final List<SurahInfo> _surahs;
   late final List<Juz> _juz;
@@ -88,8 +40,8 @@ class _QuranPageState extends State<QuranPage> {
     trackScreen('Quran Page');
     _surahs = allSurahs();
     _juz = allJuz();
-    _progress = QuranProgressStore.instance.read();
     _saved = SavedVersesStore.instance.readAll();
+    unawaited(RecitationTrackerManager.instance.loadRecitations());
   }
 
   /// Starts building the verse text index while the surah list is being read.
@@ -107,10 +59,9 @@ class _QuranPageState extends State<QuranPage> {
     prewarmQuranTextIndex(DefaultAssetBundle.of(context));
   }
 
-  /// Both the place and the kept verses can have moved while the reader was
-  /// away, so they are re-read together whenever the screen comes back.
+  /// The kept verses can have moved while the reader was away, so they are
+  /// re-read whenever the screen comes back.
   void _refresh() {
-    _progress = QuranProgressStore.instance.read();
     _saved = SavedVersesStore.instance.readAll();
   }
 
@@ -120,41 +71,17 @@ class _QuranPageState extends State<QuranPage> {
     setState(_refresh);
   }
 
-  /// Picks up where the reader left off - in the juz if that is where they
-  /// were, since someone working through a juz over a week means the juz, not
-  /// whichever surah they happened to stop inside.
-  Future<void> _resumeReading() async {
-    final progress = _progress;
-    if (progress == null) return;
-
-    final verse = VerseKey(progress.surah, progress.ayah);
-    final juz = progress.juz;
-    if (juz != null) {
-      await openQuranJuz(
-        context,
-        juz,
-        at: verse,
-        source: ZikrOpenSource.quranResume,
-      );
-      if (!mounted) return;
-      setState(_refresh);
-      return;
-    }
-
-    await _open(verse, source: ZikrOpenSource.quranResume);
-  }
-
   /// Listens to a recitation and opens the verse it turns out to be.
   ///
-  /// Where it left off is handed to the matcher as context: someone following a
-  /// recitation in al-Baqarah is most likely still in al-Baqarah, and the tie
-  /// between two verses that read alike should break towards where they are.
+  /// Where the reader most recently was is handed to the matcher as context:
+  /// someone following a recitation in al-Baqarah is most likely still in
+  /// al-Baqarah, and a tie between two verses that read alike should break
+  /// towards where they are. Deliberately not label-scoped - a recitation heard
+  /// through the microphone belongs to whoever is reciting, not to a track.
   Future<void> _listenAndFollow() async {
-    final progress = _progress;
     final verse = await showListenAndFollowSheet(
       context,
-      readingAt:
-          progress == null ? null : VerseKey(progress.surah, progress.ayah),
+      readingAt: RecitationTrackerManager.instance.state.mostRecentPosition,
     );
     if (verse == null || !mounted) return;
 
@@ -173,16 +100,10 @@ class _QuranPageState extends State<QuranPage> {
     setState(_refresh);
   }
 
-  Future<void> _clearProgress() async {
-    await QuranProgressStore.instance.clear();
-    if (!mounted) return;
-    setState(() => _progress = null);
-  }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       initialIndex: widget.initialTabIndex,
       child: Scaffold(
         appBar: AppBar(
@@ -204,6 +125,7 @@ class _QuranPageState extends State<QuranPage> {
               Tab(text: 'Surahs'),
               Tab(text: 'Juz'),
               Tab(text: 'Saved'),
+              Tab(text: 'Recitations'),
             ],
           ),
         ),
@@ -214,12 +136,8 @@ class _QuranPageState extends State<QuranPage> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Column(
                 children: [
-                  if (_progress != null)
-                    _ContinueRecitingCard(
-                      progress: _progress!,
-                      onTap: _resumeReading,
-                      onDismiss: _clearProgress,
-                    ),
+                  const _RecitationLabelCards(),
+                  const SizedBox(height: 8),
                   _GoToVerseField(onSubmit: _open),
                 ],
               ),
@@ -234,6 +152,7 @@ class _QuranPageState extends State<QuranPage> {
                     onOpen: _open,
                     onRemove: _removeSaved,
                   ),
+                  const RecitationTrackerTab(),
                 ],
               ),
             ),
@@ -244,55 +163,203 @@ class _QuranPageState extends State<QuranPage> {
   }
 }
 
-/// "Pick up where you left off." Only ever shown when sequential reading has
-/// actually recorded a place - a verse someone merely looked up never lands
-/// here. See [QuranProgressStore].
-class _ContinueRecitingCard extends StatelessWidget {
-  const _ContinueRecitingCard({
-    required this.progress,
-    required this.onTap,
-    required this.onDismiss,
-  });
+/// One resume card per recitation track, plus the reserved "Unlabeled"
+/// bucket last and a card to start a new track.
+///
+/// This is what replaced the old single "Continue reciting" card: instead of
+/// one global place to resume, every track keeps its own, since where you
+/// left off reading with family and where you left off reading alone are not
+/// the same place.
+class _RecitationLabelCards extends StatelessWidget {
+  const _RecitationLabelCards();
 
-  final QuranProgress progress;
-  final VoidCallback onTap;
-  final VoidCallback onDismiss;
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: RecitationTrackerManager.instance,
+      builder: (context, _) {
+        final state = RecitationTrackerManager.instance.state;
+        final labels = [...state.labels, unlabeledRecitationLabel];
+
+        return SizedBox(
+          height: 88,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: labels.length + 1,
+            separatorBuilder: (context, index) => const SizedBox(width: 10),
+            itemBuilder: (context, index) {
+              if (index == labels.length) {
+                return _AddTrackCard(onTap: () => _showAddLabelDialog(context));
+              }
+              return _LabelResumeCard(label: labels[index], state: state);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showAddLabelDialog(BuildContext context) async {
+    final controller = TextEditingController();
+    try {
+      final name = await showDialog<String>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('New recitation track'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(hintText: 'e.g. Family, Tahajjud'),
+            onSubmitted: (value) => Navigator.pop(dialogContext, value),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, controller.text),
+              child: const Text('Add'),
+            ),
+          ],
+        ),
+      );
+
+      final trimmed = name?.trim() ?? '';
+      if (trimmed.isEmpty) return;
+      await RecitationTrackerManager.instance.addLabel(trimmed);
+    } finally {
+      controller.dispose();
+    }
+  }
+}
+
+class _LabelResumeCard extends StatelessWidget {
+  const _LabelResumeCard({required this.label, required this.state});
+
+  final String label;
+  final RecitationTrackerState state;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final info = surahInfoFor(progress.surah);
-    final name = info?.englishName ?? progress.surahTitle;
+    final colorScheme = theme.colorScheme;
+    final isUnlabeled = label == unlabeledRecitationLabel;
+    final resume = state.resumePositionFor(label);
+    final percent = state.percentCompleteFor(label);
+    final foreground =
+        isUnlabeled ? colorScheme.onSurfaceVariant : colorScheme.onSecondaryContainer;
+    final subtitle = resume == null
+        ? 'Start reading'
+        : '${surahInfoFor(resume.surah)?.englishName ?? "Surah ${resume.surah}"} '
+            '${resume.ayah}';
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: theme.colorScheme.secondaryContainer,
-      child: ListTile(
-        leading: Icon(
-          Icons.play_circle_outline,
-          color: theme.colorScheme.onSecondaryContainer,
-        ),
-        title: Text(
-          'Continue reciting',
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: theme.colorScheme.onSecondaryContainer,
+    return SizedBox(
+      width: 168,
+      child: Card(
+        margin: EdgeInsets.zero,
+        color: isUnlabeled
+            ? colorScheme.surfaceContainerLow
+            : colorScheme.secondaryContainer,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _resume(context),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      isUnlabeled
+                          ? Icons.menu_book_outlined
+                          : Icons.play_circle_outline,
+                      size: 18,
+                      color: foreground,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: foreground,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: foreground.withValues(alpha: 0.85)),
+                ),
+                Text(
+                  percent <= 0
+                      ? ' '
+                      : '${percent.toStringAsFixed(percent < 10 ? 1 : 0)}% of the Quran',
+                  style: theme.textTheme.labelSmall
+                      ?.copyWith(color: foreground.withValues(alpha: 0.7)),
+                ),
+              ],
+            ),
           ),
         ),
-        subtitle: Text(
-          progress.juz == null
-              ? '$name · ayah ${progress.ayah}'
-              : 'Juz ${progress.juz} · $name ${progress.ayah}',
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.onSecondaryContainer,
+      ),
+    );
+  }
+
+  Future<void> _resume(BuildContext context) async {
+    final resume = state.resumePositionFor(label);
+    await openQuranVerse(
+      context,
+      resume ?? const VerseKey(1),
+      source: ZikrOpenSource.quranResume,
+      recitationLabel: label,
+    );
+  }
+}
+
+class _AddTrackCard extends StatelessWidget {
+  const _AddTrackCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return SizedBox(
+      width: 96,
+      child: Card(
+        margin: EdgeInsets.zero,
+        color: colorScheme.surfaceContainerLow,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add_rounded, color: colorScheme.primary),
+                const SizedBox(height: 4),
+                Text(
+                  'New track',
+                  style: theme.textTheme.labelSmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
           ),
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: 'Clear',
-          color: theme.colorScheme.onSecondaryContainer,
-          onPressed: onDismiss,
-        ),
-        onTap: onTap,
       ),
     );
   }
