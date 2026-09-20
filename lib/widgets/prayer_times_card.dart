@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shia_companion/utils/l10n_extension.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
@@ -87,7 +88,7 @@ class _PrayerTimeRow extends StatelessWidget {
           const SizedBox(width: 10.0),
           Expanded(
             child: Text(
-              prayerEntry.name,
+              localizedPrayerName(context, prayerEntry.name),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.w600,

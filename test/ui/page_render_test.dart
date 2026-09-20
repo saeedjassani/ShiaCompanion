@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/about_page.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
+import 'package:shia_companion/utils/locale_provider.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 import 'firebase_test_doubles.dart';
@@ -98,10 +99,13 @@ Future<void> _pump(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   await tester.pumpWidget(
-    // Settings reads DarkModeProvider from the tree, exactly as main.dart
-    // supplies it.
-    ChangeNotifierProvider(
-      create: (_) => DarkModeProvider(),
+    // Settings reads DarkModeProvider and LocaleProvider from the tree,
+    // exactly as main.dart supplies them.
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => DarkModeProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ],
       child: MaterialApp(
         theme: ThemeData(
           useMaterial3: true,

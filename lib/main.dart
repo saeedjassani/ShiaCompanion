@@ -8,7 +8,9 @@ import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
+import 'package:shia_companion/l10n/app_localizations.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
+import 'package:shia_companion/utils/locale_provider.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:shia_companion/utils/crash_reporting.dart';
 import 'package:shia_companion/utils/network_utils.dart';
@@ -104,13 +106,19 @@ class MyApp extends StatelessWidget {
           title: appName,
         );
 
-    return ChangeNotifierProvider(
-      create: (context) => DarkModeProvider(),
-      child:
-          Consumer<DarkModeProvider>(builder: (context, darkModeProvider, _) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => DarkModeProvider()),
+        ChangeNotifierProvider(create: (context) => LocaleProvider()),
+      ],
+      child: Consumer2<DarkModeProvider, LocaleProvider>(
+          builder: (context, darkModeProvider, localeProvider, _) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
           title: appName,
+          locale: localeProvider.locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: ThemeData(
             useMaterial3: true,
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),

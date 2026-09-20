@@ -475,7 +475,7 @@ class _MyHomePageState extends State<MyHomePage>
                                     ),
                                     SizedBox(height: tileWidth > 140 ? 10 : 6),
                                     Text(
-                                      menuItem.label,
+                                      menuItem.localizedLabel(context),
                                       textAlign: TextAlign.center,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -723,7 +723,7 @@ class _MyHomePageState extends State<MyHomePage>
             ),
             SizedBox(height: 8),
             Text(
-              menuItem.label,
+              menuItem.localizedLabel(context),
               style: TextStyle(fontSize: 14),
               textAlign: TextAlign.center,
             ),

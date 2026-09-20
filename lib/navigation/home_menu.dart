@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 import '../services/analytics_service.dart';
+import '../utils/l10n_extension.dart';
 import '../pages/admin/usage_dashboard_page.dart';
 import '../pages/calendar_page.dart';
 import '../pages/favorites_page.dart';
@@ -65,6 +66,41 @@ class HomeMenuItem {
       );
     }
     return pageBuilder();
+  }
+
+  String localizedLabel(BuildContext context) {
+    final l10n = context.l10n;
+    if (l10n == null) return label;
+    switch (label) {
+      case 'Favorites':
+        return l10n.favorites;
+      case "Today's Recitations":
+        return l10n.todaysRecitation;
+      case 'Calendar & Prayer Times':
+      case 'Calendar':
+        return l10n.calendar;
+      case 'Library':
+        return l10n.library;
+      case 'Qibla Finder':
+        return l10n.qiblaFinder;
+      case 'Hadith':
+        return l10n.hadith;
+      case 'Qaza Tracker':
+        return l10n.qazaTracker;
+      case 'Prayer Counter':
+        return l10n.prayerCounter;
+      case 'Preferences':
+      case 'Settings':
+        return l10n.settings;
+      case 'Flight Prayer Times':
+        return l10n.flightPrayerTimes;
+      case 'Live Streaming':
+        return l10n.liveStreaming;
+      case 'News':
+        return l10n.news;
+      default:
+        return label;
+    }
   }
 
   /// Stable id derived from the label, so the counter key survives a rebuild

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/services/location_service.dart';
+import 'package:shia_companion/utils/l10n_extension.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
@@ -309,7 +310,7 @@ class _PrayerTimeColumn extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            reading.time.name,
+            localizedPrayerName(context, reading.time.name),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -352,6 +353,7 @@ class _NextDayNote extends StatelessWidget {
       fontStyle: FontStyle.italic,
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final labelText = context.l10n?.nextDay ?? _label;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6.0),
@@ -359,7 +361,7 @@ class _NextDayNote extends StatelessWidget {
         builder: (context, constraints) {
           final width = constraints.maxWidth;
           final painter = TextPainter(
-            text: TextSpan(text: _label, style: style),
+            text: TextSpan(text: labelText, style: style),
             textDirection: Directionality.of(context),
             maxLines: 1,
           )..layout();
@@ -367,7 +369,7 @@ class _NextDayNote extends StatelessWidget {
           return Align(
             alignment: Alignment(_horizontalAlignment(width, painter.width), 0),
             child: Text(
-              _label,
+              labelText,
               maxLines: 1,
               softWrap: false,
               style: style,

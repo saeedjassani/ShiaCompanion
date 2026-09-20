@@ -8,6 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   provider: ^6.0.5
   app_links: ^7.1.1
   auth_buttons: ^3.0.0
@@ -64,6 +66,7 @@ flutter_icons:
   image_path: "assets/logo.png"
 
 flutter:
+  generate: true
   config:
     enable-swift-package-manager: false
 

@@ -6,6 +6,7 @@ import '../constants.dart';
 import '../services/analytics_service.dart';
 import '../services/preferences_sync_service.dart';
 import '../utils/font_preferences.dart';
+import '../utils/l10n_extension.dart';
 import '../utils/shared_preferences.dart';
 
 /// Whether the reading chrome (progress strip + bottom action bar) auto-hides
@@ -217,7 +218,7 @@ class _ZikrReadingPreferencesControlsState
               label: 'Show transliteration toggled',
             );
           },
-          title: const Text("Show Transliteration"),
+          title: Text(context.l10n?.showTransliteration ?? "Show Transliteration"),
         ),
         SwitchListTile(
           secondary: _leading(Icons.translate),
@@ -231,7 +232,7 @@ class _ZikrReadingPreferencesControlsState
               label: 'Show translation toggled',
             );
           },
-          title: const Text("Show Translation"),
+          title: Text(context.l10n?.showTranslation ?? "Show Translation"),
         ),
         SwitchListTile(
           secondary: _leading(Icons.wrap_text),
@@ -247,7 +248,7 @@ class _ZikrReadingPreferencesControlsState
                     label: 'Show Arabic as paragraph toggled',
                   );
                 },
-          title: const Text("Show Arabic as Paragraph"),
+          title: Text(context.l10n?.showArabicAsParagraph ?? "Show Arabic as Paragraph"),
           subtitle: Text(bothAidsOff
               ? "Flow the Arabic verses together as one paragraph instead "
                   "of separate lines."

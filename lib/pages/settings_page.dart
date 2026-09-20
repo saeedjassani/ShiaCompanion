@@ -19,6 +19,8 @@ import '../services/rating_prompt_service.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
+import '../utils/l10n_extension.dart';
+import '../utils/locale_provider.dart';
 import '../utils/shared_preferences.dart';
 import '../utils/widget_prayer_time_selection.dart';
 import 'prayer_notifications_page.dart';
@@ -94,7 +96,7 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 16),
           _buildSettingsSection(
             context,
-            title: 'Prayer & Location',
+            title: context.l10n?.prayerAndLocation ?? 'Prayer & Location',
             children: [
               ListTile(
                 leading: const Icon(Icons.adjust),
@@ -115,7 +117,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.location_on),
-                title: const Text("Refresh Location"),
+                title: Text(context.l10n?.refreshLocation ?? "Refresh Location"),
                 subtitle: Text(_refreshLocationSubtitle()),
                 trailing: LocationService.instance.isRefreshing
                     ? const SizedBox(
@@ -153,7 +155,7 @@ class _SettingsPageState extends State<SettingsPage> {
           if (!kIsWeb)
             _buildSettingsSection(
               context,
-              title: 'Notifications',
+              title: context.l10n?.notifications ?? 'Notifications',
               children: [
                 // One door instead of four. "Azan Notifications", "Prayer
                 // Notifications" and "Notification Sound" all wrote overlapping
@@ -210,7 +212,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           _buildSettingsSection(
             context,
-            title: 'Appearance',
+            title: context.l10n?.appearance ?? 'Appearance',
             children: [
               SwitchListTile(
                 secondary: const Icon(Icons.dark_mode),
@@ -218,8 +220,15 @@ class _SettingsPageState extends State<SettingsPage> {
                 onChanged: (value) {
                   darkModeProvider.toggleDarkMode();
                 },
-                title: const Text("Dark mode"),
+                title: Text(context.l10n?.darkMode ?? "Dark mode"),
                 subtitle: const Text("Use the dark appearance across the app."),
+              ),
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: Text(context.l10n?.language ?? "Language"),
+                subtitle: Text(_languageSubtitle(context)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _showLanguageSelectionDialog(context),
               ),
             ],
           ),
@@ -259,7 +268,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ListTile(
                 leading: const Icon(Icons.feedback),
-                title: const Text("Feedback"),
+                title: Text(context.l10n?.feedback ?? "Feedback"),
                 subtitle: const Text("Send questions, issues, or suggestions."),
                 onTap: () {
                   _launchURL();
@@ -267,7 +276,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.info),
-                title: const Text("About Us"),
+                title: Text(context.l10n?.about ?? "About Us"),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -279,7 +288,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           _buildSettingsSection(
             context,
-            title: 'Account',
+            title: context.l10n?.account ?? 'Account',
             children: _buildAccountActionTiles(currentUser),
           ),
           _buildVersionFooter(context),
@@ -412,7 +421,7 @@ class _SettingsPageState extends State<SettingsPage> {
       return [
         ListTile(
           leading: const Icon(Icons.power_settings_new),
-          title: const Text("Logout"),
+          title: Text(context.l10n?.signOut ?? "Logout"),
           subtitle: const Text("Sign out on this device."),
           onTap: () {
             logOff();
@@ -425,7 +434,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           onTap: () => _openDeleteAccountPage(context),
           title: Text(
-            'Delete My Account',
+            context.l10n?.deleteAccount ?? 'Delete My Account',
             style: TextStyle(color: errorColor),
           ),
           subtitle: const Text("Permanently remove your account data."),
@@ -436,7 +445,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return [
       ListTile(
         leading: Image.asset('assets/images/google_logo.png', height: 24.0),
-        title: const Text('Sign in with Google'),
+        title: Text(context.l10n?.signInWithGoogle ?? 'Sign in with Google'),
         subtitle: const Text("Sync favorites and account data."),
         onTap: () async {
           await _signInWithGoogle();
@@ -455,7 +464,7 @@ class _SettingsPageState extends State<SettingsPage> {
             height: 24.0,
             color: Theme.of(context).colorScheme.onSurface,
           ),
-          title: const Text('Sign in with Apple'),
+          title: Text(context.l10n?.signInWithApple ?? 'Sign in with Apple'),
           subtitle: const Text("Use your Apple ID to sign in."),
           onTap: () async {
             await _signInWithApple();
@@ -829,5 +838,83 @@ class _SettingsPageState extends State<SettingsPage> {
     await pushPageRoute(context, const DeleteAccountPage());
     if (!mounted) return;
     await _refreshAfterAuthChange();
+  }
+
+  String _languageSubtitle(BuildContext context) {
+    try {
+      final localeProvider =
+          Provider.of<LocaleProvider>(context, listen: false);
+      if (localeProvider.isSystemDefault) {
+        return context.l10n?.systemDefault ?? 'System Default';
+      } else if (localeProvider.locale?.languageCode == 'fr') {
+        return context.l10n?.french ?? 'Français';
+      } else {
+        return context.l10n?.english ?? 'English';
+      }
+    } catch (_) {
+      return context.l10n?.systemDefault ?? 'System Default';
+    }
+  }
+
+  void _showLanguageSelectionDialog(BuildContext context) {
+    LocaleProvider? localeProvider;
+    try {
+      localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+    } catch (_) {}
+    if (localeProvider == null) return;
+    final provider = localeProvider;
+    final currentCode = provider.isSystemDefault
+        ? 'system'
+        : (provider.locale?.languageCode ?? 'system');
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text(context.l10n?.selectLanguage ?? 'Select Language'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String>(
+                title: Text(context.l10n?.systemDefault ?? 'System Default'),
+                value: 'system',
+                groupValue: currentCode,
+                onChanged: (val) {
+                  provider.setLocale(null);
+                  Navigator.pop(ctx);
+                  if (mounted) setState(() {});
+                },
+              ),
+              RadioListTile<String>(
+                title: Text(context.l10n?.english ?? 'English'),
+                value: 'en',
+                groupValue: currentCode,
+                onChanged: (val) {
+                  provider.setLocale(const Locale('en'));
+                  Navigator.pop(ctx);
+                  if (mounted) setState(() {});
+                },
+              ),
+              RadioListTile<String>(
+                title: Text(context.l10n?.french ?? 'Français'),
+                value: 'fr',
+                groupValue: currentCode,
+                onChanged: (val) {
+                  provider.setLocale(const Locale('fr'));
+                  Navigator.pop(ctx);
+                  if (mounted) setState(() {});
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(context.l10n?.cancel ?? 'Cancel'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
