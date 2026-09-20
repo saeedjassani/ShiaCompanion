@@ -31,8 +31,49 @@ void main() {
       expect(ZikrContentParser.formatArabicText('لَه بِه'),
           'لَهٗ بِهٖ');
       expect(ZikrContentParser.formatArabicText('وَالْحِجَارَةُ ۖ'),
-          'وَالْحِجَارَةُ ۖ');
+          'وَالْحِجَارَةُۖ');
     }
+  });
+
+  test('formatArabicText normalises waqf signs and spacing', () {
+    // 1. Removes leading space before combining waqf marks so they attach to
+    // the preceding word, and ensures space after.
+    expect(
+      ZikrContentParser.formatArabicText('فِيْهَا ؕ اَلَاۤ'),
+      'فِيْهَاؕ اَلَاۤ',
+    );
+    expect(
+      ZikrContentParser.formatArabicText('رَبَّهُمْ ؕ اَلَا'),
+      'رَبَّهُمْؕ اَلَا',
+    );
+
+    // 2. Deduplicates conflicting adjacent waqf marks (e.g. Uthmani + Indo-Pak)
+    expect(
+      ZikrContentParser.formatArabicText('الْقُرْاٰنَ ۖ \uE01Cوَاِنْ'),
+      'الْقُرْاٰنَ\uE01C وَاِنْ',
+    );
+
+    // 3. Preserves ruku mark while ensuring clean spacing before ayah medallion
+    arabicFont = 'Qalam';
+    expect(
+      ZikrContentParser.formatArabicText('لِّثَمُوْدَ\uE022\u200F(68)'),
+      'لِّثَمُوْدَ\uE022 (68)',
+    );
+    expect(
+      ZikrContentParser.formatArabicText('جٰثِمِيْنَۙ\u200F(67)'),
+      'جٰثِمِيْنَۙ (67)',
+    );
+
+    // 4. For Scheherazade, maps PUA marks to Unicode 14 and composes ayah marker
+    arabicFont = 'Scheherazade';
+    expect(
+      ZikrContentParser.formatArabicText('الْقُرْاٰنَ ۖ \uE01Cوَاِنْ'),
+      'الْقُرْاٰنَ\u08D7 وَاِنْ',
+    );
+    expect(
+      ZikrContentParser.formatArabicText('لِّثَمُوْدَ\uE022\u200F(68)'),
+      'لِّثَمُوْدَ\u08D6 ۝٦٨',
+    );
   });
 
   test('formatArabicText draws the ayah medallion for fonts that compose it',
