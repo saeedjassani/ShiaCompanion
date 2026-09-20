@@ -55,4 +55,28 @@ void main() {
       expect(preferredArabicLocale, isNot(contains('_')));
     });
   });
+
+  group('the listen window', () {
+    test('runs for at least thirty seconds', () {
+      // Accuracy on recitation climbs steeply with clip length, and a reciter
+      // should not have to hurry.
+      expect(recitationListenFor.inSeconds, greaterThanOrEqualTo(30));
+    });
+
+    test('stays inside the session length iOS allows', () {
+      expect(recitationListenFor.inSeconds, lessThan(60));
+    });
+
+    test('never ends on silence before the session does', () {
+      // The Android footgun this guards: `pauseFor` is
+      // EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, and the plugin only
+      // sets that extra when it is non-null. Shortening this - or "tidying" it
+      // to null, which hands endpointing back to Android's own sub-second
+      // default - cuts reciters off mid-ayah.
+      expect(
+        recitationPauseFor.inMilliseconds,
+        greaterThanOrEqualTo(recitationListenFor.inMilliseconds),
+      );
+    });
+  });
 }

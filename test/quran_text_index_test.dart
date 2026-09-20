@@ -9,8 +9,11 @@ import 'package:shia_companion/utils/quran_text_index.dart';
 /// the corpus the app actually reads rather than a fixture of it. Same bundle
 /// `quran_portion_test.dart` uses.
 class _DiskAssetBundle extends CachingAssetBundle {
+  var loads = 0;
+
   @override
   Future<ByteData> load(String key) async {
+    loads++;
     final bytes = File(key).readAsBytesSync();
     return ByteData.view(bytes.buffer);
   }
@@ -122,6 +125,58 @@ void main() {
         indexOneDocumentForTest(112, '{"code":"012","data":"no arabic here"}'),
         isEmpty,
       );
+    });
+  });
+
+  group('loading', () {
+    test('reads every surah document exactly once', () async {
+      final bundle = _DiskAssetBundle();
+      resetQuranTextIndexCache();
+      final index = await loadQuranTextIndex(bundle);
+
+      // Batching the reads must not drop or duplicate any of them. Reading them
+      // in series is what made the wait before listening on web, where each is
+      // an HTTP request rather than a file.
+      expect(bundle.loads, surahCount);
+      expect(index.verses.length, 6236);
+    });
+
+    test('builds once however many callers ask at the same time', () async {
+      final bundle = _DiskAssetBundle();
+      resetQuranTextIndexCache();
+
+      final results = await Future.wait([
+        loadQuranTextIndex(bundle),
+        loadQuranTextIndex(bundle),
+        loadQuranTextIndex(bundle),
+      ]);
+
+      expect(bundle.loads, surahCount);
+      expect(results[0], same(results[1]));
+      expect(results[1], same(results[2]));
+    });
+
+    test('a prewarm satisfies the load that follows it', () async {
+      final bundle = _DiskAssetBundle();
+      resetQuranTextIndexCache();
+
+      prewarmQuranTextIndex(bundle);
+      final index = await loadQuranTextIndex(bundle);
+
+      // The point of prewarming: the tap that follows pays nothing.
+      expect(bundle.loads, surahCount);
+      expect(index.verses.length, 6236);
+    });
+
+    test('prewarming twice does not read the corpus twice', () async {
+      final bundle = _DiskAssetBundle();
+      resetQuranTextIndexCache();
+
+      prewarmQuranTextIndex(bundle);
+      prewarmQuranTextIndex(bundle);
+      await loadQuranTextIndex(bundle);
+
+      expect(bundle.loads, surahCount);
     });
   });
 

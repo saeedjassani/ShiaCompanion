@@ -106,14 +106,27 @@ String? chooseArabicLocale(List<String> localeIds, {required bool onWeb}) {
   return null;
 }
 
-/// How long to listen for, and how much silence ends it.
+/// How long a session runs.
 ///
-/// Both deliberately generous. Recognition accuracy on recitation rises sharply
-/// with clip length - published work has the same model at 0.70 WER on ten-second
-/// clips and 0.075 on thirty - and a reciter pausing for breath at the end of an
-/// ayah is not finished speaking.
-const Duration _listenFor = Duration(seconds: 20);
-const Duration _pauseFor = Duration(seconds: 3);
+/// Thirty seconds, because recognition accuracy on recitation rises sharply with
+/// clip length - published work has the same model at 0.70 WER on ten-second
+/// clips and 0.075 on thirty. Comfortably inside the roughly sixty seconds iOS
+/// allows one recognition session.
+const Duration recitationListenFor = Duration(seconds: 30);
+
+/// How much silence ends a session early: nothing short of the whole session.
+///
+/// Not null, which would be the obvious way to say "do not stop on silence" and
+/// is in fact the opposite. On Android this value is
+/// `EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS`, and the plugin only sets
+/// that extra when the value is non-null - so passing null hands endpointing back
+/// to Android's own default, which is shorter than a second or two on most
+/// devices and would cut a reciter off mid-ayah.
+///
+/// Matching [recitationListenFor] means a pause for breath, or between ayahs,
+/// never ends the session; only the overall limit does, or the reader tapping
+/// stop.
+const Duration recitationPauseFor = recitationListenFor;
 
 class OsSpeechRecitationRecognizer implements RecitationRecognizer {
   OsSpeechRecitationRecognizer._();
@@ -228,8 +241,8 @@ class OsSpeechRecitationRecognizer implements RecitationRecognizer {
           // Dictation, not confirmation: a continuous stretch of speech that
           // should not be cut off at the first plausible phrase.
           listenMode: ListenMode.dictation,
-          listenFor: _listenFor,
-          pauseFor: _pauseFor,
+          listenFor: recitationListenFor,
+          pauseFor: recitationPauseFor,
           cancelOnError: true,
         ),
       );

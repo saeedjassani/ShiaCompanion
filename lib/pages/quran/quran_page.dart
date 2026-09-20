@@ -9,6 +9,7 @@ import '../../services/quran_progress_store.dart';
 import '../../services/saved_verses_store.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/quran_portion.dart';
+import '../../utils/quran_text_index.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/responsive_content.dart';
 import '../zikr/zikr_page.dart';
@@ -79,6 +80,7 @@ class _QuranPageState extends State<QuranPage> {
   List<SavedVerse> _saved = const [];
   late final List<SurahInfo> _surahs;
   late final List<Juz> _juz;
+  bool _prewarmed = false;
 
   @override
   void initState() {
@@ -88,6 +90,21 @@ class _QuranPageState extends State<QuranPage> {
     _juz = allJuz();
     _progress = QuranProgressStore.instance.read();
     _saved = SavedVersesStore.instance.readAll();
+  }
+
+  /// Starts building the verse text index while the surah list is being read.
+  ///
+  /// Only for admins, since that is who can reach "Listen and follow" - nobody
+  /// else should pay 114 document reads for a button they cannot see. Doing it
+  /// here rather than on the tap moves the wait off the path between tapping the
+  /// microphone and the microphone actually listening, which matters most on web
+  /// where every document is a separate request.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_prewarmed || !isUserAdmin) return;
+    _prewarmed = true;
+    prewarmQuranTextIndex(DefaultAssetBundle.of(context));
   }
 
   /// Both the place and the kept verses can have moved while the reader was

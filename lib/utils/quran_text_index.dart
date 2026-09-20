@@ -15,10 +15,12 @@ import 'quran_index.dart';
 /// built from the same documents the reader draws, through the same parser, so
 /// a verse can never be findable here and absent there.
 ///
-/// Built at runtime rather than shipped as a generated asset. The corpus is 114
-/// local files and parses in well under a second on a background isolate, and a
-/// generated index would be one more thing to drift out of step with
-/// `assets/zikr/`.
+/// Built at runtime rather than shipped as a generated asset: a generated index
+/// would be one more thing to drift out of step with `assets/zikr/`. The cost is
+/// reading 114 documents and parsing them - about 150ms of parsing, and rather
+/// more reading on web, where each document is an HTTP request. Hence the batched
+/// reads in [_loadDocuments] and [prewarmQuranTextIndex], and the process-wide
+/// cache, which together keep that off the path between tapping and listening.
 
 // -----------------------------------------------------------------------------
 // Normalisation
@@ -233,6 +235,22 @@ Future<QuranTextIndex> loadQuranTextIndex(AssetBundle bundle) {
   });
 }
 
+/// Starts the build before anything asks for it, ignoring the result.
+///
+/// The index is a few hundred milliseconds of work on a device and noticeably
+/// more on web, where every document is a separate request. Paying that when the
+/// Quran screen opens rather than when the microphone is tapped means the wait
+/// falls in the time someone spends looking at the surah list, instead of between
+/// the tap and the listening.
+///
+/// Safe to call repeatedly: a build already done or in flight is left alone. A
+/// failure here is silent by design - it is nobody's error yet, and the real
+/// call will surface it.
+void prewarmQuranTextIndex(AssetBundle bundle) {
+  if (_cached != null || _inFlight != null) return;
+  loadQuranTextIndex(bundle).ignore();
+}
+
 /// Drops the cached index. For tests, which build it against fake bundles.
 @visibleForTesting
 void resetQuranTextIndexCache() {
@@ -242,23 +260,54 @@ void resetQuranTextIndexCache() {
 
 Future<QuranTextIndex> _build(AssetBundle bundle) async {
   // Assets can only be read on the main isolate, so the reading happens here
-  // and only the parsing - which is the expensive half - goes to the worker.
-  final documents = <int, String>{};
-  for (var surah = 1; surah <= surahCount; surah++) {
-    final uid = uidForSurah(surah);
-    if (uid == null) continue;
-    try {
-      documents[surah] = await bundle.loadString('assets/zikr/$uid');
-    } catch (error) {
-      // A surah that will not load costs that surah, not the feature.
-      debugPrint('QuranTextIndex: could not load $uid: $error');
-    }
-  }
+  // and only the parsing goes to the worker.
+  final documents = await _loadDocuments(bundle);
 
   final verses = kIsWeb
       ? await _indexOnMainThread(documents)
       : await compute(_indexDocuments, documents);
   return QuranTextIndex.fromVerses(verses);
+}
+
+/// How many documents to read at once.
+///
+/// Bounded rather than unbounded so this never opens 114 connections at once,
+/// but wide enough that the round trips overlap.
+const int _loadBatchSize = 16;
+
+/// Reads every surah document, a batch at a time.
+///
+/// Reading them one after another is nearly free on a device, where an asset is
+/// a file - 114 of them in about 300ms. On web each one is a separate HTTP
+/// request, so in series they put 114 round trips between the tap and the
+/// microphone, which is most of the wait before listening starts. Parsing, by
+/// contrast, is about 150ms of the total on either platform.
+///
+/// Batching collapses those round trips into a handful. A surah that will not
+/// load still costs that surah, not the feature.
+Future<Map<int, String>> _loadDocuments(AssetBundle bundle) async {
+  final uids = <int, String>{};
+  for (var surah = 1; surah <= surahCount; surah++) {
+    final uid = uidForSurah(surah);
+    if (uid != null) uids[surah] = uid;
+  }
+
+  final documents = <int, String>{};
+  final surahs = uids.keys.toList();
+
+  for (var start = 0; start < surahs.length; start += _loadBatchSize) {
+    final batch = surahs.skip(start).take(_loadBatchSize);
+    await Future.wait(batch.map((surah) async {
+      try {
+        documents[surah] =
+            await bundle.loadString('assets/zikr/${uids[surah]}');
+      } catch (error) {
+        debugPrint('QuranTextIndex: could not load ${uids[surah]}: $error');
+      }
+    }));
+  }
+
+  return documents;
 }
 
 /// Indexes the documents a surah at a time, yielding between each.
