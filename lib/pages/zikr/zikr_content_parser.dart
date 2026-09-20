@@ -189,8 +189,8 @@ class ZikrContentParser {
   /// standard Unicode 14 Quranic codepoints. Used for fonts like Scheherazade
   /// which lack Qalam's proprietary PUA glyphs.
   static const Map<String, String> _scheherazadePuaMarks = {
-    '\uE01A': '\u08D5', // small high sad
-    '\uE01B': '\u08D5', // small high sad
+    '\uE01A': '\u0617', // small high zain (ز, jā'iz)
+    '\uE01B': '\u08D5', // small high sad (ص, qad yuṣal)
     '\uE01C': '\u08D7', // small high qaf
     '\uE01D': '\u06D6', // small high sad-lam-alef (sal)
     '\uE01E': '\u08DE', // small high word qif
@@ -231,7 +231,7 @@ class ZikrContentParser {
   /// \uE01A-\uE01C, \uE021: Indo-Pak small high pause marks
   /// Note: \uE022 and \u08D6 (ruku marks) are excluded so spacing before ruku is preserved.
   static final RegExp _leadingSpaceBeforeWaqf = RegExp(
-    r'\s+([\u0615\u06D6-\u06DC\u08D5\u08D7-\u08DF\uE01A-\uE01C\uE021])',
+    r'\s+([\u0615\u0617\u06D6-\u06DC\u08D5\u08D7-\u08DF\uE01A-\uE01C\uE021])',
   );
 
   // When Uthmani waqf marks (06D6, 06D7) are adjacent to Indo-Pak marks (E01A-E021),
@@ -258,7 +258,7 @@ class ZikrContentParser {
   // - \u06D7 and \u06DC are left out. Indo-Pak text uses them mid-word as
   //   letter marks (\u0634\u064E\u0627\u06D7\u0621\u064E, \u0627\u064F\u0648\u0644\u0670\u06D7\u0649\u0650\u0655\u0643\u064E, \u064A\u064E\u0628\u0652\u0635\u064F\u06DC\u0637\u064F), where a space splits the word.
   static final RegExp _waqfFollowedByLetter = RegExp(
-    r'([\u0615\u06D6\u06D8-\u06DB\u08D5-\u08DF\uE01A-\uE022])(?=[\u0621-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06FA-\u06FC\u06FF\u0750-\u077F])',
+    r'([\u0615\u0617\u06D6\u06D8-\u06DB\u08D5-\u08DF\uE01A-\uE022])(?=[\u0621-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06FA-\u06FC\u06FF\u0750-\u077F])',
   );
 
   // Ensure clean spacing between preceding word and ruku mark \uE022 / \u08D6.

@@ -151,6 +151,27 @@ void main() {
     );
   });
 
+  test('formatArabicText keeps the zay and sad pause marks distinct', () {
+    // Qalam draws U+E01A as a small ز (jā'iz) and U+E01B as a small ص
+    // (qad yuṣal) - two different signs. Scheherazade has a glyph for each:
+    // U+0617 (small high zain) and U+08D5 (small high sad).
+    arabicFont = 'Scheherazade';
+    // 7:195 is authored as the madda then U+E01A on the same alef.
+    expect(ZikrContentParser.formatArabicText('بِهَا\u0653\uE01A اَمْ'),
+        'بِهَا\u0653\u0617 اَمْ');
+    // The mapped mark still gets the spacing every other pause mark gets.
+    expect(ZikrContentParser.formatArabicText('بِهَا \uE01A اَمْ'),
+        'بِهَا\u0617 اَمْ');
+    expect(ZikrContentParser.formatArabicText('بِهَا\uE01Aاَمْ'),
+        'بِهَا\u0617 اَمْ');
+    expect(ZikrContentParser.formatArabicText('بِهَا\uE01B اَمْ'),
+        'بِهَا\u08D5 اَمْ');
+    // Qalam draws both itself, so the authored text is left as it is.
+    arabicFont = 'Qalam';
+    const line = 'بِهَا\u0653\uE01A اَمْ';
+    expect(ZikrContentParser.formatArabicText(line), line);
+  });
+
   test('formatArabicText maps E01D to a glyph Scheherazade has', () {
     // Qalam draws U+E01D itself, so it is left as authored there.
     arabicFont = 'Qalam';
