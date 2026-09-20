@@ -46,6 +46,7 @@ dependencies:
   web: ^1.1.1
   just_audio: ^0.10.6
   just_audio_background: ^0.0.1-beta.17
+  speech_to_text: ^7.5.0
   android_alarm_manager_plus: ^5.1.1
   in_app_review: ^2.0.12
 

@@ -12,6 +12,7 @@ import '../../utils/quran_portion.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/responsive_content.dart';
 import '../zikr/zikr_page.dart';
+import 'listen_and_follow_sheet.dart';
 
 /// Opens a surah, at a verse when one is named.
 ///
@@ -126,6 +127,23 @@ class _QuranPageState extends State<QuranPage> {
     await _open(verse, source: ZikrOpenSource.quranResume);
   }
 
+  /// Listens to a recitation and opens the verse it turns out to be.
+  ///
+  /// Where it left off is handed to the matcher as context: someone following a
+  /// recitation in al-Baqarah is most likely still in al-Baqarah, and the tie
+  /// between two verses that read alike should break towards where they are.
+  Future<void> _listenAndFollow() async {
+    final progress = _progress;
+    final verse = await showListenAndFollowSheet(
+      context,
+      readingAt:
+          progress == null ? null : VerseKey(progress.surah, progress.ayah),
+    );
+    if (verse == null || !mounted) return;
+
+    await _open(verse, source: ZikrOpenSource.quranListenAndFollow);
+  }
+
   Future<void> _openJuz(int juz) async {
     await openQuranJuz(context, juz);
     if (!mounted) return;
@@ -152,6 +170,18 @@ class _QuranPageState extends State<QuranPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Quran'),
+          actions: [
+            // Dark-launched alongside the rest of the Quran reading experience
+            // (see zikr_page.dart's _surahNumber and home_menu.dart), so the
+            // microphone prompt reaches nobody until the matching is known to
+            // be worth the interruption.
+            if (isUserAdmin)
+              IconButton(
+                icon: const Icon(Icons.mic_none),
+                tooltip: 'Listen and follow',
+                onPressed: _listenAndFollow,
+              ),
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Surahs'),

@@ -128,6 +128,8 @@ class AnalyticsService {
     ZikrOpenSource.admin: 'Zikr opened from the admin list',
     ZikrOpenSource.quran: 'Surah opened from the Quran screen',
     ZikrOpenSource.quranResume: 'Recitation resumed from where it left off',
+    ZikrOpenSource.quranListenAndFollow:
+        'Verse opened by listening to a recitation',
     ZikrOpenSource.homeWidgetFavorites:
         'Zikr opened from the Favorites home screen widget',
     ZikrOpenSource.homeWidgetRecitation:
@@ -335,6 +337,11 @@ class ZikrOpenSource {
   /// Resumed from the Continue card, which is the signal that says whether
   /// daily recitation is actually being kept up.
   static const String quranResume = 'quran_resume';
+
+  /// Opened by listening to a recitation and matching it to a verse. Kept apart
+  /// from [quran] because it is the only entry point whose accuracy is in
+  /// question, so it has to be countable on its own.
+  static const String quranListenAndFollow = 'quran_listen_and_follow';
 
   /// Tapped an item in the Favorites home screen widget (iOS WidgetKit /
   /// Android Glance). These reach [ZikrPage] through the same `?src=` marker

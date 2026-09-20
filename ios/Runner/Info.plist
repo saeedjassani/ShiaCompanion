@@ -76,6 +76,10 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used to calculate accurate prayer times for your current area, and to point the qibla compass towards Makkah.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>The microphone is used to listen to a recitation so the Quran reader can jump to the verse being recited.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech recognition is used to work out which verse of the Quran is being recited, so the reader can follow along.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to allow you to select audio files for azaan notifications.</string>
 	<key>NSMediaLibraryUsageDescription</key>
