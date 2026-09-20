@@ -89,6 +89,42 @@ void main() {
     });
   });
 
+  group('indexing one document', () {
+    // The single parsing path, shared by the isolate build used on mobile and
+    // the yielding one used on web, so the two cannot come to differ.
+    test('reads the ayahs out of a document and skips the Bismillah', () {
+      final verses = indexOneDocumentForTest(
+        112,
+        '{"title":"112","code":"012","data":'
+            '"بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ\\n'
+            'BISMILLAH\\nIn the Name of Allah\\n'
+            'قُلْ هُوَ اللّٰهُ اَحَدٌ (1)\\nQUL\\nSay: He is One\\n'
+            'اَللّٰهُ الصَّمَدُ (2)\\nALLAAH\\nGod, the Needless"}',
+      );
+
+      expect(verses.map((v) => v.verse.ayah), [1, 2]);
+      expect(verses.first.tokens, quranTokens('قل هو الله احد'));
+      expect(verses.first.translation, 'Say: He is One');
+      expect(verses.last.verse.surah, 112);
+    });
+
+    test('survives a document that is not an object', () {
+      expect(indexOneDocumentForTest(112, '"just a string"'), isEmpty);
+    });
+
+    test('survives a document that is not JSON at all', () {
+      // One unreadable document must cost that surah, not the whole index.
+      expect(indexOneDocumentForTest(112, '{not json'), isEmpty);
+    });
+
+    test('yields nothing for a document with no Arabic', () {
+      expect(
+        indexOneDocumentForTest(112, '{"code":"012","data":"no arabic here"}'),
+        isEmpty,
+      );
+    });
+  });
+
   group('the index of the shipped corpus', () {
     late QuranTextIndex index;
 

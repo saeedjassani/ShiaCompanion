@@ -255,44 +255,86 @@ Future<QuranTextIndex> _build(AssetBundle bundle) async {
     }
   }
 
-  final verses = await compute(_indexDocuments, documents);
+  final verses = kIsWeb
+      ? await _indexOnMainThread(documents)
+      : await compute(_indexDocuments, documents);
   return QuranTextIndex.fromVerses(verses);
+}
+
+/// Indexes the documents a surah at a time, yielding between each.
+///
+/// For web, where [compute] is not a worker at all - it awaits one frame and
+/// then runs the callback inline - so parsing 114 documents in one go would
+/// block the page, freezing even the spinner that is meant to say it is working.
+/// Yielding lets each frame draw; the whole build is still a one-time cost
+/// before the cache is warm.
+Future<List<IndexedVerse>> _indexOnMainThread(
+  Map<int, String> documents,
+) async {
+  final verses = <IndexedVerse>[];
+  final surahs = documents.keys.toList()..sort();
+
+  for (final surah in surahs) {
+    verses.addAll(_indexOneDocument(surah, documents[surah]!));
+    await null;
+  }
+
+  return verses;
 }
 
 /// Parses every document and flattens it to ayahs. Top-level and pure so it can
 /// run on a background isolate.
 List<IndexedVerse> _indexDocuments(Map<int, String> documents) {
   final verses = <IndexedVerse>[];
-
   final surahs = documents.keys.toList()..sort();
   for (final surah in surahs) {
-    final decoded = json.decode(documents[surah]!);
-    if (decoded is! Map) continue;
+    verses.addAll(_indexOneDocument(surah, documents[surah]!));
+  }
+  return verses;
+}
 
-    final content = ZikrContentParser.parseContent(
-      decoded['data']?.toString() ?? '',
-      hideHeaderLine: false,
-      code: decoded['code']?.toString() ?? _quranContentCode,
-    );
+/// The ayahs of one surah document. The single parsing path, shared by the
+/// isolate build and the yielding one, so the two cannot come to differ.
+@visibleForTesting
+List<IndexedVerse> indexOneDocumentForTest(int surah, String raw) =>
+    _indexOneDocument(surah, raw);
 
-    for (final span in spansOfParsedContent(content, surah: surah)) {
-      final verse = span.verse;
-      // Spans with no ayah number are the Bismillah heading a surah, which is
-      // not an ayah anywhere but al-Fatehah - and there the corpus numbers it,
-      // so it arrives here as ayah 1 like any other verse.
-      if (verse == null) continue;
+List<IndexedVerse> _indexOneDocument(int surah, String raw) {
+  final Object? decoded;
+  try {
+    decoded = json.decode(raw);
+  } catch (error) {
+    // Same bargain as a surah that will not load: one unreadable document costs
+    // that surah, not the whole index.
+    debugPrint('QuranTextIndex: could not parse surah $surah: $error');
+    return const [];
+  }
+  if (decoded is! Map) return const [];
 
-      final arabic = content.lines[span.start];
-      final tokens = quranTokens(arabic);
-      if (tokens.isEmpty) continue;
+  final content = ZikrContentParser.parseContent(
+    decoded['data']?.toString() ?? '',
+    hideHeaderLine: false,
+    code: decoded['code']?.toString() ?? _quranContentCode,
+  );
 
-      verses.add(IndexedVerse(
-        verse: verse,
-        arabic: arabic,
-        translation: _translationIn(content, span),
-        tokens: tokens,
-      ));
-    }
+  final verses = <IndexedVerse>[];
+  for (final span in spansOfParsedContent(content, surah: surah)) {
+    final verse = span.verse;
+    // Spans with no ayah number are the Bismillah heading a surah, which is
+    // not an ayah anywhere but al-Fatehah - and there the corpus numbers it,
+    // so it arrives here as ayah 1 like any other verse.
+    if (verse == null) continue;
+
+    final arabic = content.lines[span.start];
+    final tokens = quranTokens(arabic);
+    if (tokens.isEmpty) continue;
+
+    verses.add(IndexedVerse(
+      verse: verse,
+      arabic: arabic,
+      translation: _translationIn(content, span),
+      tokens: tokens,
+    ));
   }
 
   return verses;

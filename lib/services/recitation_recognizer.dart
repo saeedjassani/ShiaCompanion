@@ -70,6 +70,42 @@ abstract class RecitationRecognizer {
   bool get ranOnDevice;
 }
 
+/// The Arabic variety to ask for: closest to what is being recited.
+const String preferredArabicLocale = 'ar-SA';
+
+/// Which locale to listen in, given what the engine says it offers.
+///
+/// On web there is nothing to enumerate. The Web Speech API has no locale list
+/// by design - `lang` takes any BCP-47 tag and the browser resolves it - and the
+/// plugin's web implementation returns at most the browser's *current* `lang` as
+/// a single entry, never an Arabic one. Scanning that for Arabic would tell every
+/// web user that their device has no Arabic recognition, so on web the tag is
+/// simply asserted.
+///
+/// Everywhere else the device really does enumerate, and no Arabic entry really
+/// does mean the recogniser would listen in the wrong language - which is worth
+/// reporting rather than papering over, since recitation transcribed as English
+/// matches nothing.
+String? chooseArabicLocale(List<String> localeIds, {required bool onWeb}) {
+  if (onWeb) return preferredArabicLocale;
+
+  // `ar-SA` first, however the platform punctuates it.
+  for (final id in localeIds) {
+    if (id.toLowerCase().replaceAll('-', '_') == 'ar_sa') return id;
+  }
+  // Then any Arabic at all: a device set up for Arabic anywhere still
+  // recognises Quranic vocabulary far better than a fallback to English would.
+  for (final id in localeIds) {
+    final normalized = id.toLowerCase();
+    if (normalized == 'ar' ||
+        normalized.startsWith('ar_') ||
+        normalized.startsWith('ar-')) {
+      return id;
+    }
+  }
+  return null;
+}
+
 /// How long to listen for, and how much silence ends it.
 ///
 /// Both deliberately generous. Recognition accuracy on recitation rises sharply
@@ -124,30 +160,20 @@ class OsSpeechRecitationRecognizer implements RecitationRecognizer {
     return RecognizerAvailability.ready;
   }
 
-  /// The best Arabic locale the device offers.
-  ///
-  /// `ar-SA` first because it is the variety closest to what is being recited,
-  /// then any Arabic at all - a device set up for Arabic anywhere still
-  /// recognises Quranic vocabulary far better than a fallback to English would.
+  /// The Arabic locale to listen in, or null when there is none to be had.
   Future<String?> _findArabicLocale() async {
     try {
       final locales = await _speech.locales();
-      if (locales.isEmpty) return null;
-
-      for (final locale in locales) {
-        final id = locale.localeId.toLowerCase().replaceAll('-', '_');
-        if (id == 'ar_sa') return locale.localeId;
-      }
-      for (final locale in locales) {
-        final id = locale.localeId.toLowerCase();
-        if (id == 'ar' || id.startsWith('ar_') || id.startsWith('ar-')) {
-          return locale.localeId;
-        }
-      }
+      return chooseArabicLocale(
+        locales.map((locale) => locale.localeId).toList(),
+        onWeb: kIsWeb,
+      );
     } catch (error) {
       debugPrint('RecitationRecognizer: could not read locales: $error');
+      // On web the list was never the authority anyway, so a failure to read it
+      // is not a reason to give up.
+      return kIsWeb ? preferredArabicLocale : null;
     }
-    return null;
   }
 
   @override
@@ -163,7 +189,11 @@ class OsSpeechRecitationRecognizer implements RecitationRecognizer {
     _sawResult = false;
     _fellBack = false;
 
-    _startListening(onDevice: true);
+    // Web has no on-device option to prefer: the plugin's web implementation
+    // ignores the flag, because the browser sends the audio away for
+    // recognition whatever it is set to. Asking for it there would only make
+    // `ranOnDevice` report something untrue.
+    _startListening(onDevice: !kIsWeb);
     return controller.stream;
   }
 
@@ -264,7 +294,11 @@ class OsSpeechRecitationRecognizer implements RecitationRecognizer {
 
   /// Whether the networked engine is still worth a try: the on-device one was
   /// asked, produced nothing, and has not already been fallen back from.
-  bool get _shouldFallBack => _ranOnDevice && !_sawResult && !_fellBack;
+  ///
+  /// Never on web, where the two are the same engine, so retrying would just
+  /// spend a second session to reach the same silence.
+  bool get _shouldFallBack =>
+      !kIsWeb && _ranOnDevice && !_sawResult && !_fellBack;
 
   void _fail(String message) {
     final controller = _controller;

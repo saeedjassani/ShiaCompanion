@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
@@ -218,10 +219,16 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
   String _explain(RecognizerAvailability availability) {
     switch (availability) {
       case RecognizerAvailability.permissionDenied:
-        return 'Listening needs microphone access. You can grant it in your '
-            'device settings.';
+        return kIsWeb
+            ? 'Listening needs microphone access. You can grant it in this '
+                'site\'s permissions in your browser.'
+            : 'Listening needs microphone access. You can grant it in your '
+                'device settings.';
       case RecognizerAvailability.unsupported:
-        return 'This device has no speech recogniser available.';
+        return kIsWeb
+            ? 'This browser cannot recognise speech. Chrome, Edge and Safari '
+                'can.'
+            : 'This device has no speech recogniser available.';
       case RecognizerAvailability.noArabicLocale:
         return 'This device has no Arabic speech recognition installed. Adding '
             'Arabic in your device\'s language settings enables it.';
