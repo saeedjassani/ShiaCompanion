@@ -57,11 +57,25 @@ void main() {
     arabicFont = 'Qalam';
     expect(
       ZikrContentParser.formatArabicText('لِّثَمُوْدَ\uE022\u200F(68)'),
-      'لِّثَمُوْدَ\uE022 (68)',
+      'لِّثَمُوْدَ \uE022 (68)',
     );
     expect(
       ZikrContentParser.formatArabicText('جٰثِمِيْنَۙ\u200F(67)'),
       'جٰثِمِيْنَۙ (67)',
+    );
+    // Strips errant pause marks before ayah medallion (e.g. Yusuf 12:1, Ibrahim 14:37)
+    // and maps mid-verse Qalam PUA pause mark \uE01E to clean high mark \uE01C.
+    expect(
+      ZikrContentParser.formatArabicText(
+        'الٓرٰ\uE01E تِلْكَ اٰيٰتُ الْكِتٰبِ الْمُبِيْن\uE01E\u200F(1)',
+      ),
+      'الٓرٰ\uE01C تِلْكَ اٰيٰتُ الْكِتٰبِ الْمُبِيْن (1)',
+    );
+    expect(
+      ZikrContentParser.formatArabicText(
+        'مِنْ رَّبِّ الْعٰلَمِيْنَ\uE01E\u200F(37)',
+      ),
+      'مِنْ رَّبِّ الْعٰلَمِيْنَ (37)',
     );
 
     // 4. For Scheherazade, maps PUA marks to Unicode 14 and composes ayah marker
@@ -72,7 +86,13 @@ void main() {
     );
     expect(
       ZikrContentParser.formatArabicText('لِّثَمُوْدَ\uE022\u200F(68)'),
-      'لِّثَمُوْدَ\u08D6 ۝٦٨',
+      'لِّثَمُوْدَ \u08D6 ۝٦٨',
+    );
+    expect(
+      ZikrContentParser.formatArabicText(
+        'الٓرٰ\uE01E تِلْكَ اٰيٰتُ الْكِتٰبِ الْمُبِيْن\uE01E\u200F(1)',
+      ),
+      'الٓرٰ\u08DE تِلْكَ اٰيٰتُ الْكِتٰبِ الْمُبِيْن ۝١',
     );
   });
 

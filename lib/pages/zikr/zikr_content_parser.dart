@@ -198,6 +198,16 @@ class ZikrContentParser {
     '\uE022': '\u08D6', // small high ain (ruku)
   };
 
+  /// In Al Qalam font, uniE01E (qif / قف) is a baseline word glyph (width 1200,
+  /// yMin 398) rather than a high combining mark, which collides with preceding
+  /// letters (such as in muqatta'at like الٓرٰ). Mapping it to uniE01C (small high
+  /// qaf, yMin 1208) preserves the pause meaning while rendering as a clean,
+  /// elevated Quranic pause sign that does not collide.
+  static const Map<String, String> _qalamPuaMarks = {
+    '\uE01E': '\uE01C', // small high qaf
+    '\uE01D': '\u06D6', // small high sad-lam-alef (sal)
+  };
+
   // Typographic spaces that no font bundled here has ever had a glyph for,
   // Qalam included — 619 of them across the corpus, every one a box.
   static const Map<String, String> _spaces = {
@@ -205,12 +215,23 @@ class ZikrContentParser {
     '\u2003': ' ', // em space
   };
 
+  /// Trailing waqf marks before ayah medallion:
+  /// Errant PUA pause marks (like \uE01E qif, \uE01F waqfah) immediately before
+  /// the trailing ayah medallion (n) must be stripped so they do not collide or
+  /// get swallowed into the medallion (e.g. '(1 قف)').
+  /// The ruku mark \uE022 and standard combining marks are preserved.
+  static final RegExp _trailingWaqfBeforeAyah = RegExp(
+    r'[\uE01A-\uE021]\s*(?=\u200f?\(\d+\)\s*$)',
+  );
+
   /// Waqf marks: standard Quranic combining marks + Qalam PUA pause marks.
   /// \u0615: small high tah
   /// \u06D6-\u06DC: high sad-lam, qaf-lam, meem, lam-alef, jeem, three dots, seen
-  /// \uE01A-\uE022: Indo-Pak pause marks (sad, qaf, qif, waqfah, sakta, ruku ain)
+  /// \u08D5-\u08DF: Unicode 14 Quranic pause marks (sad, ain, qaf, qif, waqfa, etc.)
+  /// \uE01A-\uE01C, \uE021: Indo-Pak small high pause marks
+  /// Note: \uE022 and \u08D6 (ruku marks) are excluded so spacing before ruku is preserved.
   static final RegExp _leadingSpaceBeforeWaqf = RegExp(
-    r'\s+([\u0615\u06D6-\u06DC\uE01A-\uE022])',
+    r'\s+([\u0615\u06D6-\u06DC\u08D5\u08D7-\u08DF\uE01A-\uE01C\uE021])',
   );
 
   // When Uthmani waqf marks (06D6, 06D7) are adjacent to Indo-Pak marks (E01A-E022),
@@ -222,14 +243,17 @@ class ZikrContentParser {
 
   // When two or more waqf marks are adjacent, keep the first one.
   static final RegExp _adjacentWaqfMarks = RegExp(
-    r'([\u0615\u06D6-\u06DC\uE01A-\uE022])\s*[\u0615\u06D6-\u06DC\uE01A-\uE022]+',
+    r'([\u0615\u06D6-\u06DC\u08D5-\u08DF\uE01A-\uE022])\s*[\u0615\u06D6-\u06DC\u08D5-\u08DF\uE01A-\uE022]+',
   );
 
   // Ensure a space after a waqf mark when followed by an Arabic character, so the
   // subsequent word is not glued to the mark.
   static final RegExp _waqfFollowedByLetter = RegExp(
-    r'([\u0615\u06D6-\u06DC\uE01A-\uE022])([^\s\(\)\u200f\u06DD])',
+    r'([\u0615\u06D6-\u06DC\u08D5-\u08DF\uE01A-\uE022])([^\s\(\)\u200f\u06DD])',
   );
+
+  // Ensure clean spacing between preceding word and ruku mark \uE022 / \u08D6.
+  static final RegExp _rukuSpacing = RegExp(r'([^\s])\s*([\uE022\u08D6])');
 
   // Spacing before trailing ayah number medallion (n)
   static final RegExp _trailingAyahSpacing = RegExp(r'\s*\u200f?\((\d+)\)\s*$');
@@ -269,27 +293,29 @@ class ZikrContentParser {
   /// Prepares one Arabic line for display in [arabicFont].
   ///
   /// This normalises waqf (pause) signs by:
+  /// - Stripping errant pause marks immediately preceding the ayah medallion
+  ///   so they do not collide or get swallowed into the medallion (e.g. `(1 قف)`).
+  /// - Preserving the rukūʿ mark (`\uE022`) outside the medallion with clean spacing.
+  /// - Mapping proprietary PUA pause marks to standard Unicode Quranic marks
+  ///   for non-Qalam fonts (like Scheherazade) and to non-colliding high marks
+  ///   for Qalam.
   /// - Removing whitespace before combining waqf marks so they attach directly
   ///   to the preceding word rather than floating detached.
   /// - Deduplicating conflicting/overlapping marks from mixed Uthmani and
   ///   Indo-Pak traditions.
-  /// - Ensuring clean spacing before the ayah medallion `(n)` so marks do
-  ///   not collide with its borders.
-  /// - Mapping private-use Indo-Pak pause marks to standard Unicode 14 Quranic
-  ///   marks for non-Qalam fonts (such as Scheherazade).
+  /// - Ensuring clean spacing before the ayah medallion `(n)`.
   static String formatArabicText(String str) {
     var result = str;
     _spaces.forEach((from, to) => result = result.replaceAll(from, to));
     _privateUseMarks
         .forEach((from, to) => result = result.replaceAll(from, to));
 
-    // 1. Remove space before waqf marks so combining marks attach to the preceding letter.
-    result = result.replaceAllMapped(
-      _leadingSpaceBeforeWaqf,
-      (match) => match.group(1)!,
-    );
+    // 1. Remove pause marks immediately before trailing ayah medallion so they
+    // do not collide with the last word or get pulled inside the medallion (e.g. '(1 قف)').
+    // The ruku mark \uE022 is preserved.
+    result = result.replaceAll(_trailingWaqfBeforeAyah, '');
 
-    // 2. Deduplicate conflicting / adjacent waqf marks.
+    // 2. Deduplicate conflicting / adjacent waqf marks while in common encoding.
     result = result.replaceAllMapped(
       _uthmaniBeforeIndoPakWaqf,
       (match) => match.group(1)!,
@@ -303,18 +329,37 @@ class ZikrContentParser {
       (match) => match.group(1)!,
     );
 
-    // 3. Ensure a space separates the waqf mark from the next word.
+    // 3. Map font-specific pause marks.
+    if (_endOfAyahFonts.contains(arabicFont)) {
+      _scheherazadePuaMarks.forEach((from, to) {
+        result = result.replaceAll(from, to);
+      });
+    } else {
+      _qalamPuaMarks.forEach((from, to) {
+        result = result.replaceAll(from, to);
+      });
+    }
+
+    // 4. Remove space before combining waqf marks so they attach to the preceding letter.
+    result = result.replaceAllMapped(
+      _leadingSpaceBeforeWaqf,
+      (match) => match.group(1)!,
+    );
+
+    // 5. Ensure a space separates the waqf mark from the next word.
     result = result.replaceAllMapped(
       _waqfFollowedByLetter,
       (match) => '${match.group(1)} ${match.group(2)}',
     );
 
-    // 4. Ensure clean spacing before the ayah medallion so marks do not overlap it.
-    if (_endOfAyahFonts.contains(arabicFont)) {
-      _scheherazadePuaMarks.forEach((from, to) {
-        result = result.replaceAll(from, to);
-      });
+    // 6. Ensure clean spacing before ruku mark so it sits nicely before the medallion.
+    result = result.replaceAllMapped(
+      _rukuSpacing,
+      (match) => '${match.group(1)} ${match.group(2)}',
+    );
 
+    // 7. Ensure clean spacing before the ayah medallion so marks do not overlap it.
+    if (_endOfAyahFonts.contains(arabicFont)) {
       result = result.replaceFirstMapped(
         _trailingAyahSpacing,
         (match) => ' $_endOfAyah${_toArabicIndic(match.group(1)!)}',
