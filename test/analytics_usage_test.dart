@@ -157,6 +157,28 @@ void main() {
       expect(result.counts, isEmpty);
       expect(result.trend['2026-08-23'], 0);
     });
+
+    test('also tracks each metric\'s own day-by-day trend', () {
+      final result = parseUsageDays({
+        '2026-08-23': {
+          'screen': {'Home-Page': 3},
+          'zikr': {'G1': 2},
+        },
+        '2026-08-24': {
+          'screen': {'Home-Page': 5},
+        },
+      }, [
+        '2026-08-23',
+        '2026-08-24',
+      ]);
+
+      expect(result.metricTrend['screen'], {'2026-08-23': 3, '2026-08-24': 5});
+      // zikr had no events on the 24th, so that day is still present as zero
+      // rather than missing — every series shares the same day axis.
+      expect(result.metricTrend['zikr'], {'2026-08-23': 2, '2026-08-24': 0});
+      // A metric that never appears in the range gets no entry at all.
+      expect(result.metricTrend.containsKey('feature'), isFalse);
+    });
   });
 
   group('splitZikrCompletions', () {
@@ -191,58 +213,109 @@ void main() {
     });
   });
 
+  group('zikrPreviousByKey', () {
+    test('drops completion counters and keeps only opens', () {
+      final byKey = zikrPreviousByKey({
+        'zikr': {'G1': 10, 'G1~done': 3, 'G2': 5},
+      });
+
+      expect(byKey, {'G1': 10, 'G2': 5});
+    });
+
+    test('returns an empty map when there is no previous zikr data', () {
+      expect(zikrPreviousByKey(null), isEmpty);
+      expect(zikrPreviousByKey(const {}), isEmpty);
+      expect(
+          zikrPreviousByKey(const {
+            'screen': {'Home-Page': 4}
+          }),
+          isEmpty);
+    });
+  });
+
+  group('groupPreviousTotals', () {
+    test('sums the previous period\'s counts by feature group', () {
+      final totals = groupPreviousTotals({
+        'home_menu_qibla': 20,
+        'home_menu_tasbeeh': 5,
+        'search': 8,
+      });
+
+      // home_menu_* and search share findingContent — see featureGroupFor.
+      expect(totals[FeatureGroup.findingContent], 33);
+      expect(totals.containsKey(FeatureGroup.prayerAndWorship), isFalse);
+    });
+
+    test('returns an empty map when there is no previous period', () {
+      expect(groupPreviousTotals(null), isEmpty);
+    });
+  });
+
   group('featureGroupFor', () {
     test('groups every feature_use key the app currently records', () {
       const expected = {
-        // Zikr & library reading — the fixed keys, plus a sample of the
-        // dynamic zikr_source_* and home_menu_* families below.
-        'zikr_counter_shown': FeatureGroup.zikrReading,
-        'zikr_audio_opened': FeatureGroup.zikrReading,
-        'zikr_audio_play': FeatureGroup.zikrReading,
-        'zikr_bookmark_saved': FeatureGroup.zikrReading,
-        'zikr_bookmark_removed': FeatureGroup.zikrReading,
-        'zikr_shared': FeatureGroup.zikrReading,
-        'zikr_keep_awake_toggled': FeatureGroup.zikrReading,
-        'zikr_focus_mode_toggled': FeatureGroup.zikrReading,
-        'zikr_share_as_image_toggled': FeatureGroup.zikrReading,
-        'zikr_show_transliteration_toggled': FeatureGroup.zikrReading,
-        'zikr_show_translation_toggled': FeatureGroup.zikrReading,
-        'arabic_font_size_changed': FeatureGroup.zikrReading,
-        'english_font_size_changed': FeatureGroup.zikrReading,
-        'arabic_font_changed': FeatureGroup.zikrReading,
-        'library_shared': FeatureGroup.zikrReading,
-        'library_offline_saved': FeatureGroup.zikrReading,
-        'library_offline_removed': FeatureGroup.zikrReading,
-        'zikr_source_search': FeatureGroup.zikrReading,
-        'zikr_source_deep_link': FeatureGroup.zikrReading,
-        'zikr_source_home_widget_favorites': FeatureGroup.zikrReading,
-        'zikr_source_home_widget_recitation': FeatureGroup.zikrReading,
-        // Navigation
-        'home_menu_qibla': FeatureGroup.navigation,
-        'home_menu_tasbeeh': FeatureGroup.navigation,
-        // Prayer & azaan
-        'azaan_selected': FeatureGroup.prayerAndAzaan,
-        'azaan_notifications_toggled': FeatureGroup.prayerAndAzaan,
-        'azaan_opt_in': FeatureGroup.prayerAndAzaan,
-        'rakaat_prayer_completed': FeatureGroup.prayerAndAzaan,
-        'prayer_times_selection_changed': FeatureGroup.prayerAndAzaan,
-        'qibla_target_changed': FeatureGroup.prayerAndAzaan,
-        // Account & tools
-        'account_deleted': FeatureGroup.accountAndTools,
-        'account_signed_in': FeatureGroup.accountAndTools,
-        'favorite_added': FeatureGroup.accountAndTools,
-        'favorite_removed': FeatureGroup.accountAndTools,
-        'favorite_reordered': FeatureGroup.accountAndTools,
-        'flight_added': FeatureGroup.accountAndTools,
-        'flight_edited': FeatureGroup.accountAndTools,
-        'qaza_updated': FeatureGroup.accountAndTools,
-        'tasbeeh_session': FeatureGroup.accountAndTools,
-        // Search
-        'search': FeatureGroup.search,
-        'search_opened': FeatureGroup.search,
-        // Other — genuinely domain-less, not just unclassified yet.
-        'dark_mode_toggled': FeatureGroup.other,
-        'feedback_email_opened': FeatureGroup.other,
+        // Reading the content — the fixed keys.
+        'zikr_counter_shown': FeatureGroup.readingContent,
+        'zikr_audio_opened': FeatureGroup.readingContent,
+        'zikr_audio_play': FeatureGroup.readingContent,
+        'zikr_bookmark_saved': FeatureGroup.readingContent,
+        'zikr_bookmark_removed': FeatureGroup.readingContent,
+        'zikr_shared': FeatureGroup.readingContent,
+        'zikr_keep_awake_toggled': FeatureGroup.readingContent,
+        'zikr_focus_mode_toggled': FeatureGroup.readingContent,
+        'zikr_share_as_image_toggled': FeatureGroup.readingContent,
+        'zikr_show_transliteration_toggled': FeatureGroup.readingContent,
+        'zikr_show_translation_toggled': FeatureGroup.readingContent,
+        'arabic_font_size_changed': FeatureGroup.readingContent,
+        'english_font_size_changed': FeatureGroup.readingContent,
+        'arabic_font_changed': FeatureGroup.readingContent,
+        'library_shared': FeatureGroup.readingContent,
+        'library_offline_saved': FeatureGroup.readingContent,
+        'library_offline_removed': FeatureGroup.readingContent,
+        'zikr_show_arabic_as_paragraph_toggled': FeatureGroup.readingContent,
+        // Zikr reminders and the Quran recitation tracker — ongoing
+        // engagement with content someone is already reading.
+        'zikr_reminder_added': FeatureGroup.readingContent,
+        'zikr_reminder_edited': FeatureGroup.readingContent,
+        'zikr_reminder_deleted': FeatureGroup.readingContent,
+        'zikr_reminder_entry_point_opened': FeatureGroup.readingContent,
+        'quran_verse_saved': FeatureGroup.readingContent,
+        'quran_verse_unsaved': FeatureGroup.readingContent,
+        'recitation_tracker_updated': FeatureGroup.readingContent,
+        // Finding content — home menu taps, search, and where a zikr open
+        // came from (the dynamic zikr_source_* and home_menu_* families).
+        'zikr_source_search': FeatureGroup.findingContent,
+        'zikr_source_deep_link': FeatureGroup.findingContent,
+        'zikr_source_home_widget_favorites': FeatureGroup.findingContent,
+        'zikr_source_home_widget_recitation': FeatureGroup.findingContent,
+        'home_menu_qibla': FeatureGroup.findingContent,
+        'home_menu_tasbeeh': FeatureGroup.findingContent,
+        'search': FeatureGroup.findingContent,
+        'search_opened': FeatureGroup.findingContent,
+        // Prayer & worship tools
+        'azaan_selected': FeatureGroup.prayerAndWorship,
+        'azaan_notifications_toggled': FeatureGroup.prayerAndWorship,
+        'azaan_opt_in': FeatureGroup.prayerAndWorship,
+        'prayer_sound_set': FeatureGroup.prayerAndWorship,
+        'rakaat_prayer_completed': FeatureGroup.prayerAndWorship,
+        'prayer_times_selection_changed': FeatureGroup.prayerAndWorship,
+        'qibla_target_changed': FeatureGroup.prayerAndWorship,
+        'qaza_updated': FeatureGroup.prayerAndWorship,
+        'tasbeeh_session': FeatureGroup.prayerAndWorship,
+        'flight_added': FeatureGroup.prayerAndWorship,
+        'flight_edited': FeatureGroup.prayerAndWorship,
+        // Personalization & account
+        'account_deleted': FeatureGroup.personalizationAndAccount,
+        'account_signed_in': FeatureGroup.personalizationAndAccount,
+        'favorite_added': FeatureGroup.personalizationAndAccount,
+        'favorite_removed': FeatureGroup.personalizationAndAccount,
+        'favorite_reordered': FeatureGroup.personalizationAndAccount,
+        'dark_mode_toggled': FeatureGroup.personalizationAndAccount,
+        // Feedback & ratings
+        'rating_prompt': FeatureGroup.feedbackAndRatings,
+        'rating_prompt_feedback': FeatureGroup.feedbackAndRatings,
+        'rate_us_settings': FeatureGroup.feedbackAndRatings,
+        'feedback_email_opened': FeatureGroup.feedbackAndRatings,
       };
 
       expected.forEach((key, group) {
@@ -270,13 +343,13 @@ void main() {
 
       final grouped = groupFeatureRows(rows);
 
+      // home_menu_* and search are both wayfinding, so they share
+      // findingContent — rank order within the group survives the merge.
       expect(
-        grouped[FeatureGroup.navigation]?.map((row) => row.key).toList(),
-        ['home_menu_qibla', 'home_menu_tasbeeh'],
+        grouped[FeatureGroup.findingContent]?.map((row) => row.key).toList(),
+        ['home_menu_qibla', 'search', 'home_menu_tasbeeh'],
       );
-      expect(grouped[FeatureGroup.search]?.map((row) => row.key).toList(),
-          ['search']);
-      expect(grouped.containsKey(FeatureGroup.prayerAndAzaan), isFalse);
+      expect(grouped.containsKey(FeatureGroup.prayerAndWorship), isFalse);
     });
   });
 
