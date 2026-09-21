@@ -386,8 +386,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   }
 
   /// Renders one [isArabicOnlyReadingView] list item: [item]'s verses joined
-  /// into a single right-aligned, justified paragraph, so a run of Arabic
-  /// lines flows as prose instead of stacking as separate centered lines.
+  /// into a single right-aligned, justified paragraph block, so a run of
+  /// Arabic verses reads as one continuous passage instead of stacking as
+  /// separate blocks with a gap and a divider between each. Each verse still
+  /// starts its own line within that block - joining verses with nothing but
+  /// a space ran them together into one undifferentiated ribbon of text,
+  /// which cost a reciter their place the moment their eye left the page,
+  /// since there was no line break to find it again by.
   ///
   /// A verse this item covers that is also the reader's bookmark gets its
   /// own text tinted in place - the paragraph itself is never tinted, since
@@ -426,7 +431,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         spans.add(verseSpan);
       }
       if (k != item.lineIndexes.length - 1) {
-        spans.add(const TextSpan(text: ' '));
+        spans.add(const TextSpan(text: '\n'));
       }
     }
 
@@ -1120,7 +1125,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 // line (absent from groupForLine) never gets a trailing
                 // divider of its own.
                 final group = parsedContent.groupForLine[contentIndex];
-                final closesGroup = group != null && contentIndex == group.end - 1;
+                final closesGroup =
+                    group != null && contentIndex == group.end - 1;
                 return _withParagraphDivider(
                   content,
                   showDivider: closesGroup && !isLastItem,
@@ -1279,7 +1285,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       decoration: BoxDecoration(
         border: BorderDirectional(
           start: BorderSide(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
+            color:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
             width: 3,
           ),
         ),

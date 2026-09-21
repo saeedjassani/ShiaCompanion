@@ -121,4 +121,18 @@ void main() {
       expect(shouldClearSelectionForScroll(ScrollDirection.idle), isFalse);
     });
   });
+
+  group('shouldRecordScrollPosition', () {
+    test('a held or in-progress selection blocks the report', () {
+      // Long-press-and-hold to select a word focuses the selection node and
+      // can trigger SelectableRegion's own auto-scroll; a position reported
+      // while that is happening is where the drag landed, not where the
+      // reader actually is.
+      expect(shouldRecordScrollPosition(hasSelectionFocus: true), isFalse);
+    });
+
+    test('no active selection lets the report through', () {
+      expect(shouldRecordScrollPosition(hasSelectionFocus: false), isTrue);
+    });
+  });
 }

@@ -142,6 +142,22 @@ VerseKey? resolveInitialVerse(VerseKey? requested) =>
 bool shouldClearSelectionForScroll(ScrollDirection direction) =>
     direction != ScrollDirection.idle;
 
+/// Whether a scroll-position report reflects where the reader actually is,
+/// as opposed to wherever [SelectableRegion] left the list while it was
+/// auto-scrolling a live text selection.
+///
+/// [hasSelectionFocus] is true for as long as a selection is being held or
+/// made - from the long-press that starts it until [shouldClearSelectionForScroll]
+/// drops it on the reader's next real scroll. Reporting a position while it
+/// holds would let a selection drag silently rewrite the bookmark and the
+/// reading-progress marker to wherever the drag's auto-scroll (itself a
+/// `jumpTo`, same as any other) happened to land, rather than to where the
+/// reader had actually read up to - which is the bug: press and hold to
+/// select a word, and the "you left off here" marker jumps to a different
+/// line than the one just read.
+bool shouldRecordScrollPosition({required bool hasSelectionFocus}) =>
+    !hasSelectionFocus;
+
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
 
@@ -199,6 +215,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// goes away.
   final FocusNode _selectionFocusNode =
       FocusNode(debugLabel: 'ZikrPage selection');
+
+  /// The most recent text the reader had highlighted, so "Report Mistake" -
+  /// added to the selection toolbar alongside Copy and Select All - can quote
+  /// it without needing the [SelectableRegionState] the button was built
+  /// from, which is gone by the time the reader actually taps it.
+  String? _lastSelectedText;
 
   final Map<int, double> _currentTabScrollOffsets = {};
   final Map<int, double> _currentTabMaxScrollExtents = {};
@@ -391,7 +413,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       final (fromAyah, toAyah) = touched.value;
       final id = _recitationEntryIdsThisSession.putIfAbsent(
         surah,
-        () => 'auto_${_openedAt?.microsecondsSinceEpoch ?? DateTime.now().microsecondsSinceEpoch}_$surah',
+        () =>
+            'auto_${_openedAt?.microsecondsSinceEpoch ?? DateTime.now().microsecondsSinceEpoch}_$surah',
       );
       unawaited(RecitationTrackerManager.instance.logRecitation(
         id: id,
@@ -992,8 +1015,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final redirect = retiredZikrRedirects[widget.item.getFirstUId()];
     final assetUid = redirect?.targetUid ?? widget.item.getFirstUId();
     try {
-      final raw =
-          await DefaultAssetBundle.of(context).loadString('assets/zikr/$assetUid');
+      final raw = await DefaultAssetBundle.of(context)
+          .loadString('assets/zikr/$assetUid');
       final decoded = json.decode(raw);
       if (decoded is! Map) {
         return false;
@@ -1257,6 +1280,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void _handleContentScrollPositionChanged(
     ZikrContentScrollPosition position,
   ) {
+    // See shouldRecordScrollPosition: while a selection is being held or
+    // made, any position change is most likely SelectableRegion auto-scroll
+    // extending it past the viewport edge, not the reader turning a page.
+    if (!shouldRecordScrollPosition(
+      hasSelectionFocus: _selectionFocusNode.hasFocus,
+    )) {
+      return;
+    }
+
     final tabIndex = position.tabIndex;
     final previousScrollOffset = _currentTabScrollOffsets[tabIndex];
     _currentTabScrollOffsets[tabIndex] = position.scrollOffset;
@@ -1471,6 +1503,40 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
   }
 
+  /// Opens the reader's email app with a mistake report addressed to
+  /// support, quoting whatever they had selected when they tapped "Report
+  /// Mistake" in the selection toolbar - the same place Copy and Select All
+  /// live, so flagging a typo needs nothing more than the press-and-hold a
+  /// reader already reaches for to copy the text in the first place.
+  Future<void> _reportZikrMistake() async {
+    final title = _currentDisplayTitle();
+    final selection = _lastSelectedText?.trim() ?? '';
+
+    unawaited(AnalyticsService.feature(
+      'zikr_mistake_reported',
+      label: 'Report mistake tapped',
+      parameters: {'zikr_uid': widget.item.getFirstUId()},
+    ));
+
+    final body = [
+      'Zikr: $title (${widget.item.getFirstUId()})',
+      if (selection.isNotEmpty) ...['', 'Selected text:', selection],
+      '',
+      'What is wrong with it?',
+      '',
+    ].join('\n');
+
+    final launched = await launchSupportEmail(
+      subject: 'Shia Companion | Mistake in "$title"',
+      body: body,
+    );
+    if (!launched && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No e-mail app found')),
+      );
+    }
+  }
+
   Widget _buildAppBarTitle(String title) {
     // Long titles wrap onto a second, smaller line instead of being clipped.
     final useTwoLines = title.trim().length > 24;
@@ -1537,6 +1603,23 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
     return SelectionArea(
       focusNode: _selectionFocusNode,
+      onSelectionChanged: (content) => _lastSelectedText = content?.plainText,
+      contextMenuBuilder: (context, selectableRegionState) {
+        final buttonItems = <ContextMenuButtonItem>[
+          ...selectableRegionState.contextMenuButtonItems,
+          ContextMenuButtonItem(
+            label: 'Report Mistake',
+            onPressed: () {
+              selectableRegionState.hideToolbar();
+              unawaited(_reportZikrMistake());
+            },
+          ),
+        ];
+        return AdaptiveTextSelectionToolbar.buttonItems(
+          anchors: selectableRegionState.contextMenuAnchors,
+          buttonItems: buttonItems,
+        );
+      },
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
