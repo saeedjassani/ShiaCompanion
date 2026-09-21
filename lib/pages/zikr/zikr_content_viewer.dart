@@ -450,10 +450,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
     final paragraph = Padding(
       padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
-      child: Text.rich(
-        TextSpan(style: arabicStyle, children: spans),
-        textAlign: TextAlign.justify,
-        textDirection: TextDirection.rtl,
+      child: _RuledArabicParagraph(
+        span: TextSpan(style: arabicStyle, children: spans),
       ),
     );
 
@@ -1763,6 +1761,71 @@ class _BookmarkedLine extends StatelessWidget {
           child,
         ],
       ),
+    );
+  }
+}
+
+/// A right-aligned, justified block of Arabic text with a thin rule under
+/// every rendered row - not just between merged sentences - so a reciter can
+/// track which row they are on the way ruled paper would, even where several
+/// short sentences share one of those rows.
+///
+/// [Text.rich] has no per-line decoration hook: a wrapped line only exists
+/// once the paragraph has actually been laid out, and that layout depends on
+/// the width it is given, which is only known at build time. So this lays
+/// [span] out a second time itself, with a throwaway [TextPainter] built with
+/// the exact width, style, alignment and text scale the real [Text.rich]
+/// below it will use, purely to read back where each line actually broke via
+/// [TextPainter.computeLineMetrics] - then paints a rule at each line's
+/// bottom edge, under the text rather than instead of it.
+class _RuledArabicParagraph extends StatelessWidget {
+  const _RuledArabicParagraph({required this.span});
+
+  final TextSpan span;
+
+  @override
+  Widget build(BuildContext context) {
+    final ruleColor =
+        Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3);
+    final textScaler = MediaQuery.textScalerOf(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final painter = TextPainter(
+          text: span,
+          textDirection: TextDirection.rtl,
+          textAlign: TextAlign.justify,
+          textScaler: textScaler,
+        )..layout(maxWidth: constraints.maxWidth);
+        final lines = painter.computeLineMetrics();
+        painter.dispose();
+
+        // Only between rows, not after the last one - the block's own
+        // bottom padding, and the divider _withParagraphDivider draws below
+        // it, already close the block off.
+        var top = 0.0;
+        final rules = <Widget>[];
+        for (var i = 0; i < lines.length - 1; i++) {
+          top += lines[i].height;
+          rules.add(Positioned(
+            left: 0,
+            right: 0,
+            top: top,
+            child: Container(height: 0.6, color: ruleColor),
+          ));
+        }
+
+        return Stack(
+          children: [
+            ...rules,
+            Text.rich(
+              span,
+              textAlign: TextAlign.justify,
+              textDirection: TextDirection.rtl,
+            ),
+          ],
+        );
+      },
     );
   }
 }

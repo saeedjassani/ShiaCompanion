@@ -40,6 +40,17 @@ Future<void> _pumpViewer(
   await tester.pumpAndSettle();
 }
 
+/// Sets the test surface to [width] logical pixels for the duration of one
+/// test, restored automatically afterwards. Device pixel ratio pinned to 1
+/// so [width] is exactly what the widget tree sees, not a value scaled by
+/// whatever the platform default happens to be.
+void _useViewportWidth(WidgetTester tester, double width) {
+  tester.view.devicePixelRatio = 1.0;
+  tester.view.physicalSize = Size(width, 2000);
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+}
+
 /// The direct child spans of the merged paragraph's [TextSpan], in order -
 /// one per verse plus the '  |  ' separators the paragraph joins them with.
 ///
@@ -57,6 +68,18 @@ List<InlineSpan> _paragraphChildren() {
   final outer = richText.text as TextSpan;
   final paragraphSpan = outer.children!.single as TextSpan;
   return paragraphSpan.children!;
+}
+
+/// The rules `_RuledArabicParagraph` draws under each wrapped row - a
+/// `Container` sized to exactly the 0.6px hairline it paints, which nothing
+/// else in this tree happens to be, so counting these counts rows minus one
+/// without needing to reach the private widget class itself.
+int _ruleCount() {
+  return find
+      .byWidgetPredicate((widget) =>
+          widget is Container && widget.constraints?.maxHeight == 0.6)
+      .evaluate()
+      .length;
 }
 
 void main() {
@@ -162,6 +185,36 @@ void main() {
 
       expect(highlighted, hasLength(1));
       expect(highlighted.single.toPlainText(), _verse2);
+    },
+  );
+
+  testWidgets(
+    'draws no rule when the merged paragraph fits on one row',
+    (tester) async {
+      showTransliteration = false;
+      showTranslation = false;
+      _useViewportWidth(tester, 4000);
+      await _pumpViewer(tester);
+
+      expect(find.text(_mergedParagraph), findsOneWidget);
+      expect(_ruleCount(), 0);
+    },
+  );
+
+  testWidgets(
+    'draws a rule under a wrapped row so a reciter can track it, without '
+    'breaking the flow',
+    (tester) async {
+      showTransliteration = false;
+      showTranslation = false;
+      // Narrow enough that the merged paragraph is forced across more than
+      // one row, however many verses actually fit per row.
+      _useViewportWidth(tester, 80);
+      await _pumpViewer(tester);
+
+      // Still one continuous flowing block - not one widget per verse.
+      expect(find.text(_mergedParagraph), findsOneWidget);
+      expect(_ruleCount(), greaterThan(0));
     },
   );
 }
