@@ -2,8 +2,9 @@ import 'package:shia_companion/data/uid_title_data.dart';
 
 List<UidTitleData> filterDataSearchResults(
   Iterable<UidTitleData> entries,
-  String query,
-) {
+  String query, {
+  bool matchUid = false,
+}) {
   final normalizedQuery = query.trim().toLowerCase();
   if (normalizedQuery.isEmpty) {
     return const [];
@@ -13,7 +14,9 @@ List<UidTitleData> filterDataSearchResults(
       .where(
         (entry) =>
             !entry.uid.contains('|') &&
-            entry.title.toLowerCase().contains(normalizedQuery),
+            (entry.title.toLowerCase().contains(normalizedQuery) ||
+                (matchUid &&
+                    entry.uid.toLowerCase().contains(normalizedQuery))),
       )
       .toList(growable: false);
 }

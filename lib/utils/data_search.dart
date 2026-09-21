@@ -54,7 +54,7 @@ class DataSearch extends SearchDelegate<String> {
       return [];
     }
 
-    return filterDataSearchResults(listWords, query);
+    return filterDataSearchResults(listWords, query, matchUid: isUserAdmin);
   }
 
   Widget _buildSearchTile(BuildContext context, UidTitleData entry) {
@@ -95,6 +95,10 @@ class DataSearch extends SearchDelegate<String> {
       ),
     );
   }
+
+  @override
+  String? get searchFieldLabel =>
+      isUserAdmin ? 'Search title or UID' : super.searchFieldLabel;
 
   @override
   List<Widget> buildActions(BuildContext context) {

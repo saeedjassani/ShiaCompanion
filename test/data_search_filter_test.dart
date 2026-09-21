@@ -26,6 +26,22 @@ void main() {
     expect(filterDataSearchResults(entries, 'al-'), [entries[3]]);
   });
 
+  test('ignores uid by default, even when the query matches one', () {
+    expect(filterDataSearchResults(entries, 'g4'), isEmpty);
+  });
+
+  test('matches uid case-insensitively when matchUid is set', () {
+    final results = filterDataSearchResults(entries, 'g4', matchUid: true);
+
+    expect(results.map((entry) => entry.uid), ['G4']);
+  });
+
+  test('matchUid still skips duplicate aliases', () {
+    final results = filterDataSearchResults(entries, 'L4', matchUid: true);
+
+    expect(results, isEmpty);
+  });
+
   group('isNewSearchTerm', () {
     test('counts the first term of a session', () {
       expect(isNewSearchTerm(previous: null, term: 'kum'), isTrue);
