@@ -386,15 +386,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   }
 
   /// Renders one [isArabicOnlyReadingView] list item: [item]'s verses joined
-  /// into a single right-aligned, justified paragraph block, so a run of
-  /// Arabic verses reads as one continuous, wrapping passage - several short
-  /// verses sharing a rendered line where they fit - instead of stacking as
-  /// separate blocks with a gap and a divider between each. That flow is the
-  /// entire point of paragraph mode, so verses are *not* forced onto their
-  /// own line the way [_buildLine] lays them out one at a time; a thin
-  /// vertical bar sits between each pair instead, cheap enough not to cost a
-  /// verse its place mid-line, but enough of a mark that a reciter's eye can
-  /// find the boundary again after looking away.
+  /// with plain spaces into a single right-aligned, justified paragraph
+  /// block, so a run of Arabic verses reads as one continuous, wrapping
+  /// passage - several short verses sharing a rendered line where they fit -
+  /// instead of stacking as separate blocks with a gap and a divider between
+  /// each. That flow is the entire point of paragraph mode, so verses are
+  /// *not* forced onto their own line the way [_buildLine] lays them out one
+  /// at a time. [_RuledArabicParagraph] is what gives a reciter something to
+  /// find their place by instead - a rule under each *rendered* row, not a
+  /// mark between verses, which would read as stray punctuation wherever two
+  /// or three short ones share a row.
   ///
   /// A verse this item covers that is also the reader's bookmark gets its
   /// own text tinted in place - the paragraph itself is never tinted, since
@@ -433,25 +434,23 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         spans.add(verseSpan);
       }
       if (k != item.lineIndexes.length - 1) {
-        // A plain space or two would leave nothing for the eye to catch on
-        // mid-line; a hard line break (tried once already) forced every
-        // verse onto its own line and undid the flow paragraph mode exists
-        // for in the first place. A muted vertical bar sits between the two
-        // without either cost - it wraps with the text like any other
-        // character, so short verses still share a line.
-        spans.add(TextSpan(
-          text: '  |  ',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
-        ));
+        // Just a plain space: _RuledArabicParagraph's rule under each row is
+        // what a reciter tracks by, so nothing extra is needed between
+        // sentences that happen to share one - a visible mark there read as
+        // stray punctuation, not a boundary.
+        spans.add(const TextSpan(text: ' '));
       }
     }
+
+    // A bit taller than the font's own metrics, so the rule under each row
+    // sits in a clear gap rather than crowding the descenders/diacritics of
+    // the row above it.
+    final paragraphStyle = arabicStyle.copyWith(height: 1.8);
 
     final paragraph = Padding(
       padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
       child: _RuledArabicParagraph(
-        span: TextSpan(style: arabicStyle, children: spans),
+        span: TextSpan(style: paragraphStyle, children: spans),
       ),
     );
 
@@ -1785,8 +1784,11 @@ class _RuledArabicParagraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Same color and weight _withParagraphDivider already draws between
+    // whole paragraphs, so a row rule and a paragraph divider read as the
+    // one kind of mark instead of two different-looking ones.
     final ruleColor =
-        Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3);
+        Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5);
     final textScaler = MediaQuery.textScalerOf(context);
 
     return LayoutBuilder(
@@ -1811,7 +1813,7 @@ class _RuledArabicParagraph extends StatelessWidget {
             left: 0,
             right: 0,
             top: top,
-            child: Container(height: 0.6, color: ruleColor),
+            child: Container(height: 1.0, color: ruleColor),
           ));
         }
 

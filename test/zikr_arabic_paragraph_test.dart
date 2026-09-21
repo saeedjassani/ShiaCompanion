@@ -11,7 +11,7 @@ const _verse0 = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّ
 const _verse1 = 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ';
 const _verse2 = 'الرَّحْمَٰنِ الرَّحِيمِ';
 const _instruction = 'Recite three times';
-const _mergedParagraph = '$_verse0  |  $_verse1  |  $_verse2';
+const _mergedParagraph = '$_verse0 $_verse1 $_verse2';
 
 String _content() =>
     [_heading, _verse0, _verse1, _verse2, _instruction].join('\n');
@@ -52,7 +52,7 @@ void _useViewportWidth(WidgetTester tester, double width) {
 }
 
 /// The direct child spans of the merged paragraph's [TextSpan], in order -
-/// one per verse plus the '  |  ' separators the paragraph joins them with.
+/// one per verse plus the ' ' separators the paragraph joins them with.
 ///
 /// [Text]'s build wraps whatever span it is given in a fresh outer
 /// [TextSpan] (so it can merge in the ambient default style), so the actual
@@ -70,14 +70,14 @@ List<InlineSpan> _paragraphChildren() {
   return paragraphSpan.children!;
 }
 
-/// The rules `_RuledArabicParagraph` draws under each wrapped row - a
-/// `Container` sized to exactly the 0.6px hairline it paints, which nothing
-/// else in this tree happens to be, so counting these counts rows minus one
-/// without needing to reach the private widget class itself.
+/// The rules `_RuledArabicParagraph` draws under each wrapped row, each a
+/// full-width `Positioned` hairline inside its `Stack` - the only place
+/// anything in this tree uses `Positioned` at all - so counting these counts
+/// rows minus one without needing to reach the private widget class itself.
 int _ruleCount() {
   return find
       .byWidgetPredicate((widget) =>
-          widget is Container && widget.constraints?.maxHeight == 0.6)
+          widget is Positioned && widget.left == 0 && widget.right == 0)
       .evaluate()
       .length;
 }
