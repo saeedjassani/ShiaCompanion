@@ -18,6 +18,33 @@ service cloud.firestore {
     match /users/{userId}/settings/{docId} {
       allow read, write: if request.auth.uid == userId;
     }
+
+    // Reports submitted from the zikr reading page's selection toolbar (see
+    // MistakeReportService). Most readers are never signed in, so - same as
+    // the public, tightly-validated counters in database.rules.json -
+    // reporting stays open to anyone, and only an admin can read the queue
+    // back or change a report's status.
+    match /mistake_reports/{reportId} {
+      allow create: if _isValidMistakeReportCreate(request.resource.data);
+      allow read, update: if _isAdmin();
+      allow delete: if false;
+    }
     // You can add more collections here...
+  }
+
+  function _isAdmin() {
+    return request.auth != null && request.auth.token.admin == true;
+  }
+
+  function _isValidMistakeReportCreate(data) {
+    return data.keys().hasOnly(
+             ['zikrUid', 'zikrTitle', 'selectedText', 'note', 'status', 'createdAt']
+           ) &&
+           data.status == 'open' &&
+           data.zikrUid is string && data.zikrUid.size() > 0 && data.zikrUid.size() <= 200 &&
+           data.zikrTitle is string && data.zikrTitle.size() <= 200 &&
+           data.selectedText is string && data.selectedText.size() <= 4000 &&
+           data.note is string && data.note.size() <= 2000 &&
+           data.createdAt == request.time;
   }
 }

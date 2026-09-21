@@ -12,16 +12,14 @@ Future<bool> launchExternalUri(Uri uri) async {
   }
 }
 
-Future<bool> launchSupportEmail({String? subject, String? body}) {
-  final queryParameters = <String, String>{
-    if (subject != null && subject.trim().isNotEmpty) 'subject': subject.trim(),
-    if (body != null && body.trim().isNotEmpty) 'body': body,
-  };
+Future<bool> launchSupportEmail({String? subject}) {
   return launchExternalUri(
     Uri(
       scheme: 'mailto',
       path: supportEmailAddress,
-      queryParameters: queryParameters.isEmpty ? null : queryParameters,
+      queryParameters: subject == null || subject.trim().isEmpty
+          ? null
+          : {'subject': subject.trim()},
     ),
   );
 }

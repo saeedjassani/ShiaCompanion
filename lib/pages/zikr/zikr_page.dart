@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/retired_zikr_redirects.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/mistake_report_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
@@ -1503,38 +1504,104 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
   }
 
-  /// Opens the reader's email app with a mistake report addressed to
-  /// support, quoting whatever they had selected when they tapped "Report
-  /// Mistake" in the selection toolbar - the same place Copy and Select All
-  /// live, so flagging a typo needs nothing more than the press-and-hold a
-  /// reader already reaches for to copy the text in the first place.
+  /// Asks for an optional note, then files a mistake report quoting whatever
+  /// the reader had selected when they tapped "Report Mistake" in the
+  /// selection toolbar - the same place Copy and Select All live, so
+  /// flagging a typo needs nothing more than the press-and-hold a reader
+  /// already reaches for to copy the text in the first place.
   Future<void> _reportZikrMistake() async {
-    final title = _currentDisplayTitle();
     final selection = _lastSelectedText?.trim() ?? '';
+    final note = await _promptForMistakeNote(selection);
+    if (note == null || !mounted) return; // Cancelled.
 
     unawaited(AnalyticsService.feature(
       'zikr_mistake_reported',
-      label: 'Report mistake tapped',
+      label: 'Report mistake submitted',
       parameters: {'zikr_uid': widget.item.getFirstUId()},
     ));
 
-    final body = [
-      'Zikr: $title (${widget.item.getFirstUId()})',
-      if (selection.isNotEmpty) ...['', 'Selected text:', selection],
-      '',
-      'What is wrong with it?',
-      '',
-    ].join('\n');
-
-    final launched = await launchSupportEmail(
-      subject: 'Shia Companion | Mistake in "$title"',
-      body: body,
+    final submitted = await MistakeReportService.submit(
+      zikrUid: widget.item.getFirstUId(),
+      zikrTitle: _currentDisplayTitle(),
+      selectedText: selection,
+      note: note,
     );
-    if (!launched && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No e-mail app found')),
-      );
-    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(submitted
+            ? "Thanks - we'll take a look."
+            : 'Could not send the report. Please try again.'),
+      ),
+    );
+  }
+
+  /// The dialog itself: shows what was selected, if anything, and a box for
+  /// an optional note on what's actually wrong with it. Returns the note
+  /// text on Submit (empty string counts as "no note"), or null on Cancel -
+  /// distinct from an empty note, which is what tells [_reportZikrMistake]
+  /// whether to file the report at all.
+  Future<String?> _promptForMistakeNote(String selection) {
+    final noteController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Report a Mistake'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (selection.isNotEmpty) ...[
+                Text(
+                  'Selected text',
+                  style: Theme.of(dialogContext).textTheme.labelMedium,
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Theme.of(dialogContext)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    selection,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              TextField(
+                controller: noteController,
+                autofocus: true,
+                maxLength: 500,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: "What's wrong with it? (optional)",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(noteController.text.trim()),
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildAppBarTitle(String title) {
