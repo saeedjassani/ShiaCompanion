@@ -11,7 +11,7 @@ const _verse0 = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّ
 const _verse1 = 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ';
 const _verse2 = 'الرَّحْمَٰنِ الرَّحِيمِ';
 const _instruction = 'Recite three times';
-const _mergedParagraph = '$_verse0\n$_verse1\n$_verse2';
+const _mergedParagraph = '$_verse0  |  $_verse1  |  $_verse2';
 
 String _content() =>
     [_heading, _verse0, _verse1, _verse2, _instruction].join('\n');
@@ -41,7 +41,7 @@ Future<void> _pumpViewer(
 }
 
 /// The direct child spans of the merged paragraph's [TextSpan], in order -
-/// one per verse plus the '\n' separators the paragraph joins them with.
+/// one per verse plus the '  |  ' separators the paragraph joins them with.
 ///
 /// [Text]'s build wraps whatever span it is given in a fresh outer
 /// [TextSpan] (so it can merge in the ambient default style), so the actual

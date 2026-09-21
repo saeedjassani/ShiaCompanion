@@ -387,12 +387,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
   /// Renders one [isArabicOnlyReadingView] list item: [item]'s verses joined
   /// into a single right-aligned, justified paragraph block, so a run of
-  /// Arabic verses reads as one continuous passage instead of stacking as
-  /// separate blocks with a gap and a divider between each. Each verse still
-  /// starts its own line within that block - joining verses with nothing but
-  /// a space ran them together into one undifferentiated ribbon of text,
-  /// which cost a reciter their place the moment their eye left the page,
-  /// since there was no line break to find it again by.
+  /// Arabic verses reads as one continuous, wrapping passage - several short
+  /// verses sharing a rendered line where they fit - instead of stacking as
+  /// separate blocks with a gap and a divider between each. That flow is the
+  /// entire point of paragraph mode, so verses are *not* forced onto their
+  /// own line the way [_buildLine] lays them out one at a time; a thin
+  /// vertical bar sits between each pair instead, cheap enough not to cost a
+  /// verse its place mid-line, but enough of a mark that a reciter's eye can
+  /// find the boundary again after looking away.
   ///
   /// A verse this item covers that is also the reader's bookmark gets its
   /// own text tinted in place - the paragraph itself is never tinted, since
@@ -431,7 +433,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         spans.add(verseSpan);
       }
       if (k != item.lineIndexes.length - 1) {
-        spans.add(const TextSpan(text: '\n'));
+        // A plain space or two would leave nothing for the eye to catch on
+        // mid-line; a hard line break (tried once already) forced every
+        // verse onto its own line and undid the flow paragraph mode exists
+        // for in the first place. A muted vertical bar sits between the two
+        // without either cost - it wraps with the text like any other
+        // character, so short verses still share a line.
+        spans.add(TextSpan(
+          text: '  |  ',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+        ));
       }
     }
 
