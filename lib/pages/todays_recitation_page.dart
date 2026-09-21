@@ -28,6 +28,22 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: zikrIndexReady,
+      builder: (context, ready, _) {
+        if (!ready) {
+          return Scaffold(
+            appBar: AppBar(title: Text("Today's Recitations")),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return _buildLoaded(context);
+      },
+    );
+  }
+
+  Widget _buildLoaded(BuildContext context) {
     List<UidTitleData> workingItems = buildTodaysRecitationItems();
 
     return Scaffold(

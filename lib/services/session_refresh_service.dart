@@ -13,6 +13,12 @@ class SessionRefreshService {
     user = FirebaseAuth.instance.currentUser;
     isUserAdmin = false;
 
+    // Load the bundled zikr index first: it's a local asset read with no
+    // network dependency. Running it before the admin-claim check below
+    // means a slow/stalled connection never delays the index that deep
+    // links, search, and Today's Recitation all depend on.
+    await loadItemsFromAssets();
+
     if (user != null) {
       try {
         final idTokenResult =
@@ -26,11 +32,10 @@ class SessionRefreshService {
             'Unable to refresh admin claim, using bundled index: $error');
       }
     }
-
-    await loadItemsFromAssets();
   }
 
   static Future<void> loadItemsFromAssets() async {
+    zikrIndexReady.value = false;
     try {
       String data = await rootBundle.loadString("assets/zikr.json");
       final decoded = json.decode(data);
@@ -63,6 +68,11 @@ class SessionRefreshService {
       });
     } catch (e) {
       debugPrint("Error loading zikr index from assets: $e");
+    } finally {
+      // Flip even on failure: a page waiting on this must stop spinning
+      // (and fall back to whatever's currently in `items`, even if empty)
+      // rather than hang indefinitely.
+      zikrIndexReady.value = true;
     }
   }
 }
