@@ -541,7 +541,8 @@ class FavoritesManager extends ChangeNotifier {
 
   Future<_RemoteFavoritesRead> _loadRemoteFavorites(String userId) async {
     try {
-      final snapshot = await _favoritesDoc(userId).get();
+      final snapshot =
+          await _favoritesDoc(userId).get().timeout(const Duration(seconds: 8));
       return _RemoteFavoritesRead.success(
         exists: snapshot.exists,
         favorites: _decodeRemoteFavorites(snapshot.data()?['entries']),
@@ -570,7 +571,9 @@ class FavoritesManager extends ChangeNotifier {
     String userId,
   ) async {
     try {
-      final snapshot = await _legacyRealtimeFavoritesRef(userId).get();
+      final snapshot = await _legacyRealtimeFavoritesRef(userId)
+          .get()
+          .timeout(const Duration(seconds: 8));
       final rawValue = snapshot.value;
       if (rawValue is! String) return const [];
       return _decodeFavorites(rawValue);
@@ -584,9 +587,13 @@ class FavoritesManager extends ChangeNotifier {
 
   Future<void> _deleteLegacyRealtimeFavorites(String userId) async {
     try {
-      final snapshot = await _legacyRealtimeFavoritesRef(userId).get();
+      final snapshot = await _legacyRealtimeFavoritesRef(userId)
+          .get()
+          .timeout(const Duration(seconds: 8));
       if (!snapshot.exists) return;
-      await _legacyRealtimeFavoritesRef(userId).remove();
+      await _legacyRealtimeFavoritesRef(userId)
+          .remove()
+          .timeout(const Duration(seconds: 8));
     } catch (e) {
       debugPrint(
         'FavoritesManager: Error deleting legacy RTDB favorites: $e',

@@ -319,7 +319,8 @@ class QazaTrackerManager extends ChangeNotifier {
 
   Future<_RemoteQazaRead> _loadRemoteState(String userId) async {
     try {
-      final snapshot = await _qazaDoc(userId).get();
+      final snapshot =
+          await _qazaDoc(userId).get().timeout(const Duration(seconds: 8));
       return _RemoteQazaRead.success(
         exists: snapshot.exists,
         state: _decodeRemoteState(snapshot.data()?['entries']),

@@ -75,7 +75,8 @@ class PrayerPreferencesSyncService {
     if (userId == null) return;
 
     try {
-      final snapshot = await _doc(userId).get();
+      final snapshot =
+          await _doc(userId).get().timeout(const Duration(seconds: 8));
       final data = snapshot.data();
       if (data == null || data.isEmpty) {
         await _write(userId, _currentValues());

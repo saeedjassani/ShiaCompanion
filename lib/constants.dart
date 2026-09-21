@@ -343,6 +343,11 @@ List<PrayerNotificationScheduleEntry> buildPrayerNotificationEntriesForDay({
 Map items = {};
 Map<String, double> itemOrder = {};
 Map<String, dynamic> itemMetadata = {};
+// Flips to true once `items`/`itemOrder`/`itemMetadata` reflect a completed
+// load attempt (success or failure) from assets/zikr.json, so UI that reads
+// those maps (e.g. TodaysRecitationPage) can wait for them instead of
+// racing a still-empty index on a slow first launch.
+final ValueNotifier<bool> zikrIndexReady = ValueNotifier<bool>(false);
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 

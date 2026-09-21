@@ -249,7 +249,8 @@ class RecitationTrackerManager extends ChangeNotifier {
 
   Future<_RemoteRecitationRead> _loadRemoteState(String userId) async {
     try {
-      final snapshot = await _doc(userId).get();
+      final snapshot =
+          await _doc(userId).get().timeout(const Duration(seconds: 8));
       return _RemoteRecitationRead.success(
         state: RecitationTrackerState.fromJson(snapshot.data()?['state']),
       );
