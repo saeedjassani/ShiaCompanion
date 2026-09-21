@@ -9,6 +9,10 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
 
+# Suppresses Flutter's "running as root" warning (these containers run as
+# root) and keeps it out of every session's transcript.
+export CI=true
+
 FLUTTER_HOME="/opt/flutter"
 
 # Read the pinned version from .github/workflows/ci.yml instead of repeating
@@ -73,7 +77,23 @@ else
   echo "session-start: Flutter $FLUTTER_VERSION already installed at $FLUTTER_HOME"
 fi
 
-echo "export PATH=\"$FLUTTER_HOME/bin:\$PATH\"" >> "$CLAUDE_ENV_FILE"
+{
+  echo "export PATH=\"$FLUTTER_HOME/bin:\$PATH\""
+  echo "export CI=true"
+} >> "$CLAUDE_ENV_FILE"
 
 cd "$CLAUDE_PROJECT_DIR"
-"$FLUTTER_HOME/bin/flutter" pub get
+
+# `flutter pub get`'s own output (every resolved package, plus which ones
+# have newer versions available) is routine noise that would otherwise land
+# in the transcript on every single session start/resume. Only show it when
+# it actually fails.
+pub_get_log="$(mktemp)"
+if ! "$FLUTTER_HOME/bin/flutter" pub get >"$pub_get_log" 2>&1; then
+  echo "session-start: flutter pub get failed:" >&2
+  cat "$pub_get_log" >&2
+  rm -f "$pub_get_log"
+  exit 1
+fi
+rm -f "$pub_get_log"
+echo "session-start: dependencies resolved"
