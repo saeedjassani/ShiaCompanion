@@ -272,6 +272,16 @@ void main() {
         'library_shared': FeatureGroup.readingContent,
         'library_offline_saved': FeatureGroup.readingContent,
         'library_offline_removed': FeatureGroup.readingContent,
+        'zikr_show_arabic_as_paragraph_toggled': FeatureGroup.readingContent,
+        // Zikr reminders and the Quran recitation tracker — ongoing
+        // engagement with content someone is already reading.
+        'zikr_reminder_added': FeatureGroup.readingContent,
+        'zikr_reminder_edited': FeatureGroup.readingContent,
+        'zikr_reminder_deleted': FeatureGroup.readingContent,
+        'zikr_reminder_entry_point_opened': FeatureGroup.readingContent,
+        'quran_verse_saved': FeatureGroup.readingContent,
+        'quran_verse_unsaved': FeatureGroup.readingContent,
+        'recitation_tracker_updated': FeatureGroup.readingContent,
         // Finding content — home menu taps, search, and where a zikr open
         // came from (the dynamic zikr_source_* and home_menu_* families).
         'zikr_source_search': FeatureGroup.findingContent,
@@ -286,6 +296,7 @@ void main() {
         'azaan_selected': FeatureGroup.prayerAndWorship,
         'azaan_notifications_toggled': FeatureGroup.prayerAndWorship,
         'azaan_opt_in': FeatureGroup.prayerAndWorship,
+        'prayer_sound_set': FeatureGroup.prayerAndWorship,
         'rakaat_prayer_completed': FeatureGroup.prayerAndWorship,
         'prayer_times_selection_changed': FeatureGroup.prayerAndWorship,
         'qibla_target_changed': FeatureGroup.prayerAndWorship,
@@ -300,8 +311,11 @@ void main() {
         'favorite_removed': FeatureGroup.personalizationAndAccount,
         'favorite_reordered': FeatureGroup.personalizationAndAccount,
         'dark_mode_toggled': FeatureGroup.personalizationAndAccount,
-        // Other — genuinely domain-less, not just unclassified yet.
-        'feedback_email_opened': FeatureGroup.other,
+        // Feedback & ratings
+        'rating_prompt': FeatureGroup.feedbackAndRatings,
+        'rating_prompt_feedback': FeatureGroup.feedbackAndRatings,
+        'rate_us_settings': FeatureGroup.feedbackAndRatings,
+        'feedback_email_opened': FeatureGroup.feedbackAndRatings,
       };
 
       expected.forEach((key, group) {

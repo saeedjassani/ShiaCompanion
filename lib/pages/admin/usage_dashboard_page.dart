@@ -185,8 +185,9 @@ PeriodDelta? periodDelta(int current, int previous) {
 enum FeatureGroup {
   readingContent(
     'Reading the content',
-    'Bookmarks, sharing, audio, fonts, and translation/transliteration '
-        'toggles while reading a zikr or library chapter',
+    'Bookmarks, sharing, audio, fonts, reminders, and translation/'
+        'transliteration toggles while reading a zikr, a library chapter, or '
+        'the Quran',
   ),
   findingContent(
     'Finding content',
@@ -195,12 +196,17 @@ enum FeatureGroup {
   ),
   prayerAndWorship(
     'Prayer & worship tools',
-    'Azaan, rakaat counting, prayer times (including while flying), the '
-        'Qibla target, the qaza tracker and the tasbeeh counter',
+    'Azaan (including its notification sound), rakaat counting, prayer '
+        'times (including while flying), the Qibla target, the qaza tracker '
+        'and the tasbeeh counter',
   ),
   personalizationAndAccount(
     'Personalization & account',
     'Favorites, dark mode, sign-in and account deletion',
+  ),
+  feedbackAndRatings(
+    'Feedback & ratings',
+    'App-store rating prompts and the feedback email',
   ),
   other('Other', 'Not yet sorted into a group');
 
@@ -225,12 +231,23 @@ const Set<String> _readingContentFeatureKeys = {
   'zikr_share_as_image_toggled',
   'zikr_show_transliteration_toggled',
   'zikr_show_translation_toggled',
+  'zikr_show_arabic_as_paragraph_toggled',
   'arabic_font_size_changed',
   'english_font_size_changed',
   'arabic_font_changed',
   'library_shared',
   'library_offline_saved',
   'library_offline_removed',
+  // Reminders to read a zikr, and the Quran recitation tracker — both are
+  // ongoing-engagement tools for content someone is already reading, not
+  // account settings or worship-tool configuration.
+  'zikr_reminder_added',
+  'zikr_reminder_edited',
+  'zikr_reminder_deleted',
+  'zikr_reminder_entry_point_opened',
+  'quran_verse_saved',
+  'quran_verse_unsaved',
+  'recitation_tracker_updated',
 };
 
 const Set<String> _findingContentFeatureKeys = {'search', 'search_opened'};
@@ -239,6 +256,7 @@ const Set<String> _prayerAndWorshipFeatureKeys = {
   'azaan_selected',
   'azaan_notifications_toggled',
   'azaan_opt_in',
+  'prayer_sound_set',
   'rakaat_prayer_completed',
   'prayer_times_selection_changed',
   'qibla_target_changed',
@@ -257,6 +275,13 @@ const Set<String> _personalizationAndAccountFeatureKeys = {
   'dark_mode_toggled',
 };
 
+const Set<String> _feedbackAndRatingsFeatureKeys = {
+  'rating_prompt',
+  'rating_prompt_feedback',
+  'rate_us_settings',
+  'feedback_email_opened',
+};
+
 /// See [FeatureGroup].
 @visibleForTesting
 FeatureGroup featureGroupFor(String key) {
@@ -273,6 +298,9 @@ FeatureGroup featureGroupFor(String key) {
   }
   if (_personalizationAndAccountFeatureKeys.contains(key)) {
     return FeatureGroup.personalizationAndAccount;
+  }
+  if (_feedbackAndRatingsFeatureKeys.contains(key)) {
+    return FeatureGroup.feedbackAndRatings;
   }
   return FeatureGroup.other;
 }
