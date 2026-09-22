@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/retired_zikr_redirects.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/mistake_report_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
@@ -199,6 +200,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// goes away.
   final FocusNode _selectionFocusNode =
       FocusNode(debugLabel: 'ZikrPage selection');
+
+  /// The most recent text the reader had highlighted, so "Suggest a
+  /// Correction" - added to the selection toolbar alongside Copy and Select
+  /// All - can quote it without needing the [SelectableRegionState] the
+  /// button was built from, which is gone by the time the reader actually
+  /// taps it.
+  String? _lastSelectedText;
 
   final Map<int, double> _currentTabScrollOffsets = {};
   final Map<int, double> _currentTabMaxScrollExtents = {};
@@ -391,7 +399,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       final (fromAyah, toAyah) = touched.value;
       final id = _recitationEntryIdsThisSession.putIfAbsent(
         surah,
-        () => 'auto_${_openedAt?.microsecondsSinceEpoch ?? DateTime.now().microsecondsSinceEpoch}_$surah',
+        () =>
+            'auto_${_openedAt?.microsecondsSinceEpoch ?? DateTime.now().microsecondsSinceEpoch}_$surah',
       );
       unawaited(RecitationTrackerManager.instance.logRecitation(
         id: id,
@@ -992,8 +1001,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final redirect = retiredZikrRedirects[widget.item.getFirstUId()];
     final assetUid = redirect?.targetUid ?? widget.item.getFirstUId();
     try {
-      final raw =
-          await DefaultAssetBundle.of(context).loadString('assets/zikr/$assetUid');
+      final raw = await DefaultAssetBundle.of(context)
+          .loadString('assets/zikr/$assetUid');
       final decoded = json.decode(raw);
       if (decoded is! Map) {
         return false;
@@ -1471,6 +1480,106 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
   }
 
+  /// Asks for an optional note, then files a mistake report quoting whatever
+  /// the reader had selected when they tapped "Suggest a Correction" in the
+  /// selection toolbar - the same place Copy and Select All live, so
+  /// flagging a typo needs nothing more than the press-and-hold a reader
+  /// already reaches for to copy the text in the first place.
+  Future<void> _reportZikrMistake() async {
+    final selection = _lastSelectedText?.trim() ?? '';
+    final note = await _promptForMistakeNote(selection);
+    if (note == null || !mounted) return; // Cancelled.
+
+    unawaited(AnalyticsService.feature(
+      'zikr_mistake_reported',
+      label: 'Correction suggested',
+      parameters: {'zikr_uid': widget.item.getFirstUId()},
+    ));
+
+    final submitted = await MistakeReportService.submit(
+      zikrUid: widget.item.getFirstUId(),
+      zikrTitle: _currentDisplayTitle(),
+      selectedText: selection,
+      note: note,
+    );
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(submitted
+            ? "Thanks - we'll take a look."
+            : 'Could not send the report. Please try again.'),
+      ),
+    );
+  }
+
+  /// The dialog itself: shows what was selected, if anything, and a box for
+  /// an optional note on what's actually wrong with it. Returns the note
+  /// text on Submit (empty string counts as "no note"), or null on Cancel -
+  /// distinct from an empty note, which is what tells [_reportZikrMistake]
+  /// whether to file the report at all.
+  Future<String?> _promptForMistakeNote(String selection) {
+    final noteController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Suggest a Correction'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (selection.isNotEmpty) ...[
+                Text(
+                  'Selected text',
+                  style: Theme.of(dialogContext).textTheme.labelMedium,
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Theme.of(dialogContext)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    selection,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              TextField(
+                controller: noteController,
+                autofocus: true,
+                maxLength: 500,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'What should it say instead? (optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(noteController.text.trim()),
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAppBarTitle(String title) {
     // Long titles wrap onto a second, smaller line instead of being clipped.
     final useTwoLines = title.trim().length > 24;
@@ -1537,6 +1646,23 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
     return SelectionArea(
       focusNode: _selectionFocusNode,
+      onSelectionChanged: (content) => _lastSelectedText = content?.plainText,
+      contextMenuBuilder: (context, selectableRegionState) {
+        final buttonItems = <ContextMenuButtonItem>[
+          ...selectableRegionState.contextMenuButtonItems,
+          ContextMenuButtonItem(
+            label: 'Suggest a Correction',
+            onPressed: () {
+              selectableRegionState.hideToolbar();
+              unawaited(_reportZikrMistake());
+            },
+          ),
+        ];
+        return AdaptiveTextSelectionToolbar.buttonItems(
+          anchors: selectableRegionState.contextMenuAnchors,
+          buttonItems: buttonItems,
+        );
+      },
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(

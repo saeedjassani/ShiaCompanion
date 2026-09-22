@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 import '../services/analytics_service.dart';
+import '../pages/admin/mistake_reports_page.dart';
 import '../pages/admin/usage_dashboard_page.dart';
 import '../pages/calendar_page.dart';
 import '../pages/favorites_page.dart';
@@ -215,6 +216,12 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
     label: 'Usage',
     icon: Icons.query_stats_rounded,
     pageBuilder: () => const UsageDashboardPage(),
+    countsAsFeatureUse: false,
+  ),
+  HomeMenuItem(
+    label: 'Mistake Reports',
+    icon: Icons.flag_outlined,
+    pageBuilder: () => const MistakeReportsPage(),
     countsAsFeatureUse: false,
   ),
 ]);
