@@ -445,7 +445,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     // A bit taller than the font's own metrics, so the rule under each row
     // sits in a clear gap rather than crowding the descenders/diacritics of
     // the row above it.
-    final paragraphStyle = arabicStyle.copyWith(height: 1.8);
+    final paragraphStyle = arabicStyle.copyWith(height: 2.0);
 
     final paragraph = Padding(
       padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
