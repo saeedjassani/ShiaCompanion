@@ -143,22 +143,6 @@ VerseKey? resolveInitialVerse(VerseKey? requested) =>
 bool shouldClearSelectionForScroll(ScrollDirection direction) =>
     direction != ScrollDirection.idle;
 
-/// Whether a scroll-position report reflects where the reader actually is,
-/// as opposed to wherever [SelectableRegion] left the list while it was
-/// auto-scrolling a live text selection.
-///
-/// [hasSelectionFocus] is true for as long as a selection is being held or
-/// made - from the long-press that starts it until [shouldClearSelectionForScroll]
-/// drops it on the reader's next real scroll. Reporting a position while it
-/// holds would let a selection drag silently rewrite the bookmark and the
-/// reading-progress marker to wherever the drag's auto-scroll (itself a
-/// `jumpTo`, same as any other) happened to land, rather than to where the
-/// reader had actually read up to - which is the bug: press and hold to
-/// select a word, and the "you left off here" marker jumps to a different
-/// line than the one just read.
-bool shouldRecordScrollPosition({required bool hasSelectionFocus}) =>
-    !hasSelectionFocus;
-
 class ZikrPage extends StatefulWidget {
   final UidTitleData item;
 
@@ -1281,15 +1265,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void _handleContentScrollPositionChanged(
     ZikrContentScrollPosition position,
   ) {
-    // See shouldRecordScrollPosition: while a selection is being held or
-    // made, any position change is most likely SelectableRegion auto-scroll
-    // extending it past the viewport edge, not the reader turning a page.
-    if (!shouldRecordScrollPosition(
-      hasSelectionFocus: _selectionFocusNode.hasFocus,
-    )) {
-      return;
-    }
-
     final tabIndex = position.tabIndex;
     final previousScrollOffset = _currentTabScrollOffsets[tabIndex];
     _currentTabScrollOffsets[tabIndex] = position.scrollOffset;
