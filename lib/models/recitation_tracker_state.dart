@@ -264,6 +264,22 @@ class RecitationTrackerState {
     return latest == null ? null : VerseKey(latest.surah, latest.toAyah);
   }
 
+  /// Where the reader most recently was, on whichever track.
+  ///
+  /// Not label-scoped, unlike [resumePositionFor]: matching a recitation heard
+  /// through the microphone wants "where is this person in the Quran" rather
+  /// than "where is this track", since whoever is reciting nearby is not
+  /// reciting under a label.
+  VerseKey? get mostRecentPosition {
+    RecitationEntry? latest;
+    for (final entry in entries.values) {
+      if (latest == null || entry.recitedAt.isAfter(latest.recitedAt)) {
+        latest = entry;
+      }
+    }
+    return latest == null ? null : VerseKey(latest.surah, latest.toAyah);
+  }
+
   /// Merged, non-overlapping ayah ranges ever recited under [label], by
   /// surah — the union of every session's range, so re-reading the same
   /// verses repeatedly does not inflate how much of the Quran is "done".

@@ -1,0 +1,342 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+
+/// Turns recited Arabic heard through the microphone into text, for
+/// [matchRecitation] to identify.
+///
+/// Behind an interface on purpose. The speech engine is the replaceable half of
+/// "listen and follow": the OS recogniser ships first because it is free and
+/// adds no download, but it is trained on conversational Arabic and will
+/// struggle with tajweed. If the numbers this feature reports say so, the
+/// upgrade is a Quran-tuned Whisper running on-device, and it lands here -
+/// [VerseMatch], the matcher and the sheet all stay as they are.
+
+/// Why listening cannot start, or that it can.
+enum RecognizerAvailability {
+  ready,
+
+  /// The microphone was refused. Recoverable only in Settings.
+  permissionDenied,
+
+  /// No speech recogniser on the device at all - a Google-less Android build,
+  /// or a platform the plugin does not cover.
+  unsupported,
+
+  /// There is a recogniser, but it does not speak Arabic.
+  noArabicLocale,
+
+  /// Initialising the engine failed for some other reason.
+  failed,
+}
+
+/// One transcript, partial or settled.
+@immutable
+class RecitationTranscript {
+  const RecitationTranscript({
+    required this.text,
+    required this.isFinal,
+    this.confidence,
+  });
+
+  final String text;
+
+  /// Whether the engine considers this its answer rather than a guess in
+  /// progress.
+  final bool isFinal;
+
+  /// The engine's own confidence, where it reports one. Not used for matching -
+  /// the matcher's own scoring is the judge - but worth recording.
+  final double? confidence;
+}
+
+abstract class RecitationRecognizer {
+  /// Asks for whatever the engine needs - permission, an Arabic locale - and
+  /// says whether listening is possible.
+  Future<RecognizerAvailability> ensureAvailable();
+
+  /// Listens, emitting transcripts as they firm up, and closes when the engine
+  /// stops or [stop] is called.
+  Stream<RecitationTranscript> listen();
+
+  Future<void> stop();
+
+  /// Whether the last session ran without a network round trip. Recorded
+  /// because on-device and server recognition differ in accuracy, and mixing
+  /// the two would make the measurements unreadable.
+  bool get ranOnDevice;
+}
+
+/// The Arabic variety to ask for: closest to what is being recited.
+const String preferredArabicLocale = 'ar-SA';
+
+/// Which locale to listen in, given what the engine says it offers.
+///
+/// On web there is nothing to enumerate. The Web Speech API has no locale list
+/// by design - `lang` takes any BCP-47 tag and the browser resolves it - and the
+/// plugin's web implementation returns at most the browser's *current* `lang` as
+/// a single entry, never an Arabic one. Scanning that for Arabic would tell every
+/// web user that their device has no Arabic recognition, so on web the tag is
+/// simply asserted.
+///
+/// Everywhere else the device really does enumerate, and no Arabic entry really
+/// does mean the recogniser would listen in the wrong language - which is worth
+/// reporting rather than papering over, since recitation transcribed as English
+/// matches nothing.
+String? chooseArabicLocale(List<String> localeIds, {required bool onWeb}) {
+  if (onWeb) return preferredArabicLocale;
+
+  // `ar-SA` first, however the platform punctuates it.
+  for (final id in localeIds) {
+    if (id.toLowerCase().replaceAll('-', '_') == 'ar_sa') return id;
+  }
+  // Then any Arabic at all: a device set up for Arabic anywhere still
+  // recognises Quranic vocabulary far better than a fallback to English would.
+  for (final id in localeIds) {
+    final normalized = id.toLowerCase();
+    if (normalized == 'ar' ||
+        normalized.startsWith('ar_') ||
+        normalized.startsWith('ar-')) {
+      return id;
+    }
+  }
+  return null;
+}
+
+/// How long a session runs.
+///
+/// Thirty seconds, because recognition accuracy on recitation rises sharply with
+/// clip length - published work has the same model at 0.70 WER on ten-second
+/// clips and 0.075 on thirty. Comfortably inside the roughly sixty seconds iOS
+/// allows one recognition session.
+const Duration recitationListenFor = Duration(seconds: 30);
+
+/// How much silence ends a session early: nothing short of the whole session.
+///
+/// Not null, which would be the obvious way to say "do not stop on silence" and
+/// is in fact the opposite. On Android this value is
+/// `EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS`, and the plugin only sets
+/// that extra when the value is non-null - so passing null hands endpointing back
+/// to Android's own default, which is shorter than a second or two on most
+/// devices and would cut a reciter off mid-ayah.
+///
+/// Matching [recitationListenFor] means a pause for breath, or between ayahs,
+/// never ends the session; only the overall limit does, or the reader tapping
+/// stop.
+const Duration recitationPauseFor = recitationListenFor;
+
+class OsSpeechRecitationRecognizer implements RecitationRecognizer {
+  OsSpeechRecitationRecognizer._();
+
+  static final OsSpeechRecitationRecognizer instance =
+      OsSpeechRecitationRecognizer._();
+
+  final SpeechToText _speech = SpeechToText();
+
+  bool _initialized = false;
+  String? _arabicLocaleId;
+  bool _ranOnDevice = false;
+  StreamController<RecitationTranscript>? _controller;
+
+  @override
+  bool get ranOnDevice => _ranOnDevice;
+
+  @override
+  Future<RecognizerAvailability> ensureAvailable() async {
+    try {
+      if (!_initialized) {
+        _initialized = await _speech.initialize(
+          onError: _onError,
+          onStatus: _onStatus,
+        );
+      }
+    } catch (error) {
+      debugPrint('RecitationRecognizer: initialize failed: $error');
+      return RecognizerAvailability.failed;
+    }
+
+    if (!_initialized) {
+      // The plugin folds "no recogniser" and "permission refused" into the same
+      // false, so the permission flag is what tells them apart.
+      final permitted = await _speech.hasPermission;
+      return permitted
+          ? RecognizerAvailability.unsupported
+          : RecognizerAvailability.permissionDenied;
+    }
+
+    _arabicLocaleId ??= await _findArabicLocale();
+    if (_arabicLocaleId == null) return RecognizerAvailability.noArabicLocale;
+
+    return RecognizerAvailability.ready;
+  }
+
+  /// The Arabic locale to listen in, or null when there is none to be had.
+  Future<String?> _findArabicLocale() async {
+    try {
+      final locales = await _speech.locales();
+      return chooseArabicLocale(
+        locales.map((locale) => locale.localeId).toList(),
+        onWeb: kIsWeb,
+      );
+    } catch (error) {
+      debugPrint('RecitationRecognizer: could not read locales: $error');
+      // On web the list was never the authority anyway, so a failure to read it
+      // is not a reason to give up.
+      return kIsWeb ? preferredArabicLocale : null;
+    }
+  }
+
+  @override
+  Stream<RecitationTranscript> listen() {
+    // One session at a time: a second tap replaces the first rather than
+    // stacking two recognisers on one microphone.
+    _controller?.close();
+
+    final controller = StreamController<RecitationTranscript>(
+      onCancel: () => _speech.cancel(),
+    );
+    _controller = controller;
+    _sawResult = false;
+    _fellBack = false;
+
+    // Web has no on-device option to prefer: the plugin's web implementation
+    // ignores the flag, because the browser sends the audio away for
+    // recognition whatever it is set to. Asking for it there would only make
+    // `ranOnDevice` report something untrue.
+    _startListening(onDevice: !kIsWeb);
+    return controller.stream;
+  }
+
+  bool _sawResult = false;
+
+  /// Whether the networked engine has already been tried, so the fallback
+  /// happens once and a silent session ends rather than looping.
+  bool _fellBack = false;
+
+  /// Whether a session is being wired up right now. The engine reports the old
+  /// session ending while the new one is starting, and that report must not be
+  /// mistaken for the new session finishing.
+  bool _restarting = false;
+
+  /// Starts the engine, preferring recognition that needs no network.
+  ///
+  /// On-device Arabic works only where the user has installed that language
+  /// pack, which the app cannot do for them, so a refusal falls back to the
+  /// networked recogniser rather than failing the feature.
+  Future<void> _startListening({required bool onDevice}) async {
+    _ranOnDevice = onDevice;
+    if (!onDevice) _fellBack = true;
+    _restarting = true;
+
+    try {
+      await _speech.listen(
+        onResult: _onResult,
+        listenOptions: SpeechListenOptions(
+          localeId: _arabicLocaleId,
+          partialResults: true,
+          onDevice: onDevice,
+          // Dictation, not confirmation: a continuous stretch of speech that
+          // should not be cut off at the first plausible phrase.
+          listenMode: ListenMode.dictation,
+          listenFor: recitationListenFor,
+          pauseFor: recitationPauseFor,
+          cancelOnError: true,
+        ),
+      );
+      _restarting = false;
+    } catch (error) {
+      _restarting = false;
+      if (onDevice && !_fellBack) {
+        await _startListening(onDevice: false);
+        return;
+      }
+      _fail(error.toString());
+    }
+  }
+
+  void _onResult(SpeechRecognitionResult result) {
+    _sawResult = true;
+    final controller = _controller;
+    if (controller == null || controller.isClosed) return;
+
+    controller.add(RecitationTranscript(
+      text: result.recognizedWords,
+      isFinal: result.finalResult,
+      confidence: result.hasConfidenceRating ? result.confidence : null,
+    ));
+
+    if (result.finalResult) controller.close();
+  }
+
+  void _onError(SpeechRecognitionError error) {
+    // An on-device engine that cannot serve Arabic reports it as an error once
+    // listening has already begun, so the fallback also has to live here.
+    if (_shouldFallBack) {
+      _startListening(onDevice: false);
+      return;
+    }
+    _fail(error.errorMsg);
+  }
+
+  void _onStatus(String status) {
+    if (status != SpeechToText.doneStatus &&
+        status != SpeechToText.notListeningStatus) {
+      return;
+    }
+    // The old session's ending, arriving while the replacement is being set up.
+    if (_restarting) return;
+
+    // An on-device session that heard nothing is indistinguishable from one
+    // that could not serve Arabic, so it gets the same fallback as an outright
+    // error rather than being reported as silence.
+    if (_shouldFallBack) {
+      _startListening(onDevice: false);
+      return;
+    }
+
+    final controller = _controller;
+    if (controller == null || controller.isClosed) return;
+    // The engine can finish without a final result - all silence, or a stop
+    // while the transcript was still partial. Closing lets the sheet act on
+    // whatever it has rather than waiting for a result that is not coming.
+    controller.close();
+  }
+
+  /// Whether the networked engine is still worth a try: the on-device one was
+  /// asked, produced nothing, and has not already been fallen back from.
+  ///
+  /// Never on web, where the two are the same engine, so retrying would just
+  /// spend a second session to reach the same silence.
+  bool get _shouldFallBack =>
+      !kIsWeb && _ranOnDevice && !_sawResult && !_fellBack;
+
+  void _fail(String message) {
+    final controller = _controller;
+    if (controller == null || controller.isClosed) return;
+    controller.addError(RecitationRecognizerException(message));
+    controller.close();
+  }
+
+  @override
+  Future<void> stop() async {
+    try {
+      await _speech.stop();
+    } catch (error) {
+      debugPrint('RecitationRecognizer: stop failed: $error');
+    }
+    final controller = _controller;
+    if (controller != null && !controller.isClosed) await controller.close();
+  }
+}
+
+class RecitationRecognizerException implements Exception {
+  const RecitationRecognizerException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'RecitationRecognizerException: $message';
+}

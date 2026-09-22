@@ -311,6 +311,38 @@ void main() {
       expect(state.resumePositionFor('Nonexistent'), isNull);
     });
 
+    test('mostRecentPosition ignores labels, unlike resumePositionFor', () {
+      // What "Listen and follow" hands the matcher as context: whoever is
+      // reciting nearby is not reciting under one of the reader's track labels.
+      final state = RecitationTrackerState.empty
+          .setEntry(_entry(
+              id: 'a',
+              label: 'Family',
+              recitedAt: DateTime.utc(2026, 1, 10),
+              surah: 2,
+              fromAyah: 1,
+              toAyah: 20))
+          .setEntry(_entry(
+              id: 'b',
+              label: 'Personal',
+              recitedAt: DateTime.utc(2026, 1, 20),
+              surah: 3,
+              fromAyah: 5,
+              toAyah: 9));
+
+      expect(state.mostRecentPosition, const VerseKey(3, 9));
+      // The per-track answers are unchanged and still differ from it.
+      expect(state.resumePositionFor('Family'), const VerseKey(2, 20));
+    });
+
+    test('mostRecentPosition is null when nothing has been recited', () {
+      expect(RecitationTrackerState.empty.mostRecentPosition, isNull);
+      expect(
+        RecitationTrackerState.empty.addCustomLabel('Family').mostRecentPosition,
+        isNull,
+      );
+    });
+
     test('distinctVersesRecitedFor merges overlapping and adjacent ranges, not raw sums', () {
       final state = RecitationTrackerState.empty
           .setEntry(_entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), surah: 1, fromAyah: 1, toAyah: 5))

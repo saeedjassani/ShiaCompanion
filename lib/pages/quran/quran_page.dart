@@ -10,8 +10,10 @@ import '../../services/favorites_manager.dart';
 import '../../services/recitation_tracker_manager.dart';
 import '../../services/saved_verses_store.dart';
 import '../../utils/quran_index.dart';
+import '../../utils/quran_text_index.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/responsive_content.dart';
+import 'listen_and_follow_sheet.dart';
 import 'quran_navigation.dart';
 import 'recitation_tracker_tab.dart';
 
@@ -30,6 +32,7 @@ class _QuranPageState extends State<QuranPage> {
   List<SavedVerse> _saved = const [];
   late final List<SurahInfo> _surahs;
   late final List<Juz> _juz;
+  bool _prewarmed = false;
 
   @override
   void initState() {
@@ -39,6 +42,21 @@ class _QuranPageState extends State<QuranPage> {
     _juz = allJuz();
     _saved = SavedVersesStore.instance.readAll();
     unawaited(RecitationTrackerManager.instance.loadRecitations());
+  }
+
+  /// Starts building the verse text index while the surah list is being read.
+  ///
+  /// Only for admins, since that is who can reach "Listen and follow" - nobody
+  /// else should pay 114 document reads for a button they cannot see. Doing it
+  /// here rather than on the tap moves the wait off the path between tapping the
+  /// microphone and the microphone actually listening, which matters most on web
+  /// where every document is a separate request.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_prewarmed || !isUserAdmin) return;
+    _prewarmed = true;
+    prewarmQuranTextIndex(DefaultAssetBundle.of(context));
   }
 
   /// The kept verses can have moved while the reader was away, so they are
@@ -51,6 +69,23 @@ class _QuranPageState extends State<QuranPage> {
     await openQuranVerse(context, verse, source: source);
     if (!mounted) return;
     setState(_refresh);
+  }
+
+  /// Listens to a recitation and opens the verse it turns out to be.
+  ///
+  /// Where the reader most recently was is handed to the matcher as context:
+  /// someone following a recitation in al-Baqarah is most likely still in
+  /// al-Baqarah, and a tie between two verses that read alike should break
+  /// towards where they are. Deliberately not label-scoped - a recitation heard
+  /// through the microphone belongs to whoever is reciting, not to a track.
+  Future<void> _listenAndFollow() async {
+    final verse = await showListenAndFollowSheet(
+      context,
+      readingAt: RecitationTrackerManager.instance.state.mostRecentPosition,
+    );
+    if (verse == null || !mounted) return;
+
+    await _open(verse, source: ZikrOpenSource.quranListenAndFollow);
   }
 
   Future<void> _openJuz(int juz) async {
@@ -73,6 +108,18 @@ class _QuranPageState extends State<QuranPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Quran'),
+          actions: [
+            // Dark-launched alongside the rest of the Quran reading experience
+            // (see zikr_page.dart's _surahNumber and home_menu.dart), so the
+            // microphone prompt reaches nobody until the matching is known to
+            // be worth the interruption.
+            if (isUserAdmin)
+              IconButton(
+                icon: const Icon(Icons.mic_none),
+                tooltip: 'Listen and follow',
+                onPressed: _listenAndFollow,
+              ),
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Surahs'),
