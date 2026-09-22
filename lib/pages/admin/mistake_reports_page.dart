@@ -22,10 +22,10 @@ enum _ReportFilter {
   final String label;
 }
 
-/// The admin-only queue of "Report Mistake" submissions filed from the zikr
-/// reading page's selection toolbar - see [MistakeReportService]. Lets an
-/// admin open the zikr a report points at, and mark the report resolved once
-/// it has been acted on.
+/// The admin-only queue of "Suggest a Correction" submissions filed from the
+/// zikr reading page's selection toolbar - see [MistakeReportService]. Lets
+/// an admin open the zikr a report points at, and mark the report resolved
+/// once it has been acted on.
 class MistakeReportsPage extends StatefulWidget {
   const MistakeReportsPage({super.key});
 

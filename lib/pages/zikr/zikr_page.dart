@@ -201,10 +201,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   final FocusNode _selectionFocusNode =
       FocusNode(debugLabel: 'ZikrPage selection');
 
-  /// The most recent text the reader had highlighted, so "Report Mistake" -
-  /// added to the selection toolbar alongside Copy and Select All - can quote
-  /// it without needing the [SelectableRegionState] the button was built
-  /// from, which is gone by the time the reader actually taps it.
+  /// The most recent text the reader had highlighted, so "Suggest a
+  /// Correction" - added to the selection toolbar alongside Copy and Select
+  /// All - can quote it without needing the [SelectableRegionState] the
+  /// button was built from, which is gone by the time the reader actually
+  /// taps it.
   String? _lastSelectedText;
 
   final Map<int, double> _currentTabScrollOffsets = {};
@@ -1480,7 +1481,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   /// Asks for an optional note, then files a mistake report quoting whatever
-  /// the reader had selected when they tapped "Report Mistake" in the
+  /// the reader had selected when they tapped "Suggest a Correction" in the
   /// selection toolbar - the same place Copy and Select All live, so
   /// flagging a typo needs nothing more than the press-and-hold a reader
   /// already reaches for to copy the text in the first place.
@@ -1491,7 +1492,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
     unawaited(AnalyticsService.feature(
       'zikr_mistake_reported',
-      label: 'Report mistake submitted',
+      label: 'Correction suggested',
       parameters: {'zikr_uid': widget.item.getFirstUId()},
     ));
 
@@ -1522,7 +1523,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Report a Mistake'),
+        title: const Text('Suggest a Correction'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1557,7 +1558,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 maxLength: 500,
                 maxLines: 3,
                 decoration: const InputDecoration(
-                  labelText: "What's wrong with it? (optional)",
+                  labelText: 'What should it say instead? (optional)',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -1650,7 +1651,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         final buttonItems = <ContextMenuButtonItem>[
           ...selectableRegionState.contextMenuButtonItems,
           ContextMenuButtonItem(
-            label: 'Report Mistake',
+            label: 'Suggest a Correction',
             onPressed: () {
               selectableRegionState.hideToolbar();
               unawaited(_reportZikrMistake());
