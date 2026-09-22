@@ -386,8 +386,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   }
 
   /// Renders one [isArabicOnlyReadingView] list item: [item]'s verses joined
-  /// into a single right-aligned, justified paragraph, so a run of Arabic
-  /// lines flows as prose instead of stacking as separate centered lines.
+  /// with plain spaces into a single right-aligned, justified paragraph
+  /// block, so a run of Arabic verses reads as one continuous, wrapping
+  /// passage - several short verses sharing a rendered line where they fit -
+  /// instead of stacking as separate blocks with a gap and a divider between
+  /// each. That flow is the entire point of paragraph mode, so verses are
+  /// *not* forced onto their own line the way [_buildLine] lays them out one
+  /// at a time. [_RuledArabicParagraph] is what gives a reciter something to
+  /// find their place by instead - a rule under each *rendered* row, not a
+  /// mark between verses, which would read as stray punctuation wherever two
+  /// or three short ones share a row.
   ///
   /// A verse this item covers that is also the reader's bookmark gets its
   /// own text tinted in place - the paragraph itself is never tinted, since
@@ -426,16 +434,23 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         spans.add(verseSpan);
       }
       if (k != item.lineIndexes.length - 1) {
+        // Just a plain space: _RuledArabicParagraph's rule under each row is
+        // what a reciter tracks by, so nothing extra is needed between
+        // sentences that happen to share one - a visible mark there read as
+        // stray punctuation, not a boundary.
         spans.add(const TextSpan(text: ' '));
       }
     }
 
+    // A bit taller than the font's own metrics, so the rule under each row
+    // sits in a clear gap rather than crowding the descenders/diacritics of
+    // the row above it.
+    final paragraphStyle = arabicStyle.copyWith(height: 2.0);
+
     final paragraph = Padding(
       padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
-      child: Text.rich(
-        TextSpan(style: arabicStyle, children: spans),
-        textAlign: TextAlign.justify,
-        textDirection: TextDirection.rtl,
+      child: _RuledArabicParagraph(
+        span: TextSpan(style: paragraphStyle, children: spans),
       ),
     );
 
@@ -1120,7 +1135,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 // line (absent from groupForLine) never gets a trailing
                 // divider of its own.
                 final group = parsedContent.groupForLine[contentIndex];
-                final closesGroup = group != null && contentIndex == group.end - 1;
+                final closesGroup =
+                    group != null && contentIndex == group.end - 1;
                 return _withParagraphDivider(
                   content,
                   showDivider: closesGroup && !isLastItem,
@@ -1279,7 +1295,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       decoration: BoxDecoration(
         border: BorderDirectional(
           start: BorderSide(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
+            color:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
             width: 3,
           ),
         ),
@@ -1743,6 +1760,74 @@ class _BookmarkedLine extends StatelessWidget {
           child,
         ],
       ),
+    );
+  }
+}
+
+/// A right-aligned, justified block of Arabic text with a thin rule under
+/// every rendered row - not just between merged sentences - so a reciter can
+/// track which row they are on the way ruled paper would, even where several
+/// short sentences share one of those rows.
+///
+/// [Text.rich] has no per-line decoration hook: a wrapped line only exists
+/// once the paragraph has actually been laid out, and that layout depends on
+/// the width it is given, which is only known at build time. So this lays
+/// [span] out a second time itself, with a throwaway [TextPainter] built with
+/// the exact width, style, alignment and text scale the real [Text.rich]
+/// below it will use, purely to read back where each line actually broke via
+/// [TextPainter.computeLineMetrics] - then paints a rule at each line's
+/// bottom edge, under the text rather than instead of it.
+class _RuledArabicParagraph extends StatelessWidget {
+  const _RuledArabicParagraph({required this.span});
+
+  final TextSpan span;
+
+  @override
+  Widget build(BuildContext context) {
+    // Same color and weight _withParagraphDivider already draws between
+    // whole paragraphs, so a row rule and a paragraph divider read as the
+    // one kind of mark instead of two different-looking ones.
+    final ruleColor =
+        Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5);
+    final textScaler = MediaQuery.textScalerOf(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final painter = TextPainter(
+          text: span,
+          textDirection: TextDirection.rtl,
+          textAlign: TextAlign.justify,
+          textScaler: textScaler,
+        )..layout(maxWidth: constraints.maxWidth);
+        final lines = painter.computeLineMetrics();
+        painter.dispose();
+
+        // Only between rows, not after the last one - the block's own
+        // bottom padding, and the divider _withParagraphDivider draws below
+        // it, already close the block off.
+        var top = 0.0;
+        final rules = <Widget>[];
+        for (var i = 0; i < lines.length - 1; i++) {
+          top += lines[i].height;
+          rules.add(Positioned(
+            left: 0,
+            right: 0,
+            top: top,
+            child: Container(height: 1.0, color: ruleColor),
+          ));
+        }
+
+        return Stack(
+          children: [
+            ...rules,
+            Text.rich(
+              span,
+              textAlign: TextAlign.justify,
+              textDirection: TextDirection.rtl,
+            ),
+          ],
+        );
+      },
     );
   }
 }
