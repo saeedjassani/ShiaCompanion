@@ -9,4 +9,6 @@
     <color name="widget_body_text">#FFF7E4D3</color>
     <color name="widget_secondary_text">#FFE4C7B3</color>
     <color name="widget_accent">#FFFFC857</color>
+    <color name="widget_highlight">#29FFC857</color>
+    <color name="widget_divider">#2EFFF8F1</color>
 </resources>

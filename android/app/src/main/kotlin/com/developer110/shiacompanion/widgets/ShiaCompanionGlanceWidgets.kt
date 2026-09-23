@@ -6,6 +6,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.SystemClock
+import android.util.TypedValue
+import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
@@ -13,12 +16,14 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.AndroidRemoteViews
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -35,6 +40,7 @@ import androidx.glance.layout.ColumnScope
 import androidx.glance.layout.Row
 import androidx.glance.layout.RowScope
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -263,59 +269,235 @@ private fun WidgetListContent(
     }
 }
 
+// The prayer widgets lay themselves out from the size the launcher actually
+// gave them (SizeMode.Exact + LocalSize) rather than fixed dp/sp. Android
+// cells vary a lot between launchers and screen aspect ratios - a "2x3" on a
+// 21:9 phone is ~140x300dp - so a fixed layout either sits tiny in the top of
+// a tall card or clips in a short one. Every size below is derived from the
+// widget's dimensions and clamped to a readable range.
+
 @Composable
 private fun PrayerWidgetContent() {
     val context = LocalContext.current
     val data = context.widgetData()
-    val prayer = data.nextPrayer()
-    val footer = prayer.secondaryText.ifBlank { prayer.location }
+    val upcoming = data.upcomingPrayers()
+    val prayer = data.nextPrayer(upcoming)
+    val later = upcoming.drop(1)
+    val size = LocalSize.current
+    val width = size.width.value
+    val height = size.height.value
+    val padding = when {
+        minOf(width, height) >= 150f -> 16
+        height < 80f -> 10
+        else -> 14
+    }
+    val innerWidth = width - 2 * padding
+    val innerHeight = height - 2 * padding
+    val oneRow = innerHeight < HERO_CONTENT_HEIGHT * 0.7f
+    val wide = !oneRow && width >= 230f && width >= height * 1.35f && later.isNotEmpty()
 
-    WidgetSurface(clickable = true, contentPadding = 14) {
-        Row(
-            modifier = GlanceModifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    WidgetSurface(clickable = true, contentPadding = padding) {
+        if (wide) {
+            // Side by side: the next prayer on the left, what follows it on the
+            // right, split by a hairline.
+            val heroWidth = innerWidth * 0.52f
+            val scale = heroScale(heroWidth, innerHeight)
+            Row(
+                modifier = GlanceModifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = GlanceModifier.defaultWeight().fillMaxHeight()) {
+                    NextPrayerHero(prayer, scale)
+                    Spacer(GlanceModifier.defaultWeight())
+                    PrayerFooter(prayer, scale)
+                }
+                Spacer(GlanceModifier.width(12.dp))
+                VerticalDivider()
+                Spacer(GlanceModifier.width(12.dp))
+                val rowHeight = (22f * scale).coerceIn(20f, 30f)
+                val rows = (innerHeight / rowHeight).toInt().coerceIn(1, 5)
+                Column(
+                    modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    later.take(rows).forEach { LaterPrayerRow(it, scale, rowHeight) }
+                }
+            }
+        } else if (oneRow) {
+            // One row tall: too short for the stacked hero at its smallest scale.
+            NextPrayerLine(prayer, innerWidth, innerHeight)
+        } else {
+            val scale = heroScale(innerWidth, innerHeight)
+            NextPrayerHero(prayer, scale)
+            // Tall cards (2x3 and up) have room below the hero: fill it with
+            // the prayers that come after, instead of leaving it empty.
+            val rowHeight = (22f * scale).coerceIn(20f, 28f)
+            val listSpace = innerHeight - HERO_CONTENT_HEIGHT * scale - 20f
+            val rows = (listSpace / rowHeight).toInt().coerceAtMost(4)
+            if (later.isNotEmpty() && rows >= 2) {
+                Spacer(GlanceModifier.defaultWeight())
+                HorizontalDivider()
+                Spacer(GlanceModifier.height(6.dp))
+                later.take(rows).forEach { LaterPrayerRow(it, scale, rowHeight) }
+            }
+            Spacer(GlanceModifier.defaultWeight())
+            PrayerFooter(prayer, scale)
+        }
+    }
+}
+
+// The hero column (label row, name, time, countdown, footer) at scale 1.0,
+// and the width its widest line ("12:30 pm" at 30sp) needs.
+private const val HERO_CONTENT_HEIGHT = 120f
+private const val HERO_CONTENT_WIDTH = 122f
+
+/**
+ * 1.0 at the ~122x120dp content box of a 150dp iOS small widget. Height
+ * matters as much as width: on Android 11 Launcher3 a 2x2 on a 21:9 phone is
+ * only ~130x118dp, so scaling by width alone would clip the footer.
+ */
+private fun heroScale(innerWidth: Float, innerHeight: Float): Float =
+    minOf(innerWidth / HERO_CONTENT_WIDTH, innerHeight / HERO_CONTENT_HEIGHT)
+        .coerceIn(0.7f, 1.4f)
+
+@Composable
+private fun NextPrayerHero(prayer: PrayerDisplay, scale: Float) {
+    val label = buildString {
+        append(prayer.title)
+        if (prayer.dateLabel.isNotBlank() && prayer.dateLabel != "Today") {
+            append(" · ").append(prayer.dateLabel)
+        }
+    }
+    Row(
+        modifier = GlanceModifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            modifier = GlanceModifier.defaultWeight(),
+            style = TextStyle(
+                color = secondaryTextColor,
+                fontSize = (11f * scale).sp,
+                fontWeight = FontWeight.Bold
+            ),
+            maxLines = 1
+        )
+        val badge = (28f * scale).toInt()
+        PrayerIconBadge(prayer.name, containerSizeDp = badge, iconSizeDp = badge * 15 / 28)
+    }
+    Spacer(GlanceModifier.height((4f * scale).dp))
+    Text(
+        text = prayer.name,
+        modifier = GlanceModifier.fillMaxWidth(),
+        style = TextStyle(
+            color = primaryTextColor,
+            fontSize = (17f * scale).sp,
+            fontWeight = FontWeight.Bold
+        ),
+        maxLines = 1
+    )
+    if (prayer.epochMillis == null) {
+        // No schedule yet: `time` is an instruction ("Set location"), not a
+        // clock reading, so it gets body text rather than the display size.
+        Spacer(GlanceModifier.height(4.dp))
+        Text(
+            text = prayer.time,
+            style = TextStyle(color = bodyTextColor, fontSize = (13f * scale).sp),
+            maxLines = 2
+        )
+        return
+    }
+    TimeText(prayer.time, sizeSp = 30f * scale, color = bodyTextColor)
+    Countdown(prayer.epochMillis, prefix = "in", sizeSp = 12f * scale)
+}
+
+/** The 1-row Up Next: badge, name over countdown, then the time on the right. */
+@Composable
+private fun NextPrayerLine(prayer: PrayerDisplay, innerWidth: Float, innerHeight: Float) {
+    val target = prayer.epochMillis
+    val nameSp = (innerHeight * 0.3f).coerceIn(11f, 16f)
+    val countdownSp = (nameSp * 0.8f).coerceAtLeast(10f)
+    val showCountdown = target != null && innerHeight >= nameSp * 1.2f + countdownSp * 1.2f
+    Row(
+        modifier = GlanceModifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (innerWidth >= 120f) {
+            val badge = (innerHeight * 0.8f).coerceIn(20f, 36f)
+            PrayerIconBadge(prayer.name, containerSizeDp = badge.toInt(), iconSizeDp = (badge * 0.54f).toInt())
+            Spacer(GlanceModifier.width(8.dp))
+        }
+        Column(modifier = GlanceModifier.defaultWeight()) {
             Text(
-                text = data.text(KEY_PRAYER_TITLE, "Up Next")
-                    .replace("Upcoming", "Next")
-                    .replace(" Prayer", ""),
-                modifier = GlanceModifier.defaultWeight(),
+                text = prayer.name,
                 style = TextStyle(
-                    color = secondaryTextColor,
-                    fontSize = 11.sp,
+                    color = primaryTextColor,
+                    fontSize = nameSp.sp,
                     fontWeight = FontWeight.Bold
                 ),
                 maxLines = 1
             )
-            PrayerIconBadge(prayer.name, containerSizeDp = 24, iconSizeDp = 13)
+            if (showCountdown && target != null) {
+                Countdown(target, prefix = "in", sizeSp = countdownSp)
+            }
         }
-        Spacer(GlanceModifier.height(2.dp))
+        Spacer(GlanceModifier.width(6.dp))
+        if (target == null) {
+            // No schedule yet: `time` is an instruction, not a clock reading.
+            Text(
+                text = prayer.time,
+                style = TextStyle(color = bodyTextColor, fontSize = countdownSp.sp),
+                maxLines = 1
+            )
+        } else {
+            val timeSp = minOf(innerHeight * 0.55f, innerWidth / 6.5f).coerceIn(13f, 26f)
+            TimeText(prayer.time, sizeSp = timeSp, color = bodyTextColor)
+        }
+    }
+}
+
+@Composable
+private fun PrayerFooter(prayer: PrayerDisplay, scale: Float) {
+    val secondary = prayer.secondaryText
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (secondary.isBlank()) {
+            Image(
+                provider = ImageProvider(R.drawable.ic_widget_location),
+                contentDescription = "Location",
+                modifier = GlanceModifier.size((10f * scale).dp),
+                colorFilter = ColorFilter.tint(secondaryTextColor)
+            )
+            Spacer(GlanceModifier.width(3.dp))
+        }
+        Text(
+            text = secondary.ifBlank { prayer.location },
+            style = TextStyle(color = secondaryTextColor, fontSize = (10.5f * scale).sp),
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun LaterPrayerRow(prayer: PrayerEntry, scale: Float, rowHeight: Float) {
+    val textSp = (11.5f * scale).coerceIn(10.5f, 14f)
+    Row(
+        modifier = GlanceModifier.fillMaxWidth().height(rowHeight.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            provider = ImageProvider(prayerIconRes(prayer.name)),
+            contentDescription = prayer.name,
+            modifier = GlanceModifier.size((textSp * 1.25f).dp),
+            colorFilter = ColorFilter.tint(secondaryTextColor)
+        )
+        Spacer(GlanceModifier.width(6.dp))
         Text(
             text = prayer.name,
-            modifier = GlanceModifier.fillMaxWidth(),
-            style = TextStyle(
-                color = primaryTextColor,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            ),
+            modifier = GlanceModifier.defaultWeight(),
+            style = TextStyle(color = bodyTextColor, fontSize = textSp.sp),
             maxLines = 1
         )
-        Spacer(GlanceModifier.height(8.dp))
-        Text(
-            text = prayer.time,
-            style = TextStyle(
-                color = bodyTextColor,
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            maxLines = 1
-        )
-        Spacer(GlanceModifier.defaultWeight())
-        Text(
-            text = footer,
-            style = TextStyle(color = secondaryTextColor, fontSize = 10.sp),
-            maxLines = 1
-        )
+        TimeText(prayer.time, sizeSp = textSp, color = secondaryTextColor, suffixRatio = 0.78f)
     }
 }
 
@@ -323,105 +505,340 @@ private fun PrayerWidgetContent() {
 private fun DailyPrayerTimesWidgetContent() {
     val context = LocalContext.current
     val data = context.widgetData()
-    val prayers = data.dailyPrayerTimes()
+    val upcoming = data.upcomingPrayers()
+    val nextPrayer = data.nextPrayer(upcoming)
+    val prayers = data.dailyPrayerTimes(upcoming)
     val location = data.text(KEY_PRAYER_LOCATION, "Location needed")
-    val nextPrayer = data.nextPrayer()
-    val countdown = nextPrayer.countdownText()
-    // The user's selection tops out at MAX_DAILY_PRAYER_TIMES (5, same as the
-    // home screen card), so this is a safety clamp rather than the thing that
-    // decides the count.
-    val visiblePrayers = prayers.take(MAX_DAILY_PRAYER_TIMES)
-    val columnSpacingDp = 4
+    val size = LocalSize.current
+    val width = size.width.value
+    val height = size.height.value
+    val padding = if (height >= 150f) 16 else 12
+    val innerWidth = width - 2 * padding
+    val innerHeight = height - 2 * padding
+    val hasTimes = prayers.any { it.time.isNotBlank() } && nextPrayer.epochMillis != null
+    val isNext = { prayer: DailyPrayerTimeDisplay ->
+        prayer.title == nextPrayer.name && prayer.time == nextPrayer.time
+    }
 
-    WidgetSurface(clickable = true, contentPadding = 10) {
-        Row(
-            modifier = GlanceModifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = GlanceModifier.defaultWeight(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    provider = ImageProvider(R.drawable.ic_widget_location),
-                    contentDescription = "Location",
-                    modifier = GlanceModifier.size(11.dp),
-                    colorFilter = ColorFilter.tint(secondaryTextColor)
-                )
-                Spacer(GlanceModifier.width(3.dp))
+    WidgetSurface(clickable = true, contentPadding = padding) {
+        when {
+            !hasTimes -> {
+                LocationHeader(location, nextPrayer = null, sizeSp = 11f)
+                Spacer(GlanceModifier.defaultWeight())
                 Text(
-                    text = location,
-                    modifier = GlanceModifier.defaultWeight(),
-                    style = TextStyle(
-                        color = secondaryTextColor,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    maxLines = 1
-                )
-            }
-            if (countdown.isNotBlank()) {
-                Spacer(GlanceModifier.width(6.dp))
-                Text(
-                    text = countdown,
-                    modifier = GlanceModifier.defaultWeight(),
+                    text = listOf(nextPrayer.name, nextPrayer.time)
+                        .filter { it.isNotBlank() }
+                        .joinToString("\n"),
+                    modifier = GlanceModifier.fillMaxWidth(),
                     style = TextStyle(
                         color = bodyTextColor,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.End
+                        fontSize = 13.sp,
+                        textAlign = TextAlign.Center
                     ),
-                    maxLines = 1
+                    maxLines = 3
                 )
+                Spacer(GlanceModifier.defaultWeight())
             }
-        }
-        Spacer(GlanceModifier.defaultWeight())
-        Row(
-            modifier = GlanceModifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            visiblePrayers.forEachIndexed { index, prayer ->
-                PrayerTimeColumn(prayer)
-                if (index != visiblePrayers.lastIndex) {
-                    Spacer(GlanceModifier.width(columnSpacingDp.dp))
+            // Narrow: columns would squeeze the times, so stack them.
+            innerWidth < 210f -> {
+                // At 3x2 there isn't height for the location and five
+                // comfortable rows, so the rows win and the header goes.
+                val showHeader = innerHeight - 22f >= prayers.size * 20f
+                if (showHeader) {
+                    val headerSp = (11f * (innerWidth / 150f)).coerceIn(10f, 12f)
+                    LocationHeader(location, nextPrayer = null, sizeSp = headerSp)
+                    Spacer(GlanceModifier.height(6.dp))
                 }
+                val listHeight = innerHeight - if (showHeader) 22f else 0f
+                val rowHeight = (listHeight / prayers.size).coerceIn(15f, 40f)
+                val scale = (rowHeight / 26f).coerceIn(0.75f, 1.3f)
+                prayers.forEach { prayer ->
+                    DailyPrayerRow(prayer, isNext(prayer), scale, rowHeight)
+                }
+                Spacer(GlanceModifier.defaultWeight())
+            }
+            // Tall: the next prayer as a hero above the full row (the 4x3/5x3
+            // sizes, which otherwise leave half the card empty).
+            innerHeight >= 170f -> {
+                val scale = minOf(innerWidth / 300f, innerHeight / 210f).coerceIn(0.9f, 1.35f)
+                Row(
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    LocationLabel(location, sizeSp = 11f * scale, modifier = GlanceModifier.defaultWeight())
+                    Spacer(GlanceModifier.width(8.dp))
+                    DateText(sizeSp = 11f * scale)
+                }
+                Spacer(GlanceModifier.defaultWeight())
+                Row(
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val badge = (44f * scale).toInt()
+                    PrayerIconBadge(nextPrayer.name, containerSizeDp = badge, iconSizeDp = badge / 2)
+                    Spacer(GlanceModifier.width(12.dp))
+                    Column(modifier = GlanceModifier.defaultWeight()) {
+                        Text(
+                            text = nextPrayer.name,
+                            style = TextStyle(
+                                color = primaryTextColor,
+                                fontSize = (19f * scale).sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            maxLines = 1
+                        )
+                        Countdown(nextPrayer.epochMillis!!, prefix = "in", sizeSp = 12f * scale)
+                    }
+                    Spacer(GlanceModifier.width(8.dp))
+                    TimeText(nextPrayer.time, sizeSp = 30f * scale, color = bodyTextColor)
+                }
+                Spacer(GlanceModifier.defaultWeight())
+                HorizontalDivider()
+                Spacer(GlanceModifier.defaultWeight())
+                val columnHeight = innerHeight * 0.42f
+                PrayerColumnsRow(prayers, isNext, innerWidth, columnHeight)
+            }
+            else -> {
+                val headerSp = (11f * (innerHeight / 100f)).coerceIn(10.5f, 12.5f)
+                LocationHeader(location, nextPrayer, headerSp)
+                Spacer(GlanceModifier.defaultWeight())
+                PrayerColumnsRow(prayers, isNext, innerWidth, innerHeight - headerSp * 1.6f - 6f)
+                Spacer(GlanceModifier.defaultWeight())
             }
         }
-        Spacer(GlanceModifier.defaultWeight())
+    }
+}
+
+/** Location on the left and, when [nextPrayer] is given, its live countdown on the right. */
+@Composable
+private fun LocationHeader(location: String, nextPrayer: PrayerDisplay?, sizeSp: Float) {
+    Row(
+        modifier = GlanceModifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        LocationLabel(location, sizeSp, GlanceModifier.defaultWeight())
+        val target = nextPrayer?.epochMillis
+        if (nextPrayer != null && target != null) {
+            Spacer(GlanceModifier.width(6.dp))
+            Countdown(target, prefix = "${nextPrayer.name} in", sizeSp = sizeSp)
+        }
     }
 }
 
 @Composable
-private fun RowScope.PrayerTimeColumn(prayer: DailyPrayerTimeDisplay) {
-    Column(
-        modifier = GlanceModifier.defaultWeight(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        PrayerIconBadge(prayer.title, containerSizeDp = 25, iconSizeDp = 14)
-        Spacer(GlanceModifier.height(4.dp))
+private fun LocationLabel(location: String, sizeSp: Float, modifier: GlanceModifier) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Image(
+            provider = ImageProvider(R.drawable.ic_widget_location),
+            contentDescription = "Location",
+            modifier = GlanceModifier.size(sizeSp.dp),
+            colorFilter = ColorFilter.tint(secondaryTextColor)
+        )
+        Spacer(GlanceModifier.width(3.dp))
         Text(
-            text = prayer.title,
-            modifier = GlanceModifier.fillMaxWidth(),
+            text = location,
             style = TextStyle(
                 color = secondaryTextColor,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            ),
-            maxLines = 1
-        )
-        Text(
-            text = prayer.time,
-            modifier = GlanceModifier.fillMaxWidth(),
-            style = TextStyle(
-                color = bodyTextColor,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                fontSize = sizeSp.sp,
+                fontWeight = FontWeight.Bold
             ),
             maxLines = 1
         )
     }
+}
+
+@Composable
+private fun PrayerColumnsRow(
+    prayers: List<DailyPrayerTimeDisplay>,
+    isNext: (DailyPrayerTimeDisplay) -> Boolean,
+    innerWidth: Float,
+    columnHeight: Float
+) {
+    val spacing = 4
+    val count = prayers.size.coerceAtLeast(1)
+    val columnWidth = (innerWidth - spacing * (count - 1)) / count
+    // Whichever runs out first - the column's width or the card's height -
+    // sets the size, so a short wide card and a tall narrow one both fit.
+    val badge = minOf(columnWidth * 0.62f, columnHeight * 0.42f).coerceIn(22f, 44f)
+    val timeSp = minOf((columnWidth - 8f) / 3.7f, badge * 0.42f).coerceIn(9.5f, 17f)
+    val nameSp = minOf((columnWidth - 6f) / 4.6f, timeSp * 0.85f).coerceIn(9f, 13f)
+    val verticalPadding = if (columnHeight >= 90f) 8 else 5
+
+    Row(
+        modifier = GlanceModifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        prayers.forEachIndexed { index, prayer ->
+            val next = isNext(prayer)
+            Column(
+                modifier = GlanceModifier
+                    .defaultWeight()
+                    .let { if (next) it.background(ImageProvider(R.drawable.widget_highlight)) else it }
+                    .padding(vertical = verticalPadding.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                PrayerIconBadge(
+                    prayer.title,
+                    containerSizeDp = badge.toInt(),
+                    iconSizeDp = (badge * 0.54f).toInt()
+                )
+                Spacer(GlanceModifier.height((badge * 0.16f).dp))
+                Text(
+                    text = prayer.title,
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    style = TextStyle(
+                        color = if (next) accentColor else secondaryTextColor,
+                        fontSize = nameSp.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    ),
+                    maxLines = 1
+                )
+                TimeText(
+                    prayer.time,
+                    sizeSp = timeSp,
+                    color = if (next) primaryTextColor else bodyTextColor,
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    centered = true
+                )
+            }
+            if (index != prayers.lastIndex) {
+                Spacer(GlanceModifier.width(spacing.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DailyPrayerRow(
+    prayer: DailyPrayerTimeDisplay,
+    isNext: Boolean,
+    scale: Float,
+    rowHeight: Float
+) {
+    val textSp = 12f * scale
+    Row(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .height(rowHeight.dp)
+            .let { if (isNext) it.background(ImageProvider(R.drawable.widget_highlight)) else it }
+            .padding(horizontal = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val badge = (rowHeight * 0.8f).coerceIn(12f, 28f)
+        PrayerIconBadge(prayer.title, containerSizeDp = badge.toInt(), iconSizeDp = (badge * 0.56f).toInt())
+        Spacer(GlanceModifier.width(8.dp))
+        Text(
+            text = prayer.title,
+            modifier = GlanceModifier.defaultWeight(),
+            style = TextStyle(
+                color = if (isNext) accentColor else bodyTextColor,
+                fontSize = textSp.sp,
+                fontWeight = if (isNext) FontWeight.Bold else FontWeight.Medium
+            ),
+            maxLines = 1
+        )
+        TimeText(prayer.time, sizeSp = textSp, color = if (isNext) primaryTextColor else bodyTextColor, suffixRatio = 0.78f)
+    }
+}
+
+/**
+ * A clock reading with its am/pm marker set smaller and baseline-aligned, the
+ * way a display time reads on iOS. Glance Text has no spans, so the marker is a
+ * second Text nudged up by the difference in the two sizes' descents.
+ */
+@Composable
+private fun TimeText(
+    time: String,
+    sizeSp: Float,
+    color: ColorProvider,
+    modifier: GlanceModifier = GlanceModifier,
+    centered: Boolean = false,
+    suffixRatio: Float = 0.5f
+) {
+    val (clock, marker) = splitClockTime(time)
+    val markerSp = sizeSp * suffixRatio
+    Row(
+        modifier = modifier,
+        horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text(
+            text = clock,
+            style = TextStyle(color = color, fontSize = sizeSp.sp, fontWeight = FontWeight.Bold),
+            maxLines = 1
+        )
+        if (marker.isNotEmpty()) {
+            Spacer(GlanceModifier.width((sizeSp * 0.1f).coerceAtLeast(1.5f).dp))
+            Text(
+                text = marker,
+                modifier = GlanceModifier.padding(bottom = ((sizeSp - markerSp) * 0.26f).dp),
+                style = TextStyle(color = color, fontSize = markerSp.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+        }
+    }
+}
+
+private val clockTimePattern = Regex("""^(.*?\d)\s*([AaPp]\.?\s?[Mm]\.?)$""")
+
+private fun splitClockTime(time: String): Pair<String, String> {
+    val match = clockTimePattern.find(time.trim()) ?: return time to ""
+    return match.groupValues[1] to match.groupValues[2].replace(".", "").replace(" ", "").lowercase()
+}
+
+/**
+ * "[prefix] 1:23:45", ticking. A Chronometer in counting-down mode, embedded
+ * as RemoteViews: the launcher advances it every second with no widget
+ * updates, which Glance's own Text can't do.
+ */
+@Composable
+private fun Countdown(targetEpochMillis: Long, prefix: String, sizeSp: Float) {
+    val context = LocalContext.current
+    val views = RemoteViews(context.packageName, R.layout.widget_countdown).apply {
+        val base = SystemClock.elapsedRealtime() + (targetEpochMillis - System.currentTimeMillis())
+        setChronometer(R.id.widget_countdown, base, null, true)
+        setChronometerCountDown(R.id.widget_countdown, true)
+        setTextViewTextSize(R.id.widget_countdown, TypedValue.COMPLEX_UNIT_SP, sizeSp)
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = prefix,
+            style = TextStyle(color = accentColor, fontSize = sizeSp.sp, fontWeight = FontWeight.Bold),
+            maxLines = 1
+        )
+        Spacer(GlanceModifier.width(3.dp))
+        AndroidRemoteViews(views)
+    }
+}
+
+@Composable
+private fun DateText(sizeSp: Float) {
+    val context = LocalContext.current
+    val views = RemoteViews(context.packageName, R.layout.widget_date).apply {
+        setTextViewTextSize(R.id.widget_date, TypedValue.COMPLEX_UNIT_SP, sizeSp)
+    }
+    AndroidRemoteViews(views)
+}
+
+@Composable
+private fun HorizontalDivider() {
+    Box(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(ColorProvider(R.color.widget_divider))
+    ) {}
+}
+
+@Composable
+private fun VerticalDivider() {
+    Box(
+        modifier = GlanceModifier
+            .width(1.dp)
+            .fillMaxHeight()
+            .background(ColorProvider(R.color.widget_divider))
+    ) {}
 }
 
 @Composable
@@ -648,8 +1065,10 @@ private fun android.content.SharedPreferences.text(key: String, fallback: String
 
 private data class PrayerDisplay(
     val epochMillis: Long?,
+    val title: String,
     val name: String,
     val time: String,
+    val dateLabel: String,
     val location: String,
     val secondaryName: String,
     val secondaryTime: String
@@ -661,25 +1080,6 @@ private val PrayerDisplay.secondaryText: String
     } else {
         ""
     }
-
-private fun PrayerDisplay.countdownText(nowMillis: Long = System.currentTimeMillis()): String {
-    val targetMillis = epochMillis ?: return ""
-    val remainingMillis = targetMillis - nowMillis
-    if (remainingMillis <= 0L) return "$name now"
-
-    val totalMinutes = ((remainingMillis + 59_999L) / 60_000L).coerceAtLeast(1L)
-    val days = totalMinutes / (24L * 60L)
-    val hours = (totalMinutes % (24L * 60L)) / 60L
-    val minutes = totalMinutes % 60L
-    val remaining = when {
-        days > 0L && hours > 0L -> "${days}d ${hours}h"
-        days > 0L -> "${days}d"
-        hours > 0L && minutes > 0L -> "${hours}h ${minutes}m"
-        hours > 0L -> "${hours}h"
-        else -> "${minutes}m"
-    }
-    return "$name in $remaining"
-}
 
 private data class DailyPrayerTimeDisplay(
     val title: String,
@@ -706,14 +1106,14 @@ private data class PrayerEntry(
     val epochMillis: Long,
     val name: String,
     val time: String,
+    val dateLabel: String,
     val secondaryName: String,
     val secondaryTime: String
 )
 
-private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
-    val location = text(KEY_PRAYER_LOCATION, "Location needed")
-    val now = System.currentTimeMillis()
-    val next = getString(KEY_PRAYER_SCHEDULE, "")
+/** The flat, chronological schedule Flutter writes: `epoch|name|time|dateLabel[|secondaryName|secondaryTime]`. */
+private fun android.content.SharedPreferences.prayerSchedule(): List<PrayerEntry> {
+    return getString(KEY_PRAYER_SCHEDULE, "")
         ?.split(';')
         ?.mapNotNull { rawEntry ->
             val parts = rawEntry.split('|', limit = 6)
@@ -723,18 +1123,35 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
                 epochMillis = epochMillis,
                 name = parts[1],
                 time = parts[2],
+                dateLabel = parts[3],
                 secondaryName = parts.getOrNull(4).orEmpty(),
                 secondaryTime = parts.getOrNull(5).orEmpty()
             )
         }
-        ?.filter { it.epochMillis > now }
-        ?.minByOrNull { it.epochMillis }
+        ?.sortedBy { it.epochMillis }
+        .orEmpty()
+}
+
+private fun android.content.SharedPreferences.upcomingPrayers(
+    now: Long = System.currentTimeMillis()
+): List<PrayerEntry> = prayerSchedule().filter { it.epochMillis > now }
+
+private fun android.content.SharedPreferences.nextPrayer(
+    upcoming: List<PrayerEntry> = upcomingPrayers()
+): PrayerDisplay {
+    val location = text(KEY_PRAYER_LOCATION, "Location needed")
+    val title = text(KEY_PRAYER_TITLE, "Up Next")
+        .replace("Upcoming", "Next")
+        .replace(" Prayer", "")
+    val next = upcoming.firstOrNull()
 
     if (next != null) {
         return PrayerDisplay(
             epochMillis = next.epochMillis,
+            title = title,
             name = next.name,
             time = next.time,
+            dateLabel = next.dateLabel,
             location = location,
             secondaryName = next.secondaryName,
             secondaryTime = next.secondaryTime
@@ -743,17 +1160,25 @@ private fun android.content.SharedPreferences.nextPrayer(): PrayerDisplay {
 
     return PrayerDisplay(
         epochMillis = null,
+        title = title,
         name = text(KEY_PRAYER_NAME, "Prayer Times"),
         time = text(KEY_PRAYER_TIME, "Set location"),
+        dateLabel = "",
         location = location,
         secondaryName = text(KEY_PRAYER_SECONDARY_NAME, ""),
         secondaryTime = text(KEY_PRAYER_SECONDARY_TIME, "")
     )
 }
 
-private fun android.content.SharedPreferences.dailyPrayerTimes(): List<DailyPrayerTimeDisplay> {
-    val scheduledItems = scheduledWidgetItems(KEY_DAILY_PRAYER_SCHEDULE)
-    val items = scheduledItems ?: dailyPrayerNameKeys.mapIndexedNotNull { index, key ->
+private fun android.content.SharedPreferences.dailyPrayerTimes(
+    upcoming: List<PrayerEntry> = upcomingPrayers()
+): List<DailyPrayerTimeDisplay> {
+    // Same order of preference as the iOS widget: the flat prayer schedule
+    // filtered for "now" can never land between two pre-baked boundaries
+    // and show a stale window, so use it first; then the rolling JSON
+    // schedule; then the frozen per-slot keys. How many to take is the
+    // user's Settings selection, which the frozen keys are always written to.
+    val frozenItems = dailyPrayerNameKeys.mapIndexedNotNull { index, key ->
         val title = text(key, if (index == 0) "Set location" else "")
         val time = text(dailyPrayerTimeKeys[index], if (index == 0) "Open app" else "")
         if (title.isBlank() && time.isBlank()) {
@@ -762,21 +1187,18 @@ private fun android.content.SharedPreferences.dailyPrayerTimes(): List<DailyPray
             WidgetItem(title = title, url = "", time = time)
         }
     }
+    val selectedCount = frozenItems.size.takeIf { it > 0 } ?: MAX_DAILY_PRAYER_TIMES
+    val fromSchedule = upcoming
+        .take(selectedCount)
+        .map { WidgetItem(title = it.name, url = "", time = it.time) }
+    val items = fromSchedule.takeIf { it.isNotEmpty() }
+        ?: scheduledWidgetItems(KEY_DAILY_PRAYER_SCHEDULE)
+        ?: frozenItems
 
     return items
         .take(MAX_DAILY_PRAYER_TIMES)
         .map { DailyPrayerTimeDisplay(title = it.title, time = it.time) }
 }
 
-private fun android.content.SharedPreferences.nextPrayerEpochMillis(): Long? {
-    val now = System.currentTimeMillis()
-    return getString(KEY_PRAYER_SCHEDULE, "")
-        ?.split(';')
-        ?.mapNotNull { rawEntry ->
-            val parts = rawEntry.split('|', limit = 6)
-            if (parts.size != 4 && parts.size != 6) return@mapNotNull null
-            parts[0].toLongOrNull()
-        }
-        ?.filter { it > now }
-        ?.minOrNull()
-}
+private fun android.content.SharedPreferences.nextPrayerEpochMillis(): Long? =
+    upcomingPrayers().firstOrNull()?.epochMillis
