@@ -286,10 +286,15 @@ private fun PrayerWidgetContent() {
     val size = LocalSize.current
     val width = size.width.value
     val height = size.height.value
-    val padding = if (minOf(width, height) >= 150f) 16 else 14
+    val padding = when {
+        minOf(width, height) >= 150f -> 16
+        height < 80f -> 10
+        else -> 14
+    }
     val innerWidth = width - 2 * padding
     val innerHeight = height - 2 * padding
-    val wide = width >= 230f && width >= height * 1.35f && later.isNotEmpty()
+    val oneRow = innerHeight < HERO_CONTENT_HEIGHT * 0.7f
+    val wide = !oneRow && width >= 230f && width >= height * 1.35f && later.isNotEmpty()
 
     WidgetSurface(clickable = true, contentPadding = padding) {
         if (wide) {
@@ -318,6 +323,9 @@ private fun PrayerWidgetContent() {
                     later.take(rows).forEach { LaterPrayerRow(it, scale, rowHeight) }
                 }
             }
+        } else if (oneRow) {
+            // One row tall: too short for the stacked hero at its smallest scale.
+            NextPrayerLine(prayer, innerWidth, innerHeight)
         } else {
             val scale = heroScale(innerWidth, innerHeight)
             NextPrayerHero(prayer, scale)
@@ -401,6 +409,51 @@ private fun NextPrayerHero(prayer: PrayerDisplay, scale: Float) {
     }
     TimeText(prayer.time, sizeSp = 30f * scale, color = bodyTextColor)
     Countdown(prayer.epochMillis, prefix = "in", sizeSp = 12f * scale)
+}
+
+/** The 1-row Up Next: badge, name over countdown, then the time on the right. */
+@Composable
+private fun NextPrayerLine(prayer: PrayerDisplay, innerWidth: Float, innerHeight: Float) {
+    val target = prayer.epochMillis
+    val nameSp = (innerHeight * 0.3f).coerceIn(11f, 16f)
+    val countdownSp = (nameSp * 0.8f).coerceAtLeast(10f)
+    val showCountdown = target != null && innerHeight >= nameSp * 1.2f + countdownSp * 1.2f
+    Row(
+        modifier = GlanceModifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (innerWidth >= 120f) {
+            val badge = (innerHeight * 0.8f).coerceIn(20f, 36f)
+            PrayerIconBadge(prayer.name, containerSizeDp = badge.toInt(), iconSizeDp = (badge * 0.54f).toInt())
+            Spacer(GlanceModifier.width(8.dp))
+        }
+        Column(modifier = GlanceModifier.defaultWeight()) {
+            Text(
+                text = prayer.name,
+                style = TextStyle(
+                    color = primaryTextColor,
+                    fontSize = nameSp.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1
+            )
+            if (showCountdown && target != null) {
+                Countdown(target, prefix = "in", sizeSp = countdownSp)
+            }
+        }
+        Spacer(GlanceModifier.width(6.dp))
+        if (target == null) {
+            // No schedule yet: `time` is an instruction, not a clock reading.
+            Text(
+                text = prayer.time,
+                style = TextStyle(color = bodyTextColor, fontSize = countdownSp.sp),
+                maxLines = 1
+            )
+        } else {
+            val timeSp = minOf(innerHeight * 0.55f, innerWidth / 6.5f).coerceIn(13f, 26f)
+            TimeText(prayer.time, sizeSp = timeSp, color = bodyTextColor)
+        }
+    }
 }
 
 @Composable
@@ -488,11 +541,17 @@ private fun DailyPrayerTimesWidgetContent() {
             }
             // Narrow: columns would squeeze the times, so stack them.
             innerWidth < 210f -> {
-                val headerSp = (11f * (innerWidth / 150f)).coerceIn(10f, 12f)
-                LocationHeader(location, nextPrayer = null, sizeSp = headerSp)
-                Spacer(GlanceModifier.height(6.dp))
-                val rowHeight = ((innerHeight - 22f) / prayers.size).coerceIn(20f, 40f)
-                val scale = (rowHeight / 26f).coerceIn(0.85f, 1.3f)
+                // At 3x2 there isn't height for the location and five
+                // comfortable rows, so the rows win and the header goes.
+                val showHeader = innerHeight - 22f >= prayers.size * 20f
+                if (showHeader) {
+                    val headerSp = (11f * (innerWidth / 150f)).coerceIn(10f, 12f)
+                    LocationHeader(location, nextPrayer = null, sizeSp = headerSp)
+                    Spacer(GlanceModifier.height(6.dp))
+                }
+                val listHeight = innerHeight - if (showHeader) 22f else 0f
+                val rowHeight = (listHeight / prayers.size).coerceIn(15f, 40f)
+                val scale = (rowHeight / 26f).coerceIn(0.75f, 1.3f)
                 prayers.forEach { prayer ->
                     DailyPrayerRow(prayer, isNext(prayer), scale, rowHeight)
                 }
@@ -666,7 +725,7 @@ private fun DailyPrayerRow(
             .padding(horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val badge = (rowHeight * 0.72f).coerceIn(18f, 28f)
+        val badge = (rowHeight * 0.8f).coerceIn(12f, 28f)
         PrayerIconBadge(prayer.title, containerSizeDp = badge.toInt(), iconSizeDp = (badge * 0.56f).toInt())
         Spacer(GlanceModifier.width(8.dp))
         Text(
