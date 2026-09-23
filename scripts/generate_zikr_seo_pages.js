@@ -35,8 +35,18 @@ const SITEMAP_FILENAMES = ['sitemap.xml', 'sitemap-all.xml'];
 // under different titles, so each kept its own slug). Two indexable URLs for
 // one text split ranking between them. The key slug becomes a redirect page to
 // the value slug and leaves the sitemap and the /zikr index; the app keeps
-// resolving both, so no shared link breaks.
-const MERGED_ZIKR_SLUGS = {};
+// resolving both, so no shared link breaks. PROPOSED winners - confirm before
+// merging.
+const MERGED_ZIKR_SLUGS = {
+  'dua-alqamah': 'dua-alqama',
+  'ziyaarat-e-ashoora': 'ziyarat-e-ashura',
+  'ziyaarat-e-aashoora-gair-ma-roofah': 'ziyaarat-e-ashoora-ghair-ma-roofah',
+  'namaz-of-jafar-e-tayyaar': 'namaz-of-jafar-e-tayyar',
+  'ziyaarat-al-haqq-al-jadeed': 'ziyarat-al-haqq-al-jadeed',
+  'ziyarat-on-friday': 'friday-ziyarah-of-imam-al-mahdi-a-t-f-s',
+  'ziyarah-on-the-day-of-arafat': 'ziyarat-e-imam-husain-a-s-on-the-day-of-arafah',
+  'ziyarah-on-the-day-of-arbaeen-the-twentieth-of-safar': 'ziyarat-e-arbaeen-the-20th-of-safar',
+};
 
 // Hand-written pages that ship from web/ rather than being generated here.
 // This file replaces the checked-in sitemap wholesale, so anything left out
