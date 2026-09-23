@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Embedded in the prayer widgets through Glance's AndroidRemoteViews so the
+     countdown ticks on its own. Glance has no timer text, and a composed
+     "in 2h 15m" string goes stale between the per-prayer refreshes. -->
+<Chronometer xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_countdown"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:countDown="true"
+    android:fontFeatureSettings="tnum"
+    android:includeFontPadding="false"
+    android:singleLine="true"
+    android:textColor="@color/widget_accent"
+    android:textSize="12sp"
+    android:textStyle="bold" />

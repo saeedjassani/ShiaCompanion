@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Today's date for the large Prayer Times widget. A TextClock rolls over at
+     midnight by itself, so the widget needs no midnight refresh for it. -->
+<TextClock xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_date"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:format12Hour="EEE, d MMM"
+    android:format24Hour="EEE, d MMM"
+    android:includeFontPadding="false"
+    android:singleLine="true"
+    android:textColor="@color/widget_secondary_text"
+    android:textSize="11sp"
+    android:textStyle="bold" />
