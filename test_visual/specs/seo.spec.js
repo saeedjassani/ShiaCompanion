@@ -210,9 +210,12 @@ test.describe('internal linking', () => {
       'the nav should reach individual zikr pages, not just the index',
     ).toBeGreaterThan(5);
 
-    // Every one of these is hand-written, so a renamed or dropped slug would
-    // otherwise become a 404 that only shows up in production.
-    const broken = hrefs.filter((href) => resolveBundleFile(href) === null);
+    // Every internal one of these is hand-written, so a renamed or dropped
+    // slug would otherwise become a 404 that only shows up in production.
+    // External links (e.g. the Play Store / App Store buttons) aren't part
+    // of the bundle and are exempt from this check.
+    const internalHrefs = hrefs.filter((href) => !/^https?:\/\//.test(href));
+    const broken = internalHrefs.filter((href) => resolveBundleFile(href) === null);
     expect(broken, 'nav links with no page in the bundle').toEqual([]);
   });
 
