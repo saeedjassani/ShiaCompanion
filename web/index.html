@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
@@ -105,6 +105,12 @@
       border-top: 1px solid rgba(93, 64, 55, .18);
     }
 
+    .seo-site-nav h1 {
+      font-size: 24px;
+      line-height: 1.3;
+      margin: 8px 0 12px;
+    }
+
     .seo-site-nav h2 {
       font-size: 18px;
       margin: 20px 0 8px;
@@ -130,12 +136,40 @@
       }
     }
   </style>
+  <!-- Home page only: the zikr page generator strips this block and adds each
+       page's own WebPage schema. -->
+  <script type="application/ld+json" id="home-structured-data">{
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "Shia Companion",
+        "url": "https://shia-companion.web.app/"
+      },
+      {
+        "@type": "MobileApplication",
+        "name": "Shia Companion",
+        "operatingSystem": "Android, iOS, Web",
+        "applicationCategory": "LifestyleApplication",
+        "url": "https://shia-companion.web.app/",
+        "sameAs": [
+          "https://play.google.com/store/apps/details?id=com.developer110.shiacompanion",
+          "https://apps.apple.com/us/app/shia-ithna-ashari-companion/id1492517189",
+          "https://github.com/saeedjassani/ShiaCompanion"
+        ]
+      }
+    ]
+  }</script>
 </head>
 
 <body>
   <nav class="seo-site-nav" aria-label="Shia Companion sections">
-    <h2>Shia Companion</h2>
-    <p>Duas, ziyarats, Quran recitations, aamal and prayer times.</p>
+    <h1 class="seo-home-title">Shia Companion: duas, ziyarat, Quran and prayer times</h1>
+    <p>Shia Companion brings together duas, ziyarats, munajat, aamal and Quran surahs, each in Arabic with transliteration and English translation, plus daily prayer times. Read them here on the web or install the app on Android and iOS.</p>
+    <ul>
+      <li><a href="https://play.google.com/store/apps/details?id=com.developer110.shiacompanion">Get Shia Companion on Google Play</a></li>
+      <li><a href="https://apps.apple.com/us/app/shia-ithna-ashari-companion/id1492517189">Download on the App Store</a></li>
+    </ul>
     <ul>
       <li><a href="/zikr">All duas, ziyarats and zikr</a></li>
       <li><a href="/privacy.html">Privacy policy</a></li>

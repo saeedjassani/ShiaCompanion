@@ -14,7 +14,12 @@ const GENERATED_ZIKR_DIR = path.join(BUILD_WEB_DIR, 'zikr');
 const GENERATED_UID_REDIRECT_DIR = path.join(BUILD_WEB_DIR, '0');
 const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shia-companion.web.app')
   .replace(/\/+$/, '');
-const MAX_SECTION_LINES = 80;
+// Title tags longer than this get truncated in results. Search engines show
+// the site name separately, so long titles drop the " | Shia Companion" suffix
+// rather than losing the words people actually search for.
+const MAX_TITLE_TAG_LENGTH = 60;
+const TITLE_SUFFIX = ' | Shia Companion';
+const ARABIC_SCRIPT = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
 
 // Search Console pins a "Couldn't fetch" verdict to a sitemap URL and will not
 // clear it on resubmission, even after the URL serves valid XML again — and it
@@ -149,15 +154,31 @@ function buildDescription(title, slug, content) {
     return normalizeWhitespace(firstMeritLine).slice(0, 155);
   }
 
-  return `Read ${displayTitle} with Arabic text, transliteration, English translation, and merits on Shia Companion.`;
+  // Only promise merits when the page actually shows a Merits section.
+  const hasMerits = linesFromText(content?.merits).length > 0;
+  return hasMerits
+    ? `Read ${displayTitle} with Arabic text, transliteration, English translation, and merits on Shia Companion.`
+    : `Read the full ${displayTitle} in Arabic with transliteration and English translation on Shia Companion.`;
 }
 
 function buildTitleTag(title, slug) {
   const humanSlugTitle = humanizeSlug(slug);
-  if (humanSlugTitle && !sameNormalizedTitle(title, humanSlugTitle)) {
-    return `${title} | ${humanSlugTitle} | Shia Companion`;
-  }
-  return `${title} | Shia Companion`;
+  const candidates = humanSlugTitle && !sameNormalizedTitle(title, humanSlugTitle)
+    ? [
+      `${title} | ${humanSlugTitle}${TITLE_SUFFIX}`,
+      `${title} | ${humanSlugTitle}`,
+      `${title}${TITLE_SUFFIX}`,
+    ]
+    : [`${title}${TITLE_SUFFIX}`];
+  return candidates.find((candidate) => candidate.length <= MAX_TITLE_TAG_LENGTH) ?? title;
+}
+
+// Arabic lines get lang/dir so search engines and screen readers read them as
+// Arabic; the rest of the page inherits lang="en" from <html>.
+function lineParagraph(line) {
+  return ARABIC_SCRIPT.test(line)
+    ? `        <p lang="ar" dir="rtl">${escapeHtml(line)}</p>`
+    : `        <p>${escapeHtml(line)}</p>`;
 }
 
 function buildStructuredData({title, description, canonicalUrl}) {
@@ -206,7 +227,10 @@ function replaceOrInsertHeadTag(html, pattern, tag) {
 }
 
 function applySeoHead(html, seo) {
-  let output = html;
+  let output = html.replace(
+    /\s*<!-- Home page only:[\s\S]*?-->\s*<script type="application\/ld\+json" id="home-structured-data">[\s\S]*?<\/script>/i,
+    '',
+  );
   output = output.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(seo.titleTag)}</title>`);
   output = replaceOrInsertHeadTag(
     output,
@@ -258,14 +282,13 @@ function applySeoHead(html, seo) {
 function buildStaticContent({title, description, canonicalPath, content}) {
   const merits = linesFromText(content?.merits).slice(0, 8);
   const bodyLines = collectBodyLines(content)
-    .filter((line) => !merits.includes(line))
-    .slice(0, MAX_SECTION_LINES);
+    .filter((line) => !merits.includes(line));
 
   const meritsHtml = merits.length > 0
     ? [
       '      <section>',
       '        <h2>Merits</h2>',
-      ...merits.map((line) => `        <p>${escapeHtml(line)}</p>`),
+      ...merits.map(lineParagraph),
       '      </section>',
     ].join('\n')
     : '';
@@ -274,7 +297,7 @@ function buildStaticContent({title, description, canonicalPath, content}) {
     ? [
       '      <section class="seo-lines">',
       '        <h2>Text and Translation</h2>',
-      ...bodyLines.map((line) => `        <p>${escapeHtml(line)}</p>`),
+      ...bodyLines.map(lineParagraph),
       '      </section>',
     ].join('\n')
     : '';
@@ -294,7 +317,14 @@ function buildStaticContent({title, description, canonicalPath, content}) {
 }
 
 function insertStaticContent(html, staticContent) {
-  return html.replace(/<body([^>]*)>/i, `<body$1>\n${staticContent}`);
+  // The shared nav carries the home page's <h1>. Generated pages have their
+  // own <h1>, so demote the nav heading to keep one <h1> per page.
+  return html
+    .replace(
+      /<h1 class="seo-home-title">([\s\S]*?)<\/h1>/i,
+      '<h2 class="seo-home-title">Shia Companion</h2>',
+    )
+    .replace(/<body([^>]*)>/i, `<body$1>\n${staticContent}`);
 }
 
 // Old shares and any link built before the app resolved a slug use this
