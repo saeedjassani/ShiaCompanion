@@ -217,21 +217,47 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   final customAudioPath =
       azaanId == 'custom' ? SP.prefs.getString(azaanCustomFilePathKey) : null;
 
-  // Location is deliberately absent: it is tracked by the schedule anchor via
-  // hasPrayerScheduleLocationMoved(), which applies a distance threshold. Any
-  // rounding of raw coordinates into this string would flip on GPS jitter and
-  // force a full reschedule on the next app open.
-  // Bumped to v9 when the Full Azan notification body gained its iOS "tap to
-  // hear" hint (see prayerNotificationBody): the body is fixed at schedule
-  // time, so already-scheduled notifications have to be rebuilt.
+  // Raw coordinates are deliberately absent: they are tracked by the schedule
+  // anchor via hasPrayerScheduleLocationMoved(), which applies a distance
+  // threshold. Any rounding of raw coordinates into this string would flip on
+  // GPS jitter and force a full reschedule on the next app open.
+  // Bumped to v10 when the Takbir Only iOS sound was renamed (see
+  // AzaanOptions.takbir): the sound name is fixed at schedule time, so
+  // already-scheduled notifications have to be rebuilt.
   return [
-    'v9',
+    'v10',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'tz:${tz.local.name}',
     'azaan:$azaanId',
     'custom:${customAudioPath ?? ''}',
     'prayers:$enabledPrayerKeys',
+    'times:${_scheduledPrayerMinutes(scheduleDate ?? DateTime.now())}',
   ].join('|');
+}
+
+/// Every minute the schedule would fire at, as the prayer times card and the
+/// widgets show them.
+///
+/// A move under [locationChangeThreshold] shifts a prayer by a couple of
+/// seconds, which is harmless until it straddles a rounding boundary: the card
+/// then shows 7:02 while a notification scheduled from the anchor still says
+/// and fires at 7:03. Carrying the minutes themselves means the schedule is
+/// rebuilt exactly when a shown minute changes, and never otherwise.
+String _scheduledPrayerMinutes(DateTime scheduleDate) {
+  if (lat == null || long == null) return '';
+  final prayers = getPrayerTimeObject();
+  final days = prayerNotificationScheduleDays(
+      enabledPrayerNotificationCount(getPrayerNotificationPrayerNames()));
+  return [
+    for (var day = 0; day < days; day++)
+      for (final entry in buildPrayerNotificationEntriesForDay(
+        prayerTime: prayers,
+        date: scheduleDate.add(Duration(days: day)),
+        latitude: lat!,
+        longitude: long!,
+      ))
+        formatDate(entry.dateTime, [HH, nn]),
+  ].join(',');
 }
 
 bool _hasFreshScheduleReminder(List<PendingNotificationRequest>? pending) {
@@ -989,8 +1015,9 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
       azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id;
 
   AndroidNotificationSound? sound;
-  if (!playsViaAzanPlaybackService && azaan.id != 'system_default') {
-    sound = RawResourceAndroidNotificationSound(azaan.androidFile ?? 'sharif');
+  final androidFile = azaan.androidFile;
+  if (!playsViaAzanPlaybackService && androidFile != null) {
+    sound = RawResourceAndroidNotificationSound(androidFile);
   }
 
   return AndroidNotificationDetails(

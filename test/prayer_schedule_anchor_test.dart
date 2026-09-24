@@ -78,17 +78,41 @@ void main() {
     expect(hasPrayerScheduleLocationMoved(), isTrue);
   });
 
+  // Fixed so no prayer on these days happens to sit right on a rounding
+  // boundary, where even an 11 m move legitimately changes a shown minute.
+  final fixedDate = DateTime(2026, 9, 23);
+
   test('the fingerprint no longer carries raw coordinates', () async {
     lat = 32.6;
     long = 44.0;
-    final atOrigin = buildPrayerNotificationScheduleFingerprint();
+    final atOrigin =
+        buildPrayerNotificationScheduleFingerprint(scheduleDate: fixedDate);
 
     // Coordinates are tracked by the anchor and its distance threshold, so a
     // small move must not flip the fingerprint on its own.
     lat = 32.6001;
     long = 44.0001;
 
-    expect(buildPrayerNotificationScheduleFingerprint(), atOrigin);
+    expect(buildPrayerNotificationScheduleFingerprint(scheduleDate: fixedDate),
+        atOrigin);
+  });
+
+  test('a move under the threshold that changes a shown minute reschedules',
+      () async {
+    await anchorAt(32.6, 44.0);
+    lat = 32.6;
+    long = 44.0;
+    // Some prayer in the twelve days from this date sits a couple of seconds
+    // from a half-minute, so ~500 m east carries it into the next shown minute.
+    final date = DateTime(2026, 9, 1);
+    final atAnchor =
+        buildPrayerNotificationScheduleFingerprint(scheduleDate: date);
+
+    long = 44.005;
+
+    expect(buildPrayerNotificationScheduleFingerprint(scheduleDate: date),
+        isNot(atAnchor));
+    expect(hasPrayerScheduleLocationMoved(), isFalse);
   });
 
   test('a stale schedule is detected when the device has really moved',
