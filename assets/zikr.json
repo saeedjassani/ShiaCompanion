@@ -115,6 +115,10 @@
     "title": "15: al-Hijr الحجر",
     "slug": "15-al-hijr"
   },
+  "A2": {
+    "title": "Dua after reciting Holy Quran",
+    "slug": "dua-after-reciting-holy-quran"
+  },
   "A20": {
     "title": "16: al-Nahl النحل",
     "slug": "16-al-nahl"
@@ -154,6 +158,10 @@
   "A29": {
     "title": "25: Al-Furqaan الفرقان",
     "slug": "25-al-furqaan"
+  },
+  "A3": {
+    "title": "Dua Khatme Quran",
+    "slug": "dua-khatme-quran"
   },
   "A30": {
     "title": "26: al-Shoa'raa الشعراء",
@@ -500,6 +508,10 @@
     "title": "Tasbeehat at the time of Sehar",
     "slug": "tasbeehat-at-the-time-of-sehar"
   },
+  "AA18": {
+    "title": "Aamal & Duas for the days of Ramadhan",
+    "slug": "aamal-duas-for-the-days-of-ramadhan"
+  },
   "AA19": {
     "title": "Tasbeehat & Salawat for every day in Ramadhan",
     "slug": "tasbeehat-and-salawat-for-every-day-in-ramadhan"
@@ -509,9 +521,21 @@
     "slug": "recitation-of-the-holy-qur-an-in-ramazan",
     "day": "09-*"
   },
+  "AA20": {
+    "title": "First Night of Ramadhan",
+    "slug": "first-night-of-ramadhan"
+  },
   "AA21": {
     "title": "Dua No. 43 of Saheefah al-Kaamelah",
     "slug": "dua-no-43-of-saheefah-al-kaamelah"
+  },
+  "AA22": {
+    "title": "Other Aamal of The First Night",
+    "slug": "other-aamal-of-the-first-night"
+  },
+  "AA23": {
+    "title": "The 1st Day of Ramadhan",
+    "slug": "the-1st-day-of-ramadhan"
   },
   "AA25": {
     "title": "The 13th Night of Ramadhan",
@@ -520,6 +544,10 @@
   "AA26": {
     "title": "The 15th Night of Ramadhan",
     "slug": "the-15th-night-of-ramadhan"
+  },
+  "AA27": {
+    "title": "The 17th Night of Ramadhan",
+    "slug": "the-17th-night-of-ramadhan"
   },
   "AA29": {
     "title": "Common Aamal at each of the three Qadr Nights",
@@ -534,6 +562,14 @@
     "title": "19th Night of Ramadhan",
     "slug": "19th-night-of-ramadhan"
   },
+  "AA31": {
+    "title": "Aamal of the 21st Night of Ramadhan",
+    "slug": "aamal-of-the-21st-night-of-ramadhan"
+  },
+  "AA32": {
+    "title": "Aamal of the last ten Nights of Ramadhan",
+    "slug": "aamal-of-the-last-ten-nights-of-ramadhan"
+  },
   "AA33": {
     "title": "Dua on the 22nd Night of Ramadhan",
     "slug": "dua-on-the-22nd-night-of-ramadhan"
@@ -546,6 +582,14 @@
     "title": "Dua for the 23rd Night of Ramadhan",
     "slug": "dua-for-the-23rd-night-of-ramadhan"
   },
+  "AA37": {
+    "title": "Dua for the 25th Night of Ramadhan",
+    "slug": "dua-for-the-25th-night-of-ramadhan"
+  },
+  "AA38": {
+    "title": "Dua for the 26th Night of Ramadhan",
+    "slug": "dua-for-the-26th-night-of-ramadhan"
+  },
   "AA39": {
     "title": "27th Night of Ramadan",
     "slug": "27th-night-of-ramadan"
@@ -554,6 +598,22 @@
     "title": "One Thousand Unit Prayers",
     "slug": "one-thousand-unit-prayers",
     "day": "09-*"
+  },
+  "AA40": {
+    "title": "Dua for the 27th Night of Ramadhan",
+    "slug": "dua-for-the-27th-night-of-ramadhan"
+  },
+  "AA43": {
+    "title": "Last Night of Ramadhan",
+    "slug": "last-night-of-ramadhan"
+  },
+  "AA46": {
+    "title": "Prayers for the nights of Ramadhan",
+    "slug": "prayers-for-the-nights-of-ramadhan"
+  },
+  "AA47": {
+    "title": "Farewell Prayer of Ramadhan",
+    "slug": "farewell-prayer-of-ramadhan"
   },
   "AA5": {
     "title": "Duas after every obligatory Prayers",
@@ -658,6 +718,10 @@
     "slug": "aamal-of-the-day-of-eid-e-ghadeer",
     "day": "12-18"
   },
+  "AC19": {
+    "title": "Namaz on the Day of Ghadeer",
+    "slug": "namaz-on-the-day-of-ghadeer"
+  },
   "AC2": {
     "title": "Another Ziyarah on the Day of Ghadeer",
     "order": 20,
@@ -726,6 +790,10 @@
       "12-10"
     ]
   },
+  "AC6": {
+    "title": "Salat of وَ وَاعَدْنَا",
+    "slug": "salat-of-wa-wa-adna"
+  },
   "AC7": {
     "title": "1st Day of Zilhajj",
     "order": 2,
@@ -734,6 +802,14 @@
       "1st-day-of-zilhaj"
     ],
     "day": "12-01"
+  },
+  "AD2": {
+    "title": "Prayers & Du'as of Night of Eid ul Fitr",
+    "slug": "prayers-du-as-of-night-of-eid-ul-fitr"
+  },
+  "AD3": {
+    "title": "Aamal for the day of Eid ul Fitr",
+    "slug": "aamal-for-the-day-of-eid-ul-fitr"
   },
   "AD4": {
     "title": "Eid Prayer",
@@ -787,6 +863,14 @@
     "title": "Ziyarah of Hazrat Abbas (a.s.) — Karbala",
     "slug": "ziyarah-hazrat-abbas-karbala"
   },
+  "AG19": {
+    "title": "Stature and Position of Al Abbas",
+    "slug": "stature-and-position-of-al-abbas"
+  },
+  "AG2": {
+    "title": "Etiquettes to be observed during Journey to Imam Husayn's (a) tomb and inside his Holy Shrine",
+    "slug": "etiquettes-to-be-observed-during-journey-to-imam-husayn-s-a-tomb-and-inside-his-holy-shrine"
+  },
   "AG5": {
     "title": "Post-Ziyarah Prayers, Dua & Salawat — Karbala",
     "slug": "post-ziyarah-dua-salawat-karbala"
@@ -827,6 +911,10 @@
     "title": "Devotional Acts at Imam al-Sadiq's Bench — Masjid al-Kufah",
     "slug": "imam-sadiq-bench-kufah"
   },
+  "AI12": {
+    "title": "Prayer for fulfillment of desires at Al Kufah Mosque",
+    "slug": "prayer-for-fulfillment-of-desires-at-al-kufah-mosque"
+  },
   "AI15": {
     "title": "Recommended Acts (A'amal) of Masjid al-Sahla",
     "slug": "aamal-masjid-sahla"
@@ -850,6 +938,10 @@
   "AJ2": {
     "title": "Ziyarah at Madaen — Salman al-Farsi, Hudhayfah al-Yamani, Tahir ibn Imam al-Baqir & Abdullah ibn Jabir (r.a.)",
     "slug": "ziyarah-madaen-salman-hudhayfah"
+  },
+  "AK13": {
+    "title": "Seventh Ziyarah",
+    "slug": "seventh-ziyarah"
   },
   "AK15": {
     "title": "Bidding Farewell to Imam Ali (a.s.) — Najaf",
@@ -918,9 +1010,29 @@
     "title": "Ziyarah of Sayyid Muhammad, Son of Imam Ali al-Hadi (a.s.) — Balad",
     "slug": "ziyarah-sayed-mohammed-balad"
   },
+  "AP2": {
+    "title": "Method of Ziyarah of Holy Prophet (s) in Madinah",
+    "slug": "method-of-ziyarah-of-holy-prophet-s-in-madinah"
+  },
+  "AP4": {
+    "title": "Ziyarah of Lady Fatimah Al-Zahra'",
+    "slug": "ziyarah-of-lady-fatimah-al-zahra"
+  },
   "AS1": {
     "title": "Dua No. 1",
     "slug": "dua-no-1"
+  },
+  "B3": {
+    "title": "Etiquettes of Ziyarah",
+    "slug": "etiquettes-of-ziyarah"
+  },
+  "B4": {
+    "title": "Verbal harassment to a female pilgrim talking with Na Mahram",
+    "slug": "verbal-harassment-to-a-female-pilgrim-talking-with-na-mahram"
+  },
+  "B6": {
+    "title": "Another Izn Dukhool",
+    "slug": "another-izn-dukhool"
   },
   "B~AE7": {
     "title": "Iran",
@@ -1034,6 +1146,14 @@
     "title": "Dua of Imam Husayn (a) on the day of Ashura بِحَقِّ يٰسٓ وَالْقُرْاٰنِ الْحَكِيْمِ",
     "slug": "dua-of-imam-husayn-a-on-the-day-of-ashura"
   },
+  "E102": {
+    "title": "Dua of Mother for her child who is ailing.",
+    "slug": "dua-of-mother-for-her-child-who-is-ailing"
+  },
+  "E103": {
+    "title": "Dua of Prostration of thanksgiving",
+    "slug": "dua-of-prostration-of-thanksgiving"
+  },
   "E104": {
     "title": "Dua of Takbir",
     "slug": "dua-of-takbir"
@@ -1065,6 +1185,10 @@
   "E111": {
     "title": "Dua when you see a Diseased or Defected Person",
     "slug": "dua-when-you-see-a-diseased-or-defected-person"
+  },
+  "E112": {
+    "title": "Duas at Daybreak and Sunset",
+    "slug": "duas-at-daybreak-and-sunset"
   },
   "E113": {
     "title": "Everyday Supplications",
@@ -1126,6 +1250,10 @@
     "title": "Salawat upon the Holy Prophet",
     "slug": "salawat-upon-the-holy-prophet"
   },
+  "E129": {
+    "title": "Salawat upon the Commander of the Faithful",
+    "slug": "salawat-upon-the-commander-of-the-faithful"
+  },
   "E13": {
     "title": "Dua-e-Sayfee Sagheer (Dua Qaamoos)",
     "slug": "dua-sayfi-al-sagir-dua-qamoos"
@@ -1158,6 +1286,10 @@
     "title": "Salawat Abul Hasan al-Zarrab al-Isfahani",
     "slug": "salawat-abul-hasan-al-zarrab-al-isfahani",
     "day": "*-*-5"
+  },
+  "E146": {
+    "title": "Supplications at Sunrise & Sunset",
+    "slug": "supplications-at-sunrise-sunset"
   },
   "E147": {
     "title": "Supplicatory Prayers for Healing",
@@ -1275,6 +1407,10 @@
       "09-23",
       "*-*-5"
     ]
+  },
+  "E3": {
+    "title": "Dua Aaliyah al Mazameen Dua to be recited after the Ziyarah of every Masoomeen (a)",
+    "slug": "dua-aaliyah-al-mazameen-dua-to-be-recited-after-the-ziyarah-of-every-masoomeen-a"
   },
   "E30": {
     "title": "Dua Jawshan al Sagir",
@@ -1465,6 +1601,14 @@
     "title": "Dua for the Nineth Hour",
     "slug": "dua-for-the-ninth-hour"
   },
+  "E76": {
+    "title": "Dua for the Tenth Hour",
+    "slug": "dua-for-the-tenth-hour"
+  },
+  "E77": {
+    "title": "Dua for the Eleventh Hour",
+    "slug": "dua-for-the-eleventh-hour"
+  },
   "E78": {
     "title": "Dua for the Twelfth Hour",
     "slug": "dua-for-the-twelfth-hour"
@@ -1523,6 +1667,10 @@
     "title": "Dua Amaan (The Supplication for Security)",
     "slug": "dua-amaan-the-supplication-for-security"
   },
+  "E90": {
+    "title": "Dua Before and After Ritual Prayers",
+    "slug": "dua-before-and-after-ritual-prayers"
+  },
   "E91": {
     "title": "Dua before going to Sleep",
     "slug": "dua-before-going-to-sleep"
@@ -1559,9 +1707,33 @@
     "title": "Namaz of Jafar-e-Tayyaar",
     "slug": "namaz-of-jafar-e-tayyaar"
   },
+  "F12": {
+    "title": "Namaz Hadiyah Masoomeen (a)",
+    "slug": "namaz-hadiyah-masoomeen-a"
+  },
+  "F13": {
+    "title": "Namaz of Holy Prophet(s)",
+    "slug": "namaz-of-holy-prophet-s"
+  },
+  "F14": {
+    "title": "Namaz of Lady Fatimah Zehra (s.a.)",
+    "slug": "namaz-of-lady-fatimah-zehra-s-a"
+  },
+  "F15": {
+    "title": "Namaz of Imam Ali (a.s.)",
+    "slug": "namaz-of-imam-ali-a-s"
+  },
+  "F17": {
+    "title": "Namaz of Imam al-Husayn (a)",
+    "slug": "namaz-of-imam-al-husayn-a"
+  },
   "F2": {
     "title": "Namaz-e-Shab",
     "slug": "namaz-e-shab"
+  },
+  "F23": {
+    "title": "Namaz of Imam al-Jawad (a)",
+    "slug": "namaz-of-imam-al-jawad-a"
   },
   "F26": {
     "title": "Namaz of Imam Mahdi (a.t.f.s.)",
@@ -1603,6 +1775,14 @@
     "title": "Namaz for fulfillment of needs (1)",
     "slug": "namaz-for-fulfillment-of-needs-1"
   },
+  "F35": {
+    "title": "Namaz for fulfillment of needs (2)",
+    "slug": "namaz-for-fulfillment-of-needs-2"
+  },
+  "F38": {
+    "title": "Namaz for fulfillment of needs (5)",
+    "slug": "namaz-for-fulfillment-of-needs-5"
+  },
   "F39": {
     "title": "Namaz for more Sustenance",
     "slug": "namaz-for-more-sustenance"
@@ -1614,6 +1794,14 @@
   "F40": {
     "title": "Another Namaz for more Sustenance",
     "slug": "another-namaz-for-more-sustenance"
+  },
+  "F41": {
+    "title": "Namaz of Imam Al-Mahdi (a) at the Jamkaran Mosque",
+    "slug": "namaz-of-imam-al-mahdi-a-at-the-jamkaran-mosque"
+  },
+  "F43": {
+    "title": "Namaz at Seeing a non-Muslims",
+    "slug": "namaz-at-seeing-a-non-muslims"
   },
   "F44": {
     "title": "Namaz for Fending Off Evil Self Inspirations",
@@ -1644,6 +1832,18 @@
     "order": 1,
     "slug": "namaz-e-ghofaylah"
   },
+  "F51": {
+    "title": "Namaz for Settling the Debts and Saving from Despotic Rulers",
+    "slug": "namaz-for-settling-the-debts-and-saving-from-despotic-rulers"
+  },
+  "F52": {
+    "title": "Namaz for Settling the Needs",
+    "slug": "namaz-for-settling-the-needs"
+  },
+  "F53": {
+    "title": "Namaz for Settling urgent Needs",
+    "slug": "namaz-for-settling-urgent-needs"
+  },
   "F54": {
     "title": "Namaz for Solving Difficulties",
     "slug": "namaz-for-solving-difficulties"
@@ -1656,6 +1856,10 @@
     "title": "Namaz for the removal of difficulties.",
     "slug": "namaz-for-the-removal-of-difficulties"
   },
+  "F57": {
+    "title": "Namaz of Imam Kazim (a) to ward of evil",
+    "slug": "namaz-of-imam-kazim-a-to-ward-of-evil"
+  },
   "F58": {
     "title": "Namaz of Imam Muhammad Taqi (a) to ward of evil",
     "slug": "namaz-of-imam-muhammad-taqi-a-to-ward-of-evil"
@@ -1664,6 +1868,10 @@
     "title": "Namaz of Imam Sadiq (a) to ward off evil",
     "slug": "namaz-of-imam-sadiq-a-to-ward-off-evil"
   },
+  "F6": {
+    "title": "Namaz e Kamilah",
+    "slug": "namaz-e-kamilah"
+  },
   "F60": {
     "title": "Namaz of Pardon",
     "slug": "namaz-of-pardon"
@@ -1671,6 +1879,14 @@
   "F62": {
     "title": "Namaz of Will",
     "slug": "namaz-of-will"
+  },
+  "F64": {
+    "title": "Namaz for Settling of Debts",
+    "slug": "namaz-for-settling-of-debts"
+  },
+  "F7": {
+    "title": "Namaz e Mayyat",
+    "slug": "namaz-e-mayyat"
   },
   "F8": {
     "title": "Namaz e Nawafil",
@@ -1687,6 +1903,10 @@
   "G1": {
     "title": "Ziyaarat-e-Aal-e-Yaaseen",
     "slug": "ziyaarat-e-aal-e-yaaseen"
+  },
+  "G10": {
+    "title": "Ziyarat e Taziyah Condolence to Holy Prophet (s) and His Immaculate progeny",
+    "slug": "ziyarat-e-taziyah-condolence-to-holy-prophet-s-and-his-immaculate-progeny"
   },
   "G11": {
     "title": "Ziyaarat-e-Naaheyah",
@@ -1737,9 +1957,21 @@
     "title": "Friday - Ziyarah of Imam al Mahdi (a.t.f.s.)",
     "slug": "friday-ziyarah-of-imam-al-mahdi-a-t-f-s"
   },
+  "G26": {
+    "title": "Supplications after the Ziyarat",
+    "slug": "supplications-after-the-ziyarat"
+  },
+  "G29": {
+    "title": "Visiting the Graves of the Faithful Believers",
+    "slug": "visiting-the-graves-of-the-faithful-believers"
+  },
   "G3": {
     "title": "Ziyarat e Arbaeen The 20th of Safar",
     "slug": "ziyarat-e-arbaeen-the-20th-of-safar"
+  },
+  "G30": {
+    "title": "The comprehensive Ziyarat of the Imams (a)",
+    "slug": "the-comprehensive-ziyarat-of-the-imams-a"
   },
   "G4": {
     "title": "Ziyarat Ashura",
@@ -1913,6 +2145,10 @@
       "08-01"
     ]
   },
+  "G74": {
+    "title": "Ziyarat e Imam Husain (a)",
+    "slug": "ziyarat-e-imam-husain-a"
+  },
   "G75": {
     "title": "Ziyarat-e-Imam Husain (a.s.) on the Day of Arafah",
     "slug": "ziyarat-e-imam-husain-a-s-on-the-day-of-arafah",
@@ -1921,6 +2157,10 @@
   "G76": {
     "title": "Ziyarat After Namaz",
     "slug": "ziyarat-after-namaz"
+  },
+  "G77": {
+    "title": "Ziyarat of Imam Al Hujjah (a.t.f.s.)",
+    "slug": "ziyarat-of-imam-al-hujjah-a-t-f-s"
   },
   "G78": {
     "title": "Ziyarat of H. Masooma-e-Qum (s.a.)",
@@ -2102,6 +2342,14 @@
     "title": "Appearing Istekhaarah for Others",
     "slug": "appearing-istekhaarah-for-others"
   },
+  "I108": {
+    "title": "Prohibition on Shaving Beard",
+    "slug": "prohibition-on-shaving-beard"
+  },
+  "I109": {
+    "title": "Prohibition on Inclination towards the Wrongdoers",
+    "slug": "prohibition-on-inclination-towards-the-wrongdoers"
+  },
   "I11": {
     "title": "Rosary made of the turbat of Imam al-Husayn (a.s.)",
     "slug": "rosary-made-of-the-turbat-of-imam-husayn-a-s"
@@ -2114,9 +2362,17 @@
     "title": "Importance of reciting of Qulho wallaho Ahad",
     "slug": "importance-of-reciting-of-qulho-wallaho-ahad"
   },
+  "I112": {
+    "title": "Importance of a ring of Aqeeq and looking at it in the morning and while praying",
+    "slug": "importance-of-a-ring-of-aqeeq-and-looking-at-it-in-the-morning-and-while-praying"
+  },
   "I115": {
     "title": "Writing of Will before death",
     "slug": "writing-of-will-before-death"
+  },
+  "I119": {
+    "title": "The Ritual Bathing (Ghusl) of The Deceased",
+    "slug": "the-ritual-bathing-ghusl-of-the-deceased"
   },
   "I13": {
     "title": "Merits of reciting Ayah Kursi after every Namaz",
@@ -2162,6 +2418,14 @@
     "title": "Etiquettes of Bedtime",
     "slug": "etiquettes-of-bedtime"
   },
+  "I28": {
+    "title": "Salawat of immense rewards",
+    "slug": "salawat-of-immense-rewards"
+  },
+  "I29": {
+    "title": "Letter of Yusha the son of Nun",
+    "slug": "letter-of-yusha-the-son-of-nun"
+  },
   "I3": {
     "title": "Cleansing the Teeth",
     "slug": "cleansing-the-teeth"
@@ -2194,6 +2458,14 @@
     "title": "The time of Istekhaarah",
     "slug": "the-time-of-istikharah"
   },
+  "I37": {
+    "title": "Etiquettes of Praying for fulfillment of needs",
+    "slug": "etiquettes-of-praying-for-fulfillment-of-needs"
+  },
+  "I38": {
+    "title": "Taweez against Headache & Ear ache",
+    "slug": "taweez-against-headache-ear-ache"
+  },
   "I39": {
     "title": "Taweez against Migraine",
     "slug": "taweez-against-migraine"
@@ -2202,6 +2474,14 @@
     "title": "The Ritual Ablution (Wuzu)",
     "slug": "ritual-ablution-wuzu"
   },
+  "I41": {
+    "title": "Taweez against Mouthache",
+    "slug": "taweez-against-mouthache"
+  },
+  "I43": {
+    "title": "Taweez for Chest Pains",
+    "slug": "taweez-for-chest-pains"
+  },
   "I44": {
     "title": "Taweez for Curing of Coughing & against Stomach Pains",
     "slug": "taweez-for-curing-of-coughing-against-stomach-pains"
@@ -2209,6 +2489,10 @@
   "I5": {
     "title": "Etiquettes of attending Mosques",
     "slug": "etiquettes-of-attending-mosques"
+  },
+  "I51": {
+    "title": "Taweez against Mange, Furuncle & Herpes",
+    "slug": "taweez-against-mange-furuncle-herpes"
   },
   "I52": {
     "title": "Taweez against Private Parts Pains",
@@ -2221,6 +2505,10 @@
   "I54": {
     "title": "Taweez against Eye aches",
     "slug": "taweez-against-eye-aches"
+  },
+  "I55": {
+    "title": "Suffering from Nosebleed",
+    "slug": "suffering-from-nosebleed"
   },
   "I56": {
     "title": "Taweez for Neutralizing Sorcery",
@@ -2246,6 +2534,14 @@
     "title": "Taweez against Satan's Evil Insinuations",
     "slug": "taweez-against-satans-evil-insinuations"
   },
+  "I62": {
+    "title": "Taweez against Thieves",
+    "slug": "taweez-against-thieves"
+  },
+  "I63": {
+    "title": "Taweez against Scorpions and Serpents",
+    "slug": "taweez-against-scorpions-and-serpents"
+  },
   "I64": {
     "title": "Repelling The Evils of Jinn & Horrifying Authorities",
     "slug": "repelling-the-evils-of-jinn-horrifying-authorities"
@@ -2258,13 +2554,25 @@
     "title": "Acquiring lesson from the Dead",
     "slug": "acquiring-lesson-from-the-dead"
   },
+  "I67": {
+    "title": "Tawassul with Holy Prophet (s) and H. Ali (s)",
+    "slug": "tawassul-with-holy-prophet-s-and-h-ali-s"
+  },
   "I68": {
     "title": "Evil-Repelling Prayers and Supplicatory Amulets",
     "slug": "evil-repelling-prayers-and-supplicatory-amulets"
   },
+  "I69": {
+    "title": "Protection from fleas & beasts",
+    "slug": "protection-from-fleas-beasts"
+  },
   "I7": {
     "title": "Other Etiquettes of Namaz",
     "slug": "other-etiquettes-of-namaz"
+  },
+  "I70": {
+    "title": "Brief Supplications for this World and other worldly desires",
+    "slug": "brief-supplications-for-this-world-and-other-worldly-desires"
   },
   "I72": {
     "title": "Lightening fast Prayer (for worldly desires)",
@@ -2314,6 +2622,10 @@
     "title": "Holy Prophet (s.a.w.a.)'s prayer for security",
     "slug": "holy-prophet-s-a-w-a-s-prayer-for-security"
   },
+  "I87": {
+    "title": "Special Qualities of some the Qur'anic Chapters And Verses",
+    "slug": "special-qualities-of-some-the-qur-anic-chapters-and-verses"
+  },
   "I88": {
     "title": "Special Features of Surah Qadr, Tawheed & Ayah Al Kursi",
     "slug": "special-features-of-surah-qadr-tawheed-ayah-al-kursi"
@@ -2325,6 +2637,10 @@
   "I94": {
     "title": "Verses to restore the lost things",
     "slug": "verses-to-restore-the-lost-things"
+  },
+  "I97": {
+    "title": "Some Merits of other Surahs & verses",
+    "slug": "some-merits-of-other-surahs-verses"
   },
   "I98": {
     "title": "Things taught by Holy Prophet (s.a.w.a.) to Lady Fatimah (s.a.)",
@@ -2456,6 +2772,14 @@
     "title": "Ziyarat of Wednesday",
     "slug": "ziyarah-of-wednesday"
   },
+  "P13": {
+    "title": "Recite 100 times between Nafilah Fajr and Namaz of Fajr سُبْحَانَ رَبِّيَ الْعَظِيْمِ",
+    "slug": "recite-100-times-between-nafilah-fajr-and-namaz-of-fajr-subhana-rabbiyal-azeem"
+  },
+  "P15": {
+    "title": "Recitations near Friday Dawn (Fajr)",
+    "slug": "recitations-near-friday-dawn-fajr"
+  },
   "Q1": {
     "title": "The Supplication of Thursday",
     "slug": "the-supplication-of-thursday"
@@ -2491,6 +2815,10 @@
   "R12|E8": {
     "title": "Dua Alqamah",
     "slug": "dua-alqamah"
+  },
+  "R15": {
+    "title": "Second Ziyarah on day of Ashura; lesser known version",
+    "slug": "second-ziyarah-on-day-of-ashura-lesser-known-version"
   },
   "R15|G83": {
     "title": "Ziyaarat-e-Ashoora Ghair Ma'roofah",
@@ -2536,6 +2864,10 @@
     "slug": "ziyarah-on-the-day-of-arbaeen-the-twentieth-of-safar",
     "day": "02-20"
   },
+  "T2": {
+    "title": "Aamal from 12th to 17th nights of Rabi al Awwal",
+    "slug": "aamal-from-12th-to-17th-nights-of-rabi-al-awwal"
+  },
   "TR~D1": {
     "title": "Taqeebaat e Namaz",
     "slug": "taqeebaat-e-namaz"
@@ -2544,14 +2876,42 @@
     "title": "13th, 14th, And 15th Of Jumadi Al Ula",
     "slug": "13th-14th-and-15th-of-jumadi-al-ula"
   },
+  "W1": {
+    "title": "3rd Jamadi al Akhirah (Martyrdom of Lady Fatimah al-Zahra (s))",
+    "slug": "3rd-jamadi-al-akhirah-martyrdom-of-lady-fatimah-al-zahra-s"
+  },
+  "W2": {
+    "title": "20th Jamadi al Akhirah (Birthday of Lady Fatima al-Zahra (s))",
+    "slug": "20th-jamadi-al-akhirah-birthday-of-lady-fatima-al-zahra-s"
+  },
+  "W3": {
+    "title": "Aamal in Jamadi al Akhirah",
+    "slug": "aamal-in-jamadi-al-akhirah"
+  },
   "X1": {
     "title": "Importance of the month of Rajab and it's Aamaal",
     "slug": "importance-of-the-month-of-rajab-and-it-s-aamaal",
     "day": "07-*"
   },
+  "X10": {
+    "title": "(d) Fifteenth of Rajab (Namaz e Salman)",
+    "slug": "d-fifteenth-of-rajab-namaz-e-salman"
+  },
   "X11": {
     "title": "(e) Thirteenth of Rajab",
     "slug": "e-thirteenth-of-rajab"
+  },
+  "X13": {
+    "title": "Ziyarah on the 15th of Rajab",
+    "slug": "ziyarah-on-the-15th-of-rajab"
+  },
+  "X14": {
+    "title": "(g) Aamal & Dua of Umme Dawood",
+    "slug": "g-aamal-dua-of-umme-dawood"
+  },
+  "X15": {
+    "title": "(h) Aamal of Laylat al Mab'as (27th Night)",
+    "slug": "h-aamal-of-laylat-al-mab-as-27th-night"
   },
   "X2": {
     "title": "General Aamaal in Rajab",
@@ -2590,6 +2950,14 @@
     "title": "Fifteenth day of Shaban",
     "slug": "fifteenth-day-of-shaban"
   },
+  "Y11": {
+    "title": "Ziyarah on the 15th of Shaban",
+    "slug": "ziyarah-on-the-15th-of-shaban"
+  },
+  "Y2": {
+    "title": "General Aamal in Shaban",
+    "slug": "general-aamal-in-shaban"
+  },
   "Y3": {
     "title": "Daily Salawat of Shaban",
     "slug": "daily-salawat-of-shaban",
@@ -2599,6 +2967,18 @@
     "title": "Munajaat al Shabaniyyah",
     "slug": "munajaat-al-shabaniyyah",
     "day": "08-*"
+  },
+  "Y5": {
+    "title": "First Night of Shaban",
+    "slug": "first-night-of-shaban"
+  },
+  "Y6": {
+    "title": "First Day of Shaban",
+    "slug": "first-day-of-shaban"
+  },
+  "Y7": {
+    "title": "Third of Shaban",
+    "slug": "third-of-shaban"
   },
   "Y9": {
     "title": "Fifteenth Night of Shaban",
