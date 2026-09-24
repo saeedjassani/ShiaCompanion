@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../pages/zikr/zikr_content_parser.dart';
 import 'quran_index.dart';
+import 'quran_uthmani.dart';
 
 /// A readable stretch of the Quran that may run across surah boundaries.
 ///
@@ -124,9 +125,11 @@ Future<ParsedZikrContent?> _parseSurah(String uid, AssetBundle bundle) async {
   try {
     final decoded = json.decode(await bundle.loadString('assets/zikr/$uid'));
     if (decoded is! Map) return null;
+    final document =
+        await applyQuranScript(uid, Map<String, dynamic>.from(decoded), bundle);
 
     return ZikrContentParser.parseContent(
-      decoded['data']?.toString() ?? '',
+      document['data']?.toString() ?? '',
       hideHeaderLine: false,
       code: decoded['code']?.toString() ?? _quranContentCode,
     );

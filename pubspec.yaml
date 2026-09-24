@@ -79,6 +79,9 @@ flutter:
     - assets/retired_slugs.json
     - assets/zikr.json
     - assets/hadith/
+    # Tanzil Uthmani text (CC BY 3.0, verbatim - see the notice at its end),
+    # shown in place of the Indo-Pak surah text when Scheherazade is selected.
+    - assets/quran/
     # Listed file by file rather than as a directory: a directory entry
     # bundles whatever is sitting in it, which is how a Finder .DS_Store came
     # to ship inside the app. assets/hadith/ and assets/zikr/ hold hundreds of
