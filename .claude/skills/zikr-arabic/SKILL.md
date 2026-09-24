@@ -291,11 +291,12 @@ Needs the content author's sign-off:
 - **Any hā flagged by `impossible_vowel`** — the reading itself is wrong.
 - **Restyling a whole document.** The 47 imports are a restyle, not bug-fixing.
   Keep that decision separate and explicit.
-- **Open question, unanswered twice:** should `وَ` always be glued to the
-  following word with no space? Recommended yes (standard orthography, mushaf
-  convention, and by far the largest source of diff noise), but it must
-  run *after* word-split fixes so that a standalone `وَ` is unambiguously the
-  conjunction.
+- **`وَ` is glued to the following word — decided and done.** The repo owner
+  confirmed it; `scripts/zikr_arabic/join_wa.py` joined 11,235 across the
+  non-Quran corpus and moved the 39 line-final `وَ` (AC1, AC3, G55, G66, G67)
+  down onto the next Arabic line, with their WA/"and". Re-run it after any
+  import: it only joins the conjunction's own spellings (`و وَ وَّ وّ`) and
+  reports any other separated `و` — that is a split word, and needs a human.
 
 Review happens as a published Artifact or a PDF, never raw diffs — the reviewer
 is non-technical. Headless Chrome renders this corpus's Arabic correctly:
