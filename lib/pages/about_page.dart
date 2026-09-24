@@ -103,6 +103,21 @@ class _AboutPageState extends State<AboutPage> {
                         Uri.parse('https://software.sil.org/scheherazade/')),
                     child: const Text('software.sil.org/scheherazade'),
                   ),
+                  const SizedBox(height: 12),
+                  // Tanzil's terms (CC BY 3.0) require the source to be named
+                  // and linked wherever its text is shown.
+                  const Text(
+                    'The Uthmani Quran text, shown with Scheherazade, is from '
+                    'the Tanzil Project, used under Creative Commons '
+                    'Attribution 3.0.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () =>
+                        launchExternalUri(Uri.parse('https://tanzil.net')),
+                    child: const Text('tanzil.net'),
+                  ),
                 ],
               ),
             ),

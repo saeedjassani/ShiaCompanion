@@ -20,6 +20,7 @@ import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/quran_index.dart';
+import 'package:shia_companion/utils/quran_uthmani.dart';
 import 'package:shia_companion/utils/quran_portion.dart';
 import 'package:shia_companion/utils/external_launch.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -1001,14 +1002,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final redirect = retiredZikrRedirects[widget.item.getFirstUId()];
     final assetUid = redirect?.targetUid ?? widget.item.getFirstUId();
     try {
-      final raw = await DefaultAssetBundle.of(context)
-          .loadString('assets/zikr/$assetUid');
+      final bundle = DefaultAssetBundle.of(context);
+      final raw = await bundle.loadString('assets/zikr/$assetUid');
       final decoded = json.decode(raw);
       if (decoded is! Map) {
         return false;
       }
 
-      _applyZikrData(Map<String, dynamic>.from(decoded));
+      final document = await applyQuranScript(
+          assetUid, Map<String, dynamic>.from(decoded), bundle);
+      if (!mounted) return true;
+      _applyZikrData(document);
       if (redirect?.tabIndex != null) {
         _selectedZikrTabIndex = redirect!.tabIndex! + 1;
       }
