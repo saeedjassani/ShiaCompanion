@@ -206,4 +206,10 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
 
   /// X8 ("(c) First Day of Rajab") points to the First Night/Day of Rajab rites (X7).
   'X8': RetiredZikrRedirect('X7'),
+
+  /// E127 ("Salawat upon The Holy Infallibles") is only the isnad introducing
+  /// Imam al-Hasan al-'Askari's salawat; its source content stops at "Write
+  /// down the following:". The salawat itself ships as E128 (upon the Holy
+  /// Prophet), E129 (upon the Commander of the Faithful), and onward.
+  'E127': RetiredZikrRedirect('E128'),
 };
