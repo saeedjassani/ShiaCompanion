@@ -221,11 +221,11 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   // anchor via hasPrayerScheduleLocationMoved(), which applies a distance
   // threshold. Any rounding of raw coordinates into this string would flip on
   // GPS jitter and force a full reschedule on the next app open.
-  // Bumped to v9 when the Full Azan notification body gained its iOS "tap to
-  // hear" hint (see prayerNotificationBody): the body is fixed at schedule
-  // time, so already-scheduled notifications have to be rebuilt.
+  // Bumped to v10 when the Takbir Only iOS sound was renamed (see
+  // AzaanOptions.takbir): the sound name is fixed at schedule time, so
+  // already-scheduled notifications have to be rebuilt.
   return [
-    'v9',
+    'v10',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'tz:${tz.local.name}',
     'azaan:$azaanId',
@@ -1015,8 +1015,9 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
       azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id;
 
   AndroidNotificationSound? sound;
-  if (!playsViaAzanPlaybackService && azaan.id != 'system_default') {
-    sound = RawResourceAndroidNotificationSound(azaan.androidFile ?? 'sharif');
+  final androidFile = azaan.androidFile;
+  if (!playsViaAzanPlaybackService && androidFile != null) {
+    sound = RawResourceAndroidNotificationSound(androidFile);
   }
 
   return AndroidNotificationDetails(

@@ -6,7 +6,7 @@ class AzaanOption {
   // Shown instead of [description] on iOS, for options that behave
   // differently there.
   final String? iosDescription;
-  final String? androidFile; // raw resource name (null for custom/default)
+  final String? androidFile; // raw resource name (null when no channel sound)
   final String? iosFile; // asset filename (null for custom/default)
   final bool isCustom;
 
@@ -31,7 +31,10 @@ class AzaanOptions {
     id: 'takbir',
     name: 'Takbir Only',
     androidFile: 'takbir',
-    iosFile: 'azan.caf',
+    // iOS caches notification sounds by file name, so a recording swapped in
+    // under an existing name keeps playing the old one on updated installs.
+    // A new recording needs a new file name, not just new contents.
+    iosFile: 'takbir_halawaji.caf',
     description: 'Short takbir notification sound',
   );
 
@@ -44,7 +47,6 @@ class AzaanOptions {
   static const AzaanOption azaan = AzaanOption(
     id: 'azaan',
     name: 'Full Azan',
-    androidFile: 'sharif',
     description: 'Full azan, played automatically',
     iosDescription: 'The notification plays the Takbir; '
         'tap it to hear the full azan',
