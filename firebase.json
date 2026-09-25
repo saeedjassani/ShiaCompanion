@@ -64,7 +64,27 @@
     ],
     "rewrites": [
       {
-        "source": "**",
+        "source": "/*",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/zikr/*/*",
+        "destination": "/index.html"
+      },
+      {
+        "regex": "^/zikr/[^/]+:[0-9]+$",
+        "destination": "/index.html"
+      },
+      {
+        "regex": "^/[0-9]+/.+$",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/library/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/quran/**",
         "destination": "/index.html"
       }
     ]

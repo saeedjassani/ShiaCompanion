@@ -10,19 +10,19 @@
   ],
   "audio": [
     {
-      "url": "https://mp3.duas.org/zilhajj-salat-ayat.mp3",
+      "url": "https://pub-ee9041af06e644c2932c50c137c28aef.r2.dev/ac5_zilhajj-salat-ayat.mp3",
       "label": "Salaat between Maghrib and Isha"
     },
     {
-      "url": "https://mp3.duas.org/zilhajj%20allahumahazaayam.mp3",
+      "url": "https://pub-ee9041af06e644c2932c50c137c28aef.r2.dev/ac5_zilhajj-dua-after-fajr.mp3",
       "label": "Dua after Fajr and Before Magrib"
     },
     {
-      "url": "https://mp3.duas.org/zilhajj%201st%2010%20days%205%20duas%20ashhadu.mp3",
+      "url": "https://pub-ee9041af06e644c2932c50c137c28aef.r2.dev/ac5_zilhajj-five-tasbih.mp3",
       "label": "Five Tasbih - Zilhajj 10 days"
     },
     {
-      "url": "https://mp3.duas.org/zilhajj10-tahlil.mp3",
+      "url": "https://pub-ee9041af06e644c2932c50c137c28aef.r2.dev/ac5_zilhajj-tahlil.mp3",
       "label": "Tahlilaat (hymns of God's unity)"
     }
   ]

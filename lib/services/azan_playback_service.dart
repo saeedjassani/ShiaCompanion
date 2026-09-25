@@ -136,8 +136,25 @@ class AzanPlaybackService {
     String? customFilePath,
   }) async {
     // A stale or duplicate alarm firing while one Azan is still playing must
-    // not start overlapping audio.
-    if (await isPlaying()) return;
+    // not start overlapping audio. This checks for a live player, never the
+    // persisted flag [isPlaying] reads: that flag outlives the process, so an
+    // Azan cut short by the app being killed (swiped away, or reclaimed by
+    // iOS) left it stuck at true and every later tap on a prayer
+    // notification silently did nothing.
+    final existing = _activePlayer;
+    if (existing != null) {
+      // One this isolate started but that is now paused (e.g. from the
+      // lock-screen control) or finished is not a reason to ignore an
+      // explicit request to play - replace it.
+      if (existing.playing &&
+          existing.processingState != ProcessingState.completed) {
+        return;
+      }
+      await _stopPlayback();
+    } else if (IsolateNameServer.lookupPortByName(_stopPortName) != null) {
+      // Another isolate (Android's alarm callback) is playing right now.
+      return;
+    }
 
     // JustAudioBackground.init() must never run a second time in an isolate
     // that already called it - on iOS this isn't a catchable Dart exception
@@ -231,10 +248,21 @@ class AzanPlaybackService {
   // UI). Without a reload, this isolate's cache would just keep answering
   // with whatever it last saw of its own, never picking up the other
   // isolate's write to the same underlying native store.
+  //
+  // The flag alone can also be stale - left true by an Azan whose process
+  // was killed mid-playback. Whichever isolate is really playing always has
+  // [_stopPortName] registered, and that registration dies with the process,
+  // so a true flag with no port behind it is cleared rather than believed.
   static Future<bool> isPlaying() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
-    return prefs.getBool(_playingPrefKey) ?? false;
+    final flagged = prefs.getBool(_playingPrefKey) ?? false;
+    if (!flagged) return false;
+    if (IsolateNameServer.lookupPortByName(_stopPortName) == null) {
+      await _clearPlaying();
+      return false;
+    }
+    return true;
   }
 
   static Future<String?> currentPrayerName() async {

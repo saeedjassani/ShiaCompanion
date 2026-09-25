@@ -310,6 +310,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // The one place a zikr open is counted, so every entry point lands in the
     // same bucket exactly once.
     _openedAt = DateTime.now();
+    RatingPromptService.readerOpened();
     unawaited(trackScreen('Zikr Page'));
     unawaited(AnalyticsService.zikrView(
       uid: widget.item.getUId(),
@@ -344,8 +345,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       uid: widget.item.getUId(),
       title: widget.item.getTitle(),
     ));
-    unawaited(RatingPromptService.recordZikrCompleted()
-        .then((_) => RatingPromptService.maybeAsk(context)));
+    // Only leaves an ask pending: the reader is still on the closing lines.
+    // It is put to them once they leave this page - see [dispose].
+    unawaited(RatingPromptService.recordZikrCompleted());
   }
 
   /// Records the reader's place in their recitation - but only once they have
@@ -474,7 +476,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               onTap: () {
                 Navigator.pop(sheetContext);
                 unawaited(
-                  SharePlus.instance.share(ShareParams(text: '$text\n\n$link')),
+                  SharePlus.instance
+                      .share(ShareParams(text: '$text\n\n$link'))
+                      .then((result) => _recordShareResult(result, 'verse')),
                 );
               },
             ),
@@ -529,6 +533,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           savedAt: DateTime.now().toUtc(),
         ),
       );
+      RatingPromptService.recordPositiveAction('save_verse');
     }
 
     if (!mounted) return;
@@ -571,6 +576,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.dispose();
     syncZikrWakelockPreference(owner: this, isActive: false);
+    // After _maybeRecordCompletion above, so a completion recorded on the way
+    // out is already pending when leaving the reader puts it to the user.
+    RatingPromptService.readerClosed();
     super.dispose();
   }
 
@@ -1161,13 +1169,21 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     required String title,
     required String deepLink,
     required Rect sharePositionOrigin,
-  }) {
-    return SharePlus.instance.share(
+  }) async {
+    final result = await SharePlus.instance.share(
       ShareParams(
         text: '$title\n$deepLink',
         sharePositionOrigin: sharePositionOrigin,
       ),
     );
+    _recordShareResult(result, 'zikr');
+  }
+
+  /// Only a share that actually went somewhere counts as a positive action -
+  /// backing out of the share sheet says nothing about the app.
+  void _recordShareResult(ShareResult result, String what) {
+    if (result.status != ShareResultStatus.success) return;
+    RatingPromptService.recordPositiveAction('share_$what');
   }
 
   Future<void> _shareCurrentZikr() async {
@@ -1237,7 +1253,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         return;
       }
 
-      await SharePlus.instance.share(
+      final result = await SharePlus.instance.share(
         ShareParams(
           title: title,
           subject: title,
@@ -1254,6 +1270,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           sharePositionOrigin: sharePositionOrigin,
         ),
       );
+      _recordShareResult(result, 'zikr');
     } catch (error) {
       debugPrint('Error sharing zikr image: $error');
       await _shareZikrText(
@@ -1397,6 +1414,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     setState(() {
       _savedBookmark = bookmark;
     });
+    RatingPromptService.recordPositiveAction('bookmark');
     unawaited(AnalyticsService.feature(
       'zikr_bookmark_saved',
       label: 'Bookmark saved',

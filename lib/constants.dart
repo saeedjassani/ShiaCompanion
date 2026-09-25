@@ -559,8 +559,13 @@ Future<bool> initializeLocation(
     // the previous label in place rather than degrading it — never coordinates,
     // never a dialog.
     try {
-      final response = await http.get(Uri.parse(
-          "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$lat&longitude=$long&localityLanguage=en"));
+      final response = await http
+          .get(Uri.parse(
+              "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$lat&longitude=$long&localityLanguage=en"))
+          // Bounded like every other network read on the startup path:
+          // without it a stalled connection held up everything awaiting
+          // this location refresh indefinitely.
+          .timeout(const Duration(seconds: 8));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final resolvedCity =
@@ -1163,6 +1168,11 @@ String? prayerNameForNotificationId(int id) {
   return prayerNames[prayerIndex];
 }
 
+/// Whether a tapped notification was a zikr reminder rather than a prayer
+/// notification - the one kind that needs the zikr index loaded first.
+bool isZikrReminderNotificationResponse(NotificationResponse response) =>
+    response.payload?.startsWith(ZikrReminderService.payloadPrefix) ?? false;
+
 /// Starts the full Azan when a tapped notification was for a prayer whose
 /// chosen sound is Full Azan or Custom Audio.
 ///
@@ -1178,11 +1188,9 @@ String? prayerNameForNotificationId(int id) {
 /// invokes whichever one matches where the tap arrived.
 Future<void> handlePrayerNotificationResponse(
     NotificationResponse response) async {
-  final payload = response.payload;
-  if (payload != null &&
-      payload.startsWith(ZikrReminderService.payloadPrefix)) {
+  if (isZikrReminderNotificationResponse(response)) {
     await _openZikrReminderNotification(
-      payload.substring(ZikrReminderService.payloadPrefix.length),
+      response.payload!.substring(ZikrReminderService.payloadPrefix.length),
     );
     return;
   }
