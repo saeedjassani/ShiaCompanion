@@ -191,7 +191,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Map<String, dynamic>? _eventForDay(DateTime day) {
-    final event = eventsMap[getStringFromDate(_hijriDateFor(day))];
+    final event = eventsMap[_eventKeyFor(_hijriDateFor(day))];
     if (event is Map<String, dynamic>) return event;
     return null;
   }
@@ -202,9 +202,11 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  String getStringFromDate(HijriCalendar dateTime) {
-    List<String> temp = dateTime.toString().split('/');
-    return int.parse(temp[0]).toString() + '-' + int.parse(temp[1]).toString();
+  // events.json is keyed "MM-DD", the same fixed-date format as a zikr's
+  // `day` pattern (see lunar_date_matcher.dart).
+  String _eventKeyFor(HijriCalendar date) {
+    return '${date.hMonth.toString().padLeft(2, '0')}-'
+        '${date.hDay.toString().padLeft(2, '0')}';
   }
 
   bool isToday(DateTime dateTime) {

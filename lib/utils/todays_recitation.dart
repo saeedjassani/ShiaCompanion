@@ -4,62 +4,17 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/utils/lunar_date_matcher.dart';
 import 'package:shia_companion/utils/night_window.dart';
 
-// Aliases are uids of the form "aliasUid|targetUid"; the part after the
-// last "|" is the canonical uid they point to. Comparing canonical uids
-// (instead of raw ones) stops an alias and its target — or two aliases of
-// the same target — from both showing up as separate rows.
-String _canonicalUid(String uid) => uid.split('|').last;
-
-void _insertIfAvailable(
-  List<UidTitleData> workingItems,
-  int index,
-  String uid,
-) {
-  final title = items[uid];
-  if (title is! String || title.trim().isEmpty) return;
-  if (workingItems.any(
-    (item) => _canonicalUid(item.uid) == _canonicalUid(uid),
-  )) {
-    return;
-  }
-  workingItems.insert(
-    index.clamp(0, workingItems.length),
-    UidTitleData(uid, title),
-  );
-}
-
-void _addIfAvailable(List<UidTitleData> workingItems, String uid) {
-  _insertIfAvailable(workingItems, workingItems.length, uid);
-}
-
-int _compareRecitationItems(UidTitleData a, UidTitleData b) {
-  final aOrder = getItemOrderValue(a.uid);
-  final bOrder = getItemOrderValue(b.uid);
-  if (aOrder != bOrder) {
-    return aOrder.compareTo(bOrder);
-  }
-
-  final byId = a.getId().compareTo(b.getId());
-  if (byId != 0) {
-    return byId;
-  }
-
-  return a.uid.compareTo(b.uid);
-}
-
-String? _weekdayPrefix(DateTime today) {
-  return switch (today.weekday) {
-    DateTime.friday => 'J',
-    DateTime.saturday => 'K',
-    DateTime.sunday => 'L',
-    DateTime.monday => 'M',
-    DateTime.tuesday => 'N',
-    DateTime.wednesday => 'O',
-    DateTime.thursday => 'Q',
-    _ => null,
-  };
-}
-
+/// Builds today's recitation list purely from each zikr's `day` patterns in
+/// `assets/zikr.json` (see [matchesLunarDatePattern]) - occasions, whole
+/// months, weekdays ("*-*-5") and every-day recitations ("*-*") alike.
+///
+/// Only canonical zikr entries carry a `day`; an alias ("<uid>|<target>")
+/// never does, so each recitation appears exactly once without any
+/// de-duplication here.
+///
+/// Items are ordered most specific occasion first (a date or night, then a
+/// month, then a weekday, then every day - see [lunarPatternSpecificity]),
+/// and by each zikr's order value within that.
 List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) {
   final today = now ?? DateTime.now();
   final adjustedHijriDate = HijriCalendar.fromDate(
@@ -74,8 +29,7 @@ List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) {
     hijriDateOffsetDays: hijriDate,
   );
 
-  final lunarItems = <UidTitleData>[];
-  final lunarMatchedUids = getTodaysZikrs(
+  final matches = matchTodaysZikrs(
     itemMetadata,
     currentDate: adjustedHijriDate,
     nightDate: nightDate,
@@ -85,39 +39,28 @@ List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) {
     // has no bearing on which civil weekday today actually is.
     weekdayAnchor: today,
   );
-  for (final uid in lunarMatchedUids) {
-    _addIfAvailable(lunarItems, uid);
-  }
-  lunarItems.sort(_compareRecitationItems);
 
-  final weekdayItems = <UidTitleData>[];
-  final weekdayPrefix = _weekdayPrefix(today);
-  for (final rawUid in items.keys) {
-    final uid = rawUid.toString();
-    if (weekdayPrefix == uid.split('~')[0] ||
-        weekdayPrefix == uid.replaceAll(RegExp('[0-9].*'), '')) {
-      final title = items[rawUid]?.toString() ?? '';
-      if (title.trim().isNotEmpty) {
-        weekdayItems.add(UidTitleData(uid, title));
-      }
+  final recitations = <UidTitleData>[];
+  matches.forEach((uid, _) {
+    final title = items[uid];
+    if (title is String && title.trim().isNotEmpty) {
+      recitations.add(UidTitleData(uid, title));
     }
-  }
-  weekdayItems.sort(_compareRecitationItems);
+  });
 
-  final workingItems = <UidTitleData>[
-    ...lunarItems,
-  ];
+  recitations.sort((a, b) {
+    final bySpecificity = matches[a.uid]!.compareTo(matches[b.uid]!);
+    if (bySpecificity != 0) return bySpecificity;
 
-  for (final item in weekdayItems) {
-    _addIfAvailable(workingItems, item.uid);
-  }
+    final byOrder =
+        getItemOrderValue(a.uid).compareTo(getItemOrderValue(b.uid));
+    if (byOrder != 0) return byOrder;
 
-  if (items.isNotEmpty) {
-    _addIfAvailable(workingItems, 'E18');
-    _addIfAvailable(workingItems, 'G6');
-    _addIfAvailable(workingItems, 'G4');
-    _addIfAvailable(workingItems, 'E37');
-  }
+    final byId = a.getId().compareTo(b.getId());
+    if (byId != 0) return byId;
 
-  return workingItems;
+    return a.uid.compareTo(b.uid);
+  });
+
+  return recitations;
 }

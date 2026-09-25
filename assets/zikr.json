@@ -474,7 +474,7 @@
   "AA10": {
     "title": "Dua-e-Iftetaah",
     "slug": "dua-e-iftetaah",
-    "day": "09-*"
+    "day": "N09-*"
   },
   "AA11": {
     "title": "Dua Baha - Ramadan Suhoor Dawn",
@@ -497,7 +497,8 @@
   },
   "AA15": {
     "title": "Aamal & Duas to be recited in every night of Ramadhan",
-    "slug": "aamal-duas-to-be-recited-in-every-night-of-ramadhan"
+    "slug": "aamal-duas-to-be-recited-in-every-night-of-ramadhan",
+    "day": "N09-*"
   },
   "AA16": {
     "title": "Aamal-e-Sahar in the Holy Month of Ramazan",
@@ -506,15 +507,18 @@
   },
   "AA17": {
     "title": "Tasbeehat at the time of Sehar",
-    "slug": "tasbeehat-at-the-time-of-sehar"
+    "slug": "tasbeehat-at-the-time-of-sehar",
+    "day": "09-*"
   },
   "AA18": {
     "title": "Aamal & Duas for the days of Ramadhan",
-    "slug": "aamal-duas-for-the-days-of-ramadhan"
+    "slug": "aamal-duas-for-the-days-of-ramadhan",
+    "day": "09-*"
   },
   "AA19": {
     "title": "Tasbeehat & Salawat for every day in Ramadhan",
-    "slug": "tasbeehat-and-salawat-for-every-day-in-ramadhan"
+    "slug": "tasbeehat-and-salawat-for-every-day-in-ramadhan",
+    "day": "09-*"
   },
   "AA2": {
     "title": "Recitation Of The Holy Qur’an In Ramazan",
@@ -523,97 +527,139 @@
   },
   "AA20": {
     "title": "First Night of Ramadhan",
-    "slug": "first-night-of-ramadhan"
+    "slug": "first-night-of-ramadhan",
+    "day": "N09-01"
   },
   "AA21": {
     "title": "Dua No. 43 of Saheefah al-Kaamelah",
-    "slug": "dua-no-43-of-saheefah-al-kaamelah"
+    "slug": "dua-no-43-of-saheefah-al-kaamelah",
+    "day": "N09-01"
   },
   "AA22": {
     "title": "Other Aamal of The First Night",
-    "slug": "other-aamal-of-the-first-night"
+    "slug": "other-aamal-of-the-first-night",
+    "day": "N09-01"
   },
   "AA23": {
     "title": "The 1st Day of Ramadhan",
-    "slug": "the-1st-day-of-ramadhan"
+    "slug": "the-1st-day-of-ramadhan",
+    "day": "09-01"
   },
   "AA25": {
     "title": "The 13th Night of Ramadhan",
-    "slug": "the-13th-night-of-ramadhan"
+    "slug": "the-13th-night-of-ramadhan",
+    "day": "N09-13"
   },
   "AA26": {
     "title": "The 15th Night of Ramadhan",
-    "slug": "the-15th-night-of-ramadhan"
+    "slug": "the-15th-night-of-ramadhan",
+    "day": "N09-15"
   },
   "AA27": {
     "title": "The 17th Night of Ramadhan",
-    "slug": "the-17th-night-of-ramadhan"
+    "slug": "the-17th-night-of-ramadhan",
+    "day": "N09-17"
   },
   "AA29": {
     "title": "Common Aamal at each of the three Qadr Nights",
-    "slug": "common-aamal-at-each-of-the-three-qadr-nights"
+    "slug": "common-aamal-at-each-of-the-three-qadr-nights",
+    "day": [
+      "N09-19",
+      "N09-21",
+      "N09-23"
+    ]
   },
   "AA3": {
     "title": "Aamal to be performed only during Night",
     "slug": "aamal-to-be-performed-only-during-night",
-    "day": "09-*"
+    "day": "N09-*"
   },
   "AA30": {
     "title": "19th Night of Ramadhan",
-    "slug": "19th-night-of-ramadhan"
+    "slug": "19th-night-of-ramadhan",
+    "day": "N09-19"
   },
   "AA31": {
     "title": "Aamal of the 21st Night of Ramadhan",
-    "slug": "aamal-of-the-21st-night-of-ramadhan"
+    "slug": "aamal-of-the-21st-night-of-ramadhan",
+    "day": "N09-21"
   },
   "AA32": {
     "title": "Aamal of the last ten Nights of Ramadhan",
-    "slug": "aamal-of-the-last-ten-nights-of-ramadhan"
+    "slug": "aamal-of-the-last-ten-nights-of-ramadhan",
+    "day": [
+      "N09-21",
+      "N09-22",
+      "N09-23",
+      "N09-24",
+      "N09-25",
+      "N09-26",
+      "N09-27",
+      "N09-28",
+      "N09-29",
+      "N09-30"
+    ]
   },
   "AA33": {
     "title": "Dua on the 22nd Night of Ramadhan",
-    "slug": "dua-on-the-22nd-night-of-ramadhan"
+    "slug": "dua-on-the-22nd-night-of-ramadhan",
+    "day": "N09-22"
   },
   "AA34": {
     "title": "23rd Night of Ramadhan",
-    "slug": "23rd-night-of-ramadhan"
+    "slug": "23rd-night-of-ramadhan",
+    "day": "N09-23"
   },
   "AA35": {
     "title": "Dua for the 23rd Night of Ramadhan",
-    "slug": "dua-for-the-23rd-night-of-ramadhan"
+    "slug": "dua-for-the-23rd-night-of-ramadhan",
+    "day": "N09-23"
   },
   "AA37": {
     "title": "Dua for the 25th Night of Ramadhan",
-    "slug": "dua-for-the-25th-night-of-ramadhan"
+    "slug": "dua-for-the-25th-night-of-ramadhan",
+    "day": "N09-25"
   },
   "AA38": {
     "title": "Dua for the 26th Night of Ramadhan",
-    "slug": "dua-for-the-26th-night-of-ramadhan"
+    "slug": "dua-for-the-26th-night-of-ramadhan",
+    "day": "N09-26"
   },
   "AA39": {
     "title": "27th Night of Ramadan",
-    "slug": "27th-night-of-ramadan"
+    "slug": "27th-night-of-ramadan",
+    "day": "N09-27"
   },
   "AA4": {
     "title": "One Thousand Unit Prayers",
     "slug": "one-thousand-unit-prayers",
-    "day": "09-*"
+    "day": "N09-*"
   },
   "AA40": {
     "title": "Dua for the 27th Night of Ramadhan",
-    "slug": "dua-for-the-27th-night-of-ramadhan"
+    "slug": "dua-for-the-27th-night-of-ramadhan",
+    "day": "N09-27"
   },
   "AA43": {
     "title": "Last Night of Ramadhan",
-    "slug": "last-night-of-ramadhan"
+    "slug": "last-night-of-ramadhan",
+    "day": [
+      "N09-29",
+      "N09-30"
+    ]
   },
   "AA46": {
     "title": "Prayers for the nights of Ramadhan",
-    "slug": "prayers-for-the-nights-of-ramadhan"
+    "slug": "prayers-for-the-nights-of-ramadhan",
+    "day": "N09-*"
   },
   "AA47": {
     "title": "Farewell Prayer of Ramadhan",
-    "slug": "farewell-prayer-of-ramadhan"
+    "slug": "farewell-prayer-of-ramadhan",
+    "day": [
+      "N09-29",
+      "N09-30"
+    ]
   },
   "AA5": {
     "title": "Duas after every obligatory Prayers",
@@ -622,7 +668,8 @@
   },
   "AA9": {
     "title": "Dua Hajj - Ramadan",
-    "slug": "dua-hajj-ramadan"
+    "slug": "dua-hajj-ramadan",
+    "day": "09-*"
   },
   "AA~Z8": {
     "title": "Everyday short duas in the month of Ramazan",
@@ -720,7 +767,8 @@
   },
   "AC19": {
     "title": "Namaz on the Day of Ghadeer",
-    "slug": "namaz-on-the-day-of-ghadeer"
+    "slug": "namaz-on-the-day-of-ghadeer",
+    "day": "12-18"
   },
   "AC2": {
     "title": "Another Ziyarah on the Day of Ghadeer",
@@ -767,8 +815,7 @@
   "AC4|G75": {
     "title": "Ziyarah on the day of Arafat",
     "order": 8,
-    "slug": "ziyarah-on-the-day-of-arafat",
-    "day": "12-09"
+    "slug": "ziyarah-on-the-day-of-arafat"
   },
   "AC5": {
     "title": "First ten days of Zilhajj",
@@ -792,7 +839,19 @@
   },
   "AC6": {
     "title": "Salat of وَ وَاعَدْنَا",
-    "slug": "salat-of-wa-wa-adna"
+    "slug": "salat-of-wa-wa-adna",
+    "day": [
+      "N12-01",
+      "N12-02",
+      "N12-03",
+      "N12-04",
+      "N12-05",
+      "N12-06",
+      "N12-07",
+      "N12-08",
+      "N12-09",
+      "N12-10"
+    ]
   },
   "AC7": {
     "title": "1st Day of Zilhajj",
@@ -805,11 +864,13 @@
   },
   "AD2": {
     "title": "Prayers & Du'as of Night of Eid ul Fitr",
-    "slug": "prayers-du-as-of-night-of-eid-ul-fitr"
+    "slug": "prayers-du-as-of-night-of-eid-ul-fitr",
+    "day": "N10-01"
   },
   "AD3": {
     "title": "Aamal for the day of Eid ul Fitr",
-    "slug": "aamal-for-the-day-of-eid-ul-fitr"
+    "slug": "aamal-for-the-day-of-eid-ul-fitr",
+    "day": "10-01"
   },
   "AD4": {
     "title": "Eid Prayer",
@@ -1318,7 +1379,10 @@
   "E154": {
     "title": "Dua-e-Ehtejaab [The Supplication of Concealment]",
     "slug": "dua-e-ehtejaab-the-supplication-of-concealment",
-    "day": "*-*-5",
+    "day": [
+      "*-*-4",
+      "*-*-5"
+    ],
     "slugAliases": [
       "dua-e-ehtejaab-the-supplication-of-concealment-2"
     ]
@@ -1341,7 +1405,8 @@
     "slug": "dua-e-ahad",
     "slugAliases": [
       "dua-e-ahad-2"
-    ]
+    ],
+    "day": "*-*"
   },
   "E19": {
     "title": "Dua-e-Faraj اَللّٰهُمَّ كُنْ لِوَلِيِّكَ",
@@ -1372,7 +1437,8 @@
     "slug": "dua-tawassul",
     "slugAliases": [
       "dua-tawassul-2"
-    ]
+    ],
+    "day": "*-*-2"
   },
   "E25": {
     "title": "Another Dua Tawassul",
@@ -1401,10 +1467,10 @@
     "title": "Dua Jawshan al-Kabeer",
     "slug": "dua-jawshan-al-kabeer",
     "day": [
-      "09-01",
-      "09-19",
-      "09-21",
-      "09-23",
+      "N09-01",
+      "N09-19",
+      "N09-21",
+      "N09-23",
       "*-*-5"
     ]
   },
@@ -1420,7 +1486,7 @@
     "title": "Dua Kumayl",
     "slug": "dua-kumayl",
     "day": [
-      "08-15",
+      "N08-15",
       "*-*-4"
     ],
     "slugAliases": [
@@ -1458,7 +1524,8 @@
   },
   "E37": {
     "title": "Dua e Sanamay Quraish",
-    "slug": "dua-e-sanamay-quraish"
+    "slug": "dua-e-sanamay-quraish",
+    "day": "*-*"
   },
   "E38": {
     "title": "Dua Faraj (Release from Grief) يَا عِمَادَ مَنْ لَا عِمَادَ لَهُ",
@@ -1705,7 +1772,8 @@
   },
   "F11": {
     "title": "Namaz of Jafar-e-Tayyaar",
-    "slug": "namaz-of-jafar-e-tayyaar"
+    "slug": "namaz-of-jafar-e-tayyaar",
+    "day": "*-*-5"
   },
   "F12": {
     "title": "Namaz Hadiyah Masoomeen (a)",
@@ -1923,7 +1991,12 @@
   },
   "G14": {
     "title": "Ziyarah of Imam Husayn (a) at the Qadr Nights",
-    "slug": "ziyarah-of-imam-husayn-a-at-the-qadr-nights"
+    "slug": "ziyarah-of-imam-husayn-a-at-the-qadr-nights",
+    "day": [
+      "N09-19",
+      "N09-21",
+      "N09-23"
+    ]
   },
   "G15|K3": {
     "title": "Ziyarat of Saturday",
@@ -1967,7 +2040,8 @@
   },
   "G3": {
     "title": "Ziyarat e Arbaeen The 20th of Safar",
-    "slug": "ziyarat-e-arbaeen-the-20th-of-safar"
+    "slug": "ziyarat-e-arbaeen-the-20th-of-safar",
+    "day": "02-20"
   },
   "G30": {
     "title": "The comprehensive Ziyarat of the Imams (a)",
@@ -1976,7 +2050,8 @@
   "G4": {
     "title": "Ziyarat Ashura",
     "order": 0,
-    "slug": "ziyarat-e-ashura"
+    "slug": "ziyarat-e-ashura",
+    "day": "*-*"
   },
   "G5": {
     "title": "Ziyaarat al-Haqq al-Jadeed",
@@ -2042,15 +2117,18 @@
   },
   "G6": {
     "title": "Ziyarat e Waaresa",
-    "slug": "ziyarat-e-waaresa"
+    "slug": "ziyarat-e-waaresa",
+    "day": "*-*"
   },
   "G60": {
     "title": "Ziyarate Janabe Muslim (a.s.)",
-    "slug": "ziyarate-janabe-muslim-a-s"
+    "slug": "ziyarate-janabe-muslim-a-s",
+    "day": "12-09"
   },
   "G61": {
     "title": "Ziyarate Janabe Hani ibn Urwah (a.s.)",
-    "slug": "ziyarate-janabe-hani-ibn-urwah-a-s"
+    "slug": "ziyarate-janabe-hani-ibn-urwah-a-s",
+    "day": "12-09"
   },
   "G62": {
     "title": "Ziyaarat of sons of Janab-e-Muslim (a.s.)",
@@ -2081,7 +2159,10 @@
   "G66": {
     "title": "Ziyarate Imam Jafar Sadiq (a.s.)",
     "slug": "ziyarate-imam-jafar-sadiq-a-s",
-    "day": "10-25"
+    "day": [
+      "03-17",
+      "10-25"
+    ]
   },
   "G67": {
     "title": "Ziyarate Imam Musa Kazim (a.s.)",
@@ -2111,7 +2192,8 @@
   },
   "G7": {
     "title": "Ziyarat-e-Hazrat Abbas (a.s.)",
-    "slug": "ziyarat-e-hazrat-abbas-a-s"
+    "slug": "ziyarat-e-hazrat-abbas-a-s",
+    "day": "08-04"
   },
   "G70": {
     "title": "Ziyaarat of Imam Ali Naqi (a.s.)",
@@ -2182,7 +2264,13 @@
   },
   "G8": {
     "title": "Ziyarat-e-Hazrat Imam Reza (a.s.)",
-    "slug": "ziyarat-e-hazrat-imam-reza-a-s"
+    "slug": "ziyarat-e-hazrat-imam-reza-a-s",
+    "day": [
+      "02-17",
+      "02-29",
+      "11-11",
+      "11-23"
+    ]
   },
   "G80": {
     "title": "Ziyarat of Hazrat Abdul Muttalib (a.s.)",
@@ -2213,7 +2301,8 @@
   },
   "G9": {
     "title": "Ziyarat-e-Hazrat Imam-e-Zamana (a.t.f.s.)",
-    "slug": "ziyarat-e-hazrat-imam-e-zamana-a-t-f-s"
+    "slug": "ziyarat-e-hazrat-imam-e-zamana-a-t-f-s",
+    "day": "08-15"
   },
   "H1": {
     "title": "1st Whispered Prayer of the Repenters - Munajaat al Taebeen",
@@ -2652,7 +2741,8 @@
   },
   "J1": {
     "title": "Merits & Rituals of Friday Night & Day",
-    "slug": "merits-rituals-of-friday-night-day"
+    "slug": "merits-rituals-of-friday-night-day",
+    "day": "*-*-5"
   },
   "J11|F11": {
     "title": "Namaz of Jafar e Tayyar",
@@ -2664,11 +2754,13 @@
   },
   "J3": {
     "title": "Ziyarat on Friday",
-    "slug": "ziyarat-on-friday"
+    "slug": "ziyarat-on-friday",
+    "day": "*-*-5"
   },
   "J4": {
     "title": "The Supplication of Friday",
-    "slug": "the-supplication-of-friday"
+    "slug": "the-supplication-of-friday",
+    "day": "*-*-5"
   },
   "J5|E144": {
     "title": "Salawaat Abul Hasan al-Zarraab al-Isfahani",
@@ -2676,82 +2768,98 @@
   },
   "J6": {
     "title": "Recommended Rites of Friday",
-    "slug": "recommended-rites-of-friday"
+    "slug": "recommended-rites-of-friday",
+    "day": "*-*-5"
   },
   "J7": {
     "title": "Aamaal of Zohr Prayers on Friday",
-    "slug": "aamaal-of-zohr-prayers-on-friday"
+    "slug": "aamaal-of-zohr-prayers-on-friday",
+    "day": "*-*-5"
   },
   "J8": {
     "title": "Aamal of Asr on Friday",
-    "slug": "aamal-of-asr-on-friday"
+    "slug": "aamal-of-asr-on-friday",
+    "day": "*-*-5"
   },
   "J9": {
     "title": "Namaz on Fridays",
     "slug": "namaz-on-fridays",
     "slugAliases": [
       "namaz-on-fridays-2"
-    ]
+    ],
+    "day": "*-*-5"
   },
   "K1": {
     "title": "The Supplication of Saturday",
-    "slug": "the-supplication-of-saturday"
+    "slug": "the-supplication-of-saturday",
+    "day": "*-*-6"
   },
   "K2": {
     "title": "Namaz on Saturdays",
     "slug": "namaz-on-saturdays",
     "slugAliases": [
       "namaz-on-saturdays-2"
-    ]
+    ],
+    "day": "*-*-6"
   },
   "K3": {
     "title": "Ziyarat on Saturday",
-    "slug": "ziyarah-on-saturday"
+    "slug": "ziyarah-on-saturday",
+    "day": "*-*-6"
   },
   "L1": {
     "title": "The Supplication of Sunday",
-    "slug": "the-supplication-of-sunday"
+    "slug": "the-supplication-of-sunday",
+    "day": "*-*-0"
   },
   "L2": {
     "title": "Namaz of Sundays",
     "slug": "namaz-of-sundays",
     "slugAliases": [
       "namaz-of-sundays-2"
-    ]
+    ],
+    "day": "*-*-0"
   },
   "L3": {
     "title": "Ziyarat of Sunday",
-    "slug": "ziyarat-of-sunday"
+    "slug": "ziyarat-of-sunday",
+    "day": "*-*-0"
   },
   "M1": {
     "title": "The Supplication of Monday",
-    "slug": "the-supplication-of-monday"
+    "slug": "the-supplication-of-monday",
+    "day": "*-*-1"
   },
   "M2": {
     "title": "Namaz on Mondays",
     "slug": "namaz-on-mondays",
     "slugAliases": [
       "namaz-on-mondays-2"
-    ]
+    ],
+    "day": "*-*-1"
   },
   "M3": {
     "title": "Ziyarat on Monday",
-    "slug": "ziyarah-of-imam-al-hasan-a-s-on-monday"
+    "slug": "ziyarah-of-imam-al-hasan-a-s-on-monday",
+    "day": "*-*-1"
   },
   "N1": {
     "title": "The Supplication of Tuesday",
-    "slug": "the-supplication-of-tuesday"
+    "slug": "the-supplication-of-tuesday",
+    "day": "*-*-2"
   },
   "N2": {
     "title": "Namaz of Tuesdays",
     "slug": "namaz-of-tuesdays",
     "slugAliases": [
       "namaz-of-tuesdays-2"
-    ]
+    ],
+    "day": "*-*-2"
   },
   "N3": {
     "title": "Ziyarat on Tuesday",
-    "slug": "ziyarah-on-tuesday"
+    "slug": "ziyarah-on-tuesday",
+    "day": "*-*-2"
   },
   "N4|E24": {
     "title": "Dua Tawassul",
@@ -2759,18 +2867,21 @@
   },
   "O1": {
     "title": "The Supplication of Wednesday",
-    "slug": "the-supplication-of-wednesday"
+    "slug": "the-supplication-of-wednesday",
+    "day": "*-*-3"
   },
   "O2": {
     "title": "Namaz on Wednesdays",
     "slug": "namaz-on-wednesdays",
     "slugAliases": [
       "namaz-on-wednesdays-2"
-    ]
+    ],
+    "day": "*-*-3"
   },
   "O3": {
     "title": "Ziyarat of Wednesday",
-    "slug": "ziyarah-of-wednesday"
+    "slug": "ziyarah-of-wednesday",
+    "day": "*-*-3"
   },
   "P13": {
     "title": "Recite 100 times between Nafilah Fajr and Namaz of Fajr سُبْحَانَ رَبِّيَ الْعَظِيْمِ",
@@ -2778,22 +2889,26 @@
   },
   "P15": {
     "title": "Recitations near Friday Dawn (Fajr)",
-    "slug": "recitations-near-friday-dawn-fajr"
+    "slug": "recitations-near-friday-dawn-fajr",
+    "day": "*-*-5"
   },
   "Q1": {
     "title": "The Supplication of Thursday",
-    "slug": "the-supplication-of-thursday"
+    "slug": "the-supplication-of-thursday",
+    "day": "*-*-4"
   },
   "Q2": {
     "title": "Namaz on Thursdays",
     "slug": "namaz-on-thursdays",
     "slugAliases": [
       "namaz-on-thursdays-2"
-    ]
+    ],
+    "day": "*-*-4"
   },
   "Q3": {
     "title": "Ziyarat on Thursday",
-    "slug": "ziyarat-on-thursday"
+    "slug": "ziyarat-on-thursday",
+    "day": "*-*-4"
   },
   "Q4|E154": {
     "title": "Dua-e-Ehtejaab (The Supplication of Concealment)",
@@ -2806,7 +2921,10 @@
   "R1": {
     "title": "Aamaal for the 1st Night and Day of the Month of Moharram",
     "slug": "aamaal-for-the-1st-day-night-of-the-month-of-moharram",
-    "day": "01-01"
+    "day": [
+      "N01-01",
+      "01-01"
+    ]
   },
   "R11|G4": {
     "title": "Ziyaarat-e-Ashoora",
@@ -2818,7 +2936,8 @@
   },
   "R15": {
     "title": "Second Ziyarah on day of Ashura; lesser known version",
-    "slug": "second-ziyarah-on-day-of-ashura-lesser-known-version"
+    "slug": "second-ziyarah-on-day-of-ashura-lesser-known-version",
+    "day": "01-10"
   },
   "R15|G83": {
     "title": "Ziyaarat-e-Ashoora Ghair Ma'roofah",
@@ -2861,12 +2980,16 @@
   },
   "S7|G3": {
     "title": "Ziyarah on the day of Arbaeen; The Twentieth of Safar",
-    "slug": "ziyarah-on-the-day-of-arbaeen-the-twentieth-of-safar",
-    "day": "02-20"
+    "slug": "ziyarah-on-the-day-of-arbaeen-the-twentieth-of-safar"
   },
   "T2": {
     "title": "Aamal from 12th to 17th nights of Rabi al Awwal",
-    "slug": "aamal-from-12th-to-17th-nights-of-rabi-al-awwal"
+    "slug": "aamal-from-12th-to-17th-nights-of-rabi-al-awwal",
+    "day": [
+      "03-12",
+      "03-14",
+      "N03-17"
+    ]
   },
   "TR~D1": {
     "title": "Taqeebaat e Namaz",
@@ -2874,19 +2997,27 @@
   },
   "V1": {
     "title": "13th, 14th, And 15th Of Jumadi Al Ula",
-    "slug": "13th-14th-and-15th-of-jumadi-al-ula"
+    "slug": "13th-14th-and-15th-of-jumadi-al-ula",
+    "day": [
+      "05-13",
+      "05-14",
+      "05-15"
+    ]
   },
   "W1": {
     "title": "3rd Jamadi al Akhirah (Martyrdom of Lady Fatimah al-Zahra (s))",
-    "slug": "3rd-jamadi-al-akhirah-martyrdom-of-lady-fatimah-al-zahra-s"
+    "slug": "3rd-jamadi-al-akhirah-martyrdom-of-lady-fatimah-al-zahra-s",
+    "day": "06-03"
   },
   "W2": {
     "title": "20th Jamadi al Akhirah (Birthday of Lady Fatima al-Zahra (s))",
-    "slug": "20th-jamadi-al-akhirah-birthday-of-lady-fatima-al-zahra-s"
+    "slug": "20th-jamadi-al-akhirah-birthday-of-lady-fatima-al-zahra-s",
+    "day": "06-20"
   },
   "W3": {
     "title": "Aamal in Jamadi al Akhirah",
-    "slug": "aamal-in-jamadi-al-akhirah"
+    "slug": "aamal-in-jamadi-al-akhirah",
+    "day": "06-*"
   },
   "X1": {
     "title": "Importance of the month of Rajab and it's Aamaal",
@@ -2895,23 +3026,36 @@
   },
   "X10": {
     "title": "(d) Fifteenth of Rajab (Namaz e Salman)",
-    "slug": "d-fifteenth-of-rajab-namaz-e-salman"
+    "slug": "d-fifteenth-of-rajab-namaz-e-salman",
+    "day": [
+      "07-01",
+      "07-15"
+    ]
   },
   "X11": {
     "title": "(e) Thirteenth of Rajab",
-    "slug": "e-thirteenth-of-rajab"
+    "slug": "e-thirteenth-of-rajab",
+    "day": [
+      "N07-13",
+      "N07-14",
+      "N07-15",
+      "07-13"
+    ]
   },
   "X13": {
     "title": "Ziyarah on the 15th of Rajab",
-    "slug": "ziyarah-on-the-15th-of-rajab"
+    "slug": "ziyarah-on-the-15th-of-rajab",
+    "day": "07-15"
   },
   "X14": {
     "title": "(g) Aamal & Dua of Umme Dawood",
-    "slug": "g-aamal-dua-of-umme-dawood"
+    "slug": "g-aamal-dua-of-umme-dawood",
+    "day": "07-15"
   },
   "X15": {
     "title": "(h) Aamal of Laylat al Mab'as (27th Night)",
-    "slug": "h-aamal-of-laylat-al-mab-as-27th-night"
+    "slug": "h-aamal-of-laylat-al-mab-as-27th-night",
+    "day": "N07-27"
   },
   "X2": {
     "title": "General Aamaal in Rajab",
@@ -2944,19 +3088,26 @@
   },
   "Y1": {
     "title": "Importance of the Month of Shaban",
-    "slug": "importance-of-the-month-of-shaban"
+    "slug": "importance-of-the-month-of-shaban",
+    "day": "08-*"
   },
   "Y10": {
     "title": "Fifteenth day of Shaban",
-    "slug": "fifteenth-day-of-shaban"
+    "slug": "fifteenth-day-of-shaban",
+    "day": "08-15"
   },
   "Y11": {
     "title": "Ziyarah on the 15th of Shaban",
-    "slug": "ziyarah-on-the-15th-of-shaban"
+    "slug": "ziyarah-on-the-15th-of-shaban",
+    "day": [
+      "N08-15",
+      "08-15"
+    ]
   },
   "Y2": {
     "title": "General Aamal in Shaban",
-    "slug": "general-aamal-in-shaban"
+    "slug": "general-aamal-in-shaban",
+    "day": "08-*"
   },
   "Y3": {
     "title": "Daily Salawat of Shaban",
@@ -2970,19 +3121,23 @@
   },
   "Y5": {
     "title": "First Night of Shaban",
-    "slug": "first-night-of-shaban"
+    "slug": "first-night-of-shaban",
+    "day": "N08-01"
   },
   "Y6": {
     "title": "First Day of Shaban",
-    "slug": "first-day-of-shaban"
+    "slug": "first-day-of-shaban",
+    "day": "08-01"
   },
   "Y7": {
     "title": "Third of Shaban",
-    "slug": "third-of-shaban"
+    "slug": "third-of-shaban",
+    "day": "08-03"
   },
   "Y9": {
     "title": "Fifteenth Night of Shaban",
-    "slug": "fifteenth-night-of-shaban"
+    "slug": "fifteenth-night-of-shaban",
+    "day": "N08-15"
   },
   "Z1": {
     "title": "Short Duas for the Days of Ramazan",
@@ -2990,122 +3145,152 @@
   },
   "Z10": {
     "title": "9th Day",
-    "slug": "9th-day"
+    "slug": "9th-day",
+    "day": "09-09"
   },
   "Z11": {
     "title": "10th Day",
-    "slug": "10th-day"
+    "slug": "10th-day",
+    "day": "09-10"
   },
   "Z12": {
     "title": "11th Day",
-    "slug": "11th-day"
+    "slug": "11th-day",
+    "day": "09-11"
   },
   "Z13": {
     "title": "12th Day",
-    "slug": "12th-day"
+    "slug": "12th-day",
+    "day": "09-12"
   },
   "Z14": {
     "title": "13th Day",
-    "slug": "13th-day"
+    "slug": "13th-day",
+    "day": "09-13"
   },
   "Z15": {
     "title": "14th Day",
-    "slug": "14th-day"
+    "slug": "14th-day",
+    "day": "09-14"
   },
   "Z16": {
     "title": "15th Day",
-    "slug": "15th-day"
+    "slug": "15th-day",
+    "day": "09-15"
   },
   "Z17": {
     "title": "16th Day",
-    "slug": "16th-day"
+    "slug": "16th-day",
+    "day": "09-16"
   },
   "Z18": {
     "title": "17th Day",
-    "slug": "17th-day"
+    "slug": "17th-day",
+    "day": "09-17"
   },
   "Z19": {
     "title": "18th Day",
-    "slug": "18th-day"
+    "slug": "18th-day",
+    "day": "09-18"
   },
   "Z2": {
     "title": "1st Day",
-    "slug": "1st-day"
+    "slug": "1st-day",
+    "day": "09-01"
   },
   "Z20": {
     "title": "19th Day",
-    "slug": "19th-day"
+    "slug": "19th-day",
+    "day": "09-19"
   },
   "Z21": {
     "title": "20th Day",
-    "slug": "20th-day"
+    "slug": "20th-day",
+    "day": "09-20"
   },
   "Z22": {
     "title": "21st Day",
-    "slug": "21st-day"
+    "slug": "21st-day",
+    "day": "09-21"
   },
   "Z23": {
     "title": "22nd Day",
-    "slug": "22nd-day"
+    "slug": "22nd-day",
+    "day": "09-22"
   },
   "Z24": {
     "title": "23rd Day",
-    "slug": "23rd-day"
+    "slug": "23rd-day",
+    "day": "09-23"
   },
   "Z25": {
     "title": "24th Day",
-    "slug": "24th-day"
+    "slug": "24th-day",
+    "day": "09-24"
   },
   "Z26": {
     "title": "25th Day",
-    "slug": "25th-day"
+    "slug": "25th-day",
+    "day": "09-25"
   },
   "Z27": {
     "title": "26th Day",
-    "slug": "26th-day"
+    "slug": "26th-day",
+    "day": "09-26"
   },
   "Z28": {
     "title": "27th Day",
-    "slug": "27th-day"
+    "slug": "27th-day",
+    "day": "09-27"
   },
   "Z29": {
     "title": "28th Day",
-    "slug": "28th-day"
+    "slug": "28th-day",
+    "day": "09-28"
   },
   "Z3": {
     "title": "2nd Day",
-    "slug": "2nd-day"
+    "slug": "2nd-day",
+    "day": "09-02"
   },
   "Z30": {
     "title": "29th Day",
-    "slug": "29th-day"
+    "slug": "29th-day",
+    "day": "09-29"
   },
   "Z31": {
     "title": "30th Day",
-    "slug": "30th-day"
+    "slug": "30th-day",
+    "day": "09-30"
   },
   "Z4": {
     "title": "3rd Day",
-    "slug": "3rd-day"
+    "slug": "3rd-day",
+    "day": "09-03"
   },
   "Z5": {
     "title": "4th Day",
-    "slug": "4th-day"
+    "slug": "4th-day",
+    "day": "09-04"
   },
   "Z6": {
     "title": "5th Day",
-    "slug": "5th-day"
+    "slug": "5th-day",
+    "day": "09-05"
   },
   "Z7": {
     "title": "6th Day",
-    "slug": "6th-day"
+    "slug": "6th-day",
+    "day": "09-06"
   },
   "Z8": {
     "title": "7th Day",
-    "slug": "7th-day"
+    "slug": "7th-day",
+    "day": "09-07"
   },
   "Z9": {
     "title": "8th Day",
-    "slug": "8th-day"
+    "slug": "8th-day",
+    "day": "09-08"
   }
 }

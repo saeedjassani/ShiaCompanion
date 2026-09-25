@@ -23,29 +23,35 @@ void main() {
     hijriDate = originalHijriDate;
   });
 
-  test('lunar date matches stay at the top of todays recitations', () {
-    final now = DateTime(2024, 6, 16);
-    final hijriToday = HijriCalendar.fromDate(now);
+  test('orders occasions before months, weekdays and daily recitations', () {
+    final sunday = DateTime(2024, 6, 16);
+    expect(sunday.weekday, DateTime.sunday);
+    final hijriToday = HijriCalendar.fromDate(sunday);
 
     items = {
       'E18': 'Dua e Ahad',
-      'G6': 'Ziyarat e Waritha',
       'G4': 'Ziyarat e Ashura',
-      'E37': 'Dua e Sanamay Quraish',
       'L1': 'Sunday Recitation',
+      'X2': 'Month Recitation',
       'Z99': 'Lunar Recitation',
+      'Q1': 'Thursday Recitation',
     };
     itemOrder = {};
     itemMetadata = {
+      'E18': {'day': '*-*'},
+      'G4': {'day': '*-*'},
+      'L1': {'day': '*-*-0'},
+      'X2': {'day': '${hijriToday.hMonth}-*'},
       'Z99': {'day': '${hijriToday.hMonth}-${hijriToday.hDay}'},
+      'Q1': {'day': '*-*-4'},
     };
     hijriDate = 0;
 
-    final recitations = buildTodaysRecitationItems(now: now);
+    final recitations = buildTodaysRecitationItems(now: sunday);
 
     expect(
-      recitations.map((item) => item.uid).take(6),
-      ['Z99', 'L1', 'E18', 'G6', 'G4', 'E37'],
+      recitations.map((item) => item.uid),
+      ['Z99', 'X2', 'L1', 'G4', 'E18'],
     );
   });
 
@@ -56,10 +62,6 @@ void main() {
     expect(friday.weekday, DateTime.friday);
 
     items = {
-      'E18': 'Dua e Ahad',
-      'G6': 'Ziyarat e Waritha',
-      'G4': 'Ziyarat e Ashura',
-      'E37': 'Dua e Sanamay Quraish',
       'E26': 'Dua Simat',
     };
     itemOrder = {};
@@ -76,21 +78,16 @@ void main() {
     expect(recitations.map((item) => item.uid), contains('E26'));
   });
 
-  test(
-      'a weekday-prefixed alias does not duplicate its target when both '
-      'match the same weekday (e.g. Dua Nudbah on Friday)', () {
+  test('an alias never lists alongside its canonical (e.g. Dua Nudbah)', () {
     final friday = DateTime(2024, 6, 21);
     expect(friday.weekday, DateTime.friday);
 
     items = {
-      'E18': 'Dua e Ahad',
-      'G6': 'Ziyarat e Waritha',
-      'G4': 'Ziyarat e Ashura',
-      'E37': 'Dua e Sanamay Quraish',
       'E34': 'Dua e Nudbah',
       'J2|E34': 'Dua-e-Nudbah',
     };
     itemOrder = {};
+    // Only the canonical entry carries a `day` - see zikr_day_data_test.dart.
     itemMetadata = {
       'E34': {'day': '*-*-5'},
     };
@@ -98,7 +95,6 @@ void main() {
 
     final recitations = buildTodaysRecitationItems(now: friday);
 
-    expect(recitations.where((item) => item.uid == 'E34'), hasLength(1));
-    expect(recitations.map((item) => item.uid), isNot(contains('J2|E34')));
+    expect(recitations.map((item) => item.uid), ['E34']);
   });
 }

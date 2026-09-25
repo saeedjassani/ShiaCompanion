@@ -171,8 +171,7 @@ Future<void> _pumpCalendar(
 final _calendarTestDate = DateTime(2026, 7, 1);
 
 const _eventSummaryTestEvents = <String, dynamic>{
-  '7-1': <String, dynamic>{
-    'header': '7th Moharram',
+  '01-07': <String, dynamic>{
     'content':
         'Access to water was blocked from the camp of Imam Hussain(a.s.) - the 3rd Holy Imam - (61 A.H.)',
     'color': 0,
@@ -182,8 +181,7 @@ const _eventSummaryTestEvents = <String, dynamic>{
 /// A single event a couple of days after the selected one, so the day it
 /// lands on keeps its own colour instead of the selection's.
 Map<String, dynamic> _markerTestEvents(int color) => <String, dynamic>{
-      '9-1': <String, dynamic>{
-        'header': '9th Moharram',
+      '01-09': <String, dynamic>{
         'content': 'Shab e Ashoor',
         'color': color,
       },
