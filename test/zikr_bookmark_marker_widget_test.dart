@@ -223,4 +223,138 @@ void main() {
     // Nothing is tinted until the page hands the adopted line back down.
     expect(_tintedLines(), findsNothing);
   });
+
+  testWidgets('goes back to the bookmarked line, not the saved offset', (
+    tester,
+  ) async {
+    // The offset is deliberately wrong - as it is once paragraph mode, the
+    // font or its size has changed since the bookmark was taken. The line is
+    // what the view has to come back to.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ZikrContentViewerWidget(
+            tabContents: <String>[_tripletContent()],
+            selectedTabIndex: 0,
+            onTabChanged: (_) {},
+            hasMerits: false,
+            onShowMerits: () {},
+            onLinkTap: (_) async {},
+            code: '102',
+            initialBookmarkTabIndex: 0,
+            initialBookmarkScrollOffset: 5,
+            // The translation of verse 12: the triplet starts two lines up.
+            initialBookmarkLineIndex: 38,
+            onScrollPositionChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final viewportTop = tester.getRect(find.byType(ListView)).top;
+    final tripletTop = tester.getRect(_lineFinder(36)).top;
+    expect(tripletTop, greaterThanOrEqualTo(viewportTop - 0.5));
+    expect(tripletTop, lessThan(viewportTop + 40),
+        reason: 'the bookmarked triplet starts at the top of the view');
+    expect(find.text('Bookmarked'), findsOneWidget);
+  });
+
+  testWidgets('comes back to the same line in paragraph mode', (
+    tester,
+  ) async {
+    showTransliteration = false;
+    showTranslation = false;
+    showArabicAsParagraph = true;
+    addTearDown(() => showArabicAsParagraph = false);
+
+    final positions = <ZikrContentScrollPosition>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ZikrContentViewerWidget(
+            tabContents: <String>[_tripletContent()],
+            selectedTabIndex: 0,
+            onTabChanged: (_) {},
+            hasMerits: false,
+            onShowMerits: () {},
+            onLinkTap: (_) async {},
+            code: '102',
+            initialBookmarkTabIndex: 0,
+            // Measured in the old, taller one-verse-per-line layout.
+            initialBookmarkScrollOffset: 2400,
+            initialBookmarkLineIndex: 37,
+            onScrollPositionChanged: positions.add,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Every verse flows into one paragraph here, so the right place is the
+    // row inside it where the bookmarked verse begins - it reads back as a
+    // verse on that row: several short ones share each, and the first to
+    // begin on it is the one recorded. The mark is an icon inline at the
+    // verse's start, not a label breaking the paragraph.
+    expect(find.text('Bookmarked'), findsNothing);
+    expect(
+      find.byWidgetPredicate((widget) =>
+          widget is RichText &&
+          widget.text
+              .toPlainText()
+              .contains(String.fromCharCode(Icons.bookmark.codePoint))),
+      findsOneWidget,
+    );
+    expect(positions, isNotEmpty);
+    expect(positions.last.lineIndex, inInclusiveRange(37 - 9, 37));
+  });
+
+  testWidgets('lands on the bookmarked verse deep inside a long paragraph', (
+    tester,
+  ) async {
+    showTransliteration = false;
+    showTranslation = false;
+    showArabicAsParagraph = true;
+    addTearDown(() => showArabicAsParagraph = false);
+
+    // One paragraph many screens long, as a whole dua is in this view.
+    final lines = <String>[];
+    for (var verse = 0; verse < 150; verse++) {
+      lines.add('TRANSLITERATION OF VERSE $verse');
+      lines.add('اللهم صل على محمد وآل محمد $verse');
+      lines.add('Translation of verse $verse');
+    }
+    final positions = <ZikrContentScrollPosition>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SelectionArea(
+            child: ZikrContentViewerWidget(
+              tabContents: <String>[lines.join('\n')],
+              selectedTabIndex: 0,
+              onTabChanged: (_) {},
+              hasMerits: false,
+              onShowMerits: () {},
+              onLinkTap: (_) async {},
+              code: '102',
+              initialBookmarkTabIndex: 0,
+              initialBookmarkScrollOffset: 1,
+              // Verse 100's Arabic.
+              initialBookmarkLineIndex: 301,
+              onScrollPositionChanged: positions.add,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Not the paragraph's start, which is where a bookmark taken anywhere in
+    // it used to both record and land, but the row verse 100 begins on - it
+    // reads back as the first verse to begin on that row, which several
+    // short ones share.
+    expect(positions, isNotEmpty);
+    expect(positions.last.lineIndex, inInclusiveRange(301 - 9, 301));
+    expect(positions.last.scrollOffset, greaterThan(0));
+  });
 }
