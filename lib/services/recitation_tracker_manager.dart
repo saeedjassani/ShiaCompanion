@@ -268,14 +268,15 @@ class RecitationTrackerManager extends ChangeNotifier {
       final parsed = jsonDecode(encoded);
       if (parsed is! List) return const [];
 
-      final operations = <PendingRecitationOperation>[];
-      final seenIds = <String>{};
+      // Keyed by id, last one wins: the reader re-logs the same entry id as
+      // its range grows, and only the newest range is worth replaying.
+      final operations = <String, PendingRecitationOperation>{};
       for (final value in parsed) {
         final operation = PendingRecitationOperation.fromJson(value);
-        if (operation == null || !seenIds.add(operation.id)) continue;
-        operations.add(operation);
+        if (operation == null) continue;
+        operations[operation.id] = operation;
       }
-      return operations;
+      return operations.values.toList(growable: false);
     } catch (error) {
       debugPrint(
         'RecitationTrackerManager: Error decoding pending operations: $error',
@@ -289,8 +290,12 @@ class RecitationTrackerManager extends ChangeNotifier {
     PendingRecitationOperation operation,
   ) {
     return _enqueueStorageWrite(() async {
+      // Replaces an older queued version of the same entry rather than
+      // queueing both, so a long reading session leaves one operation per
+      // surah to sync, not one per scroll.
       final operations = [
-        ..._loadPendingOperations(userId),
+        ..._loadPendingOperations(userId)
+            .where((pending) => pending.id != operation.id),
         operation,
       ];
       await _writePendingOperations(userId, operations);
@@ -302,8 +307,14 @@ class RecitationTrackerManager extends ChangeNotifier {
     PendingRecitationOperation operation,
   ) {
     return _enqueueStorageWrite(() async {
+      // Only the exact version that was synced: if the reader re-logged the
+      // same entry with a wider range while this one was in flight, that
+      // newer version still has to go up.
+      final synced = jsonEncode(operation.toJson());
       final operations = _loadPendingOperations(userId)
-          .where((pending) => pending.id != operation.id)
+          .where((pending) =>
+              pending.id != operation.id ||
+              jsonEncode(pending.toJson()) != synced)
           .toList(growable: false);
       await _writePendingOperations(userId, operations);
     });
@@ -458,6 +469,16 @@ class RecitationTrackerManager extends ChangeNotifier {
   /// the reader uses this to keep extending the same session's entry as
   /// someone keeps scrolling, rather than logging a fresh one every time the
   /// debounce fires.
+  ///
+  /// With [syncRemote] false the change is applied and saved on the device
+  /// (and queued) but not sent to Firestore yet - the reader logs that way
+  /// while someone is still scrolling and syncs once, on leaving, so a long
+  /// recitation costs one remote write per surah instead of one per pause.
+  /// Anything left queued is sent by [syncPendingOperations] or on the next
+  /// load.
+  ///
+  /// Never counted as feature usage: it is recorded automatically by
+  /// reading, not something the reader chose to do.
   Future<void> logRecitation({
     required String label,
     required int surah,
@@ -465,24 +486,54 @@ class RecitationTrackerManager extends ChangeNotifier {
     required int toAyah,
     DateTime? recitedAt,
     String? id,
+    bool syncRemote = true,
   }) {
     final trimmedLabel = label.trim();
     if (trimmedLabel.isEmpty) return Future.value();
     if (surah < 1 || fromAyah < 1 || toAyah < fromAyah) return Future.value();
 
+    final entryId = id ?? _newEntryId();
+    final existing = _state.entries[entryId];
+    if (existing != null &&
+        existing.label == trimmedLabel &&
+        existing.surah == surah &&
+        existing.fromAyah == fromAyah &&
+        existing.toAyah == toAyah) {
+      // Nothing new to record - but a range logged locally earlier may still
+      // be waiting to go up.
+      return syncRemote ? syncPendingOperations() : Future.value();
+    }
+
     final entry = RecitationEntry(
-      id: id ?? _newEntryId(),
+      id: entryId,
       label: trimmedLabel,
       recitedAt: recitedAt ?? DateTime.now(),
       surah: surah,
       fromAyah: fromAyah,
       toAyah: toAyah,
     );
-    return _applyOperation(PendingRecitationOperation.add(entry));
+    return _applyOperation(
+      PendingRecitationOperation.add(entry),
+      syncRemote: syncRemote,
+    );
+  }
+
+  /// Sends whatever is still queued for the signed-in user to Firestore.
+  Future<void> syncPendingOperations() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    await _storageWriteQueue;
+    final operations = _loadPendingOperations(user.uid);
+    if (operations.isEmpty) return;
+    await _replayPendingOperations(user.uid, operations);
   }
 
   Future<void> removeEntry(String entryId) {
     if (!_state.entries.containsKey(entryId)) return Future.value();
+    unawaited(AnalyticsService.feature(
+      'recitation_entry_removed',
+      label: 'Recitation entry removed',
+    ));
     return _applyOperation(PendingRecitationOperation.remove(entryId));
   }
 
@@ -495,18 +546,19 @@ class RecitationTrackerManager extends ChangeNotifier {
       return Future.value();
     }
     if (_state.customLabels.contains(trimmed)) return Future.value();
+    unawaited(AnalyticsService.feature(
+      'recitation_track_added',
+      label: 'Recitation track added',
+    ));
     return _applyOperation(PendingRecitationOperation.addLabel(trimmed));
   }
 
   String _newEntryId() => 'r_${DateTime.now().microsecondsSinceEpoch}';
 
-  Future<void> _applyOperation(PendingRecitationOperation operation) async {
-    unawaited(AnalyticsService.feature(
-      'recitation_tracker_updated',
-      label: 'Recitation tracker updated',
-      parameters: {'operation': operation.kind.key},
-    ));
-
+  Future<void> _applyOperation(
+    PendingRecitationOperation operation, {
+    bool syncRemote = true,
+  }) async {
     final nextState = applyPendingRecitationOperation(_state, operation);
     if (identical(nextState, _state)) return;
     _updateState(nextState);
@@ -523,6 +575,7 @@ class RecitationTrackerManager extends ChangeNotifier {
         _saveUserStateToSharedPreferences(user.uid, nextState),
         _recordPendingOperation(user.uid, operation),
       ]);
+      if (!syncRemote) return;
       await _applyRemoteOperationForUser(user.uid, operation);
       await _clearPendingOperation(user.uid, operation);
       debugPrint('RecitationTrackerManager: Synced to Firestore');

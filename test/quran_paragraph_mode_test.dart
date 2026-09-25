@@ -192,8 +192,9 @@ void main() {
       showArabicAsParagraph = false;
       await _pump(tester, content: _surahContent());
 
-      // One badge per verse, as ever.
-      expect(find.text('2'), findsOneWidget);
+      // One block per verse - the Bismillah and six ayahs - rather than the
+      // two a paragraph would make.
+      expect(find.byType(Divider), findsNWidgets(7));
     });
 
     testWidgets('keeps ayah mode while an English aid is on', (tester) async {

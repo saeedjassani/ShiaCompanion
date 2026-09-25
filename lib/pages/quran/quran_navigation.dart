@@ -19,22 +19,30 @@ import '../zikr/zikr_page.dart';
 /// resume card. Left null for every other entry point, which is what routes
 /// ordinary browsing into the reserved "Unlabeled" bucket instead of
 /// silently picking a label for the reader.
+///
+/// [replace] swaps the current route instead of pushing - the reader's own
+/// "Next surah" / "Previous surah" links use it so reading straight through
+/// does not pile up a back stack, carrying [returnBrowserUri] forward so back
+/// still lands where the chain started.
 Future<void> openQuranVerse(
   BuildContext context,
   VerseKey verse, {
   String source = ZikrOpenSource.quran,
   String? recitationLabel,
+  bool replace = false,
+  Uri? returnBrowserUri,
 }) async {
   final info = surahInfoFor(verse.surah);
   if (info == null) return;
 
-  await pushPageRoute(
+  await (replace ? replacePageRoute : pushPageRoute)(
     context,
     ZikrPage(
       UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
       source: source,
       initialVerse: verse,
       recitationLabel: recitationLabel,
+      returnBrowserUri: returnBrowserUri,
     ),
   );
 }
@@ -50,11 +58,13 @@ Future<void> openQuranJuz(
   VerseKey? at,
   String source = ZikrOpenSource.quran,
   String? recitationLabel,
+  bool replace = false,
+  Uri? returnBrowserUri,
 }) async {
   final portion = await loadJuzPortion(juz, DefaultAssetBundle.of(context));
   if (portion == null || portion.isEmpty || !context.mounted) return;
 
-  await pushPageRoute(
+  await (replace ? replacePageRoute : pushPageRoute)(
     context,
     ZikrPage(
       UidTitleData(quranJuzUid(juz), portion.title),
@@ -62,6 +72,118 @@ Future<void> openQuranJuz(
       portion: portion,
       initialVerse: at,
       recitationLabel: recitationLabel,
+      returnBrowserUri: returnBrowserUri,
     ),
   );
+}
+
+/// The "Previous" / "Next" pair closing a surah or a juz.
+///
+/// Either side is left out when there is nothing that way - no "Previous" on
+/// al-Fatihah, no "Next" on an-Nas - rather than shown disabled.
+class QuranSequenceFooter extends StatelessWidget {
+  const QuranSequenceFooter({
+    super.key,
+    required this.previousLabel,
+    required this.nextLabel,
+    required this.onPrevious,
+    required this.onNext,
+  });
+
+  final String? previousLabel;
+  final String? nextLabel;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    final previous = previousLabel;
+    final next = nextLabel;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 32),
+      child: Row(
+        children: [
+          Expanded(
+            child: previous == null
+                ? const SizedBox.shrink()
+                : _SequenceButton(
+                    label: previous,
+                    caption: 'Previous',
+                    isNext: false,
+                    onTap: onPrevious,
+                  ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: next == null
+                ? const SizedBox.shrink()
+                : _SequenceButton(
+                    label: next,
+                    caption: 'Next',
+                    isNext: true,
+                    onTap: onNext,
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SequenceButton extends StatelessWidget {
+  const _SequenceButton({
+    required this.label,
+    required this.caption,
+    required this.isNext,
+    required this.onTap,
+  });
+
+  final String label;
+  final String caption;
+  final bool isNext;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final icon = Icon(
+      isNext ? Icons.chevron_right_rounded : Icons.chevron_left_rounded,
+      color: colorScheme.primary,
+    );
+
+    return OutlinedButton(
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: Row(
+        children: [
+          if (!isNext) icon,
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  isNext ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                Text(
+                  caption,
+                  style: theme.textTheme.labelSmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
+                ),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelLarge,
+                ),
+              ],
+            ),
+          ),
+          if (isNext) icon,
+        ],
+      ),
+    );
+  }
 }

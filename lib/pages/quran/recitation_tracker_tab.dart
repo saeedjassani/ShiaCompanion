@@ -12,7 +12,7 @@ import 'quran_navigation.dart';
 
 /// Recitations logged under a label ("Family", "Personal", ...) as a real
 /// verse range, with the numbers that make keeping the habit visible: a
-/// streak, a heatmap and a per-label breakdown — all counted in verses
+/// streak and a per-label breakdown — all counted in verses
 /// actually recited, not in how many times the log button was tapped.
 class RecitationTrackerTab extends StatefulWidget {
   const RecitationTrackerTab({super.key});
@@ -55,8 +55,6 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _buildSummary(context, state),
-                    const SizedBox(height: 18),
-                    _buildHeatmap(context, state),
                     const SizedBox(height: 18),
                     _buildLabelBreakdown(context, state),
                     const SizedBox(height: 18),
@@ -216,103 +214,6 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  static const int _heatmapDays = 84;
-
-  Widget _buildHeatmap(BuildContext context, RecitationTrackerState state) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final counts = state.dailyVerseCounts(_heatmapDays);
-    final sortedDays = counts.keys.toList()..sort();
-
-    // Pad the front so columns line up on calendar weeks (Sun..Sat).
-    final firstWeekdayOffset = sortedDays.first.weekday % 7;
-    final paddedDays = <DateTime?>[
-      for (var i = 0; i < firstWeekdayOffset; i++) null,
-      ...sortedDays,
-    ];
-
-    final weeks = <List<DateTime?>>[];
-    for (var i = 0; i < paddedDays.length; i += 7) {
-      final end = i + 7 < paddedDays.length ? i + 7 : paddedDays.length;
-      weeks.add(paddedDays.sublist(i, end));
-    }
-
-    final maxCount = counts.values.fold(0, (m, c) => c > m ? c : m);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Verses recited, last 12 weeks',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 8),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          reverse: true,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final week in weeks) ...[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var day = 0; day < 7; day++)
-                      Padding(
-                        padding: const EdgeInsets.all(1.5),
-                        child: _heatmapCell(
-                          colorScheme,
-                          day < week.length ? week[day] : null,
-                          counts,
-                          maxCount,
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(width: 3),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _heatmapCell(
-    ColorScheme colorScheme,
-    DateTime? day,
-    Map<DateTime, int> counts,
-    int maxCount,
-  ) {
-    if (day == null) {
-      return const SizedBox(width: 13, height: 13);
-    }
-
-    final count = counts[day] ?? 0;
-    final color = count == 0
-        ? colorScheme.surfaceContainerHighest
-        : Color.lerp(
-            colorScheme.primary.withValues(alpha: 0.28),
-            colorScheme.primary,
-            maxCount == 0 ? 1.0 : (count / maxCount).clamp(0.3, 1.0).toDouble(),
-          )!;
-
-    return Tooltip(
-      message: '${_dayFormat.format(day)}: '
-          '$count ${count == 1 ? 'verse' : 'verses'}',
-      child: Container(
-        width: 13,
-        height: 13,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(3),
         ),
       ),
     );
@@ -611,5 +512,4 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
     final verses = entry.versesRecited;
     return '$surahName $range · $verses ${verses == 1 ? 'verse' : 'verses'}';
   }
-
 }
