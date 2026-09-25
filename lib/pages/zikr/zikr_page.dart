@@ -20,7 +20,7 @@ import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/quran_index.dart';
-import 'package:shia_companion/utils/quran_uthmani.dart';
+import 'package:shia_companion/utils/quran_script.dart';
 import 'package:shia_companion/utils/quran_portion.dart';
 import 'package:shia_companion/utils/external_launch.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -1023,6 +1023,29 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
   }
 
+  /// Swaps a surah or juz into the script the current [arabicFont] calls for,
+  /// when it was loaded under another font: the reader has just switched
+  /// fonts, and the text has to follow.
+  Future<void> _reloadQuranScriptIfStale() async {
+    final data = zikrData;
+    if (data == null || data[quranScriptFontKey] == arabicFont) return;
+
+    final portion = widget.portion;
+    if (portion != null) {
+      final reloaded =
+          await loadJuzPortion(portion.juz, DefaultAssetBundle.of(context));
+      if (!mounted || reloaded == null) return;
+      _applyZikrData(reloaded.toZikrData());
+      return;
+    }
+
+    final uid = widget.item.getFirstUId();
+    if (surahForUid(retiredZikrRedirects[uid]?.targetUid ?? uid) == null) {
+      return;
+    }
+    await _loadZikrDataFromAssets();
+  }
+
   void _markZikrDataUnavailable() {
     if (!mounted || zikrData != null) return;
     setState(() {
@@ -1223,6 +1246,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           hideHeaderLine: showTabHeaders,
           colorScheme: Theme.of(context).colorScheme,
           code: zikrData?['code']?.toString(),
+          arabicFontFamily: arabicFontFamilyOf(zikrData),
         ),
       );
       if (imageBytes == null) {
@@ -1776,6 +1800,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                           _handleAyahPositionChanged,
                                       onAyahAction:
                                           _isQuran ? _showAyahActions : null,
+                                      arabicFontFamily:
+                                          arabicFontFamilyOf(zikrData),
                                       onBookmarkLineResolved:
                                           _handleBookmarkLineResolved,
                                     ),
@@ -1948,5 +1974,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
     _applyFocusModePreference();
     setState(() {});
+    unawaited(_reloadQuranScriptIfStale());
   }
 }

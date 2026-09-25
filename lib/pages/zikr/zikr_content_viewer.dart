@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
 import '../../utils/quran_index.dart';
+import '../../utils/quran_indopak.dart';
 import 'zikr_content_parser.dart';
 
 /// Where a reader is in the Quran, and whether they got there by reading.
@@ -314,6 +315,10 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// Opens the per-verse menu. Null leaves verses untappable.
   final ValueChanged<AyahActionRequest>? onAyahAction;
 
+  /// The font the content's Arabic is drawn in, when it is not [arabicFont]:
+  /// a surah in QuranWBW's IndoPak script has to be drawn in QuranWBW's font.
+  final String? arabicFontFamily;
+
   const ZikrContentViewerWidget({
     Key? key,
     required this.tabContents,
@@ -334,6 +339,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.ayahIndex,
     this.onAyahPositionChanged,
     this.onAyahAction,
+    this.arabicFontFamily,
   }) : super(key: key);
 
   @override
@@ -976,7 +982,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
     // Create text styles with current settings each time this is called
     final arabicStyle = TextStyle(
-      fontFamily: arabicFont,
+      fontFamily: widget.arabicFontFamily ?? arabicFont,
       // Six Indo-Pak pause signs — ص, ق, قف, وقفة, ك and the rukūʿ ع — have
       // no Unicode codepoint at all, so Al Qalam encodes them privately and
       // no other font can carry them. They are 1,361 marks, 0.1% of the
@@ -1350,7 +1356,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     for (var i = span.start; i < span.end; i++) {
       final line = parsedContent.lines[i].trim();
       if (line.isEmpty || !isZikrLineVisible(parsedContent, i)) continue;
-      parts.add(line);
+      // QuranWBW's pause marks and medallions are private-use glyphs that
+      // paste as boxes anywhere but the reader.
+      parts.add(widget.arabicFontFamily == quranWbwFontFamily
+          ? indoPakPlainText(line)
+          : line);
     }
     return parts.join('\n');
   }

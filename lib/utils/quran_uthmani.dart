@@ -1,16 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import '../constants.dart';
 import '../pages/zikr/zikr_content_parser.dart';
-import 'quran_index.dart';
 
 /// The Uthmani (Madinah) Quran script, shown in place of the Indo-Pak surah
 /// text when the reader has picked Scheherazade.
 ///
-/// The font picks the script. Qalam is an Indo-Pak face and reads the corpus as
-/// authored; Scheherazade is a Naskh face, and the readers who choose it are
-/// mostly reading from an Arab-world mushaf. There is no separate setting.
+/// The font picks the script (see `quran_script.dart`). Scheherazade is a Naskh
+/// face, and the readers who choose it are mostly reading from an Arab-world
+/// mushaf. There is no separate setting.
 ///
 /// The text is the Tanzil Project's Uthmani 1.1, CC BY 3.0, bundled verbatim
 /// with its notice at `assets/quran/tanzil-uthmani.txt`. Its terms forbid
@@ -114,25 +112,4 @@ String toUthmani(int surah, String data, UthmaniQuran quran) {
     if (text != null) lines[i] = text.replaceAll(_spaceBeforeMark, ' ');
   }
   return lines.join('\n');
-}
-
-/// [document] as the reader should show it in the current [arabicFont]:
-/// untouched unless [uid] is a surah and the font calls for Uthmani.
-Future<Map<String, dynamic>> applyQuranScript(
-  String uid,
-  Map<String, dynamic> document,
-  AssetBundle bundle,
-) async {
-  final surah = surahForUid(uid);
-  if (surah == null || !usesUthmaniScript(arabicFont)) return document;
-  try {
-    final quran = await UthmaniQuran.load(bundle);
-    final data = document['data']?.toString() ?? '';
-    return {...document, 'data': toUthmani(surah, data, quran)};
-  } catch (error) {
-    // The Indo-Pak text is still a complete Quran; show it rather than
-    // nothing.
-    debugPrint('Uthmani text unavailable, showing Indo-Pak: $error');
-    return document;
-  }
 }

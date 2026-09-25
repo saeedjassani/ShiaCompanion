@@ -15,6 +15,9 @@ class ZikrShareImageRequest {
   final ColorScheme colorScheme;
   final String? code;
 
+  /// The font the Arabic is drawn in; defaults to [arabicFont].
+  final String? arabicFontFamily;
+
   const ZikrShareImageRequest({
     required this.title,
     required this.tabTitle,
@@ -22,6 +25,7 @@ class ZikrShareImageRequest {
     required this.hideHeaderLine,
     required this.colorScheme,
     this.code,
+    this.arabicFontFamily,
   });
 }
 
@@ -98,7 +102,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
       line = ZikrContentParser.formatArabicText(line);
       style = TextStyle(
         color: colors.primaryText,
-        fontFamily: arabicFont,
+        fontFamily: request.arabicFontFamily ?? arabicFont,
         // Matches the reader: the privately-encoded Indo-Pak pause signs are
         // drawn from Qalam, which is the only font that has them.
         fontFamilyFallback: const ['Qalam'],

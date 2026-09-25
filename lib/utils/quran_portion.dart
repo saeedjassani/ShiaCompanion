@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../pages/zikr/zikr_content_parser.dart';
 import 'quran_index.dart';
-import 'quran_uthmani.dart';
+import 'quran_script.dart';
 
 /// A readable stretch of the Quran that may run across surah boundaries.
 ///
@@ -26,6 +26,7 @@ class QuranPortion {
     required this.code,
     required this.data,
     required this.index,
+    this.script,
   });
 
   final int juz;
@@ -39,6 +40,10 @@ class QuranPortion {
   /// belongs to and the headings between them.
   final AyahIndex index;
 
+  /// The script every surah in [data] was swapped into, or null when [data]
+  /// is the corpus text as authored.
+  final QuranScript? script;
+
   bool get isEmpty => index.isEmpty;
 
   VerseKey? get firstVerse => index.verses.isEmpty ? null : index.verses.first;
@@ -50,6 +55,10 @@ class QuranPortion {
         'title': title,
         'code': code,
         'data': data,
+        if (script != null) ...{
+          arabicFontFamilyKey: script!.fontFamily,
+          quranScriptFontKey: script!.font,
+        },
       };
 }
 
@@ -72,12 +81,15 @@ Future<QuranPortion?> loadJuzPortion(int juz, AssetBundle bundle) async {
   final part = allJuz()[juz - 1];
   final lines = <String>[];
   final spans = <AyahSpan>[];
+  // Loaded once for the whole portion, so every surah in it is in the same
+  // script and can be drawn in the same font.
+  final script = await loadQuranScript(bundle);
 
   for (var surah = part.start.surah; surah <= part.end.surah; surah++) {
     final uid = uidForSurah(surah);
     if (uid == null) continue;
 
-    final parsed = await _parseSurah(uid, bundle);
+    final parsed = await _parseSurah(uid, surah, script, bundle);
     if (parsed == null) continue;
 
     // The juz covers this whole surah unless it starts or ends inside it.
@@ -107,6 +119,7 @@ Future<QuranPortion?> loadJuzPortion(int juz, AssetBundle bundle) async {
     code: _quranContentCode,
     data: lines.join('\n'),
     index: AyahIndex.fromSpans(spans),
+    script: script,
   );
 }
 
@@ -121,15 +134,19 @@ bool _keeps(AyahSpan span, {required int from, required int to}) {
   return ayah >= from && ayah <= to;
 }
 
-Future<ParsedZikrContent?> _parseSurah(String uid, AssetBundle bundle) async {
+Future<ParsedZikrContent?> _parseSurah(
+  String uid,
+  int surah,
+  QuranScript? script,
+  AssetBundle bundle,
+) async {
   try {
     final decoded = json.decode(await bundle.loadString('assets/zikr/$uid'));
     if (decoded is! Map) return null;
-    final document =
-        await applyQuranScript(uid, Map<String, dynamic>.from(decoded), bundle);
+    final data = decoded['data']?.toString() ?? '';
 
     return ZikrContentParser.parseContent(
-      document['data']?.toString() ?? '',
+      script == null ? data : script.apply(surah, data),
       hideHeaderLine: false,
       code: decoded['code']?.toString() ?? _quranContentCode,
     );
