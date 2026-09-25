@@ -135,8 +135,11 @@ Write both files by hand:
 - **`assets/zikr.json`** — add `{title, slug}` under the uid. Keys are kept
   in strict lexicographic string order, so find the alphabetical insertion
   point.
-- **`assets/zikr/<uid>`** — the full content file: `{title, code, data,
-  merits}`. `code` is almost always `"012"`; `merits` is optional.
+- **`assets/zikr/<uid>`** — the full content file: `{title, data,
+  merits}`; `merits` is optional. Write each verse as Arabic, then its
+  transliteration, then its translation, one per line - the reader infers
+  that layout (or Arabic/translation, for a dua with no transliteration)
+  from the text, so there is no layout field to set.
 
 Then validate (Step 5) and commit.
 

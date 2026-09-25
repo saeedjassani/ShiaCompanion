@@ -1222,7 +1222,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           content: selectedContent,
           hideHeaderLine: showTabHeaders,
           colorScheme: Theme.of(context).colorScheme,
-          code: zikrData?['code']?.toString(),
         ),
       );
       if (imageBytes == null) {
@@ -1759,7 +1758,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                       hasMerits: hasMerits,
                                       onShowMerits: _showMeritsSheet,
                                       onLinkTap: _handleZikrLinkTap,
-                                      code: zikrData?['code']?.toString(),
                                       initialBookmarkTabIndex:
                                           _savedBookmark?.tabIndex,
                                       initialBookmarkScrollOffset:

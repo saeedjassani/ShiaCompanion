@@ -10,7 +10,7 @@ final RegExp _arabicRune =
 
 /// Collects every string in [json] that looks like a verse-content block
 /// (Arabic/transliteration/translation lines joined by '\n'), rather than a
-/// single-line metadata field like title, code or a URL.
+/// single-line metadata field like a title or a URL.
 void _collectContentBlocks(dynamic node, List<String> out) {
   if (node is String) {
     if ('\n'.allMatches(node).length >= 2) out.add(node);
@@ -22,23 +22,6 @@ void _collectContentBlocks(dynamic node, List<String> out) {
     for (final v in node.values) {
       _collectContentBlocks(v, out);
     }
-  }
-}
-
-/// Where the transliteration (or translation) of the Arabic line at
-/// [arabicIndex] sits, per the tab's layout code - a copy of
-/// ZikrContentParser's private `_englishCodeFor`, which this test needs to
-/// walk the very same triplets the reader builds.
-int? _englishCodeFor(int arabicIndex, bool transliteration, String? code) {
-  switch (code) {
-    case '102':
-      return transliteration ? arabicIndex - 1 : arabicIndex + 1;
-    case '012':
-      return transliteration ? arabicIndex + 1 : arabicIndex + 2;
-    case '02':
-      return transliteration ? null : arabicIndex + 1;
-    default:
-      return null;
   }
 }
 
@@ -54,7 +37,44 @@ double? _uppercaseRatio(String s) {
   return upper / letters.length;
 }
 
+/// The content blocks of a zikr asset the reader shows as tabs.
+List<String> _tabsOf(File file) {
+  final dynamic decoded = jsonDecode(file.readAsStringSync());
+  if (decoded is! Map) return const [];
+  return [
+    if (decoded['data'] is String) decoded['data'] as String,
+    if (decoded['tabs'] is List)
+      for (final tab in decoded['tabs'] as List)
+        if (tab is String) tab,
+  ];
+}
+
 void main() {
+  test('only the known duas are read as having no transliteration', () {
+    // The reader infers each tab's layout from the spacing of its Arabic
+    // lines (see ZikrContentParser) rather than a stored field. These are the
+    // duas written Arabic / translation with no transliteration; a content
+    // edit that tips one either way would silently pair every verse with the
+    // wrong line, so the set is pinned here.
+    const expected = {'A61', 'A72', 'AA12', 'AK8', 'E153', 'E30', 'E7', 'H17'};
+    final found = <String>{};
+
+    for (final file in Directory('assets/zikr').listSync().whereType<File>()) {
+      final tabs = _tabsOf(file);
+      for (final tab in tabs) {
+        final parsed = ZikrContentParser.parseContent(
+          tab,
+          hideHeaderLine: tabs.length > 1,
+        );
+        if (parsed.translaCodes.isNotEmpty && parsed.transliCodes.isEmpty) {
+          found.add(file.uri.pathSegments.last);
+        }
+      }
+    }
+
+    expect(found, expected);
+  });
+
   test(
     'transliteration and translation lines are not swapped',
     () {
@@ -63,55 +83,30 @@ void main() {
       // "and His Prophets and His Messenger." printed where the
       // transliteration belongs, and "WA AMBEYAAA-AHU WA ROSOLAHU" printed
       // as if it were the translation. ZikrContentParser locates each line
-      // purely by its fixed offset from the Arabic line (see
-      // _englishCodeFor), so a swap like this renders exactly as authored -
-      // nothing catches it at parse time.
+      // purely by its fixed offset from the Arabic line, so a swap like this
+      // renders exactly as authored - nothing catches it at parse time.
       //
-      // This walks every "012"/"102" tab the same way the reader does and
-      // flags any triplet whose transliteration slot reads like prose
-      // (mostly lowercase) while its translation slot reads like
-      // transliteration (mostly uppercase) - the signature a swap leaves
-      // behind.
+      // This parses every tab the same way the reader does and flags any
+      // triplet whose transliteration slot reads like prose (mostly
+      // lowercase) while its translation slot reads like transliteration
+      // (mostly uppercase) - the signature a swap leaves behind.
       final offenders = <String>[];
 
       for (final file in Directory('assets/zikr').listSync().whereType<File>()) {
-        final dynamic decoded = jsonDecode(file.readAsStringSync());
-        if (decoded is! Map) continue;
+        for (final block in _tabsOf(file)) {
+          final parsed =
+              ZikrContentParser.parseContent(block, hideHeaderLine: false);
 
-        final code = decoded['code']?.toString();
-        if (code != '012' && code != '102') continue;
-
-        final blocks = <String>[
-          if (decoded['data'] is String) decoded['data'] as String,
-          if (decoded['tabs'] is List)
-            for (final tab in decoded['tabs'] as List)
-              if (tab is String) tab,
-        ];
-
-        for (final block in blocks) {
-          final lines = block.split('\n').map((l) => l.trim()).toList();
-          final arabicIndexes = [
-            for (var i = 0; i < lines.length; i++)
-              if (lines[i].isNotEmpty && ZikrContentParser.isArabic(lines[i]))
-                i,
-          ];
-
-          for (final arabicIndex in arabicIndexes) {
-            final ti = _englishCodeFor(arabicIndex, true, code);
-            final ta = _englishCodeFor(arabicIndex, false, code);
-            if (ti == null ||
-                ta == null ||
-                ti < 0 ||
-                ta < 0 ||
-                ti >= lines.length ||
-                ta >= lines.length ||
-                arabicIndexes.contains(ti) ||
-                arabicIndexes.contains(ta)) {
+          for (final arabicIndex in parsed.arabicCodes) {
+            final ti = arabicIndex + 1;
+            final ta = arabicIndex + 2;
+            if (!parsed.transliCodes.contains(ti) ||
+                !parsed.translaCodes.contains(ta)) {
               continue;
             }
 
-            final transliLine = lines[ti];
-            final translaLine = lines[ta];
+            final transliLine = parsed.lines[ti];
+            final translaLine = parsed.lines[ta];
             if (transliLine.isEmpty || translaLine.isEmpty) continue;
 
             final transliRatio = _uppercaseRatio(transliLine);

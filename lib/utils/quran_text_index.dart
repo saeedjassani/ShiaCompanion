@@ -211,9 +211,6 @@ class QuranTextIndex {
 // Loading
 // -----------------------------------------------------------------------------
 
-/// Every surah document uses this layout code; see [ZikrContentParser].
-const String _quranContentCode = '012';
-
 QuranTextIndex? _cached;
 Future<QuranTextIndex>? _inFlight;
 
@@ -363,7 +360,6 @@ List<IndexedVerse> _indexOneDocument(int surah, String raw) {
   final content = ZikrContentParser.parseContent(
     decoded['data']?.toString() ?? '',
     hideHeaderLine: false,
-    code: decoded['code']?.toString() ?? _quranContentCode,
   );
 
   final verses = <IndexedVerse>[];

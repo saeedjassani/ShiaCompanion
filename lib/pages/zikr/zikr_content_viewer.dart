@@ -263,7 +263,6 @@ class ZikrContentViewerWidget extends StatefulWidget {
   final Function(int) onTabChanged;
   final bool hasMerits;
   final VoidCallback onShowMerits;
-  final String? code;
   final Future<void> Function(String href) onLinkTap;
   final int? initialBookmarkTabIndex;
   final double? initialBookmarkScrollOffset;
@@ -322,7 +321,6 @@ class ZikrContentViewerWidget extends StatefulWidget {
     required this.hasMerits,
     required this.onShowMerits,
     required this.onLinkTap,
-    this.code,
     this.initialBookmarkTabIndex,
     this.initialBookmarkScrollOffset,
     this.initialBookmarkLineIndex,
@@ -907,15 +905,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final cached = _contentCaches[tabIndex];
     if (cached != null &&
         cached.rawContent == rawContent &&
-        cached.hideHeaderLine == hideHeaderLine &&
-        cached.code == widget.code) {
+        cached.hideHeaderLine == hideHeaderLine) {
       return cached;
     }
 
     final parsed = ZikrContentParser.parseContent(
       rawContent,
       hideHeaderLine: hideHeaderLine,
-      code: widget.code,
     );
 
     // Only the first tab is Quran text. Surah documents are single-tab today,
@@ -932,7 +928,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final cache = _TabContentCache(
       rawContent: rawContent,
       hideHeaderLine: hideHeaderLine,
-      code: widget.code,
       parsed: parsed,
       ayahIndex: ayahIndex != null && !ayahIndex.isEmpty ? ayahIndex : null,
     );
@@ -1473,14 +1468,12 @@ class _TabContentCache {
   const _TabContentCache({
     required this.rawContent,
     required this.hideHeaderLine,
-    required this.code,
     required this.parsed,
     required this.ayahIndex,
   });
 
   final String rawContent;
   final bool hideHeaderLine;
-  final String? code;
   final ParsedZikrContent parsed;
 
   /// Null for everything that is not Quran, which is what keeps every other

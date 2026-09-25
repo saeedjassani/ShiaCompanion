@@ -23,14 +23,12 @@ class QuranPortion {
   const QuranPortion({
     required this.juz,
     required this.title,
-    required this.code,
     required this.data,
     required this.index,
   });
 
   final int juz;
   final String title;
-  final String code;
 
   /// The stitched lines, in the reader's usual newline-separated form.
   final String data;
@@ -48,14 +46,9 @@ class QuranPortion {
   /// asset - so a portion needs no separate loading path in the page.
   Map<String, dynamic> toZikrData() => {
         'title': title,
-        'code': code,
         'data': data,
       };
 }
-
-/// Every surah document uses this code, and the portion inherits it: the lines
-/// are the surahs' own triplets, untouched.
-const String _quranContentCode = '012';
 
 /// The identity a juz reads under.
 ///
@@ -104,7 +97,6 @@ Future<QuranPortion?> loadJuzPortion(int juz, AssetBundle bundle) async {
   return QuranPortion(
     juz: juz,
     title: 'Juz $juz',
-    code: _quranContentCode,
     data: lines.join('\n'),
     index: AyahIndex.fromSpans(spans),
   );
@@ -131,7 +123,6 @@ Future<ParsedZikrContent?> _parseSurah(String uid, AssetBundle bundle) async {
     return ZikrContentParser.parseContent(
       document['data']?.toString() ?? '',
       hideHeaderLine: false,
-      code: decoded['code']?.toString() ?? _quranContentCode,
     );
   } catch (error) {
     // A surah that will not load costs the portion that surah, not the whole
