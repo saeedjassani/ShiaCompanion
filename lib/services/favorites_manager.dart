@@ -11,6 +11,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/favorites_sync_policy.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
+import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 class FavoritesManager extends ChangeNotifier {
@@ -437,7 +438,8 @@ class FavoritesManager extends ChangeNotifier {
   /// still waiting on the network survives an older write finishing late.
   Future<void> _clearPendingOrder(String userId, int version) {
     return _enqueueStorageWrite(() async {
-      if (!shouldClearPendingFavoriteOrder(_loadPendingOrder(userId), version)) {
+      if (!shouldClearPendingFavoriteOrder(
+          _loadPendingOrder(userId), version)) {
         return;
       }
       await SP.prefs.remove(_pendingOrderStorageKey(userId));
@@ -1008,6 +1010,9 @@ class FavoritesManager extends ChangeNotifier {
       await removeFavorite(item);
     } else {
       await addFavorite(item);
+      // Only the toggle - the one path a person's own tap takes - counts as
+      // a positive action; addFavorite is also how sync/import restore them.
+      RatingPromptService.recordPositiveAction('favorite');
     }
   }
 

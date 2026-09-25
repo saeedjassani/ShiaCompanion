@@ -4,11 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_review/in_app_review.dart';
 
+import '../constants.dart' show appNavigatorKey;
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
 import '../widgets/rating_prompt_dialog.dart';
 import 'analytics_service.dart';
 import 'azaan_opt_in_service.dart';
+import 'azan_playback_service.dart';
 
 /// How the "enjoying the app?" question gets put to the user, and how the
 /// "not really" follow-up does. Injectable so tests can answer either
@@ -24,11 +26,17 @@ typedef RatingFeedbackPrompt = Future<bool> Function(BuildContext context);
 /// about - and never asks too often after that, tracked by [_lastAskedKey].
 /// A "yes" stops it from ever asking again at all, tracked by
 /// [_hasAcceptedKey] - see that field for why. It does not gate on how many
-/// times the app has been opened: [maybeAsk] is
-/// meant to be called right after a real moment of engagement (see
+/// times the app has been opened: a real moment of engagement (see
 /// [recordZikrCompleted] and zikr_page.dart's `_maybeRecordCompletion`, which
-/// already tells a finished recitation apart from a stray tap), and that is a
-/// far better signal than a raw launch count.
+/// already tells a finished recitation apart from a stray tap, and
+/// [recordPositiveAction]) is a far better signal than a raw launch count.
+///
+/// That moment earns the question but is never when it gets asked: reaching
+/// the end of a zikr's scroll only means its last lines have come into view,
+/// and someone saving or sharing a passage is usually still reading. Both
+/// just leave an ask pending, and it is put to the user once no reader is
+/// open any more - i.e. after they have left the zikr page and landed back
+/// on a list or home. See [readerOpened]/[readerClosed].
 ///
 /// The actual review UI is left entirely to the platform
 /// ([InAppReview.requestReview]: `SKStoreReviewController` on iOS, the Play
@@ -99,12 +107,16 @@ class RatingPromptService {
     await SP.prefs.setInt(_completionCountKey, _minCompletions);
   }
 
-  /// Records a real, finished recitation - not just a zikr opened. Call from
-  /// zikr_page.dart's `_maybeRecordCompletion`, right before [maybeAsk], so
-  /// [shouldAsk] can count up towards [_minCompletions].
+  /// Records a real, finished recitation - not just a zikr opened - so
+  /// [shouldAsk] can count up towards [_minCompletions], and leaves an ask
+  /// pending for when the reader is left (see [readerClosed]). Never asks by
+  /// itself: the reader is very likely still on the last lines.
   static Future<void> recordZikrCompleted() async {
     if (!SP.isInitialized) return;
     final completions = SP.prefs.getInt(_completionCountKey) ?? 0;
+    // Set before the write's await, so a completion recorded from a reader's
+    // dispose is already pending when that same dispose calls [readerClosed].
+    _pendingAsk = true;
     await SP.prefs.setInt(_completionCountKey, completions + 1);
   }
 
@@ -147,8 +159,7 @@ class RatingPromptService {
   /// (or whether) it was answered. Starts the cooldown before the next ask.
   static Future<void> markAsked() async {
     if (!SP.isInitialized) return;
-    await SP.prefs
-        .setInt(_lastAskedKey, DateTime.now().millisecondsSinceEpoch);
+    await SP.prefs.setInt(_lastAskedKey, DateTime.now().millisecondsSinceEpoch);
   }
 
   /// Puts the "enjoying the app?" pre-screen to the user if [shouldAsk] says
@@ -224,8 +235,89 @@ class RatingPromptService {
     }
   }
 
+  /// How many zikr readers are alive right now. Nested readers (a link from
+  /// one zikr to another) each count, so backing out of the inner one lands
+  /// on another reader and must not ask yet.
+  static int _openReaders = 0;
+
+  /// Whether something since the last ask has earned one. In memory only:
+  /// a pending ask left over when the app is killed is not worth carrying
+  /// into a cold start, which is exactly the moment never to ask.
+  static bool _pendingAsk = false;
+
+  /// Long enough for the reader's pop transition to finish, so the dialog
+  /// lands on the settled list/home screen instead of mid-animation.
+  @visibleForTesting
+  static Duration settleDelay = const Duration(milliseconds: 600);
+
+  @visibleForTesting
+  static bool get hasPendingAsk => _pendingAsk;
+
+  @visibleForTesting
+  static int get openReaders => _openReaders;
+
+  /// Call from a zikr reader's `initState`.
+  static void readerOpened() => _openReaders++;
+
+  /// Call from a zikr reader's `dispose`, after anything that might record a
+  /// completion. Leaving the last open reader is what finally puts a pending
+  /// ask to the user.
+  static void readerClosed() {
+    if (_openReaders > 0) _openReaders--;
+    if (_openReaders == 0 && _pendingAsk) _scheduleAskIfPending();
+  }
+
+  /// Something that says the user is getting value out of the app - a zikr
+  /// shared, bookmarked, saved or favourited. Asked right away (after
+  /// [settleDelay]) when no reader is open, otherwise held until the reader
+  /// is left, same as a completion.
+  static void recordPositiveAction(String action) {
+    unawaited(AnalyticsService.feature(
+      'rating_positive_action',
+      label: 'Rating positive action',
+      parameters: {'action': action},
+    ));
+    if (!shouldAsk()) return;
+    _pendingAsk = true;
+    if (_openReaders == 0) _scheduleAskIfPending();
+  }
+
+  static void _scheduleAskIfPending() {
+    unawaited(Future<void>.delayed(settleDelay, () async {
+      final context = appNavigatorKey.currentState?.overlay?.context;
+      if (context == null) return;
+      await askIfPending(context);
+    }));
+  }
+
+  /// Puts a pending ask to the user if nothing makes this a bad moment:
+  /// a reader was reopened in the meantime, the app is backgrounded, or an
+  /// Azan is playing. Any of those keeps the ask pending for the next time a
+  /// reader is left, rather than dropping it.
+  static Future<void> askIfPending(
+    BuildContext context, {
+    Future<bool> Function()? isAzanPlaying,
+    RatingPrompt prompt = showRatingPromptDialog,
+    RatingFeedbackPrompt feedbackPrompt = showRatingFeedbackDialog,
+  }) async {
+    if (!_pendingAsk || _openReaders > 0) return;
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    if (lifecycle != null && lifecycle != AppLifecycleState.resumed) return;
+    if (!kIsWeb && await (isAzanPlaying ?? AzanPlaybackService.isPlaying)()) {
+      return;
+    }
+    // Re-checked: the Azan lookup is async, and a reader could have been
+    // opened, or another scheduled ask could have run, while it was pending.
+    if (!_pendingAsk || _openReaders > 0) return;
+    if (!context.mounted) return;
+    _pendingAsk = false;
+    await maybeAsk(context, prompt: prompt, feedbackPrompt: feedbackPrompt);
+  }
+
   @visibleForTesting
   static Future<void> resetForTest() async {
+    _openReaders = 0;
+    _pendingAsk = false;
     if (!SP.isInitialized) return;
     await SP.prefs.remove(_firstSeenKey);
     await SP.prefs.remove(_completionCountKey);
