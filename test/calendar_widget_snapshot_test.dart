@@ -80,22 +80,19 @@ void main() {
     // 2026-09-26 is 15 Rabi' al-Thani 1448 in the Umm al-Qura calendar.
     final now = DateTime(2026, 9, 26, 15, 30);
     final events = <String, dynamic>{
-      '15-4': {
-        'header': '15th Rabi ul-Aakhar',
+      '04-15': {
         'content': 'Death of Hazrat Today(s.a.) - 64 A.H.',
         'color': 1,
       },
-      '18-4': {
-        'header': '18th Rabi ul-Aakhar',
+      '04-18': {
         'content': 'Three days on',
         'color': 1,
       },
-      '8-5': {
-        'header': '8th Jamadi ul-Awwal',
+      '05-08': {
         'content': 'Later this year',
         'color': 0,
       },
-      '10-1': {'content': 'Ashoora'},
+      '01-10': {'content': 'Ashoora'},
     };
 
     test('publishes one day per entry from local midnight', () {

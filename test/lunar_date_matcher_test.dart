@@ -80,13 +80,36 @@ void main() {
   test('"MM-*" matches every day within that lunar month only', () {
     final date = HijriCalendar.fromDate(DateTime(2024, 6, 16));
 
-    expect(matchesLunarDatePattern('${date.hMonth}-*', currentDate: date),
-        isTrue);
+    expect(
+        matchesLunarDatePattern('${date.hMonth}-*', currentDate: date), isTrue);
     final otherMonth = (date.hMonth % 12) + 1;
     expect(
         matchesLunarDatePattern('$otherMonth-*', currentDate: date), isFalse);
-    // A wildcard month with a wildcard day is meaningless.
-    expect(matchesLunarDatePattern('*-*', currentDate: date), isFalse);
+    // A wildcard month needs a wildcard day ("*-*", every day); "*-15"
+    // (the 15th of any month) isn't a supported pattern.
+    expect(matchesLunarDatePattern('*-15', currentDate: date), isFalse);
+  });
+
+  test('"*-*" matches every day of every month', () {
+    for (final day in [DateTime(2024, 1, 1), DateTime(2024, 6, 16)]) {
+      expect(
+        matchesLunarDatePattern('*-*',
+            currentDate: HijriCalendar.fromDate(day)),
+        isTrue,
+      );
+    }
+    // Not a night pattern unless prefixed with N.
+    expect(matchesLunarDatePattern('N*-*'), isFalse);
+  });
+
+  test('pattern specificity ranks dates above months, weekdays and daily', () {
+    expect(lunarPatternSpecificity('09-19'), 0);
+    expect(lunarPatternSpecificity('N09-19'), 0);
+    expect(lunarPatternSpecificity('09-*'), 1);
+    expect(lunarPatternSpecificity('N09-*'), 1);
+    expect(lunarPatternSpecificity('11-*-0'), 1);
+    expect(lunarPatternSpecificity('*-*-5'), 2);
+    expect(lunarPatternSpecificity('*-*'), 3);
   });
 
   test('"NMM-DD" only matches when a night window is supplied and open', () {

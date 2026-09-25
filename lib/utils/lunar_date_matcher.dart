@@ -42,6 +42,8 @@ List<String> _patternsFromValue(Object? value) {
 ///   Friday, year-round) — use this for weekday-only duas that aren't tied
 ///   to a particular Hijri month, instead of repeating "MM-*-D" 12 times.
 ///   Day values: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+/// - "*-*": Every day, year-round (e.g. Dua-e-Ahad, Ziyarat Ashura) — the
+///   daily recitations Today's Recitation always lists.
 /// - "NMM-DD": The *night* leading into MM-DD (Maghrib through Fajr), rather
 ///   than the day itself (e.g., "N12-09" for the Night of Arafah, the eve of
 ///   9th Zilhajj — distinct from "12-09", the Day of Arafah). Only matches
@@ -104,8 +106,8 @@ bool _matchesDatePattern(
     return actualWeekday == dayOfWeek;
   }
 
-  // A bare month with no day, fixed or wildcard, needs a real lunar month.
-  if (isAnyMonth) return false;
+  // Every day ("*-*"). Any other any-month pattern needs a real lunar month.
+  if (isAnyMonth) return parts.length == 2 && parts[1] == '*';
   if (parts.length == 2) {
     // Whole-month pattern (MM-*)
     if (parts[1] == '*') {
@@ -141,7 +143,23 @@ bool matchesAnyLunarPattern(
   );
 }
 
-/// Returns a list of zikr UIDs that match the current lunar date.
+/// How specific [pattern] is, from 0 (a single date or night, e.g. "09-19"
+/// or "N09-19") through 1 (one lunar month, e.g. "09-*" or "11-*-0") and 2
+/// (a weekday every month, "*-*-D") to 3 (every day, "*-*"). Today's
+/// Recitation lists the most specific occasions first, so the Night of Qadr
+/// comes before Friday's duas, which come before the daily ones.
+int lunarPatternSpecificity(String pattern) {
+  var trimmed = pattern.trim();
+  if (trimmed.startsWith('N')) trimmed = trimmed.substring(1);
+  final parts = trimmed.split('-');
+  if (parts.first == '*') return parts.length >= 3 ? 2 : 3;
+  if (parts.length >= 2 && parts[1] == '*') return 1;
+  return 0;
+}
+
+/// Returns the zikr UIDs whose `day` patterns match the current lunar date,
+/// each mapped to the [lunarPatternSpecificity] of its most specific
+/// matching pattern.
 ///
 /// [nightDate], when supplied, lets "N"-prefixed patterns (see
 /// [matchesLunarDatePattern]) match against the currently-open Shab (night)
@@ -149,30 +167,47 @@ bool matchesAnyLunarPattern(
 /// supplied, anchors recurring weekday patterns (e.g. "*-*-5" for Friday) to
 /// that real-world date rather than to [currentDate]'s own weekday — see
 /// [matchesLunarDatePattern].
+Map<String, int> matchTodaysZikrs(
+  Map<String, dynamic> zikrData, {
+  HijriCalendar? currentDate,
+  HijriCalendar? nightDate,
+  DateTime? weekdayAnchor,
+}) {
+  final matches = <String, int>{};
+  currentDate ??= HijriCalendar.now();
+
+  zikrData.forEach((uid, value) {
+    if (value is! Map<String, dynamic>) return;
+
+    for (final pattern in _patternsFromValue(value['day'])) {
+      final matched = matchesLunarDatePattern(
+        pattern,
+        currentDate: currentDate,
+        nightDate: nightDate,
+        weekdayAnchor: weekdayAnchor,
+      );
+      if (!matched) continue;
+      final specificity = lunarPatternSpecificity(pattern);
+      final best = matches[uid];
+      if (best == null || specificity < best) matches[uid] = specificity;
+    }
+  });
+
+  return matches;
+}
+
+/// Returns a list of zikr UIDs that match the current lunar date. See
+/// [matchTodaysZikrs].
 List<String> getTodaysZikrs(
   Map<String, dynamic> zikrData, {
   HijriCalendar? currentDate,
   HijriCalendar? nightDate,
   DateTime? weekdayAnchor,
 }) {
-  final today = <String>[];
-  currentDate ??= HijriCalendar.now();
-
-  zikrData.forEach((uid, value) {
-    if (value is! Map<String, dynamic>) return;
-
-    final patterns = _patternsFromValue(value['day']);
-    if (patterns.isEmpty) return;
-
-    if (matchesAnyLunarPattern(
-      patterns,
-      currentDate: currentDate,
-      nightDate: nightDate,
-      weekdayAnchor: weekdayAnchor,
-    )) {
-      today.add(uid);
-    }
-  });
-
-  return today;
+  return matchTodaysZikrs(
+    zikrData,
+    currentDate: currentDate,
+    nightDate: nightDate,
+    weekdayAnchor: weekdayAnchor,
+  ).keys.toList();
 }
