@@ -475,8 +475,16 @@ function main() {
       // when they share the same title (see uid_title_data.dart's `|`
       // convention) - contentUidFor resolves both sides to the same
       // assets/zikr/<uid> file, so this is the same page twice, not a
-      // conflict. Keep whichever claimed the slug first; skip the other.
-      if (contentUidFor(uid) === contentUidFor(existingUid)) continue;
+      // conflict. Keep whichever claimed the slug first; skip the other,
+      // but carry over its slugAliases: the canonical usually holds them, and
+      // Hosting 404s any /zikr/<slug> without a page of its own.
+      if (contentUidFor(uid) === contentUidFor(existingUid)) {
+        const kept = pages.find((page) => page.slug === slug);
+        for (const alias of Array.isArray(entry.slugAliases) ? entry.slugAliases.map(safeSlug) : []) {
+          if (!kept.aliases.includes(alias)) kept.aliases.push(alias);
+        }
+        continue;
+      }
       throw new Error(`Duplicate zikr slug "${slug}" for ${uid} and ${existingUid}`);
     }
     slugs.set(slug, uid);
