@@ -242,7 +242,6 @@ void main() {
             hasMerits: false,
             onShowMerits: () {},
             onLinkTap: (_) async {},
-            code: '102',
             initialBookmarkTabIndex: 0,
             initialBookmarkScrollOffset: 5,
             // The translation of verse 12: the triplet starts two lines up.
@@ -255,7 +254,11 @@ void main() {
     await tester.pumpAndSettle();
 
     final viewportTop = tester.getRect(find.byType(ListView)).top;
-    final tripletTop = tester.getRect(_lineFinder(36)).top;
+    // The tinted block is the triplet (lines 36..38), label included; the
+    // Arabic that opens it sits below the label, so measure the block.
+    expect(_tintedLines(), findsNWidgets(3));
+    final tripletTop = tester.getRect(_tintedLines().first).top;
+    expect(tester.getRect(_lineFinder(36)).top, greaterThan(tripletTop));
     expect(tripletTop, greaterThanOrEqualTo(viewportTop - 0.5));
     expect(tripletTop, lessThan(viewportTop + 40),
         reason: 'the bookmarked triplet starts at the top of the view');
@@ -281,11 +284,11 @@ void main() {
             hasMerits: false,
             onShowMerits: () {},
             onLinkTap: (_) async {},
-            code: '102',
             initialBookmarkTabIndex: 0,
             // Measured in the old, taller one-verse-per-line layout.
             initialBookmarkScrollOffset: 2400,
-            initialBookmarkLineIndex: 37,
+            // Verse 12's Arabic.
+            initialBookmarkLineIndex: 36,
             onScrollPositionChanged: positions.add,
           ),
         ),
@@ -308,7 +311,7 @@ void main() {
       findsOneWidget,
     );
     expect(positions, isNotEmpty);
-    expect(positions.last.lineIndex, inInclusiveRange(37 - 9, 37));
+    expect(positions.last.lineIndex, inInclusiveRange(36 - 9, 36));
   });
 
   testWidgets('lands on the bookmarked verse deep inside a long paragraph', (
@@ -322,8 +325,8 @@ void main() {
     // One paragraph many screens long, as a whole dua is in this view.
     final lines = <String>[];
     for (var verse = 0; verse < 150; verse++) {
-      lines.add('TRANSLITERATION OF VERSE $verse');
       lines.add('اللهم صل على محمد وآل محمد $verse');
+      lines.add('TRANSLITERATION OF VERSE $verse');
       lines.add('Translation of verse $verse');
     }
     final positions = <ZikrContentScrollPosition>[];
@@ -338,11 +341,10 @@ void main() {
               hasMerits: false,
               onShowMerits: () {},
               onLinkTap: (_) async {},
-              code: '102',
               initialBookmarkTabIndex: 0,
               initialBookmarkScrollOffset: 1,
               // Verse 100's Arabic.
-              initialBookmarkLineIndex: 301,
+              initialBookmarkLineIndex: 300,
               onScrollPositionChanged: positions.add,
             ),
           ),
@@ -356,7 +358,7 @@ void main() {
     // reads back as the first verse to begin on that row, which several
     // short ones share.
     expect(positions, isNotEmpty);
-    expect(positions.last.lineIndex, inInclusiveRange(301 - 9, 301));
+    expect(positions.last.lineIndex, inInclusiveRange(300 - 9, 300));
     expect(positions.last.scrollOffset, greaterThan(0));
   });
 }
