@@ -28,7 +28,11 @@ void main() {
 
   final medallion = RegExp('[-]\$');
 
-  tearDown(() => arabicFont = 'Qalam');
+  setUp(() => isUserAdmin = true);
+  tearDown(() {
+    arabicFont = 'Qalam';
+    isUserAdmin = false;
+  });
 
   test('the QuranWBW text has every verse of every surah', () {
     for (var surah = 1; surah <= surahCount; surah++) {
@@ -113,6 +117,17 @@ void main() {
       expect(document['data'], toIndoPak(2, surahData(2), quran));
       expect(arabicFontFamilyOf(document), quranWbwFontFamily);
       expect(document[quranScriptFontKey], 'Qalam');
+    });
+
+    test('everyone but admins keeps the corpus text in Qalam', () async {
+      isUserAdmin = false;
+      arabicFont = 'Qalam';
+      final surah = {'data': surahData(2), 'code': '012'};
+      final document = await applyQuranScript(uidForSurah(2)!, surah, bundle);
+      expect(document, same(surah));
+      expect(arabicFontFamilyOf(document), 'Qalam');
+      final portion = (await loadJuzPortion(30, bundle))!;
+      expect(arabicFontFamilyOf(portion.toZikrData()), 'Qalam');
     });
 
     test('Scheherazade shows Uthmani text in Scheherazade', () async {
