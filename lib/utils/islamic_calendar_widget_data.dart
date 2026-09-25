@@ -48,8 +48,11 @@ HijriCalendar hijriDateForCalendarDay(DateTime day, {required int offsetDays}) {
   );
 }
 
-/// The key events.json files an event under: `<hijri day>-<hijri month>`.
-String hijriEventKey(HijriCalendar date) => '${date.hDay}-${date.hMonth}';
+/// The key events.json files an event under: "MM-DD", the same fixed-date
+/// format as a zikr's `day` pattern (see lunar_date_matcher.dart).
+String hijriEventKey(HijriCalendar date) =>
+    '${date.hMonth.toString().padLeft(2, '0')}-'
+    '${date.hDay.toString().padLeft(2, '0')}';
 
 /// An events.json event, split the way the widgets show it: who it is about
 /// ([name]) apart from what happened ([kind]), so a row can lead with the name
