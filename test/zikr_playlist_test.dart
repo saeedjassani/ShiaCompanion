@@ -11,8 +11,11 @@ import 'package:shia_companion/services/playlist_audio_service.dart';
 import 'package:shia_companion/services/zikr_playlist_store.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
+/// A store with [values] in storage and, unless a test says otherwise, the
+/// starter playlists already handed out - so it starts empty.
 Future<void> _freshStore([Map<String, Object> values = const {}]) async {
-  SharedPreferences.setMockInitialValues(values);
+  SharedPreferences.setMockInitialValues(
+      {ZikrPlaylistStore.seededKey: true, ...values});
   await SP.init();
   ZikrPlaylistStore.instance.resetForTest();
 }
@@ -58,6 +61,53 @@ void main() {
     test('ignores unreadable storage rather than throwing', () async {
       await _freshStore({ZikrPlaylistStore.storageKey: 'not json'});
       expect(ZikrPlaylistStore.instance.playlists, isEmpty);
+    });
+  });
+
+  group('starter playlists', () {
+    test('a first run gets Morning, Thursday and Friday', () async {
+      SharedPreferences.setMockInitialValues({});
+      await SP.init();
+      final store = ZikrPlaylistStore.instance..resetForTest();
+
+      expect(store.playlists.map((playlist) => playlist.name),
+          ['Morning', 'Thursday', 'Friday']);
+      expect(store.byId('default-morning')!.zikrUids, ['E18', 'G4']);
+    });
+
+    test('are added alongside playlists the reader already made', () async {
+      await _freshStore();
+      await ZikrPlaylistStore.instance.create('Mine');
+      final stored = SP.prefs.getString(ZikrPlaylistStore.storageKey)!;
+
+      SharedPreferences.setMockInitialValues(
+          {ZikrPlaylistStore.storageKey: stored});
+      await SP.init();
+      final store = ZikrPlaylistStore.instance..resetForTest();
+      expect(store.playlists.map((playlist) => playlist.name),
+          ['Mine', 'Morning', 'Thursday', 'Friday']);
+    });
+
+    test('a deleted starter playlist stays deleted', () async {
+      SharedPreferences.setMockInitialValues({});
+      await SP.init();
+      final store = ZikrPlaylistStore.instance..resetForTest();
+      await store.delete('default-thursday');
+
+      store.resetForTest();
+      expect(store.playlists.map((playlist) => playlist.name),
+          ['Morning', 'Friday']);
+    });
+
+    test('hold only zikrs that have a recording', () {
+      final index =
+          jsonDecode(File('assets/zikr.json').readAsStringSync()) as Map;
+      for (final playlist in ZikrPlaylistStore.defaultPlaylists) {
+        for (final uid in playlist.zikrUids) {
+          expect((index[uid] as Map?)?['audio'], isTrue,
+              reason: '${playlist.name}: $uid has no audio');
+        }
+      }
     });
   });
 

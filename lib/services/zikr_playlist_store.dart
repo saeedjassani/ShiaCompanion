@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -17,6 +18,36 @@ class ZikrPlaylistStore extends ChangeNotifier {
 
   static const String storageKey = 'zikr_playlists_v1';
 
+  /// Set once the starter playlists below have been added, so a reader who
+  /// deletes one does not see it come back.
+  static const String seededKey = 'zikr_playlists_seeded_v1';
+
+  /// Starter playlists every reader gets once, to edit or delete like their
+  /// own. Only zikrs with a recording belong here - see `"audio": true` in
+  /// assets/zikr.json.
+  static final List<ZikrPlaylist> defaultPlaylists = List.unmodifiable([
+    ZikrPlaylist(
+      id: 'default-morning',
+      name: 'Morning',
+      zikrUids: const ['E18', 'G4'], // Dua Ahad, Ziyarat Ashura
+      updatedAt: DateTime.utc(2026, 9, 25),
+    ),
+    ZikrPlaylist(
+      id: 'default-thursday',
+      name: 'Thursday',
+      // Dua Kumayl, Ziyarat Warith
+      zikrUids: const ['E31', 'G54'],
+      updatedAt: DateTime.utc(2026, 9, 25),
+    ),
+    ZikrPlaylist(
+      id: 'default-friday',
+      name: 'Friday',
+      // Dua Nudbah, Ziyarat of Imam al-Mahdi on Friday
+      zikrUids: const ['E34', 'J3'],
+      updatedAt: DateTime.utc(2026, 9, 25),
+    ),
+  ]);
+
   List<ZikrPlaylist>? _playlists;
 
   List<ZikrPlaylist> get playlists => _playlists ??= _read();
@@ -35,6 +66,24 @@ class ZikrPlaylistStore extends ChangeNotifier {
 
   List<ZikrPlaylist> _read() {
     if (!SP.isInitialized) return const [];
+    final stored = _readStored();
+    if (SP.prefs.getBool(seededKey) ?? false) return stored;
+
+    final ids = {for (final playlist in stored) playlist.id};
+    final seeded = List<ZikrPlaylist>.unmodifiable([
+      ...stored,
+      for (final playlist in defaultPlaylists)
+        if (!ids.contains(playlist.id)) playlist,
+    ]);
+    unawaited(SP.prefs.setString(
+      storageKey,
+      jsonEncode(seeded.map((playlist) => playlist.toJson()).toList()),
+    ));
+    unawaited(SP.prefs.setBool(seededKey, true));
+    return seeded;
+  }
+
+  List<ZikrPlaylist> _readStored() {
     final encoded = SP.prefs.getString(storageKey);
     if (encoded == null || encoded.isEmpty) return const [];
     try {
