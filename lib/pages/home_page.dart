@@ -499,6 +499,35 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void initializeData() async {
+    // A tap on a prayer notification that cold-launched the app is someone
+    // asking to hear the Azan *now*, so it's acted on before anything below
+    // that can wait on the network or GPS. It used to be handled only after
+    // the Firestore pulls and the location refresh (a GPS fix plus an
+    // untimed reverse-geocode request - and the stored fix is always stale
+    // by Fajr), so tapping did nothing for up to a minute or more. Worse,
+    // those awaits freeze while iOS has the app suspended: a reader who gave
+    // up and locked the phone had the Azan start by itself whenever the app
+    // next came to the foreground, however much later that was.
+    //
+    // Reading launch details needs no initialize() call, so this also
+    // doesn't move the notification permission prompt that initialize()
+    // triggers on iOS. Zikr reminder taps still wait for the zikr index
+    // (loaded by _refreshHomeSessionState) further down.
+    NotificationResponse? launchResponse;
+    if (!kIsWeb) {
+      final launchDetails = await FlutterLocalNotificationsPlugin()
+          .getNotificationAppLaunchDetails();
+      if (launchDetails?.didNotificationLaunchApp == true) {
+        launchResponse = launchDetails?.notificationResponse;
+      }
+      if (launchResponse != null &&
+          !isZikrReminderNotificationResponse(launchResponse)) {
+        // Unawaited: playback's future only completes when the Azan ends.
+        unawaited(handlePrayerNotificationResponse(launchResponse));
+        launchResponse = null;
+      }
+    }
+
     await _refreshHomeSessionState();
     getHadith();
 
@@ -539,17 +568,9 @@ class _MyHomePageState extends State<MyHomePage>
         onDidReceiveBackgroundNotificationResponse:
             handlePrayerNotificationResponseBackground,
       );
-      // A tap that launched the app from fully terminated arrives here
-      // rather than through onDidReceiveNotificationResponse above - that
-      // callback only fires for a tap while flutterLocalNotificationsPlugin
-      // is already initialized. This is iOS's only way to ever play a Full
-      // Azan past its notification sound's ~30 second cap when the app
-      // wasn't already running (see handlePrayerNotificationResponse).
-      final launchDetails =
-          await flutterLocalNotificationsPlugin?.getNotificationAppLaunchDetails();
-      final launchResponse = launchDetails?.notificationResponse;
-      if (launchDetails?.didNotificationLaunchApp == true &&
-          launchResponse != null) {
+      // A zikr reminder tap that launched the app from fully terminated
+      // (prayer taps were already handled at the top of this method).
+      if (launchResponse != null) {
         await handlePrayerNotificationResponse(launchResponse);
       }
       // Two prompts back to back is one too many, so the OS permission dialog
