@@ -13,6 +13,7 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/mistake_report_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
+import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
@@ -1011,10 +1012,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // folded into instead of failing outright, and land on the specific tab
     // its content now lives in, if any.
     final redirect = retiredZikrRedirects[widget.item.getFirstUId()];
-    final assetUid = redirect?.targetUid ?? widget.item.getFirstUId();
+    final assetUid = _contentUid;
     try {
       final bundle = DefaultAssetBundle.of(context);
+      // Recordings live in their own index, not the content file; have it
+      // ready by the time the page first draws, so Listen does not pop in.
+      final audioLoaded = ZikrAudioIndex.instance.load(bundle);
       final raw = await bundle.loadString('assets/zikr/$assetUid');
+      await audioLoaded;
       final decoded = json.decode(raw);
       if (decoded is! Map) {
         return false;
@@ -1032,6 +1037,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       debugPrint('Error loading zikr from assets: $e');
       return false;
     }
+  }
+
+  /// The uid whose content (and recordings) this page shows: the target of
+  /// an alias key or of a retired uid's redirect.
+  String get _contentUid {
+    final uid = widget.item.getFirstUId();
+    return retiredZikrRedirects[uid]?.targetUid ?? uid;
   }
 
   void _markZikrDataUnavailable() {
@@ -1661,7 +1673,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       tabContents,
       hideHeaderLine: tabContents.length > 1,
     );
-    final audioTracks = ZikrAudioTrack.listFrom(zikrData?['audio']);
+    final audioTracks = widget.portion != null
+        ? const <ZikrAudioTrack>[]
+        : ZikrAudioIndex.instance.tracksFor(_contentUid);
     final showActionBar = zikrData != null;
     // Independent of showActionBar - a zikr with no estimable reading time
     // (still loading) can lack one while the other still applies.

@@ -8,6 +8,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/playlists_page.dart';
 import 'package:shia_companion/services/exclusive_audio.dart';
 import 'package:shia_companion/services/playlist_audio_service.dart';
+import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/services/zikr_playlist_store.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
@@ -72,8 +73,8 @@ void main() {
 
       expect(store.playlists.map((playlist) => playlist.name),
           ['Morning', 'Thursday', 'Friday']);
-      expect(store.byId('default-morning')!.zikrUids,
-          ['E18', 'G4', 'G1', 'G13']);
+      expect(
+          store.byId('default-morning')!.zikrUids, ['E18', 'G4', 'G1', 'G13']);
     });
 
     test('are added alongside playlists the reader already made', () async {
@@ -101,11 +102,11 @@ void main() {
     });
 
     test('hold only zikrs that have a recording', () {
-      final index =
-          jsonDecode(File('assets/zikr.json').readAsStringSync()) as Map;
+      final audio =
+          jsonDecode(File(ZikrAudioIndex.assetPath).readAsStringSync()) as Map;
       for (final playlist in ZikrPlaylistStore.defaultPlaylists) {
         for (final uid in playlist.zikrUids) {
-          expect((index[uid] as Map?)?['audio'], isTrue,
+          expect(audio.containsKey(uid), isTrue,
               reason: '${playlist.name}: $uid has no audio');
         }
       }
@@ -114,38 +115,34 @@ void main() {
 
   group('PlaylistAudioService.buildQueue', () {
     test('queues every track of every zikr in order, skipping silent ones', () {
+      final audio = ZikrAudioIndex.parse({
+        'E18': [
+          {'file': 'ahad.mp3', 'reciter': 'Ali Fani'},
+        ],
+        'F11': [
+          {'file': 'salat.mp3', 'label': 'Salat'},
+          {'file': 'dua.mp3', 'label': 'Dua after'},
+        ],
+      });
       final queue = PlaylistAudioService.buildQueue(
         ['E18', 'I24', 'MISSING', 'F11'],
-        {
-          'E18': {
-            'title': 'Dua e Ahad',
-            'audio': [
-              {'url': 'https://example.com/ahad.mp3'},
-            ],
-          },
-          'I24': {'title': 'Etiquettes of Bedtime'},
-          'MISSING': null,
-          'F11': {
-            'title': 'Namaz of Jafar-e-Tayyaar',
-            'audio': [
-              {'url': 'https://example.com/salat.mp3', 'label': 'Salat'},
-              {'url': 'https://example.com/dua.mp3', 'label': 'Dua after'},
-            ],
-          },
-        },
+        tracksFor: (uid) => audio[uid] ?? const [],
+        titleFor: (uid) => uid == 'E18' ? 'Dua e Ahad' : uid,
       );
 
       expect(queue.map((entry) => entry.zikrUid), ['E18', 'F11', 'F11']);
       expect(queue.map((entry) => entry.title),
           ['Dua e Ahad', 'Salat', 'Dua after']);
+      expect(queue.map((entry) => entry.track.artist),
+          ['Ali Fani', 'Shia Companion', 'Shia Companion']);
     });
 
     test('a playlist with nothing playable does not start', () async {
       final service = PlaylistAudioService.instance;
-      service.loadDocument = (uid) async => {'title': uid};
+      ZikrAudioIndex.instance.setForTest(const {});
       await _freshStore();
-      final playlist = await ZikrPlaylistStore.instance
-          .create('Silent', zikrUids: ['I24']);
+      final playlist =
+          await ZikrPlaylistStore.instance.create('Silent', zikrUids: ['I24']);
       expect(await service.play(playlist), isFalse);
       expect(service.isActive, isFalse);
     });
@@ -171,30 +168,16 @@ void main() {
     });
   });
 
-  test('the index flags exactly the zikrs whose content has audio', () {
-    final index =
-        jsonDecode(File('assets/zikr.json').readAsStringSync()) as Map;
-    final flagged = <String>{
-      for (final entry in index.entries)
-        if (entry.value is Map && (entry.value as Map)['audio'] == true)
-          entry.key as String,
-    };
-    final withAudio = <String>{
-      for (final file in Directory('assets/zikr').listSync().whereType<File>())
-        if (((jsonDecode(file.readAsStringSync()) as Map)['audio'] as List?)
-                ?.isNotEmpty ??
-            false)
-          file.uri.pathSegments.last,
-    };
-    expect(flagged, withAudio,
-        reason: 'run scripts/apply_duas_audio.js to resync the flags');
-  });
-
   group('pages', () {
     setUp(() async {
       await _freshStore();
       items = {'E18': 'Dua e Ahad', 'G4': 'Ziyarat Ashura', 'E31': 'Kumayl'};
-      audioZikrUids = {'E18', 'G4', 'E31'};
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        for (final uid in ['E18', 'G4', 'E31'])
+          uid: [
+            {'file': '$uid.mp3'},
+          ],
+      }));
     });
 
     testWidgets('the playlists page invites a first playlist', (tester) async {

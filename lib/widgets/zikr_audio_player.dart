@@ -14,15 +14,16 @@ import '../pages/playlists_page.dart';
 /// row. It is only built once a reader taps Listen, so the ~95% of readings
 /// that never touch audio pay nothing for it.
 ///
-/// duas.org's permission to use their recordings is conditional on credit;
-/// that acknowledgement lives on the About page rather than here, so this bar
-/// stays focused on playback.
+/// Many recordings come from duas.org, whose permission is conditional on
+/// credit; that acknowledgement lives on the About page rather than here, so
+/// this bar stays focused on playback.
 ///
-/// Playback is streamed, never downloaded: the corpus is about a gigabyte and
-/// individual tracks run to 39 MB. On web this works because just_audio drives
-/// a plain `<audio>` element, which is exempt from CORS; mp3.duas.org sends no
-/// `Access-Control-Allow-Origin`, so anything that read the bytes directly
-/// (`fetch`, or an element with `crossOrigin` set) would be blocked.
+/// Playback is streamed from the app's R2 bucket, never downloaded: the
+/// corpus is about a gigabyte and individual tracks run to 39 MB. On web this
+/// works because just_audio drives a plain `<audio>` element, which is exempt
+/// from CORS, so the bucket needs no `Access-Control-Allow-Origin` - anything
+/// that read the bytes directly (`fetch`, or an element with `crossOrigin`
+/// set) would need one.
 ///
 /// Each track carries a [MediaItem] tag so just_audio_background can show a
 /// lock-screen/notification control and keep playing once the app is
@@ -134,13 +135,13 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           id: '${widget.zikrUid}#$_trackIndex',
           title: track.label ?? widget.zikrTitle,
           album: widget.zikrTitle,
-          artist: 'duas.org',
+          artist: track.artist,
         ),
       ));
       if (!mounted) return;
       setState(() => _failed = false);
     } catch (error) {
-      // A duas.org file that has moved or been removed must not leave a play
+      // A recording that has moved or been removed must not leave a play
       // button that does nothing, so the player removes itself instead.
       debugPrint('Zikr audio failed to load: $error');
       if (!mounted) return;

@@ -23,8 +23,8 @@ class ZikrPlaylistStore extends ChangeNotifier {
   static const String seededKey = 'zikr_playlists_seeded_v1';
 
   /// Starter playlists every reader gets once, to edit or delete like their
-  /// own. Only zikrs with a recording belong here - see `"audio": true` in
-  /// assets/zikr.json.
+  /// own. Only zikrs with a recording belong here - see
+  /// assets/zikr_audio.json.
   static final List<ZikrPlaylist> defaultPlaylists = List.unmodifiable([
     ZikrPlaylist(
       id: 'default-morning',
@@ -178,6 +178,9 @@ class ZikrPlaylistStore extends ChangeNotifier {
 
   static List<String> _dedupe(Iterable<String> uids) {
     final seen = <String>{};
-    return [for (final uid in uids) if (seen.add(uid)) uid];
+    return [
+      for (final uid in uids)
+        if (seen.add(uid)) uid
+    ];
   }
 }

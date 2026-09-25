@@ -78,6 +78,7 @@ flutter:
     - assets/logo.png
     - assets/retired_slugs.json
     - assets/zikr.json
+    - assets/zikr_audio.json
     - assets/hadith/
     # Tanzil Uthmani text (CC BY 3.0, verbatim - see the notice at its end),
     # shown in place of the Indo-Pak surah text when Scheherazade is selected.

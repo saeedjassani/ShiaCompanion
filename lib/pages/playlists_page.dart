@@ -6,6 +6,7 @@ import '../data/uid_title_data.dart';
 import '../models/zikr_playlist.dart';
 import '../services/analytics_service.dart';
 import '../services/playlist_audio_service.dart';
+import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
 import '../widgets/responsive_content.dart';
 import 'zikr/zikr_page.dart';
@@ -135,8 +136,8 @@ Future<void> showAddToPlaylistSheet(
     messenger.showSnackBar(SnackBar(content: Text('Added to $name')));
   } else if (choice is ZikrPlaylist) {
     if (choice.zikrUids.contains(uid)) {
-      messenger.showSnackBar(
-          SnackBar(content: Text('Already in ${choice.name}')));
+      messenger
+          .showSnackBar(SnackBar(content: Text('Already in ${choice.name}')));
       return;
     }
     await store.addZikr(choice.id, uid);
@@ -144,7 +145,8 @@ Future<void> showAddToPlaylistSheet(
   }
 }
 
-String _countLabel(int count) => count == 1 ? '1 recitation' : '$count recitations';
+String _countLabel(int count) =>
+    count == 1 ? '1 recitation' : '$count recitations';
 
 /// The reader's audio playlists: a morning set of Dua Ahad and Ziyarat
 /// Ashura, say, started with one tap and left playing in the background.
@@ -213,8 +215,7 @@ class PlaylistsPage extends StatelessWidget {
                   subtitle: Text(_countLabel(playlist.zikrUids.length)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) =>
-                        PlaylistDetailPage(playlistId: playlist.id),
+                    builder: (_) => PlaylistDetailPage(playlistId: playlist.id),
                   )),
                 );
               },
@@ -409,15 +410,30 @@ class AddRecitationsPage extends StatefulWidget {
 
 class _AddRecitationsPageState extends State<AddRecitationsPage> {
   String _query = '';
+  bool _audioReady = ZikrAudioIndex.instance.isLoaded;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_audioReady) return;
+    ZikrAudioIndex.instance.load().then((_) {
+      if (mounted) setState(() => _audioReady = true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (!_audioReady) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Add recitations')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     final store = ZikrPlaylistStore.instance;
     final query = _query.trim().toLowerCase();
-    final uids = audioZikrUids.toList()
-      ..sort((a, b) => _zikrTitle(a)
-          .toLowerCase()
-          .compareTo(_zikrTitle(b).toLowerCase()));
+    final uids = ZikrAudioIndex.instance.uids.toList()
+      ..sort((a, b) =>
+          _zikrTitle(a).toLowerCase().compareTo(_zikrTitle(b).toLowerCase()));
     final visible = query.isEmpty
         ? uids
         : uids

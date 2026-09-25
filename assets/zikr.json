@@ -474,26 +474,22 @@
   "AA10": {
     "title": "Dua-e-Iftetaah",
     "slug": "dua-e-iftetaah",
-    "day": "09-*",
-    "audio": true
+    "day": "09-*"
   },
   "AA11": {
     "title": "Dua Baha - Ramadan Suhoor Dawn",
     "slug": "dua-baha-ramadan-suhoor-dawn",
-    "day": "09-*",
-    "audio": true
+    "day": "09-*"
   },
   "AA12": {
     "title": "Dua-e-Abu Hamzah Sumali",
     "slug": "dua-e-abu-hamzah-sumali",
-    "day": "09-*",
-    "audio": true
+    "day": "09-*"
   },
   "AA13": {
     "title": "Ya Uddati - Ramadan",
     "slug": "ya-uddati-ramadan",
-    "day": "09-*",
-    "audio": true
+    "day": "09-*"
   },
   "AA14": {
     "title": "Dua e Sahar يَامَفْزَعِيْ عِنْدَ كُرْبَتِي",
@@ -506,8 +502,7 @@
   "AA16": {
     "title": "Aamal-e-Sahar in the Holy Month of Ramazan",
     "slug": "aamal-e-sahar-in-the-holy-month-of-ramazan",
-    "day": "09-*",
-    "audio": true
+    "day": "09-*"
   },
   "AA17": {
     "title": "Tasbeehat at the time of Sehar",
@@ -623,8 +618,7 @@
   "AA5": {
     "title": "Duas after every obligatory Prayers",
     "slug": "duas-after-every-obligatory-prayers",
-    "day": "09-*",
-    "audio": true
+    "day": "09-*"
   },
   "AA9": {
     "title": "Dua Hajj - Ramadan",
@@ -674,22 +668,19 @@
     "title": "Aamaal of the Night of Arafah",
     "order": 6,
     "slug": "aamaal-of-the-night-of-arafat",
-    "day": "N12-09",
-    "audio": true
+    "day": "N12-09"
   },
   "AC11": {
     "title": "Aamaal of the Day of Arafah (9th Zilhajj)",
     "order": 11,
     "slug": "aamal-of-the-day-of-arafat-9th-zilhajj",
-    "day": "12-09",
-    "audio": true
+    "day": "12-09"
   },
   "AC12": {
     "title": "Dua of Imam Husayn (a.s.) on the Day of Arafah",
     "order": 12,
     "slug": "dua-of-imam-husayn-a-s-on-the-day-of-arafah",
-    "day": "12-09",
-    "audio": true
+    "day": "12-09"
   },
   "AC13": {
     "title": "Comprehensive Ziyarat especially on the Day of Arafah Can be recited at any Shrine",
@@ -797,8 +788,7 @@
       "12-08",
       "12-09",
       "12-10"
-    ],
-    "audio": true
+    ]
   },
   "AC6": {
     "title": "Salat of وَ وَاعَدْنَا",
@@ -1142,8 +1132,7 @@
   },
   "E1": {
     "title": "al-Isteghasa الکامل التام",
-    "slug": "ziyarat-e-isteghasa-e-imam-e-zamana-a-t-f-s",
-    "audio": true
+    "slug": "ziyarat-e-isteghasa-e-imam-e-zamana-a-t-f-s"
   },
   "E10": {
     "title": "Dua Asharat",
@@ -1187,8 +1176,7 @@
   },
   "E11": {
     "title": "Dua Yastasheer",
-    "slug": "dua-yastasheer",
-    "audio": true
+    "slug": "dua-yastasheer"
   },
   "E110": {
     "title": "Dua when someone Sees the Dead",
@@ -1276,8 +1264,7 @@
   },
   "E14": {
     "title": "Hadees-e-Kisaa",
-    "slug": "hadees-e-kisaa",
-    "audio": true
+    "slug": "hadees-e-kisaa"
   },
   "E140": {
     "title": "Salawat upon The Awaited Imam",
@@ -1314,8 +1301,7 @@
   },
   "E15": {
     "title": "Dua e Hazeen",
-    "slug": "dua-e-hazeen",
-    "audio": true
+    "slug": "dua-e-hazeen"
   },
   "E150": {
     "title": "The Holy Prophet's (s) dua",
@@ -1355,8 +1341,7 @@
     "slug": "dua-e-ahad",
     "slugAliases": [
       "dua-e-ahad-2"
-    ],
-    "audio": true
+    ]
   },
   "E19": {
     "title": "Dua-e-Faraj اَللّٰهُمَّ كُنْ لِوَلِيِّكَ",
@@ -1368,8 +1353,7 @@
   },
   "E20": {
     "title": "Dua e Faraj - Ilahi Azomal Bala اِلٰهِيْ عَظُمَ الْبَلَاۤءُ",
-    "slug": "dua-e-faraj-ilahi-azomal-bala",
-    "audio": true
+    "slug": "dua-e-faraj-ilahi-azomal-bala"
   },
   "E21": {
     "title": "Dua-e-Ghareeq",
@@ -1388,8 +1372,7 @@
     "slug": "dua-tawassul",
     "slugAliases": [
       "dua-tawassul-2"
-    ],
-    "audio": true
+    ]
   },
   "E25": {
     "title": "Another Dua Tawassul",
@@ -1398,8 +1381,7 @@
   "E26": {
     "title": "Dua Simat",
     "slug": "dua-simat",
-    "day": "*-*-5",
-    "audio": true
+    "day": "*-*-5"
   },
   "E27": {
     "title": "Dua Mashlool",
@@ -1413,8 +1395,7 @@
       "09-13",
       "09-14",
       "09-15"
-    ],
-    "audio": true
+    ]
   },
   "E29": {
     "title": "Dua Jawshan al-Kabeer",
@@ -1425,8 +1406,7 @@
       "09-21",
       "09-23",
       "*-*-5"
-    ],
-    "audio": true
+    ]
   },
   "E3": {
     "title": "Dua Aaliyah al Mazameen Dua to be recited after the Ziyarah of every Masoomeen (a)",
@@ -1445,8 +1425,7 @@
     ],
     "slugAliases": [
       "dua-kumayl-2"
-    ],
-    "audio": true
+    ]
   },
   "E32": {
     "title": "Dua e Ne'mul Badal",
@@ -1467,8 +1446,7 @@
     ],
     "slugAliases": [
       "dua-e-nudbah-2"
-    ],
-    "audio": true
+    ]
   },
   "E35": {
     "title": "Dua-e-Sabaah",
@@ -1642,8 +1620,7 @@
   "E8": {
     "title": "Dua Alqamah",
     "slug": "dua-alqama",
-    "day": "01-10",
-    "audio": true
+    "day": "01-10"
   },
   "E80": {
     "title": "Comprehensive dua for the world & Hereafter",
@@ -1728,8 +1705,7 @@
   },
   "F11": {
     "title": "Namaz of Jafar-e-Tayyaar",
-    "slug": "namaz-of-jafar-e-tayyaar",
-    "audio": true
+    "slug": "namaz-of-jafar-e-tayyaar"
   },
   "F12": {
     "title": "Namaz Hadiyah Masoomeen (a)",
@@ -1926,8 +1902,7 @@
   },
   "G1": {
     "title": "Ziyaarat-e-Aal-e-Yaaseen",
-    "slug": "ziyaarat-e-aal-e-yaaseen",
-    "audio": true
+    "slug": "ziyaarat-e-aal-e-yaaseen"
   },
   "G10": {
     "title": "Ziyarat e Taziyah Condolence to Holy Prophet (s) and His Immaculate progeny",
@@ -1944,13 +1919,11 @@
   },
   "G13": {
     "title": "Ziyaarat-e-Jaameah Kabeerah",
-    "slug": "ziyaarat-e-jaameah-kabeerah",
-    "audio": true
+    "slug": "ziyaarat-e-jaameah-kabeerah"
   },
   "G14": {
     "title": "Ziyarah of Imam Husayn (a) at the Qadr Nights",
-    "slug": "ziyarah-of-imam-husayn-a-at-the-qadr-nights",
-    "audio": true
+    "slug": "ziyarah-of-imam-husayn-a-at-the-qadr-nights"
   },
   "G15|K3": {
     "title": "Ziyarat of Saturday",
@@ -1966,8 +1939,7 @@
   },
   "G2": {
     "title": "Ziyarat-e-Ameenullah",
-    "slug": "ziyarat-e-ameenullah",
-    "audio": true
+    "slug": "ziyarat-e-ameenullah"
   },
   "G20|N3": {
     "title": "Tuesday - Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a)",
@@ -2004,8 +1976,7 @@
   "G4": {
     "title": "Ziyarat Ashura",
     "order": 0,
-    "slug": "ziyarat-e-ashura",
-    "audio": true
+    "slug": "ziyarat-e-ashura"
   },
   "G5": {
     "title": "Ziyaarat al-Haqq al-Jadeed",
@@ -2044,8 +2015,7 @@
   "G54": {
     "title": "Ziyarat-e-Imam Husain (a.s.)",
     "slug": "ziyarat-e-imam-husain-a-s",
-    "day": "08-03",
-    "audio": true
+    "day": "08-03"
   },
   "G55": {
     "title": "Ziyarate Hazrat Ali Akbar (a.s.)",
@@ -2182,8 +2152,7 @@
   "G75": {
     "title": "Ziyarat-e-Imam Husain (a.s.) on the Day of Arafah",
     "slug": "ziyarat-e-imam-husain-a-s-on-the-day-of-arafah",
-    "day": "12-09",
-    "audio": true
+    "day": "12-09"
   },
   "G76": {
     "title": "Ziyarat After Namaz",
@@ -2236,8 +2205,7 @@
   "G83": {
     "title": "Ziyarat Ashura Ghair Ma'roofah",
     "slug": "ziyaarat-e-aashoora-gair-ma-roofah",
-    "day": "01-10",
-    "audio": true
+    "day": "01-10"
   },
   "G84|AL17": {
     "title": "Ziyarat of Imam Mahdi (a.t.f.s.) after the Fajr Prayers (Allaahumma Balligh)",
@@ -2696,8 +2664,7 @@
   },
   "J3": {
     "title": "Ziyarat on Friday",
-    "slug": "ziyarat-on-friday",
-    "audio": true
+    "slug": "ziyarat-on-friday"
   },
   "J4": {
     "title": "The Supplication of Friday",
@@ -2839,8 +2806,7 @@
   "R1": {
     "title": "Aamaal for the 1st Night and Day of the Month of Moharram",
     "slug": "aamaal-for-the-1st-day-night-of-the-month-of-moharram",
-    "day": "01-01",
-    "audio": true
+    "day": "01-01"
   },
   "R11|G4": {
     "title": "Ziyaarat-e-Ashoora",
@@ -2886,8 +2852,7 @@
   "S1": {
     "title": "The Month of Safar",
     "slug": "the-month-of-safar",
-    "day": "02-*",
-    "audio": true
+    "day": "02-*"
   },
   "S5": {
     "title": "20th Safar (Arbaeen - 40th Day)",
@@ -2996,14 +2961,12 @@
   "Y3": {
     "title": "Daily Salawat of Shaban",
     "slug": "daily-salawat-of-shaban",
-    "day": "08-*",
-    "audio": true
+    "day": "08-*"
   },
   "Y4": {
     "title": "Munajaat al Shabaniyyah",
     "slug": "munajaat-al-shabaniyyah",
-    "day": "08-*",
-    "audio": true
+    "day": "08-*"
   },
   "Y5": {
     "title": "First Night of Shaban",

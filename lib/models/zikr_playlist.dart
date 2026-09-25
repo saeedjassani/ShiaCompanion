@@ -43,8 +43,7 @@ class ZikrPlaylist {
     return ZikrPlaylist(
       id: id,
       name: name ?? this.name,
-      zikrUids:
-          zikrUids == null ? this.zikrUids : List.unmodifiable(zikrUids),
+      zikrUids: zikrUids == null ? this.zikrUids : List.unmodifiable(zikrUids),
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }

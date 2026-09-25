@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
+import '../constants.dart' show items;
 import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
 import 'analytics_service.dart';
 import 'exclusive_audio.dart';
+import 'zikr_audio_index.dart';
 
 /// One recording in a playing queue, with the zikr it belongs to.
 @immutable
@@ -29,8 +29,6 @@ class PlaylistQueueEntry {
   String get title => track.label ?? zikrTitle;
 }
 
-typedef ZikrDocumentLoader = Future<Map<String, dynamic>?> Function(String uid);
-
 /// Plays a [ZikrPlaylist] as one continuous background audio queue - every
 /// recording of every zikr in it, back to back, with next/previous on the
 /// lock screen and notification.
@@ -49,10 +47,6 @@ class PlaylistAudioService extends ChangeNotifier {
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   bool _isStarting = false;
 
-  /// Swappable for tests; reads the bundled content file by default.
-  @visibleForTesting
-  ZikrDocumentLoader loadDocument = _loadBundledDocument;
-
   AudioPlayer? get player => _player;
   ZikrPlaylist? get playlist => _playlist;
   List<PlaylistQueueEntry> get queue => _queue;
@@ -69,27 +63,24 @@ class PlaylistAudioService extends ChangeNotifier {
     return _queue[index];
   }
 
-  /// Every recording of every zikr in [zikrUids], in order, from [documents]
-  /// (uid -> content file). Zikrs with no file or no playable audio are
-  /// skipped rather than failing the whole queue.
+  /// Every recording of every zikr in [zikrUids], in order. Zikrs with no
+  /// recording are skipped rather than failing the whole queue.
   static List<PlaylistQueueEntry> buildQueue(
-    List<String> zikrUids,
-    Map<String, Map<String, dynamic>?> documents,
-  ) {
-    final queue = <PlaylistQueueEntry>[];
-    for (final uid in zikrUids) {
-      final document = documents[uid];
-      if (document == null) continue;
-      final title = document['title']?.toString().trim() ?? '';
-      for (final track in ZikrAudioTrack.listFrom(document['audio'])) {
-        queue.add(PlaylistQueueEntry(
-          zikrUid: uid,
-          zikrTitle: title.isEmpty ? uid : title,
-          track: track,
-        ));
-      }
-    }
-    return queue;
+    List<String> zikrUids, {
+    required List<ZikrAudioTrack> Function(String uid) tracksFor,
+    required String Function(String uid) titleFor,
+  }) {
+    return [
+      for (final uid in zikrUids)
+        for (final track in tracksFor(uid))
+          PlaylistQueueEntry(
+              zikrUid: uid, zikrTitle: titleFor(uid), track: track),
+    ];
+  }
+
+  static String _indexTitle(String uid) {
+    final title = items[uid]?.toString().trim() ?? '';
+    return title.isEmpty ? uid : title;
   }
 
   /// Starts [playlist] from its [startZikrIndex]th zikr. Returns false, and
@@ -99,20 +90,23 @@ class PlaylistAudioService extends ChangeNotifier {
     _isStarting = true;
     notifyListeners();
     try {
-      final documents = <String, Map<String, dynamic>?>{};
-      for (final uid in playlist.zikrUids) {
-        documents[uid] = await loadDocument(uid);
-      }
-      final queue = buildQueue(playlist.zikrUids, documents);
+      final audio = ZikrAudioIndex.instance;
+      await audio.load();
+      final queue = buildQueue(
+        playlist.zikrUids,
+        tracksFor: audio.tracksFor,
+        titleFor: _indexTitle,
+      );
       if (queue.isEmpty) return false;
 
-      final startUid = startZikrIndex >= 0 &&
-              startZikrIndex < playlist.zikrUids.length
-          ? playlist.zikrUids[startZikrIndex]
-          : null;
+      final startUid =
+          startZikrIndex >= 0 && startZikrIndex < playlist.zikrUids.length
+              ? playlist.zikrUids[startZikrIndex]
+              : null;
       final initialIndex = startUid == null
           ? 0
-          : queue.indexWhere((entry) => entry.zikrUid == startUid)
+          : queue
+              .indexWhere((entry) => entry.zikrUid == startUid)
               .clamp(0, queue.length - 1);
 
       await ExclusiveAudio.claim(this, _release);
@@ -139,7 +133,7 @@ class PlaylistAudioService extends ChangeNotifier {
                 id: 'playlist:${playlist.id}#$i',
                 title: queue[i].title,
                 album: playlist.name,
-                artist: 'duas.org',
+                artist: queue[i].track.artist,
               ),
             ),
         ],
@@ -162,7 +156,7 @@ class PlaylistAudioService extends ChangeNotifier {
     }
   }
 
-  /// A recording that has moved or vanished from duas.org should cost that
+  /// A recording that has moved or vanished from the bucket should cost that
   /// one track, not stop the whole morning's queue.
   void _skipBrokenTrack(Object error) {
     debugPrint('Playlist track failed: $error');
@@ -247,15 +241,5 @@ class PlaylistAudioService extends ChangeNotifier {
     final player = _player;
     _player = null;
     await player?.dispose();
-  }
-
-  static Future<Map<String, dynamic>?> _loadBundledDocument(String uid) async {
-    try {
-      final decoded = json.decode(await rootBundle.loadString('assets/zikr/$uid'));
-      return decoded is Map ? Map<String, dynamic>.from(decoded) : null;
-    } catch (error) {
-      debugPrint('Playlist could not load zikr $uid: $error');
-      return null;
-    }
   }
 }
