@@ -72,7 +72,8 @@ void main() {
 
       expect(store.playlists.map((playlist) => playlist.name),
           ['Morning', 'Thursday', 'Friday']);
-      expect(store.byId('default-morning')!.zikrUids, ['E18', 'G4']);
+      expect(store.byId('default-morning')!.zikrUids,
+          ['E18', 'G4', 'G1', 'G13']);
     });
 
     test('are added alongside playlists the reader already made', () async {

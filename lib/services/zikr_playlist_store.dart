@@ -29,7 +29,8 @@ class ZikrPlaylistStore extends ChangeNotifier {
     ZikrPlaylist(
       id: 'default-morning',
       name: 'Morning',
-      zikrUids: const ['E18', 'G4'], // Dua Ahad, Ziyarat Ashura
+      // Dua Ahad, Ziyarat Ashura, Ziyarat Aal-e-Yasin, Ziyarat Jamia Kabira
+      zikrUids: const ['E18', 'G4', 'G1', 'G13'],
       updatedAt: DateTime.utc(2026, 9, 25),
     ),
     ZikrPlaylist(
@@ -42,8 +43,8 @@ class ZikrPlaylistStore extends ChangeNotifier {
     ZikrPlaylist(
       id: 'default-friday',
       name: 'Friday',
-      // Dua Nudbah, Ziyarat of Imam al-Mahdi on Friday
-      zikrUids: const ['E34', 'J3'],
+      // Dua Nudbah, Ziyarat of Imam al-Mahdi on Friday, Dua Simat
+      zikrUids: const ['E34', 'J3', 'E26'],
       updatedAt: DateTime.utc(2026, 9, 25),
     ),
   ]);

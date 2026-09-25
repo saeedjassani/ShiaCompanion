@@ -1398,7 +1398,8 @@
   "E26": {
     "title": "Dua Simat",
     "slug": "dua-simat",
-    "day": "*-*-5"
+    "day": "*-*-5",
+    "audio": true
   },
   "E27": {
     "title": "Dua Mashlool",
@@ -1925,7 +1926,8 @@
   },
   "G1": {
     "title": "Ziyaarat-e-Aal-e-Yaaseen",
-    "slug": "ziyaarat-e-aal-e-yaaseen"
+    "slug": "ziyaarat-e-aal-e-yaaseen",
+    "audio": true
   },
   "G10": {
     "title": "Ziyarat e Taziyah Condolence to Holy Prophet (s) and His Immaculate progeny",
