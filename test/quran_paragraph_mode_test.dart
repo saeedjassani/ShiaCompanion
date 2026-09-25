@@ -245,63 +245,37 @@ void main() {
       expect(request!.aliNote, isNull);
     });
 
-    testWidgets('marks a kept verse by its number', (tester) async {
-      await _pump(
-        tester,
-        content: _surahContent(),
-        savedVerses: {const VerseKey(1, 2)},
-      );
+    for (final indoPak in [false, true]) {
+      testWidgets(
+          'leaves a kept verse unmarked '
+          '(${indoPak ? 'QuranWBW' : 'corpus'} text)', (tester) async {
+        final quran = IndoPakQuran.parse(File(indoPakAsset).readAsStringSync());
+        final content = indoPak
+            ? toIndoPak(1, _surahContent(rukuAfter: {}), quran)
+            : _surahContent(rukuAfter: {});
+        await _pump(
+          tester,
+          content: content,
+          savedVerses: {const VerseKey(1, 2)},
+          arabicFontFamily: indoPak ? quranWbwFontFamily : null,
+        );
 
-      final finder = _paragraphContaining('(1)');
-      final paragraph = finder.evaluate().single.widget as RichText;
-      // The verse-number markers, in reading order - the only spans holding
-      // a `(n)` or an ayah medallion, whichever the selected font draws.
-      final markers = <TextStyle?>[];
-      paragraph.text.visitChildren((span) {
-        final text = span is TextSpan ? span.text : null;
-        if (text != null && (text.contains('(') || text.contains('\u06DD'))) {
-          markers.add(span.style);
+        final finder =
+            _paragraphContaining(indoPak ? String.fromCharCode(0xF501) : '(2)');
+        final paragraph = finder.evaluate().single.widget as RichText;
+        final primary = Theme.of(tester.element(finder)).colorScheme.primary;
+        paragraph.text.visitChildren((span) {
+          expect(span.style?.color, isNot(primary));
+          expect(span.style?.fontWeight, isNot(FontWeight.w700));
+          return true;
+        });
+        // QuranWBW draws its own number, so the `(n)` its text carries for
+        // lookups stays hidden.
+        if (indoPak) {
+          expect(paragraph.text.toPlainText(), isNot(contains('(')));
         }
-        return true;
       });
-
-      final primary = Theme.of(tester.element(finder)).colorScheme.primary;
-      expect(markers, hasLength(6));
-      expect(markers[1]?.color, primary);
-      expect(markers[0]?.color, isNot(primary));
-      expect(markers[2]?.color, isNot(primary));
-    });
-
-    testWidgets('marks a kept verse by its QuranWBW medallion', (tester) async {
-      final quran = IndoPakQuran.parse(File(indoPakAsset).readAsStringSync());
-      final content = toIndoPak(1, _surahContent(rukuAfter: {}), quran);
-      await _pump(
-        tester,
-        content: content,
-        savedVerses: {const VerseKey(1, 2)},
-        arabicFontFamily: quranWbwFontFamily,
-      );
-
-      final medallion = RegExp('[\uE820\uF500-\uF6FF]');
-      final finder = _paragraphContaining(String.fromCharCode(0xF500));
-      final paragraph = finder.evaluate().single.widget as RichText;
-      final markers = <TextSpan>[];
-      paragraph.text.visitChildren((span) {
-        if (span is TextSpan && medallion.hasMatch(span.text ?? '')) {
-          markers.add(span);
-        }
-        return true;
-      });
-
-      final primary = Theme.of(tester.element(finder)).colorScheme.primary;
-      // Each medallion is a span of its own, and QuranWBW's number is the only
-      // one shown: the `(n)` the text carries for lookups is hidden.
-      expect(markers.map((span) => span.text!.trim()),
-          [for (var n = 0; n < 6; n++) String.fromCharCode(0xF500 + n)]);
-      expect(paragraph.text.toPlainText(), isNot(contains('(')));
-      expect(markers[1].style?.color, primary);
-      expect(markers[0].style?.color, isNot(primary));
-    });
+    }
 
     // Line 0 is the Bismillah and ayah n's Arabic is line 3n - 2.
     for (final paragraphMode in [true, false]) {

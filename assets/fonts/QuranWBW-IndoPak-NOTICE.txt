@@ -10,7 +10,8 @@ Source: https://quranwbw.com
         ("Qalam Digital Font (Madinah Edition)" on quranwbw.com)
   font: https://quranwbw.com/fonts/AlQuranNeo5x2.woff2
 
-Used with the written permission of QuranWBW.com (granted September 2026).
+Used with the permission of QuranWBW.com, requested by email to
+quranwbw@gmail.com in September 2026.
 The font's own licence text reads:
 
   NOT FOR SALE, NOT FOR MODIFICATION, NOT FOR DISTRIBUTION OR NOT FOR

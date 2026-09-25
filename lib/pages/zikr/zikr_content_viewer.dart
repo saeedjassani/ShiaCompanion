@@ -324,14 +324,6 @@ class _QuranParagraphs {
   int? paragraphIndexForSpan(int spanIndex) => _paragraphBySpan[spanIndex];
 }
 
-/// Matches the verse-number marker closing a formatted Arabic line - the
-/// Scheherazade medallion (U+06DD and Arabic-Indic digits), the plain `(n)`
-/// Qalam draws its own medallion from, or QuranWBW's private-use medallion
-/// glyph - with the direction mark and spacing around it, so it can be styled
-/// apart from the verse text.
-final RegExp _trailingVerseMarker = RegExp(
-    r'\u200F?(?:\u06DD[\u0660-\u0669]+|\(\d+\)|[\uE820\uF500-\uF6FF])\s*$');
-
 /// The small "Bookmarked" marker - a bookmark icon plus label - shared by
 /// the bordered per-line marker ([_BookmarkedLine]) and the inline paragraph
 /// marker that sits above a flowing Arabic paragraph in
@@ -395,7 +387,9 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// back there.
   final int? initialBookmarkLineIndex;
 
-  /// Verses the reader has kept, marked with a small icon as they read.
+  /// Verses the reader has kept, marked with a small icon beside the verse
+  /// number in ayah mode. Paragraph mode leaves them unmarked, so the running
+  /// text stays plain.
   ///
   /// Deliberately not the bookmark: a bookmark is one marker saying where you
   /// stopped, these are a collection meant to be kept, so they are drawn
@@ -1816,8 +1810,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   ///
   /// * each verse still its own tap target, found from where the tap lands in
   ///   the laid-out text, opening the same per-verse menu;
-  /// * a saved verse's number drawn in the primary colour, a mark on the
-  ///   verse itself rather than a tint over running text it shares;
   /// * the bookmarked verse tinted in place with a bookmark icon at its
   ///   start, as in any flowing paragraph;
   /// * the surah heading, where a juz crosses into a new surah - which
@@ -1846,7 +1838,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     var length = 0;
     for (var k = 0; k < spans.length; k++) {
       final span = spans[k];
-      final verse = span.verse;
       if (k > 0) {
         // Just a plain space, as in any flowing paragraph: the rule under
         // each row is what a reciter tracks by, and the verse's own medallion
@@ -1859,11 +1850,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       final formatted = ZikrContentParser.formatArabicText(
         parsedContent.lines[span.start].trim(),
       );
-      final marker = _trailingVerseMarker.firstMatch(formatted);
-      final body =
-          marker == null ? formatted : formatted.substring(0, marker.start);
-      final isSaved = verse != null && widget.savedVerses.contains(verse);
-
       final isBookmarked = span == bookmarkedSpan;
       final verseSpan = TextSpan(
         style: isBookmarked
@@ -1875,17 +1861,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         children: [
           if (isBookmarked)
             _inlineBookmarkSpan(colorScheme.primary, arabicStyle.fontSize),
-          _buildTextSpanForLine(body, arabicStyle),
-          if (marker != null)
-            TextSpan(
-              text: marker.group(0),
-              style: isSaved
-                  ? arabicStyle.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w700,
-                    )
-                  : arabicStyle,
-            ),
+          _buildTextSpanForLine(formatted, arabicStyle),
         ],
       );
       children.add(verseSpan);
