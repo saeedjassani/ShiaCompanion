@@ -58,6 +58,18 @@ test('unknown deep links fall back to the app instead of a 404', async ({
   assertNoFailures(failures);
 });
 
+// Paths no app route handles get a real 404 rather than the app shell with a
+// 200, which Google reports as a soft 404.
+test('unknown multi-segment paths are real 404s', async ({request}) => {
+  for (const route of ['/zikr/definitely-not-a-real-slug', '/not/a-real-route']) {
+    const response = await request.get(route);
+    expect(response.status(), `${route} status`).toBe(404);
+    expect(await response.text(), `${route} body`).toContain(
+      '<meta name="robots" content="noindex">',
+    );
+  }
+});
+
 test('hosting serves the app association files as JSON', async ({request}) => {
   for (const route of [
     '/apple-app-site-association',

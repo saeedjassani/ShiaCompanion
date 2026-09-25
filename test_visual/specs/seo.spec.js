@@ -93,6 +93,13 @@ test.describe('sitemap.xml', () => {
       );
       const canonical = html.match(/<link rel="canonical" href="([^"]+)">/)?.[1];
       expect(canonical, `zikr/${slug} has no canonical link`).toBeTruthy();
+      // List headers get a noindex app-shell page (they have no text of their
+      // own), so they must stay out of the sitemap rather than be in it.
+      if (/<meta name="robots" content="noindex/.test(html)) {
+        expect(locs, `noindex zikr/${slug} is listed in the sitemap`)
+          .not.toContain(canonical);
+        continue;
+      }
       expect(locs, `zikr/${slug} canonicalises to a URL missing from the sitemap`)
         .toContain(canonical);
     }

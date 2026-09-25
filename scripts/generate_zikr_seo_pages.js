@@ -31,6 +31,22 @@ const ARABIC_SCRIPT = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE
 // Success.
 const SITEMAP_FILENAMES = ['sitemap.xml', 'sitemap-all.xml'];
 
+// Pairs of slugs that serve the same content (a `|`-alias and its target,
+// under different titles, so each kept its own slug). Two indexable URLs for
+// one text split ranking between them. The key slug becomes a redirect page to
+// the value slug and leaves the sitemap and the /zikr index; the app keeps
+// resolving both, so no shared link breaks.
+const MERGED_ZIKR_SLUGS = {
+  'dua-alqamah': 'dua-alqama',
+  'ziyaarat-e-ashoora': 'ziyarat-e-ashura',
+  'ziyaarat-e-aashoora-gair-ma-roofah': 'ziyaarat-e-ashoora-ghair-ma-roofah',
+  'namaz-of-jafar-e-tayyaar': 'namaz-of-jafar-e-tayyar',
+  'ziyaarat-al-haqq-al-jadeed': 'ziyarat-al-haqq-al-jadeed',
+  'friday-ziyarah-of-imam-al-mahdi-a-t-f-s': 'ziyarat-on-friday',
+  'ziyarah-on-the-day-of-arafat': 'ziyarat-e-imam-husain-a-s-on-the-day-of-arafah',
+  'ziyarah-on-the-day-of-arbaeen-the-twentieth-of-safar': 'ziyarat-e-arbaeen-the-20th-of-safar',
+};
+
 // Hand-written pages that ship from web/ rather than being generated here.
 // This file replaces the checked-in sitemap wholesale, so anything left out
 // disappears from the sitemap the moment the generator runs. Only real files
@@ -444,11 +460,22 @@ function main() {
   const index = readJson(ZIKR_INDEX_PATH);
   const pages = [];
   const slugs = new Map();
+  const listShells = [];
 
   for (const [uid, entry] of Object.entries(index)) {
     if (!entry?.slug) continue;
     const content = loadContent(uid);
-    if (!content) continue;
+    if (!content) {
+      // List headers (`~` uids) have a slug the app opens as a list but no
+      // text of their own. Hosting no longer rewrites unknown /zikr/<slug>
+      // paths to the app shell, so give these a shell page of their own to
+      // keep their links working. Kept out of the index: there is no text.
+      listShells.push({
+        slug: safeSlug(entry.slug),
+        title: normalizeWhitespace(entry.title || humanizeSlug(entry.slug)),
+      });
+      continue;
+    }
 
     const slug = safeSlug(entry.slug);
     if (slugs.has(slug)) {
@@ -457,8 +484,16 @@ function main() {
       // when they share the same title (see uid_title_data.dart's `|`
       // convention) - contentUidFor resolves both sides to the same
       // assets/zikr/<uid> file, so this is the same page twice, not a
-      // conflict. Keep whichever claimed the slug first; skip the other.
-      if (contentUidFor(uid) === contentUidFor(existingUid)) continue;
+      // conflict. Keep whichever claimed the slug first; skip the other,
+      // but carry over its slugAliases: the canonical usually holds them, and
+      // Hosting 404s any /zikr/<slug> without a page of its own.
+      if (contentUidFor(uid) === contentUidFor(existingUid)) {
+        const kept = pages.find((page) => page.slug === slug);
+        for (const alias of Array.isArray(entry.slugAliases) ? entry.slugAliases.map(safeSlug) : []) {
+          if (!kept.aliases.includes(alias)) kept.aliases.push(alias);
+        }
+        continue;
+      }
       throw new Error(`Duplicate zikr slug "${slug}" for ${uid} and ${existingUid}`);
     }
     slugs.set(slug, uid);
@@ -488,15 +523,57 @@ function main() {
   }
 
   pages.sort((a, b) => a.slug.localeCompare(b.slug));
+
+  const pagesBySlug = new Map(pages.map((page) => [page.slug, page]));
+  for (const [fromSlug, toSlug] of Object.entries(MERGED_ZIKR_SLUGS)) {
+    const from = pagesBySlug.get(fromSlug);
+    const to = pagesBySlug.get(toSlug);
+    if (!from || !to) {
+      throw new Error(`MERGED_ZIKR_SLUGS names a missing page: ${fromSlug} -> ${toSlug}`);
+    }
+    if (contentUidFor(from.uid) !== contentUidFor(to.uid)) {
+      throw new Error(`MERGED_ZIKR_SLUGS pair does not share content: ${fromSlug} -> ${toSlug}`);
+    }
+    from.redirectTo = to;
+  }
+  const indexedPages = pages.filter((page) => !page.redirectTo);
+
   fs.rmSync(GENERATED_ZIKR_DIR, {recursive: true, force: true});
 
+  let mergedCount = 0;
   for (const page of pages) {
+    if (page.redirectTo) {
+      const redirectHtml = buildRedirectPageHtml({
+        title: page.redirectTo.title,
+        canonicalPath: page.redirectTo.canonicalPath,
+        canonicalUrl: `${SITE_ORIGIN}${page.redirectTo.canonicalPath}`,
+      });
+      for (const slug of [page.slug, ...page.aliases]) {
+        writePage(path.join('zikr', slug), redirectHtml);
+      }
+      mergedCount += 1;
+      continue;
+    }
     writePage(path.join('zikr', page.slug), page.html);
+  }
+
+  for (const shell of listShells) {
+    if (pagesBySlug.has(shell.slug)) continue;
+    const shellHtml = templateHtml
+      .replace(
+        /\s*<!-- Home page only:[\s\S]*?-->\s*<script type="application\/ld\+json" id="home-structured-data">[\s\S]*?<\/script>/i,
+        '',
+      )
+      .replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(shell.title)}${TITLE_SUFFIX}</title>`)
+      .replace(/<meta\s+name=["']robots["'][^>]*>/i, '<meta name="robots" content="noindex, follow">')
+      .replace(/<link\s+rel=["']canonical["'][^>]*>/i, `<link rel="canonical" href="${SITE_ORIGIN}/zikr/${shell.slug}">`);
+    writePage(path.join('zikr', shell.slug), shellHtml);
   }
 
   const canonicalSlugs = new Set(pages.map((page) => page.slug));
   let aliasCount = 0;
   for (const page of pages) {
+    if (page.redirectTo) continue;
     for (const alias of page.aliases) {
       if (alias === page.slug || canonicalSlugs.has(alias)) continue;
       writePage(path.join('zikr', alias), page.html);
@@ -514,29 +591,32 @@ function main() {
     // match byte-for-byte against the encoded request path.
     if (page.uid.includes('~') || page.uid.includes('|')) continue;
 
+    const target = page.redirectTo ?? page;
     writePage(
       path.join('0', page.uid),
       buildRedirectPageHtml({
-        title: page.title,
-        canonicalPath: page.canonicalPath,
-        canonicalUrl: `${SITE_ORIGIN}${page.canonicalPath}`,
+        title: target.title,
+        canonicalPath: target.canonicalPath,
+        canonicalUrl: `${SITE_ORIGIN}${target.canonicalPath}`,
       }),
     );
     redirectCount += 1;
   }
 
-  const sitemap = buildSitemap(pages.map((page) => page.canonicalPath));
+  const sitemap = buildSitemap(indexedPages.map((page) => page.canonicalPath));
   for (const filename of SITEMAP_FILENAMES) {
     fs.writeFileSync(path.join(BUILD_WEB_DIR, filename), sitemap, 'utf8');
   }
   fs.writeFileSync(
     path.join(GENERATED_ZIKR_DIR, 'index.html'),
-    buildZikrIndexPage(templateHtml, pages),
+    buildZikrIndexPage(templateHtml, indexedPages),
     'utf8',
   );
 
   console.log(`Generated ${pages.length} zikr SEO pages in ${GENERATED_ZIKR_DIR}`);
   console.log(`Generated ${aliasCount} zikr alias pages`);
+  console.log(`Redirected ${mergedCount} duplicate zikr slugs to their merged page`);
+  console.log(`Generated ${listShells.length} list shell pages`);
   console.log(
     `Generated ${redirectCount} legacy uid redirect pages in ${GENERATED_UID_REDIRECT_DIR}`,
   );

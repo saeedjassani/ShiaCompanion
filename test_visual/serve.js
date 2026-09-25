@@ -76,6 +76,32 @@ function send(res, status, filePath, forcedType) {
   res.end(body);
 }
 
+// Mirror firebase.json's rewrites: only the listed app routes fall back to the
+// shell; anything else gets 404.html with a 404, as Hosting does.
+function globToRegExp(glob) {
+  const escaped = glob
+    .split('**')
+    .map((part) => part
+      .split('*')
+      .map((piece) => piece.replace(/[.+?^${}()|[\]\\]/g, '\\$&'))
+      .join('[^/]*'))
+    .join('.*');
+  return new RegExp(`^${escaped}$`);
+}
+
+const REWRITE_PATTERNS = (() => {
+  const firebase = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '..', 'firebase.json'), 'utf8'),
+  );
+  return (firebase.hosting.rewrites || [])
+    .filter((rule) => rule.destination === '/index.html')
+    .map((rule) => (rule.regex ? new RegExp(rule.regex) : globToRegExp(rule.source)));
+})();
+
+function matchesRewrite(pathname) {
+  return REWRITE_PATTERNS.some((pattern) => pattern.test(pathname));
+}
+
 const server = http.createServer((req, res) => {
   const urlPath = req.url || '/';
   const pathname = urlPath.split('?')[0].split('#')[0];
@@ -104,7 +130,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // firebase.json: { "source": "**", "destination": "/index.html" }
+  // firebase.json rewrites: listed app routes only (see REWRITE_PATTERNS).
   //
   // Hosting matches `headers` against the *requested* path, before the rewrite,
   // so a missing /sitemap.xml comes back as the app shell still labelled
@@ -112,8 +138,14 @@ const server = http.createServer((req, res) => {
   // shape of failure the SEO tests exist to catch — so mirror it here rather
   // than quietly serving the fallback as text/html.
   const fallback = path.join(ROOT, 'index.html');
-  if (fs.existsSync(fallback)) {
+  if (matchesRewrite(pathname) && fs.existsSync(fallback)) {
     send(res, 200, fallback, FORCED_CONTENT_TYPES.get(pathname));
+    return;
+  }
+
+  const notFound = path.join(ROOT, '404.html');
+  if (fs.existsSync(notFound)) {
+    send(res, 404, notFound);
     return;
   }
 
