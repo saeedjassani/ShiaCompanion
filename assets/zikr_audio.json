@@ -133,6 +133,12 @@
       "label": "Hadith Kisa"
     }
   ],
+  "E144": [
+    {
+      "file": "e144_salawat-abul-hasan-zarrab.mp3",
+      "label": "Salawat Abul Hasan al-Zarrab al-Isfahani"
+    }
+  ],
   "E15": [
     {
       "file": "dua_hazeen_96k.mp3",
@@ -209,6 +215,10 @@
     {
       "file": "g1_ziyarat-aal-e-yasin.mp3",
       "label": "Ziyarat Aal e Yasin"
+    },
+    {
+      "file": "g1_ziyarat-aal-e-yasin-with-dua.mp3",
+      "label": "Ziyarat Aal e Yasin with Dua"
     }
   ],
   "G13": [
