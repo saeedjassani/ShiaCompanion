@@ -434,6 +434,10 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// Opens the per-verse menu. Null leaves verses untappable.
   final ValueChanged<AyahActionRequest>? onAyahAction;
 
+  /// Drawn after the last item of the last tab - the Quran reader's
+  /// previous/next links. Null draws nothing.
+  final Widget? footer;
+
   const ZikrContentViewerWidget({
     Key? key,
     required this.tabContents,
@@ -454,6 +458,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.ayahIndex,
     this.onAyahPositionChanged,
     this.onAyahAction,
+    this.footer,
   }) : super(key: key);
 
   @override
@@ -1411,12 +1416,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
 
     final leadingItems = showMeritsButton ? 1 : 0;
-    final itemCount = leadingItems +
+    final footer =
+        tabIndex == widget.tabContents.length - 1 ? widget.footer : null;
+    final contentItemCount = leadingItems +
         (quranParagraphs != null
             ? quranParagraphs.items.length
             : ayahIndex != null
                 ? ayahIndex.spans.length
                 : readingItems.length);
+    final itemCount = contentItemCount + (footer == null ? 0 : 1);
 
     if (ayahIndex != null && tabIndex == _selectedTabIndex) {
       _scheduleInitialVerseScroll(tabIndex, ayahIndex, leadingItems);
@@ -1458,6 +1466,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
               controller: controller,
               itemCount: itemCount,
               itemBuilder: (BuildContext context, int index) {
+                if (footer != null && index == contentItemCount) return footer;
+
                 // Show merits button at the top of first tab
                 if (showMeritsButton && index == 0) {
                   return Padding(
@@ -2147,10 +2157,11 @@ class _SurahHeading extends StatelessWidget {
 
 /// One verse of the Quran, drawn as a single item.
 ///
-/// The verse number is already inside the Arabic, as the medallion the corpus
-/// is authored with - but at the end of the line and in Arabic-Indic digits,
-/// which is no help when you are looking for ayah 156. The badge here is for
-/// scanning: small, muted, and at the start where the eye lands.
+/// The verse number is not drawn here: it is already inside the Arabic, as
+/// the end-of-verse medallion the corpus is authored with, and a second one
+/// above each verse only duplicated it. The row above a verse appears only
+/// when there is something to mark - the bookmark, a saved verse, or the
+/// Imam Ali (as) seal.
 class _AyahBlock extends StatelessWidget {
   const _AyahBlock({
     required this.ayah,
@@ -2195,37 +2206,24 @@ class _AyahBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (startsSurah != null) _SurahHeading(surah: startsSurah!),
-          if (ayah != null)
+          if (ayah != null && (isBookmarked || isSaved || aliNote != null))
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
                 children: [
                   if (isBookmarked) ...[
                     Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
-                    const SizedBox(width: 4),
-                  ],
-                  Text(
-                    '$ayah',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: isBookmarked
-                              ? colorScheme.primary
-                              : colorScheme.onSurface.withValues(alpha: 0.45),
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.4,
-                        ),
-                  ),
-                  if (isSaved) ...[
                     const SizedBox(width: 6),
+                  ],
+                  if (isSaved) ...[
                     Icon(
                       Icons.bookmark,
                       size: 13,
                       color: colorScheme.primary.withValues(alpha: 0.85),
                     ),
-                  ],
-                  if (aliNote != null) ...[
                     const SizedBox(width: 6),
-                    _AliBadge(note: aliNote!),
                   ],
+                  if (aliNote != null) _AliBadge(note: aliNote!),
                 ],
               ),
             ),

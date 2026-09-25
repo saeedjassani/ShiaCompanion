@@ -311,6 +311,16 @@ void main() {
       expect(state.resumePositionFor('Nonexistent'), isNull);
     });
 
+    test('resumePositionFor moves on to the next surah once one is finished', () {
+      final fatiha = RecitationTrackerState.empty.setEntry(_entry(
+          id: 'a', recitedAt: DateTime.utc(2026, 1, 1), surah: 1, fromAyah: 1, toAyah: 7));
+      expect(fatiha.resumePositionFor('Family'), const VerseKey(2, 1));
+
+      final nas = RecitationTrackerState.empty.setEntry(_entry(
+          id: 'b', recitedAt: DateTime.utc(2026, 1, 1), surah: 114, fromAyah: 1, toAyah: 6));
+      expect(nas.resumePositionFor('Family'), const VerseKey(1, 1));
+    });
+
     test('mostRecentPosition ignores labels, unlike resumePositionFor', () {
       // What "Listen and follow" hands the matcher as context: whoever is
       // reciting nearby is not reciting under one of the reader's track labels.

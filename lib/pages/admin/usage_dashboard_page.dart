@@ -247,7 +247,13 @@ const Set<String> _readingContentFeatureKeys = {
   'zikr_reminder_entry_point_opened',
   'quran_verse_saved',
   'quran_verse_unsaved',
+  // Historical only: logged on every automatic save while scrolling until it
+  // stopped being counted as a feature. Kept so its old totals still group.
   'recitation_tracker_updated',
+  'recitation_track_added',
+  'recitation_entry_removed',
+  'quran_surah_step',
+  'quran_juz_step',
 };
 
 const Set<String> _findingContentFeatureKeys = {'search', 'search_opened'};
