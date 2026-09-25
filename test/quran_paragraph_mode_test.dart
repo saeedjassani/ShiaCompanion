@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
@@ -5,6 +7,7 @@ import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_parser.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 import 'package:shia_companion/utils/quran_index.dart';
+import 'package:shia_companion/utils/quran_indopak.dart';
 
 const _bismillah = 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ';
 
@@ -39,6 +42,7 @@ Future<void> _pump(
   ValueChanged<AyahActionRequest>? onAyahAction,
   ValueChanged<QuranReadingPosition>? onAyahPosition,
   ValueChanged<ZikrContentScrollPosition>? onScrollPosition,
+  String? arabicFontFamily,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -64,6 +68,7 @@ Future<void> _pump(
             onAyahAction: onAyahAction,
             onAyahPositionChanged: onAyahPosition,
             onScrollPositionChanged: onScrollPosition,
+            arabicFontFamily: arabicFontFamily,
           ),
         ),
       ),
@@ -265,6 +270,37 @@ void main() {
       expect(markers[1]?.color, primary);
       expect(markers[0]?.color, isNot(primary));
       expect(markers[2]?.color, isNot(primary));
+    });
+
+    testWidgets('marks a kept verse by its QuranWBW medallion', (tester) async {
+      final quran = IndoPakQuran.parse(File(indoPakAsset).readAsStringSync());
+      final content = toIndoPak(1, _surahContent(rukuAfter: {}), quran);
+      await _pump(
+        tester,
+        content: content,
+        savedVerses: {const VerseKey(1, 2)},
+        arabicFontFamily: quranWbwFontFamily,
+      );
+
+      final medallion = RegExp('[\uE820\uF500-\uF6FF]');
+      final finder = _paragraphContaining(String.fromCharCode(0xF500));
+      final paragraph = finder.evaluate().single.widget as RichText;
+      final markers = <TextSpan>[];
+      paragraph.text.visitChildren((span) {
+        if (span is TextSpan && medallion.hasMatch(span.text ?? '')) {
+          markers.add(span);
+        }
+        return true;
+      });
+
+      final primary = Theme.of(tester.element(finder)).colorScheme.primary;
+      // Each medallion is a span of its own, and QuranWBW's number is the only
+      // one shown: the `(n)` the text carries for lookups is hidden.
+      expect(markers.map((span) => span.text!.trim()),
+          [for (var n = 0; n < 6; n++) String.fromCharCode(0xF500 + n)]);
+      expect(paragraph.text.toPlainText(), isNot(contains('(')));
+      expect(markers[1].style?.color, primary);
+      expect(markers[0].style?.color, isNot(primary));
     });
 
     // Line 0 is the Bismillah and ayah n's Arabic is line 3n - 2.

@@ -325,11 +325,12 @@ class _QuranParagraphs {
 }
 
 /// Matches the verse-number marker closing a formatted Arabic line - the
-/// Scheherazade medallion (U+06DD and Arabic-Indic digits) or the plain `(n)`
-/// Qalam draws its own medallion from - with the direction mark and spacing
-/// around it, so it can be styled apart from the verse text.
-final RegExp _trailingVerseMarker =
-    RegExp(r'\u200F?(?:\u06DD[\u0660-\u0669]+|\(\d+\))\s*$');
+/// Scheherazade medallion (U+06DD and Arabic-Indic digits), the plain `(n)`
+/// Qalam draws its own medallion from, or QuranWBW's private-use medallion
+/// glyph - with the direction mark and spacing around it, so it can be styled
+/// apart from the verse text.
+final RegExp _trailingVerseMarker = RegExp(
+    r'\u200F?(?:\u06DD[\u0660-\u0669]+|\(\d+\)|[\uE820\uF500-\uF6FF])\s*$');
 
 /// The small "Bookmarked" marker - a bookmark icon plus label - shared by
 /// the bordered per-line marker ([_BookmarkedLine]) and the inline paragraph
