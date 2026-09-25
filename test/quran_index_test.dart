@@ -200,9 +200,9 @@ void main() {
   });
 
   group('AyahIndex', () {
-    AyahIndex indexOf(String data, {String code = '012', int surah = 1}) {
+    AyahIndex indexOf(String data, {int surah = 1}) {
       return AyahIndex.fromParsedContent(
-        ZikrContentParser.parseContent(data, hideHeaderLine: false, code: code),
+        ZikrContentParser.parseContent(data, hideHeaderLine: false),
         surah: surah,
       );
     }
@@ -301,7 +301,6 @@ void main() {
         ZikrContentParser.parseContent(
           document['data']?.toString() ?? '',
           hideHeaderLine: false,
-          code: document['code']?.toString(),
         ),
         surah: surah,
       );

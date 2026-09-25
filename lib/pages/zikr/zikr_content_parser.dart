@@ -13,9 +13,9 @@ class ZikrLineSegment {
 
 /// One Arabic line together with the transliteration and translation lines
 /// that belong to it - the "triplet" a reader sees as a single unit. [start]
-/// is inclusive, [end] exclusive, and the two are the outermost member lines
-/// however the tab's code orders them (transliteration leads the Arabic in
-/// code 102, follows it in 012).
+/// is inclusive, [end] exclusive, and the two are the outermost member lines -
+/// the Arabic and, below it, its transliteration and translation, or just its
+/// translation when the content carries no transliteration at all.
 class ZikrLineGroup {
   const ZikrLineGroup({required this.start, required this.end});
 
@@ -53,7 +53,6 @@ class ZikrContentParser {
   static ParsedZikrContent parseContent(
     String content, {
     required bool hideHeaderLine,
-    required String? code,
   }) {
     final split = content.split('\n');
     if (hideHeaderLine && split.isNotEmpty) {
@@ -72,26 +71,24 @@ class ZikrContentParser {
     final transliCodes = <int>{};
     final translaCodes = <int>{};
     final groupForLine = <int, ZikrLineGroup>{};
+    final hasTransliteration = _hasTransliteration(arabicCodes);
 
     for (final arabicIndex in arabicCodes) {
       final members = <int>[arabicIndex];
-      final transliIndex = _englishCodeFor(arabicIndex, true, code);
-      final translaIndex = _englishCodeFor(arabicIndex, false, code);
+      final transliIndex = hasTransliteration ? arabicIndex + 1 : null;
+      final translaIndex =
+          hasTransliteration ? arabicIndex + 2 : arabicIndex + 1;
 
       // An index that is itself Arabic is another verse, not this one's
       // English: the renderer already treats Arabic first, and letting it
       // into the triplet would stretch the span over two verses.
       if (transliIndex != null &&
-          transliIndex >= 0 &&
           transliIndex < split.length &&
           !arabicCodes.contains(transliIndex)) {
         transliCodes.add(transliIndex);
         members.add(transliIndex);
       }
-      if (translaIndex != null &&
-          translaIndex >= 0 &&
-          translaIndex < split.length &&
-          !arabicCodes.contains(translaIndex)) {
+      if (translaIndex < split.length && !arabicCodes.contains(translaIndex)) {
         translaCodes.add(translaIndex);
         members.add(translaIndex);
       }
@@ -156,24 +153,25 @@ class ZikrContentParser {
     return segments;
   }
 
-  /// Where the transliteration (or translation) of the Arabic line at
-  /// [arabicIndex] sits, per the tab's layout code, or null when the layout
-  /// has no such line at all. The index is not range-checked here.
-  static int? _englishCodeFor(
-    int arabicIndex,
-    bool transliteration,
-    String? code,
-  ) {
-    switch (code) {
-      case '102':
-        return transliteration ? arabicIndex - 1 : arabicIndex + 1;
-      case '012':
-        return transliteration ? arabicIndex + 1 : arabicIndex + 2;
-      case '02':
-        return transliteration ? null : arabicIndex + 1;
-      default:
-        return null;
+  /// Whether [arabicIndexes] are laid out Arabic / transliteration /
+  /// translation, rather than Arabic / translation with no transliteration.
+  ///
+  /// The content does not say which, so the spacing between consecutive
+  /// Arabic lines does: two apart is a verse and its translation, three apart
+  /// a verse, its transliteration and its translation. Whichever spacing is
+  /// the more common wins, and a tie - including content with a single verse,
+  /// or none - goes to the transliterated layout, which is how the corpus is
+  /// written save for a handful of duas with no transliteration at all.
+  static bool _hasTransliteration(Set<int> arabicIndexes) {
+    final sorted = arabicIndexes.toList()..sort();
+    var twoApart = 0;
+    var threeApart = 0;
+    for (var i = 1; i < sorted.length; i++) {
+      final gap = sorted[i] - sorted[i - 1];
+      if (gap == 2) twoApart++;
+      if (gap == 3) threeApart++;
     }
+    return twoApart <= threeApart;
   }
 
   // Al Qalam encodes the ṣilah al-hā' marks at private-use codepoints whose

@@ -166,7 +166,6 @@ void main() {
       final data = portion.toZikrData();
 
       expect(data['title'], 'Juz 6');
-      expect(data['code'], '012');
       expect(data['data'], portion.data);
     });
 

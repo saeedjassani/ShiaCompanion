@@ -9,6 +9,7 @@ import '../pages/calendar_page.dart';
 import '../pages/favorites_page.dart';
 import '../pages/flights_page.dart';
 import '../pages/library_page.dart';
+import '../pages/playlists_page.dart';
 import '../pages/list_items.dart';
 import '../pages/prayer_counter_page.dart';
 import '../pages/qaza_tracker_page.dart';
@@ -207,6 +208,14 @@ final HomeMenuItem quranMenuItem = HomeMenuItem(
   pageBuilder: () => const QuranPage(),
 );
 
+/// Audio playlists. Dark-launched to admins, like [quranMenuItem], until it
+/// is ready for everyone - then move it into [homeMenuItems].
+final HomeMenuItem playlistsMenuItem = HomeMenuItem(
+  label: 'Playlists',
+  icon: Icons.queue_music_rounded,
+  pageBuilder: () => const PlaylistsPage(),
+);
+
 /// Menu entries only an admin sees, added on top of the regular grid rather
 /// than replacing anything in it. Kept out of [homeMenuItems] so the grid
 /// every user gets stays a compile-time constant, and so admin state — which
@@ -218,6 +227,7 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
     pageBuilder: () => const UsageDashboardPage(),
     countsAsFeatureUse: false,
   ),
+  playlistsMenuItem,
   HomeMenuItem(
     label: 'Mistake Reports',
     icon: Icons.flag_outlined,

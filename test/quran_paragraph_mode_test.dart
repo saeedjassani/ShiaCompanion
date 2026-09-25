@@ -53,7 +53,6 @@ Future<void> _pump(
             hasMerits: false,
             onShowMerits: () {},
             onLinkTap: (_) async {},
-            code: '012',
             surahNumber: surahNumber,
             ayahIndex: ayahIndex,
             initialVerse: initialVerse,
@@ -84,7 +83,7 @@ void main() {
   group('quranParagraphSpanRuns', () {
     ParsedZikrContent parse(String content) =>
         ZikrContentParser.parseContent(content,
-            hideHeaderLine: false, code: '012');
+            hideHeaderLine: false);
 
     test('the Bismillah stands alone and a rukuʿ does not break the surah', () {
       final content = _surahContent(ayahs: 6, rukuAfter: {3});

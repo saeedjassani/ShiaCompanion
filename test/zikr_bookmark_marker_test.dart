@@ -3,23 +3,21 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_parser.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 
-/// A tab laid out as transliteration / Arabic / translation triplets, which
-/// is what code 102 means, with a plain instruction line between the two
-/// verses and a heading on top.
+/// A tab laid out as Arabic / transliteration / translation triplets, with a
+/// plain instruction line between the two verses and a heading on top.
 ParsedZikrContent _tripletContent() {
   return ZikrContentParser.parseContent(
     [
       'Recite this three times',
-      'BISMILLAAHIR RAHMAANIR RAHEEM',
       'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ',
+      'BISMILLAAHIR RAHMAANIR RAHEEM',
       'In the name of Allah, the Beneficent, the Merciful',
       'Then say',
-      'ALHAMDU LILLAAHI RABBIL AALAMEEN',
       'اَلْحَمْدُ لِلّٰهِ رَبِّ الْعٰلَمِيْنَ',
+      'ALHAMDU LILLAAHI RABBIL AALAMEEN',
       'All praise is due to Allah, Lord of the worlds',
     ].join('\n'),
     hideHeaderLine: false,
-    code: '102',
   );
 }
 
@@ -39,17 +37,17 @@ void main() {
         () {
       final content = _tripletContent();
 
-      expect(content.arabicCodes, {2, 6});
-      expect(content.transliCodes, {1, 5});
+      expect(content.arabicCodes, {1, 5});
+      expect(content.transliCodes, {2, 6});
       expect(content.translaCodes, {3, 7});
 
-      final group = content.groupContaining(2);
+      final group = content.groupContaining(1);
       expect(group, isNotNull);
-      expect(group!.start, 1, reason: 'code 102 puts transliteration first');
+      expect(group!.start, 1);
       expect(group.end, 4);
 
       // Every member of the triplet resolves to the same span.
-      expect(content.groupContaining(1), same(group));
+      expect(content.groupContaining(2), same(group));
       expect(content.groupContaining(3), same(group));
     });
 
@@ -59,21 +57,25 @@ void main() {
       expect(content.groupContaining(4), isNull, reason: 'instruction line');
     });
 
-    test('groups an Arabic-then-English layout the other way round', () {
+    test('pairs Arabic with its translation when there is no transliteration',
+        () {
+      // Verses two lines apart rather than three: Arabic, then translation.
       final content = ZikrContentParser.parseContent(
         [
           'اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ',
-          'ALLAAHUMMA SALLI ALAA MUHAMMAD',
           'O Allah, send blessings upon Muhammad',
+          'وَ اٰلِ مُحَمَّدٍ',
+          'and the family of Muhammad',
         ].join('\n'),
         hideHeaderLine: false,
-        code: '012',
       );
 
+      expect(content.transliCodes, isEmpty);
+      expect(content.translaCodes, {1, 3});
       final group = content.groupContaining(0);
       expect(group!.start, 0);
-      expect(group.end, 3);
-      expect(content.groupContaining(2), same(group));
+      expect(group.end, 2);
+      expect(content.groupContaining(1), same(group));
     });
   });
 
@@ -81,7 +83,7 @@ void main() {
     test('covers the whole triplet when the reader stopped on the Arabic', () {
       final content = _tripletContent();
       final range = bookmarkedLineRange(
-        bookmarkLineIndex: 2,
+        bookmarkLineIndex: 1,
         content: content,
       );
 
@@ -136,10 +138,10 @@ void main() {
       // changes what is drawn, never which triplet is marked.
       final content = _tripletContent();
       final before =
-          bookmarkedLineRange(bookmarkLineIndex: 2, content: content);
+          bookmarkedLineRange(bookmarkLineIndex: 1, content: content);
 
       showTransliteration = false;
-      final after = bookmarkedLineRange(bookmarkLineIndex: 2, content: content);
+      final after = bookmarkedLineRange(bookmarkLineIndex: 1, content: content);
 
       expect(after!.start, before!.start);
       expect(after.end, before.end);
@@ -147,40 +149,53 @@ void main() {
   });
 
   group('visible lines within the marker', () {
-    test('skips a switched-off transliteration and moves the label down', () {
+    test('skips a switched-off transliteration', () {
       final content = _tripletContent();
       final range =
-          bookmarkedLineRange(bookmarkLineIndex: 2, content: content)!;
+          bookmarkedLineRange(bookmarkLineIndex: 1, content: content)!;
 
       expect(firstVisibleLineInRange(range, content), 1);
-      expect(isZikrLineVisible(content, 1), isTrue);
+      expect(isZikrLineVisible(content, 2), isTrue);
 
       showTransliteration = false;
-      expect(isZikrLineVisible(content, 1), isFalse,
+      expect(isZikrLineVisible(content, 2), isFalse,
           reason: 'a hidden line draws nothing, so it must not be tinted');
-      expect(firstVisibleLineInRange(range, content), 2,
-          reason: 'the label moves to the Arabic, the first line still shown');
+      expect(firstVisibleLineInRange(range, content), 1,
+          reason: 'the label stays on the Arabic, the first line shown');
     });
 
     test('keeps the label on the Arabic when the translation is off too', () {
       final content = _tripletContent();
       final range =
-          bookmarkedLineRange(bookmarkLineIndex: 2, content: content)!;
+          bookmarkedLineRange(bookmarkLineIndex: 1, content: content)!;
 
       showTransliteration = false;
       showTranslation = false;
 
-      expect(firstVisibleLineInRange(range, content), 2);
+      expect(firstVisibleLineInRange(range, content), 1);
       expect(isZikrLineVisible(content, 3), isFalse);
+    });
+
+    test('moves the label past a hidden first line', () {
+      // A range can open on a line that is switched off; the label then
+      // moves down to the first line that is still drawn.
+      final content = _tripletContent();
+      showTransliteration = false;
+      const transliterationFirst = ZikrLineGroup(start: 2, end: 4);
+      expect(firstVisibleLineInRange(transliterationFirst, content), 3);
     });
 
     test('reports no line to mark when the whole triplet is switched off', () {
       // An Arabic-less layout cannot happen, but a range of purely English
       // lines can be asked about, and must not be tinted into a stray band.
       final content = ZikrContentParser.parseContent(
-        ['بِسْمِ اللّٰهِ', 'In the name of Allah'].join('\n'),
+        [
+          'بِسْمِ اللّٰهِ',
+          'In the name of Allah',
+          'اَلْحَمْدُ لِلّٰهِ',
+          'All praise is due to Allah',
+        ].join('\n'),
         hideHeaderLine: false,
-        code: '02',
       );
       showTranslation = false;
 

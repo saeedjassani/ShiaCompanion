@@ -324,6 +324,7 @@ class ZikrOpenSource {
   static const String deepLink = 'deep_link';
   static const String zikrLink = 'zikr_link';
   static const String admin = 'admin';
+  static const String playlist = 'playlist';
 
   /// Opened by tapping a zikr reminder notification (see
   /// ZikrReminderService).

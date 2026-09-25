@@ -102,21 +102,49 @@ void main() {
     expect(ZikrContentParser.isArabic('English only'), isFalse);
   });
 
-  test('parseContent trims lines and maps code 102 around Arabic text', () {
+  test(
+      'parseContent trims lines and reads Arabic, transliteration, '
+      'translation', () {
     final parsed = ZikrContentParser.parseContent(
-      'Header\n transliteration \n بسم الله \n translation ',
+      'Header\n بسم الله \n transliteration \n translation ',
       hideHeaderLine: true,
-      code: '102',
     );
 
     expect(parsed.lines, [
-      'transliteration',
       'بسم الله',
+      'transliteration',
       'translation',
     ]);
-    expect(parsed.arabicCodes, {1});
-    expect(parsed.transliCodes, {0});
+    expect(parsed.arabicCodes, {0});
+    expect(parsed.transliCodes, {1});
     expect(parsed.translaCodes, {2});
+  });
+
+  test(
+      'parseContent reads verses two lines apart as having no '
+      'transliteration', () {
+    final parsed = ZikrContentParser.parseContent(
+      'Recite:\nبسم الله\nIn the name of Allah\nالحمد لله\nPraise be to Allah'
+      '\nالله اكبر\nAllah is the greatest',
+      hideHeaderLine: false,
+    );
+
+    expect(parsed.arabicCodes, {1, 3, 5});
+    expect(parsed.transliCodes, isEmpty);
+    expect(parsed.translaCodes, {2, 4, 6});
+  });
+
+  test('parseContent keeps the transliterated layout when spacing ties', () {
+    // One pair of verses two apart (an Arabic heading over an instruction)
+    // against one three apart: a tie, which stays transliterated.
+    final parsed = ZikrContentParser.parseContent(
+      'دعاء\nRecite:\nبسم الله\nBISMILLAH\nIn the name of Allah'
+      '\nالحمد لله\nALHAMDU LILLAH\nPraise be to Allah',
+      hideHeaderLine: false,
+    );
+
+    expect(parsed.transliCodes, {1, 3, 6});
+    expect(parsed.translaCodes, {4, 7});
   });
 
   test('parseLineSegments keeps plain text around markdown links', () {

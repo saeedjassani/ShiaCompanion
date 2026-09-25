@@ -37,7 +37,6 @@ Future<void> _pump(
           hasMerits: false,
           onShowMerits: () {},
           onLinkTap: (_) async {},
-          code: '012',
           surahNumber: surahNumber,
           initialVerse: initialVerse,
           ayahIndex: ayahIndex,
@@ -330,7 +329,7 @@ void main() {
       // No ayah blocks, but the same paragraph divider ayah mode uses still
       // closes off each triplet - every one but the last, which has nothing
       // left to separate it from. (The Bismillah's own would-be triplet gets
-      // no divider: code 012 points its "translation" member at ayah 1's
+      // no divider: its "translation" member points at ayah 1's
       // transliteration line, and ayah 1's own triplet claims that line for
       // itself right after, so nothing left in the map still points back to
       // the Bismillah's group by the time rendering reads it.)
