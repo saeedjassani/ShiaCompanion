@@ -540,6 +540,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
 
     return QuranSequenceFooter(
+      unit: juz != null ? null : 'surah',
       previousLabel: previousLabel,
       nextLabel: nextLabel,
       onPrevious: () => _openQuranSequenceStep(-1),
@@ -549,7 +550,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   String? _surahSequenceLabel(int surah) {
     final info = surahInfoFor(surah);
-    return info == null ? null : '${info.number}. ${info.englishName}';
+    return info?.englishName;
   }
 
   Future<void> _openQuranSequenceStep(int delta) async {

@@ -79,17 +79,23 @@ Future<void> openQuranJuz(
 
 /// The "Previous" / "Next" pair closing a surah or a juz.
 ///
-/// Either side is left out when there is nothing that way - no "Previous" on
-/// al-Fatihah, no "Next" on an-Nas - rather than shown disabled.
+/// Two quiet links at either edge rather than a pair of full-width boxes: the
+/// end of a surah is a place to pause, and the way on only needs to be there
+/// when wanted. Either side is left out when there is nothing that way - no
+/// "Previous" on al-Fatihah, no "Next" on an-Nas - rather than shown disabled.
 class QuranSequenceFooter extends StatelessWidget {
   const QuranSequenceFooter({
     super.key,
+    this.unit,
     required this.previousLabel,
     required this.nextLabel,
     required this.onPrevious,
     required this.onNext,
   });
 
+  /// What is being stepped through, for the captions ("Next surah"). Null
+  /// when the label already says it - "Juz 3" needs no "Next juz" over it.
+  final String? unit;
   final String? previousLabel;
   final String? nextLabel;
   final VoidCallback onPrevious;
@@ -101,29 +107,34 @@ class QuranSequenceFooter extends StatelessWidget {
     final next = nextLabel;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 32),
+      padding: const EdgeInsets.fromLTRB(4, 4, 4, 40),
       child: Row(
         children: [
           Expanded(
-            child: previous == null
-                ? const SizedBox.shrink()
-                : _SequenceButton(
-                    label: previous,
-                    caption: 'Previous',
-                    isNext: false,
-                    onTap: onPrevious,
-                  ),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: previous == null
+                  ? null
+                  : _SequenceLink(
+                      caption: unit == null ? 'Previous' : 'Previous $unit',
+                      label: previous,
+                      isNext: false,
+                      onTap: onPrevious,
+                    ),
+            ),
           ),
-          const SizedBox(width: 12),
           Expanded(
-            child: next == null
-                ? const SizedBox.shrink()
-                : _SequenceButton(
-                    label: next,
-                    caption: 'Next',
-                    isNext: true,
-                    onTap: onNext,
-                  ),
+            child: Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: next == null
+                  ? null
+                  : _SequenceLink(
+                      caption: unit == null ? 'Next' : 'Next $unit',
+                      label: next,
+                      isNext: true,
+                      onTap: onNext,
+                    ),
+            ),
           ),
         ],
       ),
@@ -131,16 +142,16 @@ class QuranSequenceFooter extends StatelessWidget {
   }
 }
 
-class _SequenceButton extends StatelessWidget {
-  const _SequenceButton({
-    required this.label,
+class _SequenceLink extends StatelessWidget {
+  const _SequenceLink({
     required this.caption,
+    required this.label,
     required this.isNext,
     required this.onTap,
   });
 
-  final String label;
   final String caption;
+  final String label;
   final bool isNext;
   final VoidCallback onTap;
 
@@ -149,40 +160,48 @@ class _SequenceButton extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final icon = Icon(
-      isNext ? Icons.chevron_right_rounded : Icons.chevron_left_rounded,
+      isNext ? Icons.arrow_forward_rounded : Icons.arrow_back_rounded,
+      size: 18,
       color: colorScheme.primary,
     );
 
-    return OutlinedButton(
-      onPressed: onTap,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: Row(
-        children: [
-          if (!isNext) icon,
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  isNext ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-              children: [
-                Text(
-                  caption,
-                  style: theme.textTheme.labelSmall
-                      ?.copyWith(color: colorScheme.onSurfaceVariant),
-                ),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelLarge,
-                ),
-              ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isNext) ...[icon, const SizedBox(width: 8)],
+            Flexible(
+              child: Column(
+                crossAxisAlignment:
+                    isNext ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    caption.toUpperCase(),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          if (isNext) icon,
-        ],
+            if (isNext) ...[const SizedBox(width: 8), icon],
+          ],
+        ),
       ),
     );
   }
