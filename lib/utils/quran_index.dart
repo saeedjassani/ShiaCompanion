@@ -309,6 +309,67 @@ List<AyahSpan> spansOfParsedContent(
   return spans;
 }
 
+/// The rukūʿ sign (ع) that closes a section of the Quran, as the corpus is
+/// authored: Al Qalam has no Unicode codepoint for it, so the text carries it
+/// at the private-use codepoint Qalam draws it from. It sits at the end of the
+/// section's last verse, just ahead of that verse's `(n)` marker - 546 of them
+/// across the 114 surahs, 40 in al-Baqarah alone.
+const String rukuMark = '\uE022';
+
+/// Whether [span]'s Arabic line closes a rukūʿ.
+bool endsRuku(ParsedZikrContent content, AyahSpan span) =>
+    span.start >= 0 &&
+    span.start < content.lines.length &&
+    content.lines[span.start].contains(rukuMark);
+
+/// The most verses one flowing paragraph may hold when the text gives no
+/// rukūʿ to break at. A handful of surahs carry no marks at all (al-Qalam's 52
+/// verses are the longest of them), and a document that lost its marks would
+/// otherwise become a single item hundreds of verses long - laid out, and
+/// measured for its ruled rows, in one go.
+const int maxVersesPerQuranParagraph = 60;
+
+/// Groups the spans of [index] into the paragraphs Arabic-only paragraph mode
+/// flows a surah into, as runs of span indexes in reading order.
+///
+/// The breaks are the ones a printed mushaf already has, so a paragraph is a
+/// passage the reader recognises rather than an arbitrary slice:
+///
+/// * a rukūʿ sign closes the paragraph after the verse carrying it;
+/// * a new surah - in a juz - always starts a new paragraph, so its heading
+///   never lands mid-paragraph;
+/// * an unnumbered span (the Bismillah heading a surah) stands on its own,
+///   centred as it always is, rather than running into ayah 1.
+///
+/// [maxVerses] only matters where the text has no marks to break at.
+List<List<int>> quranParagraphSpanRuns(
+  AyahIndex index,
+  ParsedZikrContent content, {
+  int maxVerses = maxVersesPerQuranParagraph,
+}) {
+  final runs = <List<int>>[];
+  var current = <int>[];
+
+  void close() {
+    if (current.isNotEmpty) runs.add(current);
+    current = <int>[];
+  }
+
+  for (var i = 0; i < index.spans.length; i++) {
+    final span = index.spans[i];
+    if (span.ayah == null) {
+      close();
+      runs.add([i]);
+      continue;
+    }
+    if (span.startsSurah != null || current.length >= maxVerses) close();
+    current.add(i);
+    if (endsRuku(content, span)) close();
+  }
+  close();
+  return runs;
+}
+
 /// A `surah:ayah` reference, as typed by a reader or carried in a link.
 class VerseKey {
   const VerseKey(this.surah, [this.ayah]);

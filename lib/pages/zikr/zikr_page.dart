@@ -439,6 +439,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 '$surahTitle · $verse',
                 style: Theme.of(sheetContext).textTheme.labelLarge,
               ),
+              // In paragraph mode there is no per-verse seal to long-press,
+              // so the menu is where a verse's Imam Ali (as) note is shown.
+              subtitle: request.aliNote == null ? null : Text(request.aliNote!),
             ),
             const Divider(height: 1),
             ListTile(

@@ -37,6 +37,7 @@ class AyahActionRequest {
     required this.verse,
     required this.text,
     required this.lineIndex,
+    this.aliNote,
   });
 
   /// Which verse was tapped, surah included - in a juz the surah is not the
@@ -48,6 +49,12 @@ class AyahActionRequest {
 
   /// The content line the verse starts on, which is what a bookmark records.
   final int lineIndex;
+
+  /// The occasion Shia tafsir cites this verse as being about Imam Ali (as)
+  /// for - see [aliRelatedNoteFor] - or null for most verses. Carried here so
+  /// the per-verse menu can say it: in paragraph mode there is no per-verse
+  /// badge to long-press for it.
+  final String? aliNote;
 }
 
 class ZikrContentScrollPosition {
@@ -233,6 +240,71 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
   return items;
 }
 
+/// One item of a surah read in [isArabicOnlyReadingView] with paragraph flow:
+/// a run of consecutive verses flowing together as one ruled paragraph, or a
+/// lone unnumbered span (the Bismillah) drawn the way it always is. See
+/// [quranParagraphSpanRuns] for where the runs break.
+class _QuranParagraph {
+  _QuranParagraph(this.spanIndexes);
+
+  /// Indexes into [AyahIndex.spans], consecutive and in reading order.
+  final List<int> spanIndexes;
+
+  /// Where each verse's text begins inside the laid-out paragraph, parallel
+  /// to [spanIndexes]. Recorded when the item is built - the offsets depend on
+  /// the selected font, which rewrites the verse markers - and read back to
+  /// turn a point in the paragraph into a verse and a verse into a height.
+  List<int> textStarts = const [];
+
+  /// Finds the paragraph's own [RenderParagraph], among the several text
+  /// blocks the item draws (the range label, a surah heading), for measuring.
+  final GlobalKey textKey = GlobalKey();
+
+  int get firstSpanIndex => spanIndexes.first;
+
+  /// The verse whose text contains character [offset].
+  int spanIndexAtTextOffset(int offset) {
+    if (textStarts.isEmpty) return firstSpanIndex;
+    var k = 0;
+    while (k + 1 < textStarts.length && textStarts[k + 1] <= offset) {
+      k++;
+    }
+    return spanIndexes[k];
+  }
+}
+
+/// The paragraphs of a surah tab, with a lookup from span to paragraph.
+class _QuranParagraphs {
+  _QuranParagraphs(this.items) {
+    for (var p = 0; p < items.length; p++) {
+      for (final spanIndex in items[p].spanIndexes) {
+        _paragraphBySpan[spanIndex] = p;
+      }
+    }
+  }
+
+  factory _QuranParagraphs.build(
+    AyahIndex index,
+    ParsedZikrContent content,
+  ) =>
+      _QuranParagraphs([
+        for (final run in quranParagraphSpanRuns(index, content))
+          _QuranParagraph(run),
+      ]);
+
+  final List<_QuranParagraph> items;
+  final Map<int, int> _paragraphBySpan = {};
+
+  int? paragraphIndexForSpan(int spanIndex) => _paragraphBySpan[spanIndex];
+}
+
+/// Matches the verse-number marker closing a formatted Arabic line - the
+/// Scheherazade medallion (U+06DD and Arabic-Indic digits) or the plain `(n)`
+/// Qalam draws its own medallion from - with the direction mark and spacing
+/// around it, so it can be styled apart from the verse text.
+final RegExp _trailingVerseMarker =
+    RegExp(r'\u200F?(?:\u06DD[\u0660-\u0669]+|\(\d+\))\s*$');
+
 /// The small "Bookmarked" marker - a bookmark icon plus label - shared by
 /// the bordered per-line marker ([_BookmarkedLine]) and the inline paragraph
 /// marker that sits above a flowing Arabic paragraph in
@@ -372,6 +444,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// scroll position measures back into a content-line index - the two only
   /// coincide one-to-one when [isArabicOnlyReadingView] is off.
   final Map<int, List<_ReadingListItem>> _tabReadingListItems = {};
+
+  /// The paragraphs a surah tab is drawn as, for each tab currently read in
+  /// Quran paragraph mode. Absent for every tab drawn any other way, which is
+  /// what tells the measuring code below that one list item is one verse (ayah
+  /// mode) or one reading item (every zikr).
+  final Map<int, _QuranParagraphs> _tabQuranParagraphs = {};
 
   TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
     return buildZikrTextSpanWithLinks(
@@ -560,19 +638,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
   /// The content line at the top of the view, in every mode.
   ///
-  /// [topContentLineIndex] measures the topmost *item*, and in ayah mode an
-  /// item is a whole verse rather than a line - so its answer is a span index
-  /// there and has to be turned back into a line before anything that speaks
-  /// in lines, the bookmark above all, is handed it.
-  int? _topLineIndex(int tabIndex, ScrollController controller) {
-    final topIndex = topContentLineIndex(tabIndex, controller);
-    if (topIndex == null) return null;
-
-    final ayahIndex = _ayahIndexFor(tabIndex);
-    if (ayahIndex == null) return topIndex;
-    if (topIndex < 0 || topIndex >= ayahIndex.spans.length) return null;
-    return ayahIndex.spans[topIndex].start;
-  }
+  /// [topContentLineIndex] already answers in content lines whatever one list
+  /// item happens to hold - a line, a verse, or a paragraph of verses - so
+  /// this is it; kept as the name everything that records a bookmark calls.
+  int? _topLineIndex(int tabIndex, ScrollController controller) =>
+      topContentLineIndex(tabIndex, controller);
 
   /// Queues a verse report for the end of the current frame.
   ///
@@ -600,7 +670,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final ayahIndex = _ayahIndexFor(tabIndex);
     if (callback == null || ayahIndex == null || !controller.hasClients) return;
 
-    final spanIndex = topContentLineIndex(tabIndex, controller);
+    final spanIndex = _topSpanIndex(tabIndex, controller);
     if (spanIndex == null) return;
 
     final verse = ayahIndex.verseAtSpanIndex(spanIndex);
@@ -623,9 +693,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// the reading chrome.
   static const double _scrollToVerseMargin = 8;
 
-  /// Where item [itemIndex] begins, in scroll coordinates, or null when it is
-  /// not currently built and so has no measured position.
-  double? _itemScrollOffset(int tabIndex, int itemIndex) {
+  /// List item [itemIndex] as currently laid out - its box and where it
+  /// begins in scroll coordinates - or null when it is not built and so has
+  /// no measured position.
+  ({RenderBox box, double offset})? _builtItem(int tabIndex, int itemIndex) {
     if (tabIndex >= _tabListKeys.length) return null;
 
     final renderObject =
@@ -639,7 +710,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       final parentData = child.parentData;
       if (parentData is SliverMultiBoxAdaptorParentData &&
           parentData.index == itemIndex) {
-        return parentData.layoutOffset;
+        final offset = parentData.layoutOffset;
+        return offset == null ? null : (box: child, offset: offset);
       }
       child = sliver.childAfter(child);
     }
@@ -668,8 +740,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     if (spanIndex == null || tabIndex >= _tabScrollControllers.length) return;
 
     final controller = _tabScrollControllers[tabIndex];
-    final itemCount = ayahIndex.spans.length + leadingItems;
-    final itemIndex = spanIndex + leadingItems;
+
+    // In paragraph mode the verse is somewhere inside a paragraph item, so
+    // the item is found first and the verse's own row within it second.
+    final paragraphs = _tabQuranParagraphs[tabIndex];
+    final paragraphIndex = paragraphs?.paragraphIndexForSpan(spanIndex);
+    final contentIndex = paragraphIndex ?? spanIndex;
+    final itemCount =
+        (paragraphs?.items.length ?? ayahIndex.spans.length) + leadingItems;
+    final itemIndex = contentIndex + leadingItems;
 
     // The reading chrome's inset animates in, which moves every item under it,
     // so a landing is only trusted once it has held still for a frame.
@@ -683,7 +762,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         return;
       }
 
-      final itemOffset = _itemScrollOffset(tabIndex, itemIndex);
+      final item = _builtItem(tabIndex, itemIndex);
+      final inset = item == null || paragraphIndex == null
+          ? 0.0
+          : _verseTopInParagraph(
+                item.box,
+                paragraphs!.items[paragraphIndex],
+                spanIndex,
+              ) ??
+              0.0;
+      final itemOffset = item == null ? null : item.offset + inset;
       final target = itemOffset == null
           // Not built yet: aim by proportion to bring it into range, then
           // measure properly on the next pass.
@@ -729,15 +817,19 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   int _leadingItemCount(int tabIndex) =>
       widget.hasMerits && tabIndex == 0 ? 1 : 0;
 
-  /// The content line currently at the top of tab [tabIndex]'s view, read off
-  /// the laid-out list, or null if it has not been laid out yet.
+  /// The content item at the top of tab [tabIndex]'s view - its index among
+  /// the tab's content items, the Merits button not counted - with its box
+  /// and how far down that box the top of the view falls. Null if the list
+  /// has not been laid out yet.
   ///
-  /// This is the line a bookmark taken now records. It is measured rather
-  /// than estimated from the scroll fraction: line heights vary with the
-  /// content, the font settings and the width, so there is no pixels-per-line
-  /// to invert, and an estimate drifts to a different line whenever anything
-  /// changes the layout underneath it.
-  int? topContentLineIndex(int tabIndex, ScrollController controller) {
+  /// Measured rather than estimated from the scroll fraction: line heights
+  /// vary with the content, the font settings and the width, so there is no
+  /// pixels-per-line to invert, and an estimate drifts to a different line
+  /// whenever anything changes the layout underneath it.
+  ({int itemIndex, RenderBox box, double depth})? _topItem(
+    int tabIndex,
+    ScrollController controller,
+  ) {
     if (!controller.hasClients || tabIndex >= _tabListKeys.length) return null;
 
     final renderObject =
@@ -748,7 +840,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
     final scrollOffset = controller.position.pixels;
     // Children are held in index order, so the first one whose bottom edge is
-    // still below the top of the viewport is the line being read. Lines the
+    // still below the top of the viewport is the one being read. Lines the
     // reader has switched off lay out at zero height and are skipped by the
     // same test.
     RenderBox? child = sliver.firstChild;
@@ -761,21 +853,125 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             index != null &&
             scrollOffset <
                 layoutOffset + child.size.height - _lineEdgeTolerance) {
+          final itemIndex = index - _leadingItemCount(tabIndex);
           // The Merits button is not content; a reader still up at it is at
           // the top of the content just below it.
-          final itemIndex = index - _leadingItemCount(tabIndex);
-          if (itemIndex < 0) return 0;
-          // In isArabicOnlyReadingView a list item can cover several merged
-          // verses, so the item index has to be translated back to the
-          // content-line index its first verse actually sits at.
-          final items = _tabReadingListItems[tabIndex];
-          if (items == null || itemIndex >= items.length) return itemIndex;
-          return items[itemIndex].firstLineIndex;
+          if (itemIndex < 0) return (itemIndex: 0, box: child, depth: 0.0);
+          return (
+            itemIndex: itemIndex,
+            box: child,
+            depth: scrollOffset - layoutOffset,
+          );
         }
       }
       child = sliver.childAfter(child);
     }
     return null;
+  }
+
+  /// The ayah span at the top of tab [tabIndex]'s view, or null when the tab
+  /// is not Quran or has not been laid out.
+  ///
+  /// In ayah mode one item is one span. In paragraph mode one item is a run
+  /// of them, so the verse is read off the paragraph's own text layout at the
+  /// height the view's top edge crosses it - otherwise a reader working down
+  /// a long passage would sit on its first verse the whole way.
+  int? _topSpanIndex(int tabIndex, ScrollController controller) {
+    final ayahIndex = _ayahIndexFor(tabIndex);
+    if (ayahIndex == null) return null;
+    final top = _topItem(tabIndex, controller);
+    if (top == null) return null;
+
+    final paragraphs = _tabQuranParagraphs[tabIndex];
+    if (paragraphs == null) {
+      return top.itemIndex < ayahIndex.spans.length ? top.itemIndex : null;
+    }
+    if (top.itemIndex >= paragraphs.items.length) return null;
+    final paragraph = paragraphs.items[top.itemIndex];
+    return _verseInParagraphAt(top.box, paragraph, top.depth) ??
+        paragraph.firstSpanIndex;
+  }
+
+  /// The content line currently at the top of tab [tabIndex]'s view, read off
+  /// the laid-out list, or null if it has not been laid out yet.
+  ///
+  /// This is the line a bookmark taken now records, so it is always a content
+  /// line, whatever one list item holds in the current mode: for Quran it is
+  /// the first line of the verse at the top, and for every other zikr the
+  /// first line of the reading item there.
+  int? topContentLineIndex(int tabIndex, ScrollController controller) {
+    final ayahIndex = _ayahIndexFor(tabIndex);
+    if (ayahIndex != null) {
+      final spanIndex = _topSpanIndex(tabIndex, controller);
+      return spanIndex == null ? null : ayahIndex.spans[spanIndex].start;
+    }
+
+    final top = _topItem(tabIndex, controller);
+    if (top == null) return null;
+    // A reading item can cover several merged lines - a run of standalone
+    // lines, or verses flowing as one paragraph - so the item index has to be
+    // translated back to the content line its first line actually sits at.
+    final items = _tabReadingListItems[tabIndex];
+    if (items == null || top.itemIndex >= items.length) return top.itemIndex;
+    return items[top.itemIndex].firstLineIndex;
+  }
+
+  /// [paragraph]'s own laid-out text inside [itemBox], with how far down the
+  /// item it starts, or null when it has not been laid out.
+  ({RenderParagraph text, double top})? _paragraphText(
+    RenderBox itemBox,
+    _QuranParagraph paragraph,
+  ) {
+    final text = paragraph.textKey.currentContext?.findRenderObject();
+    if (text is! RenderParagraph || !text.hasSize || !text.attached) {
+      return null;
+    }
+    final top = text.getTransformTo(itemBox).getTranslation().y;
+    return (text: text, top: top);
+  }
+
+  /// The verse of [paragraph] whose row sits [depth] pixels down [itemBox].
+  ///
+  /// A row is read from its start, and the start of a right-to-left row is its
+  /// right edge: several short verses can share a row, and the one the reader
+  /// reaches first on it is the one they are on.
+  int? _verseInParagraphAt(
+    RenderBox itemBox,
+    _QuranParagraph paragraph,
+    double depth,
+  ) {
+    if (paragraph.spanIndexes.length == 1) return paragraph.firstSpanIndex;
+    final laidOut = _paragraphText(itemBox, paragraph);
+    if (laidOut == null) return null;
+
+    final text = laidOut.text;
+    final y = (depth - laidOut.top)
+        .clamp(0.0, text.size.height > 1 ? text.size.height - 1 : 0.0)
+        .toDouble();
+    final position = text.getPositionForOffset(
+      Offset(text.size.width > 1 ? text.size.width - 1 : 0, y),
+    );
+    return paragraph.spanIndexAtTextOffset(position.offset);
+  }
+
+  /// How far down [itemBox] the row holding the start of verse [spanIndex]
+  /// sits, or null when the paragraph has not been laid out.
+  double? _verseTopInParagraph(
+    RenderBox itemBox,
+    _QuranParagraph paragraph,
+    int spanIndex,
+  ) {
+    final k = paragraph.spanIndexes.indexOf(spanIndex);
+    if (k <= 0 || k >= paragraph.textStarts.length) return 0;
+    final laidOut = _paragraphText(itemBox, paragraph);
+    if (laidOut == null) return null;
+
+    final start = paragraph.textStarts[k];
+    final boxes = laidOut.text.getBoxesForSelection(
+      TextSelection(baseOffset: start, extentOffset: start + 1),
+    );
+    if (boxes.isEmpty) return laidOut.top;
+    return laidOut.top + boxes.first.top;
   }
 
   RenderSliverMultiBoxAdaptor? _findSliverList(RenderObject node) {
@@ -832,9 +1028,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         if (!mounted || !controller.hasClients) return;
         _reportScrollPosition(tabIndex, controller);
         if (widget.initialBookmarkLineIndex != null) return;
-        // _topLineIndex, not topContentLineIndex: in ayah mode an item is a
-        // whole verse, so the raw measurement is a span index and storing it
-        // as a line would point the marker at the wrong text.
+        // A content line in every mode - never a raw list index, which in
+        // ayah or paragraph mode would point the marker at the wrong text.
         final resolvedLine = _topLineIndex(tabIndex, controller);
         if (resolvedLine != null) {
           widget.onBookmarkLineResolved?.call(resolvedLine);
@@ -971,8 +1166,26 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final bookmarkLabelLine = bookmarkedRange == null
         ? null
         : firstVisibleLineInRange(bookmarkedRange, parsedContent);
-    final readingItems = _buildReadingListItems(parsedContent);
-    _tabReadingListItems[tabIndex] = readingItems;
+    // A surah read Arabic-only with paragraph flow on is drawn as passages
+    // rather than one block per verse - the same flow every other zikr gets
+    // in that view, but broken where the mushaf breaks it and still numbered,
+    // tappable and tracked verse by verse. See [_buildQuranParagraphItem].
+    final quranParagraphs = ayahIndex != null && isArabicOnlyReadingView
+        ? cache.quranParagraphs
+        : null;
+    final readingItems = ayahIndex == null
+        ? _buildReadingListItems(parsedContent)
+        : const <_ReadingListItem>[];
+    if (ayahIndex == null) {
+      _tabReadingListItems[tabIndex] = readingItems;
+    } else {
+      _tabReadingListItems.remove(tabIndex);
+    }
+    if (quranParagraphs != null) {
+      _tabQuranParagraphs[tabIndex] = quranParagraphs;
+    } else {
+      _tabQuranParagraphs.remove(tabIndex);
+    }
 
     // Create text styles with current settings each time this is called
     final arabicStyle = TextStyle(
@@ -993,7 +1206,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
     final leadingItems = showMeritsButton ? 1 : 0;
     final itemCount = leadingItems +
-        (ayahIndex != null ? ayahIndex.spans.length : readingItems.length);
+        (quranParagraphs != null
+            ? quranParagraphs.items.length
+            : ayahIndex != null
+                ? ayahIndex.spans.length
+                : readingItems.length);
 
     if (ayahIndex != null && tabIndex == _selectedTabIndex) {
       _scheduleInitialVerseScroll(tabIndex, ayahIndex, leadingItems);
@@ -1057,10 +1274,36 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                   );
                 }
 
-                // A surah in ayah mode has one item per verse; every other
-                // zikr is one item per reading-list entry, which is one item
-                // per content line except when Arabic-only paragraph flow
-                // folds a run of verses into one.
+                // A surah in paragraph mode has one item per passage, and in
+                // ayah mode one per verse; every other zikr is one item per
+                // reading-list entry, which is one item per content line
+                // except when Arabic-only paragraph flow folds a run of
+                // verses into one.
+                if (quranParagraphs != null) {
+                  final paragraph =
+                      quranParagraphs.items[index - leadingItems];
+                  final first = ayahIndex!.spans[paragraph.firstSpanIndex];
+                  // The Bismillah stands alone and is drawn exactly as it is
+                  // in ayah mode - centred, unnumbered, untappable.
+                  if (first.ayah == null) {
+                    return _buildAyahBlock(
+                      ayahIndex: ayahIndex,
+                      spanIndex: paragraph.firstSpanIndex,
+                      parsedContent: parsedContent,
+                      arabicStyle: arabicStyle,
+                      transliStyle: transliStyle,
+                      bookmarkedRange: bookmarkedRange,
+                    );
+                  }
+                  return _buildQuranParagraphItem(
+                    paragraph: paragraph,
+                    ayahIndex: ayahIndex,
+                    parsedContent: parsedContent,
+                    arabicStyle: arabicStyle,
+                    bookmarkedRange: bookmarkedRange,
+                  );
+                }
+
                 if (ayahIndex != null) {
                   final contentIndex = index - leadingItems;
                   return _buildAyahBlock(
@@ -1331,14 +1574,197 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       aliNote: verse == null ? null : aliRelatedNoteFor(verse),
       onAction: verse == null || widget.onAyahAction == null
           ? null
-          : () => widget.onAyahAction!(
-                AyahActionRequest(
-                  verse: verse,
-                  text: _ayahPlainText(parsedContent, span),
-                  lineIndex: span.start,
-                ),
-              ),
+          : () => _requestAyahAction(parsedContent, span),
       children: lines,
+    );
+  }
+
+  /// Opens the per-verse menu for [span], when the page offers one.
+  void _requestAyahAction(ParsedZikrContent parsedContent, AyahSpan span) {
+    final verse = span.verse;
+    final onAction = widget.onAyahAction;
+    if (verse == null || onAction == null) return;
+    onAction(
+      AyahActionRequest(
+        verse: verse,
+        text: _ayahPlainText(parsedContent, span),
+        lineIndex: span.start,
+        aliNote: aliRelatedNoteFor(verse),
+      ),
+    );
+  }
+
+  /// One passage of a surah in paragraph mode: its verses flowing together
+  /// as one right-aligned, justified, ruled paragraph - the layout every other
+  /// zikr gets from [_buildArabicParagraphItem] - while keeping what makes a
+  /// surah more than text:
+  ///
+  /// * a small range label above it ("12–20") for scanning, standing in for
+  ///   the per-verse badge, with the gold seal of any verse Shia tafsir ties
+  ///   to Imam Ali (as) beside it, long-pressable for its note as before;
+  /// * each verse still its own tap target, found from where the tap lands in
+  ///   the laid-out text, opening the same per-verse menu;
+  /// * a saved verse's number drawn in the primary colour, a mark on the
+  ///   verse itself rather than a tint over running text it shares;
+  /// * the bookmarked verse tinted in place, as in any flowing paragraph;
+  /// * the surah heading, where a juz crosses into a new surah - which
+  ///   [quranParagraphSpanRuns] guarantees only ever happens at the top of one.
+  ///
+  /// The verses' text offsets are recorded on [paragraph] as the span is
+  /// built, so the reading position and scroll-to-verse can work inside it.
+  Widget _buildQuranParagraphItem({
+    required _QuranParagraph paragraph,
+    required AyahIndex ayahIndex,
+    required ParsedZikrContent parsedContent,
+    required TextStyle arabicStyle,
+    required ZikrLineGroup? bookmarkedRange,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final spans = [for (final i in paragraph.spanIndexes) ayahIndex.spans[i]];
+
+    final bookmarkedSpan = bookmarkedRange == null
+        ? null
+        : spans
+            .where((span) => span.contains(bookmarkedRange.start))
+            .firstOrNull;
+
+    final children = <InlineSpan>[];
+    final textStarts = <int>[];
+    var length = 0;
+    for (var k = 0; k < spans.length; k++) {
+      final span = spans[k];
+      final verse = span.verse;
+      if (k > 0) {
+        // Just a plain space, as in any flowing paragraph: the rule under
+        // each row is what a reciter tracks by, and the verse's own medallion
+        // already marks where it ends.
+        children.add(const TextSpan(text: ' '));
+        length += 1;
+      }
+      textStarts.add(length);
+
+      final formatted = ZikrContentParser.formatArabicText(
+        parsedContent.lines[span.start].trim(),
+      );
+      final marker = _trailingVerseMarker.firstMatch(formatted);
+      final body =
+          marker == null ? formatted : formatted.substring(0, marker.start);
+      final isSaved = verse != null && widget.savedVerses.contains(verse);
+
+      final verseSpan = TextSpan(
+        style: span == bookmarkedSpan
+            ? TextStyle(
+                backgroundColor:
+                    colorScheme.primaryContainer.withValues(alpha: 0.55),
+              )
+            : null,
+        children: [
+          _buildTextSpanForLine(body, arabicStyle),
+          if (marker != null)
+            TextSpan(
+              text: marker.group(0),
+              style: isSaved
+                  ? arabicStyle.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w700,
+                    )
+                  : arabicStyle,
+            ),
+        ],
+      );
+      children.add(verseSpan);
+      length += verseSpan.toPlainText(includeSemanticsLabels: false).length;
+    }
+    paragraph.textStarts = textStarts;
+
+    final paragraphStyle = arabicStyle.copyWith(height: 2.0);
+    final first = spans.first;
+    final last = spans.last;
+    final isBookmarked = bookmarkedSpan != null;
+    final aliVerses = [
+      for (final span in spans)
+        if (span.verse != null && aliRelatedNoteFor(span.verse!) != null)
+          (ayah: span.ayah!, note: aliRelatedNoteFor(span.verse!)!),
+    ];
+
+    final label = Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          if (isBookmarked) ...[
+            Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            first.ayah == last.ayah
+                ? '${first.ayah}'
+                : '${first.ayah}\u2013${last.ayah}',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: isBookmarked
+                      ? colorScheme.primary
+                      : colorScheme.onSurface.withValues(alpha: 0.45),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.4,
+                ),
+          ),
+          for (final ali in aliVerses) ...[
+            const SizedBox(width: 6),
+            _AliBadge(note: '${ali.ayah}: ${ali.note}'),
+          ],
+        ],
+      ),
+    );
+
+    final canAct = widget.onAyahAction != null;
+    void actAt(RenderParagraph text, Offset globalPosition) {
+      final position =
+          text.getPositionForOffset(text.globalToLocal(globalPosition));
+      final spanIndex = paragraph.spanIndexAtTextOffset(position.offset);
+      _requestAyahAction(parsedContent, ayahIndex.spans[spanIndex]);
+    }
+
+    RenderParagraph? laidOutText() {
+      final text = paragraph.textKey.currentContext?.findRenderObject();
+      return text is RenderParagraph && text.hasSize ? text : null;
+    }
+
+    Widget ruled = Padding(
+      padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+      child: _RuledArabicParagraph(
+        textKey: paragraph.textKey,
+        span: TextSpan(style: paragraphStyle, children: children),
+      ),
+    );
+    if (canAct) {
+      ruled = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapUp: (details) {
+          final laidOut = laidOutText();
+          if (laidOut != null) actAt(laidOut, details.globalPosition);
+        },
+        onLongPressStart: (details) {
+          final laidOut = laidOutText();
+          if (laidOut != null) actAt(laidOut, details.globalPosition);
+        },
+        child: ruled,
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (first.startsSurah != null)
+            _SurahHeading(surah: first.startsSurah!),
+          label,
+          ruled,
+          Divider(
+            height: 20,
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1470,7 +1896,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
 /// A parsed tab, kept so a scroll does not reparse the text every frame.
 class _TabContentCache {
-  const _TabContentCache({
+  _TabContentCache({
     required this.rawContent,
     required this.hideHeaderLine,
     required this.code,
@@ -1486,6 +1912,18 @@ class _TabContentCache {
   /// Null for everything that is not Quran, which is what keeps every other
   /// zikr on the line-by-line rendering path.
   final AyahIndex? ayahIndex;
+
+  /// How this surah flows in paragraph mode, built the first time it is read
+  /// that way and then kept: each paragraph holds the key its text is
+  /// measured by, and a key minted afresh every build would remount the text
+  /// - and lose the measurement - on every scroll.
+  _QuranParagraphs? get quranParagraphs {
+    final index = ayahIndex;
+    if (index == null) return null;
+    return _quranParagraphs ??= _QuranParagraphs.build(index, parsed);
+  }
+
+  _QuranParagraphs? _quranParagraphs;
 }
 
 /// Names the surah a juz has just moved into.
@@ -1778,9 +2216,13 @@ class _BookmarkedLine extends StatelessWidget {
 /// [TextPainter.computeLineMetrics] - then paints a rule at each line's
 /// bottom edge, under the text rather than instead of it.
 class _RuledArabicParagraph extends StatelessWidget {
-  const _RuledArabicParagraph({required this.span});
+  const _RuledArabicParagraph({required this.span, this.textKey});
 
   final TextSpan span;
+
+  /// Put on the [Text.rich] itself, for a caller that needs to measure the
+  /// laid-out text - where each verse fell - rather than the whole block.
+  final Key? textKey;
 
   @override
   Widget build(BuildContext context) {
@@ -1822,6 +2264,7 @@ class _RuledArabicParagraph extends StatelessWidget {
             ...rules,
             Text.rich(
               span,
+              key: textKey,
               textAlign: TextAlign.justify,
               textDirection: TextDirection.rtl,
             ),
