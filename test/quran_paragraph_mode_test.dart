@@ -31,27 +31,33 @@ Future<void> _pump(
   double? bookmarkScrollOffset,
   ValueChanged<AyahActionRequest>? onAyahAction,
   ValueChanged<QuranReadingPosition>? onAyahPosition,
+  ValueChanged<ZikrContentScrollPosition>? onScrollPosition,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
       home: Scaffold(
-        body: ZikrContentViewerWidget(
-          tabContents: <String>[content],
-          selectedTabIndex: 0,
-          onTabChanged: (_) {},
-          hasMerits: false,
-          onShowMerits: () {},
-          onLinkTap: (_) async {},
-          code: '012',
-          surahNumber: surahNumber,
-          ayahIndex: ayahIndex,
-          initialVerse: initialVerse,
-          savedVerses: savedVerses,
-          initialBookmarkTabIndex: bookmarkLineIndex == null ? null : 0,
-          initialBookmarkLineIndex: bookmarkLineIndex,
-          initialBookmarkScrollOffset: bookmarkScrollOffset,
-          onAyahAction: onAyahAction,
-          onAyahPositionChanged: onAyahPosition,
+        // As on the zikr page, where the reading area is selectable - which
+        // changes what [Text] builds under the paragraph's key.
+        body: SelectionArea(
+          child: ZikrContentViewerWidget(
+            tabContents: <String>[content],
+            selectedTabIndex: 0,
+            onTabChanged: (_) {},
+            hasMerits: false,
+            onShowMerits: () {},
+            onLinkTap: (_) async {},
+            code: '012',
+            surahNumber: surahNumber,
+            ayahIndex: ayahIndex,
+            initialVerse: initialVerse,
+            savedVerses: savedVerses,
+            initialBookmarkTabIndex: bookmarkLineIndex == null ? null : 0,
+            initialBookmarkLineIndex: bookmarkLineIndex,
+            initialBookmarkScrollOffset: bookmarkScrollOffset,
+            onAyahAction: onAyahAction,
+            onAyahPositionChanged: onAyahPosition,
+            onScrollPositionChanged: onScrollPosition,
+          ),
         ),
       ),
     ),
@@ -70,7 +76,8 @@ Finder _paragraphContaining(String needle) => find.byWidgetPredicate(
 void main() {
   group('quranParagraphSpanRuns', () {
     ParsedZikrContent parse(String content) =>
-        ZikrContentParser.parseContent(content, hideHeaderLine: false, code: '012');
+        ZikrContentParser.parseContent(content,
+            hideHeaderLine: false, code: '012');
 
     test('the Bismillah stands alone and a rukuʿ closes a passage', () {
       final content = _surahContent(ayahs: 6, rukuAfter: {3});
@@ -85,8 +92,7 @@ void main() {
       ]);
     });
 
-    test('a surah with no marks is capped rather than one endless passage',
-        () {
+    test('a surah with no marks is capped rather than one endless passage', () {
       final content = _surahContent(ayahs: 10, rukuAfter: {});
       final parsed = parse(content);
       final index = AyahIndex.fromParsedContent(parsed, surah: 1);
@@ -148,16 +154,14 @@ void main() {
       // Ayahs 1-3 share one block of text, and 4-6 another.
       final first = _paragraphContaining('(1)');
       expect(first, findsOneWidget);
-      final text = (first.evaluate().single.widget as RichText)
-          .text
-          .toPlainText();
+      final text =
+          (first.evaluate().single.widget as RichText).text.toPlainText();
       expect(text, contains('(2)'));
       expect(text, contains('(3)'));
       expect(text, isNot(contains('(4)')));
     });
 
-    testWidgets('labels each passage with the verses it holds',
-        (tester) async {
+    testWidgets('labels each passage with the verses it holds', (tester) async {
       await _pump(tester, content: _surahContent());
 
       expect(find.text('1\u20133'), findsOneWidget);
@@ -245,8 +249,28 @@ void main() {
       expect(markers[2]?.color, isNot(primary));
     });
 
-    testWidgets('opens at a requested verse inside a passage',
-        (tester) async {
+    // Line 0 is the Bismillah and ayah n's Arabic is line 3n - 2.
+    for (final paragraphMode in [true, false]) {
+      testWidgets(
+          'a verse opened at is the one a bookmark then records '
+          '(${paragraphMode ? 'paragraph' : 'ayah'} mode)', (tester) async {
+        showArabicAsParagraph = paragraphMode;
+        final positions = <ZikrContentScrollPosition>[];
+        await _pump(
+          tester,
+          content: _surahContent(ayahs: 80, rukuAfter: {40}),
+          initialVerse: const VerseKey(1, 60),
+          onScrollPosition: positions.add,
+        );
+
+        // The verse lands a small margin below the top edge, over the tail
+        // of the one before it, and must not read back as that one.
+        expect(positions, isNotEmpty);
+        expect(positions.last.lineIndex, 3 * 60 - 2);
+      });
+    }
+
+    testWidgets('opens at a requested verse inside a passage', (tester) async {
       await _pump(
         tester,
         content: _surahContent(ayahs: 80, rukuAfter: {40}),
@@ -300,8 +324,7 @@ void main() {
       expect(find.byIcon(Icons.bookmark), findsWidgets);
     });
 
-    testWidgets('names each surah where a juz crosses into it',
-        (tester) async {
+    testWidgets('names each surah where a juz crosses into it', (tester) async {
       items = {'A8': '4: An-Nisa النساء', 'A9': '5: Al-Maidah المائدة'};
       addTearDown(() => items = {});
 

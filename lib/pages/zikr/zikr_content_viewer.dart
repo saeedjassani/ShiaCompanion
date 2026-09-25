@@ -240,37 +240,67 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
   return items;
 }
 
+/// Several lines or verses flowing together as one ruled paragraph, measured
+/// so a point in it can be turned back into the member there and a member
+/// into the height of the row it begins on. Kept across builds by whoever
+/// owns it: [textKey] minted afresh each build would remount the text - and
+/// lose the measurement - on every scroll.
+class _FlowingText {
+  /// Where each member's text begins inside the laid-out paragraph, in
+  /// reading order. Recorded when the item is built - the offsets depend on
+  /// the selected font, which rewrites the verse markers - and read back to
+  /// turn a point in the paragraph into a member and a member into a height.
+  List<int> textStarts = const [];
+
+  /// Finds the paragraph's own [RenderParagraph], among the several text
+  /// blocks the item may draw (a label, a surah heading), for measuring.
+  final GlobalKey textKey = GlobalKey();
+
+  /// The [RenderParagraph] under [textKey], once it has been laid out.
+  ///
+  /// Not simply the key's own render object: inside the reading area's
+  /// [SelectionArea], [Text] wraps its [RichText] in a [MouseRegion] and a
+  /// selection container, so the paragraph sits a few render objects down.
+  RenderParagraph? get laidOutText {
+    RenderParagraph? find(RenderObject? node) {
+      if (node == null || node is RenderParagraph) {
+        return node as RenderParagraph?;
+      }
+      RenderParagraph? found;
+      node.visitChildren((child) => found ??= find(child));
+      return found;
+    }
+
+    final text = find(textKey.currentContext?.findRenderObject());
+    return text != null && text.hasSize && text.attached ? text : null;
+  }
+
+  /// Which member's text contains character [offset].
+  int memberAtTextOffset(int offset) {
+    var k = 0;
+    while (k + 1 < textStarts.length && textStarts[k + 1] <= offset) {
+      k++;
+    }
+    return k;
+  }
+}
+
 /// One item of a surah read in [isArabicOnlyReadingView] with paragraph flow:
 /// a run of consecutive verses flowing together as one ruled paragraph, or a
 /// lone unnumbered span (the Bismillah) drawn the way it always is. See
-/// [quranParagraphSpanRuns] for where the runs break.
-class _QuranParagraph {
+/// [quranParagraphSpanRuns] for where the runs break. Its members are its
+/// verses.
+class _QuranParagraph extends _FlowingText {
   _QuranParagraph(this.spanIndexes);
 
   /// Indexes into [AyahIndex.spans], consecutive and in reading order.
   final List<int> spanIndexes;
 
-  /// Where each verse's text begins inside the laid-out paragraph, parallel
-  /// to [spanIndexes]. Recorded when the item is built - the offsets depend on
-  /// the selected font, which rewrites the verse markers - and read back to
-  /// turn a point in the paragraph into a verse and a verse into a height.
-  List<int> textStarts = const [];
-
-  /// Finds the paragraph's own [RenderParagraph], among the several text
-  /// blocks the item draws (the range label, a surah heading), for measuring.
-  final GlobalKey textKey = GlobalKey();
-
   int get firstSpanIndex => spanIndexes.first;
 
   /// The verse whose text contains character [offset].
-  int spanIndexAtTextOffset(int offset) {
-    if (textStarts.isEmpty) return firstSpanIndex;
-    var k = 0;
-    while (k + 1 < textStarts.length && textStarts[k + 1] <= offset) {
-      k++;
-    }
-    return spanIndexes[k];
-  }
+  int spanIndexAtTextOffset(int offset) =>
+      spanIndexes[memberAtTextOffset(offset)];
 }
 
 /// The paragraphs of a surah tab, with a lookup from span to paragraph.
@@ -451,6 +481,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// mode) or one reading item (every zikr).
   final Map<int, _QuranParagraphs> _tabQuranParagraphs = {};
 
+  /// Per tab, each flowing Arabic paragraph of a zikr that is not Quran, by
+  /// its first line - kept across builds for the same reason as
+  /// [_TabContentCache.quranParagraphs]. Only filled in
+  /// [isArabicOnlyReadingView].
+  final Map<int, Map<int, _FlowingText>> _tabArabicFlows = {};
+
   TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
     return buildZikrTextSpanWithLinks(
       rawLine: rawLine,
@@ -481,11 +517,17 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// - with a small "Bookmarked" label above the paragraph, the closest a
   /// label can sit to a highlight that lives inside shared running text.
   Widget _buildArabicParagraphItem(
+    int tabIndex,
     _ReadingListItem item,
     ParsedZikrContent parsedContent,
     int? bookmarkLabelLine,
     TextStyle arabicStyle,
   ) {
+    final flow = (_tabArabicFlows[tabIndex] ??= {})
+        .putIfAbsent(item.firstLineIndex, _FlowingText.new);
+    final textStarts = <int>[];
+    var length = 0;
+
     final highlightedIndex = bookmarkLabelLine != null &&
             item.lineIndexes.contains(bookmarkLabelLine)
         ? bookmarkLabelLine
@@ -498,6 +540,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         ZikrContentParser.formatArabicText(parsedContent.lines[lineIndex]),
         arabicStyle,
       );
+      textStarts.add(length);
+      length += verseSpan.toPlainText(includeSemanticsLabels: false).length;
       if (lineIndex == highlightedIndex) {
         spans.add(TextSpan(
           style: TextStyle(
@@ -517,8 +561,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         // sentences that happen to share one - a visible mark there read as
         // stray punctuation, not a boundary.
         spans.add(const TextSpan(text: ' '));
+        length += 1;
       }
     }
+    flow.textStarts = textStarts;
 
     // A bit taller than the font's own metrics, so the rule under each row
     // sits in a clear gap rather than crowding the descenders/diacritics of
@@ -528,6 +574,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final paragraph = Padding(
       padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
       child: _RuledArabicParagraph(
+        textKey: flow.textKey,
         span: TextSpan(style: paragraphStyle, children: spans),
       ),
     );
@@ -751,11 +798,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           (paragraphs?.items.length ?? ayahIndex.spans.length) + leadingItems,
       insetWithin: paragraphIndex == null
           ? null
-          : (box) => _verseTopInParagraph(
+          : (box) {
+              final paragraph = paragraphs!.items[paragraphIndex];
+              return _memberTopInFlow(
                 box,
-                paragraphs!.items[paragraphIndex],
-                spanIndex,
-              ),
+                paragraph,
+                paragraph.spanIndexes.indexOf(spanIndex),
+              );
+            },
     );
   }
 
@@ -791,12 +841,27 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       if (items[i].firstLineIndex > lineIndex) break;
       itemIndex = i;
     }
-    if (itemIndex == 0 && leadingItems == 0) return;
+
+    // Inside a flowing paragraph, the row the line begins on - the same way:
+    // the last member at or before it.
+    final item = items[itemIndex];
+    final flow = _tabArabicFlows[tabIndex]?[item.firstLineIndex];
+    var member = 0;
+    if (flow != null) {
+      for (var k = 0; k < item.lineIndexes.length; k++) {
+        if (item.lineIndexes[k] > lineIndex) break;
+        member = k;
+      }
+    }
+    if (itemIndex == 0 && member == 0 && leadingItems == 0) return;
 
     await _scrollToItem(
       tabIndex,
       itemIndex: itemIndex + leadingItems,
       itemCount: items.length + leadingItems,
+      insetWithin: member == 0
+          ? null
+          : (box) => _memberTopInFlow(box, flow!, member),
     );
   }
 
@@ -903,11 +968,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final sliver = _findSliverList(renderObject);
     if (sliver == null) return null;
 
-    final scrollOffset = controller.position.pixels;
+    // Read from where a scrolled-to item lands - [_scrollToVerseMargin] below
+    // the top edge - not the edge itself: otherwise the last few pixels of the
+    // item above, left showing in that margin, would count as what is being
+    // read, and opening at a verse and bookmarking it would save the one
+    // before.
+    final scrollOffset = controller.position.pixels + _scrollToVerseMargin;
     // Children are held in index order, so the first one whose bottom edge is
-    // still below the top of the viewport is the one being read. Lines the
-    // reader has switched off lay out at zero height and are skipped by the
-    // same test.
+    // still below that line is the one being read. Lines the reader has
+    // switched off lay out at zero height and are skipped by the same test.
     RenderBox? child = sliver.firstChild;
     while (child != null) {
       final parentData = child.parentData;
@@ -953,8 +1022,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
     if (top.itemIndex >= paragraphs.items.length) return null;
     final paragraph = paragraphs.items[top.itemIndex];
-    return _verseInParagraphAt(top.box, paragraph, top.depth) ??
-        paragraph.firstSpanIndex;
+    final k = _memberInFlowAt(top.box, paragraph, top.depth);
+    return k == null ? paragraph.firstSpanIndex : paragraph.spanIndexes[k];
   }
 
   /// The content line currently at the top of tab [tabIndex]'s view, read off
@@ -978,35 +1047,38 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     // translated back to the content line its first line actually sits at.
     final items = _tabReadingListItems[tabIndex];
     if (items == null || top.itemIndex >= items.length) return top.itemIndex;
-    return items[top.itemIndex].firstLineIndex;
+    final item = items[top.itemIndex];
+    // A flowing paragraph can be a whole dua long; the line is the one being
+    // read inside it, not the paragraph's first.
+    final flow = _tabArabicFlows[tabIndex]?[item.firstLineIndex];
+    final member =
+        flow == null ? null : _memberInFlowAt(top.box, flow, top.depth);
+    if (member != null && member < item.lineIndexes.length) {
+      return item.lineIndexes[member];
+    }
+    return item.firstLineIndex;
   }
 
-  /// [paragraph]'s own laid-out text inside [itemBox], with how far down the
-  /// item it starts, or null when it has not been laid out.
-  ({RenderParagraph text, double top})? _paragraphText(
+  /// [flow]'s own laid-out text inside [itemBox], with how far down the item
+  /// it starts, or null when it has not been laid out.
+  ({RenderParagraph text, double top})? _flowText(
     RenderBox itemBox,
-    _QuranParagraph paragraph,
+    _FlowingText flow,
   ) {
-    final text = paragraph.textKey.currentContext?.findRenderObject();
-    if (text is! RenderParagraph || !text.hasSize || !text.attached) {
-      return null;
-    }
+    final text = flow.laidOutText;
+    if (text == null) return null;
     final top = text.getTransformTo(itemBox).getTranslation().y;
     return (text: text, top: top);
   }
 
-  /// The verse of [paragraph] whose row sits [depth] pixels down [itemBox].
+  /// The member of [flow] whose row sits [depth] pixels down [itemBox].
   ///
-  /// A row is read from its start, and the start of a right-to-left row is its
-  /// right edge: several short verses can share a row, and the one the reader
-  /// reaches first on it is the one they are on.
-  int? _verseInParagraphAt(
-    RenderBox itemBox,
-    _QuranParagraph paragraph,
-    double depth,
-  ) {
-    if (paragraph.spanIndexes.length == 1) return paragraph.firstSpanIndex;
-    final laidOut = _paragraphText(itemBox, paragraph);
+  /// The first member to begin on that row, if any does - a verse scrolled to
+  /// lands on the row it begins on, usually behind the tail of the one before
+  /// it, and must read back as itself. Otherwise the member the row continues.
+  int? _memberInFlowAt(RenderBox itemBox, _FlowingText flow, double depth) {
+    if (flow.textStarts.length <= 1) return 0;
+    final laidOut = _flowText(itemBox, flow);
     if (laidOut == null) return null;
 
     final text = laidOut.text;
@@ -1016,27 +1088,46 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final position = text.getPositionForOffset(
       Offset(text.size.width > 1 ? text.size.width - 1 : 0, y),
     );
-    return paragraph.spanIndexAtTextOffset(position.offset);
+    final continued = flow.memberAtTextOffset(position.offset);
+    for (var k = continued; k < flow.textStarts.length; k++) {
+      final firstRow = _memberFirstRow(text, flow, k);
+      if (firstRow == null || firstRow.top > y) break;
+      if (firstRow.bottom > y) return k;
+    }
+    return continued;
   }
 
-  /// How far down [itemBox] the row holding the start of verse [spanIndex]
-  /// sits, or null when the paragraph has not been laid out.
-  double? _verseTopInParagraph(
-    RenderBox itemBox,
-    _QuranParagraph paragraph,
-    int spanIndex,
+  /// The box of the row member [k] of [flow] begins on, within [text].
+  static TextBox? _memberFirstRow(
+    RenderParagraph text,
+    _FlowingText flow,
+    int k,
   ) {
-    final k = paragraph.spanIndexes.indexOf(spanIndex);
-    if (k <= 0 || k >= paragraph.textStarts.length) return 0;
-    final laidOut = _paragraphText(itemBox, paragraph);
+    if (k >= flow.textStarts.length) return null;
+    // The whole member, not just its first character: a one-character
+    // selection splits the opening letter from its harakat - a single
+    // grapheme - and comes back with no boxes at all. The member's highest
+    // box is the row it starts on.
+    final start = flow.textStarts[k];
+    final end = k + 1 < flow.textStarts.length
+        ? flow.textStarts[k + 1]
+        : text.text.toPlainText(includeSemanticsLabels: false).length;
+    final boxes = text.getBoxesForSelection(
+      TextSelection(baseOffset: start, extentOffset: end),
+    );
+    if (boxes.isEmpty) return null;
+    return boxes.reduce((a, b) => a.top <= b.top ? a : b);
+  }
+
+  /// How far down [itemBox] the row holding the start of member [k] of [flow]
+  /// sits, or null when the paragraph has not been laid out.
+  double? _memberTopInFlow(RenderBox itemBox, _FlowingText flow, int k) {
+    if (k <= 0 || k >= flow.textStarts.length) return 0;
+    final laidOut = _flowText(itemBox, flow);
     if (laidOut == null) return null;
 
-    final start = paragraph.textStarts[k];
-    final boxes = laidOut.text.getBoxesForSelection(
-      TextSelection(baseOffset: start, extentOffset: start + 1),
-    );
-    if (boxes.isEmpty) return laidOut.top;
-    return laidOut.top + boxes.first.top;
+    final firstRow = _memberFirstRow(laidOut.text, flow, k);
+    return laidOut.top + (firstRow?.top ?? 0);
   }
 
   RenderSliverMultiBoxAdaptor? _findSliverList(RenderObject node) {
@@ -1282,6 +1373,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     } else {
       _tabReadingListItems.remove(tabIndex);
     }
+    if (ayahIndex != null || !isArabicOnlyReadingView) {
+      _tabArabicFlows.remove(tabIndex);
+    }
     if (quranParagraphs != null) {
       _tabQuranParagraphs[tabIndex] = quranParagraphs;
     } else {
@@ -1381,8 +1475,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 // except when Arabic-only paragraph flow folds a run of
                 // verses into one.
                 if (quranParagraphs != null) {
-                  final paragraph =
-                      quranParagraphs.items[index - leadingItems];
+                  final paragraph = quranParagraphs.items[index - leadingItems];
                   final first = ayahIndex!.spans[paragraph.firstSpanIndex];
                   // The Bismillah stands alone and is drawn exactly as it is
                   // in ayah mode - centred, unnumbered, untappable.
@@ -1426,6 +1519,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                     parsedContent.arabicCodes.contains(item.firstLineIndex)) {
                   return _withParagraphDivider(
                     _buildArabicParagraphItem(
+                      tabIndex,
                       item,
                       parsedContent,
                       bookmarkLabelLine,
@@ -1824,11 +1918,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       _requestAyahAction(parsedContent, ayahIndex.spans[spanIndex]);
     }
 
-    RenderParagraph? laidOutText() {
-      final text = paragraph.textKey.currentContext?.findRenderObject();
-      return text is RenderParagraph && text.hasSize ? text : null;
-    }
-
     Widget ruled = Padding(
       padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
       child: _RuledArabicParagraph(
@@ -1840,11 +1929,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       ruled = GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapUp: (details) {
-          final laidOut = laidOutText();
+          final laidOut = paragraph.laidOutText;
           if (laidOut != null) actAt(laidOut, details.globalPosition);
         },
         onLongPressStart: (details) {
-          final laidOut = laidOutText();
+          final laidOut = paragraph.laidOutText;
           if (laidOut != null) actAt(laidOut, details.globalPosition);
         },
         child: ruled,

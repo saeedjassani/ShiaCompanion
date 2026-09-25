@@ -268,6 +268,7 @@ void main() {
     showArabicAsParagraph = true;
     addTearDown(() => showArabicAsParagraph = false);
 
+    final positions = <ZikrContentScrollPosition>[];
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -283,19 +284,68 @@ void main() {
             // Measured in the old, taller one-verse-per-line layout.
             initialBookmarkScrollOffset: 2400,
             initialBookmarkLineIndex: 37,
-            onScrollPositionChanged: (_) {},
+            onScrollPositionChanged: positions.add,
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
-    // Every verse flows into one paragraph here, so the right place is that
-    // paragraph with the bookmarked verse tinted inside it - on screen.
-    final bookmarked = find.text('Bookmarked');
-    expect(bookmarked, findsOneWidget);
-    final top = tester.getRect(bookmarked).top;
-    expect(top, greaterThanOrEqualTo(0));
-    expect(top, lessThan(tester.view.physicalSize.height));
+    // Every verse flows into one paragraph here, so the right place is the
+    // row inside it where the bookmarked verse begins - it reads back as a
+    // verse on that row: several short ones share each, and the first to
+    // begin on it is the one recorded.
+    expect(find.text('Bookmarked'), findsOneWidget);
+    expect(positions, isNotEmpty);
+    expect(positions.last.lineIndex, inInclusiveRange(37 - 9, 37));
+  });
+
+  testWidgets('lands on the bookmarked verse deep inside a long paragraph', (
+    tester,
+  ) async {
+    showTransliteration = false;
+    showTranslation = false;
+    showArabicAsParagraph = true;
+    addTearDown(() => showArabicAsParagraph = false);
+
+    // One paragraph many screens long, as a whole dua is in this view.
+    final lines = <String>[];
+    for (var verse = 0; verse < 150; verse++) {
+      lines.add('TRANSLITERATION OF VERSE $verse');
+      lines.add('اللهم صل على محمد وآل محمد $verse');
+      lines.add('Translation of verse $verse');
+    }
+    final positions = <ZikrContentScrollPosition>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SelectionArea(
+            child: ZikrContentViewerWidget(
+              tabContents: <String>[lines.join('\n')],
+              selectedTabIndex: 0,
+              onTabChanged: (_) {},
+              hasMerits: false,
+              onShowMerits: () {},
+              onLinkTap: (_) async {},
+              code: '102',
+              initialBookmarkTabIndex: 0,
+              initialBookmarkScrollOffset: 1,
+              // Verse 100's Arabic.
+              initialBookmarkLineIndex: 301,
+              onScrollPositionChanged: positions.add,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Not the paragraph's start, which is where a bookmark taken anywhere in
+    // it used to both record and land, but the row verse 100 begins on - it
+    // reads back as the first verse to begin on that row, which several
+    // short ones share.
+    expect(positions, isNotEmpty);
+    expect(positions.last.lineIndex, inInclusiveRange(301 - 9, 301));
+    expect(positions.last.scrollOffset, greaterThan(0));
   });
 }
