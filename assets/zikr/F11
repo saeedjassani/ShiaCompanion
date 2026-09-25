@@ -7,11 +7,11 @@
   ],
   "audio": [
     {
-      "url": "https://mp3.duas.org/jafar%20tayyar%20last%20sajda%20dua.mp3",
+      "url": "https://pub-ee9041af06e644c2932c50c137c28aef.r2.dev/f11_salate-jafar-last-sajda.mp3",
       "label": "Salat Jafar e Tayyar"
     },
     {
-      "url": "https://mp3.duas.org/jaffer%20tayyar%20after%20salat%20dua.mp3",
+      "url": "https://pub-ee9041af06e644c2932c50c137c28aef.r2.dev/f11_salate-jafar-after-salat.mp3",
       "label": "Another Dua After Salat Jafar e Tayyar"
     }
   ]

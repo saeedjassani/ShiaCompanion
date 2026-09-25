@@ -216,7 +216,8 @@ class AyahIndex {
       final verse = spans[i].verse;
       // First marker wins: a duplicate number should not move an ayah that
       // was already placed correctly.
-      if (verse != null) spanIndexByVerse.putIfAbsent(_verseKey(verse), () => i);
+      if (verse != null)
+        spanIndexByVerse.putIfAbsent(_verseKey(verse), () => i);
     }
 
     return AyahIndex._(
@@ -275,7 +276,9 @@ class AyahIndex {
 
   /// The verse showing at [spanIndex], or null when that span is a Bismillah.
   VerseKey? verseAtSpanIndex(int spanIndex) =>
-      spanIndex >= 0 && spanIndex < spans.length ? spans[spanIndex].verse : null;
+      spanIndex >= 0 && spanIndex < spans.length
+          ? spans[spanIndex].verse
+          : null;
 
   static String _verseKey(VerseKey verse) => '${verse.surah}:${verse.ayah}';
 }
@@ -307,6 +310,40 @@ List<AyahSpan> spansOfParsedContent(
   }
 
   return spans;
+}
+
+/// Groups the spans of [index] into the paragraphs Arabic-only paragraph mode
+/// flows a surah into, as runs of span indexes in reading order.
+///
+/// A surah is one paragraph from its first verse to its last - rukūʿ signs
+/// stay inline where they are and do not break it. The only breaks are:
+///
+/// * a new surah - in a juz - always starts a new paragraph, so its heading
+///   never lands mid-paragraph and the surah the juz begins or ends in stays
+///   apart from the next;
+/// * an unnumbered span (the Bismillah heading a surah) stands on its own,
+///   centred as it always is, rather than running into ayah 1.
+List<List<int>> quranParagraphSpanRuns(AyahIndex index) {
+  final runs = <List<int>>[];
+  var current = <int>[];
+
+  void close() {
+    if (current.isNotEmpty) runs.add(current);
+    current = <int>[];
+  }
+
+  for (var i = 0; i < index.spans.length; i++) {
+    final span = index.spans[i];
+    if (span.ayah == null) {
+      close();
+      runs.add([i]);
+      continue;
+    }
+    if (span.startsSurah != null) close();
+    current.add(i);
+  }
+  close();
+  return runs;
 }
 
 /// A `surah:ayah` reference, as typed by a reader or carried in a link.

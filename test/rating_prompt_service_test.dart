@@ -97,7 +97,8 @@ void main() {
       expect(RatingPromptService.shouldAsk(), isFalse);
     });
 
-    test('backfills an install that predates this feature as already '
+    test(
+        'backfills an install that predates this feature as already '
         'past the thresholds', () async {
       await withPrefs({azaanPreferenceKey: 'makkah'});
       await RatingPromptService.adoptExistingInstall();
@@ -108,8 +109,7 @@ void main() {
         () async {
       await withPrefs({azaanPreferenceKey: 'makkah'});
       await RatingPromptService.recordLaunch();
-      final stampFromThisBuild =
-          SP.prefs.getInt('rating_prompt_first_seen_at');
+      final stampFromThisBuild = SP.prefs.getInt('rating_prompt_first_seen_at');
 
       await RatingPromptService.adoptExistingInstall();
       expect(
@@ -201,7 +201,8 @@ void main() {
       expect(RatingPromptService.shouldAsk(), isFalse);
     });
 
-    testWidgets('a "no" asks the feedback follow-up, and starts the cooldown '
+    testWidgets(
+        'a "no" asks the feedback follow-up, and starts the cooldown '
         'either way', (tester) async {
       await withEligibleInstall();
       final context = await pumpContext(tester);
@@ -239,7 +240,8 @@ void main() {
       expect(RatingPromptService.shouldAsk(), isFalse);
     });
 
-    testWidgets('a past "yes" is never asked again, even once the cooldown '
+    testWidgets(
+        'a past "yes" is never asked again, even once the cooldown '
         'would otherwise have elapsed', (tester) async {
       await withPrefs({
         'rating_prompt_first_seen_at':
@@ -285,6 +287,169 @@ void main() {
       );
 
       expect(promptShown, isTrue);
+    });
+  });
+
+  group('deferred ask', () {
+    const inAppReviewChannel = MethodChannel('dev.britannio.in_app_review');
+
+    setUp(() async {
+      await RatingPromptService.resetForTest();
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(inAppReviewChannel, (call) async {
+        if (call.method == 'isAvailable') return false;
+        return null;
+      });
+    });
+
+    tearDown(() async {
+      await RatingPromptService.resetForTest();
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(inAppReviewChannel, null);
+    });
+
+    Future<void> withEligibleInstall() => withPrefs({
+          'rating_prompt_first_seen_at':
+              DateTime.now().millisecondsSinceEpoch - 30 * dayMs,
+          'rating_prompt_completion_count': 3,
+        });
+
+    Future<BuildContext> pumpContext(WidgetTester tester) async {
+      late BuildContext context;
+      await tester.pumpWidget(MaterialApp(home: Builder(builder: (c) {
+        context = c;
+        return const SizedBox();
+      })));
+      return context;
+    }
+
+    Future<bool> notPlaying() async => false;
+
+    testWidgets(
+        'a completion only leaves an ask pending while the reader is '
+        'still open', (tester) async {
+      await withEligibleInstall();
+      final context = await pumpContext(tester);
+      RatingPromptService.readerOpened();
+
+      await RatingPromptService.recordZikrCompleted();
+      expect(RatingPromptService.hasPendingAsk, isTrue);
+
+      var promptShown = false;
+      await RatingPromptService.askIfPending(
+        context,
+        isAzanPlaying: notPlaying,
+        prompt: (_) async {
+          promptShown = true;
+          return null;
+        },
+      );
+
+      expect(promptShown, isFalse);
+      expect(RatingPromptService.hasPendingAsk, isTrue);
+    });
+
+    testWidgets(
+        'backing out of a nested reader onto another one keeps it '
+        'pending', (tester) async {
+      await withEligibleInstall();
+      RatingPromptService.readerOpened();
+      RatingPromptService.readerOpened();
+      await RatingPromptService.recordZikrCompleted();
+
+      RatingPromptService.readerClosed();
+      expect(RatingPromptService.openReaders, 1);
+      expect(RatingPromptService.hasPendingAsk, isTrue);
+    });
+
+    testWidgets('is asked once the reader is left, and only once',
+        (tester) async {
+      await withEligibleInstall();
+      final context = await pumpContext(tester);
+      RatingPromptService.readerOpened();
+      await RatingPromptService.recordZikrCompleted();
+      RatingPromptService.readerClosed();
+
+      var prompts = 0;
+      Future<bool?> prompt(BuildContext _) async {
+        prompts++;
+        return null;
+      }
+
+      await RatingPromptService.askIfPending(context,
+          isAzanPlaying: notPlaying, prompt: prompt);
+      await RatingPromptService.askIfPending(context,
+          isAzanPlaying: notPlaying, prompt: prompt);
+
+      expect(prompts, 1);
+      expect(RatingPromptService.hasPendingAsk, isFalse);
+      // Drains readerClosed's own scheduled ask, already consumed above.
+      await tester.pump(RatingPromptService.settleDelay);
+    });
+
+    testWidgets('an Azan playing keeps the ask pending', (tester) async {
+      await withEligibleInstall();
+      final context = await pumpContext(tester);
+      await RatingPromptService.recordZikrCompleted();
+
+      var promptShown = false;
+      await RatingPromptService.askIfPending(
+        context,
+        isAzanPlaying: () async => true,
+        prompt: (_) async {
+          promptShown = true;
+          return null;
+        },
+      );
+
+      expect(promptShown, isFalse);
+      expect(RatingPromptService.hasPendingAsk, isTrue);
+    });
+
+    testWidgets(
+        'a positive action on an install not yet eligible leaves '
+        'nothing pending', (tester) async {
+      await withPrefs({});
+      RatingPromptService.recordPositiveAction('share_zikr');
+      expect(RatingPromptService.hasPendingAsk, isFalse);
+    });
+
+    testWidgets(
+        'a positive action inside a reader waits for the reader to '
+        'be left', (tester) async {
+      await withEligibleInstall();
+      await tester.pumpWidget(MaterialApp(
+        navigatorKey: appNavigatorKey,
+        home: const SizedBox(),
+      ));
+      RatingPromptService.readerOpened();
+
+      RatingPromptService.recordPositiveAction('bookmark');
+      await tester.pump(RatingPromptService.settleDelay * 2);
+      expect(find.text('Enjoying Shia Companion?'), findsNothing);
+
+      RatingPromptService.readerClosed();
+      await tester.pump(RatingPromptService.settleDelay);
+      await tester.pumpAndSettle();
+      expect(find.text('Enjoying Shia Companion?'), findsOneWidget);
+    });
+
+    testWidgets(
+        'a positive action outside any reader asks after the settle '
+        'delay', (tester) async {
+      await withEligibleInstall();
+      await tester.pumpWidget(MaterialApp(
+        navigatorKey: appNavigatorKey,
+        home: const SizedBox(),
+      ));
+
+      RatingPromptService.recordPositiveAction('favorite');
+      await tester.pump();
+      expect(find.text('Enjoying Shia Companion?'), findsNothing);
+
+      await tester.pump(RatingPromptService.settleDelay);
+      await tester.pumpAndSettle();
+      expect(find.text('Enjoying Shia Companion?'), findsOneWidget);
     });
   });
 }

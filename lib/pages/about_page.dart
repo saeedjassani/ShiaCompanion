@@ -79,8 +79,8 @@ class _AboutPageState extends State<AboutPage> {
               subtitle: Column(
                 children: [
                   const Text(
-                    'Recitation audio is streamed from duas.org and used with '
-                    'their kind permission.',
+                    'Recitation audio is hosted on our own servers; the recordings '
+                    'are used with duas.org\'s kind permission.',
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),

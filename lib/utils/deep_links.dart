@@ -1,3 +1,5 @@
+import 'quran_portion.dart';
+
 class DeepLinkTarget {
   final int type;
   final List<String> segments;
@@ -55,6 +57,11 @@ String buildZikrDeepLinkPath({
   required String uid,
   String? slug,
 }) {
+  // A juz is not a corpus document: its uid (`JUZ3`) is only what the reader
+  // keys its state by, has no slug, and as `/0/JUZ3` would resolve to nothing.
+  final juz = juzOfQuranUid(uid);
+  if (juz != null) return buildQuranJuzDeepLinkPath(juz);
+
   final normalizedSlug = slug?.trim();
   if (normalizedSlug != null && normalizedSlug.isNotEmpty) {
     return '/zikr/${Uri.encodeComponent(normalizedSlug)}';

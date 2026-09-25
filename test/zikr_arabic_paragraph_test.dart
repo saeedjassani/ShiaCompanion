@@ -60,10 +60,16 @@ void _useViewportWidth(WidgetTester tester, double width) {
 /// [TextSpan] (so it can merge in the ambient default style), so the actual
 /// paragraph span built by the viewer is one level below the [RichText]'s
 /// own `text`.
+/// The bookmark icon's glyph, drawn inline at the start of the bookmarked
+/// verse.
+final _bookmarkGlyph = String.fromCharCode(Icons.bookmark.codePoint);
+
 List<InlineSpan> _paragraphChildren() {
   final richText = find
       .byWidgetPredicate((widget) =>
-          widget is RichText && widget.text.toPlainText() == _mergedParagraph)
+          widget is RichText &&
+          widget.text.toPlainText().contains(_verse0) &&
+          widget.text.toPlainText().contains(_verse2))
       .evaluate()
       .single
       .widget as RichText;
@@ -160,8 +166,9 @@ void main() {
       // Content line 3 is verse1, the middle of the three merged verses.
       await _pumpViewer(tester, bookmarkLineIndex: 3);
 
-      expect(find.text('Bookmarked'), findsOneWidget);
-      expect(find.text(_mergedParagraph), findsOneWidget);
+      // No label above the paragraph - the mark is a bookmark icon inline at
+      // the start of the verse, so the paragraph is not broken around it.
+      expect(find.text('Bookmarked'), findsNothing);
 
       final highlighted = _paragraphChildren().where((span) {
         final style = span.style;
@@ -169,7 +176,8 @@ void main() {
       }).toList();
 
       expect(highlighted, hasLength(1));
-      expect(highlighted.single.toPlainText(), _verse1);
+      expect(
+          highlighted.single.toPlainText(), '$_bookmarkGlyph\u200F $_verse1');
     },
   );
 
@@ -186,7 +194,8 @@ void main() {
       }).toList();
 
       expect(highlighted, hasLength(1));
-      expect(highlighted.single.toPlainText(), _verse2);
+      expect(
+          highlighted.single.toPlainText(), '$_bookmarkGlyph\u200F $_verse2');
     },
   );
 
