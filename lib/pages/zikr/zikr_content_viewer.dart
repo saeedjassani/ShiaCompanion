@@ -719,6 +719,89 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   }
 
   /// Brings [verse] to the top of the view.
+  Future<void> _scrollToVerse(
+    int tabIndex,
+    AyahIndex ayahIndex,
+    VerseKey verse,
+    int leadingItems,
+  ) async {
+    final spanIndex = ayahIndex.nearestSpanIndexForVerse(verse);
+    if (spanIndex == null) return;
+    await _scrollToSpan(tabIndex, ayahIndex, spanIndex, leadingItems);
+  }
+
+  /// Brings ayah span [spanIndex] - a verse, or a Bismillah - to the top of
+  /// the view, in ayah mode or paragraph mode alike.
+  Future<void> _scrollToSpan(
+    int tabIndex,
+    AyahIndex ayahIndex,
+    int spanIndex,
+    int leadingItems,
+  ) {
+    // In paragraph mode the verse is somewhere inside a paragraph item, so
+    // the item is found first and the verse's own row within it second.
+    final paragraphs = _tabQuranParagraphs[tabIndex];
+    final paragraphIndex = paragraphs?.paragraphIndexForSpan(spanIndex);
+    final contentIndex = paragraphIndex ?? spanIndex;
+
+    return _scrollToItem(
+      tabIndex,
+      itemIndex: contentIndex + leadingItems,
+      itemCount:
+          (paragraphs?.items.length ?? ayahIndex.spans.length) + leadingItems,
+      insetWithin: paragraphIndex == null
+          ? null
+          : (box) => _verseTopInParagraph(
+                box,
+                paragraphs!.items[paragraphIndex],
+                spanIndex,
+              ),
+    );
+  }
+
+  /// Brings content line [lineIndex] to the top of the view - the line a
+  /// bookmark was taken on - whatever the list is currently made of.
+  ///
+  /// This is how a bookmark is restored whenever it knows its line, rather
+  /// than by jumping to the pixel offset it was saved at: that offset only
+  /// means the same place under the exact layout it was measured in, and
+  /// switching paragraph mode, the font, its size or the screen width all
+  /// move every line under it. The line never moves.
+  Future<void> _scrollToLine(int tabIndex, int lineIndex) async {
+    final leadingItems = _leadingItemCount(tabIndex);
+
+    final ayahIndex = _ayahIndexFor(tabIndex);
+    if (ayahIndex != null) {
+      final spanIndex =
+          ayahIndex.spans.indexWhere((span) => span.contains(lineIndex));
+      // Before the first verse there is nothing above it to scroll past.
+      if (spanIndex < 0) return;
+      await _scrollToSpan(tabIndex, ayahIndex, spanIndex, leadingItems);
+      return;
+    }
+
+    final items = _tabReadingListItems[tabIndex];
+    if (items == null || items.isEmpty) return;
+    // The last item starting at or before the line: an item can cover
+    // several lines, and in paragraph flow a switched-off transliteration or
+    // translation line is folded into the paragraph around it without being
+    // one of its members, so matching on membership alone would miss it.
+    var itemIndex = 0;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].firstLineIndex > lineIndex) break;
+      itemIndex = i;
+    }
+    if (itemIndex == 0 && leadingItems == 0) return;
+
+    await _scrollToItem(
+      tabIndex,
+      itemIndex: itemIndex + leadingItems,
+      itemCount: items.length + leadingItems,
+    );
+  }
+
+  /// Brings list item [itemIndex] - plus [insetWithin] of it, for a target
+  /// partway down one item - to the top of the view.
   ///
   /// A `ListView.builder` cannot seek to an index, and lines wrap to different
   /// heights so there is no fixed extent to invert. So: estimate an offset, let
@@ -730,25 +813,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// whose bottom edge is still below the fold - true of a verse scrolled 95%
   /// past - so it settled with the verse mostly above the view and only its
   /// last line showing.
-  Future<void> _scrollToVerse(
-    int tabIndex,
-    AyahIndex ayahIndex,
-    VerseKey verse,
-    int leadingItems,
-  ) async {
-    final spanIndex = ayahIndex.nearestSpanIndexForVerse(verse);
-    if (spanIndex == null || tabIndex >= _tabScrollControllers.length) return;
-
+  Future<void> _scrollToItem(
+    int tabIndex, {
+    required int itemIndex,
+    required int itemCount,
+    double? Function(RenderBox itemBox)? insetWithin,
+  }) async {
+    if (tabIndex >= _tabScrollControllers.length || itemCount <= 0) return;
     final controller = _tabScrollControllers[tabIndex];
-
-    // In paragraph mode the verse is somewhere inside a paragraph item, so
-    // the item is found first and the verse's own row within it second.
-    final paragraphs = _tabQuranParagraphs[tabIndex];
-    final paragraphIndex = paragraphs?.paragraphIndexForSpan(spanIndex);
-    final contentIndex = paragraphIndex ?? spanIndex;
-    final itemCount =
-        (paragraphs?.items.length ?? ayahIndex.spans.length) + leadingItems;
-    final itemIndex = contentIndex + leadingItems;
 
     // The reading chrome's inset animates in, which moves every item under it,
     // so a landing is only trusted once it has held still for a frame.
@@ -763,14 +835,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       }
 
       final item = _builtItem(tabIndex, itemIndex);
-      final inset = item == null || paragraphIndex == null
-          ? 0.0
-          : _verseTopInParagraph(
-                item.box,
-                paragraphs!.items[paragraphIndex],
-                spanIndex,
-              ) ??
-              0.0;
+      final inset = item == null ? 0.0 : insetWithin?.call(item.box) ?? 0.0;
       final itemOffset = item == null ? null : item.offset + inset;
       final target = itemOffset == null
           // Not built yet: aim by proportion to bring it into range, then
@@ -999,14 +1064,53 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     ScrollController controller,
   ) {
     final bookmarkTabIndex = _initialBookmarkTabIndex;
-    final bookmarkOffset = _initialBookmarkScrollOffset;
     if (_didRestoreInitialBookmark ||
         bookmarkTabIndex == null ||
-        bookmarkOffset == null ||
-        bookmarkOffset <= 0 ||
         tabIndex != bookmarkTabIndex) {
       return;
     }
+
+    // An explicit destination wins: someone opening 23:56 asked for that
+    // verse, not for wherever they last bookmarked this surah. The bookmark
+    // is still drawn; the view just does not go there.
+    if (widget.initialVerse?.ayah != null && _ayahIndexFor(tabIndex) != null) {
+      _didRestoreInitialBookmark = true;
+      return;
+    }
+
+    // A bookmark that knows its line goes back to that line, measured in the
+    // list as it is laid out now - see [_scrollToLine].
+    final bookmarkLine = widget.initialBookmarkLineIndex;
+    if (bookmarkLine != null) {
+      _didRestoreInitialBookmark = true;
+      // Land on the start of what the marker covers - the whole triplet, when
+      // the bookmark sits on its transliteration or translation - so the
+      // tinted verse is on screen from its first line, not cut in half.
+      final parsed = _contentCaches[tabIndex]?.parsed;
+      final range = parsed == null
+          ? null
+          : bookmarkedLineRange(
+              bookmarkLineIndex: bookmarkLine,
+              content: parsed,
+            );
+      final targetLine = range?.start ?? bookmarkLine;
+      if (targetLine <= 0) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        await _scrollToLine(tabIndex, targetLine);
+        if (mounted && controller.hasClients) {
+          _reportScrollPosition(tabIndex, controller);
+        }
+      });
+      return;
+    }
+
+    // Only a bookmark saved before line indexes existed still has nothing
+    // but a pixel offset to go on. It is restored by offset once, and the
+    // line found there is handed back so the bookmark can be rewritten with
+    // it - after which it restores by line like every other.
+    final bookmarkOffset = _initialBookmarkScrollOffset;
+    if (bookmarkOffset == null || bookmarkOffset <= 0) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _didRestoreInitialBookmark || !controller.hasClients) {
@@ -1021,13 +1125,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       _didRestoreInitialBookmark = true;
 
       // The jump only takes effect at the next layout, so the line under the
-      // restored offset can only be measured a frame later. That measurement
-      // is what a bookmark saved before line indexes existed adopts as its
-      // line, which is exactly the line it was taken on.
+      // restored offset can only be measured a frame later.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || !controller.hasClients) return;
         _reportScrollPosition(tabIndex, controller);
-        if (widget.initialBookmarkLineIndex != null) return;
         // A content line in every mode - never a raw list index, which in
         // ayah or paragraph mode would point the marker at the wrong text.
         final resolvedLine = _topLineIndex(tabIndex, controller);

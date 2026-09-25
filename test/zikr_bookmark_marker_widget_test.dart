@@ -223,4 +223,79 @@ void main() {
     // Nothing is tinted until the page hands the adopted line back down.
     expect(_tintedLines(), findsNothing);
   });
+
+  testWidgets('goes back to the bookmarked line, not the saved offset', (
+    tester,
+  ) async {
+    // The offset is deliberately wrong - as it is once paragraph mode, the
+    // font or its size has changed since the bookmark was taken. The line is
+    // what the view has to come back to.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ZikrContentViewerWidget(
+            tabContents: <String>[_tripletContent()],
+            selectedTabIndex: 0,
+            onTabChanged: (_) {},
+            hasMerits: false,
+            onShowMerits: () {},
+            onLinkTap: (_) async {},
+            code: '102',
+            initialBookmarkTabIndex: 0,
+            initialBookmarkScrollOffset: 5,
+            // The translation of verse 12: the triplet starts two lines up.
+            initialBookmarkLineIndex: 38,
+            onScrollPositionChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final viewportTop = tester.getRect(find.byType(ListView)).top;
+    final tripletTop = tester.getRect(_lineFinder(36)).top;
+    expect(tripletTop, greaterThanOrEqualTo(viewportTop - 0.5));
+    expect(tripletTop, lessThan(viewportTop + 40),
+        reason: 'the bookmarked triplet starts at the top of the view');
+    expect(find.text('Bookmarked'), findsOneWidget);
+  });
+
+  testWidgets('comes back to the same line in paragraph mode', (
+    tester,
+  ) async {
+    showTransliteration = false;
+    showTranslation = false;
+    showArabicAsParagraph = true;
+    addTearDown(() => showArabicAsParagraph = false);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ZikrContentViewerWidget(
+            tabContents: <String>[_tripletContent()],
+            selectedTabIndex: 0,
+            onTabChanged: (_) {},
+            hasMerits: false,
+            onShowMerits: () {},
+            onLinkTap: (_) async {},
+            code: '102',
+            initialBookmarkTabIndex: 0,
+            // Measured in the old, taller one-verse-per-line layout.
+            initialBookmarkScrollOffset: 2400,
+            initialBookmarkLineIndex: 37,
+            onScrollPositionChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Every verse flows into one paragraph here, so the right place is that
+    // paragraph with the bookmarked verse tinted inside it - on screen.
+    final bookmarked = find.text('Bookmarked');
+    expect(bookmarked, findsOneWidget);
+    final top = tester.getRect(bookmarked).top;
+    expect(top, greaterThanOrEqualTo(0));
+    expect(top, lessThan(tester.view.physicalSize.height));
+  });
 }

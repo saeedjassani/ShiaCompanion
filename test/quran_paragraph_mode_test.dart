@@ -27,6 +27,8 @@ Future<void> _pump(
   AyahIndex? ayahIndex,
   VerseKey? initialVerse,
   Set<VerseKey> savedVerses = const {},
+  int? bookmarkLineIndex,
+  double? bookmarkScrollOffset,
   ValueChanged<AyahActionRequest>? onAyahAction,
   ValueChanged<QuranReadingPosition>? onAyahPosition,
 }) async {
@@ -45,6 +47,9 @@ Future<void> _pump(
           ayahIndex: ayahIndex,
           initialVerse: initialVerse,
           savedVerses: savedVerses,
+          initialBookmarkTabIndex: bookmarkLineIndex == null ? null : 0,
+          initialBookmarkLineIndex: bookmarkLineIndex,
+          initialBookmarkScrollOffset: bookmarkScrollOffset,
           onAyahAction: onAyahAction,
           onAyahPositionChanged: onAyahPosition,
         ),
@@ -273,6 +278,26 @@ void main() {
       expect(reports.last.fromUserScroll, isTrue);
       // Still inside the one passage, but well past its opening verse.
       expect(reports.last.verse.ayah!, greaterThan(1));
+    });
+
+    testWidgets('a bookmark comes back to its verse, not its old offset',
+        (tester) async {
+      // Line 0 is the Bismillah and ayah n's Arabic is line 3n - 2, so line
+      // 178 is ayah 60's Arabic. The offset was measured in ayah mode, where
+      // every verse took a block of its own - far past here in this layout.
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 80, rukuAfter: {40}),
+        bookmarkLineIndex: 178,
+        bookmarkScrollOffset: 9000,
+      );
+
+      final passage = _paragraphContaining('(60)');
+      expect(passage, findsOneWidget);
+      expect(tester.getRect(passage).top, lessThan(0));
+      expect(tester.getRect(passage).bottom, greaterThan(0));
+      // The passage's label carries the bookmark.
+      expect(find.byIcon(Icons.bookmark), findsWidgets);
     });
 
     testWidgets('names each surah where a juz crosses into it',
