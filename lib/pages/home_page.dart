@@ -369,13 +369,17 @@ class _MyHomePageState extends State<MyHomePage>
                   padding: const EdgeInsets.symmetric(
                       vertical: 22.0, horizontal: 16.0),
                   child: InkWell(
-                    onTap: () {
-                      SharePlus.instance.share(ShareParams(
+                    onTap: () async {
+                      final result = await SharePlus.instance.share(ShareParams(
                         text:
                             '$hadith\n\nShared via Shia Companion - https://shia-companion.web.app/',
                         sharePositionOrigin: Rect.fromLTWH(
                             MediaQuery.of(context).size.width / 2, 0, 2, 2),
                       ));
+                      if (result.status == ShareResultStatus.success) {
+                        RatingPromptService.recordPositiveAction(
+                            'share_hadith');
+                      }
                     },
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 760),

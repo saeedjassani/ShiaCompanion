@@ -343,6 +343,13 @@ void main() {
       expect(buildQuranDeepLinkPath(surah: 23, ayah: 56), '/quran/23/56');
       expect(buildQuranDeepLinkPath(surah: 23), '/quran/23');
       expect(buildQuranJuzDeepLinkPath(5), '/quran/juz/5');
+      // The reader's uid for a juz, which has no slug, links to the juz.
+      expect(buildZikrDeepLinkPath(uid: 'JUZ3'), '/quran/juz/3');
+      expect(
+        buildZikrDeepLinkUrl(uid: 'JUZ30'),
+        'https://shia-companion.web.app/quran/juz/30',
+      );
+      expect(buildZikrDeepLinkPath(uid: 'JUZ31'), '/0/JUZ31');
       expect(
         buildQuranDeepLinkUrl(surah: 23, ayah: 56),
         'https://shia-companion.web.app/quran/23/56',

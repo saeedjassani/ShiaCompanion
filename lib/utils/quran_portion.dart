@@ -74,6 +74,13 @@ const String _quranContentCode = '012';
 /// its per-page session state by.
 String quranJuzUid(int juz) => 'JUZ$juz';
 
+/// The juz a [quranJuzUid] names, or null for any other uid.
+int? juzOfQuranUid(String uid) {
+  final match = RegExp(r'^JUZ(\d+)$').firstMatch(uid);
+  final juz = match == null ? null : int.parse(match.group(1)!);
+  return juz != null && juz >= 1 && juz <= 30 ? juz : null;
+}
+
 /// Builds juz [juz] as one continuous portion, or null if there is no such juz.
 Future<QuranPortion?> loadJuzPortion(int juz, AssetBundle bundle) async {
   if (juz < 1 || juz > 30) return null;
