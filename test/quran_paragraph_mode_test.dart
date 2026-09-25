@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_parser.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 
 const _bismillah = 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ';
 
+/// The rukūʿ sign, at the private-use codepoint Al Qalam draws it from.
+const _rukuMark = '\uE022';
+
+/// The bookmark glyph drawn inline at the start of the bookmarked verse.
+final _bookmarkGlyph = String.fromCharCode(Icons.bookmark.codePoint);
+
 /// A Bismillah and [ayahs] verses in the `012` triplet shape every surah
 /// uses, with a rukūʿ sign closing each verse listed in [rukuAfter].
 String _surahContent({int ayahs = 6, Set<int> rukuAfter = const {3}}) {
   final lines = <String>[_bismillah];
   for (var ayah = 1; ayah <= ayahs; ayah++) {
-    final ruku = rukuAfter.contains(ayah) ? rukuMark : '';
+    final ruku = rukuAfter.contains(ayah) ? _rukuMark : '';
     lines.add('اَلْحَمْدُ لِلّٰهِ رَبِّ الْعٰلَمِيْنَ$ruku\u200f($ayah)');
     lines.add('TRANSLITERATION $ayah');
     lines.add('Translation of ayah $ayah');
@@ -79,26 +86,25 @@ void main() {
         ZikrContentParser.parseContent(content,
             hideHeaderLine: false, code: '012');
 
-    test('the Bismillah stands alone and a rukuʿ closes a passage', () {
+    test('the Bismillah stands alone and a rukuʿ does not break the surah', () {
       final content = _surahContent(ayahs: 6, rukuAfter: {3});
       final parsed = parse(content);
       final index = AyahIndex.fromParsedContent(parsed, surah: 1);
 
       // Span 0 is the Bismillah; spans 1..6 are ayahs 1..6.
-      expect(quranParagraphSpanRuns(index, parsed), [
+      expect(quranParagraphSpanRuns(index), [
         [0],
-        [1, 2, 3],
-        [4, 5, 6],
+        [1, 2, 3, 4, 5, 6],
       ]);
     });
 
-    test('a surah with no marks is capped rather than one endless passage', () {
-      final content = _surahContent(ayahs: 10, rukuAfter: {});
+    test('a long surah is still one paragraph', () {
+      final content = _surahContent(ayahs: 286, rukuAfter: {7, 20, 29});
       final parsed = parse(content);
       final index = AyahIndex.fromParsedContent(parsed, surah: 1);
 
-      final runs = quranParagraphSpanRuns(index, parsed, maxVerses: 4);
-      expect(runs.skip(1).map((run) => run.length), [4, 4, 2]);
+      final runs = quranParagraphSpanRuns(index);
+      expect(runs.map((run) => run.length), [1, 286]);
     });
 
     test('a new surah always starts a new passage', () {
@@ -122,10 +128,7 @@ void main() {
       }
 
       expect(
-        quranParagraphSpanRuns(
-          AyahIndex.fromSpans(spans),
-          parse(lines.join('\n')),
-        ),
+        quranParagraphSpanRuns(AyahIndex.fromSpans(spans)),
         [
           [0, 1, 2],
           [3, 4, 5],
@@ -147,32 +150,48 @@ void main() {
       showArabicAsParagraph = false;
     });
 
-    testWidgets('flows each passage into one paragraph, like any zikr',
+    testWidgets('flows the whole surah into one paragraph, rukuʿ and all',
         (tester) async {
       await _pump(tester, content: _surahContent());
 
-      // Ayahs 1-3 share one block of text, and 4-6 another.
+      // Ayahs 1-6 share one block of text, the rukuʿ after 3 notwithstanding.
       final first = _paragraphContaining('(1)');
       expect(first, findsOneWidget);
       final text =
           (first.evaluate().single.widget as RichText).text.toPlainText();
-      expect(text, contains('(2)'));
-      expect(text, contains('(3)'));
-      expect(text, isNot(contains('(4)')));
+      for (var ayah = 2; ayah <= 6; ayah++) {
+        expect(text, contains('($ayah)'));
+      }
+      expect(text, contains(_rukuMark));
+      // No range label above it.
+      expect(find.text('1\u20136'), findsNothing);
     });
 
-    testWidgets('labels each passage with the verses it holds', (tester) async {
-      await _pump(tester, content: _surahContent());
+    testWidgets('draws no Imam Ali (as) seal in the paragraph', (tester) async {
+      final note = aliRelatedNoteFor(const VerseKey(5, 55))!;
+      Future<void> open() => _pump(
+            tester,
+            content: _surahContent(ayahs: 60, rukuAfter: {}),
+            surahNumber: 5,
+            initialVerse: const VerseKey(5, 55),
+          );
 
-      expect(find.text('1\u20133'), findsOneWidget);
-      expect(find.text('4\u20136'), findsOneWidget);
+      showArabicAsParagraph = false;
+      await open();
+      expect(find.byTooltip(note), findsOneWidget,
+          reason: 'ayah mode still seals the verse');
+
+      showArabicAsParagraph = true;
+      await open();
+      expect(_paragraphContaining('(55)'), findsOneWidget);
+      expect(find.byTooltip(note), findsNothing);
+      expect(find.byTooltip('55: $note'), findsNothing);
     });
 
     testWidgets('keeps ayah mode when the setting is off', (tester) async {
       showArabicAsParagraph = false;
       await _pump(tester, content: _surahContent());
 
-      expect(find.text('1\u20133'), findsNothing);
       // One badge per verse, as ever.
       expect(find.text('2'), findsOneWidget);
     });
@@ -181,7 +200,6 @@ void main() {
       showTranslation = true;
       await _pump(tester, content: _surahContent());
 
-      expect(find.text('1\u20133'), findsNothing);
       expect(find.text('Translation of ayah 2'), findsOneWidget);
     });
 
@@ -243,7 +261,7 @@ void main() {
       });
 
       final primary = Theme.of(tester.element(finder)).colorScheme.primary;
-      expect(markers, hasLength(3));
+      expect(markers, hasLength(6));
       expect(markers[1]?.color, primary);
       expect(markers[0]?.color, isNot(primary));
       expect(markers[2]?.color, isNot(primary));
@@ -270,23 +288,24 @@ void main() {
       });
     }
 
-    testWidgets('opens at a requested verse inside a passage', (tester) async {
+    testWidgets('opens at a requested verse inside the surah', (tester) async {
       await _pump(
         tester,
         content: _surahContent(ayahs: 80, rukuAfter: {40}),
         initialVerse: const VerseKey(1, 60),
       );
 
-      // Ayah 60 sits partway down the second passage (41-80), so the view
-      // has to have gone past that passage's top edge to reach it - landing
-      // on the passage alone would leave its top on screen.
+      // Ayah 60 sits partway down the surah's one paragraph, so the view has
+      // to have gone past the paragraph's top edge to reach it - landing on
+      // the paragraph alone would leave its top on screen.
       final passage = _paragraphContaining('(60)');
       expect(passage, findsOneWidget);
       expect(tester.getRect(passage).top, lessThan(0));
       expect(tester.getRect(passage).bottom, greaterThan(0));
     });
 
-    testWidgets('reports the verse being read inside a passage, not its first',
+    testWidgets(
+        'reports the verse being read inside the paragraph, not its first',
         (tester) async {
       final reports = <QuranReadingPosition>[];
       await _pump(
@@ -300,7 +319,7 @@ void main() {
 
       expect(reports, isNotEmpty);
       expect(reports.last.fromUserScroll, isTrue);
-      // Still inside the one passage, but well past its opening verse.
+      // Still inside the one paragraph, but well past its opening verse.
       expect(reports.last.verse.ayah!, greaterThan(1));
     });
 
@@ -320,8 +339,14 @@ void main() {
       expect(passage, findsOneWidget);
       expect(tester.getRect(passage).top, lessThan(0));
       expect(tester.getRect(passage).bottom, greaterThan(0));
-      // The passage's label carries the bookmark.
-      expect(find.byIcon(Icons.bookmark), findsWidgets);
+      // The bookmark is an icon inline at the start of the verse itself, not
+      // a label that would break the paragraph.
+      final text =
+          (passage.evaluate().single.widget as RichText).text.toPlainText();
+      final glyphAt = text.indexOf(_bookmarkGlyph);
+      expect(glyphAt, greaterThan(text.indexOf('(59)')));
+      expect(glyphAt, lessThan(text.indexOf('(60)')));
+      expect(find.text('Bookmarked'), findsNothing);
     });
 
     testWidgets('names each surah where a juz crosses into it', (tester) async {
@@ -357,8 +382,8 @@ void main() {
 
       expect(find.text('4. An-Nisa'), findsOneWidget);
       expect(find.text('5. Al-Maidah'), findsOneWidget);
-      // Two passages, one per surah, each numbered from 1.
-      expect(find.text('1\u20133'), findsNWidgets(2));
+      // Two paragraphs, one per surah, each numbered from 1.
+      expect(_paragraphContaining('(1)'), findsNWidgets(2));
     });
   });
 }

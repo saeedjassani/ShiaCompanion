@@ -313,13 +313,8 @@ class _QuranParagraphs {
     }
   }
 
-  factory _QuranParagraphs.build(
-    AyahIndex index,
-    ParsedZikrContent content,
-  ) =>
-      _QuranParagraphs([
-        for (final run in quranParagraphSpanRuns(index, content))
-          _QuranParagraph(run),
+  factory _QuranParagraphs.build(AyahIndex index) => _QuranParagraphs([
+        for (final run in quranParagraphSpanRuns(index)) _QuranParagraph(run),
       ]);
 
   final List<_QuranParagraph> items;
@@ -356,6 +351,29 @@ Widget _bookmarkLabelRow(BuildContext context) {
             ),
       ),
     ],
+  );
+}
+
+/// The bookmark icon drawn inline at the start of the bookmarked verse in a
+/// flowing Arabic paragraph, in place of a "Bookmarked" label above it - a
+/// label there sits far from the verse, and breaking the paragraph to put it
+/// nearer would undo the flow.
+///
+/// The icon font's glyph as plain text rather than a [WidgetSpan], so the
+/// paragraph stays one run of text: [_RuledArabicParagraph] measures its rows
+/// with a bare [TextPainter], which cannot lay out a widget placeholder. The
+/// right-to-left mark after it keeps the glyph - a left-to-right character to
+/// the bidi algorithm - on the verse's leading side.
+TextSpan _inlineBookmarkSpan(Color color, double? arabicFontSize) {
+  const icon = Icons.bookmark;
+  return TextSpan(
+    text: '${String.fromCharCode(icon.codePoint)}\u200F ',
+    style: TextStyle(
+      fontFamily: icon.fontFamily,
+      package: icon.fontPackage,
+      color: color,
+      fontSize: (arabicFontSize ?? 24) * 0.75,
+    ),
   );
 }
 
@@ -514,8 +532,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// A verse this item covers that is also the reader's bookmark gets its
   /// own text tinted in place - the paragraph itself is never tinted, since
   /// that would mark every verse sharing it, not the one actually bookmarked
-  /// - with a small "Bookmarked" label above the paragraph, the closest a
-  /// label can sit to a highlight that lives inside shared running text.
+  /// - with a bookmark icon inline at the start of that verse, so the mark
+  /// sits on the verse without breaking the paragraph around it.
   Widget _buildArabicParagraphItem(
     int tabIndex,
     _ReadingListItem item,
@@ -533,28 +551,29 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         ? bookmarkLabelLine
         : null;
 
+    final colorScheme = Theme.of(context).colorScheme;
     final spans = <InlineSpan>[];
     for (var k = 0; k < item.lineIndexes.length; k++) {
       final lineIndex = item.lineIndexes[k];
-      final verseSpan = _buildTextSpanForLine(
+      final lineSpan = _buildTextSpanForLine(
         ZikrContentParser.formatArabicText(parsedContent.lines[lineIndex]),
         arabicStyle,
       );
+      final verseSpan = lineIndex == highlightedIndex
+          ? TextSpan(
+              style: TextStyle(
+                backgroundColor:
+                    colorScheme.primaryContainer.withValues(alpha: 0.55),
+              ),
+              children: [
+                _inlineBookmarkSpan(colorScheme.primary, arabicStyle.fontSize),
+                lineSpan,
+              ],
+            )
+          : lineSpan;
       textStarts.add(length);
       length += verseSpan.toPlainText(includeSemanticsLabels: false).length;
-      if (lineIndex == highlightedIndex) {
-        spans.add(TextSpan(
-          style: TextStyle(
-            backgroundColor: Theme.of(context)
-                .colorScheme
-                .primaryContainer
-                .withValues(alpha: 0.55),
-          ),
-          children: [verseSpan],
-        ));
-      } else {
-        spans.add(verseSpan);
-      }
+      spans.add(verseSpan);
       if (k != item.lineIndexes.length - 1) {
         // Just a plain space: _RuledArabicParagraph's rule under each row is
         // what a reciter tracks by, so nothing extra is needed between
@@ -571,19 +590,12 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     // the row above it.
     final paragraphStyle = arabicStyle.copyWith(height: 2.0);
 
-    final paragraph = Padding(
+    return Padding(
       padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
       child: _RuledArabicParagraph(
         textKey: flow.textKey,
         span: TextSpan(style: paragraphStyle, children: spans),
       ),
-    );
-
-    if (highlightedIndex == null) return paragraph;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [_bookmarkLabelRow(context), paragraph],
     );
   }
 
@@ -859,9 +871,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       tabIndex,
       itemIndex: itemIndex + leadingItems,
       itemCount: items.length + leadingItems,
-      insetWithin: member == 0
-          ? null
-          : (box) => _memberTopInFlow(box, flow!, member),
+      insetWithin:
+          member == 0 ? null : (box) => _memberTopInFlow(box, flow!, member),
     );
   }
 
@@ -1358,10 +1369,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final bookmarkLabelLine = bookmarkedRange == null
         ? null
         : firstVisibleLineInRange(bookmarkedRange, parsedContent);
-    // A surah read Arabic-only with paragraph flow on is drawn as passages
-    // rather than one block per verse - the same flow every other zikr gets
-    // in that view, but broken where the mushaf breaks it and still numbered,
-    // tappable and tracked verse by verse. See [_buildQuranParagraphItem].
+    // A surah read Arabic-only with paragraph flow on is drawn as one
+    // paragraph rather than one block per verse - the same flow every other
+    // zikr gets in that view, but still numbered, tappable and tracked verse
+    // by verse. See [_buildQuranParagraphItem].
     final quranParagraphs = ayahIndex != null && isArabicOnlyReadingView
         ? cache.quranParagraphs
         : null;
@@ -1469,7 +1480,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                   );
                 }
 
-                // A surah in paragraph mode has one item per passage, and in
+                // A surah in paragraph mode has one item per surah (a juz one
+                // per surah it spans, each Bismillah apart), and in
                 // ayah mode one per verse; every other zikr is one item per
                 // reading-list entry, which is one item per content line
                 // except when Arabic-only paragraph flow folds a run of
@@ -1789,19 +1801,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     );
   }
 
-  /// One passage of a surah in paragraph mode: its verses flowing together
+  /// A surah in paragraph mode - or the part of it a juz holds: its verses
+  /// flowing together
   /// as one right-aligned, justified, ruled paragraph - the layout every other
   /// zikr gets from [_buildArabicParagraphItem] - while keeping what makes a
   /// surah more than text:
   ///
-  /// * a small range label above it ("12–20") for scanning, standing in for
-  ///   the per-verse badge, with the gold seal of any verse Shia tafsir ties
-  ///   to Imam Ali (as) beside it, long-pressable for its note as before;
   /// * each verse still its own tap target, found from where the tap lands in
   ///   the laid-out text, opening the same per-verse menu;
   /// * a saved verse's number drawn in the primary colour, a mark on the
   ///   verse itself rather than a tint over running text it shares;
-  /// * the bookmarked verse tinted in place, as in any flowing paragraph;
+  /// * the bookmarked verse tinted in place with a bookmark icon at its
+  ///   start, as in any flowing paragraph;
   /// * the surah heading, where a juz crosses into a new surah - which
   ///   [quranParagraphSpanRuns] guarantees only ever happens at the top of one.
   ///
@@ -1846,14 +1857,17 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           marker == null ? formatted : formatted.substring(0, marker.start);
       final isSaved = verse != null && widget.savedVerses.contains(verse);
 
+      final isBookmarked = span == bookmarkedSpan;
       final verseSpan = TextSpan(
-        style: span == bookmarkedSpan
+        style: isBookmarked
             ? TextStyle(
                 backgroundColor:
                     colorScheme.primaryContainer.withValues(alpha: 0.55),
               )
             : null,
         children: [
+          if (isBookmarked)
+            _inlineBookmarkSpan(colorScheme.primary, arabicStyle.fontSize),
           _buildTextSpanForLine(body, arabicStyle),
           if (marker != null)
             TextSpan(
@@ -1874,41 +1888,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
     final paragraphStyle = arabicStyle.copyWith(height: 2.0);
     final first = spans.first;
-    final last = spans.last;
-    final isBookmarked = bookmarkedSpan != null;
-    final aliVerses = [
-      for (final span in spans)
-        if (span.verse != null && aliRelatedNoteFor(span.verse!) != null)
-          (ayah: span.ayah!, note: aliRelatedNoteFor(span.verse!)!),
-    ];
-
-    final label = Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Row(
-        children: [
-          if (isBookmarked) ...[
-            Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
-            const SizedBox(width: 4),
-          ],
-          Text(
-            first.ayah == last.ayah
-                ? '${first.ayah}'
-                : '${first.ayah}\u2013${last.ayah}',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: isBookmarked
-                      ? colorScheme.primary
-                      : colorScheme.onSurface.withValues(alpha: 0.45),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.4,
-                ),
-          ),
-          for (final ali in aliVerses) ...[
-            const SizedBox(width: 6),
-            _AliBadge(note: '${ali.ayah}: ${ali.note}'),
-          ],
-        ],
-      ),
-    );
 
     final canAct = widget.onAyahAction != null;
     void actAt(RenderParagraph text, Offset globalPosition) {
@@ -1947,7 +1926,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         children: [
           if (first.startsSurah != null)
             _SurahHeading(surah: first.startsSurah!),
-          label,
           ruled,
           Divider(
             height: 20,
@@ -2110,7 +2088,7 @@ class _TabContentCache {
   _QuranParagraphs? get quranParagraphs {
     final index = ayahIndex;
     if (index == null) return null;
-    return _quranParagraphs ??= _QuranParagraphs.build(index, parsed);
+    return _quranParagraphs ??= _QuranParagraphs.build(index);
   }
 
   _QuranParagraphs? _quranParagraphs;

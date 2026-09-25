@@ -216,7 +216,8 @@ class AyahIndex {
       final verse = spans[i].verse;
       // First marker wins: a duplicate number should not move an ayah that
       // was already placed correctly.
-      if (verse != null) spanIndexByVerse.putIfAbsent(_verseKey(verse), () => i);
+      if (verse != null)
+        spanIndexByVerse.putIfAbsent(_verseKey(verse), () => i);
     }
 
     return AyahIndex._(
@@ -275,7 +276,9 @@ class AyahIndex {
 
   /// The verse showing at [spanIndex], or null when that span is a Bismillah.
   VerseKey? verseAtSpanIndex(int spanIndex) =>
-      spanIndex >= 0 && spanIndex < spans.length ? spans[spanIndex].verse : null;
+      spanIndex >= 0 && spanIndex < spans.length
+          ? spans[spanIndex].verse
+          : null;
 
   static String _verseKey(VerseKey verse) => '${verse.surah}:${verse.ayah}';
 }
@@ -309,44 +312,18 @@ List<AyahSpan> spansOfParsedContent(
   return spans;
 }
 
-/// The rukūʿ sign (ع) that closes a section of the Quran, as the corpus is
-/// authored: Al Qalam has no Unicode codepoint for it, so the text carries it
-/// at the private-use codepoint Qalam draws it from. It sits at the end of the
-/// section's last verse, just ahead of that verse's `(n)` marker - 546 of them
-/// across the 114 surahs, 40 in al-Baqarah alone.
-const String rukuMark = '\uE022';
-
-/// Whether [span]'s Arabic line closes a rukūʿ.
-bool endsRuku(ParsedZikrContent content, AyahSpan span) =>
-    span.start >= 0 &&
-    span.start < content.lines.length &&
-    content.lines[span.start].contains(rukuMark);
-
-/// The most verses one flowing paragraph may hold when the text gives no
-/// rukūʿ to break at. A handful of surahs carry no marks at all (al-Qalam's 52
-/// verses are the longest of them), and a document that lost its marks would
-/// otherwise become a single item hundreds of verses long - laid out, and
-/// measured for its ruled rows, in one go.
-const int maxVersesPerQuranParagraph = 60;
-
 /// Groups the spans of [index] into the paragraphs Arabic-only paragraph mode
 /// flows a surah into, as runs of span indexes in reading order.
 ///
-/// The breaks are the ones a printed mushaf already has, so a paragraph is a
-/// passage the reader recognises rather than an arbitrary slice:
+/// A surah is one paragraph from its first verse to its last - rukūʿ signs
+/// stay inline where they are and do not break it. The only breaks are:
 ///
-/// * a rukūʿ sign closes the paragraph after the verse carrying it;
 /// * a new surah - in a juz - always starts a new paragraph, so its heading
-///   never lands mid-paragraph;
+///   never lands mid-paragraph and the surah the juz begins or ends in stays
+///   apart from the next;
 /// * an unnumbered span (the Bismillah heading a surah) stands on its own,
 ///   centred as it always is, rather than running into ayah 1.
-///
-/// [maxVerses] only matters where the text has no marks to break at.
-List<List<int>> quranParagraphSpanRuns(
-  AyahIndex index,
-  ParsedZikrContent content, {
-  int maxVerses = maxVersesPerQuranParagraph,
-}) {
+List<List<int>> quranParagraphSpanRuns(AyahIndex index) {
   final runs = <List<int>>[];
   var current = <int>[];
 
@@ -362,9 +339,8 @@ List<List<int>> quranParagraphSpanRuns(
       runs.add([i]);
       continue;
     }
-    if (span.startsSurah != null || current.length >= maxVerses) close();
+    if (span.startsSurah != null) close();
     current.add(i);
-    if (endsRuku(content, span)) close();
   }
   close();
   return runs;

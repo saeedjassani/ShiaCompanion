@@ -294,8 +294,17 @@ void main() {
     // Every verse flows into one paragraph here, so the right place is the
     // row inside it where the bookmarked verse begins - it reads back as a
     // verse on that row: several short ones share each, and the first to
-    // begin on it is the one recorded.
-    expect(find.text('Bookmarked'), findsOneWidget);
+    // begin on it is the one recorded. The mark is an icon inline at the
+    // verse's start, not a label breaking the paragraph.
+    expect(find.text('Bookmarked'), findsNothing);
+    expect(
+      find.byWidgetPredicate((widget) =>
+          widget is RichText &&
+          widget.text
+              .toPlainText()
+              .contains(String.fromCharCode(Icons.bookmark.codePoint))),
+      findsOneWidget,
+    );
     expect(positions, isNotEmpty);
     expect(positions.last.lineIndex, inInclusiveRange(37 - 9, 37));
   });
