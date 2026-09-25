@@ -43,8 +43,9 @@ class ZikrPlaylistStore extends ChangeNotifier {
     ZikrPlaylist(
       id: 'default-friday',
       name: 'Friday',
-      // Dua Nudbah, Ziyarat of Imam al-Mahdi on Friday, Dua Simat
-      zikrUids: const ['E34', 'J3', 'E26'],
+      // Dua Nudbah, Ziyarat of Imam al-Mahdi on Friday, Dua Simat,
+      // Salawat of Abul Hasan al-Zarrab al-Isfahani
+      zikrUids: const ['E34', 'J3', 'E26', 'E144'],
       updatedAt: DateTime.utc(2026, 9, 25),
     ),
   ]);
