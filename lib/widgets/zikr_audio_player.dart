@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
+import '../constants.dart';
 import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
+import '../services/exclusive_audio.dart';
+import '../pages/playlists_page.dart';
 
 /// Recitation player hosted inside [ZikrActionBar], in place of its action
 /// row. It is only built once a reader taps Listen, so the ~95% of readings
@@ -90,9 +93,21 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   @override
   void dispose() {
     _stateSub?.cancel();
+    ExclusiveAudio.relinquish(this);
     _player?.dispose();
     _player = null;
     super.dispose();
+  }
+
+  /// Called when a playlist starts while this page's player is alive: only
+  /// one player may exist at a time, so this one goes and the bar closes.
+  Future<void> _releaseToOtherPlayer() async {
+    await _stateSub?.cancel();
+    _stateSub = null;
+    final player = _player;
+    _player = null;
+    await player?.dispose();
+    if (mounted) widget.onClose();
   }
 
   ZikrAudioTrack? get _currentTrack =>
@@ -101,9 +116,14 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           : null;
 
   Future<void> _load() async {
-    final player = _player;
     final track = _currentTrack;
-    if (player == null || track == null) return;
+    if (_player == null || track == null) return;
+
+    // A playlist playing in the background owns the one player the app is
+    // allowed; it has to be gone before this one loads.
+    await ExclusiveAudio.claim(this, _releaseToOtherPlayer);
+    final player = _player;
+    if (player == null) return;
 
     try {
       await player.setAudioSource(AudioSource.uri(
@@ -259,6 +279,17 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           _buildPlayButton(player, colorScheme),
           const SizedBox(width: 4),
           Expanded(child: _buildBody(player, theme)),
+          // Playlists are dark-launched to admins with their home tile.
+          if (isUserAdmin)
+            IconButton(
+              icon: const Icon(Icons.playlist_add),
+              tooltip: 'Add to playlist',
+              onPressed: () => showAddToPlaylistSheet(
+                context,
+                zikrUid: widget.zikrUid,
+                zikrTitle: widget.zikrTitle,
+              ),
+            ),
           if (widget.tracks.length > 1)
             IconButton(
               icon: const Icon(Icons.playlist_play),

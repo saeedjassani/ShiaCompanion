@@ -66,6 +66,30 @@ function writeLocal(uid, doc) {
   fs.writeFileSync(path.join(ZIKR_DIR, uid), `${JSON.stringify(doc, null, 2)}\n`, 'utf8');
 }
 
+const INDEX_FILE = path.join(__dirname, '..', 'assets', 'zikr.json');
+
+/** Mirrors each content file's `audio` onto its assets/zikr.json entry as
+ * `"audio": true`, which is how the app lists zikrs that can go in an audio
+ * playlist without loading every content file. Alias keys ("<uid>|<target>")
+ * are left alone: they are duplicates of their target, not separate entries. */
+function syncIndexAudioFlags() {
+  const index = JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8'));
+  let changed = 0;
+  for (const [key, entry] of Object.entries(index)) {
+    if (!entry || typeof entry !== 'object' || key.includes('|') || key.includes('~')) continue;
+    const hasAudio = Array.isArray(readLocal(key)?.audio) && readLocal(key).audio.length > 0;
+    if (hasAudio && entry.audio !== true) {
+      entry.audio = true;
+      changed += 1;
+    } else if (!hasAudio && entry.audio !== undefined) {
+      delete entry.audio;
+      changed += 1;
+    }
+  }
+  fs.writeFileSync(INDEX_FILE, `${JSON.stringify(index, null, 2)}\n`, 'utf8');
+  console.log(`Updated the audio flag on ${changed} assets/zikr.json entries`);
+}
+
 function main() {
   if (!fs.existsSync(MAP_FILE)) {
     throw new Error(`${path.basename(MAP_FILE)} not found. Run import_duas_audio.js first.`);
@@ -90,6 +114,7 @@ function main() {
       writeLocal(uid, doc);
     }
     console.log(`Cleared audio from ${targets.length} files`);
+    syncIndexAudioFlags();
     return;
   }
 
@@ -128,6 +153,7 @@ function main() {
     written += 1;
   }
   console.log(`\nWrote audio to ${written} zikr files.`);
+  syncIndexAudioFlags();
 }
 
 try {

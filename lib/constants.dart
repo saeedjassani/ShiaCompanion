@@ -369,6 +369,9 @@ List<PrayerNotificationScheduleEntry> buildPrayerNotificationEntriesForDay({
 Map items = {};
 Map<String, double> itemOrder = {};
 Map<String, dynamic> itemMetadata = {};
+// Zikr uids whose content carries recitation audio (`"audio": true` in
+// assets/zikr.json) - the ones an audio playlist can hold.
+Set<String> audioZikrUids = {};
 // Flips to true once `items`/`itemOrder`/`itemMetadata` reflect a completed
 // load attempt (success or failure) from assets/zikr.json, so UI that reads
 // those maps (e.g. TodaysRecitationPage) can wait for them instead of

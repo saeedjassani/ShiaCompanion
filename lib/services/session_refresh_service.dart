@@ -42,6 +42,7 @@ class SessionRefreshService {
       items = {};
       itemOrder = {};
       itemMetadata = {};
+      audioZikrUids = {};
       clearLocalSlugMaps();
       decoded.forEach((key, value) {
         if (value is Map) {
@@ -54,6 +55,7 @@ class SessionRefreshService {
           if (day != null) {
             itemMetadata[key] = {'day': day};
           }
+          if (value['audio'] == true) audioZikrUids.add(key.toString());
           setLocalSlugData(
             key.toString(),
             slug: value['slug']?.toString(),
