@@ -68,9 +68,11 @@ class _MyStatsPageState extends State<MyStatsPage> {
               children: [
                 _StreakCard(summary: summary, format: _count),
                 const SizedBox(height: 18),
-                _SectionTitle('Your last few months'),
-                const SizedBox(height: 8),
-                _ActivityHeatmap(summary: summary),
+                _SectionTitle('This week'),
+                const SizedBox(height: 10),
+                _WeekRow(summary: summary),
+                const SizedBox(height: 12),
+                _MonthSentence(summary: summary),
                 if (summary.zikrCounts.isNotEmpty) ...[
                   const SizedBox(height: 22),
                   _SectionTitle('Your most recited'),
@@ -255,11 +257,13 @@ class _StreakCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Row(
+          _ChipRow(
             children: [
               _StatChip(
                 label: 'Longest streak',
-                value: '${summary.longestStreak}d',
+                value: summary.longestStreak == 1
+                    ? '1 day'
+                    : '${summary.longestStreak} days',
               ),
               const SizedBox(width: 8),
               _StatChip(
@@ -269,7 +273,7 @@ class _StreakCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Row(
+          _ChipRow(
             children: [
               _StatChip(
                 label: 'Zikrs read',
@@ -293,6 +297,24 @@ class _StreakCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A row of [_StatChip]s kept the same height, so a label that wraps at a
+/// large text size does not leave its neighbour looking shorter.
+class _ChipRow extends StatelessWidget {
+  const _ChipRow({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
       ),
     );
   }
@@ -332,8 +354,7 @@ class _StatChip extends StatelessWidget {
             ),
             Text(
               label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: colorScheme.onPrimaryContainer.withValues(alpha: 0.76),
               ),
@@ -345,137 +366,115 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-/// A GitHub-style calendar: one column per week, Sunday at the top, today in
-/// the last column. As many weeks as fit the width, up to half a year.
-class _ActivityHeatmap extends StatelessWidget {
-  const _ActivityHeatmap({required this.summary});
+/// The last seven days as a row of circles, ticked on the days something was
+/// read - the habit-tracker row most people already know from other apps,
+/// needing no legend or explanation. Today is the last circle.
+class _WeekRow extends StatelessWidget {
+  const _WeekRow({required this.summary});
 
   final ActivitySummary summary;
 
-  static const double _gap = 3;
-  static const int _maxWeeks = 26;
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final now = DateTime.now();
+    final days = [
+      for (var i = 6; i >= 0; i--) DateTime(now.year, now.month, now.day - i),
+    ];
+
+    return Row(
+      children: [
+        for (final day in days)
+          Expanded(
+            child: _DayCircle(
+              label: day == days.last ? 'Today' : DateFormat('EEE').format(day),
+              done: summary.isActiveOn(day),
+              isToday: day == days.last,
+              colorScheme: colorScheme,
+              textTheme: theme.textTheme,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _DayCircle extends StatelessWidget {
+  const _DayCircle({
+    required this.label,
+    required this.done,
+    required this.isToday,
+    required this.colorScheme,
+    required this.textTheme,
+  });
+
+  final String label;
+  final bool done;
+  final bool isToday;
+  final ColorScheme colorScheme;
+  final TextTheme textTheme;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final weeks = math.max(
-          8,
-          math.min(_maxWeeks, ((width + _gap) / (14 + _gap)).floor()),
-        );
-        final cell = (width - _gap * (weeks - 1)) / weeks;
-        // Column `weeks - 1` is the current week; row is weekday (Sun = 0).
-        final todayRow = today.weekday % 7;
-        final firstDay = DateTime(
-          today.year,
-          today.month,
-          today.day - todayRow - (weeks - 1) * 7,
-        );
-
-        Color colorFor(int score) {
-          if (score <= 0) {
-            return colorScheme.onSurface.withValues(alpha: 0.07);
-          }
-          final level = score >= 6
-              ? 1.0
-              : score >= 3
-                  ? 0.7
-                  : 0.42;
-          return colorScheme.primary.withValues(alpha: level);
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              height: cell * 7 + _gap * 6,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (var week = 0; week < weeks; week++) ...[
-                    if (week > 0) const SizedBox(width: _gap),
-                    Column(
-                      children: [
-                        for (var row = 0; row < 7; row++) ...[
-                          if (row > 0) const SizedBox(height: _gap),
-                          _cell(
-                            DateTime(
-                              firstDay.year,
-                              firstDay.month,
-                              firstDay.day + week * 7 + row,
-                            ),
-                            today,
-                            cell,
-                            colorFor,
-                            colorScheme,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ],
+    return Semantics(
+      label: '$label: ${done ? 'read' : 'not read'}',
+      excludeSemantics: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: done
+                  ? colorScheme.primary
+                  : colorScheme.onSurface.withValues(alpha: 0.06),
+              border: isToday && !done
+                  ? Border.all(color: colorScheme.primary, width: 2)
+                  : null,
+            ),
+            child: done
+                ? Icon(Icons.check_rounded, color: colorScheme.onPrimary)
+                : null,
+          ),
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              maxLines: 1,
+              style: textTheme.labelSmall?.copyWith(
+                fontWeight: isToday ? FontWeight.w700 : null,
               ),
             ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text('Less', style: Theme.of(context).textTheme.labelSmall),
-                const SizedBox(width: 4),
-                for (final score in const [0, 1, 3, 6]) ...[
-                  Container(
-                    width: 10,
-                    height: 10,
-                    margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                    decoration: BoxDecoration(
-                      color: colorFor(score),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ],
-                const SizedBox(width: 4),
-                Text('More', style: Theme.of(context).textTheme.labelSmall),
-              ],
-            ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
+}
 
-  Widget _cell(
-    DateTime day,
-    DateTime today,
-    double size,
-    Color Function(int) colorFor,
-    ColorScheme colorScheme,
-  ) {
-    if (day.isAfter(today)) return SizedBox(width: size, height: size);
-    final activity = summary.activityOn(day);
-    final verses = summary.versesOn(day);
-    final parts = [
-      if (activity.zikrs > 0) '${activity.zikrs} zikr',
-      if (verses > 0) '$verses verses',
-      if (activity.qaza > 0) '${activity.qaza} qaza',
-    ];
-    return Tooltip(
-      message: '${DateFormat('EEE, MMM d').format(day)}'
-          '${parts.isEmpty ? '' : ' - ${parts.join(', ')}'}',
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: colorFor(summary.scoreOn(day)),
-          borderRadius: BorderRadius.circular(3),
-          border: day == today
-              ? Border.all(color: colorScheme.primary, width: 1.2)
-              : null,
-        ),
+/// One plain sentence for the longer view, in place of a calendar grid.
+class _MonthSentence extends StatelessWidget {
+  const _MonthSentence({required this.summary});
+
+  final ActivitySummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final days = summary.activeDaysInLast(30);
+    final text = switch (days) {
+      0 => 'No reading in the last 30 days yet.',
+      1 => 'You read on 1 day in the last 30 days.',
+      _ => 'You read on $days days in the last 30 days.',
+    };
+    return Text(
+      text,
+      style: theme.textTheme.bodyMedium?.copyWith(
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
       ),
     );
   }

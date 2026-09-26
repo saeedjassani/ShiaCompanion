@@ -145,7 +145,8 @@ void main() {
       );
       expect(summary.currentStreak, 2);
       expect(summary.longestStreak, 2);
-      expect(summary.scoreOn(DateTime(2026, 9, 21)), 2);
+      expect(summary.activeDaysInLast(30), 2);
+      expect(summary.activeDaysInLast(1), 1);
     });
 
     test('streaks cross a DST change', () {

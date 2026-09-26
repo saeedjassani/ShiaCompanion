@@ -347,20 +347,16 @@ class ActivitySummary {
     return streak;
   }
 
-  /// A 0-based intensity for a heatmap cell: zikrs + qaza + a verse-weighted
-  /// share of Quran recitation (ten verses count as one zikr, so a long
-  /// recitation shades darker without drowning everything else out).
-  int scoreOn(DateTime day) {
-    final date = _dateOnly(day);
-    final activity = _days[date] ?? const DayActivity();
-    final verses = _quranVersesByDay[date] ?? 0;
-    return activity.zikrs + activity.qaza + (verses + 9) ~/ 10;
+  /// How many of the last [days] days (today included) were active.
+  int activeDaysInLast(int days) {
+    var count = 0;
+    for (var i = 0; i < days; i++) {
+      if (_activeDays.contains(DateTime(_now.year, _now.month, _now.day - i))) {
+        count++;
+      }
+    }
+    return count;
   }
-
-  DayActivity activityOn(DateTime day) =>
-      _days[_dateOnly(day)] ?? const DayActivity();
-
-  int versesOn(DateTime day) => _quranVersesByDay[_dateOnly(day)] ?? 0;
 
   /// Most-completed zikrs, highest first.
   List<MapEntry<String, int>> topZikrs(int count) {
