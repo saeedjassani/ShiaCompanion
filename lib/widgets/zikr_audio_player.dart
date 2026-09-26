@@ -7,8 +7,10 @@ import 'package:just_audio_background/just_audio_background.dart';
 import '../constants.dart';
 import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
+import '../services/audio_download_store.dart';
 import '../services/exclusive_audio.dart';
 import '../pages/playlists_page.dart';
+import 'audio_download_button.dart';
 
 /// Recitation player hosted inside [ZikrActionBar], in place of its action
 /// row. It is only built once a reader taps Listen, so the ~95% of readings
@@ -18,9 +20,11 @@ import '../pages/playlists_page.dart';
 /// credit; that acknowledgement lives on the About page rather than here, so
 /// this bar stays focused on playback.
 ///
-/// Playback is streamed from the app's R2 bucket, never downloaded: the
-/// corpus is about a gigabyte and individual tracks run to 39 MB. On web this
-/// works because just_audio drives a plain `<audio>` element, which is exempt
+/// Playback is streamed from the app's R2 bucket unless the reader has saved
+/// the recitation for offline listening (the download button here, or a
+/// playlist's Download all - see [AudioDownloadStore]): the corpus is about a
+/// gigabyte and individual tracks run to 39 MB, so nothing is saved
+/// unasked. Streaming works on web, where nothing can be saved, because just_audio drives a plain `<audio>` element, which is exempt
 /// from CORS, so the bucket needs no `Access-Control-Allow-Origin` - anything
 /// that read the bytes directly (`fetch`, or an element with `crossOrigin`
 /// set) would need one.
@@ -123,12 +127,13 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     // A playlist playing in the background owns the one player the app is
     // allowed; it has to be gone before this one loads.
     await ExclusiveAudio.claim(this, _releaseToOtherPlayer);
+    await AudioDownloadStore.instance.load();
     final player = _player;
     if (player == null) return;
 
     try {
       await player.setAudioSource(AudioSource.uri(
-        Uri.parse(track.url),
+        AudioDownloadStore.instance.sourceUri(track),
         tag: MediaItem(
           // Unique per zikr+track, not just the URL, so the notification
           // updates correctly if two zikrs ever happened to share a file.
@@ -291,6 +296,8 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
                 zikrTitle: widget.zikrTitle,
               ),
             ),
+          if (AudioDownloadStore.isSupported)
+            AudioDownloadButton(tracks: widget.tracks),
           if (widget.tracks.length > 1)
             IconButton(
               icon: const Icon(Icons.playlist_play),

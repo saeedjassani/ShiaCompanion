@@ -3,11 +3,14 @@ import 'package:just_audio/just_audio.dart';
 
 import '../constants.dart';
 import '../data/uid_title_data.dart';
+import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
 import '../services/analytics_service.dart';
+import '../services/audio_download_store.dart';
 import '../services/playlist_audio_service.dart';
 import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
+import '../widgets/audio_download_button.dart';
 import '../widgets/responsive_content.dart';
 import 'zikr/zikr_page.dart';
 
@@ -227,10 +230,35 @@ class PlaylistsPage extends StatelessWidget {
   }
 }
 
-class PlaylistDetailPage extends StatelessWidget {
+class PlaylistDetailPage extends StatefulWidget {
   const PlaylistDetailPage({super.key, required this.playlistId});
 
   final String playlistId;
+
+  @override
+  State<PlaylistDetailPage> createState() => _PlaylistDetailPageState();
+}
+
+class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
+  // Download all needs every zikr's recordings, which live in the audio
+  // index - loaded here rather than waiting for the first Play.
+  bool _audioReady = ZikrAudioIndex.instance.isLoaded;
+
+  String get playlistId => widget.playlistId;
+
+  @override
+  void initState() {
+    super.initState();
+    AudioDownloadStore.instance.load();
+    if (_audioReady) return;
+    ZikrAudioIndex.instance.load().then((_) {
+      if (mounted) setState(() => _audioReady = true);
+    });
+  }
+
+  List<ZikrAudioTrack> _tracksOf(List<String> uids) => [
+        for (final uid in uids) ...ZikrAudioIndex.instance.tracksFor(uid),
+      ];
 
   Future<void> _rename(BuildContext context, ZikrPlaylist playlist) async {
     final name = await _promptForName(
@@ -281,9 +309,10 @@ class PlaylistDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = ZikrPlaylistStore.instance;
     final audio = PlaylistAudioService.instance;
+    final downloads = AudioDownloadStore.instance;
 
     return ListenableBuilder(
-      listenable: Listenable.merge([store, audio]),
+      listenable: Listenable.merge([store, audio, downloads]),
       builder: (context, _) {
         final playlist = store.byId(playlistId);
         if (playlist == null) {
@@ -297,6 +326,11 @@ class PlaylistDetailPage extends StatelessWidget {
         }
         final isCurrent = audio.playlist?.id == playlist.id;
         final playingUid = isCurrent ? audio.current?.zikrUid : null;
+        final allTracks = _audioReady
+            ? _tracksOf(playlist.zikrUids)
+            : const <ZikrAudioTrack>[];
+        final showDownload =
+            AudioDownloadStore.isSupported && allTracks.isNotEmpty;
 
         return Scaffold(
           appBar: AppBar(
@@ -333,23 +367,35 @@ class PlaylistDetailPage extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: audio.isStarting
-                                ? null
-                                : () => isCurrent
-                                    ? audio.togglePlay()
-                                    : _startPlaylist(context, playlist),
-                            icon: Icon(isCurrent && audio.isPlaying
-                                ? Icons.pause_rounded
-                                : Icons.play_arrow_rounded),
-                            label: Text(isCurrent && audio.isPlaying
-                                ? 'Pause'
-                                : isCurrent
-                                    ? 'Resume'
-                                    : 'Play all'),
-                          ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: FilledButton.icon(
+                                onPressed: audio.isStarting
+                                    ? null
+                                    : () => isCurrent
+                                        ? audio.togglePlay()
+                                        : _startPlaylist(context, playlist),
+                                icon: Icon(isCurrent && audio.isPlaying
+                                    ? Icons.pause_rounded
+                                    : Icons.play_arrow_rounded),
+                                label: Text(isCurrent && audio.isPlaying
+                                    ? 'Pause'
+                                    : isCurrent
+                                        ? 'Resume'
+                                        : 'Play all'),
+                              ),
+                            ),
+                            if (showDownload) ...[
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: AudioDownloadButton(
+                                  tracks: allTracks,
+                                  labelled: true,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       Expanded(
@@ -361,6 +407,10 @@ class PlaylistDetailPage extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final uid = playlist.zikrUids[index];
                             final isPlaying = uid == playingUid;
+                            final tracks = _audioReady
+                                ? ZikrAudioIndex.instance.tracksFor(uid)
+                                : const <ZikrAudioTrack>[];
+                            final saved = downloads.allDownloaded(tracks);
                             return ListTile(
                               key: ValueKey('$uid@$index'),
                               selected: isPlaying,
@@ -368,6 +418,12 @@ class PlaylistDetailPage extends StatelessWidget {
                                   ? Icons.graphic_eq
                                   : Icons.music_note_outlined),
                               title: Text(_zikrTitle(uid)),
+                              subtitle: saved
+                                  ? const Text('Available offline')
+                                  : downloads.anyDownloading(tracks)
+                                      ? Text('Downloading '
+                                          '${(downloads.overallProgress(tracks) * 100).floor()}%')
+                                      : null,
                               onTap: () => _startPlaylist(context, playlist,
                                   startZikrIndex: index),
                               trailing: PopupMenuButton<String>(

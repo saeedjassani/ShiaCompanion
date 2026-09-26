@@ -8,6 +8,7 @@ import '../constants.dart' show items;
 import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
 import 'analytics_service.dart';
+import 'audio_download_store.dart';
 import 'exclusive_audio.dart';
 import 'zikr_audio_index.dart';
 
@@ -91,7 +92,8 @@ class PlaylistAudioService extends ChangeNotifier {
     notifyListeners();
     try {
       final audio = ZikrAudioIndex.instance;
-      await audio.load();
+      final downloads = AudioDownloadStore.instance;
+      await Future.wait([audio.load(), downloads.load()]);
       final queue = buildQueue(
         playlist.zikrUids,
         tracksFor: audio.tracksFor,
@@ -127,8 +129,9 @@ class PlaylistAudioService extends ChangeNotifier {
       await player.setAudioSources(
         [
           for (var i = 0; i < queue.length; i++)
+            // A recitation saved for offline plays from the device.
             AudioSource.uri(
-              Uri.parse(queue[i].track.url),
+              downloads.sourceUri(queue[i].track),
               tag: MediaItem(
                 id: 'playlist:${playlist.id}#$i',
                 title: queue[i].title,
