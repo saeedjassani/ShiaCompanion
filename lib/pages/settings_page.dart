@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../constants.dart';
@@ -824,16 +825,38 @@ class _SettingsPageState extends State<SettingsPage> {
       } else {
         logOff();
       }
-    } catch (e) {
-      final message = e.toString();
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text("Something went wrong"),
-          content: Text("Error: $message\nPlease contact support."),
-        ),
-      );
+    } on GoogleSignInException catch (error) {
+      if (error.code == GoogleSignInExceptionCode.canceled) {
+        debugPrint('User cancelled google sign-in');
+        return;
+      }
+      debugPrint("Google sign-in failed: $error");
+      _showGoogleSignInError(
+          error.code == GoogleSignInExceptionCode.uiUnavailable
+              ? "Google Sign-In isn't available right now. Please try again."
+              : null);
+    } on FirebaseAuthException catch (error) {
+      // Web popup closed/replaced by the user - also a cancel, not a failure.
+      if (error.code == 'popup-closed-by-user' ||
+          error.code == 'cancelled-popup-request') {
+        return;
+      }
+      debugPrint("Google sign-in failed: ${error.code} ${error.message}");
+      _showGoogleSignInError(error.code == 'network-request-failed'
+          ? "Couldn't connect. Check your internet connection and try again."
+          : null);
+    } catch (error) {
+      debugPrint("Google sign-in failed: $error");
+      _showGoogleSignInError(null);
     }
+  }
+
+  void _showGoogleSignInError(String? message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message ??
+          "Google Sign-In didn't work. Please try again in a moment."),
+    ));
   }
 
   Future<void> _signInWithApple() async {
