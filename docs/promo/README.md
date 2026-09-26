@@ -1,13 +1,22 @@
 # App promo video
 
-`shia-companion-promo.mp4` — 37 s, 1080×1920 (9:16), 30 fps, H.264, silent.
+`shia-companion-promo.mp4` — 45 s, 1080×1920 (9:16), 30 fps, H.264, silent.
 Suits Instagram Reels/Stories, YouTube Shorts, TikTok and the App Store /
 Play Store preview slots.
 
-Storyboard: logo intro → home (prayer times, Hijri date, daily hadith) →
-Dua Kumayl scrolling → Ziyarat Ashura → Today's Recitations → Hijri
-calendar → Qibla finder → Tasbeeh & Qaza tracker → Library → outro with
-store names and `shia-companion.web.app`.
+Storyboard (weighted toward the zikr page, which is most of the app's
+usage): logo intro with "FREE" → Duas list → Dua Kumayl scrolling (Arabic,
+transliteration, translation) → Qalam (IndoPak) vs Scheherazade script →
+font size → Arabic as a paragraph → focus mode → recitation audio →
+on-page counter → quick montage (prayer times, calendar, Qibla, tasbeeh)
+→ outro with the official App Store / Google Play badges and
+`shia-companion.web.app`.
+
+The Kumayl screens come from toggling the zikr settings drawer between
+captures; those preferences persist in the browser, so reset them
+(Qalam, size 32, transliteration + translation on, paragraph/focus off)
+after recapturing. Badges: `shots/appstore.svg` from developer.apple.com,
+`shots/gplay_c.png` from play.google.com (padding trimmed).
 
 All phone screens are real screenshots of the Flutter web build (`shots/`).
 

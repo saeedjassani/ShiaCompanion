@@ -54,6 +54,12 @@
   .tap { position: absolute; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%;
          background: rgba(122,82,68,.28); border: 3px solid rgba(122,82,68,.55); opacity: 0; z-index: 4; }
 
+  .chips { margin-top: 34px; }
+  .chip { display: inline-block; padding: 14px 34px; margin: 0 10px; border-radius: 40px; font-size: 30px; font-weight: 600;
+          border: 2px solid rgba(232,199,122,.45); color: rgba(243,223,174,.7); }
+  .chip.on { background: var(--gold); color: #3a241d; border-color: var(--gold); }
+  .badges img { height: 128px; margin: 0 16px; vertical-align: middle; }
+  .free { display: inline-block; padding: 12px 36px; border-radius: 40px; background: var(--gold); color: #3a241d; font-weight: 600; font-size: 34px; letter-spacing: 2px; }
   .pill { display: inline-block; padding: 26px 46px; margin: 0 14px; border-radius: 60px; font-size: 36px; font-weight: 600;
           border: 2px solid rgba(232,199,122,.6); color: var(--gold-soft); background: rgba(232,199,122,.08); }
   .url { font-size: 34px; color: rgba(251,238,232,.7); letter-spacing: .5px; }
@@ -82,6 +88,7 @@
     <div id="introTitle" class="title" style="margin-top:70px">Shia Companion</div>
     <div id="introRule" class="rule" style="margin-top:34px"></div>
     <div id="introTag" class="tagline" style="margin-top:40px">Everything a lover of the Ahlul Bayt (a)<br>needs, in one app</div>
+    <div id="introFree" style="margin-top:56px"><span class="free">FREE</span></div>
   </div>
 
   <div id="caps"></div>
@@ -95,10 +102,10 @@
     <img id="outroLogo" class="logo" src="logo.png">
     <div id="outroTitle" class="title" style="margin-top:70px">Shia Companion</div>
     <div id="outroRule" class="rule" style="margin-top:34px"></div>
-    <div id="outroTag" class="tagline" style="margin-top:40px">Duas · Ziyarats · Prayer Times<br>Calendar · Qibla · Tasbeeh · Library</div>
-    <div id="outroCta" style="margin-top:110px">
-      <div class="tagline" style="font-weight:500;color:#fbeee8;margin-bottom:40px">Download now</div>
-      <span class="pill">Google Play</span><span class="pill">App Store</span>
+    <div id="outroTag" class="tagline" style="margin-top:40px">Duas · Ziyarats · Aamaal · Audio<br>Prayer Times · Calendar · Qibla · Tasbeeh</div>
+    <div id="outroCta" style="margin-top:100px">
+      <div class="tagline" style="font-weight:500;color:#fbeee8;margin-bottom:44px">Download it <span style="color:var(--gold);font-weight:600">free</span></div>
+      <div class="badges"><img src="shots/appstore.svg"><img src="shots/gplay_c.png"></div>
       <div class="url" style="margin-top:56px">shia-companion.web.app</div>
     </div>
   </div>
@@ -107,19 +114,27 @@
 <script>
 const PS = 1.5; // phone screen scale: 390x844 logical -> 585x1266
 // Screens in order. `cap` changes the caption; screens without one keep the previous caption.
+// `fade` cross-fades in place (a setting changing) instead of pushing like navigation.
+// `chip` highlights that index of the current caption's `chips`.
 const scenes = [
-  { img: 'home_loc', t0: 3.6, cap: ['Your day at a glance', 'Prayer times, Hijri date & a daily hadith'] },
-  { img: 'kumayl',   t0: 7.6, cap: ['Hundreds of duas', 'Arabic, transliteration & translation'],
-    scroll: { tall: 'kumayl_tall', top: 86, bottom: 62, from: 8.5, to: 11.4, dist: 980 } },
-  { img: 'ashura',   t0: 11.9, cap: ['Ziyarats & aamaal', 'Every recitation, beautifully laid out'] },
-  { img: 'todays',   t0: 15.0, cap: ["Today's recitations", 'What to recite, picked for each day'] },
-  { img: 'calendar', t0: 18.2, cap: ['Hijri calendar', 'Islamic events alongside your prayer times'] },
-  { img: 'qibla',    t0: 21.4, cap: ['Qibla finder', 'Face the Kaaba from anywhere'] },
-  { img: 'tasbeeh',  t0: 24.6, cap: ['Tasbeeh & Qaza tracker', 'Keep count. Stay consistent.'] },
-  { img: 'qaza',     t0: 26.4 },
-  { img: 'library',  t0: 28.2, cap: ['A growing library', 'Books on faith, history & the Ahlul Bayt'] },
+  { img: 'duas',     t0: 3.6, cap: ['Hundreds of duas', 'Plus ziyarats, aamaal, munajaat & more'] },
+  { img: 'kumayl',   t0: 6.8, cap: ['Read along, line by line', 'Arabic, transliteration & translation'],
+    scroll: { tall: 'kumayl_tall', top: 86, bottom: 62, from: 7.7, to: 10.8, dist: 900 } },
+  { img: 'z_check',  t0: 11.4, cap: ['Choose your script', 'Two Arabic fonts, beautifully typeset'], chips: ['Qalam (IndoPak)', 'Scheherazade'], chip: 0, fade: true },
+  { img: 'z_scheh',  t0: 13.4, chip: 1, fade: true },
+  { img: 'z_check',  t0: 15.0, chip: 0, fade: true },
+  { img: 'z_drawer_big', t0: 16.4, cap: ['Read comfortably', 'Adjust Arabic & English text size'] },
+  { img: 'z_big',    t0: 18.0, fade: true },
+  { img: 'z_para',   t0: 20.0, cap: ['Arabic as a paragraph', 'Flowing text for fluent reciters'] },
+  { img: 'z_focus',  t0: 23.2, cap: ['Focus mode', 'Just you and the words'] },
+  { img: 'z_listen', t0: 26.4, cap: ['Listen & recite along', 'Recitation audio, built in'] },
+  { img: 'z_counter',t0: 29.6, cap: ['Count as you recite', 'A tap counter right on the page'] },
+  { img: 'home_loc', t0: 32.8, cap: ['And so much more', 'Prayer times · Calendar · Qibla · Tasbeeh'] },
+  { img: 'calendar', t0: 34.2 },
+  { img: 'qibla',    t0: 35.4 },
+  { img: 'tasbeeh',  t0: 36.6 },
 ];
-const PHONE_OUT = 31.4, OUTRO_IN = 31.9, END = 37;
+const PHONE_OUT = 38.0, OUTRO_IN = 38.5, END = 45;
 const TRANS = 0.6;
 
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -148,13 +163,14 @@ const capScenes = scenes.filter(s => s.cap);
 capScenes.forEach((s, i) => {
   const c = document.createElement('div');
   c.className = 'abs cap'; c.id = 'cap' + i;
-  c.innerHTML = `<h1>${s.cap[0]}</h1><p>${s.cap[1]}</p>`;
+  c.innerHTML = `<h1>${s.cap[0]}</h1><p>${s.cap[1]}</p>` +
+    (s.chips ? `<div class="chips">${s.chips.map((c, j) => `<span class="chip" id="chip${i}_${j}">${c}</span>`).join('')}</div>` : '');
   caps.appendChild(c);
 });
 
 function render(t) {
   // background drift
-  $('pattern').style.transform = `translate(${-t*6}px, ${-t*10}px)`;
+  $('pattern').style.transform = `translate(${-(t*6 % 160)}px, ${-(t*10 % 160)}px)`;
   $('glow').style.transform = `translateY(${Math.sin(t*0.5)*40}px)`;
 
   // intro
@@ -170,6 +186,9 @@ function render(t) {
   const gi = easeOut(prog(t, 1.6, 2.5));
   $('introTag').style.opacity = gi;
   $('introTag').style.transform = `translateY(${(1-gi)*30}px)`;
+  const fi = easeOut(prog(t, 2.1, 2.8));
+  $('introFree').style.opacity = fi;
+  $('introFree').style.transform = `scale(${0.85 + 0.15*fi})`;
   $('intro').style.opacity = 1 - introOut;
   $('intro').style.transform = `translateY(${-introOut*160}px) scale(${1 - introOut*0.08})`;
 
@@ -188,9 +207,11 @@ function render(t) {
     const visible = (i === 0 || t >= s.t0) && outP < 1;
     el.style.display = visible ? 'block' : 'none';
     if (!visible) return;
-    el.style.transform = `translateX(${(1-inP)*100 - outP*30}%)`;
+    const fadeIn = s.fade, fadeOut = next && next.fade;
+    el.style.transform = `translateX(${(fadeIn ? 0 : (1-inP)*100) - (fadeOut ? 0 : outP*30)}%)`;
+    el.style.opacity = fadeIn ? inP : 1;
     el.style.zIndex = i;
-    el.querySelector('.dim').style.opacity = outP * 0.25;
+    el.querySelector('.dim').style.opacity = fadeOut ? 0 : outP * 0.25;
     if (s.scroll) {
       const sc = s.scroll;
       const off = ease(prog(t, sc.from, sc.to)) * sc.dist;
@@ -208,6 +229,11 @@ function render(t) {
     const b = ease(prog(t, endT - 0.35, endT));
     el.style.opacity = a * (1 - b);
     el.style.transform = `translateY(${(1-a)*40 - b*30}px)`;
+    if (s.chips) {
+      let active = 0;
+      scenes.forEach(sc => { if (sc.chip !== undefined && t >= sc.t0 + 0.2) active = sc.chip; });
+      s.chips.forEach((_, j) => $(`chip${i}_${j}`).classList.toggle('on', j === active));
+    }
   });
 
   // outro
