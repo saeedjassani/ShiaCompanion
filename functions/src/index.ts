@@ -42,3 +42,141 @@ export const pruneUsageCounters = functions.scheduler.onSchedule(
     console.log(`Pruned ${count} usage buckets older than ${cutoffKey}`);
   }
 );
+
+/** Where the public community summary is published. `database.rules.json`
+ * makes exactly this node world-readable and client-unwritable. */
+const COMMUNITY_PATH = "public/community";
+
+/** How many days the "this week" figures and the sparkline cover. */
+const COMMUNITY_WINDOW_DAYS = 7;
+
+/** How many zikrs the "most recited this week" list carries. */
+const COMMUNITY_TOP_COUNT = 5;
+
+/** A zikr needs at least this many completions in the window to be listed,
+ * so a list padded out by one person's reading is never shown as "the
+ * community's". */
+const COMMUNITY_TOP_MIN = 3;
+
+/** The completion counter key suffix, see AnalyticsService.zikrCompleted. */
+const DONE_SUFFIX = "~done";
+
+type Counters = Record<string, number>;
+
+function sumCounters(
+  counters: Counters | null,
+  predicate: (key: string) => boolean
+): number {
+  if (!counters) return 0;
+  let total = 0;
+  for (const [key, value] of Object.entries(counters)) {
+    if (typeof value === "number" && predicate(key)) total += value;
+  }
+  return total;
+}
+
+function dayKey(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+/**
+ * Rolls the admin-only usage counters up into one small, public summary
+ * (about 1-2KB) that every client can afford to fetch.
+ *
+ * The raw `usage` tree is far too big for every client to read, and letting
+ * clients read it at all would expose per-feature numbers nobody opted in to
+ * publishing. Clients instead read only `public/community`, at most a few
+ * times a day (see CommunityStatsService), so 10k daily readers cost ~20MB
+ * of Realtime Database download a day and no Firestore reads at all.
+ *
+ * Day buckets are keyed by each device's *local* date, so "today" in UTC can
+ * already have a few entries for tomorrow from readers east of UTC; the
+ * window runs up to and including tomorrow to catch them.
+ */
+export const publishCommunityStats = functions.scheduler.onSchedule(
+  {schedule: "every 60 minutes", timeZone: "UTC"},
+  async () => {
+    const db = admin.database();
+    const now = new Date();
+
+    const dayKeys: string[] = [];
+    for (let offset = COMMUNITY_WINDOW_DAYS - 1; offset >= -1; offset--) {
+      const day = new Date(now);
+      day.setUTCDate(day.getUTCDate() - offset);
+      dayKeys.push(dayKey(day));
+    }
+
+    const dailyZikr = await Promise.all(
+      dayKeys.map(async (key) => {
+        const snapshot = await db.ref(`usage/daily/${key}/zikr`).once("value");
+        return {key, counters: snapshot.val() as Counters | null};
+      })
+    );
+
+    // Tomorrow's handful of early entries are folded into today rather than
+    // shown as a day of their own.
+    const tomorrow = dailyZikr.pop();
+    const today = dailyZikr[dailyZikr.length - 1];
+    if (tomorrow?.counters && today) {
+      today.counters = {...(today.counters ?? {})};
+      for (const [key, value] of Object.entries(tomorrow.counters)) {
+        today.counters[key] = (today.counters[key] ?? 0) + value;
+      }
+    }
+
+    const isDone = (key: string) => key.endsWith(DONE_SUFFIX);
+    const isOpen = (key: string) => !key.endsWith(DONE_SUFFIX);
+
+    const days = dailyZikr.map(({key, counters}) => ({
+      d: key,
+      c: sumCounters(counters, isDone),
+      o: sumCounters(counters, isOpen),
+    }));
+
+    const weeklyByZikr: Counters = {};
+    for (const {counters} of dailyZikr) {
+      if (!counters) continue;
+      for (const [key, value] of Object.entries(counters)) {
+        if (!isDone(key) || typeof value !== "number") continue;
+        const uid = key.slice(0, -DONE_SUFFIX.length);
+        weeklyByZikr[uid] = (weeklyByZikr[uid] ?? 0) + value;
+      }
+    }
+
+    const topUids = Object.entries(weeklyByZikr)
+      .filter(([, count]) => count >= COMMUNITY_TOP_MIN)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, COMMUNITY_TOP_COUNT);
+
+    const top = await Promise.all(
+      topUids.map(async ([uid, count]) => {
+        const label = await db.ref(`usage/labels/zikr/${uid}`).once("value");
+        const title = typeof label.val() === "string" ? label.val() : uid;
+        return {uid, title, c: count};
+      })
+    );
+
+    const totals = await db.ref("usage/totals/zikr").once("value");
+    const totalCounters = totals.val() as Counters | null;
+
+    const summary = {
+      v: 1,
+      updatedAt: now.getTime(),
+      week: {
+        c: days.reduce((sum, day) => sum + day.c, 0),
+        o: days.reduce((sum, day) => sum + day.o, 0),
+      },
+      allTime: {
+        c: sumCounters(totalCounters, isDone),
+        o: sumCounters(totalCounters, isOpen),
+      },
+      days,
+      top,
+    };
+
+    await db.ref(COMMUNITY_PATH).set(summary);
+    console.log(
+      `Published community stats: ${summary.week.c} completions this week`
+    );
+  }
+);

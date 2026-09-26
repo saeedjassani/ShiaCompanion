@@ -135,6 +135,7 @@ class AnalyticsService {
     ZikrOpenSource.homeWidgetRecitation:
         "Zikr opened from the Today's Recitation home screen widget",
     ZikrOpenSource.reminder: 'Zikr opened from a reminder notification',
+    ZikrOpenSource.myStats: 'Zikr opened from My Stats',
     ZikrOpenSource.unknown: 'Zikr opened from an untagged entry point',
   };
 
@@ -329,6 +330,9 @@ class ZikrOpenSource {
   /// Opened by tapping a zikr reminder notification (see
   /// ZikrReminderService).
   static const String reminder = 'zikr_reminder';
+
+  /// Tapped in My Stats' "most recited" lists (see MyStatsPage).
+  static const String myStats = 'my_stats';
 
   /// Opened from the Quran screen - its surah list, juz list, go-to-verse box
   /// or Continue card. Separate from [list] so Quran reading can be told apart

@@ -18,6 +18,11 @@ service cloud.firestore {
     match /users/{userId}/settings/{docId} {
       allow read, write: if request.auth.uid == userId;
     }
+    // Personal stats (ActivityStatsStore): one doc, one JSON string per
+    // device under `devices`. Owner-only, like the rest of users/{userId}.
+    match /users/{userId}/stats/{docId} {
+      allow read, write: if request.auth.uid == userId;
+    }
 
     // Reports submitted from the zikr reading page's selection toolbar (see
     // MistakeReportService). Most readers are never signed in, so - same as

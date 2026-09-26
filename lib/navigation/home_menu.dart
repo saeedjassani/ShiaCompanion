@@ -11,6 +11,7 @@ import '../pages/flights_page.dart';
 import '../pages/library_page.dart';
 import '../pages/playlists_page.dart';
 import '../pages/list_items.dart';
+import '../pages/my_stats_page.dart';
 import '../pages/prayer_counter_page.dart';
 import '../pages/qaza_tracker_page.dart';
 import '../pages/qibla_finder.dart';
@@ -171,6 +172,11 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     label: 'Qaza Tracker',
     icon: Icons.event_repeat_rounded,
     pageBuilder: () => const QazaTrackerPage(),
+  ),
+  HomeMenuItem(
+    label: 'My Stats',
+    icon: Icons.insights_rounded,
+    pageBuilder: () => const MyStatsPage(),
   ),
   if (supportsPrayerCounterOnCurrentPlatform)
     HomeMenuItem(

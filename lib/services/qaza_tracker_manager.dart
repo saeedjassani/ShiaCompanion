@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/qaza_tracker_state.dart';
+import '../services/activity_stats_store.dart';
 import '../services/analytics_service.dart';
 import '../services/qaza_tracker_sync_policy.dart';
 import '../utils/shared_preferences.dart';
@@ -562,6 +563,7 @@ class QazaTrackerManager extends ChangeNotifier {
 
   Future<void> markCompleted(QazaEntryType type) {
     if (_state.countFor(type).remaining <= 0) return Future.value();
+    unawaited(ActivityStatsStore.instance.recordQazaCompleted());
     return _applyOperation(
       PendingQazaOperation.markCompleted(
         id: _newOperationId(),
@@ -572,6 +574,7 @@ class QazaTrackerManager extends ChangeNotifier {
 
   Future<void> undoCompleted(QazaEntryType type) {
     if (_state.countFor(type).completed <= 0) return Future.value();
+    unawaited(ActivityStatsStore.instance.undoQazaCompleted());
     return _applyOperation(
       PendingQazaOperation.undoCompleted(
         id: _newOperationId(),

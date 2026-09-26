@@ -10,6 +10,7 @@ import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/retired_zikr_redirects.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/services/activity_stats_store.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/mistake_report_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
@@ -364,6 +365,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // Only leaves an ask pending: the reader is still on the closing lines.
     // It is put to them once they leave this page - see [dispose].
     unawaited(RatingPromptService.recordZikrCompleted());
+    unawaited(ActivityStatsStore.instance
+        .recordZikrCompleted(widget.item.getUId()));
   }
 
   /// Records the reader's place in their recitation - but only once they have
