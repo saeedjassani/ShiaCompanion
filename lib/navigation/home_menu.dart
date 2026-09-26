@@ -173,11 +173,6 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     icon: Icons.event_repeat_rounded,
     pageBuilder: () => const QazaTrackerPage(),
   ),
-  HomeMenuItem(
-    label: 'My Stats',
-    icon: Icons.insights_rounded,
-    pageBuilder: () => const MyStatsPage(),
-  ),
   if (supportsPrayerCounterOnCurrentPlatform)
     HomeMenuItem(
       label: 'Rakaat Counter',
@@ -222,6 +217,18 @@ final HomeMenuItem playlistsMenuItem = HomeMenuItem(
   pageBuilder: () => const PlaylistsPage(),
 );
 
+/// Personal stats and community totals. Dark-launched to admins alongside
+/// [quranMenuItem], and ships with it: "Verses recited" comes from the Quran
+/// screen's recitation tracker, so the two go out together - move this into
+/// [homeMenuItems] then. Recording already runs for everyone, locally, so
+/// readers have their history on launch day; see ActivityStatsStore for the
+/// sync, which is gated the same way until then.
+final HomeMenuItem myStatsMenuItem = HomeMenuItem(
+  label: 'My Stats',
+  icon: Icons.insights_rounded,
+  pageBuilder: () => const MyStatsPage(),
+);
+
 /// Menu entries only an admin sees, added on top of the regular grid rather
 /// than replacing anything in it. Kept out of [homeMenuItems] so the grid
 /// every user gets stays a compile-time constant, and so admin state — which
@@ -234,6 +241,7 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
     countsAsFeatureUse: false,
   ),
   playlistsMenuItem,
+  myStatsMenuItem,
   HomeMenuItem(
     label: 'Mistake Reports',
     icon: Icons.flag_outlined,

@@ -172,13 +172,14 @@ class _StreakCard extends StatelessWidget {
   final NumberFormat format;
 
   /// Deliberately gentle: a missed day is a fresh start, not a failure.
-  String get _message {
+  /// Nothing once today is already read - the ticked circle says it.
+  String? get _message {
     if (summary.isEmpty) {
       return 'Finish reading a dua, ziyarat or surah and your streak begins.';
     }
     final streak = summary.currentStreak;
     if (streak == 0) return 'Welcome back - every day is a fresh start.';
-    if (summary.isActiveToday) return 'Today is counted. May Allah accept it.';
+    if (summary.isActiveToday) return null;
     return 'Read something today to keep it going.';
   }
 
@@ -187,6 +188,7 @@ class _StreakCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final streak = summary.currentStreak;
+    final message = _message;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -249,13 +251,15 @@ class _StreakCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            _message,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.85),
+          if (message != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              message,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onPrimaryContainer.withValues(alpha: 0.85),
+              ),
             ),
-          ),
+          ],
           const SizedBox(height: 14),
           _ChipRow(
             children: [
@@ -267,8 +271,8 @@ class _StreakCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               _StatChip(
-                label: 'Days active',
-                value: format.format(summary.activeDayCount),
+                label: 'Verses recited',
+                value: format.format(summary.quranVersesTotal),
               ),
             ],
           ),
@@ -280,16 +284,6 @@ class _StreakCard extends StatelessWidget {
                 value: format.format(summary.totalZikrs),
               ),
               const SizedBox(width: 8),
-              // Recitation is only logged from the Quran screen, which is
-              // still dark-launched to admins; the chip appears on its own
-              // once there is something to show.
-              if (summary.quranVersesTotal > 0) ...[
-                _StatChip(
-                  label: 'Quran verses',
-                  value: format.format(summary.quranVersesTotal),
-                ),
-                const SizedBox(width: 8),
-              ],
               _StatChip(
                 label: 'Qaza made up',
                 value: format.format(summary.totalQaza),

@@ -185,6 +185,22 @@ void main() {
       store = ActivityStatsStore(remote: remote, clock: () => now);
     });
 
+    test('with sync switched off, a signed-in reader stays local', () async {
+      remote.userId = 'u1';
+      final gated = ActivityStatsStore(
+        remote: remote,
+        clock: () => now,
+        syncEnabled: () => false,
+      );
+      await gated.recordZikrCompleted('E1');
+      await gated.pullAndMerge();
+      now = now.add(ActivityStatsStore.minPushInterval);
+      await gated.pushIfDue();
+      expect(gated.summary().totalZikrs, 1);
+      expect(remote.fetches, 0);
+      expect(remote.pushes, 0);
+    });
+
     test('works signed out, with no network at all', () async {
       await store.recordZikrCompleted('X|E1');
       await store.pullAndMerge();

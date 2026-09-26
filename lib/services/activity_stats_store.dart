@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
+import '../constants.dart' show isUserAdmin;
 import '../models/activity_stats.dart';
 import '../utils/shared_preferences.dart';
 import 'recitation_tracker_manager.dart';
@@ -89,13 +90,23 @@ class ActivityStatsStore extends ChangeNotifier {
   ActivityStatsStore({
     ActivityStatsRemote remote = const FirestoreActivityStatsRemote(),
     DateTime Function()? clock,
+    bool Function()? syncEnabled,
     this.recitationSource,
   })  : _remote = remote,
-        _clock = clock ?? DateTime.now;
+        _clock = clock ?? DateTime.now,
+        _syncEnabled = syncEnabled ?? _alwaysOn;
 
+  /// Admin-only sync while My Stats is dark-launched with the Quran screen
+  /// (see myStatsMenuItem): until then no regular reader costs a Firestore
+  /// read or write for a screen they cannot open. Recording is not gated -
+  /// it is local and free, and gives everyone their history on launch day.
+  /// Drop the argument when My Stats ships.
   static final ActivityStatsStore instance = ActivityStatsStore(
     recitationSource: () => RecitationTrackerManager.instance,
+    syncEnabled: () => isUserAdmin,
   );
+
+  static bool _alwaysOn() => true;
 
   static const String _deviceIdKey = 'activity_stats_device_id';
   static const String _ownKey = 'activity_stats_own_v1';
@@ -109,6 +120,10 @@ class ActivityStatsStore extends ChangeNotifier {
 
   final ActivityStatsRemote _remote;
   final DateTime Function() _clock;
+  final bool Function() _syncEnabled;
+
+  /// The account to sync with, or null when signed out or sync is off.
+  String? get _syncUserId => _syncEnabled() ? _remote.currentUserId : null;
 
   /// Null in tests that do not care about Quran recitation.
   final RecitationTrackerManager Function()? recitationSource;
@@ -216,7 +231,7 @@ class ActivityStatsStore extends ChangeNotifier {
   Future<void> _pullAndMerge() async {
     if (!SP.isInitialized) return;
     _ensureLoaded();
-    final userId = _remote.currentUserId;
+    final userId = _syncUserId;
     if (userId == null) {
       // Another account's devices are not this reader's stats.
       if (_others.isNotEmpty || _othersOwner != null) {
@@ -268,7 +283,7 @@ class ActivityStatsStore extends ChangeNotifier {
   Future<void> pushIfDue() async {
     if (!SP.isInitialized) return;
     if (SP.prefs.getBool(_dirtyKey) != true) return;
-    final userId = _remote.currentUserId;
+    final userId = _syncUserId;
     if (userId == null) return;
     final lastPush = SP.prefs.getInt(_lastPushKey);
     if (lastPush != null) {
