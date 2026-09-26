@@ -132,6 +132,74 @@ double zikrTabScrollFraction({
   return (scrollOffset / maxScrollExtent).clamp(0.0, 1.0).toDouble();
 }
 
+/// Fraction of a tab's text that has been on screen at this offset - measured
+/// to the *bottom* of the view, not the top.
+///
+/// That is the difference between "has the reader seen the closing lines" and
+/// "has the reader scrolled the closing lines up to the top of the screen",
+/// which nobody does: Ziyarat Ashura's sajdah passage is its last ~5%, and
+/// whoever is reciting it is in sujood, not scrolling.
+double zikrTabSeenFraction({
+  required double scrollOffset,
+  required double maxScrollExtent,
+  required double viewportDimension,
+}) {
+  if (!maxScrollExtent.isFinite || maxScrollExtent <= 0) return 1;
+  final viewport = viewportDimension.isFinite && viewportDimension > 0
+      ? viewportDimension
+      : 0;
+  final total = maxScrollExtent + viewport;
+  return ((scrollOffset + viewport) / total).clamp(0.0, 1.0).toDouble();
+}
+
+/// How much of a tab has to have been on screen for it to count as recited.
+///
+/// Short of 1 on purpose: zikrs close with notes, merits, references or a
+/// passage recited in sajdah, and the reader who has reached those has
+/// recited the zikr.
+const double zikrCompletionSeenThreshold = 0.9;
+
+/// Share of a tab's estimated recitation time that has to have passed since
+/// the page opened. Keeps a fling to the bottom from counting, without
+/// demanding a fast reciter keep to [_arabicWordsPerMinute].
+const double zikrCompletionTimeShare = 0.4;
+
+/// The floor on that time, for a dua short enough to fit on one screen.
+const Duration zikrCompletionMinTime = Duration(seconds: 10);
+
+/// How much longer the reader has to stay before this zikr counts as
+/// recited: [Duration.zero] if it already does, null if no tab has been read
+/// far enough yet.
+///
+/// Judged **per tab**. A multi-tab zikr is usually a set of alternatives
+/// (forms of a ziyarah, one taqeeb per prayer) or independent steps, and
+/// finishing the one being recited is a recitation - it must not wait on
+/// tabs the reader never meant to open, nor on the whole compilation's
+/// reading time.
+Duration? zikrCompletionWait({
+  required Map<int, double> seenFractions,
+  required List<ZikrTabReadingStats> tabs,
+  required Duration elapsed,
+}) {
+  Duration? best;
+  seenFractions.forEach((tabIndex, seen) {
+    if (seen < zikrCompletionSeenThreshold) return;
+    final tabSeconds = tabIndex >= 0 && tabIndex < tabs.length
+        ? tabs[tabIndex].minutes * 60
+        : 0.0;
+    final requiredMs = (tabSeconds * zikrCompletionTimeShare * 1000).round();
+    final required = Duration(
+      milliseconds: requiredMs > zikrCompletionMinTime.inMilliseconds
+          ? requiredMs
+          : zikrCompletionMinTime.inMilliseconds,
+    );
+    final wait = required - elapsed;
+    final clamped = wait.isNegative ? Duration.zero : wait;
+    if (best == null || clamped < best!) best = clamped;
+  });
+  return best;
+}
+
 /// Guards a tab's scroll fraction against transient dips.
 ///
 /// `ListView.builder` estimates `maxScrollExtent` from the average size of the

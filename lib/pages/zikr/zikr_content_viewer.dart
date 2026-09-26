@@ -63,12 +63,17 @@ class ZikrContentScrollPosition {
     required this.tabIndex,
     required this.scrollOffset,
     this.maxScrollExtent = 0,
+    this.viewportDimension = 0,
     this.lineIndex,
   });
 
   final int tabIndex;
   final double scrollOffset;
   final double maxScrollExtent;
+
+  /// Height of the visible part of the tab, so the page can tell how much of
+  /// the text has actually been on screen - see [zikrTabSeenFraction].
+  final double viewportDimension;
 
   /// The content line sitting at the top of the view at this offset, measured
   /// from the laid-out list, or null when the list has not been laid out yet.
@@ -694,6 +699,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         tabIndex: tabIndex,
         scrollOffset: position.pixels,
         maxScrollExtent: position.maxScrollExtent,
+        viewportDimension: position.viewportDimension,
         lineIndex: _topLineIndex(tabIndex, controller),
       ),
     );

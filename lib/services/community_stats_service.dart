@@ -13,32 +13,36 @@ class CommunityTopZikr {
   const CommunityTopZikr({
     required this.uid,
     required this.title,
-    required this.completions,
+    required this.recitations,
   });
 
   final String uid;
   final String title;
-  final int completions;
+  final int recitations;
 }
 
 /// One day of the community sparkline.
 @immutable
 class CommunityDay {
-  const CommunityDay({required this.day, required this.completions});
+  const CommunityDay({required this.day, required this.recitations});
 
   final DateTime day;
-  final int completions;
+  final int recitations;
 }
 
 /// The anonymous, app-wide summary `publishCommunityStats` (functions/src)
 /// publishes hourly to `public/community`.
+///
+/// "Recitations" here are zikr *opens* - the same counts the usage dashboard
+/// ranks by, one per open from any entry point. The completion counts the
+/// function also publishes (`c`) are left unread: they depend on the reading
+/// heuristic in zikr_page.dart, which undercounted until it was revised.
 @immutable
 class CommunityStats {
   const CommunityStats({
     required this.updatedAt,
-    required this.weekCompletions,
-    required this.weekOpens,
-    required this.allTimeCompletions,
+    required this.weekRecitations,
+    required this.allTimeRecitations,
     required this.days,
     required this.top,
   });
@@ -59,7 +63,7 @@ class CommunityStats {
         if (raw is! Map) continue;
         final parsed = DateTime.tryParse(raw['d']?.toString() ?? '');
         if (parsed == null) continue;
-        days.add(CommunityDay(day: parsed, completions: _int(raw['c'])));
+        days.add(CommunityDay(day: parsed, recitations: _int(raw['o'])));
       }
     }
 
@@ -74,25 +78,23 @@ class CommunityStats {
         top.add(CommunityTopZikr(
           uid: uid,
           title: title,
-          completions: _int(raw['c']),
+          recitations: _int(raw['o']),
         ));
       }
     }
 
     return CommunityStats(
       updatedAt: DateTime.fromMillisecondsSinceEpoch(updatedMs),
-      weekCompletions: week is Map ? _int(week['c']) : 0,
-      weekOpens: week is Map ? _int(week['o']) : 0,
-      allTimeCompletions: allTime is Map ? _int(allTime['c']) : 0,
+      weekRecitations: week is Map ? _int(week['o']) : 0,
+      allTimeRecitations: allTime is Map ? _int(allTime['o']) : 0,
       days: days,
       top: top,
     );
   }
 
   final DateTime updatedAt;
-  final int weekCompletions;
-  final int weekOpens;
-  final int allTimeCompletions;
+  final int weekRecitations;
+  final int allTimeRecitations;
   final List<CommunityDay> days;
   final List<CommunityTopZikr> top;
 

@@ -53,8 +53,8 @@ const COMMUNITY_WINDOW_DAYS = 7;
 /** How many zikrs the "most recited this week" list carries. */
 const COMMUNITY_TOP_COUNT = 5;
 
-/** A zikr needs at least this many completions in the window to be listed,
- * so a list padded out by one person's reading is never shown as "the
+/** A zikr needs at least this many opens in the window to be listed, so a
+ * list padded out by one person's reading is never shown as "the
  * community's". */
 const COMMUNITY_TOP_MIN = 3;
 
@@ -81,7 +81,9 @@ function dayKey(date: Date): string {
 
 /**
  * Rolls the admin-only usage counters up into one small, public summary
- * (about 1-2KB) that every client can afford to fetch.
+ * (about 1-2KB) that every client can afford to fetch. The figures shown are
+ * zikr *opens* (`o`) - the same counts the usage dashboard ranks by;
+ * completions (`c`) are published alongside for reference only.
  *
  * The raw `usage` tree is far too big for every client to read, and letting
  * clients read it at all would expose per-feature numbers nobody opted in to
@@ -133,13 +135,15 @@ export const publishCommunityStats = functions.scheduler.onSchedule(
       o: sumCounters(counters, isOpen),
     }));
 
+    // Ranked by opens, the same numbers the usage dashboard ranks by: every
+    // entry point counts an open exactly once, whereas a completion depends
+    // on a reading heuristic that has already had to be revised once.
     const weeklyByZikr: Counters = {};
     for (const {counters} of dailyZikr) {
       if (!counters) continue;
       for (const [key, value] of Object.entries(counters)) {
-        if (!isDone(key) || typeof value !== "number") continue;
-        const uid = key.slice(0, -DONE_SUFFIX.length);
-        weeklyByZikr[uid] = (weeklyByZikr[uid] ?? 0) + value;
+        if (!isOpen(key) || typeof value !== "number") continue;
+        weeklyByZikr[key] = (weeklyByZikr[key] ?? 0) + value;
       }
     }
 
@@ -152,7 +156,7 @@ export const publishCommunityStats = functions.scheduler.onSchedule(
       topUids.map(async ([uid, count]) => {
         const label = await db.ref(`usage/labels/zikr/${uid}`).once("value");
         const title = typeof label.val() === "string" ? label.val() : uid;
-        return {uid, title, c: count};
+        return {uid, title, o: count};
       })
     );
 
@@ -176,7 +180,7 @@ export const publishCommunityStats = functions.scheduler.onSchedule(
 
     await db.ref(COMMUNITY_PATH).set(summary);
     console.log(
-      `Published community stats: ${summary.week.c} completions this week`
+      `Published community stats: ${summary.week.o} recitations this week`
     );
   }
 );

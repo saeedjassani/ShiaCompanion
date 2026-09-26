@@ -228,6 +228,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// mid-scroll.
   final Map<int, double> _currentTabScrollFractions = {};
 
+  /// Per tab, the furthest share of its text that has been on screen - see
+  /// [zikrTabSeenFraction]. Only ever grows: scrolling back up to re-read a
+  /// line does not un-read the rest. This, not [_readingProgress], is what
+  /// [_maybeRecordCompletion] judges by.
+  final Map<int, double> _tabSeenFractions = {};
+
+  /// Pending re-check for a reader who has reached the end of a tab before
+  /// enough time has passed, and then stops scrolling - in sajdah, say - so
+  /// no scroll event would ever check again.
+  Timer? _completionTimer;
+
   /// The content line at the top of each tab's view, measured from the laid
   /// out list. This is what a bookmark records alongside the raw offset, so
   /// the marker is drawn on the very line the offset was read off.
@@ -342,21 +353,31 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// Fires at most once. Opening a zikr and reciting one are different things
   /// and the dashboard should not conflate them.
   ///
-  /// Scroll position alone is not enough: [zikrTabScrollFraction] treats a zikr
-  /// too short to scroll as fully read the moment it lays out, so a stray tap
-  /// on a two-line dua would outrank a real recitation. Time on the page,
-  /// scaled to how long the text actually takes to recite, is the second half
-  /// of the signal.
+  /// A zikr counts as recited once 90% of one of its tabs has been on screen
+  /// and the page has been open for 40% of that tab's estimated recitation
+  /// time (see [zikrCompletionWait]). Scroll position alone is not enough: a
+  /// dua short enough to fit on screen is "fully seen" the moment it lays out,
+  /// so a stray tap would outrank a real recitation.
   void _maybeRecordCompletion() {
     if (_hasRecordedCompletion) return;
-    if (_readingProgress.value < 0.98) return;
-
     final openedAt = _openedAt;
     if (openedAt == null) return;
-    final estimatedSeconds = _readingStats.duration.inSeconds;
-    final requiredSeconds = math.max(10, estimatedSeconds ~/ 2);
-    if (DateTime.now().difference(openedAt).inSeconds < requiredSeconds) return;
 
+    final wait = zikrCompletionWait(
+      seenFractions: _tabSeenFractions,
+      tabs: _readingStats.tabs,
+      elapsed: DateTime.now().difference(openedAt),
+    );
+    if (wait == null) return;
+    if (wait > Duration.zero) {
+      _completionTimer?.cancel();
+      _completionTimer = Timer(wait, () {
+        if (mounted) _maybeRecordCompletion();
+      });
+      return;
+    }
+
+    _completionTimer?.cancel();
     _hasRecordedCompletion = true;
     unawaited(AnalyticsService.zikrCompleted(
       uid: widget.item.getUId(),
@@ -365,8 +386,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // Only leaves an ask pending: the reader is still on the closing lines.
     // It is put to them once they leave this page - see [dispose].
     unawaited(RatingPromptService.recordZikrCompleted());
-    unawaited(ActivityStatsStore.instance
-        .recordZikrCompleted(widget.item.getUId()));
+    unawaited(
+        ActivityStatsStore.instance.recordZikrCompleted(widget.item.getUId()));
   }
 
   /// Records the reader's place in their recitation - but only once they have
@@ -748,6 +769,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _chromeVisible.dispose();
     _selectionFocusNode.dispose();
     _maybeRecordCompletion();
+    _completionTimer?.cancel();
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.removeListener(_maybeMarkQuranEndReached);
     _readingProgress.dispose();
@@ -1504,6 +1526,16 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final lineIndex = position.lineIndex;
     if (lineIndex != null) {
       _currentTabTopLineIndexes[tabIndex] = lineIndex;
+    }
+
+    final seen = zikrTabSeenFraction(
+      scrollOffset: position.scrollOffset,
+      maxScrollExtent: position.maxScrollExtent,
+      viewportDimension: position.viewportDimension,
+    );
+    if (seen > (_tabSeenFractions[tabIndex] ?? 0)) {
+      _tabSeenFractions[tabIndex] = seen;
+      _maybeRecordCompletion();
     }
 
     _currentTabScrollFractions[tabIndex] = zikrSmoothedTabFraction(

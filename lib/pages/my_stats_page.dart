@@ -99,7 +99,7 @@ class _MyStatsPageState extends State<MyStatsPage> {
                           (
                             zikr.uid,
                             _titleFor(zikr.uid, zikr.title),
-                            zikr.completions
+                            zikr.recitations
                           ),
                       ],
                     ),
@@ -528,7 +528,7 @@ class _CommunitySection extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final maxDay = stats.days.fold<int>(
       0,
-      (max, day) => math.max(max, day.completions),
+      (max, day) => math.max(max, day.recitations),
     );
 
     return Column(
@@ -552,14 +552,14 @@ class _CommunitySection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                format.format(stats.weekCompletions),
+                format.format(stats.weekRecitations),
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: colorScheme.primary,
                 ),
               ),
               Text(
-                'duas, ziyarats and surahs read to the end this week',
+                'duas, ziyarats and surahs recited this week',
                 style: theme.textTheme.bodyMedium,
               ),
               if (stats.days.isNotEmpty && maxDay > 0) ...[
@@ -583,11 +583,11 @@ class _CommunitySection extends StatelessWidget {
                                   child: Tooltip(
                                     message:
                                         '${DateFormat('EEE, MMM d').format(day.day)}'
-                                        ' - ${format.format(day.completions)}',
+                                        ' - ${format.format(day.recitations)}',
                                     child: Container(
                                       height: math.max(
                                         3,
-                                        40 * day.completions / maxDay,
+                                        40 * day.recitations / maxDay,
                                       ),
                                       decoration: BoxDecoration(
                                         color: colorScheme.primary
@@ -610,10 +610,10 @@ class _CommunitySection extends StatelessWidget {
                   ],
                 ),
               ],
-              if (stats.allTimeCompletions > 0) ...[
+              if (stats.allTimeRecitations > 0) ...[
                 const SizedBox(height: 10),
                 Text(
-                  '${format.format(stats.allTimeCompletions)} all time',
+                  '${format.format(stats.allTimeRecitations)} all time',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),

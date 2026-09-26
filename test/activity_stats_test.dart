@@ -286,7 +286,7 @@ void main() {
         {'d': '2026-09-20', 'c': 180, 'o': 800},
       ],
       'top': [
-        {'uid': 'E1', 'title': 'Dua Kumayl', 'c': 300},
+        {'uid': 'E1', 'title': 'Dua Kumayl', 'o': 300},
       ],
     };
 
@@ -298,10 +298,12 @@ void main() {
     test('parses the published summary', () async {
       final service = CommunityStatsService(fetch: () async => published);
       final stats = await service.load();
-      expect(stats!.weekCompletions, 1200);
-      expect(stats.allTimeCompletions, 90000);
+      expect(stats!.weekRecitations, 5000);
+      expect(stats.allTimeRecitations, 400000);
       expect(stats.days, hasLength(2));
       expect(stats.top.single.title, 'Dua Kumayl');
+      expect(stats.top.single.recitations, 300);
+      expect(stats.days.last.recitations, 800);
     });
 
     test('fetches at most once per refresh interval', () async {
@@ -317,7 +319,7 @@ void main() {
       await service.load();
       await service.load();
       expect(fetches, 1);
-      expect(service.cached?.weekCompletions, 1200);
+      expect(service.cached?.weekRecitations, 5000);
       now = now.add(CommunityStatsService.refreshInterval);
       await service.load();
       expect(fetches, 2);
@@ -337,7 +339,7 @@ void main() {
       await service.load();
       online = false;
       now = now.add(const Duration(days: 1));
-      expect((await service.load())?.weekCompletions, 1200);
+      expect((await service.load())?.weekRecitations, 5000);
 
       SharedPreferences.setMockInitialValues({});
       await SP.init();
