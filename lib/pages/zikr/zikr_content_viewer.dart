@@ -67,6 +67,7 @@ class ZikrContentScrollPosition {
     required this.scrollOffset,
     this.maxScrollExtent = 0,
     this.lineIndex,
+    this.bookmarkLineIndex,
   });
 
   final int tabIndex;
@@ -78,6 +79,11 @@ class ZikrContentScrollPosition {
   /// This is what a bookmark taken here records, so the "you left off here"
   /// marker lands on the very line the offset was read off.
   final int? lineIndex;
+
+  /// The line a bookmark taken at this offset records: the first verse
+  /// whose top is on screen, not the one cut off at the top edge. Null when
+  /// the list has not been laid out yet.
+  final int? bookmarkLineIndex;
 }
 
 /// How much of a line may sit above the top of the viewport before the line
@@ -333,12 +339,13 @@ class _QuranParagraphs {
 /// [isArabicOnlyReadingView], where the highlight lives on the verse's own
 /// text rather than on a container wrapping the whole line.
 ///
-/// [movable] adds a drag-handle glyph after the label, the cue that the
-/// marker can be picked up and dropped on another line.
+/// [movable] stretches the row across the line and ends it with a
+/// drag-handle glyph, the cue that the whole strip can be picked up and
+/// dropped on another line.
 Widget _bookmarkLabelRow(BuildContext context, {bool movable = false}) {
   final colorScheme = Theme.of(context).colorScheme;
   return Row(
-    mainAxisSize: MainAxisSize.min,
+    mainAxisSize: movable ? MainAxisSize.max : MainAxisSize.min,
     children: [
       Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
       const SizedBox(width: 4),
@@ -351,10 +358,10 @@ Widget _bookmarkLabelRow(BuildContext context, {bool movable = false}) {
             ),
       ),
       if (movable) ...[
-        const SizedBox(width: 6),
+        const Spacer(),
         Icon(
           Icons.drag_indicator,
-          size: 16,
+          size: 20,
           color: colorScheme.primary.withValues(alpha: 0.7),
         ),
       ],
@@ -755,8 +762,52 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         scrollOffset: position.pixels,
         maxScrollExtent: position.maxScrollExtent,
         lineIndex: _topLineIndex(tabIndex, controller),
+        bookmarkLineIndex: _bookmarkLineIndex(tabIndex, controller),
       ),
     );
+  }
+
+  /// The line a bookmark taken now should sit on: the first verse whose top
+  /// is on screen, rather than [_topLineIndex]'s verse straddling the top
+  /// edge. Marking a verse the reader has half scrolled past points them back
+  /// at text they have already read; the first whole one is where they are.
+  ///
+  /// A verse scrolled to - by restoring a bookmark - sits just below the top
+  /// edge, so it counts as whole and bookmarking it again keeps it put.
+  ///
+  /// Only the reading list works this way. A flowing paragraph can be a whole
+  /// dua long with no verse whose top is on screen, and a surah's position
+  /// is its verse, so both keep [_topLineIndex].
+  int? _bookmarkLineIndex(int tabIndex, ScrollController controller) {
+    final top = _topLineIndex(tabIndex, controller);
+    if (_ayahIndexFor(tabIndex) != null) return top;
+    final items = _tabReadingListItems[tabIndex];
+    final parsed = _contentCaches[tabIndex]?.parsed;
+    final hit = _topItem(tabIndex, controller);
+    if (items == null ||
+        parsed == null ||
+        hit == null ||
+        hit.itemIndex >= items.length) {
+      return top;
+    }
+    if (_tabArabicFlows[tabIndex]?[items[hit.itemIndex].firstLineIndex] !=
+        null) {
+      return top;
+    }
+
+    // [_topItem] reads [_scrollToVerseMargin] below the edge; an item whose
+    // top is further up than the edge itself has been cut off.
+    var itemIndex = hit.itemIndex;
+    if (hit.depth > _scrollToVerseMargin + _lineEdgeTolerance) itemIndex++;
+    // Then past the rest of a triplet whose first line is off screen - a
+    // translation left at the top is the tail of a verse already read.
+    for (; itemIndex < items.length; itemIndex++) {
+      final line = items[itemIndex].firstLineIndex;
+      final group = parsed.groupContaining(line);
+      if (group == null || group.start == line) return line;
+    }
+    // Nothing whole below: the last verse, however little of it shows.
+    return top;
   }
 
   /// The content line at the top of the view, in every mode.
@@ -1250,6 +1301,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// How close to the list's top or bottom edge a held bookmark has to be to
   /// scroll it, and the fastest it scrolls, in pixels per tick.
   static const double _bookmarkAutoScrollEdge = 72;
+
+  /// The drag handle's height - close to the 48px minimum touch target,
+  /// less the tinted block's own padding around it.
+  static const double _bookmarkHandleHeight = 40;
   static const double _bookmarkAutoScrollMaxStep = 18;
 
   void _updateBookmarkAutoScroll(int tabIndex, Offset globalPosition) {
@@ -1310,11 +1365,23 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// A plain [Draggable] rather than a long-press one: the reading view sits
   /// in a selection area whose own long-press starts a text selection, and
   /// the two would race. Starting a drag on the label wins over the list's
-  /// scroll, and the label is small enough that the list is still easy to
-  /// scroll everywhere else.
+  /// scroll. The handle is the label's whole strip - the full width of the
+  /// line and a finger's height - so it is easy to catch, while the verse's
+  /// text below it still scrolls the list like any other.
   Widget _bookmarkHandle(int tabIndex) {
     if (widget.onBookmarkMoved == null) return _bookmarkLabelRow(context);
-    final label = _bookmarkLabelRow(context, movable: true);
+    final strip = ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: double.infinity,
+        minHeight: _bookmarkHandleHeight,
+      ),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: SelectionContainer.disabled(
+          child: _bookmarkLabelRow(context, movable: true),
+        ),
+      ),
+    );
     return Semantics(
       hint: 'Drag to move the bookmark to another line',
       child: Draggable<int>(
@@ -1324,16 +1391,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           offset: const Offset(-24, -48),
           child: _bookmarkDragFeedback(context),
         ),
-        childWhenDragging: Opacity(opacity: 0.35, child: label),
+        // Exactly the strip's size, faded: anything smaller would pull the
+        // text below up under the finger the moment the drag starts.
+        childWhenDragging: Opacity(opacity: 0.35, child: strip),
         onDragStarted: () => _handleBookmarkDragStarted(tabIndex),
         onDragUpdate: (details) =>
             _handleBookmarkDragUpdate(tabIndex, details.globalPosition),
         onDragEnd: (_) => _handleBookmarkDragEnded(),
-        child: Padding(
-          // A bigger target than the label's own text, for a thumb.
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: SelectionContainer.disabled(child: label),
-        ),
+        // The whole strip catches the finger, not just the label's glyphs.
+        hitTestBehavior: HitTestBehavior.opaque,
+        child: strip,
       ),
     );
   }
@@ -2036,10 +2103,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         paragraphs.add(
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: _bookmarkHandle(tabIndex),
-            ),
+            child: _bookmarkHandle(tabIndex),
           ),
         );
       }
@@ -2671,10 +2735,7 @@ class _BookmarkedLine extends StatelessWidget {
           if (showLabel)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: label,
-              ),
+              child: label,
             ),
           child,
         ],

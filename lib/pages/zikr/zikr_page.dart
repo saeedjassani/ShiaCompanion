@@ -227,9 +227,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// mid-scroll.
   final Map<int, double> _currentTabScrollFractions = {};
 
-  /// The content line at the top of each tab's view, measured from the laid
-  /// out list. This is what a bookmark records alongside the raw offset, so
-  /// the marker is drawn on the very line the offset was read off.
+  /// The line a bookmark taken now would record in each tab - the first
+  /// verse whose top is on screen, measured from the laid out list - so the
+  /// marker lands on the first whole verse, not one cut off at the top.
   final Map<int, int> _currentTabTopLineIndexes = {};
   final ValueNotifier<double> _readingProgress = ValueNotifier<double>(0);
   bool _hasRecordedCompletion = false;
@@ -1498,7 +1498,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final previousScrollOffset = _currentTabScrollOffsets[tabIndex];
     _currentTabScrollOffsets[tabIndex] = position.scrollOffset;
     _currentTabMaxScrollExtents[tabIndex] = position.maxScrollExtent;
-    final lineIndex = position.lineIndex;
+    final lineIndex = position.bookmarkLineIndex ?? position.lineIndex;
     if (lineIndex != null) {
       _currentTabTopLineIndexes[tabIndex] = lineIndex;
     }
