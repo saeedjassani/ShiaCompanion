@@ -116,6 +116,28 @@ class ZikrBookmarkStore {
 
   String _keyForUid(String uid) => '${_storagePrefix}_$uid';
 
+  /// Set once the reader has been told the bookmark can be dragged to
+  /// another line, or has found that out for themselves by moving one.
+  static const String _moveHintSeenKey = 'zikr_bookmark_move_hint_seen';
+
+  /// Whether the "drag to move" tip is still owed, claiming it if so: true
+  /// at most once per install, and the claim is persisted before it returns,
+  /// so the tip can never be shown twice - not on the next bookmark, not
+  /// after a restart.
+  Future<bool> claimMoveHint() async {
+    if (!SP.isInitialized) return false;
+    if (SP.prefs.getBool(_moveHintSeenKey) ?? false) return false;
+    await SP.prefs.setBool(_moveHintSeenKey, true);
+    return true;
+  }
+
+  /// Records that the tip is no longer needed, without showing it - the
+  /// reader has already moved a bookmark, so they know.
+  Future<void> markMoveHintSeen() async {
+    if (!SP.isInitialized) return;
+    await SP.prefs.setBool(_moveHintSeenKey, true);
+  }
+
   ZikrBookmark? read(String uid) {
     if (!SP.isInitialized) return null;
 

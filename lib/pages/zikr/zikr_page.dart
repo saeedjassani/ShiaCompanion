@@ -1585,11 +1585,44 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       _savedBookmark = moved;
     });
     await ZikrBookmarkStore.instance.save(moved);
+    unawaited(ZikrBookmarkStore.instance.markMoveHintSeen());
     unawaited(AnalyticsService.feature(
       'zikr_bookmark_moved',
       label: 'Bookmark moved',
       parameters: {'zikr_uid': _bookmarkUid},
     ));
+  }
+
+  /// Tells the reader, the first time they save a bookmark, that its label
+  /// can be dragged to move it - and never again after that.
+  ///
+  /// Held back, without using up the one showing, in Arabic-only paragraph
+  /// view: the marker there is an icon inside the text with no handle to
+  /// drag, so the tip would point at nothing.
+  Future<void> _showBookmarkMoveHintOnce() async {
+    if (isArabicOnlyReadingView) return;
+    if (!await ZikrBookmarkStore.instance.claimMoveHint()) return;
+    if (!mounted) return;
+    final color = Theme.of(context).colorScheme.onInverseSurface;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text.rich(
+          TextSpan(
+            children: [
+              const TextSpan(text: 'Bookmarked. To move it later, drag the '),
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Icon(Icons.drag_indicator, size: 18, color: color),
+              ),
+              const TextSpan(
+                text: ' on the "Bookmarked" label to another line.',
+              ),
+            ],
+          ),
+        ),
+        duration: const Duration(seconds: 6),
+      ),
+    );
   }
 
   Future<void> _toggleBookmark({
@@ -1640,6 +1673,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       _savedBookmark = bookmark;
     });
     RatingPromptService.recordPositiveAction('bookmark');
+    await _showBookmarkMoveHintOnce();
     unawaited(AnalyticsService.feature(
       'zikr_bookmark_saved',
       label: 'Bookmark saved',
