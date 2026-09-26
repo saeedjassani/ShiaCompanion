@@ -40,6 +40,35 @@ void main() {
     });
   });
 
+  group('quranCompanionZikrUids', () {
+    tearDown(() => items = {});
+
+    test('keeps the Quran category zikrs that are not surahs, in uid order',
+        () {
+      items = {
+        'A4': 'Ayat al Kursi',
+        'A10': "6: al-An'aam الأنعام",
+        'A3': 'Dua Khatme Quran',
+        'A2': 'Dua after reciting Holy Quran',
+        'AA2': 'Recitation Of The Holy Qur’an In Ramazan',
+        'E18': 'Dua e Ahad',
+      };
+
+      expect(quranCompanionZikrUids(), ['A2', 'A3', 'A4']);
+    });
+
+    test('the real corpus still has Ayat al Kursi among them', () {
+      final corpus = jsonDecode(File('assets/zikr.json').readAsStringSync())
+          as Map<String, dynamic>;
+      items = {
+        for (final entry in corpus.entries) entry.key: entry.value['title'],
+      };
+
+      expect(quranCompanionZikrUids(), contains('A4'));
+      expect(quranCompanionZikrUids().map(surahForUid), everyElement(isNull));
+    });
+  });
+
   group('surahAyahCounts', () {
     test('covers all 114 surahs', () {
       expect(surahAyahCounts, hasLength(surahCount));
@@ -87,7 +116,15 @@ void main() {
     });
 
     test('rejects junk rather than guessing', () {
-      for (final input in ['', '   ', 'al-baqarah', '2:', ':56', '2:3:4', '2a']) {
+      for (final input in [
+        '',
+        '   ',
+        'al-baqarah',
+        '2:',
+        ':56',
+        '2:3:4',
+        '2a'
+      ]) {
         expect(VerseKey.tryParse(input), isNull, reason: 'accepted "$input"');
       }
     });
@@ -221,7 +258,8 @@ void main() {
       );
 
       expect(index.verses, [const VerseKey(1, 1), const VerseKey(1, 2)]);
-      expect(index.spans.first.ayah, isNull, reason: 'Bismillah is not an ayah');
+      expect(index.spans.first.ayah, isNull,
+          reason: 'Bismillah is not an ayah');
       expect(index.spanIndexForVerse(const VerseKey(1, 1)), 1);
       expect(index.spanIndexForVerse(const VerseKey(1, 2)), 2);
     });
@@ -333,10 +371,8 @@ void main() {
     test('every surah document holds exactly its canonical ayahs', () {
       final incomplete = <String>[];
       for (var surah = 1; surah <= surahCount; surah++) {
-        final found = indexOfSurah(surah)
-            .verses
-            .map((verse) => verse.ayah!)
-            .toList();
+        final found =
+            indexOfSurah(surah).verses.map((verse) => verse.ayah!).toList();
         final expected = List.generate(ayahCountOf(surah)!, (i) => i + 1);
         if (found.length != expected.length || !_sameNumbers(found, expected)) {
           incomplete.add('surah $surah: ${found.length}/${expected.length}');
