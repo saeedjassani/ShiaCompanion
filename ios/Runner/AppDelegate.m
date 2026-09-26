@@ -48,6 +48,41 @@ static NSString *const kWatchUpdatedAtKey = @"sc_watch_updated_at";
   [GeneratedPluginRegistrant registerWithRegistry:engineBridge.pluginRegistry];
   [self configureHomeWidgetChannelWithMessenger:engineBridge.applicationRegistrar.messenger];
   [self configureProximitySensorChannelsWithMessenger:engineBridge.applicationRegistrar.messenger];
+  [self configureFileBackupChannelWithMessenger:engineBridge.applicationRegistrar.messenger];
+}
+
+/// Recitations saved for offline listening can always be downloaded again, so
+/// they are kept out of iCloud backups - Apple's storage guidelines ask this of
+/// re-downloadable content, and it keeps a reader's backup from growing by
+/// hundreds of MB. Flagging the folder covers every file saved inside it.
+- (void)configureFileBackupChannelWithMessenger:(NSObject<FlutterBinaryMessenger> *)messenger {
+  FlutterMethodChannel *channel =
+      [FlutterMethodChannel methodChannelWithName:@"shia_companion/file_backup"
+                                  binaryMessenger:messenger];
+  [channel setMethodCallHandler:^(FlutterMethodCall *call, FlutterResult result) {
+    if (![@"excludeFromBackup" isEqualToString:call.method]) {
+      result(FlutterMethodNotImplemented);
+      return;
+    }
+    NSString *path = [call.arguments isKindOfClass:[NSDictionary class]]
+                         ? call.arguments[@"path"]
+                         : nil;
+    if (![path isKindOfClass:[NSString class]]) {
+      result([FlutterError errorWithCode:@"invalid_arguments"
+                                 message:@"A path is required."
+                                 details:nil]);
+      return;
+    }
+    NSURL *url = [NSURL fileURLWithPath:path isDirectory:YES];
+    NSError *error = nil;
+    if (![url setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&error]) {
+      result([FlutterError errorWithCode:@"exclude_failed"
+                                 message:error.localizedDescription
+                                 details:nil]);
+      return;
+    }
+    result(nil);
+  }];
 }
 
 - (void)configureHomeWidgetChannelWithMessenger:(NSObject<FlutterBinaryMessenger> *)messenger {

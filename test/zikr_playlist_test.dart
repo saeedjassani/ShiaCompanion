@@ -137,13 +137,48 @@ void main() {
           ['Ali Fani', 'Shia Companion', 'Shia Companion']);
     });
 
+    test('offline, keeps only downloaded recitations and the start point', () {
+      final audio = ZikrAudioIndex.parse({
+        'A': [
+          {'file': 'a.mp3'},
+        ],
+        'B': [
+          {'file': 'b.mp3'},
+        ],
+        'C': [
+          {'file': 'c.mp3'},
+        ],
+      });
+      final queue = PlaylistAudioService.buildQueue(
+        ['A', 'B', 'C'],
+        tracksFor: (uid) => audio[uid] ?? const [],
+        titleFor: (uid) => uid,
+      );
+      bool savedAC(track) => !track.url.endsWith('b.mp3');
+
+      // Starting on B, which is not saved, starts on the next saved one.
+      final (kept, start) =
+          PlaylistAudioService.downloadedOnly(queue, 1, isDownloaded: savedAC);
+      expect(kept.map((entry) => entry.zikrUid), ['A', 'C']);
+      expect(start, 1);
+
+      // Starting past the last saved one falls back to the top.
+      final (_, wrapped) = PlaylistAudioService.downloadedOnly(queue, 2,
+          isDownloaded: (track) => track.url.endsWith('a.mp3'));
+      expect(wrapped, 0);
+
+      final (none, _) = PlaylistAudioService.downloadedOnly(queue, 0,
+          isDownloaded: (_) => false);
+      expect(none, isEmpty);
+    });
+
     test('a playlist with nothing playable does not start', () async {
       final service = PlaylistAudioService.instance;
       ZikrAudioIndex.instance.setForTest(const {});
       await _freshStore();
       final playlist =
           await ZikrPlaylistStore.instance.create('Silent', zikrUids: ['I24']);
-      expect(await service.play(playlist), isFalse);
+      expect(await service.play(playlist), PlaylistStartResult.nothingToPlay);
       expect(service.isActive, isFalse);
     });
   });
@@ -218,6 +253,8 @@ void main() {
       await tester.pumpWidget(
           MaterialApp(home: PlaylistDetailPage(playlistId: playlist.id)));
       expect(find.text('Play all'), findsOneWidget);
+      expect(find.textContaining('Download all'), findsOneWidget,
+          reason: 'every playlist offers to save itself for offline');
       final ahad = tester.getTopLeft(find.text('Dua e Ahad'));
       final ashura = tester.getTopLeft(find.text('Ziyarat Ashura'));
       expect(ahad.dy, lessThan(ashura.dy));
