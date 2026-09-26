@@ -51,7 +51,10 @@ class _SettingsPageState extends State<SettingsPage> {
     await RecitationTrackerManager.instance.loadRecitations(force: true);
     await PreferencesSyncService.instance.pullOrSeed();
     await PrayerPreferencesSyncService.instance.pullOrSeed();
-    await ActivityStatsStore.instance.pullAndMerge();
+    // Not awaited: stats are already correct on this device, and a Firestore
+    // write only completes once the server acknowledges it - on a slow
+    // connection that would hold up this screen for nothing.
+    unawaited(ActivityStatsStore.instance.pullAndMerge());
     await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
     setState(() {});

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/models/activity_stats.dart';
@@ -11,6 +13,10 @@ class _FakeRemote implements ActivityStatsRemote {
   int fetches = 0;
   int pushes = 0;
   bool failPush = false;
+
+  /// When set, pushes hang until it completes - a write on a slow connection
+  /// that the server has not acknowledged yet.
+  Completer<void>? hold;
 
   @override
   String? get currentUserId => userId;
@@ -26,6 +32,7 @@ class _FakeRemote implements ActivityStatsRemote {
       String userId, String deviceId, DeviceActivity activity) async {
     if (failPush) throw Exception('offline');
     pushes++;
+    if (hold != null) await hold!.future;
     stored = {...?stored, deviceId: activity};
   }
 
@@ -234,6 +241,28 @@ void main() {
       expect(remote.pushes, 2);
       await store.pushIfDue();
       expect(remote.pushes, 2, reason: 'nothing changed since');
+    });
+
+    test('a slow, unacknowledged write is never sent twice', () async {
+      remote.userId = 'u1';
+      remote.hold = Completer<void>();
+      await store.recordZikrCompleted('E1');
+      // Nothing here may wait on the write: recording stays local.
+      unawaited(store.pullAndMerge());
+      await Future<void>.delayed(Duration.zero);
+      expect(remote.pushes, 1);
+
+      now = now.add(ActivityStatsStore.minPushInterval * 2);
+      unawaited(store.pushIfDue());
+      unawaited(store.pushIfDue());
+      await Future<void>.delayed(Duration.zero);
+      expect(remote.pushes, 1, reason: 'the first write is still in flight');
+
+      remote.hold!.complete();
+      await Future<void>.delayed(Duration.zero);
+      await store.recordZikrCompleted('E1');
+      await store.pushIfDue();
+      expect(remote.pushes, 1, reason: 'throttled after the write landed');
     });
 
     test('a failed push stays pending', () async {

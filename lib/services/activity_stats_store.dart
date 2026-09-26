@@ -118,6 +118,7 @@ class ActivityStatsStore extends ChangeNotifier {
   String? _othersOwner;
   bool _loaded = false;
   Future<void>? _syncInFlight;
+  Future<void>? _pushInFlight;
 
   DeviceActivity get own {
     _ensureLoaded();
@@ -278,7 +279,14 @@ class ActivityStatsStore extends ChangeNotifier {
     await _push(userId);
   }
 
-  Future<void> _push(String userId) async {
+  /// One write at a time: on a slow connection a write can stay unconfirmed
+  /// for minutes, and a pause in the meantime must not queue a second copy.
+  Future<void> _push(String userId) {
+    return _pushInFlight ??=
+        _pushNow(userId).whenComplete(() => _pushInFlight = null);
+  }
+
+  Future<void> _pushNow(String userId) async {
     try {
       await _remote.push(userId, deviceId, _own);
       await SP.prefs.setInt(_lastPushKey, _clock().millisecondsSinceEpoch);
