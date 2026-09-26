@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=block" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2a1a15;
+    --brown: #7a5244;
+    --gold: #e8c77a;
+    --gold-soft: #f3dfae;
+    --cream: #fbeee8;
+  }
+  html, body { margin: 0; padding: 0; background: #000; }
+  #stage {
+    position: relative; width: 1080px; height: 1920px; overflow: hidden;
+    background: radial-gradient(ellipse 120% 80% at 50% 38%, #5a372b 0%, #3a241d 45%, #1e1210 100%);
+    font-family: 'Inter', sans-serif; color: var(--cream);
+  }
+  #pattern { position: absolute; inset: -200px; opacity: .07; }
+  #glow {
+    position: absolute; width: 1400px; height: 1400px; left: -160px; top: 300px;
+    background: radial-gradient(circle, rgba(232,199,122,.22) 0%, rgba(232,199,122,0) 60%);
+  }
+  .abs { position: absolute; left: 0; right: 0; text-align: center; }
+
+  /* intro / outro */
+  .logo { width: 260px; height: 260px; border-radius: 58px; box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
+  .title { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 118px; color: var(--gold-soft); letter-spacing: 1px; }
+  .tagline { font-size: 40px; line-height: 1.45; color: rgba(251,238,232,.86); font-weight: 400; }
+  .rule { width: 120px; height: 2px; margin: 0 auto; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+  /* captions */
+  .cap { top: 150px; }
+  .cap h1 { margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 92px; line-height: 1.05; color: var(--gold-soft); }
+  .cap p { margin: 22px 0 0; font-size: 38px; color: rgba(251,238,232,.84); }
+
+  /* phone */
+  #phone {
+    position: absolute; left: 50%; top: 480px; width: 621px; height: 1374px; margin-left: -310.5px;
+    border-radius: 78px; background: #120b09; padding: 18px; box-sizing: border-box;
+    box-shadow: 0 60px 120px rgba(0,0,0,.6), 0 0 0 3px #3b2a24, inset 0 0 0 2px #2b1d18;
+  }
+  #screen { position: relative; width: 585px; height: 1338px; border-radius: 60px; overflow: hidden; background: #fff; }
+  .scr { position: absolute; left: 0; top: 72px; width: 585px; height: 1266px; }
+  .scr img.base { position: absolute; left: 0; top: 0; width: 585px; height: 1266px; }
+  .scr .dim { position: absolute; inset: 0; background: #000; opacity: 0; }
+  .scroller { position: absolute; left: 0; width: 585px; overflow: hidden; }
+  .scroller img { position: absolute; left: 0; width: 585px; }
+  #status { position: absolute; left: 0; top: 0; width: 585px; height: 72px; background: rgb(121,85,72); z-index: 50; color: #fff; font-weight: 600; font-size: 25px; }
+  #status .tm { position: absolute; left: 62px; top: 24px; }
+  #status .ic { position: absolute; right: 52px; top: 26px; display: flex; gap: 8px; align-items: center; }
+  #notch { z-index: 51 !important; position: absolute; top: 18px; left: 50%; margin-left: -62px; width: 124px; height: 34px; border-radius: 20px; background: #120b09; z-index: 5; }
+  .tap { position: absolute; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%;
+         background: rgba(122,82,68,.28); border: 3px solid rgba(122,82,68,.55); opacity: 0; z-index: 4; }
+
+  .pill { display: inline-block; padding: 26px 46px; margin: 0 14px; border-radius: 60px; font-size: 36px; font-weight: 600;
+          border: 2px solid rgba(232,199,122,.6); color: var(--gold-soft); background: rgba(232,199,122,.08); }
+  .url { font-size: 34px; color: rgba(251,238,232,.7); letter-spacing: .5px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="pattern" width="1480" height="2320">
+    <defs>
+      <pattern id="star" width="160" height="160" patternUnits="userSpaceOnUse">
+        <g transform="translate(80 80)" fill="none" stroke="#e8c77a" stroke-width="2">
+          <rect x="-34" y="-34" width="68" height="68"/>
+          <rect x="-34" y="-34" width="68" height="68" transform="rotate(45)"/>
+          <circle r="14"/>
+          <path d="M-80 0H-48M48 0H80M0 -80V-48M0 48V80"/>
+        </g>
+      </pattern>
+    </defs>
+    <rect width="1480" height="2320" fill="url(#star)"/>
+  </svg>
+  <div id="glow"></div>
+
+  <!-- intro -->
+  <div id="intro" class="abs" style="top:560px">
+    <img id="introLogo" class="logo" src="logo.png">
+    <div id="introTitle" class="title" style="margin-top:70px">Shia Companion</div>
+    <div id="introRule" class="rule" style="margin-top:34px"></div>
+    <div id="introTag" class="tagline" style="margin-top:40px">Everything a lover of the Ahlul Bayt (a)<br>needs, in one app</div>
+  </div>
+
+  <div id="caps"></div>
+
+  <div id="phone">
+    <div id="screen"><div id="status"><span class="tm">9:41</span><span class="ic"><svg width="30" height="20" viewBox="0 0 30 20" fill="#fff"><rect x="0" y="13" width="5" height="7" rx="1"/><rect x="8" y="9" width="5" height="11" rx="1"/><rect x="16" y="5" width="5" height="15" rx="1"/><rect x="24" y="0" width="5" height="20" rx="1"/></svg><svg width="44" height="22" viewBox="0 0 44 22"><rect x="1" y="1" width="37" height="20" rx="6" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2"/><rect x="4" y="4" width="28" height="14" rx="3" fill="#fff"/><rect x="40" y="7" width="3" height="8" rx="1.5" fill="#fff" fill-opacity=".6"/></svg></span></div><div id="notch"></div></div>
+  </div>
+
+  <!-- outro -->
+  <div id="outro" class="abs" style="top:500px">
+    <img id="outroLogo" class="logo" src="logo.png">
+    <div id="outroTitle" class="title" style="margin-top:70px">Shia Companion</div>
+    <div id="outroRule" class="rule" style="margin-top:34px"></div>
+    <div id="outroTag" class="tagline" style="margin-top:40px">Duas · Ziyarats · Prayer Times<br>Calendar · Qibla · Tasbeeh · Library</div>
+    <div id="outroCta" style="margin-top:110px">
+      <div class="tagline" style="font-weight:500;color:#fbeee8;margin-bottom:40px">Download now</div>
+      <span class="pill">Google Play</span><span class="pill">App Store</span>
+      <div class="url" style="margin-top:56px">shia-companion.web.app</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PS = 1.5; // phone screen scale: 390x844 logical -> 585x1266
+// Screens in order. `cap` changes the caption; screens without one keep the previous caption.
+const scenes = [
+  { img: 'home_loc', t0: 3.6, cap: ['Your day at a glance', 'Prayer times, Hijri date & a daily hadith'] },
+  { img: 'kumayl',   t0: 7.6, cap: ['Hundreds of duas', 'Arabic, transliteration & translation'],
+    scroll: { tall: 'kumayl_tall', top: 86, bottom: 62, from: 8.5, to: 11.4, dist: 980 } },
+  { img: 'ashura',   t0: 11.9, cap: ['Ziyarats & aamaal', 'Every recitation, beautifully laid out'] },
+  { img: 'todays',   t0: 15.0, cap: ["Today's recitations", 'What to recite, picked for each day'] },
+  { img: 'calendar', t0: 18.2, cap: ['Hijri calendar', 'Islamic events alongside your prayer times'] },
+  { img: 'qibla',    t0: 21.4, cap: ['Qibla finder', 'Face the Kaaba from anywhere'] },
+  { img: 'tasbeeh',  t0: 24.6, cap: ['Tasbeeh & Qaza tracker', 'Keep count. Stay consistent.'] },
+  { img: 'qaza',     t0: 26.4 },
+  { img: 'library',  t0: 28.2, cap: ['A growing library', 'Books on faith, history & the Ahlul Bayt'] },
+];
+const PHONE_OUT = 31.4, OUTRO_IN = 31.9, END = 37;
+const TRANS = 0.6;
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = x => { x = clamp(x); return x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3) / 2; };
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const $ = id => document.getElementById(id);
+
+// build screens
+const screen = $('screen');
+scenes.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'scr'; d.id = 'scr' + i;
+  d.innerHTML = `<img class="base" src="shots/${s.img}.png">`;
+  if (s.scroll) {
+    const sc = s.scroll;
+    const h = (844 - sc.top - sc.bottom) * PS;
+    d.innerHTML += `<div class="scroller" style="top:${sc.top*PS}px;height:${h}px"><img id="tall${i}" src="shots/${sc.tall}.png"></div>`;
+  }
+  d.innerHTML += '<div class="dim"></div>';
+  screen.appendChild(d);
+});
+// captions
+const caps = $('caps');
+const capScenes = scenes.filter(s => s.cap);
+capScenes.forEach((s, i) => {
+  const c = document.createElement('div');
+  c.className = 'abs cap'; c.id = 'cap' + i;
+  c.innerHTML = `<h1>${s.cap[0]}</h1><p>${s.cap[1]}</p>`;
+  caps.appendChild(c);
+});
+
+function render(t) {
+  // background drift
+  $('pattern').style.transform = `translate(${-t*6}px, ${-t*10}px)`;
+  $('glow').style.transform = `translateY(${Math.sin(t*0.5)*40}px)`;
+
+  // intro
+  const li = easeOut(prog(t, 0.2, 1.4));
+  const introOut = ease(prog(t, 3.0, 3.7));
+  $('introLogo').style.opacity = li;
+  $('introLogo').style.transform = `scale(${0.7 + 0.3*li})`;
+  const ti = easeOut(prog(t, 0.9, 1.8));
+  $('introTitle').style.opacity = ti;
+  $('introTitle').style.transform = `translateY(${(1-ti)*40}px)`;
+  $('introRule').style.opacity = easeOut(prog(t, 1.4, 2.0));
+  $('introRule').style.transform = `scaleX(${easeOut(prog(t, 1.4, 2.2))})`;
+  const gi = easeOut(prog(t, 1.6, 2.5));
+  $('introTag').style.opacity = gi;
+  $('introTag').style.transform = `translateY(${(1-gi)*30}px)`;
+  $('intro').style.opacity = 1 - introOut;
+  $('intro').style.transform = `translateY(${-introOut*160}px) scale(${1 - introOut*0.08})`;
+
+  // phone in / out
+  const pin = ease(prog(t, 3.2, 4.3));
+  const pout = ease(prog(t, PHONE_OUT, PHONE_OUT + 0.8));
+  const float = Math.sin(t * 1.3) * 8;
+  $('phone').style.transform = `translateY(${(1-pin)*1500 + pout*1500 + float}px) rotate(${(1-pin)*6 - pout*4}deg)`;
+
+  // screens: iOS-style push
+  scenes.forEach((s, i) => {
+    const el = $('scr' + i);
+    const next = scenes[i + 1];
+    const inP = i === 0 ? 1 : ease(prog(t, s.t0, s.t0 + TRANS));
+    const outP = next ? ease(prog(t, next.t0, next.t0 + TRANS)) : 0;
+    const visible = (i === 0 || t >= s.t0) && outP < 1;
+    el.style.display = visible ? 'block' : 'none';
+    if (!visible) return;
+    el.style.transform = `translateX(${(1-inP)*100 - outP*30}%)`;
+    el.style.zIndex = i;
+    el.querySelector('.dim').style.opacity = outP * 0.25;
+    if (s.scroll) {
+      const sc = s.scroll;
+      const off = ease(prog(t, sc.from, sc.to)) * sc.dist;
+      $('tall' + i).style.top = `${-(sc.top + off) * PS}px`;
+    }
+  });
+
+  // captions
+  capScenes.forEach((s, i) => {
+    const el = $('cap' + i);
+    const nxt = capScenes[i + 1];
+    const start = s.t0 + (i === 0 ? 0.6 : 0.15);
+    const a = easeOut(prog(t, start, start + 0.55));
+    const endT = nxt ? nxt.t0 : PHONE_OUT;
+    const b = ease(prog(t, endT - 0.35, endT));
+    el.style.opacity = a * (1 - b);
+    el.style.transform = `translateY(${(1-a)*40 - b*30}px)`;
+  });
+
+  // outro
+  const oi = easeOut(prog(t, OUTRO_IN, OUTRO_IN + 1.1));
+  $('outro').style.opacity = t < OUTRO_IN ? 0 : 1;
+  $('outroLogo').style.opacity = oi;
+  $('outroLogo').style.transform = `scale(${0.7 + 0.3*oi})`;
+  const ot = easeOut(prog(t, OUTRO_IN + 0.5, OUTRO_IN + 1.3));
+  $('outroTitle').style.opacity = ot;
+  $('outroTitle').style.transform = `translateY(${(1-ot)*40}px)`;
+  $('outroRule').style.opacity = ot;
+  $('outroRule').style.transform = `scaleX(${ot})`;
+  const og = easeOut(prog(t, OUTRO_IN + 0.9, OUTRO_IN + 1.7));
+  $('outroTag').style.opacity = og;
+  $('outroTag').style.transform = `translateY(${(1-og)*30}px)`;
+  const oc = easeOut(prog(t, OUTRO_IN + 1.5, OUTRO_IN + 2.3));
+  $('outroCta').style.opacity = oc;
+  $('outroCta').style.transform = `translateY(${(1-oc)*30}px)`;
+
+  // final fade to black
+  $('stage').style.filter = `brightness(${1 - ease(prog(t, END - 0.6, END))})`;
+}
+window.render = render;
+window.DURATION = END;
+render(0);
+</script>
+</body>
+</html>
