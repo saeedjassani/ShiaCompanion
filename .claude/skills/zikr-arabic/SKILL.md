@@ -26,9 +26,7 @@ and ships in the next release — no separate publish step.
 `assets/zikr/*` itself now (a local JSON blob under `.zikr-backups/`, not a
 Firestore collection dump) — see "Working a batch" below.
 
-`scripts/zikr/*`, `scripts/all_zikr.json`, `scripts/zikr.json`, `scripts/zikr.csv`
-are stale legacy scrape dumps. Ignore them. (`assets/zikr.json` is different —
-that's the live per-uid index of `{title, slug, order, day}`, not a scrape dump.)
+`assets/zikr.json` is the live per-uid index of `{title, slug, order, day}`.
 
 ## Three lineages, three different jobs
 
