@@ -2,263 +2,413 @@
 <html>
 <head>
 <meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=block" rel="stylesheet">
 <style>
-  :root {
-    --ink: #2a1a15;
-    --brown: #7a5244;
-    --gold: #e8c77a;
-    --gold-soft: #f3dfae;
-    --cream: #fbeee8;
-  }
-  html, body { margin: 0; padding: 0; background: #000; }
-  #stage {
-    position: relative; width: 1080px; height: 1920px; overflow: hidden;
-    background: radial-gradient(ellipse 120% 80% at 50% 38%, #5a372b 0%, #3a241d 45%, #1e1210 100%);
-    font-family: 'Inter', sans-serif; color: var(--cream);
-  }
-  #pattern { position: absolute; inset: -200px; opacity: .07; }
-  #glow {
-    position: absolute; width: 1400px; height: 1400px; left: -160px; top: 300px;
-    background: radial-gradient(circle, rgba(232,199,122,.22) 0%, rgba(232,199,122,0) 60%);
-  }
-  .abs { position: absolute; left: 0; right: 0; text-align: center; }
+  @font-face { font-family: 'Qalam'; src: url('../../assets/fonts/qalam'); font-display: block; }
+  :root { --gold: #e8c77a; --gold-soft: #f3dfae; --cream: #fbeee8; --deep: #1c110e; }
+  html, body { margin: 0; background: #000; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--deep);
+           font-family: 'Inter', sans-serif; color: var(--cream); }
+  .layer { position: absolute; inset: 0; }
+  #bg { background: radial-gradient(ellipse 110% 75% at 50% 45%, #5a372b 0%, #37221b 45%, #140c0a 100%); }
+  #pattern { position: absolute; left: -160px; top: -160px; opacity: .06; }
+  #glow { position: absolute; width: 1500px; height: 1500px; left: -210px; top: 250px;
+          background: radial-gradient(circle, rgba(232,199,122,.20) 0%, rgba(232,199,122,0) 60%); }
+  #vignette { background: radial-gradient(ellipse 90% 70% at 50% 55%, rgba(0,0,0,0) 40%, rgba(0,0,0,.75) 100%); pointer-events: none; }
+  canvas { position: absolute; left: 0; top: 0; }
 
-  /* intro / outro */
-  .logo { width: 260px; height: 260px; border-radius: 58px; box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
-  .title { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 118px; color: var(--gold-soft); letter-spacing: 1px; }
-  .tagline { font-size: 40px; line-height: 1.45; color: rgba(251,238,232,.86); font-weight: 400; }
-  .rule { width: 120px; height: 2px; margin: 0 auto; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  /* calligraphy */
+  .ar { font-family: 'Qalam'; direction: rtl; color: var(--gold-soft); text-align: center; white-space: nowrap;
+        text-shadow: 0 0 40px rgba(232,199,122,.35), 0 0 2px rgba(255,240,200,.6); }
+  .ar span, .en span { display: inline-block; }
+  .en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; text-align: center; color: rgba(251,238,232,.88); }
+  #bism { position: absolute; left: 0; right: 0; top: 780px; font-size: 118px; }
+  #bismEn { position: absolute; left: 0; right: 0; top: 1010px; font-size: 46px; }
+  #verse { position: absolute; left: 0; right: 0; top: 560px; }
+  #verse .ar { font-size: 124px; line-height: 1.55; }
+  #verseEn { position: absolute; left: 60px; right: 60px; top: 1235px; font-size: 50px; line-height: 1.35; }
+  #kicker { position: absolute; left: 0; right: 0; top: 1500px; text-align: center; font-size: 30px; letter-spacing: 8px;
+            color: rgba(232,199,122,.8); text-transform: uppercase; }
 
-  /* captions */
-  .cap { top: 150px; }
-  .cap h1 { margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 92px; line-height: 1.05; color: var(--gold-soft); }
-  .cap p { margin: 22px 0 0; font-size: 38px; color: rgba(251,238,232,.84); }
-
-  /* phone */
-  #phone {
-    position: absolute; left: 50%; top: 480px; width: 621px; height: 1374px; margin-left: -310.5px;
-    border-radius: 78px; background: #120b09; padding: 18px; box-sizing: border-box;
-    box-shadow: 0 60px 120px rgba(0,0,0,.6), 0 0 0 3px #3b2a24, inset 0 0 0 2px #2b1d18;
-  }
-  #screen { position: relative; width: 585px; height: 1338px; border-radius: 60px; overflow: hidden; background: #fff; }
-  .scr { position: absolute; left: 0; top: 72px; width: 585px; height: 1266px; }
-  .scr img.base { position: absolute; left: 0; top: 0; width: 585px; height: 1266px; }
-  .scr .dim { position: absolute; inset: 0; background: #000; opacity: 0; }
-  .scroller { position: absolute; left: 0; width: 585px; overflow: hidden; }
-  .scroller img { position: absolute; left: 0; width: 585px; }
+  /* phone rig */
+  #rig { position: absolute; inset: 0; perspective: 2600px; }
+  #phone { position: absolute; left: 229.5px; top: 500px; width: 621px; height: 1374px; transform-origin: 310.5px 687px;
+           border-radius: 80px; background: linear-gradient(145deg, #2a1c17, #0e0807 60%); padding: 18px; box-sizing: border-box;
+           box-shadow: 0 70px 140px rgba(0,0,0,.65), 0 0 0 2px #4a352c, inset 0 0 0 2px #2b1d18; }
+  #phone::after { content: ''; position: absolute; inset: 0; border-radius: 80px; pointer-events: none;
+                  background: linear-gradient(115deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 30%); }
+  #screen { position: relative; width: 585px; height: 1338px; border-radius: 62px; overflow: hidden; background: #fff8f5; }
   #status { position: absolute; left: 0; top: 0; width: 585px; height: 72px; background: rgb(121,85,72); z-index: 50; color: #fff; font-weight: 600; font-size: 25px; }
   #status .tm { position: absolute; left: 62px; top: 24px; }
   #status .ic { position: absolute; right: 52px; top: 26px; display: flex; gap: 8px; align-items: center; }
-  #notch { z-index: 51 !important; position: absolute; top: 18px; left: 50%; margin-left: -62px; width: 124px; height: 34px; border-radius: 20px; background: #120b09; z-index: 5; }
-  .tap { position: absolute; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%;
-         background: rgba(122,82,68,.28); border: 3px solid rgba(122,82,68,.55); opacity: 0; z-index: 4; }
+  #notch { position: absolute; z-index: 51; top: 18px; left: 50%; margin-left: -62px; width: 124px; height: 34px; border-radius: 20px; background: #0e0807; }
+  #scr { position: absolute; left: 0; top: 72px; width: 585px; height: 1266px; }
+  #scr2 { position: absolute; left: 0; top: 72px; width: 585px; height: 1266px; opacity: 0; }
+  #sheen { position: absolute; inset: 0; z-index: 60; pointer-events: none; opacity: 0;
+           background: linear-gradient(105deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.35) 50%, rgba(255,255,255,0) 65%); }
+  .tap { position: absolute; z-index: 55; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%;
+         background: rgba(255,255,255,.35); border: 4px solid rgba(255,255,255,.9); box-shadow: 0 0 0 3px rgba(122,82,68,.35), 0 6px 20px rgba(0,0,0,.25); opacity: 0; }
 
-  .chips { margin-top: 34px; }
+  /* captions */
+  #capScrim { background: linear-gradient(180deg, rgba(20,12,10,.92) 0%, rgba(20,12,10,.75) 20%, rgba(20,12,10,0) 30%); opacity: 0; }
+  .cap { position: absolute; left: 0; right: 0; top: 120px; text-align: center; }
+  .cap h1 { margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 100px; line-height: 1.02; color: var(--gold-soft); }
+  .cap p { margin: 22px 0 0; font-size: 38px; color: rgba(251,238,232,.86); }
+  .cap span { display: inline-block; white-space: pre; }
+  .chips { margin-top: 30px; }
   .chip { display: inline-block; padding: 14px 34px; margin: 0 10px; border-radius: 40px; font-size: 30px; font-weight: 600;
-          border: 2px solid rgba(232,199,122,.45); color: rgba(243,223,174,.7); }
-  .chip.on { background: var(--gold); color: #3a241d; border-color: var(--gold); }
+          border: 2px solid rgba(232,199,122,.45); color: rgba(243,223,174,.7); transition: none; }
+  .chip.on { background: var(--gold); color: #3a241d; border-color: var(--gold); box-shadow: 0 0 30px rgba(232,199,122,.45); }
+
+  /* fan of other features */
+  .card { position: absolute; left: 50%; top: 50%; width: 390px; height: 890px; margin: -445px 0 0 -195px; border-radius: 52px;
+          background: #0e0807; padding: 12px; box-sizing: border-box; box-shadow: 0 40px 90px rgba(0,0,0,.6), 0 0 0 2px #4a352c; opacity: 0; }
+  .card .in { width: 366px; height: 866px; border-radius: 42px; overflow: hidden; background: #fff; }
+  .card .bar { height: 46px; background: rgb(121,85,72); }
+  .card img { width: 366px; display: block; }
+  .card .lbl { position: absolute; left: 0; right: 0; bottom: -70px; text-align: center; font-size: 30px; font-weight: 600; color: var(--gold-soft); }
+
+  /* outro */
+  .logo { width: 250px; height: 250px; border-radius: 56px; box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
+  .title { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 120px; color: var(--gold-soft); }
+  .rule { width: 140px; height: 2px; margin: 0 auto; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .tagline { font-size: 38px; line-height: 1.5; color: rgba(251,238,232,.86); }
   .badges img { height: 128px; margin: 0 16px; vertical-align: middle; }
-  .free { display: inline-block; padding: 12px 36px; border-radius: 40px; background: var(--gold); color: #3a241d; font-weight: 600; font-size: 34px; letter-spacing: 2px; }
-  .pill { display: inline-block; padding: 26px 46px; margin: 0 14px; border-radius: 60px; font-size: 36px; font-weight: 600;
-          border: 2px solid rgba(232,199,122,.6); color: var(--gold-soft); background: rgba(232,199,122,.08); }
-  .url { font-size: 34px; color: rgba(251,238,232,.7); letter-spacing: .5px; }
+  .free { display: inline-block; padding: 12px 40px; border-radius: 40px; background: var(--gold); color: #3a241d; font-weight: 600; font-size: 34px; letter-spacing: 3px; }
+  .url { font-size: 34px; color: rgba(251,238,232,.7); }
+  #outro { position: absolute; left: 0; right: 0; top: 380px; text-align: center; opacity: 0; }
 </style>
 </head>
 <body>
 <div id="stage">
-  <svg id="pattern" width="1480" height="2320">
-    <defs>
-      <pattern id="star" width="160" height="160" patternUnits="userSpaceOnUse">
-        <g transform="translate(80 80)" fill="none" stroke="#e8c77a" stroke-width="2">
-          <rect x="-34" y="-34" width="68" height="68"/>
-          <rect x="-34" y="-34" width="68" height="68" transform="rotate(45)"/>
-          <circle r="14"/>
-          <path d="M-80 0H-48M48 0H80M0 -80V-48M0 48V80"/>
-        </g>
-      </pattern>
-    </defs>
-    <rect width="1480" height="2320" fill="url(#star)"/>
+  <div id="bg" class="layer"></div>
+  <svg id="pattern" width="1400" height="2240">
+    <defs><pattern id="star" width="160" height="160" patternUnits="userSpaceOnUse">
+      <g transform="translate(80 80)" fill="none" stroke="#e8c77a" stroke-width="2">
+        <rect x="-34" y="-34" width="68" height="68"/><rect x="-34" y="-34" width="68" height="68" transform="rotate(45)"/>
+        <circle r="14"/><path d="M-80 0H-48M48 0H80M0 -80V-48M0 48V80"/></g></pattern></defs>
+    <rect width="1400" height="2240" fill="url(#star)"/>
   </svg>
   <div id="glow"></div>
+  <canvas id="dust" width="1080" height="1920"></canvas>
+  <canvas id="wave" width="1080" height="1920"></canvas>
 
-  <!-- intro -->
-  <div id="intro" class="abs" style="top:560px">
-    <img id="introLogo" class="logo" src="logo.png">
-    <div id="introTitle" class="title" style="margin-top:70px">Shia Companion</div>
-    <div id="introRule" class="rule" style="margin-top:34px"></div>
-    <div id="introTag" class="tagline" style="margin-top:40px">Everything a lover of the Ahlul Bayt (a)<br>needs, in one app</div>
-    <div id="introFree" style="margin-top:56px"><span class="free">FREE</span></div>
+  <!-- cold open -->
+  <div id="bism" class="ar"><span>بِسْمِ</span> <span>اللهِ</span> <span>الرَّحْمٰنِ</span> <span>الرَّحِيْمِ</span></div>
+  <div id="bismEn" class="en">In the name of Allah, the Beneficent, the Merciful</div>
+  <div id="verse">
+    <div class="ar"><span>اَللّٰهُمَّ</span> <span>اِنِّىْ</span> <span>اَسْاَلُكَ</span></div>
+    <div class="ar"><span>بِرَحْمَتِكَ</span> <span>الَّتِىْ</span></div>
+    <div class="ar"><span>وَسِعَتْ</span> <span>كُلَّ</span> <span>شَيْءٍ</span></div>
+  </div>
+  <div id="verseEn" class="en"><span>O Allah! I ask You</span> <span>by Your mercy,</span> <span>which encompasses all things</span></div>
+  <div id="kicker">Dua Kumayl · in Shia Companion</div>
+
+  <div id="rig">
+    <div id="fan"></div>
+    <div id="phone">
+      <div id="screen">
+        <div id="status"><span class="tm">9:41</span><span class="ic"><svg width="30" height="20" viewBox="0 0 30 20" fill="#fff"><rect x="0" y="13" width="5" height="7" rx="1"/><rect x="8" y="9" width="5" height="11" rx="1"/><rect x="16" y="5" width="5" height="15" rx="1"/><rect x="24" y="0" width="5" height="20" rx="1"/></svg><svg width="44" height="22" viewBox="0 0 44 22"><rect x="1" y="1" width="37" height="20" rx="6" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2"/><rect x="4" y="4" width="28" height="14" rx="3" fill="#fff"/><rect x="40" y="7" width="3" height="8" rx="1.5" fill="#fff" fill-opacity=".6"/></svg></span></div>
+        <div id="notch"></div>
+        <img id="scr"><img id="scr2">
+        <div id="taps"></div>
+        <div id="sheen"></div>
+      </div>
+    </div>
   </div>
 
+  <div id="vignette" class="layer"></div>
+  <div id="capScrim" class="layer"></div>
   <div id="caps"></div>
 
-  <div id="phone">
-    <div id="screen"><div id="status"><span class="tm">9:41</span><span class="ic"><svg width="30" height="20" viewBox="0 0 30 20" fill="#fff"><rect x="0" y="13" width="5" height="7" rx="1"/><rect x="8" y="9" width="5" height="11" rx="1"/><rect x="16" y="5" width="5" height="15" rx="1"/><rect x="24" y="0" width="5" height="20" rx="1"/></svg><svg width="44" height="22" viewBox="0 0 44 22"><rect x="1" y="1" width="37" height="20" rx="6" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2"/><rect x="4" y="4" width="28" height="14" rx="3" fill="#fff"/><rect x="40" y="7" width="3" height="8" rx="1.5" fill="#fff" fill-opacity=".6"/></svg></span></div><div id="notch"></div></div>
-  </div>
-
-  <!-- outro -->
-  <div id="outro" class="abs" style="top:500px">
-    <img id="outroLogo" class="logo" src="logo.png">
-    <div id="outroTitle" class="title" style="margin-top:70px">Shia Companion</div>
-    <div id="outroRule" class="rule" style="margin-top:34px"></div>
-    <div id="outroTag" class="tagline" style="margin-top:40px">Duas · Ziyarats · Aamaal · Audio<br>Prayer Times · Calendar · Qibla · Tasbeeh</div>
-    <div id="outroCta" style="margin-top:100px">
-      <div class="tagline" style="font-weight:500;color:#fbeee8;margin-bottom:44px">Download it <span style="color:var(--gold);font-weight:600">free</span></div>
+  <div id="outro">
+    <img id="oLogo" class="logo" src="logo.png">
+    <div id="oTitle" class="title" style="margin-top:60px">Shia Companion</div>
+    <div id="oRule" class="rule" style="margin-top:30px"></div>
+    <div id="oTag" class="tagline" style="margin-top:36px">Duas · Ziyarats · Aamaal · Audio<br>Prayer Times · Calendar · Qibla · Tasbeeh</div>
+    <div id="oFree" style="margin-top:60px"><span class="free">100% FREE</span></div>
+    <div id="oCta" style="margin-top:70px">
       <div class="badges"><img src="shots/appstore.svg"><img src="shots/gplay_c.png"></div>
-      <div class="url" style="margin-top:56px">shia-companion.web.app</div>
+      <div class="url" style="margin-top:50px">shia-companion.web.app</div>
     </div>
   </div>
 </div>
 
+<script src="env.js"></script>
+<script src="taps.js"></script>
 <script>
-const PS = 1.5; // phone screen scale: 390x844 logical -> 585x1266
-// Screens in order. `cap` changes the caption; screens without one keep the previous caption.
-// `fade` cross-fades in place (a setting changing) instead of pushing like navigation.
-// `chip` highlights that index of the current caption's `chips`.
-const scenes = [
-  { img: 'duas',     t0: 3.6, cap: ['Hundreds of duas', 'Plus ziyarats, aamaal, munajaat & more'] },
-  { img: 'kumayl',   t0: 6.8, cap: ['Read along, line by line', 'Arabic, transliteration & translation'],
-    scroll: { tall: 'kumayl_tall', top: 86, bottom: 62, from: 7.7, to: 10.8, dist: 900 } },
-  { img: 'z_check',  t0: 11.4, cap: ['Choose your script', 'Two Arabic fonts, beautifully typeset'], chips: ['Qalam (IndoPak)', 'Scheherazade'], chip: 0, fade: true },
-  { img: 'z_scheh',  t0: 13.4, chip: 1, fade: true },
-  { img: 'z_check',  t0: 15.0, chip: 0, fade: true },
-  { img: 'z_drawer_big', t0: 16.4, cap: ['Read comfortably', 'Adjust Arabic & English text size'] },
-  { img: 'z_big',    t0: 18.0, fade: true },
-  { img: 'z_para',   t0: 20.0, cap: ['Arabic as a paragraph', 'Flowing text for fluent reciters'] },
-  { img: 'z_focus',  t0: 23.2, cap: ['Focus mode', 'Just you and the words'] },
-  { img: 'z_listen', t0: 26.4, cap: ['Listen & recite along', 'Recitation audio, built in'] },
-  { img: 'z_counter',t0: 29.6, cap: ['Count as you recite', 'A tap counter right on the page'] },
-  { img: 'home_loc', t0: 32.8, cap: ['And so much more', 'Prayer times · Calendar · Qibla · Tasbeeh'] },
-  { img: 'calendar', t0: 34.2 },
-  { img: 'qibla',    t0: 35.4 },
-  { img: 'tasbeeh',  t0: 36.6 },
-];
-const PHONE_OUT = 38.0, OUTRO_IN = 38.5, END = 45;
-const TRANS = 0.6;
-
+const FPS = 30, PS = 1.5;
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const ease = x => { x = clamp(x); return x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3) / 2; };
 const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const easeBack = x => { x = clamp(x); const c = 1.4; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
 const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, x) => a + (b - a) * x;
 const $ = id => document.getElementById(id);
+const env = t => { const i = t * 30; const a = ENV[Math.floor(i)] || 0, b = ENV[Math.floor(i) + 1] || 0; return lerp(a, b, i % 1); };
 
-// build screens
-const screen = $('screen');
-scenes.forEach((s, i) => {
+// ---- timeline ------------------------------------------------------------
+// Live app recordings shown in the phone. `from` = first clip frame, `speed` = playback rate.
+const shots = [
+  { clip: 'scroll',  t0: 16.2, t1: 23.8, from: 0,  hold: 19.0, speed: 1.0 },
+  { clip: 'font',    t0: 23.8, t1: 28.6, from: 4,  speed: 1.0 },
+  { clip: 'size',    t0: 28.6, t1: 33.0, from: 6,  speed: 1.5 },
+  { clip: 'para',    t0: 33.0, t1: 37.2, from: 6,  speed: 1.2 },
+  { clip: 'focus',   t0: 37.2, t1: 40.6, from: 10, speed: 1.0 },
+  { clip: 'listen',  t0: 40.6, t1: 44.0, from: 4,  speed: 1.0 },
+  { clip: 'counter', t0: 44.0, t1: 48.2, from: 6,  speed: 1.45 },
+];
+const caps = [
+  { t0: 18.9, t1: 23.8, h: 'Read along, line by line', p: 'Arabic · transliteration · translation' },
+  { t0: 24.0, t1: 28.6, h: 'Choose your script', p: 'Two Arabic fonts, beautifully typeset', chips: ['Qalam (IndoPak)', 'Scheherazade'] },
+  { t0: 28.8, t1: 33.0, h: 'Read comfortably', p: 'Make the Arabic as large as you like' },
+  { t0: 33.2, t1: 37.2, h: 'Arabic as a paragraph', p: 'Flowing text for fluent reciters' },
+  { t0: 37.4, t1: 40.6, h: 'Focus mode', p: 'Nothing between you and the words' },
+  { t0: 40.8, t1: 44.0, h: 'Hear it recited', p: 'Audio built in, like the recitation you hear now' },
+  { t0: 44.2, t1: 48.2, h: 'Count as you recite', p: 'A tap counter, right on the page' },
+  { t0: 48.6, t1: 52.4, h: 'And so much more', p: 'Prayer times · Hijri calendar · Qibla · Tasbeeh' },
+];
+// camera: [t, scale, tx, ty, rotY, rotX]; phone transform relative to its resting place
+const cam = [
+  [16.2, 2.35, 0, 420, 0, 0],
+  [18.6, 1.0, 0, 0, -6, 3],
+  [23.6, 1.0, 0, 0, 5, 2],
+  [24.6, 1.22, -60, 170, 0, 0],   // font: lean into the drawer
+  [27.2, 1.22, -60, 170, 0, 0],
+  [28.4, 1.0, 0, 0, -5, 2],
+  [29.4, 1.32, -100, 330, 0, 0],  // size: the sliders at the top
+  [31.2, 1.32, -100, 330, 0, 0],
+  [32.4, 1.0, 0, 0, 4, 2],
+  [37.2, 1.0, 0, 0, -3, 2],
+  [37.9, 1.08, 0, 40, 0, 0],      // focus: slow push-in
+  [40.4, 1.14, 0, 60, 0, 0],
+  [41.2, 0.88, 0, -90, 5, 1],     // listen: step back to make room for the waveform
+  [43.8, 0.88, 0, -90, 0, 0],
+  [45.0, 1.38, -120, -660, -4, 0], // counter: into the counter card
+  [47.8, 1.38, -120, -660, -4, 0],
+  [48.8, 0.9, 0, 200, 0, 0],
+];
+const PHONE_IN = 16.2, PHONE_OUT = 48.4, OUTRO_IN = 52.2, END = 58.5;
+
+// ---- build ---------------------------------------------------------------
+const capWrap = $('caps');
+const split = s => s.split(' ').map(w => `<span>${w} </span>`).join('');
+caps.forEach((c, i) => {
   const d = document.createElement('div');
-  d.className = 'scr'; d.id = 'scr' + i;
-  d.innerHTML = `<img class="base" src="shots/${s.img}.png">`;
-  if (s.scroll) {
-    const sc = s.scroll;
-    const h = (844 - sc.top - sc.bottom) * PS;
-    d.innerHTML += `<div class="scroller" style="top:${sc.top*PS}px;height:${h}px"><img id="tall${i}" src="shots/${sc.tall}.png"></div>`;
+  d.className = 'cap'; d.id = 'cap' + i;
+  d.innerHTML = `<h1>${split(c.h)}</h1><p>${split(c.p)}</p>` +
+    (c.chips ? `<div class="chips">${c.chips.map((x, j) => `<span class="chip" id="chip${j}">${x}</span>`).join('')}</div>` : '');
+  capWrap.appendChild(d);
+});
+const fanShots = [['home_loc', 'Prayer times'], ['calendar', 'Hijri calendar'], ['qibla', 'Qibla'], ['tasbeeh', 'Tasbeeh']];
+fanShots.forEach(([s, l], i) => {
+  const d = document.createElement('div');
+  d.className = 'card'; d.id = 'card' + i;
+  d.innerHTML = `<div class="in"><div class="bar"></div><img src="shots/${s}.png"></div><div class="lbl">${l}</div>`;
+  $('fan').appendChild(d);
+});
+// taps: TAPS[clip] = [{t, x, y}] in clip seconds / logical px
+const tapEls = [];
+shots.forEach(s => (TAPS[s.clip] || []).forEach(tp => {
+  const vt = s.t0 + (tp.t - s.from / FPS) / s.speed + (s.hold ? s.hold - s.t0 : 0);
+  if (vt < s.t0 || vt > s.t1) return;
+  const e = document.createElement('div');
+  e.className = 'tap'; e.style.left = tp.x * PS + 'px'; e.style.top = 72 + tp.y * PS + 'px';
+  $('taps').appendChild(e);
+  tapEls.push({ e, t: vt });
+}));
+
+const fontShot = shots.find(s => s.clip === 'font');
+// the chip flips once the dialog has closed on the new font, not at the tap itself
+const FONT_SWITCH_T = fontShot.t0 + (TAPS.font[2].t - fontShot.from / FPS) / fontShot.speed + 0.5;
+
+// dust particles (deterministic)
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const motes = Array.from({ length: 90 }, () => ({ x: rnd() * 1080, y: rnd() * 1920, r: 1 + rnd() * 3.2, v: 8 + rnd() * 28, ph: rnd() * 6.28, sw: 10 + rnd() * 30 }));
+
+// ---- render --------------------------------------------------------------
+function camAt(t) {
+  if (t <= cam[0][0]) return cam[0].slice(1);
+  for (let i = 0; i < cam.length - 1; i++) {
+    const a = cam[i], b = cam[i + 1];
+    if (t <= b[0]) { const x = ease(prog(t, a[0], b[0])); return a.slice(1).map((v, k) => lerp(v, b[k + 1], x)); }
   }
-  d.innerHTML += '<div class="dim"></div>';
-  screen.appendChild(d);
-});
-// captions
-const caps = $('caps');
-const capScenes = scenes.filter(s => s.cap);
-capScenes.forEach((s, i) => {
-  const c = document.createElement('div');
-  c.className = 'abs cap'; c.id = 'cap' + i;
-  c.innerHTML = `<h1>${s.cap[0]}</h1><p>${s.cap[1]}</p>` +
-    (s.chips ? `<div class="chips">${s.chips.map((c, j) => `<span class="chip" id="chip${i}_${j}">${c}</span>`).join('')}</div>` : '');
-  caps.appendChild(c);
-});
+  return cam[cam.length - 1].slice(1);
+}
+function wordsIn(el, times, t, dur = 0.7) {
+  [...el.querySelectorAll('span')].forEach((s, i) => {
+    const a = easeOut(prog(t, times[i], times[i] + dur));
+    s.style.opacity = a;
+    s.style.filter = `blur(${(1 - a) * 14}px)`;
+    s.style.transform = `translateY(${(1 - a) * 30}px) scale(${0.94 + 0.06 * a})`;
+  });
+}
+let curSrc = '', curSrc2 = '';
+async function setImg(el, src, which) {
+  if (el.dataset.src === src) return;
+  el.dataset.src = src; el.src = src;
+  try { await el.decode(); } catch (e) {}
+}
 
-function render(t) {
-  // background drift
-  $('pattern').style.transform = `translate(${-(t*6 % 160)}px, ${-(t*10 % 160)}px)`;
-  $('glow').style.transform = `translateY(${Math.sin(t*0.5)*40}px)`;
+async function render(t) {
+  // background
+  $('pattern').style.transform = `translate(${-(t * 6 % 160)}px, ${-(t * 10 % 160)}px)`;
+  $('glow').style.transform = `translateY(${Math.sin(t * 0.5) * 40}px) scale(${1 + env(t) * 0.08})`;
+  const introDark = 1 - ease(prog(t, 15.4, 17.5)) + ease(prog(t, 0, 0.1)) * 0;
+  $('bg').style.opacity = 0.55 + 0.45 * (1 - introDark * 0.6);
+  $('pattern').style.opacity = 0.06 * (1 - introDark * 0.7);
 
-  // intro
-  const li = easeOut(prog(t, 0.2, 1.4));
-  const introOut = ease(prog(t, 3.0, 3.7));
-  $('introLogo').style.opacity = li;
-  $('introLogo').style.transform = `scale(${0.7 + 0.3*li})`;
-  const ti = easeOut(prog(t, 0.9, 1.8));
-  $('introTitle').style.opacity = ti;
-  $('introTitle').style.transform = `translateY(${(1-ti)*40}px)`;
-  $('introRule').style.opacity = easeOut(prog(t, 1.4, 2.0));
-  $('introRule').style.transform = `scaleX(${easeOut(prog(t, 1.4, 2.2))})`;
-  const gi = easeOut(prog(t, 1.6, 2.5));
-  $('introTag').style.opacity = gi;
-  $('introTag').style.transform = `translateY(${(1-gi)*30}px)`;
-  const fi = easeOut(prog(t, 2.1, 2.8));
-  $('introFree').style.opacity = fi;
-  $('introFree').style.transform = `scale(${0.85 + 0.15*fi})`;
-  $('intro').style.opacity = 1 - introOut;
-  $('intro').style.transform = `translateY(${-introOut*160}px) scale(${1 - introOut*0.08})`;
+  // dust
+  const dc = $('dust').getContext('2d'); dc.clearRect(0, 0, 1080, 1920);
+  const dustAmt = 0.55 + 0.45 * introDark;
+  motes.forEach(m => {
+    const y = ((m.y - t * m.v) % 1920 + 1920) % 1920, x = m.x + Math.sin(t * 0.6 + m.ph) * m.sw;
+    const tw = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * 2 + m.ph * 3));
+    dc.globalAlpha = tw * dustAmt * 0.8; dc.fillStyle = '#f3dfae';
+    dc.beginPath(); dc.arc(x, y, m.r, 0, 6.283); dc.fill();
+  });
+  dc.globalAlpha = 1;
 
-  // phone in / out
-  const pin = ease(prog(t, 3.2, 4.3));
-  const pout = ease(prog(t, PHONE_OUT, PHONE_OUT + 0.8));
-  const float = Math.sin(t * 1.3) * 8;
-  $('phone').style.transform = `translateY(${(1-pin)*1500 + pout*1500 + float}px) rotate(${(1-pin)*6 - pout*4}deg)`;
-
-  // screens: iOS-style push
-  scenes.forEach((s, i) => {
-    const el = $('scr' + i);
-    const next = scenes[i + 1];
-    const inP = i === 0 ? 1 : ease(prog(t, s.t0, s.t0 + TRANS));
-    const outP = next ? ease(prog(t, next.t0, next.t0 + TRANS)) : 0;
-    const visible = (i === 0 || t >= s.t0) && outP < 1;
-    el.style.display = visible ? 'block' : 'none';
-    if (!visible) return;
-    const fadeIn = s.fade, fadeOut = next && next.fade;
-    el.style.transform = `translateX(${(fadeIn ? 0 : (1-inP)*100) - (fadeOut ? 0 : outP*30)}%)`;
-    el.style.opacity = fadeIn ? inP : 1;
-    el.style.zIndex = i;
-    el.querySelector('.dim').style.opacity = fadeOut ? 0 : outP * 0.25;
-    if (s.scroll) {
-      const sc = s.scroll;
-      const off = ease(prog(t, sc.from, sc.to)) * sc.dist;
-      $('tall' + i).style.top = `${-(sc.top + off) * PS}px`;
+  // waveform: a breathing line under the calligraphy, and a full visualiser while "listening"
+  const wc = $('wave').getContext('2d'); wc.clearRect(0, 0, 1080, 1920);
+  const waveIntro = (ease(prog(t, 0.6, 1.6)) - ease(prog(t, 15.6, 16.6)));
+  const waveListen = ease(prog(t, 40.8, 41.4)) - ease(prog(t, 43.6, 44.1));
+  const drawWave = (y, amp, alpha, n, w) => {
+    if (alpha <= 0.01) return;
+    wc.globalAlpha = alpha; wc.fillStyle = '#e8c77a';
+    const gap = w / n;
+    for (let i = 0; i < n; i++) {
+      const u = i / (n - 1), fall = Math.sin(u * Math.PI);
+      const e = env(t - Math.abs(u - 0.5) * 0.5);
+      const h = 4 + amp * e * fall * (0.6 + 0.4 * Math.sin(i * 1.7 + t * 9));
+      wc.fillRect(540 - w / 2 + i * gap, y - h / 2, gap * 0.45, h);
     }
+    wc.globalAlpha = 1;
+  };
+  drawWave(1690, 90, waveIntro * 0.55, 64, 760);
+  drawWave(1835, 120, waveListen, 72, 900);
+
+  // cold open: Bismillah
+  wordsIn($('bism'), [1.0, 1.35, 1.9, 2.9], t, 0.9);
+  const bOut = ease(prog(t, 5.2, 6.3));
+  $('bism').style.opacity = 1 - bOut; $('bism').style.transform = `translateY(${-bOut * 60}px)`;
+  const be = easeOut(prog(t, 3.3, 4.3));
+  $('bismEn').style.opacity = be * (1 - bOut); $('bismEn').style.transform = `translateY(${(1 - be) * 20 - bOut * 60}px)`;
+  // verse 1, word by word with the reciter
+  const vIn = [7.0, 7.66, 8.28, 9.68, 11.42, 13.64, 15.04, 15.4];
+  const vs = [...$('verse').querySelectorAll('span')];
+  vs.forEach((s, i) => {
+    const a = easeOut(prog(t, vIn[i], vIn[i] + 0.9));
+    const lit = 1 - prog(t, vIn[i] + 0.2, vIn[i] + 1.6);   // freshly recited word glows
+    s.style.opacity = a;
+    s.style.filter = `blur(${(1 - a) * 14}px) brightness(${1 + lit * 0.35})`;
+    s.style.transform = `translateY(${(1 - a) * 30}px)`;
+  });
+  wordsIn($('verseEn'), [7.5, 10.0, 13.9], t, 0.9);
+  const vOut = ease(prog(t, 16.2, 17.2));
+  $('verse').style.opacity = 1 - vOut; $('verseEn').style.opacity = 1 - vOut;
+  $('verse').style.transform = `scale(${1 - vOut * 0.25}) translateY(${vOut * 120}px)`;
+  const ki = easeOut(prog(t, 10.6, 11.8));
+  $('kicker').style.opacity = ki * (1 - vOut); $('kicker').style.letterSpacing = `${8 + (1 - ki) * 10}px`;
+
+  // phone
+  const [s, tx, ty, ry, rx] = camAt(t);
+  const pin = easeOut(prog(t, PHONE_IN, PHONE_IN + 1.0));
+  const pout = ease(prog(t, PHONE_OUT - 0.2, PHONE_OUT + 0.6));
+  const float = Math.sin(t * 1.1) * 7;
+  const ph = $('phone');
+  ph.style.display = t < PHONE_IN || t > PHONE_OUT + 0.7 ? 'none' : 'block';
+  ph.style.opacity = pin * (1 - pout);
+  ph.style.filter = pin < 1 ? `blur(${(1 - pin) * 7}px)` : 'none';
+  ph.style.transform = `translate(${tx}px, ${ty + float + pout * 200}px) rotateY(${ry}deg) rotateX(${rx}deg) scale(${s * (1 - pout * 0.3)})`;
+  $('vignette').style.opacity = 0.55 + 0.45 * ease(prog(t, 37.4, 38.2)) * (1 - ease(prog(t, 40.4, 41))) ;
+
+  // phone screen content
+  let active = shots.find(sh => t >= sh.t0 && t < sh.t1) || (t < shots[0].t0 ? shots[0] : shots[shots.length - 1]);
+  const frameOf = (sh, tt) => {
+    const start = sh.hold ? Math.max(0, tt - sh.hold) : Math.max(0, tt - sh.t0);
+    return clamp(Math.floor(sh.from + start * FPS * sh.speed), 0, CLIP_FRAMES[sh.clip] - 1);
+  };
+  const src = `clips/${active.clip}/${String(frameOf(active, t)).padStart(4, '0')}.jpg`;
+  const jobs = [setImg($('scr'), src)];
+  // cross-dissolve into the next clip over 0.35s
+  const nxt = shots[shots.indexOf(active) + 1];
+  const xf = nxt ? prog(t, active.t1 - 0.35, active.t1) : 0;
+  if (xf > 0) jobs.push(setImg($('scr2'), `clips/${nxt.clip}/${String(nxt.from).padStart(4, '0')}.jpg`));
+  $('scr2').style.opacity = xf;
+  // light sweep across the glass on each cut
+  const sw = shots.map(sh => prog(t, sh.t0 - 0.1, sh.t0 + 0.9)).find(v => v > 0 && v < 1);
+  $('sheen').style.opacity = sw ? Math.sin(sw * Math.PI) * 0.8 : 0;
+  $('sheen').style.transform = `translateX(${sw ? (sw * 2 - 1) * 110 : 0}%)`;
+
+  tapEls.forEach(({ e, t: tt }) => {
+    const p = prog(t, tt - 0.12, tt + 0.45);
+    e.style.opacity = p > 0 && p < 1 ? (p < 0.25 ? p / 0.25 : 1 - (p - 0.25) / 0.75) : 0;
+    e.style.transform = `scale(${0.6 + p * 0.7})`;
   });
 
   // captions
-  capScenes.forEach((s, i) => {
+  let scrim = 0;
+  caps.forEach((c, i) => {
     const el = $('cap' + i);
-    const nxt = capScenes[i + 1];
-    const start = s.t0 + (i === 0 ? 0.6 : 0.15);
-    const a = easeOut(prog(t, start, start + 0.55));
-    const endT = nxt ? nxt.t0 : PHONE_OUT;
-    const b = ease(prog(t, endT - 0.35, endT));
-    el.style.opacity = a * (1 - b);
-    el.style.transform = `translateY(${(1-a)*40 - b*30}px)`;
-    if (s.chips) {
-      let active = 0;
-      scenes.forEach(sc => { if (sc.chip !== undefined && t >= sc.t0 + 0.2) active = sc.chip; });
-      s.chips.forEach((_, j) => $(`chip${i}_${j}`).classList.toggle('on', j === active));
+    const vis = t >= c.t0 - 0.1 && t < c.t1 + 0.1;
+    el.style.display = vis ? 'block' : 'none';
+    if (!vis) return;
+    const out = ease(prog(t, c.t1 - 0.35, c.t1));
+    scrim = Math.max(scrim, 1 - out);
+    const ws = [...el.querySelectorAll('h1 span')], ps = [...el.querySelectorAll('p span')];
+    ws.forEach((w, j) => {
+      const a = easeBack(prog(t, c.t0 + j * 0.07, c.t0 + j * 0.07 + 0.55));
+      w.style.opacity = clamp(a) * (1 - out);
+      w.style.transform = `translateY(${(1 - a) * 50 - out * 20}px)`;
+    });
+    ps.forEach((w, j) => {
+      const a = easeOut(prog(t, c.t0 + 0.3 + j * 0.035, c.t0 + 0.8 + j * 0.035));
+      w.style.opacity = a * (1 - out);
+      w.style.transform = `translateY(${(1 - a) * 18}px)`;
+    });
+    if (c.chips) {
+      const switchT = FONT_SWITCH_T;
+      const on = t >= switchT ? 1 : 0;
+      [0, 1].forEach(j => {
+        const ch = $('chip' + j); ch.classList.toggle('on', j === on);
+        const a = easeOut(prog(t, c.t0 + 0.5 + j * 0.1, c.t0 + 1.0 + j * 0.1));
+        ch.style.opacity = a * (1 - out);
+        const pop = j === on ? 1 + 0.12 * Math.sin(Math.PI * prog(t, switchT, switchT + 0.4)) : 1;
+        ch.style.transform = `translateY(${(1 - a) * 20}px) scale(${pop})`;
+      });
     }
+  });
+  $('capScrim').style.opacity = scrim * (t > 24 && t < 48.2 ? 1 : 0.4);
+
+  // fan of other features
+  fanShots.forEach((_, i) => {
+    const el = $('card' + i);
+    const a = easeBack(prog(t, 48.6 + i * 0.12, 49.6 + i * 0.12));
+    const out = ease(prog(t, 51.6, 52.3));
+    const spread = [-1.5, -0.5, 0.5, 1.5][i];
+    el.style.opacity = clamp(a * 3) * (1 - out);
+    el.style.transform = `translate(${spread * 250 * a}px, ${110 + Math.abs(spread) * 60 * a + out * 300}px) rotate(${spread * 9 * a}deg) scale(${0.7 + 0.1 * a})`;
+    el.style.zIndex = 10 - Math.abs(Math.round(spread * 2));
   });
 
   // outro
-  const oi = easeOut(prog(t, OUTRO_IN, OUTRO_IN + 1.1));
-  $('outro').style.opacity = t < OUTRO_IN ? 0 : 1;
-  $('outroLogo').style.opacity = oi;
-  $('outroLogo').style.transform = `scale(${0.7 + 0.3*oi})`;
-  const ot = easeOut(prog(t, OUTRO_IN + 0.5, OUTRO_IN + 1.3));
-  $('outroTitle').style.opacity = ot;
-  $('outroTitle').style.transform = `translateY(${(1-ot)*40}px)`;
-  $('outroRule').style.opacity = ot;
-  $('outroRule').style.transform = `scaleX(${ot})`;
-  const og = easeOut(prog(t, OUTRO_IN + 0.9, OUTRO_IN + 1.7));
-  $('outroTag').style.opacity = og;
-  $('outroTag').style.transform = `translateY(${(1-og)*30}px)`;
-  const oc = easeOut(prog(t, OUTRO_IN + 1.5, OUTRO_IN + 2.3));
-  $('outroCta').style.opacity = oc;
-  $('outroCta').style.transform = `translateY(${(1-oc)*30}px)`;
+  const o = prog(t, OUTRO_IN, OUTRO_IN + 0.01);
+  $('outro').style.opacity = o;
+  const step = (id, a0, dy = 30) => { const a = easeOut(prog(t, OUTRO_IN + a0, OUTRO_IN + a0 + 0.8)); $(id).style.opacity = a; $(id).style.transform = `translateY(${(1 - a) * dy}px)`; };
+  const la = easeOut(prog(t, OUTRO_IN, OUTRO_IN + 1.1));
+  $('oLogo').style.opacity = la; $('oLogo').style.transform = `scale(${0.7 + 0.3 * la})`;
+  step('oTitle', 0.4, 40); step('oTag', 0.9); step('oCta', 1.9);
+  $('oRule').style.opacity = easeOut(prog(t, OUTRO_IN + 0.6, OUTRO_IN + 1.2)); $('oRule').style.transform = `scaleX(${easeOut(prog(t, OUTRO_IN + 0.6, OUTRO_IN + 1.4))})`;
+  const fa = easeBack(prog(t, OUTRO_IN + 1.4, OUTRO_IN + 2.0));
+  $('oFree').style.opacity = clamp(fa); $('oFree').style.transform = `scale(${0.6 + 0.4 * fa})`;
 
-  // final fade to black
-  $('stage').style.filter = `brightness(${1 - ease(prog(t, END - 0.6, END))})`;
+  // fade in from / out to black
+  $('stage').style.filter = `brightness(${ease(prog(t, 0, 0.6)) * (1 - ease(prog(t, END - 0.8, END)))})`;
+  await Promise.all(jobs);
 }
 window.render = render;
 window.DURATION = END;
-render(0);
 </script>
 </body>
 </html>
