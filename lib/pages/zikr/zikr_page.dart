@@ -1898,10 +1898,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   // would silently never fire. Settings hides its whole "Zikr Reminders"
   // entry point on web for the same reason.
   /// The app bar, collapsing upward with the rest of the reading chrome
-  /// whenever [_chromeVisible] hides it. Unlike the two overlay bars this one
-  /// does give its height back to the text - a standing gap the size of an app
-  /// bar would defeat the point of hiding it - so the reading column grows by
-  /// the toolbar's height as it slides away. That shift runs in the same
+  /// whenever [_chromeVisible] hides it. Like the two overlay bars, whose
+  /// padding in the reading column animates away at the same time, it gives
+  /// its height back to the text as it slides away. That shift runs in the same
   /// direction the reader is already scrolling, the way a browser's address
   /// bar behaves.
   ///
@@ -2065,79 +2064,89 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                             child: Text('Coming soon...'))
                                         : ResponsiveContent(
                                             maxWidth: readingContentWidth,
+                                            padding: const EdgeInsets.all(16),
                                             // Both bars float over the reading area
                                             // rather than sitting in the column, so
                                             // this - not either bar's own size - is
                                             // what keeps the text out from under
-                                            // them.
-                                            //
-                                            // Reserved for as long as a bar exists at
-                                            // all, rather than following
-                                            // [_chromeVisible]: letting it follow the
-                                            // chrome meant every hide and reveal
-                                            // re-laid out the whole reading list, and
-                                            // the top inset shifted the text under
-                                            // the reader's eyes mid-scroll. A
-                                            // standing gap behind a hidden bar is the
-                                            // cheaper of the two costs by far.
-                                            padding: EdgeInsets.fromLTRB(
-                                              16,
-                                              16 +
-                                                  (showProgressBar
+                                            // them. It follows [_chromeVisible], so
+                                            // once Focus mode slides the bars away
+                                            // the text takes their space too, in
+                                            // step with the app bar collapsing.
+                                            // Only the padding rebuilds per frame;
+                                            // the viewer is passed through as the
+                                            // builder's child.
+                                            child: ValueListenableBuilder<bool>(
+                                              valueListenable: _chromeVisible,
+                                              builder:
+                                                  (context, visible, child) =>
+                                                      AnimatedPadding(
+                                                padding: EdgeInsets.only(
+                                                  top: visible &&
+                                                          showProgressBar
                                                       ? ZikrReadingProgressBar
                                                           .barHeight
-                                                      : 0.0),
-                                              16,
-                                              16 +
-                                                  (showActionBar
+                                                      : 0.0,
+                                                  bottom: visible &&
+                                                          showActionBar
                                                       ? ZikrActionBar.barHeight
-                                                      : 0.0),
-                                            ),
-                                            child: ZikrContentViewerWidget(
-                                              tabContents: tabContents,
-                                              selectedTabIndex:
-                                                  selectedTabIndex,
-                                              onTabChanged: (index) {
-                                                // A swiped tab change is already
-                                                // covered by the scroll handler; this
-                                                // is the tab header being tapped,
-                                                // which animates the pager without
-                                                // ever reporting a user scroll.
-                                                _clearTextSelection();
-                                                setState(() {
-                                                  _selectedZikrTabIndex = index;
-                                                });
-                                                _updateReadingProgress();
-                                              },
-                                              hasMerits: hasMerits,
-                                              onShowMerits: _showMeritsSheet,
-                                              onLinkTap: _handleZikrLinkTap,
-                                              initialBookmarkTabIndex:
-                                                  _savedBookmark?.tabIndex,
-                                              initialBookmarkScrollOffset:
-                                                  _savedBookmark?.scrollOffset,
-                                              initialBookmarkLineIndex:
-                                                  _savedBookmark?.lineIndex,
-                                              savedVerses: _savedVerses,
-                                              onScrollPositionChanged:
-                                                  _handleContentScrollPositionChanged,
-                                              surahNumber: _surahNumber,
-                                              initialVerse: _initialVerse,
-                                              ayahIndex: widget.portion?.index,
-                                              onAyahPositionChanged:
-                                                  _handleAyahPositionChanged,
-                                              onAyahAction: _isQuran
-                                                  ? _showAyahActions
-                                                  : null,
-                                              arabicFontFamily:
-                                                  arabicFontFamilyOf(zikrData),
-                                              onBookmarkLineResolved:
-                                                  _handleBookmarkLineResolved,
-                                              onBookmarkMoved: _isQuran
-                                                  ? null
-                                                  : _handleBookmarkMoved,
-                                              footer:
-                                                  _buildQuranSequenceFooter(),
+                                                      : 0.0,
+                                                ),
+                                                duration: const Duration(
+                                                    milliseconds: 220),
+                                                curve: Curves.easeOutCubic,
+                                                child: child,
+                                              ),
+                                              child: ZikrContentViewerWidget(
+                                                tabContents: tabContents,
+                                                selectedTabIndex:
+                                                    selectedTabIndex,
+                                                onTabChanged: (index) {
+                                                  // A swiped tab change is already
+                                                  // covered by the scroll handler; this
+                                                  // is the tab header being tapped,
+                                                  // which animates the pager without
+                                                  // ever reporting a user scroll.
+                                                  _clearTextSelection();
+                                                  setState(() {
+                                                    _selectedZikrTabIndex =
+                                                        index;
+                                                  });
+                                                  _updateReadingProgress();
+                                                },
+                                                hasMerits: hasMerits,
+                                                onShowMerits: _showMeritsSheet,
+                                                onLinkTap: _handleZikrLinkTap,
+                                                initialBookmarkTabIndex:
+                                                    _savedBookmark?.tabIndex,
+                                                initialBookmarkScrollOffset:
+                                                    _savedBookmark
+                                                        ?.scrollOffset,
+                                                initialBookmarkLineIndex:
+                                                    _savedBookmark?.lineIndex,
+                                                savedVerses: _savedVerses,
+                                                onScrollPositionChanged:
+                                                    _handleContentScrollPositionChanged,
+                                                surahNumber: _surahNumber,
+                                                initialVerse: _initialVerse,
+                                                ayahIndex:
+                                                    widget.portion?.index,
+                                                onAyahPositionChanged:
+                                                    _handleAyahPositionChanged,
+                                                onAyahAction: _isQuran
+                                                    ? _showAyahActions
+                                                    : null,
+                                                arabicFontFamily:
+                                                    arabicFontFamilyOf(
+                                                        zikrData),
+                                                onBookmarkLineResolved:
+                                                    _handleBookmarkLineResolved,
+                                                onBookmarkMoved: _isQuran
+                                                    ? null
+                                                    : _handleBookmarkMoved,
+                                                footer:
+                                                    _buildQuranSequenceFooter(),
+                                              ),
                                             ),
                                           ),
                               ),
