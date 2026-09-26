@@ -8,6 +8,7 @@ import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
+import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/services.dart' show BrowserContextMenu;
@@ -113,13 +114,20 @@ class MyApp extends StatelessWidget {
           title: appName,
         );
 
-    return ChangeNotifierProvider(
-      create: (context) => DarkModeProvider(),
-      child:
-          Consumer<DarkModeProvider>(builder: (context, darkModeProvider, _) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => DarkModeProvider()),
+        ChangeNotifierProvider(create: (context) => AppTextScaleProvider()),
+      ],
+      child: Consumer2<DarkModeProvider, AppTextScaleProvider>(
+          builder: (context, darkModeProvider, textScaleProvider, _) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
           title: appName,
+          // The in-app Text size setting, layered over the system's own
+          // text scale for every route, dialog and sheet under the navigator.
+          builder: (context, child) =>
+              textScaleProvider.apply(context, child ?? const SizedBox()),
           theme: ThemeData(
             useMaterial3: true,
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),

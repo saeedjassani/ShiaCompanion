@@ -18,6 +18,7 @@ import '../services/qaza_tracker_manager.dart';
 import '../services/recitation_tracker_manager.dart';
 import '../services/rating_prompt_service.dart';
 import '../services/session_refresh_service.dart';
+import '../utils/app_text_scale.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
@@ -84,6 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final darkModeProvider = Provider.of<DarkModeProvider>(context);
+    final textScaleProvider = Provider.of<AppTextScaleProvider>(context);
     final currentUser = user ?? _auth.currentUser;
 
     return ResponsiveScrollableContent(
@@ -222,6 +224,42 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 title: const Text("Dark mode"),
                 subtitle: const Text("Use the dark appearance across the app."),
+              ),
+              ListTile(
+                leading: const Icon(Icons.format_size),
+                title: const Text("Text size"),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                        "Scale text across the app, on top of your device's "
+                        "font size."),
+                    Slider(
+                      activeColor: Theme.of(context).colorScheme.secondary,
+                      min: AppTextScaleProvider.minScale,
+                      max: AppTextScaleProvider.maxScale,
+                      divisions: AppTextScaleProvider.divisions,
+                      value: textScaleProvider.scale,
+                      label:
+                          AppTextScaleProvider.label(textScaleProvider.scale),
+                      onChanged: textScaleProvider.setScale,
+                      // Persist and count once per gesture, not per frame.
+                      onChangeEnd: (_) {
+                        unawaited(textScaleProvider.save());
+                        unawaited(AnalyticsService.feature(
+                          'app_text_scale_changed',
+                          label: 'App text size changed',
+                          parameters: {
+                            'scale': AppTextScaleProvider.label(
+                                textScaleProvider.scale),
+                          },
+                        ));
+                      },
+                    ),
+                  ],
+                ),
+                trailing:
+                    Text(AppTextScaleProvider.label(textScaleProvider.scale)),
               ),
             ],
           ),
