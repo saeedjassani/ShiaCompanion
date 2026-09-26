@@ -35,6 +35,12 @@ const int quranDeepLinkType = 2;
 
 const String quranJuzSegment = 'juz';
 
+/// The Calendar page. Takes no segments: `/calendar` is the whole link, and
+/// is what the Islamic calendar widgets open.
+const int calendarDeepLinkType = 3;
+
+const String calendarDeepLinkPath = '/calendar';
+
 /// Set when the web launch URL generated its own route, so the home page knows
 /// not to open the same link a second time.
 ///
@@ -127,6 +133,14 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
 
   if (segments.first == 'quran') {
     return _parseQuranSegments(segments.sublist(1), source);
+  }
+
+  if (segments.first == 'calendar' && segments.length == 1) {
+    return DeepLinkTarget(
+      type: calendarDeepLinkType,
+      segments: const [],
+      source: source,
+    );
   }
 
   if (segments.first == 'library') {
@@ -381,6 +395,10 @@ String buildLibraryDeepLinkUrl({
     bookSlug: bookSlug,
     chapterSlug: chapterSlug,
   )}';
+}
+
+String buildCalendarDeepLinkUrl() {
+  return 'https://shia-companion.web.app$calendarDeepLinkPath';
 }
 
 String buildQuranDeepLinkUrl({required int surah, int? ayah}) {

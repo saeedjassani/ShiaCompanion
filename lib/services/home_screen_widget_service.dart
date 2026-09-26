@@ -9,6 +9,7 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
+import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 
@@ -78,7 +79,13 @@ class HomeScreenWidgetService {
     (index) => 'sc_daily_prayer_time_${index + 1}',
   );
 
+  static const String calendarTitleKey = 'sc_calendar_title';
+  static const String calendarDaysKey = 'sc_calendar_days';
+  static const String calendarEventsKey = 'sc_calendar_events';
+  static const String calendarUrlKey = 'sc_calendar_url';
+
   List<UniversalData> _favorites = const [];
+  Map<String, dynamic>? _calendarEvents;
 
   bool get _isSupported {
     return !kIsWeb && (Platform.isAndroid || Platform.isIOS);
@@ -91,7 +98,17 @@ class HomeScreenWidgetService {
   Future<void> publishAll() async {
     if (!_isSupported) return;
 
+    await _loadCalendarEvents();
     await _saveAndRefresh(buildWidgetSnapshot());
+  }
+
+  /// Republishes the calendar widgets, e.g. after the Hijri date adjustment
+  /// changes which day it is.
+  Future<void> publishCalendar() async {
+    if (!_isSupported) return;
+
+    await _loadCalendarEvents();
+    await _saveAndRefresh(buildCalendarSnapshot());
   }
 
   Future<void> publishFavorites() async {
@@ -126,7 +143,48 @@ class HomeScreenWidgetService {
       ...buildTodaysRecitationsSnapshot(),
       ...buildUpcomingPrayerSnapshot(),
       ...buildDailyPrayerTimesSnapshot(),
+      ...buildCalendarSnapshot(),
     };
+  }
+
+  /// The Islamic calendar widgets and the watch's calendar complication: one
+  /// entry per day for the hijri date, plus the events coming up.
+  ///
+  /// [events] defaults to events.json once [publishAll] or [publishCalendar]
+  /// has loaded it; before that the dates still publish, just without events.
+  Map<String, String> buildCalendarSnapshot({
+    DateTime? now,
+    Map<String, dynamic>? events,
+    int? hijriOffsetDays,
+  }) {
+    final moment = now ?? DateTime.now();
+    final eventMap = events ?? _calendarEvents ?? const <String, dynamic>{};
+    final offset = hijriOffsetDays ?? hijriDate;
+    return {
+      calendarTitleKey: 'Islamic Calendar',
+      calendarUrlKey: buildCalendarDeepLinkUrl(),
+      calendarDaysKey: jsonEncode(buildCalendarWidgetDays(
+        now: moment,
+        events: eventMap,
+        offsetDays: offset,
+      )),
+      calendarEventsKey: jsonEncode(buildUpcomingCalendarWidgetEvents(
+        now: moment,
+        events: eventMap,
+        offsetDays: offset,
+      )),
+    };
+  }
+
+  Future<void> _loadCalendarEvents() async {
+    if (_calendarEvents != null) return;
+    try {
+      final decoded =
+          json.decode(await rootBundle.loadString('assets/events.json'));
+      if (decoded is Map<String, dynamic>) _calendarEvents = decoded;
+    } catch (e) {
+      debugPrint('Unable to load calendar events for widgets: $e');
+    }
   }
 
   Map<String, String> buildFavoritesSnapshot({

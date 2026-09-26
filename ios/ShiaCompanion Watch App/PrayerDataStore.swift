@@ -24,6 +24,11 @@ nonisolated enum WatchDataKeys {
     static let dailyPrayerTimes = (1...6).map { "sc_daily_prayer_time_\($0)" }
     static let dailyPrayerSchedule = "sc_daily_prayer_schedule"
 
+    /// The Islamic calendar: one JSON entry per day for the hijri date, and the events
+    /// coming up. Written by `HomeScreenWidgetService.buildCalendarSnapshot`.
+    static let calendarDays = "sc_calendar_days"
+    static let calendarEvents = "sc_calendar_events"
+
     /// Epoch millis of the last payload the phone sent. Absent until the first sync.
     static let updatedAt = "sc_watch_updated_at"
 
@@ -37,6 +42,8 @@ nonisolated enum WatchDataKeys {
             prayerSecondaryName,
             prayerSecondaryTime,
             dailyPrayerSchedule,
+            calendarDays,
+            calendarEvents,
             updatedAt,
         ] + dailyPrayerNames + dailyPrayerTimes
 }
@@ -206,6 +213,133 @@ nonisolated struct PrayerDataStore: Sendable {
             guard !name.isEmpty, !time.isEmpty else { return nil }
             return PrayerEntry(name: name, time: time)
         }
+    }
+
+    // MARK: - Islamic calendar
+
+    /// Every published day, soonest first.
+    var calendarDays: [HijriDay] {
+        parseHijriDays(string(WatchDataKeys.calendarDays))
+    }
+
+    /// The hijri date on `date`, or `nil` when the phone has never sent one or the run
+    /// it sent has been used up. Each day starts at local midnight and lasts at most 25
+    /// hours (DST), so the last one to have started is today only within that window.
+    func hijriDay(at date: Date = Date()) -> HijriDay? {
+        guard let day = calendarDays.last(where: { $0.start <= date }) else { return nil }
+        return date.timeIntervalSince(day.start) < 25 * 3600 ? day : nil
+    }
+
+    /// Events after `date`'s day, soonest first. Today's own is on `hijriDay(at:)`, so
+    /// the list is what comes next — unless there is no hijri date to carry it, in
+    /// which case today's is kept.
+    func upcomingEvents(after date: Date = Date(), limit: Int) -> [IslamicEvent] {
+        guard limit > 0 else { return [] }
+        let calendar = Calendar.current
+        let startOfToday = calendar.startOfDay(for: date)
+        let cutoff = hijriDay(at: date) == nil
+            ? startOfToday
+            : calendar.date(byAdding: .day, value: 1, to: startOfToday) ?? startOfToday
+        return Array(
+            parseIslamicEvents(string(WatchDataKeys.calendarEvents))
+                .lazy
+                .filter { $0.start >= cutoff }
+                .prefix(limit)
+        )
+    }
+}
+
+/// One day of the Islamic calendar, as the phone published it.
+nonisolated struct HijriDay: Hashable, Sendable {
+    let start: Date
+    let day: Int
+    let month: String
+    let monthShort: String
+    let year: Int
+    /// Today's event, already shortened to one line by the phone. Empty on most days.
+    let event: String
+    /// events.json's colour: 0 green, 1 red, -1 none.
+    let color: Int
+
+    var dateLine: String { "\(day) \(month)" }
+}
+
+nonisolated struct IslamicEvent: Hashable, Sendable {
+    let start: Date
+    /// "17 Rabi' Al-Awwal"
+    let hijri: String
+    let title: String
+    let color: Int
+}
+
+nonisolated func parseHijriDays(_ raw: String) -> [HijriDay] {
+    guard
+        !raw.isEmpty,
+        let data = raw.data(using: .utf8),
+        let entries = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+    else { return [] }
+
+    return entries.compactMap { entry -> HijriDay? in
+        guard
+            let start = (entry["start"] as? NSNumber)?.doubleValue,
+            let day = (entry["day"] as? NSNumber)?.intValue,
+            day > 0
+        else { return nil }
+        return HijriDay(
+            start: Date(timeIntervalSince1970: start / 1000.0),
+            day: day,
+            month: (entry["month"] as? String) ?? "",
+            monthShort: (entry["monthShort"] as? String) ?? "",
+            year: (entry["year"] as? NSNumber)?.intValue ?? 0,
+            event: ((entry["event"] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines),
+            color: (entry["color"] as? NSNumber)?.intValue ?? -1
+        )
+    }
+    .sorted { $0.start < $1.start }
+}
+
+nonisolated func parseIslamicEvents(_ raw: String) -> [IslamicEvent] {
+    guard
+        !raw.isEmpty,
+        let data = raw.data(using: .utf8),
+        let entries = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+    else { return [] }
+
+    return entries.compactMap { entry -> IslamicEvent? in
+        guard
+            let start = (entry["start"] as? NSNumber)?.doubleValue,
+            let title = (entry["title"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !title.isEmpty
+        else { return nil }
+        return IslamicEvent(
+            start: Date(timeIntervalSince1970: start / 1000.0),
+            hijri: (entry["hijri"] as? String) ?? "",
+            title: title,
+            color: (entry["color"] as? NSNumber)?.intValue ?? -1
+        )
+    }
+    .sorted { $0.start < $1.start }
+}
+
+/// "Today", "Tomorrow" or "in 12 days", counted in calendar days.
+nonisolated func relativeDayLabel(_ start: Date, from now: Date = Date()) -> String {
+    let calendar = Calendar.current
+    let days = calendar.dateComponents(
+        [.day],
+        from: calendar.startOfDay(for: now),
+        to: calendar.startOfDay(for: start)
+    ).day ?? 0
+    if days <= 0 { return "Today" }
+    if days == 1 { return "Tomorrow" }
+    return "in \(days) days"
+}
+
+/// events.json's colours, read the way the phone's Calendar page reads them.
+nonisolated func islamicEventColor(_ code: Int) -> Color {
+    switch code {
+    case 0: return .green
+    case 1: return .red
+    default: return .accentColor
     }
 }
 

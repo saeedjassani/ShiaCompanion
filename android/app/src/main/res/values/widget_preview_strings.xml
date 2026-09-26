@@ -32,4 +32,12 @@
     <string name="widget_preview_prayer_clock">5:12</string>
     <string name="widget_preview_prayer_marker">am</string>
     <string name="widget_preview_prayer_countdown">in 1:24:10</string>
+
+    <string name="widget_preview_calendar_day">15</string>
+    <string name="widget_preview_calendar_month">Rabi\' Al-Thani</string>
+    <string name="widget_preview_calendar_year">1448 AH</string>
+    <string name="widget_preview_calendar_event_1">Birth of Imam Hasan Askari (a.s.)</string>
+    <string name="widget_preview_calendar_when_1">in 8 days</string>
+    <string name="widget_preview_calendar_event_2">Death of Hazrat Fatima Zahra (s.a.)</string>
+    <string name="widget_preview_calendar_when_2">in 43 days</string>
 </resources>

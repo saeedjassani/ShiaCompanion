@@ -386,6 +386,7 @@ struct ShiaCompanionWatchWidgetsBundle: WidgetBundle {
     var body: some Widget {
         NextPrayerComplication()
         CounterComplication()
+        CalendarComplication()
     }
 }
 

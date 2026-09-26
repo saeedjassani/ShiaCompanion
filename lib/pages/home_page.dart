@@ -165,6 +165,14 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
+    if (target.type == calendarDeepLinkType) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _openHomeMenuItem(calendarMenuItem);
+      });
+      return;
+    }
+
     if (target.segments.isEmpty) {
       _openDeepLinkNotFound(target.key);
       return;

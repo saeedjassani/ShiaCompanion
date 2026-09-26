@@ -647,6 +647,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await SP.prefs.remove('prayerTimes');
     unawaited(PreferencesSyncService.instance.pushHijriDate());
     await HomeScreenWidgetService.instance.publishTodaysRecitations();
+    await HomeScreenWidgetService.instance.publishCalendar();
     setState(() {});
   }
 

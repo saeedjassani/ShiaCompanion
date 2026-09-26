@@ -2,16 +2,18 @@ import SwiftUI
 import WatchKit
 
 struct ContentView: View {
-    /// The screens the app can be sent to from outside itself. Only the counter has a
-    /// destination today; the prayer list is the root.
+    /// The screens the app can be sent to from outside itself; the prayer list is the
+    /// root.
     enum Route: Hashable {
         case counter
+        case calendar
     }
 
     /// Complications open the watch app with a URL rather than a plain launch, so a tap
     /// lands on the screen the complication was showing. Matched on the host so the path
     /// stays free for anything more specific later.
     static let counterURLHost = "tasbeeh"
+    static let calendarURLHost = "calendar"
 
     @EnvironmentObject private var prayerModel: PrayerTimeModel
     @ObservedObject private var connectivity = WatchConnectivityManager.shared
@@ -44,8 +46,10 @@ struct ContentView: View {
                         }
                     }
 
-                    // Outside the switch: the counter works offline, so it stays reachable
-                    // even when the phone has never synced prayer times.
+                    // Outside the switch: the counter works offline, and the calendar
+                    // needs no location, so both stay reachable even when the phone has
+                    // never synced prayer times.
+                    calendarLink
                     counterLink
                 }
             }
@@ -53,14 +57,50 @@ struct ContentView: View {
                 switch route {
                 case .counter:
                     CounterView()
+                case .calendar:
+                    IslamicCalendarScreen()
                 }
             }
         }
         .onOpenURL { url in
-            guard url.host == Self.counterURLHost else { return }
             // Assigning rather than appending: a second tap on the complication while the
-            // counter is already open should leave one counter on the stack, not two.
-            path = [.counter]
+            // screen is already open should leave one copy on the stack, not two.
+            switch url.host {
+            case Self.counterURLHost:
+                path = [.counter]
+            case Self.calendarURLHost:
+                path = [.calendar]
+            default:
+                break
+            }
+        }
+    }
+
+    /// Today's hijri date, and a way into the upcoming events. Hidden until the phone
+    /// has sent the calendar at least once.
+    @ViewBuilder
+    private var calendarLink: some View {
+        if let day = prayerModel.hijriDay {
+            NavigationLink(value: Route.calendar) {
+                HStack(spacing: 8) {
+                    Image(systemName: "moon.stars.fill")
+                        .font(.caption)
+                        .foregroundColor(.accentColor)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(day.dateLine)
+                            .font(.footnote.weight(.semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Text(day.event.isEmpty ? "Upcoming events" : day.event)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+                    Spacer(minLength: 0)
+                }
+            }
+            .buttonStyle(.bordered)
+            .padding(.horizontal, Self.gutter)
         }
     }
 
@@ -325,6 +365,105 @@ struct DayBreak: View {
         .padding(.horizontal, 6)
         .padding(.top, 8)
         .padding(.bottom, 2)
+    }
+}
+
+// MARK: - Islamic calendar
+
+/// Today's hijri date and the events coming up after it.
+struct IslamicCalendarScreen: View {
+    @EnvironmentObject private var prayerModel: PrayerTimeModel
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                if let day = prayerModel.hijriDay {
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text(verbatim: String(day.day))
+                                .font(.system(size: 34, weight: .bold, design: .rounded))
+                                .foregroundColor(.accentColor)
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(day.month)
+                                    .font(.headline)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.6)
+                                Text(verbatim: "\(day.year) AH")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        Text(Date(), format: .dateTime.weekday(.abbreviated).day().month(.abbreviated))
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        if !day.event.isEmpty {
+                            EventLine(title: day.event, color: day.color)
+                                .padding(.top, 4)
+                        }
+                    }
+                }
+
+                if prayerModel.upcomingEvents.isEmpty {
+                    Text("Open Shia Companion on your iPhone to sync the calendar.")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("Upcoming")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(Array(prayerModel.upcomingEvents.enumerated()), id: \.offset) { index, event in
+                            UpcomingEventRow(event: event)
+                            if index < prayerModel.upcomingEvents.count - 1 {
+                                Divider()
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.secondary.opacity(0.12))
+                    )
+                }
+            }
+            .padding(.horizontal, ContentView.gutter)
+        }
+        .navigationTitle("Calendar")
+    }
+}
+
+private struct EventLine: View {
+    let title: String
+    let color: Int
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 5) {
+            Circle()
+                .fill(islamicEventColor(color))
+                .frame(width: 6, height: 6)
+                .padding(.top, 5)
+            Text(title)
+                .font(.footnote)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+private struct UpcomingEventRow: View {
+    let event: IslamicEvent
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            EventLine(title: event.title, color: event.color)
+            Text(verbatim: "\(relativeDayLabel(event.start)) · \(event.hijri)")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.leading, 11)
+        }
+        .padding(.vertical, 6)
     }
 }
 

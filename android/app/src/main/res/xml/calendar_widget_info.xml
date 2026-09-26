@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- updatePeriodMillis is a backstop, not the clock: the widget turns the
+     day over with a midnight alarm, and this periodic update re-arms that
+     alarm after a reboot has cleared it. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="110dp"
+    android:minHeight="96dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="80dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:previewImage="@drawable/widget_preview_list_image"
+    android:previewLayout="@layout/widget_preview_calendar"
+    android:resizeMode="horizontal|vertical"
+    android:description="@string/widget_calendar_description"
+    android:updatePeriodMillis="21600000"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:widgetCategory="home_screen" />

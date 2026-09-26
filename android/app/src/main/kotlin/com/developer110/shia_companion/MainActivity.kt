@@ -10,6 +10,8 @@ import android.os.Bundle
 import androidx.glance.appwidget.updateAll
 import com.developer110.shiacompanion.widgets.DailyPrayerTimesWidget
 import com.developer110.shiacompanion.widgets.FavoritesWidget
+import com.developer110.shiacompanion.widgets.IslamicCalendarWidget
+import com.developer110.shiacompanion.widgets.scheduleNextCalendarWidgetRefresh
 import com.developer110.shiacompanion.widgets.scheduleNextPrayerWidgetRefresh
 import com.developer110.shiacompanion.widgets.scheduleNextRecitationWidgetRefresh
 import com.developer110.shiacompanion.widgets.TodaysRecitationWidget
@@ -122,8 +124,10 @@ class MainActivity: AudioServiceActivity() {
                             TodaysRecitationWidget().updateAll(applicationContext)
                             DailyPrayerTimesWidget().updateAll(applicationContext)
                             UpcomingPrayerWidget().updateAll(applicationContext)
+                            IslamicCalendarWidget().updateAll(applicationContext)
                             scheduleNextPrayerWidgetRefresh(applicationContext)
                             scheduleNextRecitationWidgetRefresh(applicationContext)
+                            scheduleNextCalendarWidgetRefresh(applicationContext)
                             result.success(null)
                         } catch (error: Exception) {
                             result.error(
