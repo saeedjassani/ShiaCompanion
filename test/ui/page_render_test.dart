@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/about_page.dart';
+import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
@@ -98,10 +99,13 @@ Future<void> _pump(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   await tester.pumpWidget(
-    // Settings reads DarkModeProvider from the tree, exactly as main.dart
-    // supplies it.
-    ChangeNotifierProvider(
-      create: (_) => DarkModeProvider(),
+    // Settings reads DarkModeProvider and AppTextScaleProvider from the tree,
+    // exactly as main.dart supplies them.
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => DarkModeProvider()),
+        ChangeNotifierProvider(create: (_) => AppTextScaleProvider()),
+      ],
       child: MaterialApp(
         theme: ThemeData(
           useMaterial3: true,
