@@ -227,13 +227,12 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.format_size),
-                title: const Text("Text size"),
+                title: const Text("App text size"),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                        "Scale text across the app, on top of your device's "
-                        "font size."),
+                        "Makes all text bigger or smaller, including zikr."),
                     Slider(
                       activeColor: Theme.of(context).colorScheme.secondary,
                       min: AppTextScaleProvider.minScale,
