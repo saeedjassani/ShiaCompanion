@@ -597,6 +597,42 @@ class QazaTrackerManager extends ChangeNotifier {
     );
   }
 
+  /// Marks one of each [types] completed, skipping any with nothing owed.
+  /// Returns the types that were actually marked, so the caller can undo
+  /// exactly those.
+  List<QazaEntryType> markCompletedEach(Iterable<QazaEntryType> types) {
+    final marked = [
+      for (final type in types)
+        if (_state.countFor(type).remaining > 0) type,
+    ];
+    for (final type in marked) {
+      unawaited(markCompleted(type));
+    }
+    return marked;
+  }
+
+  void undoCompletedEach(Iterable<QazaEntryType> types) {
+    for (final type in types) {
+      unawaited(undoCompleted(type));
+    }
+  }
+
+  /// Adds [additions] to the owed count of each type, leaving completed
+  /// counts untouched.
+  Future<void> addMissedCounts(Map<QazaEntryType, int> additions) {
+    final futures = <Future<void>>[];
+    for (final entry in additions.entries) {
+      if (entry.value <= 0) continue;
+      final count = _state.countFor(entry.key);
+      futures.add(setCount(
+        entry.key,
+        remaining: count.remaining + entry.value,
+        completed: count.completed,
+      ));
+    }
+    return Future.wait(futures);
+  }
+
   String _newOperationId() {
     final sequence = _operationSequence++;
     return '${DateTime.now().microsecondsSinceEpoch}_$sequence';

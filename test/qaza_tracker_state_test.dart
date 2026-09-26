@@ -20,6 +20,26 @@ void main() {
     }
   });
 
+  test('daily prayers are the five obligatory prayers in order', () {
+    expect(qazaDailyPrayers, [
+      QazaEntryType.fajr,
+      QazaEntryType.dhuhr,
+      QazaEntryType.asr,
+      QazaEntryType.maghrib,
+      QazaEntryType.isha,
+    ]);
+    expect(QazaEntryType.ayat.isDailyPrayer, isFalse);
+    expect(QazaEntryType.fast.isDailyPrayer, isFalse);
+  });
+
+  test('qazaDaysForSpan uses lunar years and 30-day months', () {
+    expect(qazaDaysForSpan(), 0);
+    expect(qazaDaysForSpan(days: 12), 12);
+    expect(qazaDaysForSpan(months: 2), 60);
+    expect(qazaDaysForSpan(years: 1, months: 1, days: 1), 354 + 30 + 1);
+    expect(qazaDaysForSpan(years: -3, days: 5), 5);
+  });
+
   group('QazaEntryCount', () {
     test('copyWith clamps negative values to zero', () {
       const count = QazaEntryCount(remaining: 3, completed: 2);

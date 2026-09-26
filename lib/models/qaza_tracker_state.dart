@@ -33,6 +33,32 @@ extension QazaEntryTypeInfo on QazaEntryType {
       };
 
   bool get isPrayer => this != QazaEntryType.fast;
+
+  bool get isDailyPrayer => qazaDailyPrayers.contains(this);
+}
+
+/// The five daily prayers, in the order they fall in a day.
+const qazaDailyPrayers = [
+  QazaEntryType.fajr,
+  QazaEntryType.dhuhr,
+  QazaEntryType.asr,
+  QazaEntryType.maghrib,
+  QazaEntryType.isha,
+];
+
+/// Days in a lunar (Hijri) year, used when estimating missed qaza from a
+/// span of years.
+const qazaDaysPerLunarYear = 354;
+
+/// Days per month used when estimating missed qaza from a span of months.
+const qazaDaysPerMonth = 30;
+
+/// Converts a missed span into a day count - one of each daily prayer is owed
+/// per day. Negative parts are treated as zero.
+int qazaDaysForSpan({int years = 0, int months = 0, int days = 0}) {
+  return _nonNegative(years) * qazaDaysPerLunarYear +
+      _nonNegative(months) * qazaDaysPerMonth +
+      _nonNegative(days);
 }
 
 QazaEntryType? qazaEntryTypeFromKey(String key) {
