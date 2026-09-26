@@ -71,6 +71,25 @@ class ZikrBookmark {
     );
   }
 
+  /// The same bookmark on another line of the same tab, as when the reader
+  /// drags the marker there.
+  ///
+  /// The saved scroll offset goes with the old line, so it is dropped: a
+  /// bookmark with a line is always restored by that line, and the offset
+  /// would only mislead anything that fell back to it.
+  ZikrBookmark movedTo({required int lineIndex, required DateTime updatedAt}) {
+    return ZikrBookmark(
+      uid: uid,
+      title: title,
+      tabIndex: tabIndex,
+      tabTitle: tabTitle,
+      scrollOffset: 0,
+      lineIndex: lineIndex,
+      updatedAt: updatedAt,
+      version: ZikrBookmarkStore.schemaVersion,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'version': version,
@@ -96,6 +115,28 @@ class ZikrBookmarkStore {
   static const String _storagePrefix = 'zikr_bookmark_v1';
 
   String _keyForUid(String uid) => '${_storagePrefix}_$uid';
+
+  /// Set once the reader has been told the bookmark can be dragged to
+  /// another line, or has found that out for themselves by moving one.
+  static const String _moveHintSeenKey = 'zikr_bookmark_move_hint_seen';
+
+  /// Whether the "drag to move" tip is still owed, claiming it if so: true
+  /// at most once per install, and the claim is persisted before it returns,
+  /// so the tip can never be shown twice - not on the next bookmark, not
+  /// after a restart.
+  Future<bool> claimMoveHint() async {
+    if (!SP.isInitialized) return false;
+    if (SP.prefs.getBool(_moveHintSeenKey) ?? false) return false;
+    await SP.prefs.setBool(_moveHintSeenKey, true);
+    return true;
+  }
+
+  /// Records that the tip is no longer needed, without showing it - the
+  /// reader has already moved a bookmark, so they know.
+  Future<void> markMoveHintSeen() async {
+    if (!SP.isInitialized) return;
+    await SP.prefs.setBool(_moveHintSeenKey, true);
+  }
 
   ZikrBookmark? read(String uid) {
     if (!SP.isInitialized) return null;

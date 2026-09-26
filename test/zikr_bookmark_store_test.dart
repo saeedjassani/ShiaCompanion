@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 
 void main() {
   test('zikr bookmark encodes versioned scroll data', () {
@@ -63,4 +65,34 @@ void main() {
     expect(bookmark.copyWith(lineIndex: 4).scrollOffset, 128.5);
   });
 
+  group('the drag-to-move tip', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      await SP.init();
+    });
+
+    test('is owed exactly once', () async {
+      final store = ZikrBookmarkStore.instance;
+      expect(await store.claimMoveHint(), isTrue);
+      expect(await store.claimMoveHint(), isFalse);
+      expect(await store.claimMoveHint(), isFalse);
+    });
+
+    test('stays claimed across a restart', () async {
+      expect(await ZikrBookmarkStore.instance.claimMoveHint(), isTrue);
+      final persisted = SP.prefs.getBool('zikr_bookmark_move_hint_seen');
+      expect(persisted, isTrue);
+
+      SharedPreferences.setMockInitialValues({
+        'zikr_bookmark_move_hint_seen': true,
+      });
+      await SP.init();
+      expect(await ZikrBookmarkStore.instance.claimMoveHint(), isFalse);
+    });
+
+    test('is not owed once a bookmark has been moved', () async {
+      await ZikrBookmarkStore.instance.markMoveHintSeen();
+      expect(await ZikrBookmarkStore.instance.claimMoveHint(), isFalse);
+    });
+  });
 }

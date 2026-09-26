@@ -260,6 +260,7 @@ void main() {
         'zikr_audio_play': FeatureGroup.readingContent,
         'zikr_bookmark_saved': FeatureGroup.readingContent,
         'zikr_bookmark_removed': FeatureGroup.readingContent,
+        'zikr_bookmark_moved': FeatureGroup.readingContent,
         'zikr_shared': FeatureGroup.readingContent,
         'zikr_keep_awake_toggled': FeatureGroup.readingContent,
         'zikr_focus_mode_toggled': FeatureGroup.readingContent,

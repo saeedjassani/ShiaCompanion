@@ -227,9 +227,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// mid-scroll.
   final Map<int, double> _currentTabScrollFractions = {};
 
-  /// The content line at the top of each tab's view, measured from the laid
-  /// out list. This is what a bookmark records alongside the raw offset, so
-  /// the marker is drawn on the very line the offset was read off.
+  /// The line a bookmark taken now would record in each tab - the first
+  /// verse whose top is on screen, measured from the laid out list - so the
+  /// marker lands on the first whole verse, not one cut off at the top.
   final Map<int, int> _currentTabTopLineIndexes = {};
   final ValueNotifier<double> _readingProgress = ValueNotifier<double>(0);
   bool _hasRecordedCompletion = false;
@@ -1498,7 +1498,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final previousScrollOffset = _currentTabScrollOffsets[tabIndex];
     _currentTabScrollOffsets[tabIndex] = position.scrollOffset;
     _currentTabMaxScrollExtents[tabIndex] = position.maxScrollExtent;
-    final lineIndex = position.lineIndex;
+    final lineIndex = position.bookmarkLineIndex ?? position.lineIndex;
     if (lineIndex != null) {
       _currentTabTopLineIndexes[tabIndex] = lineIndex;
     }
@@ -1571,6 +1571,60 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
+  /// Moves the bookmark to [lineIndex] of the tab it is already in, after
+  /// the reader dragged its "Bookmarked" label there.
+  Future<void> _handleBookmarkMoved(int lineIndex) async {
+    final existing = _savedBookmark;
+    if (existing == null || existing.lineIndex == lineIndex) return;
+
+    final moved = existing.movedTo(
+      lineIndex: lineIndex,
+      updatedAt: DateTime.now().toUtc(),
+    );
+    setState(() {
+      _savedBookmark = moved;
+    });
+    await ZikrBookmarkStore.instance.save(moved);
+    unawaited(ZikrBookmarkStore.instance.markMoveHintSeen());
+    unawaited(AnalyticsService.feature(
+      'zikr_bookmark_moved',
+      label: 'Bookmark moved',
+      parameters: {'zikr_uid': _bookmarkUid},
+    ));
+  }
+
+  /// Tells the reader, the first time they save a bookmark, that its label
+  /// can be dragged to move it - and never again after that.
+  ///
+  /// Held back, without using up the one showing, in Arabic-only paragraph
+  /// view: the marker there is an icon inside the text with no handle to
+  /// drag, so the tip would point at nothing.
+  Future<void> _showBookmarkMoveHintOnce() async {
+    if (isArabicOnlyReadingView) return;
+    if (!await ZikrBookmarkStore.instance.claimMoveHint()) return;
+    if (!mounted) return;
+    final color = Theme.of(context).colorScheme.onInverseSurface;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text.rich(
+          TextSpan(
+            children: [
+              const TextSpan(text: 'Bookmarked. To move it later, drag the '),
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Icon(Icons.drag_indicator, size: 18, color: color),
+              ),
+              const TextSpan(
+                text: ' on the "Bookmarked" label to another line.',
+              ),
+            ],
+          ),
+        ),
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
   Future<void> _toggleBookmark({
     required String pageTitle,
     required List<String> tabContents,
@@ -1619,6 +1673,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       _savedBookmark = bookmark;
     });
     RatingPromptService.recordPositiveAction('bookmark');
+    await _showBookmarkMoveHintOnce();
     unawaited(AnalyticsService.feature(
       'zikr_bookmark_saved',
       label: 'Bookmark saved',
@@ -2006,6 +2061,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                           arabicFontFamilyOf(zikrData),
                                       onBookmarkLineResolved:
                                           _handleBookmarkLineResolved,
+                                      onBookmarkMoved: _isQuran
+                                          ? null
+                                          : _handleBookmarkMoved,
                                       footer: _buildQuranSequenceFooter(),
                                     ),
                                   ),
