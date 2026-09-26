@@ -13,7 +13,6 @@ class ZikrShareImageRequest {
   final String content;
   final bool hideHeaderLine;
   final ColorScheme colorScheme;
-  final String? code;
 
   /// The font the Arabic is drawn in; defaults to [arabicFont].
   final String? arabicFontFamily;
@@ -24,7 +23,6 @@ class ZikrShareImageRequest {
     required this.content,
     required this.hideHeaderLine,
     required this.colorScheme,
-    this.code,
     this.arabicFontFamily,
   });
 }
@@ -82,7 +80,6 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
   final parsed = ZikrContentParser.parseContent(
     request.content,
     hideHeaderLine: request.hideHeaderLine || _startsWithVisibleHeader(request),
-    code: request.code,
   );
   final shareLines = <_ShareImageLine>[];
 

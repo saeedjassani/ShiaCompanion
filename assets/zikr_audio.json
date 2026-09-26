@@ -1,0 +1,301 @@
+{
+  "AA10": [
+    {
+      "file": "dua_iftitah_96k.mp3",
+      "label": "Dua Iftitah"
+    }
+  ],
+  "AA11": [
+    {
+      "file": "dua_baha_96k.mp3",
+      "label": "Dua Baha - Dua e sahar (commencing the fast)"
+    }
+  ],
+  "AA12": [
+    {
+      "file": "dua_abu_hamza_thumali_96k.mp3",
+      "label": "Dua Abu Hamza Thumali"
+    }
+  ],
+  "AA13": [
+    {
+      "file": "aa13_sahar-3ya-uddate.mp3",
+      "label": "Dua Ya Uddati - Dua-e-Sahar"
+    }
+  ],
+  "AA16": [
+    {
+      "file": "aa16_ya-mafzai.mp3",
+      "label": "Ya Mafzai - Dua e Sahar"
+    }
+  ],
+  "AA5": [
+    {
+      "file": "aa5_ya-aliyo-ya-azeem_96k.mp3",
+      "label": "Ya Aliyo Ya Azeem"
+    },
+    {
+      "file": "aa5_allahumma-adhkil_96k.mp3",
+      "label": "Allahumma Adhkil 'Ala"
+    },
+    {
+      "file": "aa5_allahumma-arzukni_96k.mp3",
+      "label": "Allahumma Arzukni"
+    },
+    {
+      "file": "aa5_dua-hajj.mp3",
+      "label": "Dua Hajj"
+    },
+    {
+      "file": "aa5_ramadan-last10.mp3",
+      "label": "During the last 10 Days"
+    }
+  ],
+  "AC10": [
+    {
+      "file": "ac10_ac11_arafat-tasbih-short.mp3",
+      "label": "Tasbih to be recited on the Eve of Arafah"
+    }
+  ],
+  "AC11": [
+    {
+      "file": "ac10_ac11_arafat-tasbih-short.mp3",
+      "label": "1. Tasbeeh from Holy Prophet (sawa)"
+    },
+    {
+      "file": "ac11_arafa-salawat_96k.mp3",
+      "label": "Salawat - Day of Arafah"
+    },
+    {
+      "file": "ac11_four-tasbihat.mp3",
+      "label": "Four Tasbeeh"
+    },
+    {
+      "file": "ac11_dua-holy-prophet.mp3",
+      "label": "Dua - Holy Prophet (sawa)"
+    },
+    {
+      "file": "ac11_dua-imam-ridha.mp3",
+      "label": "Dua - Imam Ridha (as)"
+    },
+    {
+      "file": "ac11_dua-last-hour-1.mp3",
+      "label": "Dua - Last Hour"
+    },
+    {
+      "file": "ac11_dua-last-hour-2.mp3",
+      "label": "Dua 2 - Last Hour"
+    },
+    {
+      "file": "ac11_dua-last-hour-3.mp3",
+      "label": "Dua 3 - Last Hour"
+    }
+  ],
+  "AC12": [
+    {
+      "file": "dua_arafah_imam_husain_96k.mp3",
+      "label": "Dua Arafah of Imam Husain (as)"
+    }
+  ],
+  "AC5": [
+    {
+      "file": "ac5_zilhajj-salat-ayat.mp3",
+      "label": "Salaat between Maghrib and Isha"
+    },
+    {
+      "file": "ac5_zilhajj-dua-after-fajr.mp3",
+      "label": "Dua after Fajr and Before Magrib"
+    },
+    {
+      "file": "ac5_zilhajj-five-tasbih.mp3",
+      "label": "Five Tasbih - Zilhajj 10 days"
+    },
+    {
+      "file": "ac5_zilhajj-tahlil.mp3",
+      "label": "Tahlilaat (hymns of God's unity)"
+    }
+  ],
+  "E1": [
+    {
+      "file": "e1_isteghatha.mp3",
+      "label": "Isteghasa (seeking aid) - Imam Mahdi (atfs)"
+    }
+  ],
+  "E11": [
+    {
+      "file": "dua_yastasheer_96k.mp3",
+      "label": "Dua Yastasheer"
+    }
+  ],
+  "E14": [
+    {
+      "file": "hadees_e_kisa_96k.mp3",
+      "label": "Hadith Kisa"
+    }
+  ],
+  "E144": [
+    {
+      "file": "e144_salawat-abul-hasan-zarrab.mp3",
+      "label": "Salawat Abul Hasan al-Zarrab al-Isfahani"
+    }
+  ],
+  "E15": [
+    {
+      "file": "dua_hazeen_96k.mp3",
+      "label": "Dua e Hazeen",
+      "reciter": "Mahdi Sahwan"
+    }
+  ],
+  "E18": [
+    {
+      "file": "dua_ahad_ali_fani_96k.mp3",
+      "label": "Dua Ahad",
+      "reciter": "Ali Fani"
+    }
+  ],
+  "E20": [
+    {
+      "file": "dua_faraj_azomal_bala_96k.mp3",
+      "label": "Dua Faraj - Azumal Bala - Imam Mahdi (ATFS) - (Alternate version)"
+    }
+  ],
+  "E24": [
+    {
+      "file": "dua_tawassul_96k.mp3",
+      "label": "Dua Tawassul"
+    }
+  ],
+  "E26": [
+    {
+      "file": "e26_dua-simaat.mp3",
+      "label": "Dua Simaat"
+    }
+  ],
+  "E28": [
+    {
+      "file": "dua_mujeer_96k.mp3",
+      "label": "Dua Mujeer"
+    }
+  ],
+  "E29": [
+    {
+      "file": "dua_jawshan_kabeer_96k.mp3",
+      "label": "Dua Jawshan Kabeer"
+    }
+  ],
+  "E31": [
+    {
+      "file": "dua_kumayl_96k.mp3",
+      "label": "Dua Kumayl"
+    }
+  ],
+  "E34": [
+    {
+      "file": "dua_nudbah_96k.mp3",
+      "label": "Dua Nudba"
+    }
+  ],
+  "E8": [
+    {
+      "file": "dua_alqamah_96k.mp3",
+      "label": "Dua Alqama (Safwan)"
+    }
+  ],
+  "F11": [
+    {
+      "file": "f11_salate-jafar-last-sajda.mp3",
+      "label": "Salat Jafar e Tayyar"
+    },
+    {
+      "file": "f11_salate-jafar-after-salat.mp3",
+      "label": "Another Dua After Salat Jafar e Tayyar"
+    }
+  ],
+  "G1": [
+    {
+      "file": "g1_ziyarat-aal-e-yasin.mp3",
+      "label": "Ziyarat Aal e Yasin"
+    },
+    {
+      "file": "g1_ziyarat-aal-e-yasin-with-dua.mp3",
+      "label": "Ziyarat Aal e Yasin with Dua"
+    }
+  ],
+  "G13": [
+    {
+      "file": "ziyarat_jamia_kabeerah_96k.mp3",
+      "label": "Ziyarat Jamia - Kabeera"
+    }
+  ],
+  "G14": [
+    {
+      "file": "ziyarat_imam_husain_qadr_eid_96k.mp3",
+      "label": "Ziyarat Imam Husain (as) at Qadr Nights"
+    }
+  ],
+  "G2": [
+    {
+      "file": "ziyarat_ameenallah_96k.mp3",
+      "label": "Ziyarat Ameenallah"
+    }
+  ],
+  "G4": [
+    {
+      "file": "ziyarat_ashura_ali_fani_96k.mp3",
+      "label": "Ziyarat Ashura",
+      "reciter": "Ali Fani"
+    }
+  ],
+  "G54": [
+    {
+      "file": "ziyarat_warith_96k.mp3",
+      "label": "Ziyarat Warith of Imam Husain (as)"
+    },
+    {
+      "file": "g54_dua-after-ziyarat-warith.mp3",
+      "label": "Dua after Ziyarat Warith"
+    }
+  ],
+  "G75": [
+    {
+      "file": "g75_arafah-ziyarah-imam-husain.mp3",
+      "label": "Ziyarat of Imam Husain(as) on the Day of Arafah"
+    }
+  ],
+  "G83": [
+    {
+      "file": "ziyarat_ashura_ghair_maroofah_96k.mp3",
+      "label": "Ghair Maroof - Ziyarat Ashura"
+    }
+  ],
+  "J3": [
+    {
+      "file": "ziyarat_imam_mahdi_friday_96k.mp3",
+      "label": "Ziarat of Imam Mahdi (ajtfs)"
+    }
+  ],
+  "R1": [
+    {
+      "file": "r1_muharram-dua-salaat.mp3",
+      "label": "Dua and Salaat by Imam Reza (as)"
+    }
+  ],
+  "S1": [
+    {
+      "file": "s1_safar-daily-dua.mp3",
+      "label": "Daily Dua for the Month of Safar"
+    }
+  ],
+  "Y3": [
+    {
+      "file": "y3_shaban-daily-salawat.mp3",
+      "label": "Sha'aban - Daily Salawat"
+    }
+  ],
+  "Y4": [
+    {
+      "file": "munajat_shabaniyah_96k.mp3",
+      "label": "Munajat Shabaniyah"
+    }
+  ]
+}

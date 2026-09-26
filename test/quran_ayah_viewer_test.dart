@@ -37,7 +37,6 @@ Future<void> _pump(
           hasMerits: false,
           onShowMerits: () {},
           onLinkTap: (_) async {},
-          code: '012',
           surahNumber: surahNumber,
           initialVerse: initialVerse,
           ayahIndex: ayahIndex,
@@ -146,7 +145,7 @@ void main() {
       expect(find.text('5. Al-Maidah'), findsOneWidget);
     });
 
-    testWidgets('numbers restart at the boundary rather than running on',
+    testWidgets('draws no separate verse numbers across the boundary',
         (tester) async {
       final portion = _portion();
       await _pump(
@@ -155,14 +154,13 @@ void main() {
         ayahIndex: portion.index,
       );
 
+      // The verse's own end marker in the Arabic is its number; a second
+      // badge above each verse only duplicated it.
       expect(find.text('Translation of 4:1'), findsOneWidget);
-      expect(find.text('1'), findsOneWidget);
+      expect(find.text('1'), findsNothing);
 
-      // Al-Maidah opens at 1 again rather than continuing an-Nisa's numbering,
-      // which is what it would do if the portion were treated as one surah.
       await _scrollTo(tester, find.text('Translation of 5:1'));
-      expect(find.text('1'), findsOneWidget);
-      expect(find.text('7'), findsNothing);
+      expect(find.text('1'), findsNothing);
     });
 
     testWidgets('a tapped verse reports the surah it actually belongs to',
@@ -331,7 +329,7 @@ void main() {
       // No ayah blocks, but the same paragraph divider ayah mode uses still
       // closes off each triplet - every one but the last, which has nothing
       // left to separate it from. (The Bismillah's own would-be triplet gets
-      // no divider: code 012 points its "translation" member at ayah 1's
+      // no divider: its "translation" member points at ayah 1's
       // transliteration line, and ayah 1's own triplet claims that line for
       // itself right after, so nothing left in the map still points back to
       // the Bismillah's group by the time rendering reads it.)
@@ -355,12 +353,11 @@ void main() {
   });
 
   group('ayah mode', () {
-    testWidgets('numbers each verse and leaves the Bismillah unnumbered',
-        (tester) async {
+    testWidgets('leaves verse numbers to the end markers', (tester) async {
       await _pump(tester, content: _surahContent(), surahNumber: 1);
 
       for (final ayah in ['1', '2', '3']) {
-        expect(find.text(ayah), findsOneWidget);
+        expect(find.text(ayah), findsNothing);
       }
       // Four Arabic lines, but only three of them are ayahs.
       expect(find.byType(Divider), findsNWidgets(4));

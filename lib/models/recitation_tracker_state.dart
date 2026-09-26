@@ -253,6 +253,10 @@ class RecitationTrackerState {
 
   /// Where to resume [label]: the tail end of its most recently recited
   /// entry, or null when nothing has been recited under it yet.
+  ///
+  /// A surah recited to its last verse resumes at the start of the next one
+  /// (and an-Nas at al-Fatihah, for the next khatm) - otherwise finishing a
+  /// surah would leave the track parked on its final verse.
   VerseKey? resumePositionFor(String label) {
     RecitationEntry? latest;
     for (final entry in entries.values) {
@@ -261,7 +265,16 @@ class RecitationTrackerState {
         latest = entry;
       }
     }
-    return latest == null ? null : VerseKey(latest.surah, latest.toAyah);
+    if (latest == null) return null;
+
+    final surah = latest.surah;
+    final isKnownSurah = surah >= 1 && surah <= surahAyahCounts.length;
+    if (isKnownSurah && latest.toAyah >= surahAyahCounts[surah - 1]) {
+      return surah == surahAyahCounts.length
+          ? const VerseKey(1, 1)
+          : VerseKey(surah + 1, 1);
+    }
+    return VerseKey(surah, latest.toAyah);
   }
 
   /// Where the reader most recently was, on whichever track.

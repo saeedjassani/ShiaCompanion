@@ -158,7 +158,6 @@ function buildDocument({ uid, url, title, slug, merits, triplets }) {
   const data = buildDataField(triplets);
   const doc = {
     title: title || '',
-    code: '012',
     data,
   };
   if (merits && merits.trim()) doc.merits = merits.trim();
@@ -172,7 +171,6 @@ function previewDocument(doc, uid, triplets) {
   console.log(`Would write assets/zikr/${uid}`);
   console.log('='.repeat(72));
   console.log(`title : ${doc.title}`);
-  console.log(`code  : ${doc.code}`);
   if (doc.slug) console.log(`slug  : ${doc.slug}`);
   if (doc.merits) console.log(`merits: ${doc.merits}`);
   console.log(`verses: ${triplets.length} triplets (${triplets.length * 3} lines)`);
@@ -187,7 +185,7 @@ function previewDocument(doc, uid, triplets) {
 }
 
 /**
- * Writes assets/zikr/<uid> (the content file: title/code/data/merits) and
+ * Writes assets/zikr/<uid> (the content file: title/data/merits) and
  * adds/updates the matching entry in assets/zikr.json (title/slug), which is
  * the corpus's own index - see scripts/RESTORING_MISSING_ZIKRS.md. These two
  * files are the source of truth; there is no separate store-then-regenerate
@@ -206,7 +204,7 @@ async function storeDocument(uid, doc, { skipConfirm } = {}) {
     return false;
   }
 
-  const content = { title: doc.title, code: doc.code };
+  const content = { title: doc.title };
   if (doc.data && doc.data.trim()) content.data = doc.data;
   if (doc.merits && doc.merits.trim()) content.merits = doc.merits;
   fs.mkdirSync(ZIKR_DIR, { recursive: true });

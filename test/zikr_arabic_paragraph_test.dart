@@ -3,9 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 
-/// A heading, three consecutive Arabic verses with nothing between them, and
-/// a trailing instruction - no transliteration or translation lines at all,
-/// which is the shape of most plain-Arabic duas in the corpus.
+/// A heading, an instruction, then three consecutive Arabic verses with
+/// nothing between them - no transliteration or translation lines at all,
+/// which is the shape of most plain-Arabic duas in the corpus. (The
+/// instruction leads because an English line straight after an Arabic verse
+/// is read as that verse's transliteration.)
 const _heading = 'DUA FOR SOMETHING';
 const _verse0 = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
 const _verse1 = 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ';
@@ -14,7 +16,7 @@ const _instruction = 'Recite three times';
 const _mergedParagraph = '$_verse0 $_verse1 $_verse2';
 
 String _content() =>
-    [_heading, _verse0, _verse1, _verse2, _instruction].join('\n');
+    [_heading, _instruction, _verse0, _verse1, _verse2].join('\n');
 
 Future<void> _pumpViewer(
   WidgetTester tester, {
@@ -161,8 +163,8 @@ void main() {
     (tester) async {
       showTransliteration = false;
       showTranslation = false;
-      // Content line 2 is verse1, the middle of the three merged verses.
-      await _pumpViewer(tester, bookmarkLineIndex: 2);
+      // Content line 3 is verse1, the middle of the three merged verses.
+      await _pumpViewer(tester, bookmarkLineIndex: 3);
 
       // No label above the paragraph - the mark is a bookmark icon inline at
       // the start of the verse, so the paragraph is not broken around it.
@@ -184,8 +186,8 @@ void main() {
     (tester) async {
       showTransliteration = false;
       showTranslation = false;
-      // Content line 3 is verse2, the last of the three merged verses.
-      await _pumpViewer(tester, bookmarkLineIndex: 3);
+      // Content line 4 is verse2, the last of the three merged verses.
+      await _pumpViewer(tester, bookmarkLineIndex: 4);
 
       final highlighted = _paragraphChildren().where((span) {
         return span.style?.backgroundColor != null;

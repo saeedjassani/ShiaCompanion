@@ -1534,6 +1534,13 @@ Future<T?> pushPageRoute<T>(BuildContext context, Widget page) {
   return Navigator.push<T>(context, _pageRouteFor(page));
 }
 
+/// Swaps the current route for [page] instead of stacking it, so stepping
+/// through a sequence (surah to surah, juz to juz) does not leave a back stack
+/// as long as the reading.
+Future<T?> replacePageRoute<T>(BuildContext context, Widget page) {
+  return Navigator.pushReplacement<T, Object?>(context, _pageRouteFor(page));
+}
+
 Future<T?>? pushRootPageRoute<T>(Widget page) {
   final navigator = appNavigatorKey.currentState;
   if (navigator == null) return null;

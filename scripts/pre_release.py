@@ -28,7 +28,6 @@ for uid in uidTitle:
     if '~' in uid or '|' in uid: continue
     zikr = {}
     zikr['title'] = data[uid]['Title']
-    zikr['code'] = data[uid]['Code']
     zikr['data'] = data[uid]['Data']
     with io.open('zikr/' + uid, 'w', encoding='utf-8') as outfile:
         outfile.write(unicode(json.dumps(zikr, ensure_ascii=False, indent=4)))

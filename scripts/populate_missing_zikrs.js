@@ -365,7 +365,6 @@ async function tryParse(url, title) {
 function preview(doc, uid) {
   console.log('  -> would store zikr/' + uid);
   console.log('     title : ' + doc.title);
-  console.log('     code  : ' + doc.code);
   if (doc.slug) console.log('     slug  : ' + doc.slug);
   console.log('     verses: ' + (doc.data.match(/\n/g)?.length ?? 0) + 1 + ' lines');
   console.log('     first : ' + doc.data.split('\n').slice(0, 3).join(' | '));

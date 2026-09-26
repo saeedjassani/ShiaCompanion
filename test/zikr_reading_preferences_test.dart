@@ -234,7 +234,7 @@ void main() {
 
   testWidgets('translation flags hide and show reader content', (tester) async {
     await _initPrefs(<String, Object>{});
-    const content = 'Transliteration line\nاللهم صل\nTranslation line';
+    const content = 'اللهم صل\nTransliteration line\nTranslation line';
 
     showTransliteration = false;
     showTranslation = true;
@@ -297,7 +297,6 @@ Future<void> _pumpContentViewer(WidgetTester tester, String content) async {
           hasMerits: false,
           onShowMerits: () {},
           onLinkTap: (_) async {},
-          code: '102',
         ),
       ),
     ),

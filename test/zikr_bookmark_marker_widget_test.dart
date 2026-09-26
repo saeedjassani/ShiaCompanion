@@ -3,13 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 
-/// 20 transliteration / Arabic / translation triplets, laid out the way code
-/// 102 orders them.
+/// 20 Arabic / transliteration / translation triplets.
 String _tripletContent() {
   final lines = <String>[];
   for (var verse = 0; verse < 20; verse++) {
-    lines.add('TRANSLITERATION OF VERSE $verse');
     lines.add('اللهم صل على محمد وآل محمد $verse');
+    lines.add('TRANSLITERATION OF VERSE $verse');
     lines.add('Translation of verse $verse');
   }
   return lines.join('\n');
@@ -33,7 +32,6 @@ Future<List<ZikrContentScrollPosition>> _pumpViewer(
             hasMerits: false,
             onShowMerits: () {},
             onLinkTap: (_) async {},
-            code: '102',
             initialBookmarkTabIndex: bookmarkLineIndex == null ? null : 0,
             initialBookmarkScrollOffset: bookmarkLineIndex == null ? null : 1,
             initialBookmarkLineIndex: bookmarkLineIndex,
@@ -51,8 +49,8 @@ Future<List<ZikrContentScrollPosition>> _pumpViewer(
 Finder _lineFinder(int index) {
   final verse = index ~/ 3;
   return switch (index % 3) {
-    0 => find.text('TRANSLITERATION OF VERSE $verse'),
-    1 => find.text('اللهم صل على محمد وآل محمد $verse'),
+    0 => find.text('اللهم صل على محمد وآل محمد $verse'),
+    1 => find.text('TRANSLITERATION OF VERSE $verse'),
     _ => find.text('Translation of verse $verse'),
   };
 }
@@ -111,8 +109,8 @@ void main() {
   testWidgets('tints the whole triplet when bookmarked on the Arabic', (
     tester,
   ) async {
-    // Line 1 is the Arabic of the first verse; its triplet is lines 0..2.
-    await _pumpViewer(tester, bookmarkLineIndex: 1);
+    // Line 0 is the Arabic of the first verse; its triplet is lines 0..2.
+    await _pumpViewer(tester, bookmarkLineIndex: 0);
 
     expect(_tintedLines(), findsNWidgets(3));
     expect(find.text('Bookmarked'), findsOneWidget);
@@ -129,12 +127,17 @@ void main() {
   testWidgets('tints only the line when it is not part of a triplet', (
     tester,
   ) async {
-    // A tab with no code has no triplets at all, so each line stands alone.
+    // A tab of back-to-back Arabic lines has no transliteration or
+    // translation to group with, so each line stands alone.
+    final arabicOnly = List.generate(
+      60,
+      (line) => 'اللهم صل على محمد وآل محمد $line',
+    ).join('\n');
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: ZikrContentViewerWidget(
-            tabContents: <String>[_tripletContent()],
+            tabContents: <String>[arabicOnly],
             selectedTabIndex: 0,
             onTabChanged: (_) {},
             hasMerits: false,
@@ -159,7 +162,7 @@ void main() {
     await _pumpViewer(tester, bookmarkLineIndex: 1);
 
     // The hidden transliteration draws nothing, so only the Arabic and the
-    // translation carry the tint, and the label moves down to the Arabic.
+    // translation carry the tint, and the label stays on the Arabic.
     expect(_tintedLines(), findsNWidgets(2));
     expect(find.text('Bookmarked'), findsOneWidget);
     expect(find.text('TRANSLITERATION OF VERSE 0'), findsNothing);
@@ -171,11 +174,11 @@ void main() {
     // Standing in for the audio player opening or the reading chrome sliding
     // away: the viewport changes size and the list relayouts. The marker used
     // to be derived from the scroll fraction, so this moved it or lost it.
-    await _pumpViewer(tester, bookmarkLineIndex: 1);
+    await _pumpViewer(tester, bookmarkLineIndex: 0);
     expect(_tintedLines(), findsNWidgets(3));
     expect(find.text('Bookmarked'), findsOneWidget);
 
-    await _pumpViewer(tester, bookmarkLineIndex: 1, bottomInset: 180);
+    await _pumpViewer(tester, bookmarkLineIndex: 0, bottomInset: 180);
     await tester.pumpAndSettle();
 
     expect(_tintedLines(), findsNWidgets(3));
@@ -200,7 +203,6 @@ void main() {
             hasMerits: false,
             onShowMerits: () {},
             onLinkTap: (_) async {},
-            code: '102',
             initialBookmarkTabIndex: 0,
             initialBookmarkScrollOffset: 400,
             onScrollPositionChanged: (_) {},
@@ -240,7 +242,6 @@ void main() {
             hasMerits: false,
             onShowMerits: () {},
             onLinkTap: (_) async {},
-            code: '102',
             initialBookmarkTabIndex: 0,
             initialBookmarkScrollOffset: 5,
             // The translation of verse 12: the triplet starts two lines up.
@@ -253,7 +254,11 @@ void main() {
     await tester.pumpAndSettle();
 
     final viewportTop = tester.getRect(find.byType(ListView)).top;
-    final tripletTop = tester.getRect(_lineFinder(36)).top;
+    // The tinted block is the triplet (lines 36..38), label included; the
+    // Arabic that opens it sits below the label, so measure the block.
+    expect(_tintedLines(), findsNWidgets(3));
+    final tripletTop = tester.getRect(_tintedLines().first).top;
+    expect(tester.getRect(_lineFinder(36)).top, greaterThan(tripletTop));
     expect(tripletTop, greaterThanOrEqualTo(viewportTop - 0.5));
     expect(tripletTop, lessThan(viewportTop + 40),
         reason: 'the bookmarked triplet starts at the top of the view');
@@ -279,11 +284,11 @@ void main() {
             hasMerits: false,
             onShowMerits: () {},
             onLinkTap: (_) async {},
-            code: '102',
             initialBookmarkTabIndex: 0,
             // Measured in the old, taller one-verse-per-line layout.
             initialBookmarkScrollOffset: 2400,
-            initialBookmarkLineIndex: 37,
+            // Verse 12's Arabic.
+            initialBookmarkLineIndex: 36,
             onScrollPositionChanged: positions.add,
           ),
         ),
@@ -306,7 +311,7 @@ void main() {
       findsOneWidget,
     );
     expect(positions, isNotEmpty);
-    expect(positions.last.lineIndex, inInclusiveRange(37 - 9, 37));
+    expect(positions.last.lineIndex, inInclusiveRange(36 - 9, 36));
   });
 
   testWidgets('lands on the bookmarked verse deep inside a long paragraph', (
@@ -320,8 +325,8 @@ void main() {
     // One paragraph many screens long, as a whole dua is in this view.
     final lines = <String>[];
     for (var verse = 0; verse < 150; verse++) {
-      lines.add('TRANSLITERATION OF VERSE $verse');
       lines.add('اللهم صل على محمد وآل محمد $verse');
+      lines.add('TRANSLITERATION OF VERSE $verse');
       lines.add('Translation of verse $verse');
     }
     final positions = <ZikrContentScrollPosition>[];
@@ -336,11 +341,10 @@ void main() {
               hasMerits: false,
               onShowMerits: () {},
               onLinkTap: (_) async {},
-              code: '102',
               initialBookmarkTabIndex: 0,
               initialBookmarkScrollOffset: 1,
               // Verse 100's Arabic.
-              initialBookmarkLineIndex: 301,
+              initialBookmarkLineIndex: 300,
               onScrollPositionChanged: positions.add,
             ),
           ),
@@ -354,7 +358,7 @@ void main() {
     // reads back as the first verse to begin on that row, which several
     // short ones share.
     expect(positions, isNotEmpty);
-    expect(positions.last.lineIndex, inInclusiveRange(301 - 9, 301));
+    expect(positions.last.lineIndex, inInclusiveRange(300 - 9, 300));
     expect(positions.last.scrollOffset, greaterThan(0));
   });
 }

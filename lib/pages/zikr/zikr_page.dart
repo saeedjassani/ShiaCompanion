@@ -13,6 +13,7 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/mistake_report_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
+import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
@@ -35,6 +36,7 @@ import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/zikr_reading_progress_bar.dart';
 import '../../widgets/zikr_settings.dart';
 import '../../widgets/zikr_counter.dart';
+import '../quran/quran_navigation.dart';
 import '../zikr_reminder_form_page.dart';
 import 'zikr_form_helpers.dart';
 import 'zikr_content_parser.dart';
@@ -172,12 +174,19 @@ class ZikrPage extends StatefulWidget {
   /// silently attributing it to whichever track was last used.
   final String? recitationLabel;
 
+  /// The browser URL to put back when this page is popped, when it replaced
+  /// another reader rather than being pushed over the page it returns to - a
+  /// "Next surah" step swaps the route, so the URL worth restoring on back is
+  /// the one the first reader in the chain was opened from.
+  final Uri? returnBrowserUri;
+
   ZikrPage(
     this.item, {
     this.source = ZikrOpenSource.unknown,
     this.initialVerse,
     this.portion,
     this.recitationLabel,
+    this.returnBrowserUri,
   });
 
   @override
@@ -286,6 +295,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// instead of logging a fresh one every time the debounce fires.
   final Map<int, String> _recitationEntryIdsThisSession = {};
 
+  /// Whether reaching the end has already been recorded this visit - see
+  /// [_maybeMarkQuranEndReached] - and the wait before it counts, when the
+  /// end was reached without scrolling.
+  bool _hasMarkedQuranEnd = false;
+  Timer? _quranEndTimer;
+
   @override
   void initState() {
     super.initState();
@@ -318,6 +333,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       source: widget.source,
     ));
     _readingProgress.addListener(_maybeRecordCompletion);
+    _readingProgress.addListener(_maybeMarkQuranEndReached);
     _initializePageData();
     _scheduleChromeIdleHide();
   }
@@ -367,20 +383,110 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (position.verse == _pendingProgressVerse) return;
 
     _pendingProgressVerse = position.verse;
-    final surah = position.verse.surah;
+    _extendRecitedRange(position.verse.surah, ayah, ayah);
+    // Reading on past the end marker's gate - scrolling counts as reading.
+    _maybeMarkQuranEndReached();
+  }
+
+  /// Widens this visit's recited range for [surah] to cover [from]–[to], and
+  /// queues the tracker write.
+  void _extendRecitedRange(int surah, int from, int to) {
     final existingRange = _recitedRangesThisSession[surah];
     _recitedRangesThisSession[surah] = existingRange == null
-        ? (ayah, ayah)
+        ? (from, to)
         : (
-            math.min(existingRange.$1, ayah),
-            math.max(existingRange.$2, ayah),
+            math.min(existingRange.$1, from),
+            math.max(existingRange.$2, to),
           );
 
     // Scrolling reports continuously; logging per frame would be pointless
-    // churn, so wait for the reader to settle.
+    // churn, so wait for the reader to settle. Still only on the device -
+    // the remote sync waits for the reader to leave, see [dispose].
     _progressSaveTimer?.cancel();
-    _progressSaveTimer =
-        Timer(const Duration(seconds: 1), _flushRecitationProgress);
+    _progressSaveTimer = Timer(
+      const Duration(seconds: 1),
+      () => _flushRecitationProgress(syncRemote: false),
+    );
+  }
+
+  /// The last verse of what is open - a surah's final ayah, or a juz's.
+  VerseKey? get _quranEndVerse {
+    final portion = widget.portion;
+    if (portion != null) {
+      final spans = portion.index.spans;
+      for (var i = spans.length - 1; i >= 0; i--) {
+        final verse = spans[i].verse;
+        if (verse != null) return verse;
+      }
+      return null;
+    }
+    final surah = _surahNumber;
+    final info = surah == null ? null : surahInfoFor(surah);
+    return info == null ? null : VerseKey(info.number, info.ayahCount);
+  }
+
+  /// The first ayah of [surah] this document holds - 1 for a surah, but a
+  /// juz can open part-way through one.
+  int _firstAyahInDocument(int surah) {
+    final portion = widget.portion;
+    if (portion == null) return 1;
+    for (final span in portion.index.spans) {
+      final verse = span.verse;
+      if (verse != null && verse.surah == surah) return verse.ayah ?? 1;
+    }
+    return 1;
+  }
+
+  /// Marks the closing verses as recited once the reader reaches the end.
+  ///
+  /// The per-scroll report only ever sees the verse at the *top* of the view,
+  /// so on its own it can never reach the last verses of a surah - they are
+  /// on screen at the bottom when the list stops - and it records nothing at
+  /// all for a surah short enough to fit without scrolling (al-Fatihah on a
+  /// desktop browser), which is why a new track could sit on al-Fatihah
+  /// forever. Reaching the end fills that in: straight away if the reader
+  /// scrolled there, otherwise once they have stayed about as long as the
+  /// text takes to recite, so a glance at a short surah is not a recitation.
+  void _maybeMarkQuranEndReached() {
+    if (_hasMarkedQuranEnd || !_isQuran || !mounted) return;
+    if (_readingProgress.value < 0.98) {
+      _quranEndTimer?.cancel();
+      _quranEndTimer = null;
+      return;
+    }
+
+    final end = _quranEndVerse;
+    final endAyah = end?.ayah;
+    final openedAt = _openedAt;
+    if (end == null || endAyah == null || openedAt == null) return;
+
+    final readByScrolling = _recitedRangesThisSession.isNotEmpty;
+    if (!readByScrolling) {
+      final required = Duration(
+        seconds: math.max(10, _readingStats.duration.inSeconds ~/ 2),
+      );
+      final elapsed = DateTime.now().difference(openedAt);
+      if (elapsed < required) {
+        _quranEndTimer ??= Timer(
+          required - elapsed + const Duration(milliseconds: 200),
+          () {
+            _quranEndTimer = null;
+            _maybeMarkQuranEndReached();
+          },
+        );
+        return;
+      }
+    }
+
+    _hasMarkedQuranEnd = true;
+    _quranEndTimer?.cancel();
+    _quranEndTimer = null;
+    final opening = _initialVerse;
+    final from = _recitedRangesThisSession[end.surah]?.$1 ??
+        (opening != null && opening.surah == end.surah && opening.ayah != null
+            ? opening.ayah!
+            : _firstAyahInDocument(end.surah));
+    _extendRecitedRange(end.surah, from, endAyah);
   }
 
   /// Commits every surah's range touched by genuine reading this visit to
@@ -394,7 +500,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// the same entry id for the life of this page, so a flush mid-session
   /// extends that entry rather than logging a new one, and this is safe to
   /// call repeatedly - an unchanged range is a no-op in the manager.
-  void _flushRecitationProgress() {
+  void _flushRecitationProgress({bool syncRemote = true}) {
     if (_recitedRangesThisSession.isEmpty) return;
 
     for (final touched in _recitedRangesThisSession.entries) {
@@ -411,8 +517,73 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         surah: surah,
         fromAyah: fromAyah,
         toAyah: toAyah,
+        syncRemote: syncRemote,
       ));
     }
+  }
+
+  /// "Previous" / "Next" at the end of a surah or a juz, so reading straight
+  /// through the Quran never means going back to a list. Null for anything
+  /// that is not Quran.
+  Widget? _buildQuranSequenceFooter() {
+    final juz = widget.portion?.juz;
+    final surah = _surahNumber;
+    if (juz == null && surah == null) return null;
+
+    final String? previousLabel;
+    final String? nextLabel;
+    if (juz != null) {
+      previousLabel = juz > 1 ? 'Juz ${juz - 1}' : null;
+      nextLabel = juz < allJuz().length ? 'Juz ${juz + 1}' : null;
+    } else {
+      previousLabel = _surahSequenceLabel(surah! - 1);
+      nextLabel = _surahSequenceLabel(surah + 1);
+    }
+
+    return QuranSequenceFooter(
+      unit: juz != null ? null : 'surah',
+      previousLabel: previousLabel,
+      nextLabel: nextLabel,
+      onPrevious: () => _openQuranSequenceStep(-1),
+      onNext: () => _openQuranSequenceStep(1),
+    );
+  }
+
+  String? _surahSequenceLabel(int surah) {
+    final info = surahInfoFor(surah);
+    return info?.englishName;
+  }
+
+  Future<void> _openQuranSequenceStep(int delta) async {
+    final juz = widget.portion?.juz;
+    final returnUri = _previousBrowserUri;
+    unawaited(AnalyticsService.feature(
+      juz != null ? 'quran_juz_step' : 'quran_surah_step',
+      label:
+          juz != null ? 'Quran next/previous juz' : 'Quran next/previous surah',
+      parameters: {'direction': delta > 0 ? 'next' : 'previous'},
+    ));
+    if (juz != null) {
+      await openQuranJuz(
+        context,
+        juz + delta,
+        source: widget.source,
+        recitationLabel: widget.recitationLabel,
+        replace: true,
+        returnBrowserUri: returnUri,
+      );
+      return;
+    }
+    final surah = _surahNumber;
+    if (surah == null) return;
+    await openQuranVerse(
+      context,
+      VerseKey(surah + delta),
+      source: widget.source,
+      recitationLabel: widget.recitationLabel,
+      replace: true,
+      returnBrowserUri: returnUri,
+    );
   }
 
   /// The per-ayah menu: what you can do with one verse rather than the whole
@@ -562,6 +733,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void dispose() {
     _progressSaveTimer?.cancel();
+    _quranEndTimer?.cancel();
     _flushRecitationProgress();
     if (_pageRoute != null) {
       routeObserver.unsubscribe(this);
@@ -574,6 +746,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _selectionFocusNode.dispose();
     _maybeRecordCompletion();
     _readingProgress.removeListener(_maybeRecordCompletion);
+    _readingProgress.removeListener(_maybeMarkQuranEndReached);
     _readingProgress.dispose();
     syncZikrWakelockPreference(owner: this, isActive: false);
     // After _maybeRecordCompletion above, so a completion recorded on the way
@@ -1011,10 +1184,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // folded into instead of failing outright, and land on the specific tab
     // its content now lives in, if any.
     final redirect = retiredZikrRedirects[widget.item.getFirstUId()];
-    final assetUid = redirect?.targetUid ?? widget.item.getFirstUId();
+    final assetUid = _contentUid;
     try {
       final bundle = DefaultAssetBundle.of(context);
+      // Recordings live in their own index, not the content file; have it
+      // ready by the time the page first draws, so Listen does not pop in.
+      final audioLoaded = ZikrAudioIndex.instance.load(bundle);
       final raw = await bundle.loadString('assets/zikr/$assetUid');
+      await audioLoaded;
       final decoded = json.decode(raw);
       if (decoded is! Map) {
         return false;
@@ -1050,11 +1227,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       return;
     }
 
-    final uid = widget.item.getFirstUId();
-    if (surahForUid(retiredZikrRedirects[uid]?.targetUid ?? uid) == null) {
-      return;
-    }
+    if (surahForUid(_contentUid) == null) return;
     await _loadZikrDataFromAssets();
+  }
+
+  /// The uid whose content (and recordings) this page shows: the target of
+  /// an alias key or of a retired uid's redirect.
+  String get _contentUid {
+    final uid = widget.item.getFirstUId();
+    return retiredZikrRedirects[uid]?.targetUid ?? uid;
   }
 
   void _markZikrDataUnavailable() {
@@ -1264,7 +1445,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           content: selectedContent,
           hideHeaderLine: showTabHeaders,
           colorScheme: Theme.of(context).colorScheme,
-          code: zikrData?['code']?.toString(),
           arabicFontFamily: arabicFontFamilyOf(zikrData),
         ),
       );
@@ -1495,7 +1675,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void didPush() {
     _isCurrentRoute = true;
     syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
-    _previousBrowserUri ??= Uri.base;
+    _previousBrowserUri ??= widget.returnBrowserUri ?? Uri.base;
     _scheduleCurrentWebRouteSync();
   }
 
@@ -1686,7 +1866,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       tabContents,
       hideHeaderLine: tabContents.length > 1,
     );
-    final audioTracks = ZikrAudioTrack.listFrom(zikrData?['audio']);
+    final audioTracks = widget.portion != null
+        ? const <ZikrAudioTrack>[]
+        : ZikrAudioIndex.instance.tracksFor(_contentUid);
     final showActionBar = zikrData != null;
     // Independent of showActionBar - a zikr with no estimable reading time
     // (still loading) can lack one while the other still applies.
@@ -1804,7 +1986,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                       hasMerits: hasMerits,
                                       onShowMerits: _showMeritsSheet,
                                       onLinkTap: _handleZikrLinkTap,
-                                      code: zikrData?['code']?.toString(),
                                       initialBookmarkTabIndex:
                                           _savedBookmark?.tabIndex,
                                       initialBookmarkScrollOffset:
@@ -1825,6 +2006,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                           arabicFontFamilyOf(zikrData),
                                       onBookmarkLineResolved:
                                           _handleBookmarkLineResolved,
+                                      footer: _buildQuranSequenceFooter(),
                                     ),
                                   ),
                       ),

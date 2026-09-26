@@ -43,7 +43,6 @@ for surah in data:
         cum += 1
     # print(cum)
     itemJson = {}
-    itemJson['code'] = '012'
     itemJson['data'] = dataString.strip()
     itemJson['title'] = str(surah['number']) + ": " + surah['english'] + " " + surah['arabic'] 
     

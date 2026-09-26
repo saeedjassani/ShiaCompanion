@@ -57,7 +57,6 @@ Future<void> _pump(
             hasMerits: false,
             onShowMerits: () {},
             onLinkTap: (_) async {},
-            code: '012',
             surahNumber: surahNumber,
             ayahIndex: ayahIndex,
             initialVerse: initialVerse,
@@ -89,7 +88,7 @@ void main() {
   group('quranParagraphSpanRuns', () {
     ParsedZikrContent parse(String content) =>
         ZikrContentParser.parseContent(content,
-            hideHeaderLine: false, code: '012');
+            hideHeaderLine: false);
 
     test('the Bismillah stands alone and a rukuʿ does not break the surah', () {
       final content = _surahContent(ayahs: 6, rukuAfter: {3});
@@ -197,8 +196,9 @@ void main() {
       showArabicAsParagraph = false;
       await _pump(tester, content: _surahContent());
 
-      // One badge per verse, as ever.
-      expect(find.text('2'), findsOneWidget);
+      // One block per verse - the Bismillah and six ayahs - rather than the
+      // two a paragraph would make.
+      expect(find.byType(Divider), findsNWidgets(7));
     });
 
     testWidgets('keeps ayah mode while an English aid is on', (tester) async {

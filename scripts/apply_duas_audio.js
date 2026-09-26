@@ -1,17 +1,19 @@
 /**
- * Writes the approved rows of duas_audio_map.json onto assets/zikr/<uid> as
- * an `audio` array. Run import_duas_audio.js first, review the map, flip
- * `"approved": true` on the rows you accept, then run this.
+ * Writes the approved rows of duas_audio_map.json into assets/zikr_audio.json,
+ * the one place zikr recordings are listed. Run import_duas_audio.js first,
+ * review the map, flip `"approved": true` on the rows you accept, then run
+ * this.
  *
- * assets/zikr/<uid> is the source of truth - see
- * scripts/RESTORING_MISSING_ZIKRS.md - so this writes it directly; there is
- * no separate build/regenerate step afterwards.
+ * All audio is served from the app's own R2 bucket, never hot-linked, so each
+ * track is written as an R2 file name (`<uid>_<source file name>`) and the
+ * run prints which duas.org file to upload under which name. Upload them
+ * before merging: the app builds every URL from the file name.
  *
  * Usage:
  *   node apply_duas_audio.js                    # dry run, prints the diff
- *   node apply_duas_audio.js --store            # write assets/zikr/<uid>
+ *   node apply_duas_audio.js --store            # write assets/zikr_audio.json
  *   node apply_duas_audio.js --only G4 --store  # write one zikr only
- *   node apply_duas_audio.js --clear            # remove the audio field
+ *   node apply_duas_audio.js --clear --store    # remove entries (--only's, or all)
  */
 
 const fs = require('fs');
@@ -56,14 +58,22 @@ function buildAudioByUid(rows) {
   return byUid;
 }
 
-function readLocal(uid) {
-  const p = path.join(ZIKR_DIR, uid);
-  if (!fs.existsSync(p)) return null;
-  return JSON.parse(fs.readFileSync(p, 'utf8'));
+const AUDIO_FILE = path.join(__dirname, '..', 'assets', 'zikr_audio.json');
+
+function readAudio() {
+  return fs.existsSync(AUDIO_FILE) ? JSON.parse(fs.readFileSync(AUDIO_FILE, 'utf8')) : {};
 }
 
-function writeLocal(uid, doc) {
-  fs.writeFileSync(path.join(ZIKR_DIR, uid), `${JSON.stringify(doc, null, 2)}\n`, 'utf8');
+function writeAudio(audio) {
+  fs.writeFileSync(AUDIO_FILE, `${JSON.stringify(audio, null, 2)}\n`, 'utf8');
+}
+
+/** The R2 name for a duas.org track: its own file name, prefixed with the
+ * uid and made URL-safe, e.g. `e26_simaatabather.mp3`. */
+function r2FileName(uid, url) {
+  const base = decodeURIComponent(url.split('/').pop() || 'track.mp3');
+  const safe = base.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/^-+|-+$/g, '');
+  return `${uid.toLowerCase()}_${safe}`;
 }
 
 function main() {
@@ -74,22 +84,16 @@ function main() {
   const rows = map.rows || [];
 
   if (CLEAR) {
-    const targets = fs.readdirSync(ZIKR_DIR).filter((uid) => {
-      if (!fs.statSync(path.join(ZIKR_DIR, uid)).isFile()) return false;
-      const doc = readLocal(uid);
-      return doc?.audio !== undefined;
-    });
-    console.log(`${targets.length} files carry an audio field`);
+    const audio = readAudio();
+    const targets = Object.keys(audio).filter((uid) => !ONLY || ONLY.has(uid));
+    console.log(`${targets.length} zikrs to clear from assets/zikr_audio.json`);
     if (!STORE) {
       console.log('Dry run. Re-run with --store --clear to remove.');
       return;
     }
-    for (const uid of targets) {
-      const doc = readLocal(uid);
-      delete doc.audio;
-      writeLocal(uid, doc);
-    }
-    console.log(`Cleared audio from ${targets.length} files`);
+    for (const uid of targets) delete audio[uid];
+    writeAudio(audio);
+    console.log(`Cleared audio for ${targets.length} zikrs`);
     return;
   }
 
@@ -112,22 +116,28 @@ function main() {
 
   for (const [uid, tracks] of byUid) {
     console.log(`  ${uid}: ${tracks.length} track(s)`);
-    for (const t of tracks) console.log(`      ${t.label || '(untitled)'} - ${t.url}`);
+    for (const t of tracks) {
+      console.log(`      ${t.label || '(untitled)'} - ${t.url} -> R2 ${r2FileName(uid, t.url)}`);
+    }
   }
 
   if (!STORE) {
-    console.log('\nDry run. Re-run with --store to write assets/zikr/<uid>.');
+    console.log('\nDry run. Re-run with --store to write assets/zikr_audio.json.');
     return;
   }
 
-  let written = 0;
+  const audio = readAudio();
   for (const [uid, tracks] of byUid) {
-    const doc = readLocal(uid);
-    doc.audio = tracks;
-    writeLocal(uid, doc);
-    written += 1;
+    audio[uid] = tracks.map((t) => ({
+      file: r2FileName(uid, t.url),
+      ...(t.label ? {label: t.label} : {}),
+    }));
   }
-  console.log(`\nWrote audio to ${written} zikr files.`);
+  writeAudio(audio);
+  console.log(`\nWrote audio for ${byUid.size} zikrs. Upload to R2 before merging:`);
+  for (const [uid, tracks] of byUid) {
+    for (const t of tracks) console.log(`  ${t.url}  ->  ${r2FileName(uid, t.url)}`);
+  }
 }
 
 try {
