@@ -1897,19 +1897,18 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   // (flutter_local_notifications has no web target), so a reminder set here
   // would silently never fire. Settings hides its whole "Zikr Reminders"
   // entry point on web for the same reason.
-  /// The app bar, collapsing upward with the rest of the reading chrome
-  /// whenever [_chromeVisible] hides it. Like the two overlay bars, whose
-  /// padding in the reading column animates away at the same time, it gives
-  /// its height back to the text as it slides away. That shift runs in the same
-  /// direction the reader is already scrolling, the way a browser's address
-  /// bar behaves.
+  /// The app bar and the progress strip under it, sliding up as one with
+  /// the rest of the reading chrome whenever [_chromeVisible] hides it. Like
+  /// every other bar it floats over the reading list, so hiding it only
+  /// uncovers text.
   ///
   /// The status bar band stays put and keeps the app bar's colour, so the
-  /// system icons never end up over the reading text; only the toolbar slides
-  /// up beneath it.
-  Widget _buildCollapsibleAppBar(AppBar appBar) {
-    final topPadding = MediaQuery.paddingOf(context).top;
-    final toolbarHeight = appBar.preferredSize.height;
+  /// system icons never end up over the reading text; the bars slide up
+  /// beneath it.
+  Widget _buildTopChrome({required AppBar appBar, Widget? progressBar}) {
+    final statusBarHeight = MediaQuery.paddingOf(context).top;
+    final slideExtent = appBar.preferredSize.height +
+        (progressBar == null ? 0.0 : ZikrReadingProgressBar.barHeight);
     final theme = Theme.of(context);
     final statusBarColor =
         theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface;
@@ -1920,32 +1919,32 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         builder: (context, shown, _) => SizedBox(
-          height: topPadding + toolbarHeight * shown,
-          child: ClipRect(
-            child: Stack(
-              children: [
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: -toolbarHeight * (1 - shown),
-                  height: topPadding + toolbarHeight,
-                  // Fully hidden, the toolbar must not take taps meant for
-                  // the status band's edge of the reading area.
-                  child: IgnorePointer(ignoring: shown == 0, child: child),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: 0,
-                  height: topPadding,
-                  child: ColoredBox(color: statusBarColor),
-                ),
-              ],
-            ),
+          height: statusBarHeight + slideExtent,
+          child: Stack(
+            children: [
+              Positioned(
+                left: 0,
+                right: 0,
+                top: -slideExtent * (1 - shown),
+                // Fully hidden, the bars must not take taps meant for the
+                // text now showing where they were.
+                child: IgnorePointer(ignoring: shown == 0, child: child),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 0,
+                height: statusBarHeight,
+                child: ColoredBox(color: statusBarColor),
+              ),
+            ],
           ),
         ),
       ),
-      child: appBar,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [appBar, if (progressBar != null) progressBar],
+      ),
     );
   }
 
@@ -1981,6 +1980,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // (still loading) can lack one while the other still applies.
     final showProgressBar = _readingStats.hasContent;
     final readingTimeLabel = zikrReadingTimeLabel(_readingStats.duration);
+    final mediaPadding = MediaQuery.paddingOf(context);
+    final statusBarHeight = mediaPadding.top;
+    // How far the chrome reaches in from each edge while it is showing.
+    final topChromeExtent = statusBarHeight +
+        kToolbarHeight +
+        (showProgressBar ? ZikrReadingProgressBar.barHeight : 0.0);
+    final bottomChromeExtent = mediaPadding.bottom +
+        (showActionBar ? ZikrActionBar.barHeight + 1 : 0.0);
 
     return SelectionArea(
       focusNode: _selectionFocusNode,
@@ -2004,324 +2011,270 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       child: Scaffold(
         key: _scaffoldKey,
         endDrawer: ZikrSettingsPage(refreshState),
-        // The app bar lives in the body rather than in Scaffold.appBar so it
-        // can collapse with the rest of the reading chrome in Focus mode -
-        // Scaffold sizes its appBar slot from a fixed preferredSize, which
-        // cannot animate.
-        body: Column(
-          children: [
-            _buildCollapsibleAppBar(
-              AppBar(
-                title: _buildAppBarTitle(pageTitle),
-                // Reading settings opens this same endDrawer from the bottom
-                // bar now. Without this, an AppBar with an endDrawer set
-                // auto-fills its own "Open navigation menu" button whenever
-                // actions is empty, duplicating that entry point.
-                automaticallyImplyActions: false,
-                actions: _buildAppBarActions(),
-              ),
-            ),
-            Expanded(
-              // The app bar above has already taken the status bar inset,
-              // as Scaffold would have done for a real appBar.
-              child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                child: Listener(
-                  // Covers the whole reading area, not just either bar: after the
-                  // idle timeout has hidden the chrome, the reader should not have to
-                  // hunt for exactly where to tap to get it back.
-                  //
-                  // On the finished tap, not on pointer-down: a scroll starts with a
-                  // pointer-down too, so revealing there flashed both bars onto the
-                  // screen at the start of every single scroll gesture, for the
-                  // scroll itself to slide them straight back out.
-                  onPointerDown: _handleChromePointerDown,
-                  onPointerMove: _handleChromePointerMove,
-                  onPointerCancel: _handleChromePointerCancel,
-                  onPointerUp: (_) {
-                    if (!_consumeChromeTap()) return;
-                    if (showActionBar || showProgressBar) _revealChrome();
-                  },
-                  behavior: HitTestBehavior.translucent,
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: _handleScrollNotification,
-                    child: LayoutBuilder(
-                      builder: (context, bodyConstraints) => Stack(
-                        children: [
-                          Column(
-                            children: [
-                              Expanded(
-                                child: zikrData == null
-                                    ? Center(
-                                        child: _didFailToLoadZikrData
-                                            ? const Text(
-                                                'Unable to open this dua.')
-                                            : const CircularProgressIndicator(),
-                                      )
-                                    : !hasAnyContent
-                                        ? const Center(
-                                            child: Text('Coming soon...'))
-                                        : ResponsiveContent(
-                                            maxWidth: readingContentWidth,
-                                            padding: const EdgeInsets.all(16),
-                                            // Both bars float over the reading area
-                                            // rather than sitting in the column, so
-                                            // this - not either bar's own size - is
-                                            // what keeps the text out from under
-                                            // them. It follows [_chromeVisible], so
-                                            // once Focus mode slides the bars away
-                                            // the text takes their space too, in
-                                            // step with the app bar collapsing.
-                                            // Only the padding rebuilds per frame;
-                                            // the viewer is passed through as the
-                                            // builder's child.
-                                            child: ValueListenableBuilder<bool>(
-                                              valueListenable: _chromeVisible,
-                                              builder:
-                                                  (context, visible, child) =>
-                                                      AnimatedPadding(
-                                                padding: EdgeInsets.only(
-                                                  top: visible &&
-                                                          showProgressBar
-                                                      ? ZikrReadingProgressBar
-                                                          .barHeight
-                                                      : 0.0,
-                                                  bottom: visible &&
-                                                          showActionBar
-                                                      ? ZikrActionBar.barHeight
-                                                      : 0.0,
+        body: Listener(
+          // Covers the whole reading area, not just either bar: after the
+          // idle timeout has hidden the chrome, the reader should not have to
+          // hunt for exactly where to tap to get it back.
+          //
+          // On the finished tap, not on pointer-down: a scroll starts with a
+          // pointer-down too, so revealing there flashed both bars onto the
+          // screen at the start of every single scroll gesture, for the
+          // scroll itself to slide them straight back out.
+          onPointerDown: _handleChromePointerDown,
+          onPointerMove: _handleChromePointerMove,
+          onPointerCancel: _handleChromePointerCancel,
+          onPointerUp: (_) {
+            if (_consumeChromeTap()) _revealChrome();
+          },
+          behavior: HitTestBehavior.translucent,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: _handleScrollNotification,
+            child: Stack(
+              children: [
+                // The reading list runs the full height of the screen, and
+                // every bar - app bar, progress strip, action bar, tab strip -
+                // floats over it. What keeps the text clear of them is
+                // scrolling padding inside the list, not a fixed inset
+                // around it, so showing or hiding the chrome only covers or
+                // uncovers text at the edges and never relays the list out:
+                // the line being read stays exactly where it is.
+                Positioned.fill(
+                  child: zikrData == null
+                      ? Padding(
+                          padding: EdgeInsets.only(top: topChromeExtent),
+                          child: Center(
+                            child: _didFailToLoadZikrData
+                                ? const Text('Unable to open this dua.')
+                                : const CircularProgressIndicator(),
+                          ),
+                        )
+                      : !hasAnyContent
+                          ? Padding(
+                              padding: EdgeInsets.only(top: topChromeExtent),
+                              child:
+                                  const Center(child: Text('Coming soon...')),
+                            )
+                          : ResponsiveContent(
+                              maxWidth: readingContentWidth,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: ZikrContentViewerWidget(
+                                tabContents: tabContents,
+                                selectedTabIndex: selectedTabIndex,
+                                onTabChanged: (index) {
+                                  // A swiped tab change is already
+                                  // covered by the scroll handler; this
+                                  // is the tab header being tapped,
+                                  // which animates the pager without
+                                  // ever reporting a user scroll.
+                                  _clearTextSelection();
+                                  setState(() {
+                                    _selectedZikrTabIndex = index;
+                                  });
+                                  _updateReadingProgress();
+                                },
+                                hasMerits: hasMerits,
+                                onShowMerits: _showMeritsSheet,
+                                onLinkTap: _handleZikrLinkTap,
+                                initialBookmarkTabIndex:
+                                    _savedBookmark?.tabIndex,
+                                initialBookmarkScrollOffset:
+                                    _savedBookmark?.scrollOffset,
+                                initialBookmarkLineIndex:
+                                    _savedBookmark?.lineIndex,
+                                savedVerses: _savedVerses,
+                                onScrollPositionChanged:
+                                    _handleContentScrollPositionChanged,
+                                surahNumber: _surahNumber,
+                                initialVerse: _initialVerse,
+                                ayahIndex: widget.portion?.index,
+                                onAyahPositionChanged:
+                                    _handleAyahPositionChanged,
+                                onAyahAction:
+                                    _isQuran ? _showAyahActions : null,
+                                arabicFontFamily: arabicFontFamilyOf(zikrData),
+                                onBookmarkLineResolved:
+                                    _handleBookmarkLineResolved,
+                                onBookmarkMoved:
+                                    _isQuran ? null : _handleBookmarkMoved,
+                                footer: _buildQuranSequenceFooter(),
+                                listPadding: EdgeInsets.only(
+                                  top: topChromeExtent + 16,
+                                  bottom: bottomChromeExtent + 16,
+                                ),
+                                tabStripTop: topChromeExtent,
+                                collapsedTopInset: statusBarHeight,
+                                chromeVisible: _chromeVisible,
+                              ),
+                            ),
+                ),
+                // The counter keeps the area below the app bar as its frame,
+                // as it had when the app bar sat above the body, so a
+                // position saved before still means the same place.
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: statusBarHeight + kToolbarHeight,
+                  bottom: 0,
+                  child: LayoutBuilder(
+                    builder: (context, bodyConstraints) => Stack(
+                      children: [
+                        ValueListenableBuilder<bool>(
+                          valueListenable: _showCounter,
+                          builder: (context, visible, _) {
+                            if (!visible) return const SizedBox.shrink();
+                            return ValueListenableBuilder<Offset>(
+                              valueListenable: _counterOffset,
+                              builder: (context, offset, __) {
+                                final bottomInset = _counterBottomInset(
+                                  context,
+                                  showActionBar,
+                                );
+                                final resolvedOffset = _resolveCounterOffset(
+                                  bodyConstraints,
+                                  offset,
+                                  bottomInset: bottomInset,
+                                );
+                                return Positioned(
+                                  left: resolvedOffset.dx,
+                                  top: resolvedOffset.dy,
+                                  child: SelectionContainer.disabled(
+                                    child: GestureDetector(
+                                      onPanUpdate: (details) =>
+                                          _handleCounterDragUpdate(
+                                        details,
+                                        bodyConstraints,
+                                        bottomInset: bottomInset,
+                                      ),
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          _buildCounterCard(),
+                                          Positioned(
+                                            right: 8,
+                                            top: 8,
+                                            child: Material(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest,
+                                              shape: const CircleBorder(),
+                                              child: IconButton(
+                                                padding:
+                                                    const EdgeInsets.all(6),
+                                                constraints:
+                                                    const BoxConstraints(
+                                                  minWidth: 32,
+                                                  minHeight: 32,
                                                 ),
-                                                duration: const Duration(
-                                                    milliseconds: 220),
-                                                curve: Curves.easeOutCubic,
-                                                child: child,
-                                              ),
-                                              child: ZikrContentViewerWidget(
-                                                tabContents: tabContents,
-                                                selectedTabIndex:
-                                                    selectedTabIndex,
-                                                onTabChanged: (index) {
-                                                  // A swiped tab change is already
-                                                  // covered by the scroll handler; this
-                                                  // is the tab header being tapped,
-                                                  // which animates the pager without
-                                                  // ever reporting a user scroll.
-                                                  _clearTextSelection();
-                                                  setState(() {
-                                                    _selectedZikrTabIndex =
-                                                        index;
-                                                  });
-                                                  _updateReadingProgress();
-                                                },
-                                                hasMerits: hasMerits,
-                                                onShowMerits: _showMeritsSheet,
-                                                onLinkTap: _handleZikrLinkTap,
-                                                initialBookmarkTabIndex:
-                                                    _savedBookmark?.tabIndex,
-                                                initialBookmarkScrollOffset:
-                                                    _savedBookmark
-                                                        ?.scrollOffset,
-                                                initialBookmarkLineIndex:
-                                                    _savedBookmark?.lineIndex,
-                                                savedVerses: _savedVerses,
-                                                onScrollPositionChanged:
-                                                    _handleContentScrollPositionChanged,
-                                                surahNumber: _surahNumber,
-                                                initialVerse: _initialVerse,
-                                                ayahIndex:
-                                                    widget.portion?.index,
-                                                onAyahPositionChanged:
-                                                    _handleAyahPositionChanged,
-                                                onAyahAction: _isQuran
-                                                    ? _showAyahActions
-                                                    : null,
-                                                arabicFontFamily:
-                                                    arabicFontFamilyOf(
-                                                        zikrData),
-                                                onBookmarkLineResolved:
-                                                    _handleBookmarkLineResolved,
-                                                onBookmarkMoved: _isQuran
-                                                    ? null
-                                                    : _handleBookmarkMoved,
-                                                footer:
-                                                    _buildQuranSequenceFooter(),
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                                icon: const Icon(Icons.close,
+                                                    size: 16),
+                                                tooltip: 'Hide counter',
+                                                onPressed: () =>
+                                                    _setCounterVisibility(
+                                                        false),
                                               ),
                                             ),
                                           ),
-                              ),
-                            ],
-                          ),
-                          if (showProgressBar)
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              top: 0,
-                              // Stack only clips a child that overflows its *layout*;
-                              // AnimatedSlide is a paint-time translation, so without
-                              // this the strip would paint up into the app bar's
-                              // band instead of disappearing behind its edge.
-                              child: ClipRect(
-                                child: ValueListenableBuilder<bool>(
-                                  valueListenable: _chromeVisible,
-                                  builder: (context, visible, child) =>
-                                      AnimatedSlide(
-                                    offset: visible
-                                        ? Offset.zero
-                                        : const Offset(0, -1),
-                                    duration: const Duration(milliseconds: 220),
-                                    curve: Curves.easeOutCubic,
-                                    child: child,
-                                  ),
-                                  // Purely informational and sits over selectable
-                                  // text - taps and drags must keep reaching the
-                                  // reading column underneath.
-                                  child: IgnorePointer(
-                                    child: ValueListenableBuilder<double>(
-                                      valueListenable: _readingProgress,
-                                      builder: (context, progress, _) =>
-                                          ZikrReadingProgressBar(
-                                        progress: progress,
-                                        readingTimeLabel: readingTimeLabel,
-                                        progressLabel:
-                                            zikrProgressLabel(progress),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          // Counter overlay
-                          ValueListenableBuilder<bool>(
-                            valueListenable: _showCounter,
-                            builder: (context, visible, _) {
-                              if (!visible) return const SizedBox.shrink();
-                              return ValueListenableBuilder<Offset>(
-                                valueListenable: _counterOffset,
-                                builder: (context, offset, __) {
-                                  final bottomInset = _counterBottomInset(
-                                    context,
-                                    showActionBar,
-                                  );
-                                  final resolvedOffset = _resolveCounterOffset(
-                                    bodyConstraints,
-                                    offset,
-                                    bottomInset: bottomInset,
-                                  );
-                                  return Positioned(
-                                    left: resolvedOffset.dx,
-                                    top: resolvedOffset.dy,
-                                    child: SelectionContainer.disabled(
-                                      child: GestureDetector(
-                                        onPanUpdate: (details) =>
-                                            _handleCounterDragUpdate(
-                                          details,
-                                          bodyConstraints,
-                                          bottomInset: bottomInset,
-                                        ),
-                                        child: Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            _buildCounterCard(),
-                                            Positioned(
-                                              right: 8,
-                                              top: 8,
-                                              child: Material(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .surfaceContainerHighest,
-                                                shape: const CircleBorder(),
-                                                child: IconButton(
-                                                  padding:
-                                                      const EdgeInsets.all(6),
-                                                  constraints:
-                                                      const BoxConstraints(
-                                                    minWidth: 32,
-                                                    minHeight: 32,
-                                                  ),
-                                                  visualDensity:
-                                                      VisualDensity.compact,
-                                                  icon: const Icon(Icons.close,
-                                                      size: 16),
-                                                  tooltip: 'Hide counter',
-                                                  onPressed: () =>
-                                                      _setCounterVisibility(
-                                                          false),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          if (showActionBar)
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              child: ValueListenableBuilder<bool>(
-                                valueListenable: _chromeVisible,
-                                builder: (context, visible, child) =>
-                                    AnimatedSlide(
-                                  // Slides out of frame rather than collapsing: the bar
-                                  // sits over the reading area, so its size never
-                                  // affects the text's layout either way.
-                                  offset: visible
-                                      ? Offset.zero
-                                      : const Offset(0, 1),
-                                  duration: const Duration(milliseconds: 220),
-                                  curve: Curves.easeOutCubic,
-                                  child: child,
-                                ),
-                                child: ValueListenableBuilder<bool>(
-                                  valueListenable: _showCounter,
-                                  builder: (context, counterVisible, _) =>
-                                      ZikrActionBar(
-                                    hasAudio: audioTracks.isNotEmpty,
-                                    canBookmark: hasAnyContent,
-                                    isBookmarked: _isQuran
-                                        ? (_currentVerse != null &&
-                                            _savedVerses
-                                                .contains(_currentVerse))
-                                        : _savedBookmark != null,
-                                    canShare: !_isSharingZikr,
-                                    isCounterVisible: counterVisible,
-                                    onBookmark: () => _toggleBookmark(
-                                      pageTitle: pageTitle,
-                                      tabContents: tabContents,
-                                      selectedTabIndex: selectedTabIndex,
-                                    ),
-                                    onShare: _shareFromActionBar,
-                                    onListen: _openAudioPlayer,
-                                    onSettings: () => _scaffoldKey.currentState
-                                        ?.openEndDrawer(),
-                                    onCounter: _toggleCounterFromActionBar,
-                                    player: _showAudioPlayer &&
-                                            audioTracks.isNotEmpty
-                                        ? ZikrAudioPlayer(
-                                            tracks: audioTracks,
-                                            zikrUid: widget.item.getUId(),
-                                            zikrTitle: pageTitle,
-                                            onClose: _closeAudioPlayer,
-                                          )
-                                        : null,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ),
+                if (showActionBar)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: _chromeVisible,
+                      builder: (context, visible, child) => AnimatedSlide(
+                        // Slides out of frame rather than collapsing: the bar
+                        // sits over the reading area, so its size never
+                        // affects the text's layout either way.
+                        offset: visible ? Offset.zero : const Offset(0, 1),
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOutCubic,
+                        child: child,
+                      ),
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _showCounter,
+                        builder: (context, counterVisible, _) => ZikrActionBar(
+                          hasAudio: audioTracks.isNotEmpty,
+                          canBookmark: hasAnyContent,
+                          isBookmarked: _isQuran
+                              ? (_currentVerse != null &&
+                                  _savedVerses.contains(_currentVerse))
+                              : _savedBookmark != null,
+                          canShare: !_isSharingZikr,
+                          isCounterVisible: counterVisible,
+                          onBookmark: () => _toggleBookmark(
+                            pageTitle: pageTitle,
+                            tabContents: tabContents,
+                            selectedTabIndex: selectedTabIndex,
+                          ),
+                          onShare: _shareFromActionBar,
+                          onListen: _openAudioPlayer,
+                          onSettings: () =>
+                              _scaffoldKey.currentState?.openEndDrawer(),
+                          onCounter: _toggleCounterFromActionBar,
+                          player: _showAudioPlayer && audioTracks.isNotEmpty
+                              ? ZikrAudioPlayer(
+                                  tracks: audioTracks,
+                                  zikrUid: widget.item.getUId(),
+                                  zikrTitle: pageTitle,
+                                  onClose: _closeAudioPlayer,
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  child: _buildTopChrome(
+                    appBar: AppBar(
+                      title: _buildAppBarTitle(pageTitle),
+                      // Reading settings opens this same endDrawer from the
+                      // bottom bar now. Without this, an AppBar with an
+                      // endDrawer set auto-fills its own "Open navigation
+                      // menu" button whenever actions is empty, duplicating
+                      // that entry point.
+                      automaticallyImplyActions: false,
+                      actions: _buildAppBarActions(),
+                    ),
+                    progressBar: showProgressBar
+                        // Purely informational and sits over selectable
+                        // text - taps and drags must keep reaching the
+                        // reading column underneath.
+                        ? IgnorePointer(
+                            child: ValueListenableBuilder<double>(
+                              valueListenable: _readingProgress,
+                              builder: (context, progress, _) =>
+                                  ZikrReadingProgressBar(
+                                progress: progress,
+                                readingTimeLabel: readingTimeLabel,
+                                progressLabel: zikrProgressLabel(progress),
+                              ),
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
