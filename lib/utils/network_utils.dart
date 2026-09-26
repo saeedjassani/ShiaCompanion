@@ -24,6 +24,19 @@ class NetworkUtils {
     }
   }
 
+  /// Whether the only connection is mobile data - no Wi-Fi or ethernet - so
+  /// a large download should be confirmed first. False when unknown.
+  Future<bool> isOnMobileDataOnly() async {
+    try {
+      final result = await _connectivity.checkConnectivity();
+      return result.contains(ConnectivityResult.mobile) &&
+          !result.contains(ConnectivityResult.wifi) &&
+          !result.contains(ConnectivityResult.ethernet);
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> initialize() async {
     _isOnline = await isDeviceOnline();
     _subscription = _connectivity.onConnectivityChanged.listen((results) {

@@ -377,6 +377,11 @@ final ValueNotifier<bool> zikrIndexReady = ValueNotifier<bool>(false);
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
+/// The app-wide snackbar host, for messages that outlive the page that
+/// caused them - an offline download finishing after the reader has moved on.
+final GlobalKey<ScaffoldMessengerState> appScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 double getItemOrderValue(String uid) {
   final custom = itemOrder[uid];
   if (custom != null) return custom;

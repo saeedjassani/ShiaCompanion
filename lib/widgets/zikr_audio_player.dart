@@ -9,6 +9,7 @@ import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_download_store.dart';
 import '../services/exclusive_audio.dart';
+import '../utils/network_utils.dart';
 import '../pages/playlists_page.dart';
 import 'audio_download_button.dart';
 
@@ -181,6 +182,12 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     await player.play();
   }
 
+  Future<void> _retry() async {
+    setState(() => _failed = false);
+    await (_loadFuture = _load());
+    if (mounted && !_failed) unawaited(_togglePlay());
+  }
+
   Future<void> _selectTrack(int index) async {
     if (index == _trackIndex) return;
     final wasPlaying = _player?.playing ?? false;
@@ -219,6 +226,10 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
             for (var i = 0; i < widget.tracks.length; i++)
               ListTile(
                 title: Text(widget.tracks[i].label ?? 'Track ${i + 1}'),
+                subtitle:
+                    AudioDownloadStore.instance.isDownloaded(widget.tracks[i])
+                        ? const Text('Downloaded')
+                        : null,
                 trailing: i == _trackIndex
                     ? Icon(Icons.check, color: theme.colorScheme.primary)
                     : null,
@@ -255,17 +266,31 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     // than vanishing: the reader asked for audio and deserves an answer.
     // Closing returns them to the action row.
     if (_failed) {
+      // Offline with nothing saved is the common case, and one the reader can
+      // fix - so it says so, rather than implying the recording is gone.
+      final track = _currentTrack;
+      final offline = !NetworkUtils().isOnline &&
+          track != null &&
+          !AudioDownloadStore.instance.isDownloaded(track);
       return Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
         child: Row(
           children: [
-            Icon(Icons.error_outline, size: 20, color: colorScheme.error),
+            Icon(offline ? Icons.cloud_off_rounded : Icons.error_outline,
+                size: 20, color: colorScheme.error),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'This recitation is unavailable',
+                offline
+                    ? "You're offline and this recitation isn't downloaded"
+                    : "This recitation couldn't be loaded",
                 style: theme.textTheme.bodySmall,
               ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Try again',
+              onPressed: _retry,
             ),
             IconButton(
               icon: const Icon(Icons.close),
@@ -297,7 +322,10 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
               ),
             ),
           if (AudioDownloadStore.isSupported)
-            AudioDownloadButton(tracks: widget.tracks),
+            AudioDownloadButton(
+              tracks: widget.tracks,
+              label: widget.zikrTitle,
+            ),
           if (widget.tracks.length > 1)
             IconButton(
               icon: const Icon(Icons.playlist_play),

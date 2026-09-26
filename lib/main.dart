@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
+import 'package:shia_companion/services/audio_download_store.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
@@ -20,6 +21,7 @@ import 'constants.dart';
 import 'pages/home_page.dart';
 import 'pages/widget_preview_page.dart';
 import 'utils/deep_links.dart';
+import 'widgets/audio_download_button.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -80,6 +82,9 @@ void main() async {
 
   await NetworkUtils().initialize();
 
+  // A finished offline download says so wherever the reader has got to.
+  AudioDownloadStore.instance.results.listen(showAudioDownloadResult);
+
   runApp(const MyApp());
 }
 
@@ -119,6 +124,7 @@ class MyApp extends StatelessWidget {
           Consumer<DarkModeProvider>(builder: (context, darkModeProvider, _) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
+          scaffoldMessengerKey: appScaffoldMessengerKey,
           title: appName,
           theme: ThemeData(
             useMaterial3: true,

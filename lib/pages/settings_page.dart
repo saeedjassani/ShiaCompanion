@@ -9,6 +9,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../constants.dart';
 import '../services/account_service.dart';
 import '../services/analytics_service.dart';
+import '../services/audio_download_store.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
@@ -27,6 +28,7 @@ import '../widgets/responsive_content.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
+import 'downloaded_audio_page.dart';
 import 'delete_account_page.dart';
 import 'scheduled_notifications_page.dart';
 import 'zikr_reminders_page.dart';
@@ -59,6 +61,8 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     trackScreen('Settings Page');
+    // For the size shown on the Downloaded recitations row.
+    unawaited(AudioDownloadStore.instance.load());
     // The refresh row reflects location status, which can also change from the
     // home page or an automatic refresh, so follow the service rather than
     // relying on this page's own taps to know when to redraw.
@@ -238,6 +242,33 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
           ),
+          if (AudioDownloadStore.isSupported)
+            _buildSettingsSection(
+              context,
+              title: 'Offline Audio',
+              children: [
+                ListenableBuilder(
+                  listenable: AudioDownloadStore.instance,
+                  builder: (context, _) {
+                    final bytes = AudioDownloadStore.instance.totalSavedBytes;
+                    return ListTile(
+                      leading: const Icon(Icons.download_for_offline_outlined),
+                      title: const Text('Downloaded recitations'),
+                      subtitle: Text(bytes > 0
+                          ? '${formatAudioBytes(bytes)} used on this device'
+                          : 'Listen without a connection'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DownloadedAudioPage(),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           _buildSettingsSection(
             context,
             title: 'Support',

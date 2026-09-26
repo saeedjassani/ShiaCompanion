@@ -326,6 +326,9 @@ class ZikrOpenSource {
   static const String admin = 'admin';
   static const String playlist = 'playlist';
 
+  /// Opened from the list of recitations saved for offline listening.
+  static const String downloads = 'downloads';
+
   /// Opened by tapping a zikr reminder notification (see
   /// ZikrReminderService).
   static const String reminder = 'zikr_reminder';

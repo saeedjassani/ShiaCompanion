@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Auto Backup rules for Android 11 and below. Everything is backed up as
+     before except recitations saved for offline listening
+     (AudioDownloadStore): they can be downloaded again, and a few hundred MB
+     of audio would push the app past Auto Backup's 25 MB quota, which stops
+     it backing up anything at all. -->
+<full-backup-content>
+    <exclude domain="file" path="zikr_audio/" />
+</full-backup-content>
