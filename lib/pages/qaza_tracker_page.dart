@@ -83,18 +83,16 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                   for (final type in qazaDailyPrayers)
                     _buildEntryRow(context, type, state.countFor(type)),
                   const SizedBox(height: 16),
-                  _buildSectionHeader(context, title: 'Fasts'),
+                  _buildSectionHeader(context, title: 'Fasts & other qaza'),
                   _buildEntryRow(
                     context,
                     QazaEntryType.fast,
                     state.countFor(QazaEntryType.fast),
                   ),
-                  const SizedBox(height: 16),
-                  if (showOtherPrayers) ...[
-                    _buildSectionHeader(context, title: 'Other prayers'),
+                  if (showOtherPrayers)
                     for (final type in _otherPrayers)
-                      _buildEntryRow(context, type, state.countFor(type)),
-                  ] else
+                      _buildEntryRow(context, type, state.countFor(type))
+                  else
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton.icon(
@@ -244,7 +242,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
           const SizedBox(height: 8),
           Text(
             '${_formatCount(state.totalCompleted)} of ${_formatCount(total)} '
-            'made up (${(progress * 100).floor()}%)',
+            'made up (${_formatPercent(progress)})',
             style: theme.textTheme.bodySmall?.copyWith(
               color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
             ),
@@ -583,10 +581,12 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                       'prayer to correct its numbers directly.',
                 ),
                 step(
-                  Icons.cloud_done_outlined,
-                  'Private and synced',
-                  'Your counts are only visible to you. Sign in to keep '
-                      'them backed up across devices.',
+                  Icons.cloud_off_outlined,
+                  'Works offline',
+                  'Everything is saved on your device, so you can log '
+                      'qaza without internet. Your counts are only visible '
+                      'to you - sign in to back them up and sync them '
+                      'across devices when you are online.',
                 ),
               ],
             ),
@@ -608,6 +608,14 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
       QazaEntryType.fast => Icons.restaurant_menu_rounded,
     };
   }
+}
+
+/// Whole percent, rounded down so 100% only shows once everything is done,
+/// with "<1%" so early progress doesn't read as none.
+String _formatPercent(double fraction) {
+  final percent = (fraction * 100).floor();
+  if (percent == 0 && fraction > 0) return '<1%';
+  return '$percent%';
 }
 
 String _formatCount(int value) {
