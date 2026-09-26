@@ -118,6 +118,19 @@ class _AboutPageState extends State<AboutPage> {
                         launchExternalUri(Uri.parse('https://tanzil.net')),
                     child: const Text('tanzil.net'),
                   ),
+                  const SizedBox(height: 12),
+                  // Used with QuranWBW's written permission.
+                  const Text(
+                    'The IndoPak Quran text and font, shown with Qalam, are '
+                    'from QuranWBW, used with permission.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () =>
+                        launchExternalUri(Uri.parse('https://quranwbw.com')),
+                    child: const Text('quranwbw.com'),
+                  ),
                 ],
               ),
             ),

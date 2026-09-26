@@ -81,7 +81,9 @@ flutter:
     - assets/zikr_audio.json
     - assets/hadith/
     # Tanzil Uthmani text (CC BY 3.0, verbatim - see the notice at its end),
-    # shown in place of the Indo-Pak surah text when Scheherazade is selected.
+    # shown in place of the corpus surah text when Scheherazade is selected;
+    # QuranWBW's IndoPak text (verbatim, used with permission - see
+    # assets/fonts/QuranWBW-IndoPak-NOTICE.txt), shown when Qalam is.
     - assets/quran/
     # Listed file by file rather than as a directory: a directory entry
     # bundles whatever is sitting in it, which is how a Finder .DS_Store came
@@ -105,3 +107,10 @@ flutter:
     - family: Scheherazade
       fonts:
         - asset: assets/fonts/scheherazade.ttf
+    # QuranWBW's IndoPak Quran font, used with permission (see
+    # assets/fonts/QuranWBW-IndoPak-NOTICE.txt). Draws the surahs when Qalam
+    # is selected, and nothing else: it goes with QuranWBW's own text, whose
+    # private-use pause marks and medallions only it can draw.
+    - family: QuranWBW IndoPak
+      fonts:
+        - asset: assets/fonts/quranwbw-indopak.ttf

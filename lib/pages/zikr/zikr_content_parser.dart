@@ -207,6 +207,13 @@ class ZikrContentParser {
   // list numbering alone.
   static final RegExp _trailingAyahNumber = RegExp(r'\((\d+)\)\s*$');
 
+  // QuranWBW's IndoPak text ends each verse with its own ayah medallion, a
+  // private-use glyph (U+E820 on 4:157, U+F500-U+F6FF everywhere else). The
+  // ` (N)` after it is kept for [ayahNumberOf] and hidden here: drawn, it
+  // would number the verse a second time.
+  static final RegExp _numberAfterQuranWbwMedallion =
+      RegExp('(?<=[\uE820\uF500-\uF6FF])\\s*\\(\\d+\\)\\s*\$');
+
   /// The ayah number an Arabic line ends with, or null when it carries none -
   /// the Bismillah that heads every surah but at-Tawbah, and every line of a
   /// zikr that is not Quran at all.
@@ -235,6 +242,7 @@ class ZikrContentParser {
     _spaces.forEach((from, to) => result = result.replaceAll(from, to));
     _privateUseMarks
         .forEach((from, to) => result = result.replaceAll(from, to));
+    result = result.replaceFirst(_numberAfterQuranWbwMedallion, '');
 
     if (_endOfAyahFonts.contains(arabicFont)) {
       result = result.replaceFirstMapped(

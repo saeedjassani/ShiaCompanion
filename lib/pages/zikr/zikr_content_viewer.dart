@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
 import '../../utils/quran_index.dart';
+import '../../utils/quran_indopak.dart';
 import 'zikr_content_parser.dart';
 
 /// Where a reader is in the Quran, and whether they got there by reading.
@@ -323,13 +324,6 @@ class _QuranParagraphs {
   int? paragraphIndexForSpan(int spanIndex) => _paragraphBySpan[spanIndex];
 }
 
-/// Matches the verse-number marker closing a formatted Arabic line - the
-/// Scheherazade medallion (U+06DD and Arabic-Indic digits) or the plain `(n)`
-/// Qalam draws its own medallion from - with the direction mark and spacing
-/// around it, so it can be styled apart from the verse text.
-final RegExp _trailingVerseMarker =
-    RegExp(r'\u200F?(?:\u06DD[\u0660-\u0669]+|\(\d+\))\s*$');
-
 /// The small "Bookmarked" marker - a bookmark icon plus label - shared by
 /// the bordered per-line marker ([_BookmarkedLine]) and the inline paragraph
 /// marker that sits above a flowing Arabic paragraph in
@@ -392,7 +386,9 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// back there.
   final int? initialBookmarkLineIndex;
 
-  /// Verses the reader has kept, marked with a small icon as they read.
+  /// Verses the reader has kept, marked with a small icon beside the verse
+  /// number in ayah mode. Paragraph mode leaves them unmarked, so the running
+  /// text stays plain.
   ///
   /// Deliberately not the bookmark: a bookmark is one marker saying where you
   /// stopped, these are a collection meant to be kept, so they are drawn
@@ -433,6 +429,10 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// Opens the per-verse menu. Null leaves verses untappable.
   final ValueChanged<AyahActionRequest>? onAyahAction;
 
+  /// The font the content's Arabic is drawn in, when it is not [arabicFont]:
+  /// a surah in QuranWBW's IndoPak script has to be drawn in QuranWBW's font.
+  final String? arabicFontFamily;
+
   /// Drawn after the last item of the last tab - the Quran reader's
   /// previous/next links. Null draws nothing.
   final Widget? footer;
@@ -456,6 +456,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.ayahIndex,
     this.onAyahPositionChanged,
     this.onAyahAction,
+    this.arabicFontFamily,
     this.footer,
   }) : super(key: key);
 
@@ -1395,7 +1396,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
     // Create text styles with current settings each time this is called
     final arabicStyle = TextStyle(
-      fontFamily: arabicFont,
+      fontFamily: widget.arabicFontFamily ?? arabicFont,
       // Six Indo-Pak pause signs — ص, ق, قف, وقفة, ك and the rukūʿ ع — have
       // no Unicode codepoint at all, so Al Qalam encodes them privately and
       // no other font can carry them. They are 1,361 marks, 0.1% of the
@@ -1814,8 +1815,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   ///
   /// * each verse still its own tap target, found from where the tap lands in
   ///   the laid-out text, opening the same per-verse menu;
-  /// * a saved verse's number drawn in the primary colour, a mark on the
-  ///   verse itself rather than a tint over running text it shares;
   /// * the bookmarked verse tinted in place with a bookmark icon at its
   ///   start, as in any flowing paragraph;
   /// * the surah heading, where a juz crosses into a new surah - which
@@ -1844,7 +1843,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     var length = 0;
     for (var k = 0; k < spans.length; k++) {
       final span = spans[k];
-      final verse = span.verse;
       if (k > 0) {
         // Just a plain space, as in any flowing paragraph: the rule under
         // each row is what a reciter tracks by, and the verse's own medallion
@@ -1857,11 +1855,6 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       final formatted = ZikrContentParser.formatArabicText(
         parsedContent.lines[span.start].trim(),
       );
-      final marker = _trailingVerseMarker.firstMatch(formatted);
-      final body =
-          marker == null ? formatted : formatted.substring(0, marker.start);
-      final isSaved = verse != null && widget.savedVerses.contains(verse);
-
       final isBookmarked = span == bookmarkedSpan;
       final verseSpan = TextSpan(
         style: isBookmarked
@@ -1873,17 +1866,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         children: [
           if (isBookmarked)
             _inlineBookmarkSpan(colorScheme.primary, arabicStyle.fontSize),
-          _buildTextSpanForLine(body, arabicStyle),
-          if (marker != null)
-            TextSpan(
-              text: marker.group(0),
-              style: isSaved
-                  ? arabicStyle.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w700,
-                    )
-                  : arabicStyle,
-            ),
+          _buildTextSpanForLine(formatted, arabicStyle),
         ],
       );
       children.add(verseSpan);
@@ -1949,7 +1932,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     for (var i = span.start; i < span.end; i++) {
       final line = parsedContent.lines[i].trim();
       if (line.isEmpty || !isZikrLineVisible(parsedContent, i)) continue;
-      parts.add(line);
+      // QuranWBW's pause marks and medallions are private-use glyphs that
+      // paste as boxes anywhere but the reader.
+      parts.add(widget.arabicFontFamily == quranWbwFontFamily
+          ? indoPakPlainText(line)
+          : line);
     }
     return parts.join('\n');
   }

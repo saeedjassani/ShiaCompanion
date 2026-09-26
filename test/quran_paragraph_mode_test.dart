@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
@@ -5,6 +7,7 @@ import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_parser.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 import 'package:shia_companion/utils/quran_index.dart';
+import 'package:shia_companion/utils/quran_indopak.dart';
 
 const _bismillah = 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ';
 
@@ -39,6 +42,7 @@ Future<void> _pump(
   ValueChanged<AyahActionRequest>? onAyahAction,
   ValueChanged<QuranReadingPosition>? onAyahPosition,
   ValueChanged<ZikrContentScrollPosition>? onScrollPosition,
+  String? arabicFontFamily,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -63,6 +67,7 @@ Future<void> _pump(
             onAyahAction: onAyahAction,
             onAyahPositionChanged: onAyahPosition,
             onScrollPositionChanged: onScrollPosition,
+            arabicFontFamily: arabicFontFamily,
           ),
         ),
       ),
@@ -240,32 +245,37 @@ void main() {
       expect(request!.aliNote, isNull);
     });
 
-    testWidgets('marks a kept verse by its number', (tester) async {
-      await _pump(
-        tester,
-        content: _surahContent(),
-        savedVerses: {const VerseKey(1, 2)},
-      );
+    for (final indoPak in [false, true]) {
+      testWidgets(
+          'leaves a kept verse unmarked '
+          '(${indoPak ? 'QuranWBW' : 'corpus'} text)', (tester) async {
+        final quran = IndoPakQuran.parse(File(indoPakAsset).readAsStringSync());
+        final content = indoPak
+            ? toIndoPak(1, _surahContent(rukuAfter: {}), quran)
+            : _surahContent(rukuAfter: {});
+        await _pump(
+          tester,
+          content: content,
+          savedVerses: {const VerseKey(1, 2)},
+          arabicFontFamily: indoPak ? quranWbwFontFamily : null,
+        );
 
-      final finder = _paragraphContaining('(1)');
-      final paragraph = finder.evaluate().single.widget as RichText;
-      // The verse-number markers, in reading order - the only spans holding
-      // a `(n)` or an ayah medallion, whichever the selected font draws.
-      final markers = <TextStyle?>[];
-      paragraph.text.visitChildren((span) {
-        final text = span is TextSpan ? span.text : null;
-        if (text != null && (text.contains('(') || text.contains('\u06DD'))) {
-          markers.add(span.style);
+        final finder =
+            _paragraphContaining(indoPak ? String.fromCharCode(0xF501) : '(2)');
+        final paragraph = finder.evaluate().single.widget as RichText;
+        final primary = Theme.of(tester.element(finder)).colorScheme.primary;
+        paragraph.text.visitChildren((span) {
+          expect(span.style?.color, isNot(primary));
+          expect(span.style?.fontWeight, isNot(FontWeight.w700));
+          return true;
+        });
+        // QuranWBW draws its own number, so the `(n)` its text carries for
+        // lookups stays hidden.
+        if (indoPak) {
+          expect(paragraph.text.toPlainText(), isNot(contains('(')));
         }
-        return true;
       });
-
-      final primary = Theme.of(tester.element(finder)).colorScheme.primary;
-      expect(markers, hasLength(6));
-      expect(markers[1]?.color, primary);
-      expect(markers[0]?.color, isNot(primary));
-      expect(markers[2]?.color, isNot(primary));
-    });
+    }
 
     // Line 0 is the Bismillah and ayah n's Arabic is line 3n - 2.
     for (final paragraphMode in [true, false]) {
