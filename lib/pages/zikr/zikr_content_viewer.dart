@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
 import '../../utils/quran_index.dart';
@@ -329,7 +332,10 @@ class _QuranParagraphs {
 /// marker that sits above a flowing Arabic paragraph in
 /// [isArabicOnlyReadingView], where the highlight lives on the verse's own
 /// text rather than on a container wrapping the whole line.
-Widget _bookmarkLabelRow(BuildContext context) {
+///
+/// [movable] adds a drag-handle glyph after the label, the cue that the
+/// marker can be picked up and dropped on another line.
+Widget _bookmarkLabelRow(BuildContext context, {bool movable = false}) {
   final colorScheme = Theme.of(context).colorScheme;
   return Row(
     mainAxisSize: MainAxisSize.min,
@@ -344,7 +350,42 @@ Widget _bookmarkLabelRow(BuildContext context) {
               letterSpacing: 0.4,
             ),
       ),
+      if (movable) ...[
+        const SizedBox(width: 6),
+        Icon(
+          Icons.drag_indicator,
+          size: 16,
+          color: colorScheme.primary.withValues(alpha: 0.7),
+        ),
+      ],
     ],
+  );
+}
+
+/// What rides under the finger while the bookmark is being moved.
+Widget _bookmarkDragFeedback(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return Material(
+    elevation: 6,
+    borderRadius: BorderRadius.circular(20),
+    color: colorScheme.primaryContainer,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.bookmark, size: 16, color: colorScheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            'Move bookmark here',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ],
+      ),
+    ),
   );
 }
 
@@ -401,6 +442,11 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// can be rewritten with it and stop depending on the offset.
   final ValueChanged<int>? onBookmarkLineResolved;
 
+  /// Called with the content line the reader dropped the bookmark on, after
+  /// dragging its "Bookmarked" label somewhere else in the same tab. Null
+  /// leaves the marker fixed in place.
+  final ValueChanged<int>? onBookmarkMoved;
+
   /// Which surah this is, when the document being read is one of the 114.
   ///
   /// Null for every other zikr, and that is what selects the rendering path:
@@ -451,6 +497,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.savedVerses = const {},
     this.onScrollPositionChanged,
     this.onBookmarkLineResolved,
+    this.onBookmarkMoved,
     this.surahNumber,
     this.initialVerse,
     this.ayahIndex,
@@ -490,6 +537,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   late final int? _initialBookmarkTabIndex;
   late final double? _initialBookmarkScrollOffset;
   bool _didRestoreInitialBookmark = false;
+
+  /// While the bookmark is being dragged: the tab it is being dragged within,
+  /// the pointer's last global position, and the content line it would land
+  /// on if dropped now - drawn as a preview so the reader sees where it goes.
+  int? _bookmarkDragTab;
+  Offset? _bookmarkDragPointer;
+  int? _bookmarkDropLine;
+
+  /// Scrolls the list while the bookmark is held near its top or bottom
+  /// edge, so it can be carried past what currently fits on screen.
+  Timer? _bookmarkAutoScrollTimer;
+  double _bookmarkAutoScrollSpeed = 0;
 
   /// The reading-list items built for each tab on its last build, keyed by
   /// tab index. [topContentLineIndex] reads this to turn the list index a
@@ -618,6 +677,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
   @override
   void dispose() {
+    _bookmarkAutoScrollTimer?.cancel();
     _pageController.dispose();
     for (final controller in _tabScrollControllers) {
       controller.dispose();
@@ -977,18 +1037,29 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   ) {
     if (!controller.hasClients || tabIndex >= _tabListKeys.length) return null;
 
+    // Read from where a scrolled-to item lands - [_scrollToVerseMargin] below
+    // the top edge - not the edge itself: otherwise the last few pixels of the
+    // item above, left showing in that margin, would count as what is being
+    // read, and opening at a verse and bookmarking it would save the one
+    // before.
+    return _itemAtScrollOffset(
+      tabIndex,
+      controller.position.pixels + _scrollToVerseMargin,
+    );
+  }
+
+  /// The content item laid out at [scrollOffset] in tab [tabIndex]'s list -
+  /// see [_topItem] - or null when nothing built sits there.
+  ({int itemIndex, RenderBox box, double depth})? _itemAtScrollOffset(
+    int tabIndex,
+    double scrollOffset,
+  ) {
     final renderObject =
         _tabListKeys[tabIndex].currentContext?.findRenderObject();
     if (renderObject == null) return null;
     final sliver = _findSliverList(renderObject);
     if (sliver == null) return null;
 
-    // Read from where a scrolled-to item lands - [_scrollToVerseMargin] below
-    // the top edge - not the edge itself: otherwise the last few pixels of the
-    // item above, left showing in that margin, would count as what is being
-    // read, and opening at a verse and bookmarking it would save the one
-    // before.
-    final scrollOffset = controller.position.pixels + _scrollToVerseMargin;
     // Children are held in index order, so the first one whose bottom edge is
     // still below that line is the one being read. Lines the reader has
     // switched off lay out at zero height and are skipped by the same test.
@@ -1072,6 +1143,218 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       return item.lineIndexes[member];
     }
     return item.firstLineIndex;
+  }
+
+  /// The content line under [globalPosition] in tab [tabIndex]'s list, or
+  /// null when the point is off the list or over something that is not
+  /// content (the footer). Only for tabs drawn as a reading list - every zikr
+  /// but the Quran.
+  ///
+  /// This is where a dragged bookmark lands. Read off the laid-out list the
+  /// same way [topContentLineIndex] is, rather than through drag targets on
+  /// each line, because the list auto-scrolls under a held bookmark: a drag
+  /// target only notices that on the next pointer move, so a drop after the
+  /// list had scrolled on its own would land on a line no longer there.
+  int? _contentLineAtGlobal(int tabIndex, Offset globalPosition) {
+    if (tabIndex >= _tabScrollControllers.length) return null;
+    final controller = _tabScrollControllers[tabIndex];
+    if (!controller.hasClients || _ayahIndexFor(tabIndex) != null) return null;
+    final listBox = _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    if (listBox is! RenderBox || !listBox.hasSize) return null;
+
+    final local = listBox.globalToLocal(globalPosition);
+    if (local.dy < 0 || local.dy > listBox.size.height) return null;
+
+    final hit =
+        _itemAtScrollOffset(tabIndex, controller.position.pixels + local.dy);
+    final items = _tabReadingListItems[tabIndex];
+    if (hit == null || items == null || hit.itemIndex >= items.length) {
+      return null;
+    }
+    final item = items[hit.itemIndex];
+    final flow = _tabArabicFlows[tabIndex]?[item.firstLineIndex];
+    final member =
+        flow == null ? null : _memberInFlowAt(hit.box, flow, hit.depth);
+    if (member != null && member < item.lineIndexes.length) {
+      return item.lineIndexes[member];
+    }
+    return item.firstLineIndex;
+  }
+
+  void _handleBookmarkDragStarted(int tabIndex) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _bookmarkDragTab = tabIndex;
+      _bookmarkDragPointer = null;
+      _bookmarkDropLine = null;
+    });
+  }
+
+  void _handleBookmarkDragUpdate(int tabIndex, Offset globalPosition) {
+    _bookmarkDragPointer = globalPosition;
+    _updateBookmarkDropLine();
+    _updateBookmarkAutoScroll(tabIndex, globalPosition);
+  }
+
+  /// Drops the bookmark being carried. Reached from both the [Draggable] and
+  /// the list's own pointer listener, whichever hears the release first; the
+  /// second finds nothing being carried and does nothing.
+  void _handleBookmarkDragEnded() {
+    final tabIndex = _bookmarkDragTab;
+    if (tabIndex == null) return;
+    final pointer = _bookmarkDragPointer;
+    _stopBookmarkAutoScroll();
+    // Measured afresh rather than taken from the preview: the list may have
+    // auto-scrolled since the pointer last moved.
+    final line =
+        pointer == null ? null : _contentLineAtGlobal(tabIndex, pointer);
+    _cancelBookmarkDrag();
+    if (line == null) return;
+
+    // Dropped back where it already was: nothing moved.
+    final parsed = _contentCaches[tabIndex]?.parsed;
+    final current = parsed == null
+        ? null
+        : bookmarkedLineRange(
+            bookmarkLineIndex: widget.initialBookmarkLineIndex,
+            content: parsed,
+          );
+    if (current != null && current.contains(line)) return;
+
+    HapticFeedback.mediumImpact();
+    widget.onBookmarkMoved?.call(line);
+  }
+
+  /// Stops carrying the bookmark without moving it.
+  void _cancelBookmarkDrag() {
+    _stopBookmarkAutoScroll();
+    if (!mounted) return;
+    setState(() {
+      _bookmarkDragTab = null;
+      _bookmarkDragPointer = null;
+      _bookmarkDropLine = null;
+    });
+  }
+
+  void _updateBookmarkDropLine() {
+    final tabIndex = _bookmarkDragTab;
+    final pointer = _bookmarkDragPointer;
+    final line = tabIndex == null || pointer == null
+        ? null
+        : _contentLineAtGlobal(tabIndex, pointer);
+    if (line != _bookmarkDropLine && mounted) {
+      setState(() => _bookmarkDropLine = line);
+    }
+  }
+
+  /// How close to the list's top or bottom edge a held bookmark has to be to
+  /// scroll it, and the fastest it scrolls, in pixels per tick.
+  static const double _bookmarkAutoScrollEdge = 72;
+  static const double _bookmarkAutoScrollMaxStep = 18;
+
+  void _updateBookmarkAutoScroll(int tabIndex, Offset globalPosition) {
+    final listBox = _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    if (listBox is! RenderBox || !listBox.hasSize) return;
+    final y = listBox.globalToLocal(globalPosition).dy;
+    final height = listBox.size.height;
+    final edge = _bookmarkAutoScrollEdge.clamp(0.0, height / 3).toDouble();
+
+    var speed = 0.0;
+    if (y < edge) {
+      speed = -_bookmarkAutoScrollMaxStep * ((edge - y) / edge).clamp(0, 1);
+    } else if (y > height - edge) {
+      speed = _bookmarkAutoScrollMaxStep *
+          ((y - (height - edge)) / edge).clamp(0, 1);
+    }
+    _bookmarkAutoScrollSpeed = speed;
+
+    if (speed == 0) {
+      _bookmarkAutoScrollTimer?.cancel();
+      _bookmarkAutoScrollTimer = null;
+      return;
+    }
+    _bookmarkAutoScrollTimer ??= Timer.periodic(
+      const Duration(milliseconds: 16),
+      (_) => _bookmarkAutoScrollTick(tabIndex),
+    );
+  }
+
+  void _bookmarkAutoScrollTick(int tabIndex) {
+    if (!mounted || tabIndex >= _tabScrollControllers.length) {
+      _stopBookmarkAutoScroll();
+      return;
+    }
+    final controller = _tabScrollControllers[tabIndex];
+    if (!controller.hasClients) return;
+    final position = controller.position;
+    final target = (position.pixels + _bookmarkAutoScrollSpeed)
+        .clamp(position.minScrollExtent, position.maxScrollExtent)
+        .toDouble();
+    if (target == position.pixels) return;
+    controller.jumpTo(target);
+    // The line under a still finger changes as the list moves beneath it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateBookmarkDropLine();
+    });
+  }
+
+  void _stopBookmarkAutoScroll() {
+    _bookmarkAutoScrollTimer?.cancel();
+    _bookmarkAutoScrollTimer = null;
+    _bookmarkAutoScrollSpeed = 0;
+  }
+
+  /// The "Bookmarked" label, as the handle the bookmark is moved by when
+  /// [ZikrContentViewerWidget.onBookmarkMoved] is set.
+  ///
+  /// A plain [Draggable] rather than a long-press one: the reading view sits
+  /// in a selection area whose own long-press starts a text selection, and
+  /// the two would race. Starting a drag on the label wins over the list's
+  /// scroll, and the label is small enough that the list is still easy to
+  /// scroll everywhere else.
+  Widget _bookmarkHandle(int tabIndex) {
+    if (widget.onBookmarkMoved == null) return _bookmarkLabelRow(context);
+    final label = _bookmarkLabelRow(context, movable: true);
+    return Semantics(
+      hint: 'Drag to move the bookmark to another line',
+      child: Draggable<int>(
+        data: tabIndex,
+        dragAnchorStrategy: pointerDragAnchorStrategy,
+        feedback: Transform.translate(
+          offset: const Offset(-24, -48),
+          child: _bookmarkDragFeedback(context),
+        ),
+        childWhenDragging: Opacity(opacity: 0.35, child: label),
+        onDragStarted: () => _handleBookmarkDragStarted(tabIndex),
+        onDragUpdate: (details) =>
+            _handleBookmarkDragUpdate(tabIndex, details.globalPosition),
+        onDragEnd: (_) => _handleBookmarkDragEnded(),
+        child: Padding(
+          // A bigger target than the label's own text, for a thumb.
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: SelectionContainer.disabled(child: label),
+        ),
+      ),
+    );
+  }
+
+  /// Where a dragged bookmark would land, drawn around [child] - a lighter
+  /// version of the bookmark's own wash - when [child] is part of it.
+  Widget _withBookmarkDropPreview(Widget child, {required bool isTarget}) {
+    if (!isTarget) return child;
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withValues(alpha: 0.08),
+        border: Border(
+          left: BorderSide(
+            color: colorScheme.primary.withValues(alpha: 0.5),
+            width: 3,
+          ),
+        ),
+      ),
+      child: child,
+    );
   }
 
   /// [flow]'s own laid-out text inside [itemBox], with how far down the item
@@ -1370,6 +1653,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final bookmarkLabelLine = bookmarkedRange == null
         ? null
         : firstVisibleLineInRange(bookmarkedRange, parsedContent);
+    // Where a bookmark being dragged in this tab would land if let go now.
+    final dropLine = _bookmarkDragTab == tabIndex ? _bookmarkDropLine : null;
+    final dropRange = dropLine == null ||
+            (bookmarkedRange != null && bookmarkedRange.contains(dropLine))
+        ? null
+        : bookmarkedLineRange(
+            bookmarkLineIndex: dropLine,
+            content: parsedContent,
+          );
     // A surah read Arabic-only with paragraph flow on is drawn as one
     // paragraph rather than one block per verse - the same flow every other
     // zikr gets in that view, but still numbered, tappable and tracked verse
@@ -1437,6 +1729,24 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         if (event is PointerScrollEvent) _sawUserScrollInput = true;
       },
       onPointerPanZoomStart: (event) => _sawUserScrollInput = true,
+      // A bookmark being carried is also followed from here, not just from
+      // its [Draggable]: auto-scrolling takes the label off screen, the list
+      // then disposes it, and a disposed Draggable reports nothing more - so
+      // the drop would be lost. This list outlives it.
+      onPointerMove: (event) {
+        if (_bookmarkDragTab == tabIndex) {
+          _handleBookmarkDragUpdate(tabIndex, event.position);
+        }
+      },
+      onPointerUp: (event) {
+        if (_bookmarkDragTab == tabIndex) {
+          _bookmarkDragPointer = event.position;
+          _handleBookmarkDragEnded();
+        }
+      },
+      onPointerCancel: (event) {
+        if (_bookmarkDragTab == tabIndex) _cancelBookmarkDrag();
+      },
       child: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification is ScrollStartNotification &&
@@ -1533,15 +1843,21 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
                 final isLastItem = itemIndex == readingItems.length - 1;
 
+                final isDropTarget = dropRange != null &&
+                    item.lineIndexes.any(dropRange.contains);
+
                 if (isArabicOnlyReadingView &&
                     parsedContent.arabicCodes.contains(item.firstLineIndex)) {
                   return _withParagraphDivider(
-                    _buildArabicParagraphItem(
-                      tabIndex,
-                      item,
-                      parsedContent,
-                      bookmarkLabelLine,
-                      arabicStyle,
+                    _withBookmarkDropPreview(
+                      _buildArabicParagraphItem(
+                        tabIndex,
+                        item,
+                        parsedContent,
+                        bookmarkLabelLine,
+                        arabicStyle,
+                      ),
+                      isTarget: isDropTarget,
                     ),
                     showDivider: !isLastItem,
                   );
@@ -1552,10 +1868,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 // triplets), so this preserves that - the block's own border
                 // already sets it apart from what follows.
                 if (item.lineIndexes.length > 1) {
-                  return _buildFootnoteBlock(
-                    item,
-                    parsedContent,
-                    bookmarkLabelLine,
+                  return _withBookmarkDropPreview(
+                    _buildFootnoteBlock(
+                      tabIndex,
+                      item,
+                      parsedContent,
+                      bookmarkLabelLine,
+                    ),
+                    isTarget: isDropTarget,
                   );
                 }
 
@@ -1573,7 +1893,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                     bookmarkLabelLine == null ||
                     !bookmarkedRange.contains(contentIndex) ||
                     !isZikrLineVisible(parsedContent, contentIndex)) {
-                  content = line;
+                  content = _withBookmarkDropPreview(
+                    line,
+                    isTarget: isDropTarget &&
+                        isZikrLineVisible(parsedContent, contentIndex),
+                  );
                 } else {
                   content = _BookmarkedLine(
                     // The label only belongs on the first line of the marked
@@ -1581,7 +1905,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                     // transliteration/translation lines under the same tint
                     // would just be noise, and a switched-off line draws
                     // nothing to carry it.
-                    showLabel: contentIndex == bookmarkLabelLine,
+                    label: contentIndex == bookmarkLabelLine
+                        ? _bookmarkHandle(tabIndex)
+                        : null,
                     child: line,
                   );
                 }
@@ -1697,6 +2023,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// the same "Bookmarked" label and tint a single bookmarked line would
   /// otherwise carry via [_BookmarkedLine].
   Widget _buildFootnoteBlock(
+    int tabIndex,
     _ReadingListItem item,
     ParsedZikrContent parsedContent,
     int? bookmarkLabelLine,
@@ -1709,7 +2036,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         paragraphs.add(
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
-            child: _bookmarkLabelRow(context),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: _bookmarkHandle(tabIndex),
+            ),
           ),
         );
       }
@@ -2311,12 +2641,14 @@ class _AliBadge extends StatelessWidget {
 /// element that has to be positioned over them. Consecutive lines' tints and
 /// borders sit flush against each other, reading as one continuous block.
 class _BookmarkedLine extends StatelessWidget {
-  const _BookmarkedLine({required this.showLabel, required this.child});
+  const _BookmarkedLine({required this.label, required this.child});
 
-  /// Only the verse's first line carries the "Bookmarked" label - repeating
-  /// it on every line under the same tint would just be noise.
-  final bool showLabel;
+  /// The "Bookmarked" label, on the verse's first line only - repeating it on
+  /// every line under the same tint would just be noise. Null elsewhere.
+  final Widget? label;
   final Widget child;
+
+  bool get showLabel => label != null;
 
   @override
   Widget build(BuildContext context) {
@@ -2339,7 +2671,10 @@ class _BookmarkedLine extends StatelessWidget {
           if (showLabel)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: _bookmarkLabelRow(context),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: label,
+              ),
             ),
           child,
         ],

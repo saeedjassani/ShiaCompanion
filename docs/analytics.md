@@ -48,7 +48,7 @@ before ranking them; the grouping below mirrors that.
 
 **Zikr & library reading** — `zikr_counter_shown`, `zikr_audio_opened` /
 `zikr_audio_play` (+`zikr_uid`), `zikr_bookmark_saved` (+`zikr_uid`) /
-`zikr_bookmark_removed`, `zikr_shared` (+`zikr_uid`), `zikr_keep_awake_toggled`,
+`zikr_bookmark_removed` / `zikr_bookmark_moved`, `zikr_shared` (+`zikr_uid`), `zikr_keep_awake_toggled`,
 `zikr_focus_mode_toggled`, `zikr_share_as_image_toggled`,
 `zikr_show_transliteration_toggled`, `zikr_show_translation_toggled` (all four
 +`enabled`), `arabic_font_size_changed`, `english_font_size_changed`,

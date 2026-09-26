@@ -71,6 +71,25 @@ class ZikrBookmark {
     );
   }
 
+  /// The same bookmark on another line of the same tab, as when the reader
+  /// drags the marker there.
+  ///
+  /// The saved scroll offset goes with the old line, so it is dropped: a
+  /// bookmark with a line is always restored by that line, and the offset
+  /// would only mislead anything that fell back to it.
+  ZikrBookmark movedTo({required int lineIndex, required DateTime updatedAt}) {
+    return ZikrBookmark(
+      uid: uid,
+      title: title,
+      tabIndex: tabIndex,
+      tabTitle: tabTitle,
+      scrollOffset: 0,
+      lineIndex: lineIndex,
+      updatedAt: updatedAt,
+      version: ZikrBookmarkStore.schemaVersion,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'version': version,

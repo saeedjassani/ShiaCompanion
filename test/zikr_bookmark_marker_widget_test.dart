@@ -18,6 +18,7 @@ Future<List<ZikrContentScrollPosition>> _pumpViewer(
   WidgetTester tester, {
   int? bookmarkLineIndex,
   double bottomInset = 0,
+  ValueChanged<int>? onBookmarkMoved,
 }) async {
   final positions = <ZikrContentScrollPosition>[];
   await tester.pumpWidget(
@@ -36,6 +37,7 @@ Future<List<ZikrContentScrollPosition>> _pumpViewer(
             initialBookmarkScrollOffset: bookmarkLineIndex == null ? null : 1,
             initialBookmarkLineIndex: bookmarkLineIndex,
             onScrollPositionChanged: positions.add,
+            onBookmarkMoved: onBookmarkMoved,
           ),
         ),
       ),
@@ -360,5 +362,84 @@ void main() {
     expect(positions, isNotEmpty);
     expect(positions.last.lineIndex, inInclusiveRange(300 - 9, 300));
     expect(positions.last.scrollOffset, greaterThan(0));
+  });
+
+  group('moving the bookmark by dragging its label', () {
+    testWidgets('has no drag handle unless the page can move it', (
+      tester,
+    ) async {
+      await _pumpViewer(tester, bookmarkLineIndex: 0);
+      expect(find.byIcon(Icons.drag_indicator), findsNothing);
+      expect(find.byType(Draggable<int>), findsNothing);
+    });
+
+    testWidgets('reports the line it is dropped on', (tester) async {
+      final moves = <int>[];
+      await _pumpViewer(tester,
+          bookmarkLineIndex: 0, onBookmarkMoved: moves.add);
+      expect(find.byIcon(Icons.drag_indicator), findsOneWidget);
+
+      final target = tester.getCenter(_lineFinder(7)); // verse 2's translit.
+      final gesture =
+          await tester.startGesture(tester.getCenter(find.text('Bookmarked')));
+      await gesture.moveBy(const Offset(0, 20));
+      await tester.pump();
+      await gesture.moveTo(target);
+      await tester.pump();
+
+      // While held, the triplet it would land on is previewed.
+      expect(find.text('Move bookmark here'), findsOneWidget);
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(moves, [7]);
+    });
+
+    testWidgets('dropping it back on its own verse moves nothing', (
+      tester,
+    ) async {
+      final moves = <int>[];
+      await _pumpViewer(tester,
+          bookmarkLineIndex: 0, onBookmarkMoved: moves.add);
+
+      final gesture =
+          await tester.startGesture(tester.getCenter(find.text('Bookmarked')));
+      await gesture.moveBy(const Offset(0, 20));
+      await tester.pump();
+      await gesture.moveTo(tester.getCenter(_lineFinder(2)));
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(moves, isEmpty);
+    });
+
+    testWidgets('scrolls the list when held at its bottom edge', (
+      tester,
+    ) async {
+      final moves = <int>[];
+      final positions = await _pumpViewer(
+        tester,
+        bookmarkLineIndex: 0,
+        onBookmarkMoved: moves.add,
+      );
+      final list = tester.getRect(find.byType(ListView));
+
+      final gesture =
+          await tester.startGesture(tester.getCenter(find.text('Bookmarked')));
+      await gesture.moveBy(const Offset(0, 20));
+      await tester.pump();
+      await gesture.moveTo(Offset(list.center.dx, list.bottom - 4));
+      for (var i = 0; i < 30; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(positions.last.scrollOffset, greaterThan(0));
+      expect(moves, hasLength(1));
+      // Landed further down than anything on screen before the scroll.
+      expect(moves.single, greaterThan(8));
+    });
   });
 }

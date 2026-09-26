@@ -1571,6 +1571,27 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
+  /// Moves the bookmark to [lineIndex] of the tab it is already in, after
+  /// the reader dragged its "Bookmarked" label there.
+  Future<void> _handleBookmarkMoved(int lineIndex) async {
+    final existing = _savedBookmark;
+    if (existing == null || existing.lineIndex == lineIndex) return;
+
+    final moved = existing.movedTo(
+      lineIndex: lineIndex,
+      updatedAt: DateTime.now().toUtc(),
+    );
+    setState(() {
+      _savedBookmark = moved;
+    });
+    await ZikrBookmarkStore.instance.save(moved);
+    unawaited(AnalyticsService.feature(
+      'zikr_bookmark_moved',
+      label: 'Bookmark moved',
+      parameters: {'zikr_uid': _bookmarkUid},
+    ));
+  }
+
   Future<void> _toggleBookmark({
     required String pageTitle,
     required List<String> tabContents,
@@ -2006,6 +2027,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                           arabicFontFamilyOf(zikrData),
                                       onBookmarkLineResolved:
                                           _handleBookmarkLineResolved,
+                                      onBookmarkMoved: _isQuran
+                                          ? null
+                                          : _handleBookmarkMoved,
                                       footer: _buildQuranSequenceFooter(),
                                     ),
                                   ),
