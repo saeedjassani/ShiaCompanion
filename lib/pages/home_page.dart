@@ -615,7 +615,8 @@ class _MyHomePageState extends State<MyHomePage>
         debugPrint("${element.id} ${element.title} is scheduled");
       });
       needToSchedule =
-          shouldRefreshPrayerNotificationSchedule(pendingNotificationRequests);
+          shouldRefreshPrayerNotificationSchedule(pendingNotificationRequests) ||
+              await arePrayerAzanAlarmsMissing(pendingNotificationRequests);
       if (needToSchedule) {
         await setUpNotifications();
       } else {

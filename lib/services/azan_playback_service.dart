@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:io' show Platform;
+import 'dart:io' show File, Platform;
 import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -31,6 +32,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// the app already running), so there Full Azan instead starts from
 /// [playNow] when the user taps the prayer notification; Custom Audio isn't
 /// offered on iOS at all.
+///
+/// The class needs its own entry-point pragma, not just [alarmCallback]: in a
+/// release (AOT) build the alarm plugin can't reach a static method of a class
+/// that isn't itself annotated, and the Azan silently never starts.
+@pragma('vm:entry-point')
 class AzanPlaybackService {
   AzanPlaybackService._();
 
@@ -89,25 +95,55 @@ class AzanPlaybackService {
     await AndroidAlarmManager.cancel(alarmId);
   }
 
+  static const MethodChannel _alarmsChannel =
+      MethodChannel('shia_companion/azan_alarms');
+
+  /// Whether Android still holds a scheduled alarm for any of [alarmIds].
+  ///
+  /// A force-stop or reboot deletes these alarms while flutter_local_notifications
+  /// keeps its own record of the paired notifications, so that record alone
+  /// can't say whether the Azan will actually play. Answers true when it can't
+  /// tell, so a failed check never turns into rescheduling on every launch.
+  static Future<bool> isAnyScheduled(List<int> alarmIds) async {
+    if (kIsWeb || !Platform.isAndroid || alarmIds.isEmpty) return true;
+    try {
+      return await _alarmsChannel.invokeMethod<bool>('anyScheduled', alarmIds) ??
+          true;
+    } catch (e) {
+      debugPrint('Could not check Azan alarms: $e');
+      return true;
+    }
+  }
+
   /// Entry point android_alarm_manager_plus runs, in its own headless
   /// isolate, at the exact prayer time - including when the app was never
   /// opened. Must stay a top-level/static function and keep this pragma: the
   /// plugin looks it up by callback handle after a restart, not by
   /// reference.
+  /// Per isolate, like every static: set once [alarmCallback] has initialised
+  /// background audio in the alarm isolate.
+  static bool _alarmIsolateAudioReady = false;
+
   @pragma('vm:entry-point')
   static Future<void> alarmCallback(
       int id, Map<String, dynamic>? params) async {
     WidgetsFlutterBinding.ensureInitialized();
-    // This isolate is always fresh - android_alarm_manager_plus runs it
-    // headless, so main()'s JustAudioBackground.init() never ran here and
-    // this is the one call that actually takes effect. [playNow] never needs
-    // this: it only ever runs in the main isolate, where main() already did
-    // it once - see the crash note on [_startPlayback].
-    await JustAudioBackground.init(
-      androidNotificationChannelId: 'com.developer110.shia_companion.azan',
-      androidNotificationChannelName: 'Azan playback',
-      androidNotificationOngoing: true,
-    );
+    // android_alarm_manager_plus runs this headless, in its own isolate where
+    // main()'s JustAudioBackground.init() never ran - but it keeps that
+    // isolate alive and reuses it for every later alarm while the process
+    // lives, so this must run once per isolate, not once per Azan. A second
+    // init() wraps the plugin around itself and every Azan after the first
+    // fails with "supports only a single player instance". [playNow] never
+    // needs this: it only ever runs in the main isolate, where main() already
+    // did it once - see the crash note on [_startPlayback].
+    if (!_alarmIsolateAudioReady) {
+      await JustAudioBackground.init(
+        androidNotificationChannelId: 'com.developer110.shia_companion.azan',
+        androidNotificationChannelName: 'Azan playback',
+        androidNotificationOngoing: true,
+      );
+      _alarmIsolateAudioReady = true;
+    }
     final prayerName = params?['prayerName'] as String? ?? 'Prayer';
     final customFilePath = params?['customFilePath'] as String?;
     await _startPlayback(prayerName, customFilePath: customFilePath);
@@ -186,6 +222,15 @@ class AzanPlaybackService {
       title: '$prayerName Azan is playing',
       album: 'Shia Companion',
     );
+
+    // The prayer notification is deliberately silent (this player is the
+    // sound), so a custom file that has since disappeared - deleted, or an
+    // older pick that still points into a cache Android has cleared - must
+    // not leave the reader with nothing. The bundled Azan is the next best.
+    if (customFilePath != null && !File(customFilePath).existsSync()) {
+      debugPrint('Custom Azan file missing, playing the bundled one instead');
+      customFilePath = null;
+    }
 
     try {
       await player.setAudioSource(customFilePath != null

@@ -1,5 +1,6 @@
 package com.developer110.shia_companion
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -7,6 +8,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.util.Log
 import androidx.glance.appwidget.updateAll
 import com.developer110.shiacompanion.widgets.DailyPrayerTimesWidget
 import com.developer110.shiacompanion.widgets.FavoritesWidget
@@ -28,11 +30,14 @@ import kotlinx.coroutines.launch
 // (app swiped away) while playback continues in the notification.
 class MainActivity: AudioServiceActivity() {
     private val homeWidgetsChannel = "shia_companion/home_widgets"
+    private val azanAlarmsChannel = "shia_companion/azan_alarms"
     private val proximitySensorChannel = "shia_companion/proximity_sensor"
     private val proximitySensorEventsChannel =
         "shia_companion/proximity_sensor_events"
     private val widgetPreferencesName = "shia_companion_widgets"
     private val widgetUrlExtra = "com.developer110.shiacompanion.WIDGET_URL"
+    // PermissionManager.PERMISSION_REQUEST_CODE in geolocator_android.
+    private val geolocatorPermissionRequestCode = 109
     private val mainScope = CoroutineScope(Dispatchers.Main)
     private var homeWidgetsMethodChannel: MethodChannel? = null
     private var pendingWidgetUrl: String? = null
@@ -57,6 +62,30 @@ class MainActivity: AudioServiceActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         pendingWidgetUrl = consumeWidgetUrl(intent)
         super.onCreate(savedInstanceState)
+    }
+
+    // geolocator's PermissionManager never clears its result callback after
+    // replying, so if Android delivers a second result for its request code
+    // (seen in the wild with an engine that outlives the activity, which
+    // AudioServiceActivity's is), it replies to the same Dart call again and
+    // the engine throws "Reply already submitted" - a fatal crash right at the
+    // first-run location prompt. The first reply already reached Dart, so the
+    // duplicate is safe to drop. Upstream: baseflow/flutter-geolocator#1158.
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        try {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        } catch (error: IllegalStateException) {
+            if (requestCode != geolocatorPermissionRequestCode ||
+                error.message != "Reply already submitted"
+            ) {
+                throw error
+            }
+            Log.w("MainActivity", "Dropped a duplicate location permission result", error)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -139,6 +168,45 @@ class MainActivity: AudioServiceActivity() {
         }
 
         configureProximitySensorChannels(flutterEngine)
+        configureAzanAlarmChannel(flutterEngine)
+    }
+
+    // Lets Dart ask whether the Full Azan alarms it scheduled through
+    // android_alarm_manager_plus still exist. A force-stop (including the
+    // kind some OEM battery managers do) or a reboot deletes them, while
+    // flutter_local_notifications' own record of the paired notifications
+    // survives - so without this the app would think its schedule was fine
+    // and leave the reader with silent Azan notifications.
+    private fun configureAzanAlarmChannel(flutterEngine: FlutterEngine) {
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            azanAlarmsChannel
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "anyScheduled" -> {
+                    val ids = (call.arguments as? List<*>)?.filterIsInstance<Int>()
+                    if (ids == null) {
+                        result.error("invalid_arguments", "Expected a list of alarm ids.", null)
+                        return@setMethodCallHandler
+                    }
+                    // Must match the Intent the plugin schedules with: the
+                    // same component and request code (extras don't count).
+                    val alarmIntent = Intent().setClassName(
+                        packageName,
+                        "dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
+                    )
+                    result.success(ids.any { id ->
+                        PendingIntent.getBroadcast(
+                            this,
+                            id,
+                            alarmIntent,
+                            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+                        ) != null
+                    })
+                }
+                else -> result.notImplemented()
+            }
+        }
     }
 
     private fun configureProximitySensorChannels(flutterEngine: FlutterEngine) {

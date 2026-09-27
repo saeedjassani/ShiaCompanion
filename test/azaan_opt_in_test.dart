@@ -183,13 +183,68 @@ void main() {
         "It's time for fajr · $tapHint",
       );
       expect(
-        prayerNotificationBody('Fajr', AzaanOptions.azaan, isIOS: false),
+        prayerNotificationBody('Fajr', AzaanOptions.azaan,
+            isIOS: false, playsAutomatically: true),
         "It's time for fajr",
       );
       // The Takbir clip already plays in full on iOS, so there is nothing to
       // tap for.
       expect(
         prayerNotificationBody('Fajr', AzaanOptions.takbir, isIOS: true),
+        "It's time for fajr",
+      );
+    });
+  });
+
+  group('Android without exact alarms', () {
+    // The Azan can only start by itself from an exact alarm; without one
+    // Android 12+ refuses (and throws) starting its player in the background.
+    test('Full Azan and Custom Audio notifications carry the Takbir instead',
+        () {
+      for (final option in [AzaanOptions.azaan, AzaanOptions.custom]) {
+        expect(
+          androidNotificationSoundOption(option, playsAutomatically: false).id,
+          AzaanOptions.takbir.id,
+        );
+        // With exact alarms the player is the sound; the notification stays
+        // as it is (silent - see _androidPrayerNotificationDetails).
+        expect(
+          androidNotificationSoundOption(option, playsAutomatically: true).id,
+          option.id,
+        );
+      }
+    });
+
+    test('other sounds are untouched either way', () {
+      for (final option in [
+        AzaanOptions.takbir,
+        AzaanOptions.systemDefault,
+        AzaanOptions.silent,
+      ]) {
+        for (final autoplay in [true, false]) {
+          expect(
+            androidNotificationSoundOption(option, playsAutomatically: autoplay)
+                .id,
+            option.id,
+          );
+        }
+      }
+    });
+
+    test('the banner says to tap, as it does on iOS', () {
+      expect(
+        prayerNotificationBody('Fajr', AzaanOptions.azaan,
+            isIOS: false, playsAutomatically: false),
+        "It's time for fajr · Tap to hear the full azan",
+      );
+      expect(
+        prayerNotificationBody('Zuhr', AzaanOptions.custom,
+            isIOS: false, playsAutomatically: false),
+        "It's time for zuhr · Tap to play your audio",
+      );
+      expect(
+        prayerNotificationBody('Fajr', AzaanOptions.takbir,
+            isIOS: false, playsAutomatically: false),
         "It's time for fajr",
       );
     });

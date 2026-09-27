@@ -407,12 +407,12 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
   Future<bool> _pickCustomAudio() async {
     setState(() => _busy = true);
     try {
-      final result = await FilePicker.pickFiles(type: FileType.audio);
-      final path = result?.files.single.path;
-      if (path == null) return false;
+      final picked = await FilePicker.pickFile(type: FileType.audio);
+      final pickedPath = picked?.path;
+      if (pickedPath == null) return false;
 
-      final file = File(path);
-      if (!await file.exists()) {
+      final pickedFile = File(pickedPath);
+      if (!await pickedFile.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('That audio file could not be read.')),
@@ -420,6 +420,10 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
         }
         return false;
       }
+      final path = await keepCustomAudioFile(
+        pickedFile,
+        scope: _isPerPrayer ? widget.prayerName! : 'default',
+      );
 
       if (_isPerPrayer) {
         await saveCustomAudioFilePathForPrayer(widget.prayerName!, path);
