@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/services/analytics_service.dart';
@@ -230,6 +231,10 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
     'tz:${tz.local.name}',
     'azaan:$azaanId',
     'custom:${customAudioPath ?? ''}',
+    // Whether the Azan plays by itself decides each notification's sound
+    // (see _androidPrayerNotificationDetails), so granting or losing exact
+    // alarms has to rebuild the schedule.
+    'autoplay:${azanPlaysAutomatically() ? 1 : 0}',
     'prayers:$enabledPrayerKeys',
     'times:${_scheduledPrayerMinutes(scheduleDate ?? DateTime.now())}',
   ].join('|');
@@ -276,6 +281,38 @@ bool _hasFreshScheduleReminder(List<PendingNotificationRequest>? pending) {
   }
 
   return false;
+}
+
+/// Whether the pending prayer notifications have lost the Full Azan / Custom
+/// Audio alarms that are meant to play alongside them (Android only).
+///
+/// Those notifications are silent by design, and a force-stop or reboot wipes
+/// the alarms without touching flutter_local_notifications' record of the
+/// notifications, which is all [shouldRefreshPrayerNotificationSchedule]
+/// looks at - so it would call a schedule fresh that can no longer make a
+/// sound.
+Future<bool> arePrayerAzanAlarmsMissing(
+    List<PendingNotificationRequest>? pending) async {
+  // Without exact alarms no Azan alarms are scheduled at all (see
+  // azanPlaysAutomatically), so there is nothing to have lost.
+  if (pending == null || !azanPlaysAutomatically()) return false;
+
+  final playsAzan = enabledPrayerNotificationNames(
+          getPrayerNotificationPrayerNames())
+      .map(getAzaanOptionForPrayer)
+      .any((azaan) =>
+          azaan.id == AzaanOptions.azaan.id ||
+          azaan.id == AzaanOptions.custom.id);
+  if (!playsAzan) return false;
+
+  // Azan alarms reuse their notification's id (see schedulePrayerTimeNotification).
+  // 786 is the "open the app" reminder, which never has one.
+  final ids = [
+    for (final request in pending)
+      if (request.id != 786) request.id,
+  ];
+  if (ids.isEmpty) return false;
+  return !await AzanPlaybackService.isAnyScheduled(ids);
 }
 
 bool shouldRefreshPrayerNotificationSchedule(
@@ -1021,8 +1058,16 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
   // here would just be a second, competing copy racing it - and the whole
   // reason for that separate player is that a channel sound cannot outlast a
   // phone unlock or another app's ping the way real playback can.
-  final playsViaAzanPlaybackService =
-      azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id;
+  //
+  // That player can only start on its own from an exact alarm, though (see
+  // azanPlaysAutomatically). Without one, these notifications fall back to
+  // what iOS does: the Takbir clip as the notification's sound, and the full
+  // recording once the reader taps it.
+  azaan = androidNotificationSoundOption(
+    azaan,
+    playsAutomatically: azanPlaysAutomatically(),
+  );
+  final playsViaAzanPlaybackService = azanUsesPlaybackService(azaan);
 
   AndroidNotificationSound? sound;
   final androidFile = azaan.androidFile;
@@ -1080,14 +1125,40 @@ Future<NotificationDetails> prayerNotificationDetails(
 /// _iosPrayerNotificationDetails) and the full recording starts from a tap on
 /// it, so the banner has to say so - nothing else on it does.
 String prayerNotificationBody(String prayerName, AzaanOption azaan,
-    {bool? isIOS}) {
+    {bool? isIOS, bool? playsAutomatically}) {
   final body = "It's time for ${prayerName.toLowerCase()}";
   final onIOS = isIOS ?? (!kIsWeb && Platform.isIOS);
-  if (onIOS && azaan.id == AzaanOptions.azaan.id) {
-    return '$body · Tap to hear the full azan';
-  }
-  return body;
+  final autoplays = playsAutomatically ?? (!onIOS && azanPlaysAutomatically());
+  if (autoplays || !azanUsesPlaybackService(azaan)) return body;
+  return azaan.id == AzaanOptions.custom.id
+      ? '$body · Tap to play your audio'
+      : '$body · Tap to hear the full azan';
 }
+
+/// Whether [azaan] is played by AzanPlaybackService rather than as the
+/// notification's own sound.
+bool azanUsesPlaybackService(AzaanOption azaan) =>
+    azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id;
+
+/// The option whose sound an Android prayer notification for [azaan] should
+/// carry: Full Azan and Custom Audio fall back to the Takbir clip when they
+/// can't start by themselves (see [azanPlaysAutomatically]), rather than
+/// leaving a notification that was only ever meant to be silent alongside
+/// the real player.
+AzaanOption androidNotificationSoundOption(AzaanOption azaan,
+        {required bool playsAutomatically}) =>
+    azanUsesPlaybackService(azaan) && !playsAutomatically
+        ? AzaanOptions.takbir
+        : azaan;
+
+/// Whether Full Azan / Custom Audio can start by itself at prayer time.
+///
+/// Only on Android, and only with exact alarms: from an inexact alarm,
+/// Android 12+ refuses to start the playback's foreground service - and
+/// throws doing it, in the background. Everywhere else the full recording
+/// starts from a tap on the notification (handlePrayerNotificationResponse).
+bool azanPlaysAutomatically() =>
+    !kIsWeb && Platform.isAndroid && canScheduleExactPrayerNotifications;
 
 Future<void> schedulePrayerTimeNotification(
     int id, DateTime dateTime, String prayerName,
@@ -1114,15 +1185,17 @@ Future<void> schedulePrayerTimeNotification(
         body: prayerNotificationBody(prayerName, azaan),
         payload: dateTime.toIso8601String());
 
-    // Android only: the notification above is now silent for Full Azan and
-    // Custom Audio (see _androidPrayerNotificationDetails), so this alarm is
-    // what actually plays them, as real app-controlled audio that survives
-    // being backgrounded rather than a notification sound any other ping can
-    // cut off. iOS has no equivalent background trigger - there, full
-    // playback starts from a tap on the notification instead (see
-    // handlePrayerNotificationResponse); Custom Audio isn't offered on iOS
-    // at all (see isAzaanOptionAvailableOnCurrentPlatform).
-    if (azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id) {
+    // Android with exact alarms only: the notification above is then silent
+    // for Full Azan and Custom Audio (see _androidPrayerNotificationDetails),
+    // so this alarm is what actually plays them, as real app-controlled audio
+    // that survives being backgrounded rather than a notification sound any
+    // other ping can cut off. Everywhere else - iOS, which has no background
+    // trigger, and Android without exact alarms (see azanPlaysAutomatically)
+    // - the notification carries the Takbir clip and full playback starts
+    // from a tap on it instead (see handlePrayerNotificationResponse); Custom
+    // Audio isn't offered on iOS at all (see
+    // isAzaanOptionAvailableOnCurrentPlatform).
+    if (azanUsesPlaybackService(azaan) && azanPlaysAutomatically()) {
       await AzanPlaybackService.schedule(
         alarmId: id,
         fireTime: dateTime,
@@ -1506,6 +1579,38 @@ Future<void> saveAzaanPreference(String azaanId) async {
     label: 'Azaan changed',
     parameters: {'azaan_id': azaanId},
   ));
+}
+
+/// Copies a just-picked custom audio file somewhere it will last, and returns
+/// the copy's path.
+///
+/// file_picker hands back a copy in the app's cache directory, which Android
+/// is free to clear whenever storage runs low - and a prayer notification for
+/// Custom Audio is deliberately silent, relying on that file to make any
+/// sound at all. [scope] is the prayer name, or 'default' for the app-wide
+/// choice; each scope keeps only its latest file.
+///
+/// The copy keeps the picked file's own name, since that is what Settings
+/// shows, inside a fresh timestamped folder so the path still changes with
+/// every pick - which is what [saveCustomAudioFilePath] keys its cached
+/// notification sound on.
+Future<String> keepCustomAudioFile(File picked, {required String scope}) async {
+  final scopeDir = Directory(
+    '${(await getApplicationSupportDirectory()).path}/custom_azan/'
+    '${scope.replaceAll(RegExp(r'[^A-Za-z0-9]'), '_')}',
+  );
+  final pickDir = Directory(
+      '${scopeDir.path}/${DateTime.now().millisecondsSinceEpoch}');
+  await pickDir.create(recursive: true);
+  final kept =
+      await picked.copy('${pickDir.path}/${picked.path.split('/').last}');
+
+  await for (final entity in scopeDir.list()) {
+    if (entity.path != pickDir.path) {
+      await entity.delete(recursive: true);
+    }
+  }
+  return kept.path;
 }
 
 /// Save custom audio file path

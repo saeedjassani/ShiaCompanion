@@ -14,7 +14,7 @@ concurrency:
 env:
   # Pinned so a new Flutter stable release can never turn CI red on its own.
   # Bump deliberately, in this one place.
-  FLUTTER_VERSION: '3.44.8'
+  FLUTTER_VERSION: '3.47.5'
 
 jobs:
   analyze-and-test:
