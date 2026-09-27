@@ -62,6 +62,27 @@ int? surahForUid(String uid) {
   return isSurahNumber(surah) ? surah : null;
 }
 
+final RegExp _quranCategoryUidPattern = RegExp(r'^A\d+$');
+
+/// The zikrs filed under the Quran's own category (`A`) that are not surahs -
+/// Ayat al Kursi, the dua after reciting, Dua Khatme Quran - in uid order.
+///
+/// The old 'Surahs' list showed these alongside the 114; the Quran screen's
+/// surah list cannot, so they are gathered here for its Collections tab
+/// instead. Read from [items] rather than hard-coded so a new one added to
+/// the category turns up without a code change.
+List<String> quranCompanionZikrUids() {
+  final uids = items.keys
+      .map((key) => key.toString())
+      .where((uid) =>
+          _quranCategoryUidPattern.hasMatch(uid.split('|').first.trim()) &&
+          surahForUid(uid) == null)
+      .toList();
+  int number(String uid) => int.parse(uid.split('|').first.trim().substring(1));
+  uids.sort((a, b) => number(a).compareTo(number(b)));
+  return uids;
+}
+
 /// Splits `"2 : Al-Baqarah البقرة"` into its number, English and Arabic names.
 ///
 /// The corpus titles are inconsistent about the spacing around the colon

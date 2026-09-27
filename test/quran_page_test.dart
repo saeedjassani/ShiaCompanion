@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
 import 'package:shia_companion/utils/quran_index.dart';
@@ -34,6 +35,13 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> openCollection(WidgetTester tester, String chip) async {
+    await tester.tap(find.text('Collections'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ChoiceChip, chip));
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('lists every surah with its ayah count', (tester) async {
     await pump(tester);
 
@@ -43,8 +51,7 @@ void main() {
     expect(find.text('Ayat al Kursi'), findsNothing);
   });
 
-  testWidgets('the juz tab lists all thirty with their ranges',
-      (tester) async {
+  testWidgets('the juz tab lists all thirty with their ranges', (tester) async {
     await pump(tester);
     await tester.tap(find.text('Juz'));
     await tester.pumpAndSettle();
@@ -72,10 +79,10 @@ void main() {
     expect(find.text('Start reading'), findsOneWidget);
   });
 
-  testWidgets('the Saved tab says so when nothing is kept', (tester) async {
+  testWidgets('the Saved collection says so when nothing is kept',
+      (tester) async {
     await pump(tester);
-    await tester.tap(find.text('Saved'));
-    await tester.pumpAndSettle();
+    await openCollection(tester, 'Saved');
 
     expect(find.text('No saved verses yet'), findsOneWidget);
   });
@@ -93,8 +100,7 @@ void main() {
       );
     }
     await pump(tester);
-    await tester.tap(find.text('Saved'));
-    await tester.pumpAndSettle();
+    await openCollection(tester, 'Saved');
 
     expect(find.text('Surah2 255'), findsOneWidget);
     expect(find.text('Surah36 9'), findsOneWidget);
@@ -116,13 +122,53 @@ void main() {
       ),
     );
     await pump(tester);
-    await tester.tap(find.text('Saved'));
-    await tester.pumpAndSettle();
+    await openCollection(tester, 'Saved');
 
     await tester.tap(find.byTooltip('Remove'));
     await tester.pumpAndSettle();
 
     expect(find.text('No saved verses yet'), findsOneWidget);
     expect(SavedVersesStore.instance.readAll(), isEmpty);
+  });
+
+  testWidgets(
+      'the Duas collection holds the non-surah Quran zikrs, Ayat al Kursi '
+      'included', (tester) async {
+    items = {
+      ...items,
+      'A2': 'Dua after reciting Holy Quran',
+      'A4': 'Ayat al Kursi',
+      'E1': 'Some other dua',
+    };
+    await pump(tester);
+    await openCollection(tester, 'Duas');
+
+    expect(find.text('Ayat al Kursi'), findsOneWidget);
+    expect(find.text('Dua after reciting Holy Quran'), findsOneWidget);
+    expect(find.text('Some other dua'), findsNothing);
+    expect(find.text('Surah1'), findsNothing);
+  });
+
+  testWidgets('the Imam Ali collection lists the curated verses',
+      (tester) async {
+    await pump(tester);
+    await openCollection(tester, 'Imam Ali (as)');
+
+    expect(find.text('Surah5 55'), findsOneWidget);
+    expect(
+        find.text(aliRelatedNoteFor(const VerseKey(5, 55))!), findsOneWidget);
+  });
+
+  testWidgets('the Collections tab remembers the chip last picked',
+      (tester) async {
+    await pump(tester);
+    await openCollection(tester, 'Saved');
+
+    await tester.pumpWidget(const SizedBox());
+    await pump(tester);
+    await tester.tap(find.text('Collections'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('No saved verses yet'), findsOneWidget);
   });
 }

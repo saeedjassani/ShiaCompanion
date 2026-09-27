@@ -98,6 +98,19 @@ class _ZikrReadingPreferencesControlsState
 
     return Column(
       children: _withDividers([
+        // Without this, someone who has already raised App text size sees
+        // zikr text larger than these sliders suggest and has no way to know
+        // why. The two multiply; neither one rewrites the other.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Text(
+            'Fine-tune zikr text. Applied on top of App text size in '
+            'Settings.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ),
         ListTile(
           leading: _leading(Icons.format_size),
           title: const Text('Arabic Font Size'),
@@ -266,7 +279,8 @@ class _ZikrReadingPreferencesControlsState
   List<Widget> _withDividers(List<Widget> children) {
     final dividedChildren = <Widget>[];
     for (var index = 0; index < children.length; index++) {
-      if (index > 0) {
+      // Index 1 is the Arabic slider, which the caption above introduces.
+      if (index > 1) {
         dividedChildren.add(const Divider(height: 1));
       }
       dividedChildren.add(children[index]);
