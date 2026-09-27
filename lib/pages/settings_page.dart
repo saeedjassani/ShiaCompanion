@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../constants.dart';
+import '../services/activity_stats_store.dart';
 import '../services/account_service.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_download_store.dart';
@@ -54,6 +55,10 @@ class _SettingsPageState extends State<SettingsPage> {
     await RecitationTrackerManager.instance.loadRecitations(force: true);
     await PreferencesSyncService.instance.pullOrSeed();
     await PrayerPreferencesSyncService.instance.pullOrSeed();
+    // Not awaited: stats are already correct on this device, and a Firestore
+    // write only completes once the server acknowledges it - on a slow
+    // connection that would hold up this screen for nothing.
+    unawaited(ActivityStatsStore.instance.pullAndMerge());
     await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
     setState(() {});

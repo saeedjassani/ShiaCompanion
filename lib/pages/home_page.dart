@@ -19,6 +19,7 @@ import 'package:shia_companion/pages/quran/quran_page.dart';
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/quran_portion.dart';
+import 'package:shia_companion/services/activity_stats_store.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
@@ -541,6 +542,7 @@ class _MyHomePageState extends State<MyHomePage>
     await RecitationTrackerManager.instance.loadRecitations();
     await PreferencesSyncService.instance.pullOrSeed();
     await PrayerPreferencesSyncService.instance.pullOrSeed();
+    unawaited(ActivityStatsStore.instance.pullAndMerge());
 
     // On web, keep first load quiet and let the prayer card request location
     // only after the user taps it.
@@ -782,6 +784,9 @@ class _MyHomePageState extends State<MyHomePage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _refreshLocationOnResume();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      unawaited(ActivityStatsStore.instance.pushIfDue());
     }
   }
 
