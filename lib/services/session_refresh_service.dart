@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -31,6 +32,27 @@ class SessionRefreshService {
         debugPrint(
             'Unable to refresh admin claim, using bundled index: $error');
       }
+      unawaited(_refreshAdminClaim(user!));
+    }
+  }
+
+  /// Re-reads the admin claim from a freshly minted ID token.
+  ///
+  /// A cached token carries whatever claims were true when it was minted, up
+  /// to an hour ago, so a claim granted or revoked since would otherwise not
+  /// show up until the token happens to expire. Forcing a refresh is a
+  /// network round-trip, though, so it runs behind the cached read above
+  /// rather than holding up startup or a deep-link launch, and a failure -
+  /// offline, say - leaves the cached answer standing.
+  static Future<void> _refreshAdminClaim(User forUser) async {
+    try {
+      final idTokenResult = await forUser
+          .getIdTokenResult(true)
+          .timeout(const Duration(seconds: 10));
+      if (!identical(user, forUser)) return;
+      isUserAdmin = idTokenResult.claims?['admin'] == true;
+    } catch (error) {
+      debugPrint('Unable to force-refresh admin claim: $error');
     }
   }
 

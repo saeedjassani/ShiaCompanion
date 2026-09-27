@@ -581,6 +581,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   bool _sawUserScrollInput = false;
 
   bool _didScrollToInitialVerse = false;
+
+  /// The tab being scrolled to where it opens - a linked verse or a
+  /// bookmarked line - kept invisible until it lands. See [_hideWhileLanding].
+  int? _landingTabIndex;
   bool _verseReportScheduled = false;
   VerseKey? _reportedVerse;
   late int _selectedTabIndex;
@@ -936,6 +940,60 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return null;
   }
 
+  /// A coarse guess at where item [itemIndex] begins, for the phase before it
+  /// is built at all: interpolated from the nearest built item using the
+  /// average extent of the currently built range, or null when too little is
+  /// built to go on.
+  ///
+  /// Items vary hugely in height - an ayah of a few words next to one of a
+  /// full paragraph - so treating the whole list as uniform, a plain
+  /// `index / itemCount` share of the scroll extent, can land far enough off
+  /// that it takes many jumps to bring the target into the build range.
+  double? _estimateItemOffset(int tabIndex, int itemIndex) {
+    if (tabIndex >= _tabListKeys.length) return null;
+
+    final renderObject =
+        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    final sliver = renderObject == null ? null : _findSliverList(renderObject);
+    if (sliver == null) return null;
+
+    int? nearestIndex, firstIndex, lastIndex;
+    double? nearestOffset, firstOffset, lastOffset;
+
+    RenderBox? child = sliver.firstChild;
+    while (child != null) {
+      final parentData = child.parentData;
+      if (parentData is SliverMultiBoxAdaptorParentData) {
+        final index = parentData.index;
+        final offset = parentData.layoutOffset;
+        if (index != null && offset != null) {
+          firstIndex ??= index;
+          firstOffset ??= offset;
+          lastIndex = index;
+          lastOffset = offset;
+          if (nearestIndex == null ||
+              (index - itemIndex).abs() < (nearestIndex - itemIndex).abs()) {
+            nearestIndex = index;
+            nearestOffset = offset;
+          }
+        }
+      }
+      child = sliver.childAfter(child);
+    }
+
+    if (nearestIndex == null ||
+        nearestOffset == null ||
+        firstIndex == null ||
+        lastIndex == null ||
+        lastIndex == firstIndex) {
+      return null;
+    }
+
+    final averageExtent =
+        (lastOffset! - firstOffset!) / (lastIndex - firstIndex);
+    return nearestOffset + averageExtent * (itemIndex - nearestIndex);
+  }
+
   /// Brings [verse] to the top of the view.
   Future<void> _scrollToVerse(
     int tabIndex,
@@ -1073,9 +1131,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       final inset = item == null ? 0.0 : insetWithin?.call(item.box) ?? 0.0;
       final itemOffset = item == null ? null : item.offset + inset;
       final target = itemOffset == null
-          // Not built yet: aim by proportion to bring it into range, then
+          // Not built yet: aim at an estimate to bring it into range, then
           // measure properly on the next pass.
-          ? position.maxScrollExtent * (itemIndex / itemCount)
+          ? _estimateItemOffset(tabIndex, itemIndex) ??
+              position.maxScrollExtent * (itemIndex / itemCount)
           : itemOffset - _scrollToVerseMargin;
 
       final clamped = target
@@ -1106,9 +1165,45 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     if (_didScrollToInitialVerse || verse == null || verse.ayah == null) return;
 
     _didScrollToInitialVerse = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _scrollToVerse(tabIndex, ayahIndex, verse, leadingItems);
+    _landHidden(
+      tabIndex,
+      () => _scrollToVerse(tabIndex, ayahIndex, verse, leadingItems),
+    );
+  }
+
+  /// Runs [land] after this frame with tab [tabIndex] kept invisible until it
+  /// finishes - see [_hideWhileLanding].
+  ///
+  /// Called during build, before the tab's list is, so even the first frame
+  /// is drawn hidden.
+  void _landHidden(int tabIndex, Future<void> Function() land) {
+    _landingTabIndex = tabIndex;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        if (mounted) await land();
+      } finally {
+        // Every way out of the landing shows the list again - including one
+        // that gave up - so a failed jump can never leave a blank page.
+        if (mounted && _landingTabIndex == tabIndex) {
+          setState(() => _landingTabIndex = null);
+        }
+      }
     });
+  }
+
+  /// Keeps tab [tabIndex] invisible while it is being scrolled to where it
+  /// opens.
+  ///
+  /// Finding an item the list has not built yet takes a few frames of jumps,
+  /// and each would otherwise paint - a scrub through unrelated text before
+  /// the right place settles. Opacity rather than leaving the list out: the
+  /// landing measures the laid-out list, so it has to stay laid out.
+  Widget _hideWhileLanding(int tabIndex, Widget child) {
+    final hidden = _landingTabIndex == tabIndex;
+    return IgnorePointer(
+      ignoring: hidden,
+      child: Opacity(opacity: hidden ? 0 : 1, child: child),
+    );
   }
 
   /// How many list items sit ahead of the content itself - just the Merits
@@ -1600,8 +1695,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             );
       final targetLine = range?.start ?? bookmarkLine;
       if (targetLine <= 0) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) return;
+      _landHidden(tabIndex, () async {
         await _scrollToLine(tabIndex, targetLine);
         if (mounted && controller.hasClients) {
           _reportScrollPosition(tabIndex, controller);
@@ -1890,171 +1984,175 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 bottom: widget.listPadding.bottom,
               ),
             ),
-            child: Scrollbar(
-              controller: controller,
-              child: ListView.builder(
-                key: _tabListKeys[tabIndex],
+            child: _hideWhileLanding(
+              tabIndex,
+              Scrollbar(
                 controller: controller,
-                padding: EdgeInsets.only(
-                  top: _listTopPadding,
-                  bottom: widget.listPadding.bottom,
-                ),
-                itemCount: itemCount,
-                itemBuilder: (BuildContext context, int index) {
-                  if (footer != null && index == contentItemCount)
-                    return footer;
+                child: ListView.builder(
+                  key: _tabListKeys[tabIndex],
+                  controller: controller,
+                  padding: EdgeInsets.only(
+                    top: _listTopPadding,
+                    bottom: widget.listPadding.bottom,
+                  ),
+                  itemCount: itemCount,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (footer != null && index == contentItemCount)
+                      return footer;
 
-                  // Show merits button at the top of first tab
-                  if (showMeritsButton && index == 0) {
-                    return Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16.0,
-                        top: 12.0,
-                        right: 16.0,
-                        bottom: 12.0,
-                      ),
-                      child: InkWell(
-                        onTap: widget.onShowMerits,
-                        child: Text(
-                          'Merits',
-                          style: TextStyle(
-                            decoration: TextDecoration.underline,
-                            fontSize: 14,
+                    // Show merits button at the top of first tab
+                    if (showMeritsButton && index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          left: 16.0,
+                          top: 12.0,
+                          right: 16.0,
+                          bottom: 12.0,
+                        ),
+                        child: InkWell(
+                          onTap: widget.onShowMerits,
+                          child: Text(
+                            'Merits',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }
+                      );
+                    }
 
-                  // A surah in paragraph mode has one item per surah (a juz one
-                  // per surah it spans, each Bismillah apart), and in
-                  // ayah mode one per verse; every other zikr is one item per
-                  // reading-list entry, which is one item per content line
-                  // except when Arabic-only paragraph flow folds a run of
-                  // verses into one.
-                  if (quranParagraphs != null) {
-                    final paragraph =
-                        quranParagraphs.items[index - leadingItems];
-                    final first = ayahIndex!.spans[paragraph.firstSpanIndex];
-                    // The Bismillah stands alone and is drawn exactly as it is
-                    // in ayah mode - centred, unnumbered, untappable.
-                    if (first.ayah == null) {
+                    // A surah in paragraph mode has one item per surah (a juz one
+                    // per surah it spans, each Bismillah apart), and in
+                    // ayah mode one per verse; every other zikr is one item per
+                    // reading-list entry, which is one item per content line
+                    // except when Arabic-only paragraph flow folds a run of
+                    // verses into one.
+                    if (quranParagraphs != null) {
+                      final paragraph =
+                          quranParagraphs.items[index - leadingItems];
+                      final first = ayahIndex!.spans[paragraph.firstSpanIndex];
+                      // The Bismillah stands alone and is drawn exactly as it is
+                      // in ayah mode - centred, unnumbered, untappable.
+                      if (first.ayah == null) {
+                        return _buildAyahBlock(
+                          ayahIndex: ayahIndex,
+                          spanIndex: paragraph.firstSpanIndex,
+                          parsedContent: parsedContent,
+                          arabicStyle: arabicStyle,
+                          transliStyle: transliStyle,
+                          bookmarkedRange: bookmarkedRange,
+                        );
+                      }
+                      return _buildQuranParagraphItem(
+                        paragraph: paragraph,
+                        ayahIndex: ayahIndex,
+                        parsedContent: parsedContent,
+                        arabicStyle: arabicStyle,
+                        bookmarkedRange: bookmarkedRange,
+                      );
+                    }
+
+                    if (ayahIndex != null) {
+                      final contentIndex = index - leadingItems;
                       return _buildAyahBlock(
                         ayahIndex: ayahIndex,
-                        spanIndex: paragraph.firstSpanIndex,
+                        spanIndex: contentIndex,
                         parsedContent: parsedContent,
                         arabicStyle: arabicStyle,
                         transliStyle: transliStyle,
                         bookmarkedRange: bookmarkedRange,
                       );
                     }
-                    return _buildQuranParagraphItem(
-                      paragraph: paragraph,
-                      ayahIndex: ayahIndex,
-                      parsedContent: parsedContent,
-                      arabicStyle: arabicStyle,
-                      bookmarkedRange: bookmarkedRange,
-                    );
-                  }
 
-                  if (ayahIndex != null) {
-                    final contentIndex = index - leadingItems;
-                    return _buildAyahBlock(
-                      ayahIndex: ayahIndex,
-                      spanIndex: contentIndex,
-                      parsedContent: parsedContent,
-                      arabicStyle: arabicStyle,
-                      transliStyle: transliStyle,
-                      bookmarkedRange: bookmarkedRange,
-                    );
-                  }
+                    final itemIndex = index - leadingItems;
+                    final item = readingItems[itemIndex];
 
-                  final itemIndex = index - leadingItems;
-                  final item = readingItems[itemIndex];
+                    final isLastItem = itemIndex == readingItems.length - 1;
 
-                  final isLastItem = itemIndex == readingItems.length - 1;
+                    final isDropTarget = dropRange != null &&
+                        item.lineIndexes.any(dropRange.contains);
 
-                  final isDropTarget = dropRange != null &&
-                      item.lineIndexes.any(dropRange.contains);
+                    if (isArabicOnlyReadingView &&
+                        parsedContent.arabicCodes
+                            .contains(item.firstLineIndex)) {
+                      return _withParagraphDivider(
+                        _withBookmarkDropPreview(
+                          _buildArabicParagraphItem(
+                            tabIndex,
+                            item,
+                            parsedContent,
+                            bookmarkLabelLine,
+                            arabicStyle,
+                          ),
+                          isTarget: isDropTarget,
+                        ),
+                        showDivider: !isLastItem,
+                      );
+                    }
 
-                  if (isArabicOnlyReadingView &&
-                      parsedContent.arabicCodes.contains(item.firstLineIndex)) {
-                    return _withParagraphDivider(
-                      _withBookmarkDropPreview(
-                        _buildArabicParagraphItem(
+                    // No trailing divider here: a standalone line never closed a
+                    // group before either (groupForLine only covers Arabic
+                    // triplets), so this preserves that - the block's own border
+                    // already sets it apart from what follows.
+                    if (item.lineIndexes.length > 1) {
+                      return _withBookmarkDropPreview(
+                        _buildFootnoteBlock(
                           tabIndex,
                           item,
                           parsedContent,
                           bookmarkLabelLine,
-                          arabicStyle,
                         ),
                         isTarget: isDropTarget,
-                      ),
-                      showDivider: !isLastItem,
-                    );
-                  }
+                      );
+                    }
 
-                  // No trailing divider here: a standalone line never closed a
-                  // group before either (groupForLine only covers Arabic
-                  // triplets), so this preserves that - the block's own border
-                  // already sets it apart from what follows.
-                  if (item.lineIndexes.length > 1) {
-                    return _withBookmarkDropPreview(
-                      _buildFootnoteBlock(
-                        tabIndex,
-                        item,
-                        parsedContent,
-                        bookmarkLabelLine,
-                      ),
-                      isTarget: isDropTarget,
+                    // Every non-paragraph item covers exactly one content line.
+                    final contentIndex = item.firstLineIndex;
+                    final line = _buildLine(
+                      parsedContent,
+                      contentIndex,
+                      arabicStyle,
+                      transliStyle,
                     );
-                  }
 
-                  // Every non-paragraph item covers exactly one content line.
-                  final contentIndex = item.firstLineIndex;
-                  final line = _buildLine(
-                    parsedContent,
-                    contentIndex,
-                    arabicStyle,
-                    transliStyle,
-                  );
+                    final Widget content;
+                    if (bookmarkedRange == null ||
+                        bookmarkLabelLine == null ||
+                        !bookmarkedRange.contains(contentIndex) ||
+                        !isZikrLineVisible(parsedContent, contentIndex)) {
+                      content = _withBookmarkDropPreview(
+                        line,
+                        isTarget: isDropTarget &&
+                            isZikrLineVisible(parsedContent, contentIndex),
+                      );
+                    } else {
+                      content = _BookmarkedLine(
+                        // The label only belongs on the first line of the marked
+                        // triplet that is actually showing - repeating it on the
+                        // transliteration/translation lines under the same tint
+                        // would just be noise, and a switched-off line draws
+                        // nothing to carry it.
+                        label: contentIndex == bookmarkLabelLine
+                            ? _bookmarkHandle(tabIndex)
+                            : null,
+                        child: line,
+                      );
+                    }
 
-                  final Widget content;
-                  if (bookmarkedRange == null ||
-                      bookmarkLabelLine == null ||
-                      !bookmarkedRange.contains(contentIndex) ||
-                      !isZikrLineVisible(parsedContent, contentIndex)) {
-                    content = _withBookmarkDropPreview(
-                      line,
-                      isTarget: isDropTarget &&
-                          isZikrLineVisible(parsedContent, contentIndex),
+                    // Only the last line of an Arabic/transliteration/translation
+                    // triplet closes it off - a standalone heading or instruction
+                    // line (absent from groupForLine) never gets a trailing
+                    // divider of its own.
+                    final group = parsedContent.groupForLine[contentIndex];
+                    final closesGroup =
+                        group != null && contentIndex == group.end - 1;
+                    return _withParagraphDivider(
+                      content,
+                      showDivider: closesGroup && !isLastItem,
                     );
-                  } else {
-                    content = _BookmarkedLine(
-                      // The label only belongs on the first line of the marked
-                      // triplet that is actually showing - repeating it on the
-                      // transliteration/translation lines under the same tint
-                      // would just be noise, and a switched-off line draws
-                      // nothing to carry it.
-                      label: contentIndex == bookmarkLabelLine
-                          ? _bookmarkHandle(tabIndex)
-                          : null,
-                      child: line,
-                    );
-                  }
-
-                  // Only the last line of an Arabic/transliteration/translation
-                  // triplet closes it off - a standalone heading or instruction
-                  // line (absent from groupForLine) never gets a trailing
-                  // divider of its own.
-                  final group = parsedContent.groupForLine[contentIndex];
-                  final closesGroup =
-                      group != null && contentIndex == group.end - 1;
-                  return _withParagraphDivider(
-                    content,
-                    showDivider: closesGroup && !isLastItem,
-                  );
-                },
+                  },
+                ),
               ),
             ),
           ),
