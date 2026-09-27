@@ -1,78 +1,78 @@
 {
   "A10": {
-    "title": "6: al-An'aam الأنعام",
+    "title": "6: Al-An'am الأنعام",
     "slug": "6-al-an-aam"
   },
   "A100": {
-    "title": "96: al-Alaq العلق",
+    "title": "96: Al-'Alaq العلق",
     "slug": "96-al-alaq"
   },
   "A101": {
-    "title": "97: al-Qadr القدر",
+    "title": "97: Al-Qadr القدر",
     "slug": "97-al-qadr"
   },
   "A102": {
-    "title": "98: al-Bayyenah البينة",
+    "title": "98: Al-Bayyinah البينة",
     "slug": "98-al-bayyenah"
   },
   "A103": {
-    "title": "99: al-Zalzalah الزلزلة",
+    "title": "99: Az-Zalzalah الزلزلة",
     "slug": "99-al-zalzalah"
   },
   "A104": {
-    "title": "100: al-Aadeyaat العاديات",
+    "title": "100: Al-'Adiyat العاديات",
     "slug": "100-al-aadeyaat"
   },
   "A105": {
-    "title": "101: al-Qaarea'h القارعة",
+    "title": "101: Al-Qari'ah القارعة",
     "slug": "101-al-qaarea-h"
   },
   "A106": {
-    "title": "102: al-Takaasor التكاثر",
+    "title": "102: At-Takathur التكاثر",
     "slug": "102-al-takaasor"
   },
   "A107": {
-    "title": "103: al-Asr العصر",
+    "title": "103: Al-'Asr العصر",
     "slug": "103-al-asr"
   },
   "A108": {
-    "title": "104: al-Homazah الهمزة",
+    "title": "104: Al-Humazah الهمزة",
     "slug": "104-al-humaza"
   },
   "A109": {
-    "title": "105: al-Feel الفيل",
+    "title": "105: Al-Fil الفيل",
     "slug": "105-al-feel"
   },
   "A11": {
-    "title": "7: al-Aa'raaf الأعراف",
+    "title": "7: Al-A'raf الأعراف",
     "slug": "7-al-a-raaf"
   },
   "A110": {
-    "title": "106: Quraish قريش",
+    "title": "106: Quraysh قريش",
     "slug": "106-quraish"
   },
   "A111": {
-    "title": "107: al-Maao’on الماعون",
+    "title": "107: Al-Ma'un الماعون",
     "slug": "107-al-maao-on"
   },
   "A112": {
-    "title": "108: al-Kawsar الكوثر",
+    "title": "108: Al-Kawthar الكوثر",
     "slug": "108-al-kawsar"
   },
   "A113": {
-    "title": "109: al-Kaaferoon الكافرون",
+    "title": "109: Al-Kafirun الكافرون",
     "slug": "109-al-kaaferoon"
   },
   "A114": {
-    "title": "110: al-Nasr النصر",
+    "title": "110: An-Nasr النصر",
     "slug": "110-al-nasr"
   },
   "A115": {
-    "title": "111: al-Masad المسد",
+    "title": "111: Al-Masad المسد",
     "slug": "111-al-masad"
   },
   "A116": {
-    "title": "112: Al-Ikhlaas الإخلاص",
+    "title": "112: Al-Ikhlas الإخلاص",
     "slug": "112-al-ikhlaas"
   },
   "A117": {
@@ -80,15 +80,15 @@
     "slug": "113-al-falaq"
   },
   "A118": {
-    "title": "114: An-Naas الناس",
+    "title": "114: An-Nas الناس",
     "slug": "114-an-naas"
   },
   "A12": {
-    "title": "8: al-Anfaal الأنفال",
+    "title": "8: Al-Anfal الأنفال",
     "slug": "8-al-anfaal"
   },
   "A13": {
-    "title": "9: al-Tawbah التوبة",
+    "title": "9: At-Tawbah التوبة",
     "slug": "9-at-tawba"
   },
   "A14": {
@@ -104,7 +104,7 @@
     "slug": "12-yusuf"
   },
   "A17": {
-    "title": "13: al-Ra'd الرعد",
+    "title": "13: Ar-Ra'd الرعد",
     "slug": "13-ar-ra-d"
   },
   "A18": {
@@ -112,23 +112,23 @@
     "slug": "14-ibrahim"
   },
   "A19": {
-    "title": "15: al-Hijr الحجر",
+    "title": "15: Al-Hijr الحجر",
     "slug": "15-al-hijr"
   },
   "A2": {
-    "title": "Dua after reciting Holy Quran",
+    "title": "Dua after Reciting the Holy Quran",
     "slug": "dua-after-reciting-holy-quran"
   },
   "A20": {
-    "title": "16: al-Nahl النحل",
+    "title": "16: An-Nahl النحل",
     "slug": "16-al-nahl"
   },
   "A21": {
-    "title": "17: al-Israa الإسراء",
+    "title": "17: Al-Isra الإسراء",
     "slug": "17-al-israa"
   },
   "A22": {
-    "title": "18: al-Kahf الكهف",
+    "title": "18: Al-Kahf الكهف",
     "slug": "18-al-kahf"
   },
   "A23": {
@@ -136,51 +136,51 @@
     "slug": "19-maryam"
   },
   "A24": {
-    "title": "20: Taa-Haa طه",
+    "title": "20: Ta-Ha طه",
     "slug": "20-taa-haa"
   },
   "A25": {
-    "title": "21: al-Anbiyaa الأنبياء",
+    "title": "21: Al-Anbiya الأنبياء",
     "slug": "21-al-anbiyaa"
   },
   "A26": {
-    "title": "22: al-Hajj الحج",
+    "title": "22: Al-Hajj الحج",
     "slug": "22-al-hajj"
   },
   "A27": {
-    "title": "23: al-Momenoon المؤمنون",
+    "title": "23: Al-Mu'minun المؤمنون",
     "slug": "23-al-momenoon"
   },
   "A28": {
-    "title": "24: al-Noor النور",
+    "title": "24: An-Nur النور",
     "slug": "24-al-noor"
   },
   "A29": {
-    "title": "25: Al-Furqaan الفرقان",
+    "title": "25: Al-Furqan الفرقان",
     "slug": "25-al-furqaan"
   },
   "A3": {
-    "title": "Dua Khatme Quran",
+    "title": "Dua Khatm al-Quran",
     "slug": "dua-khatme-quran"
   },
   "A30": {
-    "title": "26: al-Shoa'raa الشعراء",
+    "title": "26: Ash-Shu'ara الشعراء",
     "slug": "26-al-shoa-raa"
   },
   "A31": {
-    "title": "27: al-Naml النمل",
+    "title": "27: An-Naml النمل",
     "slug": "27-al-naml"
   },
   "A32": {
-    "title": "28: al-Qasas القصص",
+    "title": "28: Al-Qasas القصص",
     "slug": "28-al-qasas"
   },
   "A33": {
-    "title": "29: al-Ankaboot العنكبوت",
+    "title": "29: Al-'Ankabut العنكبوت",
     "slug": "29-al-ankaboot"
   },
   "A34": {
-    "title": "30: al-Room الروم",
+    "title": "30: Ar-Rum الروم",
     "slug": "30-ar-room"
   },
   "A35": {
@@ -188,71 +188,71 @@
     "slug": "31-luqman"
   },
   "A36": {
-    "title": "32: al-Sajdah السجدة",
+    "title": "32: As-Sajdah السجدة",
     "slug": "32-al-sajdah"
   },
   "A37": {
-    "title": "33: al-Ahzaab الأحزاب",
+    "title": "33: Al-Ahzab الأحزاب",
     "slug": "33-al-ahzaab"
   },
   "A38": {
-    "title": "34: Sabaa سبإ",
+    "title": "34: Saba سبإ",
     "slug": "34-sabaa"
   },
   "A39": {
-    "title": "35: Faatir فاطر",
+    "title": "35: Fatir فاطر",
     "slug": "35-faatir"
   },
   "A4": {
-    "title": "Ayat al Kursi",
+    "title": "Ayat al-Kursi",
     "slug": "ayat-al-kursi"
   },
   "A40": {
-    "title": "36: Yaseen يس",
+    "title": "36: Ya-Sin يس",
     "slug": "36-yaseen"
   },
   "A41": {
-    "title": "37: al-Saaffaat الصافات",
+    "title": "37: As-Saffat الصافات",
     "slug": "37-as-saaffaat"
   },
   "A42": {
-    "title": "38: Saad ص",
+    "title": "38: Sad ص",
     "slug": "38-saad"
   },
   "A43": {
-    "title": "39: al-Zumar الزمر",
+    "title": "39: Az-Zumar الزمر",
     "slug": "39-al-zumar"
   },
   "A44": {
-    "title": "40: al-Ghaafir غافر",
+    "title": "40: Ghafir غافر",
     "slug": "40-al-ghaafir"
   },
   "A45": {
-    "title": "41: Fusselat فصلت",
+    "title": "41: Fussilat فصلت",
     "slug": "41-fusselat"
   },
   "A46": {
-    "title": "42: al-Shooraa الشورى",
+    "title": "42: Ash-Shura الشورى",
     "slug": "42-al-shooraa"
   },
   "A47": {
-    "title": "43: al-Zukhruf الزخرف",
+    "title": "43: Az-Zukhruf الزخرف",
     "slug": "43-al-zukhruf"
   },
   "A48": {
-    "title": "44: al-Dokhaan الدخان",
+    "title": "44: Ad-Dukhan الدخان",
     "slug": "44-al-dokhaan"
   },
   "A49": {
-    "title": "45: al-Jaaseyah الجاثية",
+    "title": "45: Al-Jathiyah الجاثية",
     "slug": "45-al-jaaseyah"
   },
   "A5": {
-    "title": "1: al-Faatehah الفاتحة",
+    "title": "1: Al-Fatihah الفاتحة",
     "slug": "1-al-faatehah"
   },
   "A50": {
-    "title": "46: al-Ahqaaf الأحقاف",
+    "title": "46: Al-Ahqaf الأحقاف",
     "slug": "46-al-ahqaaf"
   },
   "A51": {
@@ -260,87 +260,87 @@
     "slug": "47-muhammad"
   },
   "A52": {
-    "title": "48: al-Fath الفتح",
+    "title": "48: Al-Fath الفتح",
     "slug": "48-al-fath"
   },
   "A53": {
-    "title": "49: al-Hojoraat الحجرات",
+    "title": "49: Al-Hujurat الحجرات",
     "slug": "49-al-hojoraat"
   },
   "A54": {
-    "title": "50: Qaaf ق",
+    "title": "50: Qaf ق",
     "slug": "50-qaaf"
   },
   "A55": {
-    "title": "51: al-Zaareyaat الذاريات",
+    "title": "51: Adh-Dhariyat الذاريات",
     "slug": "51-al-zaareyaat"
   },
   "A56": {
-    "title": "52: al-Toor الطور",
+    "title": "52: At-Tur الطور",
     "slug": "52-at-tur"
   },
   "A57": {
-    "title": "53: al-Najm النجم",
+    "title": "53: An-Najm النجم",
     "slug": "53-an-najm"
   },
   "A58": {
-    "title": "54: al-Qamar القمر",
+    "title": "54: Al-Qamar القمر",
     "slug": "54-al-qamar"
   },
   "A59": {
-    "title": "55: al-Rahmaan الرحمن",
+    "title": "55: Ar-Rahman الرحمن",
     "slug": "55-al-rahmaan"
   },
   "A6": {
-    "title": "2 : Al-Baqarah البقرة",
+    "title": "2: Al-Baqarah البقرة",
     "slug": "2-al-baqarah"
   },
   "A60": {
-    "title": "56: al-Waaqeah الواقعة",
+    "title": "56: Al-Waqi'ah الواقعة",
     "slug": "56-al-waaqia"
   },
   "A61": {
-    "title": "57: al-Hadeed الحديد",
+    "title": "57: Al-Hadid الحديد",
     "slug": "57-al-hadeed"
   },
   "A62": {
-    "title": "58: al-Mujaadelah المجادلة",
+    "title": "58: Al-Mujadilah المجادلة",
     "slug": "58-al-mujaadila"
   },
   "A63": {
-    "title": "59: al-Hashr الحشر",
+    "title": "59: Al-Hashr الحشر",
     "slug": "59-al-hashr"
   },
   "A64": {
-    "title": "60: al-Mumtahanah الممتحنة",
+    "title": "60: Al-Mumtahanah الممتحنة",
     "slug": "60-al-mumtahanah"
   },
   "A65": {
-    "title": "61: al-Saff الصف",
+    "title": "61: As-Saff الصف",
     "slug": "61-al-saff"
   },
   "A66": {
-    "title": "62: al-Jomoa'h الجمعة",
+    "title": "62: Al-Jumu'ah الجمعة",
     "slug": "62-al-jomoa-h"
   },
   "A67": {
-    "title": "63: al-Munaafeqoon المنافقون",
+    "title": "63: Al-Munafiqun المنافقون",
     "slug": "63-al-munaafeqoon"
   },
   "A68": {
-    "title": "64: al-Taghaabon التغابن",
+    "title": "64: At-Taghabun التغابن",
     "slug": "64-al-taghaabon"
   },
   "A69": {
-    "title": "65: al-Talaaq الطلاق",
+    "title": "65: At-Talaq الطلاق",
     "slug": "65-al-talaaq"
   },
   "A7": {
-    "title": "3: Aal-e-Imraan آل عمران",
+    "title": "3: Ali 'Imran آل عمران",
     "slug": "3-aal-e-imraan"
   },
   "A70": {
-    "title": "66: al-Tahreem التحريم",
+    "title": "66: At-Tahrim التحريم",
     "slug": "66-al-tahreem"
   },
   "A71": {
@@ -348,19 +348,19 @@
     "slug": "67-al-mulk"
   },
   "A72": {
-    "title": "68: al-Qalam القلم",
+    "title": "68: Al-Qalam القلم",
     "slug": "68-al-qalam"
   },
   "A73": {
-    "title": "69: al-Haaqqah الحاقة",
+    "title": "69: Al-Haqqah الحاقة",
     "slug": "69-al-haaqqah"
   },
   "A74": {
-    "title": "70: al-Ma-a'arij المعارج",
+    "title": "70: Al-Ma'arij المعارج",
     "slug": "70-al-ma-a-arij"
   },
   "A75": {
-    "title": "71: Nooh نوح",
+    "title": "71: Nuh نوح",
     "slug": "71-nooh"
   },
   "A76": {
@@ -368,79 +368,79 @@
     "slug": "72-al-jinn"
   },
   "A77": {
-    "title": "73: al-Muzzammil المزمل",
+    "title": "73: Al-Muzzammil المزمل",
     "slug": "73-al-muzzammil"
   },
   "A78": {
-    "title": "74: al-Muddassir المدثر",
+    "title": "74: Al-Muddaththir المدثر",
     "slug": "74-al-muddassir"
   },
   "A79": {
-    "title": "75: al-Qeyaamah القيامة",
+    "title": "75: Al-Qiyamah القيامة",
     "slug": "75-al-qeyaamah"
   },
   "A8": {
-    "title": "4: al-Nisaa النساء",
+    "title": "4: An-Nisa النساء",
     "slug": "4-an-nisaa"
   },
   "A80": {
-    "title": "76: al-Insaan الانسان",
+    "title": "76: Al-Insan الانسان",
     "slug": "76-al-insaan"
   },
   "A81": {
-    "title": "77: al-Mursalaat المرسلات",
+    "title": "77: Al-Mursalat المرسلات",
     "slug": "77-al-mursalaat"
   },
   "A82": {
-    "title": "78: al-Nabaa النبإ",
+    "title": "78: An-Naba النبإ",
     "slug": "78-al-nabaa"
   },
   "A83": {
-    "title": "79: al-Naazea'at النازعات",
+    "title": "79: An-Nazi'at النازعات",
     "slug": "79-al-naazea-at"
   },
   "A84": {
-    "title": "80: Abasa عبس",
+    "title": "80: 'Abasa عبس",
     "slug": "80-abasa"
   },
   "A85": {
-    "title": "81: al-Takweer التكوير",
+    "title": "81: At-Takwir التكوير",
     "slug": "81-al-takweer"
   },
   "A86": {
-    "title": "82: al-Infetaar الإنفطار",
+    "title": "82: Al-Infitar الإنفطار",
     "slug": "82-al-infetaar"
   },
   "A87": {
-    "title": "83: al-Motaffefeen المطففين",
+    "title": "83: Al-Mutaffifin المطففين",
     "slug": "83-al-motaffefeen"
   },
   "A88": {
-    "title": "84: al-Insheqaaq الإنشقاق",
+    "title": "84: Al-Inshiqaq الإنشقاق",
     "slug": "84-al-insheqaaq"
   },
   "A89": {
-    "title": "85: al-Burooj البروج",
+    "title": "85: Al-Buruj البروج",
     "slug": "85-al-burooj"
   },
   "A9": {
-    "title": "5: al-Maaedah المائدة",
+    "title": "5: Al-Ma'idah المائدة",
     "slug": "5-al-maaedah"
   },
   "A90": {
-    "title": "86: al-Taariq الطارق",
+    "title": "86: At-Tariq الطارق",
     "slug": "86-al-taariq"
   },
   "A91": {
-    "title": "87: al-A-a'laa الأعلى",
+    "title": "87: Al-A'la الأعلى",
     "slug": "87-al-a-a-laa"
   },
   "A92": {
-    "title": "88: al-Ghaasheyah الغاشية",
+    "title": "88: Al-Ghashiyah الغاشية",
     "slug": "88-al-ghaasheyah"
   },
   "A93": {
-    "title": "89: al-Fajr الفجر",
+    "title": "89: Al-Fajr الفجر",
     "slug": "89-al-fajr"
   },
   "A94": {
@@ -448,31 +448,31 @@
     "slug": "90-al-balad"
   },
   "A95": {
-    "title": "91: al-Shams الشمس",
+    "title": "91: Ash-Shams الشمس",
     "slug": "91-al-shams"
   },
   "A96": {
-    "title": "92: al-Layl الليل",
+    "title": "92: Al-Layl الليل",
     "slug": "92-al-layl"
   },
   "A97": {
-    "title": "93: al-Zohaa الضحى",
+    "title": "93: Ad-Duha الضحى",
     "slug": "93-al-zohaa"
   },
   "A98": {
-    "title": "94: al-Sharh (Insherah) الشرح",
+    "title": "94: Ash-Sharh الشرح",
     "slug": "94-ash-sharh-insherah"
   },
   "A99": {
-    "title": "95: al-Teen التين",
+    "title": "95: At-Tin التين",
     "slug": "95-at-tin"
   },
   "AA1": {
-    "title": "Holy Prophet (s.a.w.a.)'s Sermon in the Holy Month of Ramazan",
+    "title": "Holy Prophet (s.a.w.a.)'s Sermon in the Holy Month of Ramadan",
     "slug": "holy-prophet-s-a-w-a-s-sermon-in-the-holy-month-of-ramazan"
   },
   "AA10": {
-    "title": "Dua-e-Iftetaah",
+    "title": "Dua Iftitah",
     "slug": "dua-e-iftetaah",
     "day": "09-*"
   },
@@ -482,7 +482,7 @@
     "day": "09-*"
   },
   "AA12": {
-    "title": "Dua-e-Abu Hamzah Sumali",
+    "title": "Dua Abu Hamza Thumali",
     "slug": "dua-e-abu-hamzah-sumali",
     "day": "09-*"
   },
@@ -492,102 +492,102 @@
     "day": "09-*"
   },
   "AA14": {
-    "title": "Dua e Sahar يَامَفْزَعِيْ عِنْدَ كُرْبَتِي",
+    "title": "Dua Sahar يَامَفْزَعِيْ عِنْدَ كُرْبَتِي",
     "slug": "dua-e-sahar"
   },
   "AA15": {
-    "title": "Aamal & Duas to be recited in every night of Ramadhan",
+    "title": "Aamal & Duas to be Recited Every Night of Ramadan",
     "slug": "aamal-duas-to-be-recited-in-every-night-of-ramadhan"
   },
   "AA16": {
-    "title": "Aamal-e-Sahar in the Holy Month of Ramazan",
+    "title": "Aamal of Sahar in the Holy Month of Ramadan",
     "slug": "aamal-e-sahar-in-the-holy-month-of-ramazan",
     "day": "09-*"
   },
   "AA17": {
-    "title": "Tasbeehat at the time of Sehar",
+    "title": "Tasbeehat at the Time of Sahar",
     "slug": "tasbeehat-at-the-time-of-sehar"
   },
   "AA18": {
-    "title": "Aamal & Duas for the days of Ramadhan",
+    "title": "Aamal & Duas for the Days of Ramadan",
     "slug": "aamal-duas-for-the-days-of-ramadhan"
   },
   "AA19": {
-    "title": "Tasbeehat & Salawat for every day in Ramadhan",
+    "title": "Tasbeehat & Salawat for Every Day in Ramadan",
     "slug": "tasbeehat-and-salawat-for-every-day-in-ramadhan"
   },
   "AA2": {
-    "title": "Recitation Of The Holy Qur’an In Ramazan",
+    "title": "Recitation of the Holy Quran in Ramadan",
     "slug": "recitation-of-the-holy-qur-an-in-ramazan",
     "day": "09-*"
   },
   "AA20": {
-    "title": "First Night of Ramadhan",
+    "title": "First Night of Ramadan",
     "slug": "first-night-of-ramadhan"
   },
   "AA21": {
-    "title": "Dua No. 43 of Saheefah al-Kaamelah",
+    "title": "Dua No. 43 of Sahifa al-Kamila",
     "slug": "dua-no-43-of-saheefah-al-kaamelah"
   },
   "AA22": {
-    "title": "Other Aamal of The First Night",
+    "title": "Other Aamal of the First Night",
     "slug": "other-aamal-of-the-first-night"
   },
   "AA23": {
-    "title": "The 1st Day of Ramadhan",
+    "title": "The 1st Day of Ramadan",
     "slug": "the-1st-day-of-ramadhan"
   },
   "AA25": {
-    "title": "The 13th Night of Ramadhan",
+    "title": "The 13th Night of Ramadan",
     "slug": "the-13th-night-of-ramadhan"
   },
   "AA26": {
-    "title": "The 15th Night of Ramadhan",
+    "title": "The 15th Night of Ramadan",
     "slug": "the-15th-night-of-ramadhan"
   },
   "AA27": {
-    "title": "The 17th Night of Ramadhan",
+    "title": "The 17th Night of Ramadan",
     "slug": "the-17th-night-of-ramadhan"
   },
   "AA29": {
-    "title": "Common Aamal at each of the three Qadr Nights",
+    "title": "Common Aamal at Each of the Three Qadr Nights",
     "slug": "common-aamal-at-each-of-the-three-qadr-nights"
   },
   "AA3": {
-    "title": "Aamal to be performed only during Night",
+    "title": "Aamal to be Performed Only During the Night",
     "slug": "aamal-to-be-performed-only-during-night",
     "day": "09-*"
   },
   "AA30": {
-    "title": "19th Night of Ramadhan",
+    "title": "19th Night of Ramadan",
     "slug": "19th-night-of-ramadhan"
   },
   "AA31": {
-    "title": "Aamal of the 21st Night of Ramadhan",
+    "title": "Aamal of the 21st Night of Ramadan",
     "slug": "aamal-of-the-21st-night-of-ramadhan"
   },
   "AA32": {
-    "title": "Aamal of the last ten Nights of Ramadhan",
+    "title": "Aamal of the Last Ten Nights of Ramadan",
     "slug": "aamal-of-the-last-ten-nights-of-ramadhan"
   },
   "AA33": {
-    "title": "Dua on the 22nd Night of Ramadhan",
+    "title": "Dua on the 22nd Night of Ramadan",
     "slug": "dua-on-the-22nd-night-of-ramadhan"
   },
   "AA34": {
-    "title": "23rd Night of Ramadhan",
+    "title": "23rd Night of Ramadan",
     "slug": "23rd-night-of-ramadhan"
   },
   "AA35": {
-    "title": "Dua for the 23rd Night of Ramadhan",
+    "title": "Dua for the 23rd Night of Ramadan",
     "slug": "dua-for-the-23rd-night-of-ramadhan"
   },
   "AA37": {
-    "title": "Dua for the 25th Night of Ramadhan",
+    "title": "Dua for the 25th Night of Ramadan",
     "slug": "dua-for-the-25th-night-of-ramadhan"
   },
   "AA38": {
-    "title": "Dua for the 26th Night of Ramadhan",
+    "title": "Dua for the 26th Night of Ramadan",
     "slug": "dua-for-the-26th-night-of-ramadhan"
   },
   "AA39": {
@@ -600,23 +600,23 @@
     "day": "09-*"
   },
   "AA40": {
-    "title": "Dua for the 27th Night of Ramadhan",
+    "title": "Dua for the 27th Night of Ramadan",
     "slug": "dua-for-the-27th-night-of-ramadhan"
   },
   "AA43": {
-    "title": "Last Night of Ramadhan",
+    "title": "Last Night of Ramadan",
     "slug": "last-night-of-ramadhan"
   },
   "AA46": {
-    "title": "Prayers for the nights of Ramadhan",
+    "title": "Prayers for the Nights of Ramadan",
     "slug": "prayers-for-the-nights-of-ramadhan"
   },
   "AA47": {
-    "title": "Farewell Prayer of Ramadhan",
+    "title": "Farewell Prayer of Ramadan",
     "slug": "farewell-prayer-of-ramadhan"
   },
   "AA5": {
-    "title": "Duas after every obligatory Prayers",
+    "title": "Duas after Every Obligatory Prayer",
     "slug": "duas-after-every-obligatory-prayers",
     "day": "09-*"
   },
@@ -625,16 +625,16 @@
     "slug": "dua-hajj-ramadan"
   },
   "AA~Z8": {
-    "title": "Everyday short duas in the month of Ramazan",
+    "title": "Everyday Short Duas in the Month of Ramadan",
     "slug": "everyday-short-duas-in-the-month-of-ramazan"
   },
   "AB1": {
-    "title": "Zilqad - Sunday Namaz",
+    "title": "Dhul Qa'dah - Sunday Namaz",
     "slug": "zilqad-sunday-namaz",
     "day": "11-*-0"
   },
   "AB2": {
-    "title": "11th, 15th & 23rd of Zilqad",
+    "title": "11th, 15th & 23rd of Dhul Qa'dah",
     "slug": "11th-15th-23rd-of-zilqad",
     "day": [
       "11-11",
@@ -643,7 +643,7 @@
     ]
   },
   "AB3": {
-    "title": "Night & Day of 25th Zilqad (The Spreading of the earth)",
+    "title": "Night & Day of 25th Dhul Qa'dah (The Spreading of the Earth)",
     "slug": "night-day-of-25th-zilqad-the-spreading-of-the-earth",
     "day": [
       "N11-25",
@@ -651,7 +651,7 @@
     ]
   },
   "AB4": {
-    "title": "The Last Day Of Zilqad",
+    "title": "The Last Day of Dhul Qa'dah",
     "slug": "the-last-day-of-zilqad",
     "day": [
       "11-29",
@@ -659,19 +659,19 @@
     ]
   },
   "AC1": {
-    "title": "Ziyarah on the Day of Ghadeer",
+    "title": "Ziyarat on the Day of Ghadir",
     "order": 19,
     "slug": "ziyarah-on-the-day-of-ghadeer",
     "day": "12-18"
   },
   "AC10": {
-    "title": "Aamaal of the Night of Arafah",
+    "title": "Aamal of the Night of Arafah",
     "order": 6,
     "slug": "aamaal-of-the-night-of-arafat",
     "day": "N12-09"
   },
   "AC11": {
-    "title": "Aamaal of the Day of Arafah (9th Zilhajj)",
+    "title": "Aamal of the Day of Arafah (9th Dhul Hijjah)",
     "order": 11,
     "slug": "aamal-of-the-day-of-arafat-9th-zilhajj",
     "day": "12-09"
@@ -683,71 +683,71 @@
     "day": "12-09"
   },
   "AC13": {
-    "title": "Comprehensive Ziyarat especially on the Day of Arafah Can be recited at any Shrine",
+    "title": "Comprehensive Ziyarat Especially on the Day of Arafah (Can be Recited at Any Shrine)",
     "order": 9,
     "slug": "comprehensive-ziyarat-especially-on-the-day-of-arafah-can-be-recited-at-any-shrine",
     "day": "12-09"
   },
   "AC14": {
-    "title": "The Night of Eid al-Azhaa (Qurban)",
+    "title": "The Night of Eid al-Adha (Qurban)",
     "order": 10,
     "slug": "the-night-day-of-eid-al-adha-qurban",
     "day": "N12-10"
   },
   "AC15": {
-    "title": "The Day of Eid al-Azhaa (Qurban)",
+    "title": "The Day of Eid al-Adha (Qurban)",
     "order": 15,
     "slug": "the-day-of-eid-al-adha-qurban",
     "day": "12-10"
   },
   "AC16": {
-    "title": "The Fifteenth Of Zilhajj",
+    "title": "The Fifteenth of Dhul Hijjah",
     "order": 16,
     "slug": "the-fifteenth-of-zilhajj",
     "day": "12-15"
   },
   "AC17": {
-    "title": "Aamaal of the Night of Eid-e-Ghadeer",
+    "title": "Aamal of the Night of Eid al-Ghadir",
     "order": 17,
     "slug": "aamal-of-the-night-of-eid-e-ghadeer",
     "day": "N12-18"
   },
   "AC18": {
-    "title": "Aamaal of the Day of Eid-e-Ghadeer",
+    "title": "Aamal of the Day of Eid al-Ghadir",
     "order": 18,
     "slug": "aamal-of-the-day-of-eid-e-ghadeer",
     "day": "12-18"
   },
   "AC19": {
-    "title": "Namaz on the Day of Ghadeer",
+    "title": "Namaz on the Day of Ghadir",
     "slug": "namaz-on-the-day-of-ghadeer"
   },
   "AC2": {
-    "title": "Another Ziyarah on the Day of Ghadeer",
+    "title": "Another Ziyarat on the Day of Ghadir",
     "order": 20,
     "slug": "another-ziyarah-on-the-day-of-ghadeer",
     "day": "12-18"
   },
   "AC20": {
-    "title": "Seegah of Brotherhood (Ukhuwwat) on the Day of Ghadeer",
+    "title": "Sigha of Brotherhood (Ukhuwwat) on the Day of Ghadir",
     "order": 21,
     "slug": "seegah-of-brotherhood-ukhuwwat-on-the-day-of-ghadeer",
     "day": "12-18"
   },
   "AC21": {
-    "title": "The Day of Mubaahelah",
+    "title": "The Day of Mubahala",
     "order": 22,
     "slug": "the-day-of-mubahelah",
     "day": "12-24"
   },
   "AC22": {
-    "title": "The Twenty-Fifth Of Zilhajj",
+    "title": "The Twenty-Fifth of Dhul Hijjah",
     "order": 23,
     "slug": "the-twenty-fifth-of-zilhajj",
     "day": "12-25"
   },
   "AC23": {
-    "title": "The Last Day of Zilhaj",
+    "title": "The Last Day of Dhul Hijjah",
     "order": 24,
     "slug": "the-last-day-of-zilhaj",
     "day": [
@@ -756,7 +756,7 @@
     ]
   },
   "AC3": {
-    "title": "Ziyarah on the Id al-Fitr and Id al-Azha days",
+    "title": "Ziyarat on the Days of Eid al-Fitr and Eid al-Adha",
     "order": 12,
     "slug": "ziyarah-on-the-id-al-fitr-and-id-al-azha-days",
     "day": [
@@ -765,13 +765,13 @@
     ]
   },
   "AC4|G75": {
-    "title": "Ziyarah on the day of Arafat",
+    "title": "Ziyarat on the Day of Arafah",
     "order": 8,
     "slug": "ziyarah-on-the-day-of-arafat",
     "day": "12-09"
   },
   "AC5": {
-    "title": "First ten days of Zilhajj",
+    "title": "First Ten Days of Dhul Hijjah",
     "order": 1,
     "slug": "first-ten-days-of-zilhajj",
     "slugAliases": [
@@ -795,7 +795,7 @@
     "slug": "salat-of-wa-wa-adna"
   },
   "AC7": {
-    "title": "1st Day of Zilhajj",
+    "title": "1st Day of Dhul Hijjah",
     "order": 2,
     "slug": "1st-day-of-zilhajj",
     "slugAliases": [
@@ -804,11 +804,11 @@
     "day": "12-01"
   },
   "AD2": {
-    "title": "Prayers & Du'as of Night of Eid ul Fitr",
+    "title": "Prayers & Duas of the Night of Eid al-Fitr",
     "slug": "prayers-du-as-of-night-of-eid-ul-fitr"
   },
   "AD3": {
-    "title": "Aamal for the day of Eid ul Fitr",
+    "title": "Aamal for the Day of Eid al-Fitr",
     "slug": "aamal-for-the-day-of-eid-ul-fitr"
   },
   "AD4": {
@@ -820,7 +820,7 @@
     ]
   },
   "AE15": {
-    "title": "Ziyarat Lady Masooma Qom",
+    "title": "Ziyarat of Lady Masuma (s.a.) - Qom",
     "slug": "ziyarat-lady-masooma-qom"
   },
   "AF~AG3": {
@@ -828,7 +828,7 @@
     "slug": "karbala-al-muqaddasah"
   },
   "AF~AH4": {
-    "title": "Kazmayn",
+    "title": "Kazimayn",
     "slug": "kazmayn"
   },
   "AF~AI2": {
@@ -836,7 +836,7 @@
     "slug": "kufa"
   },
   "AF~AJ6": {
-    "title": "Madaeen",
+    "title": "Mada'in",
     "slug": "madaeen"
   },
   "AF~AK1": {
@@ -844,7 +844,7 @@
     "slug": "najaf-al-ashraf"
   },
   "AF~AL7": {
-    "title": "Samarrah",
+    "title": "Samarra",
     "slug": "samarrah"
   },
   "AF~AN8": {
@@ -852,27 +852,27 @@
     "slug": "balad"
   },
   "AG1": {
-    "title": "Merits of Visiting Imam al-Husayn (a.s.)",
+    "title": "Merits of Visiting Imam Husayn (a.s.)",
     "slug": "merits-of-visiting-imam-al-husayn-a-s"
   },
   "AG14": {
-    "title": "Seventh Ziyarah — Ziyarah Warith — Karbala",
+    "title": "Seventh Ziyarat — Ziyarat Warith — Karbala",
     "slug": "ziyarah-warith-karbala"
   },
   "AG18": {
-    "title": "Ziyarah of Hazrat Abbas (a.s.) — Karbala",
+    "title": "Ziyarat of Hazrat Abbas (a.s.) — Karbala",
     "slug": "ziyarah-hazrat-abbas-karbala"
   },
   "AG19": {
-    "title": "Stature and Position of Al Abbas",
+    "title": "Stature and Position of al-Abbas (a.s.)",
     "slug": "stature-and-position-of-al-abbas"
   },
   "AG2": {
-    "title": "Etiquettes to be observed during Journey to Imam Husayn's (a) tomb and inside his Holy Shrine",
+    "title": "Etiquettes to be Observed During the Journey to Imam Husayn (a.s.)'s Tomb and Inside His Holy Shrine",
     "slug": "etiquettes-to-be-observed-during-journey-to-imam-husayn-s-a-tomb-and-inside-his-holy-shrine"
   },
   "AG5": {
-    "title": "Post-Ziyarah Prayers, Dua & Salawat — Karbala",
+    "title": "Post-Ziyarat Prayers, Dua & Salawat — Karbala",
     "slug": "post-ziyarah-dua-salawat-karbala"
   },
   "AG6": {
@@ -880,11 +880,11 @@
     "slug": "farewell-imam-hussain-karbala"
   },
   "AG8": {
-    "title": "Ziyarah of Imam Husayn (a.s.) — Karbala (All 6 General Forms)",
+    "title": "Ziyarat of Imam Husayn (a.s.) — Karbala (All 6 General Forms)",
     "slug": "ziyarah-imam-hussain-karbala-all-forms"
   },
   "AH2": {
-    "title": "Ziyarah of Imam Musa al-Kazim (a.s.) — Kazimayn",
+    "title": "Ziyarat of Imam Musa al-Kazim (a.s.) — Kazimayn",
     "slug": "ziyarah-imam-musa-kazim"
   },
   "AH4": {
@@ -892,7 +892,7 @@
     "slug": "salawat-imam-musa-kazim"
   },
   "AH5": {
-    "title": "Ziyarah of Imam Muhammad al-Jawad (a.s.) — Kazimayn",
+    "title": "Ziyarat of Imam Muhammad al-Jawad (a.s.) — Kazimayn",
     "slug": "ziyarah-imam-muhammad-jawad"
   },
   "AH7": {
@@ -900,11 +900,11 @@
     "slug": "salawat-imam-jawad"
   },
   "AH9": {
-    "title": "Ziyarah Common to Imam al-Kazim & Imam al-Jawad (a.s.) — Kazimayn",
+    "title": "Ziyarat Common to Imam al-Kazim & Imam al-Jawad (a.s.) — Kazimayn",
     "slug": "ziyarah-common-kazim-jawad"
   },
   "AI10|H17": {
-    "title": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)",
+    "title": "The Whispered Prayer (Munajat) of Amir al-Mu'minin (a.s.)",
     "slug": "the-whispered-prayer-munajaat-of-ameerul-momeneen-a"
   },
   "AI11": {
@@ -912,19 +912,19 @@
     "slug": "imam-sadiq-bench-kufah"
   },
   "AI12": {
-    "title": "Prayer for fulfillment of desires at Al Kufah Mosque",
+    "title": "Prayer for Fulfillment of Desires at Masjid al-Kufah",
     "slug": "prayer-for-fulfillment-of-desires-at-al-kufah-mosque"
   },
   "AI15": {
-    "title": "Recommended Acts (A'amal) of Masjid al-Sahla",
+    "title": "Recommended Acts (Aamal) of Masjid al-Sahlah",
     "slug": "aamal-masjid-sahla"
   },
   "AI16": {
-    "title": "Recommended Acts (A'amal) of Masjid Zayd",
+    "title": "Recommended Acts (Aamal) of Masjid Zayd",
     "slug": "aamal-masjid-zayd"
   },
   "AI3": {
-    "title": "Recommended Acts (A'amal) of Masjid al-Kufah",
+    "title": "Recommended Acts (Aamal) of Masjid al-Kufah",
     "slug": "aamal-masjid-kufah"
   },
   "AI4": {
@@ -936,11 +936,11 @@
     "slug": "centre-masjid-kufah"
   },
   "AJ2": {
-    "title": "Ziyarah at Madaen — Salman al-Farsi, Hudhayfah al-Yamani, Tahir ibn Imam al-Baqir & Abdullah ibn Jabir (r.a.)",
+    "title": "Ziyarat at Mada'in — Salman al-Farsi, Hudhayfah al-Yamani, Tahir ibn Imam al-Baqir & Abdullah ibn Jabir (r.a.)",
     "slug": "ziyarah-madaen-salman-hudhayfah"
   },
   "AK13": {
-    "title": "Seventh Ziyarah",
+    "title": "Seventh Ziyarat",
     "slug": "seventh-ziyarah"
   },
   "AK15": {
@@ -948,58 +948,58 @@
     "slug": "farewell-imam-ali-najaf"
   },
   "AK5": {
-    "title": "Ziyarah of Imam Ali (a.s.) — Najaf (All Forms)",
+    "title": "Ziyarat of Imam Ali (a.s.) — Najaf (All Forms)",
     "slug": "ziyarah-imam-ali-najaf-all-forms"
   },
   "AK6": {
-    "title": "Duas After Ziyarah of Imam Ali (a.s.) & After Nafilah — Najaf",
+    "title": "Duas After Ziyarat of Imam Ali (a.s.) & After Nafilah — Najaf",
     "slug": "duas-after-ziyarah-imam-ali-najaf"
   },
   "AK7": {
-    "title": "Ziyarah of the Head of Imam Husayn (a.s.) — At Imam Ali’s Shrine, Najaf",
+    "title": "Ziyarat of the Head of Imam Husayn (a.s.) — At Imam Ali’s Shrine, Najaf",
     "slug": "ziyarah-imam-hussain-head-najaf"
   },
   "AK8": {
-    "title": "Second Ziyarah; Ziyarah of Aminullah (The Trustee of Allah)",
+    "title": "Second Ziyarat; Ziyarat Aminullah (The Trustee of Allah)",
     "slug": "second-ziyarah-ziyarah-of-aminullah-the-trustee-of-allah"
   },
   "AL1": {
-    "title": "Combined Ziyarah of Imam Ali al-Naqi & Imam al-Hasan al-Askari — Samarra",
+    "title": "Combined Ziyarat of Imam Ali al-Naqi & Imam al-Hasan al-Askari — Samarra",
     "slug": "combined-ziyarah-naqi-askari"
   },
   "AL11": {
-    "title": "Ziyarat at the Holy Sardaab (Occultation Cellar) — Samarra",
+    "title": "Ziyarat at the Holy Sardab (Occultation Cellar) — Samarra",
     "slug": "ziyarat-holy-sardaab"
   },
   "AL12|G1": {
-    "title": "Ziyarat e Aale Yaseen",
+    "title": "Ziyarat Aal-e-Yasin",
     "slug": "ziyarat-e-aale-yaseen"
   },
   "AL14|G5": {
-    "title": "Ziyarat al Haqq al Jadeed",
+    "title": "Ziyarat al-Haqq al-Jadid",
     "slug": "ziyarat-al-haqq-al-jadeed"
   },
   "AL15": {
-    "title": "Salawat Upon Imam al-Mahdi (a.t.f.s.) — Sardaab, Samarra",
+    "title": "Salawat upon Imam al-Mahdi (a.t.f.s.) — Sardab, Samarra",
     "slug": "salawat-imam-mahdi-sardaab"
   },
   "AL17": {
-    "title": "Ziyarat of Imam Mahdi (a.t.f.s.) after the Fajr Prayers (Allaahumma Balligh)",
+    "title": "Ziyarat of Imam al-Mahdi (a.t.f.s.) after the Fajr Prayer (Allahumma Balligh)",
     "slug": "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh",
     "slugAliases": [
       "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh-2"
     ]
   },
   "AL18|E18": {
-    "title": "Dua e Ahad",
+    "title": "Dua Ahad",
     "slug": "dua-e-ahad"
   },
   "AL5": {
-    "title": "Ziyarah of Imam Ali al-Naqi al-Hadi (a.s.) — Samarra",
+    "title": "Ziyarat of Imam Ali al-Naqi al-Hadi (a.s.) — Samarra",
     "slug": "ziyarah-imam-ali-naqi"
   },
   "AL6": {
-    "title": "Ziyarah of Imam al-Hasan al-Askari (a.s.) — Samarra",
+    "title": "Ziyarat of Imam al-Hasan al-Askari (a.s.) — Samarra",
     "slug": "ziyarah-imam-hasan-askari"
   },
   "AL7": {
@@ -1007,15 +1007,15 @@
     "slug": "farewell-two-imams-samarra"
   },
   "AN1": {
-    "title": "Ziyarah of Sayyid Muhammad, Son of Imam Ali al-Hadi (a.s.) — Balad",
+    "title": "Ziyarat of Sayyid Muhammad, Son of Imam Ali al-Hadi (a.s.) — Balad",
     "slug": "ziyarah-sayed-mohammed-balad"
   },
   "AP2": {
-    "title": "Method of Ziyarah of Holy Prophet (s) in Madinah",
+    "title": "Method of Ziyarat of the Holy Prophet (s.a.w.a.) in Madinah",
     "slug": "method-of-ziyarah-of-holy-prophet-s-in-madinah"
   },
   "AP4": {
-    "title": "Ziyarah of Lady Fatimah Al-Zahra'",
+    "title": "Ziyarat of Lady Fatimah al-Zahra (s.a.)",
     "slug": "ziyarah-of-lady-fatimah-al-zahra"
   },
   "AS1": {
@@ -1023,15 +1023,15 @@
     "slug": "dua-no-1"
   },
   "B3": {
-    "title": "Etiquettes of Ziyarah",
+    "title": "Etiquettes of Ziyarat",
     "slug": "etiquettes-of-ziyarah"
   },
   "B4": {
-    "title": "Verbal harassment to a female pilgrim talking with Na Mahram",
+    "title": "Verbal Harassment of a Female Pilgrim Talking with a Na-Mahram",
     "slug": "verbal-harassment-to-a-female-pilgrim-talking-with-na-mahram"
   },
   "B6": {
-    "title": "Another Izn Dukhool",
+    "title": "Another Izn-e-Dukhool (Permission to Enter)",
     "slug": "another-izn-dukhool"
   },
   "B~AE7": {
@@ -1043,23 +1043,23 @@
     "slug": "iraq"
   },
   "C15": {
-    "title": "General Aamaal of each Month",
+    "title": "General Aamal of Each Month",
     "slug": "general-aamaal-of-each-month"
   },
   "C16": {
-    "title": "Aamal of the day of Navroz",
+    "title": "Aamal of the Day of Nowruz",
     "slug": "aamal-of-the-day-of-navroz"
   },
   "C~AA5": {
-    "title": "Mahe Ramazan",
+    "title": "Month of Ramadan",
     "slug": "mahe-ramazan"
   },
   "C~AB7": {
-    "title": "Zilqad",
+    "title": "Dhul Qa'dah",
     "slug": "zilqad"
   },
   "C~AC8": {
-    "title": "Zilhajj",
+    "title": "Dhul Hijjah",
     "slug": "zilhajj-2"
   },
   "C~AD6": {
@@ -1067,7 +1067,7 @@
     "slug": "shawwal"
   },
   "C~R9": {
-    "title": "Moharram",
+    "title": "Muharram",
     "slug": "muharram"
   },
   "C~S10": {
@@ -1075,7 +1075,7 @@
     "slug": "safar"
   },
   "C~V13": {
-    "title": "Jamadi al-Awwal",
+    "title": "Jumada al-Awwal",
     "slug": "jamadi-al-awwal"
   },
   "C~X3": {
@@ -1087,55 +1087,55 @@
     "slug": "shaban"
   },
   "D1": {
-    "title": "General Ta'qeebaat",
+    "title": "General Taqibaat",
     "slug": "general-ta-qeebaat"
   },
   "D10": {
-    "title": "Ta'qeebaat e Namaz e Isha",
+    "title": "Taqibaat of Namaz-e-Isha",
     "slug": "taqeebaat-e-namaz-e-isha-1"
   },
   "D12": {
-    "title": "Dua After Namaz For Seeking Sustenance",
+    "title": "Dua after Namaz for Seeking Sustenance",
     "slug": "dua-after-namaz-for-seeking-sustenance"
   },
   "D13|E156": {
-    "title": "Dua for Imam Mahdi (a.t.f.s.) after Asr",
+    "title": "Dua for Imam al-Mahdi (a.t.f.s.) after Asr",
     "slug": "dua-for-imam-mahdi-after-asr"
   },
   "D2": {
-    "title": "Dua to be recited after Namaz-e-Subh",
+    "title": "Dua to be Recited after Namaz-e-Fajr",
     "slug": "dua-to-be-recited-after-namaz-e-subh"
   },
   "D3": {
-    "title": "Ta'qeebaat-e-Namaz-e-Fajr",
+    "title": "Taqibaat of Namaz-e-Fajr",
     "slug": "taqibaat-e-namaz-e-fajr"
   },
   "D4": {
-    "title": "Naafelah Fajr - The Supererogatory Dawn Prayer",
+    "title": "Nafilah of Fajr - The Supererogatory Dawn Prayer",
     "slug": "nafilah-fajr-the-supererogatory-dawn-prayer"
   },
   "D5": {
-    "title": "Taqibaat-e-Namaz-e-Zohr",
+    "title": "Taqibaat of Namaz-e-Zuhr",
     "slug": "taqibaat-e-namaz-e-zohr"
   },
   "D6": {
-    "title": "Naafelah Zohr",
+    "title": "Nafilah of Zuhr",
     "slug": "nafilah-zuhr"
   },
   "D7": {
-    "title": "Taqibaat e Namaz e Asr",
+    "title": "Taqibaat of Namaz-e-Asr",
     "slug": "taqibaat-e-namaz-e-asr"
   },
   "D8": {
-    "title": "Naafelah Asr",
+    "title": "Nafilah of Asr",
     "slug": "nafilah-of-asr"
   },
   "D9": {
-    "title": "Ta'qeebaat-e-Namaz-e-Maghrib",
+    "title": "Taqibaat of Namaz-e-Maghrib",
     "slug": "ta-qeebaat-e-namaz-e-maghrib"
   },
   "E1": {
-    "title": "al-Isteghasa الکامل التام",
+    "title": "Dua Istighatha الکامل التام",
     "slug": "ziyarat-e-isteghasa-e-imam-e-zamana-a-t-f-s"
   },
   "E10": {
@@ -1147,15 +1147,15 @@
     "slug": "dua-of-exaltation"
   },
   "E101": {
-    "title": "Dua of Imam Husayn (a) on the day of Ashura بِحَقِّ يٰسٓ وَالْقُرْاٰنِ الْحَكِيْمِ",
+    "title": "Dua of Imam Husayn (a.s.) on the Day of Ashura بِحَقِّ يٰسٓ وَالْقُرْاٰنِ الْحَكِيْمِ",
     "slug": "dua-of-imam-husayn-a-on-the-day-of-ashura"
   },
   "E102": {
-    "title": "Dua of Mother for her child who is ailing.",
+    "title": "Dua of a Mother for Her Ailing Child",
     "slug": "dua-of-mother-for-her-child-who-is-ailing"
   },
   "E103": {
-    "title": "Dua of Prostration of thanksgiving",
+    "title": "Dua of the Prostration of Thanksgiving",
     "slug": "dua-of-prostration-of-thanksgiving"
   },
   "E104": {
@@ -1163,19 +1163,19 @@
     "slug": "dua-of-takbir"
   },
   "E105": {
-    "title": "Dua of the Noon (Zuhr)",
+    "title": "Dua of Noon (Zuhr)",
     "slug": "dua-of-the-noon-zuhr"
   },
   "E107": {
-    "title": "Dua taught by Jibrael to the Holy Prophet (s)",
+    "title": "Dua Taught by Jibraeel to the Holy Prophet (s.a.w.a.)",
     "slug": "dua-taught-by-jibrael-to-the-holy-prophet-s"
   },
   "E108": {
-    "title": "Dua to remember the things that Satan makes you forget",
+    "title": "Dua to Remember the Things that Satan Makes You Forget",
     "slug": "dua-to-remember-the-things-that-satan-makes-you-forget"
   },
   "E109": {
-    "title": "Dua when intending to leave the Mosque",
+    "title": "Dua When Intending to Leave the Mosque",
     "slug": "dua-when-intending-to-leave-the-mosque"
   },
   "E11": {
@@ -1183,11 +1183,11 @@
     "slug": "dua-yastasheer"
   },
   "E110": {
-    "title": "Dua when someone Sees the Dead",
+    "title": "Dua When Someone Sees the Dead",
     "slug": "dua-when-someone-sees-the-dead"
   },
   "E111": {
-    "title": "Dua when you see a Diseased or Defected Person",
+    "title": "Dua When You See a Diseased or Disabled Person",
     "slug": "dua-when-you-see-a-diseased-or-defected-person"
   },
   "E112": {
@@ -1199,95 +1199,95 @@
     "slug": "everyday-supplications"
   },
   "E114": {
-    "title": "Hirz Zayn al Abidin (a)",
+    "title": "Hirz of Imam Zayn al-Abidin (a.s.)",
     "slug": "hirz-zayn-al-abidin-a"
   },
   "E115": {
-    "title": "Imam Baqir's (a) dua",
+    "title": "Imam al-Baqir (a.s.)'s Dua",
     "slug": "imam-baqirs-a-dua"
   },
   "E116": {
-    "title": "Imam al-Hasan's supplication",
+    "title": "Imam al-Hasan (a.s.)'s Supplication",
     "slug": "imam-al-hasans-supplication"
   },
   "E117": {
-    "title": "Imam al-Husayn's supplication",
+    "title": "Imam al-Husayn (a.s.)'s Supplication",
     "slug": "imam-al-husayns-supplication"
   },
   "E119": {
-    "title": "Imam al-Baqir's supplication",
+    "title": "Imam al-Baqir (a.s.)'s Supplication",
     "slug": "imam-al-baqirs-supplication"
   },
   "E12": {
-    "title": "Dua of Imam Mahdi (a.t.f.s.) اَللّٰهُمَّ ادْفَعْ عَنْ وَلِيِّكَ...",
+    "title": "Dua of Imam al-Mahdi (a.t.f.s.) اَللّٰهُمَّ ادْفَعْ عَنْ وَلِيِّكَ...",
     "slug": "dua-of-imam-mahdi-a-t-f-s"
   },
   "E120": {
-    "title": "Imam al-Sadiq's supplication",
+    "title": "Imam al-Sadiq (a.s.)'s Supplication",
     "slug": "imam-al-sadiqs-supplication"
   },
   "E121": {
-    "title": "Imam al-Kazim's supplication",
+    "title": "Imam al-Kazim (a.s.)'s Supplication",
     "slug": "imam-al-kazims-supplication"
   },
   "E122": {
-    "title": "Imam al-Reza's supplication",
+    "title": "Imam al-Reza (a.s.)'s Supplication",
     "slug": "imam-al-rezas-supplication"
   },
   "E123": {
-    "title": "Imam al-Jawad's supplication",
+    "title": "Imam al-Jawad (a.s.)'s Supplication",
     "slug": "imam-al-jawads-supplication"
   },
   "E124": {
-    "title": "Imam al-Hadi's supplication",
+    "title": "Imam al-Hadi (a.s.)'s Supplication",
     "slug": "imam-al-hadis-supplication"
   },
   "E125": {
-    "title": "Imam al-'Askari's supplication",
+    "title": "Imam al-Askari (a.s.)'s Supplication",
     "slug": "imam-al-askaris-supplication"
   },
   "E126": {
-    "title": "Imam al-Mahdi's Supplication",
+    "title": "Imam al-Mahdi (a.t.f.s.)'s Supplication",
     "slug": "imam-al-mahdis-supplication"
   },
   "E128": {
-    "title": "Salawat upon the Holy Prophet",
+    "title": "Salawat upon the Holy Prophet (s.a.w.a.)",
     "slug": "salawat-upon-the-holy-prophet"
   },
   "E129": {
-    "title": "Salawat upon the Commander of the Faithful",
+    "title": "Salawat upon Amir al-Mu'minin (a.s.)",
     "slug": "salawat-upon-the-commander-of-the-faithful"
   },
   "E13": {
-    "title": "Dua-e-Sayfee Sagheer (Dua Qaamoos)",
+    "title": "Dua Saifi Saghir (Dua Qamoos)",
     "slug": "dua-sayfi-al-sagir-dua-qamoos"
   },
   "E130": {
-    "title": "Salawat upon Lady Fatimah",
+    "title": "Salawat upon Lady Fatimah (s.a.)",
     "slug": "salawat-upon-lady-fatimah"
   },
   "E14": {
-    "title": "Hadees-e-Kisaa",
+    "title": "Hadith al-Kisa",
     "slug": "hadees-e-kisaa"
   },
   "E140": {
-    "title": "Salawat upon The Awaited Imam",
+    "title": "Salawat upon the Awaited Imam (a.t.f.s.)",
     "slug": "salawat-upon-the-awaited-imam"
   },
   "E141": {
-    "title": "Isteghfar e Maujiz e Aasaa",
+    "title": "Istighfar-e-Maujiz-e-Aasaa",
     "slug": "isteghfar-e-maujiz-e-aasaa"
   },
   "E142": {
-    "title": "Merits of reciting the Dua اعددت لکل هول",
+    "title": "Merits of Reciting the Dua اعددت لکل هول",
     "slug": "merits-of-reciting-the-dua-aadadtu-li-kulli-hawl"
   },
   "E143": {
-    "title": "Prayer for fulfillment of desires",
+    "title": "Prayer for Fulfillment of Desires",
     "slug": "prayer-for-fulfillment-of-desires"
   },
   "E144": {
-    "title": "Salawat Abul Hasan al-Zarrab al-Isfahani",
+    "title": "Salawat of Abul Hasan al-Zarrab al-Isfahani",
     "slug": "salawat-abul-hasan-al-zarrab-al-isfahani",
     "day": "*-*-5"
   },
@@ -1296,31 +1296,31 @@
     "slug": "supplications-at-sunrise-sunset"
   },
   "E147": {
-    "title": "Supplicatory Prayers for Healing",
+    "title": "Supplications for Healing",
     "slug": "supplicatory-prayers-for-healing"
   },
   "E149": {
-    "title": "The Holy Infallibles And The Days Of The Week",
+    "title": "The Holy Infallibles and the Days of the Week",
     "slug": "the-holy-infallibles-and-the-days-of-the-week"
   },
   "E15": {
-    "title": "Dua e Hazeen",
+    "title": "Dua Hazeen",
     "slug": "dua-e-hazeen"
   },
   "E150": {
-    "title": "The Holy Prophet's (s) dua",
+    "title": "The Holy Prophet (s.a.w.a.)'s Dua",
     "slug": "the-holy-prophets-s-dua"
   },
   "E152": {
-    "title": "True incident of fulfillment of desires",
+    "title": "True Incident of Fulfillment of Desires",
     "slug": "true-incident-of-fulfillment-of-desires"
   },
   "E153": {
-    "title": "Dua e Noor Kabir",
+    "title": "Dua Noor Kabir",
     "slug": "dua-e-noor-kabir"
   },
   "E154": {
-    "title": "Dua-e-Ehtejaab [The Supplication of Concealment]",
+    "title": "Dua Ihtijab (The Supplication of Concealment)",
     "slug": "dua-e-ehtejaab-the-supplication-of-concealment",
     "day": "*-*-5",
     "slugAliases": [
@@ -1328,51 +1328,51 @@
     ]
   },
   "E155": {
-    "title": "Dua e Marefat - Allahumma Arrifni",
+    "title": "Dua Marifat - Allahumma Arrifni",
     "order": 15,
     "slug": "dua-e-marefat-allahumma-arrifni"
   },
   "E156": {
-    "title": "Dua for Imam Mahdi (a.t.f.s.) after Asr",
+    "title": "Dua for Imam al-Mahdi (a.t.f.s.) after Asr",
     "slug": "dua-for-imam-mahdi-after-asr"
   },
   "E16": {
-    "title": "Dua during the Occultation of Imam Mahdi (a.t.f.s.) - SHORT اَللّٰهُمَّ عَرِّفْنِىْ نَفْسَكَ",
+    "title": "Dua during the Occultation of Imam al-Mahdi (a.t.f.s.) - Short اَللّٰهُمَّ عَرِّفْنِىْ نَفْسَكَ",
     "slug": "dua-during-the-occultation-of-imam-mahdi-a-t-f-s-short"
   },
   "E17": {
-    "title": "Dua during the Occultation of Imam Mahdi (a) - LONG اَللّٰهُمَّ عَرِّفْنِيْ نَفْسَكَ",
+    "title": "Dua during the Occultation of Imam al-Mahdi (a.t.f.s.) - Long اَللّٰهُمَّ عَرِّفْنِيْ نَفْسَكَ",
     "slug": "dua-during-the-occultation-of-imam-mahdi-a"
   },
   "E18": {
-    "title": "Dua e Ahad",
+    "title": "Dua Ahad",
     "slug": "dua-e-ahad",
     "slugAliases": [
       "dua-e-ahad-2"
     ]
   },
   "E19": {
-    "title": "Dua-e-Faraj اَللّٰهُمَّ كُنْ لِوَلِيِّكَ",
+    "title": "Dua Faraj اَللّٰهُمَّ كُنْ لِوَلِيِّكَ",
     "slug": "dua-e-faraj"
   },
   "E2": {
-    "title": "Ayah Isme Aazam - The Verses of the Greatest Name",
+    "title": "Ayat Ism-e-Azam - The Verses of the Greatest Name",
     "slug": "ayah-isme-aazam-the-verses-of-the-greatest-name"
   },
   "E20": {
-    "title": "Dua e Faraj - Ilahi Azomal Bala اِلٰهِيْ عَظُمَ الْبَلَاۤءُ",
+    "title": "Dua Faraj - Ilahi Azumal Bala اِلٰهِيْ عَظُمَ الْبَلَاۤءُ",
     "slug": "dua-e-faraj-ilahi-azomal-bala"
   },
   "E21": {
-    "title": "Dua-e-Ghareeq",
+    "title": "Dua Ghariq",
     "slug": "dua-e-ghareeq"
   },
   "E22": {
-    "title": "Dua-e-Hifz-e-Eemaan رَضِيْتُ بِاللّٰهِ رَبًّا",
+    "title": "Dua Hifz al-Iman رَضِيْتُ بِاللّٰهِ رَبًّا",
     "slug": "dua-e-hifz-e-eemaan"
   },
   "E23": {
-    "title": "Dua e Hifz e Imaan (another)",
+    "title": "Dua Hifz al-Iman (Another)",
     "slug": "dua-e-hifz-e-imaan-another"
   },
   "E24": {
@@ -1406,7 +1406,7 @@
     ]
   },
   "E29": {
-    "title": "Dua Jawshan al-Kabeer",
+    "title": "Dua Jawshan Kabir",
     "slug": "dua-jawshan-al-kabeer",
     "day": [
       "09-01",
@@ -1417,11 +1417,11 @@
     ]
   },
   "E3": {
-    "title": "Dua Aaliyah al Mazameen Dua to be recited after the Ziyarah of every Masoomeen (a)",
+    "title": "Dua Aliyat al-Madhamin - Dua to be Recited after the Ziyarat of Every Masoom (a.s.)",
     "slug": "dua-aaliyah-al-mazameen-dua-to-be-recited-after-the-ziyarah-of-every-masoomeen-a"
   },
   "E30": {
-    "title": "Dua Jawshan al Sagir",
+    "title": "Dua Jawshan Saghir",
     "slug": "dua-jawshan-al-sagir"
   },
   "E31": {
@@ -1436,15 +1436,15 @@
     ]
   },
   "E32": {
-    "title": "Dua e Ne'mul Badal",
+    "title": "Dua Ne'mul Badal",
     "slug": "dua-e-ne-mul-badal"
   },
   "E33": {
-    "title": "Dua-e-Noor",
+    "title": "Dua Noor",
     "slug": "dua-e-noor"
   },
   "E34": {
-    "title": "Dua e Nudbah",
+    "title": "Dua Nudba",
     "slug": "dua-e-nudbah",
     "day": [
       "10-01",
@@ -1457,15 +1457,15 @@
     ]
   },
   "E35": {
-    "title": "Dua-e-Sabaah",
+    "title": "Dua Sabah",
     "slug": "dua-e-sabaah"
   },
   "E36": {
-    "title": "Dua e Sad Subhan (Dua e Sahifa)",
+    "title": "Dua Sad Subhan (Dua Sahifa)",
     "slug": "dua-e-sad-subhan-dua-e-sahifa"
   },
   "E37": {
-    "title": "Dua e Sanamay Quraish",
+    "title": "Dua Sanamay Quraish",
     "slug": "dua-e-sanamay-quraish"
   },
   "E38": {
@@ -1477,7 +1477,7 @@
     "slug": "dua-for-ailments-and-illnesses"
   },
   "E4": {
-    "title": "Dua Adilah",
+    "title": "Dua Adeela",
     "slug": "dua-adilah"
   },
   "E41": {
@@ -1485,11 +1485,11 @@
     "slug": "dua-for-fending-off-distress-grief-and-fear"
   },
   "E42": {
-    "title": "Dua for fulfillment of wishes",
+    "title": "Dua for Fulfillment of Wishes",
     "slug": "dua-for-fulfillment-of-wishes"
   },
   "E43": {
-    "title": "Dua for getting Male Child",
+    "title": "Dua for Getting a Male Child",
     "slug": "dua-for-getting-male-child"
   },
   "E44": {
@@ -1501,31 +1501,31 @@
     "slug": "dua-for-immediate-fulfillment"
   },
   "E46": {
-    "title": "Dua for Istekhaarah fom Holy Quran",
+    "title": "Dua for Istikhara from the Holy Quran",
     "slug": "dua-for-istikharah-fom-holy-quran"
   },
   "E5": {
-    "title": "Dua al-Hujjah اِلٰهِيْ بِحَقِّ مَنْ نَاجَاكَ",
+    "title": "Dua al-Hujjah اِلٰهِيْ بِحَقِّ مَنْ نَاجَاكَ",
     "slug": "dua-al-hujjah"
   },
   "E51": {
-    "title": "Dua for protection of valubales and precious things (that are concealed)",
+    "title": "Dua for Protection of Valuables and Precious Things (that are Concealed)",
     "slug": "dua-for-protection-of-valubales-and-precious-things-that-are-concealed"
   },
   "E52": {
-    "title": "Dua for rejuvenating the Hearts",
+    "title": "Dua for Rejuvenating the Hearts",
     "slug": "dua-for-rejuvenating-the-hearts"
   },
   "E54": {
-    "title": "Dua for relief from poverty & ailments",
+    "title": "Dua for Relief from Poverty & Ailments",
     "slug": "dua-for-relief-from-poverty-ailments"
   },
   "E55": {
-    "title": "Dua for repaying the Debts",
+    "title": "Dua for Repaying Debts",
     "slug": "dua-for-repaying-the-debts"
   },
   "E57": {
-    "title": "Dua for repayment of debts 1",
+    "title": "Dua for Repayment of Debts 1",
     "slug": "dua-for-repayment-of-debts-1"
   },
   "E58": {
@@ -1537,24 +1537,24 @@
     "slug": "dua-for-restoration-of-health"
   },
   "E6": {
-    "title": "Dua al-Mahd (a.t.f.s.)i اللهم ارزقنا توفیق الطاعه",
+    "title": "Dua al-Mahdi (a.t.f.s.) اللهم ارزقنا توفیق الطاعه",
     "slug": "dua-al-mahd-a-t-f-s-i"
   },
   "E60": {
-    "title": "Dua for safety from all beasts, evils of Satan, thieves & demons",
+    "title": "Dua for Safety from All Beasts, Evils of Satan, Thieves & Demons",
     "slug": "dua-for-safety-from-all-beasts-evils-of-satan-thieves-demons"
   },
   "E61": {
-    "title": "Dua for safety from Fire & al Evil throughout the day",
+    "title": "Dua for Safety from Fire & All Evil Throughout the Day",
     "order": 12,
     "slug": "dua-for-safety-from-fire-al-evil-throughout-the-day"
   },
   "E62": {
-    "title": "Dua for safety from illness and ailments",
+    "title": "Dua for Safety from Illness and Ailments",
     "slug": "dua-for-safety-from-illness-and-ailments"
   },
   "E63": {
-    "title": "Dua for seeking forgiveness which leads to more knowledge & more Fortune",
+    "title": "Dua for Seeking Forgiveness Which Leads to More Knowledge & More Fortune",
     "slug": "dua-for-seeking-forgiveness-which-leads-to-more-knowledge-more-fortune"
   },
   "E64": {
@@ -1566,7 +1566,7 @@
     "slug": "dua-for-the-deceased"
   },
   "E66": {
-    "title": "Duas for each hour of the Day",
+    "title": "Duas for Each Hour of the Day",
     "slug": "duas-for-each-hour-of-the-day"
   },
   "E67": {
@@ -1606,7 +1606,7 @@
     "slug": "dua-for-the-eighth-hour"
   },
   "E75": {
-    "title": "Dua for the Nineth Hour",
+    "title": "Dua for the Ninth Hour",
     "slug": "dua-for-the-ninth-hour"
   },
   "E76": {
@@ -1622,16 +1622,16 @@
     "slug": "dua-for-the-twelfth-hour"
   },
   "E79": {
-    "title": "Dua for the one who wishes to see the Prophet (s) or Holy Imams (a) or one of the Dead or one of his Parents",
+    "title": "Dua for One Who Wishes to See the Prophet (s.a.w.a.), the Holy Imams (a.s.), One of the Dead or One of His Parents",
     "slug": "dua-for-the-one-who-wishes-to-see-the-prophet-s-a-w-a-or-holy-imams-a-s-or-one-of-the-dead-or-one-of-his-parents"
   },
   "E8": {
-    "title": "Dua Alqamah",
+    "title": "Dua Alqama",
     "slug": "dua-alqama",
     "day": "01-10"
   },
   "E80": {
-    "title": "Comprehensive dua for the world & Hereafter",
+    "title": "Comprehensive Dua for this World & the Hereafter",
     "order": 12,
     "slug": "comprehensive-dua-for-the-world-hereafter"
   },
@@ -1640,7 +1640,7 @@
     "slug": "dua-medicine-for-good-memory"
   },
   "E82": {
-    "title": "An effective daily prayer",
+    "title": "An Effective Daily Prayer",
     "slug": "an-effective-daily-prayer"
   },
   "E83": {
@@ -1648,15 +1648,15 @@
     "slug": "another-dua-for-ailing-diseases"
   },
   "E84": {
-    "title": "A famous Dua for Sustenance",
+    "title": "A Famous Dua for Sustenance",
     "slug": "a-famous-dua-for-sustenance"
   },
   "E85": {
-    "title": "A Proven dua",
+    "title": "A Proven Dua",
     "slug": "a-proven-dua"
   },
   "E86": {
-    "title": "Dua for whoever wants to see his request in the dream",
+    "title": "Dua for Whoever Wants to See His Request in a Dream",
     "slug": "dua-for-whoever-wants-to-see-his-request-in-the-dream"
   },
   "E87": {
@@ -1664,11 +1664,11 @@
     "slug": "dua-in-the-mornings-and-evenings"
   },
   "E88": {
-    "title": "Dua Maknoon and its merits",
+    "title": "Dua Maknoon and its Merits",
     "slug": "dua-maknoon-and-its-merits"
   },
   "E89": {
-    "title": "Dua at Bedtime and at the time of waking up",
+    "title": "Dua at Bedtime and at the Time of Waking Up",
     "slug": "dua-at-bedtime-and-at-the-time-of-waking-up"
   },
   "E9": {
@@ -1676,19 +1676,19 @@
     "slug": "dua-amaan-the-supplication-for-security"
   },
   "E90": {
-    "title": "Dua Before and After Ritual Prayers",
+    "title": "Dua before and after Ritual Prayers",
     "slug": "dua-before-and-after-ritual-prayers"
   },
   "E91": {
-    "title": "Dua before going to Sleep",
+    "title": "Dua before Going to Sleep",
     "slug": "dua-before-going-to-sleep"
   },
   "E92": {
-    "title": "Dua before leaving the house",
+    "title": "Dua before Leaving the House",
     "slug": "dua-before-leaving-the-house"
   },
   "E93": {
-    "title": "Dua before reading a book",
+    "title": "Dua before Reading a Book",
     "slug": "dua-before-reading-a-book"
   },
   "E94": {
@@ -1704,27 +1704,27 @@
     "slug": "dua-for-solving-difficulties"
   },
   "E97": {
-    "title": "Dua of Ailing Diseases",
+    "title": "Dua for Ailing Diseases",
     "slug": "dua-of-ailing-diseases"
   },
   "F10": {
-    "title": "Namaz e Maghferat e Waaledain",
+    "title": "Namaz-e-Maghfirat-e-Walidain (Forgiveness for Parents)",
     "slug": "namaz-e-maghferat-e-waaledain"
   },
   "F11": {
-    "title": "Namaz of Jafar-e-Tayyaar",
+    "title": "Namaz of Jafar Tayyar",
     "slug": "namaz-of-jafar-e-tayyaar"
   },
   "F12": {
-    "title": "Namaz Hadiyah Masoomeen (a)",
+    "title": "Namaz-e-Hadiya for the Masumeen (a.s.)",
     "slug": "namaz-hadiyah-masoomeen-a"
   },
   "F13": {
-    "title": "Namaz of Holy Prophet(s)",
+    "title": "Namaz of the Holy Prophet (s.a.w.a.)",
     "slug": "namaz-of-holy-prophet-s"
   },
   "F14": {
-    "title": "Namaz of Lady Fatimah Zehra (s.a.)",
+    "title": "Namaz of Lady Fatimah al-Zahra (s.a.)",
     "slug": "namaz-of-lady-fatimah-zehra-s-a"
   },
   "F15": {
@@ -1732,7 +1732,7 @@
     "slug": "namaz-of-imam-ali-a-s"
   },
   "F17": {
-    "title": "Namaz of Imam al-Husayn (a)",
+    "title": "Namaz of Imam al-Husayn (a.s.)",
     "slug": "namaz-of-imam-al-husayn-a"
   },
   "F2": {
@@ -1740,15 +1740,15 @@
     "slug": "namaz-e-shab"
   },
   "F23": {
-    "title": "Namaz of Imam al-Jawad (a)",
+    "title": "Namaz of Imam al-Jawad (a.s.)",
     "slug": "namaz-of-imam-al-jawad-a"
   },
   "F26": {
-    "title": "Namaz of Imam Mahdi (a.t.f.s.)",
+    "title": "Namaz of Imam al-Mahdi (a.t.f.s.)",
     "slug": "namaz-of-imam-mahdi-a-t-f-s"
   },
   "F27|L2": {
-    "title": "Namaz of Sundays",
+    "title": "Namaz on Sundays",
     "slug": "namaz-of-sundays"
   },
   "F28|M2": {
@@ -1756,11 +1756,11 @@
     "slug": "namaz-on-mondays"
   },
   "F29|N2": {
-    "title": "Namaz of Tuesdays",
+    "title": "Namaz on Tuesdays",
     "slug": "namaz-of-tuesdays"
   },
   "F3": {
-    "title": "Namaz e Shab (Short)",
+    "title": "Namaz-e-Shab (Short)",
     "slug": "namaz-e-shab-short"
   },
   "F30|O2": {
@@ -1780,35 +1780,35 @@
     "slug": "namaz-on-saturdays"
   },
   "F34": {
-    "title": "Namaz for fulfillment of needs (1)",
+    "title": "Namaz for Fulfillment of Needs (1)",
     "slug": "namaz-for-fulfillment-of-needs-1"
   },
   "F35": {
-    "title": "Namaz for fulfillment of needs (2)",
+    "title": "Namaz for Fulfillment of Needs (2)",
     "slug": "namaz-for-fulfillment-of-needs-2"
   },
   "F38": {
-    "title": "Namaz for fulfillment of needs (5)",
+    "title": "Namaz for Fulfillment of Needs (5)",
     "slug": "namaz-for-fulfillment-of-needs-5"
   },
   "F39": {
-    "title": "Namaz for more Sustenance",
+    "title": "Namaz for More Sustenance",
     "slug": "namaz-for-more-sustenance"
   },
   "F4": {
-    "title": "Namaz e Aayaat",
+    "title": "Namaz-e-Ayaat",
     "slug": "namaz-e-aayaat"
   },
   "F40": {
-    "title": "Another Namaz for more Sustenance",
+    "title": "Another Namaz for More Sustenance",
     "slug": "another-namaz-for-more-sustenance"
   },
   "F41": {
-    "title": "Namaz of Imam Al-Mahdi (a) at the Jamkaran Mosque",
+    "title": "Namaz of Imam al-Mahdi (a.t.f.s.) at the Jamkaran Mosque",
     "slug": "namaz-of-imam-al-mahdi-a-at-the-jamkaran-mosque"
   },
   "F43": {
-    "title": "Namaz at Seeing a non-Muslims",
+    "title": "Namaz on Seeing a Non-Muslim",
     "slug": "namaz-at-seeing-a-non-muslims"
   },
   "F44": {
@@ -1824,19 +1824,19 @@
     "slug": "namaz-for-gaining-intelligence-and-good-memory"
   },
   "F47": {
-    "title": "Namaz for Seeking (divine) help.",
+    "title": "Namaz for Seeking (Divine) Help",
     "slug": "namaz-for-seeking-divine-help"
   },
   "F48": {
-    "title": "Namaz for Seeking Allah's help In the name of Lady Fatimah (S)",
+    "title": "Namaz for Seeking Allah's Help in the Name of Lady Fatimah (s.a.)",
     "slug": "namaz-for-seeking-allahs-help-in-the-name-of-lady-fatimah"
   },
   "F49": {
-    "title": "Namaz For Seeking Allah's help in The Name of The Prophet (s) and Imam Ali (a)",
+    "title": "Namaz for Seeking Allah's Help in the Name of the Prophet (s.a.w.a.) and Imam Ali (a.s.)",
     "slug": "namaz-for-seeking-allahs-help-in-the-name-of-the-prophet-s-and-imam-ali-a"
   },
   "F5": {
-    "title": "Namaz-e-Ghofaylah",
+    "title": "Namaz-e-Ghufaila",
     "order": 1,
     "slug": "namaz-e-ghofaylah"
   },
@@ -1849,7 +1849,7 @@
     "slug": "namaz-for-settling-the-needs"
   },
   "F53": {
-    "title": "Namaz for Settling urgent Needs",
+    "title": "Namaz for Settling Urgent Needs",
     "slug": "namaz-for-settling-urgent-needs"
   },
   "F54": {
@@ -1861,23 +1861,23 @@
     "slug": "namaz-for-travel"
   },
   "F56": {
-    "title": "Namaz for the removal of difficulties.",
+    "title": "Namaz for the Removal of Difficulties",
     "slug": "namaz-for-the-removal-of-difficulties"
   },
   "F57": {
-    "title": "Namaz of Imam Kazim (a) to ward of evil",
+    "title": "Namaz of Imam al-Kazim (a.s.) to Ward Off Evil",
     "slug": "namaz-of-imam-kazim-a-to-ward-of-evil"
   },
   "F58": {
-    "title": "Namaz of Imam Muhammad Taqi (a) to ward of evil",
+    "title": "Namaz of Imam Muhammad al-Taqi (a.s.) to Ward Off Evil",
     "slug": "namaz-of-imam-muhammad-taqi-a-to-ward-of-evil"
   },
   "F59": {
-    "title": "Namaz of Imam Sadiq (a) to ward off evil",
+    "title": "Namaz of Imam al-Sadiq (a.s.) to Ward Off Evil",
     "slug": "namaz-of-imam-sadiq-a-to-ward-off-evil"
   },
   "F6": {
-    "title": "Namaz e Kamilah",
+    "title": "Namaz-e-Kamila",
     "slug": "namaz-e-kamilah"
   },
   "F60": {
@@ -1893,15 +1893,15 @@
     "slug": "namaz-for-settling-of-debts"
   },
   "F7": {
-    "title": "Namaz e Mayyat",
+    "title": "Namaz-e-Mayyat",
     "slug": "namaz-e-mayyat"
   },
   "F8": {
-    "title": "Namaz e Nawafil",
+    "title": "Namaz-e-Nawafil",
     "slug": "namaz-e-nawafil"
   },
   "F9": {
-    "title": "Namaz e Wahshat Namaz for the Night of Burial",
+    "title": "Namaz-e-Wahshat (Namaz for the Night of Burial)",
     "slug": "namaz-e-wahshat-namaz-for-the-night-of-burial"
   },
   "G0~B": {
@@ -1909,60 +1909,60 @@
     "slug": "ziyarat-of-hijaz-iran-iraq"
   },
   "G1": {
-    "title": "Ziyaarat-e-Aal-e-Yaaseen",
+    "title": "Ziyarat Aal-e-Yasin",
     "slug": "ziyaarat-e-aal-e-yaaseen"
   },
   "G10": {
-    "title": "Ziyarat e Taziyah Condolence to Holy Prophet (s) and His Immaculate progeny",
+    "title": "Ziyarat Taziyah - Condolence to the Holy Prophet (s.a.w.a.) and His Immaculate Progeny",
     "slug": "ziyarat-e-taziyah-condolence-to-holy-prophet-s-and-his-immaculate-progeny"
   },
   "G11": {
-    "title": "Ziyaarat-e-Naaheyah",
+    "title": "Ziyarat Nahiya",
     "slug": "ziyaarat-e-naaheyah",
     "day": "01-10"
   },
   "G12": {
-    "title": "Ziyaarat-e-Jaamea'h Sagheerah",
+    "title": "Ziyarat Jamia Saghira",
     "slug": "ziyaarat-e-jaamea-h-sagheerah"
   },
   "G13": {
-    "title": "Ziyaarat-e-Jaameah Kabeerah",
+    "title": "Ziyarat Jamia Kabira",
     "slug": "ziyaarat-e-jaameah-kabeerah"
   },
   "G14": {
-    "title": "Ziyarah of Imam Husayn (a) at the Qadr Nights",
+    "title": "Ziyarat of Imam Husayn (a.s.) on the Qadr Nights",
     "slug": "ziyarah-of-imam-husayn-a-at-the-qadr-nights"
   },
   "G15|K3": {
-    "title": "Ziyarat of Saturday",
+    "title": "Ziyarat on Saturday",
     "slug": "ziyarat-of-saturday"
   },
   "G16|L3": {
-    "title": "Sunday - Ziyarah of Ameerul Momineen (a)",
+    "title": "Sunday - Ziyarat of Amir al-Mu'minin (a.s.)",
     "slug": "sunday-ziyarah-of-ameerul-momineen-a"
   },
   "G18|M3": {
-    "title": "Monday - Ziyarah of Imam al-Hasan(a.s.)",
+    "title": "Monday - Ziyarat of Imam al-Hasan (a.s.)",
     "slug": "monday-ziyarah-of-imam-al-hasan-a-s"
   },
   "G2": {
-    "title": "Ziyarat-e-Ameenullah",
+    "title": "Ziyarat Aminullah",
     "slug": "ziyarat-e-ameenullah"
   },
   "G20|N3": {
-    "title": "Tuesday - Ziyarah of Imam Zayn al Abidin, Imam Muhammad al Baqir & Imam Jafar al Sadiq (a)",
+    "title": "Tuesday - Ziyarat of Imam Zayn al-Abidin, Imam Muhammad al-Baqir & Imam Jafar al-Sadiq (a.s.)",
     "slug": "tuesday-ziyarah-of-imam-zayn-al-abidin-imam-muhammad-al-baqir-imam-jafar-al-sadiq-a"
   },
   "G21|O3": {
-    "title": "Wednesday - Ziyarah of Imam Musa al Kazim, Ali al Rida, Muhammad al Taqi, Ali al Naqi (a)",
+    "title": "Wednesday - Ziyarat of Imam Musa al-Kazim, Ali al-Reza, Muhammad al-Taqi & Ali al-Naqi (a.s.)",
     "slug": "wednesday-ziyarah-of-imam-musa-al-kazim-ali-al-rida-muhammad-al-taqi-ali-al-naqi-a"
   },
   "G22|Q3": {
-    "title": "Thursday - Ziyarah of Imam Hasan al Askari (a)",
+    "title": "Thursday - Ziyarat of Imam Hasan al-Askari (a.s.)",
     "slug": "thursday-ziyarah-of-imam-hasan-al-askari-a"
   },
   "G23|J3": {
-    "title": "Friday - Ziyarah of Imam al Mahdi (a.t.f.s.)",
+    "title": "Friday - Ziyarat of Imam al-Mahdi (a.t.f.s.)",
     "slug": "friday-ziyarah-of-imam-al-mahdi-a-t-f-s"
   },
   "G26": {
@@ -1974,11 +1974,11 @@
     "slug": "visiting-the-graves-of-the-faithful-believers"
   },
   "G3": {
-    "title": "Ziyarat e Arbaeen The 20th of Safar",
+    "title": "Ziyarat Arbaeen - The 20th of Safar",
     "slug": "ziyarat-e-arbaeen-the-20th-of-safar"
   },
   "G30": {
-    "title": "The comprehensive Ziyarat of the Imams (a)",
+    "title": "The Comprehensive Ziyarat of the Imams (a.s.)",
     "slug": "the-comprehensive-ziyarat-of-the-imams-a"
   },
   "G4": {
@@ -1987,16 +1987,16 @@
     "slug": "ziyarat-e-ashura"
   },
   "G5": {
-    "title": "Ziyaarat al-Haqq al-Jadeed",
+    "title": "Ziyarat al-Haqq al-Jadid",
     "slug": "ziyaarat-al-haqq-al-jadeed"
   },
   "G50": {
-    "title": "Ziyarat e Hazrat Rasul e Khuda",
+    "title": "Ziyarat of the Holy Prophet (s.a.w.a.)",
     "slug": "ziyarat-e-hazrat-rasul-e-khuda",
     "day": "03-17"
   },
   "G51": {
-    "title": "Ziyaarat-e-Ameerul Momeneen Imam Ali (a.s.)",
+    "title": "Ziyarat of Amir al-Mu'minin Imam Ali (a.s.)",
     "slug": "ziyaarat-e-ameerul-momeneen-imam-ali-a-s",
     "day": [
       "07-13",
@@ -2004,7 +2004,7 @@
     ]
   },
   "G52": {
-    "title": "Ziyaarat-e-Janab-e-Faatemah Zahra (s.a.)",
+    "title": "Ziyarat of Lady Fatimah al-Zahra (s.a.)",
     "slug": "ziyaarat-e-janab-e-faatemah-zahra-s-a",
     "day": [
       "05-13",
@@ -2013,7 +2013,7 @@
     ]
   },
   "G53": {
-    "title": "Ziyarate Imam Hasan (a.s.)",
+    "title": "Ziyarat of Imam Hasan (a.s.)",
     "slug": "ziyarate-imam-hasan-a-s",
     "day": [
       "02-28",
@@ -2021,56 +2021,56 @@
     ]
   },
   "G54": {
-    "title": "Ziyarat-e-Imam Husain (a.s.)",
+    "title": "Ziyarat of Imam Husayn (a.s.)",
     "slug": "ziyarat-e-imam-husain-a-s",
     "day": "08-03"
   },
   "G55": {
-    "title": "Ziyarate Hazrat Ali Akbar (a.s.)",
+    "title": "Ziyarat of Hazrat Ali Akbar (a.s.)",
     "slug": "ziyarate-hazrat-ali-akbar-a-s",
     "day": "08-11"
   },
   "G56": {
-    "title": "Ziyarate Shohadaa-e-Karbala (a.s.)",
+    "title": "Ziyarat of the Martyrs of Karbala (a.s.)",
     "slug": "ziyarate-shohadaa-e-karbala-a-s",
     "day": "08-07"
   },
   "G57": {
-    "title": "Ziyarate Hazrat Abbas (a.s.)",
+    "title": "Ziyarat of Hazrat Abbas (a.s.)",
     "slug": "ziyarate-hazrat-abbas-a-s",
     "day": "08-04"
   },
   "G58": {
-    "title": "Ziyarate Janabe Habib ibn Mazahir (a.s.)",
+    "title": "Ziyarat of Habib ibn Mazahir (a.s.)",
     "slug": "ziyarate-janabe-habib-ibn-mazahir-a-s"
   },
   "G59": {
-    "title": "Ziyarate Janabe Hur (a.s.)",
+    "title": "Ziyarat of Hurr (a.s.)",
     "slug": "ziyarate-janabe-hur-a-s"
   },
   "G6": {
-    "title": "Ziyarat e Waaresa",
+    "title": "Ziyarat Warith",
     "slug": "ziyarat-e-waaresa"
   },
   "G60": {
-    "title": "Ziyarate Janabe Muslim (a.s.)",
+    "title": "Ziyarat of Muslim ibn Aqeel (a.s.)",
     "slug": "ziyarate-janabe-muslim-a-s"
   },
   "G61": {
-    "title": "Ziyarate Janabe Hani ibn Urwah (a.s.)",
+    "title": "Ziyarat of Hani ibn Urwah (a.s.)",
     "slug": "ziyarate-janabe-hani-ibn-urwah-a-s"
   },
   "G62": {
-    "title": "Ziyaarat of sons of Janab-e-Muslim (a.s.)",
+    "title": "Ziyarat of the Sons of Muslim ibn Aqeel (a.s.)",
     "slug": "ziyarate-farzandane-janabe-muslim-a-s",
     "day": "12-23"
   },
   "G63": {
-    "title": "Ziyarate Janabe Salman e Farsi (a.s.)",
+    "title": "Ziyarat of Salman al-Farsi (a.s.)",
     "slug": "ziyarate-janabe-salman-e-farsi-a-s"
   },
   "G64": {
-    "title": "Ziyarate Imam Zainul Aabedeen (a.s.)",
+    "title": "Ziyarat of Imam Zayn al-Abidin (a.s.)",
     "slug": "ziyarate-imam-zainul-aabedeen-a-s",
     "day": [
       "01-25",
@@ -2079,7 +2079,7 @@
     ]
   },
   "G65": {
-    "title": "Ziyarat of Imam Mohammad Baqir (a.s.)",
+    "title": "Ziyarat of Imam Muhammad al-Baqir (a.s.)",
     "slug": "ziyarate-imam-mohammad-baqir-a-s",
     "day": [
       "07-01",
@@ -2087,12 +2087,12 @@
     ]
   },
   "G66": {
-    "title": "Ziyarate Imam Jafar Sadiq (a.s.)",
+    "title": "Ziyarat of Imam Jafar al-Sadiq (a.s.)",
     "slug": "ziyarate-imam-jafar-sadiq-a-s",
     "day": "10-25"
   },
   "G67": {
-    "title": "Ziyarate Imam Musa Kazim (a.s.)",
+    "title": "Ziyarat of Imam Musa al-Kazim (a.s.)",
     "slug": "ziyarate-imam-musa-kazim-a-s",
     "day": [
       "02-07",
@@ -2100,7 +2100,7 @@
     ]
   },
   "G68": {
-    "title": "Ziyarate Imam Ali Raza (a.s.)",
+    "title": "Ziyarat of Imam Ali al-Reza (a.s.)",
     "slug": "ziyarate-imam-ali-raza-a-s",
     "day": [
       "02-17",
@@ -2110,7 +2110,7 @@
     ]
   },
   "G69": {
-    "title": "Ziyarate Imam Mohammad Taqi (a.s.)",
+    "title": "Ziyarat of Imam Muhammad al-Taqi (a.s.)",
     "slug": "ziyarate-imam-mohammad-taqi-a-s",
     "day": [
       "07-10",
@@ -2118,11 +2118,11 @@
     ]
   },
   "G7": {
-    "title": "Ziyarat-e-Hazrat Abbas (a.s.)",
+    "title": "Ziyarat of Hazrat Abbas (a.s.)",
     "slug": "ziyarat-e-hazrat-abbas-a-s"
   },
   "G70": {
-    "title": "Ziyaarat of Imam Ali Naqi (a.s.)",
+    "title": "Ziyarat of Imam Ali al-Naqi (a.s.)",
     "slug": "ziyarate-imam-ali-naqi-a-s",
     "day": [
       "07-02",
@@ -2132,7 +2132,7 @@
     ]
   },
   "G71": {
-    "title": "Ziyarate Imam Hasan Askari (a.s.)",
+    "title": "Ziyarat of Imam Hasan al-Askari (a.s.)",
     "slug": "ziyarate-imam-hasan-askari-a-s",
     "day": [
       "03-08",
@@ -2140,12 +2140,12 @@
     ]
   },
   "G72": {
-    "title": "Ziyarat-e-Imam-e-Zamana (a.t.f.s.)",
+    "title": "Ziyarat of Imam-e-Zamana (a.t.f.s.)",
     "slug": "ziyarat-e-imam-e-zamana-a-t-f-s",
     "day": "08-15"
   },
   "G73": {
-    "title": "Ziyarate Janabe Zainab (a.s.)",
+    "title": "Ziyarat of Lady Zainab (s.a.)",
     "slug": "ziyarate-janabe-zainab-a-s",
     "day": [
       "05-05",
@@ -2154,24 +2154,24 @@
     ]
   },
   "G74": {
-    "title": "Ziyarat e Imam Husain (a)",
+    "title": "Ziyarat of Imam Husayn (a.s.)",
     "slug": "ziyarat-e-imam-husain-a"
   },
   "G75": {
-    "title": "Ziyarat-e-Imam Husain (a.s.) on the Day of Arafah",
+    "title": "Ziyarat of Imam Husayn (a.s.) on the Day of Arafah",
     "slug": "ziyarat-e-imam-husain-a-s-on-the-day-of-arafah",
     "day": "12-09"
   },
   "G76": {
-    "title": "Ziyarat After Namaz",
+    "title": "Ziyarat after Namaz",
     "slug": "ziyarat-after-namaz"
   },
   "G77": {
-    "title": "Ziyarat of Imam Al Hujjah (a.t.f.s.)",
+    "title": "Ziyarat of Imam al-Hujjah (a.t.f.s.)",
     "slug": "ziyarat-of-imam-al-hujjah-a-t-f-s"
   },
   "G78": {
-    "title": "Ziyarat of H. Masooma-e-Qum (s.a.)",
+    "title": "Ziyarat of Lady Masuma (s.a.) of Qom",
     "slug": "ziyarat-of-h-masooma-e-qum-s-a",
     "day": [
       "03-04",
@@ -2189,7 +2189,7 @@
     ]
   },
   "G8": {
-    "title": "Ziyarat-e-Hazrat Imam Reza (a.s.)",
+    "title": "Ziyarat of Imam Ali al-Reza (a.s.)",
     "slug": "ziyarat-e-hazrat-imam-reza-a-s"
   },
   "G80": {
@@ -2198,12 +2198,12 @@
     "day": "03-10"
   },
   "G81": {
-    "title": "Ziyarat of Janabe Ummul Baneen (s.a.)",
+    "title": "Ziyarat of Lady Umm al-Baneen (s.a.)",
     "slug": "ziyarat-of-janabe-ummul-baneen-s-a",
     "day": "06-13"
   },
   "G82": {
-    "title": "Ziyarat of Janabe Sakina (s.a.)",
+    "title": "Ziyarat of Lady Sakina (s.a.)",
     "slug": "ziyarat-of-janabe-sakina-s-a",
     "day": [
       "02-10",
@@ -2211,44 +2211,44 @@
     ]
   },
   "G83": {
-    "title": "Ziyarat Ashura Ghair Ma'roofah",
+    "title": "Ziyarat Ashura Ghair Maroofa",
     "slug": "ziyaarat-e-aashoora-gair-ma-roofah",
     "day": "01-10"
   },
   "G84|AL17": {
-    "title": "Ziyarat of Imam Mahdi (a.t.f.s.) after the Fajr Prayers (Allaahumma Balligh)",
+    "title": "Ziyarat of Imam al-Mahdi (a.t.f.s.) after the Fajr Prayer (Allahumma Balligh)",
     "slug": "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh"
   },
   "G9": {
-    "title": "Ziyarat-e-Hazrat Imam-e-Zamana (a.t.f.s.)",
+    "title": "Ziyarat of Imam-e-Zamana (a.t.f.s.)",
     "slug": "ziyarat-e-hazrat-imam-e-zamana-a-t-f-s"
   },
   "H1": {
-    "title": "1st Whispered Prayer of the Repenters - Munajaat al Taebeen",
+    "title": "1st Whispered Prayer of the Repenters - Munajat al-Taibeen",
     "slug": "1st-whispered-prayer-of-the-repenters-munajaat-al-taebeen"
   },
   "H10": {
-    "title": "10th Whispered Prayer of Those Asking for Mediation - Munajaat al Mutawassileen",
+    "title": "10th Whispered Prayer of Those Asking for Mediation - Munajat al-Mutawassileen",
     "slug": "10th-whispered-prayer-of-those-asking-for-mediation-munajaat-al-mutawassileen"
   },
   "H11": {
-    "title": "11th Whispered Prayer of the Utterly Poor - Munajaat al Muftaqireen",
+    "title": "11th Whispered Prayer of the Utterly Poor - Munajat al-Muftaqireen",
     "slug": "11th-whispered-prayer-of-the-utterly-poor-munajaat-al-muftaqireen"
   },
   "H12": {
-    "title": "12th Whispered Prayer of the Knowers - Munajaat al Aarifeen",
+    "title": "12th Whispered Prayer of the Knowers - Munajat al-Arifeen",
     "slug": "12th-whispered-prayer-of-the-knowers-munajaat-al-aarifeen"
   },
   "H13": {
-    "title": "13th Whispered Prayer of the Rememberers - Munajaat al Dhakireen",
+    "title": "13th Whispered Prayer of the Rememberers - Munajat al-Dhakireen",
     "slug": "13th-whispered-prayer-of-the-rememberers-munajaat-al-dhakireen"
   },
   "H14": {
-    "title": "14th Whispered Prayer of Those Who Hold Fast - Munajaat al Motasimeen",
+    "title": "14th Whispered Prayer of Those Who Hold Fast - Munajat al-Mutasimeen",
     "slug": "14th-whispered-prayer-of-those-who-hold-fast-munajaat-al-motasimeen"
   },
   "H15": {
-    "title": "15th Whispered Prayer of the Abstainers - Munajaat al Zahideen",
+    "title": "15th Whispered Prayer of the Abstainers - Munajat al-Zahideen",
     "slug": "15th-whispered-prayer-of-the-abstainers-munajaat-al-zahideen"
   },
   "H16": {
@@ -2256,98 +2256,98 @@
     "slug": "imam-ali-a-s-s-whispered-prayer-munajat-manzoom"
   },
   "H17": {
-    "title": "The Whispered Prayer ( Munajaat ) of Ameerul Momeneen (a)",
+    "title": "The Whispered Prayer (Munajat) of Amir al-Mu'minin (a.s.)",
     "slug": "the-whispered-prayer-munajaat-of-ameerul-momeneen-a",
     "slugAliases": [
       "the-whispered-prayer-munajaat-of-ameerul-momeneen-a-2"
     ]
   },
   "H18": {
-    "title": "(1) Munaajaat for Istekhaaraa",
+    "title": "(1) Munajat for Istikhara",
     "slug": "1-munajaat-for-guidance-to-the-best"
   },
   "H19": {
-    "title": "(2) Munajaat for True Repentance",
+    "title": "(2) Munajat for True Repentance",
     "slug": "2-munajaat-for-true-repentance"
   },
   "H2": {
-    "title": "2nd Whispered Prayer of the Complainers - Munajaat al Shakeen",
+    "title": "2nd Whispered Prayer of the Complainers - Munajat al-Shakeen",
     "slug": "2nd-whispered-prayer-of-the-complainers-munajaat-al-shakeen"
   },
   "H20": {
-    "title": "(3) Munajaat for Help in Travel",
+    "title": "(3) Munajat for Help in Travel",
     "slug": "3-munajaat-for-help-in-travel"
   },
   "H21": {
-    "title": "(4) Munajaat for Sustenance",
+    "title": "(4) Munajat for Sustenance",
     "slug": "4-munajaat-for-sustenance"
   },
   "H22": {
-    "title": "(5) Munajaat for Seeking Protection",
+    "title": "(5) Munajat for Seeking Protection",
     "slug": "5-munajaat-for-seeking-protection"
   },
   "H23": {
-    "title": "(6) Munajaat for acceptance of repentance",
+    "title": "(6) Munajat for Acceptance of Repentance",
     "slug": "6-munajaat-for-acceptance-of-repentance"
   },
   "H24": {
-    "title": "(7) Munajaat for Hajj",
+    "title": "(7) Munajat for Hajj",
     "slug": "7-munajaat-for-hajj"
   },
   "H25": {
-    "title": "(8) Munajaat for safety from persecution",
+    "title": "(8) Munajat for Safety from Persecution",
     "slug": "8-munajaat-for-safety-from-persecution"
   },
   "H26": {
-    "title": "(9) Munajaat for Thanksgiving",
+    "title": "(9) Munajat for Thanksgiving",
     "slug": "9-munajaat-for-thanksgiving"
   },
   "H27": {
-    "title": "(10) Munajaat for Granting of Requests",
+    "title": "(10) Munajat for Granting of Requests",
     "slug": "10-munajaat-for-granting-of-requests"
   },
   "H3": {
-    "title": "3rd Whispered Prayer of the Fearful - Munajaat al Khaefeen",
+    "title": "3rd Whispered Prayer of the Fearful - Munajat al-Khaifeen",
     "slug": "3rd-whispered-prayer-of-the-fearful-munajaat-al-khaefeen"
   },
   "H4": {
-    "title": "4th Whispered Prayer of the Hopefuls - Munajaat al Rajeen",
+    "title": "4th Whispered Prayer of the Hopeful - Munajat al-Rajeen",
     "slug": "4th-whispered-prayer-of-the-hopefuls-munajaat-al-rajeen"
   },
   "H5": {
-    "title": "5th Whispered Prayer of the Beseechers - Munajaat al Raghebeen",
+    "title": "5th Whispered Prayer of the Beseechers - Munajat al-Ragibeen",
     "slug": "5th-whispered-prayer-of-the-beseechers-munajaat-al-raghebeen"
   },
   "H6": {
-    "title": "6th Whispered Prayer of the Thankful - Munajaat al Shakereen",
+    "title": "6th Whispered Prayer of the Thankful - Munajat al-Shakireen",
     "slug": "6th-whispered-prayer-of-the-thankful-munajaat-al-shakereen"
   },
   "H7": {
-    "title": "7th Whispered Prayer of the Obedient to Allah - Munajaat al Mutieena Lillah",
+    "title": "7th Whispered Prayer of the Obedient to Allah - Munajat al-Muteeen Lillah",
     "slug": "7th-whispered-prayer-of-the-obedient-to-allah-munajaat-al-mutieena-lillah"
   },
   "H8": {
-    "title": "8th Whispered Prayer of the Devotees - Munajaat al Murideen",
+    "title": "8th Whispered Prayer of the Devotees - Munajat al-Mureedeen",
     "slug": "8th-whispered-prayer-of-the-devotees-munajaat-al-murideen"
   },
   "H9": {
-    "title": "9th Whispered Prayer of the Lovers - Munajaat al Muhibbeen",
+    "title": "9th Whispered Prayer of the Lovers - Munajat al-Muhibbeen",
     "slug": "9th-whispered-prayer-of-the-lovers-munajaat-al-muhibbeen"
   },
   "I1": {
-    "title": "Aamal Between Dawn & Sunrise",
+    "title": "Aamal between Dawn & Sunrise",
     "slug": "aamal-between-dawn-sunrise"
   },
   "I104": {
-    "title": "Tafaaul and Istekhaarah",
+    "title": "Tafa'ul and Istikhara",
     "slug": "tafaaul-and-istekhaarah"
   },
   "I105": {
-    "title": "Numerical Istekhaarah",
+    "title": "Numerical Istikhara",
     "slug": "numerical-istekhaarah"
   },
   "I106": {
-    "title": "Appearing Istekhaarah for Others",
+    "title": "Istikhara on Behalf of Others",
     "slug": "appearing-istekhaarah-for-others"
   },
   "I108": {
@@ -2355,11 +2355,11 @@
     "slug": "prohibition-on-shaving-beard"
   },
   "I109": {
-    "title": "Prohibition on Inclination towards the Wrongdoers",
+    "title": "Prohibition on Inclining towards the Wrongdoers",
     "slug": "prohibition-on-inclination-towards-the-wrongdoers"
   },
   "I11": {
-    "title": "Rosary made of the turbat of Imam al-Husayn (a.s.)",
+    "title": "Rosary Made of the Turbah of Imam Husayn (a.s.)",
     "slug": "rosary-made-of-the-turbat-of-imam-husayn-a-s"
   },
   "I110": {
@@ -2367,31 +2367,31 @@
     "slug": "importance-of-writing-bismillah-on-the-house-door"
   },
   "I111": {
-    "title": "Importance of reciting of Qulho wallaho Ahad",
+    "title": "Importance of Reciting Qul Huwa Allahu Ahad",
     "slug": "importance-of-reciting-of-qulho-wallaho-ahad"
   },
   "I112": {
-    "title": "Importance of a ring of Aqeeq and looking at it in the morning and while praying",
+    "title": "Importance of a Ring of Aqeeq and Looking at It in the Morning and While Praying",
     "slug": "importance-of-a-ring-of-aqeeq-and-looking-at-it-in-the-morning-and-while-praying"
   },
   "I115": {
-    "title": "Writing of Will before death",
+    "title": "Writing a Will before Death",
     "slug": "writing-of-will-before-death"
   },
   "I119": {
-    "title": "The Ritual Bathing (Ghusl) of The Deceased",
+    "title": "The Ritual Bathing (Ghusl) of the Deceased",
     "slug": "the-ritual-bathing-ghusl-of-the-deceased"
   },
   "I13": {
-    "title": "Merits of reciting Ayah Kursi after every Namaz",
+    "title": "Merits of Reciting Ayat al-Kursi after Every Namaz",
     "slug": "merits-of-reciting-ayah-kursi-after-every-namaz"
   },
   "I14": {
-    "title": "General Ta'qeebaat-2",
+    "title": "General Taqibaat - 2",
     "slug": "general-ta-qeebaat-10-15"
   },
   "I17": {
-    "title": "Ta'qeebaat of the Dawn (Fajr) Prayers",
+    "title": "Taqibaat of the Dawn (Fajr) Prayer",
     "slug": "ta-qeebaat-of-the-dawn-fajr-prayers"
   },
   "I19": {
@@ -2407,19 +2407,19 @@
     "slug": "supplicatory-utterances-of-the-thanksgiving-prostration"
   },
   "I21": {
-    "title": "Etiquettes of Noon (Zohr) Prayer",
+    "title": "Etiquettes of the Noon (Zuhr) Prayer",
     "slug": "etiquettes-of-noon-zohr-prayer"
   },
   "I21.5": {
-    "title": "Etiquettes of Asr Prayer",
+    "title": "Etiquettes of the Asr Prayer",
     "slug": "etiquettes-of-asr-prayer"
   },
   "I22": {
-    "title": "Etiquettes of the Sunset (Maghrib) Prayers",
+    "title": "Etiquettes of the Sunset (Maghrib) Prayer",
     "slug": "etiquettes-of-the-sunset-maghrib-prayers"
   },
   "I23": {
-    "title": "Etiquettes of The Evening (Isha) Prayers",
+    "title": "Etiquettes of the Evening (Isha) Prayer",
     "slug": "etiquettes-of-the-evening-isha-prayers"
   },
   "I24": {
@@ -2427,11 +2427,11 @@
     "slug": "etiquettes-of-bedtime"
   },
   "I28": {
-    "title": "Salawat of immense rewards",
+    "title": "Salawat of Immense Rewards",
     "slug": "salawat-of-immense-rewards"
   },
   "I29": {
-    "title": "Letter of Yusha the son of Nun",
+    "title": "Letter of Yusha, the Son of Nun",
     "slug": "letter-of-yusha-the-son-of-nun"
   },
   "I3": {
@@ -2439,7 +2439,7 @@
     "slug": "cleansing-the-teeth"
   },
   "I30": {
-    "title": "Dedication To The Dead",
+    "title": "Dedication to the Dead",
     "slug": "dedication-to-the-dead"
   },
   "I31": {
@@ -2447,31 +2447,31 @@
     "slug": "recitations-for-fending-off-evil-self-inspirations"
   },
   "I32": {
-    "title": "Prayer of Istekhaarah with Sheets",
+    "title": "Istikhara with Sheets",
     "slug": "prayer-of-istekhaarah-with-sheets"
   },
   "I33": {
-    "title": "Istekhaarah",
+    "title": "Istikhara",
     "slug": "istekhaarah"
   },
   "I34": {
-    "title": "Istekhaarah with Rosary (Tasbeeh)",
+    "title": "Istikhara with a Rosary (Tasbeeh)",
     "slug": "istekhaarah-with-rosary-tasbeeh"
   },
   "I35": {
-    "title": "Istekhaarah of the author of al-Jawahir",
+    "title": "Istikhara of the Author of al-Jawahir",
     "slug": "istikharah-of-the-author-of-al-jawahir"
   },
   "I36": {
-    "title": "The time of Istekhaarah",
+    "title": "The Time of Istikhara",
     "slug": "the-time-of-istikharah"
   },
   "I37": {
-    "title": "Etiquettes of Praying for fulfillment of needs",
+    "title": "Etiquettes of Praying for Fulfillment of Needs",
     "slug": "etiquettes-of-praying-for-fulfillment-of-needs"
   },
   "I38": {
-    "title": "Taweez against Headache & Ear ache",
+    "title": "Taweez against Headache & Earache",
     "slug": "taweez-against-headache-ear-ache"
   },
   "I39": {
@@ -2479,11 +2479,11 @@
     "slug": "taweez-against-migraine"
   },
   "I4": {
-    "title": "The Ritual Ablution (Wuzu)",
+    "title": "The Ritual Ablution (Wudu)",
     "slug": "ritual-ablution-wuzu"
   },
   "I41": {
-    "title": "Taweez against Mouthache",
+    "title": "Taweez against Mouth Ache",
     "slug": "taweez-against-mouthache"
   },
   "I43": {
@@ -2491,11 +2491,11 @@
     "slug": "taweez-for-chest-pains"
   },
   "I44": {
-    "title": "Taweez for Curing of Coughing & against Stomach Pains",
+    "title": "Taweez for Curing Coughs & against Stomach Pains",
     "slug": "taweez-for-curing-of-coughing-against-stomach-pains"
   },
   "I5": {
-    "title": "Etiquettes of attending Mosques",
+    "title": "Etiquettes of Attending Mosques",
     "slug": "etiquettes-of-attending-mosques"
   },
   "I51": {
@@ -2511,7 +2511,7 @@
     "slug": "taweez-against-knee-pains"
   },
   "I54": {
-    "title": "Taweez against Eye aches",
+    "title": "Taweez against Eye Aches",
     "slug": "taweez-against-eye-aches"
   },
   "I55": {
@@ -2527,7 +2527,7 @@
     "slug": "taweez-for-fending-off-devils-and-sorcerers"
   },
   "I58": {
-    "title": "Ayah Al Sakharah",
+    "title": "Ayat al-Sakhrah",
     "slug": "ayah-al-sakharah"
   },
   "I6": {
@@ -2551,19 +2551,19 @@
     "slug": "taweez-against-scorpions-and-serpents"
   },
   "I64": {
-    "title": "Repelling The Evils of Jinn & Horrifying Authorities",
+    "title": "Repelling the Evils of Jinn & Horrifying Authorities",
     "slug": "repelling-the-evils-of-jinn-horrifying-authorities"
   },
   "I65": {
-    "title": "Emphasis on sending Gifts to the Dead",
+    "title": "Emphasis on Sending Gifts to the Dead",
     "slug": "emphasis-on-sending-gifts-to-the-dead"
   },
   "I66": {
-    "title": "Acquiring lesson from the Dead",
+    "title": "Acquiring Lessons from the Dead",
     "slug": "acquiring-lesson-from-the-dead"
   },
   "I67": {
-    "title": "Tawassul with Holy Prophet (s) and H. Ali (s)",
+    "title": "Tawassul with the Holy Prophet (s.a.w.a.) and Imam Ali (a.s.)",
     "slug": "tawassul-with-holy-prophet-s-and-h-ali-s"
   },
   "I68": {
@@ -2571,7 +2571,7 @@
     "slug": "evil-repelling-prayers-and-supplicatory-amulets"
   },
   "I69": {
-    "title": "Protection from fleas & beasts",
+    "title": "Protection from Fleas & Beasts",
     "slug": "protection-from-fleas-beasts"
   },
   "I7": {
@@ -2579,27 +2579,27 @@
     "slug": "other-etiquettes-of-namaz"
   },
   "I70": {
-    "title": "Brief Supplications for this World and other worldly desires",
+    "title": "Brief Supplications for this World and Other Worldly Desires",
     "slug": "brief-supplications-for-this-world-and-other-worldly-desires"
   },
   "I72": {
-    "title": "Lightening fast Prayer (for worldly desires)",
+    "title": "Lightning-Fast Prayer (for Worldly Desires)",
     "slug": "lightening-fast-prayer-for-worldly-desires"
   },
   "I74": {
-    "title": "Hirz-e-Janab-e-Fatemah (s.a.)",
+    "title": "Hirz of Lady Fatimah (s.a.)",
     "slug": "hirz-e-janab-e-fatemah-s-a"
   },
   "I75": {
-    "title": "Hirz-e-Imam Zainul Aabedeen (a.s.)",
+    "title": "Hirz of Imam Zayn al-Abidin (a.s.)",
     "slug": "hirz-e-imam-zainul-aabedeen-a-s"
   },
   "I76": {
-    "title": "Hirz-e-Imam Jafar al-Sadiq (a.s.)",
+    "title": "Hirz of Imam Jafar al-Sadiq (a.s.)",
     "slug": "hirz-e-imam-jafar-al-sadiq-a-s"
   },
   "I77": {
-    "title": "Hirz-e-Imam Moosa al-Kazim (a.s.)",
+    "title": "Hirz of Imam Musa al-Kazim (a.s.)",
     "slug": "hirz-e-imam-moosa-al-kazim-a-s"
   },
   "I78": {
@@ -2607,55 +2607,55 @@
     "slug": "pocket-taweez"
   },
   "I8": {
-    "title": "Etiquettes of Taaqeebaat",
+    "title": "Etiquettes of Taqibaat",
     "slug": "etiquettes-of-taaqeebaat"
   },
   "I80": {
-    "title": "Hirz-e-Imam al-Jawad (a.s.)",
+    "title": "Hirz of Imam al-Jawad (a.s.)",
     "slug": "hirz-e-imam-al-jawad-a-s"
   },
   "I81": {
-    "title": "Hirz-e-Imam Ali al-Naqi (a.s.)",
+    "title": "Hirz of Imam Ali al-Naqi (a.s.)",
     "slug": "hirz-e-imam-ali-al-naqi-a-s"
   },
   "I82": {
-    "title": "Hirz-e-Imam Hasan al-Askari (a.s.)",
+    "title": "Hirz of Imam Hasan al-Askari (a.s.)",
     "slug": "hirz-e-imam-hasan-al-askari-a-s"
   },
   "I83": {
-    "title": "Hirz-e-Imam al-Mahdi (a.t.f.s.)",
+    "title": "Hirz of Imam al-Mahdi (a.t.f.s.)",
     "slug": "hirz-e-imam-al-mahdi-a-t-f-s"
   },
   "I85": {
-    "title": "Holy Prophet (s.a.w.a.)'s prayer for security",
+    "title": "Holy Prophet (s.a.w.a.)'s Prayer for Security",
     "slug": "holy-prophet-s-a-w-a-s-prayer-for-security"
   },
   "I87": {
-    "title": "Special Qualities of some the Qur'anic Chapters And Verses",
+    "title": "Special Qualities of Some of the Quranic Chapters and Verses",
     "slug": "special-qualities-of-some-the-qur-anic-chapters-and-verses"
   },
   "I88": {
-    "title": "Special Features of Surah Qadr, Tawheed & Ayah Al Kursi",
+    "title": "Special Features of Surah al-Qadr, al-Tawhid & Ayat al-Kursi",
     "slug": "special-features-of-surah-qadr-tawheed-ayah-al-kursi"
   },
   "I9": {
-    "title": "General Ta'qeebaat-1",
+    "title": "General Taqibaat - 1",
     "slug": "general-ta-qeebaat-1"
   },
   "I94": {
-    "title": "Verses to restore the lost things",
+    "title": "Verses to Restore Lost Things",
     "slug": "verses-to-restore-the-lost-things"
   },
   "I97": {
-    "title": "Some Merits of other Surahs & verses",
+    "title": "Some Merits of Other Surahs & Verses",
     "slug": "some-merits-of-other-surahs-verses"
   },
   "I98": {
-    "title": "Things taught by Holy Prophet (s.a.w.a.) to Lady Fatimah (s.a.)",
+    "title": "Things Taught by the Holy Prophet (s.a.w.a.) to Lady Fatimah (s.a.)",
     "slug": "things-taught-by-holy-prophet-s-to-lady-fatimah-a"
   },
   "I99": {
-    "title": "Three devotional acts before going to sleep",
+    "title": "Three Devotional Acts before Going to Sleep",
     "slug": "three-devotional-acts-before-going-to-sleep"
   },
   "J1": {
@@ -2663,11 +2663,11 @@
     "slug": "merits-rituals-of-friday-night-day"
   },
   "J11|F11": {
-    "title": "Namaz of Jafar e Tayyar",
+    "title": "Namaz of Jafar Tayyar",
     "slug": "namaz-of-jafar-e-tayyar"
   },
   "J2|E34": {
-    "title": "Dua-e-Nudbah",
+    "title": "Dua Nudba",
     "slug": "dua-e-nudbah"
   },
   "J3": {
@@ -2679,7 +2679,7 @@
     "slug": "the-supplication-of-friday"
   },
   "J5|E144": {
-    "title": "Salawaat Abul Hasan al-Zarraab al-Isfahani",
+    "title": "Salawat of Abul Hasan al-Zarrab al-Isfahani",
     "slug": "salawaat-abul-hasan-al-zarraab-al-isfahani"
   },
   "J6": {
@@ -2687,7 +2687,7 @@
     "slug": "recommended-rites-of-friday"
   },
   "J7": {
-    "title": "Aamaal of Zohr Prayers on Friday",
+    "title": "Aamal of Zuhr Prayer on Friday",
     "slug": "aamaal-of-zohr-prayers-on-friday"
   },
   "J8": {
@@ -2721,14 +2721,14 @@
     "slug": "the-supplication-of-sunday"
   },
   "L2": {
-    "title": "Namaz of Sundays",
+    "title": "Namaz on Sundays",
     "slug": "namaz-of-sundays",
     "slugAliases": [
       "namaz-of-sundays-2"
     ]
   },
   "L3": {
-    "title": "Ziyarat of Sunday",
+    "title": "Ziyarat on Sunday",
     "slug": "ziyarat-of-sunday"
   },
   "M1": {
@@ -2751,7 +2751,7 @@
     "slug": "the-supplication-of-tuesday"
   },
   "N2": {
-    "title": "Namaz of Tuesdays",
+    "title": "Namaz on Tuesdays",
     "slug": "namaz-of-tuesdays",
     "slugAliases": [
       "namaz-of-tuesdays-2"
@@ -2777,15 +2777,15 @@
     ]
   },
   "O3": {
-    "title": "Ziyarat of Wednesday",
+    "title": "Ziyarat on Wednesday",
     "slug": "ziyarah-of-wednesday"
   },
   "P13": {
-    "title": "Recite 100 times between Nafilah Fajr and Namaz of Fajr سُبْحَانَ رَبِّيَ الْعَظِيْمِ",
+    "title": "Recite 100 Times between Nafilah of Fajr and Namaz of Fajr سُبْحَانَ رَبِّيَ الْعَظِيْمِ",
     "slug": "recite-100-times-between-nafilah-fajr-and-namaz-of-fajr-subhana-rabbiyal-azeem"
   },
   "P15": {
-    "title": "Recitations near Friday Dawn (Fajr)",
+    "title": "Recitations Near Friday Dawn (Fajr)",
     "slug": "recitations-near-friday-dawn-fajr"
   },
   "Q1": {
@@ -2804,7 +2804,7 @@
     "slug": "ziyarat-on-thursday"
   },
   "Q4|E154": {
-    "title": "Dua-e-Ehtejaab (The Supplication of Concealment)",
+    "title": "Dua Ihtijab (The Supplication of Concealment)",
     "slug": "dua-e-ehtejaab-the-supplication-of-concealment"
   },
   "Q4|E31": {
@@ -2812,48 +2812,48 @@
     "slug": "dua-kumayl"
   },
   "R1": {
-    "title": "Aamaal for the 1st Night and Day of the Month of Moharram",
+    "title": "Aamal for the 1st Night and Day of the Month of Muharram",
     "slug": "aamaal-for-the-1st-day-night-of-the-month-of-moharram",
     "day": "01-01"
   },
   "R11|G4": {
-    "title": "Ziyaarat-e-Ashoora",
+    "title": "Ziyarat Ashura",
     "slug": "ziyaarat-e-ashoora"
   },
   "R12|E8": {
-    "title": "Dua Alqamah",
+    "title": "Dua Alqama",
     "slug": "dua-alqamah"
   },
   "R15": {
-    "title": "Second Ziyarah on day of Ashura; lesser known version",
+    "title": "Second Ziyarat on the Day of Ashura; Lesser Known Version",
     "slug": "second-ziyarah-on-day-of-ashura-lesser-known-version"
   },
   "R15|G83": {
-    "title": "Ziyaarat-e-Ashoora Ghair Ma'roofah",
+    "title": "Ziyarat Ashura Ghair Maroofa",
     "slug": "ziyaarat-e-ashoora-ghair-ma-roofah"
   },
   "R4": {
-    "title": "The Third Of Moharram",
+    "title": "The Third of Muharram",
     "slug": "the-third-of-moharram",
     "day": "01-03"
   },
   "R5": {
-    "title": "The Ninth Of Moharram",
+    "title": "The Ninth of Muharram",
     "slug": "the-ninth-of-muharram",
     "day": "01-09"
   },
   "R6": {
-    "title": "The 10th Night Of Moharram",
+    "title": "The 10th Night of Muharram",
     "slug": "the-10th-night-of-moharram-shabe-ashura",
     "day": "N01-10"
   },
   "R7": {
-    "title": "The 10th of Moharram",
+    "title": "The 10th of Muharram",
     "slug": "the-10th-of-moharram-the-day-of-ashoora",
     "day": "01-10"
   },
   "R9": {
-    "title": "Aamal of Ashoora",
+    "title": "Aamal of Ashura",
     "slug": "aamaal-of-ashoora",
     "day": "01-10"
   },
@@ -2868,41 +2868,41 @@
     "day": "02-20"
   },
   "S7|G3": {
-    "title": "Ziyarah on the day of Arbaeen; The Twentieth of Safar",
+    "title": "Ziyarat on the Day of Arbaeen; The Twentieth of Safar",
     "slug": "ziyarah-on-the-day-of-arbaeen-the-twentieth-of-safar",
     "day": "02-20"
   },
   "T2": {
-    "title": "Aamal from 12th to 17th nights of Rabi al Awwal",
+    "title": "Aamal from the 12th to 17th Nights of Rabi al-Awwal",
     "slug": "aamal-from-12th-to-17th-nights-of-rabi-al-awwal"
   },
   "TR~D1": {
-    "title": "Taqeebaat e Namaz",
+    "title": "Taqibaat of Namaz",
     "slug": "taqeebaat-e-namaz"
   },
   "V1": {
-    "title": "13th, 14th, And 15th Of Jumadi Al Ula",
+    "title": "13th, 14th and 15th of Jumada al-Awwal",
     "slug": "13th-14th-and-15th-of-jumadi-al-ula"
   },
   "W1": {
-    "title": "3rd Jamadi al Akhirah (Martyrdom of Lady Fatimah al-Zahra (s))",
+    "title": "3rd Jumada al-Akhirah (Martyrdom of Lady Fatimah al-Zahra (s.a.))",
     "slug": "3rd-jamadi-al-akhirah-martyrdom-of-lady-fatimah-al-zahra-s"
   },
   "W2": {
-    "title": "20th Jamadi al Akhirah (Birthday of Lady Fatima al-Zahra (s))",
+    "title": "20th Jumada al-Akhirah (Birthday of Lady Fatimah al-Zahra (s.a.))",
     "slug": "20th-jamadi-al-akhirah-birthday-of-lady-fatima-al-zahra-s"
   },
   "W3": {
-    "title": "Aamal in Jamadi al Akhirah",
+    "title": "Aamal in Jumada al-Akhirah",
     "slug": "aamal-in-jamadi-al-akhirah"
   },
   "X1": {
-    "title": "Importance of the month of Rajab and it's Aamaal",
+    "title": "Importance of the Month of Rajab and its Aamal",
     "slug": "importance-of-the-month-of-rajab-and-it-s-aamaal",
     "day": "07-*"
   },
   "X10": {
-    "title": "(d) Fifteenth of Rajab (Namaz e Salman)",
+    "title": "(d) Fifteenth of Rajab (Namaz-e-Salman)",
     "slug": "d-fifteenth-of-rajab-namaz-e-salman"
   },
   "X11": {
@@ -2910,39 +2910,39 @@
     "slug": "e-thirteenth-of-rajab"
   },
   "X13": {
-    "title": "Ziyarah on the 15th of Rajab",
+    "title": "Ziyarat on the 15th of Rajab",
     "slug": "ziyarah-on-the-15th-of-rajab"
   },
   "X14": {
-    "title": "(g) Aamal & Dua of Umme Dawood",
+    "title": "(g) Aamal & Dua of Umm Dawood",
     "slug": "g-aamal-dua-of-umme-dawood"
   },
   "X15": {
-    "title": "(h) Aamal of Laylat al Mab'as (27th Night)",
+    "title": "(h) Aamal of Laylat al-Mab'ath (27th Night)",
     "slug": "h-aamal-of-laylat-al-mab-as-27th-night"
   },
   "X2": {
-    "title": "General Aamaal in Rajab",
+    "title": "General Aamal in Rajab",
     "slug": "general-aamaal-in-rajab",
     "day": "07-*"
   },
   "X3": {
-    "title": "Daily supplications of Rajab",
+    "title": "Daily Supplications of Rajab",
     "slug": "daily-supplications-of-rajab",
     "day": "07-*"
   },
   "X4": {
-    "title": "Ziyarah Rajabiyah (الحمد الله الذی اشهدنا)",
+    "title": "Ziyarat Rajabiyah (الحمد الله الذی اشهدنا)",
     "slug": "ziyarah-rajabiyah",
     "day": "07-*"
   },
   "X5": {
-    "title": "Miscellaneous Aamaal for the Month of Rajab",
+    "title": "Miscellaneous Aamal for the Month of Rajab",
     "slug": "miscellaneous-aamaal-for-the-month-of-rajab",
     "day": "07-*"
   },
   "X6": {
-    "title": "(a) First night of Friday (Laylat al Raghaaeb)",
+    "title": "(a) First Night of Friday (Laylat al-Raghaib)",
     "slug": "a-first-night-of-friday-laylat-al-raghaaeb"
   },
   "X7": {
@@ -2955,11 +2955,11 @@
     "slug": "importance-of-the-month-of-shaban"
   },
   "Y10": {
-    "title": "Fifteenth day of Shaban",
+    "title": "Fifteenth Day of Shaban",
     "slug": "fifteenth-day-of-shaban"
   },
   "Y11": {
-    "title": "Ziyarah on the 15th of Shaban",
+    "title": "Ziyarat on the 15th of Shaban",
     "slug": "ziyarah-on-the-15th-of-shaban"
   },
   "Y2": {
@@ -2972,7 +2972,7 @@
     "day": "08-*"
   },
   "Y4": {
-    "title": "Munajaat al Shabaniyyah",
+    "title": "Munajat Shabaniyah",
     "slug": "munajaat-al-shabaniyyah",
     "day": "08-*"
   },
@@ -2993,7 +2993,7 @@
     "slug": "fifteenth-night-of-shaban"
   },
   "Z1": {
-    "title": "Short Duas for the Days of Ramazan",
+    "title": "Short Duas for the Days of Ramadan",
     "slug": "short-duas-for-the-days-of-ramazan"
   },
   "Z10": {
