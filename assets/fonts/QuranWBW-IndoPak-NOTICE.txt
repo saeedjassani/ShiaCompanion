@@ -10,15 +10,38 @@ Source: https://quranwbw.com
         ("Qalam Digital Font (Madinah Edition)" on quranwbw.com)
   font: https://quranwbw.com/fonts/AlQuranNeo5x2.woff2
 
-Used with the permission of QuranWBW.com, requested by email to
-quranwbw@gmail.com in September 2026.
+Licence
+-------
+Used under a licence received from QuranWBW.com, the original contributor,
+by email from quranwbw@gmail.com to saeedjassani@gmail.com on 28 September
+2026, in reply to a request of 23 September 2026. The conditions of that
+licence:
+
+  - The app stays totally free (sadaqa-e-jariya): no ads, and no Quran text
+    behind a paywall.
+  - The font is used ONLY with its own compatible Quran text, and neither is
+    modified. The Quran text must appear in the app exactly as it does on
+    QUL, Quran.com and QuranWBW.com.
+  - The font is used for nothing but that Quran text.
+  - The app credits the font and the text as their own credits read, and says
+    that the licence to use them unmodified was received from the original
+    contributor.
+  - QuranWBW is sent the app's link once it is released, for review.
+
+These files are not covered by this repository's MIT licence. They belong to
+their authors and may not be reused without QuranWBW.com's written
+permission.
+
 The font's own licence text reads:
 
   NOT FOR SALE, NOT FOR MODIFICATION, NOT FOR DISTRIBUTION OR NOT FOR
   DEVELOPMENT WITHOUT WRITTEN NOTICE BY QURANWBW.COM
 
 Font credits, from the font's name table: made by Ayman Siddiqui, based on
-the Al Qalam Quran Majeed fonts; ayah numbers from the KFGQPC Nastaleeq font.
+the Al Qalam Quran Majeed and Al Qalam Quran Majeed Web fonts; ayah numbers
+from glyphs of the KFGQPC Nastaleeq font. Copyright line:
+© Al Qalam © Ghandhara © KFGQPC © Ayman Siddiqui © Credits: Abdul Majeed
+Khan, Arif Karim, Shakir-ul-Qadree, Jawad.
 QuranWBW credits the IndoPak text to typemybook.com, originally by InPage.
 
 Both files are bundled verbatim. The JSON is the file as served. The font was
