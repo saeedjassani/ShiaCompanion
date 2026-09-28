@@ -59,6 +59,38 @@ void main() {
       expect(store.byId(playlist.id)!.zikrUids, ['E18', 'E31']);
     });
 
+    test('plays only the chosen recordings of a zikr, first by default',
+        () async {
+      final audio = ZikrAudioIndex.parse({
+        'G1': [
+          {'file': 'yasin.mp3', 'label': 'Ziyarat'},
+          {'file': 'yasin with dua.mp3', 'label': 'Ziyarat with Dua'},
+        ],
+      });
+      final available = audio['G1']!;
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning', zikrUids: ['G1']);
+      expect(store.byId(playlist.id)!.tracksFor('G1', available),
+          [available.first]);
+
+      await store.setTrackFiles(
+          playlist.id, 'G1', ['yasin.mp3', 'yasin with dua.mp3']);
+      store.resetForTest();
+      expect(store.byId(playlist.id)!.tracksFor('G1', available), available,
+          reason: 'the choice survives a reload from storage');
+
+      await store.setTrackFiles(playlist.id, 'G1', ['gone.mp3']);
+      expect(store.byId(playlist.id)!.tracksFor('G1', available),
+          [available.first],
+          reason: 'a recording that no longer exists falls back to the first');
+
+      await store.removeAt(playlist.id, 0);
+      await store.addZikr(playlist.id, 'G1', trackFile: 'yasin with dua.mp3');
+      expect(store.byId(playlist.id)!.tracksFor('G1', available),
+          [available.last],
+          reason: 'adding one recording from the zikr page picks just it');
+    });
+
     test('ignores unreadable storage rather than throwing', () async {
       await _freshStore({ZikrPlaylistStore.storageKey: 'not json'});
       expect(ZikrPlaylistStore.instance.playlists, isEmpty);

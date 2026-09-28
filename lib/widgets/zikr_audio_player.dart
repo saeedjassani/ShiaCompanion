@@ -319,6 +319,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
                 context,
                 zikrUid: widget.zikrUid,
                 zikrTitle: widget.zikrTitle,
+                track: widget.tracks.length > 1 ? _currentTrack : null,
               ),
             ),
           if (AudioDownloadStore.isSupported)

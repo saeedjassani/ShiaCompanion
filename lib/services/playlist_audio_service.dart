@@ -102,8 +102,9 @@ class PlaylistAudioService extends ChangeNotifier {
     return seen.length;
   }
 
-  /// Every recording of every zikr in [zikrUids], in order. Zikrs with no
-  /// recording are skipped rather than failing the whole queue.
+  /// The recordings [tracksFor] gives for every zikr in [zikrUids], in order
+  /// - for a playlist, the ones the reader chose. Zikrs with no recording are
+  /// skipped rather than failing the whole queue.
   static List<PlaylistQueueEntry> buildQueue(
     List<String> zikrUids, {
     required List<ZikrAudioTrack> Function(String uid) tracksFor,
@@ -156,7 +157,7 @@ class PlaylistAudioService extends ChangeNotifier {
       await Future.wait([audio.load(), downloads.load()]);
       var queue = buildQueue(
         playlist.zikrUids,
-        tracksFor: audio.tracksFor,
+        tracksFor: (uid) => playlist.tracksFor(uid, audio.tracksFor(uid)),
         titleFor: _indexTitle,
       );
       if (queue.isEmpty) return PlaylistStartResult.nothingToPlay;
