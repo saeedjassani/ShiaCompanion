@@ -217,7 +217,7 @@ Future<void> showAddToPlaylistSheet(
             ),
             for (final playlist in store.playlists)
               ListTile(
-                leading: const Icon(Icons.queue_music),
+                leading: const Icon(Icons.playlist_play_rounded),
                 title: Text(playlist.name),
                 subtitle: Text(_countLabel(playlist.zikrUids.length)),
                 trailing: _hasRecording(playlist, uid, track)
@@ -354,7 +354,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
           final playlists = store.playlists;
           if (playlists.isEmpty) {
             return const _EmptyState(
-              icon: Icons.queue_music,
+              icon: Icons.playlist_play_rounded,
               message: 'Make a playlist of the recitations you listen to '
                   'every day - Dua Ahad and Ziyarat Ashura each morning, say '
                   '- and start them all with one tap.',
@@ -492,7 +492,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
           return Scaffold(
             appBar: AppBar(),
             body: const _EmptyState(
-              icon: Icons.queue_music,
+              icon: Icons.playlist_play_rounded,
               message: 'This playlist has been deleted.',
             ),
           );
@@ -619,7 +619,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                               selected: isPlaying,
                               leading: Icon(isPlaying
                                   ? Icons.graphic_eq
-                                  : Icons.menu_book_outlined),
+                                  : Icons.headphones_outlined),
                               title: Text(_zikrTitle(uid)),
                               subtitle: subtitle == null && recordings == null
                                   ? null

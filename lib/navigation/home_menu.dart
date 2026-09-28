@@ -213,7 +213,7 @@ final HomeMenuItem quranMenuItem = HomeMenuItem(
 /// is ready for everyone - then move it into [homeMenuItems].
 final HomeMenuItem playlistsMenuItem = HomeMenuItem(
   label: 'Playlists',
-  icon: Icons.queue_music_rounded,
+  icon: Icons.playlist_play_rounded,
   pageBuilder: () => const PlaylistsPage(),
 );
 
