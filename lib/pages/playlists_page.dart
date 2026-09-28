@@ -793,13 +793,17 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
                     itemBuilder: (context, index) {
                       final uid = visible[index];
                       final at = playlist.zikrUids.indexOf(uid);
-                      return CheckboxListTile(
-                        value: at >= 0,
-                        title: Text(_zikrTitle(uid)),
-                        onChanged: (checked) => checked == true
-                            ? store.addZikr(playlist.id, uid)
-                            : store.removeAt(playlist.id, at),
-                      );
+                      final available = ZikrAudioIndex.instance.tracksFor(uid);
+                      if (available.length < 2) {
+                        return CheckboxListTile(
+                          value: at >= 0,
+                          title: Text(_zikrTitle(uid)),
+                          onChanged: (checked) => checked == true
+                              ? store.addZikr(playlist.id, uid)
+                              : store.removeAt(playlist.id, at),
+                        );
+                      }
+                      return _buildRecordings(playlist, uid, at, available);
                     },
                   ),
                 ),
@@ -810,6 +814,67 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
       ),
     );
   }
+}
+
+/// A zikr with several recordings: its own checkbox adds or removes all of
+/// them, and one per recording underneath picks them individually - the
+/// same choice as the playlist page's "Choose recordings".
+Widget _buildRecordings(
+  ZikrPlaylist playlist,
+  String uid,
+  int at,
+  List<ZikrAudioTrack> available,
+) {
+  final store = ZikrPlaylistStore.instance;
+  final chosen = at < 0
+      ? const <String>{}
+      : {for (final track in playlist.tracksFor(uid, available)) track.file};
+  final allFiles = [for (final track in available) track.file];
+
+  Future<void> setChosen(Set<String> files) async {
+    if (files.isEmpty) {
+      await store.removeAt(playlist.id, at);
+      return;
+    }
+    final ordered = [
+      for (final file in allFiles)
+        if (files.contains(file)) file,
+    ];
+    if (at < 0) await store.addZikr(playlist.id, uid);
+    await store.setTrackFiles(playlist.id, uid, ordered);
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      CheckboxListTile(
+        tristate: true,
+        value: chosen.isEmpty
+            ? false
+            : chosen.length == available.length
+                ? true
+                : null,
+        title: Text(_zikrTitle(uid)),
+        subtitle: Text('${available.length} recordings'),
+        // Ticking a partly-chosen zikr fills in the rest; ticking a full
+        // one takes it out.
+        onChanged: (_) => setChosen(
+            chosen.length == available.length ? {} : allFiles.toSet()),
+      ),
+      for (var i = 0; i < available.length; i++)
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: 32),
+          child: CheckboxListTile(
+            dense: true,
+            value: chosen.contains(available[i].file),
+            title: Text(_trackLabel(available[i], i)),
+            onChanged: (checked) => setChosen(checked == true
+                ? {...chosen, available[i].file}
+                : ({...chosen}..remove(available[i].file))),
+          ),
+        ),
+    ],
+  );
 }
 
 /// A playlist's size and, once any of it is saved, how much is offline.

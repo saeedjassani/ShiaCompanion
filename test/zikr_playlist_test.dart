@@ -86,8 +86,8 @@ void main() {
 
       await store.removeAt(playlist.id, 0);
       await store.addZikr(playlist.id, 'G1', trackFile: 'yasin with dua.mp3');
-      expect(store.byId(playlist.id)!.tracksFor('G1', available),
-          [available.last],
+      expect(
+          store.byId(playlist.id)!.tracksFor('G1', available), [available.last],
           reason: 'adding one recording from the zikr page picks just it');
     });
 
@@ -277,6 +277,45 @@ void main() {
       await tester.tap(find.text('Ziyarat Ashura'));
       await tester.pump();
       expect(ZikrPlaylistStore.instance.byId(playlist.id)!.zikrUids, ['E18']);
+    });
+
+    testWidgets('the picker lists each recording of a zikr with several',
+        (tester) async {
+      items = {...items, 'G1': 'Ziyarat Aal e Yasin'};
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        'G1': [
+          {'file': 'yasin.mp3', 'label': 'Ziyarat'},
+          {'file': 'yasin-dua.mp3', 'label': 'Ziyarat with Dua'},
+        ],
+      }));
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning');
+      await tester.pumpWidget(
+          MaterialApp(home: AddRecitationsPage(playlistId: playlist.id)));
+      final available = ZikrAudioIndex.instance.tracksFor('G1');
+      List<String> chosen() => [
+            for (final track
+                in store.byId(playlist.id)!.tracksFor('G1', available))
+              track.file,
+          ];
+
+      await tester.tap(find.text('Ziyarat with Dua'));
+      await tester.pump();
+      expect(store.byId(playlist.id)!.zikrUids, ['G1']);
+      expect(chosen(), ['yasin-dua.mp3']);
+
+      await tester.tap(find.text('Ziyarat Aal e Yasin'));
+      await tester.pump();
+      expect(chosen(), ['yasin.mp3', 'yasin-dua.mp3'],
+          reason: "the zikr's own box fills in the rest");
+
+      await tester.tap(find.text('Ziyarat'));
+      await tester.pump();
+      expect(chosen(), ['yasin-dua.mp3']);
+      await tester.tap(find.text('Ziyarat with Dua'));
+      await tester.pump();
+      expect(store.byId(playlist.id)!.zikrUids, isEmpty,
+          reason: 'unticking the last recording takes the zikr out');
     });
 
     testWidgets('the detail page shows the queue in order', (tester) async {
