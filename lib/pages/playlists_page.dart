@@ -496,7 +496,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                               selected: isPlaying,
                               leading: Icon(isPlaying
                                   ? Icons.graphic_eq
-                                  : Icons.music_note_outlined),
+                                  : Icons.menu_book_outlined),
                               title: Text(_zikrTitle(uid)),
                               subtitle: subtitle == null
                                   ? null
@@ -756,8 +756,8 @@ class NowPlayingBar extends StatelessWidget {
                             ),
                             Text(
                               '${audio.playlist?.name ?? ''} · '
-                              '${(audio.currentIndex ?? 0) + 1} of '
-                              '${audio.queue.length}',
+                              '${audio.zikrPosition ?? 1} of '
+                              '${audio.zikrCount}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodySmall?.copyWith(
