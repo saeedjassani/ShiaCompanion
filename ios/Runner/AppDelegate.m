@@ -1,13 +1,100 @@
 #include "AppDelegate.h"
 #include "GeneratedPluginRegistrant.h"
+@import CoreLocation;
 @import WatchConnectivity;
 
 static NSString *const kAppGroupID = @"group.com.developer110.shiacompanion";
 static NSString *const kWatchUpdatedAtKey = @"sc_watch_updated_at";
 
+/// Streams the compass heading to the qibla screen as
+/// `[magneticHeading, trueHeading, headingAccuracy]`, all in degrees.
+///
+/// This exists because flutter_compass only ever reports `trueHeading`, and
+/// Core Location leaves that at -1 unless the same location manager is also
+/// running location updates - which the plugin's never does. On a phone with a
+/// perfectly good magnetometer that meant a stream of -1s, every one of them
+/// rightly discarded, and a qibla screen announcing there was no compass.
+/// `magneticHeading` has no such dependency, so both are sent and the Dart side
+/// uses true north when Core Location has it and corrects magnetic north with
+/// its own declination model when it does not.
+@interface SCHeadingStreamHandler : NSObject <FlutterStreamHandler, CLLocationManagerDelegate>
+@property(nonatomic, strong) CLLocationManager *manager;
+@property(nonatomic, copy) FlutterEventSink eventSink;
+@end
+
+static double SCNormalizeDegrees(double degrees) {
+  double wrapped = fmod(degrees, 360.0);
+  return wrapped < 0 ? wrapped + 360.0 : wrapped;
+}
+
+@implementation SCHeadingStreamHandler
+
+- (FlutterError *)onListenWithArguments:(id)arguments
+                              eventSink:(FlutterEventSink)events {
+  if (![CLLocationManager headingAvailable]) {
+    return [FlutterError errorWithCode:@"unavailable"
+                               message:@"This device does not have a compass."
+                               details:nil];
+  }
+  if (!self.manager) {
+    self.manager = [[CLLocationManager alloc] init];
+    self.manager.delegate = self;
+    self.manager.headingFilter = 0.5;
+  }
+  self.eventSink = events;
+  [self.manager startUpdatingHeading];
+  return nil;
+}
+
+- (FlutterError *)onCancelWithArguments:(id)arguments {
+  [self.manager stopUpdatingHeading];
+  self.eventSink = nil;
+  return nil;
+}
+
+- (void)locationManager:(CLLocationManager *)manager
+       didUpdateHeading:(CLHeading *)heading {
+  if (!self.eventSink) return;
+  // Core Location measures from the top of the device held in portrait; the
+  // dial is drawn relative to the screen, which may have rotated.
+  double offset = [self interfaceRotationDegrees];
+  // -1 is Core Location's "could not determine" for trueHeading; it is passed
+  // through untouched so the rotation cannot turn it into a real bearing.
+  double trueHeading = heading.trueHeading;
+  self.eventSink(@[
+    @(SCNormalizeDegrees(heading.magneticHeading + offset)),
+    @(trueHeading < 0 ? trueHeading : SCNormalizeDegrees(trueHeading + offset)),
+    @(heading.headingAccuracy),
+  ]);
+}
+
+- (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager {
+  return YES;
+}
+
+- (double)interfaceRotationDegrees {
+  for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+    if (![scene isKindOfClass:[UIWindowScene class]]) continue;
+    switch (((UIWindowScene *)scene).interfaceOrientation) {
+      case UIInterfaceOrientationPortraitUpsideDown:
+        return 180;
+      case UIInterfaceOrientationLandscapeRight:
+        return 90;
+      case UIInterfaceOrientationLandscapeLeft:
+        return -90;
+      default:
+        return 0;
+    }
+  }
+  return 0;
+}
+
+@end
+
 @interface AppDelegate () <FlutterStreamHandler, WCSessionDelegate>
 
 @property(nonatomic, copy) FlutterEventSink proximityEventSink;
+@property(nonatomic, strong) SCHeadingStreamHandler *headingStreamHandler;
 /// Last content dictionary handed to the watch (without the timestamp), used to avoid
 /// burning the daily complication-transfer budget on unchanged data.
 @property(nonatomic, copy) NSDictionary *lastWatchContent;
@@ -48,6 +135,7 @@ static NSString *const kWatchUpdatedAtKey = @"sc_watch_updated_at";
   [GeneratedPluginRegistrant registerWithRegistry:engineBridge.pluginRegistry];
   [self configureHomeWidgetChannelWithMessenger:engineBridge.applicationRegistrar.messenger];
   [self configureProximitySensorChannelsWithMessenger:engineBridge.applicationRegistrar.messenger];
+  [self configureCompassHeadingChannelWithMessenger:engineBridge.applicationRegistrar.messenger];
   [self configureFileBackupChannelWithMessenger:engineBridge.applicationRegistrar.messenger];
 }
 
@@ -138,6 +226,15 @@ static NSString *const kWatchUpdatedAtKey = @"sc_watch_updated_at";
 
     result(FlutterMethodNotImplemented);
   }];
+}
+
+- (void)configureCompassHeadingChannelWithMessenger:
+    (NSObject<FlutterBinaryMessenger> *)messenger {
+  self.headingStreamHandler = [[SCHeadingStreamHandler alloc] init];
+  FlutterEventChannel *channel =
+      [FlutterEventChannel eventChannelWithName:@"shia_companion/compass_heading"
+                                binaryMessenger:messenger];
+  [channel setStreamHandler:self.headingStreamHandler];
 }
 
 - (void)configureProximitySensorChannelsWithMessenger:
