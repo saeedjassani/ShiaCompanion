@@ -43,6 +43,7 @@ class AzanPlaybackService {
   static const String _stopPortName = 'shia_companion_azan_stop_port';
   static const String _playingPrefKey = 'azan_currently_playing';
   static const String _playingPrayerPrefKey = 'azan_currently_playing_prayer';
+  static const String _pausedPrefKey = 'azan_currently_paused';
 
   /// Registers android_alarm_manager_plus's own background dispatch. Must
   /// run in the main isolate before any [schedule] call - pairs with
@@ -210,9 +211,9 @@ class AzanPlaybackService {
     // player underneath it, whose last word is an `idle` event. Listening for
     // `completed` alone left the stop port and the "is playing" flag behind,
     // so the app kept showing a Stop banner for an Azan that had already gone
-    // quiet. A pause is just a pause - the player stays ready to resume - but
-    // the flag follows it, so the banner only shows while the Azan is
-    // actually audible.
+    // quiet. A pause is just a pause - the player stays ready to resume, and
+    // a separate flag lets the banner offer Resume instead of pretending the
+    // Azan is still audible.
     var started = false;
     bool? lastPlaying;
     unawaited(_completionSub?.cancel());
@@ -226,7 +227,7 @@ class AzanPlaybackService {
       if (state.playing && processing != ProcessingState.idle) started = true;
       if (!started || state.playing == lastPlaying) return;
       lastPlaying = state.playing;
-      unawaited(_setPlayingFlag(state.playing));
+      unawaited(_setPaused(!state.playing));
     });
 
     // This notification, not the app, is what a reader actually sees at the
@@ -267,6 +268,7 @@ class AzanPlaybackService {
     IsolateNameServer.registerPortWithName(port.sendPort, _stopPortName);
     port.listen((message) {
       if (message == 'stop') unawaited(_stopPlayback());
+      if (message == 'resume') _resumeActive();
     });
   }
 
@@ -317,6 +319,24 @@ class AzanPlaybackService {
     }
   }
 
+  /// Resumes an Azan paused from its notification, in whichever isolate is
+  /// holding it - see [stopIfPlaying] for why this goes over a named port.
+  static Future<void> resumeIfPaused() async {
+    final port = IsolateNameServer.lookupPortByName(_stopPortName);
+    if (port != null) {
+      port.send('resume');
+      return;
+    }
+    _resumeActive();
+  }
+
+  static void _resumeActive() {
+    final player = _activePlayer;
+    if (player == null || player.playing) return;
+    // Unawaited: play()'s future only completes when playback stops again.
+    unawaited(player.play());
+  }
+
   // Both reload() first: SharedPreferences.getInstance() is a singleton
   // cached in memory per isolate, and playback is usually started by a
   // *different* isolate than the one asking (the alarm callback vs. the app
@@ -340,6 +360,14 @@ class AzanPlaybackService {
     return true;
   }
 
+  /// Whether the Azan [isPlaying] reports is currently paused rather than
+  /// audible - only meaningful while [isPlaying] is true.
+  static Future<bool> isPaused() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    return prefs.getBool(_pausedPrefKey) ?? false;
+  }
+
   static Future<String?> currentPrayerName() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
@@ -350,16 +378,18 @@ class AzanPlaybackService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_playingPrefKey, true);
     await prefs.setString(_playingPrayerPrefKey, prayerName);
+    await prefs.setBool(_pausedPrefKey, false);
   }
 
-  static Future<void> _setPlayingFlag(bool playing) async {
+  static Future<void> _setPaused(bool paused) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_playingPrefKey, playing);
+    await prefs.setBool(_pausedPrefKey, paused);
   }
 
   static Future<void> _clearPlaying() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_playingPrefKey, false);
     await prefs.remove(_playingPrayerPrefKey);
+    await prefs.remove(_pausedPrefKey);
   }
 }
