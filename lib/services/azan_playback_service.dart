@@ -22,7 +22,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// recitation - a real foreground media-playback service with its own audio
 /// focus and a lock-screen/notification media control - so it survives being
 /// backgrounded, and can still be dismissed on purpose from that
-/// notification or from [stopIfPlaying].
+/// notification or from [stopIfPlaying]. Dismissing/stopping from the
+/// notification is observed (not just requested): the plugin disposes the
+/// platform player without telling this isolate, so an idle that arrives
+/// after playback was active is treated as a stop - otherwise the "is
+/// playing" flag would stay stuck and the banner would claim the azan was
+/// still playing. Pausing from the notification likewise hides the banner
+/// (it only shows while audio is actually playing) without tearing the
+/// player down, so playback can still resume from there.
 ///
 /// On Android, playback is triggered at the exact prayer time by
 /// [alarmCallback], scheduled through android_alarm_manager_plus (see
@@ -166,6 +173,11 @@ class AzanPlaybackService {
   static AudioPlayer? _activePlayer;
   static ReceivePort? _stopPort;
   static StreamSubscription<PlayerState>? _completionSub;
+  static StreamSubscription<bool>? _playingMirrorSub;
+  // The prayer whose azan [_activePlayer] is (or was most recently) playing -
+  // lets the playing-state mirror re-assert the flag on resume from a
+  // notification pause, after it cleared it for the pause itself.
+  static String? _currentPrayerName;
 
   static Future<void> _startPlayback(
     String prayerName, {
@@ -202,13 +214,50 @@ class AzanPlaybackService {
     // fresh isolate.
     final player = AudioPlayer();
     _activePlayer = player;
+    _currentPrayerName = prayerName;
     _registerStopPort();
     await _setPlaying(prayerName);
 
     unawaited(_completionSub?.cancel());
+    // An idle that arrives *after* the player was actually active means the
+    // platform player went away underneath this isolate - the media
+    // notification's stop/dismiss does exactly that, via audio_service's
+    // onStop, without telling anyone on the Dart side (the native dispose
+    // broadcasts an idle processingState, but never a playing=false, so the
+    // Dart player's `playing` stays stale-true). Without this, the "is
+    // playing" flag and the stop port stayed registered forever: dismissing
+    // the notification never stopped the azan as far as the app knew, and
+    // the banner kept claiming it was still playing. The initial idle
+    // emission from subscribing is ignored via [wasActive] - the player is
+    // idle before anything has loaded, which is not a stop.
+    var wasActive = false;
     _completionSub = player.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
+      final processingState = state.processingState;
+      if (processingState == ProcessingState.completed) {
         unawaited(_stopPlayback());
+      } else if (processingState == ProcessingState.idle) {
+        if (wasActive) {
+          unawaited(_stopPlayback(platformPlayerAlive: false));
+        }
+      } else {
+        wasActive = true;
+      }
+    });
+
+    // The banner must only show while the azan is actually being played, so
+    // the flag it polls mirrors the player's real playing state: a pause
+    // from the notification clears it (without tearing the player down, so
+    // the notification's play control can still resume), and a resume
+    // re-asserts it. The pre-play false emission is ignored - the flag was
+    // just set above and playback hasn't started yet.
+    unawaited(_playingMirrorSub?.cancel());
+    var playbackStarted = false;
+    _playingMirrorSub = player.playingStream.listen((playing) {
+      if (playing) {
+        playbackStarted = true;
+        unawaited(_setPlaying(_currentPrayerName ?? 'Prayer'));
+      } else if (playbackStarted) {
+        unawaited(_clearPlaying());
       }
     });
 
@@ -240,6 +289,18 @@ class AzanPlaybackService {
     } catch (e) {
       debugPrint('Azan playback failed: $e');
       await _stopPlayback();
+      return;
+    }
+
+    // A stop that landed while the source was still loading (e.g. the
+    // notification's stop button tapped instantly) leaves this player
+    // orphaned: _stopPlayback ran, _activePlayer moved on or went null, and
+    // this one would otherwise keep playing with no banner, no stop port,
+    // and no flag tracking it. Release it instead.
+    if (_activePlayer != player) {
+      try {
+        await player.dispose();
+      } catch (_) {}
     }
   }
 
@@ -253,13 +314,30 @@ class AzanPlaybackService {
     });
   }
 
-  static Future<void> _stopPlayback() async {
+  /// Releases the player and clears every trace of "is playing" - the flag,
+  /// the stop port, and the subscriptions. When the platform player was
+  /// already disposed underneath us (the notification's stop/dismiss path -
+  /// see the idle handling in [_startPlayback]), [platformPlayerAlive] is
+  /// false and the platform `stop()` call is skipped: just_audio would
+  /// re-create a native player for it (see its ensurePlayerInitialized) that
+  /// nothing then releases. The Dart-side `dispose()` stays safe in both
+  /// cases - its platform call is a no-op for an already-gone player - and
+  /// still closes the Dart stream subjects.
+  static Future<void> _stopPlayback({bool platformPlayerAlive = true}) async {
     await _completionSub?.cancel();
     _completionSub = null;
+    await _playingMirrorSub?.cancel();
+    _playingMirrorSub = null;
     final player = _activePlayer;
     _activePlayer = null;
-    await player?.stop();
-    await player?.dispose();
+    if (platformPlayerAlive) {
+      try {
+        await player?.stop();
+      } catch (_) {}
+    }
+    try {
+      await player?.dispose();
+    } catch (_) {}
     _stopPort?.close();
     _stopPort = null;
     IsolateNameServer.removePortNameMapping(_stopPortName);
@@ -278,6 +356,10 @@ class AzanPlaybackService {
     final port = IsolateNameServer.lookupPortByName(_stopPortName);
     if (port != null) {
       port.send('stop');
+      // The stop lands in the playback isolate asynchronously; clear the
+      // flag now so the banner hides immediately instead of on its next
+      // poll. The isolate's own _stopPlayback clears it again - idempotent.
+      await _clearPlaying();
       return;
     }
     if (_activePlayer != null) {
