@@ -310,6 +310,10 @@ class AzanPlaybackService {
     final port = IsolateNameServer.lookupPortByName(_stopPortName);
     if (port != null) {
       port.send('stop');
+      // The stop lands in the playing isolate asynchronously; clear the flag
+      // now so the banner hides at once rather than on its next poll. That
+      // isolate's own _stopPlayback clears it again - harmless.
+      await _clearPlaying();
       return;
     }
     if (_activePlayer != null) {
