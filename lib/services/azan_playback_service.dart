@@ -4,7 +4,6 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -108,8 +107,7 @@ class AzanPlaybackService {
   static Future<bool> isAnyScheduled(List<int> alarmIds) async {
     if (kIsWeb || !Platform.isAndroid || alarmIds.isEmpty) return true;
     try {
-      return await _alarmsChannel.invokeMethod<bool>(
-              'anyScheduled', alarmIds) ??
+      return await _alarmsChannel.invokeMethod<bool>('anyScheduled', alarmIds) ??
           true;
     } catch (e) {
       debugPrint('Could not check Azan alarms: $e');
@@ -168,12 +166,6 @@ class AzanPlaybackService {
   static AudioPlayer? _activePlayer;
   static ReceivePort? _stopPort;
   static StreamSubscription<PlayerState>? _completionSub;
-  static StreamSubscription<AudioInterruptionEvent>? _interruptionSub;
-
-  /// True while a phone call or another app holds audio focus and just_audio
-  /// has paused the Azan itself, expecting to resume it once the
-  /// interruption ends - the one kind of pause that must not end the Azan.
-  static bool _interrupted = false;
 
   static Future<void> _startPlayback(
     String prayerName, {
@@ -213,33 +205,29 @@ class AzanPlaybackService {
     _registerStopPort();
     await _setPlaying(prayerName);
 
-    // Stopping or swiping away the playback notification (or pausing from
-    // it) never completes the player: just_audio_background only flips
-    // `playing` to false - and on stop/swipe also releases the native player
-    // underneath this one. Listening for `completed` alone left the stop port
-    // and the "is playing" flag behind, so the app kept showing a Stop banner
-    // for an Azan that had already gone quiet. So once it has started, any
-    // pause that isn't a temporary audio-focus interruption ends the Azan
-    // outright, and the flag only ever says true while it is audible.
+    // Stopping the Azan player from its notification, or swiping it away,
+    // never completes this player: just_audio_background releases the native
+    // player underneath it, whose last word is an `idle` event. Listening for
+    // `completed` alone left the stop port and the "is playing" flag behind,
+    // so the app kept showing a Stop banner for an Azan that had already gone
+    // quiet. A pause is just a pause - the player stays ready to resume - but
+    // the flag follows it, so the banner only shows while the Azan is
+    // actually audible.
     var started = false;
     bool? lastPlaying;
     unawaited(_completionSub?.cancel());
     _completionSub = player.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
+      final processing = state.processingState;
+      if (processing == ProcessingState.completed ||
+          (started && processing == ProcessingState.idle)) {
         unawaited(_stopPlayback());
         return;
       }
-      if (state.playing == lastPlaying) return;
+      if (state.playing && processing != ProcessingState.idle) started = true;
+      if (!started || state.playing == lastPlaying) return;
       lastPlaying = state.playing;
-      if (state.playing) {
-        started = true;
-        unawaited(_setPlayingFlag(true));
-      } else if (started) {
-        unawaited(_setPlayingFlag(false));
-        unawaited(_endIfStillPaused(player));
-      }
+      unawaited(_setPlayingFlag(state.playing));
     });
-    await _watchInterruptions(player);
 
     // This notification, not the app, is what a reader actually sees at the
     // moment audio starts unprompted - often with the phone locked, having
@@ -272,43 +260,6 @@ class AzanPlaybackService {
     }
   }
 
-  static Future<void> _watchInterruptions(AudioPlayer player) async {
-    await _interruptionSub?.cancel();
-    _interrupted = false;
-    try {
-      final session = await AudioSession.instance;
-      _interruptionSub = session.interruptionEventStream.listen((event) {
-        if (event.begin) {
-          // `unknown` is a permanent focus loss just_audio won't resume from,
-          // so that pause is left to end the Azan like any other.
-          _interrupted = event.type == AudioInterruptionType.pause;
-        } else if (_interrupted) {
-          _interrupted = false;
-          // just_audio resumes on its own here if it can; if it didn't, the
-          // Azan is over rather than left silently paused.
-          unawaited(
-              _endIfStillPaused(player, after: const Duration(seconds: 2)));
-        }
-      });
-    } catch (e) {
-      debugPrint('Could not watch Azan audio interruptions: $e');
-    }
-  }
-
-  /// Ends [player]'s Azan unless it is playing again, or paused only for an
-  /// interruption, after a short grace period - long enough for audio_session's
-  /// interruption event, which can land just after the pause it caused.
-  static Future<void> _endIfStillPaused(
-    AudioPlayer player, {
-    Duration after = const Duration(milliseconds: 500),
-  }) async {
-    await Future<void>.delayed(after);
-    if (!identical(_activePlayer, player) || player.playing || _interrupted) {
-      return;
-    }
-    await _stopPlayback();
-  }
-
   static void _registerStopPort() {
     IsolateNameServer.removePortNameMapping(_stopPortName);
     final port = ReceivePort();
@@ -322,9 +273,6 @@ class AzanPlaybackService {
   static Future<void> _stopPlayback() async {
     await _completionSub?.cancel();
     _completionSub = null;
-    await _interruptionSub?.cancel();
-    _interruptionSub = null;
-    _interrupted = false;
     final player = _activePlayer;
     _activePlayer = null;
     // The shared state goes first: when the notification already stopped
