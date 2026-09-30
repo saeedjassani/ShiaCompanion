@@ -4,9 +4,6 @@ description: >
   shards and the pre-rendered zikr SEO pages.
 
 inputs:
-  flutter-version:
-    description: Flutter SDK version to build with.
-    required: true
   site-origin:
     description: Origin baked into the generated SEO pages and sitemap.
     required: false
@@ -17,7 +14,6 @@ runs:
   steps:
     - uses: subosito/flutter-action@v2
       with:
-        flutter-version: ${{ inputs.flutter-version }}
         channel: stable
         cache: true
 

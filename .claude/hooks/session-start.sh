@@ -15,45 +15,42 @@ export CI=true
 
 FLUTTER_HOME="/opt/flutter"
 
-# Read the pinned version from .github/workflows/ci.yml instead of repeating
-# it here, per that file's own comment: "Pinned so a new Flutter stable
-# release can never turn CI red on its own. Bump deliberately, in this one
-# place." This keeps the web session on the same Flutter version CI uses.
-FLUTTER_VERSION="$(grep -m1 "FLUTTER_VERSION:" "$CLAUDE_PROJECT_DIR/.github/workflows/ci.yml" | sed -E "s/.*FLUTTER_VERSION:[[:space:]]*'?([0-9.]+)'?.*/\1/")"
-
-if [ -z "$FLUTTER_VERSION" ]; then
-  echo "session-start: could not read FLUTTER_VERSION from ci.yml, skipping Flutter install" >&2
-  exit 0
-fi
-
 installed_version=""
 if [ -x "$FLUTTER_HOME/bin/flutter" ]; then
   installed_version="$("$FLUTTER_HOME/bin/flutter" --version --machine 2>/dev/null | sed -n 's/.*"frameworkVersion": *"\([^"]*\)".*/\1/p')"
 fi
 
-if [ "$installed_version" != "$FLUTTER_VERSION" ]; then
-  echo "session-start: installing Flutter $FLUTTER_VERSION (found: ${installed_version:-none})"
-
-  releases_json="$(mktemp)"
-  curl -fsSL --max-time 60 -o "$releases_json" \
-    "https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json"
-
-  read -r archive expected_sha256 <<EOF_PY
+# CI installs the latest stable Flutter (no pinned version), so match it
+# here: look up the current stable release from Flutter's release manifest.
+releases_json="$(mktemp)"
+FLUTTER_VERSION=""
+if curl -fsSL --max-time 60 -o "$releases_json" \
+  "https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json"; then
+  read -r FLUTTER_VERSION archive expected_sha256 <<EOF_PY
 $(python3 -c "
 import json
 d = json.load(open('$releases_json'))
+stable = d['current_release']['stable']
 for r in d['releases']:
-    if r['version'] == '$FLUTTER_VERSION' and r.get('channel') == 'stable':
-        print(r['archive'], r['sha256'])
+    if r['hash'] == stable and r.get('channel') == 'stable':
+        print(r['version'], r['archive'], r['sha256'])
         break
 ")
 EOF_PY
-  rm -f "$releases_json"
+fi
+rm -f "$releases_json"
 
-  if [ -z "${archive:-}" ]; then
-    echo "session-start: Flutter $FLUTTER_VERSION not found in releases_linux.json, skipping install" >&2
+if [ -z "${FLUTTER_VERSION:-}" ] || [ -z "${archive:-}" ]; then
+  if [ -z "$installed_version" ]; then
+    echo "session-start: could not find the current stable Flutter release, skipping Flutter install" >&2
     exit 0
   fi
+  echo "session-start: could not look up the current stable Flutter release, using installed $installed_version" >&2
+  FLUTTER_VERSION="$installed_version"
+fi
+
+if [ "$installed_version" != "$FLUTTER_VERSION" ]; then
+  echo "session-start: installing Flutter $FLUTTER_VERSION (found: ${installed_version:-none})"
 
   tarball="$(mktemp --suffix=.tar.xz)"
   curl -fsSL --max-time 300 -o "$tarball" \

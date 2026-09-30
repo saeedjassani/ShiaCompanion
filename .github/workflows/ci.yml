@@ -11,11 +11,6 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # Pinned so a new Flutter stable release can never turn CI red on its own.
-  # Bump deliberately, in this one place.
-  FLUTTER_VERSION: '3.47.5'
-
 jobs:
   analyze-and-test:
     name: Analyze and test
@@ -25,7 +20,6 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
@@ -54,8 +48,6 @@ jobs:
       - uses: actions/checkout@v5
 
       - uses: ./.github/actions/build-web
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - uses: ./.github/actions/visual-tests
         with:
@@ -82,7 +74,6 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
@@ -129,7 +120,6 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
