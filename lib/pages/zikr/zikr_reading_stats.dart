@@ -31,6 +31,8 @@ class ZikrTabReadingStats {
   double get minutes => arabicWords > 0
       ? arabicWords / _arabicWordsPerMinute
       : latinWords / _latinWordsPerMinute;
+
+  Duration get duration => Duration(seconds: (minutes * 60).round());
 }
 
 /// Reading effort for every visible tab of a zikr.
@@ -50,19 +52,6 @@ class ZikrReadingStats {
   }
 
   bool get hasContent => tabs.any((tab) => !tab.isEmpty);
-
-  /// Share of the whole zikr each tab represents, so progress across tabs
-  /// tracks content rather than tab count. Falls back to equal weights when
-  /// nothing can be measured.
-  List<double> get tabWeights {
-    if (tabs.isEmpty) return const [];
-
-    final total = totalMinutes;
-    if (total <= 0) {
-      return List<double>.filled(tabs.length, 1 / tabs.length);
-    }
-    return tabs.map((tab) => tab.minutes / total).toList();
-  }
 }
 
 /// Measures how long the given tabs take to recite.
@@ -121,6 +110,115 @@ int _countWords(String line) {
       .length;
 }
 
+/// Each content line's share of its tab's reading effort, on the same basis
+/// as [ZikrTabReadingStats.minutes]: a tab with Arabic is weighted by its
+/// Arabic words alone - transliteration, translation, headings and notes weigh
+/// nothing - and a tab without any by all of its words.
+///
+/// [lines] are the tab's lines as the viewer lays them out
+/// (`ParsedZikrContent.lines`), so indexes line up with list items.
+List<double> zikrLineWeights(List<String> lines) {
+  final words = <int>[];
+  final arabic = <bool>[];
+  var hasArabic = false;
+  for (final rawLine in lines) {
+    final line = rawLine.trim();
+    final count = line.isEmpty ? 0 : _countWords(line);
+    final isArabic = count > 0 && ZikrContentParser.isArabic(line);
+    words.add(count);
+    arabic.add(isArabic);
+    hasArabic |= isArabic;
+  }
+  return [
+    for (var i = 0; i < lines.length; i++)
+      hasArabic && !arabic[i] ? 0.0 : words[i].toDouble(),
+  ];
+}
+
+/// One list item as currently laid out: where it starts in the tab's scroll
+/// coordinates and how tall it is.
+class ZikrLaidOutItem {
+  const ZikrLaidOutItem({
+    required this.index,
+    required this.top,
+    required this.extent,
+  });
+
+  final int index;
+  final double top;
+  final double extent;
+}
+
+/// Share of a tab's *text* that lies above [line] - a height in the tab's
+/// scroll coordinates - weighting each list item by [itemWeights] (see
+/// [zikrLineWeights]) and splitting the item [line] falls inside by how far
+/// into it the line is.
+///
+/// This is what progress is measured by rather than pixels: a lazily built
+/// list only ever knows the heights of the items it has laid out, and guesses
+/// the rest from their average, so `scrollOffset / maxScrollExtent` is only as
+/// good as that guess. In paragraph view a whole dua can be one item sitting
+/// between one-line headings, and the guess can be off by several screens -
+/// reading "Completed" with most of the dua still to come, or jumping from
+/// 30% to 80% as a paragraph gets built. Word counts are known for every
+/// item, built or not, and the items around [line] are always built, since
+/// [line] is on screen.
+///
+/// [laidOut] must be in index order. Null when nothing is weighted or laid
+/// out, for the caller to fall back to pixels.
+double? zikrContentFractionAbove({
+  required List<double> itemWeights,
+  required List<ZikrLaidOutItem> laidOut,
+  required double line,
+}) {
+  if (laidOut.isEmpty) return null;
+  final total = itemWeights.fold<double>(0, (sum, weight) => sum + weight);
+  if (total <= 0) return null;
+
+  double weightOf(int index) =>
+      index >= 0 && index < itemWeights.length ? itemWeights[index] : 0;
+
+  // Everything ahead of the built range has been scrolled past: the built
+  // range always covers the view, and [line] is in it.
+  var above = 0.0;
+  for (var i = 0; i < laidOut.first.index; i++) {
+    above += weightOf(i);
+  }
+  for (final item in laidOut) {
+    final weight = weightOf(item.index);
+    if (weight == 0) continue;
+    final share = item.extent <= 0
+        ? (line >= item.top ? 1.0 : 0.0)
+        : ((line - item.top) / item.extent).clamp(0.0, 1.0).toDouble();
+    above += weight * share;
+  }
+  return (above / total).clamp(0.0, 1.0).toDouble();
+}
+
+/// Where in the view reading progress is measured at this offset, in scroll
+/// coordinates: the top of the view at the start, sliding to the bottom by
+/// the end.
+///
+/// Measuring at the top alone would leave the last screenful unread when the
+/// list cannot scroll any further, and measuring at the bottom would count
+/// the first screenful read before the reader has started. Only where the
+/// line sits in the view leans on the estimated scroll extent - by the end,
+/// where it matters, the last item is built and the extent is exact.
+double zikrReadingLine({
+  required double scrollOffset,
+  required double maxScrollExtent,
+  required double viewportDimension,
+}) {
+  final viewport = viewportDimension.isFinite && viewportDimension > 0
+      ? viewportDimension
+      : 0.0;
+  final t = zikrTabScrollFraction(
+    scrollOffset: scrollOffset,
+    maxScrollExtent: maxScrollExtent,
+  );
+  return scrollOffset + viewport * t;
+}
+
 /// Fraction of a single tab that has been scrolled past.
 ///
 /// A tab that fits on screen has nothing left to scroll, so it counts as read.
@@ -167,37 +265,31 @@ const double zikrCompletionTimeShare = 0.4;
 /// The floor on that time, for a dua short enough to fit on one screen.
 const Duration zikrCompletionMinTime = Duration(seconds: 10);
 
-/// How much longer the reader has to stay before this zikr counts as
-/// recited: [Duration.zero] if it already does, null if no tab has been read
-/// far enough yet.
+/// How much longer the reader has to stay on a tab before it counts as
+/// recited: [Duration.zero] if it already does, null if not enough of it has
+/// been on screen yet.
 ///
 /// Judged **per tab**. A multi-tab zikr is usually a set of alternatives
 /// (forms of a ziyarah, one taqeeb per prayer) or independent steps, and
 /// finishing the one being recited is a recitation - it must not wait on
 /// tabs the reader never meant to open, nor on the whole compilation's
-/// reading time.
-Duration? zikrCompletionWait({
-  required Map<int, double> seenFractions,
-  required List<ZikrTabReadingStats> tabs,
+/// reading time. [elapsed] is the time spent on *this* tab, so time spent
+/// reciting one tab does not let a fling through the next one count too.
+Duration? zikrTabCompletionWait({
+  required double seenFraction,
+  required ZikrTabReadingStats? tab,
   required Duration elapsed,
 }) {
-  Duration? best;
-  seenFractions.forEach((tabIndex, seen) {
-    if (seen < zikrCompletionSeenThreshold) return;
-    final tabSeconds = tabIndex >= 0 && tabIndex < tabs.length
-        ? tabs[tabIndex].minutes * 60
-        : 0.0;
-    final requiredMs = (tabSeconds * zikrCompletionTimeShare * 1000).round();
-    final required = Duration(
-      milliseconds: requiredMs > zikrCompletionMinTime.inMilliseconds
-          ? requiredMs
-          : zikrCompletionMinTime.inMilliseconds,
-    );
-    final wait = required - elapsed;
-    final clamped = wait.isNegative ? Duration.zero : wait;
-    if (best == null || clamped < best!) best = clamped;
-  });
-  return best;
+  if (seenFraction < zikrCompletionSeenThreshold) return null;
+  final tabSeconds = tab == null ? 0.0 : tab.minutes * 60;
+  final requiredMs = (tabSeconds * zikrCompletionTimeShare * 1000).round();
+  final required = Duration(
+    milliseconds: requiredMs > zikrCompletionMinTime.inMilliseconds
+        ? requiredMs
+        : zikrCompletionMinTime.inMilliseconds,
+  );
+  final wait = required - elapsed;
+  return wait.isNegative ? Duration.zero : wait;
 }
 
 /// Guards a tab's scroll fraction against transient dips.
@@ -228,29 +320,6 @@ double zikrSmoothedTabFraction({
       : previousDisplayedFraction;
 }
 
-/// Overall progress through a zikr, weighting each tab by its reading time.
-double zikrReadingProgress({
-  required List<double> tabWeights,
-  required int tabIndex,
-  required double tabFraction,
-}) {
-  if (tabWeights.isEmpty) return 0;
-
-  final index = tabIndex.clamp(0, tabWeights.length - 1);
-  final fraction = tabFraction.clamp(0.0, 1.0).toDouble();
-
-  var completed = 0.0;
-  for (var i = 0; i < index; i++) {
-    completed += tabWeights[i];
-  }
-  completed += tabWeights[index] * fraction;
-
-  final total = tabWeights.fold<double>(0, (sum, weight) => sum + weight);
-  if (total <= 0) return 0;
-
-  return (completed / total).clamp(0.0, 1.0).toDouble();
-}
-
 /// Human readable duration such as `under 1 min`, `8 min` or `1 hr 5 min`.
 String formatZikrDuration(Duration duration) {
   final totalMinutes = (duration.inSeconds / 60).round();
@@ -267,9 +336,14 @@ String formatZikrDuration(Duration duration) {
 String zikrReadingTimeLabel(Duration duration) =>
     '${formatZikrDuration(duration)} read';
 
-/// Label for how far through the zikr the reader is.
-String zikrProgressLabel(double progress) {
+/// Label for how far through the tab being read the reader is.
+///
+/// "Completed" is kept for [completed] - the tab counting as recited by
+/// [zikrTabCompletionWait], the same rule the activity stats go by - rather
+/// than for the end of the text merely being on screen, which a short dua
+/// is the moment it opens and any tab is after a fling to the bottom.
+String zikrProgressLabel(double progress, {bool completed = false}) {
+  if (completed) return 'Completed';
   final clamped = progress.clamp(0.0, 1.0).toDouble();
-  if (clamped >= 0.995) return 'Completed';
   return '${(clamped * 100).floor()}%';
 }

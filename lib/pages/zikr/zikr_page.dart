@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/rendering.dart' show ScrollDirection;
+import 'package:flutter/scheduler.dart' show SchedulerBinding, SchedulerPhase;
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/retired_zikr_redirects.dart';
@@ -229,10 +230,23 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   final Map<int, double> _currentTabScrollFractions = {};
 
   /// Per tab, the furthest share of its text that has been on screen - see
-  /// [zikrTabSeenFraction]. Only ever grows: scrolling back up to re-read a
-  /// line does not un-read the rest. This, not [_readingProgress], is what
-  /// [_maybeRecordCompletion] judges by.
+  /// [ZikrContentScrollPosition.seenFraction]. Only ever grows: scrolling
+  /// back up to re-read a line does not un-read the rest. This, not
+  /// [_readingProgress], is what [_maybeRecordCompletion] judges by.
   final Map<int, double> _tabSeenFractions = {};
+
+  /// Tabs that count as recited this visit - see [zikrTabCompletionWait].
+  /// The progress strip says "Completed" for exactly these.
+  final Set<int> _completedTabs = {};
+
+  /// Time spent on each tab before the one open now, so a tab's recitation
+  /// time is judged by the time spent on it rather than on the page.
+  final Map<int, Duration> _tabDwell = {};
+
+  /// The tab being timed now and since when; null until the first tab change,
+  /// which leaves the tab the page opened on timed from [_openedAt].
+  int? _dwellTabIndex;
+  DateTime? _dwellSince;
 
   /// Pending re-check for a reader who has reached the end of a tab before
   /// enough time has passed, and then stops scrolling - in sajdah, say - so
@@ -245,6 +259,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   final Map<int, int> _currentTabTopLineIndexes = {};
   final ValueNotifier<double> _readingProgress = ValueNotifier<double>(0);
   bool _hasRecordedCompletion = false;
+  bool _isDisposing = false;
   DateTime? _openedAt;
   ZikrReadingStats _readingStats = ZikrReadingStats.empty;
   String? _readingStatsSignature;
@@ -350,34 +365,85 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _scheduleChromeIdleHide();
   }
 
-  /// Fires at most once. Opening a zikr and reciting one are different things
-  /// and the dashboard should not conflate them.
+  /// Rebuilds the page, deferred to the end of the frame when asked mid-build
+  /// or mid-layout - progress can be reported from either.
+  void _markNeedsRebuild() {
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    } else {
+      setState(() {});
+    }
+  }
+
+  /// The tab whose time is running now.
+  int get _dwellTab => _dwellTabIndex ?? _selectedZikrTabIndex;
+
+  /// Time spent on [tabIndex] this visit.
+  Duration _tabElapsed(int tabIndex) {
+    final before = _tabDwell[tabIndex] ?? Duration.zero;
+    final since = _dwellSince ?? _openedAt;
+    if (tabIndex != _dwellTab || since == null) return before;
+    return before + DateTime.now().difference(since);
+  }
+
+  /// Stops [_dwellTab]'s clock and starts [tabIndex]'s.
+  void _startTabDwell(int tabIndex) {
+    final current = _dwellTab;
+    if (current == tabIndex && _dwellTabIndex != null) return;
+    _tabDwell[current] = _tabElapsed(current);
+    _dwellTabIndex = tabIndex;
+    _dwellSince = DateTime.now();
+  }
+
+  /// Marks each tab that now counts as recited, and records the zikr as
+  /// recited - at most once. Opening a zikr and reciting one are different
+  /// things and the dashboard should not conflate them.
   ///
-  /// A zikr counts as recited once 90% of one of its tabs has been on screen
-  /// and the page has been open for 40% of that tab's estimated recitation
-  /// time (see [zikrCompletionWait]). Scroll position alone is not enough: a
-  /// dua short enough to fit on screen is "fully seen" the moment it lays out,
+  /// A tab counts as recited once 90% of it has been on screen and the reader
+  /// has stayed on it for 40% of its estimated recitation time (see
+  /// [zikrTabCompletionWait]). Scroll position alone is not enough: a dua
+  /// short enough to fit on screen is "fully seen" the moment it lays out,
   /// so a stray tap would outrank a real recitation.
   void _maybeRecordCompletion() {
-    if (_hasRecordedCompletion) return;
-    final openedAt = _openedAt;
-    if (openedAt == null) return;
+    if (_openedAt == null || !mounted) return;
 
-    final wait = zikrCompletionWait(
-      seenFractions: _tabSeenFractions,
-      tabs: _readingStats.tabs,
-      elapsed: DateTime.now().difference(openedAt),
-    );
-    if (wait == null) return;
-    if (wait > Duration.zero) {
-      _completionTimer?.cancel();
+    Duration? pendingWait;
+    var newlyCompleted = false;
+    _tabSeenFractions.forEach((tabIndex, seen) {
+      if (_completedTabs.contains(tabIndex)) return;
+      final tabs = _readingStats.tabs;
+      final wait = zikrTabCompletionWait(
+        seenFraction: seen,
+        tab: tabIndex >= 0 && tabIndex < tabs.length ? tabs[tabIndex] : null,
+        elapsed: _tabElapsed(tabIndex),
+      );
+      if (wait == null) return;
+      if (wait == Duration.zero) {
+        _completedTabs.add(tabIndex);
+        newlyCompleted = true;
+      } else if (tabIndex == _dwellTab) {
+        // Only the open tab's clock is running; any other has to be
+        // returned to before it can finish.
+        pendingWait = wait;
+      }
+    });
+
+    _completionTimer?.cancel();
+    final wait = pendingWait;
+    if (wait != null) {
       _completionTimer = Timer(wait, () {
         if (mounted) _maybeRecordCompletion();
       });
-      return;
     }
+    if (!newlyCompleted) return;
+    // The progress strip's label reads [_completedTabs]. Skipped on the way
+    // out - [dispose] calls this too.
+    if (!_isDisposing) _markNeedsRebuild();
 
-    _completionTimer?.cancel();
+    if (_hasRecordedCompletion) return;
     _hasRecordedCompletion = true;
     unawaited(AnalyticsService.zikrCompleted(
       uid: widget.item.getUId(),
@@ -768,6 +834,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _chromeIdleTimer?.cancel();
     _chromeVisible.dispose();
     _selectionFocusNode.dispose();
+    _isDisposing = true;
     _maybeRecordCompletion();
     _completionTimer?.cancel();
     _readingProgress.removeListener(_maybeRecordCompletion);
@@ -1528,21 +1595,25 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       _currentTabTopLineIndexes[tabIndex] = lineIndex;
     }
 
-    final seen = zikrTabSeenFraction(
-      scrollOffset: position.scrollOffset,
-      maxScrollExtent: position.maxScrollExtent,
-      viewportDimension: position.viewportDimension,
-    );
+    // Measured by words where the viewer could lay the tab out, by pixels
+    // only as a fallback - see [zikrContentFractionAbove].
+    final seen = position.seenFraction ??
+        zikrTabSeenFraction(
+          scrollOffset: position.scrollOffset,
+          maxScrollExtent: position.maxScrollExtent,
+          viewportDimension: position.viewportDimension,
+        );
     if (seen > (_tabSeenFractions[tabIndex] ?? 0)) {
       _tabSeenFractions[tabIndex] = seen;
       _maybeRecordCompletion();
     }
 
     _currentTabScrollFractions[tabIndex] = zikrSmoothedTabFraction(
-      rawFraction: zikrTabScrollFraction(
-        scrollOffset: position.scrollOffset,
-        maxScrollExtent: position.maxScrollExtent,
-      ),
+      rawFraction: position.progressFraction ??
+          zikrTabScrollFraction(
+            scrollOffset: position.scrollOffset,
+            maxScrollExtent: position.maxScrollExtent,
+          ),
       scrollOffset: position.scrollOffset,
       previousScrollOffset: previousScrollOffset,
       previousDisplayedFraction: _currentTabScrollFractions[tabIndex],
@@ -1589,21 +1660,23 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _readingProgress.value = _computeReadingProgress();
   }
 
+  /// Progress through the open tab alone.
+  ///
+  /// Not through the whole zikr: a multi-tab zikr is usually alternatives
+  /// (forms of a ziyarah, one taqeeb per prayer) or independent steps, so
+  /// counting every tab before this one as read put someone opening the
+  /// fourth form of a ziyarah at 75% before they had read a word, and left
+  /// someone who had recited the first form at 25% - never "Completed" -
+  /// although [_maybeRecordCompletion] had counted it as recited.
   double _computeReadingProgress() {
-    final weights = _readingStats.tabWeights;
-    if (weights.isEmpty) return 0;
+    final tabCount = _readingStats.tabs.length;
+    if (tabCount == 0) return 0;
 
-    final tabIndex = _selectedZikrTabIndex.clamp(0, weights.length - 1);
+    final tabIndex = _selectedZikrTabIndex.clamp(0, tabCount - 1);
     // An unmeasured tab has not been laid out yet, so nothing is read.
-    final tabFraction = _currentTabMaxScrollExtents.containsKey(tabIndex)
+    return _currentTabMaxScrollExtents.containsKey(tabIndex)
         ? (_currentTabScrollFractions[tabIndex] ?? 0.0)
         : 0.0;
-
-    return zikrReadingProgress(
-      tabWeights: weights,
-      tabIndex: tabIndex,
-      tabFraction: tabFraction,
-    );
   }
 
   /// Moves the bookmark to [lineIndex] of the tab it is already in, after
@@ -2014,7 +2087,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // Independent of showActionBar - a zikr with no estimable reading time
     // (still loading) can lack one while the other still applies.
     final showProgressBar = _readingStats.hasContent;
-    final readingTimeLabel = zikrReadingTimeLabel(_readingStats.duration);
+    // The open tab's time, like the progress beside it - see
+    // [_computeReadingProgress].
+    final readingTimeLabel = zikrReadingTimeLabel(
+      _readingStats.tabs.length > 1 &&
+              selectedTabIndex < _readingStats.tabs.length
+          ? _readingStats.tabs[selectedTabIndex].duration
+          : _readingStats.duration,
+    );
     final mediaPadding = MediaQuery.paddingOf(context);
     final statusBarHeight = mediaPadding.top;
     // How far the chrome reaches in from each edge while it is showing.
@@ -2103,10 +2183,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   // which animates the pager without
                                   // ever reporting a user scroll.
                                   _clearTextSelection();
+                                  _startTabDwell(index);
                                   setState(() {
                                     _selectedZikrTabIndex = index;
                                   });
                                   _updateReadingProgress();
+                                  _maybeRecordCompletion();
                                 },
                                 hasMerits: hasMerits,
                                 onShowMerits: _showMeritsSheet,
@@ -2300,7 +2382,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   ZikrReadingProgressBar(
                                 progress: progress,
                                 readingTimeLabel: readingTimeLabel,
-                                progressLabel: zikrProgressLabel(progress),
+                                progressLabel: zikrProgressLabel(
+                                  progress,
+                                  completed:
+                                      _completedTabs.contains(selectedTabIndex),
+                                ),
                               ),
                             ),
                           )
