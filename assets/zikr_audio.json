@@ -32,23 +32,23 @@
   "AA5": [
     {
       "file": "aa5_ya-aliyo-ya-azeem_96k.mp3",
-      "label": "Ya Aliyo Ya Azeem"
+      "label": "Ya Aliyo Ya Azeem - Ramadan, after every prayer"
     },
     {
       "file": "aa5_allahumma-adhkil_96k.mp3",
-      "label": "Allahumma Adhkil 'Ala"
+      "label": "Allahumma Adhkil 'Ala - Ramadan, after every prayer"
     },
     {
       "file": "aa5_allahumma-arzukni_96k.mp3",
-      "label": "Allahumma Arzukni"
+      "label": "Allahumma Arzukni - Ramadan, after every prayer"
     },
     {
       "file": "aa5_dua-hajj.mp3",
-      "label": "Dua Hajj"
+      "label": "Dua Hajj - Ramadan, after every prayer"
     },
     {
       "file": "aa5_ramadan-last10.mp3",
-      "label": "During the last 10 Days"
+      "label": "Last 10 days of Ramadan - after every prayer"
     }
   ],
   "AC10": [
@@ -60,7 +60,7 @@
   "AC11": [
     {
       "file": "ac10_ac11_arafat-tasbih-short.mp3",
-      "label": "1. Tasbeeh from Holy Prophet (sawa)"
+      "label": "Tasbeeh of the Holy Prophet (sawa) - Day of Arafah"
     },
     {
       "file": "ac11_arafa-salawat_96k.mp3",
@@ -68,27 +68,27 @@
     },
     {
       "file": "ac11_four-tasbihat.mp3",
-      "label": "Four Tasbeeh"
+      "label": "Four Tasbeeh - Day of Arafah"
     },
     {
       "file": "ac11_dua-holy-prophet.mp3",
-      "label": "Dua - Holy Prophet (sawa)"
+      "label": "Dua of the Holy Prophet (sawa) - Day of Arafah"
     },
     {
       "file": "ac11_dua-imam-ridha.mp3",
-      "label": "Dua - Imam Ridha (as)"
+      "label": "Dua of Imam Ridha (as) - Day of Arafah"
     },
     {
       "file": "ac11_dua-last-hour-1.mp3",
-      "label": "Dua - Last Hour"
+      "label": "Dua 1 - Last hour of the Day of Arafah"
     },
     {
       "file": "ac11_dua-last-hour-2.mp3",
-      "label": "Dua 2 - Last Hour"
+      "label": "Dua 2 - Last hour of the Day of Arafah"
     },
     {
       "file": "ac11_dua-last-hour-3.mp3",
-      "label": "Dua 3 - Last Hour"
+      "label": "Dua 3 - Last hour of the Day of Arafah"
     }
   ],
   "AC12": [
@@ -100,19 +100,19 @@
   "AC5": [
     {
       "file": "ac5_zilhajj-salat-ayat.mp3",
-      "label": "Salaat between Maghrib and Isha"
+      "label": "Salaat between Maghrib and Isha - First 10 days of Zilhajj"
     },
     {
       "file": "ac5_zilhajj-dua-after-fajr.mp3",
-      "label": "Dua after Fajr and Before Magrib"
+      "label": "Dua after Fajr and before Maghrib - First 10 days of Zilhajj"
     },
     {
       "file": "ac5_zilhajj-five-tasbih.mp3",
-      "label": "Five Tasbih - Zilhajj 10 days"
+      "label": "Five Tasbih - First 10 days of Zilhajj"
     },
     {
       "file": "ac5_zilhajj-tahlil.mp3",
-      "label": "Tahlilaat (hymns of God's unity)"
+      "label": "Tahlilaat (hymns of God's unity) - First 10 days of Zilhajj"
     }
   ],
   "E1": [
@@ -208,7 +208,7 @@
     },
     {
       "file": "f11_salate-jafar-after-salat.mp3",
-      "label": "Another Dua After Salat Jafar e Tayyar"
+      "label": "Dua after Salat Jafar e Tayyar"
     }
   ],
   "G1": [

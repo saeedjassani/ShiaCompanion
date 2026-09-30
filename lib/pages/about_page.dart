@@ -119,10 +119,24 @@ class _AboutPageState extends State<AboutPage> {
                     child: const Text('tanzil.net'),
                   ),
                   const SizedBox(height: 12),
-                  // Used with QuranWBW's written permission.
+                  // QuranWBW's licence asks for the font's own credits and
+                  // for the licence itself to be stated. See
+                  // assets/fonts/QuranWBW-IndoPak-NOTICE.txt.
                   const Text(
                     'The IndoPak Quran text and font, shown with Qalam, are '
-                    'from QuranWBW, used with permission.',
+                    'from QuranWBW.com. The licence to use the Quran text and '
+                    'font unmodified was received from QuranWBW.com, the '
+                    'original contributor.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Font: AlQuran IndoPak by QuranWBW, made by Ayman Siddiqui, '
+                    'based on the Al Qalam Quran Majeed fonts, with ayah '
+                    'numbers from the KFGQPC Nastaleeq font. © Al Qalam © '
+                    'Ghandhara © KFGQPC © Ayman Siddiqui. Credits: Abdul Majeed '
+                    'Khan, Arif Karim, Shakir-ul-Qadree, Jawad. Quran text: '
+                    'typemybook.com, originally by InPage.',
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
