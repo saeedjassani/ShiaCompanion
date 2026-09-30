@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_parser.dart';
 import 'package:shia_companion/pages/zikr/zikr_form_helpers.dart';
-import 'package:shia_companion/utils/quran_index.dart';
 
 final RegExp _latinLetter = RegExp('[A-Za-z]');
 final RegExp _arabicRune = RegExp('[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]');
@@ -57,19 +56,14 @@ final RegExp _englishFunctionWord = RegExp(
   caseSensitive: false,
 );
 
-/// Every tab of every zikr but the surahs, parsed exactly as the reader
+/// Every tab of every zikr, surahs included, parsed exactly as the reader
 /// parses it - same visible tabs, same header line dropped - and labelled
 /// with where it came from.
-///
-/// Surahs are left out: their transliteration is deliberately left blank on
-/// many verses, and their text is maintained separately.
-Iterable<({String where, ParsedZikrContent parsed})>
-    _parsedNonQuranTabs() sync* {
+Iterable<({String where, ParsedZikrContent parsed})> _parsedTabs() sync* {
   final files = Directory('assets/zikr').listSync().whereType<File>().toList()
     ..sort((a, b) => a.path.compareTo(b.path));
   for (final file in files) {
     final uid = file.uri.pathSegments.last;
-    if (surahForUid(uid) != null) continue;
     final dynamic decoded = jsonDecode(file.readAsStringSync());
     if (decoded is! Map) continue;
     final tabs = buildVisibleZikrTabContents(
@@ -101,7 +95,7 @@ void main() {
     // E36 and C15 a Bismillah's or verse's translation was drawn as its
     // transliteration, and vanished when transliteration was turned off.
     final offenders = <String>[];
-    for (final tab in _parsedNonQuranTabs()) {
+    for (final tab in _parsedTabs()) {
       for (final i in tab.parsed.transliCodes) {
         final line = tab.parsed.lines[i];
         final ratio = _uppercaseRatio(line);
@@ -128,7 +122,7 @@ void main() {
     // shown as loose notes; in E27 (Jawshan Kabir) one transliteration ran
     // onto a second line and pushed the translation out of its verse.
     final offenders = <String>[];
-    for (final tab in _parsedNonQuranTabs()) {
+    for (final tab in _parsedTabs()) {
       for (final i in tab.parsed.translaCodes) {
         final line = tab.parsed.lines[i];
         final ratio = _uppercaseRatio(line);
