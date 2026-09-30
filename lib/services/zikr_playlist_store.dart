@@ -112,14 +112,18 @@ class ZikrPlaylistStore extends ChangeNotifier {
     );
   }
 
-  Future<ZikrPlaylist> create(String name, {List<String> zikrUids = const []}) {
+  Future<ZikrPlaylist> create(
+    String name, {
+    List<String> zikrUids = const [],
+    Map<String, List<String>> trackFiles = const {},
+  }) {
     final now = DateTime.now().toUtc();
     final playlist = ZikrPlaylist(
       id: now.microsecondsSinceEpoch.toRadixString(36),
       name: name.trim(),
       zikrUids: List.unmodifiable(_dedupe(zikrUids)),
       updatedAt: now,
-    );
+    ).copyWith(trackFiles: trackFiles);
     return _write([...playlists, playlist]).then((_) => playlist);
   }
 
@@ -131,20 +135,44 @@ class ZikrPlaylistStore extends ChangeNotifier {
     return _write(playlists.where((playlist) => playlist.id != id).toList());
   }
 
-  /// Appends [uid] to the playlist. A zikr already in it is left where it is:
-  /// a playlist plays each recitation once.
-  Future<void> addZikr(String id, String uid) {
+  /// Appends [uid] to the playlist, with [trackFile] as its recording when
+  /// the reader added one particular recording of it. A zikr already in it is
+  /// left as it is: a playlist plays each recitation once. (Choosing more of
+  /// its recordings is [setTrackFiles].)
+  Future<void> addZikr(String id, String uid, {String? trackFile}) {
     return _update(id, (playlist) {
       if (playlist.zikrUids.contains(uid)) return playlist;
-      return playlist.copyWith(zikrUids: [...playlist.zikrUids, uid]);
+      return playlist.copyWith(
+        zikrUids: [...playlist.zikrUids, uid],
+        trackFiles: trackFile == null
+            ? null
+            : {
+                ...playlist.trackFiles,
+                uid: [trackFile]
+              },
+      );
+    });
+  }
+
+  /// Sets which recordings of [uid] the playlist plays, by
+  /// [ZikrAudioTrack.file]. An empty [trackFiles] goes back to the first.
+  Future<void> setTrackFiles(String id, String uid, List<String> trackFiles) {
+    return _update(id, (playlist) {
+      if (listEquals(playlist.trackFiles[uid], trackFiles)) return playlist;
+      return playlist.copyWith(
+        trackFiles: {...playlist.trackFiles, uid: trackFiles},
+      );
     });
   }
 
   Future<void> removeAt(String id, int index) {
     return _update(id, (playlist) {
       if (index < 0 || index >= playlist.zikrUids.length) return playlist;
+      final uid = playlist.zikrUids[index];
       return playlist.copyWith(
         zikrUids: [...playlist.zikrUids]..removeAt(index),
+        // Re-adding it later starts from its first recording again.
+        trackFiles: {...playlist.trackFiles}..remove(uid),
       );
     });
   }

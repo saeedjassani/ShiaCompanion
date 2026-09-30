@@ -72,9 +72,9 @@ Future<void> _startPlaylist(
   final message = switch (result) {
     PlaylistStartResult.started => null,
     PlaylistStartResult.startedDownloadedOnly =>
-      "You're offline - playing only the downloaded recitations",
+      "You're offline - playing only the downloaded recordings",
     PlaylistStartResult.nothingToPlay =>
-      'Nothing in this playlist has a recitation to play',
+      'Nothing in this playlist has a recording to play',
     PlaylistStartResult.offlineNothingDownloaded =>
       "You're offline and nothing in this playlist is downloaded yet",
     PlaylistStartResult.failed => "Couldn't start the playlist. Try again.",
@@ -85,10 +85,91 @@ Future<void> _startPlaylist(
     ..showSnackBar(SnackBar(content: Text(message)));
 }
 
-/// Every recording of every zikr in [uids], in playlist order.
-List<ZikrAudioTrack> _tracksOf(Iterable<String> uids) => [
-      for (final uid in uids) ...ZikrAudioIndex.instance.tracksFor(uid),
+/// The recordings [playlist] plays, in order: the chosen ones of each zikr.
+List<ZikrAudioTrack> _tracksOf(ZikrPlaylist playlist) => [
+      for (final uid in playlist.zikrUids)
+        ...playlist.tracksFor(uid, ZikrAudioIndex.instance.tracksFor(uid)),
     ];
+
+String _trackLabel(ZikrAudioTrack track, int index) =>
+    track.label ?? 'Recording ${index + 1}';
+
+/// Lets the reader pick which of [uid]'s recordings [playlist] plays - at
+/// least one, since a zikr with none picked would silently drop out.
+Future<void> _chooseRecordings(
+  BuildContext context,
+  ZikrPlaylist playlist,
+  String uid,
+  List<ZikrAudioTrack> available,
+) async {
+  final chosen = {
+    for (final track in playlist.tracksFor(uid, available)) track.file,
+  };
+  final picked = await showModalBottomSheet<List<String>>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (sheetContext) => StatefulBuilder(
+      builder: (sheetContext, setSheetState) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetContext).size.height * 0.7,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+                child: Text(_zikrTitle(uid),
+                    style: Theme.of(sheetContext).textTheme.titleMedium),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Text('Choose the recordings to play in this playlist',
+                    style: Theme.of(sheetContext).textTheme.bodySmall),
+              ),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (var i = 0; i < available.length; i++)
+                      CheckboxListTile(
+                        value: chosen.contains(available[i].file),
+                        title: Text(_trackLabel(available[i], i)),
+                        subtitle: available[i].reciter == null
+                            ? null
+                            : Text(available[i].reciter!),
+                        // Unticking the last one would leave nothing to play.
+                        onChanged: chosen.length == 1 &&
+                                chosen.contains(available[i].file)
+                            ? null
+                            : (on) => setSheetState(() => on == true
+                                ? chosen.add(available[i].file)
+                                : chosen.remove(available[i].file)),
+                      ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: FilledButton(
+                  onPressed: () => Navigator.of(sheetContext).pop([
+                    for (final track in available)
+                      if (chosen.contains(track.file)) track.file,
+                  ]),
+                  child: const Text('Done'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+  if (picked == null || picked.isEmpty) return;
+  await ZikrPlaylistStore.instance.setTrackFiles(playlist.id, uid, picked);
+}
 
 void _openDownloads(BuildContext context) {
   Navigator.of(context).push(MaterialPageRoute(
@@ -97,11 +178,14 @@ void _openDownloads(BuildContext context) {
 }
 
 /// Adds a zikr to one of the reader's playlists, or to a new one - opened from
-/// the recitation player on a zikr page.
+/// the recitation player on a zikr page. [track] is the recording the player
+/// has selected when the zikr has several: that is the one the playlist
+/// gets, rather than all of them.
 Future<void> showAddToPlaylistSheet(
   BuildContext context, {
   required String zikrUid,
   required String zikrTitle,
+  ZikrAudioTrack? track,
 }) async {
   final uid = _contentUid(zikrUid);
   final store = ZikrPlaylistStore.instance;
@@ -133,10 +217,10 @@ Future<void> showAddToPlaylistSheet(
             ),
             for (final playlist in store.playlists)
               ListTile(
-                leading: const Icon(Icons.queue_music),
+                leading: const Icon(Icons.playlist_play_rounded),
                 title: Text(playlist.name),
                 subtitle: Text(_countLabel(playlist.zikrUids.length)),
-                trailing: playlist.zikrUids.contains(uid)
+                trailing: _hasRecording(playlist, uid, track)
                     ? Icon(Icons.check,
                         color: Theme.of(sheetContext).colorScheme.primary)
                     : null,
@@ -156,21 +240,52 @@ Future<void> showAddToPlaylistSheet(
       action: 'Create',
     );
     if (name == null) return;
-    await store.create(name, zikrUids: [uid]);
+    await store.create(
+      name,
+      zikrUids: [uid],
+      trackFiles: track == null
+          ? const {}
+          : {
+              uid: [track.file]
+            },
+    );
     messenger.showSnackBar(SnackBar(content: Text('Added to $name')));
   } else if (choice is ZikrPlaylist) {
-    if (choice.zikrUids.contains(uid)) {
+    if (_hasRecording(choice, uid, track)) {
       messenger
           .showSnackBar(SnackBar(content: Text('Already in ${choice.name}')));
       return;
     }
-    await store.addZikr(choice.id, uid);
+    if (choice.zikrUids.contains(uid) && track != null) {
+      // The zikr is there with other recordings: add this one alongside.
+      final available = ZikrAudioIndex.instance.tracksFor(uid);
+      final current = {
+        for (final chosen in choice.tracksFor(uid, available)) chosen.file,
+        track.file,
+      };
+      await store.setTrackFiles(choice.id, uid, [
+        for (final recording in available)
+          if (current.contains(recording.file)) recording.file,
+      ]);
+    } else {
+      await store.addZikr(choice.id, uid, trackFile: track?.file);
+    }
     messenger.showSnackBar(SnackBar(content: Text('Added to ${choice.name}')));
   }
 }
 
-String _countLabel(int count) =>
-    count == 1 ? '1 recitation' : '$count recitations';
+/// Whether [playlist] already plays zikr [uid] - and, when a particular
+/// recording is being added, that recording of it.
+bool _hasRecording(ZikrPlaylist playlist, String uid, ZikrAudioTrack? track) {
+  if (!playlist.zikrUids.contains(uid)) return false;
+  if (track == null) return true;
+  return playlist
+      .tracksFor(uid, ZikrAudioIndex.instance.tracksFor(uid))
+      .any((chosen) => chosen.file == track.file);
+}
+
+// "Zikr" is its own plural here, the way the rest of the app uses it.
+String _countLabel(int count) => '$count zikr';
 
 /// The reader's audio playlists: a morning set of Dua Ahad and Ziyarat
 /// Ashura, say, started with one tap and left playing in the background.
@@ -239,8 +354,8 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
           final playlists = store.playlists;
           if (playlists.isEmpty) {
             return const _EmptyState(
-              icon: Icons.queue_music,
-              message: 'Make a playlist of the recitations you listen to '
+              icon: Icons.playlist_play_rounded,
+              message: 'Make a playlist of the zikr you listen to '
                   'every day - Dua Ahad and Ziyarat Ashura each morning, say '
                   '- and start them all with one tap.',
             );
@@ -268,7 +383,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                   subtitle: _PlaylistSubtitle(
                     playlist: playlist,
                     tracks: _audioReady
-                        ? _tracksOf(playlist.zikrUids)
+                        ? _tracksOf(playlist)
                         : const <ZikrAudioTrack>[],
                   ),
                   trailing: const Icon(Icons.chevron_right),
@@ -326,7 +441,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     // Downloads are shared with the zikr pages and other playlists, so
     // deleting a playlist leaves them - and says where to clear them.
     final hasDownloads = _audioReady &&
-        AudioDownloadStore.instance.anyDownloaded(_tracksOf(playlist.zikrUids));
+        AudioDownloadStore.instance.anyDownloaded(_tracksOf(playlist));
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -377,16 +492,15 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
           return Scaffold(
             appBar: AppBar(),
             body: const _EmptyState(
-              icon: Icons.queue_music,
+              icon: Icons.playlist_play_rounded,
               message: 'This playlist has been deleted.',
             ),
           );
         }
         final isCurrent = audio.playlist?.id == playlist.id;
         final playingUid = isCurrent ? audio.current?.zikrUid : null;
-        final allTracks = _audioReady
-            ? _tracksOf(playlist.zikrUids)
-            : const <ZikrAudioTrack>[];
+        final allTracks =
+            _audioReady ? _tracksOf(playlist) : const <ZikrAudioTrack>[];
         final showDownload =
             AudioDownloadStore.isSupported && allTracks.isNotEmpty;
 
@@ -429,8 +543,8 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
           body: playlist.zikrUids.isEmpty
               ? const _EmptyState(
                   icon: Icons.playlist_add,
-                  message: 'Tap Add to choose recitations. You can also add '
-                      'one from the player on any dua with audio.',
+                  message: 'Tap Add to choose zikr. You can also add one from '
+                      'the player on any dua with audio.',
                 )
               : ResponsiveContent(
                   child: Column(
@@ -475,9 +589,25 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                           itemBuilder: (context, index) {
                             final uid = playlist.zikrUids[index];
                             final isPlaying = uid == playingUid;
-                            final tracks = _audioReady
+                            final available = _audioReady
                                 ? ZikrAudioIndex.instance.tracksFor(uid)
                                 : const <ZikrAudioTrack>[];
+                            final tracks = playlist.tracksFor(uid, available);
+                            // Which recordings play, for a zikr with a choice.
+                            // A zikr playing one of its several recordings
+                            // goes by that recording's label alone - the
+                            // labels name the zikr too ("Ziyarat Aal e Yasin
+                            // with Dua"). Playing more than one, it keeps its
+                            // title and says how many.
+                            final single =
+                                available.length > 1 && tracks.length == 1
+                                    ? tracks.single.label
+                                    : null;
+                            final recordings =
+                                available.length < 2 || single != null
+                                    ? null
+                                    : '${tracks.length} of '
+                                        '${available.length} recordings';
                             final downloadState =
                                 audioDownloadStateOf(downloads, tracks);
                             final subtitle = !showDownload || tracks.isEmpty
@@ -496,32 +626,45 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                               selected: isPlaying,
                               leading: Icon(isPlaying
                                   ? Icons.graphic_eq
-                                  : Icons.music_note_outlined),
-                              title: Text(_zikrTitle(uid)),
-                              subtitle: subtitle == null
+                                  : Icons.headphones_outlined),
+                              title: Text(single ?? _zikrTitle(uid)),
+                              subtitle: subtitle == null && recordings == null
                                   ? null
-                                  : Row(
+                                  : Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Icon(
-                                          switch (downloadState) {
-                                            AudioDownloadState.done =>
-                                              Icons.offline_pin_rounded,
-                                            AudioDownloadState.failed =>
-                                              Icons.sync_problem_rounded,
-                                            _ => Icons.downloading_rounded,
-                                          },
-                                          size: 14,
-                                          color: downloadState ==
-                                                  AudioDownloadState.failed
-                                              ? Theme.of(context)
-                                                  .colorScheme
-                                                  .error
-                                              : Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Flexible(child: Text(subtitle)),
+                                        if (recordings != null)
+                                          Text(recordings,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis),
+                                        if (subtitle != null)
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                switch (downloadState) {
+                                                  AudioDownloadState.done =>
+                                                    Icons.offline_pin_rounded,
+                                                  AudioDownloadState.failed =>
+                                                    Icons.sync_problem_rounded,
+                                                  _ =>
+                                                    Icons.downloading_rounded,
+                                                },
+                                                size: 14,
+                                                color: downloadState ==
+                                                        AudioDownloadState
+                                                            .failed
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .error
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Flexible(child: Text(subtitle)),
+                                            ],
+                                          ),
                                       ],
                                     ),
                               onTap: () => _startPlaylist(context, playlist,
@@ -532,6 +675,9 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                                   switch (value) {
                                     case 'open':
                                       _openZikr(context, uid);
+                                    case 'recordings':
+                                      _chooseRecordings(
+                                          context, playlist, uid, available);
                                     case 'remove':
                                       store.removeAt(playlist.id, index);
                                     case 'download':
@@ -548,6 +694,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                                 itemBuilder: (_) => [
                                   const PopupMenuItem(
                                       value: 'open', child: Text('Open text')),
+                                  if (available.length > 1)
+                                    const PopupMenuItem(
+                                        value: 'recordings',
+                                        child: Text('Choose recordings')),
                                   if (showDownload && tracks.isNotEmpty)
                                     switch (downloadState) {
                                       AudioDownloadState.downloading =>
@@ -580,7 +730,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   }
 }
 
-/// Every zikr that has a recitation, to tick into a playlist.
+/// Every zikr that has a recording, to tick into a playlist.
 class AddRecitationsPage extends StatefulWidget {
   const AddRecitationsPage({super.key, required this.playlistId});
 
@@ -607,7 +757,7 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
   Widget build(BuildContext context) {
     if (!_audioReady) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Add recitations')),
+        appBar: AppBar(title: const Text('Add zikr')),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -618,12 +768,27 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
           _zikrTitle(a).toLowerCase().compareTo(_zikrTitle(b).toLowerCase()));
     final visible = query.isEmpty
         ? uids
-        : uids
-            .where((uid) => _zikrTitle(uid).toLowerCase().contains(query))
-            .toList();
+        : uids.where((uid) {
+            if (_zikrTitle(uid).toLowerCase().contains(query)) return true;
+            // Recording labels name what they are ("Dua after Ziyarat
+            // Warith"), so they are worth finding by too.
+            return ZikrAudioIndex.instance.tracksFor(uid).any(
+                (track) => track.label?.toLowerCase().contains(query) ?? false);
+          }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add recitations')),
+      appBar: AppBar(title: const Text('Add zikr')),
+      // Ticks save as they are made; Done is the obvious way back to the
+      // playlist, so it doesn't feel like the ticks need confirming.
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: FilledButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            child: const Text('Done'),
+          ),
+        ),
+      ),
       body: ListenableBuilder(
         listenable: store,
         builder: (context, _) {
@@ -650,13 +815,17 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
                     itemBuilder: (context, index) {
                       final uid = visible[index];
                       final at = playlist.zikrUids.indexOf(uid);
-                      return CheckboxListTile(
-                        value: at >= 0,
-                        title: Text(_zikrTitle(uid)),
-                        onChanged: (checked) => checked == true
-                            ? store.addZikr(playlist.id, uid)
-                            : store.removeAt(playlist.id, at),
-                      );
+                      final available = ZikrAudioIndex.instance.tracksFor(uid);
+                      if (available.length < 2) {
+                        return CheckboxListTile(
+                          value: at >= 0,
+                          title: Text(_zikrTitle(uid)),
+                          onChanged: (checked) => checked == true
+                              ? store.addZikr(playlist.id, uid)
+                              : store.removeAt(playlist.id, at),
+                        );
+                      }
+                      return _buildRecordings(playlist, uid, at, available);
                     },
                   ),
                 ),
@@ -667,6 +836,67 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
       ),
     );
   }
+}
+
+/// A zikr with several recordings: its own checkbox adds or removes all of
+/// them, and one per recording underneath picks them individually - the
+/// same choice as the playlist page's "Choose recordings".
+Widget _buildRecordings(
+  ZikrPlaylist playlist,
+  String uid,
+  int at,
+  List<ZikrAudioTrack> available,
+) {
+  final store = ZikrPlaylistStore.instance;
+  final chosen = at < 0
+      ? const <String>{}
+      : {for (final track in playlist.tracksFor(uid, available)) track.file};
+  final allFiles = [for (final track in available) track.file];
+
+  Future<void> setChosen(Set<String> files) async {
+    if (files.isEmpty) {
+      await store.removeAt(playlist.id, at);
+      return;
+    }
+    final ordered = [
+      for (final file in allFiles)
+        if (files.contains(file)) file,
+    ];
+    if (at < 0) await store.addZikr(playlist.id, uid);
+    await store.setTrackFiles(playlist.id, uid, ordered);
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      CheckboxListTile(
+        tristate: true,
+        value: chosen.isEmpty
+            ? false
+            : chosen.length == available.length
+                ? true
+                : null,
+        title: Text(_zikrTitle(uid)),
+        subtitle: Text('${available.length} recordings'),
+        // Ticking a partly-chosen zikr fills in the rest; ticking a full
+        // one takes it out.
+        onChanged: (_) => setChosen(
+            chosen.length == available.length ? {} : allFiles.toSet()),
+      ),
+      for (var i = 0; i < available.length; i++)
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: 32),
+          child: CheckboxListTile(
+            dense: true,
+            value: chosen.contains(available[i].file),
+            title: Text(_trackLabel(available[i], i)),
+            onChanged: (checked) => setChosen(checked == true
+                ? {...chosen, available[i].file}
+                : ({...chosen}..remove(available[i].file))),
+          ),
+        ),
+    ],
+  );
 }
 
 /// A playlist's size and, once any of it is saved, how much is offline.
@@ -756,8 +986,8 @@ class NowPlayingBar extends StatelessWidget {
                             ),
                             Text(
                               '${audio.playlist?.name ?? ''} · '
-                              '${(audio.currentIndex ?? 0) + 1} of '
-                              '${audio.queue.length}',
+                              '${audio.zikrPosition ?? 1} of '
+                              '${audio.zikrCount}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodySmall?.copyWith(

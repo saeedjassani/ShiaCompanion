@@ -5,11 +5,14 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 import '../constants.dart';
+import '../data/uid_title_data.dart';
 import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_download_store.dart';
 import '../services/exclusive_audio.dart';
+import '../services/preferences_sync_service.dart';
 import '../utils/network_utils.dart';
+import '../utils/shared_preferences.dart';
 import '../pages/playlists_page.dart';
 import 'audio_download_button.dart';
 
@@ -71,9 +74,27 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   // name until the load catches up.
   Future<void> _loadFuture = Future.value();
 
+  /// Where the recording the reader last chose for this zikr is kept, so a
+  /// zikr with several opens on that one next time rather than the first.
+  /// Keyed by content uid, so an alias shares its canonical's choice, and
+  /// synced to the reader's other devices by [PreferencesSyncService].
+  String get _contentUid => UidTitleData(widget.zikrUid, '').getFirstUId();
+
+  /// The remembered recording's index, or the first when there is none or
+  /// it is no longer among [ZikrAudioPlayer.tracks].
+  int _savedTrackIndex() {
+    if (widget.tracks.length < 2 || !SP.isInitialized) return 0;
+    final file = SP.prefs
+        .getString(PreferencesSyncService.audioTrackPrefKey(_contentUid));
+    if (file == null) return 0;
+    final index = widget.tracks.indexWhere((track) => track.file == file);
+    return index < 0 ? 0 : index;
+  }
+
   @override
   void initState() {
     super.initState();
+    _trackIndex = _savedTrackIndex();
     _player = AudioPlayer();
     _stateSub = _player?.playerStateStream.listen((_) {
       if (mounted) setState(() {});
@@ -90,7 +111,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     super.didUpdateWidget(oldWidget);
     // An admin edit can swap the track list under a live player.
     if (oldWidget.tracks != widget.tracks) {
-      _trackIndex = 0;
+      _trackIndex = _savedTrackIndex();
       _failed = false;
       _loadFuture = _load();
     }
@@ -195,6 +216,11 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
       _trackIndex = index;
       _dragValue = null;
     });
+    final track = _currentTrack;
+    if (track != null) {
+      unawaited(PreferencesSyncService.instance
+          .setAudioTrack(_contentUid, track.file));
+    }
     await _player?.stop();
     await (_loadFuture = _load());
     // Switching tracks mid-recitation should carry the "playing" state
@@ -319,6 +345,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
                 context,
                 zikrUid: widget.zikrUid,
                 zikrTitle: widget.zikrTitle,
+                track: widget.tracks.length > 1 ? _currentTrack : null,
               ),
             ),
           if (AudioDownloadStore.isSupported)
