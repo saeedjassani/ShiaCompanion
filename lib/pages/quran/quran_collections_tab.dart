@@ -14,7 +14,7 @@ import '../../widgets/responsive_content.dart';
 /// The groups the Collections tab can show, in chip order.
 enum QuranCollection {
   duas('Duas'),
-  imamAli('Imam Ali (as)'),
+  imamAli('Imam Ali (a.s.)'),
   saved('Saved');
 
   const QuranCollection(this.label);
