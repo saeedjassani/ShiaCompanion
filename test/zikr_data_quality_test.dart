@@ -3,10 +3,11 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_parser.dart';
+import 'package:shia_companion/pages/zikr/zikr_form_helpers.dart';
+import 'package:shia_companion/utils/quran_index.dart';
 
 final RegExp _latinLetter = RegExp('[A-Za-z]');
-final RegExp _arabicRune =
-    RegExp('[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]');
+final RegExp _arabicRune = RegExp('[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]');
 
 /// Collects every string in [json] that looks like a verse-content block
 /// (Arabic/transliteration/translation lines joined by '\n'), rather than a
@@ -49,7 +50,109 @@ List<String> _tabsOf(File file) {
   ];
 }
 
+/// English words that turn up in any sentence of translation or instruction
+/// and in no transliteration.
+final RegExp _englishFunctionWord = RegExp(
+  r'\b(the|of|and|to|is|you|your|who|in|for|my|me|with|by|this|his|times|recite|then|after|o|allah)\b',
+  caseSensitive: false,
+);
+
+/// Every tab of every zikr but the surahs, parsed exactly as the reader
+/// parses it - same visible tabs, same header line dropped - and labelled
+/// with where it came from.
+///
+/// Surahs are left out: their transliteration is deliberately left blank on
+/// many verses, and their text is maintained separately.
+Iterable<({String where, ParsedZikrContent parsed})>
+    _parsedNonQuranTabs() sync* {
+  final files = Directory('assets/zikr').listSync().whereType<File>().toList()
+    ..sort((a, b) => a.path.compareTo(b.path));
+  for (final file in files) {
+    final uid = file.uri.pathSegments.last;
+    if (surahForUid(uid) != null) continue;
+    final dynamic decoded = jsonDecode(file.readAsStringSync());
+    if (decoded is! Map) continue;
+    final tabs = buildVisibleZikrTabContents(
+      primary: decoded['data']?.toString() ?? '',
+      extraTabs: decoded['tabs'] is List
+          ? (decoded['tabs'] as List).map((tab) => tab?.toString() ?? '')
+          : const <String>[],
+    );
+    for (var t = 0; t < tabs.length; t++) {
+      yield (
+        where: tabs.length > 1 ? '$uid tab ${t + 1}' : uid,
+        parsed: ZikrContentParser.parseContent(
+          tabs[t],
+          hideHeaderLine: tabs.length > 1,
+        ),
+      );
+    }
+  }
+}
+
 void main() {
+  test('a transliteration slot never holds English prose', () {
+    // Real bugs: an Arabic line with no transliteration of its own claims
+    // the line after it as one anyway - ZikrContentParser places lines by
+    // their offset from the Arabic, not by what they say. In F3
+    // (Namaz-e-Shab) that put the instruction "It is also highly advisable
+    // to repeat the following imploration seventy times..." in bold capitals
+    // as if it were the verse, and hid it in Arabic-only view; in E26, E33,
+    // E36 and C15 a Bismillah's or verse's translation was drawn as its
+    // transliteration, and vanished when transliteration was turned off.
+    final offenders = <String>[];
+    for (final tab in _parsedNonQuranTabs()) {
+      for (final i in tab.parsed.transliCodes) {
+        final line = tab.parsed.lines[i];
+        final ratio = _uppercaseRatio(line);
+        if (ratio == null || ratio >= 0.5) continue;
+        if (_englishFunctionWord.allMatches(line).length >= 3) {
+          offenders.add('${tab.where} line $i: "$line"');
+        }
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason: 'These lines sit where the transliteration of the Arabic line '
+          'above them belongs, but read as English - usually an Arabic line '
+          'with no transliteration of its own, or an instruction placed '
+          'between a verse and its lines:\n${offenders.join('\n')}',
+    );
+  });
+
+  test('a translation slot never holds a second transliteration', () {
+    // Real bugs: Z4, Z5 and Z7 (Ramazan day duas) were written as two Arabic
+    // lines, then both transliterations, then both translations, so the
+    // dua's transliteration was read as its translation and the English
+    // shown as loose notes; in E27 (Jawshan Kabir) one transliteration ran
+    // onto a second line and pushed the translation out of its verse.
+    final offenders = <String>[];
+    for (final tab in _parsedNonQuranTabs()) {
+      for (final i in tab.parsed.translaCodes) {
+        final line = tab.parsed.lines[i];
+        final ratio = _uppercaseRatio(line);
+        final transli = tab.parsed.transliCodes.contains(i - 1)
+            ? _uppercaseRatio(tab.parsed.lines[i - 1])
+            : null;
+        if (ratio != null &&
+            ratio > 0.9 &&
+            line.length > 20 &&
+            transli != null &&
+            transli > 0.9) {
+          offenders.add('${tab.where} line $i: "$line"');
+        }
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason: 'These lines sit where a translation belongs, right after a '
+          'transliteration, but are transliterations themselves:\n'
+          '${offenders.join('\n')}',
+    );
+  });
+
   test('only the known duas are read as having no transliteration', () {
     // The reader infers each tab's layout from the spacing of its Arabic
     // lines (see ZikrContentParser) rather than a stored field. These are the
@@ -92,7 +195,8 @@ void main() {
       // (mostly uppercase) - the signature a swap leaves behind.
       final offenders = <String>[];
 
-      for (final file in Directory('assets/zikr').listSync().whereType<File>()) {
+      for (final file
+          in Directory('assets/zikr').listSync().whereType<File>()) {
         for (final block in _tabsOf(file)) {
           final parsed =
               ZikrContentParser.parseContent(block, hideHeaderLine: false);
@@ -146,7 +250,8 @@ void main() {
       // exactly the condition that produced that bug.
       final offenders = <String>[];
 
-      for (final file in Directory('assets/zikr').listSync().whereType<File>()) {
+      for (final file
+          in Directory('assets/zikr').listSync().whereType<File>()) {
         final dynamic decoded = jsonDecode(file.readAsStringSync());
         final blocks = <String>[];
         _collectContentBlocks(decoded, blocks);
@@ -195,7 +300,8 @@ void main() {
         continue;
       }
 
-      if (decoded is! Map || (decoded['title'] as String?)?.trim().isEmpty != false) {
+      if (decoded is! Map ||
+          (decoded['title'] as String?)?.trim().isEmpty != false) {
         offenders.add('${file.path}: missing or empty "title"');
       }
     }
