@@ -8,6 +8,9 @@ import 'package:shia_companion/utils/slug_registry.dart';
 /// while the slugs keep the old spelling so existing links still work, so
 /// matching slugs too means a search for the spelling someone learned still
 /// finds the zikr.
+///
+/// A book also matches on its author, so someone who remembers who wrote a
+/// book but not what it is called still finds it.
 List<UidTitleData> filterDataSearchResults(
   Iterable<UidTitleData> entries,
   String query, {
@@ -30,6 +33,8 @@ List<UidTitleData> filterDataSearchResults(
         (entry) =>
             !entry.uid.contains('|') &&
             (entry.title.toLowerCase().contains(normalizedQuery) ||
+                (entry.author?.toLowerCase().contains(normalizedQuery) ??
+                    false) ||
                 matchesSlug(entry) ||
                 (matchUid &&
                     entry.uid.toLowerCase().contains(normalizedQuery))),

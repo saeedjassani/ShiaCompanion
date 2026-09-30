@@ -97,4 +97,15 @@ void main() {
       expect(isNewSearchTerm(previous: 'kumayl', term: '   '), isFalse);
     });
   });
+
+  test('matches a book on its author', () {
+    final books = [
+      UidTitleData('B1', 'The Islamic Modest Dress',
+          author: 'Murtada Mutahhari'),
+      UidTitleData('B2', 'Peak of Eloquence'),
+    ];
+
+    expect(
+        filterDataSearchResults(books, 'mutahhari').map((e) => e.uid), ['B1']);
+  });
 }

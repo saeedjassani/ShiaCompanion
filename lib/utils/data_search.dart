@@ -7,6 +7,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/utils/data_search_filter.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
 import 'package:shia_companion/services/analytics_service.dart';
@@ -18,7 +19,24 @@ class DataSearch extends SearchDelegate<String> {
   DataSearch(
     this.listWords, {
     this.libraryUids = const {},
-  });
+  }) : _includeLibrary = SP.isInitialized &&
+            (SP.prefs.getBool(includeLibraryPrefKey) ?? false);
+
+  /// Remembers whether the last search had library books switched on.
+  static const String includeLibraryPrefKey = 'search_include_library';
+
+  /// Whether library books are listed alongside duas and the Quran.
+  ///
+  /// Off by default: most searches are for a dua, ziyarat or surah, and a
+  /// hundred book titles matching a common word like "prayer" bury them.
+  bool _includeLibrary;
+
+  void _setIncludeLibrary(bool value) {
+    _includeLibrary = value;
+    if (SP.isInitialized) {
+      unawaited(SP.prefs.setBool(includeLibraryPrefKey, value));
+    }
+  }
 
   /// How long the query has to stop changing before it counts as a search.
   /// Long enough that "kum" on the way to "kumayl" is not a search of its own,
@@ -92,6 +110,11 @@ class DataSearch extends SearchDelegate<String> {
         title: isUserAdmin
             ? Text('${entry.uid} ${entry.title}')
             : Text(entry.title),
+        // Several books share near-identical titles (translations of the same
+        // work, mostly), so the author is what tells them apart here too.
+        subtitle: isLibraryBook && entry.author != null
+            ? Text(entry.author!, maxLines: 1, overflow: TextOverflow.ellipsis)
+            : null,
         trailing: !isParentZikr
             ? InkWell(
                 onTap: () async {
@@ -145,18 +168,7 @@ class DataSearch extends SearchDelegate<String> {
   Widget buildResults(BuildContext context) {
     // show some result based on the selection
     _recordSearch();
-    final suggestionList = _filteredResults();
-
-    return ResponsiveContent(
-      maxWidth: listContentWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemBuilder: (context, index) =>
-            _buildSearchTile(context, suggestionList[index]),
-        itemCount: suggestionList.length,
-      ),
-    );
+    return _buildBody(context);
   }
 
   @override
@@ -164,16 +176,91 @@ class DataSearch extends SearchDelegate<String> {
     // Rebuilt on every keystroke, so the record is debounced rather than fired
     // here — this is the only hook that sees a search nobody acts on.
     _scheduleSearchRecord();
-    final List<UidTitleData> suggestionList = _filteredResults();
+    return _buildBody(context);
+  }
 
-    return ResponsiveContent(
-      maxWidth: listContentWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemBuilder: (context, index) =>
-            _buildSearchTile(context, suggestionList[index]),
-        itemCount: suggestionList.length,
+  Widget _buildBody(BuildContext context) {
+    return StatefulBuilder(builder: (context, setBodyState) {
+      final results = _filteredResults();
+      final zikrResults =
+          results.where((e) => !libraryUids.contains(e.uid)).toList();
+      final libraryResults =
+          results.where((e) => libraryUids.contains(e.uid)).toList();
+
+      void toggleLibrary(bool value) =>
+          setBodyState(() => _setIncludeLibrary(value));
+
+      final rows = <Widget>[
+        for (final entry in zikrResults) _buildSearchTile(context, entry),
+        if (libraryResults.isNotEmpty && _includeLibrary) ...[
+          _LibraryHeader(count: libraryResults.length),
+          for (final entry in libraryResults) _buildSearchTile(context, entry),
+        ],
+        // With books switched off, still say they are there — otherwise a
+        // search that only a book matches looks like it found nothing.
+        if (libraryResults.isNotEmpty && !_includeLibrary)
+          ListTile(
+            leading: const Icon(Icons.menu_book_outlined),
+            title: Text(libraryResults.length == 1
+                ? '1 match in Library'
+                : '${libraryResults.length} matches in Library'),
+            trailing: const Text('Show'),
+            onTap: () => toggleLibrary(true),
+          ),
+        if (query.trim().isNotEmpty && results.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(24),
+            child: Center(child: Text('No results')),
+          ),
+      ];
+
+      return ResponsiveContent(
+        maxWidth: listContentWidth,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  FilterChip(
+                    avatar: const Icon(Icons.menu_book_outlined, size: 18),
+                    label: const Text('Include Library'),
+                    selected: _includeLibrary,
+                    onSelected: toggleLibrary,
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                children: rows,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+class _LibraryHeader extends StatelessWidget {
+  const _LibraryHeader({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+      child: Text(
+        'Library ($count)',
+        style: theme.textTheme.titleSmall
+            ?.copyWith(color: theme.colorScheme.primary),
       ),
     );
   }
