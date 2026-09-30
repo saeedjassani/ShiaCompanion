@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, setEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/rendering.dart' show ScrollDirection;
@@ -19,8 +19,9 @@ import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
+import 'package:shia_companion/models/saved_verse.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
-import 'package:shia_companion/services/saved_verses_store.dart';
+import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/quran_script.dart';
@@ -340,6 +341,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterCount = ValueNotifier(counterState.count);
     _loadSavedBookmark();
     _loadSavedVerses();
+    if (_isQuran) {
+      // Saved verses sync, so they can arrive after the page opens - loaded
+      // late, or saved on another device - and the marks follow them.
+      SavedVersesManager.instance.addListener(_handleSavedVersesChanged);
+      unawaited(SavedVersesManager.instance.loadSavedVerses());
+    }
     // The one place a zikr open is counted, so every entry point lands in the
     // same bucket exactly once.
     _openedAt = DateTime.now();
@@ -748,14 +755,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  /// Bookmarks one verse, against the surah that verse belongs to.
-  ///
-  /// Deliberately not against whatever is open: reading juz 5 and bookmarking
-  /// 5:12 marks al-Ma'idah, so opening al-Ma'idah directly finds it too. There
-  /// is still one bookmark per surah and it is still a [ZikrBookmark] - what
-  /// makes this possible is that the bookmark now carries the ayah, which is
-  /// meaningful in both the juz and the surah, where a scroll offset measured
-  /// inside a juz would be meaningless in the surah's own document.
   /// Keeps [verse], or lets it go if it was already kept.
   ///
   /// A collection rather than a marker: saving a second verse of a surah does
@@ -766,13 +765,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final ayah = verse.ayah;
     if (ayah == null) return;
 
-    final store = SavedVersesStore.instance;
+    final savedVerses = SavedVersesManager.instance;
     final wasSaved = _savedVerses.contains(verse);
 
     if (wasSaved) {
-      await store.remove(verse);
+      await savedVerses.unsave(verse);
     } else {
-      await store.add(
+      await savedVerses.save(
         SavedVerse(
           surah: verse.surah,
           ayah: ayah,
@@ -811,6 +810,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   @override
   void dispose() {
+    SavedVersesManager.instance.removeListener(_handleSavedVersesChanged);
     _progressSaveTimer?.cancel();
     _quranEndTimer?.cancel();
     _flushRecitationProgress();
@@ -864,10 +864,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// unchanged rendering and reporting paths.
   bool get _isQuran => _surahNumber != null || widget.portion != null;
 
+  /// Rebuilds only when the set of verses changed, not for a re-save that
+  /// only refreshed an excerpt.
+  void _handleSavedVersesChanged() {
+    if (!mounted) return;
+    final previous = _savedVerses;
+    _loadSavedVerses();
+    if (!setEquals(previous, _savedVerses)) setState(() {});
+  }
+
   void _loadSavedVerses() {
     if (!_isQuran) return;
     _savedVerses = {
-      for (final saved in SavedVersesStore.instance.readAll()) saved.verse,
+      for (final saved in SavedVersesManager.instance.state.verses.values)
+        saved.verse,
     };
   }
 

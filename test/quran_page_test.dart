@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
+import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -21,7 +22,8 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await SP.init();
-    await SavedVersesStore.instance.clear();
+    // A singleton that would otherwise keep the last test's saved verses.
+    SavedVersesManager.instance.resetForTesting();
     items = {
       for (var surah = 1; surah <= surahCount; surah++)
         uidForSurah(surah)!: '$surah: Surah$surah اسم',
@@ -88,17 +90,19 @@ void main() {
   });
 
   testWidgets('kept verses are listed in mushaf order', (tester) async {
-    for (final verse in [const VerseKey(36, 9), const VerseKey(2, 255)]) {
-      await SavedVersesStore.instance.add(
-        SavedVerse(
-          surah: verse.surah,
-          ayah: verse.ayah!,
-          surahName: 'Surah${verse.surah}',
-          excerpt: 'excerpt ${verse.surah}',
-          savedAt: DateTime.now().toUtc(),
-        ),
-      );
-    }
+    await tester.runAsync(() async {
+      for (final verse in [const VerseKey(36, 9), const VerseKey(2, 255)]) {
+        await SavedVersesManager.instance.save(
+          SavedVerse(
+            surah: verse.surah,
+            ayah: verse.ayah!,
+            surahName: 'Surah${verse.surah}',
+            excerpt: 'excerpt ${verse.surah}',
+            savedAt: DateTime.now().toUtc(),
+          ),
+        );
+      }
+    });
     await pump(tester);
     await openCollection(tester, 'Saved');
 
@@ -112,13 +116,15 @@ void main() {
   });
 
   testWidgets('a kept verse can be removed from the list', (tester) async {
-    await SavedVersesStore.instance.add(
-      SavedVerse(
-        surah: 2,
-        ayah: 255,
-        surahName: 'Surah2',
-        excerpt: '',
-        savedAt: DateTime.now().toUtc(),
+    await tester.runAsync(
+      () => SavedVersesManager.instance.save(
+        SavedVerse(
+          surah: 2,
+          ayah: 255,
+          surahName: 'Surah2',
+          excerpt: '',
+          savedAt: DateTime.now().toUtc(),
+        ),
       ),
     );
     await pump(tester);
@@ -128,7 +134,29 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No saved verses yet'), findsOneWidget);
-    expect(SavedVersesStore.instance.readAll(), isEmpty);
+    expect(SavedVersesManager.instance.state.verses, isEmpty);
+  });
+
+  testWidgets('verses saved on the device before syncing move into the list',
+      (tester) async {
+    await SP.prefs.setString(
+      'quran_saved_verses_v1',
+      '[{"surah":2,"ayah":255,"surahName":"Surah2",'
+          '"savedAt":"2026-06-07T10:30:00.000Z"}]',
+    );
+    await tester.runAsync(
+      () => SavedVersesManager.instance.loadSavedVerses(force: true),
+    );
+
+    await pump(tester);
+    await openCollection(tester, 'Saved');
+
+    expect(find.text('Surah2 255'), findsOneWidget);
+    expect(
+      SavedVersesStore.instance.readAll(),
+      isEmpty,
+      reason: 'the device copy is emptied once moved, so it moves only once',
+    );
   });
 
   testWidgets(
