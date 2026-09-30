@@ -72,9 +72,9 @@ Future<void> _startPlaylist(
   final message = switch (result) {
     PlaylistStartResult.started => null,
     PlaylistStartResult.startedDownloadedOnly =>
-      "You're offline - playing only the downloaded recitations",
+      "You're offline - playing only the downloaded recordings",
     PlaylistStartResult.nothingToPlay =>
-      'Nothing in this playlist has a recitation to play',
+      'Nothing in this playlist has a recording to play',
     PlaylistStartResult.offlineNothingDownloaded =>
       "You're offline and nothing in this playlist is downloaded yet",
     PlaylistStartResult.failed => "Couldn't start the playlist. Try again.",
@@ -284,8 +284,8 @@ bool _hasRecording(ZikrPlaylist playlist, String uid, ZikrAudioTrack? track) {
       .any((chosen) => chosen.file == track.file);
 }
 
-String _countLabel(int count) =>
-    count == 1 ? '1 recitation' : '$count recitations';
+// "Zikr" is its own plural here, the way the rest of the app uses it.
+String _countLabel(int count) => '$count zikr';
 
 /// The reader's audio playlists: a morning set of Dua Ahad and Ziyarat
 /// Ashura, say, started with one tap and left playing in the background.
@@ -355,7 +355,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
           if (playlists.isEmpty) {
             return const _EmptyState(
               icon: Icons.playlist_play_rounded,
-              message: 'Make a playlist of the recitations you listen to '
+              message: 'Make a playlist of the zikr you listen to '
                   'every day - Dua Ahad and Ziyarat Ashura each morning, say '
                   '- and start them all with one tap.',
             );
@@ -543,8 +543,8 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
           body: playlist.zikrUids.isEmpty
               ? const _EmptyState(
                   icon: Icons.playlist_add,
-                  message: 'Tap Add to choose recitations. You can also add '
-                      'one from the player on any dua with audio.',
+                  message: 'Tap Add to choose zikr. You can also add one from '
+                      'the player on any dua with audio.',
                 )
               : ResponsiveContent(
                   child: Column(
@@ -594,11 +594,18 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                                 : const <ZikrAudioTrack>[];
                             final tracks = playlist.tracksFor(uid, available);
                             // Which recordings play, for a zikr with a choice.
-                            final recordings = available.length < 2
-                                ? null
-                                : tracks.length == 1
-                                    ? _trackLabel(tracks.single,
-                                        available.indexOf(tracks.single))
+                            // A zikr playing one of its several recordings
+                            // goes by that recording's label alone - the
+                            // labels name the zikr too ("Ziyarat Aal e Yasin
+                            // with Dua"). Playing more than one, it keeps its
+                            // title and says how many.
+                            final single =
+                                available.length > 1 && tracks.length == 1
+                                    ? tracks.single.label
+                                    : null;
+                            final recordings =
+                                available.length < 2 || single != null
+                                    ? null
                                     : '${tracks.length} of '
                                         '${available.length} recordings';
                             final downloadState =
@@ -620,7 +627,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                               leading: Icon(isPlaying
                                   ? Icons.graphic_eq
                                   : Icons.headphones_outlined),
-                              title: Text(_zikrTitle(uid)),
+                              title: Text(single ?? _zikrTitle(uid)),
                               subtitle: subtitle == null && recordings == null
                                   ? null
                                   : Column(
@@ -723,7 +730,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   }
 }
 
-/// Every zikr that has a recitation, to tick into a playlist.
+/// Every zikr that has a recording, to tick into a playlist.
 class AddRecitationsPage extends StatefulWidget {
   const AddRecitationsPage({super.key, required this.playlistId});
 
@@ -750,7 +757,7 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
   Widget build(BuildContext context) {
     if (!_audioReady) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Add recitations')),
+        appBar: AppBar(title: const Text('Add zikr')),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -761,12 +768,27 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
           _zikrTitle(a).toLowerCase().compareTo(_zikrTitle(b).toLowerCase()));
     final visible = query.isEmpty
         ? uids
-        : uids
-            .where((uid) => _zikrTitle(uid).toLowerCase().contains(query))
-            .toList();
+        : uids.where((uid) {
+            if (_zikrTitle(uid).toLowerCase().contains(query)) return true;
+            // Recording labels name what they are ("Dua after Ziyarat
+            // Warith"), so they are worth finding by too.
+            return ZikrAudioIndex.instance.tracksFor(uid).any(
+                (track) => track.label?.toLowerCase().contains(query) ?? false);
+          }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add recitations')),
+      appBar: AppBar(title: const Text('Add zikr')),
+      // Ticks save as they are made; Done is the obvious way back to the
+      // playlist, so it doesn't feel like the ticks need confirming.
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          child: FilledButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            child: const Text('Done'),
+          ),
+        ),
+      ),
       body: ListenableBuilder(
         listenable: store,
         builder: (context, _) {

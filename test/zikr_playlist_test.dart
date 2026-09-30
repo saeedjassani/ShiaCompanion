@@ -133,6 +133,21 @@ void main() {
           ['Morning', 'Friday']);
     });
 
+    test('every recording of a zikr with several has a label', () {
+      // The playlist page shows such a recording by its label alone, so the
+      // label has to say what it is without the zikr's title beside it.
+      final audio =
+          jsonDecode(File(ZikrAudioIndex.assetPath).readAsStringSync()) as Map;
+      for (final MapEntry(:key, :value) in audio.entries) {
+        final tracks = value as List;
+        if (tracks.length < 2) continue;
+        for (final track in tracks) {
+          expect((track as Map)['label']?.toString().trim(), isNotEmpty,
+              reason: '$key: ${track['file']} has no label');
+        }
+      }
+    });
+
     test('hold only zikrs that have a recording', () {
       final audio =
           jsonDecode(File(ZikrAudioIndex.assetPath).readAsStringSync()) as Map;
@@ -258,7 +273,7 @@ void main() {
           .create('Morning', zikrUids: ['E18', 'G4']);
       await tester.pumpWidget(const MaterialApp(home: PlaylistsPage()));
       expect(find.text('Morning'), findsOneWidget);
-      expect(find.text('2 recitations'), findsOneWidget);
+      expect(find.text('2 zikr'), findsOneWidget);
       expect(find.byTooltip('Play'), findsOneWidget);
     });
 
@@ -316,6 +331,34 @@ void main() {
       await tester.pump();
       expect(store.byId(playlist.id)!.zikrUids, isEmpty,
           reason: 'unticking the last recording takes the zikr out');
+    });
+
+    testWidgets('a zikr playing one of several recordings goes by its label',
+        (tester) async {
+      items = {...items, 'G1': 'Ziyarat Aal e Yasin'};
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        'G1': [
+          {'file': 'yasin.mp3', 'label': 'Ziyarat Aal e Yasin (short)'},
+          {'file': 'yasin-dua.mp3', 'label': 'Ziyarat Aal e Yasin with Dua'},
+        ],
+      }));
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning', zikrUids: [
+        'G1'
+      ], trackFiles: {
+        'G1': ['yasin-dua.mp3']
+      });
+      await tester.pumpWidget(
+          MaterialApp(home: PlaylistDetailPage(playlistId: playlist.id)));
+      await tester.pump();
+      expect(find.text('Ziyarat Aal e Yasin with Dua'), findsOneWidget);
+      expect(find.text('Ziyarat Aal e Yasin'), findsNothing);
+
+      await store
+          .setTrackFiles(playlist.id, 'G1', ['yasin.mp3', 'yasin-dua.mp3']);
+      await tester.pump();
+      expect(find.text('Ziyarat Aal e Yasin'), findsOneWidget);
+      expect(find.text('2 of 2 recordings'), findsOneWidget);
     });
 
     testWidgets('the detail page shows the queue in order', (tester) async {
