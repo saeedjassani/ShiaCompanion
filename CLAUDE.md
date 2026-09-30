@@ -73,9 +73,10 @@ entries should follow the same house style:
   the Prophet, `(a.s.)` for Imams/prophets, `(s.a.)` for Lady Fatimah, Lady
   Zainab etc., `(a.t.f.s.)` for Imam al-Mahdi.
 - **Most common English spelling, not a letter-by-letter Urdu/Persian
-  romanization**: Ramadan, Muharram, Dhul Qa'dah, Dhul Hijjah, Jumada
-  al-Awwal/al-Akhirah, Ashura, Ghadir, Eid al-Adha, Ziyarat (never
-  Ziyaarat/Ziyarah), Ziyarat Warith, Aal-e-Yasin, Jamia Kabira, Aminullah,
+  romanization** - except Ramazan, kept deliberately as the audience's own
+  spelling: Muharram, Dhul Qa'dah, Dhul Hijjah, Jumada al-Awwal/al-Akhirah,
+  Ashura, Ghadir, Eid al-Adha, Ziyarat (never Ziyaarat/Ziyarah), Ziyarat
+  Warith, Aal-e-Yasin, Jamia Kabira, Aminullah,
   Munajat, Istikhara, Taqibaat, Nafilah, Zuhr, Maghrib, Wudu, Aamal, Husayn,
   Muhammad, Musa, Reza, Zayn al-Abidin, Fatimah al-Zahra, Amir al-Mu'minin,
   Hadith al-Kisa, Ayat al-Kursi.
