@@ -107,6 +107,13 @@ Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
   }
 }
 
+/// The Imam Ali (as) watermark behind a verse, found by the asset it draws.
+final _aliWatermark = find.byWidgetPredicate((widget) =>
+    widget is Image &&
+    widget.image is AssetImage &&
+    (widget.image as AssetImage).assetName ==
+        'assets/images/ali_watermark.png');
+
 void main() {
   group('a juz portion', () {
     setUp(() {
@@ -296,7 +303,7 @@ void main() {
     });
   });
 
-  group('Imam Ali (as) badge', () {
+  group('Imam Ali (as) watermark', () {
     testWidgets('marks a curated verse and nothing else', (tester) async {
       // Surah 98 (al-Bayyina) has only 8 ayahs, and 98:7 is one of the
       // curated verses - short enough to render whole in a widget test, but
@@ -308,19 +315,19 @@ void main() {
       );
 
       await _scrollTo(tester, find.text('Translation of ayah 7'));
-      // The seal is a Container carrying the Arabic name, not an Icon - the
-      // name itself is what a test (and a reader) can actually spot.
-      expect(find.text('علي'), findsOneWidget);
+      expect(_aliWatermark, findsOneWidget);
+      // It is drawn behind the verse, not as a seal in a row above it.
+      expect(find.text('علي'), findsNothing);
     });
 
-    testWidgets('an uncurated surah shows no badge at all', (tester) async {
+    testWidgets('an uncurated surah shows no watermark at all', (tester) async {
       await _pump(
         tester,
         content: _surahContent(ayahs: 3),
         surahNumber: 1,
       );
 
-      expect(find.text('علي'), findsNothing);
+      expect(_aliWatermark, findsNothing);
     });
   });
 

@@ -2918,8 +2918,8 @@ class _SurahHeading extends StatelessWidget {
 /// The verse number is not drawn here: it is already inside the Arabic, as
 /// the end-of-verse medallion the corpus is authored with, and a second one
 /// above each verse only duplicated it. The row above a verse appears only
-/// when there is something to mark - the bookmark, a saved verse, or the
-/// Imam Ali (as) seal.
+/// when there is something to mark - the bookmark or a saved verse. A verse
+/// about Imam Ali (as) is marked by a watermark behind it instead.
 class _AyahBlock extends StatelessWidget {
   const _AyahBlock({
     required this.ayah,
@@ -2946,9 +2946,10 @@ class _AyahBlock extends StatelessWidget {
   final bool isBookmarked;
 
   /// Set when this verse is one Shia tafsir cites as being about Imam Ali
-  /// (as); its text is the occasion or title the verse is known by, shown as
-  /// a tooltip on the badge. Null for every other verse, which is most of
-  /// them, so the badge stays rare enough to mean something when it appears.
+  /// (as); its text is the occasion or title the verse is known by, which the
+  /// verse menu shows and the watermark carries as its semantic label. Null
+  /// for every other verse, which is most of them, so the watermark stays rare
+  /// enough to mean something when it appears.
   final String? aliNote;
 
   final VoidCallback? onAction;
@@ -2964,7 +2965,7 @@ class _AyahBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (startsSurah != null) _SurahHeading(surah: startsSurah!),
-          if (ayah != null && (isBookmarked || isSaved || aliNote != null))
+          if (ayah != null && (isBookmarked || isSaved))
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
@@ -2981,7 +2982,6 @@ class _AyahBlock extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                   ],
-                  if (aliNote != null) _AliBadge(note: aliNote!),
                 ],
               ),
             ),
@@ -2994,6 +2994,15 @@ class _AyahBlock extends StatelessWidget {
       ),
     );
 
+    final marked = aliNote == null
+        ? block
+        : Stack(
+            children: [
+              Positioned.fill(child: _AliWatermark(note: aliNote!)),
+              block,
+            ],
+          );
+
     final decorated = isBookmarked
         ? Container(
             decoration: BoxDecoration(
@@ -3002,9 +3011,9 @@ class _AyahBlock extends StatelessWidget {
                 left: BorderSide(color: colorScheme.primary, width: 3),
               ),
             ),
-            child: block,
+            child: marked,
           )
-        : block;
+        : marked;
 
     if (onAction == null) return decorated;
 
@@ -3016,61 +3025,51 @@ class _AyahBlock extends StatelessWidget {
   }
 }
 
-/// The mark beside a verse's number when Shia tafsir cites it as being about
-/// Imam Ali (as) - see [quranAliVerses]. A small gold seal with "علي" set
-/// inside it, rather than a plain icon: the name itself is the point, not a
-/// generic "this is special" glyph. A `Tooltip` rather than a tappable chip -
-/// the whole ayah block is already a tap target for [AyahActionRequest], so
-/// the seal only needs to answer "why is this marked" on long-press/hover,
-/// not compete for the tap itself.
+/// The mark behind a verse Shia tafsir cites as being about Imam Ali (as) -
+/// see [quranAliVerses]. The "علي" from the app icon, drawn faintly behind the
+/// verse like a watermark, rather than a badge in a row of its own: the name
+/// itself is the point, and behind the text it marks the verse without
+/// pushing it down or competing with it.
 ///
-/// The gold is a fixed pair of colors rather than anything drawn from the
-/// theme: a seal reads as gold in both light and dark reading modes, the way
-/// actual wax or foil would, not as "whatever the app's primary color is."
-class _AliBadge extends StatelessWidget {
-  const _AliBadge({required this.note});
+/// It takes no taps. The whole ayah block is already the tap target for
+/// [AyahActionRequest], and the verse menu that opens shows the same note, so
+/// the watermark only carries it as its semantic label.
+///
+/// Gold, like the icon, in both reading modes rather than the theme's primary
+/// color: the icon's own pale gold on the dark page, and a deeper gold on the
+/// light one, where the pale gold would all but vanish.
+class _AliWatermark extends StatelessWidget {
+  const _AliWatermark({required this.note});
 
   final String note;
 
-  static const _sealHighlight = Color(0xFFE7C878);
-  static const _sealShadow = Color(0xFF8F6B1E);
-  static const _sealInk = Color(0xFF2C2109);
+  static const asset = 'assets/images/ali_watermark.png';
+
+  static const _iconGold = Color(0xFFF3E6A0);
+  static const _deepGold = Color(0xFFB08A2E);
 
   @override
   Widget build(BuildContext context) {
-    // The ring the seal sits in is cut from the page behind it, so the gold
-    // never collides with a bookmark tint or the primary-container wash a
-    // saved verse already gets.
-    final ringColor = Theme.of(context).colorScheme.surface;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final color = dark
+        ? _iconGold.withValues(alpha: 0.17)
+        : _deepGold.withValues(alpha: 0.18);
 
-    return Tooltip(
-      message: note,
-      triggerMode: TooltipTriggerMode.longPress,
-      child: Container(
-        width: 22,
-        height: 22,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const RadialGradient(
-            center: Alignment(-0.3, -0.35),
-            colors: [_sealHighlight, _sealShadow],
-          ),
-          border: Border.all(color: ringColor, width: 1.4),
-          boxShadow: [
-            BoxShadow(
-                color: _sealShadow.withValues(alpha: 0.65), spreadRadius: 0.6),
-          ],
-        ),
-        child: Text(
-          'علي',
-          style: TextStyle(
-            fontFamily: arabicFont,
-            fontFamilyFallback: const ['Qalam'],
-            fontSize: 10,
-            height: 1,
-            fontWeight: FontWeight.w700,
-            color: _sealInk,
+    return IgnorePointer(
+      child: ClipRect(
+        // The glyph's long baseline stroke sits low, so it is lifted to
+        // centre its mass on the verse rather than its bounding box.
+        child: Transform.translate(
+          offset: const Offset(0, -18),
+          child: Center(
+            child: Image.asset(
+              asset,
+              height: 170,
+              color: color,
+              colorBlendMode: BlendMode.srcIn,
+              filterQuality: FilterQuality.high,
+              semanticLabel: note,
+            ),
           ),
         ),
       ),
