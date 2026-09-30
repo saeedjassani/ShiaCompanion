@@ -48,7 +48,8 @@ class _RecitationTrackerTabState extends State<RecitationTrackerTab> {
 
         return ResponsiveScrollableContent(
           maxWidth: listContentWidth,
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          padding: EdgeInsets.fromLTRB(
+              16, 12, 16, 24 + MediaQuery.paddingOf(context).bottom),
           child: state.isEmpty
               ? _buildEmptyState(context)
               : Column(

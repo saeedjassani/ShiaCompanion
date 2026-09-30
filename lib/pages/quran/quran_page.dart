@@ -12,6 +12,7 @@ import '../../services/saved_verses_store.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/quran_text_index.dart';
 import '../../widgets/favorite_icon.dart';
+import '../../widgets/glass_chrome.dart';
 import '../../widgets/responsive_content.dart';
 import 'listen_and_follow_sheet.dart';
 import 'quran_collections_tab.dart';
@@ -103,12 +104,20 @@ class _QuranPageState extends State<QuranPage> {
     setState(_refresh);
   }
 
+  static const _tabLabels = ['Surahs', 'Juz', 'Collections', 'Recitations'];
+
   @override
   Widget build(BuildContext context) {
+    final glass = useGlassChrome(context);
     return DefaultTabController(
-      length: 4,
+      length: _tabLabels.length,
       initialIndex: widget.initialTabIndex,
       child: Scaffold(
+        // On iOS the tabs float at the bottom as glass, with the lists
+        // scrolling behind them; elsewhere they stay under the app bar.
+        extendBody: glass,
+        bottomNavigationBar:
+            glass ? const GlassTabBar(labels: _tabLabels) : null,
         appBar: AppBar(
           title: const Text('Quran'),
           actions: [
@@ -123,14 +132,11 @@ class _QuranPageState extends State<QuranPage> {
                 onPressed: _listenAndFollow,
               ),
           ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Surahs'),
-              Tab(text: 'Juz'),
-              Tab(text: 'Collections'),
-              Tab(text: 'Recitations'),
-            ],
-          ),
+          bottom: glass
+              ? null
+              : TabBar(
+                  tabs: [for (final label in _tabLabels) Tab(text: label)],
+                ),
         ),
         body: Column(
           children: [
@@ -444,7 +450,9 @@ class _SurahList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating glass tab bar on iOS (see GlassTabBar).
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemCount: surahs.length,
         itemBuilder: (context, index) {
@@ -516,7 +524,9 @@ class _JuzList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating glass tab bar on iOS (see GlassTabBar).
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemCount: juz.length,
         itemBuilder: (context, index) {

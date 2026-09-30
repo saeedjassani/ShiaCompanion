@@ -139,7 +139,9 @@ class _QuranDuaList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating glass tab bar on iOS (see GlassTabBar).
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemCount: uids.length,
         itemBuilder: (context, index) {
@@ -184,7 +186,9 @@ class _AliVerseList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating glass tab bar on iOS (see GlassTabBar).
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemCount: verses.length,
         itemBuilder: (context, index) {
@@ -257,7 +261,9 @@ class _SavedVerseList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating glass tab bar on iOS (see GlassTabBar).
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemCount: saved.length,
         itemBuilder: (context, index) {

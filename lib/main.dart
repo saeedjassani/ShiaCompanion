@@ -23,6 +23,7 @@ import 'pages/home_page.dart';
 import 'pages/widget_preview_page.dart';
 import 'utils/deep_links.dart';
 import 'widgets/audio_download_button.dart';
+import 'widgets/glass_chrome.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -109,6 +110,12 @@ _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
   return _AppLaunchDestination.home;
 }
 
+final _lightScheme = ColorScheme.fromSeed(seedColor: Colors.brown);
+final _darkScheme = ColorScheme.fromSeed(
+  seedColor: Colors.brown,
+  brightness: Brightness.dark,
+);
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -136,7 +143,8 @@ class MyApp extends StatelessWidget {
               textScaleProvider.apply(context, child ?? const SizedBox()),
           theme: ThemeData(
             useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
+            colorScheme: _lightScheme,
+            extensions: [GlassStyle.fromScheme(_lightScheme)],
             appBarTheme: AppBarTheme(
               backgroundColor: Colors.brown,
               foregroundColor: Colors.white,
@@ -146,10 +154,8 @@ class MyApp extends StatelessWidget {
           ),
           darkTheme: ThemeData(
             useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.brown,
-              brightness: Brightness.dark,
-            ),
+            colorScheme: _darkScheme,
+            extensions: [GlassStyle.fromScheme(_darkScheme)],
           ),
           themeMode:
               darkModeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,

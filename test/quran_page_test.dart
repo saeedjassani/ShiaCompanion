@@ -7,6 +7,7 @@ import 'package:shia_companion/pages/quran/quran_page.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/widgets/glass_chrome.dart';
 
 import 'ui/firebase_test_doubles.dart';
 
@@ -170,5 +171,39 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No saved verses yet'), findsOneWidget);
+  });
+
+  group('tab placement', () {
+    Future<void> pumpOn(WidgetTester tester, TargetPlatform platform) async {
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData(platform: platform),
+        home: const QuranPage(),
+      ));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('iOS floats the tabs at the bottom as glass', (tester) async {
+      await pumpOn(tester, TargetPlatform.iOS);
+
+      expect(find.byType(GlassTabBar), findsOneWidget);
+      expect(
+        find.descendant(of: find.byType(AppBar), matching: find.byType(TabBar)),
+        findsNothing,
+      );
+
+      await tester.tap(find.text('Juz'));
+      await tester.pumpAndSettle();
+      expect(find.text('Juz 1'), findsOneWidget);
+    });
+
+    testWidgets('Android keeps the tabs under the app bar', (tester) async {
+      await pumpOn(tester, TargetPlatform.android);
+
+      expect(find.byType(GlassTabBar), findsNothing);
+      expect(
+        find.descendant(of: find.byType(AppBar), matching: find.byType(TabBar)),
+        findsOneWidget,
+      );
+    });
   });
 }
