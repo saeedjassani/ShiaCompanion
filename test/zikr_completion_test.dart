@@ -42,16 +42,16 @@ void main() {
     });
   });
 
-  group('zikrCompletionWait', () {
+  group('zikrTabCompletionWait', () {
     // A 10-minute tab and a 1-minute tab.
     const tenMinutes = ZikrTabReadingStats(arabicWords: 1000, latinWords: 0);
     const oneMinute = ZikrTabReadingStats(arabicWords: 100, latinWords: 0);
 
     test('nothing read far enough yet', () {
       expect(
-        zikrCompletionWait(
-          seenFractions: {0: 0.5},
-          tabs: const [tenMinutes],
+        zikrTabCompletionWait(
+          seenFraction: 0.5,
+          tab: tenMinutes,
           elapsed: const Duration(hours: 1),
         ),
         isNull,
@@ -60,17 +60,17 @@ void main() {
 
     test('counts once 40% of the tab time has passed', () {
       expect(
-        zikrCompletionWait(
-          seenFractions: {0: 0.95},
-          tabs: const [tenMinutes],
+        zikrTabCompletionWait(
+          seenFraction: 0.95,
+          tab: tenMinutes,
           elapsed: const Duration(minutes: 4),
         ),
         Duration.zero,
       );
       expect(
-        zikrCompletionWait(
-          seenFractions: {0: 0.95},
-          tabs: const [tenMinutes],
+        zikrTabCompletionWait(
+          seenFraction: 0.95,
+          tab: tenMinutes,
           elapsed: const Duration(minutes: 1),
         ),
         const Duration(minutes: 3),
@@ -79,23 +79,20 @@ void main() {
 
     test('a short dua still needs the ten-second floor', () {
       expect(
-        zikrCompletionWait(
-          seenFractions: {0: 1},
-          tabs: const [ZikrTabReadingStats(arabicWords: 10, latinWords: 0)],
+        zikrTabCompletionWait(
+          seenFraction: 1,
+          tab: const ZikrTabReadingStats(arabicWords: 10, latinWords: 0),
           elapsed: const Duration(seconds: 2),
         ),
         const Duration(seconds: 8),
       );
     });
 
-    test('one finished tab of a multi-tab zikr is enough, timed by that tab',
-        () {
-      // Reading only the short second tab of a compilation must not wait on
-      // the long first tab the reader never opened.
+    test('a tab is timed by its own length, not the compilation\'s', () {
       expect(
-        zikrCompletionWait(
-          seenFractions: {1: 1},
-          tabs: const [tenMinutes, oneMinute, tenMinutes],
+        zikrTabCompletionWait(
+          seenFraction: 1,
+          tab: oneMinute,
           elapsed: const Duration(seconds: 30),
         ),
         Duration.zero,
@@ -127,9 +124,9 @@ void main() {
 
     final stats = analyzeZikrReadingStats([data]);
     expect(
-      zikrCompletionWait(
-        seenFractions: {0: seen},
-        tabs: stats.tabs,
+      zikrTabCompletionWait(
+        seenFraction: seen,
+        tab: stats.tabs.single,
         elapsed: const Duration(minutes: 5),
       ),
       Duration.zero,
