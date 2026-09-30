@@ -27,9 +27,6 @@ concurrency:
   group: smoke-test-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  FLUTTER_VERSION: '3.47.5'
-
 jobs:
   gate:
     name: Decide whether this is a version bump
@@ -81,7 +78,6 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
@@ -164,7 +160,6 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 

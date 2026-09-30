@@ -40,8 +40,8 @@ more, free and without ads.
 
 ## Getting started
 
-1. Install the Flutter version pinned in
-   [`.github/workflows/ci.yml`](.github/workflows/ci.yml) (`FLUTTER_VERSION`).
+1. Install the latest [stable Flutter](https://docs.flutter.dev/get-started/install)
+   release (CI always builds with latest stable).
 2. Clone and fetch dependencies:
 
    ```bash
