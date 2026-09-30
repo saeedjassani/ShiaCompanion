@@ -296,15 +296,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// Verses the reader has kept, so the reader can mark them as they pass.
   Set<VerseKey> _savedVerses = const {};
 
-  /// The verse at the top of the view right now, however the reader got there.
-  /// Distinct from [_pendingProgressVerse], which only follows real scrolling
-  /// because it feeds the saved recitation position.
-  VerseKey? _currentVerse;
-
-  /// That verse's text, so the bar can save an excerpt without the reader
-  /// having had to open the per-verse menu.
-  String _currentVerseText = '';
-
   /// The last verse reported as being read, so a debounced save has something
   /// to write and repeat reports of the same verse cost nothing.
   VerseKey? _pendingProgressVerse;
@@ -465,8 +456,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// reached. Scrolling on from there does count, which is what makes a lookup
   /// that turns into real reading become the new place on its own.
   void _handleAyahPositionChanged(QuranReadingPosition position) {
-    _currentVerse = position.verse;
-    _currentVerseText = position.text;
     if (!position.fromUserScroll) return;
     final ayah = position.verse.ayah;
     if (ayah == null) return;
@@ -886,22 +875,32 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // A portion is not a document bookmarks can be stored against.
     if (widget.portion != null) return;
 
+    // Opened with somewhere to go - a track's resume card, a verse link - a
+    // surah leaves any bookmark alone: see [_consumeLegacyQuranBookmark].
+    if (_isQuran && _initialVerse != null) return;
+
     final bookmark = ZikrBookmarkStore.instance.read(_bookmarkUid);
     if (bookmark == null) return;
 
     _savedBookmark = bookmark;
-
-    // An explicit destination wins over restoring the bookmark's position:
-    // someone opening 23:56 asked for that verse, not for wherever they last
-    // bookmarked this surah. The bookmark itself is kept, and still drawn.
-    //
-    // A verse-anchored bookmark is skipped here too, for a different reason:
-    // it is restored by scrolling to its verse instead, which is exact, and
-    // letting the offset restore as well would only fight it.
-    if (_initialVerse != null) return;
+    if (_isQuran) _consumeLegacyQuranBookmark();
 
     _selectedZikrTabIndex = bookmark.tabIndex;
     _currentTabScrollOffsets[bookmark.tabIndex] = bookmark.scrollOffset;
+  }
+
+  /// Retires a bookmark left on a surah from before it opened in Quran mode.
+  ///
+  /// Quran mode has no bookmark button - a recitation track keeps the place on
+  /// its own - so a bookmark carried over from the flat reader could be drawn
+  /// but never moved or removed. It is honoured once instead: this visit lands
+  /// on it and shows the marker, and the stored record is deleted, so reading
+  /// on from there is tracked like any other and the marker never comes back.
+  ///
+  /// Only reached on a plain open. Opened for a specific verse, the bookmark
+  /// would be neither landed on nor noticed, so it is kept for a later visit.
+  void _consumeLegacyQuranBookmark() {
+    unawaited(ZikrBookmarkStore.instance.remove(_bookmarkUid));
   }
 
   void _persistCounterSession({
@@ -1632,6 +1631,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     setState(() {
       _savedBookmark = upgraded;
     });
+    // A surah's bookmark has already been retired - writing it back would
+    // bring it back on the next visit.
+    if (_isQuran) return;
     unawaited(ZikrBookmarkStore.instance.save(upgraded));
   }
 
@@ -1738,15 +1740,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     required List<String> tabContents,
     required int selectedTabIndex,
   }) async {
-    // Reading Quran, the bar keeps the verse on screen rather than marking a
-    // place: resuming is a recitation track's own resume card's job, so one
-    // bookmark icon means one thing throughout the Quran.
-    if (_isQuran) {
-      final verse = _currentVerse;
-      if (verse != null) await _toggleSavedVerse(verse, _currentVerseText);
-      return;
-    }
-
     final existingBookmark = _savedBookmark;
     if (existingBookmark != null) {
       await ZikrBookmarkStore.instance.remove(_bookmarkUid);
@@ -2327,11 +2320,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                         valueListenable: _showCounter,
                         builder: (context, counterVisible, _) => ZikrActionBar(
                           hasAudio: audioTracks.isNotEmpty,
+                          // Reading Quran there is no place to mark: a
+                          // recitation track resumes on its own, and keeping
+                          // a verse is the per-verse menu's job.
+                          showBookmark: !_isQuran,
                           canBookmark: hasAnyContent,
-                          isBookmarked: _isQuran
-                              ? (_currentVerse != null &&
-                                  _savedVerses.contains(_currentVerse))
-                              : _savedBookmark != null,
+                          isBookmarked: _savedBookmark != null,
                           canShare: !_isSharingZikr,
                           isCounterVisible: counterVisible,
                           onBookmark: () => _toggleBookmark(
