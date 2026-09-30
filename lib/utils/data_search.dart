@@ -54,7 +54,15 @@ class DataSearch extends SearchDelegate<String> {
       return [];
     }
 
-    return filterDataSearchResults(listWords, query, matchUid: isUserAdmin);
+    return filterDataSearchResults(
+      listWords,
+      query,
+      matchUid: isUserAdmin,
+      slugsFor: (uid) => [
+        if (itemSlugs[uid] != null) itemSlugs[uid]!,
+        ...?itemSlugAliases[uid],
+      ],
+    );
   }
 
   Widget _buildSearchTile(BuildContext context, UidTitleData entry) {

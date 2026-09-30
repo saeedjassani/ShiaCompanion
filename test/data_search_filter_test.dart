@@ -42,6 +42,35 @@ void main() {
     expect(results, isEmpty);
   });
 
+  group('slugsFor', () {
+    final respelled = [UidTitleData('G6', 'Ziyarat Warith')];
+    Iterable<String> slugsFor(String uid) =>
+        uid == 'G6' ? const ['ziyarat-e-waaresa'] : const [];
+
+    test('finds a respelled title by the old spelling kept in its slug', () {
+      expect(
+        filterDataSearchResults(respelled, 'Waaresa', slugsFor: slugsFor),
+        respelled,
+      );
+      expect(
+        filterDataSearchResults(respelled, 'ziyarat e waaresa',
+            slugsFor: slugsFor),
+        respelled,
+      );
+    });
+
+    test('is not consulted unless given', () {
+      expect(filterDataSearchResults(respelled, 'waaresa'), isEmpty);
+    });
+
+    test('ignores a query that is only punctuation', () {
+      expect(
+        filterDataSearchResults(respelled, '--', slugsFor: slugsFor),
+        isEmpty,
+      );
+    });
+  });
+
   group('isNewSearchTerm', () {
     test('counts the first term of a session', () {
       expect(isNewSearchTerm(previous: null, term: 'kum'), isTrue);

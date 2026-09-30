@@ -59,3 +59,29 @@
   somewhere in the client (e.g. in `setLocalSlugData`/`applySlugLookupMap`
   in `lib/utils/slug_registry.dart`), or make it a habit: same title ->
   copy the canonical's slug verbatim; different title -> give it its own.
+
+## Zikr title conventions
+
+Titles (`assets/zikr.json` *and* the matching `assets/zikr/<uid>` file's
+`title` - keep both in sync) were normalized in one pass on 2026-09-27. New
+entries should follow the same house style:
+
+- **Surahs**: `"N: Name Arabic"` using Quran.com's English transliteration
+  with a capital `Al-`/`An-`/`Ash-`… prefix (e.g. `2: Al-Baqarah البقرة`,
+  `36: Ya-Sin يس`).
+- **Title Case**, with honorifics spelled out consistently: `(s.a.w.a.)` for
+  the Prophet, `(a.s.)` for Imams/prophets, `(s.a.)` for Lady Fatimah, Lady
+  Zainab etc., `(a.t.f.s.)` for Imam al-Mahdi.
+- **Most common English spelling, not a letter-by-letter Urdu/Persian
+  romanization** - except Ramazan, kept deliberately as the audience's own
+  spelling: Muharram, Dhul Qa'dah, Dhul Hijjah, Jumada al-Awwal/al-Akhirah,
+  Ashura, Ghadir, Eid al-Adha, Ziyarat (never Ziyaarat/Ziyarah), Ziyarat
+  Warith, Aal-e-Yasin, Jamia Kabira, Aminullah,
+  Munajat, Istikhara, Taqibaat, Nafilah, Zuhr, Maghrib, Wudu, Aamal, Husayn,
+  Muhammad, Musa, Reza, Zayn al-Abidin, Fatimah al-Zahra, Amir al-Mu'minin,
+  Hadith al-Kisa, Ayat al-Kursi.
+- Named duas drop the Urdu izafat: `Dua Ahad`, `Dua Nudba`, `Ziyarat
+  Ashura` (not `Dua-e-…`/`Ziyarat e …`); `Namaz-e-X` keeps its hyphens.
+- **Retitling never changes a `slug`.** Slugs keep the old spelling so old
+  links resolve, and search (`filterDataSearchResults`'s `slugsFor`) matches
+  slugs too, so someone typing the old spelling still finds the entry.

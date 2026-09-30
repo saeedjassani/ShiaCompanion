@@ -6,7 +6,7 @@ import 'zikr_content_parser.dart';
 /// transliteration and translation entirely once a tab has Arabic, so this
 /// constant is not diluted by them either. It was originally 45, which reads
 /// as if the reciter were also working through the other two lines word by
-/// word: at 45wpm, Ziyaarat-e-Ashoora's 734 Arabic words come out to 16
+/// word: at 45wpm, Ziyarat Ashura's 734 Arabic words come out to 16
 /// minutes, well past the 5-10 minutes it actually takes to recite aloud.
 /// 100wpm lines up with that instead.
 const double _arabicWordsPerMinute = 100;
