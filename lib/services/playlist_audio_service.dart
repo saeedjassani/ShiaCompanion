@@ -7,7 +7,9 @@ import 'package:just_audio_background/just_audio_background.dart';
 import '../constants.dart' show items;
 import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
+import '../utils/network_utils.dart';
 import 'analytics_service.dart';
+import 'audio_download_store.dart';
 import 'exclusive_audio.dart';
 import 'zikr_audio_index.dart';
 
@@ -27,6 +29,26 @@ class PlaylistQueueEntry {
   /// What the lock screen and the now-playing bar call this recording: the
   /// track's own label when the zikr has several, otherwise the zikr title.
   String get title => track.label ?? zikrTitle;
+}
+
+/// How [PlaylistAudioService.play] went, so the page can say why nothing
+/// happened - or that only part of the playlist is playing.
+enum PlaylistStartResult {
+  started,
+
+  /// Offline, so only the downloaded recitations are queued.
+  startedDownloadedOnly,
+
+  /// Nothing in the playlist has a recording at all.
+  nothingToPlay,
+
+  /// Offline, and none of the playlist's recitations are downloaded.
+  offlineNothingDownloaded,
+
+  /// The player could not start.
+  failed;
+
+  bool get isStarted => this == started || this == startedDownloadedOnly;
 }
 
 /// Plays a [ZikrPlaylist] as one continuous background audio queue - every
@@ -63,8 +85,26 @@ class PlaylistAudioService extends ChangeNotifier {
     return _queue[index];
   }
 
-  /// Every recording of every zikr in [zikrUids], in order. Zikrs with no
-  /// recording are skipped rather than failing the whole queue.
+  /// How many zikrs the queue plays. Not [queue]'s length: a zikr with
+  /// several recordings (a salat and the dua after it) is still one entry in
+  /// the playlist the reader sees.
+  int get zikrCount => _queue.map((entry) => entry.zikrUid).toSet().length;
+
+  /// The 1-based position of the playing zikr among [zikrCount], or null
+  /// when nothing is playing.
+  int? get zikrPosition {
+    final index = currentIndex;
+    if (index == null || index < 0 || index >= _queue.length) return null;
+    final seen = <String>{};
+    for (var i = 0; i <= index; i++) {
+      seen.add(_queue[i].zikrUid);
+    }
+    return seen.length;
+  }
+
+  /// The recordings [tracksFor] gives for every zikr in [zikrUids], in order
+  /// - for a playlist, the ones the reader chose. Zikrs with no recording are
+  /// skipped rather than failing the whole queue.
   static List<PlaylistQueueEntry> buildQueue(
     List<String> zikrUids, {
     required List<ZikrAudioTrack> Function(String uid) tracksFor,
@@ -78,26 +118,49 @@ class PlaylistAudioService extends ChangeNotifier {
     ];
   }
 
+  /// Narrows [queue] to what can play offline, keeping [startIndex] on the
+  /// same recitation or the next downloaded one after it. Returns the new
+  /// queue and start index.
+  static (List<PlaylistQueueEntry>, int) downloadedOnly(
+    List<PlaylistQueueEntry> queue,
+    int startIndex, {
+    required bool Function(ZikrAudioTrack track) isDownloaded,
+  }) {
+    final kept = <PlaylistQueueEntry>[];
+    var newStart = -1;
+    for (var i = 0; i < queue.length; i++) {
+      if (!isDownloaded(queue[i].track)) continue;
+      if (newStart < 0 && i >= startIndex) newStart = kept.length;
+      kept.add(queue[i]);
+    }
+    return (kept, newStart < 0 ? 0 : newStart);
+  }
+
   static String _indexTitle(String uid) {
     final title = items[uid]?.toString().trim() ?? '';
     return title.isEmpty ? uid : title;
   }
 
-  /// Starts [playlist] from its [startZikrIndex]th zikr. Returns false, and
-  /// leaves any current playback alone, when nothing in it can be played.
-  Future<bool> play(ZikrPlaylist playlist, {int startZikrIndex = 0}) async {
-    if (_isStarting) return false;
+  /// Starts [playlist] from its [startZikrIndex]th zikr, leaving any current
+  /// playback alone when nothing in it can be played. Offline, only the
+  /// downloaded recitations are queued: a streamed one would only fail.
+  Future<PlaylistStartResult> play(
+    ZikrPlaylist playlist, {
+    int startZikrIndex = 0,
+  }) async {
+    if (_isStarting) return PlaylistStartResult.failed;
     _isStarting = true;
     notifyListeners();
     try {
       final audio = ZikrAudioIndex.instance;
-      await audio.load();
-      final queue = buildQueue(
+      final downloads = AudioDownloadStore.instance;
+      await Future.wait([audio.load(), downloads.load()]);
+      var queue = buildQueue(
         playlist.zikrUids,
-        tracksFor: audio.tracksFor,
+        tracksFor: (uid) => playlist.tracksFor(uid, audio.tracksFor(uid)),
         titleFor: _indexTitle,
       );
-      if (queue.isEmpty) return false;
+      if (queue.isEmpty) return PlaylistStartResult.nothingToPlay;
 
       final startUid =
           startZikrIndex >= 0 && startZikrIndex < playlist.zikrUids.length
@@ -108,6 +171,21 @@ class PlaylistAudioService extends ChangeNotifier {
           : queue
               .indexWhere((entry) => entry.zikrUid == startUid)
               .clamp(0, queue.length - 1);
+      var startIndex = initialIndex;
+      var result = PlaylistStartResult.started;
+      if (!NetworkUtils().isOnline) {
+        final (kept, keptStart) = downloadedOnly(
+          queue,
+          initialIndex,
+          isDownloaded: downloads.isDownloaded,
+        );
+        if (kept.isEmpty) return PlaylistStartResult.offlineNothingDownloaded;
+        if (kept.length < queue.length) {
+          result = PlaylistStartResult.startedDownloadedOnly;
+        }
+        queue = kept;
+        startIndex = keptStart;
+      }
 
       await ExclusiveAudio.claim(this, _release);
       await _disposePlayer();
@@ -127,8 +205,9 @@ class PlaylistAudioService extends ChangeNotifier {
       await player.setAudioSources(
         [
           for (var i = 0; i < queue.length; i++)
+            // A recitation saved for offline plays from the device.
             AudioSource.uri(
-              Uri.parse(queue[i].track.url),
+              downloads.sourceUri(queue[i].track),
               tag: MediaItem(
                 id: 'playlist:${playlist.id}#$i',
                 title: queue[i].title,
@@ -137,7 +216,7 @@ class PlaylistAudioService extends ChangeNotifier {
               ),
             ),
         ],
-        initialIndex: initialIndex,
+        initialIndex: startIndex,
       );
       unawaited(AnalyticsService.feature(
         'zikr_playlist_play',
@@ -145,11 +224,11 @@ class PlaylistAudioService extends ChangeNotifier {
         parameters: {'track_count': queue.length},
       ));
       unawaited(player.play());
-      return true;
+      return result;
     } catch (error) {
       debugPrint('Playlist failed to start: $error');
       await stop();
-      return false;
+      return PlaylistStartResult.failed;
     } finally {
       _isStarting = false;
       notifyListeners();

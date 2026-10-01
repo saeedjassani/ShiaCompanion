@@ -5,10 +5,16 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 import '../constants.dart';
+import '../data/uid_title_data.dart';
 import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
+import '../services/audio_download_store.dart';
 import '../services/exclusive_audio.dart';
+import '../services/preferences_sync_service.dart';
+import '../utils/network_utils.dart';
+import '../utils/shared_preferences.dart';
 import '../pages/playlists_page.dart';
+import 'audio_download_button.dart';
 
 /// Recitation player hosted inside [ZikrActionBar], in place of its action
 /// row. It is only built once a reader taps Listen, so the ~95% of readings
@@ -18,9 +24,11 @@ import '../pages/playlists_page.dart';
 /// credit; that acknowledgement lives on the About page rather than here, so
 /// this bar stays focused on playback.
 ///
-/// Playback is streamed from the app's R2 bucket, never downloaded: the
-/// corpus is about a gigabyte and individual tracks run to 39 MB. On web this
-/// works because just_audio drives a plain `<audio>` element, which is exempt
+/// Playback is streamed from the app's R2 bucket unless the reader has saved
+/// the recitation for offline listening (the download button here, or a
+/// playlist's Download all - see [AudioDownloadStore]): the corpus is about a
+/// gigabyte and individual tracks run to 39 MB, so nothing is saved
+/// unasked. Streaming works on web, where nothing can be saved, because just_audio drives a plain `<audio>` element, which is exempt
 /// from CORS, so the bucket needs no `Access-Control-Allow-Origin` - anything
 /// that read the bytes directly (`fetch`, or an element with `crossOrigin`
 /// set) would need one.
@@ -66,9 +74,27 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   // name until the load catches up.
   Future<void> _loadFuture = Future.value();
 
+  /// Where the recording the reader last chose for this zikr is kept, so a
+  /// zikr with several opens on that one next time rather than the first.
+  /// Keyed by content uid, so an alias shares its canonical's choice, and
+  /// synced to the reader's other devices by [PreferencesSyncService].
+  String get _contentUid => UidTitleData(widget.zikrUid, '').getFirstUId();
+
+  /// The remembered recording's index, or the first when there is none or
+  /// it is no longer among [ZikrAudioPlayer.tracks].
+  int _savedTrackIndex() {
+    if (widget.tracks.length < 2 || !SP.isInitialized) return 0;
+    final file = SP.prefs
+        .getString(PreferencesSyncService.audioTrackPrefKey(_contentUid));
+    if (file == null) return 0;
+    final index = widget.tracks.indexWhere((track) => track.file == file);
+    return index < 0 ? 0 : index;
+  }
+
   @override
   void initState() {
     super.initState();
+    _trackIndex = _savedTrackIndex();
     _player = AudioPlayer();
     _stateSub = _player?.playerStateStream.listen((_) {
       if (mounted) setState(() {});
@@ -85,7 +111,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     super.didUpdateWidget(oldWidget);
     // An admin edit can swap the track list under a live player.
     if (oldWidget.tracks != widget.tracks) {
-      _trackIndex = 0;
+      _trackIndex = _savedTrackIndex();
       _failed = false;
       _loadFuture = _load();
     }
@@ -123,12 +149,13 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     // A playlist playing in the background owns the one player the app is
     // allowed; it has to be gone before this one loads.
     await ExclusiveAudio.claim(this, _releaseToOtherPlayer);
+    await AudioDownloadStore.instance.load();
     final player = _player;
     if (player == null) return;
 
     try {
       await player.setAudioSource(AudioSource.uri(
-        Uri.parse(track.url),
+        AudioDownloadStore.instance.sourceUri(track),
         tag: MediaItem(
           // Unique per zikr+track, not just the URL, so the notification
           // updates correctly if two zikrs ever happened to share a file.
@@ -176,6 +203,12 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     await player.play();
   }
 
+  Future<void> _retry() async {
+    setState(() => _failed = false);
+    await (_loadFuture = _load());
+    if (mounted && !_failed) unawaited(_togglePlay());
+  }
+
   Future<void> _selectTrack(int index) async {
     if (index == _trackIndex) return;
     final wasPlaying = _player?.playing ?? false;
@@ -183,6 +216,11 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
       _trackIndex = index;
       _dragValue = null;
     });
+    final track = _currentTrack;
+    if (track != null) {
+      unawaited(PreferencesSyncService.instance
+          .setAudioTrack(_contentUid, track.file));
+    }
     await _player?.stop();
     await (_loadFuture = _load());
     // Switching tracks mid-recitation should carry the "playing" state
@@ -214,6 +252,10 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
             for (var i = 0; i < widget.tracks.length; i++)
               ListTile(
                 title: Text(widget.tracks[i].label ?? 'Track ${i + 1}'),
+                subtitle:
+                    AudioDownloadStore.instance.isDownloaded(widget.tracks[i])
+                        ? const Text('Downloaded')
+                        : null,
                 trailing: i == _trackIndex
                     ? Icon(Icons.check, color: theme.colorScheme.primary)
                     : null,
@@ -250,17 +292,31 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     // than vanishing: the reader asked for audio and deserves an answer.
     // Closing returns them to the action row.
     if (_failed) {
+      // Offline with nothing saved is the common case, and one the reader can
+      // fix - so it says so, rather than implying the recording is gone.
+      final track = _currentTrack;
+      final offline = !NetworkUtils().isOnline &&
+          track != null &&
+          !AudioDownloadStore.instance.isDownloaded(track);
       return Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
         child: Row(
           children: [
-            Icon(Icons.error_outline, size: 20, color: colorScheme.error),
+            Icon(offline ? Icons.cloud_off_rounded : Icons.error_outline,
+                size: 20, color: colorScheme.error),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'This recitation is unavailable',
+                offline
+                    ? "You're offline and this recitation isn't downloaded"
+                    : "This recitation couldn't be loaded",
                 style: theme.textTheme.bodySmall,
               ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Try again',
+              onPressed: _retry,
             ),
             IconButton(
               icon: const Icon(Icons.close),
@@ -289,7 +345,13 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
                 context,
                 zikrUid: widget.zikrUid,
                 zikrTitle: widget.zikrTitle,
+                track: widget.tracks.length > 1 ? _currentTrack : null,
               ),
+            ),
+          if (AudioDownloadStore.isSupported)
+            AudioDownloadButton(
+              tracks: widget.tracks,
+              label: widget.zikrTitle,
             ),
           if (widget.tracks.length > 1)
             IconButton(

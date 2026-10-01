@@ -3,6 +3,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 const String supportEmailAddress = 'developer110@hotmail.com';
 
+final Uri githubRepoUri =
+    Uri.parse('https://github.com/saeedjassani/ShiaCompanion');
+
 Future<bool> launchExternalUri(Uri uri) async {
   try {
     return await launchUrl(uri, mode: LaunchMode.externalApplication);

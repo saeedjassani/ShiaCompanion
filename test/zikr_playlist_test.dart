@@ -59,6 +59,38 @@ void main() {
       expect(store.byId(playlist.id)!.zikrUids, ['E18', 'E31']);
     });
 
+    test('plays only the chosen recordings of a zikr, first by default',
+        () async {
+      final audio = ZikrAudioIndex.parse({
+        'G1': [
+          {'file': 'yasin.mp3', 'label': 'Ziyarat'},
+          {'file': 'yasin with dua.mp3', 'label': 'Ziyarat with Dua'},
+        ],
+      });
+      final available = audio['G1']!;
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning', zikrUids: ['G1']);
+      expect(store.byId(playlist.id)!.tracksFor('G1', available),
+          [available.first]);
+
+      await store.setTrackFiles(
+          playlist.id, 'G1', ['yasin.mp3', 'yasin with dua.mp3']);
+      store.resetForTest();
+      expect(store.byId(playlist.id)!.tracksFor('G1', available), available,
+          reason: 'the choice survives a reload from storage');
+
+      await store.setTrackFiles(playlist.id, 'G1', ['gone.mp3']);
+      expect(store.byId(playlist.id)!.tracksFor('G1', available),
+          [available.first],
+          reason: 'a recording that no longer exists falls back to the first');
+
+      await store.removeAt(playlist.id, 0);
+      await store.addZikr(playlist.id, 'G1', trackFile: 'yasin with dua.mp3');
+      expect(
+          store.byId(playlist.id)!.tracksFor('G1', available), [available.last],
+          reason: 'adding one recording from the zikr page picks just it');
+    });
+
     test('ignores unreadable storage rather than throwing', () async {
       await _freshStore({ZikrPlaylistStore.storageKey: 'not json'});
       expect(ZikrPlaylistStore.instance.playlists, isEmpty);
@@ -101,6 +133,21 @@ void main() {
           ['Morning', 'Friday']);
     });
 
+    test('every recording of a zikr with several has a label', () {
+      // The playlist page shows such a recording by its label alone, so the
+      // label has to say what it is without the zikr's title beside it.
+      final audio =
+          jsonDecode(File(ZikrAudioIndex.assetPath).readAsStringSync()) as Map;
+      for (final MapEntry(:key, :value) in audio.entries) {
+        final tracks = value as List;
+        if (tracks.length < 2) continue;
+        for (final track in tracks) {
+          expect((track as Map)['label']?.toString().trim(), isNotEmpty,
+              reason: '$key: ${track['file']} has no label');
+        }
+      }
+    });
+
     test('hold only zikrs that have a recording', () {
       final audio =
           jsonDecode(File(ZikrAudioIndex.assetPath).readAsStringSync()) as Map;
@@ -137,13 +184,48 @@ void main() {
           ['Ali Fani', 'Shia Companion', 'Shia Companion']);
     });
 
+    test('offline, keeps only downloaded recitations and the start point', () {
+      final audio = ZikrAudioIndex.parse({
+        'A': [
+          {'file': 'a.mp3'},
+        ],
+        'B': [
+          {'file': 'b.mp3'},
+        ],
+        'C': [
+          {'file': 'c.mp3'},
+        ],
+      });
+      final queue = PlaylistAudioService.buildQueue(
+        ['A', 'B', 'C'],
+        tracksFor: (uid) => audio[uid] ?? const [],
+        titleFor: (uid) => uid,
+      );
+      bool savedAC(track) => !track.url.endsWith('b.mp3');
+
+      // Starting on B, which is not saved, starts on the next saved one.
+      final (kept, start) =
+          PlaylistAudioService.downloadedOnly(queue, 1, isDownloaded: savedAC);
+      expect(kept.map((entry) => entry.zikrUid), ['A', 'C']);
+      expect(start, 1);
+
+      // Starting past the last saved one falls back to the top.
+      final (_, wrapped) = PlaylistAudioService.downloadedOnly(queue, 2,
+          isDownloaded: (track) => track.url.endsWith('a.mp3'));
+      expect(wrapped, 0);
+
+      final (none, _) = PlaylistAudioService.downloadedOnly(queue, 0,
+          isDownloaded: (_) => false);
+      expect(none, isEmpty);
+    });
+
     test('a playlist with nothing playable does not start', () async {
       final service = PlaylistAudioService.instance;
       ZikrAudioIndex.instance.setForTest(const {});
       await _freshStore();
       final playlist =
           await ZikrPlaylistStore.instance.create('Silent', zikrUids: ['I24']);
-      expect(await service.play(playlist), isFalse);
+      expect(await service.play(playlist), PlaylistStartResult.nothingToPlay);
       expect(service.isActive, isFalse);
     });
   });
@@ -191,7 +273,7 @@ void main() {
           .create('Morning', zikrUids: ['E18', 'G4']);
       await tester.pumpWidget(const MaterialApp(home: PlaylistsPage()));
       expect(find.text('Morning'), findsOneWidget);
-      expect(find.text('2 recitations'), findsOneWidget);
+      expect(find.text('2 zikr'), findsOneWidget);
       expect(find.byTooltip('Play'), findsOneWidget);
     });
 
@@ -212,12 +294,81 @@ void main() {
       expect(ZikrPlaylistStore.instance.byId(playlist.id)!.zikrUids, ['E18']);
     });
 
+    testWidgets('the picker lists each recording of a zikr with several',
+        (tester) async {
+      items = {...items, 'G1': 'Ziyarat Aal e Yasin'};
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        'G1': [
+          {'file': 'yasin.mp3', 'label': 'Ziyarat'},
+          {'file': 'yasin-dua.mp3', 'label': 'Ziyarat with Dua'},
+        ],
+      }));
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning');
+      await tester.pumpWidget(
+          MaterialApp(home: AddRecitationsPage(playlistId: playlist.id)));
+      final available = ZikrAudioIndex.instance.tracksFor('G1');
+      List<String> chosen() => [
+            for (final track
+                in store.byId(playlist.id)!.tracksFor('G1', available))
+              track.file,
+          ];
+
+      await tester.tap(find.text('Ziyarat with Dua'));
+      await tester.pump();
+      expect(store.byId(playlist.id)!.zikrUids, ['G1']);
+      expect(chosen(), ['yasin-dua.mp3']);
+
+      await tester.tap(find.text('Ziyarat Aal e Yasin'));
+      await tester.pump();
+      expect(chosen(), ['yasin.mp3', 'yasin-dua.mp3'],
+          reason: "the zikr's own box fills in the rest");
+
+      await tester.tap(find.text('Ziyarat'));
+      await tester.pump();
+      expect(chosen(), ['yasin-dua.mp3']);
+      await tester.tap(find.text('Ziyarat with Dua'));
+      await tester.pump();
+      expect(store.byId(playlist.id)!.zikrUids, isEmpty,
+          reason: 'unticking the last recording takes the zikr out');
+    });
+
+    testWidgets('a zikr playing one of several recordings goes by its label',
+        (tester) async {
+      items = {...items, 'G1': 'Ziyarat Aal e Yasin'};
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        'G1': [
+          {'file': 'yasin.mp3', 'label': 'Ziyarat Aal e Yasin (short)'},
+          {'file': 'yasin-dua.mp3', 'label': 'Ziyarat Aal e Yasin with Dua'},
+        ],
+      }));
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning', zikrUids: [
+        'G1'
+      ], trackFiles: {
+        'G1': ['yasin-dua.mp3']
+      });
+      await tester.pumpWidget(
+          MaterialApp(home: PlaylistDetailPage(playlistId: playlist.id)));
+      await tester.pump();
+      expect(find.text('Ziyarat Aal e Yasin with Dua'), findsOneWidget);
+      expect(find.text('Ziyarat Aal e Yasin'), findsNothing);
+
+      await store
+          .setTrackFiles(playlist.id, 'G1', ['yasin.mp3', 'yasin-dua.mp3']);
+      await tester.pump();
+      expect(find.text('Ziyarat Aal e Yasin'), findsOneWidget);
+      expect(find.text('2 of 2 recordings'), findsOneWidget);
+    });
+
     testWidgets('the detail page shows the queue in order', (tester) async {
       final playlist = await ZikrPlaylistStore.instance
           .create('Morning', zikrUids: ['E18', 'G4']);
       await tester.pumpWidget(
           MaterialApp(home: PlaylistDetailPage(playlistId: playlist.id)));
       expect(find.text('Play all'), findsOneWidget);
+      expect(find.textContaining('Download all'), findsOneWidget,
+          reason: 'every playlist offers to save itself for offline');
       final ahad = tester.getTopLeft(find.text('Dua e Ahad'));
       final ashura = tester.getTopLeft(find.text('Ziyarat Ashura'));
       expect(ahad.dy, lessThan(ashura.dy));

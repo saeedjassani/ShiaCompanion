@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Android 12+ form of backup_rules.xml: back up everything to the cloud
+     as before except recitations saved for offline listening, which can be
+     downloaded again and would blow the 25 MB quota. A device-to-device
+     transfer has no quota, so they still move across to a new phone. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="zikr_audio/" />
+    </cloud-backup>
+</data-extraction-rules>

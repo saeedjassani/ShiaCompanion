@@ -42,11 +42,11 @@ class _ItemListState extends State<ItemList> {
 
     // Populate Today's Recitations
     if (widget.item == "TR") {
-      workingItems.add(UidTitleData("E18", items["E18"])); // Dua e Ahad
-      workingItems.add(UidTitleData("G6", items["G6"])); // Ziyarat e Waritha
-      workingItems.add(UidTitleData("G4", items["G4"])); // Ziyarat e Ashura
+      workingItems.add(UidTitleData("E18", items["E18"])); // Dua Ahad
+      workingItems.add(UidTitleData("G6", items["G6"])); // Ziyarat Warith
+      workingItems.add(UidTitleData("G4", items["G4"])); // Ziyarat Ashura
       workingItems
-          .add(UidTitleData("E37", items["E37"])); // Dua e Sanamay Quraish
+          .add(UidTitleData("E37", items["E37"])); // Dua Sanamay Quraish
       String? tmp;
       DateTime today = DateTime.now();
       if (today.weekday == DateTime.friday) {

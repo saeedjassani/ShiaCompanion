@@ -62,10 +62,31 @@ int? surahForUid(String uid) {
   return isSurahNumber(surah) ? surah : null;
 }
 
-/// Splits `"2 : Al-Baqarah البقرة"` into its number, English and Arabic names.
+final RegExp _quranCategoryUidPattern = RegExp(r'^A\d+$');
+
+/// The zikrs filed under the Quran's own category (`A`) that are not surahs -
+/// Ayat al Kursi, the dua after reciting, Dua Khatme Quran - in uid order.
 ///
-/// The corpus titles are inconsistent about the spacing around the colon
-/// (`"1: al-Faatehah"` vs `"2 : Al-Baqarah"` vs `"90 : Al-Balad"`), so the
+/// The old 'Surahs' list showed these alongside the 114; the Quran screen's
+/// surah list cannot, so they are gathered here for its Collections tab
+/// instead. Read from [items] rather than hard-coded so a new one added to
+/// the category turns up without a code change.
+List<String> quranCompanionZikrUids() {
+  final uids = items.keys
+      .map((key) => key.toString())
+      .where((uid) =>
+          _quranCategoryUidPattern.hasMatch(uid.split('|').first.trim()) &&
+          surahForUid(uid) == null)
+      .toList();
+  int number(String uid) => int.parse(uid.split('|').first.trim().substring(1));
+  uids.sort((a, b) => number(a).compareTo(number(b)));
+  return uids;
+}
+
+/// Splits `"2: Al-Baqarah البقرة"` into its number, English and Arabic names.
+///
+/// The corpus titles all use `"N: Name"` now, but older ones had stray spacing
+/// around the colon (`"2 : Al-Baqarah"`) and titles can be edited, so the
 /// separator is matched loosely rather than assumed.
 final RegExp _surahTitlePattern = RegExp(r'^\s*(\d+)\s*:\s*(.*)$');
 
@@ -129,7 +150,7 @@ SurahInfo? surahInfoFor(int surah) {
 
   // The Arabic name is the trailing Arabic run; the English name is what is
   // left. Splitting on the first Arabic character keeps names like
-  // "al-An'aam" intact, apostrophes and hyphens included.
+  // "Al-An'am" intact, apostrophes and hyphens included.
   var splitAt = remainder.length;
   for (var i = 0; i < remainder.length; i++) {
     if (ZikrContentParser.isArabic(remainder[i])) {

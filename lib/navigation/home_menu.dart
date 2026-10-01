@@ -11,6 +11,7 @@ import '../pages/flights_page.dart';
 import '../pages/library_page.dart';
 import '../pages/playlists_page.dart';
 import '../pages/list_items.dart';
+import '../pages/my_stats_page.dart';
 import '../pages/prayer_counter_page.dart';
 import '../pages/qaza_tracker_page.dart';
 import '../pages/qibla_finder.dart';
@@ -212,8 +213,20 @@ final HomeMenuItem quranMenuItem = HomeMenuItem(
 /// is ready for everyone - then move it into [homeMenuItems].
 final HomeMenuItem playlistsMenuItem = HomeMenuItem(
   label: 'Playlists',
-  icon: Icons.queue_music_rounded,
+  icon: Icons.playlist_play_rounded,
   pageBuilder: () => const PlaylistsPage(),
+);
+
+/// Personal stats and community totals. Dark-launched to admins alongside
+/// [quranMenuItem], and ships with it: "Verses recited" comes from the Quran
+/// screen's recitation tracker, so the two go out together - move this into
+/// [homeMenuItems] then. Recording already runs for everyone, locally, so
+/// readers have their history on launch day; see ActivityStatsStore for the
+/// sync, which is gated the same way until then.
+final HomeMenuItem myStatsMenuItem = HomeMenuItem(
+  label: 'My Stats',
+  icon: Icons.insights_rounded,
+  pageBuilder: () => const MyStatsPage(),
 );
 
 /// Menu entries only an admin sees, added on top of the regular grid rather
@@ -228,6 +241,7 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
     countsAsFeatureUse: false,
   ),
   playlistsMenuItem,
+  myStatsMenuItem,
   HomeMenuItem(
     label: 'Mistake Reports',
     icon: Icons.flag_outlined,

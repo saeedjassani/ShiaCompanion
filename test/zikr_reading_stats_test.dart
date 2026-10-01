@@ -52,23 +52,7 @@ void main() {
       expect(stats.duration, Duration.zero);
     });
 
-    test('weights tabs by their share of the reciting time', () {
-      final stats = analyzeZikrReadingStats([
-        _arabicLine(30),
-        _arabicLine(10),
-      ]);
-
-      expect(stats.tabWeights, [closeTo(0.75, 0.0001), closeTo(0.25, 0.0001)]);
-    });
-
-    test('weights empty tabs equally instead of dividing by zero', () {
-      final stats = analyzeZikrReadingStats(['', '']);
-
-      expect(stats.tabWeights, [0.5, 0.5]);
-    });
-
-    test('has no weights without tabs', () {
-      expect(ZikrReadingStats.empty.tabWeights, isEmpty);
+    test('has no content without tabs', () {
       expect(ZikrReadingStats.empty.hasContent, isFalse);
     });
   });
@@ -110,8 +94,7 @@ void main() {
       );
     });
 
-    test('holds the best-so-far value against a dip while moving forward',
-        () {
+    test('holds the best-so-far value against a dip while moving forward', () {
       // ListView.builder revised its maxScrollExtent estimate upward, so the
       // fraction dropped even though the offset kept increasing.
       expect(
@@ -150,44 +133,119 @@ void main() {
     });
   });
 
-  group('zikrReadingProgress', () {
-    test('counts earlier tabs as complete', () {
+  group('zikrLineWeights', () {
+    test('weights a tab with Arabic by its Arabic words alone', () {
       expect(
-        zikrReadingProgress(
-          tabWeights: const [0.75, 0.25],
-          tabIndex: 1,
-          tabFraction: 0.5,
-        ),
-        closeTo(0.875, 0.0001),
+        zikrLineWeights([
+          'Heading line',
+          'بِسْمِ اللّهِ الرَّحْمٰنِ',
+          'Bismillah ar-Rahman',
+          'In the name of Allah',
+          '',
+        ]),
+        [0, 3, 0, 0, 0],
       );
     });
 
-    test('scales the current tab by its own weight', () {
+    test('weights a tab without Arabic by all of its words', () {
+      expect(zikrLineWeights(['one two', 'three', '']), [2, 1, 0]);
+    });
+  });
+
+  group('zikrContentFractionAbove', () {
+    test('measures by words, not by the heights of unbuilt items', () {
+      // A heading, a 90-word paragraph and a closing note, as paragraph view
+      // lays them out: the estimate for the unbuilt paragraph is irrelevant,
+      // since only the built items around the line are measured.
+      const weights = [0.0, 90.0, 10.0];
+      const laidOut = [
+        ZikrLaidOutItem(index: 0, top: 0, extent: 40),
+        ZikrLaidOutItem(index: 1, top: 40, extent: 3000),
+      ];
       expect(
-        zikrReadingProgress(
-          tabWeights: const [0.75, 0.25],
-          tabIndex: 0,
-          tabFraction: 0.5,
+        zikrContentFractionAbove(
+          itemWeights: weights,
+          laidOut: laidOut,
+          line: 40 + 1500,
         ),
-        closeTo(0.375, 0.0001),
+        closeTo(0.45, 1e-9),
       );
     });
 
-    test('clamps an out of range tab index', () {
+    test('counts items ahead of the built range as passed', () {
       expect(
-        zikrReadingProgress(
-          tabWeights: const [1],
-          tabIndex: 4,
-          tabFraction: 1,
+        zikrContentFractionAbove(
+          itemWeights: const [10, 10, 10, 10],
+          laidOut: const [
+            ZikrLaidOutItem(index: 2, top: 500, extent: 100),
+            ZikrLaidOutItem(index: 3, top: 600, extent: 100),
+          ],
+          line: 550,
         ),
+        closeTo(0.625, 1e-9),
+      );
+    });
+
+    test('ignores weightless items and the padding around the list', () {
+      const weights = [0.0, 10.0, 0.0];
+      const laidOut = [
+        ZikrLaidOutItem(index: 0, top: 100, extent: 20),
+        ZikrLaidOutItem(index: 1, top: 120, extent: 100),
+        ZikrLaidOutItem(index: 2, top: 220, extent: 30),
+      ];
+      expect(
+        zikrContentFractionAbove(
+            itemWeights: weights, laidOut: laidOut, line: 50),
+        0,
+      );
+      expect(
+        zikrContentFractionAbove(
+            itemWeights: weights, laidOut: laidOut, line: 400),
         1,
       );
     });
 
-    test('is zero without tabs', () {
+    test('cannot measure a tab without words or without layout', () {
       expect(
-        zikrReadingProgress(tabWeights: const [], tabIndex: 0, tabFraction: 1),
+        zikrContentFractionAbove(
+          itemWeights: const [0, 0],
+          laidOut: const [ZikrLaidOutItem(index: 0, top: 0, extent: 10)],
+          line: 5,
+        ),
+        isNull,
+      );
+      expect(
+        zikrContentFractionAbove(
+            itemWeights: const [1], laidOut: const [], line: 5),
+        isNull,
+      );
+    });
+  });
+
+  group('zikrReadingLine', () {
+    test('starts at the top of the view and ends at the bottom', () {
+      expect(
+        zikrReadingLine(
+            scrollOffset: 0, maxScrollExtent: 2000, viewportDimension: 800),
         0,
+      );
+      expect(
+        zikrReadingLine(
+            scrollOffset: 1000, maxScrollExtent: 2000, viewportDimension: 800),
+        1400,
+      );
+      expect(
+        zikrReadingLine(
+            scrollOffset: 2000, maxScrollExtent: 2000, viewportDimension: 800),
+        2800,
+      );
+    });
+
+    test('is the bottom of the view for a tab that fits on screen', () {
+      expect(
+        zikrReadingLine(
+            scrollOffset: 0, maxScrollExtent: 0, viewportDimension: 800),
+        800,
       );
     });
   });
@@ -208,11 +266,17 @@ void main() {
       );
     });
 
-    test('rounds progress down until the zikr is finished', () {
+    test('rounds progress down', () {
       expect(zikrProgressLabel(0), '0%');
       expect(zikrProgressLabel(0.339), '33%');
       expect(zikrProgressLabel(0.98), '98%');
-      expect(zikrProgressLabel(1), 'Completed');
+      expect(zikrProgressLabel(1), '100%');
+    });
+
+    test('says Completed only once the tab counts as recited', () {
+      expect(zikrProgressLabel(1, completed: true), 'Completed');
+      // Returning to the top of a recited tab to read it again.
+      expect(zikrProgressLabel(0.1, completed: true), 'Completed');
     });
   });
 }

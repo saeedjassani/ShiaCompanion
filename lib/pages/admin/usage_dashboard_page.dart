@@ -225,6 +225,7 @@ const Set<String> _readingContentFeatureKeys = {
   'zikr_audio_play',
   'zikr_bookmark_saved',
   'zikr_bookmark_removed',
+  'zikr_bookmark_moved',
   'zikr_shared',
   'zikr_keep_awake_toggled',
   'zikr_focus_mode_toggled',
@@ -286,6 +287,7 @@ const Set<String> _feedbackAndRatingsFeatureKeys = {
   'rating_prompt_feedback',
   'rate_us_settings',
   'feedback_email_opened',
+  'github_settings',
 };
 
 /// See [FeatureGroup].

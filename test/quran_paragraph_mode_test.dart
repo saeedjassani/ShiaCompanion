@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
-import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_parser.dart';
 import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 import 'package:shia_companion/utils/quran_index.dart';
@@ -84,11 +83,17 @@ Finder _paragraphContaining(String needle) => find.byWidgetPredicate(
           widget.text.toPlainText().contains(needle),
     );
 
+/// The Imam Ali (as) watermark behind a verse, found by the asset it draws.
+final _aliWatermark = find.byWidgetPredicate((widget) =>
+    widget is Image &&
+    widget.image is AssetImage &&
+    (widget.image as AssetImage).assetName ==
+        'assets/images/ali_watermark.png');
+
 void main() {
   group('quranParagraphSpanRuns', () {
     ParsedZikrContent parse(String content) =>
-        ZikrContentParser.parseContent(content,
-            hideHeaderLine: false);
+        ZikrContentParser.parseContent(content, hideHeaderLine: false);
 
     test('the Bismillah stands alone and a rukuʿ does not break the surah', () {
       final content = _surahContent(ayahs: 6, rukuAfter: {3});
@@ -171,8 +176,8 @@ void main() {
       expect(find.text('1\u20136'), findsNothing);
     });
 
-    testWidgets('draws no Imam Ali (as) seal in the paragraph', (tester) async {
-      final note = aliRelatedNoteFor(const VerseKey(5, 55))!;
+    testWidgets('draws no Imam Ali (as) watermark in the paragraph',
+        (tester) async {
       Future<void> open() => _pump(
             tester,
             content: _surahContent(ayahs: 60, rukuAfter: {}),
@@ -182,14 +187,13 @@ void main() {
 
       showArabicAsParagraph = false;
       await open();
-      expect(find.byTooltip(note), findsOneWidget,
-          reason: 'ayah mode still seals the verse');
+      expect(_aliWatermark, findsOneWidget,
+          reason: 'ayah mode still marks the verse');
 
       showArabicAsParagraph = true;
       await open();
       expect(_paragraphContaining('(55)'), findsOneWidget);
-      expect(find.byTooltip(note), findsNothing);
-      expect(find.byTooltip('55: $note'), findsNothing);
+      expect(_aliWatermark, findsNothing);
     });
 
     testWidgets('keeps ayah mode when the setting is off', (tester) async {

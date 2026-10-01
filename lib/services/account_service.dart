@@ -4,11 +4,13 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import '../firebase_auth_config.dart';
 import '../firebase_options.dart';
+import 'activity_stats_store.dart';
 import 'favorites_manager.dart';
 import 'prayer_preferences_sync_service.dart';
 import 'preferences_sync_service.dart';
 import 'qaza_tracker_manager.dart';
 import 'recitation_tracker_manager.dart';
+import 'saved_verses_manager.dart';
 
 class AccountActionException implements Exception {
   final String message;
@@ -95,10 +97,12 @@ class AccountService {
       await QazaTrackerManager.instance.deleteAllQazaData(deletionUser.uid);
       await RecitationTrackerManager.instance
           .deleteAllRecitationData(deletionUser.uid);
+      await SavedVersesManager.instance.deleteAllSavedVerses(deletionUser.uid);
       await PreferencesSyncService.instance
           .deleteSyncedPreferences(deletionUser.uid);
       await PrayerPreferencesSyncService.instance
           .deleteSyncedPreferences(deletionUser.uid);
+      await ActivityStatsStore.instance.deleteSyncedStats(deletionUser.uid);
       await _deleteUserWithFallbackReauth(deletionUser);
     } on AccountActionException {
       rethrow;

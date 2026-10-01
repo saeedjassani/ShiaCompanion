@@ -6,9 +6,10 @@ owner decided them on 2026-09-23 (after join_wa.py).
 
 A - plain splits, joined. B - interrogative اَ written as its own word,
 joined to the word it questions. C - the tanwin's nun written out as a
-separate نِ (`مُحَمَّدِ نِ الْحَسَنِ`), restored to standard tanwin
-(`مُحَمَّدٍ الْحَسَنِ`). D - AG8's truncated salutation, restored from its
-transliteration.
+separate نِ (`مُحَمَّدِ نِ الْحَسَنِ`), rewritten as tanwin plus the small
+nun ۨ (`مُحَمَّدٍۨ الْحَسَنِ`) - the Indo-Pak nun qutni the rest of the corpus
+already uses (Q3, G11...), so the linking n stays visible. D - AG8's
+truncated salutation, restored from its transliteration.
 
 Every edit states how many times it must match, and the patch is refused if
 any count is off.
@@ -45,13 +46,14 @@ def join_q(word):
     return (START + fuzzy('اَ ') + f'(?={fuzzy(word)})', lambda m: m.group(0)[:-1])
 
 def tanwin(word):
-    """`مُحَمَّدِ نِ ` -> `مُحَمَّدٍ `: the last kasra becomes kasratan and
-    the written-out nun goes. A word already carrying tanwin just loses the nun."""
+    """`مُحَمَّدِ نِ ` -> `مُحَمَّدٍۨ `: the last kasra becomes kasratan and
+    the written-out nun becomes the small nun ۨ. A word already carrying
+    tanwin just has its nun shrunk."""
     def repl(m):
         w = m.group(1)
         if not re.search('[ًٌٍ]', w):
             w = w[::-1].replace('ِ', 'ٍ', 1)[::-1]
-        return w + ' '
+        return w + '\u06e8 '
     return (START + f'({fuzzy(word)}) ' + fuzzy('نِ '), repl)
 
 def ag8(m, doc_text):

@@ -1,11 +1,17 @@
+import 'dart:async';
+import 'dart:ui' show lerpDouble;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/quran_indopak.dart';
 import 'zikr_content_parser.dart';
+import 'zikr_reading_stats.dart';
 
 /// Where a reader is in the Quran, and whether they got there by reading.
 ///
@@ -63,18 +69,42 @@ class ZikrContentScrollPosition {
     required this.tabIndex,
     required this.scrollOffset,
     this.maxScrollExtent = 0,
+    this.viewportDimension = 0,
     this.lineIndex,
+    this.bookmarkLineIndex,
+    this.progressFraction,
+    this.seenFraction,
   });
 
   final int tabIndex;
   final double scrollOffset;
   final double maxScrollExtent;
 
+  /// Height of the visible part of the tab, so the page can tell how much of
+  /// the text has actually been on screen - see [zikrTabSeenFraction].
+  final double viewportDimension;
+
   /// The content line sitting at the top of the view at this offset, measured
   /// from the laid-out list, or null when the list has not been laid out yet.
   /// This is what a bookmark taken here records, so the "you left off here"
   /// marker lands on the very line the offset was read off.
   final int? lineIndex;
+
+  /// The line a bookmark taken at this offset records: the first verse
+  /// whose top is on screen, not the one cut off at the top edge. Null when
+  /// the list has not been laid out yet.
+  final int? bookmarkLineIndex;
+
+  /// How far through the tab's text the reader is, measured by words at
+  /// [zikrReadingLine] - see [zikrContentFractionAbove] for why not by
+  /// pixels. Null when it cannot be measured (nothing laid out, or a tab with
+  /// no words), for the page to fall back to the scroll offset.
+  final double? progressFraction;
+
+  /// Share of the tab's text that has been on screen - measured by words down
+  /// to the bottom of the view. Null under the same conditions as
+  /// [progressFraction].
+  final double? seenFraction;
 }
 
 /// How much of a line may sit above the top of the viewport before the line
@@ -329,10 +359,14 @@ class _QuranParagraphs {
 /// marker that sits above a flowing Arabic paragraph in
 /// [isArabicOnlyReadingView], where the highlight lives on the verse's own
 /// text rather than on a container wrapping the whole line.
-Widget _bookmarkLabelRow(BuildContext context) {
+///
+/// [movable] stretches the row across the line and ends it with a
+/// drag-handle glyph, the cue that the whole strip can be picked up and
+/// dropped on another line.
+Widget _bookmarkLabelRow(BuildContext context, {bool movable = false}) {
   final colorScheme = Theme.of(context).colorScheme;
   return Row(
-    mainAxisSize: MainAxisSize.min,
+    mainAxisSize: movable ? MainAxisSize.max : MainAxisSize.min,
     children: [
       Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
       const SizedBox(width: 4),
@@ -344,7 +378,42 @@ Widget _bookmarkLabelRow(BuildContext context) {
               letterSpacing: 0.4,
             ),
       ),
+      if (movable) ...[
+        const Spacer(),
+        Icon(
+          Icons.drag_indicator,
+          size: 20,
+          color: colorScheme.primary.withValues(alpha: 0.7),
+        ),
+      ],
     ],
+  );
+}
+
+/// What rides under the finger while the bookmark is being moved.
+Widget _bookmarkDragFeedback(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return Material(
+    elevation: 6,
+    borderRadius: BorderRadius.circular(20),
+    color: colorScheme.primaryContainer,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.bookmark, size: 16, color: colorScheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            'Move bookmark here',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ],
+      ),
+    ),
   );
 }
 
@@ -401,6 +470,11 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// can be rewritten with it and stop depending on the offset.
   final ValueChanged<int>? onBookmarkLineResolved;
 
+  /// Called with the content line the reader dropped the bookmark on, after
+  /// dragging its "Bookmarked" label somewhere else in the same tab. Null
+  /// leaves the marker fixed in place.
+  final ValueChanged<int>? onBookmarkMoved;
+
   /// Which surah this is, when the document being read is one of the 114.
   ///
   /// Null for every other zikr, and that is what selects the rendering path:
@@ -437,6 +511,26 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// previous/next links. Null draws nothing.
   final Widget? footer;
 
+  /// Space at the top and bottom of every reading list that the page's
+  /// chrome floats over. It is scrolling padding, not a fixed inset: the
+  /// first and last lines start clear of the chrome, but anything in between
+  /// scrolls underneath it, so hiding or showing the chrome only uncovers or
+  /// covers text and never moves the line being read.
+  final EdgeInsets listPadding;
+
+  /// Where the tab strip sits while the chrome is showing - directly under
+  /// the page's top chrome.
+  final double tabStripTop;
+
+  /// How much of the top of the screen stays covered while the chrome is
+  /// hidden (the status bar band). The tab strip slides up behind it.
+  final double collapsedTopInset;
+
+  /// Whether the page's chrome is showing. The tab strip is chrome too - it
+  /// slides away with the rest and comes back with it; swiping still changes
+  /// tabs meanwhile. Null keeps the strip pinned.
+  final ValueListenable<bool>? chromeVisible;
+
   const ZikrContentViewerWidget({
     Key? key,
     required this.tabContents,
@@ -451,6 +545,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.savedVerses = const {},
     this.onScrollPositionChanged,
     this.onBookmarkLineResolved,
+    this.onBookmarkMoved,
     this.surahNumber,
     this.initialVerse,
     this.ayahIndex,
@@ -458,6 +553,10 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.onAyahAction,
     this.arabicFontFamily,
     this.footer,
+    this.listPadding = EdgeInsets.zero,
+    this.tabStripTop = 0,
+    this.collapsedTopInset = 0,
+    this.chromeVisible,
   }) : super(key: key);
 
   @override
@@ -470,6 +569,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   late List<ScrollController> _tabScrollControllers;
   late List<GlobalKey> _tabHeaderKeys;
   late List<GlobalKey> _tabListKeys;
+
+  /// The tab strip's measured height, once it has laid out. It floats over
+  /// the lists, so their top padding has to make room for it.
+  double _tabStripExtent = 0;
+
+  bool get _showTabHeaders => widget.tabContents.length > 1;
+
+  /// Scrolling padding above each list's first item: the page's chrome, plus
+  /// the tab strip when there is one. A list item scrolled to the "top of the
+  /// view" lands at this height, just clear of everything floating above it.
+  double get _listTopPadding =>
+      widget.listPadding.top + (_showTabHeaders ? _tabStripExtent : 0);
 
   /// Parsing and indexing a tab is pure work over a string that rarely
   /// changes, but [_buildTabContent] runs on every build. Al-Baqarah is 858
@@ -484,12 +595,28 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   bool _sawUserScrollInput = false;
 
   bool _didScrollToInitialVerse = false;
+
+  /// The tab being scrolled to where it opens - a linked verse or a
+  /// bookmarked line - kept invisible until it lands. See [_hideWhileLanding].
+  int? _landingTabIndex;
   bool _verseReportScheduled = false;
   VerseKey? _reportedVerse;
   late int _selectedTabIndex;
   late final int? _initialBookmarkTabIndex;
   late final double? _initialBookmarkScrollOffset;
   bool _didRestoreInitialBookmark = false;
+
+  /// While the bookmark is being dragged: the tab it is being dragged within,
+  /// the pointer's last global position, and the content line it would land
+  /// on if dropped now - drawn as a preview so the reader sees where it goes.
+  int? _bookmarkDragTab;
+  Offset? _bookmarkDragPointer;
+  int? _bookmarkDropLine;
+
+  /// Scrolls the list while the bookmark is held near its top or bottom
+  /// edge, so it can be carried past what currently fits on screen.
+  Timer? _bookmarkAutoScrollTimer;
+  double _bookmarkAutoScrollSpeed = 0;
 
   /// The reading-list items built for each tab on its last build, keyed by
   /// tab index. [topContentLineIndex] reads this to turn the list index a
@@ -508,6 +635,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// [_TabContentCache.quranParagraphs]. Only filled in
   /// [isArabicOnlyReadingView].
   final Map<int, Map<int, _FlowingText>> _tabArabicFlows = {};
+
+  /// Per tab, each list item's share of the tab's reading effort, in list
+  /// index order - the merits link and the footer weigh nothing. Rebuilt with
+  /// the list, since how lines group into items depends on the view mode.
+  final Map<int, List<double>> _tabItemWeights = {};
+
+  /// Tabs with a position report already queued for the end of the frame.
+  final Set<int> _pendingPositionReports = {};
 
   TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
     return buildZikrTextSpanWithLinks(
@@ -618,6 +753,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
 
   @override
   void dispose() {
+    _bookmarkAutoScrollTimer?.cancel();
     _pageController.dispose();
     for (final controller in _tabScrollControllers) {
       controller.dispose();
@@ -675,7 +811,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     while (_tabScrollControllers.length < count) {
       final tabIndex = _tabScrollControllers.length;
       final controller = ScrollController();
-      controller.addListener(() => _reportScrollPosition(tabIndex, controller));
+      controller.addListener(() {
+        _reportScrollPosition(tabIndex, controller);
+        // The listener runs as the offset changes, before the list is laid
+        // out at it, so the items it measures are the previous frame's. The
+        // last move of a fling would otherwise be reported a frame stale -
+        // and never corrected, since nothing scrolls after it.
+        _queuePositionReport(tabIndex);
+      });
       _tabScrollControllers.add(controller);
     }
     while (_tabScrollControllers.length > count) {
@@ -689,14 +832,121 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
 
     final position = controller.position;
+    final laidOut = _laidOutItems(tabIndex);
+    final weights = _tabItemWeights[tabIndex];
+    double? fractionAbove(double line) => laidOut == null || weights == null
+        ? null
+        : zikrContentFractionAbove(
+            itemWeights: weights,
+            laidOut: laidOut,
+            line: line,
+          );
     widget.onScrollPositionChanged!.call(
       ZikrContentScrollPosition(
         tabIndex: tabIndex,
         scrollOffset: position.pixels,
         maxScrollExtent: position.maxScrollExtent,
+        viewportDimension: position.viewportDimension,
         lineIndex: _topLineIndex(tabIndex, controller),
+        bookmarkLineIndex: _bookmarkLineIndex(tabIndex, controller),
+        progressFraction: fractionAbove(zikrReadingLine(
+          scrollOffset: position.pixels,
+          maxScrollExtent: position.maxScrollExtent,
+          viewportDimension: position.viewportDimension,
+        )),
+        seenFraction: fractionAbove(
+          position.pixels + position.viewportDimension,
+        ),
       ),
     );
+  }
+
+  /// Queues one position report for the end of the current frame, however
+  /// many times it is asked for before then.
+  void _queuePositionReport(int tabIndex) {
+    if (widget.onScrollPositionChanged == null ||
+        !_pendingPositionReports.add(tabIndex)) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _pendingPositionReports.remove(tabIndex);
+      if (!mounted || tabIndex >= _tabScrollControllers.length) return;
+      _reportScrollPosition(tabIndex, _tabScrollControllers[tabIndex]);
+    });
+  }
+
+  /// Every list item of [tabIndex] currently laid out, positioned in the
+  /// tab's scroll coordinates, or null before the list has been laid out.
+  List<ZikrLaidOutItem>? _laidOutItems(int tabIndex) {
+    if (tabIndex >= _tabListKeys.length) return null;
+    final renderObject =
+        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    final sliver = renderObject == null ? null : _findSliverList(renderObject);
+    if (sliver == null || sliver.geometry == null) return null;
+
+    // Item offsets are measured from the start of the list's own sliver; the
+    // padding above it is scroll extent too.
+    final leading = sliver.constraints.precedingScrollExtent;
+    final items = <ZikrLaidOutItem>[];
+    RenderBox? child = sliver.firstChild;
+    while (child != null) {
+      final parentData = child.parentData;
+      if (parentData is SliverMultiBoxAdaptorParentData &&
+          parentData.index != null &&
+          parentData.layoutOffset != null &&
+          child.hasSize) {
+        items.add(ZikrLaidOutItem(
+          index: parentData.index!,
+          top: leading + parentData.layoutOffset!,
+          extent: child.size.height,
+        ));
+      }
+      child = sliver.childAfter(child);
+    }
+    return items.isEmpty ? null : items;
+  }
+
+  /// The line a bookmark taken now should sit on: the first verse whose top
+  /// is on screen, rather than [_topLineIndex]'s verse straddling the top
+  /// edge. Marking a verse the reader has half scrolled past points them back
+  /// at text they have already read; the first whole one is where they are.
+  ///
+  /// A verse scrolled to - by restoring a bookmark - sits just below the top
+  /// edge, so it counts as whole and bookmarking it again keeps it put.
+  ///
+  /// Only the reading list works this way. A flowing paragraph can be a whole
+  /// dua long with no verse whose top is on screen, and a surah's position
+  /// is its verse, so both keep [_topLineIndex].
+  int? _bookmarkLineIndex(int tabIndex, ScrollController controller) {
+    final top = _topLineIndex(tabIndex, controller);
+    if (_ayahIndexFor(tabIndex) != null) return top;
+    final items = _tabReadingListItems[tabIndex];
+    final parsed = _contentCaches[tabIndex]?.parsed;
+    final hit = _topItem(tabIndex, controller);
+    if (items == null ||
+        parsed == null ||
+        hit == null ||
+        hit.itemIndex >= items.length) {
+      return top;
+    }
+    if (_tabArabicFlows[tabIndex]?[items[hit.itemIndex].firstLineIndex] !=
+        null) {
+      return top;
+    }
+
+    // [_topItem] reads [_scrollToVerseMargin] below the edge; an item whose
+    // top is further up than the edge itself has been cut off.
+    var itemIndex = hit.itemIndex;
+    if (hit.depth > _scrollToVerseMargin + _lineEdgeTolerance) itemIndex++;
+    // Then past the rest of a triplet whose first line is off screen - a
+    // translation left at the top is the tail of a verse already read.
+    for (; itemIndex < items.length; itemIndex++) {
+      final line = items[itemIndex].firstLineIndex;
+      final group = parsed.groupContaining(line);
+      if (group == null || group.start == line) return line;
+    }
+    // Nothing whole below: the last verse, however little of it shows.
+    return top;
   }
 
   /// The content line at the top of the view, in every mode.
@@ -779,6 +1029,60 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       child = sliver.childAfter(child);
     }
     return null;
+  }
+
+  /// A coarse guess at where item [itemIndex] begins, for the phase before it
+  /// is built at all: interpolated from the nearest built item using the
+  /// average extent of the currently built range, or null when too little is
+  /// built to go on.
+  ///
+  /// Items vary hugely in height - an ayah of a few words next to one of a
+  /// full paragraph - so treating the whole list as uniform, a plain
+  /// `index / itemCount` share of the scroll extent, can land far enough off
+  /// that it takes many jumps to bring the target into the build range.
+  double? _estimateItemOffset(int tabIndex, int itemIndex) {
+    if (tabIndex >= _tabListKeys.length) return null;
+
+    final renderObject =
+        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    final sliver = renderObject == null ? null : _findSliverList(renderObject);
+    if (sliver == null) return null;
+
+    int? nearestIndex, firstIndex, lastIndex;
+    double? nearestOffset, firstOffset, lastOffset;
+
+    RenderBox? child = sliver.firstChild;
+    while (child != null) {
+      final parentData = child.parentData;
+      if (parentData is SliverMultiBoxAdaptorParentData) {
+        final index = parentData.index;
+        final offset = parentData.layoutOffset;
+        if (index != null && offset != null) {
+          firstIndex ??= index;
+          firstOffset ??= offset;
+          lastIndex = index;
+          lastOffset = offset;
+          if (nearestIndex == null ||
+              (index - itemIndex).abs() < (nearestIndex - itemIndex).abs()) {
+            nearestIndex = index;
+            nearestOffset = offset;
+          }
+        }
+      }
+      child = sliver.childAfter(child);
+    }
+
+    if (nearestIndex == null ||
+        nearestOffset == null ||
+        firstIndex == null ||
+        lastIndex == null ||
+        lastIndex == firstIndex) {
+      return null;
+    }
+
+    final averageExtent =
+        (lastOffset! - firstOffset!) / (lastIndex - firstIndex);
+    return nearestOffset + averageExtent * (itemIndex - nearestIndex);
   }
 
   /// Brings [verse] to the top of the view.
@@ -918,9 +1222,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       final inset = item == null ? 0.0 : insetWithin?.call(item.box) ?? 0.0;
       final itemOffset = item == null ? null : item.offset + inset;
       final target = itemOffset == null
-          // Not built yet: aim by proportion to bring it into range, then
+          // Not built yet: aim at an estimate to bring it into range, then
           // measure properly on the next pass.
-          ? position.maxScrollExtent * (itemIndex / itemCount)
+          ? _estimateItemOffset(tabIndex, itemIndex) ??
+              position.maxScrollExtent * (itemIndex / itemCount)
           : itemOffset - _scrollToVerseMargin;
 
       final clamped = target
@@ -951,9 +1256,45 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     if (_didScrollToInitialVerse || verse == null || verse.ayah == null) return;
 
     _didScrollToInitialVerse = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _scrollToVerse(tabIndex, ayahIndex, verse, leadingItems);
+    _landHidden(
+      tabIndex,
+      () => _scrollToVerse(tabIndex, ayahIndex, verse, leadingItems),
+    );
+  }
+
+  /// Runs [land] after this frame with tab [tabIndex] kept invisible until it
+  /// finishes - see [_hideWhileLanding].
+  ///
+  /// Called during build, before the tab's list is, so even the first frame
+  /// is drawn hidden.
+  void _landHidden(int tabIndex, Future<void> Function() land) {
+    _landingTabIndex = tabIndex;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        if (mounted) await land();
+      } finally {
+        // Every way out of the landing shows the list again - including one
+        // that gave up - so a failed jump can never leave a blank page.
+        if (mounted && _landingTabIndex == tabIndex) {
+          setState(() => _landingTabIndex = null);
+        }
+      }
     });
+  }
+
+  /// Keeps tab [tabIndex] invisible while it is being scrolled to where it
+  /// opens.
+  ///
+  /// Finding an item the list has not built yet takes a few frames of jumps,
+  /// and each would otherwise paint - a scrub through unrelated text before
+  /// the right place settles. Opacity rather than leaving the list out: the
+  /// landing measures the laid-out list, so it has to stay laid out.
+  Widget _hideWhileLanding(int tabIndex, Widget child) {
+    final hidden = _landingTabIndex == tabIndex;
+    return IgnorePointer(
+      ignoring: hidden,
+      child: Opacity(opacity: hidden ? 0 : 1, child: child),
+    );
   }
 
   /// How many list items sit ahead of the content itself - just the Merits
@@ -977,18 +1318,29 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   ) {
     if (!controller.hasClients || tabIndex >= _tabListKeys.length) return null;
 
+    // Read from where a scrolled-to item lands - [_scrollToVerseMargin] below
+    // the top edge - not the edge itself: otherwise the last few pixels of the
+    // item above, left showing in that margin, would count as what is being
+    // read, and opening at a verse and bookmarking it would save the one
+    // before.
+    return _itemAtScrollOffset(
+      tabIndex,
+      controller.position.pixels + _scrollToVerseMargin,
+    );
+  }
+
+  /// The content item laid out at [scrollOffset] in tab [tabIndex]'s list -
+  /// see [_topItem] - or null when nothing built sits there.
+  ({int itemIndex, RenderBox box, double depth})? _itemAtScrollOffset(
+    int tabIndex,
+    double scrollOffset,
+  ) {
     final renderObject =
         _tabListKeys[tabIndex].currentContext?.findRenderObject();
     if (renderObject == null) return null;
     final sliver = _findSliverList(renderObject);
     if (sliver == null) return null;
 
-    // Read from where a scrolled-to item lands - [_scrollToVerseMargin] below
-    // the top edge - not the edge itself: otherwise the last few pixels of the
-    // item above, left showing in that margin, would count as what is being
-    // read, and opening at a verse and bookmarking it would save the one
-    // before.
-    final scrollOffset = controller.position.pixels + _scrollToVerseMargin;
     // Children are held in index order, so the first one whose bottom edge is
     // still below that line is the one being read. Lines the reader has
     // switched off lay out at zero height and are skipped by the same test.
@@ -1072,6 +1424,239 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       return item.lineIndexes[member];
     }
     return item.firstLineIndex;
+  }
+
+  /// The content line under [globalPosition] in tab [tabIndex]'s list, or
+  /// null when the point is off the list or over something that is not
+  /// content (the footer). Only for tabs drawn as a reading list - every zikr
+  /// but the Quran.
+  ///
+  /// This is where a dragged bookmark lands. Read off the laid-out list the
+  /// same way [topContentLineIndex] is, rather than through drag targets on
+  /// each line, because the list auto-scrolls under a held bookmark: a drag
+  /// target only notices that on the next pointer move, so a drop after the
+  /// list had scrolled on its own would land on a line no longer there.
+  int? _contentLineAtGlobal(int tabIndex, Offset globalPosition) {
+    if (tabIndex >= _tabScrollControllers.length) return null;
+    final controller = _tabScrollControllers[tabIndex];
+    if (!controller.hasClients || _ayahIndexFor(tabIndex) != null) return null;
+    final listBox = _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    if (listBox is! RenderBox || !listBox.hasSize) return null;
+
+    final local = listBox.globalToLocal(globalPosition);
+    if (local.dy < 0 || local.dy > listBox.size.height) return null;
+
+    final hit = _itemAtScrollOffset(
+      tabIndex,
+      controller.position.pixels + local.dy - _listTopPadding,
+    );
+    final items = _tabReadingListItems[tabIndex];
+    if (hit == null || items == null || hit.itemIndex >= items.length) {
+      return null;
+    }
+    final item = items[hit.itemIndex];
+    final flow = _tabArabicFlows[tabIndex]?[item.firstLineIndex];
+    final member =
+        flow == null ? null : _memberInFlowAt(hit.box, flow, hit.depth);
+    if (member != null && member < item.lineIndexes.length) {
+      return item.lineIndexes[member];
+    }
+    return item.firstLineIndex;
+  }
+
+  void _handleBookmarkDragStarted(int tabIndex) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _bookmarkDragTab = tabIndex;
+      _bookmarkDragPointer = null;
+      _bookmarkDropLine = null;
+    });
+  }
+
+  void _handleBookmarkDragUpdate(int tabIndex, Offset globalPosition) {
+    _bookmarkDragPointer = globalPosition;
+    _updateBookmarkDropLine();
+    _updateBookmarkAutoScroll(tabIndex, globalPosition);
+  }
+
+  /// Drops the bookmark being carried. Reached from both the [Draggable] and
+  /// the list's own pointer listener, whichever hears the release first; the
+  /// second finds nothing being carried and does nothing.
+  void _handleBookmarkDragEnded() {
+    final tabIndex = _bookmarkDragTab;
+    if (tabIndex == null) return;
+    final pointer = _bookmarkDragPointer;
+    _stopBookmarkAutoScroll();
+    // Measured afresh rather than taken from the preview: the list may have
+    // auto-scrolled since the pointer last moved.
+    final line =
+        pointer == null ? null : _contentLineAtGlobal(tabIndex, pointer);
+    _cancelBookmarkDrag();
+    if (line == null) return;
+
+    // Dropped back where it already was: nothing moved.
+    final parsed = _contentCaches[tabIndex]?.parsed;
+    final current = parsed == null
+        ? null
+        : bookmarkedLineRange(
+            bookmarkLineIndex: widget.initialBookmarkLineIndex,
+            content: parsed,
+          );
+    if (current != null && current.contains(line)) return;
+
+    HapticFeedback.mediumImpact();
+    widget.onBookmarkMoved?.call(line);
+  }
+
+  /// Stops carrying the bookmark without moving it.
+  void _cancelBookmarkDrag() {
+    _stopBookmarkAutoScroll();
+    if (!mounted) return;
+    setState(() {
+      _bookmarkDragTab = null;
+      _bookmarkDragPointer = null;
+      _bookmarkDropLine = null;
+    });
+  }
+
+  void _updateBookmarkDropLine() {
+    final tabIndex = _bookmarkDragTab;
+    final pointer = _bookmarkDragPointer;
+    final line = tabIndex == null || pointer == null
+        ? null
+        : _contentLineAtGlobal(tabIndex, pointer);
+    if (line != _bookmarkDropLine && mounted) {
+      setState(() => _bookmarkDropLine = line);
+    }
+  }
+
+  /// How close to the list's top or bottom edge a held bookmark has to be to
+  /// scroll it, and the fastest it scrolls, in pixels per tick.
+  static const double _bookmarkAutoScrollEdge = 72;
+
+  /// The drag handle's height - close to the 48px minimum touch target,
+  /// less the tinted block's own padding around it.
+  static const double _bookmarkHandleHeight = 40;
+  static const double _bookmarkAutoScrollMaxStep = 18;
+
+  void _updateBookmarkAutoScroll(int tabIndex, Offset globalPosition) {
+    final listBox = _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    if (listBox is! RenderBox || !listBox.hasSize) return;
+    // Edges of the part of the list the chrome leaves clear, not of the list
+    // itself, which runs on underneath the chrome.
+    final y = listBox.globalToLocal(globalPosition).dy - _listTopPadding;
+    final height =
+        listBox.size.height - _listTopPadding - widget.listPadding.bottom;
+    final edge = _bookmarkAutoScrollEdge.clamp(0.0, height / 3).toDouble();
+
+    var speed = 0.0;
+    if (y < edge) {
+      speed = -_bookmarkAutoScrollMaxStep * ((edge - y) / edge).clamp(0, 1);
+    } else if (y > height - edge) {
+      speed = _bookmarkAutoScrollMaxStep *
+          ((y - (height - edge)) / edge).clamp(0, 1);
+    }
+    _bookmarkAutoScrollSpeed = speed;
+
+    if (speed == 0) {
+      _bookmarkAutoScrollTimer?.cancel();
+      _bookmarkAutoScrollTimer = null;
+      return;
+    }
+    _bookmarkAutoScrollTimer ??= Timer.periodic(
+      const Duration(milliseconds: 16),
+      (_) => _bookmarkAutoScrollTick(tabIndex),
+    );
+  }
+
+  void _bookmarkAutoScrollTick(int tabIndex) {
+    if (!mounted || tabIndex >= _tabScrollControllers.length) {
+      _stopBookmarkAutoScroll();
+      return;
+    }
+    final controller = _tabScrollControllers[tabIndex];
+    if (!controller.hasClients) return;
+    final position = controller.position;
+    final target = (position.pixels + _bookmarkAutoScrollSpeed)
+        .clamp(position.minScrollExtent, position.maxScrollExtent)
+        .toDouble();
+    if (target == position.pixels) return;
+    controller.jumpTo(target);
+    // The line under a still finger changes as the list moves beneath it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateBookmarkDropLine();
+    });
+  }
+
+  void _stopBookmarkAutoScroll() {
+    _bookmarkAutoScrollTimer?.cancel();
+    _bookmarkAutoScrollTimer = null;
+    _bookmarkAutoScrollSpeed = 0;
+  }
+
+  /// The "Bookmarked" label, as the handle the bookmark is moved by when
+  /// [ZikrContentViewerWidget.onBookmarkMoved] is set.
+  ///
+  /// A plain [Draggable] rather than a long-press one: the reading view sits
+  /// in a selection area whose own long-press starts a text selection, and
+  /// the two would race. Starting a drag on the label wins over the list's
+  /// scroll. The handle is the label's whole strip - the full width of the
+  /// line and a finger's height - so it is easy to catch, while the verse's
+  /// text below it still scrolls the list like any other.
+  Widget _bookmarkHandle(int tabIndex) {
+    if (widget.onBookmarkMoved == null) return _bookmarkLabelRow(context);
+    final strip = ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: double.infinity,
+        minHeight: _bookmarkHandleHeight,
+      ),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: SelectionContainer.disabled(
+          child: _bookmarkLabelRow(context, movable: true),
+        ),
+      ),
+    );
+    return Semantics(
+      hint: 'Drag to move the bookmark to another line',
+      child: Draggable<int>(
+        data: tabIndex,
+        dragAnchorStrategy: pointerDragAnchorStrategy,
+        feedback: Transform.translate(
+          offset: const Offset(-24, -48),
+          child: _bookmarkDragFeedback(context),
+        ),
+        // Exactly the strip's size, faded: anything smaller would pull the
+        // text below up under the finger the moment the drag starts.
+        childWhenDragging: Opacity(opacity: 0.35, child: strip),
+        onDragStarted: () => _handleBookmarkDragStarted(tabIndex),
+        onDragUpdate: (details) =>
+            _handleBookmarkDragUpdate(tabIndex, details.globalPosition),
+        onDragEnd: (_) => _handleBookmarkDragEnded(),
+        // The whole strip catches the finger, not just the label's glyphs.
+        hitTestBehavior: HitTestBehavior.opaque,
+        child: strip,
+      ),
+    );
+  }
+
+  /// Where a dragged bookmark would land, drawn around [child] - a lighter
+  /// version of the bookmark's own wash - when [child] is part of it.
+  Widget _withBookmarkDropPreview(Widget child, {required bool isTarget}) {
+    if (!isTarget) return child;
+    final colorScheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withValues(alpha: 0.08),
+        border: Border(
+          left: BorderSide(
+            color: colorScheme.primary.withValues(alpha: 0.5),
+            width: 3,
+          ),
+        ),
+      ),
+      child: child,
+    );
   }
 
   /// [flow]'s own laid-out text inside [itemBox], with how far down the item
@@ -1201,8 +1786,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             );
       final targetLine = range?.start ?? bookmarkLine;
       if (targetLine <= 0) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) return;
+      _landHidden(tabIndex, () async {
         await _scrollToLine(tabIndex, targetLine);
         if (mounted && controller.hasClients) {
           _reportScrollPosition(tabIndex, controller);
@@ -1339,6 +1923,46 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return cache;
   }
 
+  /// Each list item's share of the tab's reading effort, laid out exactly as
+  /// [_buildTabContent] lays out the items: [leadingItems] first, then one per
+  /// Quran paragraph, ayah span or reading item, then the footer, if any.
+  List<double> _itemWeights(
+    _TabContentCache cache, {
+    required int itemCount,
+    required int leadingItems,
+    required _QuranParagraphs? quranParagraphs,
+    required List<_ReadingListItem> readingItems,
+  }) {
+    final lineWeights = cache.lineWeights;
+    double linesWeight(Iterable<int> lines) => lines.fold(
+          0.0,
+          (sum, line) =>
+              sum + (line < lineWeights.length ? lineWeights[line] : 0.0),
+        );
+    double spanWeight(AyahSpan span) => linesWeight(
+          [for (var line = span.start; line < span.end; line++) line],
+        );
+
+    final ayahIndex = cache.ayahIndex;
+    final content = <double>[
+      if (quranParagraphs != null)
+        for (final paragraph in quranParagraphs.items)
+          paragraph.spanIndexes.fold(
+            0.0,
+            (sum, i) => sum + spanWeight(ayahIndex!.spans[i]),
+          )
+      else if (ayahIndex != null)
+        for (final span in ayahIndex.spans) spanWeight(span)
+      else
+        for (final item in readingItems) linesWeight(item.lineIndexes),
+    ];
+    return [
+      for (var i = 0; i < leadingItems; i++) 0.0,
+      ...content,
+      for (var i = leadingItems + content.length; i < itemCount; i++) 0.0,
+    ];
+  }
+
   /// The ayah index in force for a tab, or null when it renders line by line.
   AyahIndex? _ayahIndexFor(int tabIndex) => _contentCaches[tabIndex]?.ayahIndex;
 
@@ -1370,6 +1994,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final bookmarkLabelLine = bookmarkedRange == null
         ? null
         : firstVisibleLineInRange(bookmarkedRange, parsedContent);
+    // Where a bookmark being dragged in this tab would land if let go now.
+    final dropLine = _bookmarkDragTab == tabIndex ? _bookmarkDropLine : null;
+    final dropRange = dropLine == null ||
+            (bookmarkedRange != null && bookmarkedRange.contains(dropLine))
+        ? null
+        : bookmarkedLineRange(
+            bookmarkLineIndex: dropLine,
+            content: parsedContent,
+          );
     // A surah read Arabic-only with paragraph flow on is drawn as one
     // paragraph rather than one block per verse - the same flow every other
     // zikr gets in that view, but still numbered, tappable and tracked verse
@@ -1421,6 +2054,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 ? ayahIndex.spans.length
                 : readingItems.length);
     final itemCount = contentItemCount + (footer == null ? 0 : 1);
+    _tabItemWeights[tabIndex] = _itemWeights(
+      cache,
+      itemCount: itemCount,
+      leadingItems: leadingItems,
+      quranParagraphs: quranParagraphs,
+      readingItems: readingItems,
+    );
 
     if (ayahIndex != null && tabIndex == _selectedTabIndex) {
       _scheduleInitialVerseScroll(tabIndex, ayahIndex, leadingItems);
@@ -1437,6 +2077,24 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         if (event is PointerScrollEvent) _sawUserScrollInput = true;
       },
       onPointerPanZoomStart: (event) => _sawUserScrollInput = true,
+      // A bookmark being carried is also followed from here, not just from
+      // its [Draggable]: auto-scrolling takes the label off screen, the list
+      // then disposes it, and a disposed Draggable reports nothing more - so
+      // the drop would be lost. This list outlives it.
+      onPointerMove: (event) {
+        if (_bookmarkDragTab == tabIndex) {
+          _handleBookmarkDragUpdate(tabIndex, event.position);
+        }
+      },
+      onPointerUp: (event) {
+        if (_bookmarkDragTab == tabIndex) {
+          _bookmarkDragPointer = event.position;
+          _handleBookmarkDragEnded();
+        }
+      },
+      onPointerCancel: (event) {
+        if (_bookmarkDragTab == tabIndex) _cancelBookmarkDrag();
+      },
       child: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification is ScrollStartNotification &&
@@ -1455,149 +2113,185 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             }
             return false;
           },
-          child: Scrollbar(
-            controller: controller,
-            child: ListView.builder(
-              key: _tabListKeys[tabIndex],
-              controller: controller,
-              itemCount: itemCount,
-              itemBuilder: (BuildContext context, int index) {
-                if (footer != null && index == contentItemCount) return footer;
+          // The Scrollbar keeps its track clear of the chrome by reading the
+          // ambient padding.
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              padding: EdgeInsets.only(
+                top: _listTopPadding,
+                bottom: widget.listPadding.bottom,
+              ),
+            ),
+            child: _hideWhileLanding(
+              tabIndex,
+              Scrollbar(
+                controller: controller,
+                child: ListView.builder(
+                  key: _tabListKeys[tabIndex],
+                  controller: controller,
+                  padding: EdgeInsets.only(
+                    top: _listTopPadding,
+                    bottom: widget.listPadding.bottom,
+                  ),
+                  itemCount: itemCount,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (footer != null && index == contentItemCount)
+                      return footer;
 
-                // Show merits button at the top of first tab
-                if (showMeritsButton && index == 0) {
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16.0,
-                      top: 12.0,
-                      right: 16.0,
-                      bottom: 12.0,
-                    ),
-                    child: InkWell(
-                      onTap: widget.onShowMerits,
-                      child: Text(
-                        'Merits',
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          fontSize: 14,
+                    // Show merits button at the top of first tab
+                    if (showMeritsButton && index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          left: 16.0,
+                          top: 12.0,
+                          right: 16.0,
+                          bottom: 12.0,
                         ),
-                      ),
-                    ),
-                  );
-                }
+                        child: InkWell(
+                          onTap: widget.onShowMerits,
+                          child: Text(
+                            'Merits',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
 
-                // A surah in paragraph mode has one item per surah (a juz one
-                // per surah it spans, each Bismillah apart), and in
-                // ayah mode one per verse; every other zikr is one item per
-                // reading-list entry, which is one item per content line
-                // except when Arabic-only paragraph flow folds a run of
-                // verses into one.
-                if (quranParagraphs != null) {
-                  final paragraph = quranParagraphs.items[index - leadingItems];
-                  final first = ayahIndex!.spans[paragraph.firstSpanIndex];
-                  // The Bismillah stands alone and is drawn exactly as it is
-                  // in ayah mode - centred, unnumbered, untappable.
-                  if (first.ayah == null) {
-                    return _buildAyahBlock(
-                      ayahIndex: ayahIndex,
-                      spanIndex: paragraph.firstSpanIndex,
-                      parsedContent: parsedContent,
-                      arabicStyle: arabicStyle,
-                      transliStyle: transliStyle,
-                      bookmarkedRange: bookmarkedRange,
-                    );
-                  }
-                  return _buildQuranParagraphItem(
-                    paragraph: paragraph,
-                    ayahIndex: ayahIndex,
-                    parsedContent: parsedContent,
-                    arabicStyle: arabicStyle,
-                    bookmarkedRange: bookmarkedRange,
-                  );
-                }
+                    // A surah in paragraph mode has one item per surah (a juz one
+                    // per surah it spans, each Bismillah apart), and in
+                    // ayah mode one per verse; every other zikr is one item per
+                    // reading-list entry, which is one item per content line
+                    // except when Arabic-only paragraph flow folds a run of
+                    // verses into one.
+                    if (quranParagraphs != null) {
+                      final paragraph =
+                          quranParagraphs.items[index - leadingItems];
+                      final first = ayahIndex!.spans[paragraph.firstSpanIndex];
+                      // The Bismillah stands alone and is drawn exactly as it is
+                      // in ayah mode - centred, unnumbered, untappable.
+                      if (first.ayah == null) {
+                        return _buildAyahBlock(
+                          ayahIndex: ayahIndex,
+                          spanIndex: paragraph.firstSpanIndex,
+                          parsedContent: parsedContent,
+                          arabicStyle: arabicStyle,
+                          transliStyle: transliStyle,
+                          bookmarkedRange: bookmarkedRange,
+                        );
+                      }
+                      return _buildQuranParagraphItem(
+                        paragraph: paragraph,
+                        ayahIndex: ayahIndex,
+                        parsedContent: parsedContent,
+                        arabicStyle: arabicStyle,
+                        bookmarkedRange: bookmarkedRange,
+                      );
+                    }
 
-                if (ayahIndex != null) {
-                  final contentIndex = index - leadingItems;
-                  return _buildAyahBlock(
-                    ayahIndex: ayahIndex,
-                    spanIndex: contentIndex,
-                    parsedContent: parsedContent,
-                    arabicStyle: arabicStyle,
-                    transliStyle: transliStyle,
-                    bookmarkedRange: bookmarkedRange,
-                  );
-                }
+                    if (ayahIndex != null) {
+                      final contentIndex = index - leadingItems;
+                      return _buildAyahBlock(
+                        ayahIndex: ayahIndex,
+                        spanIndex: contentIndex,
+                        parsedContent: parsedContent,
+                        arabicStyle: arabicStyle,
+                        transliStyle: transliStyle,
+                        bookmarkedRange: bookmarkedRange,
+                      );
+                    }
 
-                final itemIndex = index - leadingItems;
-                final item = readingItems[itemIndex];
+                    final itemIndex = index - leadingItems;
+                    final item = readingItems[itemIndex];
 
-                final isLastItem = itemIndex == readingItems.length - 1;
+                    final isLastItem = itemIndex == readingItems.length - 1;
 
-                if (isArabicOnlyReadingView &&
-                    parsedContent.arabicCodes.contains(item.firstLineIndex)) {
-                  return _withParagraphDivider(
-                    _buildArabicParagraphItem(
-                      tabIndex,
-                      item,
+                    final isDropTarget = dropRange != null &&
+                        item.lineIndexes.any(dropRange.contains);
+
+                    if (isArabicOnlyReadingView &&
+                        parsedContent.arabicCodes
+                            .contains(item.firstLineIndex)) {
+                      return _withParagraphDivider(
+                        _withBookmarkDropPreview(
+                          _buildArabicParagraphItem(
+                            tabIndex,
+                            item,
+                            parsedContent,
+                            bookmarkLabelLine,
+                            arabicStyle,
+                          ),
+                          isTarget: isDropTarget,
+                        ),
+                        showDivider: !isLastItem,
+                      );
+                    }
+
+                    // No trailing divider here: a standalone line never closed a
+                    // group before either (groupForLine only covers Arabic
+                    // triplets), so this preserves that - the block's own border
+                    // already sets it apart from what follows.
+                    if (item.lineIndexes.length > 1) {
+                      return _withBookmarkDropPreview(
+                        _buildFootnoteBlock(
+                          tabIndex,
+                          item,
+                          parsedContent,
+                          bookmarkLabelLine,
+                        ),
+                        isTarget: isDropTarget,
+                      );
+                    }
+
+                    // Every non-paragraph item covers exactly one content line.
+                    final contentIndex = item.firstLineIndex;
+                    final line = _buildLine(
                       parsedContent,
-                      bookmarkLabelLine,
+                      contentIndex,
                       arabicStyle,
-                    ),
-                    showDivider: !isLastItem,
-                  );
-                }
+                      transliStyle,
+                    );
 
-                // No trailing divider here: a standalone line never closed a
-                // group before either (groupForLine only covers Arabic
-                // triplets), so this preserves that - the block's own border
-                // already sets it apart from what follows.
-                if (item.lineIndexes.length > 1) {
-                  return _buildFootnoteBlock(
-                    item,
-                    parsedContent,
-                    bookmarkLabelLine,
-                  );
-                }
+                    final Widget content;
+                    if (bookmarkedRange == null ||
+                        bookmarkLabelLine == null ||
+                        !bookmarkedRange.contains(contentIndex) ||
+                        !isZikrLineVisible(parsedContent, contentIndex)) {
+                      content = _withBookmarkDropPreview(
+                        line,
+                        isTarget: isDropTarget &&
+                            isZikrLineVisible(parsedContent, contentIndex),
+                      );
+                    } else {
+                      content = _BookmarkedLine(
+                        // The label only belongs on the first line of the marked
+                        // triplet that is actually showing - repeating it on the
+                        // transliteration/translation lines under the same tint
+                        // would just be noise, and a switched-off line draws
+                        // nothing to carry it.
+                        label: contentIndex == bookmarkLabelLine
+                            ? _bookmarkHandle(tabIndex)
+                            : null,
+                        child: line,
+                      );
+                    }
 
-                // Every non-paragraph item covers exactly one content line.
-                final contentIndex = item.firstLineIndex;
-                final line = _buildLine(
-                  parsedContent,
-                  contentIndex,
-                  arabicStyle,
-                  transliStyle,
-                );
-
-                final Widget content;
-                if (bookmarkedRange == null ||
-                    bookmarkLabelLine == null ||
-                    !bookmarkedRange.contains(contentIndex) ||
-                    !isZikrLineVisible(parsedContent, contentIndex)) {
-                  content = line;
-                } else {
-                  content = _BookmarkedLine(
-                    // The label only belongs on the first line of the marked
-                    // triplet that is actually showing - repeating it on the
-                    // transliteration/translation lines under the same tint
-                    // would just be noise, and a switched-off line draws
-                    // nothing to carry it.
-                    showLabel: contentIndex == bookmarkLabelLine,
-                    child: line,
-                  );
-                }
-
-                // Only the last line of an Arabic/transliteration/translation
-                // triplet closes it off - a standalone heading or instruction
-                // line (absent from groupForLine) never gets a trailing
-                // divider of its own.
-                final group = parsedContent.groupForLine[contentIndex];
-                final closesGroup =
-                    group != null && contentIndex == group.end - 1;
-                return _withParagraphDivider(
-                  content,
-                  showDivider: closesGroup && !isLastItem,
-                );
-              },
+                    // Only the last line of an Arabic/transliteration/translation
+                    // triplet closes it off - a standalone heading or instruction
+                    // line (absent from groupForLine) never gets a trailing
+                    // divider of its own.
+                    final group = parsedContent.groupForLine[contentIndex];
+                    final closesGroup =
+                        group != null && contentIndex == group.end - 1;
+                    return _withParagraphDivider(
+                      content,
+                      showDivider: closesGroup && !isLastItem,
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         ),
@@ -1697,6 +2391,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// the same "Bookmarked" label and tint a single bookmarked line would
   /// otherwise carry via [_BookmarkedLine].
   Widget _buildFootnoteBlock(
+    int tabIndex,
     _ReadingListItem item,
     ParsedZikrContent parsedContent,
     int? bookmarkLabelLine,
@@ -1709,7 +2404,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         paragraphs.add(
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
-            child: _bookmarkLabelRow(context),
+            child: _bookmarkHandle(tabIndex),
           ),
         );
       }
@@ -1941,116 +2636,196 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return parts.join('\n');
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final showTabHeaders = widget.tabContents.length > 1;
-    _syncTabState(widget.tabContents.length);
-
-    return Column(
-      children: [
-        if (showTabHeaders)
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(bottom: 20),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: constraints.maxWidth,
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(
-                          widget.tabContents.length,
-                          (index) {
-                            final isSelected = index == _selectedTabIndex;
-                            return Padding(
-                              key: _tabHeaderKeys[index],
-                              padding: EdgeInsets.only(
-                                right: index == widget.tabContents.length - 1
-                                    ? 0
-                                    : 12,
-                              ),
-                              child: Material(
-                                color: isSelected
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .secondaryContainer
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHighest
-                                        .withValues(alpha: 0.45),
-                                borderRadius: BorderRadius.circular(18),
-                                elevation: isSelected ? 2 : 0,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(18),
-                                  onTap: () => _animateToTab(index),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 18,
-                                      vertical: 10,
-                                    ),
-                                    child: Text(
-                                      _getTabHeader(
-                                        widget.tabContents[index],
-                                        index,
-                                      ),
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w600
-                                            : FontWeight.w500,
-                                        color: isSelected
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .onSecondaryContainer
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: 0.78),
-                                      ),
-                                    ),
+  /// The row of tab chips. Opaque, since the reading text scrolls on
+  /// underneath it.
+  Widget _buildTabStrip(BuildContext context) {
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 12, bottom: 4),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: constraints.maxWidth,
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(
+                      widget.tabContents.length,
+                      (index) {
+                        final isSelected = index == _selectedTabIndex;
+                        return Padding(
+                          key: _tabHeaderKeys[index],
+                          padding: EdgeInsets.only(
+                            right:
+                                index == widget.tabContents.length - 1 ? 0 : 12,
+                          ),
+                          child: Material(
+                            color: isSelected
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .secondaryContainer
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withValues(alpha: 0.45),
+                            borderRadius: BorderRadius.circular(18),
+                            elevation: isSelected ? 2 : 0,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: () => _animateToTab(index),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 10,
+                                ),
+                                child: Text(
+                                  _getTabHeader(
+                                    widget.tabContents[index],
+                                    index,
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                    color: isSelected
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .onSecondaryContainer
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.78),
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-        Expanded(
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: widget.tabContents.length,
-            onPageChanged: (index) {
-              setState(() {
-                _selectedTabIndex = index;
-              });
-              widget.onTabChanged(index);
-              _centerSelectedTab();
-              _scheduleScrollPositionReport(index);
-            },
-            itemBuilder: (context, index) => _buildTabContent(
-              widget.tabContents[index],
-              _tabScrollControllers[index],
-              tabIndex: index,
-              hideHeaderLine: showTabHeaders,
-              showMeritsButton: widget.hasMerits && index == 0,
-            ),
-            pageSnapping: true,
-            physics: const PageScrollPhysics(),
-          ),
+                ),
+              ),
+            );
+          },
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final showTabHeaders = _showTabHeaders;
+    _syncTabState(widget.tabContents.length);
+
+    final pages = PageView.builder(
+      controller: _pageController,
+      itemCount: widget.tabContents.length,
+      onPageChanged: (index) {
+        setState(() {
+          _selectedTabIndex = index;
+        });
+        widget.onTabChanged(index);
+        _centerSelectedTab();
+        _scheduleScrollPositionReport(index);
+      },
+      itemBuilder: (context, index) => _buildTabContent(
+        widget.tabContents[index],
+        _tabScrollControllers[index],
+        tabIndex: index,
+        hideHeaderLine: showTabHeaders,
+        showMeritsButton: widget.hasMerits && index == 0,
+      ),
+      pageSnapping: true,
+      physics: const PageScrollPhysics(),
+    );
+    if (!showTabHeaders) return pages;
+
+    final strip = _MeasureSize(
+      onChange: (size) {
+        if (mounted && size.height != _tabStripExtent) {
+          setState(() => _tabStripExtent = size.height);
+        }
+      },
+      child: _buildTabStrip(context),
+    );
+    final chromeVisible = widget.chromeVisible;
+
+    return Stack(
+      children: [
+        Positioned.fill(child: pages),
+        if (chromeVisible == null)
+          Positioned(
+            left: 0,
+            right: 0,
+            top: widget.tabStripTop,
+            child: strip,
+          )
+        else
+          ValueListenableBuilder<bool>(
+            valueListenable: chromeVisible,
+            builder: (context, visible, child) => TweenAnimationBuilder<double>(
+              tween: Tween(end: visible ? 1.0 : 0.0),
+              // Matches the page's own chrome, so the strip moves as one
+              // with the bars above it.
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              builder: (context, shown, child) => Positioned(
+                left: 0,
+                right: 0,
+                top: lerpDouble(
+                  widget.collapsedTopInset - _tabStripExtent,
+                  widget.tabStripTop,
+                  shown,
+                ),
+                child: IgnorePointer(ignoring: shown == 0, child: child),
+              ),
+              child: child,
+            ),
+            child: strip,
+          ),
       ],
     );
+  }
+}
+
+/// Reports its child's size after every layout that changes it.
+class _MeasureSize extends SingleChildRenderObjectWidget {
+  const _MeasureSize({required this.onChange, required Widget child})
+      : super(child: child);
+
+  final ValueChanged<Size> onChange;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderMeasureSize(onChange);
+
+  @override
+  void updateRenderObject(
+      BuildContext context, _RenderMeasureSize renderObject) {
+    renderObject.onChange = onChange;
+  }
+}
+
+class _RenderMeasureSize extends RenderProxyBox {
+  _RenderMeasureSize(this.onChange);
+
+  ValueChanged<Size> onChange;
+  Size? _lastSize;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (size == _lastSize) return;
+    _lastSize = size;
+    final reported = size;
+    WidgetsBinding.instance.addPostFrameCallback((_) => onChange(reported));
   }
 }
 
@@ -2082,6 +2857,9 @@ class _TabContentCache {
   }
 
   _QuranParagraphs? _quranParagraphs;
+
+  /// Each line's share of the tab's reading effort - see [zikrLineWeights].
+  late final List<double> lineWeights = zikrLineWeights(parsed.lines);
 }
 
 /// Names the surah a juz has just moved into.
@@ -2140,8 +2918,8 @@ class _SurahHeading extends StatelessWidget {
 /// The verse number is not drawn here: it is already inside the Arabic, as
 /// the end-of-verse medallion the corpus is authored with, and a second one
 /// above each verse only duplicated it. The row above a verse appears only
-/// when there is something to mark - the bookmark, a saved verse, or the
-/// Imam Ali (as) seal.
+/// when there is something to mark - the bookmark or a saved verse. A verse
+/// about Imam Ali (as) is marked by a watermark behind it instead.
 class _AyahBlock extends StatelessWidget {
   const _AyahBlock({
     required this.ayah,
@@ -2168,9 +2946,10 @@ class _AyahBlock extends StatelessWidget {
   final bool isBookmarked;
 
   /// Set when this verse is one Shia tafsir cites as being about Imam Ali
-  /// (as); its text is the occasion or title the verse is known by, shown as
-  /// a tooltip on the badge. Null for every other verse, which is most of
-  /// them, so the badge stays rare enough to mean something when it appears.
+  /// (as); its text is the occasion or title the verse is known by, which the
+  /// verse menu shows and the watermark carries as its semantic label. Null
+  /// for every other verse, which is most of them, so the watermark stays rare
+  /// enough to mean something when it appears.
   final String? aliNote;
 
   final VoidCallback? onAction;
@@ -2186,7 +2965,7 @@ class _AyahBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (startsSurah != null) _SurahHeading(surah: startsSurah!),
-          if (ayah != null && (isBookmarked || isSaved || aliNote != null))
+          if (ayah != null && (isBookmarked || isSaved))
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
@@ -2203,7 +2982,6 @@ class _AyahBlock extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                   ],
-                  if (aliNote != null) _AliBadge(note: aliNote!),
                 ],
               ),
             ),
@@ -2216,6 +2994,15 @@ class _AyahBlock extends StatelessWidget {
       ),
     );
 
+    final marked = aliNote == null
+        ? block
+        : Stack(
+            children: [
+              Positioned.fill(child: _AliWatermark(note: aliNote!)),
+              block,
+            ],
+          );
+
     final decorated = isBookmarked
         ? Container(
             decoration: BoxDecoration(
@@ -2224,9 +3011,9 @@ class _AyahBlock extends StatelessWidget {
                 left: BorderSide(color: colorScheme.primary, width: 3),
               ),
             ),
-            child: block,
+            child: marked,
           )
-        : block;
+        : marked;
 
     if (onAction == null) return decorated;
 
@@ -2238,61 +3025,51 @@ class _AyahBlock extends StatelessWidget {
   }
 }
 
-/// The mark beside a verse's number when Shia tafsir cites it as being about
-/// Imam Ali (as) - see [quranAliVerses]. A small gold seal with "علي" set
-/// inside it, rather than a plain icon: the name itself is the point, not a
-/// generic "this is special" glyph. A `Tooltip` rather than a tappable chip -
-/// the whole ayah block is already a tap target for [AyahActionRequest], so
-/// the seal only needs to answer "why is this marked" on long-press/hover,
-/// not compete for the tap itself.
+/// The mark behind a verse Shia tafsir cites as being about Imam Ali (as) -
+/// see [quranAliVerses]. The "علي" from the app icon, drawn faintly behind the
+/// verse like a watermark, rather than a badge in a row of its own: the name
+/// itself is the point, and behind the text it marks the verse without
+/// pushing it down or competing with it.
 ///
-/// The gold is a fixed pair of colors rather than anything drawn from the
-/// theme: a seal reads as gold in both light and dark reading modes, the way
-/// actual wax or foil would, not as "whatever the app's primary color is."
-class _AliBadge extends StatelessWidget {
-  const _AliBadge({required this.note});
+/// It takes no taps. The whole ayah block is already the tap target for
+/// [AyahActionRequest], and the verse menu that opens shows the same note, so
+/// the watermark only carries it as its semantic label.
+///
+/// Gold, like the icon, in both reading modes rather than the theme's primary
+/// color: the icon's own pale gold on the dark page, and a deeper gold on the
+/// light one, where the pale gold would all but vanish.
+class _AliWatermark extends StatelessWidget {
+  const _AliWatermark({required this.note});
 
   final String note;
 
-  static const _sealHighlight = Color(0xFFE7C878);
-  static const _sealShadow = Color(0xFF8F6B1E);
-  static const _sealInk = Color(0xFF2C2109);
+  static const asset = 'assets/images/ali_watermark.png';
+
+  static const _iconGold = Color(0xFFF3E6A0);
+  static const _deepGold = Color(0xFFB08A2E);
 
   @override
   Widget build(BuildContext context) {
-    // The ring the seal sits in is cut from the page behind it, so the gold
-    // never collides with a bookmark tint or the primary-container wash a
-    // saved verse already gets.
-    final ringColor = Theme.of(context).colorScheme.surface;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final color = dark
+        ? _iconGold.withValues(alpha: 0.17)
+        : _deepGold.withValues(alpha: 0.18);
 
-    return Tooltip(
-      message: note,
-      triggerMode: TooltipTriggerMode.longPress,
-      child: Container(
-        width: 22,
-        height: 22,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const RadialGradient(
-            center: Alignment(-0.3, -0.35),
-            colors: [_sealHighlight, _sealShadow],
-          ),
-          border: Border.all(color: ringColor, width: 1.4),
-          boxShadow: [
-            BoxShadow(
-                color: _sealShadow.withValues(alpha: 0.65), spreadRadius: 0.6),
-          ],
-        ),
-        child: Text(
-          'علي',
-          style: TextStyle(
-            fontFamily: arabicFont,
-            fontFamilyFallback: const ['Qalam'],
-            fontSize: 10,
-            height: 1,
-            fontWeight: FontWeight.w700,
-            color: _sealInk,
+    return IgnorePointer(
+      child: ClipRect(
+        // The glyph's long baseline stroke sits low, so it is lifted to
+        // centre its mass on the verse rather than its bounding box.
+        child: Transform.translate(
+          offset: const Offset(0, -18),
+          child: Center(
+            child: Image.asset(
+              asset,
+              height: 170,
+              color: color,
+              colorBlendMode: BlendMode.srcIn,
+              filterQuality: FilterQuality.high,
+              semanticLabel: note,
+            ),
           ),
         ),
       ),
@@ -2311,12 +3088,14 @@ class _AliBadge extends StatelessWidget {
 /// element that has to be positioned over them. Consecutive lines' tints and
 /// borders sit flush against each other, reading as one continuous block.
 class _BookmarkedLine extends StatelessWidget {
-  const _BookmarkedLine({required this.showLabel, required this.child});
+  const _BookmarkedLine({required this.label, required this.child});
 
-  /// Only the verse's first line carries the "Bookmarked" label - repeating
-  /// it on every line under the same tint would just be noise.
-  final bool showLabel;
+  /// The "Bookmarked" label, on the verse's first line only - repeating it on
+  /// every line under the same tint would just be noise. Null elsewhere.
+  final Widget? label;
   final Widget child;
+
+  bool get showLabel => label != null;
 
   @override
   Widget build(BuildContext context) {
@@ -2339,7 +3118,7 @@ class _BookmarkedLine extends StatelessWidget {
           if (showLabel)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: _bookmarkLabelRow(context),
+              child: label,
             ),
           child,
         ],

@@ -7,7 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
+import 'package:shia_companion/services/audio_download_store.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
+import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/services.dart' show BrowserContextMenu;
@@ -20,6 +22,7 @@ import 'constants.dart';
 import 'pages/home_page.dart';
 import 'pages/widget_preview_page.dart';
 import 'utils/deep_links.dart';
+import 'widgets/audio_download_button.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +51,14 @@ void main() async {
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.developer110.shia_companion.audio',
     androidNotificationChannelName: 'Recitation playback',
-    androidNotificationOngoing: true,
+    // Keep the service in the foreground while paused. Letting it drop out
+    // on pause (the default) left Android free to kill it once the app was
+    // backgrounded, taking the notification - and the playlist - with it, so
+    // a paused recitation could never be resumed from the lock screen.
+    // Ongoing must be off for this: audio_service only allows an ongoing
+    // notification when the service stops being foreground on pause. The
+    // notification's own stop button still dismisses it.
+    androidStopForegroundOnPause: false,
   );
 
   // Registers android_alarm_manager_plus's dispatch so a prayer-time alarm
@@ -79,6 +89,9 @@ void main() async {
   registerWebViewWebImplementation();
 
   await NetworkUtils().initialize();
+
+  // A finished offline download says so wherever the reader has got to.
+  AudioDownloadStore.instance.results.listen(showAudioDownloadResult);
 
   runApp(const MyApp());
 }
@@ -113,13 +126,21 @@ class MyApp extends StatelessWidget {
           title: appName,
         );
 
-    return ChangeNotifierProvider(
-      create: (context) => DarkModeProvider(),
-      child:
-          Consumer<DarkModeProvider>(builder: (context, darkModeProvider, _) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => DarkModeProvider()),
+        ChangeNotifierProvider(create: (context) => AppTextScaleProvider()),
+      ],
+      child: Consumer2<DarkModeProvider, AppTextScaleProvider>(
+          builder: (context, darkModeProvider, textScaleProvider, _) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
+          scaffoldMessengerKey: appScaffoldMessengerKey,
           title: appName,
+          // The in-app Text size setting, layered over the system's own
+          // text scale for every route, dialog and sheet under the navigator.
+          builder: (context, child) =>
+              textScaleProvider.apply(context, child ?? const SizedBox()),
           theme: ThemeData(
             useMaterial3: true,
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),

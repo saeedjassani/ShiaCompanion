@@ -19,6 +19,13 @@
       }
     },
 
+    "public": {
+      "community": {
+        ".read": true,
+        ".write": false
+      }
+    },
+
     "usage": {
       ".read": "auth != null && auth.token.admin === true",
 

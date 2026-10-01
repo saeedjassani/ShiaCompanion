@@ -30,9 +30,6 @@ concurrency:
   group: web-release
   cancel-in-progress: false
 
-env:
-  FLUTTER_VERSION: '3.44.8'
-
 jobs:
   gate:
     name: Decide whether this is a release
@@ -89,7 +86,6 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
@@ -113,8 +109,6 @@ jobs:
           ref: ${{ github.event.inputs.ref || github.ref }}
 
       - uses: ./.github/actions/build-web
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
 
       # The last gate before production: if the built bundle does not boot or a
       # page regressed visually, the deploy never runs.

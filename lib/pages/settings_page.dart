@@ -4,11 +4,14 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../constants.dart';
+import '../services/activity_stats_store.dart';
 import '../services/account_service.dart';
 import '../services/analytics_service.dart';
+import '../services/audio_download_store.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
@@ -16,8 +19,10 @@ import '../services/prayer_preferences_sync_service.dart';
 import '../services/preferences_sync_service.dart';
 import '../services/qaza_tracker_manager.dart';
 import '../services/recitation_tracker_manager.dart';
+import '../services/saved_verses_manager.dart';
 import '../services/rating_prompt_service.dart';
 import '../services/session_refresh_service.dart';
+import '../utils/app_text_scale.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
@@ -27,6 +32,7 @@ import '../widgets/responsive_content.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
+import 'downloaded_audio_page.dart';
 import 'delete_account_page.dart';
 import 'scheduled_notifications_page.dart';
 import 'zikr_reminders_page.dart';
@@ -48,8 +54,13 @@ class _SettingsPageState extends State<SettingsPage> {
     await FavoritesManager.instance.loadFavorites(force: true);
     await QazaTrackerManager.instance.loadQaza(force: true);
     await RecitationTrackerManager.instance.loadRecitations(force: true);
+    await SavedVersesManager.instance.loadSavedVerses(force: true);
     await PreferencesSyncService.instance.pullOrSeed();
     await PrayerPreferencesSyncService.instance.pullOrSeed();
+    // Not awaited: stats are already correct on this device, and a Firestore
+    // write only completes once the server acknowledges it - on a slow
+    // connection that would hold up this screen for nothing.
+    unawaited(ActivityStatsStore.instance.pullAndMerge());
     await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
     setState(() {});
@@ -59,6 +70,8 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     trackScreen('Settings Page');
+    // For the size shown on the Downloaded recitations row.
+    unawaited(AudioDownloadStore.instance.load());
     // The refresh row reflects location status, which can also change from the
     // home page or an automatic refresh, so follow the service rather than
     // relying on this page's own taps to know when to redraw.
@@ -84,6 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final darkModeProvider = Provider.of<DarkModeProvider>(context);
+    final textScaleProvider = Provider.of<AppTextScaleProvider>(context);
     final currentUser = user ?? _auth.currentUser;
 
     return ResponsiveScrollableContent(
@@ -223,6 +237,41 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: const Text("Dark mode"),
                 subtitle: const Text("Use the dark appearance across the app."),
               ),
+              ListTile(
+                leading: const Icon(Icons.format_size),
+                title: const Text("App text size"),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                        "Makes all text bigger or smaller, including zikr."),
+                    Slider(
+                      activeColor: Theme.of(context).colorScheme.secondary,
+                      min: AppTextScaleProvider.minScale,
+                      max: AppTextScaleProvider.maxScale,
+                      divisions: AppTextScaleProvider.divisions,
+                      value: textScaleProvider.scale,
+                      label:
+                          AppTextScaleProvider.label(textScaleProvider.scale),
+                      onChanged: textScaleProvider.setScale,
+                      // Persist and count once per gesture, not per frame.
+                      onChangeEnd: (_) {
+                        unawaited(textScaleProvider.save());
+                        unawaited(AnalyticsService.feature(
+                          'app_text_scale_changed',
+                          label: 'App text size changed',
+                          parameters: {
+                            'scale': AppTextScaleProvider.label(
+                                textScaleProvider.scale),
+                          },
+                        ));
+                      },
+                    ),
+                  ],
+                ),
+                trailing:
+                    Text(AppTextScaleProvider.label(textScaleProvider.scale)),
+              ),
             ],
           ),
           _buildSettingsSection(
@@ -238,6 +287,33 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
           ),
+          if (AudioDownloadStore.isSupported)
+            _buildSettingsSection(
+              context,
+              title: 'Offline Audio',
+              children: [
+                ListenableBuilder(
+                  listenable: AudioDownloadStore.instance,
+                  builder: (context, _) {
+                    final bytes = AudioDownloadStore.instance.totalSavedBytes;
+                    return ListTile(
+                      leading: const Icon(Icons.download_for_offline_outlined),
+                      title: const Text('Downloaded recitations'),
+                      subtitle: Text(bytes > 0
+                          ? '${formatAudioBytes(bytes)} used on this device'
+                          : 'Listen without a connection'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DownloadedAudioPage(),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           _buildSettingsSection(
             context,
             title: 'Support',
@@ -265,6 +341,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: const Text("Send questions, issues, or suggestions."),
                 onTap: () {
                   _launchURL();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.code),
+                title: const Text("Contribute on GitHub"),
+                subtitle: const Text(
+                    "Shia Companion is open source. Report issues or help improve it."),
+                trailing: const Icon(Icons.open_in_new),
+                onTap: () async {
+                  unawaited(AnalyticsService.feature(
+                    'github_settings',
+                    label: 'GitHub opened from Settings',
+                  ));
+                  final launched = await launchExternalUri(githubRepoUri);
+                  if (!launched && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Could not open GitHub")),
+                    );
+                  }
                 },
               ),
               ListTile(
@@ -756,16 +851,38 @@ class _SettingsPageState extends State<SettingsPage> {
       } else {
         logOff();
       }
-    } catch (e) {
-      final message = e.toString();
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text("Something went wrong"),
-          content: Text("Error: $message\nPlease contact support."),
-        ),
-      );
+    } on GoogleSignInException catch (error) {
+      if (error.code == GoogleSignInExceptionCode.canceled) {
+        debugPrint('User cancelled google sign-in');
+        return;
+      }
+      debugPrint("Google sign-in failed: $error");
+      _showGoogleSignInError(
+          error.code == GoogleSignInExceptionCode.uiUnavailable
+              ? "Google Sign-In isn't available right now. Please try again."
+              : null);
+    } on FirebaseAuthException catch (error) {
+      // Web popup closed/replaced by the user - also a cancel, not a failure.
+      if (error.code == 'popup-closed-by-user' ||
+          error.code == 'cancelled-popup-request') {
+        return;
+      }
+      debugPrint("Google sign-in failed: ${error.code} ${error.message}");
+      _showGoogleSignInError(error.code == 'network-request-failed'
+          ? "Couldn't connect. Check your internet connection and try again."
+          : null);
+    } catch (error) {
+      debugPrint("Google sign-in failed: $error");
+      _showGoogleSignInError(null);
     }
+  }
+
+  void _showGoogleSignInError(String? message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message ??
+          "Google Sign-In didn't work. Please try again in a moment."),
+    ));
   }
 
   Future<void> _signInWithApple() async {

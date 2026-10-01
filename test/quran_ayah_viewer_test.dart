@@ -26,6 +26,7 @@ Future<void> _pump(
   AyahIndex? ayahIndex,
   int? bookmarkLineIndex,
   Set<VerseKey> savedVerses = const {},
+  bool settle = true,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -49,8 +50,17 @@ Future<void> _pump(
       ),
     ),
   );
-  await tester.pumpAndSettle();
+  if (settle) await tester.pumpAndSettle();
 }
+
+/// The opacity the reading list is currently drawn at.
+double _listOpacity(WidgetTester tester) => tester
+    .widget<Opacity>(
+      find
+          .ancestor(of: find.byType(ListView), matching: find.byType(Opacity))
+          .first,
+    )
+    .opacity;
 
 /// Two short surahs stitched together, the way a juz portion arrives.
 ({String data, AyahIndex index}) _portion() {
@@ -96,6 +106,13 @@ Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
     await tester.pumpAndSettle();
   }
 }
+
+/// The Imam Ali (as) watermark behind a verse, found by the asset it draws.
+final _aliWatermark = find.byWidgetPredicate((widget) =>
+    widget is Image &&
+    widget.image is AssetImage &&
+    (widget.image as AssetImage).assetName ==
+        'assets/images/ali_watermark.png');
 
 void main() {
   group('a juz portion', () {
@@ -286,7 +303,7 @@ void main() {
     });
   });
 
-  group('Imam Ali (as) badge', () {
+  group('Imam Ali (as) watermark', () {
     testWidgets('marks a curated verse and nothing else', (tester) async {
       // Surah 98 (al-Bayyina) has only 8 ayahs, and 98:7 is one of the
       // curated verses - short enough to render whole in a widget test, but
@@ -298,19 +315,19 @@ void main() {
       );
 
       await _scrollTo(tester, find.text('Translation of ayah 7'));
-      // The seal is a Container carrying the Arabic name, not an Icon - the
-      // name itself is what a test (and a reader) can actually spot.
-      expect(find.text('علي'), findsOneWidget);
+      expect(_aliWatermark, findsOneWidget);
+      // It is drawn behind the verse, not as a seal in a row above it.
+      expect(find.text('علي'), findsNothing);
     });
 
-    testWidgets('an uncurated surah shows no badge at all', (tester) async {
+    testWidgets('an uncurated surah shows no watermark at all', (tester) async {
       await _pump(
         tester,
         content: _surahContent(ayahs: 3),
         surahNumber: 1,
       );
 
-      expect(find.text('علي'), findsNothing);
+      expect(_aliWatermark, findsNothing);
     });
   });
 
@@ -572,6 +589,52 @@ void main() {
         tester.getTopLeft(find.text('Translation of ayah 25')).dy,
         greaterThan(arabicTop),
       );
+    });
+
+    testWidgets('is hidden while it lands, and shown once it has',
+        (tester) async {
+      // The landing takes several frames of jumps through unrelated verses;
+      // those must not be seen. But a list left hidden is a blank page, so
+      // it has to come back.
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 40),
+        surahNumber: 1,
+        initialVerse: const VerseKey(1, 25),
+        settle: false,
+      );
+      expect(_listOpacity(tester), 0, reason: 'the first frame is hidden');
+
+      await tester.pumpAndSettle();
+      expect(_listOpacity(tester), 1);
+      expect(find.text('Translation of ayah 25'), findsOneWidget);
+    });
+
+    testWidgets('a bookmark is hidden while it lands, and shown once it has',
+        (tester) async {
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 40),
+        surahNumber: 1,
+        // Ayah 25's Arabic line: the Bismillah, then 24 triplets.
+        bookmarkLineIndex: 1 + 24 * 3,
+        settle: false,
+      );
+      expect(_listOpacity(tester), 0, reason: 'the first frame is hidden');
+
+      await tester.pumpAndSettle();
+      expect(_listOpacity(tester), 1);
+      expect(find.text('Translation of ayah 25'), findsOneWidget);
+    });
+
+    testWidgets('is never hidden when no verse is asked for', (tester) async {
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 40),
+        surahNumber: 1,
+        settle: false,
+      );
+      expect(_listOpacity(tester), 1);
     });
 
     testWidgets('opens at the top when no verse is asked for', (tester) async {
