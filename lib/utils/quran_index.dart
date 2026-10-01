@@ -467,3 +467,29 @@ VerseKey _juzEndAt(int index) {
   final previousSurah = nextSurah - 1;
   return VerseKey(previousSurah, surahAyahCounts[previousSurah - 1]);
 }
+
+/// Ayahs before each surah, so `surah:ayah` maps to one position in the whole
+/// Quran (1-based) - what juz coverage and lookups count in.
+final List<int> _ayahsBeforeSurah = () {
+  final offsets = <int>[];
+  var running = 0;
+  for (final count in surahAyahCounts) {
+    offsets.add(running);
+    running += count;
+  }
+  return offsets;
+}();
+
+/// [surah]:[ayah] as a 1-based position across the whole Quran.
+int verseOrdinal(int surah, int ayah) => _ayahsBeforeSurah[surah - 1] + ayah;
+
+/// The juz (1-30) that [surah]:[ayah] falls in.
+int juzOf(int surah, int ayah) {
+  final ordinal = verseOrdinal(surah, ayah);
+  var juz = 1;
+  for (var i = 1; i < _juzStarts.length; i++) {
+    if (verseOrdinal(_juzStarts[i][0], _juzStarts[i][1]) > ordinal) break;
+    juz = i + 1;
+  }
+  return juz;
+}

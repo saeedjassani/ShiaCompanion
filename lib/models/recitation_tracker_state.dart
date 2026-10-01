@@ -334,6 +334,75 @@ class RecitationTrackerState {
     return total;
   }
 
+  /// How much of each of the thirty juz, 0.0-1.0, has been recited at least
+  /// once under [label] - the "map" of a khatm in progress, where gaps left
+  /// by reading out of order stay visible instead of hiding in one percentage.
+  List<double> juzCoverageFor(String label) {
+    final juzList = allJuz();
+    final covered = List<int>.filled(juzList.length, 0);
+    final bounds = [
+      for (final juz in juzList)
+        (
+          verseOrdinal(juz.start.surah, juz.start.ayah!),
+          verseOrdinal(juz.end.surah, juz.end.ayah!),
+        ),
+    ];
+    for (final surahEntry in _mergedRangesForLabel(label).entries) {
+      final surah = surahEntry.key;
+      if (!isSurahNumber(surah)) continue;
+      final maxAyah = surahAyahCounts[surah - 1];
+      for (final range in surahEntry.value) {
+        if (range.$1 > maxAyah) continue;
+        final from = verseOrdinal(surah, range.$1);
+        final to = verseOrdinal(surah, range.$2 > maxAyah ? maxAyah : range.$2);
+        for (var i = 0; i < bounds.length; i++) {
+          final (start, end) = bounds[i];
+          final lo = from > start ? from : start;
+          final hi = to < end ? to : end;
+          if (hi >= lo) covered[i] += hi - lo + 1;
+        }
+      }
+    }
+    return [
+      for (var i = 0; i < bounds.length; i++)
+        covered[i] / (bounds[i].$2 - bounds[i].$1 + 1),
+    ];
+  }
+
+  /// Juz recited end to end under [label].
+  int completedJuzCountFor(String label) =>
+      juzCoverageFor(label).where((fraction) => fraction >= 1).length;
+
+  /// The last verse of [label]'s most recent session - "recited till" - or
+  /// null before its first.
+  VerseKey? lastRecitedVerseFor(String label) {
+    RecitationEntry? latest;
+    for (final entry in entries.values) {
+      if (entry.label != label) continue;
+      if (latest == null || entry.recitedAt.isAfter(latest.recitedAt)) {
+        latest = entry;
+      }
+    }
+    return latest == null ? null : VerseKey(latest.surah, latest.toAyah);
+  }
+
+  /// Sessions per local calendar day for the trailing [days] days, the same
+  /// shape as [dailyVerseCounts].
+  Map<DateTime, int> dailySessionCounts(int days) {
+    final today = _dateOnly(DateTime.now());
+    final start = DateTime(today.year, today.month, today.day - (days - 1));
+    final counts = <DateTime, int>{
+      for (var i = 0; i < days; i++)
+        DateTime(start.year, start.month, start.day + i): 0,
+    };
+    for (final entry in entries.values) {
+      final day = _dateOnly(entry.recitedAt.toLocal());
+      if (day.isBefore(start) || day.isAfter(today)) continue;
+      counts[day] = (counts[day] ?? 0) + 1;
+    }
+    return counts;
+  }
+
   /// How much of the Quran, 0–100, has been recited at least once under
   /// [label].
   double percentCompleteFor(String label) {

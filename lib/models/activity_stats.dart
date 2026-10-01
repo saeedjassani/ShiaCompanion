@@ -347,6 +347,13 @@ class ActivitySummary {
     return streak;
   }
 
+  /// What was recorded on [day] - zikrs and qaza summed across devices.
+  DayActivity activityOn(DateTime day) =>
+      _days[_dateOnly(day)] ?? const DayActivity();
+
+  /// Quran verses recited on [day].
+  int quranVersesOn(DateTime day) => _quranVersesByDay[_dateOnly(day)] ?? 0;
+
   /// How many of the last [days] days (today included) were active.
   int activeDaysInLast(int days) {
     var count = 0;

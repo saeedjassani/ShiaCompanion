@@ -14,10 +14,10 @@ import '../../utils/quran_index.dart';
 import '../../utils/quran_text_index.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/responsive_content.dart';
+import '../my_stats_page.dart';
 import 'listen_and_follow_sheet.dart';
 import 'quran_collections_tab.dart';
 import 'quran_navigation.dart';
-import 'recitation_tracker_tab.dart';
 
 /// The Quran screen: your recitation tracks, a way to jump to any verse, the
 /// two ways of browsing - by surah and by juz - and the collections (duas,
@@ -95,12 +95,19 @@ class _QuranPageState extends State<QuranPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 3,
       initialIndex: widget.initialTabIndex,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Quran'),
           actions: [
+            // Recitation stats live on My Stats with the rest of the reader's
+            // stats, rather than in a tab of their own here.
+            IconButton(
+              icon: const Icon(Icons.insights_rounded),
+              tooltip: 'My Stats',
+              onPressed: () => pushPageRoute(context, const MyStatsPage()),
+            ),
             // Dark-launched alongside the rest of the Quran reading experience
             // (see zikr_page.dart's _surahNumber and home_menu.dart), so the
             // microphone prompt reaches nobody until the matching is known to
@@ -113,15 +120,14 @@ class _QuranPageState extends State<QuranPage> {
               ),
           ],
           bottom: const TabBar(
-            // Four labels don't fit a phone's width at fixed widths
-            // ("Collectio", "Recitatio"), so let them size to their text.
+            // "Collections" doesn't fit a third of a phone's width at a
+            // larger text size, so let the labels size to their text.
             isScrollable: true,
             tabAlignment: TabAlignment.center,
             tabs: [
               Tab(text: 'Surahs'),
               Tab(text: 'Juz'),
               Tab(text: 'Collections'),
-              Tab(text: 'Recitations'),
             ],
           ),
         ),
@@ -153,7 +159,6 @@ class _QuranPageState extends State<QuranPage> {
                       onRemoveSaved: _removeSaved,
                     ),
                   ),
-                  const RecitationTrackerTab(),
                 ],
               ),
             ),
