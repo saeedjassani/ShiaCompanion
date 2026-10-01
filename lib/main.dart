@@ -148,6 +148,14 @@ class MyApp extends StatelessWidget {
               backgroundColor: Colors.brown,
               foregroundColor: Colors.white,
             ),
+            // Tab bars sit inside the brown app bar, so Material's defaults
+            // (primary/onSurfaceVariant labels) would vanish against it.
+            tabBarTheme: TabBarThemeData(
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white70,
+              indicatorColor: Colors.white,
+              dividerColor: Colors.transparent,
+            ),
             bottomNavigationBarTheme:
                 BottomNavigationBarThemeData(backgroundColor: Colors.brown),
           ),

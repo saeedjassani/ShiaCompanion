@@ -934,10 +934,14 @@ class _ChapterPageState extends State<ChapterPage>
             if (bookSlug != null && bookSlug.trim().isNotEmpty) ...[
               IconButton(
                 icon: _isSharing
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        // Primary would vanish against the brown app bar.
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).appBarTheme.foregroundColor,
+                        ),
                       )
                     : const Icon(Icons.share),
                 tooltip: 'Share chapter',
@@ -945,10 +949,14 @@ class _ChapterPageState extends State<ChapterPage>
               ),
               IconButton(
                 icon: _isSaving
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        // Primary would vanish against the brown app bar.
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).appBarTheme.foregroundColor,
+                        ),
                       )
                     : Icon(_isSaved ? Icons.download_done : Icons.download),
                 tooltip: _isSaved ? 'Remove offline copy' : 'Save book offline',

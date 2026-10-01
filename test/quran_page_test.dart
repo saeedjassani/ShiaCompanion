@@ -197,7 +197,7 @@ void main() {
     // The list is lazy and runs well past one screen, so bring the verse
     // into view before looking for it.
     await tester.scrollUntilVisible(find.text('Surah5 55'), 200,
-        scrollable: find.byType(Scrollable).last);
+        scrollable: _verticalScrollable);
 
     expect(find.text('Surah5 55'), findsOneWidget);
     expect(
@@ -210,7 +210,7 @@ void main() {
     await openCollection(tester, 'Imam al-Mahdi (a.t.f.s.)');
 
     await tester.scrollUntilVisible(find.text('Surah11 86'), 200,
-        scrollable: find.byType(Scrollable).last);
+        scrollable: _verticalScrollable);
 
     expect(find.text('Surah11 86'), findsOneWidget);
     expect(find.text(mahdiRelatedNoteFor(const VerseKey(11, 86))!),
@@ -227,7 +227,7 @@ void main() {
     expect(find.text('Surah2 30-39'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Musa and al-Khidr'), 200,
-        scrollable: find.byType(Scrollable).last);
+        scrollable: _verticalScrollable);
     expect(find.text('Surah18 60-82'), findsOneWidget);
   });
 
@@ -244,3 +244,9 @@ void main() {
     expect(find.text('No saved verses yet'), findsOneWidget);
   });
 }
+
+// The tab bar scrolls sideways too, so pick the vertical list.
+final _verticalScrollable = find
+    .byWidgetPredicate((widget) =>
+        widget is Scrollable && widget.axisDirection == AxisDirection.down)
+    .last;
