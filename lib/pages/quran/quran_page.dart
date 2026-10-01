@@ -8,7 +8,8 @@ import '../../models/recitation_tracker_state.dart';
 import '../../services/analytics_service.dart';
 import '../../services/favorites_manager.dart';
 import '../../services/recitation_tracker_manager.dart';
-import '../../services/saved_verses_store.dart';
+import '../../services/saved_verses_manager.dart';
+import '../../models/saved_verse.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/quran_text_index.dart';
 import '../../widgets/favorite_icon.dart';
@@ -31,7 +32,6 @@ class QuranPage extends StatefulWidget {
 }
 
 class _QuranPageState extends State<QuranPage> {
-  List<SavedVerse> _saved = const [];
   late final List<SurahInfo> _surahs;
   late final List<Juz> _juz;
   bool _prewarmed = false;
@@ -42,8 +42,8 @@ class _QuranPageState extends State<QuranPage> {
     trackScreen('Quran Page');
     _surahs = allSurahs();
     _juz = allJuz();
-    _saved = SavedVersesStore.instance.readAll();
     unawaited(RecitationTrackerManager.instance.loadRecitations());
+    unawaited(SavedVersesManager.instance.loadSavedVerses());
   }
 
   /// Starts building the verse text index while the surah list is being read.
@@ -61,17 +61,9 @@ class _QuranPageState extends State<QuranPage> {
     prewarmQuranTextIndex(DefaultAssetBundle.of(context));
   }
 
-  /// The kept verses can have moved while the reader was away, so they are
-  /// re-read whenever the screen comes back.
-  void _refresh() {
-    _saved = SavedVersesStore.instance.readAll();
-  }
-
   Future<void> _open(VerseKey verse,
       {String source = ZikrOpenSource.quran}) async {
     await openQuranVerse(context, verse, source: source);
-    if (!mounted) return;
-    setState(_refresh);
   }
 
   /// Listens to a recitation and opens the verse it turns out to be.
@@ -93,14 +85,10 @@ class _QuranPageState extends State<QuranPage> {
 
   Future<void> _openJuz(int juz) async {
     await openQuranJuz(context, juz);
-    if (!mounted) return;
-    setState(_refresh);
   }
 
-  Future<void> _removeSaved(SavedVerse saved) async {
-    await SavedVersesStore.instance.remove(saved.verse);
-    if (!mounted) return;
-    setState(_refresh);
+  Future<void> _removeSaved(SavedVerse saved) {
+    return SavedVersesManager.instance.unsave(saved.verse);
   }
 
   @override
@@ -150,10 +138,15 @@ class _QuranPageState extends State<QuranPage> {
                 children: [
                   _SurahList(surahs: _surahs, onOpen: _open),
                   _JuzList(juz: _juz, onOpenJuz: _openJuz),
-                  QuranCollectionsTab(
-                    saved: _saved,
-                    onOpenVerse: _open,
-                    onRemoveSaved: _removeSaved,
+                  // Saved verses sync, so the list follows them - including a
+                  // verse saved on another device.
+                  ListenableBuilder(
+                    listenable: SavedVersesManager.instance,
+                    builder: (context, _) => QuranCollectionsTab(
+                      saved: SavedVersesManager.instance.state.inMushafOrder,
+                      onOpenVerse: _open,
+                      onRemoveSaved: _removeSaved,
+                    ),
                   ),
                   const RecitationTrackerTab(),
                 ],
