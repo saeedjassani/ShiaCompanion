@@ -32,7 +32,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
         title: const Text('Qaza Tracker'),
         actions: [
           IconButton(
-            tooltip: 'Add missed months or years',
+            tooltip: 'Calculate my qaza',
             icon: const Icon(Icons.calculate_outlined),
             onPressed: () => unawaited(_showEstimateSheet()),
           ),
@@ -349,7 +349,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
           FilledButton.icon(
             onPressed: () => unawaited(_showEstimateSheet()),
             icon: const Icon(Icons.calculate_outlined),
-            label: const Text('Add missed months or years'),
+            label: const Text('Calculate my qaza'),
           ),
         ],
       ),
@@ -608,7 +608,7 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Add a missed period',
+                'Calculate my qaza',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
