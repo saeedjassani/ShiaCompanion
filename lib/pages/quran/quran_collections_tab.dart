@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
+import '../../data/quran_duas.dart';
+import '../../data/quran_mahdi_verses.dart';
+import '../../data/quran_prophet_stories.dart';
 import '../../data/universal_data.dart';
 import '../../services/analytics_service.dart';
 import '../../services/favorites_manager.dart';
@@ -15,6 +18,8 @@ import '../../widgets/responsive_content.dart';
 enum QuranCollection {
   duas('Duas'),
   imamAli('Imam Ali (a.s.)'),
+  imamMahdi('Imam al-Mahdi (a.t.f.s.)'),
+  prophets('Prophets'),
   saved('Saved');
 
   const QuranCollection(this.label);
@@ -83,18 +88,19 @@ class _QuranCollectionsTabState extends State<QuranCollectionsTab> {
         ResponsiveContent(
           maxWidth: listContentWidth,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
+          // Wrapped rather than scrolled sideways: with five collections a
+          // single row runs off a phone screen and hides the last ones.
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
               children: [
                 for (final collection in QuranCollection.values)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(collection.label),
-                      selected: collection == _selected,
-                      onSelected: (_) => _select(collection),
-                    ),
+                  ChoiceChip(
+                    label: Text(collection.label),
+                    selected: collection == _selected,
+                    onSelected: (_) => _select(collection),
                   ),
               ],
             ),
@@ -108,9 +114,15 @@ class _QuranCollectionsTabState extends State<QuranCollectionsTab> {
   Widget _buildBody() {
     switch (_selected) {
       case QuranCollection.duas:
-        return const _QuranDuaList();
+        return _QuranDuaList(onOpenVerse: widget.onOpenVerse);
       case QuranCollection.imamAli:
-        return _AliVerseList(onOpen: widget.onOpenVerse);
+        return _NotedVerseList(
+            notes: quranAliVerses, onOpen: widget.onOpenVerse);
+      case QuranCollection.imamMahdi:
+        return _NotedVerseList(
+            notes: quranMahdiVerses, onOpen: widget.onOpenVerse);
+      case QuranCollection.prophets:
+        return _ProphetStoryList(onOpen: widget.onOpenVerse);
       case QuranCollection.saved:
         return _SavedVerseList(
           saved: widget.saved,
@@ -127,38 +139,73 @@ String _verseTitle(VerseKey verse) {
 }
 
 /// Ayat al Kursi and the duas recited with the Quran - the non-surah zikrs of
-/// the Quran category, opened like any other zikr.
+/// the Quran category, opened like any other zikr - followed by the duas the
+/// Quran itself contains ([quranDuas]), opened in the reader at their ayah.
 class _QuranDuaList extends StatelessWidget {
-  const _QuranDuaList();
+  const _QuranDuaList({required this.onOpenVerse});
+
+  final void Function(VerseKey verse) onOpenVerse;
 
   @override
   Widget build(BuildContext context) {
     final uids = quranCompanionZikrUids();
+    final theme = Theme.of(context);
+
+    // Zikr rows, then a heading, then the verse duas.
+    final itemCount = uids.length + 1 + quranDuas.length;
 
     return ResponsiveContent(
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemCount: uids.length,
+        separatorBuilder: (context, index) =>
+            index >= uids.length - 1 && index <= uids.length
+                ? const SizedBox.shrink()
+                : const Divider(height: 1),
+        itemCount: itemCount,
         itemBuilder: (context, index) {
-          // The same UniversalData shape the category lists build, so the
-          // favourite here is the same favourite as in the old Surahs list.
-          final itemData =
-              UniversalData(uids[index], items[uids[index]].toString(), 0);
+          if (index < uids.length) {
+            // The same UniversalData shape the category lists build, so the
+            // favourite here is the same favourite as in the old Surahs list.
+            final itemData =
+                UniversalData(uids[index], items[uids[index]].toString(), 0);
+
+            return ListTile(
+              title: Text(itemData.title),
+              trailing: InkWell(
+                onTap: () => FavoritesManager.instance.toggleFavorite(itemData),
+                child: FavoriteIcon(favorite: itemData),
+              ),
+              onTap: () => handleUniversalDataClick(
+                context,
+                itemData,
+                source: ZikrOpenSource.quran,
+              ),
+            );
+          }
+
+          if (index == uids.length) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+              child: Text(
+                'From the Quran',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            );
+          }
+
+          final dua = quranDuas[index - uids.length - 1];
+          final reference = dua.endAyah == null
+              ? _verseTitle(dua.verse)
+              : '${_verseTitle(dua.verse)}-${dua.endAyah}';
 
           return ListTile(
-            title: Text(itemData.title),
-            trailing: InkWell(
-              onTap: () => FavoritesManager.instance.toggleFavorite(itemData),
-              child: FavoriteIcon(favorite: itemData),
-            ),
-            onTap: () => handleUniversalDataClick(
-              context,
-              itemData,
-              source: ZikrOpenSource.quran,
-            ),
+            title: Text(dua.opening),
+            subtitle: Text('$reference · ${dua.note}'),
+            onTap: () => onOpenVerse(dua.verse),
           );
         },
       ),
@@ -166,16 +213,18 @@ class _QuranDuaList extends StatelessWidget {
   }
 }
 
-/// The curated verses about Imam Ali (as), in mushaf order, each with the
-/// occasion it is known by.
-class _AliVerseList extends StatelessWidget {
-  const _AliVerseList({required this.onOpen});
+/// A curated verse collection - the verses about Imam Ali (a.s.)
+/// ([quranAliVerses]) or Imam al-Mahdi (a.t.f.s.) ([quranMahdiVerses]) - in
+/// mushaf order, each with the note it is known by.
+class _NotedVerseList extends StatelessWidget {
+  const _NotedVerseList({required this.notes, required this.onOpen});
 
+  final Map<VerseKey, String> notes;
   final void Function(VerseKey verse) onOpen;
 
   @override
   Widget build(BuildContext context) {
-    final verses = quranAliVerses.keys.toList()
+    final verses = notes.keys.toList()
       ..sort((a, b) => a.surah != b.surah
           ? a.surah.compareTo(b.surah)
           : (a.ayah ?? 0).compareTo(b.ayah ?? 0));
@@ -191,8 +240,65 @@ class _AliVerseList extends StatelessWidget {
           final verse = verses[index];
           return ListTile(
             title: Text(_verseTitle(verse)),
-            subtitle: Text(quranAliVerses[verse]!),
+            subtitle: Text(notes[verse]!),
             onTap: () => onOpen(verse),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// The stories of the prophets ([quranProphetStories]), under a heading per
+/// prophet, each opened in the reader at its first ayah.
+class _ProphetStoryList extends StatelessWidget {
+  const _ProphetStoryList({required this.onOpen});
+
+  final void Function(VerseKey verse) onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // A heading row before the first story of each prophet.
+    final rows = <Object>[];
+    for (final story in quranProphetStories) {
+      if (rows.isEmpty || (rows.last as QuranStory).prophet != story.prophet) {
+        rows.add(story.prophet);
+      }
+      rows.add(story);
+    }
+
+    return ResponsiveContent(
+      maxWidth: listContentWidth,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: rows.length,
+        itemBuilder: (context, index) {
+          final row = rows[index];
+          if (row is String) {
+            return Padding(
+              padding: EdgeInsets.fromLTRB(16, index == 0 ? 8 : 20, 16, 4),
+              child: Text(
+                row,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            );
+          }
+
+          final story = row as QuranStory;
+          final start = _verseTitle(story.verse);
+          final reference = story.endAyah == story.verse.ayah
+              ? start
+              : '$start-${story.endAyah}';
+
+          return ListTile(
+            title: Text(story.title),
+            subtitle: Text(reference),
+            onTap: () => onOpen(story.verse),
           );
         },
       ),

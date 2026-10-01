@@ -21,7 +21,8 @@ import 'recitation_tracker_tab.dart';
 
 /// The Quran screen: your recitation tracks, a way to jump to any verse, the
 /// two ways of browsing - by surah and by juz - and the collections (duas,
-/// verses about Imam Ali (as), saved verses).
+/// verses about Imam Ali (as) and Imam al-Mahdi (atfs), the prophets'
+/// stories, saved verses).
 class QuranPage extends StatefulWidget {
   const QuranPage({super.key, this.initialTabIndex = 0});
 
