@@ -15,6 +15,11 @@ service cloud.firestore {
     match /users/{userId}/recitation_tracker/{docId} {
       allow read, write: if request.auth.uid == userId;
     }
+    // Saved Quran verses (SavedVersesManager): one doc, kept apart from the
+    // recitation tracker's so neither feature's writes can clobber the other.
+    match /users/{userId}/saved_verses/{docId} {
+      allow read, write: if request.auth.uid == userId;
+    }
     match /users/{userId}/settings/{docId} {
       allow read, write: if request.auth.uid == userId;
     }

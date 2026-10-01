@@ -7,7 +7,8 @@ import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
 
 /// Syncs the reading preferences that used to live only in SharedPreferences
-/// — Hijri date adjustment, Arabic/English font size, Arabic font — to the
+/// — Hijri date adjustment, Arabic/English font size, Arabic font, and the
+/// recording chosen on each zikr page that has several — to the
 /// signed-in account, the same way [FavoritesManager] and
 /// [QazaTrackerManager] already sync favorites and qaza.
 ///
@@ -28,6 +29,15 @@ class PreferencesSyncService {
   static const String _arabicFontSizeField = 'arabicFontSize';
   static const String _englishFontSizeField = 'englishFontSize';
   static const String _arabicFontField = 'arabicFont';
+
+  /// Content uid -> the [ZikrAudioTrack.file] chosen in that zikr's player.
+  static const String _audioTracksField = 'audioTracks';
+
+  static const String _audioTrackPrefPrefix = 'zikr_audio_track_';
+
+  /// Where this device keeps the recording chosen for zikr [contentUid].
+  static String audioTrackPrefKey(String contentUid) =>
+      '$_audioTrackPrefPrefix$contentUid';
 
   /// Widget tests build [ZikrReadingPreferencesControls] without standing up
   /// Firebase, so every entry point below has to tolerate "no app" rather
@@ -79,6 +89,19 @@ class PreferencesSyncService {
   Future<void> pushArabicFont() =>
       _pushIfSignedIn({_arabicFontField: arabicFont});
 
+  /// Remembers [file] as the recording to open zikr [contentUid] on, here
+  /// and on the reader's other devices.
+  Future<void> setAudioTrack(String contentUid, String file) async {
+    if (SP.isInitialized) {
+      await SP.prefs.setString(audioTrackPrefKey(contentUid), file);
+    }
+    // A nested map with merge: true adds this one zikr's entry without
+    // replacing the others'.
+    await _pushIfSignedIn({
+      _audioTracksField: {contentUid: file},
+    });
+  }
+
   /// Removes the synced document. Called when an account is deleted, so
   /// "delete my account" genuinely deletes everything it says it does.
   Future<void> deleteSyncedPreferences(String userId) async {
@@ -96,6 +119,12 @@ class PreferencesSyncService {
         _arabicFontSizeField: arabicFontSize,
         _englishFontSizeField: englishFontSize,
         _arabicFontField: arabicFont,
+        _audioTracksField: {
+          for (final key in SP.prefs.getKeys())
+            if (key.startsWith(_audioTrackPrefPrefix))
+              key.substring(_audioTrackPrefPrefix.length):
+                  SP.prefs.getString(key),
+        },
       };
 
   Future<void> _applyRemote(Map<String, dynamic> data) async {
@@ -121,6 +150,15 @@ class PreferencesSyncService {
     if (font is String && FontPreferences.validFonts.contains(font)) {
       arabicFont = font;
       await FontPreferences.setSelectedFont(font);
+    }
+
+    final tracks = data[_audioTracksField];
+    if (tracks is Map) {
+      for (final entry in tracks.entries) {
+        final file = entry.value;
+        if (file is! String || file.isEmpty) continue;
+        await SP.prefs.setString(audioTrackPrefKey('${entry.key}'), file);
+      }
     }
   }
 

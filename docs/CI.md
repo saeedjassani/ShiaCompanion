@@ -306,8 +306,14 @@ If a future Xcode breaks the build again, the failure belongs in the open
 rather than behind `continue-on-error`. Pin `runs-on` to the last known good
 `macos-NN` deliberately and for as short a time as possible.
 
-## Pinned versions
+## Flutter version
 
-`FLUTTER_VERSION` is pinned in each workflow. `channel: stable` previously
-tracked whatever Flutter released, which is a way for CI to break with no code
-change. Bump it deliberately.
+Every workflow installs the latest Flutter release on the `stable` channel
+(`subosito/flutter-action` with `channel: stable` and no `flutter-version`).
+There is no pinned version to bump: CI, the web releases and Claude Code web
+sessions (`.claude/hooks/session-start.sh`) all pick up a new stable release
+as soon as it ships.
+
+The trade-off is that a new Flutter release can turn CI red, or change a web
+release build, with no code change in this repo. When that happens, fix the
+code for the new release rather than pinning an old one.

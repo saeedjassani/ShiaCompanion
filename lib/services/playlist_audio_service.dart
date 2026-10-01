@@ -85,8 +85,26 @@ class PlaylistAudioService extends ChangeNotifier {
     return _queue[index];
   }
 
-  /// Every recording of every zikr in [zikrUids], in order. Zikrs with no
-  /// recording are skipped rather than failing the whole queue.
+  /// How many zikrs the queue plays. Not [queue]'s length: a zikr with
+  /// several recordings (a salat and the dua after it) is still one entry in
+  /// the playlist the reader sees.
+  int get zikrCount => _queue.map((entry) => entry.zikrUid).toSet().length;
+
+  /// The 1-based position of the playing zikr among [zikrCount], or null
+  /// when nothing is playing.
+  int? get zikrPosition {
+    final index = currentIndex;
+    if (index == null || index < 0 || index >= _queue.length) return null;
+    final seen = <String>{};
+    for (var i = 0; i <= index; i++) {
+      seen.add(_queue[i].zikrUid);
+    }
+    return seen.length;
+  }
+
+  /// The recordings [tracksFor] gives for every zikr in [zikrUids], in order
+  /// - for a playlist, the ones the reader chose. Zikrs with no recording are
+  /// skipped rather than failing the whole queue.
   static List<PlaylistQueueEntry> buildQueue(
     List<String> zikrUids, {
     required List<ZikrAudioTrack> Function(String uid) tracksFor,
@@ -139,7 +157,7 @@ class PlaylistAudioService extends ChangeNotifier {
       await Future.wait([audio.load(), downloads.load()]);
       var queue = buildQueue(
         playlist.zikrUids,
-        tracksFor: audio.tracksFor,
+        tracksFor: (uid) => playlist.tracksFor(uid, audio.tracksFor(uid)),
         titleFor: _indexTitle,
       );
       if (queue.isEmpty) return PlaylistStartResult.nothingToPlay;

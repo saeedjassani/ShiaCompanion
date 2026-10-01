@@ -24,6 +24,10 @@ class ZikrActionBar extends StatelessWidget {
   final Widget? player;
 
   final bool hasAudio;
+
+  /// False drops the bookmark action altogether, as for Quran, where a
+  /// recitation track keeps the reader's place instead.
+  final bool showBookmark;
   final bool canBookmark;
   final bool isBookmarked;
   final bool canShare;
@@ -39,6 +43,7 @@ class ZikrActionBar extends StatelessWidget {
     Key? key,
     this.player,
     required this.hasAudio,
+    this.showBookmark = true,
     required this.canBookmark,
     required this.isBookmarked,
     required this.canShare,
@@ -83,14 +88,15 @@ class ZikrActionBar extends StatelessWidget {
   Widget _buildActions(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: _ZikrAction(
-            icon: isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-            label: isBookmarked ? 'Saved' : 'Bookmark',
-            isActive: isBookmarked,
-            onTap: canBookmark ? onBookmark : null,
+        if (showBookmark)
+          Expanded(
+            child: _ZikrAction(
+              icon: isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+              label: isBookmarked ? 'Saved' : 'Bookmark',
+              isActive: isBookmarked,
+              onTap: canBookmark ? onBookmark : null,
+            ),
           ),
-        ),
         Expanded(
           child: _ZikrAction(
             icon: Icons.share,

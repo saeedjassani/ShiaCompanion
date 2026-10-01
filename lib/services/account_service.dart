@@ -10,6 +10,7 @@ import 'prayer_preferences_sync_service.dart';
 import 'preferences_sync_service.dart';
 import 'qaza_tracker_manager.dart';
 import 'recitation_tracker_manager.dart';
+import 'saved_verses_manager.dart';
 
 class AccountActionException implements Exception {
   final String message;
@@ -96,6 +97,7 @@ class AccountService {
       await QazaTrackerManager.instance.deleteAllQazaData(deletionUser.uid);
       await RecitationTrackerManager.instance
           .deleteAllRecitationData(deletionUser.uid);
+      await SavedVersesManager.instance.deleteAllSavedVerses(deletionUser.uid);
       await PreferencesSyncService.instance
           .deleteSyncedPreferences(deletionUser.uid);
       await PrayerPreferencesSyncService.instance

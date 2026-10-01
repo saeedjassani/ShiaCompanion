@@ -25,6 +25,7 @@ class AzanPlayingBanner extends StatefulWidget {
 class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
   Timer? _poll;
   bool _playing = false;
+  bool _paused = false;
   String? _prayerName;
 
   @override
@@ -46,13 +47,23 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
     final playing = await AzanPlaybackService.isPlaying();
     final prayerName =
         playing ? await AzanPlaybackService.currentPrayerName() : null;
+    final paused = playing && await AzanPlaybackService.isPaused();
     if (!mounted) return;
-    if (playing != _playing || prayerName != _prayerName) {
+    if (playing != _playing || paused != _paused || prayerName != _prayerName) {
       setState(() {
         _playing = playing;
+        _paused = paused;
         _prayerName = prayerName;
       });
     }
+  }
+
+  Future<void> _resume() async {
+    await AzanPlaybackService.resumeIfPaused();
+    // The player reports resuming asynchronously, often from another
+    // isolate - give it a moment rather than waiting out the next poll.
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    await _check();
   }
 
   Future<void> _stop() async {
@@ -75,16 +86,28 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
           padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
           child: Row(
             children: [
-              Icon(Icons.volume_up_rounded, color: onContainer),
+              Icon(
+                _paused
+                    ? Icons.pause_circle_outline_rounded
+                    : Icons.volume_up_rounded,
+                color: onContainer,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  '${_prayerName ?? 'Prayer'} Azan is playing',
+                  '${_prayerName ?? 'Prayer'} Azan '
+                  '${_paused ? 'is paused' : 'is playing'}',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: onContainer,
                   ),
                 ),
               ),
+              if (_paused)
+                TextButton(
+                  onPressed: _resume,
+                  style: TextButton.styleFrom(foregroundColor: onContainer),
+                  child: const Text('Resume'),
+                ),
               TextButton(
                 onPressed: _stop,
                 style: TextButton.styleFrom(foregroundColor: onContainer),
