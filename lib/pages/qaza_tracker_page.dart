@@ -33,7 +33,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
         actions: [
           IconButton(
             tooltip: 'Calculate my qaza',
-            icon: const Icon(Icons.calculate_outlined),
+            icon: const Icon(Icons.edit_calendar_outlined),
             onPressed: () => unawaited(_showEstimateSheet()),
           ),
         ],
@@ -348,7 +348,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
           const SizedBox(height: 14),
           FilledButton.icon(
             onPressed: () => unawaited(_showEstimateSheet()),
-            icon: const Icon(Icons.calculate_outlined),
+            icon: const Icon(Icons.edit_calendar_outlined),
             label: const Text('Calculate my qaza'),
           ),
         ],
