@@ -120,4 +120,30 @@ void main() {
       lessThan(tester.getTopLeft(find.text('Zikr (30)')).dy),
     );
   });
+
+  testWidgets('on an equally good match, Zikr stays ahead of the Quran',
+      (tester) async {
+    final delegate = DataSearch([
+      UidTitleData('A5', '1: Al-Fatihah الفاتحة'),
+      UidTitleData('AA47', 'Farewell Prayer of Ramazan'),
+    ]);
+    await tester.pumpWidget(MaterialApp(
+      home: Builder(
+        builder: (context) => TextButton(
+          onPressed: () => showSearch(context: context, delegate: delegate),
+          child: const Text('search'),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('search'));
+    await tester.pumpAndSettle();
+    delegate.query = 'fa';
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(
+      tester.getTopLeft(find.text('Zikr (1)')).dy,
+      lessThan(tester.getTopLeft(find.text('Quran (1)')).dy),
+    );
+  });
 }

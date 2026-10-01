@@ -220,19 +220,16 @@ class DataSearch extends SearchDelegate<String> {
           if (_sources.contains(source) && bySource[source]!.isNotEmpty) source,
       ];
       // The section with the better match goes first. Results arrive ranked,
-      // so a section's first entry is its best. A tie goes to the Quran: it
-      // is a few rows where Zikr can be sixty, and "fa" should not bury
-      // Al-Fatihah under every zikr that mentions Fajr.
+      // so a section's first entry is its best. Ties keep the chip order;
+      // someone after a surah can switch Zikr off.
       final bestRank = {
         for (final source in shown)
           source: searchMatchRank(
               bySource[source]!.first.title, query.trim().toLowerCase()),
       };
-      int tieOrder(SearchSource source) =>
-          source == SearchSource.quran ? -1 : source.index;
       shown.sort((a, b) => bestRank[a] != bestRank[b]
           ? bestRank[a]! - bestRank[b]!
-          : tieOrder(a) - tieOrder(b));
+          : a.index - b.index);
       final hidden = [
         for (final source in SearchSource.values)
           if (!_sources.contains(source) && bySource[source]!.isNotEmpty)
