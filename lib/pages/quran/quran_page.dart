@@ -113,6 +113,10 @@ class _QuranPageState extends State<QuranPage> {
               ),
           ],
           bottom: const TabBar(
+            // Four labels don't fit a phone's width at fixed widths
+            // ("Collectio", "Recitatio"), so let them size to their text.
+            isScrollable: true,
+            tabAlignment: TabAlignment.center,
             tabs: [
               Tab(text: 'Surahs'),
               Tab(text: 'Juz'),

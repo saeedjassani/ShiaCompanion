@@ -79,7 +79,8 @@ class _HadithPageState extends State<HadithPage> {
                 ),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                 filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(100),
+                // Opaque, so the field reads against the brown app bar too.
+                fillColor: Theme.of(context).colorScheme.surface,
               ),
             ),
           ),
@@ -117,7 +118,8 @@ class _HadithPageState extends State<HadithPage> {
         final hadithText = _filteredHadith[index];
         final parts = hadithText.split('\n[');
         final arabicText = parts[0].trim();
-        final source = parts.length > 1 ? '[${parts.sublist(1).join('\n[')}' : '';
+        final source =
+            parts.length > 1 ? '[${parts.sublist(1).join('\n[')}' : '';
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 6),

@@ -194,10 +194,14 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
         actions: [
           IconButton(
             icon: _isSharing
-                ? const SizedBox(
+                ? SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    // Primary would vanish against the brown app bar.
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Theme.of(context).appBarTheme.foregroundColor,
+                    ),
                   )
                 : const Icon(Icons.share),
             tooltip: 'Share book',
@@ -205,10 +209,14 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
           ),
           IconButton(
             icon: _isSaving
-                ? const SizedBox(
+                ? SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    // Primary would vanish against the brown app bar.
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Theme.of(context).appBarTheme.foregroundColor,
+                    ),
                   )
                 : Icon(_isSaved ? Icons.download_done : Icons.download),
             tooltip: _isSaved ? 'Remove offline copy' : 'Save book offline',
