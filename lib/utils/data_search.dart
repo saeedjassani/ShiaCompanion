@@ -25,11 +25,11 @@ class DataSearch extends SearchDelegate<String> {
   /// Remembers which sources the last search had switched on.
   static const String sourcesPrefKey = 'search_sources';
 
-  /// Duas and the Quran by default: most searches are for a dua, ziyarat or
+  /// Zikr and the Quran by default: most searches are for a dua, ziyarat or
   /// surah, and a hundred book titles matching a common word like "prayer"
   /// bury them.
   static const Set<SearchSource> defaultSources = {
-    SearchSource.duas,
+    SearchSource.zikr,
     SearchSource.quran,
   };
 
@@ -58,7 +58,7 @@ class DataSearch extends SearchDelegate<String> {
   SearchSource _sourceOf(UidTitleData entry) {
     if (libraryUids.contains(entry.uid)) return SearchSource.library;
     if (surahForUid(entry.uid) != null) return SearchSource.quran;
-    return SearchSource.duas;
+    return SearchSource.zikr;
   }
 
   /// How long the query has to stop changing before it counts as a search.
@@ -287,7 +287,7 @@ class DataSearch extends SearchDelegate<String> {
 
 /// The kinds of result search can list, each with its own filter chip.
 enum SearchSource {
-  duas('Duas', Icons.menu_book_outlined),
+  zikr('Zikr', Icons.menu_book_outlined),
   quran('Quran', Icons.auto_stories_outlined),
   library('Library', Icons.local_library_outlined);
 
