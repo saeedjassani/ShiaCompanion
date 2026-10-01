@@ -32,7 +32,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
         title: const Text('Qaza Tracker'),
         actions: [
           IconButton(
-            tooltip: 'Add missed prayers in bulk',
+            tooltip: 'Add missed months or years',
             icon: const Icon(Icons.calculate_outlined),
             onPressed: () => unawaited(_showEstimateSheet()),
           ),
@@ -349,7 +349,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
           FilledButton.icon(
             onPressed: () => unawaited(_showEstimateSheet()),
             icon: const Icon(Icons.calculate_outlined),
-            label: const Text('Add missed prayers in bulk'),
+            label: const Text('Add missed months or years'),
           ),
         ],
       ),
