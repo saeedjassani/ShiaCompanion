@@ -7,6 +7,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/utils/data_search_filter.dart';
+import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
@@ -19,23 +20,45 @@ class DataSearch extends SearchDelegate<String> {
   DataSearch(
     this.listWords, {
     this.libraryUids = const {},
-  }) : _includeLibrary = SP.isInitialized &&
-            (SP.prefs.getBool(includeLibraryPrefKey) ?? false);
+  }) : _sources = _loadSources();
 
-  /// Remembers whether the last search had library books switched on.
-  static const String includeLibraryPrefKey = 'search_include_library';
+  /// Remembers which sources the last search had switched on.
+  static const String sourcesPrefKey = 'search_sources';
 
-  /// Whether library books are listed alongside duas and the Quran.
-  ///
-  /// Off by default: most searches are for a dua, ziyarat or surah, and a
-  /// hundred book titles matching a common word like "prayer" bury them.
-  bool _includeLibrary;
+  /// Duas and the Quran by default: most searches are for a dua, ziyarat or
+  /// surah, and a hundred book titles matching a common word like "prayer"
+  /// bury them.
+  static const Set<SearchSource> defaultSources = {
+    SearchSource.duas,
+    SearchSource.quran,
+  };
 
-  void _setIncludeLibrary(bool value) {
-    _includeLibrary = value;
+  /// Which kinds of result are listed. Chosen with the chips above the list.
+  Set<SearchSource> _sources;
+
+  static Set<SearchSource> _loadSources() {
+    final saved =
+        SP.isInitialized ? SP.prefs.getStringList(sourcesPrefKey) : null;
+    if (saved == null) return {...defaultSources};
+    return {
+      for (final source in SearchSource.values)
+        if (saved.contains(source.name)) source,
+    };
+  }
+
+  void _setSourceEnabled(SearchSource source, bool enabled) {
+    _sources = {..._sources};
+    enabled ? _sources.add(source) : _sources.remove(source);
     if (SP.isInitialized) {
-      unawaited(SP.prefs.setBool(includeLibraryPrefKey, value));
+      unawaited(SP.prefs
+          .setStringList(sourcesPrefKey, [for (final s in _sources) s.name]));
     }
+  }
+
+  SearchSource _sourceOf(UidTitleData entry) {
+    if (libraryUids.contains(entry.uid)) return SearchSource.library;
+    if (surahForUid(entry.uid) != null) return SearchSource.quran;
+    return SearchSource.duas;
   }
 
   /// How long the query has to stop changing before it counts as a search.
@@ -182,30 +205,45 @@ class DataSearch extends SearchDelegate<String> {
   Widget _buildBody(BuildContext context) {
     return StatefulBuilder(builder: (context, setBodyState) {
       final results = _filteredResults();
-      final zikrResults =
-          results.where((e) => !libraryUids.contains(e.uid)).toList();
-      final libraryResults =
-          results.where((e) => libraryUids.contains(e.uid)).toList();
+      final bySource = {
+        for (final source in SearchSource.values) source: <UidTitleData>[],
+      };
+      for (final entry in results) {
+        bySource[_sourceOf(entry)]!.add(entry);
+      }
 
-      void toggleLibrary(bool value) =>
-          setBodyState(() => _setIncludeLibrary(value));
+      void toggle(SearchSource source, bool enabled) =>
+          setBodyState(() => _setSourceEnabled(source, enabled));
+
+      final shown = [
+        for (final source in SearchSource.values)
+          if (_sources.contains(source) && bySource[source]!.isNotEmpty) source,
+      ];
+      final hidden = [
+        for (final source in SearchSource.values)
+          if (!_sources.contains(source) && bySource[source]!.isNotEmpty)
+            source,
+      ];
 
       final rows = <Widget>[
-        for (final entry in zikrResults) _buildSearchTile(context, entry),
-        if (libraryResults.isNotEmpty && _includeLibrary) ...[
-          _LibraryHeader(count: libraryResults.length),
-          for (final entry in libraryResults) _buildSearchTile(context, entry),
+        for (final source in shown) ...[
+          // A lone section needs no heading; the chips already say what it is.
+          if (shown.length > 1)
+            _SectionHeader(
+                label: source.label, count: bySource[source]!.length),
+          for (final entry in bySource[source]!)
+            _buildSearchTile(context, entry),
         ],
-        // With books switched off, still say they are there — otherwise a
-        // search that only a book matches looks like it found nothing.
-        if (libraryResults.isNotEmpty && !_includeLibrary)
+        // A switched-off source still says it has matches — otherwise a search
+        // that only, say, a book matches looks like it found nothing.
+        for (final source in hidden)
           ListTile(
-            leading: const Icon(Icons.menu_book_outlined),
-            title: Text(libraryResults.length == 1
-                ? '1 match in Library'
-                : '${libraryResults.length} matches in Library'),
+            leading: Icon(source.icon),
+            title: Text(bySource[source]!.length == 1
+                ? '1 match in ${source.label}'
+                : '${bySource[source]!.length} matches in ${source.label}'),
             trailing: const Text('Show'),
-            onTap: () => toggleLibrary(true),
+            onTap: () => toggle(source, true),
           ),
         if (query.trim().isNotEmpty && results.isEmpty)
           const Padding(
@@ -225,12 +263,12 @@ class DataSearch extends SearchDelegate<String> {
               child: Wrap(
                 spacing: 8,
                 children: [
-                  FilterChip(
-                    avatar: const Icon(Icons.menu_book_outlined, size: 18),
-                    label: const Text('Include Library'),
-                    selected: _includeLibrary,
-                    onSelected: toggleLibrary,
-                  ),
+                  for (final source in SearchSource.values)
+                    FilterChip(
+                      label: Text(source.label),
+                      selected: _sources.contains(source),
+                      onSelected: (enabled) => toggle(source, enabled),
+                    ),
                 ],
               ),
             ),
@@ -247,9 +285,22 @@ class DataSearch extends SearchDelegate<String> {
   }
 }
 
-class _LibraryHeader extends StatelessWidget {
-  const _LibraryHeader({required this.count});
+/// The kinds of result search can list, each with its own filter chip.
+enum SearchSource {
+  duas('Duas', Icons.menu_book_outlined),
+  quran('Quran', Icons.auto_stories_outlined),
+  library('Library', Icons.local_library_outlined);
 
+  const SearchSource(this.label, this.icon);
+
+  final String label;
+  final IconData icon;
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.label, required this.count});
+
+  final String label;
   final int count;
 
   @override
@@ -258,7 +309,7 @@ class _LibraryHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Text(
-        'Library ($count)',
+        '$label ($count)',
         style: theme.textTheme.titleSmall
             ?.copyWith(color: theme.colorScheme.primary),
       ),

@@ -12,6 +12,12 @@ void main() {
     final delegate = DataSearch(
       [
         UidTitleData('E1', 'Dua Kumayl'),
+        UidTitleData('E2', 'Dua for Light'),
+        // A5 holds surah 1; A4 is Ayat al-Kursi, filed with the Quran but not a
+        // surah, so it counts as a dua.
+        UidTitleData('A5', '1: Al-Fatihah الفاتحة'),
+        UidTitleData('A4', 'Ayat al-Kursi'),
+        UidTitleData('A28', '24: An-Nur النور'),
         UidTitleData('B1', 'Commentary on Dua Kumayl', author: 'Ansariyan'),
         UidTitleData('B2', 'Light Within Me', author: 'Ansariyan'),
       ],
@@ -46,7 +52,7 @@ void main() {
       (tester) async {
     await openSearch(tester, 'kumayl');
 
-    await tester.tap(find.text('Include Library'));
+    await tester.tap(find.widgetWithText(FilterChip, 'Library'));
     await tester.pumpAndSettle();
 
     expect(find.text('Library (1)'), findsOneWidget);
@@ -61,5 +67,28 @@ void main() {
 
     expect(find.text('No results'), findsNothing);
     expect(find.text('2 matches in Library'), findsOneWidget);
+  });
+
+  testWidgets('duas and Quran are separate sections, both on by default',
+      (tester) async {
+    await openSearch(tester, 'a');
+
+    expect(find.text('Duas (3)'), findsOneWidget);
+    expect(find.text('Quran (2)'), findsOneWidget);
+    expect(find.text('Ayat al-Kursi'), findsOneWidget);
+    expect(find.text('2 matches in Library'), findsOneWidget);
+  });
+
+  testWidgets('switching Duas off leaves only the Quran', (tester) async {
+    await openSearch(tester, 'a');
+
+    await tester.tap(find.widgetWithText(FilterChip, 'Duas'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dua Kumayl'), findsNothing);
+    expect(find.text('1: Al-Fatihah الفاتحة'), findsOneWidget);
+    // One section left, so no heading.
+    expect(find.text('Quran (2)'), findsNothing);
+    expect(find.text('3 matches in Duas'), findsOneWidget);
   });
 }
