@@ -20,6 +20,11 @@ service cloud.firestore {
     match /users/{userId}/saved_verses/{docId} {
       allow read, write: if request.auth.uid == userId;
     }
+    // Zikr bookmarks (ZikrBookmarksManager): one doc, its own for the same
+    // reason saved verses have theirs.
+    match /users/{userId}/zikr_bookmarks/{docId} {
+      allow read, write: if request.auth.uid == userId;
+    }
     match /users/{userId}/settings/{docId} {
       allow read, write: if request.auth.uid == userId;
     }

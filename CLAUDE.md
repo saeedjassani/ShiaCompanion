@@ -2,6 +2,25 @@
 
 ## TODO / follow-ups
 
+- **Trim Firestore cost of the synced-data managers.** Zikr bookmarks
+  (`lib/services/zikr_bookmarks_manager.dart`, PR #176) copied
+  `SavedVersesManager`'s sync pattern, including two avoidable costs:
+  - **Migration writes one transaction per item.** `_importDeviceBookmarks`
+    (and `SavedVersesManager._importDeviceSavedVerses`) queue each device
+    item separately, and `syncPendingOperations` replays them one
+    transaction each - a user with 30 old bookmarks costs 30 reads + 30
+    writes on first launch. Merge them into the remote doc in a single
+    transaction instead (one read + one write), then clear the queue.
+  - **Each launch reads the doc twice.** `loadX()` does a `get()` and then
+    attaches a snapshot listener whose first server snapshot is billed
+    again. Relying on the listener alone would save one read per manager
+    per launch - but every synced manager (favorites, qaza, recitation
+    tracker, saved verses, bookmarks) does the same, so change them
+    together, not one at a time.
+  - Related correctness gap, not cost: removals leave no tombstone, so a
+    save queued offline on device B resurrects a bookmark (or saved verse)
+    removed meanwhile on device A when B reconnects.
+
 - **Add tab support to the `|`-alias mechanism and to deep links.**
   Two related content-reuse tools in the zikr corpus only work at
   whole-entry granularity today:

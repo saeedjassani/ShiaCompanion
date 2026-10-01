@@ -17,6 +17,7 @@ import 'package:shia_companion/services/mistake_report_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
+import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
 import 'package:shia_companion/models/saved_verse.dart';
@@ -340,6 +341,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _showCounter = ValueNotifier(counterState.isVisible);
     _counterCount = ValueNotifier(counterState.count);
     _loadSavedBookmark();
+    if (widget.portion == null && !_isQuran) {
+      // Bookmarks sync, so one can be moved on another device while this
+      // page is open, and the marker follows it.
+      ZikrBookmarksManager.instance.addListener(_handleBookmarksChanged);
+    }
     _loadSavedVerses();
     if (_isQuran) {
       // Saved verses sync, so they can arrive after the page opens - loaded
@@ -811,6 +817,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void dispose() {
     SavedVersesManager.instance.removeListener(_handleSavedVersesChanged);
+    ZikrBookmarksManager.instance.removeListener(_handleBookmarksChanged);
     _progressSaveTimer?.cancel();
     _quranEndTimer?.cancel();
     _flushRecitationProgress();
@@ -889,7 +896,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // surah leaves any bookmark alone: see [_consumeLegacyQuranBookmark].
     if (_isQuran && _initialVerse != null) return;
 
-    final bookmark = ZikrBookmarkStore.instance.read(_bookmarkUid);
+    final bookmark = ZikrBookmarksManager.instance.bookmarkFor(_bookmarkUid);
     if (bookmark == null) return;
 
     _savedBookmark = bookmark;
@@ -910,7 +917,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// Only reached on a plain open. Opened for a specific verse, the bookmark
   /// would be neither landed on nor noticed, so it is kept for a later visit.
   void _consumeLegacyQuranBookmark() {
-    unawaited(ZikrBookmarkStore.instance.remove(_bookmarkUid));
+    unawaited(ZikrBookmarksManager.instance.remove(_bookmarkUid));
+  }
+
+  /// Follows the bookmark when it changes from outside this page - moved,
+  /// placed or removed on another device, or arriving once bookmarks finish
+  /// loading. Only the marker follows: the page stays where the reader is.
+  void _handleBookmarksChanged() {
+    if (!mounted) return;
+    final next = ZikrBookmarksManager.instance.bookmarkFor(_bookmarkUid);
+    final current = _savedBookmark;
+    if (next?.updatedAt == current?.updatedAt &&
+        next?.lineIndex == current?.lineIndex &&
+        next?.tabIndex == current?.tabIndex) {
+      return;
+    }
+    setState(() {
+      _savedBookmark = next;
+    });
   }
 
   void _persistCounterSession({
@@ -1644,7 +1668,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // A surah's bookmark has already been retired - writing it back would
     // bring it back on the next visit.
     if (_isQuran) return;
-    unawaited(ZikrBookmarkStore.instance.save(upgraded));
+    unawaited(ZikrBookmarksManager.instance.save(upgraded));
   }
 
   /// Recomputes the reading estimate only when the rendered text changed, since
@@ -1704,7 +1728,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     setState(() {
       _savedBookmark = moved;
     });
-    await ZikrBookmarkStore.instance.save(moved);
+    await ZikrBookmarksManager.instance.save(moved);
     unawaited(ZikrBookmarkStore.instance.markMoveHintSeen());
     unawaited(AnalyticsService.feature(
       'zikr_bookmark_moved',
@@ -1752,7 +1776,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }) async {
     final existingBookmark = _savedBookmark;
     if (existingBookmark != null) {
-      await ZikrBookmarkStore.instance.remove(_bookmarkUid);
+      await ZikrBookmarksManager.instance.remove(_bookmarkUid);
       if (!mounted) return;
       setState(() {
         _savedBookmark = null;
@@ -1778,7 +1802,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       updatedAt: DateTime.now().toUtc(),
     );
 
-    await ZikrBookmarkStore.instance.save(bookmark);
+    await ZikrBookmarksManager.instance.save(bookmark);
     if (!mounted) return;
     setState(() {
       _savedBookmark = bookmark;

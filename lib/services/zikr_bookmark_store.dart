@@ -58,7 +58,7 @@ class ZikrBookmark {
   final int? lineIndex;
   final DateTime updatedAt;
 
-  ZikrBookmark copyWith({int? lineIndex}) {
+  ZikrBookmark copyWith({int? lineIndex, DateTime? updatedAt}) {
     return ZikrBookmark(
       uid: uid,
       title: title,
@@ -66,7 +66,7 @@ class ZikrBookmark {
       tabTitle: tabTitle,
       scrollOffset: scrollOffset,
       lineIndex: lineIndex ?? this.lineIndex,
-      updatedAt: updatedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       version: version,
     );
   }
@@ -104,6 +104,13 @@ class ZikrBookmark {
   }
 }
 
+/// Bookmarks kept on this device only, one SharedPreferences key per zikr.
+///
+/// Bookmarks that know their line sync through [ZikrBookmarksManager]
+/// instead, which moves any it finds here over on its first load. What stays
+/// here is only what cannot sync: a bookmark from before lines were recorded,
+/// placed somewhere only its scroll offset describes, until it is opened and
+/// learns its line.
 class ZikrBookmarkStore {
   ZikrBookmarkStore._();
 
@@ -159,6 +166,17 @@ class ZikrBookmarkStore {
     }
   }
 
+  /// Every bookmark still stored on the device, unreadable ones skipped.
+  List<ZikrBookmark> readAll() {
+    if (!SP.isInitialized) return const [];
+
+    final prefix = '${_storagePrefix}_';
+    return [
+      for (final key in SP.prefs.getKeys())
+        if (key.startsWith(prefix)) read(key.substring(prefix.length)),
+    ].whereType<ZikrBookmark>().toList(growable: false);
+  }
+
   Future<void> save(ZikrBookmark bookmark) {
     return SP.prefs.setString(
       _keyForUid(bookmark.uid),
@@ -167,6 +185,7 @@ class ZikrBookmarkStore {
   }
 
   Future<void> remove(String uid) {
+    if (!SP.isInitialized) return Future.value();
     return SP.prefs.remove(_keyForUid(uid));
   }
 }
