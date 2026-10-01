@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/quran_ali_verses.dart';
+import 'package:shia_companion/data/quran_mahdi_verses.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
 import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
@@ -201,6 +202,33 @@ void main() {
     expect(find.text('Surah5 55'), findsOneWidget);
     expect(
         find.text(aliRelatedNoteFor(const VerseKey(5, 55))!), findsOneWidget);
+  });
+
+  testWidgets('the Imam al-Mahdi collection lists the curated verses',
+      (tester) async {
+    await pump(tester);
+    await openCollection(tester, 'Imam al-Mahdi (a.t.f.s.)');
+
+    await tester.scrollUntilVisible(find.text('Surah11 86'), 200,
+        scrollable: find.byType(Scrollable).last);
+
+    expect(find.text('Surah11 86'), findsOneWidget);
+    expect(find.text(mahdiRelatedNoteFor(const VerseKey(11, 86))!),
+        findsOneWidget);
+  });
+
+  testWidgets('the Prophets collection groups stories under each prophet',
+      (tester) async {
+    await pump(tester);
+    await openCollection(tester, 'Prophets');
+
+    expect(find.text('Adam (a.s.)'), findsOneWidget);
+    expect(find.text('The creation of Adam and the fall'), findsOneWidget);
+    expect(find.text('Surah2 30-39'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Musa and al-Khidr'), 200,
+        scrollable: find.byType(Scrollable).last);
+    expect(find.text('Surah18 60-82'), findsOneWidget);
   });
 
   testWidgets('the Collections tab remembers the chip last picked',
