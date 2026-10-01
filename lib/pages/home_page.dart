@@ -614,9 +614,9 @@ class _MyHomePageState extends State<MyHomePage>
           ?.forEach((PendingNotificationRequest element) {
         debugPrint("${element.id} ${element.title} is scheduled");
       });
-      needToSchedule =
-          shouldRefreshPrayerNotificationSchedule(pendingNotificationRequests) ||
-              await arePrayerAzanAlarmsMissing(pendingNotificationRequests);
+      needToSchedule = shouldRefreshPrayerNotificationSchedule(
+              pendingNotificationRequests) ||
+          await arePrayerAzanAlarmsMissing(pendingNotificationRequests);
       if (needToSchedule) {
         await setUpNotifications();
       } else {
@@ -642,9 +642,13 @@ class _MyHomePageState extends State<MyHomePage>
     final books = await LibraryService.loadBooks();
     if (!mounted) return;
 
+    // Ties in search rank keep this order, so give it the one the lists use:
+    // by category, then as each category's list shows it. Plain key order put
+    // A117 (Al-Falaq) ahead of A5 (Al-Fatihah).
     final zikrEntries = items.entries
         .map((entry) => UidTitleData(entry.key, entry.value))
-        .toList();
+        .toList()
+      ..sort(_compareSearchOrder);
 
     unawaited(AnalyticsService.searchOpened());
     showSearch(
@@ -657,6 +661,21 @@ class _MyHomePageState extends State<MyHomePage>
         libraryUids: books.map((book) => book.uid).toSet(),
       ),
     );
+  }
+
+  static final RegExp _categoryPattern = RegExp(r'^[A-Za-z]*');
+
+  static int _compareSearchOrder(UidTitleData a, UidTitleData b) {
+    final byCategory = _categoryPattern
+        .stringMatch(a.uid)!
+        .compareTo(_categoryPattern.stringMatch(b.uid)!);
+    if (byCategory != 0) return byCategory;
+    final byOrder =
+        getItemOrderValue(a.uid).compareTo(getItemOrderValue(b.uid));
+    if (byOrder != 0) return byOrder;
+    final byId = a.getId().compareTo(b.getId());
+    if (byId != 0) return byId;
+    return a.uid.compareTo(b.uid);
   }
 
   Future<void> getHadith() async {

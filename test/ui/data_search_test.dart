@@ -91,4 +91,33 @@ void main() {
     expect(find.text('Quran (2)'), findsNothing);
     expect(find.text('3 matches in Zikr'), findsOneWidget);
   });
+
+  testWidgets('"fa" lists Al-Fatihah first, ahead of the zikr section',
+      (tester) async {
+    final entries = [
+      for (var i = 1; i <= 30; i++)
+        UidTitleData('D$i', 'Taqibaat of Namaz-e-Fajr $i'),
+      UidTitleData('A5', '1: Al-Fatihah الفاتحة'),
+    ];
+    final delegate = DataSearch(entries);
+    await tester.pumpWidget(MaterialApp(
+      home: Builder(
+        builder: (context) => TextButton(
+          onPressed: () => showSearch(context: context, delegate: delegate),
+          child: const Text('search'),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('search'));
+    await tester.pumpAndSettle();
+    delegate.query = 'fa';
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('1: Al-Fatihah الفاتحة'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Quran (1)')).dy,
+      lessThan(tester.getTopLeft(find.text('Zikr (30)')).dy),
+    );
+  });
 }
