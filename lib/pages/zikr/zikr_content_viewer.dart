@@ -11,6 +11,7 @@ import '../../data/quran_ali_verses.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/quran_indopak.dart';
 import 'zikr_content_parser.dart';
+import 'zikr_reading_stats.dart';
 
 /// Where a reader is in the Quran, and whether they got there by reading.
 ///
@@ -71,6 +72,8 @@ class ZikrContentScrollPosition {
     this.viewportDimension = 0,
     this.lineIndex,
     this.bookmarkLineIndex,
+    this.progressFraction,
+    this.seenFraction,
   });
 
   final int tabIndex;
@@ -91,6 +94,17 @@ class ZikrContentScrollPosition {
   /// whose top is on screen, not the one cut off at the top edge. Null when
   /// the list has not been laid out yet.
   final int? bookmarkLineIndex;
+
+  /// How far through the tab's text the reader is, measured by words at
+  /// [zikrReadingLine] - see [zikrContentFractionAbove] for why not by
+  /// pixels. Null when it cannot be measured (nothing laid out, or a tab with
+  /// no words), for the page to fall back to the scroll offset.
+  final double? progressFraction;
+
+  /// Share of the tab's text that has been on screen - measured by words down
+  /// to the bottom of the view. Null under the same conditions as
+  /// [progressFraction].
+  final double? seenFraction;
 }
 
 /// How much of a line may sit above the top of the viewport before the line
@@ -622,6 +636,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// [isArabicOnlyReadingView].
   final Map<int, Map<int, _FlowingText>> _tabArabicFlows = {};
 
+  /// Per tab, each list item's share of the tab's reading effort, in list
+  /// index order - the merits link and the footer weigh nothing. Rebuilt with
+  /// the list, since how lines group into items depends on the view mode.
+  final Map<int, List<double>> _tabItemWeights = {};
+
+  /// Tabs with a position report already queued for the end of the frame.
+  final Set<int> _pendingPositionReports = {};
+
   TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
     return buildZikrTextSpanWithLinks(
       rawLine: rawLine,
@@ -789,7 +811,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     while (_tabScrollControllers.length < count) {
       final tabIndex = _tabScrollControllers.length;
       final controller = ScrollController();
-      controller.addListener(() => _reportScrollPosition(tabIndex, controller));
+      controller.addListener(() {
+        _reportScrollPosition(tabIndex, controller);
+        // The listener runs as the offset changes, before the list is laid
+        // out at it, so the items it measures are the previous frame's. The
+        // last move of a fling would otherwise be reported a frame stale -
+        // and never corrected, since nothing scrolls after it.
+        _queuePositionReport(tabIndex);
+      });
       _tabScrollControllers.add(controller);
     }
     while (_tabScrollControllers.length > count) {
@@ -803,6 +832,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     }
 
     final position = controller.position;
+    final laidOut = _laidOutItems(tabIndex);
+    final weights = _tabItemWeights[tabIndex];
+    double? fractionAbove(double line) => laidOut == null || weights == null
+        ? null
+        : zikrContentFractionAbove(
+            itemWeights: weights,
+            laidOut: laidOut,
+            line: line,
+          );
     widget.onScrollPositionChanged!.call(
       ZikrContentScrollPosition(
         tabIndex: tabIndex,
@@ -811,8 +849,61 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         viewportDimension: position.viewportDimension,
         lineIndex: _topLineIndex(tabIndex, controller),
         bookmarkLineIndex: _bookmarkLineIndex(tabIndex, controller),
+        progressFraction: fractionAbove(zikrReadingLine(
+          scrollOffset: position.pixels,
+          maxScrollExtent: position.maxScrollExtent,
+          viewportDimension: position.viewportDimension,
+        )),
+        seenFraction: fractionAbove(
+          position.pixels + position.viewportDimension,
+        ),
       ),
     );
+  }
+
+  /// Queues one position report for the end of the current frame, however
+  /// many times it is asked for before then.
+  void _queuePositionReport(int tabIndex) {
+    if (widget.onScrollPositionChanged == null ||
+        !_pendingPositionReports.add(tabIndex)) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _pendingPositionReports.remove(tabIndex);
+      if (!mounted || tabIndex >= _tabScrollControllers.length) return;
+      _reportScrollPosition(tabIndex, _tabScrollControllers[tabIndex]);
+    });
+  }
+
+  /// Every list item of [tabIndex] currently laid out, positioned in the
+  /// tab's scroll coordinates, or null before the list has been laid out.
+  List<ZikrLaidOutItem>? _laidOutItems(int tabIndex) {
+    if (tabIndex >= _tabListKeys.length) return null;
+    final renderObject =
+        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    final sliver = renderObject == null ? null : _findSliverList(renderObject);
+    if (sliver == null || sliver.geometry == null) return null;
+
+    // Item offsets are measured from the start of the list's own sliver; the
+    // padding above it is scroll extent too.
+    final leading = sliver.constraints.precedingScrollExtent;
+    final items = <ZikrLaidOutItem>[];
+    RenderBox? child = sliver.firstChild;
+    while (child != null) {
+      final parentData = child.parentData;
+      if (parentData is SliverMultiBoxAdaptorParentData &&
+          parentData.index != null &&
+          parentData.layoutOffset != null &&
+          child.hasSize) {
+        items.add(ZikrLaidOutItem(
+          index: parentData.index!,
+          top: leading + parentData.layoutOffset!,
+          extent: child.size.height,
+        ));
+      }
+      child = sliver.childAfter(child);
+    }
+    return items.isEmpty ? null : items;
   }
 
   /// The line a bookmark taken now should sit on: the first verse whose top
@@ -1832,6 +1923,46 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return cache;
   }
 
+  /// Each list item's share of the tab's reading effort, laid out exactly as
+  /// [_buildTabContent] lays out the items: [leadingItems] first, then one per
+  /// Quran paragraph, ayah span or reading item, then the footer, if any.
+  List<double> _itemWeights(
+    _TabContentCache cache, {
+    required int itemCount,
+    required int leadingItems,
+    required _QuranParagraphs? quranParagraphs,
+    required List<_ReadingListItem> readingItems,
+  }) {
+    final lineWeights = cache.lineWeights;
+    double linesWeight(Iterable<int> lines) => lines.fold(
+          0.0,
+          (sum, line) =>
+              sum + (line < lineWeights.length ? lineWeights[line] : 0.0),
+        );
+    double spanWeight(AyahSpan span) => linesWeight(
+          [for (var line = span.start; line < span.end; line++) line],
+        );
+
+    final ayahIndex = cache.ayahIndex;
+    final content = <double>[
+      if (quranParagraphs != null)
+        for (final paragraph in quranParagraphs.items)
+          paragraph.spanIndexes.fold(
+            0.0,
+            (sum, i) => sum + spanWeight(ayahIndex!.spans[i]),
+          )
+      else if (ayahIndex != null)
+        for (final span in ayahIndex.spans) spanWeight(span)
+      else
+        for (final item in readingItems) linesWeight(item.lineIndexes),
+    ];
+    return [
+      for (var i = 0; i < leadingItems; i++) 0.0,
+      ...content,
+      for (var i = leadingItems + content.length; i < itemCount; i++) 0.0,
+    ];
+  }
+
   /// The ayah index in force for a tab, or null when it renders line by line.
   AyahIndex? _ayahIndexFor(int tabIndex) => _contentCaches[tabIndex]?.ayahIndex;
 
@@ -1923,6 +2054,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                 ? ayahIndex.spans.length
                 : readingItems.length);
     final itemCount = contentItemCount + (footer == null ? 0 : 1);
+    _tabItemWeights[tabIndex] = _itemWeights(
+      cache,
+      itemCount: itemCount,
+      leadingItems: leadingItems,
+      quranParagraphs: quranParagraphs,
+      readingItems: readingItems,
+    );
 
     if (ayahIndex != null && tabIndex == _selectedTabIndex) {
       _scheduleInitialVerseScroll(tabIndex, ayahIndex, leadingItems);
@@ -2719,6 +2857,9 @@ class _TabContentCache {
   }
 
   _QuranParagraphs? _quranParagraphs;
+
+  /// Each line's share of the tab's reading effort - see [zikrLineWeights].
+  late final List<double> lineWeights = zikrLineWeights(parsed.lines);
 }
 
 /// Names the surah a juz has just moved into.
@@ -2777,8 +2918,8 @@ class _SurahHeading extends StatelessWidget {
 /// The verse number is not drawn here: it is already inside the Arabic, as
 /// the end-of-verse medallion the corpus is authored with, and a second one
 /// above each verse only duplicated it. The row above a verse appears only
-/// when there is something to mark - the bookmark, a saved verse, or the
-/// Imam Ali (as) seal.
+/// when there is something to mark - the bookmark or a saved verse. A verse
+/// about Imam Ali (as) is marked by a watermark behind it instead.
 class _AyahBlock extends StatelessWidget {
   const _AyahBlock({
     required this.ayah,
@@ -2805,9 +2946,10 @@ class _AyahBlock extends StatelessWidget {
   final bool isBookmarked;
 
   /// Set when this verse is one Shia tafsir cites as being about Imam Ali
-  /// (as); its text is the occasion or title the verse is known by, shown as
-  /// a tooltip on the badge. Null for every other verse, which is most of
-  /// them, so the badge stays rare enough to mean something when it appears.
+  /// (as); its text is the occasion or title the verse is known by, which the
+  /// verse menu shows and the watermark carries as its semantic label. Null
+  /// for every other verse, which is most of them, so the watermark stays rare
+  /// enough to mean something when it appears.
   final String? aliNote;
 
   final VoidCallback? onAction;
@@ -2823,7 +2965,7 @@ class _AyahBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (startsSurah != null) _SurahHeading(surah: startsSurah!),
-          if (ayah != null && (isBookmarked || isSaved || aliNote != null))
+          if (ayah != null && (isBookmarked || isSaved))
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
@@ -2840,7 +2982,6 @@ class _AyahBlock extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                   ],
-                  if (aliNote != null) _AliBadge(note: aliNote!),
                 ],
               ),
             ),
@@ -2853,6 +2994,15 @@ class _AyahBlock extends StatelessWidget {
       ),
     );
 
+    final marked = aliNote == null
+        ? block
+        : Stack(
+            children: [
+              Positioned.fill(child: _AliWatermark(note: aliNote!)),
+              block,
+            ],
+          );
+
     final decorated = isBookmarked
         ? Container(
             decoration: BoxDecoration(
@@ -2861,9 +3011,9 @@ class _AyahBlock extends StatelessWidget {
                 left: BorderSide(color: colorScheme.primary, width: 3),
               ),
             ),
-            child: block,
+            child: marked,
           )
-        : block;
+        : marked;
 
     if (onAction == null) return decorated;
 
@@ -2875,61 +3025,51 @@ class _AyahBlock extends StatelessWidget {
   }
 }
 
-/// The mark beside a verse's number when Shia tafsir cites it as being about
-/// Imam Ali (as) - see [quranAliVerses]. A small gold seal with "علي" set
-/// inside it, rather than a plain icon: the name itself is the point, not a
-/// generic "this is special" glyph. A `Tooltip` rather than a tappable chip -
-/// the whole ayah block is already a tap target for [AyahActionRequest], so
-/// the seal only needs to answer "why is this marked" on long-press/hover,
-/// not compete for the tap itself.
+/// The mark behind a verse Shia tafsir cites as being about Imam Ali (as) -
+/// see [quranAliVerses]. The "علي" from the app icon, drawn faintly behind the
+/// verse like a watermark, rather than a badge in a row of its own: the name
+/// itself is the point, and behind the text it marks the verse without
+/// pushing it down or competing with it.
 ///
-/// The gold is a fixed pair of colors rather than anything drawn from the
-/// theme: a seal reads as gold in both light and dark reading modes, the way
-/// actual wax or foil would, not as "whatever the app's primary color is."
-class _AliBadge extends StatelessWidget {
-  const _AliBadge({required this.note});
+/// It takes no taps. The whole ayah block is already the tap target for
+/// [AyahActionRequest], and the verse menu that opens shows the same note, so
+/// the watermark only carries it as its semantic label.
+///
+/// Gold, like the icon, in both reading modes rather than the theme's primary
+/// color: the icon's own pale gold on the dark page, and a deeper gold on the
+/// light one, where the pale gold would all but vanish.
+class _AliWatermark extends StatelessWidget {
+  const _AliWatermark({required this.note});
 
   final String note;
 
-  static const _sealHighlight = Color(0xFFE7C878);
-  static const _sealShadow = Color(0xFF8F6B1E);
-  static const _sealInk = Color(0xFF2C2109);
+  static const asset = 'assets/images/ali_watermark.png';
+
+  static const _iconGold = Color(0xFFF3E6A0);
+  static const _deepGold = Color(0xFFB08A2E);
 
   @override
   Widget build(BuildContext context) {
-    // The ring the seal sits in is cut from the page behind it, so the gold
-    // never collides with a bookmark tint or the primary-container wash a
-    // saved verse already gets.
-    final ringColor = Theme.of(context).colorScheme.surface;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final color = dark
+        ? _iconGold.withValues(alpha: 0.17)
+        : _deepGold.withValues(alpha: 0.18);
 
-    return Tooltip(
-      message: note,
-      triggerMode: TooltipTriggerMode.longPress,
-      child: Container(
-        width: 22,
-        height: 22,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const RadialGradient(
-            center: Alignment(-0.3, -0.35),
-            colors: [_sealHighlight, _sealShadow],
-          ),
-          border: Border.all(color: ringColor, width: 1.4),
-          boxShadow: [
-            BoxShadow(
-                color: _sealShadow.withValues(alpha: 0.65), spreadRadius: 0.6),
-          ],
-        ),
-        child: Text(
-          'علي',
-          style: TextStyle(
-            fontFamily: arabicFont,
-            fontFamilyFallback: const ['Qalam'],
-            fontSize: 10,
-            height: 1,
-            fontWeight: FontWeight.w700,
-            color: _sealInk,
+    return IgnorePointer(
+      child: ClipRect(
+        // The glyph's long baseline stroke sits low, so it is lifted to
+        // centre its mass on the verse rather than its bounding box.
+        child: Transform.translate(
+          offset: const Offset(0, -18),
+          child: Center(
+            child: Image.asset(
+              asset,
+              height: 170,
+              color: color,
+              colorBlendMode: BlendMode.srcIn,
+              filterQuality: FilterQuality.high,
+              semanticLabel: note,
+            ),
           ),
         ),
       ),

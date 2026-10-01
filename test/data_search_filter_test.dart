@@ -97,4 +97,38 @@ void main() {
       expect(isNewSearchTerm(previous: 'kumayl', term: '   '), isFalse);
     });
   });
+
+  test('matches a book on its author', () {
+    final books = [
+      UidTitleData('B1', 'The Islamic Modest Dress',
+          author: 'Murtada Mutahhari'),
+      UidTitleData('B2', 'Peak of Eloquence'),
+    ];
+
+    expect(
+        filterDataSearchResults(books, 'mutahhari').map((e) => e.uid), ['B1']);
+  });
+
+  group('ranking', () {
+    test('ranks title start, then word start, then mid-word', () {
+      expect(searchMatchRank('1: Al-Fatihah الفاتحة', 'fa'), 0);
+      expect(searchMatchRank('Dua Kumayl', 'du'), 0);
+      expect(searchMatchRank('Commentary on Dua Kumayl', 'kum'), 1);
+      expect(searchMatchRank('Taqibaat of Namaz-e-Fajr', 'fa'), 1);
+      expect(searchMatchRank('8: Al-Anfal الأنفال', 'fa'), 2);
+      expect(searchMatchRank('1: Al-Fatihah الفاتحة', 'faa'), 3);
+    });
+
+    test('puts better matches first and keeps ties in entry order', () {
+      final entries = [
+        UidTitleData('A12', '8: Al-Anfal الأنفال'),
+        UidTitleData('D3', 'Taqibaat of Namaz-e-Fajr'),
+        UidTitleData('A5', '1: Al-Fatihah الفاتحة'),
+        UidTitleData('AA47', 'Farewell Prayer of Ramazan'),
+      ];
+
+      expect(filterDataSearchResults(entries, 'fa').map((e) => e.uid),
+          ['A5', 'AA47', 'D3', 'A12']);
+    });
+  });
 }

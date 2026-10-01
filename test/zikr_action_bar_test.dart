@@ -22,6 +22,7 @@ Widget _host(Widget child, {Size size = _smallPhone}) {
 ZikrActionBar _bar({
   Widget? player,
   bool hasAudio = true,
+  bool showBookmark = true,
   bool canBookmark = true,
   bool isBookmarked = false,
   bool canShare = true,
@@ -33,6 +34,7 @@ ZikrActionBar _bar({
   return ZikrActionBar(
     player: player,
     hasAudio: hasAudio,
+    showBookmark: showBookmark,
     canBookmark: canBookmark,
     isBookmarked: isBookmarked,
     canShare: canShare,
@@ -105,6 +107,18 @@ void main() {
 
       expect(find.text('Listen'), findsNothing);
       expect(find.text('Bookmark'), findsOneWidget);
+      expect(t.takeException(), isNull);
+    });
+
+    testWidgets('drops Bookmark when there is no place to mark', (t) async {
+      // Quran: a recitation track keeps the place, so the bar has no
+      // bookmark to offer at all.
+      await t.pumpWidget(_host(_bar(showBookmark: false)));
+
+      expect(find.text('Bookmark'), findsNothing);
+      expect(find.text('Saved'), findsNothing);
+      expect(find.byIcon(Icons.bookmark_border), findsNothing);
+      expect(find.text('Share'), findsOneWidget);
       expect(t.takeException(), isNull);
     });
 

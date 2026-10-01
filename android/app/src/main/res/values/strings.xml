@@ -4,8 +4,10 @@
     <string name="widget_recitations_name">Today\'s Recitations</string>
     <string name="widget_daily_prayer_name">Prayer Times</string>
     <string name="widget_prayer_name">Up Next</string>
+    <string name="widget_calendar_name">Islamic Calendar</string>
     <string name="widget_favorites_description">Saved Shia Companion favorites.</string>
     <string name="widget_recitations_description">Daily recitations from Shia Companion.</string>
     <string name="widget_daily_prayer_description">The prayer times you picked in Settings, for your saved location.</string>
     <string name="widget_prayer_description">The next of the times you picked in Settings, for your saved location.</string>
+    <string name="widget_calendar_description">Today\'s Hijri date and the events coming up.</string>
 </resources>

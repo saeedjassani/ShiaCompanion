@@ -29,6 +29,10 @@ private enum WidgetKeys {
     static let dailyPrayerNames = (1...maxDailyPrayerTimes).map { "sc_daily_prayer_name_\($0)" }
     static let dailyPrayerTimes = (1...maxDailyPrayerTimes).map { "sc_daily_prayer_time_\($0)" }
     static let dailyPrayerSchedule = "sc_daily_prayer_schedule"
+
+    static let calendarDays = "sc_calendar_days"
+    static let calendarEvents = "sc_calendar_events"
+    static let calendarUrl = "sc_calendar_url"
 }
 
 private extension UserDefaults {
@@ -958,6 +962,18 @@ private extension Color {
             ? UIColor(red: 1.0, green: 0.85, blue: 0.47, alpha: 1.0)
             : UIColor(red: 1.0, green: 0.78, blue: 0.34, alpha: 1.0)
     })
+    /// Event markers on the Islamic calendar widget. events.json colours an
+    /// event 0 (green) or 1 (red), the same reading as the Calendar page.
+    static let eventGreen = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.51, green: 0.78, blue: 0.52, alpha: 1.0)
+            : UIColor(red: 0.61, green: 0.85, blue: 0.63, alpha: 1.0)
+    })
+    static let eventRed = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.90, green: 0.45, blue: 0.45, alpha: 1.0)
+            : UIColor(red: 1.0, green: 0.66, blue: 0.63, alpha: 1.0)
+    })
 }
 
 struct FavoritesWidget: Widget {
@@ -1012,6 +1028,620 @@ struct UpcomingPrayerWidget: Widget {
     }
 }
 
+// MARK: - Islamic calendar
+
+struct CalendarDayInfo {
+    let start: Date
+    let day: Int
+    let month: String
+    let monthShort: String
+    let year: Int
+    /// Today's event, name first ("Hazrat Fatima Zahra (s.a.)"). Empty on most days.
+    let event: String
+    /// `event` with "Hazrat"/"Imam" cut to "H."/"I.", for the small size.
+    let eventShort: String
+    /// "Birth", "Martyrdom", "Death", or empty for an event about no one person.
+    let kind: String
+    let color: Int
+}
+
+struct CalendarEventInfo {
+    let start: Date
+    let day: Int
+    let monthShort: String
+    let title: String
+    let short: String
+    let kind: String
+    let color: Int
+}
+
+/// The single event the small sizes have room for: today's, or failing that the next.
+struct FeaturedCalendarEvent {
+    let name: String
+    let shortName: String
+    let kind: String
+    let color: Int
+    let start: Date
+}
+
+struct IslamicCalendarEntry: TimelineEntry {
+    let date: Date
+    /// Nil when the app has never published a run of days, or it has run out.
+    let day: CalendarDayInfo?
+    /// Events after today, soonest first. Today's own is on `day`.
+    let upcoming: [CalendarEventInfo]
+    let url: URL?
+
+    var hasEventToday: Bool { day.map { !$0.event.isEmpty } ?? false }
+
+    var featured: FeaturedCalendarEvent? {
+        if let day, !day.event.isEmpty {
+            return FeaturedCalendarEvent(
+                name: day.event,
+                shortName: day.eventShort,
+                kind: day.kind,
+                color: day.color,
+                start: day.start
+            )
+        }
+        return upcoming.first.map {
+            FeaturedCalendarEvent(name: $0.title, shortName: $0.short, kind: $0.kind, color: $0.color, start: $0.start)
+        }
+    }
+
+    static func placeholder(at date: Date = Date()) -> IslamicCalendarEntry {
+        IslamicCalendarEntry(
+            date: date,
+            day: CalendarDayInfo(
+                start: date,
+                day: 18,
+                month: "Rabi' al-Thani",
+                monthShort: "Rab II",
+                year: 1448,
+                event: "",
+                eventShort: "",
+                kind: "",
+                color: -1
+            ),
+            upcoming: [
+                CalendarEventInfo(
+                    start: date.addingTimeInterval(17 * 86400),
+                    day: 5,
+                    monthShort: "Jum I",
+                    title: "Hazrat Zainab bint-e-Ali (a.s.)",
+                    short: "H. Zainab bint-e-Ali (a.s.)",
+                    kind: "Birth",
+                    color: 1
+                ),
+                CalendarEventInfo(
+                    start: date.addingTimeInterval(25 * 86400),
+                    day: 13,
+                    monthShort: "Jum I",
+                    title: "Hazrat Fatima Zahra (s.a.)",
+                    short: "H. Fatima Zahra (s.a.)",
+                    kind: "Death",
+                    color: 0
+                ),
+            ],
+            url: nil
+        )
+    }
+}
+
+struct IslamicCalendarProvider: TimelineProvider {
+    func placeholder(in context: Context) -> IslamicCalendarEntry {
+        .placeholder()
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (IslamicCalendarEntry) -> Void) {
+        let entry = loadEntry(at: Date())
+        completion(context.isPreview && entry.day == nil ? .placeholder() : entry)
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<IslamicCalendarEntry>) -> Void) {
+        let now = Date()
+        let defaults = UserDefaults.widgetData
+        let days = parseCalendarDays(defaults?.string(forKey: WidgetKeys.calendarDays) ?? "")
+        let events = parseCalendarEvents(defaults?.string(forKey: WidgetKeys.calendarEvents) ?? "")
+        let url = URL(string: defaults?.widgetString(WidgetKeys.calendarUrl, fallback: "") ?? "")
+
+        // One entry per midnight, so the date turns over on its own for a week
+        // even if the app is never opened.
+        var entries = [calendarEntry(at: now, days: days, events: events, url: url)]
+        for day in days.filter({ $0.start > now }).prefix(7) {
+            entries.append(calendarEntry(at: day.start, days: days, events: events, url: url))
+        }
+
+        let policyDate = entries.count > 1
+            ? entries[entries.count - 1].date.addingTimeInterval(86400)
+            : now.addingTimeInterval(3600)
+        completion(Timeline(entries: entries, policy: .after(policyDate)))
+    }
+
+    private func loadEntry(at date: Date) -> IslamicCalendarEntry {
+        let defaults = UserDefaults.widgetData
+        return calendarEntry(
+            at: date,
+            days: parseCalendarDays(defaults?.string(forKey: WidgetKeys.calendarDays) ?? ""),
+            events: parseCalendarEvents(defaults?.string(forKey: WidgetKeys.calendarEvents) ?? ""),
+            url: URL(string: defaults?.widgetString(WidgetKeys.calendarUrl, fallback: "") ?? "")
+        )
+    }
+}
+
+private func calendarEntry(
+    at date: Date,
+    days: [CalendarDayInfo],
+    events: [CalendarEventInfo],
+    url: URL?
+) -> IslamicCalendarEntry {
+    let calendar = Calendar.current
+    let startOfToday = calendar.startOfDay(for: date)
+    let startOfTomorrow = calendar.date(byAdding: .day, value: 1, to: startOfToday) ?? startOfToday
+    // Each day starts at local midnight and lasts at most 25 hours (DST); past
+    // that the published run has ended and its last day is no longer today.
+    let day = days.last { $0.start <= date }
+        .flatMap { date.timeIntervalSince($0.start) < 25 * 3600 ? $0 : nil }
+    let cutoff = day == nil ? startOfToday : startOfTomorrow
+    return IslamicCalendarEntry(
+        date: date,
+        day: day,
+        upcoming: events.filter { $0.start >= cutoff },
+        url: url
+    )
+}
+
+private func calendarString(_ entry: [String: Any], _ key: String) -> String {
+    ((entry[key] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+}
+
+private func parseCalendarDays(_ raw: String) -> [CalendarDayInfo] {
+    guard
+        let data = raw.data(using: .utf8),
+        let rawEntries = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+    else {
+        return []
+    }
+
+    return rawEntries.compactMap { rawEntry -> CalendarDayInfo? in
+        guard
+            let startMillis = (rawEntry["start"] as? NSNumber)?.doubleValue,
+            let day = (rawEntry["day"] as? NSNumber)?.intValue,
+            day > 0
+        else {
+            return nil
+        }
+        let event = calendarString(rawEntry, "event")
+        let eventShort = calendarString(rawEntry, "eventShort")
+        return CalendarDayInfo(
+            start: Date(timeIntervalSince1970: startMillis / 1000.0),
+            day: day,
+            month: calendarString(rawEntry, "month"),
+            monthShort: calendarString(rawEntry, "monthShort"),
+            year: (rawEntry["year"] as? NSNumber)?.intValue ?? 0,
+            event: event,
+            eventShort: eventShort.isEmpty ? event : eventShort,
+            kind: calendarString(rawEntry, "kind"),
+            color: (rawEntry["color"] as? NSNumber)?.intValue ?? -1
+        )
+    }
+    .sorted { $0.start < $1.start }
+}
+
+private func parseCalendarEvents(_ raw: String) -> [CalendarEventInfo] {
+    guard
+        let data = raw.data(using: .utf8),
+        let rawEntries = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+    else {
+        return []
+    }
+
+    return rawEntries.compactMap { rawEntry -> CalendarEventInfo? in
+        let title = calendarString(rawEntry, "title")
+        guard
+            let startMillis = (rawEntry["start"] as? NSNumber)?.doubleValue,
+            !title.isEmpty
+        else {
+            return nil
+        }
+        let short = calendarString(rawEntry, "short")
+        return CalendarEventInfo(
+            start: Date(timeIntervalSince1970: startMillis / 1000.0),
+            day: (rawEntry["day"] as? NSNumber)?.intValue ?? 0,
+            monthShort: calendarString(rawEntry, "monthShort"),
+            title: title,
+            short: short.isEmpty ? title : short,
+            kind: calendarString(rawEntry, "kind"),
+            color: (rawEntry["color"] as? NSNumber)?.intValue ?? -1
+        )
+    }
+    .sorted { $0.start < $1.start }
+}
+
+/// "Today · Death", "Birth · in 17 days", "In 4 days": what happened and when,
+/// counted in calendar days.
+private func calendarMetaLine(kind: String, start: Date, now: Date) -> String {
+    let calendar = Calendar.current
+    let days = calendar.dateComponents(
+        [.day],
+        from: calendar.startOfDay(for: now),
+        to: calendar.startOfDay(for: start)
+    ).day ?? 0
+    let time = days <= 0 ? "today" : days == 1 ? "tomorrow" : "in \(days) days"
+    if kind.isEmpty {
+        return time.prefix(1).uppercased() + time.dropFirst()
+    }
+    return days <= 0 ? "Today · \(kind)" : "\(kind) · \(time)"
+}
+
+private func calendarEventColor(_ code: Int) -> Color {
+    switch code {
+    case 0: return .eventGreen
+    case 1: return .eventRed
+    default: return .accentText
+    }
+}
+
+private let calendarShortDate = Date.FormatStyle.dateTime.weekday(.abbreviated).day().month(.abbreviated)
+private let calendarLongDate = Date.FormatStyle.dateTime.weekday(.wide).day().month(.wide)
+
+struct IslamicCalendarView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: IslamicCalendarEntry
+
+    var body: some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            switch family {
+            case .accessoryInline:
+                IslamicCalendarAccessoryInline(entry: entry)
+            case .accessoryCircular:
+                IslamicCalendarAccessoryCircular(entry: entry)
+            case .accessoryRectangular:
+                IslamicCalendarAccessoryRectangular(entry: entry)
+            default:
+                homeScreen
+            }
+        } else {
+            homeScreen
+        }
+    }
+
+    private var homeScreen: some View {
+        Group {
+            if let day = entry.day {
+                switch family {
+                case .systemSmall:
+                    small(day)
+                case .systemMedium:
+                    medium(day)
+                default:
+                    large(day)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Islamic Calendar")
+                        .font(.headline)
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                    Spacer(minLength: 0)
+                    Text("Open app to refresh")
+                        .font(.caption)
+                        .foregroundColor(.bodyText)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Spacer(minLength: 0)
+                }
+            }
+        }
+        .widgetCard()
+        .widgetURL(entry.url)
+    }
+
+    /// The date, then the one event that matters most: today's, or the next.
+    private func small(_ day: CalendarDayInfo) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .center, spacing: 8) {
+                Text(verbatim: String(day.day))
+                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                    .foregroundColor(.accentText)
+                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(day.month)
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(entry.date, format: calendarShortDate)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.secondaryText)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 4)
+            if let featured = entry.featured {
+                let isToday = entry.hasEventToday
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(calendarEventColor(featured.color))
+                        .frame(width: 6, height: 6)
+                    Text(calendarMetaLine(kind: featured.kind, start: featured.start, now: entry.date).uppercased())
+                        .font(.system(size: 10, weight: .bold))
+                        .tracking(0.6)
+                        .foregroundColor(isToday ? calendarEventColor(featured.color) : .secondaryText)
+                        .lineLimit(1)
+                }
+                Text(featured.shortName)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.primaryText)
+                    .lineLimit(2)
+                    .padding(.top, 3)
+            }
+        }
+    }
+
+    /// The date with today's event beside it, then the next two.
+    private func medium(_ day: CalendarDayInfo) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 10) {
+                Text(verbatim: String(day.day))
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .foregroundColor(.accentText)
+                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: "\(day.month) \(day.year)")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                    Group {
+                        if day.event.isEmpty {
+                            Text(entry.date, format: calendarLongDate) + Text(" · no event today")
+                        } else {
+                            Text("● Today: ").foregroundColor(calendarEventColor(day.color))
+                                + Text(day.kind.isEmpty ? day.event : "\(day.kind) of \(day.event)")
+                        }
+                    }
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(.secondaryText)
+                    .lineLimit(1)
+                }
+            }
+            CalendarDivider()
+            ForEach(Array(entry.upcoming.prefix(2).enumerated()), id: \.offset) { _, event in
+                CalendarAgendaRow(event: event, now: entry.date)
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    /// The date, today's event in its own card, then what is coming up.
+    private func large(_ day: CalendarDayInfo) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 10) {
+                Text(verbatim: String(day.day))
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .foregroundColor(.accentText)
+                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: "\(day.month) \(day.year)")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                    Text(entry.date, format: calendarLongDate)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.secondaryText)
+                        .lineLimit(1)
+                }
+            }
+            if !day.event.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 5) {
+                        Circle()
+                            .fill(calendarEventColor(day.color))
+                            .frame(width: 6, height: 6)
+                        Text(calendarMetaLine(kind: day.kind, start: day.start, now: entry.date).uppercased())
+                            .font(.system(size: 10, weight: .bold))
+                            .tracking(0.6)
+                            .foregroundColor(calendarEventColor(day.color))
+                            .lineLimit(1)
+                    }
+                    Text(day.event)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                }
+                .padding(.horizontal, 11)
+                .padding(.vertical, 9)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.primaryText.opacity(0.08))
+                )
+            }
+            if !entry.upcoming.isEmpty {
+                Text("COMING UP")
+                    .font(.system(size: 11, weight: .bold))
+                    .tracking(0.6)
+                    .foregroundColor(.secondaryText)
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(Array(entry.upcoming.prefix(day.event.isEmpty ? 6 : 4).enumerated()), id: \.offset) { _, event in
+                        CalendarAgendaRow(event: event, now: entry.date)
+                    }
+                }
+            }
+            Spacer(minLength: 0)
+        }
+    }
+}
+
+private struct CalendarDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.secondaryText.opacity(0.3))
+            .frame(height: 1)
+    }
+}
+
+/// One upcoming event: its hijri date in a column on the left, the name, then what and when.
+private struct CalendarAgendaRow: View {
+    let event: CalendarEventInfo
+    let now: Date
+
+    var body: some View {
+        HStack(spacing: 10) {
+            VStack(spacing: 0) {
+                Text(verbatim: event.day > 0 ? String(event.day) : "")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundColor(.primaryText)
+                    .lineLimit(1)
+                Text(event.monthShort.uppercased())
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(.secondaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            .frame(width: 36)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(event.title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.primaryText)
+                    .lineLimit(1)
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(calendarEventColor(event.color))
+                        .frame(width: 6, height: 6)
+                    Text(calendarMetaLine(kind: event.kind, start: event.start, now: now))
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondaryText)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, minHeight: 36, alignment: .leading)
+    }
+}
+
+@available(iOSApplicationExtension 16.0, *)
+private struct IslamicCalendarAccessoryInline: View {
+    let entry: IslamicCalendarEntry
+
+    var body: some View {
+        if let day = entry.day {
+            Text(verbatim: "\(day.day) \(day.month) \(day.year)")
+        } else {
+            Text("Open Shia Companion")
+        }
+    }
+}
+
+@available(iOSApplicationExtension 16.0, *)
+private struct IslamicCalendarAccessoryCircular: View {
+    let entry: IslamicCalendarEntry
+
+    var body: some View {
+        ZStack {
+            AccessoryWidgetBackground()
+            if let day = entry.day {
+                VStack(spacing: 0) {
+                    Text(verbatim: String(day.day))
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                    Text(day.monthShort)
+                        .font(.system(size: 10, weight: .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
+                .padding(4)
+            } else {
+                Image(systemName: "calendar")
+            }
+        }
+        .widgetAccentable()
+        .accessoryContainerBackground()
+        .widgetURL(entry.url)
+    }
+}
+
+/// The date and one event — today's, or the next one and how far off it is.
+@available(iOSApplicationExtension 16.0, *)
+private struct IslamicCalendarAccessoryRectangular: View {
+    let entry: IslamicCalendarEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            if let day = entry.day {
+                Text(verbatim: "\(day.day) \(day.month)")
+                    .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .widgetAccentable()
+                if let featured = entry.featured {
+                    Text(featured.name)
+                        .font(.system(size: 13))
+                        .lineLimit(1)
+                    Text(calendarMetaLine(kind: featured.kind, start: featured.start, now: entry.date))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            } else {
+                Text("Islamic Calendar")
+                    .font(.headline)
+                    .widgetAccentable()
+                Text("Open app to refresh")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessoryContainerBackground()
+        .widgetURL(entry.url)
+    }
+}
+
+@available(iOSApplicationExtension 16.0, *)
+private extension View {
+    /// Lock Screen widgets draw on the wallpaper, but iOS 17 still requires a
+    /// declared container background or it shows its "adopt
+    /// containerBackground" placeholder instead of the widget.
+    @ViewBuilder
+    func accessoryContainerBackground() -> some View {
+        if #available(iOSApplicationExtension 17.0, *) {
+            self.containerBackground(Color.clear, for: .widget)
+        } else {
+            self
+        }
+    }
+}
+
+struct IslamicCalendarWidget: Widget {
+    let kind = "IslamicCalendarWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: IslamicCalendarProvider()) { entry in
+            IslamicCalendarView(entry: entry)
+        }
+        .configurationDisplayName("Islamic Calendar")
+        .description("Today's Hijri date and the events coming up.")
+        .supportedFamilies(Self.families)
+    }
+
+    private static var families: [WidgetFamily] {
+        if #available(iOSApplicationExtension 16.0, *) {
+            return [
+                .systemSmall,
+                .systemMedium,
+                .systemLarge,
+                .accessoryInline,
+                .accessoryCircular,
+                .accessoryRectangular,
+            ]
+        }
+        return [.systemSmall, .systemMedium, .systemLarge]
+    }
+}
+
 @main
 struct ShiaCompanionWidgets: WidgetBundle {
     var body: some Widget {
@@ -1019,5 +1649,6 @@ struct ShiaCompanionWidgets: WidgetBundle {
         TodaysRecitationWidget()
         DailyPrayerTimesWidget()
         UpcomingPrayerWidget()
+        IslamicCalendarWidget()
     }
 }

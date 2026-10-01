@@ -287,6 +287,7 @@ const Set<String> _feedbackAndRatingsFeatureKeys = {
   'rating_prompt_feedback',
   'rate_us_settings',
   'feedback_email_opened',
+  'github_settings',
 };
 
 /// See [FeatureGroup].

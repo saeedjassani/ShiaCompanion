@@ -51,7 +51,14 @@ void main() async {
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.developer110.shia_companion.audio',
     androidNotificationChannelName: 'Recitation playback',
-    androidNotificationOngoing: true,
+    // Keep the service in the foreground while paused. Letting it drop out
+    // on pause (the default) left Android free to kill it once the app was
+    // backgrounded, taking the notification - and the playlist - with it, so
+    // a paused recitation could never be resumed from the lock screen.
+    // Ongoing must be off for this: audio_service only allows an ongoing
+    // notification when the service stops being foreground on pause. The
+    // notification's own stop button still dismisses it.
+    androidStopForegroundOnPause: false,
   );
 
   // Registers android_alarm_manager_plus's dispatch so a prayer-time alarm

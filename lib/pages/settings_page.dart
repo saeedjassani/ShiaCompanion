@@ -19,8 +19,10 @@ import '../services/prayer_preferences_sync_service.dart';
 import '../services/preferences_sync_service.dart';
 import '../services/qaza_tracker_manager.dart';
 import '../services/recitation_tracker_manager.dart';
+import '../services/saved_verses_manager.dart';
 import '../services/rating_prompt_service.dart';
 import '../services/session_refresh_service.dart';
+import '../services/zikr_bookmarks_manager.dart';
 import '../utils/app_text_scale.dart';
 import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
@@ -53,6 +55,8 @@ class _SettingsPageState extends State<SettingsPage> {
     await FavoritesManager.instance.loadFavorites(force: true);
     await QazaTrackerManager.instance.loadQaza(force: true);
     await RecitationTrackerManager.instance.loadRecitations(force: true);
+    await SavedVersesManager.instance.loadSavedVerses(force: true);
+    await ZikrBookmarksManager.instance.loadBookmarks(force: true);
     await PreferencesSyncService.instance.pullOrSeed();
     await PrayerPreferencesSyncService.instance.pullOrSeed();
     // Not awaited: stats are already correct on this device, and a Firestore
@@ -339,6 +343,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: const Text("Send questions, issues, or suggestions."),
                 onTap: () {
                   _launchURL();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.code),
+                title: const Text("Contribute on GitHub"),
+                subtitle: const Text(
+                    "Shia Companion is open source. Report issues or help improve it."),
+                trailing: const Icon(Icons.open_in_new),
+                onTap: () async {
+                  unawaited(AnalyticsService.feature(
+                    'github_settings',
+                    label: 'GitHub opened from Settings',
+                  ));
+                  final launched = await launchExternalUri(githubRepoUri);
+                  if (!launched && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Could not open GitHub")),
+                    );
+                  }
                 },
               ),
               ListTile(
@@ -690,6 +713,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await SP.prefs.remove('prayerTimes');
     unawaited(PreferencesSyncService.instance.pushHijriDate());
     await HomeScreenWidgetService.instance.publishTodaysRecitations();
+    await HomeScreenWidgetService.instance.publishCalendar();
     setState(() {});
   }
 

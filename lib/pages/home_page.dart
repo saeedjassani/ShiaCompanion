@@ -30,9 +30,11 @@ import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/services/preferences_sync_service.dart';
 import 'package:shia_companion/services/qaza_tracker_manager.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
+import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
+import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
@@ -163,6 +165,14 @@ class _MyHomePageState extends State<MyHomePage>
     // screen, and is the one link that carries nothing after its prefix.
     if (target.type == quranDeepLinkType) {
       await _resolveQuranDeepLink(target);
+      return;
+    }
+
+    if (target.type == calendarDeepLinkType) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _openHomeMenuItem(calendarMenuItem);
+      });
       return;
     }
 
@@ -540,6 +550,8 @@ class _MyHomePageState extends State<MyHomePage>
     await FavoritesManager.instance.loadFavorites();
     await QazaTrackerManager.instance.loadQaza();
     await RecitationTrackerManager.instance.loadRecitations();
+    await SavedVersesManager.instance.loadSavedVerses();
+    await ZikrBookmarksManager.instance.loadBookmarks();
     await PreferencesSyncService.instance.pullOrSeed();
     await PrayerPreferencesSyncService.instance.pullOrSeed();
     unawaited(ActivityStatsStore.instance.pullAndMerge());
@@ -614,9 +626,9 @@ class _MyHomePageState extends State<MyHomePage>
           ?.forEach((PendingNotificationRequest element) {
         debugPrint("${element.id} ${element.title} is scheduled");
       });
-      needToSchedule =
-          shouldRefreshPrayerNotificationSchedule(pendingNotificationRequests) ||
-              await arePrayerAzanAlarmsMissing(pendingNotificationRequests);
+      needToSchedule = shouldRefreshPrayerNotificationSchedule(
+              pendingNotificationRequests) ||
+          await arePrayerAzanAlarmsMissing(pendingNotificationRequests);
       if (needToSchedule) {
         await setUpNotifications();
       } else {
@@ -642,9 +654,13 @@ class _MyHomePageState extends State<MyHomePage>
     final books = await LibraryService.loadBooks();
     if (!mounted) return;
 
+    // Ties in search rank keep this order, so give it the one the lists use:
+    // by category, then as each category's list shows it. Plain key order put
+    // A117 (Al-Falaq) ahead of A5 (Al-Fatihah).
     final zikrEntries = items.entries
         .map((entry) => UidTitleData(entry.key, entry.value))
-        .toList();
+        .toList()
+      ..sort(_compareSearchOrder);
 
     unawaited(AnalyticsService.searchOpened());
     showSearch(
@@ -657,6 +673,21 @@ class _MyHomePageState extends State<MyHomePage>
         libraryUids: books.map((book) => book.uid).toSet(),
       ),
     );
+  }
+
+  static final RegExp _categoryPattern = RegExp(r'^[A-Za-z]*');
+
+  static int _compareSearchOrder(UidTitleData a, UidTitleData b) {
+    final byCategory = _categoryPattern
+        .stringMatch(a.uid)!
+        .compareTo(_categoryPattern.stringMatch(b.uid)!);
+    if (byCategory != 0) return byCategory;
+    final byOrder =
+        getItemOrderValue(a.uid).compareTo(getItemOrderValue(b.uid));
+    if (byOrder != 0) return byOrder;
+    final byId = a.getId().compareTo(b.getId());
+    if (byId != 0) return byId;
+    return a.uid.compareTo(b.uid);
   }
 
   Future<void> getHadith() async {

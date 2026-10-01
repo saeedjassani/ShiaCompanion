@@ -317,6 +317,7 @@ void main() {
         'rating_prompt_feedback': FeatureGroup.feedbackAndRatings,
         'rate_us_settings': FeatureGroup.feedbackAndRatings,
         'feedback_email_opened': FeatureGroup.feedbackAndRatings,
+        'github_settings': FeatureGroup.feedbackAndRatings,
       };
 
       expected.forEach((key, group) {

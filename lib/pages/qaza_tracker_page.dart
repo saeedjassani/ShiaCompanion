@@ -28,7 +28,16 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
     final manager = QazaTrackerManager.instance;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Qaza Tracker')),
+      appBar: AppBar(
+        title: const Text('Qaza Tracker'),
+        actions: [
+          IconButton(
+            tooltip: 'Calculate my qaza',
+            icon: const Icon(Icons.edit_calendar_outlined),
+            onPressed: () => unawaited(_showEstimateSheet()),
+          ),
+        ],
+      ),
       body: ListenableBuilder(
         listenable: manager,
         builder: (context, _) {
@@ -46,11 +55,15 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildSummary(context, state),
+                if (state.isEmpty)
+                  _buildBulkPrompt(context)
+                else
+                  _buildSummary(context, state),
                 const SizedBox(height: 18),
                 _buildSection(
                   context,
                   title: 'Prayers',
+                  trailing: _buildFullDayButton(state),
                   types: QazaEntryType.values
                       .where((type) => type.isPrayer)
                       .toList(growable: false),
@@ -138,6 +151,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
   Widget _buildSection(
     BuildContext context, {
     required String title,
+    Widget? trailing,
     required List<QazaEntryType> types,
     required QazaTrackerManager manager,
     required QazaTrackerState state,
@@ -149,11 +163,18 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Text(
-            title,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              if (trailing != null) trailing,
+            ],
           ),
         ),
         const SizedBox(height: 8),
@@ -247,27 +268,32 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 4,
             children: [
-              IconButton(
-                tooltip: 'Undo completed',
+              TextButton.icon(
+                style: _compactButtonStyle,
                 onPressed: count.completed > 0
                     ? () => unawaited(manager.undoCompleted(type))
                     : null,
-                icon: const Icon(Icons.undo_rounded),
+                icon: const Icon(Icons.undo_rounded, size: 18),
+                label: const Text('Undo'),
               ),
-              IconButton.filledTonal(
-                tooltip: 'Complete one',
+              FilledButton.tonalIcon(
+                style: _compactButtonStyle,
                 onPressed: count.remaining > 0
                     ? () => unawaited(manager.markCompleted(type))
                     : null,
-                icon: const Icon(Icons.check_rounded),
+                icon: const Icon(Icons.check_rounded, size: 18),
+                label: Text(type.isPrayer ? 'Prayed' : 'Fasted'),
               ),
-              IconButton(
-                tooltip: 'Add missed',
+              TextButton.icon(
+                style: _compactButtonStyle,
                 onPressed: () => unawaited(manager.addMissed(type)),
-                icon: const Icon(Icons.add_rounded),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('Missed'),
               ),
               IconButton(
                 tooltip: 'Edit count',
@@ -278,6 +304,110 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
           ),
         ],
       ),
+    );
+  }
+
+  static final _compactButtonStyle = ButtonStyle(
+    visualDensity: VisualDensity.compact,
+    padding: WidgetStateProperty.all(
+      const EdgeInsets.symmetric(horizontal: 12),
+    ),
+  );
+
+  Widget _buildBulkPrompt(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Missed prayers for a while?',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: colorScheme.onPrimaryContainer,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Enter how long, and we will add one of each daily prayer '
+            'for every day missed.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+            ),
+          ),
+          const SizedBox(height: 14),
+          FilledButton.icon(
+            onPressed: () => unawaited(_showEstimateSheet()),
+            icon: const Icon(Icons.edit_calendar_outlined),
+            label: const Text('Calculate my qaza'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget? _buildFullDayButton(QazaTrackerState state) {
+    final owedPrayers = qazaDailyPrayers
+        .where((type) => state.countFor(type).remaining > 0)
+        .length;
+    if (owedPrayers < 2) return null;
+
+    return TextButton.icon(
+      style: _compactButtonStyle,
+      onPressed: _logFullDay,
+      icon: const Icon(Icons.done_all_rounded, size: 18),
+      label: const Text('Prayed a full day'),
+    );
+  }
+
+  void _logFullDay() {
+    final manager = QazaTrackerManager.instance;
+    final marked = manager.markCompletedEach(qazaDailyPrayers);
+    if (marked.isEmpty) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          marked.length == qazaDailyPrayers.length
+              ? 'Logged one of each daily prayer'
+              : 'Logged ${marked.map((type) => type.label).join(', ')}',
+        ),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () => manager.undoCompletedEach(marked),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showEstimateSheet() async {
+    final result = await showModalBottomSheet<_QazaEstimate>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => const _QazaEstimateSheet(),
+    );
+    if (result == null || result.isEmpty) return;
+
+    await QazaTrackerManager.instance.addMissedCounts({
+      for (final type in qazaDailyPrayers) type: result.prayerDays,
+      QazaEntryType.fast: result.fasts,
+    });
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Added to your qaza list')),
     );
   }
 
@@ -382,4 +512,183 @@ class _QazaEditResult {
 
   final int remaining;
   final int completed;
+}
+
+String _formatCount(int value) {
+  final digits = value.toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < digits.length; i++) {
+    if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
+    buffer.write(digits[i]);
+  }
+  return buffer.toString();
+}
+
+class _QazaEstimate {
+  const _QazaEstimate({required this.prayerDays, required this.fasts});
+
+  final int prayerDays;
+  final int fasts;
+
+  bool get isEmpty => prayerDays == 0 && fasts == 0;
+}
+
+class _QazaEstimateSheet extends StatefulWidget {
+  const _QazaEstimateSheet();
+
+  @override
+  State<_QazaEstimateSheet> createState() => _QazaEstimateSheetState();
+}
+
+class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
+  final _yearsController = TextEditingController();
+  final _monthsController = TextEditingController();
+  final _daysController = TextEditingController();
+  final _fastsController = TextEditingController();
+
+  @override
+  void dispose() {
+    _yearsController.dispose();
+    _monthsController.dispose();
+    _daysController.dispose();
+    _fastsController.dispose();
+    super.dispose();
+  }
+
+  int _read(TextEditingController controller) =>
+      int.tryParse(controller.text) ?? 0;
+
+  _QazaEstimate get _estimate => _QazaEstimate(
+        prayerDays: qazaDaysForSpan(
+          years: _read(_yearsController),
+          months: _read(_monthsController),
+          days: _read(_daysController),
+        ),
+        fasts: _read(_fastsController),
+      );
+
+  Widget _numberField(TextEditingController controller, String label) {
+    return TextField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      onChanged: (_) => setState(() {}),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: '0',
+        border: const OutlineInputBorder(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final estimate = _estimate;
+
+    final summaryLines = [
+      if (estimate.prayerDays > 0)
+        '${_formatCount(estimate.prayerDays)} of each daily prayer '
+            '(${_formatCount(estimate.prayerDays * qazaDailyPrayers.length)} '
+            'prayers)',
+      if (estimate.fasts > 0)
+        '${_formatCount(estimate.fasts)} '
+            '${estimate.fasts == 1 ? 'fast' : 'fasts'}',
+    ];
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.viewInsetsOf(context).bottom,
+      ),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Calculate my qaza',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Roughly how long did you not pray? A best estimate is fine '
+                '- you can adjust any prayer later.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text('Prayers missed for', style: theme.textTheme.titleSmall),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(child: _numberField(_yearsController, 'Years')),
+                  const SizedBox(width: 10),
+                  Expanded(child: _numberField(_monthsController, 'Months')),
+                  const SizedBox(width: 10),
+                  Expanded(child: _numberField(_daysController, 'Days')),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Counted as lunar years of $qazaDaysPerLunarYear days and '
+                'months of $qazaDaysPerMonth days.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text('Fasts missed', style: theme.textTheme.titleSmall),
+              const SizedBox(height: 10),
+              _numberField(_fastsController, 'Number of fasts'),
+              const SizedBox(height: 20),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 150),
+                child: summaryLines.isEmpty
+                    ? const SizedBox(width: double.infinity)
+                    : Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'This adds to your list:',
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            for (final line in summaryLines)
+                              Text(
+                                '• $line',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSecondaryContainer,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: estimate.isEmpty
+                    ? null
+                    : () => Navigator.pop(context, estimate),
+                child: const Text('Add to my list'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

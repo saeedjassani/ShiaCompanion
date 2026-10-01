@@ -68,6 +68,8 @@ private const val ACTION_REFRESH_PRAYER_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_PRAYER_WIDGET"
 private const val ACTION_REFRESH_RECITATION_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_RECITATION_WIDGET"
+private const val ACTION_REFRESH_CALENDAR_WIDGET =
+    "com.developer110.shiacompanion.widgets.REFRESH_CALENDAR_WIDGET"
 
 private const val KEY_FAVORITES_TITLE = "sc_favorites_title"
 private val favoriteItemKeys = (1..12).map { "sc_favorites_item_$it" }
@@ -94,12 +96,20 @@ private val dailyPrayerNameKeys = (1..MAX_DAILY_PRAYER_TIMES).map { "sc_daily_pr
 private val dailyPrayerTimeKeys = (1..MAX_DAILY_PRAYER_TIMES).map { "sc_daily_prayer_time_$it" }
 private const val KEY_DAILY_PRAYER_SCHEDULE = "sc_daily_prayer_schedule"
 
+private const val KEY_CALENDAR_DAYS = "sc_calendar_days"
+private const val KEY_CALENDAR_EVENTS = "sc_calendar_events"
+private const val KEY_CALENDAR_URL = "sc_calendar_url"
+private const val DAY_MILLIS = 24L * 60L * 60L * 1000L
+
 // Colours live in res/values(-night)/colors.xml so the shape drawables and the
 // picker previews share them, and so API 31+ hosts resolve day/night themselves.
 private val primaryTextColor = ColorProvider(R.color.widget_primary_text)
 private val bodyTextColor = ColorProvider(R.color.widget_body_text)
 private val secondaryTextColor = ColorProvider(R.color.widget_secondary_text)
 private val accentColor = ColorProvider(R.color.widget_accent)
+// events.json colours: 0 green, 1 red — the same reading as the Calendar page.
+private val eventGreenColor = ColorProvider(R.color.widget_event_green)
+private val eventRedColor = ColorProvider(R.color.widget_event_red)
 
 class FavoritesWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
@@ -168,6 +178,35 @@ class DailyPrayerTimesWidget : GlanceAppWidget() {
 
 class DailyPrayerTimesWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = DailyPrayerTimesWidget()
+}
+
+class IslamicCalendarWidget : GlanceAppWidget() {
+    override val sizeMode: SizeMode = SizeMode.Exact
+
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        // Re-armed on every render, not only when the app publishes: a reboot
+        // drops alarms, and the launcher's own periodic update then puts the
+        // midnight roll-over back without the app having to be opened.
+        scheduleNextCalendarWidgetRefresh(context.applicationContext)
+        provideContent {
+            IslamicCalendarWidgetContent()
+        }
+    }
+}
+
+class IslamicCalendarWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = IslamicCalendarWidget()
+}
+
+class CalendarWidgetRefreshReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != ACTION_REFRESH_CALENDAR_WIDGET) return
+
+        CoroutineScope(Dispatchers.Main).launch {
+            IslamicCalendarWidget().updateAll(context.applicationContext)
+            scheduleNextCalendarWidgetRefresh(context.applicationContext)
+        }
+    }
 }
 
 class PrayerWidgetRefreshReceiver : BroadcastReceiver() {
@@ -954,6 +993,35 @@ fun scheduleNextRecitationWidgetRefresh(context: Context) {
     }
 }
 
+fun scheduleNextCalendarWidgetRefresh(context: Context) {
+    // A moment past midnight rather than on it, so the render lands on the new
+    // day's entry instead of racing the boundary.
+    val triggerAt = nextLocalMidnightMillis() + 5_000L
+
+    val intent = Intent(context, CalendarWidgetRefreshReceiver::class.java).apply {
+        action = ACTION_REFRESH_CALENDAR_WIDGET
+    }
+    val flags = PendingIntent.FLAG_UPDATE_CURRENT or (
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+        )
+    val pendingIntent = PendingIntent.getBroadcast(context, 2, intent, flags)
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+    try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerAt,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+        }
+    } catch (_: SecurityException) {
+        alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+    }
+}
+
 /**
  * Does nothing. Used so every row in a widget's LazyColumn has a click action
  * (see the comment at its usage site) even when that row has no URL to open.
@@ -1202,3 +1270,428 @@ private fun android.content.SharedPreferences.dailyPrayerTimes(
 
 private fun android.content.SharedPreferences.nextPrayerEpochMillis(): Long? =
     upcomingPrayers().firstOrNull()?.epochMillis
+
+// Islamic calendar
+
+private data class CalendarDay(
+    val startEpochMillis: Long,
+    val day: Int,
+    val month: String,
+    val year: Int,
+    /** Today's event, name first ("Hazrat Fatima Zahra (s.a.)"); empty on most days. */
+    val event: String,
+    /** [event] with "Hazrat"/"Imam" cut to "H."/"I.", for the 2x2 size. */
+    val eventShort: String,
+    /** "Birth", "Martyrdom", "Death", or empty. */
+    val kind: String,
+    val color: Int
+)
+
+private data class CalendarEvent(
+    val startEpochMillis: Long,
+    val day: Int,
+    val monthShort: String,
+    val title: String,
+    val short: String,
+    val kind: String,
+    val color: Int
+)
+
+/** The one event the 2x2 size has room for: today's, or failing that the next. */
+private data class FeaturedEvent(
+    val name: String,
+    val kind: String,
+    val color: Int,
+    val daysAway: Int
+)
+
+/**
+ * The hijri date for today, or null when the app has never published one or
+ * the published run of days has been used up. Each entry starts at local
+ * midnight and the last one that has started is today, the same rule the
+ * list widgets' schedules follow.
+ */
+private fun android.content.SharedPreferences.currentCalendarDay(now: Long): CalendarDay? {
+    val day = calendarDays().lastOrNull { it.startEpochMillis <= now } ?: return null
+    // A day is at most 25 hours long (DST); past that the run has ended and the
+    // last entry is no longer today.
+    return day.takeIf { now - it.startEpochMillis < DAY_MILLIS + 60L * 60L * 1000L }
+}
+
+private fun android.content.SharedPreferences.calendarDays(): List<CalendarDay> {
+    val raw = getString(KEY_CALENDAR_DAYS, "")
+    if (raw.isNullOrBlank()) return emptyList()
+
+    return try {
+        val entries = JSONArray(raw)
+        List(entries.length()) { index ->
+            val entry = entries.getJSONObject(index)
+            val event = entry.optString("event", "").trim()
+            CalendarDay(
+                startEpochMillis = entry.optLong("start"),
+                day = entry.optInt("day"),
+                month = entry.optString("month", "").trim(),
+                year = entry.optInt("year"),
+                event = event,
+                eventShort = entry.optString("eventShort", "").trim().ifBlank { event },
+                kind = entry.optString("kind", "").trim(),
+                color = entry.optInt("color", -1)
+            )
+        }
+            .filter { it.startEpochMillis > 0L && it.day > 0 }
+            .sortedBy { it.startEpochMillis }
+    } catch (_: Exception) {
+        emptyList()
+    }
+}
+
+private fun android.content.SharedPreferences.calendarEvents(): List<CalendarEvent> {
+    val raw = getString(KEY_CALENDAR_EVENTS, "")
+    if (raw.isNullOrBlank()) return emptyList()
+
+    return try {
+        val entries = JSONArray(raw)
+        List(entries.length()) { index ->
+            val entry = entries.getJSONObject(index)
+            val title = entry.optString("title", "").trim()
+            CalendarEvent(
+                startEpochMillis = entry.optLong("start"),
+                day = entry.optInt("day"),
+                monthShort = entry.optString("monthShort", "").trim(),
+                title = title,
+                short = entry.optString("short", "").trim().ifBlank { title },
+                kind = entry.optString("kind", "").trim(),
+                color = entry.optInt("color", -1)
+            )
+        }
+            .filter { it.startEpochMillis > 0L && it.title.isNotBlank() }
+            .sortedBy { it.startEpochMillis }
+    } catch (_: Exception) {
+        emptyList()
+    }
+}
+
+private fun startOfLocalDayMillis(epochMillis: Long): Long {
+    return Calendar.getInstance().apply {
+        timeInMillis = epochMillis
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+}
+
+/** Whole calendar days from [todayStart] to [startEpochMillis]. Rounded, so a DST day still counts as one. */
+private fun daysAway(startEpochMillis: Long, todayStart: Long): Int =
+    Math.round((startEpochMillis - todayStart).toDouble() / DAY_MILLIS).toInt()
+
+/**
+ * "Today · Death", "Birth · in 17 days", "In 4 days": what happened and when,
+ * the line under an event's name.
+ */
+private fun eventMetaLine(kind: String, days: Int): String {
+    val time = when {
+        days <= 0 -> "today"
+        days == 1 -> "tomorrow"
+        else -> "in $days days"
+    }
+    return if (kind.isBlank()) {
+        time.replaceFirstChar { it.uppercase() }
+    } else if (days <= 0) {
+        "Today · $kind"
+    } else {
+        "$kind · $time"
+    }
+}
+
+private fun calendarEventColor(code: Int): ColorProvider = when (code) {
+    0 -> eventGreenColor
+    1 -> eventRedColor
+    else -> accentColor
+}
+
+private fun formatLocalDate(epochMillis: Long, pattern: String): String =
+    java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault()).format(java.util.Date(epochMillis))
+
+@Composable
+private fun IslamicCalendarWidgetContent() {
+    val context = LocalContext.current
+    val data = context.widgetData()
+    val now = System.currentTimeMillis()
+    val todayStart = startOfLocalDayMillis(now)
+    val tomorrowStart = nextLocalMidnightMillis()
+    val today = data.currentCalendarDay(now)
+    // Today's event is shown with the date, so the list is what follows.
+    val upcoming = data.calendarEvents().filter {
+        it.startEpochMillis >= if (today == null) todayStart else tomorrowStart
+    }
+    val url = data.text(KEY_CALENDAR_URL, "").takeIf { it.isNotBlank() }
+    val size = LocalSize.current
+    val width = size.width.value
+    val height = size.height.value
+    val padding = 16
+    val innerHeight = height - 2 * padding
+
+    WidgetSurface(clickable = true, clickUrl = url, contentPadding = padding) {
+        if (today == null) {
+            Text(
+                text = "Islamic Calendar",
+                style = TextStyle(
+                    color = primaryTextColor,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1
+            )
+            Spacer(GlanceModifier.defaultWeight())
+            Text(
+                text = "Open app to refresh",
+                modifier = GlanceModifier.fillMaxWidth(),
+                style = TextStyle(
+                    color = bodyTextColor,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center
+                ),
+                maxLines = 2
+            )
+            Spacer(GlanceModifier.defaultWeight())
+            return@WidgetSurface
+        }
+
+        when {
+            // 2x2: the date and the one event that matters most.
+            width < 250f -> {
+                val featured = if (today.event.isNotBlank()) {
+                    FeaturedEvent(today.eventShort, today.kind, today.color, 0)
+                } else {
+                    upcoming.firstOrNull()?.let {
+                        FeaturedEvent(it.short, it.kind, it.color, daysAway(it.startEpochMillis, todayStart))
+                    }
+                }
+                CalendarSmallContent(today, featured, now)
+            }
+            // 4x2: the date, today's event beside it, and the next two.
+            innerHeight < 210f -> {
+                CalendarHeader(today, now, compact = true)
+                Spacer(GlanceModifier.height(8.dp))
+                HorizontalDivider()
+                Spacer(GlanceModifier.height(4.dp))
+                Column(modifier = GlanceModifier.fillMaxWidth()) {
+                    upcoming.take(2).forEach { CalendarAgendaRow(it, todayStart, rowHeight = 38f) }
+                }
+                Spacer(GlanceModifier.defaultWeight())
+            }
+            // 4x3 and up: today's event in its own card, then as many as fit.
+            else -> {
+                CalendarHeader(today, now, compact = false)
+                val hasToday = today.event.isNotBlank()
+                if (hasToday) {
+                    Spacer(GlanceModifier.height(10.dp))
+                    CalendarTodayCard(today)
+                }
+                Spacer(GlanceModifier.height(10.dp))
+                Text(
+                    text = "COMING UP",
+                    style = TextStyle(color = secondaryTextColor, fontSize = 11.sp, fontWeight = FontWeight.Bold),
+                    maxLines = 1
+                )
+                val rowHeight = 38f
+                val used = 44f + 10f + (if (hasToday) 66f else 0f) + 24f
+                // Capped at 8: a Glance Column holds at most ten children.
+                val rows = ((innerHeight - used) / rowHeight).toInt().coerceIn(1, 8)
+                Column(modifier = GlanceModifier.fillMaxWidth()) {
+                    upcoming.take(rows).forEach { CalendarAgendaRow(it, todayStart, rowHeight) }
+                }
+                Spacer(GlanceModifier.defaultWeight())
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.CalendarSmallContent(today: CalendarDay, featured: FeaturedEvent?, now: Long) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = today.day.toString(),
+            style = TextStyle(color = accentColor, fontSize = 34.sp, fontWeight = FontWeight.Bold),
+            maxLines = 1
+        )
+        Spacer(GlanceModifier.width(8.dp))
+        Column {
+            Text(
+                text = today.month,
+                style = TextStyle(color = primaryTextColor, fontSize = 13.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+            Text(
+                text = formatLocalDate(now, "EEE d MMM"),
+                style = TextStyle(color = secondaryTextColor, fontSize = 11.sp, fontWeight = FontWeight.Medium),
+                maxLines = 1
+            )
+        }
+    }
+    Spacer(GlanceModifier.defaultWeight())
+    if (featured != null) {
+        val isToday = featured.daysAway <= 0
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "●",
+                style = TextStyle(color = calendarEventColor(featured.color), fontSize = 8.sp),
+                maxLines = 1
+            )
+            Spacer(GlanceModifier.width(5.dp))
+            Text(
+                text = eventMetaLine(featured.kind, featured.daysAway).uppercase(),
+                style = TextStyle(
+                    color = if (isToday) calendarEventColor(featured.color) else secondaryTextColor,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1
+            )
+        }
+        Spacer(GlanceModifier.height(3.dp))
+        Text(
+            text = featured.name,
+            style = TextStyle(color = primaryTextColor, fontSize = 15.sp, fontWeight = FontWeight.Bold),
+            maxLines = 2
+        )
+    }
+}
+
+/** The hijri day large, then "Jumada al-Awwal 1448" over today's event or the Gregorian date. */
+@Composable
+private fun CalendarHeader(today: CalendarDay, now: Long, compact: Boolean) {
+    Row(
+        modifier = GlanceModifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = today.day.toString(),
+            style = TextStyle(
+                color = accentColor,
+                fontSize = (if (compact) 30 else 38).sp,
+                fontWeight = FontWeight.Bold
+            ),
+            maxLines = 1
+        )
+        Spacer(GlanceModifier.width(10.dp))
+        Column(modifier = GlanceModifier.defaultWeight()) {
+            Text(
+                text = "${today.month} ${today.year}",
+                style = TextStyle(
+                    color = primaryTextColor,
+                    fontSize = (if (compact) 14 else 16).sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1
+            )
+            if (compact && today.event.isNotBlank()) {
+                // The 4x2 has no room for a card, so today's event rides on
+                // the date's second line, worded in full.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "● Today: ",
+                        style = TextStyle(color = calendarEventColor(today.color), fontSize = 11.sp, fontWeight = FontWeight.Medium),
+                        maxLines = 1
+                    )
+                    Text(
+                        text = if (today.kind.isBlank()) today.event else "${today.kind} of ${today.event}",
+                        style = TextStyle(color = secondaryTextColor, fontSize = 11.sp, fontWeight = FontWeight.Medium),
+                        maxLines = 1
+                    )
+                }
+            } else {
+                Text(
+                    text = if (compact) {
+                        formatLocalDate(now, "EEEE, d MMMM") + " · no event today"
+                    } else {
+                        formatLocalDate(now, "EEEE, d MMMM")
+                    },
+                    style = TextStyle(
+                        color = secondaryTextColor,
+                        fontSize = (if (compact) 11 else 12).sp,
+                        fontWeight = FontWeight.Medium
+                    ),
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CalendarTodayCard(today: CalendarDay) {
+    Column(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .background(ImageProvider(R.drawable.widget_highlight))
+            .padding(horizontal = 11.dp, vertical = 9.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "●",
+                style = TextStyle(color = calendarEventColor(today.color), fontSize = 8.sp),
+                maxLines = 1
+            )
+            Spacer(GlanceModifier.width(5.dp))
+            Text(
+                text = eventMetaLine(today.kind, 0).uppercase(),
+                style = TextStyle(color = calendarEventColor(today.color), fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+        }
+        Spacer(GlanceModifier.height(2.dp))
+        Text(
+            text = today.event,
+            style = TextStyle(color = primaryTextColor, fontSize = 15.sp, fontWeight = FontWeight.Bold),
+            maxLines = 1
+        )
+    }
+}
+
+/** One upcoming event: its hijri date in a column on the left, the name, then what and when. */
+@Composable
+private fun CalendarAgendaRow(event: CalendarEvent, todayStart: Long, rowHeight: Float) {
+    Row(
+        modifier = GlanceModifier.fillMaxWidth().height(rowHeight.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = GlanceModifier.width(36.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = event.day.toString(),
+                style = TextStyle(color = primaryTextColor, fontSize = 17.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+            Text(
+                text = event.monthShort.uppercase(),
+                style = TextStyle(color = secondaryTextColor, fontSize = 9.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+        }
+        Spacer(GlanceModifier.width(10.dp))
+        Column(modifier = GlanceModifier.defaultWeight()) {
+            Text(
+                text = event.title,
+                style = TextStyle(color = primaryTextColor, fontSize = 13.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "●",
+                    style = TextStyle(color = calendarEventColor(event.color), fontSize = 7.sp),
+                    maxLines = 1
+                )
+                Spacer(GlanceModifier.width(5.dp))
+                Text(
+                    text = eventMetaLine(event.kind, daysAway(event.startEpochMillis, todayStart)),
+                    style = TextStyle(color = secondaryTextColor, fontSize = 11.sp),
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}

@@ -18,6 +18,10 @@ class ZikrAudioTrack {
 
   const ZikrAudioTrack({required this.url, this.label, this.reciter});
 
+  /// The recording's file name - what a playlist remembers a chosen
+  /// recording by, since it survives the bucket moving where [url] would not.
+  String get file => Uri.decodeComponent(url.split('/').last);
+
   /// The lock screen's second line: the reciter, or the app when unknown.
   String get artist => reciter ?? 'Shia Companion';
 
