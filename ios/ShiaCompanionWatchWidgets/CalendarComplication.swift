@@ -15,29 +15,35 @@ struct CalendarComplicationEntry: TimelineEntry {
             date: date,
             day: HijriDay(
                 start: date,
-                day: 15,
-                month: "Rabi' Al-Thani",
+                day: 18,
+                month: "Rabi' al-Thani",
                 monthShort: "Rab II",
                 year: 1448,
                 event: "",
+                eventShort: "",
+                kind: "",
                 color: -1
             ),
             next: IslamicEvent(
-                start: date.addingTimeInterval(8 * 86400),
-                hijri: "8 Jumada Al-Awwal",
-                title: "Birth of Imam Hasan Askari (a.s.)",
+                start: date.addingTimeInterval(17 * 86400),
+                day: 5,
+                monthShort: "Jum I",
+                title: "Hazrat Zainab bint-e-Ali (a.s.)",
+                short: "H. Zainab bint-e-Ali (a.s.)",
+                kind: "Birth",
                 color: 1
             )
         )
     }
 
-    /// Today's event when there is one, otherwise what comes next.
-    var headlineEvent: (title: String, color: Int, when: String)? {
+    /// The one event there is room for: today's when there is one, otherwise the
+    /// next. `meta` is "Today · Death" or "Birth · in 17 days".
+    var headlineEvent: (title: String, meta: String)? {
         if let day, !day.event.isEmpty {
-            return (day.event, day.color, "Today")
+            return (day.event, calendarMetaLine(kind: day.kind, start: day.start, now: date))
         }
         if let next {
-            return (next.title, next.color, relativeDayLabel(next.start, from: date))
+            return (next.title, calendarMetaLine(kind: next.kind, start: next.start, now: date))
         }
         return nil
     }
@@ -132,29 +138,36 @@ struct CalendarComplicationView: View {
             .font(.system(size: 22, weight: .bold, design: .rounded))
             .widgetAccentable()
             .widgetLabel {
-                Text(entry.day?.month ?? "Open iPhone app")
+                // Short month: the curved label clips a full one like
+                // "Jumada al-Awwal".
+                Text(cornerLabel)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.primary)
                     .widgetAccentable()
             }
     }
 
+    private var cornerLabel: String {
+        guard let day = entry.day else { return "Open iPhone app" }
+        return "\(day.monthShort) \(day.year)"
+    }
+
     private var inline: some View {
         Label {
-            Text(entry.day?.dateLine ?? "Open iPhone app")
+            Text(entry.day?.shortDateLine ?? "Open iPhone app")
         } icon: {
             Image(systemName: "moon.stars")
         }
     }
 
-    /// The hijri date as a heading, then today's event — or the next one and how far off
-    /// it is.
+    /// The hijri date as a heading, then one event: today's, or the next one and how
+    /// far off it is.
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 3) {
                 Image(systemName: "moon.stars")
                     .font(.system(size: 10, weight: .semibold))
-                Text(entry.day?.dateLine ?? "Islamic Calendar")
+                Text(entry.day?.shortDateLine ?? "Islamic Calendar")
                     .font(.system(size: 13, weight: .semibold))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
@@ -163,14 +176,12 @@ struct CalendarComplicationView: View {
 
             if let event = entry.headlineEvent {
                 Text(event.title)
-                    .font(.system(size: 12))
-                    .lineLimit(2)
-                if event.when != "Today" {
-                    Text(event.when)
-                        .font(.system(size: 10))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
+                    .font(.system(size: 13, weight: .semibold))
+                    .lineLimit(1)
+                Text(event.meta)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             } else if entry.day == nil {
                 Text("Open the iPhone app to sync.")
                     .font(.system(size: 11))
@@ -245,7 +256,9 @@ struct CalendarComplication_Previews: PreviewProvider {
                 month: "Muharram",
                 monthShort: "Muh",
                 year: 1448,
-                event: "Ashoora ‐ Martyrdom of Imam Hussain(a.s.) and his companions",
+                event: "Ashoora - Martyrdom of Imam Hussain (a.s.) and his companions",
+                eventShort: "Ashoora - Martyrdom of Imam Hussain (a.s.) and his companions",
+                kind: "",
                 color: 0
             ),
             next: nil

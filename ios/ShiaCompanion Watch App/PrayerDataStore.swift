@@ -254,22 +254,36 @@ nonisolated struct HijriDay: Hashable, Sendable {
     let start: Date
     let day: Int
     let month: String
+    /// "Jum I", "Rab II": for the complications, where the full name does not fit.
     let monthShort: String
     let year: Int
-    /// Today's event, already shortened to one line by the phone. Empty on most days.
+    /// Today's event, name first ("Hazrat Fatima Zahra (s.a.)"). Empty on most days.
     let event: String
+    /// `event` with "Hazrat"/"Imam" cut to "H."/"I.".
+    let eventShort: String
+    /// "Birth", "Martyrdom", "Death", or empty for an event about no one person.
+    let kind: String
     /// events.json's colour: 0 green, 1 red, -1 none.
     let color: Int
 
+    /// "13 Jumada al-Awwal", for the app's own screens.
     var dateLine: String { "\(day) \(month)" }
+    /// "13 Jum I 1448", for the complications.
+    var shortDateLine: String { "\(day) \(monthShort) \(year)" }
 }
 
 nonisolated struct IslamicEvent: Hashable, Sendable {
     let start: Date
-    /// "17 Rabi' Al-Awwal"
-    let hijri: String
+    let day: Int
+    let monthShort: String
     let title: String
+    let short: String
+    let kind: String
     let color: Int
+}
+
+private nonisolated func calendarString(_ entry: [String: Any], _ key: String) -> String {
+    ((entry[key] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
 }
 
 nonisolated func parseHijriDays(_ raw: String) -> [HijriDay] {
@@ -285,13 +299,17 @@ nonisolated func parseHijriDays(_ raw: String) -> [HijriDay] {
             let day = (entry["day"] as? NSNumber)?.intValue,
             day > 0
         else { return nil }
+        let event = calendarString(entry, "event")
+        let eventShort = calendarString(entry, "eventShort")
         return HijriDay(
             start: Date(timeIntervalSince1970: start / 1000.0),
             day: day,
-            month: (entry["month"] as? String) ?? "",
-            monthShort: (entry["monthShort"] as? String) ?? "",
+            month: calendarString(entry, "month"),
+            monthShort: calendarString(entry, "monthShort"),
             year: (entry["year"] as? NSNumber)?.intValue ?? 0,
-            event: ((entry["event"] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines),
+            event: event,
+            eventShort: eventShort.isEmpty ? event : eventShort,
+            kind: calendarString(entry, "kind"),
             color: (entry["color"] as? NSNumber)?.intValue ?? -1
         )
     }
@@ -306,32 +324,43 @@ nonisolated func parseIslamicEvents(_ raw: String) -> [IslamicEvent] {
     else { return [] }
 
     return entries.compactMap { entry -> IslamicEvent? in
+        let title = calendarString(entry, "title")
         guard
             let start = (entry["start"] as? NSNumber)?.doubleValue,
-            let title = (entry["title"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
             !title.isEmpty
         else { return nil }
+        let short = calendarString(entry, "short")
         return IslamicEvent(
             start: Date(timeIntervalSince1970: start / 1000.0),
-            hijri: (entry["hijri"] as? String) ?? "",
+            day: (entry["day"] as? NSNumber)?.intValue ?? 0,
+            monthShort: calendarString(entry, "monthShort"),
             title: title,
+            short: short.isEmpty ? title : short,
+            kind: calendarString(entry, "kind"),
             color: (entry["color"] as? NSNumber)?.intValue ?? -1
         )
     }
     .sorted { $0.start < $1.start }
 }
 
-/// "Today", "Tomorrow" or "in 12 days", counted in calendar days.
-nonisolated func relativeDayLabel(_ start: Date, from now: Date = Date()) -> String {
+/// Whole calendar days from `now`'s date to `start`'s.
+nonisolated func calendarDaysAway(_ start: Date, from now: Date = Date()) -> Int {
     let calendar = Calendar.current
-    let days = calendar.dateComponents(
+    return calendar.dateComponents(
         [.day],
         from: calendar.startOfDay(for: now),
         to: calendar.startOfDay(for: start)
     ).day ?? 0
-    if days <= 0 { return "Today" }
-    if days == 1 { return "Tomorrow" }
-    return "in \(days) days"
+}
+
+/// "Today · Death", "Birth · in 17 days", "In 4 days": what happened and when.
+nonisolated func calendarMetaLine(kind: String, start: Date, now: Date = Date()) -> String {
+    let days = calendarDaysAway(start, from: now)
+    let time = days <= 0 ? "today" : days == 1 ? "tomorrow" : "in \(days) days"
+    if kind.isEmpty {
+        return time.prefix(1).uppercased() + time.dropFirst()
+    }
+    return days <= 0 ? "Today · \(kind)" : "\(kind) · \(time)"
 }
 
 /// events.json's colours, read the way the phone's Calendar page reads them.

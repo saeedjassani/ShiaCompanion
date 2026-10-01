@@ -1278,15 +1278,31 @@ private data class CalendarDay(
     val day: Int,
     val month: String,
     val year: Int,
+    /** Today's event, name first ("Hazrat Fatima Zahra (s.a.)"); empty on most days. */
     val event: String,
+    /** [event] with "Hazrat"/"Imam" cut to "H."/"I.", for the 2x2 size. */
+    val eventShort: String,
+    /** "Birth", "Martyrdom", "Death", or empty. */
+    val kind: String,
     val color: Int
 )
 
 private data class CalendarEvent(
     val startEpochMillis: Long,
-    val hijri: String,
+    val day: Int,
+    val monthShort: String,
     val title: String,
+    val short: String,
+    val kind: String,
     val color: Int
+)
+
+/** The one event the 2x2 size has room for: today's, or failing that the next. */
+private data class FeaturedEvent(
+    val name: String,
+    val kind: String,
+    val color: Int,
+    val daysAway: Int
 )
 
 /**
@@ -1310,12 +1326,15 @@ private fun android.content.SharedPreferences.calendarDays(): List<CalendarDay> 
         val entries = JSONArray(raw)
         List(entries.length()) { index ->
             val entry = entries.getJSONObject(index)
+            val event = entry.optString("event", "").trim()
             CalendarDay(
                 startEpochMillis = entry.optLong("start"),
                 day = entry.optInt("day"),
                 month = entry.optString("month", "").trim(),
                 year = entry.optInt("year"),
-                event = entry.optString("event", "").trim(),
+                event = event,
+                eventShort = entry.optString("eventShort", "").trim().ifBlank { event },
+                kind = entry.optString("kind", "").trim(),
                 color = entry.optInt("color", -1)
             )
         }
@@ -1334,10 +1353,14 @@ private fun android.content.SharedPreferences.calendarEvents(): List<CalendarEve
         val entries = JSONArray(raw)
         List(entries.length()) { index ->
             val entry = entries.getJSONObject(index)
+            val title = entry.optString("title", "").trim()
             CalendarEvent(
                 startEpochMillis = entry.optLong("start"),
-                hijri = entry.optString("hijri", "").trim(),
-                title = entry.optString("title", "").trim(),
+                day = entry.optInt("day"),
+                monthShort = entry.optString("monthShort", "").trim(),
+                title = title,
+                short = entry.optString("short", "").trim().ifBlank { title },
+                kind = entry.optString("kind", "").trim(),
                 color = entry.optInt("color", -1)
             )
         }
@@ -1358,13 +1381,26 @@ private fun startOfLocalDayMillis(epochMillis: Long): Long {
     }.timeInMillis
 }
 
-/** "Today", "Tomorrow" or "in 12 days". Rounded, so a DST day still counts as one. */
-private fun relativeDayLabel(startEpochMillis: Long, todayStart: Long): String {
-    val days = Math.round((startEpochMillis - todayStart).toDouble() / DAY_MILLIS).toInt()
-    return when {
-        days <= 0 -> "Today"
-        days == 1 -> "Tomorrow"
+/** Whole calendar days from [todayStart] to [startEpochMillis]. Rounded, so a DST day still counts as one. */
+private fun daysAway(startEpochMillis: Long, todayStart: Long): Int =
+    Math.round((startEpochMillis - todayStart).toDouble() / DAY_MILLIS).toInt()
+
+/**
+ * "Today · Death", "Birth · in 17 days", "In 4 days": what happened and when,
+ * the line under an event's name.
+ */
+private fun eventMetaLine(kind: String, days: Int): String {
+    val time = when {
+        days <= 0 -> "today"
+        days == 1 -> "tomorrow"
         else -> "in $days days"
+    }
+    return if (kind.isBlank()) {
+        time.replaceFirstChar { it.uppercase() }
+    } else if (days <= 0) {
+        "Today · $kind"
+    } else {
+        "$kind · $time"
     }
 }
 
@@ -1374,6 +1410,9 @@ private fun calendarEventColor(code: Int): ColorProvider = when (code) {
     else -> accentColor
 }
 
+private fun formatLocalDate(epochMillis: Long, pattern: String): String =
+    java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault()).format(java.util.Date(epochMillis))
+
 @Composable
 private fun IslamicCalendarWidgetContent() {
     val context = LocalContext.current
@@ -1382,7 +1421,7 @@ private fun IslamicCalendarWidgetContent() {
     val todayStart = startOfLocalDayMillis(now)
     val tomorrowStart = nextLocalMidnightMillis()
     val today = data.currentCalendarDay(now)
-    // Today's event is already on the date itself, so the list is what follows.
+    // Today's event is shown with the date, so the list is what follows.
     val upcoming = data.calendarEvents().filter {
         it.startEpochMillis >= if (today == null) todayStart else tomorrowStart
     }
@@ -1390,8 +1429,7 @@ private fun IslamicCalendarWidgetContent() {
     val size = LocalSize.current
     val width = size.width.value
     val height = size.height.value
-    val padding = if (minOf(width, height) >= 150f) 16 else 12
-    val innerWidth = width - 2 * padding
+    val padding = 16
     val innerHeight = height - 2 * padding
 
     WidgetSurface(clickable = true, clickUrl = url, contentPadding = padding) {
@@ -1420,155 +1458,240 @@ private fun IslamicCalendarWidgetContent() {
             return@WidgetSurface
         }
 
-        val wide = width >= 250f && height < 170f && upcoming.isNotEmpty()
-        if (wide) {
-            // Side by side, like the Up Next widget: the date on the left, what
-            // is coming up on the right.
-            val scale = minOf(innerWidth / 300f, innerHeight / 100f).coerceIn(0.85f, 1.2f)
-            val rowHeight = (22f * scale).coerceIn(18f, 28f)
-            val rows = (innerHeight / rowHeight).toInt().coerceIn(1, 5)
-            Row(
-                modifier = GlanceModifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    HijriDateHero(today, scale, eventLines = 2)
-                }
-                Spacer(GlanceModifier.width(12.dp))
-                VerticalDivider()
-                Spacer(GlanceModifier.width(12.dp))
-                Column(
-                    modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    upcoming.take(rows).forEach {
-                        CalendarEventRow(it, todayStart, scale, rowHeight)
+        when {
+            // 2x2: the date and the one event that matters most.
+            width < 250f -> {
+                val featured = if (today.event.isNotBlank()) {
+                    FeaturedEvent(today.eventShort, today.kind, today.color, 0)
+                } else {
+                    upcoming.firstOrNull()?.let {
+                        FeaturedEvent(it.short, it.kind, it.color, daysAway(it.startEpochMillis, todayStart))
                     }
                 }
+                CalendarSmallContent(today, featured, now)
             }
-        } else {
-            val scale = minOf(innerWidth / 200f, innerHeight / 130f).coerceIn(0.8f, 1.25f)
-            val rowHeight = (22f * scale).coerceIn(18f, 28f)
-            val eventLines = if (innerHeight >= 150f) 2 else 1
-            val heroHeight = (58f + if (today.event.isNotBlank()) 17f * eventLines else 0f) * scale
-            val rows = ((innerHeight - heroHeight - 14f) / rowHeight).toInt().coerceIn(0, 6)
-            // The hero and the rows each get a Column of their own: a Glance
-            // Row or Column takes at most ten children, and the two together
-            // can come to more than that on a tall widget.
-            Column(modifier = GlanceModifier.fillMaxWidth()) {
-                HijriDateHero(today, scale, eventLines)
-            }
-            if (upcoming.isNotEmpty() && rows >= 1) {
-                Spacer(GlanceModifier.defaultWeight())
+            // 4x2: the date, today's event beside it, and the next two.
+            innerHeight < 210f -> {
+                CalendarHeader(today, now, compact = true)
+                Spacer(GlanceModifier.height(8.dp))
                 HorizontalDivider()
                 Spacer(GlanceModifier.height(4.dp))
                 Column(modifier = GlanceModifier.fillMaxWidth()) {
-                    upcoming.take(rows).forEach {
-                        CalendarEventRow(it, todayStart, scale, rowHeight)
-                    }
+                    upcoming.take(2).forEach { CalendarAgendaRow(it, todayStart, rowHeight = 38f) }
                 }
+                Spacer(GlanceModifier.defaultWeight())
             }
-            Spacer(GlanceModifier.defaultWeight())
+            // 4x3 and up: today's event in its own card, then as many as fit.
+            else -> {
+                CalendarHeader(today, now, compact = false)
+                val hasToday = today.event.isNotBlank()
+                if (hasToday) {
+                    Spacer(GlanceModifier.height(10.dp))
+                    CalendarTodayCard(today)
+                }
+                Spacer(GlanceModifier.height(10.dp))
+                Text(
+                    text = "COMING UP",
+                    style = TextStyle(color = secondaryTextColor, fontSize = 11.sp, fontWeight = FontWeight.Bold),
+                    maxLines = 1
+                )
+                val rowHeight = 38f
+                val used = 44f + 10f + (if (hasToday) 66f else 0f) + 24f
+                // Capped at 8: a Glance Column holds at most ten children.
+                val rows = ((innerHeight - used) / rowHeight).toInt().coerceIn(1, 8)
+                Column(modifier = GlanceModifier.fillMaxWidth()) {
+                    upcoming.take(rows).forEach { CalendarAgendaRow(it, todayStart, rowHeight) }
+                }
+                Spacer(GlanceModifier.defaultWeight())
+            }
         }
     }
 }
 
-/** The hijri day large, its month and year beside it, today's Gregorian date and event below. */
 @Composable
-private fun HijriDateHero(day: CalendarDay, scale: Float, eventLines: Int) {
+private fun ColumnScope.CalendarSmallContent(today: CalendarDay, featured: FeaturedEvent?, now: Long) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = today.day.toString(),
+            style = TextStyle(color = accentColor, fontSize = 34.sp, fontWeight = FontWeight.Bold),
+            maxLines = 1
+        )
+        Spacer(GlanceModifier.width(8.dp))
+        Column {
+            Text(
+                text = today.month,
+                style = TextStyle(color = primaryTextColor, fontSize = 13.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+            Text(
+                text = formatLocalDate(now, "EEE d MMM"),
+                style = TextStyle(color = secondaryTextColor, fontSize = 11.sp, fontWeight = FontWeight.Medium),
+                maxLines = 1
+            )
+        }
+    }
+    Spacer(GlanceModifier.defaultWeight())
+    if (featured != null) {
+        val isToday = featured.daysAway <= 0
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "●",
+                style = TextStyle(color = calendarEventColor(featured.color), fontSize = 8.sp),
+                maxLines = 1
+            )
+            Spacer(GlanceModifier.width(5.dp))
+            Text(
+                text = eventMetaLine(featured.kind, featured.daysAway).uppercase(),
+                style = TextStyle(
+                    color = if (isToday) calendarEventColor(featured.color) else secondaryTextColor,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1
+            )
+        }
+        Spacer(GlanceModifier.height(3.dp))
+        Text(
+            text = featured.name,
+            style = TextStyle(color = primaryTextColor, fontSize = 15.sp, fontWeight = FontWeight.Bold),
+            maxLines = 2
+        )
+    }
+}
+
+/** The hijri day large, then "Jumada al-Awwal 1448" over today's event or the Gregorian date. */
+@Composable
+private fun CalendarHeader(today: CalendarDay, now: Long, compact: Boolean) {
     Row(
         modifier = GlanceModifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = day.day.toString(),
+            text = today.day.toString(),
             style = TextStyle(
                 color = accentColor,
-                fontSize = (32f * scale).sp,
+                fontSize = (if (compact) 30 else 38).sp,
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 1
         )
-        Spacer(GlanceModifier.width(8.dp))
+        Spacer(GlanceModifier.width(10.dp))
         Column(modifier = GlanceModifier.defaultWeight()) {
             Text(
-                text = day.month,
+                text = "${today.month} ${today.year}",
                 style = TextStyle(
                     color = primaryTextColor,
-                    fontSize = (14f * scale).sp,
+                    fontSize = (if (compact) 14 else 16).sp,
                     fontWeight = FontWeight.Bold
                 ),
                 maxLines = 1
             )
-            Text(
-                text = "${day.year} AH",
-                style = TextStyle(
-                    color = secondaryTextColor,
-                    fontSize = (11f * scale).sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                maxLines = 1
-            )
-        }
-    }
-    DateText(sizeSp = 11f * scale)
-    if (day.event.isNotBlank()) {
-        Spacer(GlanceModifier.height(4.dp))
-        Row(verticalAlignment = Alignment.Top) {
-            Text(
-                text = "●",
-                style = TextStyle(color = calendarEventColor(day.color), fontSize = (10f * scale).sp),
-                maxLines = 1
-            )
-            Spacer(GlanceModifier.width(5.dp))
-            Text(
-                text = day.event,
-                style = TextStyle(
-                    color = bodyTextColor,
-                    fontSize = (12f * scale).sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                maxLines = eventLines
-            )
+            if (compact && today.event.isNotBlank()) {
+                // The 4x2 has no room for a card, so today's event rides on
+                // the date's second line, worded in full.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "● Today: ",
+                        style = TextStyle(color = calendarEventColor(today.color), fontSize = 11.sp, fontWeight = FontWeight.Medium),
+                        maxLines = 1
+                    )
+                    Text(
+                        text = if (today.kind.isBlank()) today.event else "${today.kind} of ${today.event}",
+                        style = TextStyle(color = secondaryTextColor, fontSize = 11.sp, fontWeight = FontWeight.Medium),
+                        maxLines = 1
+                    )
+                }
+            } else {
+                Text(
+                    text = if (compact) {
+                        formatLocalDate(now, "EEEE, d MMMM") + " · no event today"
+                    } else {
+                        formatLocalDate(now, "EEEE, d MMMM")
+                    },
+                    style = TextStyle(
+                        color = secondaryTextColor,
+                        fontSize = (if (compact) 11 else 12).sp,
+                        fontWeight = FontWeight.Medium
+                    ),
+                    maxLines = 1
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun CalendarEventRow(
-    event: CalendarEvent,
-    todayStart: Long,
-    scale: Float,
-    rowHeight: Float
-) {
+private fun CalendarTodayCard(today: CalendarDay) {
+    Column(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .background(ImageProvider(R.drawable.widget_highlight))
+            .padding(horizontal = 11.dp, vertical = 9.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "●",
+                style = TextStyle(color = calendarEventColor(today.color), fontSize = 8.sp),
+                maxLines = 1
+            )
+            Spacer(GlanceModifier.width(5.dp))
+            Text(
+                text = eventMetaLine(today.kind, 0).uppercase(),
+                style = TextStyle(color = calendarEventColor(today.color), fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+        }
+        Spacer(GlanceModifier.height(2.dp))
+        Text(
+            text = today.event,
+            style = TextStyle(color = primaryTextColor, fontSize = 15.sp, fontWeight = FontWeight.Bold),
+            maxLines = 1
+        )
+    }
+}
+
+/** One upcoming event: its hijri date in a column on the left, the name, then what and when. */
+@Composable
+private fun CalendarAgendaRow(event: CalendarEvent, todayStart: Long, rowHeight: Float) {
     Row(
         modifier = GlanceModifier.fillMaxWidth().height(rowHeight.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = "●",
-            style = TextStyle(color = calendarEventColor(event.color), fontSize = (9f * scale).sp),
-            maxLines = 1
-        )
-        Spacer(GlanceModifier.width(6.dp))
-        Text(
-            text = event.title,
-            modifier = GlanceModifier.defaultWeight(),
-            style = TextStyle(color = bodyTextColor, fontSize = (12f * scale).sp),
-            maxLines = 1
-        )
-        Spacer(GlanceModifier.width(6.dp))
-        Text(
-            text = relativeDayLabel(event.startEpochMillis, todayStart),
-            style = TextStyle(
-                color = secondaryTextColor,
-                fontSize = (11f * scale).sp,
-                fontWeight = FontWeight.Bold
-            ),
-            maxLines = 1
-        )
+        Column(
+            modifier = GlanceModifier.width(36.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = event.day.toString(),
+                style = TextStyle(color = primaryTextColor, fontSize = 17.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+            Text(
+                text = event.monthShort.uppercase(),
+                style = TextStyle(color = secondaryTextColor, fontSize = 9.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+        }
+        Spacer(GlanceModifier.width(10.dp))
+        Column(modifier = GlanceModifier.defaultWeight()) {
+            Text(
+                text = event.title,
+                style = TextStyle(color = primaryTextColor, fontSize = 13.sp, fontWeight = FontWeight.Bold),
+                maxLines = 1
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "●",
+                    style = TextStyle(color = calendarEventColor(event.color), fontSize = 7.sp),
+                    maxLines = 1
+                )
+                Spacer(GlanceModifier.width(5.dp))
+                Text(
+                    text = eventMetaLine(event.kind, daysAway(event.startEpochMillis, todayStart)),
+                    style = TextStyle(color = secondaryTextColor, fontSize = 11.sp),
+                    maxLines = 1
+                )
+            }
+        }
     }
 }

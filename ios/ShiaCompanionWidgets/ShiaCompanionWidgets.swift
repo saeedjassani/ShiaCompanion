@@ -1036,15 +1036,32 @@ struct CalendarDayInfo {
     let month: String
     let monthShort: String
     let year: Int
+    /// Today's event, name first ("Hazrat Fatima Zahra (s.a.)"). Empty on most days.
     let event: String
+    /// `event` with "Hazrat"/"Imam" cut to "H."/"I.", for the small size.
+    let eventShort: String
+    /// "Birth", "Martyrdom", "Death", or empty for an event about no one person.
+    let kind: String
     let color: Int
 }
 
 struct CalendarEventInfo {
     let start: Date
-    let hijri: String
+    let day: Int
+    let monthShort: String
     let title: String
+    let short: String
+    let kind: String
     let color: Int
+}
+
+/// The single event the small sizes have room for: today's, or failing that the next.
+struct FeaturedCalendarEvent {
+    let name: String
+    let shortName: String
+    let kind: String
+    let color: Int
+    let start: Date
 }
 
 struct IslamicCalendarEntry: TimelineEntry {
@@ -1055,29 +1072,54 @@ struct IslamicCalendarEntry: TimelineEntry {
     let upcoming: [CalendarEventInfo]
     let url: URL?
 
+    var hasEventToday: Bool { day.map { !$0.event.isEmpty } ?? false }
+
+    var featured: FeaturedCalendarEvent? {
+        if let day, !day.event.isEmpty {
+            return FeaturedCalendarEvent(
+                name: day.event,
+                shortName: day.eventShort,
+                kind: day.kind,
+                color: day.color,
+                start: day.start
+            )
+        }
+        return upcoming.first.map {
+            FeaturedCalendarEvent(name: $0.title, shortName: $0.short, kind: $0.kind, color: $0.color, start: $0.start)
+        }
+    }
+
     static func placeholder(at date: Date = Date()) -> IslamicCalendarEntry {
         IslamicCalendarEntry(
             date: date,
             day: CalendarDayInfo(
                 start: date,
-                day: 15,
-                month: "Rabi' Al-Thani",
+                day: 18,
+                month: "Rabi' al-Thani",
                 monthShort: "Rab II",
                 year: 1448,
                 event: "",
+                eventShort: "",
+                kind: "",
                 color: -1
             ),
             upcoming: [
                 CalendarEventInfo(
-                    start: date.addingTimeInterval(8 * 86400),
-                    hijri: "8 Jumada Al-Awwal",
-                    title: "Birth of Imam Hasan Askari (a.s.)",
+                    start: date.addingTimeInterval(17 * 86400),
+                    day: 5,
+                    monthShort: "Jum I",
+                    title: "Hazrat Zainab bint-e-Ali (a.s.)",
+                    short: "H. Zainab bint-e-Ali (a.s.)",
+                    kind: "Birth",
                     color: 1
                 ),
                 CalendarEventInfo(
-                    start: date.addingTimeInterval(43 * 86400),
-                    hijri: "13 Jumada Al-Awwal",
-                    title: "Death of Hazrat Fatima Zahra (s.a.)",
+                    start: date.addingTimeInterval(25 * 86400),
+                    day: 13,
+                    monthShort: "Jum I",
+                    title: "Hazrat Fatima Zahra (s.a.)",
+                    short: "H. Fatima Zahra (s.a.)",
+                    kind: "Death",
                     color: 0
                 ),
             ],
@@ -1149,6 +1191,10 @@ private func calendarEntry(
     )
 }
 
+private func calendarString(_ entry: [String: Any], _ key: String) -> String {
+    ((entry[key] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+}
+
 private func parseCalendarDays(_ raw: String) -> [CalendarDayInfo] {
     guard
         let data = raw.data(using: .utf8),
@@ -1165,14 +1211,17 @@ private func parseCalendarDays(_ raw: String) -> [CalendarDayInfo] {
         else {
             return nil
         }
+        let event = calendarString(rawEntry, "event")
+        let eventShort = calendarString(rawEntry, "eventShort")
         return CalendarDayInfo(
             start: Date(timeIntervalSince1970: startMillis / 1000.0),
             day: day,
-            month: (rawEntry["month"] as? String) ?? "",
-            monthShort: (rawEntry["monthShort"] as? String) ?? "",
+            month: calendarString(rawEntry, "month"),
+            monthShort: calendarString(rawEntry, "monthShort"),
             year: (rawEntry["year"] as? NSNumber)?.intValue ?? 0,
-            event: ((rawEntry["event"] as? String) ?? "")
-                .trimmingCharacters(in: .whitespacesAndNewlines),
+            event: event,
+            eventShort: eventShort.isEmpty ? event : eventShort,
+            kind: calendarString(rawEntry, "kind"),
             color: (rawEntry["color"] as? NSNumber)?.intValue ?? -1
         )
     }
@@ -1188,35 +1237,41 @@ private func parseCalendarEvents(_ raw: String) -> [CalendarEventInfo] {
     }
 
     return rawEntries.compactMap { rawEntry -> CalendarEventInfo? in
+        let title = calendarString(rawEntry, "title")
         guard
             let startMillis = (rawEntry["start"] as? NSNumber)?.doubleValue,
-            let title = (rawEntry["title"] as? String)?
-                .trimmingCharacters(in: .whitespacesAndNewlines),
             !title.isEmpty
         else {
             return nil
         }
+        let short = calendarString(rawEntry, "short")
         return CalendarEventInfo(
             start: Date(timeIntervalSince1970: startMillis / 1000.0),
-            hijri: (rawEntry["hijri"] as? String) ?? "",
+            day: (rawEntry["day"] as? NSNumber)?.intValue ?? 0,
+            monthShort: calendarString(rawEntry, "monthShort"),
             title: title,
+            short: short.isEmpty ? title : short,
+            kind: calendarString(rawEntry, "kind"),
             color: (rawEntry["color"] as? NSNumber)?.intValue ?? -1
         )
     }
     .sorted { $0.start < $1.start }
 }
 
-/// "Today", "Tomorrow" or "in 12 days", counted in calendar days.
-private func relativeDayLabel(_ start: Date, from now: Date) -> String {
+/// "Today · Death", "Birth · in 17 days", "In 4 days": what happened and when,
+/// counted in calendar days.
+private func calendarMetaLine(kind: String, start: Date, now: Date) -> String {
     let calendar = Calendar.current
     let days = calendar.dateComponents(
         [.day],
         from: calendar.startOfDay(for: now),
         to: calendar.startOfDay(for: start)
     ).day ?? 0
-    if days <= 0 { return "Today" }
-    if days == 1 { return "Tomorrow" }
-    return "in \(days) days"
+    let time = days <= 0 ? "today" : days == 1 ? "tomorrow" : "in \(days) days"
+    if kind.isEmpty {
+        return time.prefix(1).uppercased() + time.dropFirst()
+    }
+    return days <= 0 ? "Today · \(kind)" : "\(kind) · \(time)"
 }
 
 private func calendarEventColor(_ code: Int) -> Color {
@@ -1226,6 +1281,9 @@ private func calendarEventColor(_ code: Int) -> Color {
     default: return .accentText
     }
 }
+
+private let calendarShortDate = Date.FormatStyle.dateTime.weekday(.abbreviated).day().month(.abbreviated)
+private let calendarLongDate = Date.FormatStyle.dateTime.weekday(.wide).day().month(.wide)
 
 struct IslamicCalendarView: View {
     @Environment(\.widgetFamily) private var family
@@ -1279,67 +1337,134 @@ struct IslamicCalendarView: View {
         .widgetURL(entry.url)
     }
 
+    /// The date, then the one event that matters most: today's, or the next.
     private func small(_ day: CalendarDayInfo) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HijriDateHero(day: day, date: entry.date)
-            Spacer(minLength: 2)
-            if !day.event.isEmpty {
-                CalendarEventLine(title: day.event, color: day.color, lineLimit: 3)
-            } else if let next = entry.upcoming.first {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .center, spacing: 8) {
+                Text(verbatim: String(day.day))
+                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                    .foregroundColor(.accentText)
+                    .lineLimit(1)
                 VStack(alignment: .leading, spacing: 1) {
-                    CalendarEventLine(title: next.title, color: next.color, lineLimit: 2)
-                    Text(relativeDayLabel(next.start, from: entry.date))
-                        .font(.caption2.weight(.bold))
+                    Text(day.month)
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(entry.date, format: calendarShortDate)
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(.secondaryText)
                         .lineLimit(1)
-                        .padding(.leading, 11)
                 }
+            }
+            Spacer(minLength: 4)
+            if let featured = entry.featured {
+                let isToday = entry.hasEventToday
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(calendarEventColor(featured.color))
+                        .frame(width: 6, height: 6)
+                    Text(calendarMetaLine(kind: featured.kind, start: featured.start, now: entry.date).uppercased())
+                        .font(.system(size: 10, weight: .bold))
+                        .tracking(0.6)
+                        .foregroundColor(isToday ? calendarEventColor(featured.color) : .secondaryText)
+                        .lineLimit(1)
+                }
+                Text(featured.shortName)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.primaryText)
+                    .lineLimit(2)
+                    .padding(.top, 3)
             }
         }
     }
 
+    /// The date with today's event beside it, then the next two.
     private func medium(_ day: CalendarDayInfo) -> some View {
-        HStack(alignment: .center, spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                HijriDateHero(day: day, date: entry.date)
-                if !day.event.isEmpty {
-                    Spacer(minLength: 2)
-                    CalendarEventLine(title: day.event, color: day.color, lineLimit: 2)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-
-            if !entry.upcoming.isEmpty {
-                Rectangle()
-                    .fill(Color.secondaryText.opacity(0.35))
-                    .frame(width: 1)
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(Array(entry.upcoming.prefix(4).enumerated()), id: \.offset) { _, event in
-                        CalendarEventRow(event: event, now: entry.date)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 10) {
+                Text(verbatim: String(day.day))
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .foregroundColor(.accentText)
+                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: "\(day.month) \(day.year)")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                    Group {
+                        if day.event.isEmpty {
+                            Text(entry.date, format: calendarLongDate) + Text(" · no event today")
+                        } else {
+                            Text("● Today: ").foregroundColor(calendarEventColor(day.color))
+                                + Text(day.kind.isEmpty ? day.event : "\(day.kind) of \(day.event)")
+                        }
                     }
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(.secondaryText)
+                    .lineLimit(1)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             }
+            CalendarDivider()
+            ForEach(Array(entry.upcoming.prefix(2).enumerated()), id: \.offset) { _, event in
+                CalendarAgendaRow(event: event, now: entry.date)
+            }
+            Spacer(minLength: 0)
         }
     }
 
+    /// The date, today's event in its own card, then what is coming up.
     private func large(_ day: CalendarDayInfo) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HijriDateHero(day: day, date: entry.date)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 10) {
+                Text(verbatim: String(day.day))
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .foregroundColor(.accentText)
+                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: "\(day.month) \(day.year)")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                    Text(entry.date, format: calendarLongDate)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.secondaryText)
+                        .lineLimit(1)
+                }
+            }
             if !day.event.isEmpty {
-                CalendarEventLine(title: day.event, color: day.color, lineLimit: 2)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 5) {
+                        Circle()
+                            .fill(calendarEventColor(day.color))
+                            .frame(width: 6, height: 6)
+                        Text(calendarMetaLine(kind: day.kind, start: day.start, now: entry.date).uppercased())
+                            .font(.system(size: 10, weight: .bold))
+                            .tracking(0.6)
+                            .foregroundColor(calendarEventColor(day.color))
+                            .lineLimit(1)
+                    }
+                    Text(day.event)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                }
+                .padding(.horizontal, 11)
+                .padding(.vertical, 9)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.primaryText.opacity(0.08))
+                )
             }
             if !entry.upcoming.isEmpty {
-                Rectangle()
-                    .fill(Color.secondaryText.opacity(0.35))
-                    .frame(height: 1)
-                    .padding(.vertical, 2)
-                Text("Upcoming")
-                    .font(.caption2.weight(.semibold))
+                Text("COMING UP")
+                    .font(.system(size: 11, weight: .bold))
+                    .tracking(0.6)
                     .foregroundColor(.secondaryText)
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(Array(entry.upcoming.prefix(day.event.isEmpty ? 9 : 8).enumerated()), id: \.offset) { _, event in
-                        CalendarEventRow(event: event, now: entry.date)
+                    ForEach(Array(entry.upcoming.prefix(day.event.isEmpty ? 6 : 4).enumerated()), id: \.offset) { _, event in
+                        CalendarAgendaRow(event: event, now: entry.date)
                     }
                 }
             }
@@ -1348,80 +1473,51 @@ struct IslamicCalendarView: View {
     }
 }
 
-/// The hijri day large, its month and year beside it, and the Gregorian date under both.
-private struct HijriDateHero: View {
-    let day: CalendarDayInfo
-    let date: Date
-
+private struct CalendarDivider: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            HStack(alignment: .center, spacing: 8) {
-                Text(verbatim: String(day.day))
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-                    .foregroundColor(.accentText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(day.month)
-                        .font(.subheadline.weight(.bold))
-                        .foregroundColor(.primaryText)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Text(verbatim: "\(day.year) AH")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundColor(.secondaryText)
-                        .lineLimit(1)
-                }
-            }
-            Text(date, format: .dateTime.weekday(.abbreviated).day().month(.abbreviated))
-                .font(.caption2.weight(.semibold))
-                .foregroundColor(.secondaryText)
-                .lineLimit(1)
-        }
+        Rectangle()
+            .fill(Color.secondaryText.opacity(0.3))
+            .frame(height: 1)
     }
 }
 
-private struct CalendarEventLine: View {
-    let title: String
-    let color: Int
-    let lineLimit: Int
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 5) {
-            Circle()
-                .fill(calendarEventColor(color))
-                .frame(width: 6, height: 6)
-                .padding(.top, 5)
-            Text(title)
-                .font(.caption.weight(.semibold))
-                .foregroundColor(.bodyText)
-                .lineLimit(lineLimit)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-}
-
-private struct CalendarEventRow: View {
+/// One upcoming event: its hijri date in a column on the left, the name, then what and when.
+private struct CalendarAgendaRow: View {
     let event: CalendarEventInfo
     let now: Date
 
     var body: some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(calendarEventColor(event.color))
-                .frame(width: 6, height: 6)
-            Text(event.title)
-                .font(.caption)
-                .foregroundColor(.bodyText)
-                .lineLimit(1)
-            Spacer(minLength: 4)
-            Text(relativeDayLabel(event.start, from: now))
-                .font(.caption2.weight(.bold))
-                .foregroundColor(.secondaryText)
-                .lineLimit(1)
-                .fixedSize()
+        HStack(spacing: 10) {
+            VStack(spacing: 0) {
+                Text(verbatim: event.day > 0 ? String(event.day) : "")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundColor(.primaryText)
+                    .lineLimit(1)
+                Text(event.monthShort.uppercased())
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(.secondaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            .frame(width: 36)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(event.title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.primaryText)
+                    .lineLimit(1)
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(calendarEventColor(event.color))
+                        .frame(width: 6, height: 6)
+                    Text(calendarMetaLine(kind: event.kind, start: event.start, now: now))
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondaryText)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, minHeight: 22, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 36, alignment: .leading)
     }
 }
 
@@ -1467,6 +1563,7 @@ private struct IslamicCalendarAccessoryCircular: View {
     }
 }
 
+/// The date and one event — today's, or the next one and how far off it is.
 @available(iOSApplicationExtension 16.0, *)
 private struct IslamicCalendarAccessoryRectangular: View {
     let entry: IslamicCalendarEntry
@@ -1479,16 +1576,12 @@ private struct IslamicCalendarAccessoryRectangular: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                     .widgetAccentable()
-                if !day.event.isEmpty {
-                    Text(day.event)
-                        .font(.caption)
-                        .lineLimit(2)
-                } else if let next = entry.upcoming.first {
-                    Text(next.title)
-                        .font(.caption)
+                if let featured = entry.featured {
+                    Text(featured.name)
+                        .font(.system(size: 13))
                         .lineLimit(1)
-                    Text(relativeDayLabel(next.start, from: entry.date))
-                        .font(.caption2)
+                    Text(calendarMetaLine(kind: featured.kind, start: featured.start, now: entry.date))
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }

@@ -91,7 +91,7 @@ struct ContentView: View {
                             .font(.footnote.weight(.semibold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
-                        Text(day.event.isEmpty ? "Upcoming events" : day.event)
+                        Text(calendarCardSubtitle(day))
                             .font(.caption2)
                             .foregroundColor(.secondary)
                             .lineLimit(1)
@@ -102,6 +102,13 @@ struct ContentView: View {
             .buttonStyle(.bordered)
             .padding(.horizontal, Self.gutter)
         }
+    }
+
+    /// Today's event when there is one; otherwise the next, and how far off it is.
+    private func calendarCardSubtitle(_ day: HijriDay) -> String {
+        if !day.event.isEmpty { return day.event }
+        guard let next = prayerModel.upcomingEvents.first else { return "Upcoming events" }
+        return "Next: \(next.title) · \(calendarDaysAway(next.start))d"
     }
 
     private var counterLink: some View {
@@ -370,7 +377,8 @@ struct DayBreak: View {
 
 // MARK: - Islamic calendar
 
-/// Today's hijri date and the events coming up after it.
+/// Today's hijri date and event, and the events coming up after it. Each event leads
+/// with its name; the line under it says what happened, when, and its hijri date.
 struct IslamicCalendarScreen: View {
     @EnvironmentObject private var prayerModel: PrayerTimeModel
 
@@ -388,17 +396,22 @@ struct IslamicCalendarScreen: View {
                                     .font(.headline)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.6)
-                                Text(verbatim: "\(day.year) AH")
+                                (Text(verbatim: "\(day.year) AH · ")
+                                    + Text(Date(), format: .dateTime.weekday(.abbreviated).day().month(.abbreviated)))
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
+                                    .lineLimit(1)
                             }
                         }
-                        Text(Date(), format: .dateTime.weekday(.abbreviated).day().month(.abbreviated))
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
                         if !day.event.isEmpty {
-                            EventLine(title: day.event, color: day.color)
-                                .padding(.top, 4)
+                            VStack(alignment: .leading, spacing: 2) {
+                                EventLine(title: day.event, color: day.color)
+                                Text(calendarMetaLine(kind: day.kind, start: day.start))
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                    .padding(.leading, 11)
+                            }
+                            .padding(.top, 4)
                         }
                     }
                 }
@@ -444,7 +457,7 @@ private struct EventLine: View {
                 .frame(width: 6, height: 6)
                 .padding(.top, 5)
             Text(title)
-                .font(.footnote)
+                .font(.footnote.weight(.semibold))
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -456,7 +469,7 @@ private struct UpcomingEventRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             EventLine(title: event.title, color: event.color)
-            Text(verbatim: "\(relativeDayLabel(event.start)) · \(event.hijri)")
+            Text(verbatim: "\(calendarMetaLine(kind: event.kind, start: event.start)) · \(event.day) \(event.monthShort)")
                 .font(.caption2)
                 .foregroundColor(.secondary)
                 .lineLimit(1)

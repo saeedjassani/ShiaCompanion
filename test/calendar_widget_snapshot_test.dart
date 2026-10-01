@@ -5,44 +5,74 @@ import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 
 void main() {
-  group('widgetEventTitle', () {
-    test('drops the trailing hijri year', () {
-      expect(
-        widgetEventTitle(
-          'Birth of Imam Mohammad Baqir(a.s.) – the 5th Holy Imam ‐ (57 A.H.)',
-        ),
-        'Birth of Imam Mohammad Baqir(a.s.) – the 5th Holy Imam',
+  group('widgetEventText', () {
+    test('leads with the name and keeps the kind apart', () {
+      final text = widgetEventText(
+        'Birth of Imam Mohammad Baqir(a.s.) – the 5th Holy Imam ‐ (57 A.H.)',
       );
-      expect(
-        widgetEventTitle('Battle of Siffin started – (36‐37 A.H.)'),
-        'Battle of Siffin started',
-      );
-      expect(widgetEventTitle('Eid e Mubahila - 9 A.H.'), 'Eid e Mubahila');
+      expect(text.kind, 'Birth');
+      expect(text.name, 'Imam Mohammad Baqir (a.s.)');
+      expect(text.shortName, 'I. Mohammad Baqir (a.s.)');
     });
 
-    test('keeps only the first line of a paragraph', () {
+    test('reads each way events.json words a kind', () {
+      expect(widgetEventText('Wiladat e Imam Ali Naqi (a.s.)').kind, 'Birth');
+      expect(widgetEventText('Shahadat of Imam Ali Raza (a.s.)').kind,
+          'Martyrdom');
+      expect(widgetEventText('Wafat of Hazrat Abu Zar e Gaffari (a.r.)').kind,
+          'Death');
+      final colon = widgetEventText(
+        'Martyrdom: Hazrat Muslim Ibne Aqeel (a.s.) / Yaum-e-Arafat',
+      );
+      expect(colon.kind, 'Martyrdom');
+      expect(colon.shortName, 'H. Muslim Ibne Aqeel (a.s.) / Yaum-e-Arafat');
+    });
+
+    test('drops years, epithets and follow-on lines', () {
       expect(
-        widgetEventTitle(
-          'Demolition of Jannatul Baqi by Aal e Saud.\n'
-          'May Allah (s.w.t.) curse those who harmed the Ahlul Bayt (a.s.).',
-        ),
-        'Demolition of Jannatul Baqi by Aal e Saud.',
+        widgetEventText(
+          'Death of Hazrat Umm‐ul‐Baneen – Mother of Hazrat Abbas(a.s.)',
+        ).name,
+        'Hazrat Umm-ul-Baneen',
+      );
+      expect(
+        widgetEventText(
+          'Birth of Imam Ali(a.s.) – the 1st Holy Imam ‐ (30 Aamul Feel)',
+        ).name,
+        'Imam Ali (a.s.)',
+      );
+      expect(
+        widgetEventText(
+          'Martyrdom of Imam Jafar Sadiq (a.s.)\n'
+          'May Allah (s.w.t.) curse the killers of Imam Sadiq (a.s.)',
+        ).name,
+        'Imam Jafar Sadiq (a.s.)',
       );
     });
 
-    test('joins separate events on the same day', () {
-      expect(
-        widgetEventTitle(
-          'Conquest of Makkah ‐ (8 A.H.)\n\n\n'
-          'Evening ‐ Probable night of Shab‐e‐Qadr ‐ the night of power',
-        ),
-        'Conquest of Makkah · '
-        'Evening ‐ Probable night of Shab‐e‐Qadr ‐ the night of power',
-      );
+    test('leaves an event that is not about one person whole', () {
+      final battle = widgetEventText('Battle of Siffin started – (36‐37 A.H.)');
+      expect(battle.kind, '');
+      expect(battle.name, 'Battle of Siffin started');
+      final sentence =
+          widgetEventText('Imam Ali(a.s.) injured by an attack - (40 A.H.)');
+      expect(sentence.shortName, 'Imam Ali (a.s.) injured by an attack');
     });
 
-    test('leaves a title with no year alone', () {
-      expect(widgetEventTitle('Eid ul Azha'), 'Eid ul Azha');
+    test('joins same-kind events and keeps mixed ones worded', () {
+      final births = widgetEventText(
+        'Birth of Prophet Muhammad(sawaw) – (53 years before Hijra)\n\n'
+        'Birth of Imam Jafer Sadiq(a.s.) – the 6th Holy Imam ‐ (82 A.H.)',
+      );
+      expect(births.kind, 'Birth');
+      expect(births.name, 'Prophet Muhammad (sawaw) · Imam Jafer Sadiq (a.s.)');
+
+      final mixed = widgetEventText(
+        'Conquest of Makkah ‐ (8 A.H.)\n\n\n'
+        'Death of Hazrat Khadija(a.s.)',
+      );
+      expect(mixed.kind, '');
+      expect(mixed.name, 'Conquest of Makkah · Death of Hazrat Khadija (a.s.)');
     });
   });
 
@@ -52,7 +82,7 @@ void main() {
     final events = <String, dynamic>{
       '15-4': {
         'header': '15th Rabi ul-Aakhar',
-        'content': 'Today event - 64 A.H.',
+        'content': 'Death of Hazrat Today(s.a.) - 64 A.H.',
         'color': 1,
       },
       '18-4': {
@@ -80,10 +110,12 @@ void main() {
       expect(days.first['start'], DateTime(2026, 9, 26).millisecondsSinceEpoch);
       expect(days[1]['start'], DateTime(2026, 9, 27).millisecondsSinceEpoch);
       expect(days.first['day'], 15);
-      expect(days.first['month'], "Rabi' Al-Thani");
+      expect(days.first['month'], "Rabi' al-Thani");
       expect(days.first['monthShort'], 'Rab II');
       expect(days.first['year'], 1448);
-      expect(days.first['event'], 'Today event');
+      expect(days.first['event'], 'Hazrat Today (s.a.)');
+      expect(days.first['eventShort'], 'H. Today (s.a.)');
+      expect(days.first['kind'], 'Death');
       expect(days.first['color'], 1);
       expect(days[1]['event'], '');
       expect(days[1]['color'], -1);
@@ -110,11 +142,16 @@ void main() {
       );
 
       expect(upcoming.map((e) => e['title']), [
-        'Today event',
+        'Hazrat Today (s.a.)',
         'Three days on',
         'Later this year',
       ]);
-      expect(upcoming[1]['hijri'], "18 Rabi' Al-Thani");
+      expect(upcoming[1]['hijri'], "18 Rabi' al-Thani");
+      expect(upcoming[1]['day'], 18);
+      expect(upcoming[1]['monthShort'], 'Rab II');
+      expect(upcoming[1]['kind'], '');
+      expect(upcoming[0]['kind'], 'Death');
+      expect(upcoming[0]['short'], 'H. Today (s.a.)');
       expect(
           upcoming[1]['start'], DateTime(2026, 9, 29).millisecondsSinceEpoch);
       expect(upcoming[2]['color'], 0);
@@ -149,7 +186,7 @@ void main() {
       final upcoming =
           jsonDecode(snapshot[HomeScreenWidgetService.calendarEventsKey]!)
               as List;
-      expect(upcoming.first['title'], 'Today event');
+      expect(upcoming.first['title'], 'Hazrat Today (s.a.)');
     });
   });
 }
