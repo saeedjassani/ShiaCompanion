@@ -68,7 +68,8 @@ def assimilate(stream, pieces):
             j = i + 1
             while j < n and stream[j]['k'] == 'W':
                 j += 1
-            if j < n and stream[j]['k'] == 'C':
+            # a hamzat al-wasl in between means a helper vowel follows (KHAYRANIL), no idgham
+            if j < n and stream[j]['k'] == 'C' and j == i + 1:
                 nxt = stream[j]
                 nv = nxt['v']
                 cross = pieces[nxt['piece']]['word'] != pieces[u['piece']]['word']
@@ -132,8 +133,8 @@ def apply_pause(s):
                 and ((s[-1]['v'] == 'w' and s[-2]['v'] == 'u') or (s[-1]['v'] == 'y' and s[-2]['v'] == 'i')):
             s = s[:-1]
             s[-1]['long'] = True
-    if s and s[-1]['k'] == 'C' and s[-1]['gem']:
-        s[-1]['gem'] = False
+    if s and s[-1]['k'] == 'C' and s[-1]['gem'] and s[-1]['v'] not in ('w', 'y'):
+        s[-1]['gem'] = False  # HAQ, but A'DUWW / MUSREKHIYY keep it
     if s and s[-1]['k'] == 'C' and s[-1]['v'] == "'":
         s[-1]['silent'] = True
     if s and s[-1]['k'] == 'C' and s[-1]['tm']:

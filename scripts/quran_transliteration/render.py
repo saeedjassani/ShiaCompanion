@@ -57,7 +57,7 @@ def render_piece(items):
                 continue
             if c == "'":
                 if nxt is not None and nxt['k'] == 'V' and half != 'first':
-                    if s:
+                    if s and not s.endswith('-'):
                         s += '-'
                     s += vowel_str(nxt)
                     k += 2
@@ -110,7 +110,9 @@ def join_for(piece, nxtpiece, left, right):
         return ' '
     if nxtpiece['kind'] != 'stem':
         return ''
-    if right[:1] in ('A', 'E', 'I', 'O', 'U', AP):
+    if right[:1] == AP:
+        return ''   # bare ع (FAD’ at a pause)
+    if right[:1] in ('A', 'E', 'I', 'O', 'U'):
         return '-'
     content = nxtpiece['stem_tag'] not in FUNCTION_TAGS and not nxtpiece.get('is_allah')
     if nxtpiece.get('is_allah'):
@@ -183,7 +185,7 @@ def transliterate(s, a, cfg=CFG):
     if cfg.get('use_indopak', True):
         from marks import indopak_marks
         im = indopak_marks(s, a, [w['ar'] for w in words])
-        if im or marks_file_has(s, a):
+        if surah_has_waqf(s):
             for i, w in enumerate(words):
                 w['marks'] = im.get(i, set())
         else:
@@ -192,6 +194,24 @@ def transliterate(s, a, cfg=CFG):
     else:
         for w in words:
             w['marks'] = {w['pause_after']} if w['pause_after'] else set()
+    # disjoined letters (الٓمٓ, حمٓ, ...) are spelled out by name
+    lead = None
+    if words and (a == 1 or (s, a) == (42, 2)):
+        key = re.sub('[^\u0621-\u064a]', '', words[0]['ar'])
+        if key in MUQ_LETTERS:
+            lead = MUQ_LETTERS[key]
+            lead_mark = bool(words[0]['marks'] & cfg['comma_marks'])
+            words = words[1:]
+            if words:
+                words[0]['lead_initial'] = True
+    if (s, a) == (11, 41):
+        # imala in مَجْر۪ىٰهَا: the only one in Hafs, read majreehaa
+        words = [dict(w, ar=w['ar'].replace('\u0631\u06ea\u0649\u0670', '\u0631\u0650\u064a')) if '\u06ea' in w['ar'] else w for w in words]
+        for w in words:
+            if '\u0631\u0650\u064a' in w['ar']:
+                w['stem'] = w['ar']
+    if lead is not None and not words:
+        return lead + '.'
     # utterances split at pausing marks; commas also at non-pausing comma marks
     utts = []
     cur = []
@@ -205,13 +225,42 @@ def transliterate(s, a, cfg=CFG):
         utts.append(cur)
     out_parts = []
     for ui, ws in enumerate(utts):
-        cw = {i for i, w in enumerate(ws) if w['marks'] & cfg['comma_marks'] and i != len(ws) - 1}
+        # no comma where the reading runs on into a hamzat al-wasl (QABLEKAL LAAHUL)
+        cw = {i for i, w in enumerate(ws) if w['marks'] & cfg['comma_marks'] and i != len(ws) - 1
+              and not ws[i + 1]['ar'].startswith(WASLA)}
         txt, pieces = render_utterance(ws, pause=True, comma_words=cw)
         out_parts.append(txt)
     out = ', '.join(p for p in out_parts if p)
+    if lead is not None:
+        out = lead + (', ' if lead_mark else ' ') + out
     return out + '.'
 
 
-def marks_file_has(s, a):
-    from marks import file_arabic
-    return a in file_arabic(s)
+def surah_has_waqf(s):
+    """Whether the surah's own Arabic carries Indo-Pak waqf marks; if not
+    (A61, A72 are plain Uthmani), fall back to Tanzil's marks."""
+    from marks import file_arabic, WAQF
+    if s not in _WAQF_CACHE:
+        _WAQF_CACHE[s] = any(ch in WAQF for l in file_arabic(s).values() for ch in l)
+    return _WAQF_CACHE[s]
+
+
+_WAQF_CACHE = {}
+
+# Spelled in the hand-made style (ALIF LAAAM MEEM, TAA SIM MEEM, HAA MEEM).
+MUQ_LETTERS = {
+    'الم': 'ALIF LAAAM MEEM',
+    'المص': 'ALIF LAAAM MEEM SAAAD',
+    'الر': 'ALIF LAAAM RAA',
+    'المر': 'ALIF LAAAM MEEM RAA',
+    'كهيعص': 'KAAAF HAA YAA A’YN SAAAD',
+    'طه': 'TAA HAA',
+    'طسم': 'TAA SIM MEEM',
+    'طس': 'TAA SEEEN',
+    'يس': 'YAA SEEEN',
+    'ص': 'SAAAD',
+    'حم': 'HAA MEEM',
+    'عسق': 'A’YN SEEEN QAAAF',
+    'ق': 'QAAAF',
+    'ن': 'NOOON',
+}

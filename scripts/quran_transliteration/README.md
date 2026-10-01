@@ -38,6 +38,9 @@ Input:
   (FA-IN). bi/li/fa before a noun or verb take a hyphen (BE-RABBEHIM). Before
   pronouns and particles they are glued on (BEHIM, FAMAA, LAHUM). LILLAAHE.
 
+- Disjoined letters are spelled by name (ALIF LAAAM MEEM, TAA SIM MEEM,
+  HAA MEEM, KAAAF HAA YAA A’YN SAAAD).
+
 The hand-made text itself varies (e.g. MAN-Y / MANY). Where it does, the
 majority form is used.
 
@@ -49,4 +52,5 @@ python3 harness.py 40      # agreement with the hand-made surahs (+ top diffs)
 python3 harness.py 40 p    # same, ignoring hyphen/space-only differences
 python3 side.py 67         # side-by-side for one surah
 python3 apply.py 4         # fill the empty slots of surah 4
+python3 apply.py all       # every surah (only blank slots are touched)
 ```
