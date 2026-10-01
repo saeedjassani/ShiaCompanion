@@ -177,6 +177,17 @@ void main() {
     expect(find.text('Surah1'), findsNothing);
   });
 
+  testWidgets('the Duas collection lists the duas of the Quran after the zikrs',
+      (tester) async {
+    await pump(tester);
+    await openCollection(tester, 'Duas');
+
+    expect(find.text('From the Quran'), findsOneWidget);
+    expect(find.text('Rabbana Atina fid-Dunya Hasanah'), findsOneWidget);
+    expect(find.text('Surah2 201 · For good in this world and the hereafter'),
+        findsOneWidget);
+  });
+
   testWidgets('the Imam Ali collection lists the curated verses',
       (tester) async {
     await pump(tester);

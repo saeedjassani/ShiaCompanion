@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
+import '../../data/quran_duas.dart';
 import '../../data/universal_data.dart';
 import '../../services/analytics_service.dart';
 import '../../services/favorites_manager.dart';
@@ -108,7 +109,7 @@ class _QuranCollectionsTabState extends State<QuranCollectionsTab> {
   Widget _buildBody() {
     switch (_selected) {
       case QuranCollection.duas:
-        return const _QuranDuaList();
+        return _QuranDuaList(onOpenVerse: widget.onOpenVerse);
       case QuranCollection.imamAli:
         return _AliVerseList(onOpen: widget.onOpenVerse);
       case QuranCollection.saved:
@@ -127,38 +128,73 @@ String _verseTitle(VerseKey verse) {
 }
 
 /// Ayat al Kursi and the duas recited with the Quran - the non-surah zikrs of
-/// the Quran category, opened like any other zikr.
+/// the Quran category, opened like any other zikr - followed by the duas the
+/// Quran itself contains ([quranDuas]), opened in the reader at their ayah.
 class _QuranDuaList extends StatelessWidget {
-  const _QuranDuaList();
+  const _QuranDuaList({required this.onOpenVerse});
+
+  final void Function(VerseKey verse) onOpenVerse;
 
   @override
   Widget build(BuildContext context) {
     final uids = quranCompanionZikrUids();
+    final theme = Theme.of(context);
+
+    // Zikr rows, then a heading, then the verse duas.
+    final itemCount = uids.length + 1 + quranDuas.length;
 
     return ResponsiveContent(
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemCount: uids.length,
+        separatorBuilder: (context, index) =>
+            index >= uids.length - 1 && index <= uids.length
+                ? const SizedBox.shrink()
+                : const Divider(height: 1),
+        itemCount: itemCount,
         itemBuilder: (context, index) {
-          // The same UniversalData shape the category lists build, so the
-          // favourite here is the same favourite as in the old Surahs list.
-          final itemData =
-              UniversalData(uids[index], items[uids[index]].toString(), 0);
+          if (index < uids.length) {
+            // The same UniversalData shape the category lists build, so the
+            // favourite here is the same favourite as in the old Surahs list.
+            final itemData =
+                UniversalData(uids[index], items[uids[index]].toString(), 0);
+
+            return ListTile(
+              title: Text(itemData.title),
+              trailing: InkWell(
+                onTap: () => FavoritesManager.instance.toggleFavorite(itemData),
+                child: FavoriteIcon(favorite: itemData),
+              ),
+              onTap: () => handleUniversalDataClick(
+                context,
+                itemData,
+                source: ZikrOpenSource.quran,
+              ),
+            );
+          }
+
+          if (index == uids.length) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+              child: Text(
+                'From the Quran',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            );
+          }
+
+          final dua = quranDuas[index - uids.length - 1];
+          final reference = dua.endAyah == null
+              ? _verseTitle(dua.verse)
+              : '${_verseTitle(dua.verse)}-${dua.endAyah}';
 
           return ListTile(
-            title: Text(itemData.title),
-            trailing: InkWell(
-              onTap: () => FavoritesManager.instance.toggleFavorite(itemData),
-              child: FavoriteIcon(favorite: itemData),
-            ),
-            onTap: () => handleUniversalDataClick(
-              context,
-              itemData,
-              source: ZikrOpenSource.quran,
-            ),
+            title: Text(dua.opening),
+            subtitle: Text('$reference · ${dua.note}'),
+            onTap: () => onOpenVerse(dua.verse),
           );
         },
       ),
