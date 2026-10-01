@@ -180,7 +180,12 @@ void main() {
   testWidgets('the Imam Ali collection lists the curated verses',
       (tester) async {
     await pump(tester);
-    await openCollection(tester, 'Imam Ali (as)');
+    await openCollection(tester, 'Imam Ali (a.s.)');
+
+    // The list is lazy and runs well past one screen, so bring the verse
+    // into view before looking for it.
+    await tester.scrollUntilVisible(find.text('Surah5 55'), 200,
+        scrollable: find.byType(Scrollable).last);
 
     expect(find.text('Surah5 55'), findsOneWidget);
     expect(
