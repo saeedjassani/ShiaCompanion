@@ -222,6 +222,8 @@ static NSString *const kWatchUpdatedAtKey = @"sc_watch_updated_at";
       @"sc_prayer_secondary_name",
       @"sc_prayer_secondary_time",
       @"sc_daily_prayer_schedule",
+      @"sc_calendar_days",
+      @"sc_calendar_events",
     ] mutableCopy];
     for (NSInteger index = 1; index <= 6; index++) {
       [mutableKeys addObject:[NSString stringWithFormat:@"sc_daily_prayer_name_%ld", (long)index]];

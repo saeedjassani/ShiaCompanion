@@ -52,6 +52,10 @@ final class PrayerTimeModel: ObservableObject {
     @Published var nextPrayerDayLabel: String = ""
     @Published var state: State = .waitingForPhone
     @Published var lastSyncDate: Date?
+    /// Today's hijri date, or `nil` before the phone has sent the calendar.
+    @Published var hijriDay: HijriDay?
+    /// The Islamic events after today, soonest first.
+    @Published var upcomingEvents: [IslamicEvent] = []
 
     enum State {
         /// The phone has never sent a snapshot.
@@ -93,6 +97,8 @@ final class PrayerTimeModel: ObservableObject {
         }
         lastSyncDate = store.lastSyncDate
         location = store.location
+        hijriDay = store.hijriDay(at: now)
+        upcomingEvents = store.upcomingEvents(after: now, limit: Self.upcomingEventLimit)
         prayerEntries = state == .loaded ? upcomingRows(at: now) : []
 
         if let next = store.nextPrayer(after: now) {
@@ -136,11 +142,18 @@ final class PrayerTimeModel: ObservableObject {
         }
     }
 
+    /// How many upcoming events the calendar screen lists.
+    static let upcomingEventLimit = 12
+
     /// Re-derive the "next" prayer the moment the current one passes, so an open watch
-    /// app doesn't sit on a stale banner.
+    /// app doesn't sit on a stale banner. Also wakes at midnight, so the hijri date
+    /// turns over on an open app even with no prayer left to wait for.
     private func scheduleRollover(after now: Date) {
         rolloverTimer?.invalidate()
-        guard let next = nextPrayerDate, next > now else { return }
+        let calendar = Calendar.current
+        let midnight = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now))
+        let candidates = [nextPrayerDate, midnight].compactMap { $0 }.filter { $0 > now }
+        guard let next = candidates.min() else { return }
         let interval = min(next.timeIntervalSince(now) + 1, 60 * 60)
         rolloverTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
             self?.refresh()

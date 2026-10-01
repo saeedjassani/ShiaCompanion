@@ -32,4 +32,17 @@
     <string name="widget_preview_prayer_clock">5:12</string>
     <string name="widget_preview_prayer_marker">am</string>
     <string name="widget_preview_prayer_countdown">in 1:24:10</string>
+
+    <string name="widget_preview_calendar_day">18</string>
+    <string name="widget_preview_calendar_month">Rabi\' al-Thani 1448</string>
+    <string name="widget_preview_calendar_date">Tuesday, 29 September · no event today</string>
+    <string name="widget_preview_calendar_day_1">5</string>
+    <string name="widget_preview_calendar_month_1">JUM I</string>
+    <string name="widget_preview_calendar_event_1">Hazrat Zainab bint-e-Ali (a.s.)</string>
+    <string name="widget_preview_calendar_meta_1">Birth · in 17 days</string>
+    <string name="widget_preview_calendar_day_2">13</string>
+    <string name="widget_preview_calendar_month_2">JUM I</string>
+    <string name="widget_preview_calendar_event_2">Hazrat Fatima Zahra (s.a.)</string>
+    <string name="widget_preview_calendar_meta_2">Death · in 25 days</string>
+    <string name="widget_preview_dot">●</string>
 </resources>

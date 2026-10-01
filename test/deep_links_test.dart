@@ -207,6 +207,19 @@ void main() {
     );
   });
 
+  test('parseDeepLinkUri opens the calendar from its widget link', () {
+    final target = parseDeepLinkUri(Uri.parse(buildCalendarDeepLinkUrl()));
+
+    expect(target?.type, calendarDeepLinkType);
+    expect(target?.segments, isEmpty);
+  });
+
+  test('parseDeepLinkUri does not treat /calendar/<x> as the calendar', () {
+    final target = parseDeepLinkUri(Uri.parse('/calendar/extra'));
+
+    expect(target?.type, isNot(calendarDeepLinkType));
+  });
+
   group('parseLaunchRouteName', () {
     // These are the names that must get a route of their own on web. Anything
     // returning null here falls through to onUnknownRoute, which mounts home,
@@ -381,7 +394,8 @@ void main() {
       // The slug itself is full of the characters being split on, so this is
       // the case a naive split would get wrong.
       expect(parse('/zikr/3-aal-e-imraan')!.segments, ['3-aal-e-imraan']);
-      expect(parse('/zikr/2-al-baqarah/255')!.segments, ['2-al-baqarah', '255']);
+      expect(
+          parse('/zikr/2-al-baqarah/255')!.segments, ['2-al-baqarah', '255']);
     });
 
     test('a plain slug still carries no ayah', () {

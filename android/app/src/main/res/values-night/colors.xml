@@ -8,4 +8,6 @@
     <color name="widget_accent">#FFFFD879</color>
     <color name="widget_highlight">#1FFFD879</color>
     <color name="widget_divider">#21FFF3E7</color>
+    <color name="widget_event_green">#FF81C784</color>
+    <color name="widget_event_red">#FFE57373</color>
 </resources>

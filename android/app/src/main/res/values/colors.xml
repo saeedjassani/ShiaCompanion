@@ -11,4 +11,8 @@
     <color name="widget_accent">#FFFFC857</color>
     <color name="widget_highlight">#29FFC857</color>
     <color name="widget_divider">#2EFFF8F1</color>
+    <!-- Event markers on the Islamic calendar widget. events.json colours
+         an event 0 (green) or 1 (red), the same as the Calendar page. -->
+    <color name="widget_event_green">#FF9CD9A0</color>
+    <color name="widget_event_red">#FFFFA8A0</color>
 </resources>
