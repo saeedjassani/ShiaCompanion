@@ -152,8 +152,9 @@ void main() {
     // lines (see ZikrContentParser) rather than a stored field. These are the
     // duas written Arabic / translation with no transliteration; a content
     // edit that tips one either way would silently pair every verse with the
-    // wrong line, so the set is pinned here.
-    const expected = {'A61', 'A72', 'AA12', 'AK8', 'E153', 'E30', 'E7', 'H17'};
+    // wrong line, so the set is pinned here. (A61 and A72, surahs 57 and 68,
+    // left this set when every surah got a transliteration.)
+    const expected = {'AA12', 'AK8', 'E153', 'E30', 'E7', 'H17'};
     final found = <String>{};
 
     for (final file in Directory('assets/zikr').listSync().whereType<File>()) {
