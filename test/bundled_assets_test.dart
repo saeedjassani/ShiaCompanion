@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaml/yaml.dart';
@@ -83,5 +84,12 @@ void main() {
         reason: '$path is larger than a 24dp icon has any need to be',
       );
     }
+  });
+
+  test('the Imam Ali (as) watermark is sized for the 170dp it is drawn at', () {
+    // A PNG's height is the big-endian int at bytes 20-23 of its header.
+    final bytes = File('assets/images/ali_watermark.png').readAsBytesSync();
+    final height = ByteData.sublistView(bytes, 20, 24).getUint32(0);
+    expect(height, lessThanOrEqualTo(4 * 170));
   });
 }
