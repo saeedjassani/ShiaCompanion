@@ -14,9 +14,14 @@ import '../services/analytics_service.dart';
 import '../services/community_stats_service.dart';
 import '../services/recitation_tracker_manager.dart';
 import '../widgets/responsive_content.dart';
+import 'stats/quran_progress_section.dart';
+import 'stats/stats_charts.dart';
+import 'stats/stats_widgets.dart';
 import 'zikr/zikr_page.dart';
 
-/// Personal stats and streak, with the anonymous community summary under it.
+/// The one stats screen: streak and week, history, most recited zikrs,
+/// and Quran progress per recitation track, with the anonymous community
+/// summary at the end.
 ///
 /// Everything personal is private to the reader (and their account, when
 /// signed in) - there is deliberately no leaderboard or public profile.
@@ -36,6 +41,7 @@ class _MyStatsPageState extends State<MyStatsPage> {
   void initState() {
     super.initState();
     trackScreen('My Stats Page');
+    unawaited(RecitationTrackerManager.instance.loadRecitations());
     _community = CommunityStatsService.instance.cached;
     unawaited(_loadCommunity());
   }
@@ -60,32 +66,39 @@ class _MyStatsPageState extends State<MyStatsPage> {
         ]),
         builder: (context, _) {
           final summary = ActivityStatsStore.instance.summary();
+          final recitation = RecitationTrackerManager.instance.state;
           return ResponsiveScrollableContent(
             maxWidth: listContentWidth,
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _StreakCard(summary: summary, format: _count),
+                _StreakCard(summary: summary),
                 const SizedBox(height: 18),
-                _SectionTitle('This week'),
-                const SizedBox(height: 10),
-                _WeekRow(summary: summary),
-                const SizedBox(height: 12),
-                _MonthSentence(summary: summary),
+                StatsHistoryCard(summary: summary),
+                const SizedBox(height: 18),
                 if (summary.zikrCounts.isNotEmpty) ...[
-                  const SizedBox(height: 22),
-                  _SectionTitle('Your most recited'),
-                  const SizedBox(height: 4),
-                  ..._topZikrTiles(
-                    context,
-                    [
-                      for (final entry in summary.topZikrs(5))
-                        (entry.key, _titleFor(entry.key), entry.value),
-                    ],
+                  StatsCard(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        StatsSectionTitle('Your most recited'),
+                        ..._topZikrTiles(
+                          context,
+                          [
+                            for (final entry in summary.topZikrs(5))
+                              (entry.key, _titleFor(entry.key), entry.value),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(height: 18),
                 ],
-                const SizedBox(height: 10),
+                const SizedBox(height: 4),
+                QuranProgressSection(state: recitation),
+                const SizedBox(height: 14),
                 _PrivacyNote(isSignedIn: _isSignedIn),
                 if (_community != null) ...[
                   const SizedBox(height: 26),
@@ -148,47 +161,49 @@ class _MyStatsPageState extends State<MyStatsPage> {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: Theme.of(context)
-          .textTheme
-          .titleSmall
-          ?.copyWith(fontWeight: FontWeight.w700),
-    );
-  }
-}
-
+/// Streak, today, the week and the next streak goal - the top of the screen
+/// is about today's habit, the rest is the longer view.
 class _StreakCard extends StatelessWidget {
-  const _StreakCard({required this.summary, required this.format});
+  const _StreakCard({required this.summary});
 
   final ActivitySummary summary;
-  final NumberFormat format;
 
   /// Deliberately gentle: a missed day is a fresh start, not a failure.
-  /// Nothing once today is already read - the ticked circle says it.
-  String? get _message {
+  String get _message {
     if (summary.isEmpty) {
       return 'Finish reading a dua, ziyarat or surah and your streak begins.';
     }
     final streak = summary.currentStreak;
     if (streak == 0) return 'Welcome back - every day is a fresh start.';
-    if (summary.isActiveToday) return null;
+    if (summary.isActiveToday) {
+      return streak == 1
+          ? 'Done for today. Come back tomorrow to start a streak.'
+          : 'Done for today - see you tomorrow, in sha Allah.';
+    }
     return 'Read something today to keep it going.';
+  }
+
+  /// Streak lengths worth aiming for - close together early, so a new
+  /// reader always has a goal within reach.
+  static const List<int> _streakGoals = [3, 7, 14, 30, 40, 100, 365];
+
+  /// The next streak length to aim for from the current streak.
+  int? get _nextStreakGoal {
+    final current = summary.currentStreak;
+    for (final target in _streakGoals) {
+      if (target > current) return target;
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final onCard = colorScheme.onPrimaryContainer;
     final streak = summary.currentStreak;
-    final message = _message;
+    final goal = _nextStreakGoal;
+    final doneToday = summary.isActiveToday;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -203,15 +218,18 @@ class _StreakCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
-                  color: colorScheme.primary,
+                  color: streak > 0
+                      ? colorScheme.primary
+                      : onCard.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.local_fire_department_rounded,
-                  color: colorScheme.onPrimary,
+                  size: 28,
+                  color: streak > 0 ? colorScheme.onPrimary : onCard,
                 ),
               ),
               const SizedBox(width: 14),
@@ -219,142 +237,106 @@ class _StreakCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Current streak',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: colorScheme.onPrimaryContainer
-                            .withValues(alpha: 0.76),
-                      ),
-                    ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
                           '$streak',
-                          style: theme.textTheme.headlineMedium?.copyWith(
+                          style: theme.textTheme.displaySmall?.copyWith(
                             fontWeight: FontWeight.w800,
-                            color: colorScheme.onPrimaryContainer,
+                            color: onCard,
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          streak == 1 ? 'day' : 'days',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: colorScheme.onPrimaryContainer,
+                        Flexible(
+                          child: Text(
+                            'day streak',
+                            style: theme.textTheme.titleSmall
+                                ?.copyWith(color: onCard),
                           ),
                         ),
                       ],
+                    ),
+                    Text(
+                      'Best: ${summary.longestStreak} '
+                      '${summary.longestStreak == 1 ? 'day' : 'days'}',
+                      style: theme.textTheme.labelMedium
+                          ?.copyWith(color: onCard.withValues(alpha: 0.76)),
+                    ),
+                  ],
+                ),
+              ),
+              Semantics(
+                label: doneToday ? 'Today: done' : 'Today: not yet',
+                excludeSemantics: true,
+                child: Column(
+                  children: [
+                    ProgressRing(
+                      value: doneToday ? 1 : 0,
+                      size: 44,
+                      strokeWidth: 5,
+                      trackColor: onCard.withValues(alpha: 0.15),
+                      center: Icon(
+                        doneToday ? Icons.check_rounded : Icons.remove_rounded,
+                        color: doneToday
+                            ? colorScheme.primary
+                            : onCard.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Today',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: onCard,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          if (message != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onPrimaryContainer.withValues(alpha: 0.85),
-              ),
-            ),
-          ],
-          const SizedBox(height: 14),
-          _ChipRow(
-            children: [
-              _StatChip(
-                label: 'Longest streak',
-                value: summary.longestStreak == 1
-                    ? '1 day'
-                    : '${summary.longestStreak} days',
-              ),
-              const SizedBox(width: 8),
-              _StatChip(
-                label: 'Verses recited',
-                value: format.format(summary.quranVersesTotal),
-              ),
-            ],
-          ),
           const SizedBox(height: 8),
-          _ChipRow(
-            children: [
-              _StatChip(
-                label: 'Zikrs read',
-                value: format.format(summary.totalZikrs),
-              ),
-              const SizedBox(width: 8),
-              _StatChip(
-                label: 'Qaza made up',
-                value: format.format(summary.totalQaza),
-              ),
-            ],
+          Text(
+            _message,
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: onCard.withValues(alpha: 0.85)),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A row of [_StatChip]s kept the same height, so a label that wraps at a
-/// large text size does not leave its neighbour looking shorter.
-class _ChipRow extends StatelessWidget {
-  const _ChipRow({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
-      ),
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  const _StatChip({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: colorScheme.surface.withValues(alpha: 0.55),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                value,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: colorScheme.onPrimaryContainer,
+          const SizedBox(height: 14),
+          _WeekRow(summary: summary),
+          if (goal != null && streak > 0) ...[
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${goal - streak} more ${goal - streak == 1 ? 'day' : 'days'} '
+                    'to a $goal-day streak',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: onCard,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
+                Text(
+                  '$streak/$goal',
+                  style: theme.textTheme.labelMedium
+                      ?.copyWith(color: onCard.withValues(alpha: 0.76)),
+                ),
+              ],
             ),
-            Text(
-              label,
-              maxLines: 2,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: colorScheme.onPrimaryContainer.withValues(alpha: 0.76),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: math.min(1, streak / goal),
+                minHeight: 7,
+                backgroundColor: colorScheme.surface.withValues(alpha: 0.55),
               ),
             ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -411,6 +393,7 @@ class _DayCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onCard = colorScheme.onPrimaryContainer;
     return Semantics(
       label: '$label: ${done ? 'read' : 'not read'}',
       excludeSemantics: true,
@@ -418,19 +401,20 @@ class _DayCircle extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: done
                   ? colorScheme.primary
-                  : colorScheme.onSurface.withValues(alpha: 0.06),
+                  : colorScheme.surface.withValues(alpha: 0.55),
               border: isToday && !done
                   ? Border.all(color: colorScheme.primary, width: 2)
                   : null,
             ),
             child: done
-                ? Icon(Icons.check_rounded, color: colorScheme.onPrimary)
+                ? Icon(Icons.check_rounded,
+                    size: 20, color: colorScheme.onPrimary)
                 : null,
           ),
           const SizedBox(height: 6),
@@ -440,35 +424,12 @@ class _DayCircle extends StatelessWidget {
               label,
               maxLines: 1,
               style: textTheme.labelSmall?.copyWith(
+                color: onCard,
                 fontWeight: isToday ? FontWeight.w700 : null,
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// One plain sentence for the longer view, in place of a calendar grid.
-class _MonthSentence extends StatelessWidget {
-  const _MonthSentence({required this.summary});
-
-  final ActivitySummary summary;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final days = summary.activeDaysInLast(30);
-    final text = switch (days) {
-      0 => 'No reading in the last 30 days yet.',
-      1 => 'You read on 1 day in the last 30 days.',
-      _ => 'You read on $days days in the last 30 days.',
-    };
-    return Text(
-      text,
-      style: theme.textTheme.bodyMedium?.copyWith(
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
       ),
     );
   }
@@ -531,7 +492,7 @@ class _CommunitySection extends StatelessWidget {
           children: [
             Icon(Icons.groups_rounded, color: colorScheme.primary),
             const SizedBox(width: 8),
-            Expanded(child: _SectionTitle('Across the community')),
+            Expanded(child: StatsSectionTitle('Across the community')),
           ],
         ),
         const SizedBox(height: 10),
@@ -617,7 +578,7 @@ class _CommunitySection extends StatelessWidget {
         ),
         if (topTiles.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _SectionTitle('Most recited this week'),
+          StatsSectionTitle('Most recited this week'),
           const SizedBox(height: 4),
           ...topTiles,
         ],

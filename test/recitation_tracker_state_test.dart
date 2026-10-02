@@ -404,4 +404,75 @@ void main() {
       expect(counts[today.subtract(const Duration(days: 2))], 0);
     });
   });
+
+  group('juz progress', () {
+    test('juzOf finds the juz a verse falls in, boundaries included', () {
+      expect(juzOf(1, 1), 1);
+      expect(juzOf(2, 141), 1);
+      expect(juzOf(2, 142), 2);
+      expect(juzOf(77, 50), 29);
+      expect(juzOf(78, 1), 30);
+      expect(juzOf(114, 6), 30);
+    });
+
+    test('juzCoverageFor counts distinct verses inside each juz', () {
+      final state = RecitationTrackerState({
+        // All of juz 1 (1:1-7 and 2:1-141), read twice over in places.
+        'a': _entry(
+            id: 'a',
+            recitedAt: DateTime.utc(2026, 1, 1),
+            surah: 1,
+            fromAyah: 1,
+            toAyah: 7),
+        'b': _entry(
+            id: 'b',
+            recitedAt: DateTime.utc(2026, 1, 2),
+            surah: 2,
+            fromAyah: 1,
+            toAyah: 141),
+        'c': _entry(
+            id: 'c',
+            recitedAt: DateTime.utc(2026, 1, 3),
+            surah: 2,
+            fromAyah: 100,
+            toAyah: 141),
+        // Straddles into juz 2.
+        'd': _entry(
+            id: 'd',
+            recitedAt: DateTime.utc(2026, 1, 4),
+            surah: 2,
+            fromAyah: 142,
+            toAyah: 152),
+      });
+
+      final coverage = state.juzCoverageFor('Family');
+      expect(coverage, hasLength(30));
+      expect(coverage[0], 1.0);
+      expect(coverage[1], greaterThan(0));
+      expect(coverage[1], lessThan(1));
+      expect(coverage.skip(2).every((f) => f == 0), isTrue);
+      expect(state.completedJuzCountFor('Family'), 1);
+      expect(state.completedJuzCountFor('Personal'), 0);
+    });
+
+    test('lastRecitedVerseFor is where the latest session ended', () {
+      final state = RecitationTrackerState({
+        'a': _entry(
+            id: 'a',
+            recitedAt: DateTime.utc(2026, 1, 2),
+            surah: 77,
+            fromAyah: 1,
+            toAyah: 50),
+        'b': _entry(
+            id: 'b',
+            recitedAt: DateTime.utc(2026, 1, 1),
+            surah: 78,
+            fromAyah: 1,
+            toAyah: 40),
+      });
+
+      expect(state.lastRecitedVerseFor('Family'), const VerseKey(77, 50));
+      expect(state.lastRecitedVerseFor('Personal'), isNull);
+    });
+  });
 }
