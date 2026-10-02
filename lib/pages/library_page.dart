@@ -11,6 +11,8 @@ import '../services/favorites_manager.dart';
 import 'chapter_list_page.dart';
 import 'chapter_page.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/content_request_service.dart';
+import 'package:shia_companion/widgets/content_request_dialog.dart';
 
 class LibraryPage extends StatefulWidget {
   @override
@@ -153,6 +155,21 @@ class _LibraryPageState extends State<LibraryPage> {
                   }
 
                   final bookIndex = index - continueCount - headerOffset;
+                  if (bookIndex == books.length) {
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 6),
+                      leading: const Icon(Icons.playlist_add),
+                      title: const Text('Request a Book'),
+                      subtitle: const Text(
+                          "Can't find a book? Ask us to add it."),
+                      onTap: () => showContentRequestDialog(
+                        context,
+                        initialType: ContentRequestType.book,
+                        source: 'library',
+                      ),
+                    );
+                  }
                   final book = books[bookIndex];
                   final itemData = UniversalData(book.uid, book.title, 1);
                   return _BookTile(
@@ -187,7 +204,9 @@ class _LibraryPageState extends State<LibraryPage> {
                 separatorBuilder: (context, index) => Divider(
                   color: theme.dividerColor.withValues(alpha: 0.4),
                 ),
+                // +1 for the "Request a Book" row after the last book.
                 itemCount: books.length +
+                    1 +
                     _recentProgress.length +
                     (_recentProgress.isEmpty ? 0 : 1),
               ),

@@ -12,6 +12,8 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/content_request_service.dart';
+import 'package:shia_companion/widgets/content_request_dialog.dart';
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;
@@ -256,11 +258,29 @@ class DataSearch extends SearchDelegate<String> {
             trailing: const Text('Show'),
             onTap: () => toggle(source, true),
           ),
-        if (query.trim().isNotEmpty && results.isEmpty)
+        if (query.trim().isNotEmpty && results.isEmpty) ...[
           const Padding(
-            padding: EdgeInsets.all(24),
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
             child: Center(child: Text('No results')),
           ),
+          // A search that finds nothing is the moment someone knows exactly
+          // what's missing, so offer to request it with the query pre-filled.
+          Center(
+            child: TextButton.icon(
+              icon: const Icon(Icons.playlist_add),
+              label: const Text('Request it'),
+              onPressed: () => showContentRequestDialog(
+                context,
+                initialType: _sources.length == 1 &&
+                        _sources.contains(SearchSource.library)
+                    ? ContentRequestType.book
+                    : ContentRequestType.zikr,
+                initialTitle: query.trim(),
+                source: 'search',
+              ),
+            ),
+          ),
+        ],
       ];
 
       return ResponsiveContent(
