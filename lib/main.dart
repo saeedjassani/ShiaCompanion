@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +71,23 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   debugPrint('Firebase initialized: ${app.name}');
+
+  // Turn off Firestore's LRU cache garbage collection. Its periodic pass
+  // (every few minutes for as long as the process lives, which with the
+  // `audio` background mode can be hours) hard-asserts and aborts the whole
+  // app when its LevelDB commit fails - TestFlight build 120 crashed exactly
+  // there (LocalStore::CollectGarbage -> LevelDbTransaction::Commit) four
+  // hours after launch. The cache only ever holds this user's handful of
+  // small `users/{uid}/...` docs, so it never comes close to needing eviction.
+  // Must be set before anything touches FirebaseFirestore.instance: the
+  // native instance only reads these settings when it's first created, and
+  // persistenceEnabled has to be non-null for cacheSizeBytes to be applied.
+  if (!kIsWeb) {
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
+  }
 
   // Set up Crashlytics for native platforms
   if (!kIsWeb) {
