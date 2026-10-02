@@ -9,8 +9,7 @@ import 'quran_uthmani.dart';
 /// Which Quran script the surahs are shown in. The Arabic font decides:
 ///
 /// - Qalam: QuranWBW's IndoPak text, drawn in QuranWBW's own font
-///   (`quran_indopak.dart`). Admins only for now; everyone else sees the
-///   corpus text as authored.
+///   (`quran_indopak.dart`).
 /// - Scheherazade: Tanzil's Uthmani text (`quran_uthmani.dart`).
 ///
 /// Either way only the Arabic verse lines change. Transliteration, translation,
@@ -57,9 +56,7 @@ class QuranScript {
 Future<QuranScript?> loadQuranScript(AssetBundle bundle, {String? font}) async {
   final selected = font ?? arabicFont;
   try {
-    // Admins only for now, like the rest of the Quran work (see
-    // ZikrPage._surahNumber): everyone else keeps the corpus text in Qalam.
-    if (usesIndoPakScript(selected) && isUserAdmin) {
+    if (usesIndoPakScript(selected)) {
       final quran = await IndoPakQuran.load(bundle);
       return QuranScript._(selected, quranWbwFontFamily,
           (surah, data) => toIndoPak(surah, data, quran));

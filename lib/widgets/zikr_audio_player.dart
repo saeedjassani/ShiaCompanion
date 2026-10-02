@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
-import '../constants.dart';
 import '../data/uid_title_data.dart';
 import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
@@ -336,18 +335,16 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           _buildPlayButton(player, colorScheme),
           const SizedBox(width: 4),
           Expanded(child: _buildBody(player, theme)),
-          // Playlists are dark-launched to admins with their home tile.
-          if (isUserAdmin)
-            IconButton(
-              icon: const Icon(Icons.playlist_add),
-              tooltip: 'Add to playlist',
-              onPressed: () => showAddToPlaylistSheet(
-                context,
-                zikrUid: widget.zikrUid,
-                zikrTitle: widget.zikrTitle,
-                track: widget.tracks.length > 1 ? _currentTrack : null,
-              ),
+          IconButton(
+            icon: const Icon(Icons.playlist_add),
+            tooltip: 'Add to playlist',
+            onPressed: () => showAddToPlaylistSheet(
+              context,
+              zikrUid: widget.zikrUid,
+              zikrTitle: widget.zikrTitle,
+              track: widget.tracks.length > 1 ? _currentTrack : null,
             ),
+          ),
           if (AudioDownloadStore.isSupported)
             AudioDownloadButton(
               tracks: widget.tracks,

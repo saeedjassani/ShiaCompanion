@@ -25,6 +25,7 @@ import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/quran_index.dart';
+import 'package:shia_companion/utils/quran_indopak.dart';
 import 'package:shia_companion/utils/quran_script.dart';
 import 'package:shia_companion/utils/quran_portion.dart';
 import 'package:shia_companion/utils/external_launch.dart';
@@ -1494,6 +1495,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return 'Part ${index + 1}';
   }
 
+  /// Copy, for a surah in QuranWBW's script: its pause marks and medallions
+  /// are private-use glyphs that paste as boxes anywhere but the reader.
+  void _copyQuranWbwSelection(SelectableRegionState selectableRegionState) {
+    final text = (_lastSelectedText ?? '')
+        .split('\n')
+        .map(indoPakPlainText)
+        .join('\n');
+    unawaited(Clipboard.setData(ClipboardData(text: text)));
+    selectableRegionState.hideToolbar();
+  }
+
   Future<void> _shareZikrText({
     required String title,
     required String deepLink,
@@ -2136,7 +2148,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       onSelectionChanged: (content) => _lastSelectedText = content?.plainText,
       contextMenuBuilder: (context, selectableRegionState) {
         final buttonItems = <ContextMenuButtonItem>[
-          ...selectableRegionState.contextMenuButtonItems,
+          for (final item in selectableRegionState.contextMenuButtonItems)
+            if (item.type == ContextMenuButtonType.copy &&
+                arabicFontFamilyOf(zikrData) == quranWbwFontFamily)
+              item.copyWith(
+                onPressed: () => _copyQuranWbwSelection(selectableRegionState),
+              )
+            else
+              item,
           ContextMenuButtonItem(
             label: 'Suggest a Correction',
             onPressed: () {
