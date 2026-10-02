@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/recitation_tracker_state.dart';
 
 enum RecitationOperationKind { add, remove, addLabel }
@@ -95,6 +97,76 @@ class PendingRecitationOperation {
         return PendingRecitationOperation.addLabel(labelName);
     }
   }
+}
+
+/// What a queue of operations changes on the remote doc, folded into the
+/// field writes of a single merge write.
+///
+/// Every operation is keyed - an entry id or a label name - so a whole queue
+/// collapses to one write with no read first: the last operation on an entry
+/// id decides whether it is written or deleted, exactly as replaying the queue
+/// in order would leave it, and labels are only ever added. That is what lets
+/// the tracker sync a long reading session as one write instead of a
+/// transaction per surah, each downloading the whole history first.
+@immutable
+class RecitationRemoteChanges {
+  const RecitationRemoteChanges({
+    required this.entries,
+    required this.removedEntryIds,
+    required this.labels,
+  });
+
+  /// Entries to write, by id.
+  final Map<String, RecitationEntry> entries;
+
+  /// Entry ids to delete. Never overlaps [entries].
+  final Set<String> removedEntryIds;
+
+  /// Labels to union into the doc's label list - including those of written
+  /// entries, the same way [RecitationTrackerState.setEntry] registers them.
+  final Set<String> labels;
+
+  bool get isEmpty =>
+      entries.isEmpty && removedEntryIds.isEmpty && labels.isEmpty;
+}
+
+RecitationRemoteChanges recitationRemoteChangesFor(
+  Iterable<PendingRecitationOperation> operations,
+) {
+  final entries = <String, RecitationEntry>{};
+  final removedEntryIds = <String>{};
+  final labels = <String>{};
+
+  void addLabel(String label) {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty || trimmed == unlabeledRecitationLabel) return;
+    labels.add(trimmed);
+  }
+
+  for (final operation in operations) {
+    switch (operation.kind) {
+      case RecitationOperationKind.add:
+        final entry = operation.entry;
+        if (entry == null) continue;
+        entries[entry.id] = entry;
+        removedEntryIds.remove(entry.id);
+        addLabel(entry.label);
+      case RecitationOperationKind.remove:
+        final entryId = operation.entryId;
+        if (entryId == null) continue;
+        entries.remove(entryId);
+        removedEntryIds.add(entryId);
+      case RecitationOperationKind.addLabel:
+        final labelName = operation.labelName;
+        if (labelName != null) addLabel(labelName);
+    }
+  }
+
+  return RecitationRemoteChanges(
+    entries: entries,
+    removedEntryIds: removedEntryIds,
+    labels: labels,
+  );
 }
 
 RecitationTrackerState applyPendingRecitationOperations(

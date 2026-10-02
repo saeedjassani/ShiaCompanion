@@ -1,0 +1,20 @@
+{
+  "indexes": [],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "recitation_tracker",
+      "fieldPath": "state",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "saved_verses",
+      "fieldPath": "state",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "zikr_bookmarks",
+      "fieldPath": "state",
+      "indexes": []
+    }
+  ]
+}
