@@ -18,6 +18,14 @@ import '../utils/shared_preferences.dart';
 /// One document per user rather than one per entry keeps this cheap to read:
 /// the whole history is one `.get()` (or one realtime listener attach), not
 /// one read per entry.
+///
+/// Keeping it cheap to write and store takes two more things. Writes are
+/// merge writes of only what changed - see [_writeRemote] - never a
+/// read-modify-write transaction, which would download the whole history for
+/// every surah logged. And the doc's `state` map is exempt from indexing (see
+/// firestore.indexes.json): nothing queries it, and Firestore's default of
+/// indexing every field of every entry costs about twenty times the entries'
+/// own size and caps a reader's history at a few thousand sessions.
 class RecitationTrackerManager extends ChangeNotifier {
   static final RecitationTrackerManager _instance =
       RecitationTrackerManager._internal();
@@ -45,7 +53,8 @@ class RecitationTrackerManager extends ChangeNotifier {
   String? _pendingGuestImportUserId;
   String? _loadedUserId;
   bool _isImportingGuestState = false;
-  bool _isReplayingPendingOperations = false;
+  Future<void>? _pushInFlight;
+  bool _pushAgain = false;
   bool _isLoading = false;
   bool _hasLoaded = false;
 
@@ -165,9 +174,7 @@ class RecitationTrackerManager extends ChangeNotifier {
       }
     }
 
-    if (pendingOperations.isNotEmpty) {
-      unawaited(_replayPendingOperations(user.uid, pendingOperations));
-    }
+    if (pendingOperations.isNotEmpty) unawaited(_pushPending(user.uid));
 
     _loadedUserId = user.uid;
     setupRealtimeListener();
@@ -302,19 +309,21 @@ class RecitationTrackerManager extends ChangeNotifier {
     });
   }
 
-  Future<void> _clearPendingOperation(
+  Future<void> _clearPendingOperations(
     String userId,
-    PendingRecitationOperation operation,
+    List<PendingRecitationOperation> synced,
   ) {
     return _enqueueStorageWrite(() async {
-      // Only the exact version that was synced: if the reader re-logged the
-      // same entry with a wider range while this one was in flight, that
-      // newer version still has to go up.
-      final synced = jsonEncode(operation.toJson());
+      // Only the exact versions that were synced: if the reader re-logged an
+      // entry with a wider range while this write was in flight, that newer
+      // version still has to go up.
+      final syncedById = {
+        for (final operation in synced)
+          operation.id: jsonEncode(operation.toJson()),
+      };
       final operations = _loadPendingOperations(userId)
           .where((pending) =>
-              pending.id != operation.id ||
-              jsonEncode(pending.toJson()) != synced)
+              syncedById[pending.id] != jsonEncode(pending.toJson()))
           .toList(growable: false);
       await _writePendingOperations(userId, operations);
     });
@@ -342,45 +351,55 @@ class RecitationTrackerManager extends ChangeNotifier {
     return operation;
   }
 
-  /// Merges [addition] into the remote doc inside a transaction, so an
-  /// import replayed after a dropped connection can never double-count.
+  /// Merges [addition] into the remote doc. Writing the same entry ids and
+  /// labels again changes nothing, so an import replayed after a dropped
+  /// connection can never double-count.
+  ///
+  /// Bounded, unlike [_pushPending]: this is awaited while the tracker loads,
+  /// and a write's future does not complete until the server has it - offline,
+  /// not until the connection is back. The write stays queued in Firestore's
+  /// own cache either way, and a timed-out import is retried from the
+  /// listener.
   Future<void> _mergeRemoteStateForUser(
     String userId,
     RecitationTrackerState addition,
   ) async {
     if (addition.isEmpty) return;
-    await _firestore.runTransaction((transaction) async {
-      final ref = _doc(userId);
-      final snapshot = await transaction.get(ref);
-      final current = snapshot.exists
-          ? RecitationTrackerState.fromJson(snapshot.data()?['state'])
-          : RecitationTrackerState.empty;
-      final nextState = current.plus(addition);
-      transaction.set(ref, {
-        'version': 2,
-        'state': nextState.toJson(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    });
+    await _writeRemote(userId, [
+      for (final label in addition.customLabels)
+        PendingRecitationOperation.addLabel(label),
+      for (final entry in addition.entries.values)
+        PendingRecitationOperation.add(entry),
+    ]).timeout(const Duration(seconds: 8));
   }
 
-  Future<void> _applyRemoteOperationForUser(
+  /// Applies [operations] to the remote doc as one merge write.
+  ///
+  /// No transaction and no read first: [recitationRemoteChangesFor] folds the
+  /// queue into field writes that land the same however often they are
+  /// replayed, and a merge write touches only those fields, so whatever
+  /// another device wrote meanwhile is left alone.
+  Future<void> _writeRemote(
     String userId,
-    PendingRecitationOperation operation,
-  ) async {
-    await _firestore.runTransaction((transaction) async {
-      final ref = _doc(userId);
-      final snapshot = await transaction.get(ref);
-      final current = snapshot.exists
-          ? RecitationTrackerState.fromJson(snapshot.data()?['state'])
-          : RecitationTrackerState.empty;
-      final nextState = applyPendingRecitationOperation(current, operation);
-      transaction.set(ref, {
-        'version': 2,
-        'state': nextState.toJson(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    });
+    Iterable<PendingRecitationOperation> operations,
+  ) {
+    final changes = recitationRemoteChangesFor(operations);
+    if (changes.isEmpty) return Future.value();
+    final entries = <String, Object>{
+      for (final entry in changes.entries.values) entry.id: entry.toJson(),
+      for (final id in changes.removedEntryIds) id: FieldValue.delete(),
+    };
+    return _doc(userId).set({
+      'version': 2,
+      'state': {
+        // Never written empty: in a merge write an empty map replaces the
+        // whole map, which would wipe every entry rather than leave them be.
+        if (entries.isNotEmpty) 'entries': entries,
+        if (changes.labels.isNotEmpty)
+          'labels': FieldValue.arrayUnion(changes.labels.toList()),
+      },
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   void setupRealtimeListener() {
@@ -432,9 +451,7 @@ class RecitationTrackerManager extends ChangeNotifier {
         _updateState(visibleState);
         await _saveUserStateToSharedPreferences(user.uid, visibleState);
 
-        if (pendingOperations.isNotEmpty) {
-          unawaited(_replayPendingOperations(user.uid, pendingOperations));
-        }
+        if (pendingOperations.isNotEmpty) unawaited(_pushPending(user.uid));
       },
       onError: (error) {
         debugPrint('RecitationTrackerManager: Error listening: $error');
@@ -442,23 +459,37 @@ class RecitationTrackerManager extends ChangeNotifier {
     );
   }
 
-  Future<void> _replayPendingOperations(
-    String userId,
-    List<PendingRecitationOperation> operations,
-  ) async {
-    if (_isReplayingPendingOperations || operations.isEmpty) return;
-    _isReplayingPendingOperations = true;
+  /// Sends everything queued for [userId] as one write.
+  ///
+  /// One write at a time: a call made while one is in flight - leaving a juz
+  /// logs every surah in it at once - is folded into a single follow-up write
+  /// once it lands, rather than racing it. Offline, the in-flight write simply
+  /// waits for the connection, holding everything queued behind it.
+  Future<void> _pushPending(String userId) {
+    final inFlight = _pushInFlight;
+    if (inFlight != null) {
+      _pushAgain = true;
+      return inFlight;
+    }
+    return _pushInFlight =
+        _pushPendingNow(userId).whenComplete(() => _pushInFlight = null);
+  }
+
+  Future<void> _pushPendingNow(String userId) async {
     try {
-      for (final operation in operations) {
-        await _applyRemoteOperationForUser(userId, operation);
-        await _clearPendingOperation(userId, operation);
-      }
+      do {
+        _pushAgain = false;
+        await _storageWriteQueue;
+        if (_auth.currentUser?.uid != userId) return;
+        final operations = _loadPendingOperations(userId);
+        if (operations.isEmpty) return;
+        await _writeRemote(userId, operations);
+        await _clearPendingOperations(userId, operations);
+      } while (_pushAgain);
     } catch (error) {
       debugPrint(
-        'RecitationTrackerManager: Pending operation replay failed: $error',
+        'RecitationTrackerManager: Pending operation sync failed: $error',
       );
-    } finally {
-      _isReplayingPendingOperations = false;
     }
   }
 
@@ -473,9 +504,12 @@ class RecitationTrackerManager extends ChangeNotifier {
   /// With [syncRemote] false the change is applied and saved on the device
   /// (and queued) but not sent to Firestore yet - the reader logs that way
   /// while someone is still scrolling and syncs once, on leaving, so a long
-  /// recitation costs one remote write per surah instead of one per pause.
-  /// Anything left queued is sent by [syncPendingOperations] or on the next
-  /// load.
+  /// recitation costs one remote write for the whole visit, however many
+  /// surahs it covered, instead of one per pause. Anything left queued is
+  /// sent by [syncPendingOperations] or on the next load.
+  ///
+  /// Completes once the change is saved on the device; the remote write goes
+  /// up in the background.
   ///
   /// Never counted as feature usage: it is recorded automatically by
   /// reading, not something the reader chose to do.
@@ -501,7 +535,8 @@ class RecitationTrackerManager extends ChangeNotifier {
         existing.toAyah == toAyah) {
       // Nothing new to record - but a range logged locally earlier may still
       // be waiting to go up.
-      return syncRemote ? syncPendingOperations() : Future.value();
+      if (syncRemote) unawaited(syncPendingOperations());
+      return Future.value();
     }
 
     final entry = RecitationEntry(
@@ -518,14 +553,12 @@ class RecitationTrackerManager extends ChangeNotifier {
     );
   }
 
-  /// Sends whatever is still queued for the signed-in user to Firestore.
-  Future<void> syncPendingOperations() async {
+  /// Sends whatever is still queued for the signed-in user to Firestore, as
+  /// one write.
+  Future<void> syncPendingOperations() {
     final user = _auth.currentUser;
-    if (user == null) return;
-    await _storageWriteQueue;
-    final operations = _loadPendingOperations(user.uid);
-    if (operations.isEmpty) return;
-    await _replayPendingOperations(user.uid, operations);
+    if (user == null) return Future.value();
+    return _pushPending(user.uid);
   }
 
   Future<void> removeEntry(String entryId) {
@@ -575,13 +608,14 @@ class RecitationTrackerManager extends ChangeNotifier {
         _saveUserStateToSharedPreferences(user.uid, nextState),
         _recordPendingOperation(user.uid, operation),
       ]);
-      if (!syncRemote) return;
-      await _applyRemoteOperationForUser(user.uid, operation);
-      await _clearPendingOperation(user.uid, operation);
-      debugPrint('RecitationTrackerManager: Synced to Firestore');
     } catch (error) {
-      debugPrint('RecitationTrackerManager: Error syncing: $error');
+      debugPrint('RecitationTrackerManager: Error saving: $error');
+      return;
     }
+    // Saved and queued on the device, which is all a caller waits for. The
+    // write goes up in the background, folded into one with anything else
+    // queued - leaving a juz logs every surah in it at once.
+    if (syncRemote) unawaited(_pushPending(user.uid));
   }
 
   Future<void> deleteAllRecitationData(String userId) async {
