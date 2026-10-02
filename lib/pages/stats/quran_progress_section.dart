@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/recitation_tracker_state.dart';
-import '../../services/analytics_service.dart';
-import '../../services/recitation_tracker_manager.dart';
 import '../../utils/quran_index.dart';
-import '../quran/quran_navigation.dart';
 import 'stats_widgets.dart';
 
 final NumberFormat _count = NumberFormat.decimalPattern();
@@ -17,8 +14,8 @@ String _percentText(double percent) =>
     '${percent.toStringAsFixed(percent > 0 && percent < 10 ? 1 : 0)}%';
 
 /// Quran recitation as one card per track - how much of the Quran it has
-/// covered, where it was left, and which juz are done - followed by the
-/// recent sessions, which can be moved to another track or removed.
+/// covered, where it was left, and which juz are done. The sessions behind
+/// it are listed on the Quran screen (see RecentRecitationsPage).
 class QuranProgressSection extends StatelessWidget {
   const QuranProgressSection({super.key, required this.state});
 
@@ -45,10 +42,6 @@ class QuranProgressSection extends StatelessWidget {
             QuranTrackCard(state: state, label: label),
             const SizedBox(height: 12),
           ],
-        if (state.entries.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          _RecentRecitations(state: state),
-        ],
       ],
     );
   }
@@ -127,19 +120,6 @@ class QuranTrackCard extends StatelessWidget {
                   style: theme.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
-              ),
-              FilledButton.tonalIcon(
-                style: const ButtonStyle(
-                  visualDensity: VisualDensity.compact,
-                ),
-                onPressed: () => openQuranVerse(
-                  context,
-                  state.resumePositionFor(label) ?? const VerseKey(1),
-                  source: ZikrOpenSource.quranResume,
-                  recitationLabel: label,
-                ),
-                icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                label: Text(last == null ? 'Start' : 'Continue'),
               ),
             ],
           ),
@@ -325,156 +305,5 @@ class _JuzMap extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-/// The latest sessions, each one movable to another track or removable -
-/// what the Quran screen's old Recitations tab offered.
-class _RecentRecitations extends StatefulWidget {
-  const _RecentRecitations({required this.state});
-
-  final RecitationTrackerState state;
-
-  @override
-  State<_RecentRecitations> createState() => _RecentRecitationsState();
-}
-
-class _RecentRecitationsState extends State<_RecentRecitations> {
-  static const int _collapsedCount = 5;
-  static final DateFormat _dayTimeFormat = DateFormat('MMM d, h:mm a');
-
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final all = widget.state.mostRecentFirst;
-    final shown = all.take(_expanded ? 50 : _collapsedCount).toList();
-
-    return StatsCard(
-      padding: const EdgeInsets.fromLTRB(16, 14, 8, 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          StatsSectionTitle('Recent sessions'),
-          for (final entry in shown)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              title: Text(_rangeLabel(entry)),
-              subtitle: Text(
-                '${entry.label} · '
-                '${_dayTimeFormat.format(entry.recitedAt.toLocal())}',
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.label_outline, size: 20),
-                    tooltip: 'Move to another label',
-                    onPressed: () =>
-                        _showRelabelDialog(context, widget.state, entry),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 20),
-                    tooltip: 'Remove',
-                    onPressed: () =>
-                        RecitationTrackerManager.instance.removeEntry(entry.id),
-                  ),
-                ],
-              ),
-            ),
-          if (all.length > _collapsedCount)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: () => setState(() => _expanded = !_expanded),
-                child: Text(_expanded ? 'Show fewer' : 'Show more'),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _showRelabelDialog(
-    BuildContext context,
-    RecitationTrackerState state,
-    RecitationEntry entry,
-  ) async {
-    final controller = TextEditingController();
-    final choices = [...state.labels, unlabeledRecitationLabel]
-        .where((label) => label != entry.label)
-        .toList(growable: false);
-
-    try {
-      final newLabel = await showDialog<String>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text('Move "${_rangeLabel(entry)}"'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (choices.isNotEmpty) ...[
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      for (final label in choices)
-                        ActionChip(
-                          label: Text(label),
-                          onPressed: () => Navigator.pop(dialogContext, label),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                ],
-                TextField(
-                  controller: controller,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Or a new label',
-                  ),
-                  onSubmitted: (value) => Navigator.pop(dialogContext, value),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, controller.text),
-              child: const Text('Move'),
-            ),
-          ],
-        ),
-      );
-
-      final trimmed = newLabel?.trim() ?? '';
-      if (trimmed.isEmpty || trimmed == entry.label) return;
-      await RecitationTrackerManager.instance.logRecitation(
-        id: entry.id,
-        label: trimmed,
-        recitedAt: entry.recitedAt,
-        surah: entry.surah,
-        fromAyah: entry.fromAyah,
-        toAyah: entry.toAyah,
-      );
-    } finally {
-      controller.dispose();
-    }
-  }
-
-  static String _rangeLabel(RecitationEntry entry) {
-    final range = entry.fromAyah == entry.toAyah
-        ? '${entry.fromAyah}'
-        : '${entry.fromAyah}–${entry.toAyah}';
-    final verses = entry.versesRecited;
-    return '${_surahName(entry.surah)} $range · '
-        '$verses ${verses == 1 ? 'verse' : 'verses'}';
   }
 }

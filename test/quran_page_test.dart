@@ -63,6 +63,16 @@ void main() {
     expect(find.text('Surah1 1 → Surah2 141'), findsOneWidget);
   });
 
+  testWidgets('the app bar opens recent sessions', (tester) async {
+    await pump(tester);
+
+    await tester.tap(find.byTooltip('Recent sessions'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Recent sessions'), findsOneWidget);
+    expect(find.textContaining('No sessions yet'), findsOneWidget);
+  });
+
   testWidgets('rejects a verse reference it cannot read', (tester) async {
     await pump(tester);
 

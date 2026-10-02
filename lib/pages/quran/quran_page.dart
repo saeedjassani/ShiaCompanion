@@ -18,6 +18,7 @@ import '../my_stats_page.dart';
 import 'listen_and_follow_sheet.dart';
 import 'quran_collections_tab.dart';
 import 'quran_navigation.dart';
+import 'recent_recitations_page.dart';
 
 /// The Quran screen: your recitation tracks, a way to jump to any verse, the
 /// two ways of browsing - by surah and by juz - and the collections (duas,
@@ -101,8 +102,15 @@ class _QuranPageState extends State<QuranPage> {
         appBar: AppBar(
           title: const Text('Quran'),
           actions: [
-            // Recitation stats live on My Stats with the rest of the reader's
-            // stats, rather than in a tab of their own here.
+            // The sessions themselves stay here, beside the reading they
+            // record; the stats built from them live on My Stats with the
+            // rest of the reader's stats.
+            IconButton(
+              icon: const Icon(Icons.history_rounded),
+              tooltip: 'Recent sessions',
+              onPressed: () =>
+                  pushPageRoute(context, const RecentRecitationsPage()),
+            ),
             IconButton(
               icon: const Icon(Icons.insights_rounded),
               tooltip: 'My Stats',

@@ -23,7 +23,7 @@ void main() {
 
   tearDownAll(() => items = {});
 
-  testWidgets('My Stats shows streak, history, Quran progress and milestones',
+  testWidgets('My Stats shows streak, history, most recited and Quran progress',
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(430, 3200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -64,15 +64,16 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('day streak'), findsOneWidget);
     expect(find.text('History'), findsOneWidget);
-    expect(find.text('Consistency'), findsOneWidget);
+    expect(find.text('Your most recited'), findsOneWidget);
+    expect(find.text('Milestones'), findsNothing);
+    expect(find.text('Recent sessions'), findsNothing);
     expect(find.text('Quran progress'), findsOneWidget);
     expect(find.text('Family'), findsWidgets);
     expect(find.text('Recited till'), findsOneWidget);
     expect(find.text('Surah2: 160'), findsOneWidget);
     expect(find.text('Juz 2'), findsOneWidget);
-    expect(find.text('Milestones'), findsOneWidget);
-    expect(find.text('3-day streak'), findsOneWidget);
-    expect(find.text('100 verses'), findsOneWidget);
+    // Resuming a track is the Quran screen's job, not the stats screen's.
+    expect(find.text('Continue'), findsNothing);
 
     // Switching the history metric re-plots without error.
     await tester.tap(find.widgetWithText(ChoiceChip, 'Zikrs'));

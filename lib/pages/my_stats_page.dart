@@ -9,21 +9,19 @@ import 'package:intl/intl.dart';
 import '../constants.dart';
 import '../data/uid_title_data.dart';
 import '../models/activity_stats.dart';
-import '../models/stats_milestones.dart';
 import '../services/activity_stats_store.dart';
 import '../services/analytics_service.dart';
 import '../services/community_stats_service.dart';
 import '../services/recitation_tracker_manager.dart';
 import '../widgets/responsive_content.dart';
-import 'stats/milestones_section.dart';
 import 'stats/quran_progress_section.dart';
 import 'stats/stats_charts.dart';
 import 'stats/stats_widgets.dart';
 import 'zikr/zikr_page.dart';
 
-/// The one stats screen: streak and week, history and consistency, Quran
-/// progress per recitation track, milestones, most recited zikrs, and the
-/// anonymous community summary at the end.
+/// The one stats screen: streak and week, history, most recited zikrs,
+/// and Quran progress per recitation track, with the anonymous community
+/// summary at the end.
 ///
 /// Everything personal is private to the reader (and their account, when
 /// signed in) - there is deliberately no leaderboard or public profile.
@@ -69,14 +67,13 @@ class _MyStatsPageState extends State<MyStatsPage> {
         builder: (context, _) {
           final summary = ActivityStatsStore.instance.summary();
           final recitation = RecitationTrackerManager.instance.state;
-          final milestones = computeMilestones(summary, recitation);
           return ResponsiveScrollableContent(
             maxWidth: listContentWidth,
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _StreakCard(summary: summary, milestones: milestones),
+                _StreakCard(summary: summary),
                 const SizedBox(height: 12),
                 StatsPair(
                   left: StatTile(
@@ -108,13 +105,7 @@ class _MyStatsPageState extends State<MyStatsPage> {
                 const SizedBox(height: 18),
                 StatsHistoryCard(summary: summary, recitation: recitation),
                 const SizedBox(height: 18),
-                ConsistencyHeatmap(summary: summary),
-                const SizedBox(height: 22),
-                QuranProgressSection(state: recitation),
-                const SizedBox(height: 18),
-                MilestonesSection(milestones: milestones),
                 if (summary.zikrCounts.isNotEmpty) ...[
-                  const SizedBox(height: 18),
                   StatsCard(
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
                     child: Column(
@@ -131,7 +122,10 @@ class _MyStatsPageState extends State<MyStatsPage> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 18),
                 ],
+                const SizedBox(height: 4),
+                QuranProgressSection(state: recitation),
                 const SizedBox(height: 14),
                 _PrivacyNote(isSignedIn: _isSignedIn),
                 if (_community != null) ...[
@@ -198,10 +192,9 @@ class _MyStatsPageState extends State<MyStatsPage> {
 /// Streak, today, the week and the next streak goal - the top of the screen
 /// is about today's habit, the rest is the longer view.
 class _StreakCard extends StatelessWidget {
-  const _StreakCard({required this.summary, required this.milestones});
+  const _StreakCard({required this.summary});
 
   final ActivitySummary summary;
-  final List<Milestone> milestones;
 
   /// Deliberately gentle: a missed day is a fresh start, not a failure.
   String get _message {
@@ -218,11 +211,14 @@ class _StreakCard extends StatelessWidget {
     return 'Read something today to keep it going.';
   }
 
-  /// The next streak length to aim for, counted from the *current* streak
-  /// (the milestone ladder counts the longest, so a badge is never lost).
+  /// Streak lengths worth aiming for - close together early, so a new
+  /// reader always has a goal within reach.
+  static const List<int> _streakGoals = [3, 7, 14, 30, 40, 100, 365];
+
+  /// The next streak length to aim for from the current streak.
   int? get _nextStreakGoal {
     final current = summary.currentStreak;
-    for (final target in milestoneLadders[MilestoneKind.streak]!) {
+    for (final target in _streakGoals) {
       if (target > current) return target;
     }
     return null;
