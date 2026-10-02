@@ -11,6 +11,7 @@ import '../constants.dart';
 import '../services/activity_stats_store.dart';
 import '../services/account_service.dart';
 import '../services/analytics_service.dart';
+import '../services/content_request_service.dart';
 import '../services/audio_download_store.dart';
 import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
@@ -29,6 +30,7 @@ import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
 import '../utils/widget_prayer_time_selection.dart';
 import 'prayer_notifications_page.dart';
+import '../widgets/content_request_dialog.dart';
 import '../widgets/responsive_content.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
@@ -337,6 +339,17 @@ class _SettingsPageState extends State<SettingsPage> {
                     ));
                   },
                 ),
+              ListTile(
+                leading: const Icon(Icons.playlist_add),
+                title: const Text("Request a Zikr or Book"),
+                subtitle: const Text(
+                    "Can't find a dua, ziyarat or book? Ask us to add it."),
+                onTap: () => showContentRequestDialog(
+                  context,
+                  initialType: ContentRequestType.zikr,
+                  source: 'settings',
+                ),
+              ),
               ListTile(
                 leading: const Icon(Icons.feedback),
                 title: const Text("Feedback"),

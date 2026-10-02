@@ -44,6 +44,13 @@ service cloud.firestore {
       allow read, update: if _isAdmin();
       allow delete: if false;
     }
+    // "Request a Zikr or Book" submissions (see ContentRequestService). Open
+    // to anyone for the same reason as mistake_reports above.
+    match /content_requests/{requestId} {
+      allow create: if _isValidContentRequestCreate(request.resource.data);
+      allow read, update: if _isAdmin();
+      allow delete: if false;
+    }
     // You can add more collections here...
   }
 
@@ -60,6 +67,15 @@ service cloud.firestore {
            data.zikrTitle is string && data.zikrTitle.size() <= 200 &&
            data.selectedText is string && data.selectedText.size() <= 4000 &&
            data.note is string && data.note.size() <= 2000 &&
+           data.createdAt == request.time;
+  }
+
+  function _isValidContentRequestCreate(data) {
+    return data.keys().hasOnly(['type', 'title', 'details', 'status', 'createdAt']) &&
+           data.status == 'open' &&
+           data.type in ['zikr', 'book'] &&
+           data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+           data.details is string && data.details.size() <= 1000 &&
            data.createdAt == request.time;
   }
 }
