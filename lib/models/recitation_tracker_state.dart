@@ -386,23 +386,6 @@ class RecitationTrackerState {
     return latest == null ? null : VerseKey(latest.surah, latest.toAyah);
   }
 
-  /// Sessions per local calendar day for the trailing [days] days, the same
-  /// shape as [dailyVerseCounts].
-  Map<DateTime, int> dailySessionCounts(int days) {
-    final today = _dateOnly(DateTime.now());
-    final start = DateTime(today.year, today.month, today.day - (days - 1));
-    final counts = <DateTime, int>{
-      for (var i = 0; i < days; i++)
-        DateTime(start.year, start.month, start.day + i): 0,
-    };
-    for (final entry in entries.values) {
-      final day = _dateOnly(entry.recitedAt.toLocal());
-      if (day.isBefore(start) || day.isAfter(today)) continue;
-      counts[day] = (counts[day] ?? 0) + 1;
-    }
-    return counts;
-  }
-
   /// How much of the Quran, 0–100, has been recited at least once under
   /// [label].
   double percentCompleteFor(String label) {

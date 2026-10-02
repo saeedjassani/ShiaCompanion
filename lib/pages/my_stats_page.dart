@@ -74,36 +74,8 @@ class _MyStatsPageState extends State<MyStatsPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _StreakCard(summary: summary),
-                const SizedBox(height: 12),
-                StatsPair(
-                  left: StatTile(
-                    icon: Icons.menu_book_rounded,
-                    value: _count.format(summary.quranVersesTotal),
-                    label: 'Verses recited',
-                  ),
-                  right: StatTile(
-                    icon: Icons.auto_awesome_rounded,
-                    value: _count.format(summary.totalZikrs),
-                    label: 'Duas & ziyarats read',
-                  ),
-                ),
-                const SizedBox(height: 10),
-                StatsPair(
-                  left: StatTile(
-                    icon: Icons.event_available_rounded,
-                    value: _count.format(summary.activeDayCount),
-                    label: summary.activeDayCount == 1
-                        ? 'Active day'
-                        : 'Active days',
-                  ),
-                  right: StatTile(
-                    icon: Icons.restore_rounded,
-                    value: _count.format(summary.totalQaza),
-                    label: 'Qaza made up',
-                  ),
-                ),
                 const SizedBox(height: 18),
-                StatsHistoryCard(summary: summary, recitation: recitation),
+                StatsHistoryCard(summary: summary),
                 const SizedBox(height: 18),
                 if (summary.zikrCounts.isNotEmpty) ...[
                   StatsCard(

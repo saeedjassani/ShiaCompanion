@@ -5,13 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/activity_stats.dart';
-import '../../models/recitation_tracker_state.dart';
 import 'stats_widgets.dart';
 
 /// What the history chart plots.
 enum StatsMetric {
   verses('Verses', 'verses', 'verse'),
-  sessions('Sessions', 'sessions', 'session'),
   zikrs('Zikrs', 'zikrs', 'zikr'),
   qaza('Qaza', 'qaza', 'qaza');
 
@@ -25,22 +23,36 @@ enum StatsMetric {
       '${format.format(value)} ${value == 1 ? singular : plural}';
 }
 
+/// The window the history chart covers: a bar per day for the week and the
+/// month, a bar per month for all time.
+enum StatsPeriod {
+  week('Week'),
+  month('Month'),
+  allTime('All time');
+
+  const StatsPeriod(this.label);
+
+  final String label;
+}
+
+/// Months of bars in the all-time view - a year, which the per-day history
+/// kept on each device (activityRetentionDays) always covers.
+const int _allTimeMonths = 12;
+
 /// Calendar-day arithmetic, safe across a DST change.
 DateTime _day(DateTime now, int offset) =>
     DateTime(now.year, now.month, now.day + offset);
 
-/// Daily totals for a metric over a chosen window, with the comparison that
-/// turns a chart into encouragement: how this period went against the one
-/// before it, and the best day in it.
+/// One bar: the day or month it covers, and its total.
+typedef _Bar = ({DateTime start, int value});
+
+/// A metric over a chosen window, with what turns a chart into
+/// encouragement: the week or month against the one before it, the best day
+/// or month in it, and - under All time - the lifetime total.
 class StatsHistoryCard extends StatefulWidget {
-  const StatsHistoryCard({
-    super.key,
-    required this.summary,
-    required this.recitation,
-  });
+  const StatsHistoryCard({super.key, required this.summary});
 
   final ActivitySummary summary;
-  final RecitationTrackerState recitation;
 
   @override
   State<StatsHistoryCard> createState() => _StatsHistoryCardState();
@@ -50,15 +62,43 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
   static final NumberFormat _count = NumberFormat.decimalPattern();
 
   StatsMetric _metric = StatsMetric.verses;
-  int _days = 7;
+  StatsPeriod _period = StatsPeriod.week;
 
-  int _valueOn(DateTime day, Map<DateTime, int> sessions) {
+  int _valueOn(DateTime day) {
+    final summary = widget.summary;
     return switch (_metric) {
-      StatsMetric.verses => widget.summary.quranVersesOn(day),
-      StatsMetric.sessions => sessions[day] ?? 0,
-      StatsMetric.zikrs => widget.summary.activityOn(day).zikrs,
-      StatsMetric.qaza => widget.summary.activityOn(day).qaza,
+      StatsMetric.verses => summary.quranVersesOn(day),
+      StatsMetric.zikrs => summary.activityOn(day).zikrs,
+      StatsMetric.qaza => summary.activityOn(day).qaza,
     };
+  }
+
+  int get _lifetimeTotal => switch (_metric) {
+        StatsMetric.verses => widget.summary.quranVersesTotal,
+        StatsMetric.zikrs => widget.summary.totalZikrs,
+        StatsMetric.qaza => widget.summary.totalQaza,
+      };
+
+  List<_Bar> _dailyBars(DateTime now, int days, {int offset = 0}) => [
+        for (var i = days - 1 + offset; i >= offset; i--)
+          (start: _day(now, -i), value: _valueOn(_day(now, -i))),
+      ];
+
+  List<_Bar> _monthlyBars(DateTime now) {
+    return [
+      for (var i = _allTimeMonths - 1; i >= 0; i--)
+        () {
+          final start = DateTime(now.year, now.month - i);
+          final next = DateTime(start.year, start.month + 1);
+          var value = 0;
+          for (var day = start;
+              day.isBefore(next);
+              day = DateTime(day.year, day.month, day.day + 1)) {
+            value += _valueOn(day);
+          }
+          return (start: start, value: value);
+        }(),
+    ];
   }
 
   @override
@@ -66,59 +106,71 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final now = DateTime.now();
-    final sessions = widget.recitation.dailySessionCounts(_days * 2);
+    final isAllTime = _period == StatsPeriod.allTime;
+    final days = _period == StatsPeriod.week ? 7 : 30;
 
-    final days = [for (var i = _days - 1; i >= 0; i--) _day(now, -i)];
-    final values = [for (final day in days) _valueOn(day, sessions)];
-    final previous = [
-      for (var i = _days * 2 - 1; i >= _days; i--)
-        _valueOn(_day(now, -i), sessions),
-    ];
-    final total = values.fold<int>(0, (sum, v) => sum + v);
-    final previousTotal = previous.fold<int>(0, (sum, v) => sum + v);
+    final bars = isAllTime ? _monthlyBars(now) : _dailyBars(now, days);
+    final values = [for (final bar in bars) bar.value];
+    final periodTotal = values.fold<int>(0, (sum, v) => sum + v);
+    final total = isAllTime ? _lifetimeTotal : periodTotal;
+    final previousTotal = isAllTime
+        ? 0
+        : _dailyBars(now, days, offset: days)
+            .fold<int>(0, (sum, bar) => sum + bar.value);
     final best = values.fold<int>(0, math.max);
     final bestIndex = best == 0 ? -1 : values.lastIndexOf(best);
     final maxY = best == 0 ? 1.0 : best * 1.2;
+    final narrowBars = _period == StatsPeriod.month;
+
+    String barLabel(DateTime start) => switch (_period) {
+          StatsPeriod.week => DateFormat('E').format(start).substring(0, 1),
+          StatsPeriod.month => DateFormat('d').format(start),
+          StatsPeriod.allTime =>
+            DateFormat('MMM').format(start).substring(0, 1),
+        };
+    String barName(DateTime start) => isAllTime
+        ? DateFormat('MMMM y').format(start)
+        : DateFormat('EEE, MMM d').format(start);
+
+    final caption = switch (_period) {
+      StatsPeriod.week => '${_metric.plural} in the last 7 days',
+      StatsPeriod.month => '${_metric.plural} in the last 30 days',
+      StatsPeriod.allTime => '${_metric.plural} in total',
+    };
 
     return StatsCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(child: StatsSectionTitle('History')),
-              SegmentedButton<int>(
-                showSelectedIcon: false,
-                style: const ButtonStyle(
-                  visualDensity: VisualDensity.compact,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                segments: const [
-                  ButtonSegment(value: 7, label: Text('Week')),
-                  ButtonSegment(value: 30, label: Text('Month')),
-                ],
-                selected: {_days},
-                onSelectionChanged: (value) =>
-                    setState(() => _days = value.first),
-              ),
+          StatsSectionTitle('History'),
+          const SizedBox(height: 10),
+          SegmentedButton<StatsPeriod>(
+            showSelectedIcon: false,
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            segments: [
+              for (final period in StatsPeriod.values)
+                ButtonSegment(value: period, label: Text(period.label)),
             ],
+            selected: {_period},
+            onSelectionChanged: (value) =>
+                setState(() => _period = value.first),
           ),
           const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (final metric in StatsMetric.values) ...[
-                  ChoiceChip(
-                    showCheckmark: false,
-                    label: Text(metric.label),
-                    selected: metric == _metric,
-                    onSelected: (_) => setState(() => _metric = metric),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ],
-            ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final metric in StatsMetric.values)
+                ChoiceChip(
+                  showCheckmark: false,
+                  label: Text(metric.label),
+                  selected: metric == _metric,
+                  onSelected: (_) => setState(() => _metric = metric),
+                ),
+            ],
           ),
           const SizedBox(height: 14),
           Row(
@@ -135,7 +187,7 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
                       ),
                     ),
                     Text(
-                      '${_metric.plural} ${_days == 7 ? 'in the last 7 days' : 'in the last 30 days'}',
+                      caption,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -143,7 +195,8 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
                   ],
                 ),
               ),
-              _TrendBadge(current: total, previous: previousTotal),
+              if (!isAllTime)
+                _TrendBadge(current: periodTotal, previous: previousTotal),
             ],
           ),
           const SizedBox(height: 16),
@@ -172,22 +225,19 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
                       reservedSize: 22,
                       getTitlesWidget: (value, meta) {
                         final index = value.round();
-                        if (index < 0 || index >= days.length) {
+                        if (index < 0 || index >= bars.length) {
                           return const SizedBox.shrink();
                         }
                         // A month of labels would overlap: every fifth day,
                         // counted back from today so today is always named.
-                        final fromEnd = days.length - 1 - index;
-                        if (_days > 7 && fromEnd % 5 != 0) {
+                        final fromEnd = bars.length - 1 - index;
+                        if (narrowBars && fromEnd % 5 != 0) {
                           return const SizedBox.shrink();
                         }
-                        final day = days[index];
                         return Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
-                            _days == 7
-                                ? DateFormat('E').format(day).substring(0, 1)
-                                : DateFormat('d').format(day),
+                            barLabel(bars[index].start),
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                               fontWeight: fromEnd == 0 ? FontWeight.w800 : null,
@@ -203,7 +253,7 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
                     getTooltipColor: (_) => colorScheme.inverseSurface,
                     getTooltipItem: (group, groupIndex, rod, rodIndex) =>
                         BarTooltipItem(
-                      '${DateFormat('EEE, MMM d').format(days[group.x])}\n'
+                      '${barName(bars[group.x].start)}\n'
                       '${_metric.count(rod.toY.round(), _count)}',
                       TextStyle(
                         color: colorScheme.onInverseSurface,
@@ -219,13 +269,12 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
                       barRods: [
                         BarChartRodData(
                           toY: values[i].toDouble(),
-                          width: _days == 7 ? 22 : 6,
+                          width: narrowBars ? 6 : (isAllTime ? 14 : 22),
                           color: i == bestIndex
                               ? colorScheme.primary
                               : colorScheme.primary.withValues(alpha: 0.55),
-                          borderRadius: BorderRadius.circular(
-                            _days == 7 ? 6 : 2,
-                          ),
+                          borderRadius:
+                              BorderRadius.circular(narrowBars ? 2 : 5),
                           backDrawRodData: BackgroundBarChartRodData(
                             show: true,
                             toY: maxY,
@@ -242,9 +291,12 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
           if (best > 0) ...[
             const SizedBox(height: 10),
             Text(
-              'Best day: ${DateFormat('EEE, MMM d').format(days[bestIndex])}'
-              ' · ${_metric.count(best, _count)}'
-              ' · ${(total / _days).toStringAsFixed(total / _days < 10 ? 1 : 0)} a day on average',
+              isAllTime
+                  ? 'Best month: ${barName(bars[bestIndex].start)}'
+                      ' · ${_metric.count(best, _count)}'
+                  : 'Best day: ${barName(bars[bestIndex].start)}'
+                      ' · ${_metric.count(best, _count)}'
+                      ' · ${(periodTotal / days).toStringAsFixed(periodTotal / days < 10 ? 1 : 0)} a day on average',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
