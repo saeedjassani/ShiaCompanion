@@ -158,6 +158,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     icon: Icons.history_edu_rounded,
     pageBuilder: () => ItemList("I", "Baaqeyaat As Saalehaat"),
   ),
+  playlistsMenuItem,
   HomeMenuItem(
     label: 'Qibla Finder',
     icon: Icons.explore_rounded,
@@ -210,8 +211,7 @@ final HomeMenuItem quranMenuItem = HomeMenuItem(
   pageBuilder: () => const QuranPage(),
 );
 
-/// Audio playlists. Dark-launched to admins, like [quranMenuItem], until it
-/// is ready for everyone - then move it into [homeMenuItems].
+/// Audio playlists. Also offered from every zikr's audio player.
 final HomeMenuItem playlistsMenuItem = HomeMenuItem(
   label: 'Playlists',
   icon: Icons.playlist_play_rounded,
@@ -241,7 +241,6 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
     pageBuilder: () => const UsageDashboardPage(),
     countsAsFeatureUse: false,
   ),
-  playlistsMenuItem,
   myStatsMenuItem,
   HomeMenuItem(
     label: 'Mistake Reports',
