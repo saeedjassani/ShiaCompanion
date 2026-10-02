@@ -638,13 +638,27 @@ struct DailyPrayerTimesView: View {
 }
 
 struct PrayerWidgetView: View {
+    @Environment(\.widgetFamily) private var family
     let entry: PrayerWidgetEntry
 
     var body: some View {
-        let footer = !entry.secondaryName.isEmpty && !entry.secondaryTime.isEmpty
-            ? "\(entry.secondaryName): \(entry.secondaryTime)"
-            : entry.location
+        if #available(iOSApplicationExtension 16.0, *) {
+            switch family {
+            case .accessoryInline:
+                PrayerAccessoryInline(entry: entry)
+            case .accessoryCircular:
+                PrayerAccessoryCircular(entry: entry)
+            case .accessoryRectangular:
+                PrayerAccessoryRectangular(entry: entry)
+            default:
+                homeScreen
+            }
+        } else {
+            homeScreen
+        }
+    }
 
+    private var homeScreen: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .center, spacing: 6) {
                 Text(compactNextTitle(entry.title))
@@ -666,12 +680,80 @@ struct PrayerWidgetView: View {
                 .minimumScaleFactor(0.75)
                 .lineLimit(1)
             Spacer(minLength: 2)
-            Text(footer)
+            Text(prayerFooter(entry))
                 .font(.caption2)
                 .foregroundColor(.secondaryText)
                 .lineLimit(1)
         }
         .widgetCard()
+    }
+}
+
+private func prayerFooter(_ entry: PrayerWidgetEntry) -> String {
+    !entry.secondaryName.isEmpty && !entry.secondaryTime.isEmpty
+        ? "\(entry.secondaryName): \(entry.secondaryTime)"
+        : entry.location
+}
+
+@available(iOSApplicationExtension 16.0, *)
+private struct PrayerAccessoryInline: View {
+    let entry: PrayerWidgetEntry
+
+    var body: some View {
+        Text(verbatim: "\(entry.name) \(entry.time)")
+    }
+}
+
+@available(iOSApplicationExtension 16.0, *)
+private struct PrayerAccessoryCircular: View {
+    let entry: PrayerWidgetEntry
+
+    var body: some View {
+        ZStack {
+            AccessoryWidgetBackground()
+            VStack(spacing: 1) {
+                PrayerGlyphView(name: entry.name)
+                    .frame(width: 16, height: 16)
+                    .widgetAccentable()
+                Text(entry.time)
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            }
+            .padding(5)
+        }
+        .accessoryContainerBackground()
+    }
+}
+
+/// The next prayer's name and time, plus the same footer line as the Home
+/// Screen widget (the secondary time, or the location).
+@available(iOSApplicationExtension 16.0, *)
+private struct PrayerAccessoryRectangular: View {
+    let entry: PrayerWidgetEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            HStack(spacing: 4) {
+                PrayerGlyphView(name: entry.name)
+                    .frame(width: 14, height: 14)
+                Text(entry.name)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            .widgetAccentable()
+            Text(entry.time)
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(prayerFooter(entry))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessoryContainerBackground()
     }
 }
 
@@ -1024,7 +1106,19 @@ struct UpcomingPrayerWidget: Widget {
         }
         .configurationDisplayName("Up Next")
         .description("The next of the times you picked in Settings, for your saved location.")
-        .supportedFamilies([.systemSmall])
+        .supportedFamilies(Self.families)
+    }
+
+    private static var families: [WidgetFamily] {
+        if #available(iOSApplicationExtension 16.0, *) {
+            return [
+                .systemSmall,
+                .accessoryInline,
+                .accessoryCircular,
+                .accessoryRectangular,
+            ]
+        }
+        return [.systemSmall]
     }
 }
 
