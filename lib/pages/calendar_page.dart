@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/pages/prayer_notifications_page.dart';
+import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/prayer_times_card.dart';
@@ -191,7 +192,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Map<String, dynamic>? _eventForDay(DateTime day) {
-    final event = eventsMap[getStringFromDate(_hijriDateFor(day))];
+    final event = eventsMap[hijriEventKey(_hijriDateFor(day))];
     if (event is Map<String, dynamic>) return event;
     return null;
   }
@@ -200,11 +201,6 @@ class _CalendarPageState extends State<CalendarPage> {
     return HijriCalendar.fromDate(
       _localCalendarDate(date).add(Duration(days: hijriDate)),
     );
-  }
-
-  String getStringFromDate(HijriCalendar dateTime) {
-    List<String> temp = dateTime.toString().split('/');
-    return int.parse(temp[0]).toString() + '-' + int.parse(temp[1]).toString();
   }
 
   bool isToday(DateTime dateTime) {
