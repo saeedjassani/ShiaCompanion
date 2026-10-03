@@ -1352,20 +1352,36 @@ private func parseCalendarEvents(_ raw: String) -> [CalendarEventInfo] {
     .sorted { $0.start < $1.start }
 }
 
-/// "Today · Death", "Birth · in 17 days", "In 4 days": what happened and when,
-/// counted in calendar days.
-private func calendarMetaLine(kind: String, start: Date, now: Date) -> String {
+/// How many calendar days from `now`'s date to `start`'s: 0 today, 1 tomorrow.
+private func calendarDaysAway(_ start: Date, from now: Date) -> Int {
     let calendar = Calendar.current
-    let days = calendar.dateComponents(
+    return calendar.dateComponents(
         [.day],
         from: calendar.startOfDay(for: now),
         to: calendar.startOfDay(for: start)
     ).day ?? 0
+}
+
+/// "Today · Death", "Birth · in 17 days", "In 4 days": what happened and when,
+/// counted in calendar days.
+private func calendarMetaLine(kind: String, start: Date, now: Date) -> String {
+    let days = calendarDaysAway(start, from: now)
     let time = days <= 0 ? "today" : days == 1 ? "tomorrow" : "in \(days) days"
     if kind.isEmpty {
         return time.prefix(1).uppercased() + time.dropFirst()
     }
     return days <= 0 ? "Today · \(kind)" : "\(kind) · \(time)"
+}
+
+/// The line under an upcoming event's name: `calendarMetaLine` with the
+/// Gregorian date before the countdown, "Birth · Tue 20 Oct · in 17 days".
+/// Today and tomorrow need no date. Kind, date, countdown, in that order, so
+/// a narrow widget cuts the countdown first.
+private func calendarAgendaLine(kind: String, start: Date, now: Date) -> String {
+    let days = calendarDaysAway(start, from: now)
+    guard days > 1 else { return calendarMetaLine(kind: kind, start: start, now: now) }
+    let time = "\(start.formatted(calendarShortDate)) · in \(days) days"
+    return kind.isEmpty ? time : "\(kind) · \(time)"
 }
 
 private func calendarEventColor(_ code: Int) -> Color {
@@ -1575,7 +1591,8 @@ private struct CalendarDivider: View {
     }
 }
 
-/// One upcoming event: its hijri date in a column on the left, the name, then what and when.
+/// One upcoming event: its hijri date in a column on the left, the name, then
+/// what and when, with the Gregorian date.
 private struct CalendarAgendaRow: View {
     let event: CalendarEventInfo
     let now: Date
@@ -1603,7 +1620,7 @@ private struct CalendarAgendaRow: View {
                     Circle()
                         .fill(calendarEventColor(event.color))
                         .frame(width: 6, height: 6)
-                    Text(calendarMetaLine(kind: event.kind, start: event.start, now: now))
+                    Text(calendarAgendaLine(kind: event.kind, start: event.start, now: now))
                         .font(.system(size: 11))
                         .foregroundColor(.secondaryText)
                         .lineLimit(1)
