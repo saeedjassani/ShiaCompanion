@@ -3088,7 +3088,10 @@
   "X6": {
     "title": "(a) First Night of Friday (Laylat al-Raghaib)",
     "slug": "a-first-night-of-friday-laylat-al-raghaaeb",
-    "day": "N07-*-5#1"
+    "day": [
+      "07-*-4#1",
+      "N07-*-5#1"
+    ]
   },
   "X7": {
     "title": "(b) First Night of Rajab",
