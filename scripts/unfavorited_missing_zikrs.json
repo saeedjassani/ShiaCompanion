@@ -5,8 +5,9 @@
   "total": 209,
   "menuCategory": 7,
   "retired": 32,
-  "toRestoreHasArabic": 103,
-  "toRestoreProseOnly": 67
+  "restored": 15,
+  "toRestoreHasArabic": 95,
+  "toRestoreProseOnly": 60
  },
  "uids": [
   {
@@ -743,92 +744,107 @@
   {
    "uid": "F16",
    "title": "Namaz of Imam al-Hasan (a)",
-   "kind": "prose-only",
-   "itemsBytes": 361
+   "kind": "restored",
+   "itemsBytes": 361,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F18",
    "title": "Namaz of Imam zayn al-’Abidin (a)",
-   "kind": "prose-only",
-   "itemsBytes": 226
+   "kind": "restored",
+   "itemsBytes": 226,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F19",
    "title": "Namaz of Imam al-Baqir (a)",
-   "kind": "has-arabic",
-   "itemsBytes": 602
+   "kind": "restored",
+   "itemsBytes": 602,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F20",
    "title": "Namaz of Imam al-Sadiq (a)",
-   "kind": "prose-only",
-   "itemsBytes": 222
+   "kind": "restored",
+   "itemsBytes": 222,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F21",
    "title": "Namaz of Imam al-Kazim (a)",
-   "kind": "prose-only",
-   "itemsBytes": 218
+   "kind": "restored",
+   "itemsBytes": 218,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F22",
    "title": "Namaz of Imam al-Reza (a)",
-   "kind": "prose-only",
-   "itemsBytes": 233
+   "kind": "restored",
+   "itemsBytes": 233,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F24",
    "title": "Namaz of Imam al-Hadi (a)",
-   "kind": "prose-only",
-   "itemsBytes": 274
+   "kind": "restored",
+   "itemsBytes": 274,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F25",
    "title": "Namaz of Imam al-’Askari (a)",
-   "kind": "prose-only",
-   "itemsBytes": 347
+   "kind": "restored",
+   "itemsBytes": 347,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F36",
    "title": "Namaz for fulfillment of needs (3)",
-   "kind": "has-arabic",
-   "itemsBytes": 1944
+   "kind": "restored",
+   "itemsBytes": 1944,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F37",
    "title": "Namaz for fulfillment of needs (4)",
-   "kind": "has-arabic",
-   "itemsBytes": 1154
+   "kind": "restored",
+   "itemsBytes": 1154,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F42",
    "title": "Namaz (to dispel) Fear of Oppressors",
-   "kind": "has-arabic",
-   "itemsBytes": 962
+   "kind": "restored",
+   "itemsBytes": 962,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F50",
    "title": "Namaz for Settling Needs",
-   "kind": "has-arabic",
-   "itemsBytes": 894
+   "kind": "restored",
+   "itemsBytes": 894,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F61",
    "title": "Namaz of the Hungry",
-   "kind": "has-arabic",
-   "itemsBytes": 499
+   "kind": "restored",
+   "itemsBytes": 499,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F63",
    "title": "Namaz on Friday night & the nights befor Eid Al Adha for fulfillment of needs",
-   "kind": "has-arabic",
-   "itemsBytes": 957
+   "kind": "restored",
+   "itemsBytes": 957,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "F65",
    "title": "Namaz of The Bedouin (Salat Al-Rabi)",
-   "kind": "has-arabic",
-   "itemsBytes": 3393
+   "kind": "restored",
+   "itemsBytes": 3393,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "G17",

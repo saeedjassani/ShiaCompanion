@@ -378,7 +378,7 @@ An eighth pass (also 2026-09-19) completed the entire remaining **single-favorit
   - **F1 → F2** (merits/preamble to Namaz e Shab)
   - **AA28 → AA29** (points to Common Aamal of Qadr Nights)
   - **P6 → F15** (points to Namaz of Imam Ali)
-  - **I96 → A99** (points to Surah al-Zalzalah)
+  - **I96 → A103** (points to Surah al-Zalzalah; originally mis-targeted at A99, At-Tin - fixed 2026-10-03)
   - **X8 → X7** (points to First Night/Day of Rajab)
 
 All entries were verified with `normalize.py` (0 non-canonical codepoints),
@@ -731,3 +731,40 @@ union silently comes back empty).
   Upon Imam Musa ibn Jafar"), which is itself a bug to fix.
 
 That leaves **170 to restore** (103 with Arabic, 67 prose-only).
+
+### The F (Namaz) series (2026-10-03)
+
+All 15 missing `F*` uids are restored: F16, F18-F22, F24, F25 (the Imams'
+Friday prayers), F36, F37, F42, F50, F61, F63, F65.
+
+- **The Imams' prayers were checked against an online source and came out
+  fuller than our history.** The old `assets/items` files for F16-F25 only
+  carried the one-line method. Sayyid Ibn Tawus's *Jamal al-Usbu'* (as
+  given in Mafatih al-Jinan; taken from duas.org's "Namaz of Masoomeen"
+  page) pairs each Imam's prayer with **a supplication**, so each entry now
+  carries the method in `merits` and the supplication as triplets in
+  `data`. The live F17 (Imam Husayn, 102 lines) and F23 (Imam al-Jawad)
+  were missing their supplications too and got them in the same pass.
+  That page has the duas.org defects Step 3 warns about: its transliteration
+  is mojibake (`Muï¿½ammad`), so only its Arabic and English were used, and
+  its Arabic stores hamza in a private-use font glyph (`U+E832` = hamza +
+  fatha, `U+E835` = + damma, `U+E834` = + sukun) that had to be mapped back
+  to `اَ`/`اُ`/`اْ`. A few source typos were fixed (`وَاَنَتَ`, `وَهرَبَ`,
+  `وَمَلَاَكُلَّ`, `عِقَابِكَ` -> `عِقَابَكَ`), and in Imam al-Sadiq's dua
+  `شَاهِدُ غَيْرُ` / `غَالِبُ` / `قَرِيبُ` were made accusative, as the
+  source's own transliteration reads them. Imam al-Jawad's rows were
+  misaligned in the source (transliteration shifted one row).
+- **Two known disagreements, left as in our history:** duas.org says Imam
+  Husayn's prayer repeats al-Fatihah and al-Tawhid *fifty* times per unit;
+  our old text and the Arabic wikishia summary say twenty-five. F17 keeps
+  twenty-five.
+- **F36-F65 come from `assets/items` history only.** Their Arabic is the
+  old authored text; the English for the recited lines is **new** (the old
+  items had none) and deserves a reviewer's pass, as does all the
+  transliteration in this batch (hand-written in the F13-F15 house style).
+- **Pipeline gotchas hit here:** `normalize.py`'s `لاَ -> لَا` rule turns the
+  duas.org article `ٱلاَرْض` into `الَارْض` (fatha moved onto the article
+  lam) - rewrite those to `الْاَرْض` afterwards; `silah.py` again marked
+  plural pronouns (`لَهٗمْ`), and source text had ṣilah marks before hamzat
+  al-waṣl (`بِهٖ الْجِبَالَ`). Use `batch.py plan` to apply `silah.py`'s fixes -
+  its own `--json` output is not in `apply_patch.js`'s format.

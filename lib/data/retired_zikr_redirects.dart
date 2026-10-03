@@ -201,8 +201,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// P6 ("The Namaaz of Ameer al-Momineen (a.s.)") points to Namaz of Imam Ali (F15).
   'P6': RetiredZikrRedirect('F15'),
 
-  /// I96 ("Merits of Surah Zilzal") points to Surah al-Zalzalah (A99).
-  'I96': RetiredZikrRedirect('A99'),
+  /// I96 ("Merits of Surah Zilzal") points to Surah al-Zalzalah (A103 -
+  /// surah n is uid A(n+4); this used to say A99, which is At-Tin).
+  'I96': RetiredZikrRedirect('A103'),
 
   /// X8 ("(c) First Day of Rajab") points to the First Night/Day of Rajab rites (X7).
   'X8': RetiredZikrRedirect('X7'),
