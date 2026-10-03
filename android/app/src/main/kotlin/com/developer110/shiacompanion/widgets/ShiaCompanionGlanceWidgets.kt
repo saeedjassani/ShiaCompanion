@@ -1404,6 +1404,18 @@ private fun eventMetaLine(kind: String, days: Int): String {
     }
 }
 
+/**
+ * The line under an upcoming event's name: [eventMetaLine] with the date
+ * before the countdown, "Birth · Tue 20 Oct · in 17 days". Today and tomorrow
+ * need no date. Kind, date, countdown, in that order, so a narrow widget cuts
+ * the countdown first.
+ */
+private fun agendaMetaLine(kind: String, startEpochMillis: Long, days: Int): String {
+    if (days <= 1) return eventMetaLine(kind, days)
+    val time = "${formatLocalDate(startEpochMillis, "EEE d MMM")} · in $days days"
+    return if (kind.isBlank()) time else "$kind · $time"
+}
+
 private fun calendarEventColor(code: Int): ColorProvider = when (code) {
     0 -> eventGreenColor
     1 -> eventRedColor
@@ -1650,7 +1662,10 @@ private fun CalendarTodayCard(today: CalendarDay) {
     }
 }
 
-/** One upcoming event: its hijri date in a column on the left, the name, then what and when. */
+/**
+ * One upcoming event: its hijri date in a column on the left, the name, then
+ * what and when, with the Gregorian date.
+ */
 @Composable
 private fun CalendarAgendaRow(event: CalendarEvent, todayStart: Long, rowHeight: Float) {
     Row(
@@ -1687,7 +1702,11 @@ private fun CalendarAgendaRow(event: CalendarEvent, todayStart: Long, rowHeight:
                 )
                 Spacer(GlanceModifier.width(5.dp))
                 Text(
-                    text = eventMetaLine(event.kind, daysAway(event.startEpochMillis, todayStart)),
+                    text = agendaMetaLine(
+                        event.kind,
+                        event.startEpochMillis,
+                        daysAway(event.startEpochMillis, todayStart)
+                    ),
                     style = TextStyle(color = secondaryTextColor, fontSize = 11.sp),
                     maxLines = 1
                 )
