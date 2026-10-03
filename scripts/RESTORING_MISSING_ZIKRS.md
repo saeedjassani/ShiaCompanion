@@ -683,3 +683,36 @@ The single-favorite tail (72 more UIDs, plus the 10 already-retired ones with
 their own redirect target) is in
 [scripts/favorited_missing_zikrs.json](favorited_missing_zikrs.json) if you
 work through this table and want more.
+
+## The unfavorited remainder (2026-10-03)
+
+With every favorited UID done, **209 UIDs** are still missing from
+`assets/zikr.json` and not covered by `retiredZikrRedirects` - none of them
+favorited by anyone in the 2026-09-08 snapshot, so nobody hits "Unable to
+open this dua." for them, but their content is simply gone from the app.
+They're listed in [scripts/unfavorited_missing_zikrs.json](unfavorited_missing_zikrs.json)
+(regenerate the UID list with the git-history union from Step 0 - note a
+cloud session's clone is shallow, so run `git fetch --unshallow` first or the
+union silently comes back empty).
+
+- **7 are not content** (`AF~AM5`, `AR~AP1`, `AR~AQ2`, `B~AR9`, `C~T11`,
+  `C~U12`, `C~W14`) - old menu-category nodes ("Baghdad", "Hijaz", "Rabi
+  al-Awwal"...), with no `assets/items` file. Skip.
+- **202 have full `assets/items/<uid>` history** (Step 1 applies), 132 with
+  Arabic and 70 prose-only (methods, etiquettes, histories, merits). Most of
+  the bulk is the **ziyarat guide sections**, nearly wiped out: Mashhad/Qom
+  (`AE*`, 17 of 18 missing), Karbala (`AG*`, 12), Kufa (`AI*`, 9), Najaf
+  (`AK*`, 13), Samarra (`AL*`, 8), Baghdad (`AM*`, all 4), Madinah (`AP*`,
+  12), Uhud (`AQ*`, all 4), Kazimayn (`AH*`, 5). Then the Taweez/funeral
+  rites run `I40`-`I126` (37), Friday-night acts `P*` (13), Imam-specific
+  namaz `F16`-`F25` and other `F*` (15), the per-Imam salawat `E131`-`E139`,
+  Muharram/Safar/Rabi day pages (`R2`, `R3`, `S2`-`S8`, `T1`, `T3`, `U1`),
+  Rajab (`X9`, `X12`, `X16`-`X18`), the remaining Ramadan nights (`AA36`,
+  `AA41`, `AA42`, `AA44`, `AA45`, `AA24`) and Shawwal/Eid (`AD1`, `AD5`).
+- **16 look like Step-1.5 duplicates** (`possibleDuplicateOf` in the JSON,
+  from an Arabic-shingle + title match against every live entry *and tab* -
+  a hint, still eyeball each): e.g. `P14` was byte-identical to `P15` in
+  history, `R2`/`R3`/`R8` match `R1`/`R1` tab 0/`R7` tab 0, `AG9`-`AG11`
+  match `AG8`'s tabs, `I27` matches `I24` tab 4. `G17`/`L4` and `G19`/`M4`
+  are each the same weekday ziyarah under two categories - restore one and
+  alias the other (the `G16|L3` / `G18|M3` shape).

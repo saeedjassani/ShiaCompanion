@@ -1,0 +1,1286 @@
+{
+ "generatedAt": "2026-10-03",
+ "method": "Union of every historical assets/zikr.json key (full, unshallowed git history; alias keys split on |), minus current assets/zikr.json keys, minus lib/data/retired_zikr_redirects.dart. None of these are in favorited_missing_zikrs.json. possibleDuplicateOf comes from an Arabic 6-word-shingle overlap + title match against every live entry and tab - a hint only, eyeball it per RESTORING_MISSING_ZIKRS.md Step 1.5.",
+ "counts": {
+  "total": 209,
+  "menuCategory": 7,
+  "hasArabic": 132,
+  "proseOnly": 70,
+  "possibleDuplicates": 16
+ },
+ "uids": [
+  {
+   "uid": "AA24",
+   "title": "The 6th Of Ramadan",
+   "kind": "prose-only",
+   "itemsBytes": 377
+  },
+  {
+   "uid": "AA36",
+   "title": "Dua for the 24th Night of Ramadhan",
+   "kind": "has-arabic",
+   "itemsBytes": 3270,
+   "hasHistoricTransliteration": true
+  },
+  {
+   "uid": "AA41",
+   "title": "Dua for the 28th Night of Ramadhan",
+   "kind": "has-arabic",
+   "itemsBytes": 3234,
+   "hasHistoricTransliteration": true
+  },
+  {
+   "uid": "AA42",
+   "title": "Dua for the 29th Night of Ramadhan",
+   "kind": "has-arabic",
+   "itemsBytes": 2942,
+   "hasHistoricTransliteration": true
+  },
+  {
+   "uid": "AA44",
+   "title": "Dua for the 30th Night of Ramadhan",
+   "kind": "has-arabic",
+   "itemsBytes": 3466,
+   "hasHistoricTransliteration": true
+  },
+  {
+   "uid": "AA45",
+   "title": "30th of Ramadhan",
+   "kind": "has-arabic",
+   "itemsBytes": 4048,
+   "hasHistoricTransliteration": true
+  },
+  {
+   "uid": "AC8",
+   "title": "The 7th Day Of Zilhajj",
+   "kind": "prose-only",
+   "itemsBytes": 230
+  },
+  {
+   "uid": "AC9",
+   "title": "The 8th Day Of Zilhajj",
+   "kind": "prose-only",
+   "itemsBytes": 327
+  },
+  {
+   "uid": "AD1",
+   "title": "1st Night of Shawwal",
+   "kind": "has-arabic",
+   "itemsBytes": 4760
+  },
+  {
+   "uid": "AD5",
+   "title": "The Sermon on the Eid ul Fitr",
+   "kind": "has-arabic",
+   "itemsBytes": 18063
+  },
+  {
+   "uid": "AE1",
+   "title": "News of Safi the Servant of Imam al Hadi (a) and his journey to Mashhad",
+   "kind": "has-arabic",
+   "itemsBytes": 8350
+  },
+  {
+   "uid": "AE2",
+   "title": "Merits and Methods of Visiting Imam Ali Ibn Moosa Al Reza",
+   "kind": "prose-only",
+   "itemsBytes": 8769
+  },
+  {
+   "uid": "AE3",
+   "title": "Method of Visiting Imam Al Reza",
+   "kind": "has-arabic",
+   "itemsBytes": 25344
+  },
+  {
+   "uid": "AE4",
+   "title": "Dua after Ziyarah of Imam Al Reza's tomb",
+   "kind": "has-arabic",
+   "itemsBytes": 10191
+  },
+  {
+   "uid": "AE5",
+   "title": "Al Ziyarah al Jawadiyyah",
+   "kind": "prose-only",
+   "itemsBytes": 1624
+  },
+  {
+   "uid": "AE6",
+   "title": "Another Ziyarah of Imam al Rida",
+   "kind": "has-arabic",
+   "itemsBytes": 1277
+  },
+  {
+   "uid": "AE7",
+   "title": "Another Ziyarah of Imam al Rida",
+   "kind": "has-arabic",
+   "itemsBytes": 4057
+  },
+  {
+   "uid": "AE8",
+   "title": "Bidding Farewell To Imam Al Reza",
+   "kind": "has-arabic",
+   "itemsBytes": 1800
+  },
+  {
+   "uid": "AE9",
+   "title": "Granting of requests at Imam Al Reza's Tomb",
+   "kind": "prose-only",
+   "itemsBytes": 1940
+  },
+  {
+   "uid": "AE10",
+   "title": "Imam Al Reza's Journey To Khurasan",
+   "kind": "prose-only",
+   "itemsBytes": 4090
+  },
+  {
+   "uid": "AE11",
+   "title": "Visitation of a king to the shrine of Imam Al Reza (a)",
+   "kind": "prose-only",
+   "itemsBytes": 3041
+  },
+  {
+   "uid": "AE12",
+   "title": "Miracles Shown in Imam Al Reza's Holy Shrine",
+   "kind": "prose-only",
+   "itemsBytes": 1588
+  },
+  {
+   "uid": "AE13",
+   "title": "Poetic verses composed by Al Jami praising Al Reza",
+   "kind": "prose-only",
+   "itemsBytes": 780
+  },
+  {
+   "uid": "AE14",
+   "title": "Visiting Lady Fatimah Al Masumah in Qum",
+   "kind": "prose-only",
+   "itemsBytes": 1258
+  },
+  {
+   "uid": "AE16",
+   "title": "Short Biography of ‘Abd Al ’Azim Al Hasani",
+   "kind": "prose-only",
+   "itemsBytes": 5337
+  },
+  {
+   "uid": "AE17",
+   "title": "Ziyarah of Abd Al Azim Al Hasani",
+   "kind": "has-arabic",
+   "itemsBytes": 7682
+  },
+  {
+   "uid": "AE18",
+   "title": "The Shrine of Hamzah - the Son of Imam Al Kazim",
+   "kind": "prose-only",
+   "itemsBytes": 1469
+  },
+  {
+   "uid": "AF~AM5",
+   "title": "Baghdad",
+   "kind": "menu-category"
+  },
+  {
+   "uid": "AG4",
+   "title": "Salawat on Imam Husayn (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 9560
+  },
+  {
+   "uid": "AG7",
+   "title": "Method of visiting the Holy Shrines of Imam Husayn (a) & Al Abbas (a)",
+   "kind": "prose-only",
+   "itemsBytes": 355
+  },
+  {
+   "uid": "AG9",
+   "title": "Second Ziyarah of Imam Husayn (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 2588,
+   "possibleDuplicateOf": "AG8 tabs[0] \"Second Ziyarat\""
+  },
+  {
+   "uid": "AG10",
+   "title": "Third Ziyarah of Imam Husayn (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 6592,
+   "possibleDuplicateOf": "AG8 tabs[1] \"Third Ziyarat\""
+  },
+  {
+   "uid": "AG11",
+   "title": "Fourth Ziyarah of Imam Husayn (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 962,
+   "possibleDuplicateOf": "AG8 tabs[2] \"Fourth Ziyarat\""
+  },
+  {
+   "uid": "AG12",
+   "title": "Fifth Ziyarah of Imam Husayn (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 1672
+  },
+  {
+   "uid": "AG13",
+   "title": "Sixth Ziyarah of Imam Husayn (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 2796
+  },
+  {
+   "uid": "AG15",
+   "title": "Explanations about the additions in Ziyarah Warith)",
+   "kind": "has-arabic",
+   "itemsBytes": 2257
+  },
+  {
+   "uid": "AG16",
+   "title": "Fabricated Supplications",
+   "kind": "prose-only",
+   "itemsBytes": 10404
+  },
+  {
+   "uid": "AG17",
+   "title": "Denunciation of the presence of unworthy things in books of hadees and duas",
+   "kind": "has-arabic",
+   "itemsBytes": 5200
+  },
+  {
+   "uid": "AG20",
+   "title": "Visiting Imam Husayn (a) on Special Occasions",
+   "kind": "has-arabic",
+   "itemsBytes": 5042
+  },
+  {
+   "uid": "AG21",
+   "title": "Merits And Etiquettes of the Soil of Imam Husayn's (a) Tomb",
+   "kind": "has-arabic",
+   "itemsBytes": 30453
+  },
+  {
+   "uid": "AH1",
+   "title": "Mertis and Method of Visiting Kazimayn",
+   "kind": "prose-only",
+   "itemsBytes": 2807
+  },
+  {
+   "uid": "AH3",
+   "title": "Another Ziyarah of Imam al-Kazim (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 6730
+  },
+  {
+   "uid": "AH6",
+   "title": "Another Ziyarah of Imam al-Jawad",
+   "kind": "has-arabic",
+   "itemsBytes": 3865,
+   "possibleDuplicateOf": "AH5 (64% Arabic overlap - may be an alternate form)"
+  },
+  {
+   "uid": "AH8",
+   "title": "Another Ziyarah of Imam al-Jawad - 1",
+   "kind": "has-arabic",
+   "itemsBytes": 3982,
+   "possibleDuplicateOf": "AH5 (61% Arabic overlap - may be an alternate form)"
+  },
+  {
+   "uid": "AH11",
+   "title": "Story of Ali Al Baghdadi",
+   "kind": "prose-only",
+   "itemsBytes": 16621
+  },
+  {
+   "uid": "AI1",
+   "title": "Merits of Al Kufah City",
+   "kind": "prose-only",
+   "itemsBytes": 650
+  },
+  {
+   "uid": "AI2",
+   "title": "Merits of Masjid al-Kufah",
+   "kind": "prose-only",
+   "itemsBytes": 4113
+  },
+  {
+   "uid": "AI6",
+   "title": "Aamal at the Seventh Column (Sutoon)",
+   "kind": "has-arabic",
+   "itemsBytes": 17080
+  },
+  {
+   "uid": "AI7",
+   "title": "Aamal at the Fifth Column (Sutoon)",
+   "kind": "has-arabic",
+   "itemsBytes": 6266
+  },
+  {
+   "uid": "AI8",
+   "title": "Aamal at the Third Column (Sutoon)",
+   "kind": "has-arabic",
+   "itemsBytes": 14563
+  },
+  {
+   "uid": "AI9",
+   "title": "Aamal at Bab Al Faraj",
+   "kind": "has-arabic",
+   "itemsBytes": 14771
+  },
+  {
+   "uid": "AI13",
+   "title": "The Ziyarah of Muslim Ibn Aqil",
+   "kind": "has-arabic",
+   "itemsBytes": 10860,
+   "possibleDuplicateOf": "G60 (same title, different opening - check)"
+  },
+  {
+   "uid": "AI14",
+   "title": "The Ziyarah of Hani Ibn Urwah",
+   "kind": "has-arabic",
+   "itemsBytes": 2798,
+   "possibleDuplicateOf": "G61 (same title - check)"
+  },
+  {
+   "uid": "AI17",
+   "title": "Zayd and Sasah",
+   "kind": "prose-only",
+   "itemsBytes": 2699
+  },
+  {
+   "uid": "AJ1",
+   "title": "Merits of visiting the tomb of Salman",
+   "kind": "prose-only",
+   "itemsBytes": 3027
+  },
+  {
+   "uid": "AJ3",
+   "title": "Offering Prayer at Taq Kasra",
+   "kind": "has-arabic",
+   "itemsBytes": 3659
+  },
+  {
+   "uid": "AJ4",
+   "title": "Visting the tomb of Hudhayfah Al Yamani",
+   "kind": "prose-only",
+   "itemsBytes": 2240
+  },
+  {
+   "uid": "AK1",
+   "title": "Merits and Method of Visiting the Tomb of Imam Ali - Ameerul Momeneen",
+   "kind": "prose-only",
+   "itemsBytes": 2996
+  },
+  {
+   "uid": "AK2",
+   "title": "Apperance of the Grave of Ameerul Momeneen (a) during the time of Haroon",
+   "kind": "prose-only",
+   "itemsBytes": 852
+  },
+  {
+   "uid": "AK3",
+   "title": "The incident of Ahmah as narrated by Mujeerul Jarrad",
+   "kind": "has-arabic",
+   "itemsBytes": 4118
+  },
+  {
+   "uid": "AK4",
+   "title": "Method of visiting Ameerul Momeneen's (a)Tomb",
+   "kind": "prose-only",
+   "itemsBytes": 495
+  },
+  {
+   "uid": "AK9",
+   "title": "Third Ziyarah",
+   "kind": "has-arabic",
+   "itemsBytes": 8759
+  },
+  {
+   "uid": "AK10",
+   "title": "Fourth Ziyarah",
+   "kind": "has-arabic",
+   "itemsBytes": 3332
+  },
+  {
+   "uid": "AK11",
+   "title": "Fifth Ziyarah",
+   "kind": "has-arabic",
+   "itemsBytes": 2078
+  },
+  {
+   "uid": "AK12",
+   "title": "Sixth Ziyarah",
+   "kind": "has-arabic",
+   "itemsBytes": 22772
+  },
+  {
+   "uid": "AK14",
+   "title": "Visitation of Imam Zayn al Abidin (a) for the Ziyarah of Imam Ali (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 5320,
+   "possibleDuplicateOf": "AK5 tabs[5]"
+  },
+  {
+   "uid": "AK16",
+   "title": "Timed Forms of Ziyarah",
+   "kind": "prose-only",
+   "itemsBytes": 998
+  },
+  {
+   "uid": "AK17",
+   "title": "Ziyarat on The Holy Prophet's Birthday",
+   "kind": "has-arabic",
+   "itemsBytes": 22793
+  },
+  {
+   "uid": "AK18",
+   "title": "The Holy Prophet And Imam Ali",
+   "kind": "has-arabic",
+   "itemsBytes": 6496
+  },
+  {
+   "uid": "AK19",
+   "title": "Ziyarat on the Day & Night of Be'asat (Proclamation)",
+   "kind": "has-arabic",
+   "itemsBytes": 31569
+  },
+  {
+   "uid": "AL2",
+   "title": "The Holy Shrine of the Two Imams",
+   "kind": "prose-only",
+   "itemsBytes": 1506
+  },
+  {
+   "uid": "AL3",
+   "title": "Other Ziyarah",
+   "kind": "prose-only",
+   "itemsBytes": 886
+  },
+  {
+   "uid": "AL4",
+   "title": "Permission to Enter Holy Place of Imam Ali Al Naqi Al Hadi",
+   "kind": "has-arabic",
+   "itemsBytes": 3151
+  },
+  {
+   "uid": "AL8",
+   "title": "Ziyarah of the Mother of Imam Al Qaem (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 8133
+  },
+  {
+   "uid": "AL9",
+   "title": "Ziyarah of Lady Hakimah; Daughter of Imam Muhammad Al Jawad",
+   "kind": "has-arabic",
+   "itemsBytes": 9213
+  },
+  {
+   "uid": "AL10",
+   "title": "The Tomb of Imam Husayn Ibn Ali Ibn Muhammad",
+   "kind": "prose-only",
+   "itemsBytes": 1288
+  },
+  {
+   "uid": "AL13",
+   "title": "Another form of Ziyarah (1)",
+   "kind": "has-arabic",
+   "itemsBytes": 21043
+  },
+  {
+   "uid": "AL16",
+   "title": "Other Rites at the Sardaab",
+   "kind": "prose-only",
+   "itemsBytes": 787
+  },
+  {
+   "uid": "AM1",
+   "title": "Visiting and offering Prayers in Masjid Burasa",
+   "kind": "prose-only",
+   "itemsBytes": 6201
+  },
+  {
+   "uid": "AM2",
+   "title": "Visitation to Naeb Khaas (Special Deputies of Imam Mahdi (a)",
+   "kind": "prose-only",
+   "itemsBytes": 2051
+  },
+  {
+   "uid": "AM3",
+   "title": "Ziyarah of the four Emissaries",
+   "kind": "has-arabic",
+   "itemsBytes": 4071
+  },
+  {
+   "uid": "AM4",
+   "title": "Visiting the Tomb of Shaykh Al Kulayni",
+   "kind": "prose-only",
+   "itemsBytes": 1089
+  },
+  {
+   "uid": "AP1",
+   "title": "Ziyarah of The Holy Prophet, Lady Fatimah Al-Zahra and The Imams in Al Baqi Cemetery",
+   "kind": "prose-only",
+   "itemsBytes": 5105
+  },
+  {
+   "uid": "AP3",
+   "title": "Aamal e Rouza e Munawwara",
+   "kind": "prose-only",
+   "itemsBytes": 626
+  },
+  {
+   "uid": "AP5",
+   "title": "Visiting The Holy Prophet from a Distance",
+   "kind": "has-arabic",
+   "itemsBytes": 30401
+  },
+  {
+   "uid": "AP6",
+   "title": "Ziyarah of Holy Prophet (s) and The Holy Infallibles on Friday from a Distance",
+   "kind": "has-arabic",
+   "itemsBytes": 3577
+  },
+  {
+   "uid": "AP7",
+   "title": "Merits of greeting The Holy Prophet (s)",
+   "kind": "has-arabic",
+   "itemsBytes": 5268
+  },
+  {
+   "uid": "AP8",
+   "title": "Ziyarah of The Imams in Al Baqi : Al Hasan Al Mujtaba, Ali Zayn Al Abidin, Muhammad Al Baqir, And Jafar Al Sadiq",
+   "kind": "has-arabic",
+   "itemsBytes": 9036
+  },
+  {
+   "uid": "AP9",
+   "title": "Bidding Farewell to the Imams in Al Baqi",
+   "kind": "has-arabic",
+   "itemsBytes": 3340
+  },
+  {
+   "uid": "AP10",
+   "title": "Part of Poetry of Shaykh Al Azari (r)",
+   "kind": "has-arabic",
+   "itemsBytes": 5646
+  },
+  {
+   "uid": "AP11",
+   "title": "Ziyarah of Ibrahim, son of the Holy prophet (s)",
+   "kind": "has-arabic",
+   "itemsBytes": 6660
+  },
+  {
+   "uid": "AP12",
+   "title": "The revered Mosques in Al Madinah",
+   "kind": "has-arabic",
+   "itemsBytes": 4678
+  },
+  {
+   "uid": "AP13",
+   "title": "Bidding Farewell (Wida) to the Holy Prophet (s)",
+   "kind": "has-arabic",
+   "itemsBytes": 2104
+  },
+  {
+   "uid": "AP14",
+   "title": "Recommended deeds in the Holy city of Madinah",
+   "kind": "has-arabic",
+   "itemsBytes": 7699
+  },
+  {
+   "uid": "AQ1",
+   "title": "Visiting The Tomb of Lady Fatimah Bint Asad - Imam Ali’s Mother",
+   "kind": "has-arabic",
+   "itemsBytes": 5759
+  },
+  {
+   "uid": "AQ2",
+   "title": "Visiting The Tomb of Hamzah at Uhud",
+   "kind": "has-arabic",
+   "itemsBytes": 9469
+  },
+  {
+   "uid": "AQ3",
+   "title": "Merits of Visiting the Tombs of the Martyrs in the Battle of Uhud",
+   "kind": "prose-only",
+   "itemsBytes": 1904
+  },
+  {
+   "uid": "AQ4",
+   "title": "Visiting the tombs of the Martyrs in the battle of Uhud",
+   "kind": "has-arabic",
+   "itemsBytes": 4750
+  },
+  {
+   "uid": "AR~AP1",
+   "title": "Madina al-Munawwarah",
+   "kind": "menu-category"
+  },
+  {
+   "uid": "AR~AQ2",
+   "title": "Makkah al-Mukarramah",
+   "kind": "menu-category"
+  },
+  {
+   "uid": "B1",
+   "title": "Etiquettes of Travel",
+   "kind": "has-arabic",
+   "itemsBytes": 11100
+  },
+  {
+   "uid": "B2",
+   "title": "Etiquettes of Journey",
+   "kind": "has-arabic",
+   "itemsBytes": 9296
+  },
+  {
+   "uid": "B5",
+   "title": "Asking Permission for Entering The Holy Shrines (Izn Dukhool)",
+   "kind": "has-arabic",
+   "itemsBytes": 4928
+  },
+  {
+   "uid": "B~AR9",
+   "title": "Hijaz",
+   "kind": "menu-category"
+  },
+  {
+   "uid": "C~T11",
+   "title": "Rabi al-Awwal",
+   "kind": "menu-category"
+  },
+  {
+   "uid": "C~U12",
+   "title": "Rabi al-Saani",
+   "kind": "menu-category"
+  },
+  {
+   "uid": "C~W14",
+   "title": "Jamadi al-Akhir",
+   "kind": "menu-category"
+  },
+  {
+   "uid": "E98",
+   "title": "Dua of Circumcision (Khatna)",
+   "kind": "has-arabic",
+   "itemsBytes": 955
+  },
+  {
+   "uid": "E131",
+   "title": "Salawat upon Al Hasan and Al Husayn",
+   "kind": "has-arabic",
+   "itemsBytes": 5378
+  },
+  {
+   "uid": "E132",
+   "title": "Salawat upon Imam ‘Ali Ibn Al Husayn",
+   "kind": "has-arabic",
+   "itemsBytes": 1187
+  },
+  {
+   "uid": "E133",
+   "title": "Salawat upon Imam Muhammad Ibn ‘Ali",
+   "kind": "has-arabic",
+   "itemsBytes": 1209
+  },
+  {
+   "uid": "E134",
+   "title": "Salawat upon Imam Ja’far Ibn Muhammad",
+   "kind": "has-arabic",
+   "itemsBytes": 1065
+  },
+  {
+   "uid": "E135",
+   "title": "Salawat upon Imam Musa Ibn Ja’far",
+   "kind": "has-arabic",
+   "itemsBytes": 1355
+  },
+  {
+   "uid": "E136",
+   "title": "Salawat upon Imam ‘Ali Ibn Musa",
+   "kind": "has-arabic",
+   "itemsBytes": 1238
+  },
+  {
+   "uid": "E137",
+   "title": "Salawat upon Imam Muhammad Ibn ‘Ali Al-Jawad",
+   "kind": "has-arabic",
+   "itemsBytes": 1201
+  },
+  {
+   "uid": "E138",
+   "title": "Salawat upon Imam ‘Ali Ibn Muhammad Al Hadi",
+   "kind": "has-arabic",
+   "itemsBytes": 2013
+  },
+  {
+   "uid": "E139",
+   "title": "Salawat upon Imam Al Hasan Al ’Askari",
+   "kind": "has-arabic",
+   "itemsBytes": 1140,
+   "possibleDuplicateOf": "AL6 tabs[1] \"Salawat Upon Imam al-Askari\""
+  },
+  {
+   "uid": "E145",
+   "title": "Supplication for Release from Prison",
+   "kind": "has-arabic",
+   "itemsBytes": 2052
+  },
+  {
+   "uid": "F16",
+   "title": "Namaz of Imam al-Hasan (a)",
+   "kind": "prose-only",
+   "itemsBytes": 361
+  },
+  {
+   "uid": "F18",
+   "title": "Namaz of Imam zayn al-’Abidin (a)",
+   "kind": "prose-only",
+   "itemsBytes": 226
+  },
+  {
+   "uid": "F19",
+   "title": "Namaz of Imam al-Baqir (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 602
+  },
+  {
+   "uid": "F20",
+   "title": "Namaz of Imam al-Sadiq (a)",
+   "kind": "prose-only",
+   "itemsBytes": 222
+  },
+  {
+   "uid": "F21",
+   "title": "Namaz of Imam al-Kazim (a)",
+   "kind": "prose-only",
+   "itemsBytes": 218
+  },
+  {
+   "uid": "F22",
+   "title": "Namaz of Imam al-Reza (a)",
+   "kind": "prose-only",
+   "itemsBytes": 233
+  },
+  {
+   "uid": "F24",
+   "title": "Namaz of Imam al-Hadi (a)",
+   "kind": "prose-only",
+   "itemsBytes": 274
+  },
+  {
+   "uid": "F25",
+   "title": "Namaz of Imam al-’Askari (a)",
+   "kind": "prose-only",
+   "itemsBytes": 347
+  },
+  {
+   "uid": "F36",
+   "title": "Namaz for fulfillment of needs (3)",
+   "kind": "has-arabic",
+   "itemsBytes": 1944
+  },
+  {
+   "uid": "F37",
+   "title": "Namaz for fulfillment of needs (4)",
+   "kind": "has-arabic",
+   "itemsBytes": 1154
+  },
+  {
+   "uid": "F42",
+   "title": "Namaz (to dispel) Fear of Oppressors",
+   "kind": "has-arabic",
+   "itemsBytes": 962
+  },
+  {
+   "uid": "F50",
+   "title": "Namaz for Settling Needs",
+   "kind": "has-arabic",
+   "itemsBytes": 894
+  },
+  {
+   "uid": "F61",
+   "title": "Namaz of the Hungry",
+   "kind": "has-arabic",
+   "itemsBytes": 499
+  },
+  {
+   "uid": "F63",
+   "title": "Namaz on Friday night & the nights befor Eid Al Adha for fulfillment of needs",
+   "kind": "has-arabic",
+   "itemsBytes": 957
+  },
+  {
+   "uid": "F65",
+   "title": "Namaz of The Bedouin (Salat Al-Rabi)",
+   "kind": "has-arabic",
+   "itemsBytes": 3393
+  },
+  {
+   "uid": "G17",
+   "title": "Sunday - Ziyarah of Lady Fatimah al Zahra (s)",
+   "kind": "has-arabic",
+   "itemsBytes": 2894,
+   "hasHistoricTransliteration": true
+  },
+  {
+   "uid": "G19",
+   "title": "Monday - Ziyarah of Imam al Husayn (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 3983,
+   "hasHistoricTransliteration": true
+  },
+  {
+   "uid": "G25",
+   "title": "The Comprehensive Ziyarat Can be recited at any Shrine",
+   "kind": "has-arabic",
+   "itemsBytes": 463
+  },
+  {
+   "uid": "G27",
+   "title": "Visiting the Tombs of The Prophets",
+   "kind": "prose-only",
+   "itemsBytes": 1326
+  },
+  {
+   "uid": "G28",
+   "title": "Visiting the Tombs of descendants of the Holy Imams (a)",
+   "kind": "prose-only",
+   "itemsBytes": 1884
+  },
+  {
+   "uid": "G31",
+   "title": "Bidding Farewell to the Holy Imams",
+   "kind": "has-arabic",
+   "itemsBytes": 7042
+  },
+  {
+   "uid": "G32",
+   "title": "Etiquettes of Ziyarat of Niyabat (proxy/representative)",
+   "kind": "has-arabic",
+   "itemsBytes": 13548
+  },
+  {
+   "uid": "I27",
+   "title": "Etiquettes of applying Kohl (Surmah)",
+   "kind": "has-arabic",
+   "itemsBytes": 1015,
+   "possibleDuplicateOf": "I24 tabs[4] \"Applying Kohl (Surmah)\""
+  },
+  {
+   "uid": "I40",
+   "title": "Taweez against Deafness",
+   "kind": "prose-only",
+   "itemsBytes": 367
+  },
+  {
+   "uid": "I42",
+   "title": "Taweez against Toothache",
+   "kind": "has-arabic",
+   "itemsBytes": 2798
+  },
+  {
+   "uid": "I45",
+   "title": "Taweez against Colitis",
+   "kind": "has-arabic",
+   "itemsBytes": 1377
+  },
+  {
+   "uid": "I46",
+   "title": "Taweez against Warts",
+   "kind": "has-arabic",
+   "itemsBytes": 1882
+  },
+  {
+   "uid": "I47",
+   "title": "Taweez against all Tumors",
+   "kind": "prose-only",
+   "itemsBytes": 388
+  },
+  {
+   "uid": "I48",
+   "title": "Taweez against Dystocia",
+   "kind": "has-arabic",
+   "itemsBytes": 1778
+  },
+  {
+   "uid": "I49",
+   "title": "Taweez against Bewitchery",
+   "kind": "has-arabic",
+   "itemsBytes": 1204
+  },
+  {
+   "uid": "I50",
+   "title": "Taweez against Fever",
+   "kind": "has-arabic",
+   "itemsBytes": 8919
+  },
+  {
+   "uid": "I59",
+   "title": "Harmel",
+   "kind": "has-arabic",
+   "itemsBytes": 1995
+  },
+  {
+   "uid": "I71",
+   "title": "The all inclusive Supplicatory Prayer یا من اظهر الجمیل",
+   "kind": "has-arabic",
+   "itemsBytes": 1513
+  },
+  {
+   "uid": "I73",
+   "title": "Incident of Abd al Rahman bin Sayyabah and the will of Imam Sadiq (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 9614
+  },
+  {
+   "uid": "I79",
+   "title": "Imam Al Rida's Taweez",
+   "kind": "prose-only",
+   "itemsBytes": 1295
+  },
+  {
+   "uid": "I84",
+   "title": "Imam Husayn's dua in prayers",
+   "kind": "has-arabic",
+   "itemsBytes": 1036
+  },
+  {
+   "uid": "I89",
+   "title": "Unique charateristics of Surah Tawheed & 100 Ayahs from Quran",
+   "kind": "prose-only",
+   "itemsBytes": 1821
+  },
+  {
+   "uid": "I90",
+   "title": "Unique charateristics of Surah Ikhlas & some other Small Surahs",
+   "kind": "prose-only",
+   "itemsBytes": 1489
+  },
+  {
+   "uid": "I91",
+   "title": "Quranic Verses for safety from burning & drowning",
+   "kind": "has-arabic",
+   "itemsBytes": 515
+  },
+  {
+   "uid": "I92",
+   "title": "Quranic Verse for controlling the riding animal (mount)",
+   "kind": "has-arabic",
+   "itemsBytes": 312
+  },
+  {
+   "uid": "I93",
+   "title": "Quranic Verse from safety from wild beasts",
+   "kind": "has-arabic",
+   "itemsBytes": 440
+  },
+  {
+   "uid": "I95",
+   "title": "Verse for Security against Thieves",
+   "kind": "has-arabic",
+   "itemsBytes": 553
+  },
+  {
+   "uid": "I100",
+   "title": "Medicine for Dyspnoea (Difficulty in Breathing)",
+   "kind": "prose-only",
+   "itemsBytes": 837
+  },
+  {
+   "uid": "I101",
+   "title": "Instruction of Isa Ibn Mariyam (a) for the ailment of Pale Face & Dark Eyes",
+   "kind": "prose-only",
+   "itemsBytes": 977
+  },
+  {
+   "uid": "I102",
+   "title": "Aqiqah (Ritual sacrifice for the newborns)",
+   "kind": "has-arabic",
+   "itemsBytes": 1232
+  },
+  {
+   "uid": "I103",
+   "title": "Manners of Aqiqah",
+   "kind": "prose-only",
+   "itemsBytes": 8053
+  },
+  {
+   "uid": "I107",
+   "title": "Affection & Inclination towards Non Believers",
+   "kind": "has-arabic",
+   "itemsBytes": 1122
+  },
+  {
+   "uid": "I113",
+   "title": "Things to be kept in mind for Good Memory",
+   "kind": "prose-only",
+   "itemsBytes": 873
+  },
+  {
+   "uid": "I114",
+   "title": "Etiquettes and Supplications pertaining to Death",
+   "kind": "prose-only",
+   "itemsBytes": 4565
+  },
+  {
+   "uid": "I116",
+   "title": "The Inscription that should be written and kept with the Dead",
+   "kind": "has-arabic",
+   "itemsBytes": 3393
+  },
+  {
+   "uid": "I117",
+   "title": "Brief Manners & Talqeen to be recited near Dead",
+   "kind": "has-arabic",
+   "itemsBytes": 877
+  },
+  {
+   "uid": "I118",
+   "title": "Preparing the Shroud (Kafan) of Dead",
+   "kind": "has-arabic",
+   "itemsBytes": 1340
+  },
+  {
+   "uid": "I120",
+   "title": "Shrouding the Dead Body",
+   "kind": "prose-only",
+   "itemsBytes": 1597
+  },
+  {
+   "uid": "I121",
+   "title": "Carrying The Dead",
+   "kind": "has-arabic",
+   "itemsBytes": 3587
+  },
+  {
+   "uid": "I122",
+   "title": "Testimony from 40 Faithful Believers",
+   "kind": "has-arabic",
+   "itemsBytes": 797
+  },
+  {
+   "uid": "I123",
+   "title": "Manners of Carrying the Dead Person",
+   "kind": "prose-only",
+   "itemsBytes": 488
+  },
+  {
+   "uid": "I124",
+   "title": "Burial",
+   "kind": "has-arabic",
+   "itemsBytes": 2789
+  },
+  {
+   "uid": "I125",
+   "title": "Laws concerning Burial",
+   "kind": "prose-only",
+   "itemsBytes": 662
+  },
+  {
+   "uid": "I126",
+   "title": "Prompting The Dead",
+   "kind": "has-arabic",
+   "itemsBytes": 5283
+  },
+  {
+   "uid": "L4",
+   "title": "Ziyarah of Lady Faatemah al-Zahra (s.a.) on Sunday",
+   "kind": "has-arabic",
+   "itemsBytes": 2756,
+   "hasHistoricTransliteration": true,
+   "possibleDuplicateOf": "G17 (same Sunday ziyarah - make one an alias of the other, like G16|L3)"
+  },
+  {
+   "uid": "M4",
+   "title": "Ziyarah of Imam al-Husayn (a.s.) on Monday",
+   "kind": "has-arabic",
+   "itemsBytes": 3866,
+   "hasHistoricTransliteration": true,
+   "possibleDuplicateOf": "G19 (same Monday ziyarah - alias pair, like G18|M3)"
+  },
+  {
+   "uid": "P1",
+   "title": "Importance of Shabe Jumuah",
+   "kind": "prose-only",
+   "itemsBytes": 7511
+  },
+  {
+   "uid": "P2",
+   "title": "Reciting Subhanallah",
+   "kind": "has-arabic",
+   "itemsBytes": 379
+  },
+  {
+   "uid": "P3",
+   "title": "Recite Salwat with وَ عَجِّلْ فَرَجَهُمْ وَ اَهْلِكْ",
+   "kind": "has-arabic",
+   "itemsBytes": 1720
+  },
+  {
+   "uid": "P4",
+   "title": "Reciting Istegfaar اَسْتَغْفِرُ اللهَ الَّذِيْ",
+   "kind": "has-arabic",
+   "itemsBytes": 623
+  },
+  {
+   "uid": "P5",
+   "title": "Recommendation of reciting some Surahs of the Holy Quran",
+   "kind": "prose-only",
+   "itemsBytes": 3262
+  },
+  {
+   "uid": "P7",
+   "title": "Recite the Dua in Nafilah اَللّٰهُمَّ اِنِّيْ اَسْاَلُكَ بِوَجْهِكَ",
+   "kind": "has-arabic",
+   "itemsBytes": 614
+  },
+  {
+   "uid": "P8",
+   "title": "Recite 7 times اَللّٰهُمَّ اَنْتَ رَبِّيْ",
+   "kind": "has-arabic",
+   "itemsBytes": 787
+  },
+  {
+   "uid": "P9",
+   "title": "Recite the Dua اَللّٰهُمَّ مَنْ تَعَبَّاَ",
+   "kind": "has-arabic",
+   "itemsBytes": 2550
+  },
+  {
+   "uid": "P10",
+   "title": "Recite the Dua اَللّٰہُمَّ یَا شَاہِدَ کُلِّ نَجْوٰی",
+   "kind": "has-arabic",
+   "itemsBytes": 11627
+  },
+  {
+   "uid": "P11",
+   "title": "Recite 10 times يَا دَائِمَ الْفَضْلِ عَلَى",
+   "kind": "has-arabic",
+   "itemsBytes": 507
+  },
+  {
+   "uid": "P12",
+   "title": "Some recommended acts",
+   "kind": "prose-only",
+   "itemsBytes": 551
+  },
+  {
+   "uid": "P14",
+   "title": "Recite the Dua اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَّآلِه، وَهَبْ لِيَ",
+   "kind": "has-arabic",
+   "itemsBytes": 1775,
+   "possibleDuplicateOf": "P15 (identical historic content - P14 and P15 were byte-identical in assets/items)"
+  },
+  {
+   "uid": "P16",
+   "title": "Prayer of Imam Mahdi on eve of Friday (Shab e Jumuah)",
+   "kind": "has-arabic",
+   "itemsBytes": 4116
+  },
+  {
+   "uid": "R2",
+   "title": "The First Night Of Muharram",
+   "kind": "prose-only",
+   "itemsBytes": 1052,
+   "possibleDuplicateOf": "R1 main data (same Iqbal al-A'mal prayers text)"
+  },
+  {
+   "uid": "R3",
+   "title": "The First Day Of Muharram",
+   "kind": "has-arabic",
+   "itemsBytes": 5191,
+   "possibleDuplicateOf": "R1 tabs[0] \"The First Day of Muharram\""
+  },
+  {
+   "uid": "R8",
+   "title": "Forgeries of the Enemies of Imam Husayn (a)",
+   "kind": "has-arabic",
+   "itemsBytes": 9773,
+   "possibleDuplicateOf": "R7 tabs[0] \"Forgeries of the Enemies of Imam Husayn\""
+  },
+  {
+   "uid": "R13",
+   "title": "Safwan's Discourse on the Merit of Ziyarah of Ashura",
+   "kind": "prose-only",
+   "itemsBytes": 3422
+  },
+  {
+   "uid": "S2",
+   "title": "The First Day Of Safar",
+   "kind": "has-arabic",
+   "itemsBytes": 1401
+  },
+  {
+   "uid": "S3",
+   "title": "The Third Of Safar",
+   "kind": "prose-only",
+   "itemsBytes": 1464
+  },
+  {
+   "uid": "S4",
+   "title": "The Seventh Of Safar",
+   "kind": "prose-only",
+   "itemsBytes": 445
+  },
+  {
+   "uid": "S6",
+   "title": "28th of Safar",
+   "kind": "has-arabic",
+   "itemsBytes": 5151
+  },
+  {
+   "uid": "S8",
+   "title": "The Last Day Of Safar",
+   "kind": "prose-only",
+   "itemsBytes": 497
+  },
+  {
+   "uid": "T1",
+   "title": "1st, 8th & 9th of Rabi al Awwal",
+   "kind": "prose-only",
+   "itemsBytes": 2839
+  },
+  {
+   "uid": "T3",
+   "title": "17th of Rabi al Awwal (Birthday of Holy Prophet (s))",
+   "kind": "prose-only",
+   "itemsBytes": 2676
+  },
+  {
+   "uid": "U1",
+   "title": "Aamal of the Month of Rabi al Saani",
+   "kind": "prose-only",
+   "itemsBytes": 362
+  },
+  {
+   "uid": "X9",
+   "title": "Ziyarah of Imam Husayn (a) on The 1st of Rajab",
+   "kind": "has-arabic",
+   "itemsBytes": 16515
+  },
+  {
+   "uid": "X12",
+   "title": "(f) Fifteenth of Rajab",
+   "kind": "has-arabic",
+   "itemsBytes": 12370,
+   "hasHistoricTransliteration": true
+  },
+  {
+   "uid": "X16",
+   "title": "Kalaam Ibn Battutah",
+   "kind": "prose-only",
+   "itemsBytes": 3321
+  },
+  {
+   "uid": "X17",
+   "title": "(i) Remaining Aamal of Laylat al Mab'as",
+   "kind": "has-arabic",
+   "itemsBytes": 10564
+  },
+  {
+   "uid": "X18",
+   "title": "(j) Aamal of the Day of Mab'as (27th Day)",
+   "kind": "has-arabic",
+   "itemsBytes": 15882
+  }
+ ]
+}
