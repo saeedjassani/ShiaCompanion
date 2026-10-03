@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -7,6 +8,7 @@ import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_download_store.dart';
+import '../services/favorites_manager.dart';
 import '../services/playlist_audio_service.dart';
 import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
@@ -730,6 +732,15 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   }
 }
 
+/// Recordings tied to a date or season (Muharram, Arafah, Dhul Hijjah,
+/// Ramazan, Shaban, Safar), listed after the everyday ones when adding to a
+/// playlist. Keep in step with assets/zikr_audio.json.
+const _occasionUids = {
+  'R1', 'AC10', 'AC11', 'AC12', 'AC5', 'G75', 'G14', // Muharram, Arafah, Qadr
+  'AA11', 'AA12', 'AA13', 'AA14', 'AA10', // Ramazan
+  'Y3', 'Y4', 'S1', // Shaban, Safar
+};
+
 /// Every zikr that has a recording, to tick into a playlist.
 class AddRecitationsPage extends StatefulWidget {
   const AddRecitationsPage({super.key, required this.playlistId});
@@ -763,9 +774,28 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
     }
     final store = ZikrPlaylistStore.instance;
     final query = _query.trim().toLowerCase();
+    final favorites = {
+      // FavoritesManager reaches for Firebase as it is built; skip it
+      // where Firebase isn't set up (tests).
+      if (Firebase.apps.isNotEmpty)
+        for (final favorite in FavoritesManager.instance.favorites)
+          if (favorite.type == 0) favorite.canonicalUid,
+    };
+    // Playlists are for what's recited regularly: the reader's favorites
+    // first, then everyday recitations, with the once-a-year ones last.
+    int rank(String uid) => favorites.contains(_contentUid(uid))
+        ? 0
+        : _occasionUids.contains(uid)
+            ? 2
+            : 1;
     final uids = ZikrAudioIndex.instance.uids.toList()
-      ..sort((a, b) =>
-          _zikrTitle(a).toLowerCase().compareTo(_zikrTitle(b).toLowerCase()));
+      ..sort((a, b) {
+        final byRank = rank(a).compareTo(rank(b));
+        if (byRank != 0) return byRank;
+        return _zikrTitle(a)
+            .toLowerCase()
+            .compareTo(_zikrTitle(b).toLowerCase());
+      });
     final visible = query.isEmpty
         ? uids
         : uids.where((uid) {
