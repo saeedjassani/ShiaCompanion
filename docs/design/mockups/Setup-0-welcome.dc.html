@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Setup, welcome</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 54px 24px 34px; display: flex; flex-direction: column; overflow: hidden; background: #F8F5F0; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center">
+    <img src="/_blob/26d0dfdceda2ab04f17c43ee503c5dca" alt="Shia Companion logo" style="width: 112px; height: 112px; border-radius: 26px; box-shadow: 0 10px 30px rgba(42,30,22,0.25)">
+    <h1 style="margin: 12px 0 0; font-size: 34px; line-height: 41px; font-weight: 700; letter-spacing: -0.4px">Assalamu alaykum</h1>
+    <p style="margin: 0; font-size: 19px; line-height: 27px">Duas, ziyarat, the Quran and prayer times, all in one place.</p>
+    <p style="margin: 0; font-size: 17px; line-height: 24px; color: #6A5A4D">Let's set it up for you. It takes about a minute.</p>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <button style="height: 56px; border-radius: 28px; border: none; background: #6D4C35; color: #FFFFFF; font-size: 18px; font-weight: 700; cursor: pointer">Get started</button>
+    <button style="height: 48px; border-radius: 24px; border: none; background: transparent; color: #6D4C35; font-size: 17px; font-weight: 600; cursor: pointer">Skip setup</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

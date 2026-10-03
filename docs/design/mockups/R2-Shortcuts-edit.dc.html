@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edit shortcuts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #4F4740; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+  <section aria-label="Edit shortcuts" style="position: absolute; left: 0; right: 0; top: 60px; bottom: 0; box-sizing: border-box; padding: 8px 16px 0; border-radius: 16px 16px 0 0; background: #F8F5F0; display: flex; flex-direction: column; gap: 12px">
+    <span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: #D9CEBF"></span>
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <button style="height: 44px; padding: 0 4px; border: none; background: transparent; color: #6D4C35; font-size: 17px; cursor: pointer">Cancel</button>
+      <h2 style="margin: 0; font-size: 17px; line-height: 22px; font-weight: 600">Shortcuts</h2>
+      <button style="height: 44px; padding: 0 4px; border: none; background: transparent; color: #6D4C35; font-size: 17px; font-weight: 700; cursor: pointer">Done</button>
+    </div>
+
+    <span style="padding-left: 4px; font-size: 13px; line-height: 17px; font-weight: 600; letter-spacing: 0.3px; color: #6A5A4D">ON YOUR HOME · 7 OF 7</span>
+    <div style="display: flex; flex-direction: column; border-radius: 16px; background: #FFFFFF; border: 1px solid #E8E0D5; overflow: hidden">
+      <sc-for list="{{onHome}}" as="it" hint-placeholder-count="7">
+        <div style="display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 0 8px 0 12px; border-bottom: 1px solid #EFE7DC">
+          <button aria-label="{{it.removeLabel}}" style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 14px; border: none; background: #B3261E; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="stroke-width: 3.2; stroke-linecap: round"><path d="M6 12h12"></path></svg></button>
+          <span style="flex: 1; font-size: 17px; line-height: 22px">{{it.label}}</span>
+          <span aria-hidden="true" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9A8A7C" style="stroke-width: 2; stroke-linecap: round"><path d="M5 9h14M5 15h14"></path></svg></span>
+        </div>
+      </sc-for>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 0 14px">
+        <span style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px; background: #6D4C35; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"></rect></svg></span>
+        <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 17px; line-height: 22px">All features</span><span style="font-size: 13px; line-height: 17px; color: #6A5A4D">Always last, so nothing gets lost</span></span>
+      </div>
+    </div>
+
+    <span style="padding-left: 4px; font-size: 13px; line-height: 17px; font-weight: 600; letter-spacing: 0.3px; color: #6A5A4D">MORE · remove one above to add one here</span>
+    <div style="display: flex; flex-direction: column; border-radius: 16px; background: #FFFFFF; border: 1px solid #E8E0D5; overflow: hidden">
+      <sc-for list="{{more}}" as="it" hint-placeholder-count="5">
+        <div style="display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 0 12px; border-bottom: 1px solid #EFE7DC">
+          <button aria-label="{{it.addLabel}}" disabled="disabled" style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 14px; border: none; background: #CFC4B6; display: flex; align-items: center; justify-content: center; padding: 0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="stroke-width: 3.2; stroke-linecap: round"><path d="M12 6v12M6 12h12"></path></svg></button>
+          <span style="flex: 1; font-size: 17px; line-height: 22px; color: #6A5A4D">{{it.label}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var onHome = ['Duas', 'Ziyarats', "Today's Recitations", 'Munajaat', 'Calendar', 'Tasbeeh', 'Qibla'];
+    var more = ['Library', 'Namaz', 'Taqeebat e Namaz', 'Aamaal', 'Baaqeyaat As Saalehaat', 'Rakaat Counter', 'Qaza Tracker', 'My Stats', 'Playlists', 'Prayer Times in Flight'];
+    return {
+      onHome: onHome.map(function (l) { return { label: l, removeLabel: 'Remove ' + l }; }),
+      more: more.map(function (l) { return { label: l, addLabel: 'Add ' + l }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

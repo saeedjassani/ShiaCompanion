@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rakaat counter, glanceable</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 54px 16px 34px; display: flex; flex-direction: column; gap: 14px; overflow: hidden; background: #F8F5F0; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+
+  <div style="position: relative; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center">
+    <a href="#" style="position: absolute; left: -8px; top: 0; height: 44px; display: flex; align-items: center; gap: 2px; padding: 0 8px 0 4px; color: #6D4C35; text-decoration: none; font-size: 17px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round"><path d="M15 5l-7 7 7 7"></path></svg>
+      Home
+    </a>
+    <span style="font-size: 17px; line-height: 22px; font-weight: 600">Rakaat Counter</span>
+  </div>
+
+  <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+    <span style="font-size: 16px; line-height: 20px; font-weight: 600">Rakaat in this prayer</span>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; width: 168px; padding: 4px; border-radius: 14px; background: #EDE5DA">
+      <sc-for list="{{lengths}}" as="len" hint-placeholder-count="3">
+        <button onClick="{{len.pick}}" aria-pressed="{{len.pressed}}" style="{{len.style}}">{{len.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px">
+    <span style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-radius: 17px; background: #FFFFFF; border: 1px solid #E8E0D5; font-size: 14px; line-height: 18px; font-weight: 600">
+      <span style="width: 9px; height: 9px; border-radius: 5px; background: #2F7D4F"></span>
+      Sensor on · auto-counting
+    </span>
+    <a href="#" style="font-size: 14px; line-height: 18px; font-weight: 600; color: #6D4C35; text-decoration: none">Phone placement</a>
+  </div>
+
+  <button onClick="{{tap}}" aria-label="Add a sajdah" style="flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px 16px 56px; border-radius: 28px; border: 1px solid #E8E0D5; background: #FFFFFF; color: #2A1E16; cursor: pointer; position: relative">
+    <span style="font-size: 20px; line-height: 24px; font-weight: 600; color: #6A5A4D">{{caption}}</span>
+    <span style="display: flex; align-items: baseline; gap: 10px">
+      <span style="font-size: 160px; line-height: 150px; font-weight: 700; letter-spacing: -6px; font-variant-numeric: tabular-nums">{{rakaat}}</span>
+      <span style="font-size: 28px; line-height: 34px; font-weight: 600; color: #6A5A4D">{{ofTotal}}</span>
+    </span>
+    <span style="display: flex; gap: 8px">
+      <sc-for list="{{pips}}" as="pip" hint-placeholder-count="4">
+        <span style="{{pip.style}}"></span>
+      </sc-for>
+    </span>
+    <span style="margin-top: 18px; display: flex; align-items: center; gap: 12px">
+      <span style="{{dot1}}"></span>
+      <span style="{{dot2}}"></span>
+      <span style="font-size: 22px; line-height: 28px; font-weight: 600">{{sajLabel}}</span>
+    </span>
+    <span style="position: absolute; left: 16px; right: 16px; bottom: 18px; font-size: 15px; line-height: 20px; color: #6A5A4D">{{hint}}</span>
+  </button>
+
+  <div style="flex-shrink: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+    <button onClick="{{undo}}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 52px; border-radius: 26px; border: 1px solid #D9CEBF; background: #FFFFFF; color: #2A1E16; font-size: 17px; font-weight: 600; cursor: pointer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1E16" aria-hidden="true" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M9 7L5 11l4 4"></path><path d="M5 11h9a5 5 0 0 1 0 10h-2"></path></svg>
+      Undo
+    </button>
+    <button onClick="{{startOver}}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 52px; border-radius: 26px; border: 1px solid #D9CEBF; background: #FFFFFF; color: #2A1E16; font-size: 17px; font-weight: 600; cursor: pointer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1E16" aria-hidden="true" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12a7 7 0 1 0 2.1-5"></path><path d="M5 4v4h4"></path></svg>
+      Start over
+    </button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var st = this.state || {};
+    var self = this;
+    var total = typeof st.total === 'number' ? st.total : 4;
+    var s = typeof st.s === 'number' ? st.s : 3;
+    var complete = s >= total * 2;
+    var rakaat = complete ? total : Math.floor(s / 2) + 1;
+    var inRakaat = complete ? 2 : s % 2;
+    var dotOn = 'width: 18px; height: 18px; border-radius: 9px; background: #6D4C35';
+    var dotOff = 'width: 18px; height: 18px; border-radius: 9px; box-sizing: border-box; border: 2px solid #CDBFAE';
+    var seg = 'height: 40px; border-radius: 11px; border: none; font-size: 17px; font-weight: 700; cursor: pointer; ';
+    var pips = [];
+    for (var i = 1; i <= total; i++) {
+      var done = complete || i < rakaat;
+      var now = !complete && i === rakaat;
+      pips.push({
+        style: 'display: block; width: 40px; height: 8px; border-radius: 4px; background: ' + (done ? '#6D4C35' : (now ? '#C9A97F' : '#E6DDD0'))
+      });
+    }
+    return {
+      caption: complete ? 'Prayer complete' : 'Rakaat',
+      rakaat: String(rakaat),
+      ofTotal: 'of ' + total,
+      pips: pips,
+      dot1: inRakaat >= 1 ? dotOn : dotOff,
+      dot2: inRakaat >= 2 ? dotOn : dotOff,
+      sajLabel: complete ? 'All sajdahs done' : (inRakaat + ' of 2 sajdahs'),
+      hint: complete ? 'Tap Start over for your next prayer' : 'Missed one? Tap anywhere here to add a sajdah.',
+      lengths: [2, 3, 4].map(function (n) {
+        var on = n === total;
+        return {
+          label: String(n),
+          pressed: on ? 'true' : 'false',
+          style: seg + (on ? 'background: #FFFFFF; color: #2A1E16; box-shadow: 0 1px 3px rgba(42,30,22,0.15)' : 'background: transparent; color: #6A5A4D'),
+          pick: function () {
+            self.setState({ total: n, s: Math.min(s, n * 2) });
+          }
+        };
+      }),
+      tap: function () {
+        if (!complete) self.setState({ s: s + 1 });
+      },
+      undo: function () {
+        self.setState({ s: Math.max(0, s - 1) });
+      },
+      startOver: function () {
+        self.setState({ s: 0 });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rakaat counter, in-prayer dim mode</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 60px 24px 48px; display: flex; flex-direction: column; align-items: center; overflow: hidden; background: #000000; color: #B8A48E; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif; position: relative">
+  <button aria-label="Leave dim mode" style="position: absolute; right: 16px; top: 54px; width: 44px; height: 44px; border-radius: 22px; border: 1px solid #2A241E; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8C7B6B" aria-hidden="true" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+  </button>
+
+  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px">
+    <span style="font-size: 22px; line-height: 28px; font-weight: 600; color: #8C7B6B">Rakaat</span>
+    <span style="display: flex; align-items: baseline; gap: 12px">
+      <span style="font-size: 200px; line-height: 184px; font-weight: 700; letter-spacing: -8px; font-variant-numeric: tabular-nums">3</span>
+      <span style="font-size: 32px; line-height: 38px; font-weight: 600; color: #8C7B6B">of 4</span>
+    </span>
+    <span style="display: flex; gap: 10px">
+      <span style="display: block; width: 44px; height: 8px; border-radius: 4px; background: #8C7B6B"></span>
+      <span style="display: block; width: 44px; height: 8px; border-radius: 4px; background: #8C7B6B"></span>
+      <span style="display: block; width: 44px; height: 8px; border-radius: 4px; background: #5A4D41"></span>
+      <span style="display: block; width: 44px; height: 8px; border-radius: 4px; background: #241E19"></span>
+    </span>
+    <span style="margin-top: 26px; display: flex; align-items: center; gap: 12px">
+      <span style="width: 20px; height: 20px; border-radius: 10px; background: #B8A48E"></span>
+      <span style="width: 20px; height: 20px; border-radius: 10px; box-sizing: border-box; border: 2px solid #5A4D41"></span>
+      <span style="font-size: 24px; line-height: 30px; font-weight: 600">1 of 2 sajdahs</span>
+    </span>
+  </div>
+
+  <span style="font-size: 15px; line-height: 20px; color: #8C7B6B">Dimmed for prayer · tap to brighten</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

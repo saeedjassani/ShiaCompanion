@@ -2,10 +2,13 @@
 
 The agreed look for the home, navigation, reading screens, setup flow and
 tools, written so each implementation PR can be checked against it. The
-mockups live on the design canvas ("Shia Companion Home Revamp", pages
-**Round 2 · Phone / Tablet / Web** plus the round-1 pages for setup, the
-city picker, verse picker, counters and settings). Where this file and a
-mockup disagree, this file wins.
+agreed mockups are in [`design/mockups/`](design/mockups/) (one HTML file
+per screen, with exact sizes and colours; see its README for which file is
+which). They were drawn on the design canvas
+https://claude.ai/artifact/AjdZLyGAdFC5faTXco6Um5 (pages **Round 2 · Phone /
+Tablet / Web**, plus the round-1 pages for setup, the city picker, verse
+picker, counters and settings). Where this file and a mockup disagree, this
+file wins.
 
 ## Principles
 

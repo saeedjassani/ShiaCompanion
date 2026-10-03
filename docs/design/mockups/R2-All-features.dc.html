@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>All features</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 1240px; position: relative; overflow: hidden; background: #F8F5F0; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+  <div style="position: absolute; left: 0; top: 54px; right: 0; padding: 0 16px; display: flex; flex-direction: column; gap: 18px">
+    <div style="height: 44px; display: flex; align-items: center; justify-content: space-between">
+      <a href="#" style="display: flex; align-items: center; gap: 2px; margin-left: -8px; color: #6D4C35; text-decoration: none; font-size: 17px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round"><path d="M15 5l-7 7 7 7"></path></svg>Home</a>
+      <a href="#" style="font-size: 17px; font-weight: 600; color: #6D4C35; text-decoration: none">Edit shortcuts</a>
+    </div>
+    <h1 style="margin: 0; font-size: 34px; line-height: 41px; font-weight: 700; letter-spacing: -0.4px">All features</h1>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 8px; border-radius: 20px; background: #FFFFFF; border: 1px solid #E8E0D5">
+          <sc-for list="{{items}}" as="t" hint-placeholder-count="6">
+            <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 4px 10px; border-radius: 14px; color: #2A1E16; text-decoration: none; text-align: center">
+              <span style="position: relative; width: 54px; height: 54px; border-radius: 17px; background: #F2EBE1; display: flex; align-items: center; justify-content: center">
+                <sc-if value="{{t.isImg}}" hint-placeholder-val="{{ true }}"><img src="{{t.img}}" alt="" style="width: 32px; height: 32px"></sc-if>
+                <sc-if value="{{t.isSvg}}" hint-placeholder-val="{{ false }}"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="{{t.d}}"></path></svg></sc-if>
+                <sc-if value="{{t.onHome}}" hint-placeholder-val="{{ false }}"><span title="On your home" style="position: absolute; right: -4px; top: -4px; width: 18px; height: 18px; border-radius: 9px; background: #6D4C35; border: 2px solid #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="stroke-width: 4; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></sc-if>
+              </span>
+              <span style="font-size: 14px; line-height: 18px; font-weight: 500">{{t.label}}</span>
+            </a>
+          </sc-for>
+        </div>
+    <p style="margin: 0; padding: 0 4px; display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: #6A5A4D"><span style="flex-shrink: 0; width: 16px; height: 16px; border-radius: 8px; background: #6D4C35"></span>Already one of your Home shortcuts</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var B = '/_blob/';
+    function img(label, id, onHome) { return { label: label, img: B + id, isImg: true, isSvg: false, d: '', onHome: !!onHome }; }
+    function svg(label, d, onHome) { return { label: label, img: '', isImg: false, isSvg: true, d: d, onHome: !!onHome }; }
+    var cal = 'M6.5 5h11A2.5 2.5 0 0 1 20 7.5v10a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-10A2.5 2.5 0 0 1 6.5 5zM4 10h16M8 3v4M16 3v4';
+    return {
+      items: [
+        img("Today's Recitations", '26459c1fa0b50ce9ba59d3506bb93ec6', true),
+        img('Taqeebat e Namaz', '6b15230696b9d552d7f29e988a8a058f'),
+        img('Namaz', '83e76e426e8526036b4273cc9dbf4f7d'),
+        img('Duas', 'f93c92fb4f6ecc14fb7e473a9b7f4505', true),
+        img('Ziyarats', 'd71cd6cd36f1a09da6459d94da518e31', true),
+        img('Aamaal', '5c10bd7f8b368b4ff7597fbecbef8aee'),
+        svg('Calendar & Prayer Times', cal, true),
+        img('Library', '26a9147caa0cf8b982d1216f92cc5f99'),
+        img('Munajaat', 'f77f493bef30782c6cc3959f7aa68021', true),
+        img('Baaqeyaat As Saalehaat', '38f8079cfd0fb21be769716a443b2a53'),
+        svg('Playlists', 'M4 6h12M4 11h12M4 16h7M16 14v6l5-3z'),
+        svg('Qibla Finder', 'M12 3.5a8.5 8.5 0 1 1 0 17a8.5 8.5 0 1 1 0-17zM15.5 8.5l-2 5-5 2 2-5z', true),
+        img('Tasbeeh Counter', '4e12a2c7dc6d2f873644bb29e6cdad10', true),
+        svg('Qaza Tracker', cal + 'M9 15l2 2 4-4'),
+        img('Rakaat Counter', '9fe87353f2f0afb3cd9d405b1e297d3d'),
+        svg('Prayer Times in Flight', 'M21 15.5v-1.8L13.5 9V4.5a1.5 1.5 0 0 0-3 0V9L3 13.7v1.8l7.5-2.2V18l-2 1.5V21l3.5-1 3.5 1v-1.5l-2-1.5v-4.7z'),
+        svg('My Stats', 'M5 20V11M10 20V5M15 20v-7M20 20V8'),
+        svg('Settings', 'M4 7h10M18 7h2M4 17h4M12 17h8M16 5a2 2 0 1 1 0 4a2 2 0 1 1 0-4zM10 15a2 2 0 1 1 0 4a2 2 0 1 1 0-4z')
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
