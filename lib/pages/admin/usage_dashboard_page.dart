@@ -119,7 +119,7 @@ class PreviousPeriodTotals {
 PreviousPeriodTotals previousTotalsFrom(Map<String, Map<String, int>> counts) {
   final zikrOpenEntries = (counts[AnalyticsService.metricZikr] ?? const {})
       .entries
-      .where((entry) => !entry.key.endsWith(zikrCompletionSuffix));
+      .where((entry) => _isZikrOpenKey(entry.key));
   final zikrOpens =
       zikrOpenEntries.fold<int>(0, (sum, entry) => sum + entry.value);
   final featureUses = (counts[AnalyticsService.metricFeature] ?? const {})
@@ -185,14 +185,14 @@ PeriodDelta? periodDelta(int current, int previous) {
 enum FeatureGroup {
   readingContent(
     'Reading the content',
-    'Bookmarks, sharing, audio, fonts, reminders, and translation/'
-        'transliteration toggles while reading a zikr, a library chapter, or '
-        'the Quran',
+    'Bookmarks, sharing, audio (including downloads and playlists), fonts, '
+        'reminders, and translation/transliteration toggles while reading a '
+        'zikr, a library chapter, or the Quran',
   ),
   findingContent(
     'Finding content',
-    'Home-screen taps, search, and how a zikr was reached — a deep link, a '
-        'widget, or search itself',
+    'Home-screen taps, search, Quran listen-and-follow, and how a zikr was '
+        'reached — a deep link, a widget, or search itself',
   ),
   prayerAndWorship(
     'Prayer & worship tools',
@@ -202,11 +202,12 @@ enum FeatureGroup {
   ),
   personalizationAndAccount(
     'Personalization & account',
-    'Favorites, dark mode, sign-in and account deletion',
+    'Favorites, dark mode, app text size, sign-in and account deletion',
   ),
   feedbackAndRatings(
     'Feedback & ratings',
-    'App-store rating prompts and the feedback email',
+    'App-store rating prompts, the feedback email, mistake reports and '
+        'content requests (including admins resolving them)',
   ),
   other('Other', 'Not yet sorted into a group');
 
@@ -223,6 +224,9 @@ const Set<String> _readingContentFeatureKeys = {
   'zikr_counter_shown',
   'zikr_audio_opened',
   'zikr_audio_play',
+  'zikr_audio_download',
+  'zikr_playlist_play',
+  'zikr_playlist_track_play',
   'zikr_bookmark_saved',
   'zikr_bookmark_removed',
   'zikr_bookmark_moved',
@@ -257,7 +261,14 @@ const Set<String> _readingContentFeatureKeys = {
   'quran_juz_step',
 };
 
-const Set<String> _findingContentFeatureKeys = {'search', 'search_opened'};
+const Set<String> _findingContentFeatureKeys = {
+  'search',
+  'search_opened',
+  // Finding a verse by listening to a recitation, and picking one of its
+  // candidate matches.
+  'quran_listen_and_follow',
+  'quran_listen_and_follow_chosen',
+};
 
 const Set<String> _prayerAndWorshipFeatureKeys = {
   'azaan_selected',
@@ -280,6 +291,7 @@ const Set<String> _personalizationAndAccountFeatureKeys = {
   'favorite_removed',
   'favorite_reordered',
   'dark_mode_toggled',
+  'app_text_scale_changed',
 };
 
 const Set<String> _feedbackAndRatingsFeatureKeys = {
@@ -288,6 +300,14 @@ const Set<String> _feedbackAndRatingsFeatureKeys = {
   'rate_us_settings',
   'feedback_email_opened',
   'github_settings',
+  'rating_positive_action',
+  'zikr_mistake_reported',
+  'content_requested',
+  // Admins working through those reports and requests.
+  'mistake_report_resolved',
+  'mistake_report_reopened',
+  'content_request_resolved',
+  'content_request_reopened',
 };
 
 /// See [FeatureGroup].
@@ -346,6 +366,15 @@ Map<FeatureGroup, int> groupPreviousTotals(Map<String, int>? previousByKey) {
 /// Suffix [AnalyticsService.zikrCompleted] appends so completions can share the
 /// zikr metric without needing a metric of their own.
 const String zikrCompletionSuffix = '~done';
+
+/// Suffix [AnalyticsService.zikrPlaylistPlay] appends: a zikr played inside a
+/// playlist, counted in the zikr metric but never as an open.
+const String zikrPlaylistSuffix = '~playlist';
+
+/// Whether a zikr-metric key is an open (a bare uid) rather than one of the
+/// suffixed counters riding along in the same metric.
+bool _isZikrOpenKey(String key) =>
+    !key.endsWith(zikrCompletionSuffix) && !key.endsWith(zikrPlaylistSuffix);
 
 /// Parses `usage/totals`'s raw snapshot value into metric -> key -> count.
 ///
@@ -413,7 +442,9 @@ Map<String, Map<String, int>> parseUsageTotals(Object? value) {
   return (counts: counts, trend: trend, metricTrend: metricTrend);
 }
 
-/// Folds the completion counters back into the zikr they belong to.
+/// Folds the completion counters back into the zikr they belong to, and
+/// drops the playlist-play counters (see [zikrPlaylistRows]) so the result is
+/// opens only.
 ///
 /// They live in the same metric as opens, so without this a popular zikr would
 /// appear twice in the ranking and its completions would compete with its own
@@ -426,9 +457,7 @@ List<UsageRow> splitZikrCompletions(List<UsageRow> rows) {
             row.count,
   };
 
-  return rows
-      .where((row) => !row.key.endsWith(zikrCompletionSuffix))
-      .map((row) {
+  return rows.where((row) => _isZikrOpenKey(row.key)).map((row) {
     final done = completions[row.key] ?? 0;
     return UsageRow(
       key: row.key,
@@ -448,9 +477,37 @@ Map<String, int> zikrPreviousByKey(
   final raw = previousCounts?[AnalyticsService.metricZikr] ?? const {};
   final byKey = <String, int>{};
   raw.forEach((key, count) {
-    if (!key.endsWith(zikrCompletionSuffix)) byKey[key] = count;
+    if (_isZikrOpenKey(key)) byKey[key] = count;
   });
   return byKey;
+}
+
+/// The zikr-metric rows counting plays inside a playlist, keyed by bare uid
+/// and still in rank order, for their own "Played in playlists" ranking.
+@visibleForTesting
+List<UsageRow> zikrPlaylistRows(List<UsageRow> rows) => [
+      for (final row in rows)
+        if (row.key.endsWith(zikrPlaylistSuffix))
+          UsageRow(
+            key: row.key
+                .substring(0, row.key.length - zikrPlaylistSuffix.length),
+            label: row.label,
+            count: row.count,
+          ),
+    ];
+
+/// The previous period's playlist-play counts, keyed by bare uid the way
+/// [zikrPlaylistRows] keys its rows.
+@visibleForTesting
+Map<String, int> zikrPlaylistPreviousByKey(
+    Map<String, Map<String, int>>? previousCounts) {
+  final raw = previousCounts?[AnalyticsService.metricZikr] ?? const {};
+  return {
+    for (final entry in raw.entries)
+      if (entry.key.endsWith(zikrPlaylistSuffix))
+        entry.key.substring(0, entry.key.length - zikrPlaylistSuffix.length):
+            entry.value,
+  };
 }
 
 /// Admin-only view of the usage counters written by [AnalyticsService].
@@ -614,7 +671,10 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
     final recorded = labels['$metric/$key'];
     if (recorded != null && recorded.isNotEmpty) return recorded;
     if (metric == AnalyticsService.metricZikr) {
-      final title = items[key]?.toString();
+      final uid = key.endsWith(zikrPlaylistSuffix)
+          ? key.substring(0, key.length - zikrPlaylistSuffix.length)
+          : key;
+      final title = items[uid]?.toString();
       if (title != null && title.isNotEmpty) return title;
     }
     return key;
@@ -658,6 +718,9 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
     final zikrPrevious = data.previousCounts == null
         ? null
         : zikrPreviousByKey(data.previousCounts);
+    final playlistPrevious = data.previousCounts == null
+        ? null
+        : zikrPlaylistPreviousByKey(data.previousCounts);
 
     return RefreshIndicator(
       onRefresh: () async => _reload(),
@@ -697,6 +760,19 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
                     percentFormat: _percentFormat,
                     previousTotal: data.previous?.zikrOpens,
                     previousByKey: zikrPrevious,
+                    previousCaption: previousCaption,
+                  ),
+                  _UsageSection(
+                    title: 'Played in playlists',
+                    subtitle: 'Each zikr counted once per playlist run, '
+                        'whether started on it or reached by the queue',
+                    rows: zikrPlaylistRows(
+                        data.rowsFor(AnalyticsService.metricZikr)),
+                    countFormat: _countFormat,
+                    percentFormat: _percentFormat,
+                    previousTotal: playlistPrevious?.values
+                        .fold<int>(0, (sum, count) => sum + count),
+                    previousByKey: playlistPrevious,
                     previousCaption: previousCaption,
                   ),
                   _FeatureUsageSections(

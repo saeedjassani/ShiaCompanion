@@ -211,6 +211,44 @@ void main() {
 
       expect(rows.map((row) => row.key), ['G2']);
     });
+
+    test('drops playlist plays so the ranking is opens only', () {
+      final rows = splitZikrCompletions(const [
+        UsageRow(key: 'G1~playlist', label: 'Dua Kumayl', count: 50),
+        UsageRow(key: 'G2', label: 'Ziyarat Ashura', count: 5),
+      ]);
+
+      expect(rows.map((row) => row.key), ['G2']);
+    });
+  });
+
+  group('zikrPlaylistRows', () {
+    test('keeps only playlist plays, keyed by bare uid, in rank order', () {
+      final rows = zikrPlaylistRows(const [
+        UsageRow(key: 'G1~playlist', label: 'Dua Kumayl', count: 50),
+        UsageRow(key: 'G2', label: 'Ziyarat Ashura', count: 20),
+        UsageRow(key: 'G2~done', label: 'Ziyarat Ashura (completed)', count: 9),
+        UsageRow(key: 'G2~playlist', label: 'Ziyarat Ashura', count: 3),
+      ]);
+
+      expect(rows.map((row) => row.key), ['G1', 'G2']);
+      expect(rows.map((row) => row.count), [50, 3]);
+    });
+
+    test('previous counts are keyed the same way and exclude opens', () {
+      expect(
+        zikrPlaylistPreviousByKey(const {
+          'zikr': {'G1': 4, 'G1~playlist': 7, 'G1~done': 2},
+        }),
+        {'G1': 7},
+      );
+      expect(
+        zikrPreviousByKey(const {
+          'zikr': {'G1': 4, 'G1~playlist': 7, 'G1~done': 2},
+        }),
+        {'G1': 4},
+      );
+    });
   });
 
   group('zikrPreviousByKey', () {
@@ -258,6 +296,9 @@ void main() {
         'zikr_counter_shown': FeatureGroup.readingContent,
         'zikr_audio_opened': FeatureGroup.readingContent,
         'zikr_audio_play': FeatureGroup.readingContent,
+        'zikr_audio_download': FeatureGroup.readingContent,
+        'zikr_playlist_play': FeatureGroup.readingContent,
+        'zikr_playlist_track_play': FeatureGroup.readingContent,
         'zikr_bookmark_saved': FeatureGroup.readingContent,
         'zikr_bookmark_removed': FeatureGroup.readingContent,
         'zikr_bookmark_moved': FeatureGroup.readingContent,
@@ -293,6 +334,8 @@ void main() {
         'home_menu_tasbeeh': FeatureGroup.findingContent,
         'search': FeatureGroup.findingContent,
         'search_opened': FeatureGroup.findingContent,
+        'quran_listen_and_follow': FeatureGroup.findingContent,
+        'quran_listen_and_follow_chosen': FeatureGroup.findingContent,
         // Prayer & worship tools
         'azaan_selected': FeatureGroup.prayerAndWorship,
         'azaan_notifications_toggled': FeatureGroup.prayerAndWorship,
@@ -312,12 +355,20 @@ void main() {
         'favorite_removed': FeatureGroup.personalizationAndAccount,
         'favorite_reordered': FeatureGroup.personalizationAndAccount,
         'dark_mode_toggled': FeatureGroup.personalizationAndAccount,
+        'app_text_scale_changed': FeatureGroup.personalizationAndAccount,
         // Feedback & ratings
         'rating_prompt': FeatureGroup.feedbackAndRatings,
         'rating_prompt_feedback': FeatureGroup.feedbackAndRatings,
         'rate_us_settings': FeatureGroup.feedbackAndRatings,
         'feedback_email_opened': FeatureGroup.feedbackAndRatings,
         'github_settings': FeatureGroup.feedbackAndRatings,
+        'rating_positive_action': FeatureGroup.feedbackAndRatings,
+        'zikr_mistake_reported': FeatureGroup.feedbackAndRatings,
+        'content_requested': FeatureGroup.feedbackAndRatings,
+        'mistake_report_resolved': FeatureGroup.feedbackAndRatings,
+        'mistake_report_reopened': FeatureGroup.feedbackAndRatings,
+        'content_request_resolved': FeatureGroup.feedbackAndRatings,
+        'content_request_reopened': FeatureGroup.feedbackAndRatings,
       };
 
       expected.forEach((key, group) {
@@ -356,9 +407,11 @@ void main() {
   });
 
   group('previousTotalsFrom', () {
-    test('sums opens, drops completions, and counts distinct zikrs', () {
+    test(
+        'sums opens, drops completions and playlist plays, and counts distinct zikrs',
+        () {
       final totals = previousTotalsFrom({
-        'zikr': {'G1': 10, 'G1~done': 3, 'G2': 5},
+        'zikr': {'G1': 10, 'G1~done': 3, 'G1~playlist': 8, 'G2': 5},
         'feature': {'search': 4, 'zikr_shared': 2},
       });
 
