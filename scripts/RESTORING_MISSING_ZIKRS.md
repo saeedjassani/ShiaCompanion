@@ -709,10 +709,25 @@ union silently comes back empty).
   Muharram/Safar/Rabi day pages (`R2`, `R3`, `S2`-`S8`, `T1`, `T3`, `U1`),
   Rajab (`X9`, `X12`, `X16`-`X18`), the remaining Ramadan nights (`AA36`,
   `AA41`, `AA42`, `AA44`, `AA45`, `AA24`) and Shawwal/Eid (`AD1`, `AD5`).
-- **16 look like Step-1.5 duplicates** (`possibleDuplicateOf` in the JSON,
-  from an Arabic-shingle + title match against every live entry *and tab* -
-  a hint, still eyeball each): e.g. `P14` was byte-identical to `P15` in
-  history, `R2`/`R3`/`R8` match `R1`/`R1` tab 0/`R7` tab 0, `AG9`-`AG11`
-  match `AG8`'s tabs, `I27` matches `I24` tab 4. `G17`/`L4` and `G19`/`M4`
-  are each the same weekday ziyarah under two categories - restore one and
-  alias the other (the `G16|L3` / `G18|M3` shape).
+- **32 were duplicates and are now retired** to `retiredZikrRedirects`
+  (`kind: "retired"` in the JSON, each with its target). Every one was
+  checked side by side, not trusted from the script. Most are the old
+  one-form-per-uid ziyarat pages that were later folded into live "All
+  Forms" compilations: `AG9`-`AG13` -> `AG8`'s tabs, `AK9`-`AK12` + `AK14`
+  -> `AK5`'s tabs, `AI6`-`AI9` -> `AI3`'s tabs, `AL13` -> `AL11`, `AH6`/`AH8`
+  -> `AH5`. Also: the weekday ziyarat pairs `G17`/`L4` -> `L3` tab 0 and
+  `G19`/`M4` -> `M3` tab 0; `R2`/`R3`/`R8`/`R13` -> `R1`/`R1`/`R7`/`G4`;
+  `P14` -> `P15` (byte-identical in history); `AC9` -> `AC5`; `I27` ->
+  `I24`; `AG4` -> `AG5`; Friday salawat `E137`/`E138`/`E139` -> the
+  salawat sections of `AH7`/`AL5`/`AL6`.
+  **Lesson:** an Arabic-only shingle match missed most of the compilation
+  matches (the live copies re-spell the Arabic - `ٱ`, split phrases, etc.);
+  a 5-word shingle match on the *English* prose (`content` + `english`)
+  caught them. Run both before restoring anything from this list.
+- **Three flagged ones are not clean duplicates** (`note` in the JSON):
+  `AG15` (AG14 has only half of its commentary), `AI17` (its Masjid
+  Sa'sa'ah section isn't live anywhere), and `E136` - whose Imam al-Reza
+  salawat *is* live, but inside `AH4` under the wrong heading ("2.Salawaat
+  Upon Imam Musa ibn Jafar"), which is itself a bug to fix.
+
+That leaves **170 to restore** (103 with Arabic, 67 prose-only).

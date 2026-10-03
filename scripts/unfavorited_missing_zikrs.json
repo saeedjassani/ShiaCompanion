@@ -1,12 +1,12 @@
 {
  "generatedAt": "2026-10-03",
- "method": "Union of every historical assets/zikr.json key (full, unshallowed git history; alias keys split on |), minus current assets/zikr.json keys, minus lib/data/retired_zikr_redirects.dart. None of these are in favorited_missing_zikrs.json. possibleDuplicateOf comes from an Arabic 6-word-shingle overlap + title match against every live entry and tab - a hint only, eyeball it per RESTORING_MISSING_ZIKRS.md Step 1.5.",
+ "method": "Union of every historical assets/zikr.json key (full, unshallowed git history; alias keys split on |), minus current assets/zikr.json keys, minus lib/data/retired_zikr_redirects.dart. None of these are in favorited_missing_zikrs.json. possibleDuplicateOf comes from an Arabic 6-word-shingle overlap + title match against every live entry and tab - a hint only, eyeball it per RESTORING_MISSING_ZIKRS.md Step 1.5. kind \"retired\" = confirmed duplicate, now in lib/data/retired_zikr_redirects.dart (2026-10-03).",
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "hasArabic": 132,
-  "proseOnly": 70,
-  "possibleDuplicates": 16
+  "retired": 32,
+  "toRestoreHasArabic": 103,
+  "toRestoreProseOnly": 67
  },
  "uids": [
   {
@@ -59,8 +59,9 @@
   {
    "uid": "AC9",
    "title": "The 8th Day Of Zilhajj",
-   "kind": "prose-only",
-   "itemsBytes": 327
+   "kind": "retired",
+   "itemsBytes": 327,
+   "retiredTo": "AC5"
   },
   {
    "uid": "AD1",
@@ -184,8 +185,9 @@
   {
    "uid": "AG4",
    "title": "Salawat on Imam Husayn (a)",
-   "kind": "has-arabic",
-   "itemsBytes": 9560
+   "kind": "retired",
+   "itemsBytes": 9560,
+   "retiredTo": "AG5"
   },
   {
    "uid": "AG7",
@@ -196,41 +198,44 @@
   {
    "uid": "AG9",
    "title": "Second Ziyarah of Imam Husayn (a)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 2588,
-   "possibleDuplicateOf": "AG8 tabs[0] \"Second Ziyarat\""
+   "retiredTo": "AG8 tabs[0]"
   },
   {
    "uid": "AG10",
    "title": "Third Ziyarah of Imam Husayn (a)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 6592,
-   "possibleDuplicateOf": "AG8 tabs[1] \"Third Ziyarat\""
+   "retiredTo": "AG8 tabs[1]"
   },
   {
    "uid": "AG11",
    "title": "Fourth Ziyarah of Imam Husayn (a)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 962,
-   "possibleDuplicateOf": "AG8 tabs[2] \"Fourth Ziyarat\""
+   "retiredTo": "AG8 tabs[2]"
   },
   {
    "uid": "AG12",
    "title": "Fifth Ziyarah of Imam Husayn (a)",
-   "kind": "has-arabic",
-   "itemsBytes": 1672
+   "kind": "retired",
+   "itemsBytes": 1672,
+   "retiredTo": "AG8 tabs[3]"
   },
   {
    "uid": "AG13",
    "title": "Sixth Ziyarah of Imam Husayn (a)",
-   "kind": "has-arabic",
-   "itemsBytes": 2796
+   "kind": "retired",
+   "itemsBytes": 2796,
+   "retiredTo": "AG8 tabs[4]"
   },
   {
    "uid": "AG15",
    "title": "Explanations about the additions in Ziyarah Warith)",
    "kind": "has-arabic",
-   "itemsBytes": 2257
+   "itemsBytes": 2257,
+   "note": "NOT a clean duplicate: AG14 carries its \"Commentary\" paragraph but drops the \"However, some books add...\" tail - merge that tail into AG14, then retire AG15 to AG14."
   },
   {
    "uid": "AG16",
@@ -271,16 +276,16 @@
   {
    "uid": "AH6",
    "title": "Another Ziyarah of Imam al-Jawad",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 3865,
-   "possibleDuplicateOf": "AH5 (64% Arabic overlap - may be an alternate form)"
+   "retiredTo": "AH5"
   },
   {
    "uid": "AH8",
    "title": "Another Ziyarah of Imam al-Jawad - 1",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 3982,
-   "possibleDuplicateOf": "AH5 (61% Arabic overlap - may be an alternate form)"
+   "retiredTo": "AH5"
   },
   {
    "uid": "AH11",
@@ -303,46 +308,49 @@
   {
    "uid": "AI6",
    "title": "Aamal at the Seventh Column (Sutoon)",
-   "kind": "has-arabic",
-   "itemsBytes": 17080
+   "kind": "retired",
+   "itemsBytes": 17080,
+   "retiredTo": "AI3 tabs[1]"
   },
   {
    "uid": "AI7",
    "title": "Aamal at the Fifth Column (Sutoon)",
-   "kind": "has-arabic",
-   "itemsBytes": 6266
+   "kind": "retired",
+   "itemsBytes": 6266,
+   "retiredTo": "AI3 tabs[2]"
   },
   {
    "uid": "AI8",
    "title": "Aamal at the Third Column (Sutoon)",
-   "kind": "has-arabic",
-   "itemsBytes": 14563
+   "kind": "retired",
+   "itemsBytes": 14563,
+   "retiredTo": "AI3 tabs[3]"
   },
   {
    "uid": "AI9",
    "title": "Aamal at Bab Al Faraj",
-   "kind": "has-arabic",
-   "itemsBytes": 14771
+   "kind": "retired",
+   "itemsBytes": 14771,
+   "retiredTo": "AI3 tabs[5]"
   },
   {
    "uid": "AI13",
    "title": "The Ziyarah of Muslim Ibn Aqil",
    "kind": "has-arabic",
-   "itemsBytes": 10860,
-   "possibleDuplicateOf": "G60 (same title, different opening - check)"
+   "itemsBytes": 10860
   },
   {
    "uid": "AI14",
    "title": "The Ziyarah of Hani Ibn Urwah",
    "kind": "has-arabic",
-   "itemsBytes": 2798,
-   "possibleDuplicateOf": "G61 (same title - check)"
+   "itemsBytes": 2798
   },
   {
    "uid": "AI17",
    "title": "Zayd and Sasah",
    "kind": "prose-only",
-   "itemsBytes": 2699
+   "itemsBytes": 2699,
+   "note": "NOT a duplicate: its end overlaps AI16 (Masjid Zayd) but its Masjid Sa'sa'ah section is not live anywhere - restore."
   },
   {
    "uid": "AJ1",
@@ -389,33 +397,37 @@
   {
    "uid": "AK9",
    "title": "Third Ziyarah",
-   "kind": "has-arabic",
-   "itemsBytes": 8759
+   "kind": "retired",
+   "itemsBytes": 8759,
+   "retiredTo": "AK5 tabs[1]"
   },
   {
    "uid": "AK10",
    "title": "Fourth Ziyarah",
-   "kind": "has-arabic",
-   "itemsBytes": 3332
+   "kind": "retired",
+   "itemsBytes": 3332,
+   "retiredTo": "AK5 tabs[2]"
   },
   {
    "uid": "AK11",
    "title": "Fifth Ziyarah",
-   "kind": "has-arabic",
-   "itemsBytes": 2078
+   "kind": "retired",
+   "itemsBytes": 2078,
+   "retiredTo": "AK5 tabs[3]"
   },
   {
    "uid": "AK12",
    "title": "Sixth Ziyarah",
-   "kind": "has-arabic",
-   "itemsBytes": 22772
+   "kind": "retired",
+   "itemsBytes": 22772,
+   "retiredTo": "AK5 tabs[4]"
   },
   {
    "uid": "AK14",
    "title": "Visitation of Imam Zayn al Abidin (a) for the Ziyarah of Imam Ali (a)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 5320,
-   "possibleDuplicateOf": "AK5 tabs[5]"
+   "retiredTo": "AK5 tabs[5]"
   },
   {
    "uid": "AK16",
@@ -480,8 +492,9 @@
   {
    "uid": "AL13",
    "title": "Another form of Ziyarah (1)",
-   "kind": "has-arabic",
-   "itemsBytes": 21043
+   "kind": "retired",
+   "itemsBytes": 21043,
+   "retiredTo": "AL11 tabs[0]"
   },
   {
    "uid": "AL16",
@@ -697,26 +710,29 @@
    "uid": "E136",
    "title": "Salawat upon Imam ‘Ali Ibn Musa",
    "kind": "has-arabic",
-   "itemsBytes": 1238
+   "itemsBytes": 1238,
+   "note": "NOT a clean duplicate: its Imam al-Reza salawat sits in AH4 under the wrong heading (\"2.Salawaat Upon Imam Musa ibn Jafar\") - fix AH4's label and give E136 its own entry, or retire it to AH4 once the heading is right."
   },
   {
    "uid": "E137",
    "title": "Salawat upon Imam Muhammad Ibn ‘Ali Al-Jawad",
-   "kind": "has-arabic",
-   "itemsBytes": 1201
+   "kind": "retired",
+   "itemsBytes": 1201,
+   "retiredTo": "AH7"
   },
   {
    "uid": "E138",
    "title": "Salawat upon Imam ‘Ali Ibn Muhammad Al Hadi",
-   "kind": "has-arabic",
-   "itemsBytes": 2013
+   "kind": "retired",
+   "itemsBytes": 2013,
+   "retiredTo": "AL5 tabs[0]"
   },
   {
    "uid": "E139",
    "title": "Salawat upon Imam Al Hasan Al ’Askari",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 1140,
-   "possibleDuplicateOf": "AL6 tabs[1] \"Salawat Upon Imam al-Askari\""
+   "retiredTo": "AL6 tabs[1]"
   },
   {
    "uid": "E145",
@@ -817,16 +833,18 @@
   {
    "uid": "G17",
    "title": "Sunday - Ziyarah of Lady Fatimah al Zahra (s)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 2894,
-   "hasHistoricTransliteration": true
+   "hasHistoricTransliteration": true,
+   "retiredTo": "L3 tabs[0]"
   },
   {
    "uid": "G19",
    "title": "Monday - Ziyarah of Imam al Husayn (a)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 3983,
-   "hasHistoricTransliteration": true
+   "hasHistoricTransliteration": true,
+   "retiredTo": "M3 tabs[0]"
   },
   {
    "uid": "G25",
@@ -861,9 +879,9 @@
   {
    "uid": "I27",
    "title": "Etiquettes of applying Kohl (Surmah)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 1015,
-   "possibleDuplicateOf": "I24 tabs[4] \"Applying Kohl (Surmah)\""
+   "retiredTo": "I24 tabs[4]"
   },
   {
    "uid": "I40",
@@ -1084,18 +1102,18 @@
   {
    "uid": "L4",
    "title": "Ziyarah of Lady Faatemah al-Zahra (s.a.) on Sunday",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 2756,
    "hasHistoricTransliteration": true,
-   "possibleDuplicateOf": "G17 (same Sunday ziyarah - make one an alias of the other, like G16|L3)"
+   "retiredTo": "L3 tabs[0]"
   },
   {
    "uid": "M4",
    "title": "Ziyarah of Imam al-Husayn (a.s.) on Monday",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 3866,
    "hasHistoricTransliteration": true,
-   "possibleDuplicateOf": "G19 (same Monday ziyarah - alias pair, like G18|M3)"
+   "retiredTo": "M3 tabs[0]"
   },
   {
    "uid": "P1",
@@ -1166,9 +1184,9 @@
   {
    "uid": "P14",
    "title": "Recite the Dua اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَّآلِه، وَهَبْ لِيَ",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 1775,
-   "possibleDuplicateOf": "P15 (identical historic content - P14 and P15 were byte-identical in assets/items)"
+   "retiredTo": "P15"
   },
   {
    "uid": "P16",
@@ -1179,29 +1197,30 @@
   {
    "uid": "R2",
    "title": "The First Night Of Muharram",
-   "kind": "prose-only",
+   "kind": "retired",
    "itemsBytes": 1052,
-   "possibleDuplicateOf": "R1 main data (same Iqbal al-A'mal prayers text)"
+   "retiredTo": "R1"
   },
   {
    "uid": "R3",
    "title": "The First Day Of Muharram",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 5191,
-   "possibleDuplicateOf": "R1 tabs[0] \"The First Day of Muharram\""
+   "retiredTo": "R1 tabs[0]"
   },
   {
    "uid": "R8",
    "title": "Forgeries of the Enemies of Imam Husayn (a)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 9773,
-   "possibleDuplicateOf": "R7 tabs[0] \"Forgeries of the Enemies of Imam Husayn\""
+   "retiredTo": "R7 tabs[0]"
   },
   {
    "uid": "R13",
    "title": "Safwan's Discourse on the Merit of Ziyarah of Ashura",
-   "kind": "prose-only",
-   "itemsBytes": 3422
+   "kind": "retired",
+   "itemsBytes": 3422,
+   "retiredTo": "G4"
   },
   {
    "uid": "S2",

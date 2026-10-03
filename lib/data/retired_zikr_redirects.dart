@@ -212,4 +212,84 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// down the following:". The salawat itself ships as E128 (upon the Holy
   /// Prophet), E129 (upon the Commander of the Faithful), and onward.
   'E127': RetiredZikrRedirect('E128'),
+
+  /// Found in the 2026-10-03 sweep of the *unfavorited* missing uids (see
+  /// scripts/unfavorited_missing_zikrs.json). Each was checked side by side
+  /// against its target, not just matched by script. Most are the old
+  /// one-form-per-uid ziyarat pages that were later folded into a live
+  /// "All Forms" compilation (AG8, AK5, AI3) or a weekday entry's tab.
+  ///
+  /// P14's historic content was byte-identical to P15's (the old data
+  /// stored the same "Twelfth: ...wa hab liyal ghadaata ridaak" dua under
+  /// both uids), and P15 already ships it.
+  'P14': RetiredZikrRedirect('P15'),
+
+  /// R2/R3 ("The First Night/Day Of Muharram") are R1's main data and first
+  /// tab. R8 ("Forgeries of the Enemies of Imam Husayn") is R7's first tab;
+  /// its trailing "Day of Ashura" section is R7's second tab, one swipe on.
+  /// R13 (Safwan's discourse on the merit of Ziyarat Ashura) is in G4's
+  /// merits.
+  'R2': RetiredZikrRedirect('R1'),
+  'R3': RetiredZikrRedirect('R1', tabIndex: 0),
+  'R8': RetiredZikrRedirect('R7', tabIndex: 0),
+  'R13': RetiredZikrRedirect('G4'),
+
+  /// AC9 ("The 8th Day Of Zilhajj" - the Tarwiyah Day) is a paragraph of
+  /// AC5's merits ("First Ten Days of Dhul Hijjah").
+  'AC9': RetiredZikrRedirect('AC5'),
+
+  /// I27 ("Etiquettes of applying Kohl") is I24's "Applying Kohl" tab.
+  'I27': RetiredZikrRedirect('I24', tabIndex: 4),
+
+  /// The weekday ziyarat of Lady Fatimah (Sunday) and Imam Husayn (Monday)
+  /// were each stored twice, once under the general Ziyarat list (G17,
+  /// G19) and once under the weekday (L4, M4). Both now live as the second
+  /// ziyarah of L3 ("Ziyarat on Sunday") and M3 ("Ziyarat on Monday").
+  'G17': RetiredZikrRedirect('L3', tabIndex: 0),
+  'L4': RetiredZikrRedirect('L3', tabIndex: 0),
+  'G19': RetiredZikrRedirect('M3', tabIndex: 0),
+  'M4': RetiredZikrRedirect('M3', tabIndex: 0),
+
+  /// Second through Sixth forms of the general Ziyarat of Imam Husayn,
+  /// now AG8's tabs. AG4 (salawat on Imam Husayn, "Fourteenth:") is a
+  /// section of AG5's main data.
+  'AG9': RetiredZikrRedirect('AG8', tabIndex: 0),
+  'AG10': RetiredZikrRedirect('AG8', tabIndex: 1),
+  'AG11': RetiredZikrRedirect('AG8', tabIndex: 2),
+  'AG12': RetiredZikrRedirect('AG8', tabIndex: 3),
+  'AG13': RetiredZikrRedirect('AG8', tabIndex: 4),
+  'AG4': RetiredZikrRedirect('AG5'),
+
+  /// Third through Sixth forms of the Ziyarat of Imam Ali, plus AK14 (Imam
+  /// Zayn al-Abidin's visitation, from Farhat al-Ghari), now AK5's tabs.
+  'AK9': RetiredZikrRedirect('AK5', tabIndex: 1),
+  'AK10': RetiredZikrRedirect('AK5', tabIndex: 2),
+  'AK11': RetiredZikrRedirect('AK5', tabIndex: 3),
+  'AK12': RetiredZikrRedirect('AK5', tabIndex: 4),
+  'AK14': RetiredZikrRedirect('AK5', tabIndex: 5),
+
+  /// The Masjid al-Kufah column/station acts, now AI3's tabs. AI8 (the
+  /// third column / seat of Imam Zayn al-Abidin) runs on into AI3's next
+  /// tab, "Acts in the Courtyard".
+  'AI6': RetiredZikrRedirect('AI3', tabIndex: 1),
+  'AI7': RetiredZikrRedirect('AI3', tabIndex: 2),
+  'AI8': RetiredZikrRedirect('AI3', tabIndex: 3),
+  'AI9': RetiredZikrRedirect('AI3', tabIndex: 5),
+
+  /// AL13 ("Another form of Ziyarah (1)" at the Sardab) is AL11's second
+  /// ziyarah tab.
+  'AL13': RetiredZikrRedirect('AL11', tabIndex: 0),
+
+  /// AH6/AH8 (two "Another Ziyarah of Imam al-Jawad" forms, from Ibn
+  /// Tawus's al-Mazar and al-Saduq's al-Faqih) are both inside AH5's main
+  /// data.
+  'AH6': RetiredZikrRedirect('AH5'),
+  'AH8': RetiredZikrRedirect('AH5'),
+
+  /// Friday salawat (Misbah al-Mutahajjid, from Imam al-'Askari) upon
+  /// Imams al-Jawad, al-Hadi and al-'Askari - already the salawat sections
+  /// of their own shrine entries.
+  'E137': RetiredZikrRedirect('AH7'),
+  'E138': RetiredZikrRedirect('AL5', tabIndex: 0),
+  'E139': RetiredZikrRedirect('AL6', tabIndex: 1),
 };
