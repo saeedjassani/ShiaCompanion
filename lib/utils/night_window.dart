@@ -1,4 +1,4 @@
-import 'package:hijri/hijri_calendar.dart';
+import 'package:shia_companion/utils/lunar_date_matcher.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 
@@ -11,8 +11,8 @@ import 'package:shia_companion/utils/prayer_times.dart';
 const int fallbackFajrHour = 8;
 const int fallbackMaghribHour = 16;
 
-/// Resolves the Hijri date that's "in effect" for a Shab (night) occasion
-/// right now, i.e. anywhere from Maghrib tonight through Fajr tomorrow
+/// Resolves the day whose *night* is "in effect" for a Shab occasion right
+/// now, i.e. anywhere from Maghrib tonight through Fajr tomorrow
 /// morning - or `null` when it's currently daytime. Without a location, the
 /// window is approximated as [fallbackMaghribHour] to [fallbackFajrHour].
 ///
@@ -28,7 +28,9 @@ const int fallbackMaghribHour = 16;
 /// [now] should be the real wall-clock time (for Fajr/Maghrib), while
 /// [hijriDateOffsetDays] is the same manual moon-sighting correction applied
 /// to the app's normal (non-night) Hijri date elsewhere, so both stay in sync.
-HijriCalendar? resolveNightAdjustedHijriDate({
+/// The result is a [LunarDay], so the night's weekday ("N*-*-5", Thursday
+/// night) is that of the civil day it leads into, never the offset one.
+LunarDay? resolveNightLunarDay({
   required DateTime now,
   required PrayerTime prayerTime,
   double? latitude,
@@ -55,14 +57,13 @@ HijriCalendar? resolveNightAdjustedHijriDate({
         todayDateOnly.add(const Duration(hours: fallbackMaghribHour));
   }
 
-  final offset = Duration(days: hijriDateOffsetDays);
-
   if (now.isBefore(todayFajr)) {
-    return HijriCalendar.fromDate(todayDateOnly.add(offset));
+    return LunarDay(todayDateOnly, hijriOffsetDays: hijriDateOffsetDays);
   }
   if (!now.isBefore(todayMaghrib)) {
-    return HijriCalendar.fromDate(
-      todayDateOnly.add(const Duration(days: 1)).add(offset),
+    return LunarDay(
+      todayDateOnly.add(const Duration(days: 1)),
+      hijriOffsetDays: hijriDateOffsetDays,
     );
   }
   return null;

@@ -1,4 +1,3 @@
-import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/utils/lunar_date_matcher.dart';
@@ -16,12 +15,11 @@ import 'package:shia_companion/utils/night_window.dart';
 /// month, then a weekday, then every day - see [lunarPatternSpecificity]),
 /// and by each zikr's order value within that.
 List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) {
+  // Weekdays come from the civil date and lunar dates from the
+  // moon-sighting-adjusted one - see LunarDay.
   final today = now ?? DateTime.now();
-  final adjustedHijriDate = HijriCalendar.fromDate(
-    today.add(Duration(days: hijriDate)),
-  );
-
-  final nightDate = resolveNightAdjustedHijriDate(
+  final day = LunarDay(today, hijriOffsetDays: hijriDate);
+  final night = resolveNightLunarDay(
     now: today,
     prayerTime: getPrayerTimeObject(),
     latitude: lat,
@@ -29,16 +27,7 @@ List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) {
     hijriDateOffsetDays: hijriDate,
   );
 
-  final matches = matchTodaysZikrs(
-    itemMetadata,
-    currentDate: adjustedHijriDate,
-    nightDate: nightDate,
-    // Recurring weekday patterns (e.g. "*-*-5" for Friday) should follow the
-    // real calendar day, not the moon-sighting-adjusted Hijri date: the
-    // `adjust_hijri_date` setting shifts which lunar date today is, but it
-    // has no bearing on which civil weekday today actually is.
-    weekdayAnchor: today,
-  );
+  final matches = matchTodaysZikrs(itemMetadata, day: day, night: night);
 
   final recitations = <UidTitleData>[];
   matches.forEach((uid, _) {

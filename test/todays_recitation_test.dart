@@ -123,4 +123,48 @@ void main() {
     expect(at(12), isEmpty);
     expect(at(21), ['AA34']);
   });
+
+  group('weekday recitations never drift with a Hijri adjustment', () {
+    // Regression: Dua Simat showed up on Saturdays for people whose Hijri
+    // date was adjusted by a day. Check the whole pipeline, day and night,
+    // for every offset the setting allows and every day of a week.
+    late double? originalLat;
+    late double? originalLong;
+    setUp(() {
+      originalLat = lat;
+      originalLong = long;
+      lat = null; // night window falls back to 16:00 - 08:00
+      long = null;
+      items = {'E26': 'Dua Simat', 'Q9': 'Thursday Night'};
+      itemOrder = {};
+      itemMetadata = {
+        'E26': {'day': '*-*-5'},
+        'Q9': {'day': 'N*-*-5'},
+      };
+    });
+    tearDown(() {
+      lat = originalLat;
+      long = originalLong;
+    });
+
+    for (final offset in [-2, -1, 0, 1, 2]) {
+      test('offset $offset', () {
+        hijriDate = offset;
+        for (var i = 0; i < 7; i++) {
+          final date = DateTime(2024, 6, 16).add(Duration(days: i));
+          List<String> at(int hour) => buildTodaysRecitationItems(
+                now: DateTime(date.year, date.month, date.day, hour),
+              ).map((item) => item.uid).toList();
+
+          final isFriday = date.weekday == DateTime.friday;
+          final isThursday = date.weekday == DateTime.thursday;
+          expect(at(12).contains('E26'), isFriday, reason: '$date noon');
+          // Thursday evening through Friday morning is the night of Friday.
+          expect(at(21).contains('Q9'), isThursday, reason: '$date evening');
+          expect(at(6).contains('Q9'), isFriday, reason: '$date pre-dawn');
+          expect(at(12).contains('Q9'), isFalse, reason: '$date noon');
+        }
+      });
+    }
+  });
 }
