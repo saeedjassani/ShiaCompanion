@@ -36,8 +36,8 @@ class ZikrPlaylistStore extends ChangeNotifier {
     ZikrPlaylist(
       id: 'default-thursday',
       name: 'Thursday',
-      // Dua Kumayl, Ziyarat Warith
-      zikrUids: const ['E31', 'G54'],
+      // Dua Kumayl, Ziyarat Warith, Dua after Ziyarat Warith
+      zikrUids: const ['E31', 'G6', 'G54'],
       updatedAt: DateTime.utc(2026, 9, 25),
     ),
     ZikrPlaylist(
