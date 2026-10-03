@@ -24,16 +24,32 @@ void main() {
   final prayerTime = _configuredPrayerTime();
   final today = DateTime.utc(2024, 6, 16);
   final timeZone = today.timeZoneOffset.inMinutes / 60.0;
-  final times =
-      prayerTime.getPrayerTimes(today, latitude, longitude, timeZone);
+  final times = prayerTime.getPrayerTimes(today, latitude, longitude, timeZone);
   final fajr = dateTimeForTime24(today, times[prayerIndexFajr])!;
   final maghrib = dateTimeForTime24(today, times[prayerIndexMaghrib])!;
 
-  test('returns null without a location', () {
-    expect(
-      resolveNightAdjustedHijriDate(now: fajr, prayerTime: prayerTime),
-      isNull,
-    );
+  group('without a location, falls back to 16:00 - 08:00', () {
+    HijriCalendar? at(int hour) => resolveNightAdjustedHijriDate(
+          now: today.add(Duration(hours: hour)),
+          prayerTime: prayerTime,
+        );
+    final todayHijri = HijriCalendar.fromDate(today);
+    final tomorrowHijri =
+        HijriCalendar.fromDate(today.add(const Duration(days: 1)));
+
+    test('before 08:00 is still last night', () {
+      expect(at(7)?.hDay, todayHijri.hDay);
+    });
+
+    test('the daytime has no open night window', () {
+      expect(at(8), isNull);
+      expect(at(15), isNull);
+    });
+
+    test('from 16:00 tonight is tomorrow\'s Hijri date', () {
+      expect(at(16)?.hDay, tomorrowHijri.hDay);
+      expect(at(23)?.hDay, tomorrowHijri.hDay);
+    });
   });
 
   test('daytime (between Fajr and Maghrib) has no open night window', () {
@@ -70,8 +86,7 @@ void main() {
       latitude: latitude,
       longitude: longitude,
     );
-    final expected =
-        HijriCalendar.fromDate(today.add(const Duration(days: 1)));
+    final expected = HijriCalendar.fromDate(today.add(const Duration(days: 1)));
     expect(result?.hMonth, expected.hMonth);
     expect(result?.hDay, expected.hDay);
   });

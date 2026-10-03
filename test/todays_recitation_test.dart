@@ -97,4 +97,30 @@ void main() {
 
     expect(recitations.map((item) => item.uid), ['E34']);
   });
+
+  test('night aamal show up in the evening even without a location', () {
+    final eve = HijriCalendar().hijriToGregorian(1446, 9, 22);
+    final originalLat = lat;
+    final originalLong = long;
+    addTearDown(() {
+      lat = originalLat;
+      long = originalLong;
+    });
+    lat = null;
+    long = null;
+
+    items = {'AA34': '23rd Night of Ramazan'};
+    itemOrder = {};
+    itemMetadata = {
+      'AA34': {'day': 'N09-23'},
+    };
+    hijriDate = 0;
+
+    List<String> at(int hour) => buildTodaysRecitationItems(
+          now: DateTime(eve.year, eve.month, eve.day, hour),
+        ).map((item) => item.uid).toList();
+
+    expect(at(12), isEmpty);
+    expect(at(21), ['AA34']);
+  });
 }

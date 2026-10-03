@@ -2,10 +2,19 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 
+/// Without a location (or when the prayer times can't be worked out for it),
+/// the night window falls back to these local clock times, so night aamal
+/// still show up for someone who hasn't granted location access. They're
+/// deliberately generous - earlier than Maghrib and later than Fajr almost
+/// anywhere - so the evening's aamal are visible ahead of time and stay up
+/// through the morning, rather than missed at a boundary we can't place.
+const int fallbackFajrHour = 8;
+const int fallbackMaghribHour = 16;
+
 /// Resolves the Hijri date that's "in effect" for a Shab (night) occasion
 /// right now, i.e. anywhere from Maghrib tonight through Fajr tomorrow
-/// morning - or `null` when it's currently daytime (or we don't have enough
-/// information - a location - to tell).
+/// morning - or `null` when it's currently daytime. Without a location, the
+/// window is approximated as [fallbackMaghribHour] to [fallbackFajrHour].
 ///
 /// The Islamic day begins at Maghrib, not midnight, so the evening leading
 /// into the 9th (say) is already the night of the 9th, even though the
@@ -26,20 +35,25 @@ HijriCalendar? resolveNightAdjustedHijriDate({
   double? longitude,
   int hijriDateOffsetDays = 0,
 }) {
-  if (latitude == null || longitude == null) return null;
-
   final todayDateOnly = now.isUtc
       ? DateTime.utc(now.year, now.month, now.day)
       : DateTime(now.year, now.month, now.day);
-  final timeZone = now.timeZoneOffset.inMinutes / 60.0;
 
-  final todayTimes =
-      prayerTime.getPrayerTimes(todayDateOnly, latitude, longitude, timeZone);
-  final todayFajr =
-      dateTimeForTime24(todayDateOnly, todayTimes[prayerIndexFajr]);
-  final todayMaghrib =
-      dateTimeForTime24(todayDateOnly, todayTimes[prayerIndexMaghrib]);
-  if (todayFajr == null || todayMaghrib == null) return null;
+  DateTime? todayFajr;
+  DateTime? todayMaghrib;
+  if (latitude != null && longitude != null) {
+    final timeZone = now.timeZoneOffset.inMinutes / 60.0;
+    final todayTimes =
+        prayerTime.getPrayerTimes(todayDateOnly, latitude, longitude, timeZone);
+    todayFajr = dateTimeForTime24(todayDateOnly, todayTimes[prayerIndexFajr]);
+    todayMaghrib =
+        dateTimeForTime24(todayDateOnly, todayTimes[prayerIndexMaghrib]);
+  }
+  if (todayFajr == null || todayMaghrib == null) {
+    todayFajr = todayDateOnly.add(const Duration(hours: fallbackFajrHour));
+    todayMaghrib =
+        todayDateOnly.add(const Duration(hours: fallbackMaghribHour));
+  }
 
   final offset = Duration(days: hijriDateOffsetDays);
 
