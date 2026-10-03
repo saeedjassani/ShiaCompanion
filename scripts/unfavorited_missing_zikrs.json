@@ -5,8 +5,8 @@
   "total": 209,
   "menuCategory": 7,
   "retired": 32,
-  "restored": 15,
-  "toRestoreHasArabic": 95,
+  "restored": 21,
+  "toRestoreHasArabic": 89,
   "toRestoreProseOnly": 60
  },
  "uids": [
@@ -680,39 +680,44 @@
   {
    "uid": "E131",
    "title": "Salawat upon Al Hasan and Al Husayn",
-   "kind": "has-arabic",
-   "itemsBytes": 5378
+   "kind": "restored",
+   "itemsBytes": 5378,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "E132",
    "title": "Salawat upon Imam ‘Ali Ibn Al Husayn",
-   "kind": "has-arabic",
-   "itemsBytes": 1187
+   "kind": "restored",
+   "itemsBytes": 1187,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "E133",
    "title": "Salawat upon Imam Muhammad Ibn ‘Ali",
-   "kind": "has-arabic",
-   "itemsBytes": 1209
+   "kind": "restored",
+   "itemsBytes": 1209,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "E134",
    "title": "Salawat upon Imam Ja’far Ibn Muhammad",
-   "kind": "has-arabic",
-   "itemsBytes": 1065
+   "kind": "restored",
+   "itemsBytes": 1065,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "E135",
    "title": "Salawat upon Imam Musa Ibn Ja’far",
-   "kind": "has-arabic",
-   "itemsBytes": 1355
+   "kind": "restored",
+   "itemsBytes": 1355,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "E136",
    "title": "Salawat upon Imam ‘Ali Ibn Musa",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1238,
-   "note": "NOT a clean duplicate: its Imam al-Reza salawat sits in AH4 under the wrong heading (\"2.Salawaat Upon Imam Musa ibn Jafar\") - fix AH4's label and give E136 its own entry, or retire it to AH4 once the heading is right."
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "E137",

@@ -768,3 +768,29 @@ Friday prayers), F36, F37, F42, F50, F61, F63, F65.
   plural pronouns (`لَهٗمْ`), and source text had ṣilah marks before hamzat
   al-waṣl (`بِهٖ الْجِبَالَ`). Use `batch.py plan` to apply `silah.py`'s fixes -
   its own `--json` output is not in `apply_patch.js`'s format.
+
+### The Friday salawat series, E131-E136 (2026-10-03)
+
+The series (Shaykh al-Tusi's Misbah al-Mutahajjid, from Imam al-'Askari) is
+now complete: E128-E136 live, E137-E139 redirect to the shrine entries that
+carry them.
+
+- **E131, E134, E136 were taken from duas.org's per-Imam pages**
+  (`/mobile/imam-hussain-as.html`, `imam-jafar-sadiq-as.html`,
+  `imam-musa-kazim-as.html`), which carry the al-islam.org Mafatih text
+  already split into phrase/transliteration/translation rows - a much
+  better source than the old `duas.org/*.htm` Word exports. The online copy
+  caught a dropped word in our history: E131's `عِشْتَ رَشِيداً مَظْلُوماً`
+  had lost `رَشِيداً`, though our own old English still said "You lived
+  *upright* and persecuted". E134 takes the source's `مُسْتَحْفَظَ` (passive)
+  over our history's `مُسْتَحْفِظَ`.
+- **E132, E133, E135 are not on any page reachable from here**, so they are
+  the historic Arabic split into phrases with the historic English (the same
+  Badr Shahin translation - it matched the online one word for word on
+  E134/E136). Worth an online check when a source turns up.
+- **AH4 was mislabeled**: its section "2. Salawat upon Imam Musa ibn Jafar"
+  actually carried Imam al-Reza's salawat (now E136). That section now
+  carries the real Kazim salawat (E135's text).
+- Don't run `batch.py plan` on an *imported* entry you're only patching -
+  it also normalizes the whole file (`ٱ -> ا` etc.), which the zikr-arabic
+  skill treats as a separate restyle decision. Patch such files directly.
