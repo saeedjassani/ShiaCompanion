@@ -732,14 +732,29 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   }
 }
 
-/// Recordings tied to a date or season (Muharram, Arafah, Dhul Hijjah,
-/// Ramazan, Shaban, Safar), listed after the everyday ones when adding to a
-/// playlist. Keep in step with assets/zikr_audio.json.
-const _occasionUids = {
-  'R1', 'AC10', 'AC11', 'AC12', 'AC5', 'G75', 'G14', // Muharram, Arafah, Qadr
-  'AA11', 'AA12', 'AA13', 'AA14', 'AA10', // Ramazan
-  'Y3', 'Y4', 'S1', // Shaban, Safar
-};
+/// The list prefixes Aamaal ("C") leads to through its menu entries
+/// (`C~AA5` opens the Ramazan list, `AA`), and theirs in turn - the months
+/// and occasions. Aliases filed there (Ziyarat Ashura under Muharram) don't
+/// count: their own list is where they live.
+Set<String> _aamaalPrefixes() {
+  String prefix(String uid) => uid.replaceAll(RegExp('[0-9].*'), '');
+  final children = <String, Set<String>>{};
+  for (final key in items.keys) {
+    final at = key.indexOf('~');
+    if (at < 0) continue;
+    children
+        .putIfAbsent(key.substring(0, at), () => {})
+        .add(prefix(key.substring(at + 1)));
+  }
+  final found = <String>{};
+  final pending = ['C'];
+  while (pending.isNotEmpty) {
+    for (final child in children[pending.removeLast()] ?? const <String>{}) {
+      if (found.add(child)) pending.add(child);
+    }
+  }
+  return found;
+}
 
 /// Every zikr that has a recording, to tick into a playlist.
 class AddRecitationsPage extends StatefulWidget {
@@ -781,11 +796,12 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
         for (final favorite in FavoritesManager.instance.favorites)
           if (favorite.type == 0) favorite.canonicalUid,
     };
+    final aamaal = _aamaalPrefixes();
     // Playlists are for what's recited regularly: the reader's favorites
-    // first, then everyday recitations, with the once-a-year ones last.
+    // first, then the rest, with Aamaal's month and occasion ones last.
     int rank(String uid) => favorites.contains(_contentUid(uid))
         ? 0
-        : _occasionUids.contains(uid)
+        : aamaal.contains(uid.replaceAll(RegExp('[0-9].*'), ''))
             ? 2
             : 1;
     final uids = ZikrAudioIndex.instance.uids.toList()
