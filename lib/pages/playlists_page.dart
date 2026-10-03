@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -7,6 +8,7 @@ import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_download_store.dart';
+import '../services/favorites_manager.dart';
 import '../services/playlist_audio_service.dart';
 import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
@@ -730,6 +732,30 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   }
 }
 
+/// The list prefixes Aamaal ("C") leads to through its menu entries
+/// (`C~AA5` opens the Ramazan list, `AA`), and theirs in turn - the months
+/// and occasions. Aliases filed there (Ziyarat Ashura under Muharram) don't
+/// count: their own list is where they live.
+Set<String> _aamaalPrefixes() {
+  String prefix(String uid) => uid.replaceAll(RegExp('[0-9].*'), '');
+  final children = <String, Set<String>>{};
+  for (final key in items.keys) {
+    final at = key.indexOf('~');
+    if (at < 0) continue;
+    children
+        .putIfAbsent(key.substring(0, at), () => {})
+        .add(prefix(key.substring(at + 1)));
+  }
+  final found = <String>{};
+  final pending = ['C'];
+  while (pending.isNotEmpty) {
+    for (final child in children[pending.removeLast()] ?? const <String>{}) {
+      if (found.add(child)) pending.add(child);
+    }
+  }
+  return found;
+}
+
 /// Every zikr that has a recording, to tick into a playlist.
 class AddRecitationsPage extends StatefulWidget {
   const AddRecitationsPage({super.key, required this.playlistId});
@@ -763,9 +789,29 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
     }
     final store = ZikrPlaylistStore.instance;
     final query = _query.trim().toLowerCase();
+    final favorites = {
+      // FavoritesManager reaches for Firebase as it is built; skip it
+      // where Firebase isn't set up (tests).
+      if (Firebase.apps.isNotEmpty)
+        for (final favorite in FavoritesManager.instance.favorites)
+          if (favorite.type == 0) favorite.canonicalUid,
+    };
+    final aamaal = _aamaalPrefixes();
+    // Playlists are for what's recited regularly: the reader's favorites
+    // first, then the rest, with Aamaal's month and occasion ones last.
+    int rank(String uid) => favorites.contains(_contentUid(uid))
+        ? 0
+        : aamaal.contains(uid.replaceAll(RegExp('[0-9].*'), ''))
+            ? 2
+            : 1;
     final uids = ZikrAudioIndex.instance.uids.toList()
-      ..sort((a, b) =>
-          _zikrTitle(a).toLowerCase().compareTo(_zikrTitle(b).toLowerCase()));
+      ..sort((a, b) {
+        final byRank = rank(a).compareTo(rank(b));
+        if (byRank != 0) return byRank;
+        return _zikrTitle(a)
+            .toLowerCase()
+            .compareTo(_zikrTitle(b).toLowerCase());
+      });
     final visible = query.isEmpty
         ? uids
         : uids.where((uid) {
