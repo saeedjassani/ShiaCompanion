@@ -246,11 +246,16 @@ void main() {
     test(
         'Laylat al-Raghaib ("N07-*-5#1") is the night into Rajab\'s first '
         'Friday', () {
-      // 1440: Rajab starts on a Friday, so the night falls on the last
-      // evening of Jumada al-Akhirah - before Rajab's first Thursday.
+      // 1440: Rajab starts on a Friday, so Laylat al-Raghaib is the Thursday
+      // night immediately before it - the last evening of Jumada al-Akhirah,
+      // not 7 Rajab, Rajab's first Thursday by date.
       final nights1440 = [..._month(1440, 6), ..._month(1440, 7)];
       expect(_matchingNights('N07-*-5#1', nights1440), [_civil(1440, 7, 1)]);
-      expect(_matching('07-*-4#1', nights1440), [_civil(1440, 7, 7)]);
+      final eve = LunarDay(
+        _civil(1440, 7, 1).subtract(const Duration(days: 1)),
+      );
+      expect(eve.civilDate.weekday, DateTime.thursday);
+      expect(eve.hijri.hMonth, 6);
 
       expect(
         _matchingNights('N07-*-5#1', _month(1445, 7)),
