@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 32,
-  "restored": 21,
-  "toRestoreHasArabic": 89,
-  "toRestoreProseOnly": 60
+  "retired": 43,
+  "restored": 22,
+  "toRestoreHasArabic": 80,
+  "toRestoreProseOnly": 57
  },
  "uids": [
   {
@@ -1139,81 +1139,93 @@
   {
    "uid": "P1",
    "title": "Importance of Shabe Jumuah",
-   "kind": "prose-only",
-   "itemsBytes": 7511
+   "kind": "restored",
+   "itemsBytes": 7511,
+   "restoredOn": "2026-10-03"
   },
   {
    "uid": "P2",
    "title": "Reciting Subhanallah",
-   "kind": "has-arabic",
-   "itemsBytes": 379
+   "kind": "retired",
+   "itemsBytes": 379,
+   "retiredTo": "P1"
   },
   {
    "uid": "P3",
    "title": "Recite Salwat with وَ عَجِّلْ فَرَجَهُمْ وَ اَهْلِكْ",
-   "kind": "has-arabic",
-   "itemsBytes": 1720
+   "kind": "retired",
+   "itemsBytes": 1720,
+   "retiredTo": "P1"
   },
   {
    "uid": "P4",
    "title": "Reciting Istegfaar اَسْتَغْفِرُ اللهَ الَّذِيْ",
-   "kind": "has-arabic",
-   "itemsBytes": 623
+   "kind": "retired",
+   "itemsBytes": 623,
+   "retiredTo": "P1"
   },
   {
    "uid": "P5",
    "title": "Recommendation of reciting some Surahs of the Holy Quran",
-   "kind": "prose-only",
-   "itemsBytes": 3262
+   "kind": "retired",
+   "itemsBytes": 3262,
+   "retiredTo": "P1 tabs[0]"
   },
   {
    "uid": "P7",
    "title": "Recite the Dua in Nafilah اَللّٰهُمَّ اِنِّيْ اَسْاَلُكَ بِوَجْهِكَ",
-   "kind": "has-arabic",
-   "itemsBytes": 614
+   "kind": "retired",
+   "itemsBytes": 614,
+   "retiredTo": "P1 tabs[2]"
   },
   {
    "uid": "P8",
    "title": "Recite 7 times اَللّٰهُمَّ اَنْتَ رَبِّيْ",
-   "kind": "has-arabic",
-   "itemsBytes": 787
+   "kind": "retired",
+   "itemsBytes": 787,
+   "retiredTo": "P1 tabs[3]"
   },
   {
    "uid": "P9",
    "title": "Recite the Dua اَللّٰهُمَّ مَنْ تَعَبَّاَ",
-   "kind": "has-arabic",
-   "itemsBytes": 2550
+   "kind": "retired",
+   "itemsBytes": 2550,
+   "retiredTo": "P1 tabs[4]"
   },
   {
    "uid": "P10",
    "title": "Recite the Dua اَللّٰہُمَّ یَا شَاہِدَ کُلِّ نَجْوٰی",
-   "kind": "has-arabic",
-   "itemsBytes": 11627
+   "kind": "retired",
+   "itemsBytes": 11627,
+   "retiredTo": "P1 tabs[5]"
   },
   {
    "uid": "P11",
    "title": "Recite 10 times يَا دَائِمَ الْفَضْلِ عَلَى",
-   "kind": "has-arabic",
-   "itemsBytes": 507
+   "kind": "retired",
+   "itemsBytes": 507,
+   "retiredTo": "P1 tabs[6]"
   },
   {
    "uid": "P12",
    "title": "Some recommended acts",
-   "kind": "prose-only",
-   "itemsBytes": 551
+   "kind": "retired",
+   "itemsBytes": 551,
+   "retiredTo": "P1 tabs[7]"
   },
   {
    "uid": "P14",
    "title": "Recite the Dua اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَّآلِه، وَهَبْ لِيَ",
    "kind": "retired",
    "itemsBytes": 1775,
-   "retiredTo": "P15"
+   "retiredTo": "P1 tabs[9]"
   },
   {
    "uid": "P16",
    "title": "Prayer of Imam Mahdi on eve of Friday (Shab e Jumuah)",
-   "kind": "has-arabic",
-   "itemsBytes": 4116
+   "kind": "retired",
+   "itemsBytes": 4116,
+   "retiredTo": "P1 tabs[10]"
   },
   {
    "uid": "R2",

@@ -794,3 +794,44 @@ carry them.
 - Don't run `batch.py plan` on an *imported* entry you're only patching -
   it also normalizes the whole file (`ٱ -> ا` etc.), which the zikr-arabic
   skill treats as a separate restyle decision. Patch such files directly.
+
+### Friday-night rites, P1-P16 (2026-10-03)
+
+P2-P16 were Mafatih al-Jinan's numbered rites of Thursday night ("First:"
+... "Twelfth:", plus Imam al-Mahdi's prayer), one uid each. They are now a
+single tabbed entry, **P1 "Recommended Rites of Friday Night
+(Shab-e-Jumu'ah)"**, with P2-P16 redirected to its tabs (including the
+already-live P13/P15, whose slugs became P1's `slugAliases`). A `J10|P1`
+alias lists it in the Friday menu - no menu linked the P series before.
+
+- **Source: duas.org's v2 JSON store.** The site's new pages are a JS shell
+  that loads `https://www.duas.org/data_v2/<page-id>.json`; each dua is a
+  list of `{arabic, transliteration, translation}` segments, and
+  `data_v2/search_index.json` lists every page id. This is the cleanest
+  source found so far (no Word-export mojibake), and the place to look
+  first for the ziyarat. Used here: `thursday-night-rites-taqeeb`,
+  `thursday-rites-taqeeb`, `dua-man-taaba-tahiaya`,
+  `dua-ya-shahida-kulle-najwa`.
+- **But its Arabic lost most hamza vowels** (the same private-use hamza
+  glyph as the old pages, stripped instead of mapped): `اسْالُكَ`, `وَانْتَ`,
+  `تَعَبَّا`. Each segment was aligned against our `assets/items` Arabic and,
+  where the skeleton matched and history carried more vowel marks, the
+  historic word was taken (~260 words). The ~25 left over were checked by
+  hand: a bare alif after `وَ`/at word start is hamzat al-waṣl only for the
+  article, forms VII/VIII/X and their imperatives, `ابن`/`اسم`/`امرأة`;
+  first-person verbs (`وَاَسْتَغْفِرُكَ`) and form-IV verbs (`وَاَنْزِلْ`) need
+  the hamza back.
+- Its block for Imam al-Mahdi's prayer has **no English** and drops
+  `وَسَائِرِ مَا اَنْعَمْتَ بِهِ عَلَيَّ`; that tab is our historic Arabic with
+  a new translation (flag for review). The "last hour of Thursday" block
+  runs on into the next dua; cut it.
+- **Transliteration came from the new `scripts/zikr_arabic/translit.py`**
+  (house style, rule-based; `--check` scores it against the hand-written
+  F16-F25: 255/274 identical, the rest mostly inconsistencies in the hand
+  versions). It is a drafting aid: every line of P1 was read against the
+  Arabic, which surfaced both tool bugs (fixed) and source typos
+  (`عَلِي` for `عَلٰى`, `مُنَتَهٰى`, `مُحَمِّدٍ`, `الَّرجَاءُ`, `يَارَبِّ`).
+- `normalize.py`'s `لاَ -> لَا` rule mangles an article before a hamzated
+  alif (`ٱلاَرْض` -> `الَارْض`); fix those to `الْاَرْض` - but only where the
+  next consonant has a sukun, or it also "fixes" `وَالَاهُمْ` (it did, once,
+  in E131; caught and reverted).

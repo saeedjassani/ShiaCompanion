@@ -198,9 +198,6 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// AA28 ("Aamal of Shab Qadr") points to the Common Aamal of Qadr Nights (AA29).
   'AA28': RetiredZikrRedirect('AA29'),
 
-  /// P6 ("The Namaaz of Ameer al-Momineen (a.s.)") points to Namaz of Imam Ali (F15).
-  'P6': RetiredZikrRedirect('F15'),
-
   /// I96 ("Merits of Surah Zilzal") points to Surah al-Zalzalah (A103 -
   /// surah n is uid A(n+4); this used to say A99, which is At-Tin).
   'I96': RetiredZikrRedirect('A103'),
@@ -220,10 +217,6 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// one-form-per-uid ziyarat pages that were later folded into a live
   /// "All Forms" compilation (AG8, AK5, AI3) or a weekday entry's tab.
   ///
-  /// P14's historic content was byte-identical to P15's (the old data
-  /// stored the same "Twelfth: ...wa hab liyal ghadaata ridaak" dua under
-  /// both uids), and P15 already ships it.
-  'P14': RetiredZikrRedirect('P15'),
 
   /// R2/R3 ("The First Night/Day Of Muharram") are R1's main data and first
   /// tab. R8 ("Forgeries of the Enemies of Imam Husayn") is R7's first tab;
@@ -293,4 +286,28 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'E137': RetiredZikrRedirect('AH7'),
   'E138': RetiredZikrRedirect('AL5', tabIndex: 0),
   'E139': RetiredZikrRedirect('AL6', tabIndex: 1),
+
+  /// The Thursday-night (Shab-e-Jumu'ah) rites of Mafatih al-Jinan used to be
+  /// fifteen separate uids, P2-P16 - one numbered item each ("First:",
+  /// "Second:", ... "Twelfth:", plus Imam al-Mahdi's prayer). They now live
+  /// as one tabbed entry, P1, rebuilt on 2026-10-03 from duas.org's copy of
+  /// the al-islam.org Mafatih text (see scripts/RESTORING_MISSING_ZIKRS.md).
+  /// P13 and P15 had been restored standalone and are folded in too (their
+  /// slugs are P1's slugAliases). P6 used to point at F15, but its history
+  /// also carried items Third-Fifth; P14 was byte-identical to P15.
+  'P2': RetiredZikrRedirect('P1'),
+  'P3': RetiredZikrRedirect('P1'),
+  'P4': RetiredZikrRedirect('P1'),
+  'P5': RetiredZikrRedirect('P1', tabIndex: 0),
+  'P6': RetiredZikrRedirect('P1', tabIndex: 1),
+  'P7': RetiredZikrRedirect('P1', tabIndex: 2),
+  'P8': RetiredZikrRedirect('P1', tabIndex: 3),
+  'P9': RetiredZikrRedirect('P1', tabIndex: 4),
+  'P10': RetiredZikrRedirect('P1', tabIndex: 5),
+  'P11': RetiredZikrRedirect('P1', tabIndex: 6),
+  'P12': RetiredZikrRedirect('P1', tabIndex: 7),
+  'P13': RetiredZikrRedirect('P1', tabIndex: 8),
+  'P14': RetiredZikrRedirect('P1', tabIndex: 9),
+  'P15': RetiredZikrRedirect('P1', tabIndex: 9),
+  'P16': RetiredZikrRedirect('P1', tabIndex: 10),
 };

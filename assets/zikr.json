@@ -2746,6 +2746,10 @@
     "title": "Merits & Rituals of Friday Night & Day",
     "slug": "merits-rituals-of-friday-night-day"
   },
+  "J10|P1": {
+    "title": "Recommended Rites of Friday Night (Shab-e-Jumu'ah)",
+    "slug": "recommended-rites-of-friday-night-shab-e-jumu-ah"
+  },
   "J11|F11": {
     "title": "Namaz of Jafar Tayyar",
     "slug": "namaz-of-jafar-e-tayyar"
@@ -2864,13 +2868,14 @@
     "title": "Ziyarat on Wednesday",
     "slug": "ziyarah-of-wednesday"
   },
-  "P13": {
-    "title": "Recite 100 Times between Nafilah of Fajr and Namaz of Fajr سُبْحَانَ رَبِّيَ الْعَظِيْمِ",
-    "slug": "recite-100-times-between-nafilah-fajr-and-namaz-of-fajr-subhana-rabbiyal-azeem"
-  },
-  "P15": {
-    "title": "Recitations Near Friday Dawn (Fajr)",
-    "slug": "recitations-near-friday-dawn-fajr"
+  "P1": {
+    "title": "Recommended Rites of Friday Night (Shab-e-Jumu'ah)",
+    "slug": "recommended-rites-of-friday-night-shab-e-jumu-ah",
+    "slugAliases": [
+      "recite-100-times-between-nafilah-fajr-and-namaz-of-fajr-subhana-rabbiyal-azeem",
+      "recitations-near-friday-dawn-fajr",
+      "importance-of-shabe-jumuah"
+    ]
   },
   "Q1": {
     "title": "The Supplication of Thursday",
