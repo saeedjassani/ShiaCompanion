@@ -248,12 +248,14 @@
   ],
   "G54": [
     {
-      "file": "ziyarat_warith_96k.mp3",
-      "label": "Ziyarat Warith of Imam Husain (as)"
-    },
-    {
       "file": "g54_dua-after-ziyarat-warith.mp3",
       "label": "Dua after Ziyarat Warith"
+    }
+  ],
+  "G6": [
+    {
+      "file": "ziyarat_warith_96k.mp3",
+      "label": "Ziyarat Warith of Imam Husain (as)"
     }
   ],
   "G75": [
