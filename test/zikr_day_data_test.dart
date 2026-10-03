@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Every lunar pattern lunar_date_matcher.dart understands: "MM-DD",
-/// "MM-*", "MM-*-D", "*-*-D" and "*-*", each optionally "N"-prefixed.
+/// "MM-*", "MM-*-D", "*-*-D" and "*-*", the weekday ones optionally "#K"
+/// (K-th occurrence), each optionally "N"-prefixed.
 final _dayPattern = RegExp(
   r'^N?(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|30)'
-  r'|(?:0[1-9]|1[0-2])-\*(?:-[0-6])?'
-  r'|\*-\*(?:-[0-6])?)$',
+  r'|(?:0[1-9]|1[0-2])-\*(?:-[0-6](?:#[1-5])?)?'
+  r'|\*-\*(?:-[0-6](?:#[1-5])?)?)$',
 );
 
 List<String> _patterns(Object? day) => switch (day) {

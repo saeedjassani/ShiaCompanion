@@ -61,12 +61,17 @@ List<String> _patternsFromValue(Object? value) {
 ///   Friday, year-round) — use this for weekday-only duas that aren't tied
 ///   to a particular Hijri month, instead of repeating "MM-*-D" 12 times.
 ///   Day values: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+/// - "MM-*-D#K" / "*-*-D#K": Only the K-th such weekday (1-5) of the lunar
+///   month (e.g., "07-*-4#1" for the first Thursday of Rajab). Counted by
+///   Hijri day: days 1-7 hold the first of each weekday, 8-14 the second,
+///   and so on.
 /// - "*-*": Every day, year-round (e.g. Dua-e-Ahad, Ziyarat Ashura) — the
 ///   daily recitations Today's Recitation always lists.
 /// - "N" + any of the above: the *night* leading into that day (Maghrib
 ///   through Fajr) rather than the day itself (e.g., "N12-09" for the Night
 ///   of Arafah, the eve of 9th Zilhajj — distinct from "12-09", the Day of
-///   Arafah; "N*-*-5" for Thursday night, the night leading into Friday).
+///   Arafah; "N*-*-5" for Thursday night, the night leading into Friday;
+///   "N07-*-5#1" for Laylat al-Raghaib, the night into Rajab's first Friday).
 ///   Only matches while a [night] is open — see [resolveNightLunarDay].
 ///
 /// Weekdays always come from the civil date (see [LunarDay]), so a
@@ -97,10 +102,21 @@ bool _matchesDatePattern(String datePattern, LunarDay day) {
   if (parts.length >= 3 && parts[1] == '*') {
     if (!isAnyMonth && date.hMonth != month) return false;
 
-    final dayOfWeek = int.tryParse(parts[2]);
-    if (dayOfWeek == null || dayOfWeek < 0 || dayOfWeek > 6) return false;
+    if (parts.length != 3) return false;
+    final weekdayParts = parts[2].split('#');
+    if (weekdayParts.length > 2) return false;
 
-    return day.weekday == dayOfWeek;
+    final dayOfWeek = int.tryParse(weekdayParts[0]);
+    if (dayOfWeek == null || dayOfWeek < 0 || dayOfWeek > 6) return false;
+    if (day.weekday != dayOfWeek) return false;
+
+    // "#K": only the K-th occurrence of that weekday in the lunar month.
+    if (weekdayParts.length == 2) {
+      final ordinal = int.tryParse(weekdayParts[1]);
+      if (ordinal == null || ordinal < 1 || ordinal > 5) return false;
+      return (date.hDay - 1) ~/ 7 + 1 == ordinal;
+    }
+    return true;
   }
 
   // Every day ("*-*"). Any other any-month pattern needs a real lunar month.
@@ -133,17 +149,23 @@ bool matchesAnyLunarPattern(
   );
 }
 
-/// How specific [pattern] is, from 0 (a single date or night, e.g. "09-19"
-/// or "N09-19") through 1 (one lunar month, e.g. "09-*" or "11-*-0") and 2
-/// (a weekday every month, "*-*-D") to 3 (every day, "*-*"). Today's
-/// Recitation lists the most specific occasions first, so the Night of Qadr
-/// comes before Friday's duas, which come before the daily ones.
+/// How specific [pattern] is, from 0 (once a year: a date or night like
+/// "09-19"/"N09-19", or "07-*-5#1", one weekday of one month) through 1
+/// (within one lunar month, e.g. "09-*" or "11-*-0", or once a month,
+/// "*-*-5#1") and 2 (a weekday every month, "*-*-D") to 3 (every day,
+/// "*-*"). Today's Recitation lists the most specific occasions first, so
+/// the Night of Qadr comes before Friday's duas, which come before the
+/// daily ones.
 int lunarPatternSpecificity(String pattern) {
   var trimmed = pattern.trim();
   if (trimmed.startsWith('N')) trimmed = trimmed.substring(1);
   final parts = trimmed.split('-');
-  if (parts.first == '*') return parts.length >= 3 ? 2 : 3;
-  if (parts.length >= 2 && parts[1] == '*') return 1;
+  final isOrdinal = trimmed.contains('#');
+  if (parts.first == '*') {
+    if (parts.length < 3) return 3;
+    return isOrdinal ? 1 : 2;
+  }
+  if (parts.length >= 2 && parts[1] == '*') return isOrdinal ? 0 : 1;
   return 0;
 }
 
