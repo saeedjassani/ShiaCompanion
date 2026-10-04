@@ -41,4 +41,28 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       'You can now choose a notification sound for each prayer.',
     ],
   ),
+  const WhatsNewEntry(
+    buildNumber: 122,
+    versionName: '3.6.0',
+    bullets: [
+      'Playlists: line up your duas and ziyarats and listen to them back '
+          'to back.',
+      'Download recitations to listen offline.',
+      'Bookmarks now sync across your devices when you are signed in, and '
+          'you can drag a bookmark to move it.',
+      'Qaza Tracker can estimate your missed prayers and log many at once.',
+      'New widgets: an Islamic calendar (Android, iPhone and Apple Watch) '
+          'and the next prayer on the iPhone Lock Screen. Android prayer '
+          'widgets now resize to fit.',
+      'Easier reading: a Text Size setting for the whole app, a cleaner '
+          'Focus mode, Arabic as a paragraph, and the Quran in IndoPak '
+          'script with the Qalam font.',
+      'The Quran now has Ali Quli Qarai\'s translation and transliteration '
+          'for every surah.',
+      'A new azan recording by Abather Al-Halawaji, and Full Azan now '
+          'plays properly on Android.',
+      'Spotted a mistake? Select the text to report it. Missing a dua or '
+          'book? Request it in Settings.',
+    ],
+  ),
 ];
