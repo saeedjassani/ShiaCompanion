@@ -38,7 +38,8 @@ class ZikrAudioTrack {
       if (entry is! Map) continue;
       final file = entry['file']?.toString().trim() ?? '';
       if (file.isEmpty) continue;
-      final url = '$zikrAudioBaseUrl${Uri.encodeComponent(file)}';
+      final url =
+          '$zikrAudioBaseUrl${file.split('/').map(Uri.encodeComponent).join('/')}';
       if (!seen.add(url)) continue;
 
       tracks.add(ZikrAudioTrack(
