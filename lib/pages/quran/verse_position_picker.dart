@@ -109,9 +109,10 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
   late VerseKey _selected =
       VerseKey(widget.initial.surah, widget.initial.ayah ?? 1);
 
-  /// Opens straight onto the unit already chosen, so changing an existing
-  /// start by a few verses is one tap, not three.
-  late _OpenUnit? _openUnit = _unitContaining(_selected);
+  /// Always opens on the Surah / Juz list, with the unit holding the current
+  /// choice highlighted and the choice itself - al-Fatihah on a new track -
+  /// already in the bar, so "the beginning" is a single tap on Choose.
+  _OpenUnit? _openUnit;
   String? _queryError;
 
   /// Bumped whenever the grid should bring [_selected] into view again - a

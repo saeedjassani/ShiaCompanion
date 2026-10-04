@@ -253,9 +253,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('The beginning'));
     await tester.pumpAndSettle();
-    // Opens on the unit already chosen - juz 1 - so step back to the list.
-    await tester.tap(find.byTooltip('All juz'));
-    await tester.pumpAndSettle();
+    // Opens on the list, with the beginning already chosen.
+    expect(find.text('Choose a verse'), findsOneWidget);
+    expect(find.text('Juz 1'), findsWidgets);
     await tester.scrollUntilVisible(find.text('Juz 12'), 200,
         scrollable: find.byType(Scrollable).last);
     await tester.tap(find.text('Juz 12'));
