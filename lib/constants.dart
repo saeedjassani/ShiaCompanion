@@ -24,6 +24,7 @@ import 'pages/video_player.dart';
 import 'utils/shared_preferences.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:shia_companion/utils/prayer_clock.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:flutter/cupertino.dart';
@@ -218,6 +219,8 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
       SP.prefs.getString(azaanPreferenceKey));
   final customAudioPath =
       azaanId == 'custom' ? SP.prefs.getString(azaanCustomFilePathKey) : null;
+  // Days and minutes are the prayer clock's (see PrayerClock).
+  final day = scheduleDate ?? PrayerClock.now();
 
   // Raw coordinates are deliberately absent: they are tracked by the schedule
   // anchor via hasPrayerScheduleLocationMoved(), which applies a distance
@@ -228,8 +231,12 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   // already-scheduled notifications have to be rebuilt.
   return [
     'v10',
-    'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
+    'date:${_scheduleDateKey(day)}',
     'tz:${tz.local.name}',
+    // Each notification is titled with its time on the prayer clock. Only
+    // present while it is a chosen city's, so adding it rebuilt nobody
+    // else's schedule.
+    if (PrayerClock.zone != null) 'clock:${PrayerClock.zone!.name}',
     'azaan:$azaanId',
     'custom:${customAudioPath ?? ''}',
     // Whether the Azan plays by itself decides each notification's sound
@@ -237,7 +244,7 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
     // alarms has to rebuild the schedule.
     'autoplay:${azanPlaysAutomatically() ? 1 : 0}',
     'prayers:$enabledPrayerKeys',
-    'times:${_scheduledPrayerMinutes(scheduleDate ?? DateTime.now())}',
+    'times:${_scheduledPrayerMinutes(day)}',
   ].join('|');
 }
 
@@ -650,10 +657,15 @@ Future<bool> initializeLocation(
 /// with the same consequences a GPS fix has in [initializeLocation]: stored,
 /// and the notification schedule and prayer-relative reminders rebuilt if the
 /// place moved. Used for a city the reader chose by name.
+///
+/// [clockChanged] says the prayer clock (see PrayerClock) was just changed
+/// with it, which reschedules notifications even if the place barely moved:
+/// they are titled with their times on that clock.
 Future<void> applyChosenPrayerLocation({
   required double latitude,
   required double longitude,
   required String label,
+  bool clockChanged = false,
 }) async {
   lat = latitude;
   long = longitude;
@@ -667,10 +679,25 @@ Future<void> applyChosenPrayerLocation({
     await SP.prefs.setDouble("long", longitude);
     await SP.prefs.setString("city", label);
   }
-  if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
+  if ((locationChanged || clockChanged) &&
+      flutterLocalNotificationsPlugin != null &&
+      !kIsWeb) {
     await setUpNotifications();
     await ZikrReminderService.instance.rescheduleAll();
   }
+}
+
+/// Rebuilds the prayer notifications, and the prayer-relative zikr reminders
+/// that follow them, unless what they were built from is still current - for
+/// after the prayer clock changes without the location having moved.
+Future<void> reschedulePrayerNotificationsIfOutdated() async {
+  if (kIsWeb || flutterLocalNotificationsPlugin == null || !SP.isInitialized) {
+    return;
+  }
+  final built = SP.prefs.getString(prayerNotificationScheduleFingerprintKey);
+  if (built == buildPrayerNotificationScheduleFingerprint()) return;
+  await setUpNotifications();
+  await ZikrReminderService.instance.rescheduleAll();
 }
 
 /// Sanity-checks a reverse-geocode label before we show it.
@@ -922,10 +949,13 @@ Future<void> setUpNotifications() async {
   await requestNotificationPermissions();
 
   DateTime now = DateTime.now();
+  // Today where the prayer times are: on a chosen city's clock that can be
+  // a different date from the phone's (see PrayerClock).
+  final today = PrayerClock.now(now);
   PrayerTime prayers = getPrayerTimeObject();
   final List<Future<void>> schedulingTasks = [];
   for (int i = 0; i < scheduleDays; i++) {
-    DateTime temp = now.add(Duration(days: i));
+    DateTime temp = today.add(Duration(days: i));
     final entries = buildPrayerNotificationEntriesForDay(
       prayerTime: prayers,
       date: temp,
@@ -1187,6 +1217,15 @@ AzaanOption androidNotificationSoundOption(AzaanOption azaan,
 bool azanPlaysAutomatically() =>
     !kIsWeb && Platform.isAndroid && canScheduleExactPrayerNotifications;
 
+/// "05:12 AM : Fajr", told on the prayer clock - [dateTime] is already on it
+/// (see PrayerClock) - and naming that clock when it is not the phone's:
+/// "05:12 AM Karbala time : Fajr" on a phone that reads 02:12 at that moment.
+String prayerNotificationTitle(DateTime dateTime, String prayerName) {
+  final clock = PrayerClock.label(dateTime);
+  final time = formatDate(dateTime, [hh, ":", nn, " ", am]);
+  return clock == null ? '$time : $prayerName' : '$time $clock : $prayerName';
+}
+
 Future<void> schedulePrayerTimeNotification(
     int id, DateTime dateTime, String prayerName,
     {String? azaanId}) async {
@@ -1207,8 +1246,7 @@ Future<void> schedulePrayerTimeNotification(
         androidScheduleMode: canScheduleExactPrayerNotifications
             ? AndroidScheduleMode.exactAllowWhileIdle
             : AndroidScheduleMode.inexactAllowWhileIdle,
-        title:
-            formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
+        title: prayerNotificationTitle(dateTime, prayerName),
         body: prayerNotificationBody(prayerName, azaan),
         payload: dateTime.toIso8601String());
 

@@ -1,3 +1,4 @@
+import 'package:shia_companion/utils/prayer_clock.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -212,16 +213,16 @@ List<WidgetPrayerTimeReading> readWidgetPrayerTimes({
 /// normalises an out-of-range day field, so arithmetic on the components
 /// lands on the intended calendar date in every zone.
 DateTime calendarDayFrom(DateTime start, int dayOffset) {
-  return start.isUtc
-      ? DateTime.utc(start.year, start.month, start.day + dayOffset)
-      : DateTime(start.year, start.month, start.day + dayOffset);
+  return dateTimeOnClockOf(
+      start, start.year, start.month, start.day + dayOffset);
 }
 
 /// The next [count] occurrences of [times], soonest first, starting from
-/// [now]. Looks at most one day past [now]'s date — enough to roll from
-/// today's last selected time into tomorrow's first, since a selection is at
-/// most [maxWidgetPrayerTimes] long and every unclaimed slot on day one is
-/// guaranteed to be filled by day two's full selection.
+/// [now] (by default, this moment on the [PrayerClock]). Looks at most one
+/// day past [now]'s date — enough to roll from today's last selected time
+/// into tomorrow's first, since a selection is at most [maxWidgetPrayerTimes]
+/// long and every unclaimed slot on day one is guaranteed to be filled by day
+/// two's full selection.
 List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
   required PrayerTime prayerTime,
   required double latitude,
@@ -231,13 +232,13 @@ List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
   List<WidgetPrayerTime>? times,
 }) {
   final selected = times ?? selectedWidgetPrayerTimes();
-  final moment = now ?? DateTime.now();
-  // Preserve whether the caller is working in UTC or local time: building a
-  // local midnight from a UTC moment (or vice versa) would silently swap in
-  // the wrong timezone offset for every reading computed below.
-  final startOfToday = moment.isUtc
-      ? DateTime.utc(moment.year, moment.month, moment.day)
-      : DateTime(moment.year, moment.month, moment.day);
+  final moment = now ?? PrayerClock.now();
+  // Preserve whether the caller is working in UTC, local time or a chosen
+  // city's: building a local midnight from a UTC moment (or vice versa) would
+  // silently swap in the wrong timezone offset for every reading computed
+  // below.
+  final startOfToday =
+      dateTimeOnClockOf(moment, moment.year, moment.month, moment.day);
 
   final upcoming = <WidgetPrayerTimeReading>[];
   for (var dayOffset = 0; dayOffset < 2 && upcoming.length < count; dayOffset++) {

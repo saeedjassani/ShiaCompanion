@@ -1,4 +1,5 @@
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 
 /// Local-notification ids reserved per zikr reminder, starting at its
@@ -70,12 +71,13 @@ List<DateTime> upcomingPrayerRelativeOccurrences({
   int maxDaysToScan = 90,
 }) {
   final results = <DateTime>[];
-  final today = DateTime(now.year, now.month, now.day);
 
   for (var offset = 0;
       offset < maxDaysToScan && results.length < count;
       offset++) {
-    final date = today.add(Duration(days: offset));
+    // On [now]'s own clock (see dateTimeOnClockOf), by calendar day rather
+    // than 24-hour steps, which a DST change would knock off midnight.
+    final date = dateTimeOnClockOf(now, now.year, now.month, now.day + offset);
     if (date.weekday != weekday) continue;
 
     final entries = buildPrayerNotificationEntriesForDay(

@@ -9,6 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
+import 'package:shia_companion/utils/prayer_clock.dart';
+import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
@@ -35,6 +37,7 @@ void main() {
   });
 
   tearDown(() {
+    PrayerClock.resetForTest();
     PrayerTimesState.debugNow = DateTime.now;
     PrayerTimesState.timeZoneSource = () async => null;
     PrayerTimesState.debugResetTimeZoneGuess();
@@ -217,6 +220,37 @@ void main() {
     );
     expect(tester.getRect(note).top, greaterThan(tester.getRect(name).bottom));
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a city chosen abroad is shown on its own clock, and says so',
+      (tester) async {
+    lat = 32.62;
+    long = 44.03;
+    city = 'Karbala';
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    // 01:30 on Monday in Karbala; Sunday evening on most phones.
+    final moment = DateTime.utc(2026, 10, 4, 22, 30);
+    PrayerTimesState.debugNow = () => moment;
+    // Karachi's clock instead on a machine already on Baghdad's.
+    final onBaghdadClock =
+        moment.toLocal().timeZoneOffset == const Duration(hours: 3);
+    await PrayerClock.use(onBaghdadClock ? 'Asia/Karachi' : 'Asia/Baghdad',
+        place: 'Karbala');
+
+    await pumpCard(tester);
+
+    final fajr = buildPrayerNotificationEntriesForDay(
+      prayerTime: getPrayerTimeObject(),
+      date: PrayerClock.day(2026, 10, 5),
+      latitude: lat!,
+      longitude: long!,
+    ).first;
+    final shown = formatPrayerDateTime12(fajr.dateTime)
+        .replaceFirst(RegExp(r'^0(?=\d)'), '');
+    expect(find.text(shown), findsOneWidget);
+    expect(find.text(PrayerClock.describe(moment)!), findsOneWidget);
+    // Still today, there: nothing is "next day" before Fajr.
+    expect(find.text('next day'), findsNothing);
   });
 
   testWidgets('discloses the age of a stale reading', (tester) async {

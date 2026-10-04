@@ -160,6 +160,12 @@ abstract class AppLocalizations {
   /// **'{city} · chosen by you. Tap to change.'**
   String settingsLocationManual(String city);
 
+  /// {clock} names the clock the times are shown in, e.g. 'Karbala time'.
+  ///
+  /// In en, this message translates to:
+  /// **'{city} · chosen by you. Times are in {clock}. Tap to change.'**
+  String settingsLocationManualClock(String city, String clock);
+
   /// {age} is a relative time such as 'just now' or '5m ago'.
   ///
   /// In en, this message translates to:

@@ -1,4 +1,5 @@
 import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 const int prayerIndexFajr = 0;
 const int prayerIndexSunrise = 1;
@@ -111,12 +112,30 @@ DateTime? dateTimeForTime24(DateTime date, String time24) {
   final minute = int.tryParse(parts[1]);
   if (hour == null || minute == null) return null;
 
-  // Keep whichever zone the caller handed us. Building a local DateTime from a
-  // UTC one silently shifts the result by the machine's offset, which makes any
-  // comparison against a UTC instant wrong everywhere except UTC itself.
-  return date.isUtc
-      ? DateTime.utc(date.year, date.month, date.day, hour, minute)
-      : DateTime(date.year, date.month, date.day, hour, minute);
+  return dateTimeOnClockOf(date, date.year, date.month, date.day, hour, minute);
+}
+
+/// [year]-[month]-[day] [hour]:[minute] on the same clock as [like]: UTC, a
+/// chosen city's (a [tz.TZDateTime], see PrayerClock) or the phone's.
+///
+/// Keep whichever zone the caller handed us. Building a local DateTime from a
+/// UTC one silently shifts the result by the machine's offset, which makes any
+/// comparison against a UTC instant wrong everywhere except UTC itself - and
+/// the same goes for a city's clock against the phone's.
+DateTime dateTimeOnClockOf(
+  DateTime like,
+  int year,
+  int month,
+  int day, [
+  int hour = 0,
+  int minute = 0,
+]) {
+  if (like is tz.TZDateTime) {
+    return tz.TZDateTime(like.location, year, month, day, hour, minute);
+  }
+  return like.isUtc
+      ? DateTime.utc(year, month, day, hour, minute)
+      : DateTime(year, month, day, hour, minute);
 }
 
 String formatPrayerDateTime12(DateTime dateTime) {

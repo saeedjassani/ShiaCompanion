@@ -26,6 +26,7 @@ import '../services/session_refresh_service.dart';
 import '../services/zikr_bookmarks_manager.dart';
 import '../utils/app_text_scale.dart';
 import '../utils/external_launch.dart';
+import '../utils/prayer_clock.dart';
 import '../utils/shared_preferences.dart';
 import '../utils/theme_mode.dart';
 import '../utils/widget_prayer_time_selection.dart';
@@ -652,7 +653,10 @@ class _SettingsPageState extends State<SettingsPage> {
       return context.l10n.settingsLocationUpdatePrompt;
     }
     if (location.isManual) {
-      return context.l10n.settingsLocationManual(savedCity);
+      final clock = PrayerClock.label();
+      return clock == null
+          ? context.l10n.settingsLocationManual(savedCity)
+          : context.l10n.settingsLocationManualClock(savedCity, clock);
     }
 
     final updatedAt = location.updatedAt;
