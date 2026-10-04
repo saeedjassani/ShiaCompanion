@@ -145,6 +145,7 @@ class RecentRecitationsPage extends StatelessWidget {
         surah: entry.surah,
         fromAyah: entry.fromAyah,
         toAyah: entry.toAyah,
+        readInJuz: entry.readInJuz,
       );
     } finally {
       controller.dispose();

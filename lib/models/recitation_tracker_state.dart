@@ -33,6 +33,7 @@ class RecitationEntry {
     required this.surah,
     required this.fromAyah,
     required this.toAyah,
+    this.readInJuz = false,
   });
 
   /// Returns null rather than a placeholder entry, so a corrupt row is
@@ -59,6 +60,7 @@ class RecitationEntry {
       surah: surah,
       fromAyah: fromAyah,
       toAyah: toAyah,
+      readInJuz: value['readInJuz'] == true,
     );
   }
 
@@ -72,6 +74,10 @@ class RecitationEntry {
   final int surah;
   final int fromAyah;
   final int toAyah;
+
+  /// Whether this was read in a juz rather than in its surah, so resuming
+  /// the track reopens the same view it was left in.
+  final bool readInJuz;
 
   int get versesRecited => toAyah - fromAyah + 1;
 
@@ -87,6 +93,7 @@ class RecitationEntry {
       surah: surah,
       fromAyah: fromAyah ?? this.fromAyah,
       toAyah: toAyah ?? this.toAyah,
+      readInJuz: readInJuz,
     );
   }
 
@@ -97,7 +104,92 @@ class RecitationEntry {
         'surah': surah,
         'fromAyah': fromAyah,
         'toAyah': toAyah,
+        if (readInJuz) 'readInJuz': true,
       };
+}
+
+/// How a recitation track reads, chosen when it is created and changeable
+/// later: by surah or by juz, and optionally where to pick up from.
+///
+/// [startAt] is a place the reader set by hand - where a khatm begins, or
+/// where it has got to when some of it was read away from the app. It is
+/// only honoured over the track's own history while it is the newer of the
+/// two, which is what [startSetAt] is for: reading on from there moves the
+/// track along as usual, and setting it again moves the track again.
+@immutable
+class RecitationTrackSettings {
+  const RecitationTrackSettings({
+    this.readByJuz = false,
+    this.startAt,
+    this.startSetAt,
+  });
+
+  static RecitationTrackSettings? fromJson(dynamic value) {
+    if (value is! Map) return null;
+
+    final surah = int.tryParse(value['startSurah']?.toString() ?? '');
+    final ayah = int.tryParse(value['startAyah']?.toString() ?? '');
+    final setAt = DateTime.tryParse(value['startSetAt']?.toString() ?? '');
+    final isValidStart = surah != null &&
+        surah >= 1 &&
+        surah <= surahAyahCounts.length &&
+        ayah != null &&
+        ayah >= 1 &&
+        ayah <= surahAyahCounts[surah - 1] &&
+        setAt != null;
+
+    return RecitationTrackSettings(
+      readByJuz: value['readByJuz'] == true,
+      startAt: isValidStart ? VerseKey(surah, ayah) : null,
+      startSetAt: isValidStart ? setAt : null,
+    );
+  }
+
+  final bool readByJuz;
+
+  /// Always carries an ayah.
+  final VerseKey? startAt;
+  final DateTime? startSetAt;
+
+  Map<String, Object> toJson() => {
+        'readByJuz': readByJuz,
+        if (startAt != null && startSetAt != null) ...{
+          'startSurah': startAt!.surah,
+          'startAyah': startAt!.ayah ?? 1,
+          'startSetAt': startSetAt!.toUtc().toIso8601String(),
+        },
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      other is RecitationTrackSettings &&
+      other.readByJuz == readByJuz &&
+      other.startAt == startAt &&
+      other.startSetAt == startSetAt;
+
+  @override
+  int get hashCode => Object.hash(readByJuz, startAt, startSetAt);
+}
+
+/// Where a track's resume card opens: a verse, and whether in its juz.
+@immutable
+class RecitationResumeTarget {
+  const RecitationResumeTarget(
+    this.verse, {
+    required this.inJuz,
+    required this.isStart,
+  });
+
+  /// Always carries an ayah.
+  final VerseKey verse;
+  final bool inJuz;
+
+  /// Nothing has been read from [verse] yet: a fresh track, or a start point
+  /// set more recently than the last reading.
+  final bool isStart;
+
+  /// The juz [verse] falls in.
+  int get juz => juzOf(verse.surah, verse.ayah ?? 1);
 }
 
 /// Every recitation logged, keyed by [RecitationEntry.id], plus the set of
@@ -112,8 +204,10 @@ class RecitationTrackerState {
   RecitationTrackerState([
     Map<String, RecitationEntry>? entries,
     Set<String>? customLabels,
+    Map<String, RecitationTrackSettings>? trackSettings,
   ])  : entries = Map.unmodifiable(entries ?? const {}),
-        customLabels = Set.unmodifiable(customLabels ?? const {});
+        customLabels = Set.unmodifiable(customLabels ?? const {}),
+        trackSettings = Map.unmodifiable(trackSettings ?? const {});
 
   factory RecitationTrackerState.fromJson(dynamic value) {
     if (value is! Map) return empty;
@@ -138,7 +232,18 @@ class RecitationTrackerState {
       }
     }
 
-    return RecitationTrackerState(entries, customLabels);
+    final trackSettings = <String, RecitationTrackSettings>{};
+    final rawSettings = value['trackSettings'];
+    if (rawSettings is Map) {
+      for (final setting in rawSettings.entries) {
+        final label = setting.key.toString().trim();
+        final parsed = RecitationTrackSettings.fromJson(setting.value);
+        if (label.isEmpty || label == unlabeledRecitationLabel) continue;
+        if (parsed != null) trackSettings[label] = parsed;
+      }
+    }
+
+    return RecitationTrackerState(entries, customLabels, trackSettings);
   }
 
   static final empty = RecitationTrackerState();
@@ -150,7 +255,15 @@ class RecitationTrackerState {
   /// label show up as a "start reading" card before its first entry.
   final Set<String> customLabels;
 
-  bool get isEmpty => entries.isEmpty && customLabels.isEmpty;
+  /// How each named track reads, by label. A track with none reads by surah
+  /// from the beginning; [unlabeledRecitationLabel] never has any.
+  final Map<String, RecitationTrackSettings> trackSettings;
+
+  bool get isEmpty =>
+      entries.isEmpty && customLabels.isEmpty && trackSettings.isEmpty;
+
+  RecitationTrackSettings settingsFor(String label) =>
+      trackSettings[label] ?? const RecitationTrackSettings();
 
   List<RecitationEntry> get mostRecentFirst {
     final list = entries.values.toList()
@@ -162,20 +275,45 @@ class RecitationTrackerState {
     final labels = entry.label == unlabeledRecitationLabel
         ? customLabels
         : {...customLabels, entry.label};
-    return RecitationTrackerState({...entries, entry.id: entry}, labels);
+    return RecitationTrackerState(
+      {...entries, entry.id: entry},
+      labels,
+      trackSettings,
+    );
   }
 
   RecitationTrackerState removeEntry(String id) {
     if (!entries.containsKey(id)) return this;
     final next = {...entries}..remove(id);
-    return RecitationTrackerState(next, customLabels);
+    return RecitationTrackerState(next, customLabels, trackSettings);
   }
 
   RecitationTrackerState addCustomLabel(String label) {
     final trimmed = label.trim();
     if (trimmed.isEmpty || trimmed == unlabeledRecitationLabel) return this;
     if (customLabels.contains(trimmed)) return this;
-    return RecitationTrackerState(entries, {...customLabels, trimmed});
+    return RecitationTrackerState(
+      entries,
+      {...customLabels, trimmed},
+      trackSettings,
+    );
+  }
+
+  /// Sets how [label] reads, registering it as a track if it was not one.
+  RecitationTrackerState setTrackSettings(
+    String label,
+    RecitationTrackSettings settings,
+  ) {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty || trimmed == unlabeledRecitationLabel) return this;
+    if (trackSettings[trimmed] == settings && customLabels.contains(trimmed)) {
+      return this;
+    }
+    return RecitationTrackerState(
+      entries,
+      {...customLabels, trimmed},
+      {...trackSettings, trimmed: settings},
+    );
   }
 
   /// Unions two states by id/label. Safe to call with the same addition
@@ -185,6 +323,7 @@ class RecitationTrackerState {
     return RecitationTrackerState(
       {...entries, ...other.entries},
       {...customLabels, ...other.customLabels},
+      {...trackSettings, ...other.trackSettings},
     );
   }
 
@@ -193,6 +332,11 @@ class RecitationTrackerState {
           for (final entry in entries.entries) entry.key: entry.value.toJson(),
         },
         'labels': customLabels.toList(),
+        if (trackSettings.isNotEmpty)
+          'trackSettings': {
+            for (final setting in trackSettings.entries)
+              setting.key: setting.value.toJson(),
+          },
       };
 
   // ---------------------------------------------------------------------
@@ -258,13 +402,7 @@ class RecitationTrackerState {
   /// (and an-Nas at al-Fatihah, for the next khatm) - otherwise finishing a
   /// surah would leave the track parked on its final verse.
   VerseKey? resumePositionFor(String label) {
-    RecitationEntry? latest;
-    for (final entry in entries.values) {
-      if (entry.label != label) continue;
-      if (latest == null || entry.recitedAt.isAfter(latest.recitedAt)) {
-        latest = entry;
-      }
-    }
+    final latest = _latestEntryFor(label);
     if (latest == null) return null;
 
     final surah = latest.surah;
@@ -275,6 +413,55 @@ class RecitationTrackerState {
           : VerseKey(surah + 1, 1);
     }
     return VerseKey(surah, latest.toAyah);
+  }
+
+  /// Where [label]'s resume card opens, and whether in a juz.
+  ///
+  /// The place is [resumePositionFor], unless a start point was set on the
+  /// track more recently than anything was read under it - a new khatm set to
+  /// begin at juz 12, or a track moved on by hand. The view is the track's
+  /// own choice; [unlabeledRecitationLabel], which has no settings, reopens
+  /// in whichever view it was last read.
+  RecitationResumeTarget resumeTargetFor(String label) {
+    final latest = _latestEntryFor(label);
+    final isUnlabeled = label == unlabeledRecitationLabel;
+    final settings = isUnlabeled ? null : trackSettings[label];
+    final inJuz = settings?.readByJuz ?? latest?.readInJuz ?? false;
+
+    final start = settings?.startAt;
+    final startSetAt = settings?.startSetAt;
+    if (start != null &&
+        startSetAt != null &&
+        (latest == null || startSetAt.isAfter(latest.recitedAt))) {
+      return RecitationResumeTarget(start, inJuz: inJuz, isStart: true);
+    }
+    var verse = resumePositionFor(label) ?? const VerseKey(1, 1);
+    // A juz read to its last verse moves on to the next one (and juz 30 to
+    // juz 1), the same way a finished surah does in [resumePositionFor] -
+    // most juz end mid-surah, where that rule never fires.
+    if (inJuz) {
+      final juzList = allJuz();
+      final juz = juzOf(verse.surah, verse.ayah ?? 1);
+      if (juzList[juz - 1].end == VerseKey(verse.surah, verse.ayah ?? 1)) {
+        verse = juzList[juz % juzList.length].start;
+      }
+    }
+    return RecitationResumeTarget(
+      verse,
+      inJuz: inJuz,
+      isStart: latest == null,
+    );
+  }
+
+  RecitationEntry? _latestEntryFor(String label) {
+    RecitationEntry? latest;
+    for (final entry in entries.values) {
+      if (entry.label != label) continue;
+      if (latest == null || entry.recitedAt.isAfter(latest.recitedAt)) {
+        latest = entry;
+      }
+    }
+    return latest;
   }
 
   /// Where the reader most recently was, on whichever track.

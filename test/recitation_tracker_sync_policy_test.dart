@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
 import 'package:shia_companion/services/recitation_tracker_sync_policy.dart';
+import 'package:shia_companion/utils/quran_index.dart';
 
 void main() {
   group('PendingRecitationOperation', () {
@@ -41,6 +42,23 @@ void main() {
       expect(restored!.kind, RecitationOperationKind.addLabel);
       expect(restored.labelName, 'Family');
       expect(restored.entryId, isNull);
+    });
+
+    test('setTrackSettings serializes and restores the settings', () {
+      final settings = RecitationTrackSettings(
+        readByJuz: true,
+        startAt: const VerseKey(12, 53),
+        startSetAt: DateTime.utc(2026, 1, 1),
+      );
+      final operation =
+          PendingRecitationOperation.setTrackSettings('Khatm', settings);
+      final restored = PendingRecitationOperation.fromJson(operation.toJson());
+
+      expect(restored, isNotNull);
+      expect(restored!.kind, RecitationOperationKind.setTrackSettings);
+      expect(restored.labelName, 'Khatm');
+      expect(restored.settings, settings);
+      expect(restored.id, operation.id);
     });
 
     test('fromJson rejects malformed rows', () {
@@ -200,6 +218,28 @@ void main() {
         applyPendingRecitationOperations(RecitationTrackerState.empty, ops)
             .customLabels,
       );
+    });
+
+    test('track settings register the track and the latest one wins', () {
+      final ops = [
+        PendingRecitationOperation.setTrackSettings(
+            'Khatm', const RecitationTrackSettings()),
+        PendingRecitationOperation.setTrackSettings(
+            'Khatm', const RecitationTrackSettings(readByJuz: true)),
+        PendingRecitationOperation.setTrackSettings(
+            'Unlabeled', const RecitationTrackSettings(readByJuz: true)),
+      ];
+      final changes = recitationRemoteChangesFor(ops);
+
+      expect(changes.labels, {'Khatm'});
+      expect(changes.trackSettings,
+          {'Khatm': const RecitationTrackSettings(readByJuz: true)});
+
+      final state =
+          applyPendingRecitationOperations(RecitationTrackerState.empty, ops);
+      expect(state.customLabels, {'Khatm'});
+      expect(state.settingsFor('Khatm').readByJuz, isTrue);
+      expect(state.trackSettings.containsKey('Unlabeled'), isFalse);
     });
 
     test('a queue with nothing to write is empty', () {
