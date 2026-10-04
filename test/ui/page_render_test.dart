@@ -5,10 +5,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/navigation/app_shell.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/about_page.dart';
+import 'package:shia_companion/pages/all_features_page.dart';
+import 'package:shia_companion/pages/home/coming_up_section.dart';
+import 'package:shia_companion/pages/home/continue_section.dart';
+import 'package:shia_companion/pages/home/hadith_card.dart';
+import 'package:shia_companion/pages/home/home_header.dart';
+import 'package:shia_companion/pages/home/shortcuts_section.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 import 'firebase_test_doubles.dart';
@@ -145,7 +152,54 @@ final List<_Screen> _screens = [
       _Screen(item.label, item.buildPage),
   // Reachable from the app bar rather than the menu.
   _Screen('About', () => AboutPage()),
+  _Screen('All features', () => const AllFeaturesPage()),
+  // Home itself starts the whole app (deep links, notifications, sync), so
+  // its sections are rendered on their own, laid out as Home lays them out.
+  _Screen('Home sections', () => const _HomeSections()),
 ];
+
+class _HomeSections extends StatelessWidget {
+  const _HomeSections();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                HomeHeader(onOpenSettings: () {}),
+                const SizedBox(height: 18),
+                const HomePrayerTimesCard(),
+              ],
+            ),
+          ),
+          const ContinueSection(topSpacing: 18),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {}),
+                ComingUpSection(topSpacing: 18, onOpenCalendar: () {}),
+                const SizedBox(height: 18),
+                const HadithOfTheDayCard(
+                  hadith: "Imam Ali (a.s.) said: 'Increase your silence and "
+                      "your thoughts will flourish.'\n[Ghurar al-Hikam, no. "
+                      '3725]',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 const List<_Viewport> _viewports = [
   _Viewport('a phone', Size(393, 852)),

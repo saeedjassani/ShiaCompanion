@@ -20,6 +20,7 @@ import '../pages/quran/quran_page.dart';
 import '../pages/settings_page.dart';
 import '../pages/todays_recitation_page.dart';
 import '../widgets/home_glyph.dart';
+import '../widgets/outline_icon.dart';
 import '../widgets/tasbeeh_widget.dart';
 import '../l10n/l10n.dart';
 
@@ -37,10 +38,18 @@ class HomeMenuItem {
     required this.icon,
     required this.pageBuilder,
     this.glyphType,
+    this.outlineGlyph,
+    String? shortLabel,
     this.countsAsFeatureUse = true,
-  });
+  }) : _shortLabel = shortLabel;
 
   final String label;
+
+  final String? _shortLabel;
+
+  /// What a Home shortcut calls this item, where a quarter of a phone's width
+  /// has no room for [label]: "Calendar", not "Calendar & Prayer Times".
+  String get shortLabel => _shortLabel ?? label;
 
   /// The key this feature's counter is recorded under (`home_menu_<id>`).
   ///
@@ -51,13 +60,20 @@ class HomeMenuItem {
   final String analyticsId;
   final IconData icon;
   final HomeGlyphType? glyphType;
+
+  /// The line icon drawn for items with no [HomeGlyph] of their own.
+  final OutlineGlyph? outlineGlyph;
   final HomeMenuPageBuilder pageBuilder;
 
-  /// Builds the icon widget for the home screen grid, rendering a custom
-  /// [HomeGlyph] when defined or falling back to a standard [Icon].
+  /// Builds the item's icon: its [HomeGlyph] when it has one, else its
+  /// [OutlineGlyph] (drawn a little smaller, as line icons sit in the
+  /// mockups), else the Material [icon].
   Widget buildIcon({required double size, required Color color}) {
     if (glyphType != null) {
       return HomeGlyph(type: glyphType!, size: size, color: color);
+    }
+    if (outlineGlyph != null) {
+      return OutlineIcon(outlineGlyph!, size: size * 26 / 30, color: color);
     }
     return Icon(icon, size: size, color: color);
   }
@@ -93,6 +109,8 @@ class HomeMenuItem {
 final HomeMenuItem calendarMenuItem = HomeMenuItem(
   label: 'Calendar & Prayer Times',
   analyticsId: 'calendar_prayer_times',
+  shortLabel: 'Calendar',
+  outlineGlyph: OutlineGlyph.calendar,
   icon: Icons.calendar_month_rounded,
   pageBuilder: () => Scaffold(
     appBar: AppBar(title: Text(L10n.current.menuCalendar)),
@@ -166,7 +184,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   HomeMenuItem(
     label: 'Baaqeyaat As Saalehaat',
     analyticsId: 'baaqeyaat_as_saalehaat',
-    glyphType: HomeGlyphType.baqeyaat,
+      glyphType: HomeGlyphType.baqeyaat,
     icon: Icons.history_edu_rounded,
     pageBuilder: () => ItemList("I", L10n.current.menuBaaqeyaat),
   ),
@@ -174,12 +192,15 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   HomeMenuItem(
     label: 'Qibla Finder',
     analyticsId: 'qibla_finder',
+    shortLabel: 'Qibla',
+    outlineGlyph: OutlineGlyph.compass,
     icon: Icons.explore_rounded,
     pageBuilder: () => const QiblaFinder(),
   ),
   HomeMenuItem(
     label: 'Tasbeeh Counter',
     analyticsId: 'tasbeeh_counter',
+    shortLabel: 'Tasbeeh',
     glyphType: HomeGlyphType.tasbeeh,
     icon: Icons.adjust_rounded,
     pageBuilder: () => TasbeehWidget(),
@@ -187,6 +208,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   HomeMenuItem(
     label: 'Qaza Tracker',
     analyticsId: 'qaza_tracker',
+    outlineGlyph: OutlineGlyph.calendarCheck,
     icon: Icons.event_repeat_rounded,
     pageBuilder: () => const QazaTrackerPage(),
   ),
@@ -194,13 +216,14 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     HomeMenuItem(
       label: 'Rakaat Counter',
       analyticsId: 'rakaat_counter',
-      glyphType: HomeGlyphType.rakaat,
+        glyphType: HomeGlyphType.rakaat,
       icon: Icons.touch_app_rounded,
       pageBuilder: () => const PrayerCounterPage(),
     ),
   HomeMenuItem(
     label: 'Prayer Times in Flight',
     analyticsId: 'prayer_times_in_flight',
+    outlineGlyph: OutlineGlyph.plane,
     icon: Icons.flight_takeoff_rounded,
     pageBuilder: () => const FlightsPage(),
   ),
@@ -222,13 +245,15 @@ final HomeMenuItem surahsMenuItem = HomeMenuItem(
   pageBuilder: () => ItemList("A", L10n.current.menuSurahs),
 );
 
-/// Also what the profile button on Home opens.
+/// Also what the profile button on Home opens. Was "Preferences"; the id
+/// keeps that name so its counter carries on.
 final HomeMenuItem settingsMenuItem = HomeMenuItem(
-  label: 'Preferences',
+  label: 'Settings',
   analyticsId: 'preferences',
   icon: Icons.settings_rounded,
+  outlineGlyph: OutlineGlyph.sliders,
   pageBuilder: () => Scaffold(
-    appBar: AppBar(title: Text(L10n.current.menuPreferences)),
+    appBar: AppBar(title: Text(L10n.current.actionSettings)),
     body: SettingsPage(),
   ),
 );
@@ -252,6 +277,7 @@ final HomeMenuItem quranMenuItem = HomeMenuItem(
 final HomeMenuItem playlistsMenuItem = HomeMenuItem(
   label: 'Playlists',
   analyticsId: 'playlists',
+  outlineGlyph: OutlineGlyph.playlist,
   icon: Icons.playlist_play_rounded,
   pageBuilder: () => const PlaylistsPage(),
 );
@@ -265,6 +291,7 @@ final HomeMenuItem playlistsMenuItem = HomeMenuItem(
 final HomeMenuItem myStatsMenuItem = HomeMenuItem(
   label: 'My Stats',
   analyticsId: 'my_stats',
+  outlineGlyph: OutlineGlyph.stats,
   icon: Icons.insights_rounded,
   pageBuilder: () => const MyStatsPage(),
 );
@@ -324,15 +351,34 @@ List<HomeMenuItem> get visibleHomeMenuItems {
 HomeMenuItem get quranTabMenuItem =>
     isUserAdmin ? quranMenuItem : surahsMenuItem;
 
-/// The home grid: everything in [visibleHomeMenuItems] except what now has a
-/// tab of its own.
-List<HomeMenuItem> get homeGridMenuItems => List.unmodifiable([
+/// The All features page: everything in [visibleHomeMenuItems], in the same
+/// order, except what has a tab of its own.
+List<HomeMenuItem> get allFeaturesMenuItems => List.unmodifiable([
       for (final item in visibleHomeMenuItems)
         if (item != favoritesMenuItem &&
             item != surahsMenuItem &&
             item != quranMenuItem)
           item,
     ]);
+
+/// What can be one of Home's shortcuts: All features less Settings, which
+/// already has the profile button on Home.
+List<HomeMenuItem> get shortcutCandidateMenuItems => List.unmodifiable([
+      for (final item in allFeaturesMenuItems)
+        if (item != settingsMenuItem) item,
+    ]);
+
+/// The shortcuts [ids] name, in order, skipping any this build or this user
+/// cannot open (an Android-only tool on web, an admin tool after sign-out).
+List<HomeMenuItem> homeShortcutMenuItems(Iterable<String> ids) {
+  final byId = {
+    for (final item in shortcutCandidateMenuItems) item.analyticsId: item,
+  };
+  return List.unmodifiable([
+    for (final id in ids)
+      if (byId[id] case final item?) item,
+  ]);
+}
 
 HomeMenuItem? getHomeMenuItem(String label) {
   for (final item in homeMenuItems) {
@@ -373,6 +419,7 @@ String homeMenuDisplayLabel(String label) {
     'Rakaat Counter' => L10n.current.menuRakaatCounter,
     'Prayer Times in Flight' => L10n.current.menuPrayerTimesInFlight,
     'Preferences' => L10n.current.menuPreferences,
+    'Settings' => L10n.current.actionSettings,
     'Quran' => L10n.current.menuQuran,
     'Playlists' => L10n.current.menuPlaylists,
     'My Stats' => L10n.current.menuMyStats,

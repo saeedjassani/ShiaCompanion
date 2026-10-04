@@ -53,6 +53,9 @@ void main() {
       'qibla_target_changed',
       'dark_mode_toggled',
       'theme_mode_changed',
+      'home_shortcuts_changed',
+      'home_menu_all_features',
+      'zikr_source_${ZikrOpenSource.homeContinue}',
       'feedback_email_opened',
     ];
 
@@ -357,6 +360,9 @@ void main() {
         'favorite_reordered': FeatureGroup.personalizationAndAccount,
         'dark_mode_toggled': FeatureGroup.personalizationAndAccount,
         'theme_mode_changed': FeatureGroup.personalizationAndAccount,
+        'home_shortcuts_changed': FeatureGroup.personalizationAndAccount,
+        'home_menu_all_features': FeatureGroup.findingContent,
+        'zikr_source_home_continue': FeatureGroup.findingContent,
         'app_text_scale_changed': FeatureGroup.personalizationAndAccount,
         // Feedback & ratings
         'rating_prompt': FeatureGroup.feedbackAndRatings,

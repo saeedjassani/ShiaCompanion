@@ -91,7 +91,7 @@ void main() {
     });
 
     expect(find.byType(CircularProgressIndicator), findsNothing);
-    expect(find.byIcon(Icons.refresh), findsOneWidget);
+    expect(find.byTooltip('Refresh location'), findsOneWidget);
   });
 
   testWidgets('keeps the times and offers a retry when a refresh fails',
@@ -107,68 +107,38 @@ void main() {
 
     expect(find.text('Fajr'), findsOneWidget);
     expect(find.textContaining('Location services are off'), findsOneWidget);
-    expect(find.byIcon(Icons.refresh), findsOneWidget);
+    expect(find.byTooltip('Refresh location'), findsOneWidget);
   });
 
-  testWidgets('offers a refresh even when the location has never resolved',
+  testWidgets('asks which city when the location has never resolved',
       (tester) async {
     GeolocatorPlatform.instance = _FakeGeolocator(serviceEnabled: false);
 
     await pumpCard(tester);
-    expect(find.text('Location not available'), findsOneWidget);
-    expect(find.text('Tap here to enable location'), findsOneWidget);
+    expect(find.text('Which city are you in?'), findsOneWidget);
+    expect(find.text('Use my location'), findsOneWidget);
 
-    // Must not become an untappable spinner: the empty state is the only way
-    // back once a location fetch has failed.
+    // Must not become an untappable spinner: this card is the only way back
+    // once a location fetch has failed.
     await withGeocode(() => service.refresh());
     await tester.pump();
 
     expect(find.text('Location services are off'), findsOneWidget);
-    expect(find.text('Tap to try again'), findsOneWidget);
+    expect(find.text('Try again'), findsOneWidget);
 
     // And the retry is genuinely wired, not just a label.
     expect(
-      tester.widget<InkWell>(find.ancestor(
-        of: find.text('Tap to try again'),
-        matching: find.byType(InkWell),
-      )).onTap,
+      tester
+          .widget<FilledButton>(find.ancestor(
+            of: find.text('Try again'),
+            matching: find.byType(FilledButton),
+          ))
+          .onPressed,
       isNotNull,
     );
   });
 
-  testWidgets('keeps the "(next day)" note on one line and inside the card',
-      (tester) async {
-    lat = 32.02;
-    long = 44.34;
-    city = 'Najaf';
-    GeolocatorPlatform.instance = _FakeGeolocator();
-    // Late enough that the tail of the row has rolled over into tomorrow, so
-    // one column actually carries the note.
-    PrayerTimesState.debugNow = () => DateTime(2024, 6, 16, 23, 30);
-    // A small phone, where five columns leave the note barely any room.
-    tester.view.physicalSize = const Size(320, 720);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.reset);
-
-    await pumpCard(tester);
-
-    final note = find.text('(next day)');
-    expect(note, findsOneWidget);
-
-    // One line at full size, wider than the fifth of the row it belongs to —
-    // it is allowed to spill into the neighbouring columns, which are the
-    // next day as well.
-    final noteRect = tester.getRect(note);
-    final columnWidth = tester.getSize(find.byType(Expanded).first).width;
-    expect(noteRect.width, greaterThan(columnWidth));
-
-    // What it must never do is run off the card.
-    final cardRect = tester.getRect(find.byType(Card));
-    expect(noteRect.left, greaterThanOrEqualTo(cardRect.left));
-    expect(noteRect.right, lessThanOrEqualTo(cardRect.right));
-  });
-
-  testWidgets('centres the "(next day)" note on the column it tags',
+  testWidgets('says "next day" under the first time that falls tomorrow',
       (tester) async {
     lat = 32.02;
     long = 44.34;
@@ -176,15 +146,14 @@ void main() {
     GeolocatorPlatform.instance = _FakeGeolocator();
     final now = DateTime(2024, 6, 16, 23, 30);
     PrayerTimesState.debugNow = () => now;
-    // Wide enough that the note fits over its column without being pushed back
-    // inside the card, so this measures the aim rather than the clamp.
-    tester.view.physicalSize = const Size(1200, 800);
+    // A small phone, where five columns leave the note the least room.
+    tester.view.physicalSize = const Size(320, 720);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
     await pumpCard(tester);
 
-    // Which column carries the note, worked out the same way the card does.
+    // Which time is the first one tomorrow, worked out as the card does.
     final readings = nextWidgetPrayerTimeReadings(
       prayerTime: getPrayerTimeObject(),
       latitude: lat!,
@@ -200,16 +169,16 @@ void main() {
     expect(tagged, greaterThanOrEqualTo(0),
         reason: 'this time of day must roll into tomorrow');
 
-    final columns = find.byType(Expanded);
-    expect(tester.widgetList(columns).length, readings.length);
-
-    final noteCentre = tester.getRect(find.text('(next day)')).center.dx;
-    final columnCentre = tester.getRect(columns.at(tagged)).center.dx;
-
-    // Align distributes leftover space rather than placing the centre, so the
-    // uncorrected version drifts by up to half the note's width — tens of
-    // logical pixels here. One pixel of tolerance is for rounding.
-    expect((noteCentre - columnCentre).abs(), lessThan(1.0));
+    // Once only, like a date divider, and under that time's own name.
+    final note = find.text('next day');
+    expect(note, findsOneWidget);
+    final name = find.text(readings[tagged].time.name);
+    expect(
+      (tester.getRect(note).center.dx - tester.getRect(name).center.dx).abs(),
+      lessThan(1.0),
+    );
+    expect(tester.getRect(note).top, greaterThan(tester.getRect(name).bottom));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('discloses the age of a stale reading', (tester) async {

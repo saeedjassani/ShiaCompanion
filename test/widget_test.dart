@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
+import 'package:shia_companion/services/home_shortcuts_store.dart';
 
 void main() {
   test('home menu labels and icons come from the same definitions', () {
@@ -62,7 +63,8 @@ void main() {
         if (supportsPrayerCounterOnCurrentPlatform)
           'Rakaat Counter': 'rakaat_counter',
         'Prayer Times in Flight': 'prayer_times_in_flight',
-        'Preferences': 'preferences',
+        // Relabelled from Preferences; the id stays.
+        'Settings': 'preferences',
         'Quran': 'quran',
         'Usage': 'usage',
         'My Stats': 'my_stats',
@@ -75,16 +77,48 @@ void main() {
   group('tabs', () {
     tearDown(() => isUserAdmin = false);
 
-    test('the home grid leaves out what has a tab of its own', () {
+    test('All features leaves out what has a tab of its own', () {
       for (final admin in [false, true]) {
         isUserAdmin = admin;
-        final grid = homeGridMenuItems;
-        expect(grid, isNot(contains(favoritesMenuItem)));
-        expect(grid, isNot(contains(surahsMenuItem)));
-        expect(grid, isNot(contains(quranMenuItem)));
-        expect(grid, contains(settingsMenuItem));
-        expect(grid, contains(calendarMenuItem));
+        final features = allFeaturesMenuItems;
+        expect(features, isNot(contains(favoritesMenuItem)));
+        expect(features, isNot(contains(surahsMenuItem)));
+        expect(features, isNot(contains(quranMenuItem)));
+        expect(features, contains(settingsMenuItem));
+        expect(features, contains(calendarMenuItem));
       }
+    });
+
+    test('Settings can be reached from Home but is not a shortcut', () {
+      expect(shortcutCandidateMenuItems, isNot(contains(settingsMenuItem)));
+      expect(homeShortcutMenuItems(['preferences']), isEmpty);
+    });
+
+    test('shortcuts resolve in order and skip what cannot be opened', () {
+      final items = homeShortcutMenuItems(
+          ['qibla_finder', 'not_a_feature', 'duas', 'usage']);
+      expect(items.map((item) => item.analyticsId), ['qibla_finder', 'duas']);
+    });
+
+    test('every default shortcut is a real feature', () {
+      expect(
+        homeShortcutMenuItems(HomeShortcutsStore.defaultIds)
+            .map((item) => item.analyticsId),
+        HomeShortcutsStore.defaultIds,
+      );
+      expect(
+        homeShortcutMenuItems(HomeShortcutsStore.defaultIds)
+            .map((item) => item.shortLabel),
+        [
+          'Duas',
+          'Ziyarats',
+          "Today's Recitations",
+          'Munajaat',
+          'Calendar',
+          'Tasbeeh',
+          'Qibla',
+        ],
+      );
     });
 
     test('the Quran tab keeps the Quran screen dark-launched to admins', () {

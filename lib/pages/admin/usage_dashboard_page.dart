@@ -294,6 +294,7 @@ const Set<String> _personalizationAndAccountFeatureKeys = {
   // three-way Theme setting.
   'dark_mode_toggled',
   'theme_mode_changed',
+  'home_shortcuts_changed',
   'app_text_scale_changed',
 };
 

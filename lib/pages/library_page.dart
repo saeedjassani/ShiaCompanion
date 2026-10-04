@@ -44,54 +44,7 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   Future<void> _continueReading(LibraryProgress progress) async {
-    final chapters = await LibraryService.loadChapters(progress.bookSlug);
-    if (!mounted) return;
-
-    var chapterIndex = progress.chapterIndex;
-    if (chapterIndex < 0 ||
-        chapterIndex >= chapters.length ||
-        chapters[chapterIndex].uid != progress.chapterSlug) {
-      chapterIndex = chapters.indexWhere(
-        (chapter) => chapter.uid == progress.chapterSlug,
-      );
-    }
-    if (chapterIndex < 0 || chapterIndex >= chapters.length) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.librarySavedChapterGone)),
-      );
-      await LibraryProgressStore.instance.remove(progress.bookSlug);
-      setState(_loadRecentProgress);
-      return;
-    }
-
-    final chapter = chapters[chapterIndex];
-    final bookTitle = progress.bookTitle.trim().isNotEmpty
-        ? progress.bookTitle
-        : progress.chapterTitle;
-    final navigator = Navigator.of(context);
-
-    // Resuming drops the reader straight into the chapter, but backing out of
-    // it should land on that book's chapter list — the same place you'd be if
-    // you had navigated in by hand — rather than all the way back here.
-    navigator.push(
-      MaterialPageRoute(
-        builder: (context) => ChapterListPage(progress.bookSlug, bookTitle),
-      ),
-    );
-    await navigator.push(
-      MaterialPageRoute(
-        builder: (context) => ChapterPage(
-          '${progress.bookSlug}/${chapter.uid}',
-          chapter.title,
-          bookTitle: progress.bookTitle,
-          chapters: chapters,
-          chapterIndex: chapterIndex,
-          bookSlug: progress.bookSlug,
-          initialPageIndex: progress.pageIndex,
-          initialFontSize: progress.fontSize,
-        ),
-      ),
-    );
+    await resumeLibraryReading(context, progress);
     if (!mounted) return;
     setState(_loadRecentProgress);
   }
@@ -340,4 +293,60 @@ class _LibraryMessage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Opens the chapter [progress] was saved in, at its page and font size, with
+/// the book's chapter list underneath - backing out of the chapter lands in
+/// the book, the same place a reader who navigated in by hand would be.
+///
+/// Used by Library's "Continue Reading" and Home's Continue cards. A chapter
+/// that no longer exists says so and forgets the progress.
+Future<void> resumeLibraryReading(
+  BuildContext context,
+  LibraryProgress progress,
+) async {
+  final chapters = await LibraryService.loadChapters(progress.bookSlug);
+  if (!context.mounted) return;
+
+  var chapterIndex = progress.chapterIndex;
+  if (chapterIndex < 0 ||
+      chapterIndex >= chapters.length ||
+      chapters[chapterIndex].uid != progress.chapterSlug) {
+    chapterIndex = chapters.indexWhere(
+      (chapter) => chapter.uid == progress.chapterSlug,
+    );
+  }
+  if (chapterIndex < 0 || chapterIndex >= chapters.length) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Saved chapter is no longer available')),
+    );
+    await LibraryProgressStore.instance.remove(progress.bookSlug);
+    return;
+  }
+
+  final chapter = chapters[chapterIndex];
+  final bookTitle = progress.bookTitle.trim().isNotEmpty
+      ? progress.bookTitle
+      : progress.chapterTitle;
+  final navigator = Navigator.of(context);
+
+  navigator.push(
+    MaterialPageRoute(
+      builder: (context) => ChapterListPage(progress.bookSlug, bookTitle),
+    ),
+  );
+  await navigator.push(
+    MaterialPageRoute(
+      builder: (context) => ChapterPage(
+        '${progress.bookSlug}/${chapter.uid}',
+        chapter.title,
+        bookTitle: progress.bookTitle,
+        chapters: chapters,
+        chapterIndex: chapterIndex,
+        bookSlug: progress.bookSlug,
+        initialPageIndex: progress.pageIndex,
+        initialFontSize: progress.fontSize,
+      ),
+    ),
+  );
 }

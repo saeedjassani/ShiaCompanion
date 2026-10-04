@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
@@ -43,14 +42,20 @@ import 'package:shia_companion/utils/hadith_loader.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
+import 'package:shia_companion/pages/all_features_page.dart';
+import 'package:shia_companion/pages/home/coming_up_section.dart';
+import 'package:shia_companion/pages/home/continue_section.dart';
+import 'package:shia_companion/pages/home/hadith_card.dart';
+import 'package:shia_companion/pages/home/home_header.dart';
+import 'package:shia_companion/pages/home/home_section.dart';
+import 'package:shia_companion/pages/home/shortcuts_section.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
-import 'package:shia_companion/widgets/outline_icon.dart';
-import 'package:shia_companion/widgets/prayer_times_widget.dart';
+import 'package:shia_companion/widgets/glass_surface.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/whats_new_dialog.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
-import '../l10n/l10n.dart';
 
 /// The Home tab: everything that used to be the home screen, under a
 /// greeting with the profile button (Settings) in place of the old app bar.
@@ -98,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage>
     _setupDeepLinks();
     _setupAndroidWidgetLinks();
     setupPreferences();
+    _scrollController.addListener(_onScroll);
   }
 
   Future<void> _setupDeepLinks() async {
@@ -359,162 +365,129 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
-    final menuItems = homeGridMenuItems;
-    final colors = ShiaColors.of(context);
     final insets = MediaQuery.paddingOf(context);
+    final width = MediaQuery.sizeOf(context).width;
+    final wide = width >= homeWideBreakpoint;
+    final desktop = width >= 1024;
+    final gutter = wide ? 32.0 : 16.0;
+    final gap = wide ? 24.0 : 18.0;
+
+    final header = HomeHeader(
+      onOpenSettings: () => _openHomeMenuItem(settingsMenuItem),
+    );
+    final prayerCard = HomePrayerTimesCard(
+      onTap: () => _openHomeMenuItem(calendarMenuItem),
+    );
+    final shortcuts = ShortcutsSection(
+      onOpen: _openHomeMenuItem,
+      onOpenAllFeatures: _openAllFeatures,
+    );
+    final comingUp = ComingUpSection(
+      topSpacing: gap,
+      onOpenCalendar: () => _openHomeMenuItem(calendarMenuItem),
+    );
+    final hadithCard = hadith.isEmpty
+        ? const SizedBox.shrink()
+        : Padding(
+            padding: EdgeInsets.only(top: gap),
+            child: HadithOfTheDayCard(hadith: hadith),
+          );
+
+    final Widget content;
+    if (wide) {
+      // Tablet and up: prayer card, Continue and Coming up on the left;
+      // Shortcuts and the hadith on the right.
+      content = Padding(
+        padding: EdgeInsets.symmetric(horizontal: gutter),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            SizedBox(height: gap),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: desktop ? 115 : 100,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      prayerCard,
+                      ContinueSection(topSpacing: gap, horizontalPadding: 0),
+                      comingUp,
+                    ],
+                  ),
+                ),
+                SizedBox(width: desktop ? 32 : 24),
+                Expanded(
+                  flex: 100,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [shortcuts, hadithCard],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      final pad = EdgeInsets.symmetric(horizontal: gutter);
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(padding: pad, child: header),
+          SizedBox(height: gap),
+          Padding(padding: pad, child: prayerCard),
+          // Draws its own gutter: its cards scroll to the screen's edge.
+          ContinueSection(topSpacing: gap, horizontalPadding: gutter),
+          SizedBox(height: gap),
+          Padding(padding: pad, child: shortcuts),
+          Padding(padding: pad, child: comingUp),
+          Padding(padding: pad, child: hadithCard),
+        ],
+      );
+    }
 
     return Scaffold(
-        body: ResponsiveScrollableContent(
-      maxWidth: wideContentWidth,
-      // No app bar, so the header clears the status bar itself; the
-      // bottom inset includes the floating tab bar, so the grid's last
-      // row can scroll clear of it.
-      padding: EdgeInsets.fromLTRB(16, insets.top + 12, 16, insets.bottom + 28),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          _HomeHeader(
-            onOpenSettings: () => _openHomeMenuItem(settingsMenuItem),
-          ),
-          Center(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 22.0, horizontal: 16.0),
-              child: InkWell(
-                onTap: () async {
-                  final result = await SharePlus.instance.share(ShareParams(
-                    text:
-                        '$hadith\n\n${context.l10n.hadithSharedVia('https://shia-companion.web.app/')}',
-                    sharePositionOrigin: Rect.fromLTWH(
-                        MediaQuery.of(context).size.width / 2, 0, 2, 2),
-                  ));
-                  if (result.status == ShareResultStatus.success) {
-                    RatingPromptService.recordPositiveAction('share_hadith');
-                  }
-                },
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 760),
-                  child: Text(
-                    '$hadith',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            controller: _scrollController,
+            // The bottom inset includes the floating tab bar, so the last
+            // section can scroll clear of it.
+            padding: EdgeInsets.only(
+              top: insets.top + (wide ? 24 : 12),
+              bottom: insets.bottom + 24,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: wideContentWidth),
+                child: content,
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.center,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 760),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Theme(
-                  data: Theme.of(context).copyWith(
-                    textButtonTheme: TextButtonThemeData(
-                      style: TextButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                  child: HomePrayerTimesCard(
-                    onTap: () => _openHomeMenuItem(calendarMenuItem),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: LayoutBuilder(builder: (context, constraints) {
-              // Use maxCrossAxisExtent so grid adapts to available width
-              // Make the tiles smaller on narrow screens so more columns can fit
-              double maxExtent;
-              double spacing = 8.0;
-              if (constraints.maxWidth < 360) {
-                maxExtent = 140;
-                spacing = 6.0;
-              } else if (constraints.maxWidth < 600) {
-                maxExtent = 160;
-                spacing = 8.0;
-              } else if (constraints.maxWidth < 900) {
-                maxExtent = 190;
-                spacing = 10.0;
-              } else {
-                maxExtent = 210;
-                spacing = 12.0;
-              }
-              return GridView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: maxExtent,
-                  mainAxisSpacing: spacing,
-                  crossAxisSpacing: spacing,
-                  childAspectRatio: constraints.maxWidth >= 900 ? 1.05 : 0.95,
-                ),
-                itemCount: menuItems.length,
-                itemBuilder: (BuildContext c, int i) {
-                  final menuItem = menuItems[i];
-                  return Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Card(
-                      margin: EdgeInsets.zero,
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () => _openHomeMenuItem(menuItem),
-                        child:
-                            LayoutBuilder(builder: (context, tileConstraints) {
-                          final double tileWidth = tileConstraints.maxWidth;
-                          final double fontSize = tileWidth > 140 ? 14 : 12;
-                          final double verticalPadding =
-                              tileWidth > 140 ? 12 : 8;
-
-                          return Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: verticalPadding, horizontal: 8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                // An icon tile: the glyph in the accent
-                                // on a well, not a filled brown circle.
-                                Container(
-                                  width: 52,
-                                  height: 52,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: colors.well,
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: menuItem.buildIcon(
-                                    size: 30,
-                                    color: colors.accent,
-                                  ),
-                                ),
-                                SizedBox(height: tileWidth > 140 ? 10 : 6),
-                                Text(
-                                  menuItem.displayLabel,
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: fontSize),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-                  );
-                },
-              );
-            }),
-          ),
+          _CompactTitleBar(visible: _showCompactTitle, topInset: insets.top),
         ],
       ),
+    );
+  }
+
+  final ScrollController _scrollController = ScrollController();
+
+  /// Whether the greeting has scrolled away, so the small "Home" bar shows.
+  final ValueNotifier<bool> _showCompactTitle = ValueNotifier(false);
+
+  void _onScroll() {
+    _showCompactTitle.value = _scrollController.offset > 56;
+  }
+
+  void _openAllFeatures() {
+    unawaited(AnalyticsService.feature(
+      'home_menu_all_features',
+      label: 'All features',
     ));
+    pushPageRoute(context, const AllFeaturesPage());
   }
 
   void initializeData() async {
@@ -718,51 +691,10 @@ class _MyHomePageState extends State<MyHomePage>
     ));
   }
 
-  buildBody(BuildContext c, int i) {
-    final menuItem = visibleHomeMenuItems[i];
-    return InkWell(
-      onTap: () => _openHomeMenuItem(menuItem),
-      child: Container(
-        margin: EdgeInsets.all(6.0),
-        padding: EdgeInsets.only(
-          left: 2.0,
-        ),
-        constraints: BoxConstraints.expand(height: 150.0, width: 150.0),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(6.0),
-            boxShadow: [
-              BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.05),
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              )
-            ]),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            menuItem.buildIcon(
-              size: 48,
-              color: Theme.of(context).primaryColor,
-            ),
-            SizedBox(height: 8),
-            Text(
-              menuItem.displayLabel,
-              style: TextStyle(fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Shader l = LinearGradient(colors: <Color>[Colors.black, Colors.white])
-      .createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
-
   @override
   void dispose() async {
+    _scrollController.dispose();
+    _showCompactTitle.dispose();
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
@@ -793,73 +725,59 @@ class _MyHomePageState extends State<MyHomePage>
   }
 }
 
-/// Today's date, the greeting, and the profile button that opens Settings
-/// (docs/DESIGN_SPEC.md, Home section 1).
-class _HomeHeader extends StatelessWidget {
-  const _HomeHeader({required this.onOpenSettings});
+/// The small "Home" title over a frosted strip, once the greeting has
+/// scrolled out of view. Decorative: the greeting already headed the page.
+class _CompactTitleBar extends StatelessWidget {
+  const _CompactTitleBar({required this.visible, required this.topInset});
 
-  final VoidCallback onOpenSettings;
+  final ValueListenable<bool> visible;
+  final double topInset;
 
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    final wide = MediaQuery.sizeOf(context).width >= 600;
+    final solid =
+        !GlassSurface.blurEnabled || MediaQuery.highContrastOf(context);
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                DateFormat('EEEE d MMMM').format(DateTime.now()),
-                style: ShiaText.secondary.copyWith(color: colors.textMuted),
-              ),
-              const SizedBox(height: 2),
-              Semantics(
-                header: true,
-                child: Text(
-                  'Assalamu alaykum',
-                  style: (wide ? ShiaText.greetingWide : ShiaText.greeting)
-                      .copyWith(color: colors.text),
-                ),
-              ),
-            ],
+    Widget bar = Container(
+      height: topInset + 44,
+      padding: EdgeInsets.only(top: topInset),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: solid ? colors.ground : colors.ground.withValues(alpha: 0.88),
+        border: Border(bottom: BorderSide(color: colors.line)),
+      ),
+      child:
+          Text('Home', style: ShiaText.cardTitle.copyWith(color: colors.text)),
+    );
+    if (!solid) {
+      bar = ClipRect(
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: bar,
+        ),
+      );
+    }
+
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: visible,
+        builder: (context, show, child) => IgnorePointer(
+          ignoring: !show,
+          child: AnimatedOpacity(
+            opacity: show ? 1 : 0,
+            duration: reduceMotion
+                ? Duration.zero
+                : const Duration(milliseconds: 150),
+            child: child,
           ),
         ),
-        const SizedBox(width: 12),
-        Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Tooltip(
-            message: 'Settings and account',
-            child: Semantics(
-              button: true,
-              label: 'Settings and account',
-              excludeSemantics: true,
-              onTap: onOpenSettings,
-              child: Material(
-                color: colors.surface,
-                shape: CircleBorder(side: BorderSide(color: colors.line)),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: onOpenSettings,
-                  child: SizedBox.square(
-                    dimension: 44,
-                    child: Center(
-                      child: OutlineIcon(
-                        OutlineGlyph.profile,
-                        size: 22,
-                        color: colors.accent,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+        child: ExcludeSemantics(child: bar),
+      ),
     );
   }
 }

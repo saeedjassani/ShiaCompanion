@@ -1518,7 +1518,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccountAppSteps =>
-      'Open Preferences in the app and use Delete My Account.';
+      'Open Settings in the app and use Delete My Account.';
 
   @override
   String get deleteAccountSigningIn => 'Signing in...';

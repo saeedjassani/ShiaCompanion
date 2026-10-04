@@ -2582,7 +2582,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteAccountAppSteps.
   ///
   /// In en, this message translates to:
-  /// **'Open Preferences in the app and use Delete My Account.'**
+  /// **'Open Settings in the app and use Delete My Account.'**
   String get deleteAccountAppSteps;
 
   /// No description provided for @deleteAccountSigningIn.

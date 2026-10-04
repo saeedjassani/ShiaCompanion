@@ -61,7 +61,8 @@ Calendar, Flights, Library, Favorites, …) (+`menu_item`). Choosing the Quran o
 Favorites tab counts under the same key its old grid tile used
 (`home_menu_favorites`, and `home_menu_surahs` or `home_menu_quran` for the
 Quran tab depending on which screen it shows); the profile button on Home
-counts as `home_menu_preferences`.
+counts as `home_menu_preferences`, and Home's shortcuts count under the
+feature they open. `home_menu_all_features` is the All features page itself.
 
 **Prayer & azaan** — `azaan_selected` (+`azaan_id`),
 `azaan_notifications_toggled` (+`enabled`), `azaan_opt_in` (+`choice`),
@@ -72,6 +73,7 @@ counts as `home_menu_preferences`.
 `favorite_added` / `favorite_removed` (+`content_type`), `favorite_reordered`,
 `theme_mode_changed` (+`theme_mode`: `light`, `dark` or `system`; replaced
 `dark_mode_toggled` along with the Dark mode switch),
+`home_shortcuts_changed` (+`count`, `shortcuts`: the chosen ids in order),
 `flight_added` / `flight_edited`, `qaza_updated` (+`operation`),
 `tasbeeh_session` (+`count`).
 
@@ -108,6 +110,7 @@ them do not explain themselves.
 | `admin` | Opened from the admin zikr list |
 | `home_widget_favorites` | Tapped an item in the Favorites home screen widget |
 | `home_widget_recitation` | Tapped an item in the Today's Recitation home screen widget |
+| `home_continue` | Resumed at its bookmark from a Continue card on Home (a Quran track resumed there is `quran_resume`) |
 | `unknown` | Default — an entry point that forgot to pass a source |
 
 The two link sources are worth keeping apart: `deep_link` measures sharing and

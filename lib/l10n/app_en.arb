@@ -1024,7 +1024,7 @@
   "deleteAccountCompleted": "Your account deletion request has completed.",
   "deleteAccountCompletedNote": "If you sign in again later, a brand new account will be created.",
   "deleteAccountWebSteps": "Use the Google sign-in button below, then confirm deletion.",
-  "deleteAccountAppSteps": "Open Preferences in the app and use Delete My Account.",
+  "deleteAccountAppSteps": "Open Settings in the app and use Delete My Account.",
   "deleteAccountSigningIn": "Signing in...",
   "deleteAccountDeleting": "Deleting...",
   "deleteAccountButton": "Delete my account",
