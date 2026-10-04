@@ -126,6 +126,8 @@ class AnalyticsService {
         'the app)',
     ZikrOpenSource.zikrLink: 'Zikr opened from a link inside another zikr',
     ZikrOpenSource.admin: 'Zikr opened from the admin list',
+    ZikrOpenSource.playlist: 'Zikr opened from a playlist',
+    ZikrOpenSource.downloads: 'Zikr opened from downloaded recitations',
     ZikrOpenSource.quran: 'Surah opened from the Quran screen',
     ZikrOpenSource.quranResume: 'Recitation resumed from where it left off',
     ZikrOpenSource.quranListenAndFollow:
@@ -154,6 +156,28 @@ class AnalyticsService {
           parameters: {'zikr_uid': canonicalUid, 'zikr_title': title},
         ));
     _count(metricZikr, '$canonicalUid~done', label: '$title (completed)');
+  }
+
+  /// Records a zikr starting to play inside a playlist, once per zikr per run
+  /// (see PlaylistAudioService). Kept apart from [zikrView] under its own
+  /// `~playlist` key so listening through a playlist never inflates the
+  /// open counts, and still ranks per zikr on the dashboard rather than as
+  /// one anonymous "playlist played" total.
+  static Future<void> zikrPlaylistPlay({
+    required String uid,
+    required String title,
+  }) async {
+    if (!_isLive) return;
+    final canonicalUid = uid.split('|').last.trim();
+    if (canonicalUid.isEmpty) return;
+
+    await _guard(() => FirebaseAnalytics.instance.logEvent(
+          name: 'zikr_playlist_track_play',
+          parameters: {'zikr_uid': canonicalUid, 'zikr_title': title},
+        ));
+    _count(metricZikr, '$canonicalUid~playlist', label: title);
+    _count(metricFeature, 'zikr_playlist_track_play',
+        label: 'Zikr played in a playlist');
   }
 
   /// Records a library book or chapter being opened.

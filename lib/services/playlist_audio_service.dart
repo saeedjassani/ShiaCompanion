@@ -69,6 +69,11 @@ class PlaylistAudioService extends ChangeNotifier {
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   bool _isStarting = false;
 
+  /// Zikrs of the current run already counted by [_countPlayingZikr], so a
+  /// zikr with several recordings, a pause and resume, or a repeat of the
+  /// whole queue counts it once per run rather than once per event.
+  final Set<String> _countedZikrUids = {};
+
   AudioPlayer? get player => _player;
   ZikrPlaylist? get playlist => _playlist;
   List<PlaylistQueueEntry> get queue => _queue;
@@ -193,10 +198,17 @@ class PlaylistAudioService extends ChangeNotifier {
       final player = AudioPlayer();
       _player = player;
       _playlist = playlist;
+      _countedZikrUids.clear();
       _queue = List.unmodifiable(queue);
       _subscriptions
-        ..add(player.playerStateStream.listen((_) => notifyListeners()))
-        ..add(player.currentIndexStream.listen((_) => notifyListeners()))
+        ..add(player.playerStateStream.listen((_) {
+          _countPlayingZikr();
+          notifyListeners();
+        }))
+        ..add(player.currentIndexStream.listen((_) {
+          _countPlayingZikr();
+          notifyListeners();
+        }))
         ..add(player.playbackEventStream.listen(
           (_) {},
           onError: (Object error, StackTrace _) => _skipBrokenTrack(error),
@@ -233,6 +245,21 @@ class PlaylistAudioService extends ChangeNotifier {
       _isStarting = false;
       notifyListeners();
     }
+  }
+
+  /// Records which zikr a playlist is actually playing, the first time each
+  /// one starts in this run. [play] only says a playlist was started; this is
+  /// what says which zikrs people listen to through playlists, including the
+  /// ones reached by letting the queue run on or skipping ahead.
+  void _countPlayingZikr() {
+    final player = _player;
+    if (player == null || !player.playing) return;
+    final entry = current;
+    if (entry == null || !_countedZikrUids.add(entry.zikrUid)) return;
+    unawaited(AnalyticsService.zikrPlaylistPlay(
+      uid: entry.zikrUid,
+      title: entry.zikrTitle,
+    ));
   }
 
   /// A recording that has moved or vanished from the bucket should cost that
