@@ -32,6 +32,26 @@ void main() {
     }
   }
 
+  /// Pumps until [finder] matches something or [timeout] passes, returning
+  /// whether it was found. App startup is not a fixed cost: `main()` awaits
+  /// audio, alarm-manager and Firebase setup before it ever calls `runApp`,
+  /// and on a cold CI emulator (software GPU, freshly installed APK) that
+  /// alone has taken over 4 seconds - so a fixed settle let the Home
+  /// Scaffold check run before the app had rendered anything at all.
+  Future<bool> pumpUntilFound(
+    WidgetTester tester,
+    Finder finder, {
+    Duration timeout = const Duration(seconds: 60),
+    Duration step = const Duration(milliseconds: 250),
+  }) async {
+    final deadline = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(deadline)) {
+      await tester.pump(step);
+      if (finder.evaluate().isNotEmpty) return true;
+    }
+    return finder.evaluate().isNotEmpty;
+  }
+
   /// integration_test screenshot names become filenames on disk, so section
   /// labels (which may contain spaces, apostrophes, "&") need sanitizing.
   String screenshotSafeName(String label) =>
@@ -42,7 +62,11 @@ void main() {
     // 1. Launch the real application entry point
     debugPrint('==> Smoke Crawler: Booting app...');
     app.main();
-    await settleBounded(tester, duration: const Duration(seconds: 4));
+    // Wait for the first real frame of the app, however long boot takes,
+    // then give the home page's post-frame work (first-run prompts) time to
+    // surface before looking for them.
+    await pumpUntilFound(tester, find.byType(Scaffold));
+    await settleBounded(tester, duration: const Duration(seconds: 3));
 
     // Required on Android before the first screenshot, to switch from
     // SurfaceView-based rendering to a normal View so the platform can
