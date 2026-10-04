@@ -1,4 +1,802 @@
 {
+  "A5": [
+    {
+      "file": "quran/shakernejad/surah-001.mp3",
+      "label": "Surah Al-Fatihah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A6": [
+    {
+      "file": "quran/shakernejad/surah-002.mp3",
+      "label": "Surah Al-Baqarah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A7": [
+    {
+      "file": "quran/shakernejad/surah-003.mp3",
+      "label": "Surah Ali 'Imran",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A8": [
+    {
+      "file": "quran/shakernejad/surah-004.mp3",
+      "label": "Surah An-Nisa",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A9": [
+    {
+      "file": "quran/shakernejad/surah-005.mp3",
+      "label": "Surah Al-Ma'idah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A10": [
+    {
+      "file": "quran/shakernejad/surah-006.mp3",
+      "label": "Surah Al-An'am",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A11": [
+    {
+      "file": "quran/shakernejad/surah-007.mp3",
+      "label": "Surah Al-A'raf",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A12": [
+    {
+      "file": "quran/shakernejad/surah-008.mp3",
+      "label": "Surah Al-Anfal",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A13": [
+    {
+      "file": "quran/shakernejad/surah-009.mp3",
+      "label": "Surah At-Tawbah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A14": [
+    {
+      "file": "quran/shakernejad/surah-010.mp3",
+      "label": "Surah Yunus",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A15": [
+    {
+      "file": "quran/shakernejad/surah-011.mp3",
+      "label": "Surah Hud",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A16": [
+    {
+      "file": "quran/shakernejad/surah-012.mp3",
+      "label": "Surah Yusuf",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A17": [
+    {
+      "file": "quran/shakernejad/surah-013.mp3",
+      "label": "Surah Ar-Ra'd",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A18": [
+    {
+      "file": "quran/shakernejad/surah-014.mp3",
+      "label": "Surah Ibrahim",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A19": [
+    {
+      "file": "quran/shakernejad/surah-015.mp3",
+      "label": "Surah Al-Hijr",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A20": [
+    {
+      "file": "quran/shakernejad/surah-016.mp3",
+      "label": "Surah An-Nahl",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A21": [
+    {
+      "file": "quran/shakernejad/surah-017.mp3",
+      "label": "Surah Al-Isra",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A22": [
+    {
+      "file": "quran/shakernejad/surah-018.mp3",
+      "label": "Surah Al-Kahf",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A23": [
+    {
+      "file": "quran/shakernejad/surah-019.mp3",
+      "label": "Surah Maryam",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A24": [
+    {
+      "file": "quran/shakernejad/surah-020.mp3",
+      "label": "Surah Ta-Ha",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A25": [
+    {
+      "file": "quran/shakernejad/surah-021.mp3",
+      "label": "Surah Al-Anbiya",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A26": [
+    {
+      "file": "quran/shakernejad/surah-022.mp3",
+      "label": "Surah Al-Hajj",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A27": [
+    {
+      "file": "quran/shakernejad/surah-023.mp3",
+      "label": "Surah Al-Mu'minun",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A28": [
+    {
+      "file": "quran/shakernejad/surah-024.mp3",
+      "label": "Surah An-Nur",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A29": [
+    {
+      "file": "quran/shakernejad/surah-025.mp3",
+      "label": "Surah Al-Furqan",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A30": [
+    {
+      "file": "quran/shakernejad/surah-026.mp3",
+      "label": "Surah Ash-Shu'ara",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A31": [
+    {
+      "file": "quran/shakernejad/surah-027.mp3",
+      "label": "Surah An-Naml",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A32": [
+    {
+      "file": "quran/shakernejad/surah-028.mp3",
+      "label": "Surah Al-Qasas",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A33": [
+    {
+      "file": "quran/shakernejad/surah-029.mp3",
+      "label": "Surah Al-'Ankabut",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A34": [
+    {
+      "file": "quran/shakernejad/surah-030.mp3",
+      "label": "Surah Ar-Rum",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A35": [
+    {
+      "file": "quran/shakernejad/surah-031.mp3",
+      "label": "Surah Luqman",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A36": [
+    {
+      "file": "quran/shakernejad/surah-032.mp3",
+      "label": "Surah As-Sajdah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A37": [
+    {
+      "file": "quran/shakernejad/surah-033.mp3",
+      "label": "Surah Al-Ahzab",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A38": [
+    {
+      "file": "quran/shakernejad/surah-034.mp3",
+      "label": "Surah Saba",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A39": [
+    {
+      "file": "quran/shakernejad/surah-035.mp3",
+      "label": "Surah Fatir",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A40": [
+    {
+      "file": "quran/shakernejad/surah-036.mp3",
+      "label": "Surah Ya-Sin",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A41": [
+    {
+      "file": "quran/shakernejad/surah-037.mp3",
+      "label": "Surah As-Saffat",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A42": [
+    {
+      "file": "quran/shakernejad/surah-038.mp3",
+      "label": "Surah Sad",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A43": [
+    {
+      "file": "quran/shakernejad/surah-039.mp3",
+      "label": "Surah Az-Zumar",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A44": [
+    {
+      "file": "quran/shakernejad/surah-040.mp3",
+      "label": "Surah Ghafir",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A45": [
+    {
+      "file": "quran/shakernejad/surah-041.mp3",
+      "label": "Surah Fussilat",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A46": [
+    {
+      "file": "quran/shakernejad/surah-042.mp3",
+      "label": "Surah Ash-Shura",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A47": [
+    {
+      "file": "quran/shakernejad/surah-043.mp3",
+      "label": "Surah Az-Zukhruf",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A48": [
+    {
+      "file": "quran/shakernejad/surah-044.mp3",
+      "label": "Surah Ad-Dukhan",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A49": [
+    {
+      "file": "quran/shakernejad/surah-045.mp3",
+      "label": "Surah Al-Jathiyah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A50": [
+    {
+      "file": "quran/shakernejad/surah-046.mp3",
+      "label": "Surah Al-Ahqaf",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A51": [
+    {
+      "file": "quran/shakernejad/surah-047.mp3",
+      "label": "Surah Muhammad",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A52": [
+    {
+      "file": "quran/shakernejad/surah-048.mp3",
+      "label": "Surah Al-Fath",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A53": [
+    {
+      "file": "quran/shakernejad/surah-049.mp3",
+      "label": "Surah Al-Hujurat",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A54": [
+    {
+      "file": "quran/shakernejad/surah-050.mp3",
+      "label": "Surah Qaf",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A55": [
+    {
+      "file": "quran/shakernejad/surah-051.mp3",
+      "label": "Surah Adh-Dhariyat",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A56": [
+    {
+      "file": "quran/shakernejad/surah-052.mp3",
+      "label": "Surah At-Tur",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A57": [
+    {
+      "file": "quran/shakernejad/surah-053.mp3",
+      "label": "Surah An-Najm",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A58": [
+    {
+      "file": "quran/shakernejad/surah-054.mp3",
+      "label": "Surah Al-Qamar",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A59": [
+    {
+      "file": "quran/shakernejad/surah-055.mp3",
+      "label": "Surah Ar-Rahman",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A60": [
+    {
+      "file": "quran/shakernejad/surah-056.mp3",
+      "label": "Surah Al-Waqi'ah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A61": [
+    {
+      "file": "quran/shakernejad/surah-057.mp3",
+      "label": "Surah Al-Hadid",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A62": [
+    {
+      "file": "quran/shakernejad/surah-058.mp3",
+      "label": "Surah Al-Mujadilah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A63": [
+    {
+      "file": "quran/shakernejad/surah-059.mp3",
+      "label": "Surah Al-Hashr",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A64": [
+    {
+      "file": "quran/shakernejad/surah-060.mp3",
+      "label": "Surah Al-Mumtahanah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A65": [
+    {
+      "file": "quran/shakernejad/surah-061.mp3",
+      "label": "Surah As-Saff",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A66": [
+    {
+      "file": "quran/shakernejad/surah-062.mp3",
+      "label": "Surah Al-Jumu'ah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A67": [
+    {
+      "file": "quran/shakernejad/surah-063.mp3",
+      "label": "Surah Al-Munafiqun",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A68": [
+    {
+      "file": "quran/shakernejad/surah-064.mp3",
+      "label": "Surah At-Taghabun",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A69": [
+    {
+      "file": "quran/shakernejad/surah-065.mp3",
+      "label": "Surah At-Talaq",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A70": [
+    {
+      "file": "quran/shakernejad/surah-066.mp3",
+      "label": "Surah At-Tahrim",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A71": [
+    {
+      "file": "quran/shakernejad/surah-067.mp3",
+      "label": "Surah Al-Mulk",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A72": [
+    {
+      "file": "quran/shakernejad/surah-068.mp3",
+      "label": "Surah Al-Qalam",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A73": [
+    {
+      "file": "quran/shakernejad/surah-069.mp3",
+      "label": "Surah Al-Haqqah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A74": [
+    {
+      "file": "quran/shakernejad/surah-070.mp3",
+      "label": "Surah Al-Ma'arij",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A75": [
+    {
+      "file": "quran/shakernejad/surah-071.mp3",
+      "label": "Surah Nuh",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A76": [
+    {
+      "file": "quran/shakernejad/surah-072.mp3",
+      "label": "Surah Al-Jinn",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A77": [
+    {
+      "file": "quran/shakernejad/surah-073.mp3",
+      "label": "Surah Al-Muzzammil",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A78": [
+    {
+      "file": "quran/shakernejad/surah-074.mp3",
+      "label": "Surah Al-Muddaththir",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A79": [
+    {
+      "file": "quran/shakernejad/surah-075.mp3",
+      "label": "Surah Al-Qiyamah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A80": [
+    {
+      "file": "quran/shakernejad/surah-076.mp3",
+      "label": "Surah Al-Insan",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A81": [
+    {
+      "file": "quran/shakernejad/surah-077.mp3",
+      "label": "Surah Al-Mursalat",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A82": [
+    {
+      "file": "quran/shakernejad/surah-078.mp3",
+      "label": "Surah An-Naba",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A83": [
+    {
+      "file": "quran/shakernejad/surah-079.mp3",
+      "label": "Surah An-Nazi'at",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A84": [
+    {
+      "file": "quran/shakernejad/surah-080.mp3",
+      "label": "Surah 'Abasa",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A85": [
+    {
+      "file": "quran/shakernejad/surah-081.mp3",
+      "label": "Surah At-Takwir",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A86": [
+    {
+      "file": "quran/shakernejad/surah-082.mp3",
+      "label": "Surah Al-Infitar",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A87": [
+    {
+      "file": "quran/shakernejad/surah-083.mp3",
+      "label": "Surah Al-Mutaffifin",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A88": [
+    {
+      "file": "quran/shakernejad/surah-084.mp3",
+      "label": "Surah Al-Inshiqaq",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A89": [
+    {
+      "file": "quran/shakernejad/surah-085.mp3",
+      "label": "Surah Al-Buruj",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A90": [
+    {
+      "file": "quran/shakernejad/surah-086.mp3",
+      "label": "Surah At-Tariq",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A91": [
+    {
+      "file": "quran/shakernejad/surah-087.mp3",
+      "label": "Surah Al-A'la",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A92": [
+    {
+      "file": "quran/shakernejad/surah-088.mp3",
+      "label": "Surah Al-Ghashiyah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A93": [
+    {
+      "file": "quran/shakernejad/surah-089.mp3",
+      "label": "Surah Al-Fajr",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A94": [
+    {
+      "file": "quran/shakernejad/surah-090.mp3",
+      "label": "Surah Al-Balad",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A95": [
+    {
+      "file": "quran/shakernejad/surah-091.mp3",
+      "label": "Surah Ash-Shams",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A96": [
+    {
+      "file": "quran/shakernejad/surah-092.mp3",
+      "label": "Surah Al-Layl",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A97": [
+    {
+      "file": "quran/shakernejad/surah-093.mp3",
+      "label": "Surah Ad-Duha",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A98": [
+    {
+      "file": "quran/shakernejad/surah-094.mp3",
+      "label": "Surah Ash-Sharh",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A99": [
+    {
+      "file": "quran/shakernejad/surah-095.mp3",
+      "label": "Surah At-Tin",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A100": [
+    {
+      "file": "quran/shakernejad/surah-096.mp3",
+      "label": "Surah Al-'Alaq",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A101": [
+    {
+      "file": "quran/shakernejad/surah-097.mp3",
+      "label": "Surah Al-Qadr",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A102": [
+    {
+      "file": "quran/shakernejad/surah-098.mp3",
+      "label": "Surah Al-Bayyinah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A103": [
+    {
+      "file": "quran/shakernejad/surah-099.mp3",
+      "label": "Surah Az-Zalzalah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A104": [
+    {
+      "file": "quran/shakernejad/surah-100.mp3",
+      "label": "Surah Al-'Adiyat",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A105": [
+    {
+      "file": "quran/shakernejad/surah-101.mp3",
+      "label": "Surah Al-Qari'ah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A106": [
+    {
+      "file": "quran/shakernejad/surah-102.mp3",
+      "label": "Surah At-Takathur",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A107": [
+    {
+      "file": "quran/shakernejad/surah-103.mp3",
+      "label": "Surah Al-'Asr",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A108": [
+    {
+      "file": "quran/shakernejad/surah-104.mp3",
+      "label": "Surah Al-Humazah",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A109": [
+    {
+      "file": "quran/shakernejad/surah-105.mp3",
+      "label": "Surah Al-Fil",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A110": [
+    {
+      "file": "quran/shakernejad/surah-106.mp3",
+      "label": "Surah Quraysh",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A111": [
+    {
+      "file": "quran/shakernejad/surah-107.mp3",
+      "label": "Surah Al-Ma'un",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A112": [
+    {
+      "file": "quran/shakernejad/surah-108.mp3",
+      "label": "Surah Al-Kawthar",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A113": [
+    {
+      "file": "quran/shakernejad/surah-109.mp3",
+      "label": "Surah Al-Kafirun",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A114": [
+    {
+      "file": "quran/shakernejad/surah-110.mp3",
+      "label": "Surah An-Nasr",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A115": [
+    {
+      "file": "quran/shakernejad/surah-111.mp3",
+      "label": "Surah Al-Masad",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A116": [
+    {
+      "file": "quran/shakernejad/surah-112.mp3",
+      "label": "Surah Al-Ikhlas",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A117": [
+    {
+      "file": "quran/shakernejad/surah-113.mp3",
+      "label": "Surah Al-Falaq",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
+  "A118": [
+    {
+      "file": "quran/shakernejad/surah-114.mp3",
+      "label": "Surah An-Nas",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
   "AA10": [
     {
       "file": "dua_iftitah_96k.mp3",

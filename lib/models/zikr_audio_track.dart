@@ -1,7 +1,7 @@
 /// Where every zikr recording is hosted: the app's own Cloudflare R2 bucket.
 ///
-/// assets/zikr_audio.json names each track by its file name alone, so moving
-/// the bucket (to a custom domain, say) is this one line.
+/// assets/zikr_audio.json names each track by its path inside the bucket, so
+/// moving the bucket (to a custom domain, say) is this one line.
 const String zikrAudioBaseUrl =
     'https://pub-ee9041af06e644c2932c50c137c28aef.r2.dev/';
 
@@ -38,7 +38,8 @@ class ZikrAudioTrack {
       if (entry is! Map) continue;
       final file = entry['file']?.toString().trim() ?? '';
       if (file.isEmpty) continue;
-      final url = '$zikrAudioBaseUrl${Uri.encodeComponent(file)}';
+      final url =
+          '$zikrAudioBaseUrl${file.split('/').map(Uri.encodeComponent).join('/')}';
       if (!seen.add(url)) continue;
 
       tracks.add(ZikrAudioTrack(

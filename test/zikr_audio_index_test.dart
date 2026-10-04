@@ -18,7 +18,7 @@ void main() {
     expect(missing, isEmpty);
   });
 
-  test('every track is a plain R2 file name with a label', () {
+  test('every track is an R2 path with a label', () {
     final offenders = <String>[];
     raw.forEach((uid, tracks) {
       if (tracks is! List || tracks.isEmpty) {
@@ -28,8 +28,8 @@ void main() {
       for (final track in tracks) {
         final map = track as Map<String, dynamic>;
         final file = map['file']?.toString() ?? '';
-        if (!RegExp(r'^[A-Za-z0-9_.-]+\.mp3$').hasMatch(file)) {
-          offenders.add('$uid: file "$file" is not a plain .mp3 name');
+        if (!RegExp(r'^[A-Za-z0-9_.\-/]+\.mp3$').hasMatch(file)) {
+          offenders.add('$uid: file "$file" is not a plain .mp3 path');
         }
         if ((map['label']?.toString().trim() ?? '').isEmpty) {
           offenders.add('$uid: $file has no label');
