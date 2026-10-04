@@ -9,6 +9,7 @@ RecitationEntry _entry({
   int surah = 2,
   int fromAyah = 1,
   int toAyah = 1,
+  bool readInJuz = false,
 }) {
   return RecitationEntry(
     id: id,
@@ -17,6 +18,7 @@ RecitationEntry _entry({
     surah: surah,
     fromAyah: fromAyah,
     toAyah: toAyah,
+    readInJuz: readInJuz,
   );
 }
 
@@ -319,6 +321,27 @@ void main() {
       final nas = RecitationTrackerState.empty.setEntry(_entry(
           id: 'b', recitedAt: DateTime.utc(2026, 1, 1), surah: 114, fromAyah: 1, toAyah: 6));
       expect(nas.resumePositionFor('Family'), const VerseKey(1, 1));
+    });
+
+    test('resumesInJuzFor follows how the most recent entry was read', () {
+      final state = RecitationTrackerState({
+        'a': _entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), readInJuz: true),
+        'b': _entry(id: 'b', recitedAt: DateTime.utc(2026, 1, 2), surah: 3),
+        'c': _entry(id: 'c', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 3), readInJuz: true),
+      });
+
+      expect(state.resumesInJuzFor('Family'), isFalse);
+      expect(state.resumesInJuzFor('Personal'), isTrue);
+      expect(state.resumesInJuzFor('Nonexistent'), isFalse);
+    });
+
+    test('readInJuz survives a JSON round trip and is omitted when false', () {
+      final juz = _entry(id: 'j', recitedAt: DateTime.utc(2026, 1, 1), readInJuz: true);
+      final surah = _entry(id: 's', recitedAt: DateTime.utc(2026, 1, 1));
+
+      expect(RecitationEntry.fromJson(juz.toJson())!.readInJuz, isTrue);
+      expect(surah.toJson().containsKey('readInJuz'), isFalse);
+      expect(RecitationEntry.fromJson(surah.toJson())!.readInJuz, isFalse);
     });
 
     test('mostRecentPosition ignores labels, unlike resumePositionFor', () {

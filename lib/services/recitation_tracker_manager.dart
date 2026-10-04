@@ -520,6 +520,7 @@ class RecitationTrackerManager extends ChangeNotifier {
     required int toAyah,
     DateTime? recitedAt,
     String? id,
+    bool readInJuz = false,
     bool syncRemote = true,
   }) {
     final trimmedLabel = label.trim();
@@ -532,7 +533,8 @@ class RecitationTrackerManager extends ChangeNotifier {
         existing.label == trimmedLabel &&
         existing.surah == surah &&
         existing.fromAyah == fromAyah &&
-        existing.toAyah == toAyah) {
+        existing.toAyah == toAyah &&
+        existing.readInJuz == readInJuz) {
       // Nothing new to record - but a range logged locally earlier may still
       // be waiting to go up.
       if (syncRemote) unawaited(syncPendingOperations());
@@ -546,6 +548,7 @@ class RecitationTrackerManager extends ChangeNotifier {
       surah: surah,
       fromAyah: fromAyah,
       toAyah: toAyah,
+      readInJuz: readInJuz,
     );
     return _applyOperation(
       PendingRecitationOperation.add(entry),

@@ -33,6 +33,7 @@ class RecitationEntry {
     required this.surah,
     required this.fromAyah,
     required this.toAyah,
+    this.readInJuz = false,
   });
 
   /// Returns null rather than a placeholder entry, so a corrupt row is
@@ -59,6 +60,7 @@ class RecitationEntry {
       surah: surah,
       fromAyah: fromAyah,
       toAyah: toAyah,
+      readInJuz: value['readInJuz'] == true,
     );
   }
 
@@ -72,6 +74,10 @@ class RecitationEntry {
   final int surah;
   final int fromAyah;
   final int toAyah;
+
+  /// Whether this was read in a juz rather than in its surah, so resuming
+  /// the track reopens the same view it was left in.
+  final bool readInJuz;
 
   int get versesRecited => toAyah - fromAyah + 1;
 
@@ -87,6 +93,7 @@ class RecitationEntry {
       surah: surah,
       fromAyah: fromAyah ?? this.fromAyah,
       toAyah: toAyah ?? this.toAyah,
+      readInJuz: readInJuz,
     );
   }
 
@@ -97,6 +104,7 @@ class RecitationEntry {
         'surah': surah,
         'fromAyah': fromAyah,
         'toAyah': toAyah,
+        if (readInJuz) 'readInJuz': true,
       };
 }
 
@@ -258,13 +266,7 @@ class RecitationTrackerState {
   /// (and an-Nas at al-Fatihah, for the next khatm) - otherwise finishing a
   /// surah would leave the track parked on its final verse.
   VerseKey? resumePositionFor(String label) {
-    RecitationEntry? latest;
-    for (final entry in entries.values) {
-      if (entry.label != label) continue;
-      if (latest == null || entry.recitedAt.isAfter(latest.recitedAt)) {
-        latest = entry;
-      }
-    }
+    final latest = _latestEntryFor(label);
     if (latest == null) return null;
 
     final surah = latest.surah;
@@ -275,6 +277,22 @@ class RecitationTrackerState {
           : VerseKey(surah + 1, 1);
     }
     return VerseKey(surah, latest.toAyah);
+  }
+
+  /// Whether [label] was last read in a juz, so its resume card reopens a
+  /// juz rather than a surah.
+  bool resumesInJuzFor(String label) =>
+      _latestEntryFor(label)?.readInJuz ?? false;
+
+  RecitationEntry? _latestEntryFor(String label) {
+    RecitationEntry? latest;
+    for (final entry in entries.values) {
+      if (entry.label != label) continue;
+      if (latest == null || entry.recitedAt.isAfter(latest.recitedAt)) {
+        latest = entry;
+      }
+    }
+    return latest;
   }
 
   /// Where the reader most recently was, on whichever track.

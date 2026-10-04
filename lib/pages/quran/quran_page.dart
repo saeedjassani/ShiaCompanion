@@ -334,6 +334,18 @@ class _LabelResumeCard extends StatelessWidget {
 
   Future<void> _resume(BuildContext context) async {
     final resume = state.resumePositionFor(label);
+    // Left off in a juz, carry on in one - the juz the resume point falls in,
+    // which is the next juz once the last one was read to its end.
+    if (resume != null && resume.ayah != null && state.resumesInJuzFor(label)) {
+      await openQuranJuz(
+        context,
+        juzOf(resume.surah, resume.ayah!),
+        at: resume,
+        source: ZikrOpenSource.quranResume,
+        recitationLabel: label,
+      );
+      return;
+    }
     await openQuranVerse(
       context,
       resume ?? const VerseKey(1),

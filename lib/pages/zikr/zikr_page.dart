@@ -610,6 +610,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         surah: surah,
         fromAyah: fromAyah,
         toAyah: toAyah,
+        readInJuz: widget.portion != null,
         syncRemote: syncRemote,
       ));
     }
