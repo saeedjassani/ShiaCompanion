@@ -5,11 +5,19 @@ import 'package:flutter/material.dart';
 import '../../models/recitation_tracker_state.dart';
 import '../../services/recitation_tracker_manager.dart';
 import '../../utils/quran_index.dart';
+import 'verse_position_picker.dart';
 
 /// "Juz 5" / "Juz 5 · An-Nisa 30" when reading by juz, "Al-Baqarah" /
 /// "Al-Baqarah 142" when reading by surah - the start of a unit reads as just
 /// the unit, anywhere inside it as the verse too.
-String describeRecitationPosition(VerseKey verse, {required bool byJuz}) {
+///
+/// [compact] gives the juz form as "Juz 5 · 4:30", short enough for a
+/// track card.
+String describeRecitationPosition(
+  VerseKey verse, {
+  required bool byJuz,
+  bool compact = false,
+}) {
   final ayah = verse.ayah ?? 1;
   final surahName =
       surahInfoFor(verse.surah)?.englishName ?? 'Surah ${verse.surah}';
@@ -19,7 +27,9 @@ String describeRecitationPosition(VerseKey verse, {required bool byJuz}) {
   final juzStart = allJuz()[juz - 1].start;
   return juzStart == VerseKey(verse.surah, ayah)
       ? 'Juz $juz'
-      : 'Juz $juz · $surahName $ayah';
+      : compact
+          ? 'Juz $juz · ${verse.surah}:$ayah'
+          : 'Juz $juz · $surahName $ayah';
 }
 
 /// Creates a recitation track, or - with [label] - changes an existing one.
@@ -78,29 +88,18 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     super.dispose();
   }
 
-  /// Switching view on a new track snaps a chosen start to the new unit, so
-  /// "Al-Baqarah" becomes "Juz 1" rather than an odd mid-juz point nobody
-  /// picked. Editing leaves the place alone: that is where the reader is.
-  void _setReadByJuz(bool byJuz) {
-    setState(() {
-      _readByJuz = byJuz;
-      final position = _position;
-      if (_isEditing || position == null) return;
-      _position = byJuz
-          ? allJuz()[juzOf(position.surah, position.ayah ?? 1) - 1].start
-          : VerseKey(position.surah, 1);
-    });
-  }
+  /// Only the view changes: a chosen verse stays exactly where it was, and
+  /// just reads differently - "Al-Ahzab 33" becomes "Juz 22 · Al-Ahzab 33".
+  void _setReadByJuz(bool byJuz) => setState(() => _readByJuz = byJuz);
 
   Future<void> _pickPosition() async {
-    final picked = await showModalBottomSheet<VerseKey>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) => _PositionPicker(
-        byJuz: _readByJuz,
-        current: _position ?? const VerseKey(1, 1),
-      ),
+    final readByJuz = _readByJuz;
+    final picked = await showVersePositionPicker(
+      context,
+      initial: _position ?? const VerseKey(1, 1),
+      browseByJuz: readByJuz,
+      describe: (verse) => describeRecitationPosition(verse, byJuz: readByJuz),
+      confirmVerb: _isEditing ? 'Continue from' : 'Start at',
     );
     if (picked == null || !mounted) return;
     setState(() {
@@ -249,7 +248,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
                 _isEditing
                     ? 'Your track moves on by itself as you read. Change this '
                         'only to pick up somewhere else.'
-                    : 'You can change these anytime - tap the track\'s ⋯.',
+                    : 'You can change these anytime from the track card.',
                 style: theme.textTheme.bodySmall
                     ?.copyWith(color: colorScheme.onSurfaceVariant),
               ),
@@ -261,100 +260,6 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Every surah, or every juz, to pick a starting point from - with the one
-/// [current] falls in marked and scrolled into view.
-class _PositionPicker extends StatefulWidget {
-  const _PositionPicker({required this.byJuz, required this.current});
-
-  final bool byJuz;
-  final VerseKey current;
-
-  @override
-  State<_PositionPicker> createState() => _PositionPickerState();
-}
-
-class _PositionPickerState extends State<_PositionPicker> {
-  static const double _rowHeight = 56;
-
-  final _juzList = allJuz();
-  final _surahs = allSurahs();
-  late final int _selectedIndex = widget.byJuz
-      ? juzOf(widget.current.surah, widget.current.ayah ?? 1) - 1
-      : widget.current.surah - 1;
-
-  /// Opens with the current choice in view, a couple of rows down.
-  late final _scrollController = ScrollController(
-    initialScrollOffset: (_selectedIndex - 2).clamp(0, 200) * _rowHeight,
-  );
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final byJuz = widget.byJuz;
-    final juzList = _juzList;
-    final surahs = _surahs;
-    final count = byJuz ? juzList.length : surahs.length;
-    final selectedIndex = _selectedIndex;
-
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height * 0.7,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(
-                byJuz ? 'Choose a juz' : 'Choose a surah',
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemExtent: _rowHeight,
-              itemCount: count,
-              itemBuilder: (context, index) {
-                final isSelected = index == selectedIndex;
-                final VerseKey start;
-                final String title;
-                final String subtitle;
-                if (byJuz) {
-                  final juz = juzList[index];
-                  start = juz.start;
-                  title = 'Juz ${juz.number}';
-                  subtitle = describeRecitationPosition(start, byJuz: false);
-                } else {
-                  final surah = surahs[index];
-                  start = VerseKey(surah.number, 1);
-                  title = '${surah.number}. ${surah.englishName}';
-                  subtitle = surah.arabicName;
-                }
-                return ListTile(
-                  selected: isSelected,
-                  selectedTileColor: colorScheme.secondaryContainer,
-                  title: Text(title),
-                  subtitle: Text(subtitle, maxLines: 1),
-                  trailing: isSelected ? const Icon(Icons.check) : null,
-                  onTap: () => Navigator.pop(context, start),
-                );
-              },
-            ),
-          ),
-        ],
       ),
     );
   }

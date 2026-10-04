@@ -253,9 +253,16 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('The beginning'));
     await tester.pumpAndSettle();
+    // Opens on the unit already chosen - juz 1 - so step back to the list.
+    await tester.tap(find.byTooltip('All juz'));
+    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('Juz 12'), 200,
         scrollable: find.byType(Scrollable).last);
     await tester.tap(find.text('Juz 12'));
+    await tester.pumpAndSettle();
+    // Opening a juz readies its first verse.
+    expect(find.text('Juz 12'), findsWidgets);
+    await tester.tap(find.text('Choose'));
     await tester.pumpAndSettle();
     expect(find.text('Juz 12'), findsOneWidget);
 
@@ -264,7 +271,7 @@ void main() {
 
     expect(find.text('Create track'), findsNothing);
     expect(find.bySemanticsLabel('Edit Khatm track'), findsOneWidget);
-    expect(find.text('Start at Juz 12'), findsOneWidget);
+    expect(find.text('From Juz 12'), findsOneWidget);
   });
 
   testWidgets('a track can be switched to juz later', (tester) async {
@@ -289,6 +296,41 @@ void main() {
       RecitationTrackerManager.instance.state.settingsFor('Later').readByJuz,
       isTrue,
     );
+  });
+
+  testWidgets('a start can be typed down to the ayah', (tester) async {
+    await pump(tester);
+
+    await tester.tap(find.text('New track'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Ahzab');
+    await tester.tap(find.text('Juz (Para)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('The beginning'));
+    await tester.pumpAndSettle();
+
+    // The picker's own search box, not the Quran screen's behind it.
+    await tester.enterText(
+        find.widgetWithIcon(TextField, Icons.search).last, '33:33');
+    await tester.testTextInput.receiveAction(TextInputAction.go);
+    await tester.pumpAndSettle();
+    expect(find.text('Juz 22 · Surah33 33'), findsOneWidget);
+
+    // A tap in the grid moves the choice to that ayah.
+    await tester.tap(find.bySemanticsLabel('Ayah 35'));
+    await tester.pumpAndSettle();
+    expect(find.text('Juz 22 · Surah33 35'), findsOneWidget);
+
+    await tester.tap(find.text('Choose'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create track'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('From Juz 22 · 33:35'), findsOneWidget);
+    final target =
+        RecitationTrackerManager.instance.state.resumeTargetFor('Ahzab');
+    expect(target.verse, const VerseKey(33, 35));
+    expect(target.inJuz, isTrue);
   });
 
   testWidgets('a new track needs a name', (tester) async {

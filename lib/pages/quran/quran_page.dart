@@ -233,13 +233,16 @@ class _LabelResumeCard extends StatelessWidget {
     final foreground = isUnlabeled
         ? colorScheme.onSurfaceVariant
         : colorScheme.onSecondaryContainer;
-    final position =
-        describeRecitationPosition(target.verse, byJuz: target.inJuz);
+    final position = describeRecitationPosition(
+      target.verse,
+      byJuz: target.inJuz,
+      compact: true,
+    );
     final subtitle = !target.isStart
         ? position
         : target.verse == const VerseKey(1, 1)
             ? 'Start reading'
-            : 'Start at $position';
+            : 'From $position';
 
     return SizedBox(
       width: 168,
