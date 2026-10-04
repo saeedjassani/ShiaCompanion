@@ -2,6 +2,13 @@
 
 ## TODO / follow-ups
 
+- **Missing-zikr restoration is mid-way.** 137 unfavorited uids are still
+  missing from the corpus. Before resuming, read the "Resume here" section at
+  the top of `scripts/RESTORING_MISSING_ZIKRS.md`: next batches (taweez and
+  funeral rites `I40`-`I126`, then calendar pages, then ziyarat last and
+  checked against online sources), the per-batch workflow, and the tools
+  `scripts/zikr_arabic/duas_org.py` and `scripts/zikr_arabic/translit.py`.
+
 - **Trim Firestore cost of the synced-data managers.** Zikr bookmarks
   (`lib/services/zikr_bookmarks_manager.dart`, PR #176) copied
   `SavedVersesManager`'s sync pattern, including two avoidable costs:

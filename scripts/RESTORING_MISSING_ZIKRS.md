@@ -11,6 +11,94 @@ memory note for the bug-report side of this.
 This doc is the restoration process for bringing an individual UID back with
 real, correctly-formatted content — not just a title.
 
+## Resume here (status as of 2026-10-04)
+
+**Done:** every favorited missing uid (the eight passes below). Of the 209
+*unfavorited* missing uids listed in
+[unfavorited_missing_zikrs.json](unfavorited_missing_zikrs.json), 7 are
+old menu nodes (skip), 43 are retired as duplicates, 22 are restored
+(F16-F65, E131-E136, P1). **137 remain** (80 with Arabic, 57 prose-only),
+each still marked `has-arabic`/`prose-only` in that JSON. When a batch
+ships, set its uids' `kind` to `restored`/`retired` there and recount
+`counts`.
+
+**Next batches, in the order agreed with the repo owner** (ziyarat last):
+
+1. **Taweez / medicine / funeral rites** - `I40`-`I126` (36 uids). Short,
+   uniform Mafatih/Baqiyat material. Check Step 1.5 duplicates first: `I27`
+   turned out to be `I24`'s tab, and the `I` series has several more
+   compilations (`I9`, `I14`, `I17`, `I24`).
+2. **Calendar pages** - Ramadan nights `AA24 AA36 AA41 AA42 AA44 AA45`
+   (AA36-AA44 share a closing with the live AA33/AA35/AA37/AA38 - that is
+   authentic, not a duplicate), `AC8`, Shawwal `AD1 AD5`, Safar `S2 S3 S4
+   S6 S8`, Rabi `T1 T3 U1`, Rajab `X9 X12 X16 X17 X18`. Give each a `day`
+   pattern in `assets/zikr.json` (see `lib/utils/lunar_date_matcher.dart`;
+   only canonical uids carry `day`).
+3. **Odds and ends** - `E98`, `E145`, `B1 B2 B5`, `G25 G27 G28 G31 G32`;
+   plus two half-duplicates: `AG15` (merge its missing "However, some books
+   add..." tail into `AG14`, then retire it there) and `AI17` (its Masjid
+   Sa'sa'ah section is not live anywhere - restore it).
+4. **Ziyarat sections, last** - Mashhad/Qom `AE*`, Karbala `AG*`, Najaf
+   `AK*`, Samarra `AL*`, Kazimayn `AH*`, Kufa `AI*`, Mada'in `AJ*`, Baghdad
+   `AM*`, Madinah `AP*`, Uhud `AQ*`. The owner wants these **checked against
+   online sources**, not just restored from history, and laid out like the
+   newer "All Forms" entries (one tabbed entry per shrine, e.g. `AG8`,
+   `AK5`, `AI3`) rather than one uid per page.
+
+**How a batch goes** (each step is detailed further down):
+
+1. `git fetch --unshallow` if the clone is shallow - otherwise the missing-uid
+   union from git history silently comes back empty.
+2. Read each uid's `assets/items/<uid>` history (Step 1) and check for
+   duplicates of live entries **and their tabs** (Step 1.5). Match on the
+   *English* as well as the Arabic: live copies are often re-spelled, and an
+   Arabic-only match missed most of the 32 duplicates found on 2026-10-03.
+3. Look for an online copy. Best source so far is duas.org's JSON store:
+   `python3 scripts/zikr_arabic/duas_org.py search <words>`, then
+   `blocks <page-id>`, then `draft <page-id> <block[,block]> --history
+   <uid>`. That prints Arabic (hamza vowels restored from our history where
+   the words align) / house-style transliteration / English. The older
+   duas.org `*.htm` and `mobile/*.html` pages are Word exports with mojibake
+   and a private-use hamza glyph (`U+E832` = hamza+fatha, `U+E835` = +damma,
+   `U+E834` = +sukun) - usable, but map those back. al-islam.org refuses
+   automated fetches.
+4. Write `assets/zikr/<uid>` (`title`, `data`, optional `merits`/`tabs`) and
+   the `assets/zikr.json` entry (title per CLAUDE.md conventions; slug from
+   the *old* title so old links keep working).
+5. Arabic pipeline (`zikr-arabic` skill): `backup.js`, `normalize.py`,
+   `join_wa.py`, then `batch.py plan` + `apply_patch.js` for ṣilah. After it:
+   strip ṣilah marks from plural pronouns (`هٗمْ` -> `هُمْ`) and from a hā
+   before hamzat al-waṣl, and rewrite `الَارْض`-style article damage (see the
+   P1 notes below). Do not run `batch.py plan` on an existing *imported*
+   entry you only patched - it restyles the whole file.
+6. Regenerate every transliteration line from the final Arabic with
+   `scripts/zikr_arabic/translit.py`, then **read every line against the
+   Arabic** - it is a drafting aid (`--check` scores it against hand-written
+   lines), and the read is what catches source typos.
+7. Validate: each Arabic line followed by an ALL-CAPS line and an English
+   line; no English line repeated across unrelated duas (placeholder smell);
+   `python3 scripts/zikr_arabic/audit.py <uids>` clean on INV-2/INV-3;
+   `flutter test`.
+8. Duplicates go in `lib/data/retired_zikr_redirects.dart` (with `tabIndex`
+   when the content is one tab of the target); check every target and tab
+   index exists.
+
+**Left for a human reviewer** (not blocking, but nobody has checked these):
+- English written fresh because the source had none: the recited lines of
+  F36, F37, F42, F61, F63, F65, and the Imam al-Mahdi tab of P1.
+- All transliteration added since 2026-10-03 is machine-drafted then
+  hand-read, not native-speaker reviewed. F16-F25's lines were hand-written
+  before `translit.py` existed and differ from it in places
+  (`ALLADHEES TAJABTA` vs the rule's `ALLADHIS TAJABTA`, mid-line pausal
+  endings); regenerating them with the tool would make them consistent.
+- F17: duas.org says Imam Husayn's prayer repeats al-Fatihah and al-Tawhid
+  fifty times per unit; our history and the Arabic wikishia summary say
+  twenty-five, which is what ships.
+- E132, E133, E135 rest on our history alone (no reachable online copy).
+- `day` tags for the new F/E entries were left off on purpose (master only
+  tags a few of these series, e.g. F11, E144); adding them is an editorial
+  call.
+
 ## Step 0: regenerate the missing-UID list (if you don't already have it)
 
 `scripts/query_favorited_missing_zikrs.js` does this as its first step (union
@@ -728,9 +816,9 @@ union silently comes back empty).
   `AG15` (AG14 has only half of its commentary), `AI17` (its Masjid
   Sa'sa'ah section isn't live anywhere), and `E136` - whose Imam al-Reza
   salawat *is* live, but inside `AH4` under the wrong heading ("2.Salawaat
-  Upon Imam Musa ibn Jafar"), which is itself a bug to fix.
+  Upon Imam Musa ibn Jafar") - since fixed, see the E131-E136 section below.
 
-That leaves **170 to restore** (103 with Arabic, 67 prose-only).
+That left **170 to restore** at that point (103 with Arabic, 67 prose-only); see "Resume here" at the top for the current count.
 
 ### The F (Namaz) series (2026-10-03)
 
@@ -801,8 +889,12 @@ P2-P16 were Mafatih al-Jinan's numbered rites of Thursday night ("First:"
 ... "Twelfth:", plus Imam al-Mahdi's prayer), one uid each. They are now a
 single tabbed entry, **P1 "Recommended Rites of Friday Night
 (Shab-e-Jumu'ah)"**, with P2-P16 redirected to its tabs (including the
-already-live P13/P15, whose slugs became P1's `slugAliases`). A `J10|P1`
-alias lists it in the Friday menu - no menu linked the P series before.
+already-live P13/P15, whose slugs became P1's `slugAliases`). A `Q5|P1`
+alias lists it in the Thursday menu next to Dua Kumayl (no menu linked the P
+series before), and P1 carries `day: ["*-*-4", "N*-*-5"]` so Today's
+Recitation shows it on Thursday and through Thursday night. (It can't go in
+the Friday `J` list: `test/zikr_day_data_test.dart` requires every J entry
+to be tagged `*-*-5`.)
 
 - **Source: duas.org's v2 JSON store.** The site's new pages are a JS shell
   that loads `https://www.duas.org/data_v2/<page-id>.json`; each dua is a

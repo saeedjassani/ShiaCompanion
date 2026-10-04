@@ -2836,10 +2836,6 @@
     "slug": "merits-rituals-of-friday-night-day",
     "day": "*-*-5"
   },
-  "J10|P1": {
-    "title": "Recommended Rites of Friday Night (Shab-e-Jumu'ah)",
-    "slug": "recommended-rites-of-friday-night-shab-e-jumu-ah"
-  },
   "J11|F11": {
     "title": "Namaz of Jafar Tayyar",
     "slug": "namaz-of-jafar-e-tayyar"
@@ -2987,7 +2983,10 @@
       "recitations-near-friday-dawn-fajr",
       "importance-of-shabe-jumuah"
     ],
-    "day": "N*-*-5"
+    "day": [
+      "*-*-4",
+      "N*-*-5"
+    ]
   },
   "Q1": {
     "title": "The Supplication of Thursday",
@@ -3014,6 +3013,10 @@
   "Q4|E31": {
     "title": "Dua Kumayl",
     "slug": "dua-kumayl"
+  },
+  "Q5|P1": {
+    "title": "Recommended Rites of Friday Night (Shab-e-Jumu'ah)",
+    "slug": "recommended-rites-of-friday-night-shab-e-jumu-ah"
   },
   "R1": {
     "title": "Aamal for the 1st Night and Day of the Month of Muharram",
