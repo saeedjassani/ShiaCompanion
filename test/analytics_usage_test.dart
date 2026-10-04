@@ -52,6 +52,7 @@ void main() {
       'library_offline_removed',
       'qibla_target_changed',
       'dark_mode_toggled',
+      'theme_mode_changed',
       'feedback_email_opened',
     ];
 
@@ -355,6 +356,7 @@ void main() {
         'favorite_removed': FeatureGroup.personalizationAndAccount,
         'favorite_reordered': FeatureGroup.personalizationAndAccount,
         'dark_mode_toggled': FeatureGroup.personalizationAndAccount,
+        'theme_mode_changed': FeatureGroup.personalizationAndAccount,
         'app_text_scale_changed': FeatureGroup.personalizationAndAccount,
         // Feedback & ratings
         'rating_prompt': FeatureGroup.feedbackAndRatings,

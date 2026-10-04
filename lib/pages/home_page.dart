@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/constants.dart';
@@ -36,14 +37,14 @@ import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
-import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/hadith_loader.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
-import 'package:shia_companion/widgets/azan_playing_banner.dart';
+import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/whats_new_dialog.dart';
@@ -51,12 +52,14 @@ import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import '../l10n/l10n.dart';
 
+/// The Home tab: everything that used to be the home screen, under a
+/// greeting with the profile button (Settings) in place of the old app bar.
+/// Search moved to the round button beside the tab bar (see AppShell).
+///
+/// Also where start-up work runs - deep links, notifications, the sync
+/// managers - since Home is the tab every launch opens on.
 class MyHomePage extends StatefulWidget {
-  MyHomePage({
-    required this.title,
-  });
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -95,7 +98,6 @@ class _MyHomePageState extends State<MyHomePage>
     _setupDeepLinks();
     _setupAndroidWidgetLinks();
     setupPreferences();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   }
 
   Future<void> _setupDeepLinks() async {
@@ -357,161 +359,162 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
-    final menuItems = visibleHomeMenuItems;
+    final menuItems = homeGridMenuItems;
+    final colors = ShiaColors.of(context);
+    final insets = MediaQuery.paddingOf(context);
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: _openSearch,
-            )
-          ],
-        ),
-        bottomSheet: kIsWeb ? null : const AzanPlayingBanner(),
         body: ResponsiveScrollableContent(
-          maxWidth: wideContentWidth,
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 22.0, horizontal: 16.0),
-                  child: InkWell(
-                    onTap: () async {
-                      final result = await SharePlus.instance.share(ShareParams(
-                        text:
-                            '$hadith\n\n${context.l10n.hadithSharedVia('https://shia-companion.web.app/')}',
-                        sharePositionOrigin: Rect.fromLTWH(
-                            MediaQuery.of(context).size.width / 2, 0, 2, 2),
-                      ));
-                      if (result.status == ShareResultStatus.success) {
-                        RatingPromptService.recordPositiveAction(
-                            'share_hadith');
-                      }
-                    },
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 760),
-                      child: Text(
-                        '$hadith',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.center,
+      maxWidth: wideContentWidth,
+      // No app bar, so the header clears the status bar itself; the
+      // bottom inset includes the floating tab bar, so the grid's last
+      // row can scroll clear of it.
+      padding: EdgeInsets.fromLTRB(16, insets.top + 12, 16, insets.bottom + 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          _HomeHeader(
+            onOpenSettings: () => _openHomeMenuItem(settingsMenuItem),
+          ),
+          Center(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 22.0, horizontal: 16.0),
+              child: InkWell(
+                onTap: () async {
+                  final result = await SharePlus.instance.share(ShareParams(
+                    text:
+                        '$hadith\n\n${context.l10n.hadithSharedVia('https://shia-companion.web.app/')}',
+                    sharePositionOrigin: Rect.fromLTWH(
+                        MediaQuery.of(context).size.width / 2, 0, 2, 2),
+                  ));
+                  if (result.status == ShareResultStatus.success) {
+                    RatingPromptService.recordPositiveAction('share_hadith');
+                  }
+                },
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 760),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        textButtonTheme: TextButtonThemeData(
-                          style: TextButton.styleFrom(
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      child: HomePrayerTimesCard(
-                        onTap: () => _openHomeMenuItem(calendarMenuItem),
-                      ),
-                    ),
+                  child: Text(
+                    '$hadith',
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: LayoutBuilder(builder: (context, constraints) {
-                  // Use maxCrossAxisExtent so grid adapts to available width
-                  // Make the tiles smaller on narrow screens so more columns can fit
-                  double maxExtent;
-                  double spacing = 8.0;
-                  if (constraints.maxWidth < 360) {
-                    maxExtent = 140;
-                    spacing = 6.0;
-                  } else if (constraints.maxWidth < 600) {
-                    maxExtent = 160;
-                    spacing = 8.0;
-                  } else if (constraints.maxWidth < 900) {
-                    maxExtent = 190;
-                    spacing = 10.0;
-                  } else {
-                    maxExtent = 210;
-                    spacing = 12.0;
-                  }
-                  return GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: maxExtent,
-                      mainAxisSpacing: spacing,
-                      crossAxisSpacing: spacing,
-                      childAspectRatio:
-                          constraints.maxWidth >= 900 ? 1.05 : 0.95,
-                    ),
-                    itemCount: menuItems.length,
-                    itemBuilder: (BuildContext c, int i) {
-                      final menuItem = menuItems[i];
-                      return Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Card(
-                          child: InkWell(
-                            onTap: () => _openHomeMenuItem(menuItem),
-                            child: LayoutBuilder(
-                                builder: (context, tileConstraints) {
-                              final double tileWidth = tileConstraints.maxWidth;
-                              final double avatarRadius =
-                                  (tileWidth * 0.18).clamp(18.0, 40.0);
-                              final double iconSize = avatarRadius * 0.9;
-                              final double fontSize = tileWidth > 140 ? 14 : 12;
-                              final double verticalPadding =
-                                  tileWidth > 140 ? 12 : 8;
-
-                              return Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: verticalPadding, horizontal: 8.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    CircleAvatar(
-                                      radius: avatarRadius,
-                                      backgroundColor:
-                                          Theme.of(context).primaryColor,
-                                      child: menuItem.buildIcon(
-                                        size: iconSize,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: tileWidth > 140 ? 10 : 6),
-                                    Text(
-                                      menuItem.displayLabel,
-                                      textAlign: TextAlign.center,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(fontSize: fontSize),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }),
-              ),
-            ],
+            ),
           ),
-        ));
+          Align(
+            alignment: Alignment.center,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    textButtonTheme: TextButtonThemeData(
+                      style: TextButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  child: HomePrayerTimesCard(
+                    onTap: () => _openHomeMenuItem(calendarMenuItem),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: LayoutBuilder(builder: (context, constraints) {
+              // Use maxCrossAxisExtent so grid adapts to available width
+              // Make the tiles smaller on narrow screens so more columns can fit
+              double maxExtent;
+              double spacing = 8.0;
+              if (constraints.maxWidth < 360) {
+                maxExtent = 140;
+                spacing = 6.0;
+              } else if (constraints.maxWidth < 600) {
+                maxExtent = 160;
+                spacing = 8.0;
+              } else if (constraints.maxWidth < 900) {
+                maxExtent = 190;
+                spacing = 10.0;
+              } else {
+                maxExtent = 210;
+                spacing = 12.0;
+              }
+              return GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: maxExtent,
+                  mainAxisSpacing: spacing,
+                  crossAxisSpacing: spacing,
+                  childAspectRatio: constraints.maxWidth >= 900 ? 1.05 : 0.95,
+                ),
+                itemCount: menuItems.length,
+                itemBuilder: (BuildContext c, int i) {
+                  final menuItem = menuItems[i];
+                  return Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => _openHomeMenuItem(menuItem),
+                        child:
+                            LayoutBuilder(builder: (context, tileConstraints) {
+                          final double tileWidth = tileConstraints.maxWidth;
+                          final double fontSize = tileWidth > 140 ? 14 : 12;
+                          final double verticalPadding =
+                              tileWidth > 140 ? 12 : 8;
+
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: verticalPadding, horizontal: 8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // An icon tile: the glyph in the accent
+                                // on a well, not a filled brown circle.
+                                Container(
+                                  width: 52,
+                                  height: 52,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: colors.well,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: menuItem.buildIcon(
+                                    size: 30,
+                                    color: colors.accent,
+                                  ),
+                                ),
+                                SizedBox(height: tileWidth > 140 ? 10 : 6),
+                                Text(
+                                  menuItem.displayLabel,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: fontSize),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }),
+          ),
+        ],
+      ),
+    ));
   }
 
   void initializeData() async {
@@ -651,46 +654,6 @@ class _MyHomePageState extends State<MyHomePage>
     await LocationService.instance.refreshIfStale();
   }
 
-  Future<void> _openSearch() async {
-    final books = await LibraryService.loadBooks();
-    if (!mounted) return;
-
-    // Ties in search rank keep this order, so give it the one the lists use:
-    // by category, then as each category's list shows it. Plain key order put
-    // A117 (Al-Falaq) ahead of A5 (Al-Fatihah).
-    final zikrEntries = items.entries
-        .map((entry) => UidTitleData(entry.key, entry.value))
-        .toList()
-      ..sort(_compareSearchOrder);
-
-    unawaited(AnalyticsService.searchOpened());
-    showSearch(
-      context: context,
-      delegate: DataSearch(
-        [
-          ...zikrEntries,
-          ...books,
-        ],
-        libraryUids: books.map((book) => book.uid).toSet(),
-      ),
-    );
-  }
-
-  static final RegExp _categoryPattern = RegExp(r'^[A-Za-z]*');
-
-  static int _compareSearchOrder(UidTitleData a, UidTitleData b) {
-    final byCategory = _categoryPattern
-        .stringMatch(a.uid)!
-        .compareTo(_categoryPattern.stringMatch(b.uid)!);
-    if (byCategory != 0) return byCategory;
-    final byOrder =
-        getItemOrderValue(a.uid).compareTo(getItemOrderValue(b.uid));
-    if (byOrder != 0) return byOrder;
-    final byId = a.getId().compareTo(b.getId());
-    if (byId != 0) return byId;
-    return a.uid.compareTo(b.uid);
-  }
-
   Future<void> getHadith() async {
     final today =
         HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
@@ -827,5 +790,76 @@ class _MyHomePageState extends State<MyHomePage>
   void didPopNext() {
     syncWebRoutePath('/', replace: true);
     setState(() {});
+  }
+}
+
+/// Today's date, the greeting, and the profile button that opens Settings
+/// (docs/DESIGN_SPEC.md, Home section 1).
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({required this.onOpenSettings});
+
+  final VoidCallback onOpenSettings;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final wide = MediaQuery.sizeOf(context).width >= 600;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateFormat('EEEE d MMMM').format(DateTime.now()),
+                style: ShiaText.secondary.copyWith(color: colors.textMuted),
+              ),
+              const SizedBox(height: 2),
+              Semantics(
+                header: true,
+                child: Text(
+                  'Assalamu alaykum',
+                  style: (wide ? ShiaText.greetingWide : ShiaText.greeting)
+                      .copyWith(color: colors.text),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Tooltip(
+            message: 'Settings and account',
+            child: Semantics(
+              button: true,
+              label: 'Settings and account',
+              excludeSemantics: true,
+              onTap: onOpenSettings,
+              child: Material(
+                color: colors.surface,
+                shape: CircleBorder(side: BorderSide(color: colors.line)),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: onOpenSettings,
+                  child: SizedBox.square(
+                    dimension: 44,
+                    child: Center(
+                      child: OutlineIcon(
+                        OutlineGlyph.profile,
+                        size: 22,
+                        color: colors.accent,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

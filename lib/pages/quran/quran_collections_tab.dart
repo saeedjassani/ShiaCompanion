@@ -164,7 +164,10 @@ class _QuranDuaList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating tab bar when this is a tab's root, and the
+        // system's bottom inset otherwise.
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) =>
             index >= uids.length - 1 && index <= uids.length
                 ? const SizedBox.shrink()
@@ -239,7 +242,10 @@ class _NotedVerseList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating tab bar when this is a tab's root, and the
+        // system's bottom inset otherwise.
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemCount: verses.length,
         itemBuilder: (context, index) {
@@ -279,7 +285,10 @@ class _ProphetStoryList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating tab bar when this is a tab's root, and the
+        // system's bottom inset otherwise.
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         itemCount: rows.length,
         itemBuilder: (context, index) {
           final row = rows[index];
@@ -369,7 +378,10 @@ class _SavedVerseList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating tab bar when this is a tab's root, and the
+        // system's bottom inset otherwise.
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemCount: saved.length,
         itemBuilder: (context, index) {

@@ -290,7 +290,10 @@ const Set<String> _personalizationAndAccountFeatureKeys = {
   'favorite_added',
   'favorite_removed',
   'favorite_reordered',
+  // The old Dark mode switch, kept for its history; replaced by the
+  // three-way Theme setting.
   'dark_mode_toggled',
+  'theme_mode_changed',
   'app_text_scale_changed',
 };
 

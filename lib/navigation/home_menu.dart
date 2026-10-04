@@ -33,6 +33,7 @@ bool get supportsPrayerCounterOnCurrentPlatform =>
 class HomeMenuItem {
   const HomeMenuItem({
     required this.label,
+    required this.analyticsId,
     required this.icon,
     required this.pageBuilder,
     this.glyphType,
@@ -40,6 +41,14 @@ class HomeMenuItem {
   });
 
   final String label;
+
+  /// The key this feature's counter is recorded under (`home_menu_<id>`).
+  ///
+  /// Spelled out rather than derived from [label], so a label can be reworded
+  /// (Preferences -> Settings, say) without forking the counter. Every id was
+  /// set to what the old label-derived getter produced, so history carries
+  /// over; keep it unchanged when the label changes.
+  final String analyticsId;
   final IconData icon;
   final HomeGlyphType? glyphType;
   final HomeMenuPageBuilder pageBuilder;
@@ -59,16 +68,7 @@ class HomeMenuItem {
   final bool countsAsFeatureUse;
 
   Widget buildPage() {
-    // Every home menu feature is opened through here, so one hook ranks Qibla,
-    // Tasbeeh, Qaza, Calendar and the rest against each other without each page
-    // needing its own event.
-    if (countsAsFeatureUse) {
-      AnalyticsService.feature(
-        'home_menu_$analyticsId',
-        label: label,
-        parameters: {'menu_item': label},
-      );
-    }
+    recordOpen();
     return pageBuilder();
   }
 
@@ -76,16 +76,23 @@ class HomeMenuItem {
   /// it identifies the item (analytics, lookups by name).
   String get displayLabel => homeMenuDisplayLabel(label);
 
-  /// Stable id derived from the label, so the counter key survives a rebuild
-  /// but forks if the feature is ever genuinely renamed.
-  String get analyticsId => label
-      .toLowerCase()
-      .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
-      .replaceAll(RegExp(r'^_|_$'), '');
+  /// Counts one opening of this feature. Every home menu feature is opened
+  /// through [buildPage] or a tab of the app shell, so one hook ranks Qibla,
+  /// Tasbeeh, Qaza, Calendar and the rest against each other without each
+  /// page needing its own event.
+  void recordOpen() {
+    if (!countsAsFeatureUse) return;
+    AnalyticsService.feature(
+      'home_menu_$analyticsId',
+      label: label,
+      parameters: {'menu_item': label},
+    );
+  }
 }
 
 final HomeMenuItem calendarMenuItem = HomeMenuItem(
   label: 'Calendar & Prayer Times',
+  analyticsId: 'calendar_prayer_times',
   icon: Icons.calendar_month_rounded,
   pageBuilder: () => Scaffold(
     appBar: AppBar(title: Text(L10n.current.menuCalendar)),
@@ -94,49 +101,46 @@ final HomeMenuItem calendarMenuItem = HomeMenuItem(
 );
 
 final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
-  HomeMenuItem(
-    label: 'Favorites',
-    icon: Icons.favorite_rounded,
-    pageBuilder: () => FavoritesPage(),
-  ),
+  favoritesMenuItem,
   HomeMenuItem(
     label: "Today's Recitations",
+    analyticsId: 'today_s_recitations',
     glyphType: HomeGlyphType.todaysRecitations,
     icon: Icons.auto_stories_rounded,
     pageBuilder: () => TodaysRecitationPage(),
   ),
   HomeMenuItem(
     label: 'Taqeebat e Namaz',
+    analyticsId: 'taqeebat_e_namaz',
     glyphType: HomeGlyphType.taqeebat,
     icon: Icons.bookmarks_rounded,
     pageBuilder: () => ItemList("D", L10n.current.menuTaqeebat),
   ),
   HomeMenuItem(
     label: 'Namaz',
+    analyticsId: 'namaz',
     glyphType: HomeGlyphType.namaz,
     icon: Icons.wb_twilight_rounded,
     pageBuilder: () => ItemList("F", L10n.current.menuNamaz),
   ),
   HomeMenuItem(
     label: 'Duas',
+    analyticsId: 'duas',
     glyphType: HomeGlyphType.duas,
     icon: Icons.front_hand_rounded,
     pageBuilder: () => ItemList("E", L10n.current.menuDuas),
   ),
   HomeMenuItem(
     label: 'Ziyarats',
+    analyticsId: 'ziyarats',
     glyphType: HomeGlyphType.ziyaraat,
     icon: Icons.mosque_rounded,
     pageBuilder: () => ItemList("G", L10n.current.menuZiyarats),
   ),
-  HomeMenuItem(
-    label: 'Surahs',
-    glyphType: HomeGlyphType.surahs,
-    icon: Icons.menu_book_rounded,
-    pageBuilder: () => ItemList("A", L10n.current.menuSurahs),
-  ),
+  surahsMenuItem,
   HomeMenuItem(
     label: 'Aamaal',
+    analyticsId: 'aamaal',
     glyphType: HomeGlyphType.aamaal,
     icon: Icons.light_mode_rounded,
     pageBuilder: () => ItemList("C", L10n.current.menuAamaal),
@@ -144,6 +148,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   calendarMenuItem,
   HomeMenuItem(
     label: 'Library',
+    analyticsId: 'library',
     glyphType: HomeGlyphType.library,
     icon: Icons.local_library_rounded,
     pageBuilder: () => Scaffold(
@@ -153,12 +158,14 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Munajaat',
+    analyticsId: 'munajaat',
     glyphType: HomeGlyphType.munajaat,
     icon: Icons.nights_stay_rounded,
     pageBuilder: () => ItemList("H", L10n.current.menuMunajaat),
   ),
   HomeMenuItem(
     label: 'Baaqeyaat As Saalehaat',
+    analyticsId: 'baaqeyaat_as_saalehaat',
     glyphType: HomeGlyphType.baqeyaat,
     icon: Icons.history_edu_rounded,
     pageBuilder: () => ItemList("I", L10n.current.menuBaaqeyaat),
@@ -166,41 +173,65 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   playlistsMenuItem,
   HomeMenuItem(
     label: 'Qibla Finder',
+    analyticsId: 'qibla_finder',
     icon: Icons.explore_rounded,
     pageBuilder: () => const QiblaFinder(),
   ),
   HomeMenuItem(
     label: 'Tasbeeh Counter',
+    analyticsId: 'tasbeeh_counter',
     glyphType: HomeGlyphType.tasbeeh,
     icon: Icons.adjust_rounded,
     pageBuilder: () => TasbeehWidget(),
   ),
   HomeMenuItem(
     label: 'Qaza Tracker',
+    analyticsId: 'qaza_tracker',
     icon: Icons.event_repeat_rounded,
     pageBuilder: () => const QazaTrackerPage(),
   ),
   if (supportsPrayerCounterOnCurrentPlatform)
     HomeMenuItem(
       label: 'Rakaat Counter',
+      analyticsId: 'rakaat_counter',
       glyphType: HomeGlyphType.rakaat,
       icon: Icons.touch_app_rounded,
       pageBuilder: () => const PrayerCounterPage(),
     ),
   HomeMenuItem(
     label: 'Prayer Times in Flight',
+    analyticsId: 'prayer_times_in_flight',
     icon: Icons.flight_takeoff_rounded,
     pageBuilder: () => const FlightsPage(),
   ),
-  HomeMenuItem(
-    label: 'Preferences',
-    icon: Icons.settings_rounded,
-    pageBuilder: () => Scaffold(
-      appBar: AppBar(title: Text(L10n.current.menuPreferences)),
-      body: SettingsPage(),
-    ),
-  ),
+  settingsMenuItem,
 ]);
+
+final HomeMenuItem favoritesMenuItem = HomeMenuItem(
+  label: 'Favorites',
+  analyticsId: 'favorites',
+  icon: Icons.favorite_rounded,
+  pageBuilder: () => FavoritesPage(),
+);
+
+final HomeMenuItem surahsMenuItem = HomeMenuItem(
+  label: 'Surahs',
+  analyticsId: 'surahs',
+  glyphType: HomeGlyphType.surahs,
+  icon: Icons.menu_book_rounded,
+  pageBuilder: () => ItemList("A", L10n.current.menuSurahs),
+);
+
+/// Also what the profile button on Home opens.
+final HomeMenuItem settingsMenuItem = HomeMenuItem(
+  label: 'Preferences',
+  analyticsId: 'preferences',
+  icon: Icons.settings_rounded,
+  pageBuilder: () => Scaffold(
+    appBar: AppBar(title: Text(L10n.current.menuPreferences)),
+    body: SettingsPage(),
+  ),
+);
 
 /// The Quran revamp's entry point (ayah browsing, juz reading, saved verses,
 /// resume). Dark-launched: for now this *replaces* 'Surahs' in
@@ -211,6 +242,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
 /// other two gates that need lifting alongside it).
 final HomeMenuItem quranMenuItem = HomeMenuItem(
   label: 'Quran',
+  analyticsId: 'quran',
   glyphType: HomeGlyphType.surahs,
   icon: Icons.menu_book_rounded,
   pageBuilder: () => const QuranPage(),
@@ -219,6 +251,7 @@ final HomeMenuItem quranMenuItem = HomeMenuItem(
 /// Audio playlists. Also offered from every zikr's audio player.
 final HomeMenuItem playlistsMenuItem = HomeMenuItem(
   label: 'Playlists',
+  analyticsId: 'playlists',
   icon: Icons.playlist_play_rounded,
   pageBuilder: () => const PlaylistsPage(),
 );
@@ -231,6 +264,7 @@ final HomeMenuItem playlistsMenuItem = HomeMenuItem(
 /// sync, which is gated the same way until then.
 final HomeMenuItem myStatsMenuItem = HomeMenuItem(
   label: 'My Stats',
+  analyticsId: 'my_stats',
   icon: Icons.insights_rounded,
   pageBuilder: () => const MyStatsPage(),
 );
@@ -242,6 +276,7 @@ final HomeMenuItem myStatsMenuItem = HomeMenuItem(
 final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
   HomeMenuItem(
     label: 'Usage',
+    analyticsId: 'usage',
     icon: Icons.query_stats_rounded,
     pageBuilder: () => const UsageDashboardPage(),
     countsAsFeatureUse: false,
@@ -249,12 +284,14 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
   myStatsMenuItem,
   HomeMenuItem(
     label: 'Mistake Reports',
+    analyticsId: 'mistake_reports',
     icon: Icons.flag_outlined,
     pageBuilder: () => const MistakeReportsPage(),
     countsAsFeatureUse: false,
   ),
   HomeMenuItem(
     label: 'Content Requests',
+    analyticsId: 'content_requests',
     icon: Icons.playlist_add_rounded,
     pageBuilder: () => const ContentRequestsPage(),
     countsAsFeatureUse: false,
@@ -280,6 +317,22 @@ List<HomeMenuItem> get visibleHomeMenuItems {
     ...adminHomeMenuItems,
   ]);
 }
+
+/// What the Quran tab holds. The new Quran screen is still dark-launched to
+/// admins (see [quranMenuItem]); everyone else gets the surah list the home
+/// grid's 'Surahs' entry used to open.
+HomeMenuItem get quranTabMenuItem =>
+    isUserAdmin ? quranMenuItem : surahsMenuItem;
+
+/// The home grid: everything in [visibleHomeMenuItems] except what now has a
+/// tab of its own.
+List<HomeMenuItem> get homeGridMenuItems => List.unmodifiable([
+      for (final item in visibleHomeMenuItems)
+        if (item != favoritesMenuItem &&
+            item != surahsMenuItem &&
+            item != quranMenuItem)
+          item,
+    ]);
 
 HomeMenuItem? getHomeMenuItem(String label) {
   for (final item in homeMenuItems) {

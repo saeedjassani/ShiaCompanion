@@ -25,14 +25,15 @@ import '../services/rating_prompt_service.dart';
 import '../services/session_refresh_service.dart';
 import '../services/zikr_bookmarks_manager.dart';
 import '../utils/app_text_scale.dart';
-import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
+import '../utils/theme_mode.dart';
 import '../utils/widget_prayer_time_selection.dart';
 import 'prayer_notifications_page.dart';
 import '../widgets/content_request_dialog.dart';
 import '../widgets/language_settings.dart';
 import '../widgets/responsive_content.dart';
+import '../widgets/theme_mode_picker.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
@@ -102,7 +103,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final darkModeProvider = Provider.of<DarkModeProvider>(context);
+    final themeModeProvider = Provider.of<ThemeModeProvider>(context);
     final textScaleProvider = Provider.of<AppTextScaleProvider>(context);
     final currentUser = user ?? _auth.currentUser;
 
@@ -236,14 +237,13 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               if (AppLanguageTile.isOffered())
                 const AppLanguageTile(leading: Icon(Icons.language)),
-              SwitchListTile(
-                secondary: const Icon(Icons.dark_mode),
-                value: darkModeProvider.isDarkMode,
-                onChanged: (value) {
-                  darkModeProvider.toggleDarkMode();
-                },
-                title: Text(context.l10n.settingsDarkMode),
-                subtitle: Text(context.l10n.settingsDarkModeSubtitle),
+              ListTile(
+                leading: const Icon(Icons.dark_mode),
+                title: const Text("Theme"),
+                subtitle:
+                    Text(ThemeModeProvider.label(themeModeProvider.themeMode)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => showThemeModePicker(context),
               ),
               ListTile(
                 leading: const Icon(Icons.format_size),

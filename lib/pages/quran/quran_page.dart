@@ -458,7 +458,10 @@ class _SurahList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating tab bar when this is a tab's root, and the
+        // system's bottom inset otherwise.
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemCount: surahs.length,
         itemBuilder: (context, index) {
@@ -530,7 +533,10 @@ class _JuzList extends StatelessWidget {
       maxWidth: listContentWidth,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        // Clears the floating tab bar when this is a tab's root, and the
+        // system's bottom inset otherwise.
+        padding: EdgeInsets.only(
+            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemCount: juz.length,
         itemBuilder: (context, index) {

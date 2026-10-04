@@ -12,8 +12,9 @@ import 'package:shia_companion/pages/delete_account_page.dart';
 import 'package:shia_companion/services/audio_download_store.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
-import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:shia_companion/utils/language_provider.dart';
+import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/theme/app_theme.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/services.dart' show BrowserContextMenu;
 import 'package:shia_companion/utils/crash_reporting.dart';
@@ -23,7 +24,7 @@ import 'package:shia_companion/utils/webview_registry.dart'
 
 import 'constants.dart';
 import 'l10n/l10n.dart';
-import 'pages/home_page.dart';
+import 'navigation/app_shell.dart';
 import 'pages/widget_preview_page.dart';
 import 'utils/deep_links.dart';
 import 'widgets/audio_download_button.dart';
@@ -137,25 +138,27 @@ _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
   return _AppLaunchDestination.home;
 }
 
+// Built once: MyApp rebuilds on every frame of a text size slider drag.
+final ThemeData _lightTheme = buildAppTheme(Brightness.light);
+final ThemeData _darkTheme = buildAppTheme(Brightness.dark);
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    Widget buildHomePage() => MyHomePage(
-          title: appName,
-        );
+    Widget buildHomePage() => const AppShell();
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => DarkModeProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeModeProvider()),
         ChangeNotifierProvider(create: (context) => AppTextScaleProvider()),
         ChangeNotifierProvider(create: (context) => LanguageProvider()),
       ],
-      child: Consumer3<DarkModeProvider, AppTextScaleProvider,
+      child: Consumer3<ThemeModeProvider, AppTextScaleProvider,
               LanguageProvider>(
-          builder: (context, darkModeProvider, textScaleProvider,
+          builder: (context, themeModeProvider, textScaleProvider,
               languageProvider, _) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
@@ -176,33 +179,9 @@ class MyApp extends StatelessWidget {
           // text scale for every route, dialog and sheet under the navigator.
           builder: (context, child) =>
               textScaleProvider.apply(context, child ?? const SizedBox()),
-          theme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
-            appBarTheme: AppBarTheme(
-              backgroundColor: Colors.brown,
-              foregroundColor: Colors.white,
-            ),
-            // Tab bars sit inside the brown app bar, so Material's defaults
-            // (primary/onSurfaceVariant labels) would vanish against it.
-            tabBarTheme: TabBarThemeData(
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
-              indicatorColor: Colors.white,
-              dividerColor: Colors.transparent,
-            ),
-            bottomNavigationBarTheme:
-                BottomNavigationBarThemeData(backgroundColor: Colors.brown),
-          ),
-          darkTheme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.brown,
-              brightness: Brightness.dark,
-            ),
-          ),
-          themeMode:
-              darkModeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          theme: _lightTheme,
+          darkTheme: _darkTheme,
+          themeMode: themeModeProvider.themeMode,
           home: switch (_resolveLaunchDestination(Uri.base)) {
             _AppLaunchDestination.deleteAccount => const DeleteAccountPage(),
             _AppLaunchDestination.widgetPreview => const WidgetPreviewPage(),

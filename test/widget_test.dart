@@ -35,6 +35,66 @@ void main() {
     expect(getPage('Munajaat'), isNot(isA<Container>()));
   });
 
+  test('every menu item keeps the analytics id its label used to derive', () {
+    // Counters are keyed home_menu_<analyticsId>. These are the ids the old
+    // label-derived getter produced; a relabelled item must keep its id, or
+    // its history forks under a new key.
+    expect(
+      {for (final item in allHomeMenuItems) item.label: item.analyticsId},
+      {
+        'Favorites': 'favorites',
+        "Today's Recitations": 'today_s_recitations',
+        'Taqeebat e Namaz': 'taqeebat_e_namaz',
+        'Namaz': 'namaz',
+        'Duas': 'duas',
+        'Ziyarats': 'ziyarats',
+        'Surahs': 'surahs',
+        'Aamaal': 'aamaal',
+        'Calendar & Prayer Times': 'calendar_prayer_times',
+        'Library': 'library',
+        'Munajaat': 'munajaat',
+        'Baaqeyaat As Saalehaat': 'baaqeyaat_as_saalehaat',
+        'Playlists': 'playlists',
+        'Qibla Finder': 'qibla_finder',
+        'Tasbeeh Counter': 'tasbeeh_counter',
+        'Qaza Tracker': 'qaza_tracker',
+        // Android and iOS only.
+        if (supportsPrayerCounterOnCurrentPlatform)
+          'Rakaat Counter': 'rakaat_counter',
+        'Prayer Times in Flight': 'prayer_times_in_flight',
+        'Preferences': 'preferences',
+        'Quran': 'quran',
+        'Usage': 'usage',
+        'My Stats': 'my_stats',
+        'Mistake Reports': 'mistake_reports',
+        'Content Requests': 'content_requests',
+      },
+    );
+  });
+
+  group('tabs', () {
+    tearDown(() => isUserAdmin = false);
+
+    test('the home grid leaves out what has a tab of its own', () {
+      for (final admin in [false, true]) {
+        isUserAdmin = admin;
+        final grid = homeGridMenuItems;
+        expect(grid, isNot(contains(favoritesMenuItem)));
+        expect(grid, isNot(contains(surahsMenuItem)));
+        expect(grid, isNot(contains(quranMenuItem)));
+        expect(grid, contains(settingsMenuItem));
+        expect(grid, contains(calendarMenuItem));
+      }
+    });
+
+    test('the Quran tab keeps the Quran screen dark-launched to admins', () {
+      isUserAdmin = false;
+      expect(quranTabMenuItem, same(surahsMenuItem));
+      isUserAdmin = true;
+      expect(quranTabMenuItem, same(quranMenuItem));
+    });
+  });
+
   test('prayer time object exposes the expected prayer names', () {
     expect(getPrayerTimeObject().getTimeNames(), [
       'Fajr',
