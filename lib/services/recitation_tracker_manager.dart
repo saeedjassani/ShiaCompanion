@@ -49,7 +49,8 @@ class RecitationTrackerManager extends ChangeNotifier {
   Future<void>? _loadFuture;
   Future<void> _storageWriteQueue = Future.value();
   RecitationTrackerState _state = RecitationTrackerState.empty;
-  RecitationTrackerState _pendingGuestImportState = RecitationTrackerState.empty;
+  RecitationTrackerState _pendingGuestImportState =
+      RecitationTrackerState.empty;
   String? _pendingGuestImportUserId;
   String? _loadedUserId;
   bool _isImportingGuestState = false;
@@ -170,7 +171,8 @@ class RecitationTrackerManager extends ChangeNotifier {
       } catch (error) {
         _pendingGuestImportUserId = user.uid;
         _pendingGuestImportState = guestState;
-        debugPrint('RecitationTrackerManager: Error importing guest state: $error');
+        debugPrint(
+            'RecitationTrackerManager: Error importing guest state: $error');
       }
     }
 
@@ -262,7 +264,8 @@ class RecitationTrackerManager extends ChangeNotifier {
         state: RecitationTrackerState.fromJson(snapshot.data()?['state']),
       );
     } catch (error) {
-      debugPrint('RecitationTrackerManager: Error loading remote state: $error');
+      debugPrint(
+          'RecitationTrackerManager: Error loading remote state: $error');
       return _RemoteRecitationRead.failure();
     }
   }
@@ -368,6 +371,8 @@ class RecitationTrackerManager extends ChangeNotifier {
     await _writeRemote(userId, [
       for (final label in addition.customLabels)
         PendingRecitationOperation.addLabel(label),
+      for (final setting in addition.trackSettings.entries)
+        PendingRecitationOperation.setTrackSettings(setting.key, setting.value),
       for (final entry in addition.entries.values)
         PendingRecitationOperation.add(entry),
     ]).timeout(const Duration(seconds: 8));
@@ -397,6 +402,20 @@ class RecitationTrackerManager extends ChangeNotifier {
         if (entries.isNotEmpty) 'entries': entries,
         if (changes.labels.isNotEmpty)
           'labels': FieldValue.arrayUnion(changes.labels.toList()),
+        // Nested under the label rather than written as one map, so a merge
+        // write touches only the tracks that changed. A merge also keeps
+        // fields it is not given, so a start point no longer set is deleted
+        // outright rather than left behind.
+        if (changes.trackSettings.isNotEmpty)
+          'trackSettings': {
+            for (final setting in changes.trackSettings.entries)
+              setting.key: {
+                'startSurah': FieldValue.delete(),
+                'startAyah': FieldValue.delete(),
+                'startSetAt': FieldValue.delete(),
+                ...setting.value.toJson(),
+              },
+          },
       },
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
@@ -576,7 +595,10 @@ class RecitationTrackerManager extends ChangeNotifier {
   /// Registers a new recitation track with no history yet, so it can show up
   /// as a "start reading" card before its first entry. A no-op for a name
   /// already known (including the reserved [unlabeledRecitationLabel]).
-  Future<void> addLabel(String name) {
+  ///
+  /// With [settings], the track is created reading that way - by juz, or
+  /// from a set start point - instead of by surah from al-Fatihah.
+  Future<void> addLabel(String name, {RecitationTrackSettings? settings}) {
     final trimmed = name.trim();
     if (trimmed.isEmpty || trimmed == unlabeledRecitationLabel) {
       return Future.value();
@@ -585,8 +607,37 @@ class RecitationTrackerManager extends ChangeNotifier {
     unawaited(AnalyticsService.feature(
       'recitation_track_added',
       label: 'Recitation track added',
+      parameters: {
+        if (settings != null) 'read_by': settings.readByJuz ? 'juz' : 'surah',
+        if (settings?.startAt != null) 'has_start': 'true',
+      },
     ));
+    if (settings != null) {
+      return _applyOperation(
+        PendingRecitationOperation.setTrackSettings(trimmed, settings),
+      );
+    }
     return _applyOperation(PendingRecitationOperation.addLabel(trimmed));
+  }
+
+  /// Changes how [label] reads - by surah or by juz, and where it picks up.
+  Future<void> updateTrackSettings(
+    String label,
+    RecitationTrackSettings settings,
+  ) {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty || trimmed == unlabeledRecitationLabel) {
+      return Future.value();
+    }
+    if (_state.trackSettings[trimmed] == settings) return Future.value();
+    unawaited(AnalyticsService.feature(
+      'recitation_track_settings_changed',
+      label: 'Recitation track settings changed',
+      parameters: {'read_by': settings.readByJuz ? 'juz' : 'surah'},
+    ));
+    return _applyOperation(
+      PendingRecitationOperation.setTrackSettings(trimmed, settings),
+    );
   }
 
   String _newEntryId() => 'r_${DateTime.now().microsecondsSinceEpoch}';

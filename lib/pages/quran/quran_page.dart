@@ -19,6 +19,7 @@ import 'listen_and_follow_sheet.dart';
 import 'quran_collections_tab.dart';
 import 'quran_navigation.dart';
 import 'recent_recitations_page.dart';
+import 'recitation_track_sheet.dart';
 
 /// The Quran screen: your recitation tracks, a way to jump to any verse, the
 /// two ways of browsing - by surah and by juz - and the collections (duas,
@@ -203,7 +204,9 @@ class _RecitationLabelCards extends StatelessWidget {
             separatorBuilder: (context, index) => const SizedBox(width: 10),
             itemBuilder: (context, index) {
               if (index == labels.length) {
-                return _AddTrackCard(onTap: () => _showAddLabelDialog(context));
+                return _AddTrackCard(
+                  onTap: () => showRecitationTrackSheet(context),
+                );
               }
               return _LabelResumeCard(label: labels[index], state: state);
             },
@@ -211,42 +214,6 @@ class _RecitationLabelCards extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<void> _showAddLabelDialog(BuildContext context) async {
-    final controller = TextEditingController();
-    try {
-      final name = await showDialog<String>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: const Text('New recitation track'),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-            decoration:
-                const InputDecoration(hintText: 'e.g. Family, Tahajjud'),
-            onSubmitted: (value) => Navigator.pop(dialogContext, value),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, controller.text),
-              child: const Text('Add'),
-            ),
-          ],
-        ),
-      );
-
-      final trimmed = name?.trim() ?? '';
-      if (trimmed.isEmpty) return;
-      await RecitationTrackerManager.instance.addLabel(trimmed);
-    } finally {
-      controller.dispose();
-    }
   }
 }
 
@@ -261,15 +228,18 @@ class _LabelResumeCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isUnlabeled = label == unlabeledRecitationLabel;
-    final resume = state.resumePositionFor(label);
+    final target = state.resumeTargetFor(label);
     final percent = state.percentCompleteFor(label);
     final foreground = isUnlabeled
         ? colorScheme.onSurfaceVariant
         : colorScheme.onSecondaryContainer;
-    final subtitle = resume == null
-        ? 'Start reading'
-        : '${surahInfoFor(resume.surah)?.englishName ?? "Surah ${resume.surah}"} '
-            '${resume.ayah}';
+    final position =
+        describeRecitationPosition(target.verse, byJuz: target.inJuz);
+    final subtitle = !target.isStart
+        ? position
+        : target.verse == const VerseKey(1, 1)
+            ? 'Start reading'
+            : 'Start at $position';
 
     return SizedBox(
       width: 168,
@@ -281,6 +251,9 @@ class _LabelResumeCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () => _resume(context),
+          onLongPress: isUnlabeled
+              ? null
+              : () => showRecitationTrackSheet(context, label: label),
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -308,6 +281,21 @@ class _LabelResumeCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (!isUnlabeled)
+                      InkResponse(
+                        onTap: () =>
+                            showRecitationTrackSheet(context, label: label),
+                        radius: 18,
+                        child: Semantics(
+                          label: 'Edit $label track',
+                          button: true,
+                          child: Icon(
+                            Icons.more_horiz,
+                            size: 18,
+                            color: foreground,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 Text(
@@ -333,14 +321,12 @@ class _LabelResumeCard extends StatelessWidget {
   }
 
   Future<void> _resume(BuildContext context) async {
-    final resume = state.resumePositionFor(label);
-    // Left off in a juz, carry on in one - the juz the resume point falls in,
-    // which is the next juz once the last one was read to its end.
-    if (resume != null && resume.ayah != null && state.resumesInJuzFor(label)) {
+    final target = state.resumeTargetFor(label);
+    if (target.inJuz) {
       await openQuranJuz(
         context,
-        juzOf(resume.surah, resume.ayah!),
-        at: resume,
+        target.juz,
+        at: target.verse,
         source: ZikrOpenSource.quranResume,
         recitationLabel: label,
       );
@@ -348,7 +334,7 @@ class _LabelResumeCard extends StatelessWidget {
     }
     await openQuranVerse(
       context,
-      resume ?? const VerseKey(1),
+      target.verse,
       source: ZikrOpenSource.quranResume,
       recitationLabel: label,
     );

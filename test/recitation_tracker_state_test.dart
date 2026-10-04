@@ -323,16 +323,131 @@ void main() {
       expect(nas.resumePositionFor('Family'), const VerseKey(1, 1));
     });
 
-    test('resumesInJuzFor follows how the most recent entry was read', () {
-      final state = RecitationTrackerState({
-        'a': _entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), readInJuz: true),
-        'b': _entry(id: 'b', recitedAt: DateTime.utc(2026, 1, 2), surah: 3),
-        'c': _entry(id: 'c', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 3), readInJuz: true),
-      });
+    test('resumeTargetFor uses the track setting, Unlabeled the last read', () {
+      final state = RecitationTrackerState(
+        {
+          'a': _entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), toAyah: 5),
+          'u': _entry(
+            id: 'u',
+            label: unlabeledRecitationLabel,
+            recitedAt: DateTime.utc(2026, 1, 2),
+            surah: 4,
+            toAyah: 30,
+            readInJuz: true,
+          ),
+        },
+        {'Family'},
+        {'Family': const RecitationTrackSettings(readByJuz: true)},
+      );
 
-      expect(state.resumesInJuzFor('Family'), isFalse);
-      expect(state.resumesInJuzFor('Personal'), isTrue);
-      expect(state.resumesInJuzFor('Nonexistent'), isFalse);
+      final family = state.resumeTargetFor('Family');
+      expect(family.verse, const VerseKey(2, 5));
+      expect(family.inJuz, isTrue);
+      expect(family.juz, 1);
+      expect(family.isStart, isFalse);
+
+      final unlabeled = state.resumeTargetFor(unlabeledRecitationLabel);
+      expect(unlabeled.inJuz, isTrue);
+      expect(unlabeled.juz, 5);
+    });
+
+    test('a new track opens at its start point, or the beginning', () {
+      final state = RecitationTrackerState(
+        const {},
+        {'Khatm', 'Plain'},
+        {
+          'Khatm': RecitationTrackSettings(
+            readByJuz: true,
+            startAt: const VerseKey(12, 53),
+            startSetAt: DateTime.utc(2026, 1, 1),
+          ),
+        },
+      );
+
+      final khatm = state.resumeTargetFor('Khatm');
+      expect(khatm.verse, const VerseKey(12, 53));
+      expect(khatm.juz, 13);
+      expect(khatm.isStart, isTrue);
+
+      final plain = state.resumeTargetFor('Plain');
+      expect(plain.verse, const VerseKey(1, 1));
+      expect(plain.inJuz, isFalse);
+      expect(plain.isStart, isTrue);
+    });
+
+    test('a start point only wins while it is newer than the last reading', () {
+      final settings = RecitationTrackSettings(
+        startAt: const VerseKey(18, 1),
+        startSetAt: DateTime.utc(2026, 1, 2),
+      );
+      final readBefore = RecitationTrackerState(
+        {'a': _entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), toAyah: 5)},
+        {'Family'},
+        {'Family': settings},
+      );
+      expect(readBefore.resumeTargetFor('Family').verse, const VerseKey(18, 1));
+
+      final readAfter = readBefore.setEntry(_entry(
+        id: 'b',
+        recitedAt: DateTime.utc(2026, 1, 3),
+        surah: 18,
+        toAyah: 10,
+      ));
+      expect(readAfter.resumeTargetFor('Family').verse, const VerseKey(18, 10));
+      expect(readAfter.resumeTargetFor('Family').isStart, isFalse);
+    });
+
+    test('a juz read to its end resumes at the next juz', () {
+      RecitationTrackerState endingAt(int surah, int ayah) =>
+          RecitationTrackerState(
+            {
+              'a': _entry(
+                id: 'a',
+                recitedAt: DateTime.utc(2026, 1, 1),
+                surah: surah,
+                toAyah: ayah,
+              ),
+            },
+            {'Family'},
+            {'Family': const RecitationTrackSettings(readByJuz: true)},
+          );
+
+      // Juz 1 ends at al-Baqarah 141, mid-surah.
+      expect(endingAt(2, 141).resumeTargetFor('Family').verse,
+          const VerseKey(2, 142));
+      expect(endingAt(2, 140).resumeTargetFor('Family').verse,
+          const VerseKey(2, 140));
+      // Juz 30 wraps round to juz 1 for the next khatm.
+      expect(endingAt(114, 6).resumeTargetFor('Family').verse,
+          const VerseKey(1, 1));
+    });
+
+    test('track settings survive a JSON round trip', () {
+      final state = RecitationTrackerState(
+        const {},
+        {'Khatm'},
+        {
+          'Khatm': RecitationTrackSettings(
+            readByJuz: true,
+            startAt: const VerseKey(12, 53),
+            startSetAt: DateTime.utc(2026, 1, 1),
+          ),
+        },
+      );
+      final restored = RecitationTrackerState.fromJson(state.toJson());
+
+      expect(restored.settingsFor('Khatm'), state.settingsFor('Khatm'));
+      expect(restored.settingsFor('Other'), const RecitationTrackSettings());
+      expect(
+        RecitationTrackSettings.fromJson({
+          'readByJuz': true,
+          'startSurah': 2,
+          'startAyah': 999,
+          'startSetAt': '2026-01-01T00:00:00Z',
+        })?.startAt,
+        isNull,
+        reason: 'an out-of-range start is dropped, not clamped somewhere odd',
+      );
     });
 
     test('readInJuz survives a JSON round trip and is omitted when false', () {

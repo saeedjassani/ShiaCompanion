@@ -5,6 +5,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/data/quran_mahdi_verses.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
+import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
 import 'package:shia_companion/utils/quran_index.dart';
@@ -239,6 +240,66 @@ void main() {
     await tester.scrollUntilVisible(find.text('Musa and al-Khidr'), 200,
         scrollable: _verticalScrollable);
     expect(find.text('Surah18 60-82'), findsOneWidget);
+  });
+
+  testWidgets('a new track can read by juz from a chosen start',
+      (tester) async {
+    await pump(tester);
+
+    await tester.tap(find.text('New track'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Khatm');
+    await tester.tap(find.text('Juz (Para)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('The beginning'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Juz 12'), 200,
+        scrollable: find.byType(Scrollable).last);
+    await tester.tap(find.text('Juz 12'));
+    await tester.pumpAndSettle();
+    expect(find.text('Juz 12'), findsOneWidget);
+
+    await tester.tap(find.text('Create track'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Create track'), findsNothing);
+    expect(find.bySemanticsLabel('Edit Khatm track'), findsOneWidget);
+    expect(find.text('Start at Juz 12'), findsOneWidget);
+  });
+
+  testWidgets('a track can be switched to juz later', (tester) async {
+    await pump(tester);
+
+    await tester.tap(find.text('New track'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Later');
+    await tester.tap(find.text('Create track'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.bySemanticsLabel('Edit Later track'));
+    await tester.pumpAndSettle();
+    expect(find.text('Continue from'), findsOneWidget);
+    await tester.tap(find.text('Juz (Para)'));
+    await tester.pumpAndSettle();
+    expect(find.text('Juz 1'), findsOneWidget);
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(
+      RecitationTrackerManager.instance.state.settingsFor('Later').readByJuz,
+      isTrue,
+    );
+  });
+
+  testWidgets('a new track needs a name', (tester) async {
+    await pump(tester);
+
+    await tester.tap(find.text('New track'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create track'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Give the track a name'), findsOneWidget);
   });
 
   testWidgets('the Collections tab remembers the chip last picked',

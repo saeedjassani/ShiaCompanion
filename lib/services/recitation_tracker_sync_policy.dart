@@ -2,13 +2,14 @@ import 'package:flutter/foundation.dart';
 
 import '../models/recitation_tracker_state.dart';
 
-enum RecitationOperationKind { add, remove, addLabel }
+enum RecitationOperationKind { add, remove, addLabel, setTrackSettings }
 
 extension RecitationOperationKindInfo on RecitationOperationKind {
   String get key => switch (this) {
         RecitationOperationKind.add => 'add',
         RecitationOperationKind.remove => 'remove',
         RecitationOperationKind.addLabel => 'add_label',
+        RecitationOperationKind.setTrackSettings => 'set_track_settings',
       };
 }
 
@@ -22,10 +23,10 @@ RecitationOperationKind? recitationOperationKindFromKey(String key) {
 /// A mutation queued while offline (or while a Firestore write is in
 /// flight), replayed against the remote doc once it succeeds.
 ///
-/// All three kinds are naturally idempotent: an [add] replayed twice just
-/// sets the same entry id twice, a [remove] replayed against an id that is
-/// already gone is a no-op, and [addLabel] replayed twice unions into the
-/// same set entry. So unlike the qaza tracker's delta queue, this one needs
+/// Every kind is naturally idempotent: an [add] replayed twice just sets the
+/// same entry id twice, a [remove] replayed against an id that is already
+/// gone is a no-op, [addLabel] replayed twice unions into the same set
+/// entry, and [setTrackSettings] replayed twice writes the same settings. So unlike the qaza tracker's delta queue, this one needs
 /// no separate merge arithmetic.
 class PendingRecitationOperation {
   const PendingRecitationOperation({
@@ -34,6 +35,7 @@ class PendingRecitationOperation {
     this.entryId,
     this.entry,
     this.labelName,
+    this.settings,
   });
 
   factory PendingRecitationOperation.add(RecitationEntry entry) {
@@ -61,11 +63,26 @@ class PendingRecitationOperation {
     );
   }
 
+  /// One queued per track - a newer change replaces an older one still
+  /// waiting, since only the latest settings matter.
+  factory PendingRecitationOperation.setTrackSettings(
+    String labelName,
+    RecitationTrackSettings settings,
+  ) {
+    return PendingRecitationOperation(
+      id: 'track_settings_$labelName',
+      kind: RecitationOperationKind.setTrackSettings,
+      labelName: labelName,
+      settings: settings,
+    );
+  }
+
   final String id;
   final RecitationOperationKind kind;
   final String? entryId;
   final RecitationEntry? entry;
   final String? labelName;
+  final RecitationTrackSettings? settings;
 
   Map<String, Object> toJson() => {
         'id': id,
@@ -73,13 +90,15 @@ class PendingRecitationOperation {
         if (entryId != null) 'entryId': entryId!,
         if (entry != null) 'entry': entry!.toJson(),
         if (labelName != null) 'labelName': labelName!,
+        if (settings != null) 'settings': settings!.toJson(),
       };
 
   static PendingRecitationOperation? fromJson(dynamic value) {
     if (value is! Map) return null;
 
     final id = value['id']?.toString().trim() ?? '';
-    final kind = recitationOperationKindFromKey(value['kind']?.toString() ?? '');
+    final kind =
+        recitationOperationKindFromKey(value['kind']?.toString() ?? '');
     if (id.isEmpty || kind == null) return null;
 
     switch (kind) {
@@ -95,6 +114,11 @@ class PendingRecitationOperation {
         final labelName = value['labelName']?.toString().trim() ?? '';
         if (labelName.isEmpty) return null;
         return PendingRecitationOperation.addLabel(labelName);
+      case RecitationOperationKind.setTrackSettings:
+        final labelName = value['labelName']?.toString().trim() ?? '';
+        final settings = RecitationTrackSettings.fromJson(value['settings']);
+        if (labelName.isEmpty || settings == null) return null;
+        return PendingRecitationOperation.setTrackSettings(labelName, settings);
     }
   }
 }
@@ -114,6 +138,7 @@ class RecitationRemoteChanges {
     required this.entries,
     required this.removedEntryIds,
     required this.labels,
+    this.trackSettings = const {},
   });
 
   /// Entries to write, by id.
@@ -126,8 +151,14 @@ class RecitationRemoteChanges {
   /// entries, the same way [RecitationTrackerState.setEntry] registers them.
   final Set<String> labels;
 
+  /// Each track's latest settings, by label.
+  final Map<String, RecitationTrackSettings> trackSettings;
+
   bool get isEmpty =>
-      entries.isEmpty && removedEntryIds.isEmpty && labels.isEmpty;
+      entries.isEmpty &&
+      removedEntryIds.isEmpty &&
+      labels.isEmpty &&
+      trackSettings.isEmpty;
 }
 
 RecitationRemoteChanges recitationRemoteChangesFor(
@@ -136,6 +167,7 @@ RecitationRemoteChanges recitationRemoteChangesFor(
   final entries = <String, RecitationEntry>{};
   final removedEntryIds = <String>{};
   final labels = <String>{};
+  final trackSettings = <String, RecitationTrackSettings>{};
 
   void addLabel(String label) {
     final trimmed = label.trim();
@@ -159,6 +191,16 @@ RecitationRemoteChanges recitationRemoteChangesFor(
       case RecitationOperationKind.addLabel:
         final labelName = operation.labelName;
         if (labelName != null) addLabel(labelName);
+      case RecitationOperationKind.setTrackSettings:
+        final labelName = operation.labelName?.trim() ?? '';
+        final settings = operation.settings;
+        if (settings == null ||
+            labelName.isEmpty ||
+            labelName == unlabeledRecitationLabel) {
+          continue;
+        }
+        trackSettings[labelName] = settings;
+        addLabel(labelName);
     }
   }
 
@@ -166,6 +208,7 @@ RecitationRemoteChanges recitationRemoteChangesFor(
     entries: entries,
     removedEntryIds: removedEntryIds,
     labels: labels,
+    trackSettings: trackSettings,
   );
 }
 
@@ -187,11 +230,14 @@ RecitationTrackerState applyPendingRecitationOperation(
   return switch (operation.kind) {
     RecitationOperationKind.add =>
       operation.entry == null ? state : state.setEntry(operation.entry!),
-    RecitationOperationKind.remove => operation.entryId == null
-        ? state
-        : state.removeEntry(operation.entryId!),
+    RecitationOperationKind.remove =>
+      operation.entryId == null ? state : state.removeEntry(operation.entryId!),
     RecitationOperationKind.addLabel => operation.labelName == null
         ? state
         : state.addCustomLabel(operation.labelName!),
+    RecitationOperationKind.setTrackSettings =>
+      operation.labelName == null || operation.settings == null
+          ? state
+          : state.setTrackSettings(operation.labelName!, operation.settings!),
   };
 }
