@@ -217,7 +217,6 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// one-form-per-uid ziyarat pages that were later folded into a live
   /// "All Forms" compilation (AG8, AK5, AI3) or a weekday entry's tab.
   ///
-
   /// R2/R3 ("The First Night/Day Of Muharram") are R1's main data and first
   /// tab. R8 ("Forgeries of the Enemies of Imam Husayn") is R7's first tab;
   /// its trailing "Day of Ashura" section is R7's second tab, one swipe on.
