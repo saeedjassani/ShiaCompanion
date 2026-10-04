@@ -67,7 +67,9 @@ feature they open. `home_menu_all_features` is the All features page itself.
 **Prayer & azaan** — `azaan_selected` (+`azaan_id`),
 `azaan_notifications_toggled` (+`enabled`), `azaan_opt_in` (+`choice`),
 `rakaat_prayer_completed` (+`total_rakaat`), `prayer_times_selection_changed`
-(+`prayer_times`), `qibla_target_changed` (+`target`).
+(+`prayer_times`), `qibla_target_changed` (+`target`), `city_chosen`
+(+`source`: `picker` or `time_zone`, the prayer card's guess; +`country`) and
+`device_location_chosen` (+`source`), for the city picker.
 
 **Account & tools** — `account_deleted`, `account_signed_in` (+`method`),
 `favorite_added` / `favorite_removed` (+`content_type`), `favorite_reordered`,

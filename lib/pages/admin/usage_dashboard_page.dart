@@ -277,6 +277,9 @@ const Set<String> _prayerAndWorshipFeatureKeys = {
   'prayer_sound_set',
   'rakaat_prayer_completed',
   'prayer_times_selection_changed',
+  // Choosing a city by name, and going back to the phone's location.
+  'city_chosen',
+  'device_location_chosen',
   'qibla_target_changed',
   'qaza_updated',
   'tasbeeh_session',

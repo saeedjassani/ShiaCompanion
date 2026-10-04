@@ -134,6 +134,20 @@ class _AboutPageState extends State<AboutPage> {
                         launchExternalUri(Uri.parse('https://quranwbw.com')),
                     child: const Text('quranwbw.com'),
                   ),
+                  const SizedBox(height: 12),
+                  // GeoNames data is CC BY 4.0: credit and link wherever it is
+                  // used. The city picker names it too.
+                  const Text(
+                    'The city list is from GeoNames, used under Creative '
+                    'Commons Attribution 4.0.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => launchExternalUri(
+                        Uri.parse('https://www.geonames.org')),
+                    child: const Text('geonames.org'),
+                  ),
                 ],
               ),
             ),

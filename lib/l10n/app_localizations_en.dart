@@ -56,12 +56,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsLocationFailed(String message) {
-    return '$message. Tap to try again.';
+    return '$message. Tap to choose a city or try again.';
   }
 
   @override
   String settingsLocationSaved(String city) {
-    return 'Current saved location: $city.';
+    return '$city · from your phone\'s location.';
+  }
+
+  @override
+  String settingsLocationManual(String city) {
+    return '$city · chosen by you. Tap to change.';
   }
 
   @override
@@ -115,10 +120,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrayerTimesShown => 'Prayer Times Shown';
 
   @override
-  String get settingsRefreshLocation => 'Refresh Location';
-
-  @override
-  String get settingsLocationRefreshed => 'Location has been refreshed.';
+  String get settingsLocation => 'Location';
 
   @override
   String get settingsSectionNotifications => 'Notifications';
@@ -258,7 +260,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLocationUpdatePrompt =>
-      'Update the saved prayer-times location.';
+      'Choose a city, or use your phone\'s location.';
 
   @override
   String get timeJustNow => 'just now';
@@ -876,6 +878,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qiblaUpdateLocation => 'Update location';
+
+  @override
+  String get qiblaChangeCity => 'Change city';
 
   @override
   String get qiblaPointingTowards => 'Pointing towards';

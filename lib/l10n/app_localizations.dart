@@ -145,14 +145,20 @@ abstract class AppLocalizations {
   /// {message} explains why the location refresh failed.
   ///
   /// In en, this message translates to:
-  /// **'{message}. Tap to try again.'**
+  /// **'{message}. Tap to choose a city or try again.'**
   String settingsLocationFailed(String message);
 
   /// No description provided for @settingsLocationSaved.
   ///
   /// In en, this message translates to:
-  /// **'Current saved location: {city}.'**
+  /// **'{city} · from your phone\'s location.'**
   String settingsLocationSaved(String city);
+
+  /// No description provided for @settingsLocationManual.
+  ///
+  /// In en, this message translates to:
+  /// **'{city} · chosen by you. Tap to change.'**
+  String settingsLocationManual(String city);
 
   /// {age} is a relative time such as 'just now' or '5m ago'.
   ///
@@ -221,17 +227,11 @@ abstract class AppLocalizations {
   /// **'Prayer Times Shown'**
   String get settingsPrayerTimesShown;
 
-  /// No description provided for @settingsRefreshLocation.
+  /// No description provided for @settingsLocation.
   ///
   /// In en, this message translates to:
-  /// **'Refresh Location'**
-  String get settingsRefreshLocation;
-
-  /// No description provided for @settingsLocationRefreshed.
-  ///
-  /// In en, this message translates to:
-  /// **'Location has been refreshed.'**
-  String get settingsLocationRefreshed;
+  /// **'Location'**
+  String get settingsLocation;
 
   /// No description provided for @settingsSectionNotifications.
   ///
@@ -488,7 +488,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsLocationUpdatePrompt.
   ///
   /// In en, this message translates to:
-  /// **'Update the saved prayer-times location.'**
+  /// **'Choose a city, or use your phone\'s location.'**
   String get settingsLocationUpdatePrompt;
 
   /// No description provided for @timeJustNow.
@@ -1492,6 +1492,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update location'**
   String get qiblaUpdateLocation;
+
+  /// No description provided for @qiblaChangeCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Change city'**
+  String get qiblaChangeCity;
 
   /// No description provided for @qiblaPointingTowards.
   ///

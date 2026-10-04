@@ -54,7 +54,7 @@
       }
     }
   },
-  "settingsLocationFailed": "{message}. Tap to try again.",
+  "settingsLocationFailed": "{message}. Tap to choose a city or try again.",
   "@settingsLocationFailed": {
     "description": "{message} explains why the location refresh failed.",
     "placeholders": {
@@ -63,8 +63,16 @@
       }
     }
   },
-  "settingsLocationSaved": "Current saved location: {city}.",
+  "settingsLocationSaved": "{city} · from your phone's location.",
   "@settingsLocationSaved": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLocationManual": "{city} · chosen by you. Tap to change.",
+  "@settingsLocationManual": {
     "placeholders": {
       "city": {
         "type": "String"
@@ -149,8 +157,7 @@
   "settingsSectionPrayerLocation": "Prayer & Location",
   "settingsAdjustHijriDate": "Adjust Hijri Date",
   "settingsPrayerTimesShown": "Prayer Times Shown",
-  "settingsRefreshLocation": "Refresh Location",
-  "settingsLocationRefreshed": "Location has been refreshed.",
+  "settingsLocation": "Location",
   "settingsSectionNotifications": "Notifications",
   "settingsPrayerNotifications": "Prayer notifications",
   "settingsZikrReminders": "Zikr Reminders",
@@ -193,7 +200,7 @@
   "settingsSyncing": "Favorites and account data are syncing.",
   "settingsHijriNoAdjustment": "No adjustment",
   "settingsLocationUpdating": "Updating your location…",
-  "settingsLocationUpdatePrompt": "Update the saved prayer-times location.",
+  "settingsLocationUpdatePrompt": "Choose a city, or use your phone's location.",
   "timeJustNow": "just now",
   "settingsPrayerNotificationsOff": "Off. Turn on to be notified at prayer times.",
   "settingsPreciseAlarmsOn": "Enabled for exact Azan timing.",
@@ -633,6 +640,7 @@
   "qiblaNeedsCalibrating": "Compass needs calibrating",
   "qiblaLocationUnknown": "Location unknown",
   "qiblaUpdateLocation": "Update location",
+  "qiblaChangeCity": "Change city",
   "qiblaPointingTowards": "Pointing towards",
   "qiblaWaitingForLocation": "Waiting for your location",
   "qiblaPointTowards": "Point towards",

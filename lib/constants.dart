@@ -646,6 +646,33 @@ Future<bool> initializeLocation(
   }
 }
 
+/// Makes [latitude], [longitude] the prayer-times location, named [label],
+/// with the same consequences a GPS fix has in [initializeLocation]: stored,
+/// and the notification schedule and prayer-relative reminders rebuilt if the
+/// place moved. Used for a city the reader chose by name.
+Future<void> applyChosenPrayerLocation({
+  required double latitude,
+  required double longitude,
+  required String label,
+}) async {
+  lat = latitude;
+  long = longitude;
+  lastLocationFailure = null;
+  lastLocationFixAt = DateTime.now();
+  final locationChanged = hasPrayerScheduleLocationMoved();
+  if (locationChanged || city != label) needToSchedule = true;
+  city = label;
+  if (SP.isInitialized) {
+    await SP.prefs.setDouble("lat", latitude);
+    await SP.prefs.setDouble("long", longitude);
+    await SP.prefs.setString("city", label);
+  }
+  if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
+    await setUpNotifications();
+    await ZikrReminderService.instance.rescheduleAll();
+  }
+}
+
 /// Sanity-checks a reverse-geocode label before we show it.
 ///
 /// The city name is display-only — prayer times are computed from lat/long, so

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
@@ -357,6 +358,88 @@ void main() {
       );
 
       expect(service.shouldDiscloseAge, isTrue);
+    });
+  });
+  group('a chosen city', () {
+    const karbala = City(
+      name: 'Karbala',
+      countryCode: 'IQ',
+      countryName: 'Iraq',
+      latitude: 32.616,
+      longitude: 44.025,
+      population: 1218732,
+      timeZone: 'Asia/Baghdad',
+    );
+
+    test('becomes the location, stored and named', () async {
+      await service.chooseCity(karbala);
+
+      expect(service.isManual, isTrue);
+      expect(lat, 32.616);
+      expect(long, 44.025);
+      expect(city, 'Karbala');
+      expect(SP.prefs.getDouble('lat'), 32.616);
+      expect(SP.prefs.getString('city'), 'Karbala');
+      expect(SP.prefs.getBool(LocationService.manualKey), isTrue);
+      expect(needToSchedule, isTrue);
+    });
+
+    test('is never replaced by a GPS refresh', () async {
+      final geolocator = _CountingGeolocator(currentPosition: _pos(51.5, -0.1));
+      GeolocatorPlatform.instance = geolocator;
+      await service.chooseCity(karbala);
+      service.setUpdatedAtForTest(
+        DateTime.now().subtract(LocationService.freshnessWindow * 10),
+      );
+
+      await withGeocode(() async {
+        expect(service.isStale, isFalse);
+        expect(await service.refreshIfStale(), isTrue);
+        expect(await service.refresh(), isTrue);
+      });
+
+      expect(geolocator.currentPositionCalls, 0);
+      expect(city, 'Karbala');
+      expect(service.shouldDiscloseAge, isFalse);
+    });
+
+    test('survives a restart', () async {
+      await service.chooseCity(karbala);
+      service.resetForTest();
+      expect(service.isManual, isFalse);
+
+      service.restore();
+      expect(service.isManual, isTrue);
+    });
+
+    test('waits out a GPS fetch already under way, then wins', () async {
+      final gate = Completer<Position>();
+      GeolocatorPlatform.instance = _CountingGeolocator(pending: gate.future);
+
+      await withGeocode(() async {
+        final fetch = service.refresh();
+        final choosing = service.chooseCity(karbala);
+        gate.complete(_pos(51.5, -0.1));
+        await fetch;
+        await choosing;
+      });
+
+      expect(lat, 32.616);
+      expect(city, 'Karbala');
+    });
+
+    test('going back to the phone\'s location fetches it', () async {
+      final geolocator = _CountingGeolocator(currentPosition: _pos(51.5, -0.1));
+      GeolocatorPlatform.instance = geolocator;
+      await service.chooseCity(karbala);
+
+      final ok = await withGeocode(() => service.useDeviceLocation());
+
+      expect(ok, isTrue);
+      expect(service.isManual, isFalse);
+      expect(SP.prefs.containsKey(LocationService.manualKey), isFalse);
+      expect(geolocator.currentPositionCalls, 1);
+      expect(lat, 51.5);
     });
   });
 }

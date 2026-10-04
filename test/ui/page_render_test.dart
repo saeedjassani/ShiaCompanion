@@ -4,14 +4,17 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/navigation/app_shell.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
+import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/pages/about_page.dart';
 import 'package:shia_companion/pages/all_features_page.dart';
+import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/pages/home/coming_up_section.dart';
 import 'package:shia_companion/pages/home/continue_section.dart';
 import 'package:shia_companion/pages/home/hadith_card.dart';
 import 'package:shia_companion/pages/home/home_header.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
 import 'package:shia_companion/pages/list_items.dart';
+import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
@@ -39,6 +42,23 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await SP.init();
     await setUpFirebaseForRenderTests();
+    // The real list is 2 MB; a few rows exercise the same layout.
+    CityRepository.instance.seedForTesting([
+      for (final (name, country) in [
+        ('Baghdad', 'Iraq'),
+        ('Karbala', 'Iraq'),
+        ('Al Madīnah al Munawwarah ash Sharqiyah', 'Iraq'),
+      ])
+        City(
+          name: name,
+          countryCode: 'IQ',
+          countryName: country,
+          latitude: 33,
+          longitude: 44,
+          population: 1000000,
+          timeZone: 'Asia/Baghdad',
+        ),
+    ]);
   });
 
   for (final screen in _screens) {
@@ -153,6 +173,10 @@ final List<_Screen> _screens = [
   // Reachable from the app bar rather than the menu.
   _Screen('About', () => AboutPage()),
   _Screen('All features', () => const AllFeaturesPage()),
+  _Screen(
+    'City picker',
+    () => const Scaffold(body: CityPicker(timeZone: 'Asia/Baghdad')),
+  ),
   // Home itself starts the whole app (deep links, notifications, sync), so
   // its sections are rendered on their own, laid out as Home lays them out.
   _Screen('Home sections', () => const _HomeSections()),

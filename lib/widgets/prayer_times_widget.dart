@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:shia_companion/models/city.dart';
+import 'package:shia_companion/pages/city_picker.dart';
+import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
@@ -68,6 +71,38 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     if (mounted) setState(() {});
   }
 
+  /// The city picker: a city by name, or back to the phone's location.
+  Future<void> _chooseCity() async {
+    await chooseCityFlow(context);
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _acceptGuess(City guess) async {
+    await applyCityChoice(context, ChosenCity(guess), source: 'time_zone');
+    if (mounted) setState(() {});
+  }
+
+  /// The city the phone's time zone points at, worked out once per run and
+  /// only when the card has no location to show - so the city list is only
+  /// read for someone who needs it.
+  static Future<City?>? _timeZoneGuess;
+
+  /// Where the phone's time zone is read from; tests pin it.
+  @visibleForTesting
+  static Future<String?> Function() timeZoneSource = deviceTimeZone;
+
+  @visibleForTesting
+  static void debugResetTimeZoneGuess() => _timeZoneGuess = null;
+
+  static Future<City?> _guessCity() async {
+    final zone = await timeZoneSource();
+    if (zone == null || !zone.contains('/') || zone.startsWith('Etc/')) {
+      return null;
+    }
+    await CityRepository.instance.load();
+    return CityRepository.instance.guessForTimeZone(zone);
+  }
+
   /// The same picker Settings offers, reachable from the card it changes.
   Future<void> _editTimesShown() async {
     final changed = await showWidgetPrayerTimesDialog(context);
@@ -98,9 +133,15 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         : const <WidgetPrayerTimeReading>[];
 
     if (readings.isEmpty) {
-      return _ChooseLocationCard(
-        location: _location,
-        onUseLocation: _refreshLocation,
+      return FutureBuilder<City?>(
+        future: _timeZoneGuess ??= _guessCity().catchError((_) => null),
+        builder: (context, snapshot) => _ChooseLocationCard(
+          location: _location,
+          guess: snapshot.data,
+          onUseLocation: _refreshLocation,
+          onChooseCity: _chooseCity,
+          onAcceptGuess: _acceptGuess,
+        ),
       );
     }
 
@@ -153,7 +194,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                         ),
                         child: _CityButton(
                           location: _location,
-                          onTap: _refreshLocation,
+                          onTap: _chooseCity,
                         ),
                       ),
                     ],
@@ -197,8 +238,8 @@ bool _isSameDate(DateTime a, DateTime b) {
   return a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-/// The city, as a button: tap to refresh the location. (Choosing a city by
-/// name comes with the city picker.)
+/// The city, as a button: tap to choose another, or to go back to the
+/// phone's own location.
 class _CityButton extends StatelessWidget {
   const _CityButton({required this.location, required this.onTap});
 
@@ -216,11 +257,11 @@ class _CityButton extends StatelessWidget {
     final label = city ?? (refreshing ? context.l10n.prayerLocating : 'Your location');
 
     return Tooltip(
-      message: 'Refresh location',
+      message: 'Change city',
       excludeFromSemantics: true,
       child: Semantics(
         button: true,
-        label: '$label. Refresh location',
+        label: '$label. Change city',
         excludeSemantics: true,
         onTap: onTap,
         child: Material(
@@ -375,17 +416,23 @@ class _DashedStartRule extends CustomPainter {
 }
 
 /// No location has ever been resolved, so there are no times to show: ask
-/// where the reader is. Never a dead end — the button stays live while a
-/// fetch runs, since one that silently died must not strand anyone on a
-/// spinner.
+/// which city the reader is in, suggesting the one their phone's time zone
+/// points at. Never a dead end — "Use my location" stays live while a fetch
+/// runs, since one that silently died must not strand anyone on a spinner.
 class _ChooseLocationCard extends StatelessWidget {
   const _ChooseLocationCard({
     required this.location,
+    required this.guess,
     required this.onUseLocation,
+    required this.onChooseCity,
+    required this.onAcceptGuess,
   });
 
   final LocationService location;
+  final City? guess;
   final VoidCallback onUseLocation;
+  final VoidCallback onChooseCity;
+  final ValueChanged<City> onAcceptGuess;
 
   @override
   Widget build(BuildContext context) {
@@ -393,6 +440,37 @@ class _ChooseLocationCard extends StatelessWidget {
     final refreshing = location.isRefreshing;
     final failed = location.status == LocationRefreshStatus.failed;
     final muted = ShiaText.secondary.copyWith(color: colors.onPrayerCardMuted);
+    final guess = this.guess;
+
+    final useLocationLabel = refreshing
+        ? 'Finding your location…'
+        : failed
+            ? 'Try again'
+            : 'Use my location';
+    final useLocationIcon = refreshing
+        ? SizedBox.square(
+            dimension: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: guess == null ? colors.onGold : colors.onPrayerCard,
+            ),
+          )
+        : OutlineIcon(
+            OutlineGlyph.pin,
+            size: 18,
+            color: guess == null ? colors.onGold : colors.onPrayerCard,
+            strokeWidth: 2,
+          );
+    final chooseCity = _OutlineCardButton(
+      icon: OutlineIcon(
+        OutlineGlyph.search,
+        size: 18,
+        color: colors.onPrayerCard,
+        strokeWidth: 2,
+      ),
+      label: 'Choose city',
+      onPressed: onChooseCity,
+    );
 
     return Semantics(
       container: true,
@@ -433,50 +511,114 @@ class _ChooseLocationCard extends StatelessWidget {
               style: muted,
             ),
             const SizedBox(height: 14),
-            FilledButton(
-              onPressed: onUseLocation,
-              style: FilledButton.styleFrom(
-                backgroundColor: colors.gold,
-                foregroundColor: colors.onGold,
-                minimumSize: const Size.fromHeight(50),
-                shape: const StadiumBorder(),
-                textStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w700),
+            if (guess != null) ...[
+              Text(
+                "Your phone's time zone suggests ${guess.name}.",
+                style: ShiaText.caption.copyWith(
+                  fontSize: 14,
+                  height: 18 / 14,
+                  color: colors.onPrayerCardMuted,
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              const SizedBox(height: 8),
+              _GoldButton(
+                label: "Yes, I'm in ${guess.name}",
+                onPressed: () => onAcceptGuess(guess),
+              ),
+              const SizedBox(height: 8),
+              Row(
                 children: [
-                  if (refreshing) ...[
-                    SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colors.onGold,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                  ] else ...[
-                    OutlineIcon(
-                      OutlineGlyph.pin,
-                      size: 18,
-                      color: colors.onGold,
-                      strokeWidth: 2,
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  Flexible(
-                    child: Text(
-                      refreshing
-                          ? 'Finding your location…'
-                          : failed
-                              ? 'Try again'
-                              : 'Use my location',
+                  Expanded(
+                    child: _OutlineCardButton(
+                      icon: useLocationIcon,
+                      label: refreshing ? 'Locating…' : useLocationLabel,
+                      onPressed: onUseLocation,
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  Expanded(child: chooseCity),
                 ],
               ),
-            ),
+            ] else ...[
+              _GoldButton(
+                icon: useLocationIcon,
+                label: useLocationLabel,
+                onPressed: onUseLocation,
+              ),
+              const SizedBox(height: 8),
+              chooseCity,
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// The one primary button on the prayer card, in gold.
+class _GoldButton extends StatelessWidget {
+  const _GoldButton({required this.label, required this.onPressed, this.icon});
+
+  final String label;
+  final VoidCallback onPressed;
+  final Widget? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return FilledButton(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        backgroundColor: colors.gold,
+        foregroundColor: colors.onGold,
+        minimumSize: const Size.fromHeight(50),
+        shape: const StadiumBorder(),
+        textStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w700),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[icon!, const SizedBox(width: 8)],
+          Flexible(child: Text(label, textAlign: TextAlign.center)),
+        ],
+      ),
+    );
+  }
+}
+
+/// A secondary button on the prayer card: outlined in the card's own text
+/// colour.
+class _OutlineCardButton extends StatelessWidget {
+  const _OutlineCardButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final Widget icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: colors.onPrayerCard,
+        minimumSize: const Size.fromHeight(46),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        side: BorderSide(color: colors.onPrayerCard.withValues(alpha: 0.4)),
+        shape: const StadiumBorder(),
+        textStyle: ShiaText.secondary.copyWith(fontWeight: FontWeight.w600),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          icon,
+          const SizedBox(width: 6),
+          Flexible(child: Text(label, textAlign: TextAlign.center)),
+        ],
       ),
     );
   }

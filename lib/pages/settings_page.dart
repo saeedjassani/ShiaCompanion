@@ -37,6 +37,7 @@ import '../widgets/theme_mode_picker.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
+import 'city_picker.dart';
 import 'downloaded_audio_page.dart';
 import 'delete_account_page.dart';
 import 'scheduled_notifications_page.dart';
@@ -138,33 +139,26 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.location_on),
-                title: Text(context.l10n.settingsRefreshLocation),
-                subtitle: Text(_refreshLocationSubtitle()),
+                title: Text(context.l10n.settingsLocation),
+                subtitle: Text(_locationSubtitle()),
                 trailing: LocationService.instance.isRefreshing
                     ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : null,
-                enabled: !LocationService.instance.isRefreshing,
+                    : const Icon(Icons.chevron_right),
                 onTap: () async {
-                  // Passing context lets initializeLocation explain *why* it
-                  // failed and offer the relevant settings screen, instead of
-                  // a snackbar that guesses. The row redraws from the service
-                  // listener, so there is no setState to sequence here.
-                  final success =
-                      await LocationService.instance.refresh(context: context);
+                  // The picker offers both ways: a city by name, or the
+                  // phone's own location (with its permission dialogs). The
+                  // row redraws from the service listener.
+                  await chooseCityFlow(context);
                   if (!mounted) return;
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(context.l10n.settingsLocationRefreshed),
-                    ));
-                    return;
-                  }
                   // Those diagnostic dialogs are all guarded on !kIsWeb, so on
                   // web a failure would otherwise look like a dead tap.
-                  if (kIsWeb) {
+                  if (kIsWeb &&
+                      LocationService.instance.status ==
+                          LocationRefreshStatus.failed) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(LocationService.instance.failureMessage),
                     ));
@@ -643,7 +637,7 @@ class _SettingsPageState extends State<SettingsPage> {
         : context.l10n.settingsHijriBehind(days);
   }
 
-  String _refreshLocationSubtitle() {
+  String _locationSubtitle() {
     final location = LocationService.instance;
     if (location.isRefreshing) {
       return context.l10n.settingsLocationUpdating;
@@ -657,8 +651,11 @@ class _SettingsPageState extends State<SettingsPage> {
     if (savedCity == null || savedCity.isEmpty) {
       return context.l10n.settingsLocationUpdatePrompt;
     }
+    if (location.isManual) {
+      return context.l10n.settingsLocationManual(savedCity);
+    }
 
-    final updatedAt = LocationService.instance.updatedAt;
+    final updatedAt = location.updatedAt;
     if (updatedAt == null) {
       return context.l10n.settingsLocationSaved(savedCity);
     }

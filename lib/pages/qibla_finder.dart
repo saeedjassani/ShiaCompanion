@@ -17,6 +17,7 @@ import '../utils/shared_preferences.dart';
 import '../widgets/qibla_compass_dial.dart';
 import '../widgets/responsive_content.dart';
 import '../l10n/l10n.dart';
+import 'city_picker.dart';
 
 /// A real compass, pointed at the Kaaba or at any of the shrines in
 /// [allHolySites].
@@ -262,7 +263,13 @@ class _QiblaFinderState extends State<QiblaFinder> {
   }
 
   Future<void> _refreshLocation() async {
-    await _location.refresh(context: context);
+    // A chosen city is never refreshed by GPS, so for one the button changes
+    // the city instead of doing nothing.
+    if (_location.isManual) {
+      await chooseCityFlow(context);
+    } else {
+      await _location.refresh(context: context);
+    }
     if (mounted) setState(() {});
   }
 
@@ -465,8 +472,12 @@ class _LocationStrip extends StatelessWidget {
           IconButton(
             visualDensity: VisualDensity.compact,
             iconSize: 18,
-            icon: const Icon(Icons.my_location),
-            tooltip: context.l10n.qiblaUpdateLocation,
+            icon: Icon(location.isManual
+                ? Icons.edit_location_alt_outlined
+                : Icons.my_location),
+            tooltip: location.isManual
+                ? context.l10n.qiblaChangeCity
+                : context.l10n.qiblaUpdateLocation,
             onPressed: onRefresh,
           ),
       ],
