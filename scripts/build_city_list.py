@@ -2,23 +2,31 @@
 """Builds assets/cities.tsv, the offline city list behind the city picker.
 
 Source: GeoNames (https://www.geonames.org), licensed CC BY 4.0. Uses the
-cities15000 dump (every populated place of 15,000+ people), countryInfo.txt
-for country names and admin1CodesASCII.txt for state/province names.
+cities15000 dump, countryInfo.txt for country names and admin1CodesASCII.txt
+for state/province names.
 
     python3 scripts/build_city_list.py            # downloads the dumps
     python3 scripts/build_city_list.py --dir DIR  # uses dumps already in DIR
+
+The picker is the fallback for when the phone's own location is unavailable
+or refused, so the list is kept small: cities of 100,000+ people, plus every
+capital (GeoNames counts Kuwait City at 60,000). Anyone in a smaller town picks
+the nearest of these; within a few tens of kilometres, prayer times differ by
+a minute or two.
 
 Output, one record per line, tab separated (see lib/models/city.dart):
 
     C  <country code>  <country name>
     A  <country code>.<admin1 code>  <admin1 name>
-    P  <name>  <ascii name, if different>  <country code>  <admin1 code>
-       <lat>  <lng>  <population>  <IANA time zone>  <aliases, |-separated>
+    Z  <IANA time zone>                      (numbered from 0, in order)
+    P  <name>  <ascii name, if different>  <country code>
+       <admin1 code, only where two cities share a name in one country>
+       <lat>  <lng>  <population>  <time zone number>  <aliases, |-separated>
 
-Coordinates are rounded to 3 decimals (about 100 m), which moves a prayer time
-by well under a second. Aliases are other Latin-script spellings ("Kerbala",
-"Mecca", "Bombay") so the search finds a city by the name people use; they
-are kept for cities of 100,000+ only, which is where the size goes otherwise.
+Coordinates are rounded to 2 decimals (about 1 km), which moves a prayer time
+by a few seconds. Aliases are other Latin-script spellings ("Kerbala", "Qum",
+"Mecca") so the search finds a city by the name people use; they are kept for
+cities of 250,000+ only.
 """
 
 import argparse
@@ -28,26 +36,20 @@ import re
 import sys
 import urllib.request
 import zipfile
+from collections import Counter
 
 BASE = 'https://download.geonames.org/export/dump/'
 OUT = os.path.join(os.path.dirname(__file__), '..', 'assets', 'cities.tsv')
 
+MIN_POPULATION = 100000
+ALIAS_MIN_POPULATION = 250000
+
 # Sections of a populated place, historical, abandoned or destroyed places:
 # none is somewhere to pick as "the city I am in".
 SKIPPED_FEATURE_CODES = {'PPLX', 'PPLH', 'PPLQ', 'PPLW'}
+CAPITAL_FEATURE_CODE = 'PPLC'
 
-ALIAS_MIN_POPULATION = 100000
 ALIAS_PATTERN = re.compile(r"^[A-Za-z][A-Za-z .'\-]{2,39}$")
-
-# Places people pray in that GeoNames files as part of a bigger city rather
-# than as cities of their own. Coordinates are the shrine's.
-CURATED_EXTRAS = [
-    # name, ascii, country, admin1, lat, lng, population, time zone, aliases
-    ('Kadhimiya', '', 'IQ', '07', 33.380, 44.338, 300000, 'Asia/Baghdad',
-     ['Kazimiyah', 'Al Kadhimiya', 'Kadhimain', 'Kazimain']),
-    ('Sayyidah Zaynab', '', 'SY', '08', 33.444, 36.341, 136000,
-     'Asia/Damascus', ['Sayyida Zaynab', 'Sayeda Zainab', 'Zaynabiyah']),
-]
 
 
 def fetch(name, directory):
@@ -110,52 +112,56 @@ def main():
             admin1[fields[0]] = fields[1]
 
     archive = zipfile.ZipFile(io.BytesIO(fetch('cities15000.zip', args.dir)))
-    rows = [line.split('\t')
-            for line in text_lines(archive.read('cities15000.txt'))]
+    rows = [
+        row for row in (line.split('\t')
+                        for line in text_lines(archive.read('cities15000.txt')))
+        if row[7] not in SKIPPED_FEATURE_CODES
+        and (int(row[14] or 0) >= MIN_POPULATION
+             or row[7] == CAPITAL_FEATURE_CODE)
+    ]
+    # Biggest first: the app's search breaks ties by list order.
+    rows.sort(key=lambda row: (-int(row[14] or 0), row[1]))
 
-    places = []
-    for row in rows:
-        if row[7] in SKIPPED_FEATURE_CODES:
-            continue
-        places.append((
-            row[1],
-            row[2] if row[2] != row[1] else '',
-            row[8],
-            row[10],
-            float(row[4]),
-            float(row[5]),
-            int(row[14] or 0),
-            row[17],
-            aliases_for(row),
-        ))
-    places.extend(CURATED_EXTRAS)
-    # Biggest first: the app's search breaks ties by population anyway, and
-    # this keeps the file readable.
-    places.sort(key=lambda place: (-place[6], place[0]))
+    # A province is only worth its bytes where it tells two cities apart.
+    shared_names = Counter((row[1], row[8]) for row in rows)
+    def province(row):
+        return row[10] if shared_names[(row[1], row[8])] > 1 else ''
 
-    used_countries = sorted({place[2] for place in places})
-    used_admin1 = sorted({f'{place[2]}.{place[3]}' for place in places
-                          if f'{place[2]}.{place[3]}' in admin1})
+    zones = sorted({row[17] for row in rows})
+    zone_numbers = {zone: index for index, zone in enumerate(zones)}
+    used_countries = sorted({row[8] for row in rows})
+    used_admin1 = sorted({f'{row[8]}.{province(row)}' for row in rows
+                          if province(row)
+                          and f'{row[8]}.{province(row)}' in admin1})
 
     lines = [
-        '# Cities of 15,000+ people, from GeoNames (geonames.org), CC BY 4.0.',
+        '# Cities of 100,000+ people and all capitals, from GeoNames '
+        '(geonames.org), CC BY 4.0.',
         '# Built by scripts/build_city_list.py; do not edit by hand.',
     ]
     lines += [f'C\t{code}\t{countries.get(code, code)}'
               for code in used_countries]
     lines += [f'A\t{code}\t{admin1[code]}' for code in used_admin1]
-    for name, ascii_name, country, adm1, lat, lng, population, zone, aliases \
-            in places:
+    lines += [f'Z\t{zone}' for zone in zones]
+    for row in rows:
         lines.append('\t'.join([
-            'P', name, ascii_name, country, adm1,
-            f'{lat:.3f}', f'{lng:.3f}', str(population), zone,
-            '|'.join(aliases),
+            'P',
+            row[1],
+            row[2] if row[2] != row[1] else '',
+            row[8],
+            province(row),
+            f'{float(row[4]):.2f}',
+            f'{float(row[5]):.2f}',
+            str(int(row[14] or 0)),
+            str(zone_numbers[row[17]]),
+            '|'.join(aliases_for(row)),
         ]))
 
     with open(OUT, 'w', encoding='utf-8', newline='\n') as f:
         f.write('\n'.join(lines) + '\n')
-    print(f'Wrote {len(places)} places, {len(used_countries)} countries '
-          f'to {os.path.relpath(OUT)}', file=sys.stderr)
+    size = os.path.getsize(OUT)
+    print(f'Wrote {len(rows)} places in {len(used_countries)} countries to '
+          f'{os.path.relpath(OUT)} ({size // 1024} KB)', file=sys.stderr)
 
 
 if __name__ == '__main__':

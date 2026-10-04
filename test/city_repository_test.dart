@@ -16,14 +16,14 @@ void main() {
       ];
 
   test('finds the cities the airports list missed', () {
+    // Kuwait City is a capital GeoNames counts at 60,000: capitals are kept
+    // whatever their size.
     expect(top('Karbala', 1), ['Karbala, IQ']);
     expect(top('Najaf', 2), contains('Najaf, IQ'));
     expect(top('Qom', 1), ['Qom, IR']);
     expect(top('Kuwait City', 1), ['Kuwait City, KW']);
     expect(top('Kufa', 1), ['Kufa, IQ']);
     expect(top('Samarra', 1), ['Sāmarrā’, IQ']);
-    expect(top('Kadhimiya', 1), ['Kadhimiya, IQ']);
-    expect(top('Sayyidah Zaynab', 1), ['Sayyidah Zaynab, SY']);
   });
 
   test('a prefix lists the biggest matches first', () {
@@ -89,21 +89,34 @@ void main() {
     expect(suggestions.length, lessThanOrEqualTo(6));
   });
 
-  test('parses names, countries and provinces', () {
+  test('parses names, countries, provinces and time zones', () {
     final cities = City.parseDatabase([
       '# comment',
       'C\tIN\tIndia',
       'A\tIN.40\tTelangana',
-      'P\tHyderābād\tHyderabad\tIN\t40\t17.384\t78.456\t6993262\t'
-          'Asia/Kolkata\tBhagnagar',
-      'P\tBroken\t\tIN\t40\tnot-a-number\t78\t1\tAsia/Kolkata\t',
+      'Z\tAsia/Dubai',
+      'Z\tAsia/Kolkata',
+      'P\tHyderābād\tHyderabad\tIN\t40\t17.38\t78.46\t6993262\t1\t'
+          'Bhagnagar',
+      'P\tBroken\t\tIN\t\tnot-a-number\t78\t1\t1\t',
+      'P\tNo zone\t\tIN\t\t17\t78\t1\t-4\t',
     ].join('\n'));
-    expect(cities, hasLength(1));
+    expect(cities, hasLength(2));
+    expect(cities.last.timeZone, isEmpty);
+    cities.removeLast();
     final city = cities.single;
     expect(city.name, 'Hyderābād');
     expect(city.countryName, 'India');
     expect(city.admin1Name, 'Telangana');
-    expect(city.latitude, 17.384);
+    expect(city.latitude, 17.38);
+    expect(city.timeZone, 'Asia/Kolkata');
     expect(city.aliases, ['Bhagnagar']);
+  });
+
+  test('keeps the list small: big cities and capitals only', () {
+    // The picker is the fallback for when GPS is unavailable, and the list
+    // ships in every install.
+    final all = repository.search('a', limit: 100000);
+    expect(all.length, lessThan(8000));
   });
 }

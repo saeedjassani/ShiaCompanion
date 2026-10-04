@@ -26,7 +26,7 @@ class City {
   final String countryName;
 
   /// State or province, for telling apart two cities of the same name in
-  /// one country. Empty when GeoNames has none.
+  /// one country. Only given for such cities; empty otherwise.
   final String admin1Name;
   final double latitude;
   final double longitude;
@@ -42,6 +42,7 @@ class City {
   static List<City> parseDatabase(String contents) {
     final countries = <String, String>{};
     final admin1 = <String, String>{};
+    final zones = <String>[];
     final cities = <City>[];
 
     for (final line in contents.split('\n')) {
@@ -52,6 +53,8 @@ class City {
           countries[fields[1]] = fields[2];
         case 'A' when fields.length >= 3:
           admin1[fields[1]] = fields[2];
+        case 'Z' when fields.length >= 2:
+          zones.add(fields[1]);
         case 'P' when fields.length >= 9:
           final latitude = double.tryParse(fields[5]);
           final longitude = double.tryParse(fields[6]);
@@ -66,7 +69,7 @@ class City {
             latitude: latitude,
             longitude: longitude,
             population: int.tryParse(fields[7]) ?? 0,
-            timeZone: fields[8],
+            timeZone: _zone(zones, fields[8]),
             aliases: fields.length > 9 && fields[9].isNotEmpty
                 ? fields[9].split('|')
                 : const [],
@@ -74,5 +77,13 @@ class City {
       }
     }
     return cities;
+  }
+
+  /// Time zones are written once each in the Z lines and referred to by
+  /// their number, in order.
+  static String _zone(List<String> zones, String field) {
+    final index = int.tryParse(field);
+    if (index == null || index < 0 || index >= zones.length) return '';
+    return zones[index];
   }
 }
