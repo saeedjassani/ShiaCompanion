@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tasbeeh, guided Tasbih al-Zahra</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Qalam';src:url(/_blob/d5d1bb57f046a6be658e48261d0cd523) format('truetype');font-display:swap}
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 54px 16px 34px; display: flex; flex-direction: column; gap: 14px; overflow: hidden; background: #F8F5F0; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+
+  <div style="position: relative; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center">
+    <a href="#" style="position: absolute; left: -8px; top: 0; height: 44px; display: flex; align-items: center; gap: 2px; padding: 0 8px 0 4px; color: #6D4C35; text-decoration: none; font-size: 17px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round"><path d="M15 5l-7 7 7 7"></path></svg>
+      Home
+    </a>
+    <span style="font-size: 17px; line-height: 22px; font-weight: 600">Tasbeeh</span>
+    <button aria-label="Counter settings: beep, vibration, targets" style="position: absolute; right: -6px; top: 0; width: 44px; height: 44px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+    </button>
+  </div>
+
+  <div style="flex-shrink: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: #EDE5DA">
+    <button onClick="{{setZahra}}" aria-pressed="{{zahraPressed}}" style="{{zahraBtnStyle}}">Tasbih al-Zahra</button>
+    <button onClick="{{setFree}}" aria-pressed="{{freePressed}}" style="{{freeBtnStyle}}">Free count</button>
+  </div>
+
+  <sc-if value="{{zahra}}" hint-placeholder-val="{{ true }}">
+    <div style="flex-shrink: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{phases}}" as="ph" hint-placeholder-count="3">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="display: block; height: 6px; border-radius: 3px; background: #E6DDD0; overflow: hidden"><span style="{{ph.barStyle}}"></span></span>
+          <span style="{{ph.labelStyle}}">{{ph.label}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <button onClick="{{tap}}" aria-label="Count one" style="flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 20px; border-radius: 28px; border: 1px solid #E8E0D5; background: #FFFFFF; color: #2A1E16; cursor: pointer; position: relative">
+    <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+      <span style="width: 64px; height: 64px; border-radius: 32px; background: #6D4C35; display: flex; align-items: center; justify-content: center"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+      <span style="margin-top: 10px; font-size: 24px; line-height: 30px; font-weight: 700">Tasbih al-Zahra complete</span>
+      <span style="font-size: 17px; line-height: 22px; color: #6A5A4D">100 of 100 · tap to start again</span>
+    </sc-if>
+    <sc-if value="{{counting}}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{zahra}}" hint-placeholder-val="{{ true }}">
+        <span dir="rtl" lang="ar" style="font-family: 'Qalam', 'Scheherazade New', serif; font-size: 44px; line-height: 72px">{{arabic}}</span>
+        <span style="font-size: 18px; line-height: 24px; color: #6A5A4D">{{translit}}</span>
+      </sc-if>
+      <span style="margin-top: 8px; font-size: 112px; line-height: 112px; font-weight: 700; letter-spacing: -3px; font-variant-numeric: tabular-nums">{{shown}}</span>
+      <span style="font-size: 20px; line-height: 26px; font-weight: 600; color: #6A5A4D">{{ofText}}</span>
+    </sc-if>
+    <span style="position: absolute; left: 0; right: 0; bottom: 18px; font-size: 15px; line-height: 20px; color: #6A5A4D">Tap anywhere in this box</span>
+  </button>
+
+  <sc-if value="{{confirming}}" hint-placeholder-val="{{ false }}">
+    <div style="flex-shrink: 0; display: flex; align-items: center; gap: 8px; height: 52px">
+      <span style="flex: 1; font-size: 16px; line-height: 20px; font-weight: 600">Start again from 0?</span>
+      <button onClick="{{cancelReset}}" style="height: 48px; padding: 0 18px; border-radius: 24px; border: 1px solid #D9CEBF; background: #FFFFFF; color: #2A1E16; font-size: 16px; font-weight: 600; cursor: pointer">Cancel</button>
+      <button onClick="{{doReset}}" style="height: 48px; padding: 0 18px; border-radius: 24px; border: none; background: #6D4C35; color: #FFFFFF; font-size: 16px; font-weight: 600; cursor: pointer">Reset</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{notConfirming}}" hint-placeholder-val="{{ true }}">
+    <div style="flex-shrink: 0; display: flex; align-items: center; gap: 10px; height: 52px">
+      <button onClick="{{minus}}" aria-label="Minus one" style="width: 72px; height: 52px; border-radius: 26px; border: 1px solid #D9CEBF; background: #FFFFFF; color: #2A1E16; font-size: 18px; font-weight: 600; cursor: pointer">−1</button>
+      <span style="flex: 1; text-align: center; font-size: 15px; line-height: 20px; color: #6A5A4D">{{totalText}}</span>
+      <button onClick="{{askReset}}" style="display: flex; align-items: center; gap: 6px; height: 52px; padding: 0 18px; border-radius: 26px; border: 1px solid #D9CEBF; background: #FFFFFF; color: #2A1E16; font-size: 16px; font-weight: 600; cursor: pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2A1E16" aria-hidden="true" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12a7 7 0 1 0 2.1-5"></path><path d="M5 4v4h4"></path></svg>
+        Reset
+      </button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var st = this.state || {};
+    var self = this;
+    var count = typeof st.count === 'number' ? st.count : 12;
+    var zahra = st.mode !== 'free';
+    var confirming = st.confirmReset === true;
+    var phases = [
+      { ar: 'اَللّٰهُ اَكْبَرُ', tr: 'Allahu Akbar', size: 34, start: 0 },
+      { ar: 'اَلْحَمْدُ لِلّٰهِ', tr: 'Alhamdulillah', size: 33, start: 34 },
+      { ar: 'سُبْحَانَ اللّٰهِ', tr: 'SubhanAllah', size: 33, start: 67 }
+    ];
+    var done = zahra && count >= 100;
+    var idx = count < 34 ? 0 : (count < 67 ? 1 : 2);
+    var current = phases[idx];
+    var seg = 'height: 40px; border-radius: 11px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; ';
+    var on = seg + 'background: #FFFFFF; color: #2A1E16; box-shadow: 0 1px 3px rgba(42,30,22,0.15)';
+    var off = seg + 'background: transparent; color: #6A5A4D';
+    return {
+      zahra: zahra,
+      done: done,
+      counting: !done,
+      confirming: confirming,
+      notConfirming: !confirming,
+      zahraPressed: zahra ? 'true' : 'false',
+      freePressed: zahra ? 'false' : 'true',
+      zahraBtnStyle: zahra ? on : off,
+      freeBtnStyle: zahra ? off : on,
+      arabic: current.ar,
+      translit: current.tr,
+      shown: zahra ? String(count - current.start) : String(count),
+      ofText: zahra ? ('of ' + current.size) : 'No limit',
+      totalText: zahra ? ('Total ' + count + ' of 100') : 'Free count',
+      phases: phases.map(function (p, i) {
+        var pct = Math.max(0, Math.min(1, (count - p.start) / p.size)) * 100;
+        var active = zahra && i === idx && !done;
+        return {
+          label: p.tr + ' · ' + p.size,
+          barStyle: 'display: block; height: 6px; border-radius: 3px; background: #6D4C35; width: ' + pct + '%',
+          labelStyle: 'font-size: 13px; line-height: 17px; ' + (active ? 'font-weight: 700; color: #2A1E16' : 'color: #6A5A4D')
+        };
+      }),
+      tap: function () {
+        self.setState({ count: done ? 0 : count + 1, confirmReset: false });
+      },
+      minus: function () {
+        self.setState({ count: Math.max(0, count - 1) });
+      },
+      askReset: function () {
+        self.setState({ confirmReset: true });
+      },
+      cancelReset: function () {
+        self.setState({ confirmReset: false });
+      },
+      doReset: function () {
+        self.setState({ count: 0, confirmReset: false });
+      },
+      setZahra: function () {
+        self.setState({ mode: 'zahra' });
+      },
+      setFree: function () {
+        self.setState({ mode: 'free' });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

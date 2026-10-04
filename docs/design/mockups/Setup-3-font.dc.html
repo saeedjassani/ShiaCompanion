@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Setup, Arabic style</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Qalam';src:url(/_blob/d5d1bb57f046a6be658e48261d0cd523) format('truetype');font-display:swap}
+@font-face{font-family:'ScheherazadeApp';src:url(/_blob/26f10f12c5eab2d8bdffcca1b82048c4) format('truetype');font-display:swap}
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 54px 20px 34px; display: flex; flex-direction: column; gap: 14px; overflow: hidden; background: #F8F5F0; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+  <div style="height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span style="font-size: 15px; line-height: 20px; font-weight: 600; color: #6A5A4D">Step 3 of 5</span>
+      <span aria-hidden="true" style="display: flex; gap: 5px">
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #6D4C35"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #6D4C35"></span>
+        <span style="width: 18px; height: 6px; border-radius: 3px; background: #6D4C35"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #D9CEBF"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #D9CEBF"></span>
+      </span>
+    </div>
+    <button style="height: 44px; padding: 0 4px; border: none; background: transparent; color: #6D4C35; font-size: 17px; font-weight: 600; cursor: pointer">Skip</button>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 30px; line-height: 36px; font-weight: 700; letter-spacing: -0.3px">How should Arabic look?</h1>
+    <p style="margin: 0; font-size: 17px; line-height: 24px; color: #4E4036">Tap the one you find easier to read. Same words, two styles.</p>
+  </div>
+
+  <button onClick="{{pickQalam}}" aria-pressed="{{qalamPressed}}" style="{{qalamCard}}">
+    <span style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+      <span style="display: flex; flex-direction: column; gap: 1px; text-align: left">
+        <span style="font-size: 17px; line-height: 22px; font-weight: 700">Qalam</span>
+        <span style="font-size: 14px; line-height: 18px; color: #6A5A4D">Indo-Pak style, like most South Asian dua books</span>
+      </span>
+      <span style="{{qalamTick}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="stroke-width: 3; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+    </span>
+    <span dir="rtl" lang="ar" style="display: block; text-align: right; font-family: 'Qalam', serif; font-size: {{sizePx}}; line-height: {{lineHeightPx}}">اَللّٰهُمَّ اِنِّىْ اَسْاَلُكَ بِرَحْمَتِكَ الَّتِىْ وَسِعَتْ كُلَّ شَيْءٍ</span>
+  </button>
+
+  <button onClick="{{pickSch}}" aria-pressed="{{schPressed}}" style="{{schCard}}">
+    <span style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+      <span style="display: flex; flex-direction: column; gap: 1px; text-align: left">
+        <span style="font-size: 17px; line-height: 22px; font-weight: 700">Scheherazade</span>
+        <span style="font-size: 14px; line-height: 18px; color: #6A5A4D">Naskh style, like most Arab prints</span>
+      </span>
+      <span style="{{schTick}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="stroke-width: 3; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+    </span>
+    <span dir="rtl" lang="ar" style="display: block; text-align: right; font-family: 'ScheherazadeApp', serif; font-size: {{sizePx}}; line-height: {{lineHeightPx}}">اَللّٰهُمَّ اِنِّىْ اَسْاَلُكَ بِرَحْمَتِكَ الَّتِىْ وَسِعَتْ كُلَّ شَيْءٍ</span>
+  </button>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0">
+    <span style="font-size: 17px; line-height: 22px; font-weight: 600">Text size</span>
+    <div style="display: flex; align-items: center; gap: 8px">
+      <button onClick="{{smaller}}" aria-label="Smaller Arabic text" style="width: 52px; height: 44px; border-radius: 22px; border: 1px solid #CDBFAE; background: #FFFFFF; color: #2A1E16; font-size: 15px; font-weight: 700; cursor: pointer">A−</button>
+      <span style="min-width: 48px; text-align: center; font-size: 15px; line-height: 20px; color: #6A5A4D">{{sizeLabel}}</span>
+      <button onClick="{{bigger}}" aria-label="Bigger Arabic text" style="width: 52px; height: 44px; border-radius: 22px; border: 1px solid #CDBFAE; background: #FFFFFF; color: #2A1E16; font-size: 19px; font-weight: 700; cursor: pointer">A+</button>
+    </div>
+  </div>
+
+  <button style="margin-top: auto; height: 56px; border-radius: 28px; border: none; background: #6D4C35; color: #FFFFFF; font-size: 18px; font-weight: 700; cursor: pointer">Continue</button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var st = this.state || {};
+    var self = this;
+    var font = st.font === 'sch' ? 'sch' : 'qalam';
+    var size = typeof st.size === 'number' ? st.size : 26;
+    var card = 'display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 20px; border: none; background: #FFFFFF; color: #2A1E16; cursor: pointer; text-align: left; ';
+    var on = card + 'box-shadow: inset 0 0 0 2px #6D4C35';
+    var off = card + 'box-shadow: inset 0 0 0 1px #E8E0D5';
+    var tick = 'flex-shrink: 0; width: 26px; height: 26px; border-radius: 13px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; ';
+    var tickOn = tick + 'background: #6D4C35';
+    var tickOff = tick + 'background: transparent; border: 2px solid #CDBFAE';
+    return {
+      qalamCard: font === 'qalam' ? on : off,
+      schCard: font === 'sch' ? on : off,
+      qalamTick: font === 'qalam' ? tickOn : tickOff,
+      schTick: font === 'sch' ? tickOn : tickOff,
+      qalamPressed: font === 'qalam' ? 'true' : 'false',
+      schPressed: font === 'sch' ? 'true' : 'false',
+      sizePx: size + 'px',
+      lineHeightPx: Math.round(size * 1.9) + 'px',
+      sizeLabel: Math.round(size / 26 * 100) + '%',
+      pickQalam: function () { self.setState({ font: 'qalam' }); },
+      pickSch: function () { self.setState({ font: 'sch' }); },
+      smaller: function () { self.setState({ size: Math.max(20, size - 3) }); },
+      bigger: function () { self.setState({ size: Math.min(32, size + 3) }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

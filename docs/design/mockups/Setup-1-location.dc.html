@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Setup, prayer times</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 54px 24px 34px; display: flex; flex-direction: column; overflow: hidden; background: #F8F5F0; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+  <div style="height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span style="font-size: 15px; line-height: 20px; font-weight: 600; color: #6A5A4D">Step 1 of 5</span>
+      <span aria-hidden="true" style="display: flex; gap: 5px">
+        <span style="width: 18px; height: 6px; border-radius: 3px; background: #6D4C35"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #D9CEBF"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #D9CEBF"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #D9CEBF"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #D9CEBF"></span>
+      </span>
+    </div>
+    <button style="height: 44px; padding: 0 4px; border: none; background: transparent; color: #6D4C35; font-size: 17px; font-weight: 600; cursor: pointer">Skip</button>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 16px">
+    <span style="width: 96px; height: 96px; border-radius: 48px; background: #EFE4D6; display: flex; align-items: center; justify-content: center"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"></path><circle cx="12" cy="10" r="2.3"></circle></svg></span>
+    <h1 style="margin: 8px 0 0; font-size: 30px; line-height: 36px; font-weight: 700; letter-spacing: -0.3px">Prayer times for your city</h1>
+    <p style="margin: 0; font-size: 18px; line-height: 26px">Prayer times change with where you are. We use your location to work out prayer times and the Qibla direction.</p>
+    <p style="margin: 0; font-size: 16px; line-height: 22px; color: #6A5A4D">Rather not share it? Choose your city instead. You can change this any time.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <button style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 56px; border-radius: 28px; border: none; background: #6D4C35; color: #FFFFFF; font-size: 18px; font-weight: 700; cursor: pointer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"></path><circle cx="12" cy="10" r="2.3"></circle></svg>
+      Use my location
+    </button>
+    <button style="height: 56px; border-radius: 28px; border: 1px solid #CDBFAE; background: #FFFFFF; color: #2A1E16; font-size: 18px; font-weight: 600; cursor: pointer">Choose my city</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

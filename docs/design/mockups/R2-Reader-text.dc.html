@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Text and reading settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Qalam';src:url(/_blob/d5d1bb57f046a6be658e48261d0cd523) format('truetype');font-display:swap}
+@font-face{font-family:'ScheherazadeApp';src:url(/_blob/26f10f12c5eab2d8bdffcca1b82048c4) format('truetype');font-display:swap}
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #4F4740; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+  <section aria-label="Text and reading" style="position: absolute; left: 0; right: 0; top: 110px; bottom: 0; box-sizing: border-box; padding: 8px 16px 0; border-radius: 16px 16px 0 0; background: #F8F5F0; display: flex; flex-direction: column; gap: 12px">
+    <span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: #D9CEBF"></span>
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <h2 style="margin: 0; font-size: 20px; line-height: 25px; font-weight: 700">Text &amp; reading</h2>
+      <button style="height: 44px; padding: 0 4px; border: none; background: transparent; color: #6D4C35; font-size: 17px; font-weight: 700; cursor: pointer">Done</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <button aria-pressed="true" style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 16px; border: none; background: #FFFFFF; box-shadow: inset 0 0 0 2px #6D4C35; color: #2A1E16; text-align: left; cursor: pointer">
+        <span style="font-size: 14px; line-height: 18px; font-weight: 700">Qalam</span>
+        <span dir="rtl" lang="ar" style="align-self: stretch; text-align: right; font-family: 'Qalam', serif; font-size: 22px; line-height: 40px">بِسْمِ اللّٰهِ</span>
+      </button>
+      <button aria-pressed="false" style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 16px; border: none; background: #FFFFFF; box-shadow: inset 0 0 0 1px #E8E0D5; color: #2A1E16; text-align: left; cursor: pointer">
+        <span style="font-size: 14px; line-height: 18px; font-weight: 700">Scheherazade</span>
+        <span dir="rtl" lang="ar" style="align-self: stretch; text-align: right; font-family: 'ScheherazadeApp', serif; font-size: 22px; line-height: 40px">بِسْمِ اللّٰهِ</span>
+      </button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; border-radius: 16px; background: #FFFFFF; border: 1px solid #E8E0D5; overflow: hidden">
+      <div style="display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 10px 0 14px; border-bottom: 1px solid #EFE7DC">
+        <span style="flex: 1; font-size: 17px; line-height: 22px">Arabic size</span>
+        <button aria-label="Smaller Arabic" style="width: 44px; height: 36px; border-radius: 18px; border: 1px solid #D9CEBF; background: #FFFFFF; font-size: 14px; font-weight: 700; cursor: pointer">A−</button>
+        <span style="width: 30px; text-align: center; font-size: 15px; color: #6A5A4D">32</span>
+        <button aria-label="Bigger Arabic" style="width: 44px; height: 36px; border-radius: 18px; border: 1px solid #D9CEBF; background: #FFFFFF; font-size: 17px; font-weight: 700; cursor: pointer">A+</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 10px 0 14px">
+        <span style="flex: 1; font-size: 17px; line-height: 22px">English size</span>
+        <button aria-label="Smaller English" style="width: 44px; height: 36px; border-radius: 18px; border: 1px solid #D9CEBF; background: #FFFFFF; font-size: 14px; font-weight: 700; cursor: pointer">A−</button>
+        <span style="width: 30px; text-align: center; font-size: 15px; color: #6A5A4D">16</span>
+        <button aria-label="Bigger English" style="width: 44px; height: 36px; border-radius: 18px; border: 1px solid #D9CEBF; background: #FFFFFF; font-size: 17px; font-weight: 700; cursor: pointer">A+</button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; border-radius: 16px; background: #FFFFFF; border: 1px solid #E8E0D5; overflow: hidden">
+      <sc-for list="{{toggles}}" as="t" hint-placeholder-count="6">
+        <div style="{{t.rowStyle}}">
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 1px">
+            <span style="font-size: 17px; line-height: 22px">{{t.label}}</span>
+            <span style="{{t.hintStyle}}">{{t.hint}}</span>
+          </span>
+          <button aria-label="{{t.label}}" aria-pressed="{{t.pressed}}" style="{{t.track}}"><span style="{{t.knob}}"></span></button>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var items = [
+      ['Transliteration', '', true, false],
+      ['Translation', '', true, false],
+      ['Arabic as one paragraph', 'Turn off both above to use this', false, true],
+      ['Keep screen on', '', true, false],
+      ['Focus mode', 'Bars slide away while you read', false, false],
+      ['Share as image', '', false, false]
+    ];
+    return {
+      toggles: items.map(function (it, i) {
+        var on = it[2], disabled = it[3];
+        return {
+          label: it[0],
+          hint: it[1],
+          hintStyle: it[1] ? 'font-size: 13px; line-height: 17px; color: #6A5A4D' : 'display: none',
+          pressed: on ? 'true' : 'false',
+          rowStyle: 'display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 14px; ' + (i < items.length - 1 ? 'border-bottom: 1px solid #EFE7DC; ' : '') + (disabled ? 'opacity: 0.55' : ''),
+          track: 'position: relative; flex-shrink: 0; width: 51px; height: 31px; border-radius: 16px; border: none; padding: 0; cursor: pointer; background: ' + (on ? '#6D4C35' : '#DDD3C6'),
+          knob: 'position: absolute; top: 2px; ' + (on ? 'right: 2px' : 'left: 2px') + '; width: 27px; height: 27px; border-radius: 14px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25)'
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

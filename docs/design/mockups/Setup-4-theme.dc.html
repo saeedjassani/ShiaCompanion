@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Setup, light or dark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 54px 20px 34px; display: flex; flex-direction: column; gap: 16px; overflow: hidden; background: #F8F5F0; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+  <div style="height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span style="font-size: 15px; line-height: 20px; font-weight: 600; color: #6A5A4D">Step 4 of 5</span>
+      <span aria-hidden="true" style="display: flex; gap: 5px">
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #6D4C35"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #6D4C35"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #6D4C35"></span>
+        <span style="width: 18px; height: 6px; border-radius: 3px; background: #6D4C35"></span>
+        <span style="width: 6px; height: 6px; border-radius: 3px; background: #D9CEBF"></span>
+      </span>
+    </div>
+    <button style="height: 44px; padding: 0 4px; border: none; background: transparent; color: #6D4C35; font-size: 17px; font-weight: 600; cursor: pointer">Skip</button>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 30px; line-height: 36px; font-weight: 700; letter-spacing: -0.3px">Light or dark?</h1>
+    <p style="margin: 0; font-size: 17px; line-height: 24px; color: #4E4036">Dark is gentler on the eyes at night, for Namaz-e-Shab and late duas.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+    <button aria-pressed="false" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 12px; border-radius: 20px; border: none; background: #FFFFFF; box-shadow: inset 0 0 0 1px #E8E0D5; color: #2A1E16; cursor: pointer">
+      <span aria-hidden="true" style="width: 112px; height: 170px; box-sizing: border-box; padding: 12px 10px; border-radius: 16px; background: #F8F5F0; border: 1px solid #E8E0D5; display: flex; flex-direction: column; gap: 8px">
+        <span style="display: block; width: 60px; height: 8px; border-radius: 4px; background: #2A1E16"></span>
+        <span style="display: block; height: 44px; border-radius: 10px; background: #4A3426"></span>
+        <span style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+          <span style="display: block; height: 26px; border-radius: 8px; background: #F2EBE1"></span>
+          <span style="display: block; height: 26px; border-radius: 8px; background: #F2EBE1"></span>
+          <span style="display: block; height: 26px; border-radius: 8px; background: #F2EBE1"></span>
+        </span>
+        <span style="display: block; width: 80px; height: 6px; border-radius: 3px; background: #D9CEBF"></span>
+        <span style="display: block; width: 64px; height: 6px; border-radius: 3px; background: #D9CEBF"></span>
+      </span>
+      <span style="display: flex; align-items: center; gap: 6px; font-size: 17px; line-height: 22px; font-weight: 600">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2A1E16" aria-hidden="true" style="stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round"><circle cx="12" cy="12" r="4"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg>
+        Light
+      </span>
+    </button>
+    <button aria-pressed="false" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 12px; border-radius: 20px; border: none; background: #FFFFFF; box-shadow: inset 0 0 0 1px #E8E0D5; color: #2A1E16; cursor: pointer">
+      <span aria-hidden="true" style="width: 112px; height: 170px; box-sizing: border-box; padding: 12px 10px; border-radius: 16px; background: #15110D; border: 1px solid #3A3029; display: flex; flex-direction: column; gap: 8px">
+        <span style="display: block; width: 60px; height: 8px; border-radius: 4px; background: #F2EBE2"></span>
+        <span style="display: block; height: 44px; border-radius: 10px; background: #4A3426"></span>
+        <span style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+          <span style="display: block; height: 26px; border-radius: 8px; background: #2E251E"></span>
+          <span style="display: block; height: 26px; border-radius: 8px; background: #2E251E"></span>
+          <span style="display: block; height: 26px; border-radius: 8px; background: #2E251E"></span>
+        </span>
+        <span style="display: block; width: 80px; height: 6px; border-radius: 3px; background: #3A3029"></span>
+        <span style="display: block; width: 64px; height: 6px; border-radius: 3px; background: #3A3029"></span>
+      </span>
+      <span style="display: flex; align-items: center; gap: 6px; font-size: 17px; line-height: 22px; font-weight: 600">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2A1E16" aria-hidden="true" style="stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"></path></svg>
+        Dark
+      </span>
+    </button>
+  </div>
+
+  <button aria-pressed="true" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 20px; border: none; background: #FFFFFF; box-shadow: inset 0 0 0 2px #6D4C35; color: #2A1E16; cursor: pointer; text-align: left">
+    <span aria-hidden="true" style="flex-shrink: 0; width: 44px; height: 44px; border-radius: 22px; overflow: hidden; display: flex; border: 1px solid #CDBFAE"><span style="flex: 1; background: #F8F5F0"></span><span style="flex: 1; background: #15110D"></span></span>
+    <span style="flex: 1; display: flex; flex-direction: column; gap: 1px">
+      <span style="font-size: 17px; line-height: 22px; font-weight: 700">Same as my phone</span>
+      <span style="font-size: 14px; line-height: 18px; color: #6A5A4D">Switches by itself when your phone goes dark</span>
+    </span>
+    <span style="flex-shrink: 0; width: 26px; height: 26px; border-radius: 13px; background: #6D4C35; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="stroke-width: 3; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+  </button>
+
+  <button style="margin-top: auto; height: 56px; border-radius: 28px; border: none; background: #6D4C35; color: #FFFFFF; font-size: 18px; font-weight: 700; cursor: pointer">Continue</button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
