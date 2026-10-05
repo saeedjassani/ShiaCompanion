@@ -11,6 +11,7 @@ import 'package:shia_companion/widgets/favorite_icon.dart';
 
 import '../constants.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import '../l10n/l10n.dart';
 
 class TodaysRecitationPage extends StatefulWidget {
   const TodaysRecitationPage({super.key});
@@ -33,7 +34,7 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
       builder: (context, ready, _) {
         if (!ready) {
           return Scaffold(
-            appBar: AppBar(title: Text("Today's Recitations")),
+            appBar: AppBar(title: Text(context.l10n.menuTodaysRecitations)),
             body: const Center(child: CircularProgressIndicator()),
           );
         }
@@ -47,9 +48,9 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
     List<UidTitleData> workingItems = buildTodaysRecitationItems();
 
     return Scaffold(
-      appBar: AppBar(title: Text("Today's Recitations")),
+      appBar: AppBar(title: Text(context.l10n.menuTodaysRecitations)),
       body: workingItems.isEmpty
-          ? Center(child: Text('No recitations configured.'))
+          ? Center(child: Text(context.l10n.todaysNone))
           : ResponsiveContent(
               maxWidth: listContentWidth,
               padding: const EdgeInsets.symmetric(horizontal: 16),

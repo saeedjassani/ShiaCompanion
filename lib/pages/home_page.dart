@@ -49,6 +49,7 @@ import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/whats_new_dialog.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import '../l10n/l10n.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({
@@ -383,7 +384,7 @@ class _MyHomePageState extends State<MyHomePage>
                     onTap: () async {
                       final result = await SharePlus.instance.share(ShareParams(
                         text:
-                            '$hadith\n\nShared via Shia Companion - https://shia-companion.web.app/',
+                            '$hadith\n\n${context.l10n.hadithSharedVia('https://shia-companion.web.app/')}',
                         sharePositionOrigin: Rect.fromLTWH(
                             MediaQuery.of(context).size.width / 2, 0, 2, 2),
                       ));

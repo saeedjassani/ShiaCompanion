@@ -112,7 +112,11 @@ class _ContentRequestDialogState extends State<ContentRequestDialog> {
             SegmentedButton<ContentRequestType>(
               segments: [
                 for (final type in ContentRequestType.values)
-                  ButtonSegment(value: type, label: Text(type.label)),
+                  ButtonSegment(
+                    value: type,
+                    label: Text(type == ContentRequestType.book
+                        ? context.l10n.requestTypeBook
+                        : context.l10n.requestTypeZikr)),
               ],
               selected: {_type},
               onSelectionChanged: (selection) =>

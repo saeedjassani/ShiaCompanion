@@ -5,6 +5,7 @@ import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import '../l10n/l10n.dart';
 
 class FavoritesPage extends StatefulWidget {
   @override
@@ -29,7 +30,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not save the new order. Try again.')),
+        SnackBar(content: Text(context.l10n.favoritesReorderFailed)),
       );
     }
   }
@@ -39,7 +40,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
     final favoritesManager = FavoritesManager.instance;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Favorites')),
+      appBar: AppBar(title: Text(context.l10n.menuFavorites)),
       body: ListenableBuilder(
         listenable: favoritesManager,
         builder: (context, _) {
@@ -52,7 +53,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           }
 
           if (favorites.isEmpty) {
-            return Center(child: Text('No favorites yet.'));
+            return Center(child: Text(context.l10n.favoritesNone));
           }
 
           return ResponsiveContent(
@@ -94,7 +95,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                               padding: const EdgeInsets.all(4),
                               child: Icon(
                                 Icons.drag_handle,
-                                semanticLabel: 'Reorder ${item.title}',
+                                semanticLabel:
+                                      context.l10n.favoritesReorder(item.displayTitle),
                               ),
                             ),
                           ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import 'home_glyph.dart';
 import 'responsive_content.dart';
+import '../l10n/l10n.dart';
 
 /// The docked bar along the bottom of a zikr.
 ///
@@ -92,7 +93,9 @@ class ZikrActionBar extends StatelessWidget {
           Expanded(
             child: _ZikrAction(
               icon: isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-              label: isBookmarked ? 'Saved' : 'Bookmark',
+              label: isBookmarked
+                    ? context.l10n.actionSaved
+                    : context.l10n.actionBookmark,
               isActive: isBookmarked,
               onTap: canBookmark ? onBookmark : null,
             ),
@@ -100,7 +103,7 @@ class ZikrActionBar extends StatelessWidget {
         Expanded(
           child: _ZikrAction(
             icon: Icons.share,
-            label: 'Share',
+            label: context.l10n.actionShare,
             onTap: canShare ? onShare : null,
           ),
         ),
@@ -108,14 +111,14 @@ class ZikrActionBar extends StatelessWidget {
           Expanded(
             child: _ZikrAction(
               icon: Icons.headphones,
-              label: 'Listen',
+              label: context.l10n.actionListen,
               onTap: onListen,
             ),
           ),
         Expanded(
           child: _ZikrAction(
             icon: Icons.tune,
-            label: 'Settings',
+            label: context.l10n.actionSettings,
             onTap: onSettings,
           ),
         ),
@@ -123,7 +126,7 @@ class ZikrActionBar extends StatelessWidget {
           child: _ZikrAction(
             icon: tasbeehCounterIcon,
             glyphType: HomeGlyphType.tasbeeh,
-            label: 'Counter',
+            label: context.l10n.actionCounter,
             isActive: isCounterVisible,
             onTap: onCounter,
           ),

@@ -643,7 +643,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
 
     return QuranSequenceFooter(
-      unit: juz != null ? null : 'surah',
+      unit: juz != null ? null : context.l10n.quranUnitSurah,
       previousLabel: previousLabel,
       nextLabel: nextLabel,
       onPrevious: () => _openQuranSequenceStep(-1),

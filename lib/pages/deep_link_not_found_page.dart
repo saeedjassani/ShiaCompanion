@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 
 import '../constants.dart';
+import '../l10n/l10n.dart';
 
 class DeepLinkNotFoundPage extends StatefulWidget {
   final String? target;
@@ -32,7 +33,7 @@ class _DeepLinkNotFoundPageState extends State<DeepLinkNotFoundPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Link Not Found'),
+        title: Text(context.l10n.linkNotFoundTitle),
       ),
       body: ResponsiveContent(
         maxWidth: compactContentWidth,
@@ -48,14 +49,14 @@ class _DeepLinkNotFoundPageState extends State<DeepLinkNotFoundPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                'We couldn\'t find this content.',
+                context.l10n.linkNotFoundBody,
                 style: theme.textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
               if (target != null && target!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
-                  'Requested link: $target',
+                  context.l10n.linkNotFoundRequested('$target'),
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium,
                 ),
@@ -63,7 +64,7 @@ class _DeepLinkNotFoundPageState extends State<DeepLinkNotFoundPage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Go Home'),
+                child: Text(context.l10n.linkNotFoundGoHome),
               ),
             ],
           ),

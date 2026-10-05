@@ -4,6 +4,7 @@ import '../models/airport.dart';
 import '../services/airport_repository.dart';
 import '../utils/timezone_database.dart';
 import '../widgets/responsive_content.dart';
+import '../l10n/l10n.dart';
 
 /// Full-screen airport search. Pops with the chosen [Airport], or null.
 class AirportPickerPage extends StatefulWidget {
@@ -60,9 +61,9 @@ class _AirportPickerPageState extends State<AirportPickerPage> {
               controller: _controller,
               autofocus: true,
               textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(
-                labelText: 'Airport code or city',
-                hintText: 'e.g. SFO, Istanbul, Najaf',
+              decoration: InputDecoration(
+                labelText: context.l10n.airportSearchLabel,
+                hintText: context.l10n.airportSearchHint,
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
               ),
@@ -84,16 +85,16 @@ class _AirportPickerPageState extends State<AirportPickerPage> {
     if (query.isEmpty) {
       return _Message(
         icon: Icons.flight_takeoff,
-        title: 'Search for an airport',
-        detail: 'Type an airport code, a city, or a country name.',
+        title: context.l10n.airportSearchTitle,
+        detail: context.l10n.airportSearchDetail,
       );
     }
 
     if (_results.isEmpty) {
       return _Message(
         icon: Icons.search_off,
-        title: 'No airports found',
-        detail: 'Nothing matched "$query". Try the three letter code instead.',
+        title: context.l10n.airportNoneFound,
+        detail: context.l10n.airportNothingMatched(query),
       );
     }
 

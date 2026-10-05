@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 class ZikrCounter extends StatelessWidget {
   static const double panelWidth = 236;
@@ -59,7 +60,7 @@ class ZikrCounter extends StatelessWidget {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Tap anywhere to count',
+                            context.l10n.counterTapAnywhere,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
@@ -79,7 +80,7 @@ class ZikrCounter extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Hold and drag to move',
+                      context.l10n.counterHoldToMove,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -89,17 +90,17 @@ class ZikrCounter extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton.filledTonal(
-                          tooltip: 'Minus one',
+                          tooltip: context.l10n.tasbeehMinusOne,
                           onPressed: count > 0 ? onDecrement : null,
                           icon: const Icon(Icons.remove),
                         ),
                         FilledButton.tonalIcon(
                           onPressed: onReset,
                           icon: const Icon(Icons.refresh),
-                          label: const Text('Reset'),
+                          label: Text(context.l10n.tasbeehReset),
                         ),
                         IconButton.filled(
-                          tooltip: 'Add one',
+                          tooltip: context.l10n.counterAddOne,
                           onPressed: onIncrement,
                           icon: const Icon(Icons.add),
                         ),

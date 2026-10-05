@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 class HadithPage extends StatefulWidget {
   const HadithPage({super.key});
@@ -54,7 +55,7 @@ class _HadithPageState extends State<HadithPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hadith'),
+        title: Text(context.l10n.hadithTitle),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: Padding(
@@ -63,7 +64,7 @@ class _HadithPageState extends State<HadithPage> {
               controller: _searchController,
               onChanged: _filterHadith,
               decoration: InputDecoration(
-                hintText: 'Search hadith...',
+                hintText: context.l10n.hadithSearchHint,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -101,8 +102,8 @@ class _HadithPageState extends State<HadithPage> {
           padding: const EdgeInsets.all(24),
           child: Text(
             _searchController.text.isEmpty
-                ? 'No hadith available'
-                : 'No results found for "${_searchController.text}"',
+                ? context.l10n.hadithNone
+                : context.l10n.hadithNoResults(_searchController.text),
             style: const TextStyle(fontSize: 16),
             textAlign: TextAlign.center,
           ),

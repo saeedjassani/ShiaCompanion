@@ -654,14 +654,14 @@ class _StatsRow extends StatelessWidget {
         children: [
           Expanded(
             child: _Stat(
-              label: 'Distance',
+              label: context.l10n.qiblaDistance,
               value: distanceKm == null ? '—' : formatDistanceKm(distanceKm!),
             ),
           ),
           _StatDivider(),
           Expanded(
             child: _Stat(
-              label: 'Direction',
+              label: context.l10n.qiblaDirection,
               value:
                   targetBearing == null ? '—' : formatBearing(targetBearing!),
             ),
@@ -669,7 +669,7 @@ class _StatsRow extends StatelessWidget {
           _StatDivider(),
           Expanded(
             child: _Stat(
-              label: 'You face',
+              label: context.l10n.qiblaYouFace,
               value:
                   headingDegrees == null ? '—' : formatBearing(headingDegrees!),
             ),

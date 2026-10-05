@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../constants.dart';
 import '../widgets/responsive_content.dart';
+import '../l10n/l10n.dart';
 
 class ScheduledNotificationsPage extends StatefulWidget {
   @override
@@ -47,7 +48,7 @@ class _ScheduledNotificationsPageState
     if (scheduledDate != null) {
       return DateFormat('EEE, MMM d - h:mm a').format(scheduledDate);
     }
-    return request.title ?? 'Scheduled notification';
+    return request.title ?? context.l10n.scheduledFallbackTitle;
   }
 
   String _subtitleFor(PendingNotificationRequest request) {
@@ -73,7 +74,7 @@ class _ScheduledNotificationsPageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Scheduled Notifications'),
+        title: Text(context.l10n.settingsScheduledNotifications),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -91,7 +92,7 @@ class _ScheduledNotificationsPageState
           final requests =
               snapshot.data ?? const <PendingNotificationRequest>[];
           if (requests.isEmpty) {
-            return Center(child: Text('No scheduled notifications.'));
+            return Center(child: Text(context.l10n.scheduledNone));
           }
 
           return ResponsiveContent(

@@ -1963,5 +1963,197 @@
   "accountReauthenticate": "For security, please sign in again and then retry deleting your account.",
   "accountPopupClosed": "Sign-in window closed before the action finished.",
   "accountNetworkError": "Network error. Please check your connection and try again.",
-  "commonSomethingWentWrong": "Something went wrong. Please try again."
+  "commonSomethingWentWrong": "Something went wrong. Please try again.",
+  "zikrTabNumber": "Tab {number}",
+  "@zikrTabNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "zikrBookmarked": "Bookmarked",
+  "zikrMoveBookmarkHere": "Move bookmark here",
+  "zikrDragBookmarkHint": "Drag to move the bookmark to another line",
+  "durationUnderOneMinute": "under 1 min",
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHours": "{hours, plural, =1{1 hr} other{{hours} hrs}}",
+  "@durationHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours} {minutes} min",
+  "@durationHoursMinutes": {
+    "description": "{hours} is e.g. '1 hr' or '2 hrs'.",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "zikrReadingTime": "{duration} read",
+  "@zikrReadingTime": {
+    "description": "Estimated time to recite a zikr, e.g. '8 min read'.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "zikrProgressCompleted": "Completed",
+  "airportNothingMatched": "Nothing matched \"{query}\". Try the three letter code instead.",
+  "@airportNothingMatched": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "airportSearchLabel": "Airport code or city",
+  "airportSearchHint": "e.g. SFO, Istanbul, Najaf",
+  "airportSearchTitle": "Search for an airport",
+  "airportSearchDetail": "Type an airport code, a city, or a country name.",
+  "airportNoneFound": "No airports found",
+  "counterTapAnywhere": "Tap anywhere to count",
+  "counterHoldToMove": "Hold and drag to move",
+  "counterAddOne": "Add one",
+  "azanPaused": "{prayer} Azan is paused",
+  "@azanPaused": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "azanPrayerFallback": "Prayer",
+  "reminderChannelDescription": "Reminders for zikr and duas you scheduled",
+  "locationOff": "Location services are off",
+  "locationPermissionShort": "Location permission needed",
+  "locationNoFix": "Couldn't get a location fix",
+  "locationUpdateFailed": "Couldn't update location",
+  "quranPreviousUnit": "Previous {unit}",
+  "@quranPreviousUnit": {
+    "description": "{unit} is e.g. 'surah'.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "quranNextUnit": "Next {unit}",
+  "@quranNextUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "quranUnitSurah": "surah",
+  "hadithNoResults": "No results found for \"{query}\"",
+  "@hadithNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "hadithTitle": "Hadith",
+  "hadithSearchHint": "Search hadith...",
+  "hadithNone": "No hadith available",
+  "favoritesReorder": "Reorder {title}",
+  "@favoritesReorder": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "favoritesReorderFailed": "Could not save the new order. Try again.",
+  "favoritesNone": "No favorites yet.",
+  "linkNotFoundRequested": "Requested link: {link}",
+  "@linkNotFoundRequested": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "linkNotFoundTitle": "Link Not Found",
+  "linkNotFoundBody": "We couldn't find this content.",
+  "linkNotFoundGoHome": "Go Home",
+  "whatsNewTitle": "What's new",
+  "whatsNewGotIt": "Got it",
+  "pickerChooseZikr": "Choose a Zikr or Dua",
+  "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
+  "pickerNoMatches": "No matches found.",
+  "todaysNone": "No recitations configured.",
+  "scheduledFallbackTitle": "Scheduled notification",
+  "scheduledNone": "No scheduled notifications.",
+  "newsLoadFailed": "Failed to load news: {error}",
+  "@newsLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "newsNoBrowser": "No web browser found",
+  "actionSaved": "Saved",
+  "actionBookmark": "Bookmark",
+  "actionShare": "Share",
+  "actionListen": "Listen",
+  "actionSettings": "Settings",
+  "actionCounter": "Counter",
+  "prayerEnableLocationBody": "Enable location to display accurate prayer times for your area.",
+  "statsDayRead": "{day}: read",
+  "@statsDayRead": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "statsDayNotRead": "{day}: not read",
+  "@statsDayNotRead": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaDistance": "Distance",
+  "qiblaDirection": "Direction",
+  "qiblaYouFace": "You face",
+  "pickerAyahLabel": "Ayah {ayah}",
+  "@pickerAyahLabel": {
+    "placeholders": {
+      "ayah": {
+        "type": "int"
+      }
+    }
+  },
+  "hadithSharedVia": "Shared via Shia Companion - {link}",
+  "@hadithSharedVia": {
+    "description": "Appended to a shared hadith.",
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "requestTypeZikr": "Zikr",
+  "requestTypeBook": "Book"
 }

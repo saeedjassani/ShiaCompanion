@@ -227,7 +227,7 @@ class _FlightSummaryCard extends StatelessWidget {
                   child: _EndpointColumn(
                     airport: resolved.origin,
                     wallClock: resolved.flight.departureLocal,
-                    label: 'Departs',
+                    label: context.l10n.flightDeparts,
                     alignment: CrossAxisAlignment.start,
                   ),
                 ),
@@ -239,7 +239,7 @@ class _FlightSummaryCard extends StatelessWidget {
                   child: _EndpointColumn(
                     airport: resolved.destination,
                     wallClock: resolved.flight.arrivalLocal,
-                    label: 'Arrives',
+                    label: context.l10n.flightArrives,
                     alignment: CrossAxisAlignment.end,
                   ),
                 ),

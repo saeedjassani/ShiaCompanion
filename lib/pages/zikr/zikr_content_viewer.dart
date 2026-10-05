@@ -13,6 +13,7 @@ import '../../services/zikr_translations.dart';
 import '../../utils/quran_indopak.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_reading_stats.dart';
+import '../../l10n/l10n.dart';
 
 /// Where a reader is in the Quran, and whether they got there by reading.
 ///
@@ -159,7 +160,7 @@ ZikrLineGroup? bookmarkedLineRange({
 }
 
 /// The first line of [range] that actually draws something, which is where
-/// the "Bookmarked" label goes. Null when every line in the range is switched
+/// the context.l10n.zikrBookmarked label goes. Null when every line in the range is switched
 /// off, in which case there is nothing to mark at all.
 int? firstVisibleLineInRange(ZikrLineGroup range, ParsedZikrContent content) {
   for (var index = range.start; index < range.end; index++) {
@@ -355,7 +356,7 @@ class _QuranParagraphs {
   int? paragraphIndexForSpan(int spanIndex) => _paragraphBySpan[spanIndex];
 }
 
-/// The small "Bookmarked" marker - a bookmark icon plus label - shared by
+/// The small context.l10n.zikrBookmarked marker - a bookmark icon plus label - shared by
 /// the bordered per-line marker ([_BookmarkedLine]) and the inline paragraph
 /// marker that sits above a flowing Arabic paragraph in
 /// [isArabicOnlyReadingView], where the highlight lives on the verse's own
@@ -372,7 +373,7 @@ Widget _bookmarkLabelRow(BuildContext context, {bool movable = false}) {
       Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
       const SizedBox(width: 4),
       Text(
-        'Bookmarked',
+        context.l10n.zikrBookmarked,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: colorScheme.primary,
               fontWeight: FontWeight.w600,
@@ -406,7 +407,7 @@ Widget _bookmarkDragFeedback(BuildContext context) {
           Icon(Icons.bookmark, size: 16, color: colorScheme.primary),
           const SizedBox(width: 6),
           Text(
-            'Move bookmark here',
+            context.l10n.zikrMoveBookmarkHere,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: colorScheme.onPrimaryContainer,
                   fontWeight: FontWeight.w600,
@@ -419,7 +420,7 @@ Widget _bookmarkDragFeedback(BuildContext context) {
 }
 
 /// The bookmark icon drawn inline at the start of the bookmarked verse in a
-/// flowing Arabic paragraph, in place of a "Bookmarked" label above it - a
+/// flowing Arabic paragraph, in place of a context.l10n.zikrBookmarked label above it - a
 /// label there sits far from the verse, and breaking the paragraph to put it
 /// nearer would undo the flow.
 ///
@@ -472,7 +473,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
   final ValueChanged<int>? onBookmarkLineResolved;
 
   /// Called with the content line the reader dropped the bookmark on, after
-  /// dragging its "Bookmarked" label somewhere else in the same tab. Null
+  /// dragging its context.l10n.zikrBookmarked label somewhere else in the same tab. Null
   /// leaves the marker fixed in place.
   final ValueChanged<int>? onBookmarkMoved;
 
@@ -1600,7 +1601,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     _bookmarkAutoScrollSpeed = 0;
   }
 
-  /// The "Bookmarked" label, as the handle the bookmark is moved by when
+  /// The context.l10n.zikrBookmarked label, as the handle the bookmark is moved by when
   /// [ZikrContentViewerWidget.onBookmarkMoved] is set.
   ///
   /// A plain [Draggable] rather than a long-press one: the reading view sits
@@ -1624,7 +1625,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       ),
     );
     return Semantics(
-      hint: 'Drag to move the bookmark to another line',
+      hint: context.l10n.zikrDragBookmarkHint,
       child: Draggable<int>(
         data: tabIndex,
         dragAnchorStrategy: pointerDragAnchorStrategy,
@@ -1886,7 +1887,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     if (lines.isNotEmpty) {
       return widget.translation?.lineFor(lines.first) ?? lines.first;
     }
-    return 'Tab ${index + 1}';
+    return context.l10n.zikrTabNumber(index + 1);
   }
 
   /// The parsed content and ayah index for a tab, reparsed only when the tab's
@@ -2158,7 +2159,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                         child: InkWell(
                           onTap: widget.onShowMerits,
                           child: Text(
-                            'Merits',
+                            context.l10n.zikrMerits,
                             style: TextStyle(
                               decoration: TextDecoration.underline,
                               fontSize: 14,
@@ -2402,7 +2403,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// A bookmark can in principle land on one of these lines - it is just
   /// whatever line was topmost when the reader last left the tab - so
   /// [bookmarkLabelLine], when it names one of this block's own lines, gets
-  /// the same "Bookmarked" label and tint a single bookmarked line would
+  /// the same context.l10n.zikrBookmarked label and tint a single bookmarked line would
   /// otherwise carry via [_BookmarkedLine].
   Widget _buildFootnoteBlock(
     int tabIndex,
@@ -3123,7 +3124,7 @@ class _AliWatermark extends StatelessWidget {
 class _BookmarkedLine extends StatelessWidget {
   const _BookmarkedLine({required this.label, required this.child});
 
-  /// The "Bookmarked" label, on the verse's first line only - repeating it on
+  /// The context.l10n.zikrBookmarked label, on the verse's first line only - repeating it on
   /// every line under the same tint would just be noise. Null elsewhere.
   final Widget? label;
   final Widget child;

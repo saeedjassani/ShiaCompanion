@@ -5,6 +5,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webfeed_revised/domain/rss_feed.dart';
+import '../l10n/l10n.dart';
 
 class NewsPage extends StatefulWidget {
   @override
@@ -55,7 +56,7 @@ class _NewsPageState extends State<NewsPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      'Failed to load news: $_errorMessage',
+                      context.l10n.newsLoadFailed('$_errorMessage'),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -70,7 +71,7 @@ class _NewsPageState extends State<NewsPage> {
       await launchUrl(uri);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: new Text("No web browser found"),
+        content: new Text(context.l10n.newsNoBrowser),
       ));
     }
   }
@@ -90,7 +91,7 @@ class _NewsPageState extends State<NewsPage> {
         _errorMessage = null;
         setState(() {});
       } else {
-        _errorMessage = 'Failed to load news (status: ${response.statusCode})';
+        _errorMessage = 'status: ${response.statusCode}';
         setState(() {});
       }
     } catch (e) {

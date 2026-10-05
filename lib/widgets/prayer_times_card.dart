@@ -154,7 +154,7 @@ class _PrayerTimesUnavailable extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          "Location not available",
+          context.l10n.prayerLocationUnavailable,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w600,
@@ -162,7 +162,7 @@ class _PrayerTimesUnavailable extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          "Enable location to display accurate prayer times for your area.",
+          context.l10n.prayerEnableLocationBody,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),

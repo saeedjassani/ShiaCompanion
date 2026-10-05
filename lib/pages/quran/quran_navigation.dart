@@ -6,6 +6,7 @@ import '../../services/analytics_service.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/quran_portion.dart';
 import '../zikr/zikr_page.dart';
+import '../../l10n/l10n.dart';
 
 /// Opens a surah, at a verse when one is named.
 ///
@@ -116,7 +117,9 @@ class QuranSequenceFooter extends StatelessWidget {
               child: previous == null
                   ? null
                   : _SequenceLink(
-                      caption: unit == null ? 'Previous' : 'Previous $unit',
+                      caption: unit == null
+                          ? context.l10n.commonPrevious
+                          : context.l10n.quranPreviousUnit(unit!),
                       label: previous,
                       isNext: false,
                       onTap: onPrevious,
@@ -129,7 +132,9 @@ class QuranSequenceFooter extends StatelessWidget {
               child: next == null
                   ? null
                   : _SequenceLink(
-                      caption: unit == null ? 'Next' : 'Next $unit',
+                      caption: unit == null
+                          ? context.l10n.commonNext
+                          : context.l10n.quranNextUnit(unit!),
                       label: next,
                       isNext: true,
                       onTap: onNext,

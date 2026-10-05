@@ -10,6 +10,7 @@ import 'package:shia_companion/models/zikr_reminder.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/zikr_reminder_scheduling.dart';
+import '../l10n/l10n.dart';
 
 /// Owns the user's zikr reminders: persistence, and turning them into local
 /// notifications.
@@ -35,7 +36,7 @@ class ZikrReminderService extends ChangeNotifier {
   static const String payloadPrefix = 'zikr_reminder:';
 
   static const String _androidChannelId = 'zikr_reminders';
-  static const String _androidChannelName = 'Zikr Reminders';
+  static String get _androidChannelName => L10n.current.settingsZikrReminders;
 
   List<ZikrReminder> _reminders = const [];
   bool _loaded = false;
@@ -236,7 +237,7 @@ class ZikrReminderService extends ChangeNotifier {
     final scheduleMode = canScheduleExactPrayerNotifications
         ? AndroidScheduleMode.exactAllowWhileIdle
         : AndroidScheduleMode.inexactAllowWhileIdle;
-    final body = "It's time for ${reminder.title}";
+    final body = L10n.current.notificationPrayerTime(reminder.title);
     final now = DateTime.now();
     final schedulingTasks = <Future<void>>[];
 
@@ -310,10 +311,10 @@ class ZikrReminderService extends ChangeNotifier {
   NotificationDetails _notificationDetails() {
     return NotificationDetails(
       android: Platform.isAndroid
-          ? const AndroidNotificationDetails(
+          ? AndroidNotificationDetails(
               _androidChannelId,
               _androidChannelName,
-              channelDescription: 'Reminders for zikr and duas you scheduled',
+              channelDescription: L10n.current.reminderChannelDescription,
               importance: Importance.high,
               priority: Priority.high,
             )

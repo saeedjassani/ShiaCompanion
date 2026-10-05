@@ -4930,6 +4930,402 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get commonSomethingWentWrong;
+
+  /// No description provided for @zikrTabNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Tab {number}'**
+  String zikrTabNumber(int number);
+
+  /// No description provided for @zikrBookmarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarked'**
+  String get zikrBookmarked;
+
+  /// No description provided for @zikrMoveBookmarkHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Move bookmark here'**
+  String get zikrMoveBookmarkHere;
+
+  /// No description provided for @zikrDragBookmarkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to move the bookmark to another line'**
+  String get zikrDragBookmarkHint;
+
+  /// No description provided for @durationUnderOneMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'under 1 min'**
+  String get durationUnderOneMinute;
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String durationMinutes(int minutes);
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, =1{1 hr} other{{hours} hrs}}'**
+  String durationHours(int hours);
+
+  /// {hours} is e.g. '1 hr' or '2 hrs'.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} {minutes} min'**
+  String durationHoursMinutes(String hours, int minutes);
+
+  /// Estimated time to recite a zikr, e.g. '8 min read'.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration} read'**
+  String zikrReadingTime(String duration);
+
+  /// No description provided for @zikrProgressCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get zikrProgressCompleted;
+
+  /// No description provided for @airportNothingMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matched \"{query}\". Try the three letter code instead.'**
+  String airportNothingMatched(String query);
+
+  /// No description provided for @airportSearchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Airport code or city'**
+  String get airportSearchLabel;
+
+  /// No description provided for @airportSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. SFO, Istanbul, Najaf'**
+  String get airportSearchHint;
+
+  /// No description provided for @airportSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for an airport'**
+  String get airportSearchTitle;
+
+  /// No description provided for @airportSearchDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Type an airport code, a city, or a country name.'**
+  String get airportSearchDetail;
+
+  /// No description provided for @airportNoneFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No airports found'**
+  String get airportNoneFound;
+
+  /// No description provided for @counterTapAnywhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap anywhere to count'**
+  String get counterTapAnywhere;
+
+  /// No description provided for @counterHoldToMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold and drag to move'**
+  String get counterHoldToMove;
+
+  /// No description provided for @counterAddOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one'**
+  String get counterAddOne;
+
+  /// No description provided for @azanPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} Azan is paused'**
+  String azanPaused(String prayer);
+
+  /// No description provided for @azanPrayerFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer'**
+  String get azanPrayerFallback;
+
+  /// No description provided for @reminderChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders for zikr and duas you scheduled'**
+  String get reminderChannelDescription;
+
+  /// No description provided for @locationOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are off'**
+  String get locationOff;
+
+  /// No description provided for @locationPermissionShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission needed'**
+  String get locationPermissionShort;
+
+  /// No description provided for @locationNoFix.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get a location fix'**
+  String get locationNoFix;
+
+  /// No description provided for @locationUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t update location'**
+  String get locationUpdateFailed;
+
+  /// {unit} is e.g. 'surah'.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous {unit}'**
+  String quranPreviousUnit(String unit);
+
+  /// No description provided for @quranNextUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Next {unit}'**
+  String quranNextUnit(String unit);
+
+  /// No description provided for @quranUnitSurah.
+  ///
+  /// In en, this message translates to:
+  /// **'surah'**
+  String get quranUnitSurah;
+
+  /// No description provided for @hadithNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found for \"{query}\"'**
+  String hadithNoResults(String query);
+
+  /// No description provided for @hadithTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith'**
+  String get hadithTitle;
+
+  /// No description provided for @hadithSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search hadith...'**
+  String get hadithSearchHint;
+
+  /// No description provided for @hadithNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No hadith available'**
+  String get hadithNone;
+
+  /// No description provided for @favoritesReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder {title}'**
+  String favoritesReorder(String title);
+
+  /// No description provided for @favoritesReorderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the new order. Try again.'**
+  String get favoritesReorderFailed;
+
+  /// No description provided for @favoritesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet.'**
+  String get favoritesNone;
+
+  /// No description provided for @linkNotFoundRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested link: {link}'**
+  String linkNotFoundRequested(String link);
+
+  /// No description provided for @linkNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Not Found'**
+  String get linkNotFoundTitle;
+
+  /// No description provided for @linkNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find this content.'**
+  String get linkNotFoundBody;
+
+  /// No description provided for @linkNotFoundGoHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Home'**
+  String get linkNotFoundGoHome;
+
+  /// No description provided for @whatsNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new'**
+  String get whatsNewTitle;
+
+  /// No description provided for @whatsNewGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get whatsNewGotIt;
+
+  /// No description provided for @pickerChooseZikr.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a Zikr or Dua'**
+  String get pickerChooseZikr;
+
+  /// No description provided for @pickerSearchZikrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search zikr, dua, ziyarat...'**
+  String get pickerSearchZikrHint;
+
+  /// No description provided for @pickerNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches found.'**
+  String get pickerNoMatches;
+
+  /// No description provided for @todaysNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No recitations configured.'**
+  String get todaysNone;
+
+  /// No description provided for @scheduledFallbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled notification'**
+  String get scheduledFallbackTitle;
+
+  /// No description provided for @scheduledNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No scheduled notifications.'**
+  String get scheduledNone;
+
+  /// No description provided for @newsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load news: {error}'**
+  String newsLoadFailed(String error);
+
+  /// No description provided for @newsNoBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'No web browser found'**
+  String get newsNoBrowser;
+
+  /// No description provided for @actionSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get actionSaved;
+
+  /// No description provided for @actionBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get actionBookmark;
+
+  /// No description provided for @actionShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get actionShare;
+
+  /// No description provided for @actionListen.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen'**
+  String get actionListen;
+
+  /// No description provided for @actionSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get actionSettings;
+
+  /// No description provided for @actionCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Counter'**
+  String get actionCounter;
+
+  /// No description provided for @prayerEnableLocationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable location to display accurate prayer times for your area.'**
+  String get prayerEnableLocationBody;
+
+  /// No description provided for @statsDayRead.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}: read'**
+  String statsDayRead(String day);
+
+  /// No description provided for @statsDayNotRead.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}: not read'**
+  String statsDayNotRead(String day);
+
+  /// No description provided for @qiblaDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get qiblaDistance;
+
+  /// No description provided for @qiblaDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get qiblaDirection;
+
+  /// No description provided for @qiblaYouFace.
+  ///
+  /// In en, this message translates to:
+  /// **'You face'**
+  String get qiblaYouFace;
+
+  /// No description provided for @pickerAyahLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ayah {ayah}'**
+  String pickerAyahLabel(int ayah);
+
+  /// Appended to a shared hadith.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared via Shia Companion - {link}'**
+  String hadithSharedVia(String link);
+
+  /// No description provided for @requestTypeZikr.
+  ///
+  /// In en, this message translates to:
+  /// **'Zikr'**
+  String get requestTypeZikr;
+
+  /// No description provided for @requestTypeBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get requestTypeBook;
 }
 
 class _AppLocalizationsDelegate

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../services/azan_playback_service.dart';
+import '../l10n/l10n.dart';
 
 /// Pinned banner shown while [AzanPlaybackService] has the full Azan
 /// playing, with the manual stop control that was the whole point of moving
@@ -71,6 +72,10 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
     await _check();
   }
 
+  String _prayerLabel(BuildContext context) => _prayerName == null
+      ? context.l10n.azanPrayerFallback
+      : localizedPrayerName(_prayerName!, context.l10n);
+
   @override
   Widget build(BuildContext context) {
     if (!_playing) return const SizedBox.shrink();
@@ -95,8 +100,9 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  '${_prayerName ?? 'Prayer'} Azan '
-                  '${_paused ? 'is paused' : 'is playing'}',
+                  _paused
+                      ? context.l10n.azanPaused(_prayerLabel(context))
+                      : context.l10n.azanPlaying(_prayerLabel(context)),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: onContainer,
                   ),
@@ -106,12 +112,12 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
                 TextButton(
                   onPressed: _resume,
                   style: TextButton.styleFrom(foregroundColor: onContainer),
-                  child: const Text('Resume'),
+                  child: Text(context.l10n.playlistResume),
                 ),
               TextButton(
                 onPressed: _stop,
                 style: TextButton.styleFrom(foregroundColor: onContainer),
-                child: const Text('Stop'),
+                child: Text(context.l10n.commonStop),
               ),
             ],
           ),

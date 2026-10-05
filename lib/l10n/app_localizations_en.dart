@@ -2944,4 +2944,247 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get commonSomethingWentWrong =>
       'Something went wrong. Please try again.';
+
+  @override
+  String zikrTabNumber(int number) {
+    return 'Tab $number';
+  }
+
+  @override
+  String get zikrBookmarked => 'Bookmarked';
+
+  @override
+  String get zikrMoveBookmarkHere => 'Move bookmark here';
+
+  @override
+  String get zikrDragBookmarkHint =>
+      'Drag to move the bookmark to another line';
+
+  @override
+  String get durationUnderOneMinute => 'under 1 min';
+
+  @override
+  String durationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String durationHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hrs',
+      one: '1 hr',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHoursMinutes(String hours, int minutes) {
+    return '$hours $minutes min';
+  }
+
+  @override
+  String zikrReadingTime(String duration) {
+    return '$duration read';
+  }
+
+  @override
+  String get zikrProgressCompleted => 'Completed';
+
+  @override
+  String airportNothingMatched(String query) {
+    return 'Nothing matched \"$query\". Try the three letter code instead.';
+  }
+
+  @override
+  String get airportSearchLabel => 'Airport code or city';
+
+  @override
+  String get airportSearchHint => 'e.g. SFO, Istanbul, Najaf';
+
+  @override
+  String get airportSearchTitle => 'Search for an airport';
+
+  @override
+  String get airportSearchDetail =>
+      'Type an airport code, a city, or a country name.';
+
+  @override
+  String get airportNoneFound => 'No airports found';
+
+  @override
+  String get counterTapAnywhere => 'Tap anywhere to count';
+
+  @override
+  String get counterHoldToMove => 'Hold and drag to move';
+
+  @override
+  String get counterAddOne => 'Add one';
+
+  @override
+  String azanPaused(String prayer) {
+    return '$prayer Azan is paused';
+  }
+
+  @override
+  String get azanPrayerFallback => 'Prayer';
+
+  @override
+  String get reminderChannelDescription =>
+      'Reminders for zikr and duas you scheduled';
+
+  @override
+  String get locationOff => 'Location services are off';
+
+  @override
+  String get locationPermissionShort => 'Location permission needed';
+
+  @override
+  String get locationNoFix => 'Couldn\'t get a location fix';
+
+  @override
+  String get locationUpdateFailed => 'Couldn\'t update location';
+
+  @override
+  String quranPreviousUnit(String unit) {
+    return 'Previous $unit';
+  }
+
+  @override
+  String quranNextUnit(String unit) {
+    return 'Next $unit';
+  }
+
+  @override
+  String get quranUnitSurah => 'surah';
+
+  @override
+  String hadithNoResults(String query) {
+    return 'No results found for \"$query\"';
+  }
+
+  @override
+  String get hadithTitle => 'Hadith';
+
+  @override
+  String get hadithSearchHint => 'Search hadith...';
+
+  @override
+  String get hadithNone => 'No hadith available';
+
+  @override
+  String favoritesReorder(String title) {
+    return 'Reorder $title';
+  }
+
+  @override
+  String get favoritesReorderFailed =>
+      'Could not save the new order. Try again.';
+
+  @override
+  String get favoritesNone => 'No favorites yet.';
+
+  @override
+  String linkNotFoundRequested(String link) {
+    return 'Requested link: $link';
+  }
+
+  @override
+  String get linkNotFoundTitle => 'Link Not Found';
+
+  @override
+  String get linkNotFoundBody => 'We couldn\'t find this content.';
+
+  @override
+  String get linkNotFoundGoHome => 'Go Home';
+
+  @override
+  String get whatsNewTitle => 'What\'s new';
+
+  @override
+  String get whatsNewGotIt => 'Got it';
+
+  @override
+  String get pickerChooseZikr => 'Choose a Zikr or Dua';
+
+  @override
+  String get pickerSearchZikrHint => 'Search zikr, dua, ziyarat...';
+
+  @override
+  String get pickerNoMatches => 'No matches found.';
+
+  @override
+  String get todaysNone => 'No recitations configured.';
+
+  @override
+  String get scheduledFallbackTitle => 'Scheduled notification';
+
+  @override
+  String get scheduledNone => 'No scheduled notifications.';
+
+  @override
+  String newsLoadFailed(String error) {
+    return 'Failed to load news: $error';
+  }
+
+  @override
+  String get newsNoBrowser => 'No web browser found';
+
+  @override
+  String get actionSaved => 'Saved';
+
+  @override
+  String get actionBookmark => 'Bookmark';
+
+  @override
+  String get actionShare => 'Share';
+
+  @override
+  String get actionListen => 'Listen';
+
+  @override
+  String get actionSettings => 'Settings';
+
+  @override
+  String get actionCounter => 'Counter';
+
+  @override
+  String get prayerEnableLocationBody =>
+      'Enable location to display accurate prayer times for your area.';
+
+  @override
+  String statsDayRead(String day) {
+    return '$day: read';
+  }
+
+  @override
+  String statsDayNotRead(String day) {
+    return '$day: not read';
+  }
+
+  @override
+  String get qiblaDistance => 'Distance';
+
+  @override
+  String get qiblaDirection => 'Direction';
+
+  @override
+  String get qiblaYouFace => 'You face';
+
+  @override
+  String pickerAyahLabel(int ayah) {
+    return 'Ayah $ayah';
+  }
+
+  @override
+  String hadithSharedVia(String link) {
+    return 'Shared via Shia Companion - $link';
+  }
+
+  @override
+  String get requestTypeZikr => 'Zikr';
+
+  @override
+  String get requestTypeBook => 'Book';
 }

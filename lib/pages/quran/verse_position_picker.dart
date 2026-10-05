@@ -633,7 +633,7 @@ class _AyahCell extends StatelessWidget {
     return Semantics(
       selected: isSelected,
       button: true,
-      label: 'Ayah $ayah',
+      label: context.l10n.pickerAyahLabel(ayah),
       excludeSemantics: true,
       child: Material(
         color: isSelected

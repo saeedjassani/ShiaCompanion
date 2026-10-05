@@ -399,7 +399,9 @@ class _DayCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     final onCard = colorScheme.onPrimaryContainer;
     return Semantics(
-      label: '$label: ${done ? 'read' : 'not read'}',
+      label: done
+          ? context.l10n.statsDayRead(label)
+          : context.l10n.statsDayNotRead(label),
       excludeSemantics: true,
       child: Column(
         mainAxisSize: MainAxisSize.min,
