@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// One release's "what's new" entry, shown once to an *existing* install
 /// that updates past [buildNumber] — never to a fresh install, which has
 /// nothing to catch up on. See WhatsNewService.
@@ -6,6 +8,8 @@ class WhatsNewEntry {
     required this.buildNumber,
     required this.versionName,
     required this.bullets,
+    this.iosBullets = const [],
+    this.androidBullets = const [],
   });
 
   /// The build number (pubspec.yaml's `+N`) this entry ships
@@ -18,10 +22,25 @@ class WhatsNewEntry {
   /// the "Version x.y.z" heading when someone is shown more than one entry.
   final String versionName;
 
-  /// Short, plain-language points — this is read by people who did not ask
-  /// for a changelog, not a commit log entry. Say only what a person would
-  /// notice, and name the platform when something is not the same on both.
+  /// Short, plain-language points shown on every platform — this is read by
+  /// people who did not ask for a changelog, not a commit log entry. Say only
+  /// what a person would notice.
   final List<String> bullets;
+
+  /// Extra points shown only on iOS. Never mention the other platform in
+  /// either list: the App Store rejects "What's New" text that does.
+  final List<String> iosBullets;
+
+  /// Extra points shown only on Android.
+  final List<String> androidBullets;
+
+  /// The points to show on [platform]: the shared [bullets] followed by that
+  /// platform's own. Other platforms (web, desktop) get the shared ones only.
+  List<String> bulletsFor(TargetPlatform platform) => [
+        ...bullets,
+        if (platform == TargetPlatform.iOS) ...iosBullets,
+        if (platform == TargetPlatform.android) ...androidBullets,
+      ];
 }
 
 /// Add one entry per release that changes something a person would notice —
@@ -36,9 +55,11 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       'Zikr Reminders: get reminded about a zikr or dua on the days you '
           'choose.',
       'Azan now plays in full, without other notifications cutting it '
-          'off, and has a Stop button on the home screen. On iPhone, tap '
-          'the notification to start it.',
+          'off, and has a Stop button on the home screen.',
       'You can now choose a notification sound for each prayer.',
+    ],
+    iosBullets: [
+      'To hear the azan in full, tap its notification to start it.',
     ],
   ),
   const WhatsNewEntry(
@@ -51,17 +72,22 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       'Bookmarks now sync across your devices when you are signed in, and '
           'you can drag a bookmark to move it.',
       'Qaza Tracker can estimate your missed prayers and log many at once.',
-      'New widgets: an Islamic calendar (iPhone and Apple Watch) '
-          'and the next prayer on the iPhone Lock Screen.',
       'Easier reading: a Text Size setting for the whole app, a cleaner '
           'Focus mode, Arabic as a paragraph, and the Quran in IndoPak '
           'script with the Qalam font.',
       'The Quran now has Ali Quli Qarai\'s translation and transliteration '
           'for every surah.',
-      'A new azan recording by Abather Al-Halawaji, and Full Azan now '
-          'plays more reliably.',
+      'A new azan recording by Abather Al-Halawaji.',
       'Spotted a mistake? Select the text to report it. Missing a dua or '
           'book? Request it in Settings.',
+    ],
+    iosBullets: [
+      'New widgets: an Islamic calendar (iPhone and Apple Watch) and the '
+          'next prayer on the Lock Screen.',
+    ],
+    androidBullets: [
+      'New Islamic calendar widget, and prayer widgets now resize to fit.',
+      'Full Azan now plays properly.',
     ],
   ),
 ];

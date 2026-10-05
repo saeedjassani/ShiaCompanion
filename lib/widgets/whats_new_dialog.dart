@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../data/whats_new_notes.dart';
@@ -9,8 +10,15 @@ import '../data/whats_new_notes.dart';
 /// few seconds to read, not to be a release-notes page.
 Future<void> showWhatsNewDialog(
   BuildContext context,
-  List<WhatsNewEntry> entries,
-) {
+  List<WhatsNewEntry> entries, {
+  TargetPlatform? platform,
+}) {
+  final target = platform ?? defaultTargetPlatform;
+  // An entry may have nothing to say on this platform.
+  entries = [
+    for (final e in entries)
+      if (e.bulletsFor(target).isNotEmpty) e,
+  ];
   if (entries.isEmpty) return Future<void>.value();
 
   return showDialog<void>(
@@ -28,7 +36,7 @@ Future<void> showWhatsNewDialog(
                     style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
               ],
-              for (final bullet in entry.bullets)
+              for (final bullet in entry.bulletsFor(target))
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
