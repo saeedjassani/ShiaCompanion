@@ -600,14 +600,14 @@ class QazaTrackerManager extends ChangeNotifier {
     );
   }
 
-  /// Marks one of each [types] completed, skipping any with nothing owed.
-  /// Returns the types that were actually marked, so the caller can undo
-  /// exactly those.
+  /// Marks one of each [types] completed, but only if every one of them has
+  /// something owed; otherwise nothing is changed and the result is empty.
+  /// Returns the types that were marked, so the caller can undo them.
   List<QazaEntryType> markCompletedEach(Iterable<QazaEntryType> types) {
-    final marked = [
-      for (final type in types)
-        if (_state.countFor(type).remaining > 0) type,
-    ];
+    final marked = types.toList();
+    if (marked.any((type) => _state.countFor(type).remaining <= 0)) {
+      return const [];
+    }
     for (final type in marked) {
       unawaited(markCompleted(type));
     }
