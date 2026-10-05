@@ -36,12 +36,13 @@ behaviour. They only render inside the canvas: `support.js` and the
 | `Rakaat-A.dc.html`, `Rakaat-B.dc.html` | Rakaat counter and dim mode | Tools |
 | `Settings-A.dc.html`, `Settings-A-signedin.dc.html` | Settings signed out / in | Settings |
 | `Nudge-C.dc.html` | Back-up banner (shown on Favorites) | Back-up nudges |
-| `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing, with results, with none | Navigation → Search |
-| `R3-List.dc.html`, `R3-List-group.dc.html` | A zikr list (Duas), and one with a group row (Ziyarats) | Lists |
+| `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing (keyboard up), with results, with none; the field at the bottom | Navigation → Search |
+| `R3-List.dc.html`, `R3-List-group.dc.html` | A zikr list (Duas), and one with a group row (Ziyarats); the find field at the bottom | Lists |
 | `R3-Todays-recitations.dc.html` | Today's Recitations | Lists |
-| `R3-Prayer-times.dc.html`, `R3-Times-on-home.dc.html` | Calendar & Prayer Times on the Prayer times view, and the "Times on the Home card" sheet | Calendar & Prayer Times |
-| `R3-Calendar.dc.html`, `R3-Calendar-dark.dc.html` | The same page on the Calendar view, light and dark | Calendar & Prayer Times |
-| `W-Calendar.dc.html` | Web (1440 × 900): calendar and the day's times side by side | Calendar & Prayer Times, Responsive |
+| `R3-Calendar.dc.html` | Calendar & Prayer Times, the whole page (390 × 980), on today | Calendar & Prayer Times |
+| `R3-Calendar-day.dc.html`, `R3-Calendar-dark.dc.html` | The same page with another day picked, light and dark | Calendar & Prayer Times |
+| `R3-Times-on-home.dc.html` | The "Times on the Home card" sheet over that page | Calendar & Prayer Times |
+| `W-Calendar.dc.html` | Web (1440 × 900): the day's eight times in one row, the month and Coming up under it | Calendar & Prayer Times, Responsive |
 | `R3-Azan.dc.html` | Azan (prayer notifications) | Calendar & Prayer Times → Azan |
 | `R3-Library.dc.html`, `R3-Library-book.dc.html` | Library, and one book's chapters | Library |
 | `R3-Qibla.dc.html` | Qibla | Tools |
