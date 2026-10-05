@@ -11,6 +11,7 @@ import '../services/analytics_service.dart';
 import '../services/proximity_sensor_service.dart';
 import '../utils/shared_preferences.dart';
 import '../widgets/responsive_content.dart';
+import '../l10n/l10n.dart';
 
 class PrayerCounterPage extends StatefulWidget {
   const PrayerCounterPage({
@@ -122,9 +123,9 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
         if (!mounted) return;
         unawaited(_setSensorEnabled(false));
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'The proximity sensor stopped responding. Check the phone position and turn automatic sensing on again.',
+              context.l10n.counterSensorStopped,
             ),
           ),
         );
@@ -205,18 +206,18 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
       final shouldReset = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Start over?'),
-              content: const Text(
-                'Changing the number of rakaat will reset the current prayer count.',
+              title: Text(context.l10n.counterStartOverTitle),
+              content: Text(
+                context.l10n.counterStartOverBody,
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.commonCancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Start over'),
+                  child: Text(context.l10n.counterStartOver),
                 ),
               ],
             ),
@@ -247,10 +248,10 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Rakaat Counter'),
+        title: Text(context.l10n.counterTitle),
         actions: [
           IconButton(
-            tooltip: 'How to place your phone',
+            tooltip: context.l10n.counterHowToPlace,
             onPressed: _showPlacementGuide,
             icon: const Icon(Icons.info_outline_rounded),
           ),
@@ -277,7 +278,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                       minimumSize: const Size.fromHeight(48),
                     ),
                     icon: const Icon(Icons.undo_rounded),
-                    label: const Text('Undo'),
+                    label: Text(context.l10n.commonUndo),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -288,7 +289,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                       minimumSize: const Size.fromHeight(48),
                     ),
                     icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Start over'),
+                    label: Text(context.l10n.counterStartOver),
                   ),
                 ),
               ],
@@ -335,7 +336,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Place phone below the turbah',
+                  context.l10n.counterPlaceBelowTurbah,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.w700,
@@ -343,7 +344,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Lay it flat below the turbah, with the top edge pointing toward it. Keep your forehead’s path clear.',
+                  context.l10n.counterPlaceBelowTurbahBody,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                     height: 1.35,
@@ -391,9 +392,9 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Prayer length', style: theme.textTheme.titleMedium),
+                    Text(context.l10n.counterPrayerLength, style: theme.textTheme.titleMedium),
                     Text(
-                      'Select the number of rakaat',
+                      context.l10n.counterSelectRakaat,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -428,14 +429,14 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final status = _counter.isComplete
-        ? 'Complete'
+        ? context.l10n.counterComplete
         : _sensorEnabled && _sensorNear
-            ? 'Sajdah detected'
+            ? context.l10n.counterSajdahDetected
             : _sensorEnabled
-                ? 'Sensor ready'
+                ? context.l10n.counterSensorReady
                 : _sensorAvailable == null
-                    ? 'Checking sensor'
-                    : 'Automatic sensing off';
+                    ? context.l10n.counterCheckingSensor
+                    : context.l10n.counterSensingOff;
     final statusIcon = _counter.isComplete
         ? Icons.check_circle_rounded
         : _sensorEnabled
@@ -446,11 +447,11 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
 
     return Semantics(
       button: !_counter.isComplete,
-      label: 'Current rakaat and sajdah',
+      label: context.l10n.counterSemanticsLabel,
       value: _counter.displayValue,
       hint: _counter.isComplete
           ? null
-          : 'Tap only if a sajdah was not detected automatically',
+          : context.l10n.counterTapHint,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: _counter.isComplete ? null : _recordSajdah,
@@ -535,10 +536,11 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                 const SizedBox(height: 8),
                 Text(
                   _counter.isComplete
-                      ? '${_counter.totalRakaat} rakaat completed'
+                      ? context.l10n.counterRakaatCompleted(_counter.totalRakaat)
                       : _counter.hasStarted
-                          ? 'Rakaat ${_counter.rakaat}  ·  Sajdah ${_counter.sajdah}'
-                          : 'Ready for the first sajdah',
+                          ? context.l10n
+                                .counterPosition(_counter.rakaat, _counter.sajdah)
+                          : context.l10n.counterReady,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.onPrimaryContainer,
@@ -549,7 +551,8 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                 _buildProgressDots(context),
                 const SizedBox(height: 13),
                 Text(
-                  '${_counter.completedSajdahs} of ${_counter.totalSajdahs} sajdahs',
+                  context.l10n.counterSajdahProgress(
+                      _counter.completedSajdahs, _counter.totalSajdahs),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onPrimaryContainer.withValues(
                       alpha: 0.78,
@@ -572,8 +575,8 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                       Flexible(
                         child: Text(
                           _sensorEnabled
-                              ? 'Automatic counting · tap only if one is missed'
-                              : 'Tap card to add a sajdah manually',
+                              ? context.l10n.counterAutomaticHint
+                              : context.l10n.counterManualHint,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.labelLarge?.copyWith(
                             color: colorScheme.onPrimaryContainer,
@@ -619,12 +622,12 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
   Widget _buildSensorCard(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final subtitle = switch (_sensorAvailable) {
-      null => 'Checking this device…',
-      false => 'Automatic counting is not available on this device.',
+      null => context.l10n.counterCheckingDevice,
+      false => context.l10n.counterNotAvailable,
       true when _sensorEnabled && _sensorNear =>
-        'Object detected. Move away to arm the next count.',
-      true when _sensorEnabled => 'Ready — each detected sajdah counts once.',
-      true => 'Off — turn this on to count sajdahs automatically.',
+        context.l10n.counterObjectDetected,
+      true when _sensorEnabled => context.l10n.counterSensorArmed,
+      true => context.l10n.counterSensorOffSubtitle,
     };
 
     return AnimatedContainer(
@@ -663,7 +666,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                       color: colorScheme.primary,
                     ),
             ),
-            title: const Text('Automatic sensing'),
+            title: Text(context.l10n.counterAutomaticSensing),
             subtitle: Text(subtitle),
           ),
           if (_sensorAvailable == true)
@@ -671,8 +674,8 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Text(
                 defaultTargetPlatform == TargetPlatform.iOS
-                    ? 'On iPhone, the display may turn off briefly while the sensor is covered. Sensor position and range vary by model.'
-                    : 'Sensor position and range vary by phone. Some Android phones use a less reliable virtual proximity sensor.',
+                    ? context.l10n.counterIphoneNote
+                    : context.l10n.counterAndroidNote,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -711,18 +714,18 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                 ),
                 const SizedBox(width: 14),
                 Text(
-                  'Phone placement',
+                  context.l10n.counterPhonePlacement,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Place the phone flat below the turbah, with its top edge and sensor pointing toward it. Keep the phone completely out of the path of your forehead.',
+            Text(
+              context.l10n.counterPlacementBody,
             ),
             const SizedBox(height: 12),
             Text(
-              'Before beginning, enable the sensor and test it with your hand. Move your hand away after each test so the next count can arm.',
+              context.l10n.counterPlacementTest,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),

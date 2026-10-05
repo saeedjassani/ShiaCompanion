@@ -6,6 +6,7 @@ import '../constants.dart' show appScaffoldMessengerKey;
 import '../models/zikr_audio_track.dart';
 import '../services/audio_download_store.dart';
 import '../utils/network_utils.dart';
+import '../l10n/l10n.dart';
 
 /// Where an [AudioDownloadButton] stands, worked out once per build so the
 /// icon and the labelled forms can never disagree.
@@ -36,8 +37,8 @@ Future<bool> startAudioDownload(
   if (!await network.isDeviceOnline()) {
     messenger
       ?..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(
-        content: Text("You're offline. Connect to the internet to download."),
+      ..showSnackBar(SnackBar(
+        content: Text(context.l10n.audioOfflineCannotDownload),
       ));
     return false;
   }
@@ -48,20 +49,18 @@ Future<bool> startAudioDownload(
       context: context,
       builder: (dialogContext) => AlertDialog(
         icon: const Icon(Icons.signal_cellular_alt),
-        title: const Text('Download using mobile data?'),
+        title: Text(context.l10n.audioMobileDataTitle),
         content: Text(size == null
-            ? "You're not on Wi-Fi. Recitations can be large, so this may "
-                'use a lot of mobile data.'
-            : "You're not on Wi-Fi. This will use about "
-                '${formatAudioBytes(size)} of mobile data.'),
+            ? context.l10n.audioMobileDataBody
+            : context.l10n.audioMobileDataSizedBody(formatAudioBytes(size))),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Download'),
+            child: Text(context.l10n.audioDownload),
           ),
         ],
       ),
@@ -85,20 +84,27 @@ Future<void> confirmRemoveAudioDownload(
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: Text(many ? 'Remove downloads?' : 'Remove download?'),
+      title: Text(many
+          ? context.l10n.audioRemoveDownloadsTitle
+          : context.l10n.audioRemoveDownloadTitle),
       content: Text(
-        '${label == null ? (many ? 'These recitations' : 'This recitation') : '"$label"'}'
-        " will stream again, so you'll need a connection to listen."
-        '${bytes > 0 ? ' Frees ${formatAudioBytes(bytes)}.' : ''}',
+        context.l10n.audioRemoveBody(label == null
+                ? (many
+                    ? context.l10n.audioTheseRecitations
+                    : context.l10n.audioThisRecitation)
+                : context.l10n.audioQuotedName(label)) +
+            (bytes > 0
+                ? ' ${context.l10n.audioRemoveFrees(formatAudioBytes(bytes))}'
+                : ''),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: const Text('Remove'),
+          child: Text(context.l10n.commonRemove),
         ),
       ],
     ),
@@ -117,25 +123,28 @@ void showAudioDownloadResult(AudioDownloadResult result) {
   final String message;
   SnackBarAction? action;
   if (result.succeeded) {
+    final l10n = L10n.current;
     message = name == null
-        ? 'Downloaded - plays without a connection'
-        : '$name downloaded - plays without a connection';
+        ? l10n.audioDownloadDone
+        : l10n.audioDownloadDoneNamed(name);
   } else {
-    final what = name ?? (total > 1 ? 'these recitations' : 'this recitation');
+    final l10n = L10n.current;
+    final what = name ??
+        (total > 1
+            ? l10n.audioTheseRecitationsLower
+            : l10n.audioThisRecitationLower);
     final partial = result.saved > 0
-        ? 'Downloaded ${result.saved} of $total. '
-        : "Couldn't download $what. ";
-    message = partial +
-        switch (result.failure) {
-          AudioDownloadFailure.storage =>
-            'Your device is out of space - free some up and try again.',
-          AudioDownloadFailure.unavailable =>
-            'A recitation is no longer available.',
-          _ => 'Check your connection and try again.',
-        };
+        ? l10n.audioDownloadPartial(result.saved, total)
+        : l10n.audioDownloadFailedNamed(what);
+    final reason = switch (result.failure) {
+      AudioDownloadFailure.storage => l10n.audioDownloadOutOfSpace,
+      AudioDownloadFailure.unavailable => l10n.audioDownloadUnavailable,
+      _ => l10n.audioDownloadCheckConnection,
+    };
+    message = '$partial $reason';
     if (result.failure != AudioDownloadFailure.unavailable) {
       action = SnackBarAction(
-        label: 'Retry',
+        label: l10n.commonRetry,
         onPressed: () => unawaited(AudioDownloadStore.instance
             .download(result.tracks, label: result.label)),
       );
@@ -242,32 +251,36 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
                     strokeWidth: 2.5,
                     // Indeterminate until the first bytes give it a size.
                     value: progress > 0 ? progress : null,
-                    semanticsLabel: 'Downloading',
-                    semanticsValue: '$percent%',
+                    semanticsLabel: context.l10n.audioDownloading,
+                    semanticsValue: context.l10n.commonPercent(percent),
                   ),
                   const Icon(Icons.stop_rounded, size: 14),
                 ],
               ),
             );
-            label = progress > 0 ? 'Downloading $percent%' : 'Downloading…';
-            tooltip = 'Stop downloading';
+            label = progress > 0
+                ? context.l10n.audioDownloadingPercent(percent)
+                : context.l10n.audioDownloadingEllipsis;
+            tooltip = context.l10n.audioStopDownloading;
           case AudioDownloadState.done:
             icon = Icon(Icons.offline_pin_rounded, color: colorScheme.primary);
-            label = 'Downloaded';
-            tooltip = 'Downloaded for offline listening. Tap to remove.';
+            label = context.l10n.audioDownloaded;
+            tooltip = context.l10n.audioDownloadedTooltip;
           case AudioDownloadState.failed:
             icon = Icon(Icons.sync_problem_rounded, color: colorScheme.error);
-            label = 'Retry download';
-            tooltip = "Download didn't finish. Tap to retry.";
+            label = context.l10n.audioRetryDownload;
+            tooltip = context.l10n.audioDownloadFailedTooltip;
           case AudioDownloadState.partial:
             icon = const Icon(Icons.download_for_offline_outlined);
-            label = 'Download $remaining more$sizeSuffix';
-            tooltip = 'Download the rest for offline listening';
+            label = context.l10n.audioDownloadMore(remaining) + sizeSuffix;
+            tooltip = context.l10n.audioDownloadRestTooltip;
           case AudioDownloadState.idle:
             icon = const Icon(Icons.download_for_offline_outlined);
-            label = '${tracks.length > 1 ? 'Download all' : 'Download'}'
-                '$sizeSuffix';
-            tooltip = 'Download for offline listening$sizeSuffix';
+            label = (tracks.length > 1
+                    ? context.l10n.audioDownloadAll
+                    : context.l10n.audioDownload) +
+                sizeSuffix;
+            tooltip = context.l10n.audioDownloadForOffline + sizeSuffix;
         }
 
         if (!widget.labelled) {

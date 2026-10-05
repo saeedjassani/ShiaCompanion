@@ -211,5 +211,977 @@
   "settingsGoogleUnavailable": "Google Sign-In isn't available right now. Please try again.",
   "commonNetworkError": "Couldn't connect. Check your internet connection and try again.",
   "settingsGoogleFailed": "Google Sign-In didn't work. Please try again in a moment.",
-  "settingsAppleFailed": "Apple Sign-In Failed"
+  "settingsAppleFailed": "Apple Sign-In Failed",
+  "audioRecordingNumber": "Recording {number}",
+  "@audioRecordingNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistAddedTo": "Added to {name}",
+  "@playlistAddedTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistAlreadyIn": "Already in {name}",
+  "@playlistAlreadyIn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "zikrCount": "{count} zikr",
+  "@zikrCount": {
+    "description": "A number of zikr. 'Zikr' is its own plural in English.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistsEmpty": "Make a playlist of the zikr you listen to every day - Dua Ahad and Ziyarat Ashura each morning, say - and start them all with one tap.",
+  "playlistDeleteConfirm": "Delete \"{name}\"?",
+  "@playlistDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistDeleteKeepsDuasAndAudio": "The duas themselves stay in the app, and so does their downloaded audio - remove it from Downloads to free space.",
+  "playlistEmpty": "Tap Add to choose zikr. You can also add one from the player on any dua with audio.",
+  "audioRecordingsChosen": "{chosen} of {total} recordings",
+  "@audioRecordingsChosen": {
+    "placeholders": {
+      "chosen": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "audioDownloadingPercent": "Downloading {percent}%",
+  "@audioDownloadingPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "audioRecordingsCount": "{count, plural, =1{1 recording} other{{count} recordings}}",
+  "@audioRecordingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistNowPlayingPosition": "{playlist} · {position} of {count}",
+  "@playlistNowPlayingPosition": {
+    "placeholders": {
+      "playlist": {
+        "type": "String"
+      },
+      "position": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistNameHint": "e.g. Morning",
+  "playlistOfflinePartial": "You're offline - playing only the downloaded recordings",
+  "playlistNothingToPlay": "Nothing in this playlist has a recording to play",
+  "playlistOfflineNothingDownloaded": "You're offline and nothing in this playlist is downloaded yet",
+  "playlistStartFailed": "Couldn't start the playlist. Try again.",
+  "playlistChooseRecordingsHint": "Choose the recordings to play in this playlist",
+  "commonDone": "Done",
+  "playlistAddTo": "Add to playlist",
+  "playlistNew": "New playlist",
+  "commonCreate": "Create",
+  "playlistsTitle": "Playlists",
+  "playlistDownloads": "Downloads",
+  "commonPause": "Pause",
+  "commonPlay": "Play",
+  "playlistRename": "Rename playlist",
+  "commonSave": "Save",
+  "playlistDeleteKeepsDuas": "The duas themselves stay in the app.",
+  "commonDelete": "Delete",
+  "playlistDeleted": "This playlist has been deleted.",
+  "commonRename": "Rename",
+  "playlistRemoveDownloads": "Remove downloads",
+  "playlistAllDownloads": "All downloads",
+  "commonAdd": "Add",
+  "playlistResume": "Resume",
+  "playlistPlayAll": "Play all",
+  "audioDownloaded": "Downloaded",
+  "audioDownloadFailed": "Download didn't finish",
+  "playlistOpenText": "Open text",
+  "playlistChooseRecordings": "Choose recordings",
+  "audioStopDownloading": "Stop downloading",
+  "audioRemoveDownload": "Remove download",
+  "audioDownload": "Download",
+  "playlistRemoveZikr": "Remove from playlist",
+  "playlistAddZikr": "Add zikr",
+  "commonSearch": "Search",
+  "audioPartlyDownloaded": "Partly downloaded",
+  "playlistRepeatOn": "Repeat is on",
+  "playlistRepeat": "Repeat playlist",
+  "commonPrevious": "Previous",
+  "commonNext": "Next",
+  "commonStop": "Stop",
+  "flightTimesShownAt": "Times shown at {origin} and {destination} local clocks",
+  "@flightTimesShownAt": {
+    "description": "{origin} and {destination} are airport codes.",
+    "placeholders": {
+      "origin": {
+        "type": "String"
+      },
+      "destination": {
+        "type": "String"
+      }
+    }
+  },
+  "flightDurationAndDistance": "{duration} in the air · {distance} great-circle",
+  "@flightDurationAndDistance": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "flightAirportTime": "{airport} time",
+  "@flightAirportTime": {
+    "description": "Column heading: local time at an airport (airport code).",
+    "placeholders": {
+      "airport": {
+        "type": "String"
+      }
+    }
+  },
+  "flightOverPosition": " · over {position}",
+  "@flightOverPosition": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "flightAfterTakeoff": "{duration} after take-off",
+  "@flightAfterTakeoff": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "flightHorizonLater": "{minutes} min later than the horizon of the ground below",
+  "@flightHorizonLater": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "flightHorizonEarlier": "{minutes} min earlier than the horizon of the ground below",
+  "@flightHorizonEarlier": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "flightQiblaToRight": "{degrees}° to your right",
+  "@flightQiblaToRight": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "flightQiblaToLeft": "{degrees}° to your left",
+  "@flightQiblaToLeft": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "flightQiblaLine": "Qibla {bearing}° ({compass}) — {relative} relative to the direction of flight",
+  "@flightQiblaLine": {
+    "placeholders": {
+      "bearing": {
+        "type": "int"
+      },
+      "compass": {
+        "type": "String"
+      },
+      "relative": {
+        "type": "String"
+      }
+    }
+  },
+  "flightAltitudeHorizonBody": "At {altitude} the horizon sits about {dip}° lower than on the ground, so the sun takes longer to set and dawn comes sooner. That moves Maghrib and Isha about twenty minutes later, and Fajr about twenty minutes earlier, than the times for the ground beneath you — each row shows its own shift. Which horizon governs the prayer is a question for your marja, not one this app can settle.",
+  "@flightAltitudeHorizonBody": {
+    "placeholders": {
+      "altitude": {
+        "type": "String"
+      },
+      "dip": {
+        "type": "String"
+      }
+    }
+  },
+  "flightAltitudeFeet": "{feet} ft",
+  "@flightAltitudeFeet": {
+    "description": "An altitude, e.g. 38,000 ft.",
+    "placeholders": {
+      "feet": {
+        "type": "String"
+      }
+    }
+  },
+  "flightTitleFallback": "Flight",
+  "flightEdit": "Edit flight",
+  "flightCheckTimes": "Check the flight times",
+  "flightCheckTimesBody": "The arrival is not after the departure once each airport's time zone is applied. Tap edit to fix the dates.",
+  "flightInTheAir": "In the air",
+  "flightNoPrayerDuring": "No prayer comes in during this flight",
+  "flightNoPrayerDuringBody": "Every prayer time falls either before take-off or after landing.",
+  "flightNotDuring": "Not during this flight",
+  "flightEndOfIshaWindow": "End of the Isha window · ",
+  "flightStraightAhead": "straight ahead",
+  "flightDirectlyBehind": "directly behind you",
+  "flightIshaClosedBeforeTakeoff": "The Isha window had already closed before take-off.",
+  "flightAlreadyInBeforeTakeoff": "Already in before take-off — use the prayer times for your departure city.",
+  "flightIshaOpenUntilLanding": "The Isha window does not close until after landing.",
+  "flightAfterLanding": "Comes in after landing — use the prayer times for your destination.",
+  "flightSunAngleNeverReached": "The sun never reaches the required angle anywhere along this route, so no time can be calculated.",
+  "flightHowWorkedOut": "How these are worked out",
+  "flightHowWorkedOutBody": "The aircraft is assumed to follow the great-circle route at a steady speed, and each prayer time is solved for the position the aircraft is at when that time arrives. A delay of an hour moves these times by roughly half an hour, and routing around weather can move them by ten to twenty minutes, so treat them as close rather than exact.",
+  "flightHorizonAtAltitude": "Measured from the horizon at altitude",
+  "flightHorizonAtGround": "Measured from the horizon at ground level",
+  "flightGroundHorizonBody": "Times follow the horizon of the ground below the aircraft. From the cabin the sun sets later and dawn breaks earlier than shown, by around twenty minutes at cruise altitude.",
+  "flightHighLatitude": "This route crosses high latitudes",
+  "flightHighLatitudeBody": "Above roughly 48°, the sun may not dip far enough below the horizon for dawn and nightfall to happen normally. Times for Fajr, Maghrib and Isha there fall back to a proportional estimate of the night. Rulings for prayer at high latitude differ — please follow your marja.",
+  "flightSomeNotCalculated": "Some prayer times could not be calculated",
+  "flightSomeNotCalculatedBody": "The sun stays above the required angle for the whole route, so those prayers have no calculated time. Please follow your marja's ruling for these conditions.",
+  "flightTimeZonesFailed": "Time zones could not be loaded",
+  "flightTimeZonesFailedBody": "One of these airports has a time zone this build does not recognise. Tap edit to pick the airports again.",
+  "prayerFajr": "Fajr",
+  "prayerSunrise": "Sunrise",
+  "prayerZuhr": "Zuhr",
+  "prayerAsr": "Asr",
+  "prayerSunset": "Sunset",
+  "prayerMaghrib": "Maghrib",
+  "prayerIsha": "Isha",
+  "prayerMidnight": "Midnight",
+  "@prayerMidnight": {
+    "description": "Islamic midnight, the end of the Isha window."
+  },
+  "locationErrorBody": "An error occurred while getting your location: {error}\n\nPlease check that location services are enabled and try again.",
+  "@locationErrorBody": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationReopenAppBody": "It seems you've not used the application in last {days} days. Please open the app to continue receive Azan notifications",
+  "@notificationReopenAppBody": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationPrayerTime": "It's time for {prayer}",
+  "@notificationPrayerTime": {
+    "description": "Prayer notification text. {prayer} is the prayer's name, lower-cased in English.",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTapToPlayCustom": "{message} · Tap to play your audio",
+  "@notificationTapToPlayCustom": {
+    "description": "{message} is the prayer notification text.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTapToPlayAzan": "{message} · Tap to hear the full azan",
+  "@notificationTapToPlayAzan": {
+    "description": "{message} is the prayer notification text.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "locationEnableTitle": "Enable Location for Prayer Times",
+  "locationEnableBody": "Prayer times are unique to your location. We use your location while you are using the app so we can provide accurate prayer times for your area.",
+  "commonContinue": "Continue",
+  "locationServicesDisabledTitle": "Location Services Disabled",
+  "locationServicesDisabledBody": "Location services are turned off. Please enable location services in your device settings to get accurate prayer times for your area.",
+  "locationPermissionDeniedForever": "Location permission was permanently denied. Please open app settings and grant location permission to get accurate prayer times.",
+  "locationPermissionUnknown": "Unable to determine location permission status. Please open app settings and ensure location permission is granted.",
+  "locationPermissionNeeded": "Location permission is required to show accurate prayer times for your area.",
+  "locationPermissionTitle": "Location Permission Required",
+  "locationTimeoutTitle": "Location Timeout",
+  "locationTimeoutBody": "Unable to get your location within the expected time. This may be due to poor GPS signal or network issues. Please try again.",
+  "locationErrorTitle": "Location Error",
+  "notificationReopenAppTitle": "Open the app to continue getting Azan notifications",
+  "notificationChannelTakbir": "Prayer Times - Takbir",
+  "notificationChannelSystemDefault": "Prayer Times - System Default",
+  "notificationChannelSilent": "Prayer Times - Silent",
+  "notificationChannelCustom": "Prayer Times - Custom Sound",
+  "notificationChannelFullAzan": "Prayer Times - Full Azan",
+  "notificationChannelSilentDescription": "Silent prayer time notifications",
+  "notificationChannelDescription": "Prayer time notifications",
+  "notificationChannelGeneral": "General",
+  "qiblaNeedsCalibratingBody": "Readings are off by around {degrees}°. Move the phone in a figure of eight a few times, away from anything metal or magnetic.",
+  "@qiblaNeedsCalibratingBody": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "qiblaBearingFromNorth": "{place} is {bearing} of true north",
+  "@qiblaBearingFromNorth": {
+    "description": "{bearing} is a compass bearing such as '293° NW'.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "bearing": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaFacing": "Facing {place}",
+  "@qiblaFacing": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaTurnRight": "Turn right {degrees}°",
+  "@qiblaTurnRight": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "qiblaTurnLeft": "Turn left {degrees}°",
+  "@qiblaTurnLeft": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "qiblaDeclinationEast": "Magnetic north is {degrees}° east of true north where you are, and the reading is corrected for it automatically.",
+  "@qiblaDeclinationEast": {
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaDeclinationWest": "Magnetic north is {degrees}° west of true north where you are, and the reading is corrected for it automatically.",
+  "@qiblaDeclinationWest": {
+    "placeholders": {
+      "degrees": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaDistanceHere": "Here",
+  "@qiblaDistanceHere": {
+    "description": "Distance shown when you are already at the place."
+  },
+  "qiblaTitle": "Qibla Finder",
+  "qiblaAboutCompass": "About this compass",
+  "qiblaLocationNeeded": "Location needed",
+  "qiblaLocationNeededBody": "The direction depends on where you are. Share your location and the compass will point the moment a fix arrives.",
+  "qiblaUseMyLocation": "Use my location",
+  "qiblaTurnOnCompass": "Turn on the compass",
+  "qiblaTurnOnCompassBody": "This browser needs your permission before it will report which way the phone is facing.",
+  "qiblaAllowCompass": "Allow compass",
+  "qiblaCompassBlocked": "Compass blocked",
+  "qiblaCompassBlockedBody": "Motion and orientation access was declined, so the dial is held north-up. Allow it in your browser settings, or turn until north on the dial matches north around you.",
+  "qiblaNoCompass": "No compass on this device",
+  "qiblaNoCompassBody": "The dial is held north-up instead. Face north, and the needle shows the direction from there.",
+  "qiblaNeedsCalibrating": "Compass needs calibrating",
+  "qiblaLocationUnknown": "Location unknown",
+  "qiblaUpdateLocation": "Update location",
+  "qiblaPointingTowards": "Pointing towards",
+  "qiblaWaitingForLocation": "Waiting for your location",
+  "qiblaPointTowards": "Point towards",
+  "qiblaGreatCircleBody": "The needle points along the great-circle path — the shortest way over the surface of the earth, which is the direction the qibla is defined by. On a flat map it can look surprising; from North America the Kaaba is roughly north-east, not south-east.",
+  "qiblaDeclinationUnknownBody": "Your phone measures the angle to magnetic north, which differs from true north by an amount that depends on where you are. That correction is applied automatically once your location is known.",
+  "qiblaSteadyReadingBody": "For a steady reading, hold the phone flat and keep it away from laptops, speakers, car dashboards and anything else with a magnet in it.",
+  "commonClose": "Close",
+  "weekdayShortMon": "Mon",
+  "weekdayShortTue": "Tue",
+  "weekdayShortWed": "Wed",
+  "weekdayShortThu": "Thu",
+  "weekdayShortFri": "Fri",
+  "weekdayShortSat": "Sat",
+  "weekdayShortSun": "Sun",
+  "reminderMinutesRange": "Enter a number of minutes between 0 and {max}.",
+  "@reminderMinutesRange": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderTitleRequired": "Please enter a title for this reminder.",
+  "reminderPickDay": "Pick at least one day.",
+  "reminderSavedPendingLocation": "Saved. It'll start firing once your prayer-time location is available.",
+  "reminderEditTitle": "Edit Reminder",
+  "reminderNewTitle": "New Reminder",
+  "reminderWhat": "What",
+  "reminderWhatHint": "Pick a zikr from the library, or just type a title below.",
+  "reminderChooseZikr": "Choose from the zikr library",
+  "reminderChangeZikr": "Change zikr",
+  "reminderTitleLabel": "Title",
+  "reminderTitleHint": "e.g. Dua Tawassul",
+  "reminderRepeatOn": "Repeat on",
+  "reminderWhen": "When",
+  "reminderFixedTime": "Fixed time",
+  "reminderPrayerRelative": "Prayer-relative",
+  "commonSaveChanges": "Save Changes",
+  "reminderAdd": "Add Reminder",
+  "reminderTime": "Time",
+  "reminderPrayer": "Prayer",
+  "reminderMinutes": "Minutes",
+  "reminderBefore": "Before",
+  "reminderAfter": "After",
+  "reminderPrayerRelativeNote": "Prayer times shift with the calendar, so this schedules the next few weeks' occurrences and refreshes them each time you open the app.",
+  "qazaCompletedCount": "{count} completed",
+  "@qazaCompletedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qazaPrayed": "Prayed",
+  "qazaFasted": "Fasted",
+  "qazaEstimatePrayers": "{days} of each daily prayer ({prayers} prayers)",
+  "@qazaEstimatePrayers": {
+    "description": "Both are formatted numbers.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "prayers": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaEstimateFasts": "{count, plural, =1{{formatted} fast} other{{formatted} fasts}}",
+  "@qazaEstimateFasts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "qazaLunarNote": "Counted as lunar years of {yearDays} days and months of {monthDays} days.",
+  "@qazaLunarNote": {
+    "placeholders": {
+      "yearDays": {
+        "type": "int"
+      },
+      "monthDays": {
+        "type": "int"
+      }
+    }
+  },
+  "qazaTitle": "Qaza Tracker",
+  "qazaCalculate": "Calculate my qaza",
+  "qazaPrayers": "Prayers",
+  "qazaFasts": "Fasts",
+  "qazaRemaining": "Qaza remaining",
+  "commonUndo": "Undo",
+  "qazaMissed": "Missed",
+  "qazaEditCount": "Edit count",
+  "qazaMissedAWhile": "Missed prayers for a while?",
+  "qazaMissedAWhileBody": "Enter how long, and we will add one of each daily prayer for every day missed.",
+  "qazaPrayedFullDay": "Prayed a full day",
+  "qazaLoggedFullDay": "Logged one of each daily prayer",
+  "qazaAddedToList": "Added to your qaza list",
+  "qazaRemainingLabel": "Remaining",
+  "qazaCompletedLabel": "Completed",
+  "commonClear": "Clear",
+  "qazaCalculateBody": "Roughly how long did you not pray? A best estimate is fine - you can adjust any prayer later.",
+  "qazaPrayersMissedFor": "Prayers missed for",
+  "qazaYears": "Years",
+  "qazaMonths": "Months",
+  "qazaDays": "Days",
+  "qazaFastsMissed": "Fasts missed",
+  "qazaNumberOfFasts": "Number of fasts",
+  "qazaThisAdds": "This adds to your list:",
+  "qazaAddToList": "Add to my list",
+  "qazaDhuhr": "Dhuhr",
+  "qazaAyat": "Namaz e Ayat",
+  "qazaOther": "Other",
+  "audioMobileDataSizedBody": "You're not on Wi-Fi. This will use about {size} of mobile data.",
+  "@audioMobileDataSizedBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "audioRemoveDownloadsTitle": "Remove downloads?",
+  "audioRemoveDownloadTitle": "Remove download?",
+  "audioRemoveBody": "{subject} will stream again, so you'll need a connection to listen.",
+  "@audioRemoveBody": {
+    "description": "{subject} is 'This recitation', 'These recitations' or a quoted recitation name.",
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "audioTheseRecitations": "These recitations",
+  "audioThisRecitation": "This recitation",
+  "audioQuotedName": "\"{name}\"",
+  "@audioQuotedName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "audioRemoveFrees": "Frees {size}.",
+  "@audioRemoveFrees": {
+    "description": "Appended to the remove-download message: the space it frees.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "audioDownloadDone": "Downloaded - plays without a connection",
+  "audioDownloadDoneNamed": "{name} downloaded - plays without a connection",
+  "@audioDownloadDoneNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "audioTheseRecitationsLower": "these recitations",
+  "audioThisRecitationLower": "this recitation",
+  "audioDownloadPartial": "Downloaded {saved} of {total}.",
+  "@audioDownloadPartial": {
+    "placeholders": {
+      "saved": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "audioDownloadFailedNamed": "Couldn't download {what}.",
+  "@audioDownloadFailedNamed": {
+    "description": "{what} is a recitation name, or 'this recitation' / 'these recitations'.",
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "audioDownloadOutOfSpace": "Your device is out of space - free some up and try again.",
+  "audioDownloadUnavailable": "A recitation is no longer available.",
+  "audioDownloadCheckConnection": "Check your connection and try again.",
+  "commonRetry": "Retry",
+  "commonPercent": "{percent}%",
+  "@commonPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "audioDownloadMore": "Download {count} more",
+  "@audioDownloadMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "audioDownloadAll": "Download all",
+  "audioDownloadForOffline": "Download for offline listening",
+  "audioOfflineCannotDownload": "You're offline. Connect to the internet to download.",
+  "audioMobileDataTitle": "Download using mobile data?",
+  "audioMobileDataBody": "You're not on Wi-Fi. Recitations can be large, so this may use a lot of mobile data.",
+  "commonRemove": "Remove",
+  "audioDownloading": "Downloading",
+  "audioDownloadingEllipsis": "Downloading…",
+  "audioDownloadedTooltip": "Downloaded for offline listening. Tap to remove.",
+  "audioRetryDownload": "Retry download",
+  "audioDownloadFailedTooltip": "Download didn't finish. Tap to retry.",
+  "audioDownloadRestTooltip": "Download the rest for offline listening",
+  "counterSemanticsLabel": "Current rakaat and sajdah",
+  "counterRakaatCompleted": "{count} rakaat completed",
+  "@counterRakaatCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "counterPosition": "Rakaat {rakaat}  ·  Sajdah {sajdah}",
+  "@counterPosition": {
+    "placeholders": {
+      "rakaat": {
+        "type": "int"
+      },
+      "sajdah": {
+        "type": "int"
+      }
+    }
+  },
+  "counterSajdahProgress": "{done} of {total} sajdahs",
+  "@counterSajdahProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "counterSensorStopped": "The proximity sensor stopped responding. Check the phone position and turn automatic sensing on again.",
+  "counterStartOverTitle": "Start over?",
+  "counterStartOverBody": "Changing the number of rakaat will reset the current prayer count.",
+  "counterStartOver": "Start over",
+  "counterTitle": "Rakaat Counter",
+  "counterHowToPlace": "How to place your phone",
+  "counterPlaceBelowTurbah": "Place phone below the turbah",
+  "counterPlaceBelowTurbahBody": "Lay it flat below the turbah, with the top edge pointing toward it. Keep your forehead’s path clear.",
+  "counterPrayerLength": "Prayer length",
+  "counterSelectRakaat": "Select the number of rakaat",
+  "counterComplete": "Complete",
+  "counterSajdahDetected": "Sajdah detected",
+  "counterSensorReady": "Sensor ready",
+  "counterCheckingSensor": "Checking sensor",
+  "counterSensingOff": "Automatic sensing off",
+  "counterTapHint": "Tap only if a sajdah was not detected automatically",
+  "counterReady": "Ready for the first sajdah",
+  "counterAutomaticHint": "Automatic counting · tap only if one is missed",
+  "counterManualHint": "Tap card to add a sajdah manually",
+  "counterCheckingDevice": "Checking this device…",
+  "counterNotAvailable": "Automatic counting is not available on this device.",
+  "counterObjectDetected": "Object detected. Move away to arm the next count.",
+  "counterSensorArmed": "Ready — each detected sajdah counts once.",
+  "counterSensorOffSubtitle": "Off — turn this on to count sajdahs automatically.",
+  "counterAutomaticSensing": "Automatic sensing",
+  "counterIphoneNote": "On iPhone, the display may turn off briefly while the sensor is covered. Sensor position and range vary by model.",
+  "counterAndroidNote": "Sensor position and range vary by phone. Some Android phones use a less reliable virtual proximity sensor.",
+  "counterPhonePlacement": "Phone placement",
+  "counterPlacementBody": "Place the phone flat below the turbah, with its top edge and sensor pointing toward it. Keep the phone completely out of the path of your forehead.",
+  "counterPlacementTest": "Before beginning, enable the sensor and test it with your hand. Move your hand away after each test so the next count can arm.",
+  "quranJuzNumber": "Juz {number}",
+  "@quranJuzNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "quranCopiedVerse": "Copied {verse}",
+  "@quranCopiedVerse": {
+    "description": "{verse} is a verse reference such as 2:255.",
+    "placeholders": {
+      "verse": {
+        "type": "String"
+      }
+    }
+  },
+  "quranRemoveFromSaved": "Remove from saved",
+  "quranSaveVerse": "Save verse",
+  "quranRemovedVerse": "Removed {verse}",
+  "@quranRemovedVerse": {
+    "placeholders": {
+      "verse": {
+        "type": "String"
+      }
+    }
+  },
+  "quranSavedVerse": "Saved {verse}",
+  "@quranSavedVerse": {
+    "placeholders": {
+      "verse": {
+        "type": "String"
+      }
+    }
+  },
+  "zikrPartNumber": "Part {number}",
+  "@zikrPartNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "zikrBookmarkMoveHint": "Bookmarked. To move it later, drag the {icon} on the \"Bookmarked\" label to another line.",
+  "@zikrBookmarkMoveHint": {
+    "description": "{icon} is replaced by a drag-handle icon; keep it where the icon belongs in the sentence.",
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      }
+    }
+  },
+  "quranCopyVerse": "Copy verse",
+  "quranCopyLink": "Copy link",
+  "quranLinkCopied": "Link copied",
+  "quranShareVerse": "Share verse",
+  "zikrMerits": "Merits",
+  "zikrReportThanks": "Thanks - we'll take a look.",
+  "zikrReportFailed": "Could not send the report. Please try again.",
+  "zikrSuggestCorrection": "Suggest a Correction",
+  "zikrSelectedText": "Selected text",
+  "zikrCorrectionHint": "What should it say instead? (optional)",
+  "commonSubmit": "Submit",
+  "zikrSetReminder": "Set Reminder",
+  "zikrUnableToOpen": "Unable to open this dua.",
+  "zikrComingSoon": "Coming soon...",
+  "zikrHideCounter": "Hide counter",
+  "deleteAccountSignInFailed": "Sign in failed: {error}",
+  "@deleteAccountSignInFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountSignOutFailed": "Sign out failed: {error}",
+  "@deleteAccountSignOutFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountFailed": "Error deleting account: {error}",
+  "@deleteAccountFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountSignedInAs": "You are signed in as {account}.",
+  "@deleteAccountSignedInAs": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountSignedIn": "Signed in successfully.",
+  "deleteAccountSignedOut": "Signed out.",
+  "deleteAccountConfirmTitle": "Delete account?",
+  "deleteAccountConfirmBody": "This permanently deletes your Shia Companion account and synced favorites.",
+  "deleteAccountDone": "Account deleted successfully.",
+  "deleteAccountTitle": "Delete Account",
+  "deleteAccountHeading": "Manage your Shia Companion account",
+  "deleteAccountSignInPrompt": "Sign in to review and permanently delete the account tied to your synced favorites.",
+  "deleteAccountWhatGetsDeleted": "What gets deleted",
+  "deleteAccountItemSignIn": "Your Shia Companion account sign-in record.",
+  "deleteAccountItemFavorites": "Your synced favorites and qaza tracker stored for that account.",
+  "deleteAccountItemPreferences": "Your synced reading preferences — Hijri date adjustment and font choices.",
+  "deleteAccountItemAnalytics": "Anonymous analytics or crash reports already collected may remain in aggregate form.",
+  "deleteAccountCompleted": "Your account deletion request has completed.",
+  "deleteAccountCompletedNote": "If you sign in again later, a brand new account will be created.",
+  "deleteAccountWebSteps": "Use the Google sign-in button below, then confirm deletion.",
+  "deleteAccountAppSteps": "Open Preferences in the app and use Delete My Account.",
+  "deleteAccountSigningIn": "Signing in...",
+  "deleteAccountDeleting": "Deleting...",
+  "deleteAccountButton": "Delete my account",
+  "deleteAccountSignOut": "Sign out",
+  "deleteAccountHelp": "Need help? Email developer110@hotmail.com and include the email address tied to your account.",
+  "statsBestStreak": "{days, plural, =1{Best: 1 day} other{Best: {days} days}}",
+  "@statsBestStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "statsTodayDone": "Today: done",
+  "statsTodayNotYet": "Today: not yet",
+  "statsDaysToGoal": "{remaining, plural, =1{1 more day to a {goal}-day streak} other{{remaining} more days to a {goal}-day streak}}",
+  "@statsDaysToGoal": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "statsUpdatedHoursAgo": "{hours, plural, =1{Updated 1 hour ago} other{Updated {hours} hours ago}}",
+  "@statsUpdatedHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "statsUpdatedOn": "Updated {date}",
+  "@statsUpdatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "statsAllTime": "{count} all time",
+  "@statsAllTime": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "statsCommunityNote": "Anonymous totals from everyone using the app. {updated}.",
+  "@statsCommunityNote": {
+    "placeholders": {
+      "updated": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTitle": "My Stats",
+  "statsYourMostRecited": "Your most recited",
+  "statsStreakStart": "Finish reading a dua, ziyarat or surah and your streak begins.",
+  "statsWelcomeBack": "Welcome back - every day is a fresh start.",
+  "statsDoneTodayFirst": "Done for today. Come back tomorrow to start a streak.",
+  "statsDoneToday": "Done for today - see you tomorrow, in sha Allah.",
+  "statsReadToday": "Read something today to keep it going.",
+  "statsDayStreak": "day streak",
+  "statsToday": "Today",
+  "statsPrivateSynced": "Your stats are private and sync across devices signed in to your account.",
+  "statsPrivateLocal": "Your stats are private and kept on this device. Sign in from Preferences to keep them across devices.",
+  "statsUpdatedWithinHour": "Updated within the hour",
+  "statsAcrossCommunity": "Across the community",
+  "statsRecitedThisWeek": "duas, ziyarats and surahs recited this week",
+  "statsMostRecitedThisWeek": "Most recited this week",
+  "quranSurahNumber": "Surah {number}",
+  "@quranSurahNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "listenQuranTextFailed": "Could not read the Quran text on this device.",
+  "listenRecogniserStopped": "The recogniser stopped unexpectedly. Try again.",
+  "listenNothingRecognised": "Nothing recognisable came through. Try again, a little closer to the reciter.",
+  "listenCouldNotPlace": "Could not place that in the Quran. Try reciting a little more.",
+  "listenMicPermissionWeb": "Listening needs microphone access. You can grant it in this site's permissions in your browser.",
+  "listenMicPermission": "Listening needs microphone access. You can grant it in your device settings.",
+  "listenBrowserUnsupported": "This browser cannot recognise speech. Chrome, Edge and Safari can.",
+  "listenDeviceUnsupported": "This device has no speech recogniser available.",
+  "listenNoArabic": "This device has no Arabic speech recognition installed. Adding Arabic in your device's language settings enables it.",
+  "listenStartFailed": "Could not start listening. Try again.",
+  "listenTitle": "Listen and follow",
+  "listenGettingReady": "Getting ready…",
+  "listenListening": "Listening…",
+  "listenHoldPhone": "Hold the phone towards the recitation.",
+  "listenFindNow": "Find the verse now",
+  "listenFinding": "Finding the verse…",
+  "listenWhichVerse": "Which verse was it?",
+  "listenAgain": "Listen again",
+  "commonTryAgain": "Try again",
+  "flightDepartureDateAt": "Departure date at {airport}",
+  "@flightDepartureDateAt": {
+    "placeholders": {
+      "airport": {
+        "type": "String"
+      }
+    }
+  },
+  "flightArrivalDateAt": "Arrival date at {airport}",
+  "@flightArrivalDateAt": {
+    "placeholders": {
+      "airport": {
+        "type": "String"
+      }
+    }
+  },
+  "flightDepartureTimeAt": "Departure time (local at {airport})",
+  "@flightDepartureTimeAt": {
+    "placeholders": {
+      "airport": {
+        "type": "String"
+      }
+    }
+  },
+  "flightArrivalTimeAt": "Arrival time (local at {airport})",
+  "@flightArrivalTimeAt": {
+    "placeholders": {
+      "airport": {
+        "type": "String"
+      }
+    }
+  },
+  "flightDurationTooLong": "That works out to {duration} in the air. Check the arrival date.",
+  "@flightDurationTooLong": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "flightFrom": "From",
+  "flightTo": "To",
+  "flightDeparts": "Departs",
+  "flightArrives": "Arrives",
+  "flightDepartureAirport": "Departure airport",
+  "flightArrivalAirport": "Arrival airport",
+  "flightChooseDepartureFirst": "Choose the departure airport first.",
+  "flightChooseArrivalFirst": "Choose the arrival airport first.",
+  "flightChooseBothAirports": "Choose both airports.",
+  "flightSetTimes": "Set the departure and arrival times.",
+  "flightAirportsMustDiffer": "Departure and arrival airports must be different.",
+  "flightTimeZoneUnresolved": "Could not resolve the time zone for one of those airports.",
+  "flightArrivalBeforeDeparture": "Arrival is before departure once time zones are applied. Check the arrival date — overnight flights land the next day.",
+  "flightAdd": "Add flight",
+  "flightDepartsHint": "Local time at the departure airport",
+  "flightArrivesHint": "Local time at the arrival airport",
+  "flightNumberLabel": "Flight number (optional)",
+  "flightSaveChanges": "Save changes",
+  "flightSave": "Save flight",
+  "flightTicketNote": "Enter the times exactly as they appear on your ticket — each one in the local time of its own airport.",
+  "flightChooseAirport": "Choose an airport",
+  "flightChooseDateTime": "Choose date and time"
 }

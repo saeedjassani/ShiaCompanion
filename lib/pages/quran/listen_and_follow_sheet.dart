@@ -10,6 +10,7 @@ import '../../utils/quran_index.dart';
 import '../../utils/quran_text_index.dart';
 import '../../utils/verse_matcher.dart';
 import '../zikr/zikr_content_parser.dart';
+import '../../l10n/l10n.dart';
 
 /// Listens to a recitation and offers the verse being recited.
 ///
@@ -84,7 +85,7 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
   }
 
   Future<void> _start() async {
-    // "Listen again" comes back through here, so the previous attempt's stream
+    // context.l10n.listenAgain comes back through here, so the previous attempt's stream
     // is let go of before a second one is opened.
     await _subscription?.cancel();
     _subscription = null;
@@ -117,7 +118,7 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
       if (!mounted) return;
       setState(() {
         _stage = _Stage.error;
-        _message = 'Could not read the Quran text on this device.';
+        _message = context.l10n.listenQuranTextFailed;
       });
       return;
     }
@@ -134,7 +135,7 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
         if (!mounted) return;
         setState(() {
           _stage = _Stage.error;
-          _message = 'The recogniser stopped unexpectedly. Try again.';
+          _message = context.l10n.listenRecogniserStopped;
         });
       },
       onDone: _match,
@@ -166,9 +167,8 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
       setState(() {
         _stage = _Stage.empty;
         _message = matches.matchedTokens == 0
-            ? 'Nothing recognisable came through. Try again, a little closer to '
-                'the reciter.'
-            : 'Could not place that in the Quran. Try reciting a little more.';
+            ? context.l10n.listenNothingRecognised
+            : context.l10n.listenCouldNotPlace;
       });
       return;
     }
@@ -220,20 +220,16 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
     switch (availability) {
       case RecognizerAvailability.permissionDenied:
         return kIsWeb
-            ? 'Listening needs microphone access. You can grant it in this '
-                'site\'s permissions in your browser.'
-            : 'Listening needs microphone access. You can grant it in your '
-                'device settings.';
+            ? context.l10n.listenMicPermissionWeb
+            : context.l10n.listenMicPermission;
       case RecognizerAvailability.unsupported:
         return kIsWeb
-            ? 'This browser cannot recognise speech. Chrome, Edge and Safari '
-                'can.'
-            : 'This device has no speech recogniser available.';
+            ? context.l10n.listenBrowserUnsupported
+            : context.l10n.listenDeviceUnsupported;
       case RecognizerAvailability.noArabicLocale:
-        return 'This device has no Arabic speech recognition installed. Adding '
-            'Arabic in your device\'s language settings enables it.';
+        return context.l10n.listenNoArabic;
       case RecognizerAvailability.failed:
-        return 'Could not start listening. Try again.';
+        return context.l10n.listenStartFailed;
       case RecognizerAvailability.ready:
         return '';
     }
@@ -254,13 +250,13 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
               children: [
                 Expanded(
                   child: Text(
-                    'Listen and follow',
+                    context.l10n.listenTitle,
                     style: theme.textTheme.titleMedium,
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  tooltip: 'Close',
+                  tooltip: context.l10n.commonClose,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -277,20 +273,20 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
     switch (_stage) {
       case _Stage.preparing:
         return [
-          const _Status(
+          _Status(
             icon: Icons.mic_none,
-            text: 'Getting ready…',
+            text: context.l10n.listenGettingReady,
             busy: true,
           ),
         ];
 
       case _Stage.listening:
         return [
-          const _Status(icon: Icons.mic, text: 'Listening…', busy: true),
+          _Status(icon: Icons.mic, text: context.l10n.listenListening, busy: true),
           const SizedBox(height: 12),
           Text(
             _transcript.isEmpty
-                ? 'Hold the phone towards the recitation.'
+                ? context.l10n.listenHoldPhone
                 : _transcript,
             textAlign: _transcript.isEmpty ? TextAlign.start : TextAlign.end,
             textDirection:
@@ -306,16 +302,16 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
           const SizedBox(height: 16),
           OutlinedButton.icon(
             icon: const Icon(Icons.stop),
-            label: const Text('Find the verse now'),
+            label: Text(context.l10n.listenFindNow),
             onPressed: _transcript.isEmpty ? null : _stopAndMatch,
           ),
         ];
 
       case _Stage.matching:
         return [
-          const _Status(
+          _Status(
             icon: Icons.search,
-            text: 'Finding the verse…',
+            text: context.l10n.listenFinding,
             busy: true,
           ),
         ];
@@ -323,7 +319,7 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
       case _Stage.candidates:
         return [
           Text(
-            'Which verse was it?',
+            context.l10n.listenWhichVerse,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
@@ -344,7 +340,7 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
           const SizedBox(height: 8),
           OutlinedButton.icon(
             icon: const Icon(Icons.refresh),
-            label: const Text('Listen again'),
+            label: Text(context.l10n.listenAgain),
             onPressed: _start,
           ),
         ];
@@ -361,7 +357,7 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
           const SizedBox(height: 16),
           OutlinedButton.icon(
             icon: const Icon(Icons.refresh),
-            label: const Text('Try again'),
+            label: Text(context.l10n.commonTryAgain),
             onPressed: _start,
           ),
         ];
@@ -409,7 +405,8 @@ class _CandidateRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final info = surahInfoFor(match.verse.surah);
-    final name = info?.englishName ?? 'Surah ${match.verse.surah}';
+    final name =
+        info?.englishName ?? context.l10n.quranSurahNumber(match.verse.surah);
 
     return ListTile(
       contentPadding: EdgeInsets.zero,

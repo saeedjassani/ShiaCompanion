@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 import '../l10n/app_language.dart';
 import '../l10n/l10n.dart';
@@ -130,7 +132,18 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _applyAppLanguage() {
-    L10n.current = lookupAppLocalizations(appLanguage.locale);
+    final language = appLanguage;
+    L10n.current = lookupAppLocalizations(language.locale);
+    // Dates and numbers formatted anywhere in the app follow the app
+    // language too. English leaves intl's default alone, exactly as it was
+    // before the app had any other language. The symbol data is bundled with
+    // intl and loads synchronously; the returned future is only API shape.
+    if (language.code == englishLanguageCode) {
+      Intl.defaultLocale = null;
+    } else {
+      unawaited(initializeDateFormatting(language.code));
+      Intl.defaultLocale = language.code;
+    }
   }
 
   Future<void> _applyTranslationLanguage() =>

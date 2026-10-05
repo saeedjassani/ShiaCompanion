@@ -11,6 +11,7 @@ import '../utils/flight_formatting.dart';
 import '../utils/timezone_database.dart';
 import '../widgets/responsive_content.dart';
 import 'airport_picker_page.dart';
+import '../l10n/l10n.dart';
 
 /// Add or edit a saved flight. Pops with the saved [Flight], or null.
 class FlightEditorPage extends StatefulWidget {
@@ -66,7 +67,7 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     final airport = await pushPageRoute<Airport>(
       context,
       AirportPickerPage(
-        title: isOrigin ? 'Departure airport' : 'Arrival airport',
+        title: isOrigin ? context.l10n.flightDepartureAirport : context.l10n.flightArrivalAirport,
       ),
     );
     if (airport == null || !mounted) return;
@@ -85,8 +86,8 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     final airport = isDeparture ? _origin : _destination;
     if (airport == null) {
       setState(() => _errorText = isDeparture
-          ? 'Choose the departure airport first.'
-          : 'Choose the arrival airport first.');
+          ? context.l10n.flightChooseDepartureFirst
+          : context.l10n.flightChooseArrivalFirst);
       return;
     }
 
@@ -101,8 +102,8 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
       firstDate: DateTime(now.year - 1),
       lastDate: DateTime(now.year + 3),
       helpText: isDeparture
-          ? 'Departure date at ${airport.iata}'
-          : 'Arrival date at ${airport.iata}',
+          ? context.l10n.flightDepartureDateAt(airport.iata)
+          : context.l10n.flightArrivalDateAt(airport.iata),
     );
     if (date == null || !mounted) return;
 
@@ -110,8 +111,8 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
       context: context,
       initialTime: TimeOfDay.fromDateTime(initial),
       helpText: isDeparture
-          ? 'Departure time (local at ${airport.iata})'
-          : 'Arrival time (local at ${airport.iata})',
+          ? context.l10n.flightDepartureTimeAt(airport.iata)
+          : context.l10n.flightArrivalTimeAt(airport.iata),
     );
     if (time == null || !mounted) return;
 
@@ -140,16 +141,16 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     final arrival = _arrivalLocal;
 
     if (origin == null || destination == null) {
-      setState(() => _errorText = 'Choose both airports.');
+      setState(() => _errorText = context.l10n.flightChooseBothAirports);
       return;
     }
     if (departure == null || arrival == null) {
-      setState(() => _errorText = 'Set the departure and arrival times.');
+      setState(() => _errorText = context.l10n.flightSetTimes);
       return;
     }
     if (origin.iata == destination.iata) {
       setState(() =>
-          _errorText = 'Departure and arrival airports must be different.');
+          _errorText = context.l10n.flightAirportsMustDiffer);
       return;
     }
 
@@ -168,19 +169,18 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     final resolved = ResolvedFlight.resolve(flight);
     if (resolved == null) {
       setState(() => _errorText =
-          'Could not resolve the time zone for one of those airports.');
+          context.l10n.flightTimeZoneUnresolved);
       return;
     }
     if (resolved.duration <= Duration.zero) {
       setState(() => _errorText =
-          'Arrival is before departure once time zones are applied. Check the '
-          'arrival date — overnight flights land the next day.');
+          context.l10n.flightArrivalBeforeDeparture);
       return;
     }
     if (resolved.duration >= const Duration(hours: 24)) {
       setState(() => _errorText =
-          'That works out to ${formatFlightDuration(resolved.duration)} in the '
-          'air. Check the arrival date.');
+          context.l10n
+              .flightDurationTooLong(formatFlightDuration(resolved.duration)));
       return;
     }
 
@@ -193,7 +193,7 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit flight' : 'Add flight'),
+        title: Text(_isEditing ? context.l10n.flightEdit : context.l10n.flightAdd),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -204,30 +204,30 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _AirportField(
-                    label: 'From',
+                    label: context.l10n.flightFrom,
                     airport: _origin,
                     icon: Icons.flight_takeoff,
                     onTap: () => _pickAirport(isOrigin: true),
                   ),
                   const SizedBox(height: 12),
                   _AirportField(
-                    label: 'To',
+                    label: context.l10n.flightTo,
                     airport: _destination,
                     icon: Icons.flight_land,
                     onTap: () => _pickAirport(isOrigin: false),
                   ),
                   const SizedBox(height: 20),
                   _DateTimeField(
-                    label: 'Departs',
-                    hint: 'Local time at the departure airport',
+                    label: context.l10n.flightDeparts,
+                    hint: context.l10n.flightDepartsHint,
                     value: _departureLocal,
                     airport: _origin,
                     onTap: () => _pickDateTime(isDeparture: true),
                   ),
                   const SizedBox(height: 12),
                   _DateTimeField(
-                    label: 'Arrives',
-                    hint: 'Local time at the arrival airport',
+                    label: context.l10n.flightArrives,
+                    hint: context.l10n.flightArrivesHint,
                     value: _arrivalLocal,
                     airport: _destination,
                     onTap: () => _pickDateTime(isDeparture: false),
@@ -236,8 +236,8 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
                   TextField(
                     controller: _flightNumberController,
                     textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      labelText: 'Flight number (optional)',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.flightNumberLabel,
                       hintText: 'e.g. TK 80',
                       border: OutlineInputBorder(),
                     ),
@@ -250,12 +250,11 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
                   FilledButton.icon(
                     onPressed: _isSaving ? null : _save,
                     icon: const Icon(Icons.check),
-                    label: Text(_isEditing ? 'Save changes' : 'Save flight'),
+                    label: Text(_isEditing ? context.l10n.flightSaveChanges : context.l10n.flightSave),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Enter the times exactly as they appear on your ticket — '
-                    'each one in the local time of its own airport.',
+                    context.l10n.flightTicketNote,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -294,7 +293,7 @@ class _AirportField extends StatelessWidget {
         ),
         child: airport == null
             ? Text(
-                'Choose an airport',
+                context.l10n.flightChooseAirport,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -352,7 +351,7 @@ class _DateTimeField extends StatelessWidget {
           border: const OutlineInputBorder(),
         ),
         child: Text(
-          value == null ? 'Choose date and time' : formatWallClock(value!),
+          value == null ? context.l10n.flightChooseDateTime : formatWallClock(value!),
           style: value == null
               ? theme.textTheme.bodyMedium
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant)

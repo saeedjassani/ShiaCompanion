@@ -1,3 +1,5 @@
+import '../l10n/l10n.dart';
+
 enum QazaEntryType {
   fajr,
   dhuhr,
@@ -22,14 +24,14 @@ extension QazaEntryTypeInfo on QazaEntryType {
       };
 
   String get label => switch (this) {
-        QazaEntryType.fajr => 'Fajr',
-        QazaEntryType.dhuhr => 'Dhuhr',
-        QazaEntryType.asr => 'Asr',
-        QazaEntryType.maghrib => 'Maghrib',
-        QazaEntryType.isha => 'Isha',
-        QazaEntryType.ayat => 'Namaz e Ayat',
-        QazaEntryType.other => 'Other',
-        QazaEntryType.fast => 'Fasts',
+        QazaEntryType.fajr => L10n.current.prayerFajr,
+        QazaEntryType.dhuhr => L10n.current.qazaDhuhr,
+        QazaEntryType.asr => L10n.current.prayerAsr,
+        QazaEntryType.maghrib => L10n.current.prayerMaghrib,
+        QazaEntryType.isha => L10n.current.prayerIsha,
+        QazaEntryType.ayat => L10n.current.qazaAyat,
+        QazaEntryType.other => L10n.current.qazaOther,
+        QazaEntryType.fast => L10n.current.qazaFasts,
       };
 
   bool get isPrayer => this != QazaEntryType.fast;

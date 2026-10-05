@@ -49,6 +49,7 @@ import 'zikr_content_viewer.dart';
 import 'zikr_reading_stats.dart';
 import 'zikr_share_image.dart';
 import '../../services/zikr_translations.dart';
+import '../../l10n/l10n.dart';
 
 /// How far the text has to actually travel in one direction before the
 /// reading chrome reacts.
@@ -633,8 +634,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final String? previousLabel;
     final String? nextLabel;
     if (juz != null) {
-      previousLabel = juz > 1 ? 'Juz ${juz - 1}' : null;
-      nextLabel = juz < allJuz().length ? 'Juz ${juz + 1}' : null;
+      previousLabel = juz > 1 ? context.l10n.quranJuzNumber(juz - 1) : null;
+      nextLabel =
+          juz < allJuz().length ? context.l10n.quranJuzNumber(juz + 1) : null;
     } else {
       previousLabel = _surahSequenceLabel(surah! - 1);
       nextLabel = _surahSequenceLabel(surah + 1);
@@ -719,31 +721,31 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.copy),
-              title: const Text('Copy verse'),
+              title: Text(context.l10n.quranCopyVerse),
               onTap: () async {
                 Navigator.pop(sheetContext);
                 await Clipboard.setData(ClipboardData(text: text));
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Copied $verse')),
+                  SnackBar(content: Text(context.l10n.quranCopiedVerse('$verse'))),
                 );
               },
             ),
             ListTile(
               leading: const Icon(Icons.link),
-              title: const Text('Copy link'),
+              title: Text(context.l10n.quranCopyLink),
               onTap: () async {
                 Navigator.pop(sheetContext);
                 await Clipboard.setData(ClipboardData(text: link));
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Link copied')),
+                  SnackBar(content: Text(context.l10n.quranLinkCopied)),
                 );
               },
             ),
             ListTile(
               leading: const Icon(Icons.share),
-              title: const Text('Share verse'),
+              title: Text(context.l10n.quranShareVerse),
               onTap: () {
                 Navigator.pop(sheetContext);
                 unawaited(
@@ -757,7 +759,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               leading: Icon(
                 isSaved ? Icons.bookmark : Icons.bookmark_outline,
               ),
-              title: Text(isSaved ? 'Remove from saved' : 'Save verse'),
+              title: Text(isSaved
+                  ? context.l10n.quranRemoveFromSaved
+                  : context.l10n.quranSaveVerse),
               onTap: () {
                 Navigator.pop(sheetContext);
                 unawaited(_toggleSavedVerse(verse, text));
@@ -809,7 +813,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(wasSaved ? 'Removed $verse' : 'Saved $verse')),
+      SnackBar(
+          content: Text(wasSaved
+              ? context.l10n.quranRemovedVerse('$verse')
+              : context.l10n.quranSavedVerse('$verse'))),
     );
   }
 
@@ -1467,7 +1474,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 child: Row(
                   children: [
                     Text(
-                      'Merits',
+                      context.l10n.zikrMerits,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
@@ -1533,7 +1540,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           .join()
           .trim();
     }
-    return 'Part ${index + 1}';
+    return context.l10n.zikrPartNumber(index + 1);
   }
 
   /// Copy, for a surah in QuranWBW's script: its pause marks and medallions
@@ -1806,19 +1813,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (!await ZikrBookmarkStore.instance.claimMoveHint()) return;
     if (!mounted) return;
     final color = Theme.of(context).colorScheme.onInverseSurface;
+    // The drag-handle icon sits mid-sentence, wherever a translation puts it.
+    const iconMarker = '\u0000';
+    final hint = context.l10n.zikrBookmarkMoveHint(iconMarker).split(iconMarker);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text.rich(
           TextSpan(
             children: [
-              const TextSpan(text: 'Bookmarked. To move it later, drag the '),
+              TextSpan(text: hint.first),
               WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
                 child: Icon(Icons.drag_indicator, size: 18, color: color),
               ),
-              const TextSpan(
-                text: ' on the "Bookmarked" label to another line.',
-              ),
+              if (hint.length > 1) TextSpan(text: hint.sublist(1).join()),
             ],
           ),
         ),
@@ -1958,7 +1966,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   /// Asks for an optional note, then files a mistake report quoting whatever
-  /// the reader had selected when they tapped "Suggest a Correction" in the
+  /// the reader had selected when they tapped context.l10n.zikrSuggestCorrection in the
   /// selection toolbar - the same place Copy and Select All live, so
   /// flagging a typo needs nothing more than the press-and-hold a reader
   /// already reaches for to copy the text in the first place.
@@ -1984,8 +1992,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(submitted
-            ? "Thanks - we'll take a look."
-            : 'Could not send the report. Please try again.'),
+            ? context.l10n.zikrReportThanks
+            : context.l10n.zikrReportFailed),
       ),
     );
   }
@@ -2000,7 +2008,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Suggest a Correction'),
+        title: Text(context.l10n.zikrSuggestCorrection),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -2008,7 +2016,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             children: [
               if (selection.isNotEmpty) ...[
                 Text(
-                  'Selected text',
+                  context.l10n.zikrSelectedText,
                   style: Theme.of(dialogContext).textTheme.labelMedium,
                 ),
                 const SizedBox(height: 4),
@@ -2034,8 +2042,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 autofocus: true,
                 maxLength: 500,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'What should it say instead? (optional)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.zikrCorrectionHint,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -2045,12 +2053,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () =>
                 Navigator.of(dialogContext).pop(noteController.text.trim()),
-            child: const Text('Submit'),
+            child: Text(context.l10n.commonSubmit),
           ),
         ],
       ),
@@ -2146,7 +2154,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       if (!kIsWeb)
         IconButton(
           icon: const Icon(Icons.notifications_active_outlined),
-          tooltip: 'Set Reminder',
+          tooltip: context.l10n.zikrSetReminder,
           onPressed: () => unawaited(_openReminderForm()),
         ),
     ];
@@ -2202,7 +2210,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             else
               item,
           ContextMenuButtonItem(
-            label: 'Suggest a Correction',
+            label: context.l10n.zikrSuggestCorrection,
             onPressed: () {
               selectableRegionState.hideToolbar();
               unawaited(_reportZikrMistake());
@@ -2250,7 +2258,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                           padding: EdgeInsets.only(top: topChromeExtent),
                           child: Center(
                             child: _didFailToLoadZikrData
-                                ? const Text('Unable to open this dua.')
+                                ? Text(context.l10n.zikrUnableToOpen)
                                 : const CircularProgressIndicator(),
                           ),
                         )
@@ -2258,7 +2266,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                           ? Padding(
                               padding: EdgeInsets.only(top: topChromeExtent),
                               child:
-                                  const Center(child: Text('Coming soon...')),
+                                  Center(child: Text(context.l10n.zikrComingSoon)),
                             )
                           : ResponsiveContent(
                               maxWidth: readingContentWidth,
@@ -2379,7 +2387,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                                     VisualDensity.compact,
                                                 icon: const Icon(Icons.close,
                                                     size: 16),
-                                                tooltip: 'Hide counter',
+                                                tooltip: context.l10n.zikrHideCounter,
                                                 onPressed: () =>
                                                     _setCounterVisibility(
                                                         false),

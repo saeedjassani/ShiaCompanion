@@ -323,4 +323,1488 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAppleFailed => 'Apple Sign-In Failed';
+
+  @override
+  String audioRecordingNumber(int number) {
+    return 'Recording $number';
+  }
+
+  @override
+  String playlistAddedTo(String name) {
+    return 'Added to $name';
+  }
+
+  @override
+  String playlistAlreadyIn(String name) {
+    return 'Already in $name';
+  }
+
+  @override
+  String zikrCount(int count) {
+    return '$count zikr';
+  }
+
+  @override
+  String get playlistsEmpty =>
+      'Make a playlist of the zikr you listen to every day - Dua Ahad and Ziyarat Ashura each morning, say - and start them all with one tap.';
+
+  @override
+  String playlistDeleteConfirm(String name) {
+    return 'Delete \"$name\"?';
+  }
+
+  @override
+  String get playlistDeleteKeepsDuasAndAudio =>
+      'The duas themselves stay in the app, and so does their downloaded audio - remove it from Downloads to free space.';
+
+  @override
+  String get playlistEmpty =>
+      'Tap Add to choose zikr. You can also add one from the player on any dua with audio.';
+
+  @override
+  String audioRecordingsChosen(int chosen, int total) {
+    return '$chosen of $total recordings';
+  }
+
+  @override
+  String audioDownloadingPercent(int percent) {
+    return 'Downloading $percent%';
+  }
+
+  @override
+  String audioRecordingsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count recordings',
+      one: '1 recording',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String playlistNowPlayingPosition(String playlist, int position, int count) {
+    return '$playlist · $position of $count';
+  }
+
+  @override
+  String get playlistNameHint => 'e.g. Morning';
+
+  @override
+  String get playlistOfflinePartial =>
+      'You\'re offline - playing only the downloaded recordings';
+
+  @override
+  String get playlistNothingToPlay =>
+      'Nothing in this playlist has a recording to play';
+
+  @override
+  String get playlistOfflineNothingDownloaded =>
+      'You\'re offline and nothing in this playlist is downloaded yet';
+
+  @override
+  String get playlistStartFailed => 'Couldn\'t start the playlist. Try again.';
+
+  @override
+  String get playlistChooseRecordingsHint =>
+      'Choose the recordings to play in this playlist';
+
+  @override
+  String get commonDone => 'Done';
+
+  @override
+  String get playlistAddTo => 'Add to playlist';
+
+  @override
+  String get playlistNew => 'New playlist';
+
+  @override
+  String get commonCreate => 'Create';
+
+  @override
+  String get playlistsTitle => 'Playlists';
+
+  @override
+  String get playlistDownloads => 'Downloads';
+
+  @override
+  String get commonPause => 'Pause';
+
+  @override
+  String get commonPlay => 'Play';
+
+  @override
+  String get playlistRename => 'Rename playlist';
+
+  @override
+  String get commonSave => 'Save';
+
+  @override
+  String get playlistDeleteKeepsDuas => 'The duas themselves stay in the app.';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get playlistDeleted => 'This playlist has been deleted.';
+
+  @override
+  String get commonRename => 'Rename';
+
+  @override
+  String get playlistRemoveDownloads => 'Remove downloads';
+
+  @override
+  String get playlistAllDownloads => 'All downloads';
+
+  @override
+  String get commonAdd => 'Add';
+
+  @override
+  String get playlistResume => 'Resume';
+
+  @override
+  String get playlistPlayAll => 'Play all';
+
+  @override
+  String get audioDownloaded => 'Downloaded';
+
+  @override
+  String get audioDownloadFailed => 'Download didn\'t finish';
+
+  @override
+  String get playlistOpenText => 'Open text';
+
+  @override
+  String get playlistChooseRecordings => 'Choose recordings';
+
+  @override
+  String get audioStopDownloading => 'Stop downloading';
+
+  @override
+  String get audioRemoveDownload => 'Remove download';
+
+  @override
+  String get audioDownload => 'Download';
+
+  @override
+  String get playlistRemoveZikr => 'Remove from playlist';
+
+  @override
+  String get playlistAddZikr => 'Add zikr';
+
+  @override
+  String get commonSearch => 'Search';
+
+  @override
+  String get audioPartlyDownloaded => 'Partly downloaded';
+
+  @override
+  String get playlistRepeatOn => 'Repeat is on';
+
+  @override
+  String get playlistRepeat => 'Repeat playlist';
+
+  @override
+  String get commonPrevious => 'Previous';
+
+  @override
+  String get commonNext => 'Next';
+
+  @override
+  String get commonStop => 'Stop';
+
+  @override
+  String flightTimesShownAt(String origin, String destination) {
+    return 'Times shown at $origin and $destination local clocks';
+  }
+
+  @override
+  String flightDurationAndDistance(String duration, String distance) {
+    return '$duration in the air · $distance great-circle';
+  }
+
+  @override
+  String flightAirportTime(String airport) {
+    return '$airport time';
+  }
+
+  @override
+  String flightOverPosition(String position) {
+    return ' · over $position';
+  }
+
+  @override
+  String flightAfterTakeoff(String duration) {
+    return '$duration after take-off';
+  }
+
+  @override
+  String flightHorizonLater(int minutes) {
+    return '$minutes min later than the horizon of the ground below';
+  }
+
+  @override
+  String flightHorizonEarlier(int minutes) {
+    return '$minutes min earlier than the horizon of the ground below';
+  }
+
+  @override
+  String flightQiblaToRight(int degrees) {
+    return '$degrees° to your right';
+  }
+
+  @override
+  String flightQiblaToLeft(int degrees) {
+    return '$degrees° to your left';
+  }
+
+  @override
+  String flightQiblaLine(int bearing, String compass, String relative) {
+    return 'Qibla $bearing° ($compass) — $relative relative to the direction of flight';
+  }
+
+  @override
+  String flightAltitudeHorizonBody(String altitude, String dip) {
+    return 'At $altitude the horizon sits about $dip° lower than on the ground, so the sun takes longer to set and dawn comes sooner. That moves Maghrib and Isha about twenty minutes later, and Fajr about twenty minutes earlier, than the times for the ground beneath you — each row shows its own shift. Which horizon governs the prayer is a question for your marja, not one this app can settle.';
+  }
+
+  @override
+  String flightAltitudeFeet(String feet) {
+    return '$feet ft';
+  }
+
+  @override
+  String get flightTitleFallback => 'Flight';
+
+  @override
+  String get flightEdit => 'Edit flight';
+
+  @override
+  String get flightCheckTimes => 'Check the flight times';
+
+  @override
+  String get flightCheckTimesBody =>
+      'The arrival is not after the departure once each airport\'s time zone is applied. Tap edit to fix the dates.';
+
+  @override
+  String get flightInTheAir => 'In the air';
+
+  @override
+  String get flightNoPrayerDuring => 'No prayer comes in during this flight';
+
+  @override
+  String get flightNoPrayerDuringBody =>
+      'Every prayer time falls either before take-off or after landing.';
+
+  @override
+  String get flightNotDuring => 'Not during this flight';
+
+  @override
+  String get flightEndOfIshaWindow => 'End of the Isha window · ';
+
+  @override
+  String get flightStraightAhead => 'straight ahead';
+
+  @override
+  String get flightDirectlyBehind => 'directly behind you';
+
+  @override
+  String get flightIshaClosedBeforeTakeoff =>
+      'The Isha window had already closed before take-off.';
+
+  @override
+  String get flightAlreadyInBeforeTakeoff =>
+      'Already in before take-off — use the prayer times for your departure city.';
+
+  @override
+  String get flightIshaOpenUntilLanding =>
+      'The Isha window does not close until after landing.';
+
+  @override
+  String get flightAfterLanding =>
+      'Comes in after landing — use the prayer times for your destination.';
+
+  @override
+  String get flightSunAngleNeverReached =>
+      'The sun never reaches the required angle anywhere along this route, so no time can be calculated.';
+
+  @override
+  String get flightHowWorkedOut => 'How these are worked out';
+
+  @override
+  String get flightHowWorkedOutBody =>
+      'The aircraft is assumed to follow the great-circle route at a steady speed, and each prayer time is solved for the position the aircraft is at when that time arrives. A delay of an hour moves these times by roughly half an hour, and routing around weather can move them by ten to twenty minutes, so treat them as close rather than exact.';
+
+  @override
+  String get flightHorizonAtAltitude => 'Measured from the horizon at altitude';
+
+  @override
+  String get flightHorizonAtGround =>
+      'Measured from the horizon at ground level';
+
+  @override
+  String get flightGroundHorizonBody =>
+      'Times follow the horizon of the ground below the aircraft. From the cabin the sun sets later and dawn breaks earlier than shown, by around twenty minutes at cruise altitude.';
+
+  @override
+  String get flightHighLatitude => 'This route crosses high latitudes';
+
+  @override
+  String get flightHighLatitudeBody =>
+      'Above roughly 48°, the sun may not dip far enough below the horizon for dawn and nightfall to happen normally. Times for Fajr, Maghrib and Isha there fall back to a proportional estimate of the night. Rulings for prayer at high latitude differ — please follow your marja.';
+
+  @override
+  String get flightSomeNotCalculated =>
+      'Some prayer times could not be calculated';
+
+  @override
+  String get flightSomeNotCalculatedBody =>
+      'The sun stays above the required angle for the whole route, so those prayers have no calculated time. Please follow your marja\'s ruling for these conditions.';
+
+  @override
+  String get flightTimeZonesFailed => 'Time zones could not be loaded';
+
+  @override
+  String get flightTimeZonesFailedBody =>
+      'One of these airports has a time zone this build does not recognise. Tap edit to pick the airports again.';
+
+  @override
+  String get prayerFajr => 'Fajr';
+
+  @override
+  String get prayerSunrise => 'Sunrise';
+
+  @override
+  String get prayerZuhr => 'Zuhr';
+
+  @override
+  String get prayerAsr => 'Asr';
+
+  @override
+  String get prayerSunset => 'Sunset';
+
+  @override
+  String get prayerMaghrib => 'Maghrib';
+
+  @override
+  String get prayerIsha => 'Isha';
+
+  @override
+  String get prayerMidnight => 'Midnight';
+
+  @override
+  String locationErrorBody(String error) {
+    return 'An error occurred while getting your location: $error\n\nPlease check that location services are enabled and try again.';
+  }
+
+  @override
+  String notificationReopenAppBody(int days) {
+    return 'It seems you\'ve not used the application in last $days days. Please open the app to continue receive Azan notifications';
+  }
+
+  @override
+  String notificationPrayerTime(String prayer) {
+    return 'It\'s time for $prayer';
+  }
+
+  @override
+  String notificationTapToPlayCustom(String message) {
+    return '$message · Tap to play your audio';
+  }
+
+  @override
+  String notificationTapToPlayAzan(String message) {
+    return '$message · Tap to hear the full azan';
+  }
+
+  @override
+  String get locationEnableTitle => 'Enable Location for Prayer Times';
+
+  @override
+  String get locationEnableBody =>
+      'Prayer times are unique to your location. We use your location while you are using the app so we can provide accurate prayer times for your area.';
+
+  @override
+  String get commonContinue => 'Continue';
+
+  @override
+  String get locationServicesDisabledTitle => 'Location Services Disabled';
+
+  @override
+  String get locationServicesDisabledBody =>
+      'Location services are turned off. Please enable location services in your device settings to get accurate prayer times for your area.';
+
+  @override
+  String get locationPermissionDeniedForever =>
+      'Location permission was permanently denied. Please open app settings and grant location permission to get accurate prayer times.';
+
+  @override
+  String get locationPermissionUnknown =>
+      'Unable to determine location permission status. Please open app settings and ensure location permission is granted.';
+
+  @override
+  String get locationPermissionNeeded =>
+      'Location permission is required to show accurate prayer times for your area.';
+
+  @override
+  String get locationPermissionTitle => 'Location Permission Required';
+
+  @override
+  String get locationTimeoutTitle => 'Location Timeout';
+
+  @override
+  String get locationTimeoutBody =>
+      'Unable to get your location within the expected time. This may be due to poor GPS signal or network issues. Please try again.';
+
+  @override
+  String get locationErrorTitle => 'Location Error';
+
+  @override
+  String get notificationReopenAppTitle =>
+      'Open the app to continue getting Azan notifications';
+
+  @override
+  String get notificationChannelTakbir => 'Prayer Times - Takbir';
+
+  @override
+  String get notificationChannelSystemDefault =>
+      'Prayer Times - System Default';
+
+  @override
+  String get notificationChannelSilent => 'Prayer Times - Silent';
+
+  @override
+  String get notificationChannelCustom => 'Prayer Times - Custom Sound';
+
+  @override
+  String get notificationChannelFullAzan => 'Prayer Times - Full Azan';
+
+  @override
+  String get notificationChannelSilentDescription =>
+      'Silent prayer time notifications';
+
+  @override
+  String get notificationChannelDescription => 'Prayer time notifications';
+
+  @override
+  String get notificationChannelGeneral => 'General';
+
+  @override
+  String qiblaNeedsCalibratingBody(int degrees) {
+    return 'Readings are off by around $degrees°. Move the phone in a figure of eight a few times, away from anything metal or magnetic.';
+  }
+
+  @override
+  String qiblaBearingFromNorth(String place, String bearing) {
+    return '$place is $bearing of true north';
+  }
+
+  @override
+  String qiblaFacing(String place) {
+    return 'Facing $place';
+  }
+
+  @override
+  String qiblaTurnRight(int degrees) {
+    return 'Turn right $degrees°';
+  }
+
+  @override
+  String qiblaTurnLeft(int degrees) {
+    return 'Turn left $degrees°';
+  }
+
+  @override
+  String qiblaDeclinationEast(String degrees) {
+    return 'Magnetic north is $degrees° east of true north where you are, and the reading is corrected for it automatically.';
+  }
+
+  @override
+  String qiblaDeclinationWest(String degrees) {
+    return 'Magnetic north is $degrees° west of true north where you are, and the reading is corrected for it automatically.';
+  }
+
+  @override
+  String get qiblaDistanceHere => 'Here';
+
+  @override
+  String get qiblaTitle => 'Qibla Finder';
+
+  @override
+  String get qiblaAboutCompass => 'About this compass';
+
+  @override
+  String get qiblaLocationNeeded => 'Location needed';
+
+  @override
+  String get qiblaLocationNeededBody =>
+      'The direction depends on where you are. Share your location and the compass will point the moment a fix arrives.';
+
+  @override
+  String get qiblaUseMyLocation => 'Use my location';
+
+  @override
+  String get qiblaTurnOnCompass => 'Turn on the compass';
+
+  @override
+  String get qiblaTurnOnCompassBody =>
+      'This browser needs your permission before it will report which way the phone is facing.';
+
+  @override
+  String get qiblaAllowCompass => 'Allow compass';
+
+  @override
+  String get qiblaCompassBlocked => 'Compass blocked';
+
+  @override
+  String get qiblaCompassBlockedBody =>
+      'Motion and orientation access was declined, so the dial is held north-up. Allow it in your browser settings, or turn until north on the dial matches north around you.';
+
+  @override
+  String get qiblaNoCompass => 'No compass on this device';
+
+  @override
+  String get qiblaNoCompassBody =>
+      'The dial is held north-up instead. Face north, and the needle shows the direction from there.';
+
+  @override
+  String get qiblaNeedsCalibrating => 'Compass needs calibrating';
+
+  @override
+  String get qiblaLocationUnknown => 'Location unknown';
+
+  @override
+  String get qiblaUpdateLocation => 'Update location';
+
+  @override
+  String get qiblaPointingTowards => 'Pointing towards';
+
+  @override
+  String get qiblaWaitingForLocation => 'Waiting for your location';
+
+  @override
+  String get qiblaPointTowards => 'Point towards';
+
+  @override
+  String get qiblaGreatCircleBody =>
+      'The needle points along the great-circle path — the shortest way over the surface of the earth, which is the direction the qibla is defined by. On a flat map it can look surprising; from North America the Kaaba is roughly north-east, not south-east.';
+
+  @override
+  String get qiblaDeclinationUnknownBody =>
+      'Your phone measures the angle to magnetic north, which differs from true north by an amount that depends on where you are. That correction is applied automatically once your location is known.';
+
+  @override
+  String get qiblaSteadyReadingBody =>
+      'For a steady reading, hold the phone flat and keep it away from laptops, speakers, car dashboards and anything else with a magnet in it.';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String get weekdayShortMon => 'Mon';
+
+  @override
+  String get weekdayShortTue => 'Tue';
+
+  @override
+  String get weekdayShortWed => 'Wed';
+
+  @override
+  String get weekdayShortThu => 'Thu';
+
+  @override
+  String get weekdayShortFri => 'Fri';
+
+  @override
+  String get weekdayShortSat => 'Sat';
+
+  @override
+  String get weekdayShortSun => 'Sun';
+
+  @override
+  String reminderMinutesRange(int max) {
+    return 'Enter a number of minutes between 0 and $max.';
+  }
+
+  @override
+  String get reminderTitleRequired => 'Please enter a title for this reminder.';
+
+  @override
+  String get reminderPickDay => 'Pick at least one day.';
+
+  @override
+  String get reminderSavedPendingLocation =>
+      'Saved. It\'ll start firing once your prayer-time location is available.';
+
+  @override
+  String get reminderEditTitle => 'Edit Reminder';
+
+  @override
+  String get reminderNewTitle => 'New Reminder';
+
+  @override
+  String get reminderWhat => 'What';
+
+  @override
+  String get reminderWhatHint =>
+      'Pick a zikr from the library, or just type a title below.';
+
+  @override
+  String get reminderChooseZikr => 'Choose from the zikr library';
+
+  @override
+  String get reminderChangeZikr => 'Change zikr';
+
+  @override
+  String get reminderTitleLabel => 'Title';
+
+  @override
+  String get reminderTitleHint => 'e.g. Dua Tawassul';
+
+  @override
+  String get reminderRepeatOn => 'Repeat on';
+
+  @override
+  String get reminderWhen => 'When';
+
+  @override
+  String get reminderFixedTime => 'Fixed time';
+
+  @override
+  String get reminderPrayerRelative => 'Prayer-relative';
+
+  @override
+  String get commonSaveChanges => 'Save Changes';
+
+  @override
+  String get reminderAdd => 'Add Reminder';
+
+  @override
+  String get reminderTime => 'Time';
+
+  @override
+  String get reminderPrayer => 'Prayer';
+
+  @override
+  String get reminderMinutes => 'Minutes';
+
+  @override
+  String get reminderBefore => 'Before';
+
+  @override
+  String get reminderAfter => 'After';
+
+  @override
+  String get reminderPrayerRelativeNote =>
+      'Prayer times shift with the calendar, so this schedules the next few weeks\' occurrences and refreshes them each time you open the app.';
+
+  @override
+  String qazaCompletedCount(int count) {
+    return '$count completed';
+  }
+
+  @override
+  String get qazaPrayed => 'Prayed';
+
+  @override
+  String get qazaFasted => 'Fasted';
+
+  @override
+  String qazaEstimatePrayers(String days, String prayers) {
+    return '$days of each daily prayer ($prayers prayers)';
+  }
+
+  @override
+  String qazaEstimateFasts(int count, Object formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted fasts',
+      one: '$formatted fast',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String qazaLunarNote(int yearDays, int monthDays) {
+    return 'Counted as lunar years of $yearDays days and months of $monthDays days.';
+  }
+
+  @override
+  String get qazaTitle => 'Qaza Tracker';
+
+  @override
+  String get qazaCalculate => 'Calculate my qaza';
+
+  @override
+  String get qazaPrayers => 'Prayers';
+
+  @override
+  String get qazaFasts => 'Fasts';
+
+  @override
+  String get qazaRemaining => 'Qaza remaining';
+
+  @override
+  String get commonUndo => 'Undo';
+
+  @override
+  String get qazaMissed => 'Missed';
+
+  @override
+  String get qazaEditCount => 'Edit count';
+
+  @override
+  String get qazaMissedAWhile => 'Missed prayers for a while?';
+
+  @override
+  String get qazaMissedAWhileBody =>
+      'Enter how long, and we will add one of each daily prayer for every day missed.';
+
+  @override
+  String get qazaPrayedFullDay => 'Prayed a full day';
+
+  @override
+  String get qazaLoggedFullDay => 'Logged one of each daily prayer';
+
+  @override
+  String get qazaAddedToList => 'Added to your qaza list';
+
+  @override
+  String get qazaRemainingLabel => 'Remaining';
+
+  @override
+  String get qazaCompletedLabel => 'Completed';
+
+  @override
+  String get commonClear => 'Clear';
+
+  @override
+  String get qazaCalculateBody =>
+      'Roughly how long did you not pray? A best estimate is fine - you can adjust any prayer later.';
+
+  @override
+  String get qazaPrayersMissedFor => 'Prayers missed for';
+
+  @override
+  String get qazaYears => 'Years';
+
+  @override
+  String get qazaMonths => 'Months';
+
+  @override
+  String get qazaDays => 'Days';
+
+  @override
+  String get qazaFastsMissed => 'Fasts missed';
+
+  @override
+  String get qazaNumberOfFasts => 'Number of fasts';
+
+  @override
+  String get qazaThisAdds => 'This adds to your list:';
+
+  @override
+  String get qazaAddToList => 'Add to my list';
+
+  @override
+  String get qazaDhuhr => 'Dhuhr';
+
+  @override
+  String get qazaAyat => 'Namaz e Ayat';
+
+  @override
+  String get qazaOther => 'Other';
+
+  @override
+  String audioMobileDataSizedBody(String size) {
+    return 'You\'re not on Wi-Fi. This will use about $size of mobile data.';
+  }
+
+  @override
+  String get audioRemoveDownloadsTitle => 'Remove downloads?';
+
+  @override
+  String get audioRemoveDownloadTitle => 'Remove download?';
+
+  @override
+  String audioRemoveBody(String subject) {
+    return '$subject will stream again, so you\'ll need a connection to listen.';
+  }
+
+  @override
+  String get audioTheseRecitations => 'These recitations';
+
+  @override
+  String get audioThisRecitation => 'This recitation';
+
+  @override
+  String audioQuotedName(String name) {
+    return '\"$name\"';
+  }
+
+  @override
+  String audioRemoveFrees(String size) {
+    return 'Frees $size.';
+  }
+
+  @override
+  String get audioDownloadDone => 'Downloaded - plays without a connection';
+
+  @override
+  String audioDownloadDoneNamed(String name) {
+    return '$name downloaded - plays without a connection';
+  }
+
+  @override
+  String get audioTheseRecitationsLower => 'these recitations';
+
+  @override
+  String get audioThisRecitationLower => 'this recitation';
+
+  @override
+  String audioDownloadPartial(int saved, int total) {
+    return 'Downloaded $saved of $total.';
+  }
+
+  @override
+  String audioDownloadFailedNamed(String what) {
+    return 'Couldn\'t download $what.';
+  }
+
+  @override
+  String get audioDownloadOutOfSpace =>
+      'Your device is out of space - free some up and try again.';
+
+  @override
+  String get audioDownloadUnavailable => 'A recitation is no longer available.';
+
+  @override
+  String get audioDownloadCheckConnection =>
+      'Check your connection and try again.';
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String commonPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String audioDownloadMore(int count) {
+    return 'Download $count more';
+  }
+
+  @override
+  String get audioDownloadAll => 'Download all';
+
+  @override
+  String get audioDownloadForOffline => 'Download for offline listening';
+
+  @override
+  String get audioOfflineCannotDownload =>
+      'You\'re offline. Connect to the internet to download.';
+
+  @override
+  String get audioMobileDataTitle => 'Download using mobile data?';
+
+  @override
+  String get audioMobileDataBody =>
+      'You\'re not on Wi-Fi. Recitations can be large, so this may use a lot of mobile data.';
+
+  @override
+  String get commonRemove => 'Remove';
+
+  @override
+  String get audioDownloading => 'Downloading';
+
+  @override
+  String get audioDownloadingEllipsis => 'Downloading…';
+
+  @override
+  String get audioDownloadedTooltip =>
+      'Downloaded for offline listening. Tap to remove.';
+
+  @override
+  String get audioRetryDownload => 'Retry download';
+
+  @override
+  String get audioDownloadFailedTooltip =>
+      'Download didn\'t finish. Tap to retry.';
+
+  @override
+  String get audioDownloadRestTooltip =>
+      'Download the rest for offline listening';
+
+  @override
+  String get counterSemanticsLabel => 'Current rakaat and sajdah';
+
+  @override
+  String counterRakaatCompleted(int count) {
+    return '$count rakaat completed';
+  }
+
+  @override
+  String counterPosition(int rakaat, int sajdah) {
+    return 'Rakaat $rakaat  ·  Sajdah $sajdah';
+  }
+
+  @override
+  String counterSajdahProgress(int done, int total) {
+    return '$done of $total sajdahs';
+  }
+
+  @override
+  String get counterSensorStopped =>
+      'The proximity sensor stopped responding. Check the phone position and turn automatic sensing on again.';
+
+  @override
+  String get counterStartOverTitle => 'Start over?';
+
+  @override
+  String get counterStartOverBody =>
+      'Changing the number of rakaat will reset the current prayer count.';
+
+  @override
+  String get counterStartOver => 'Start over';
+
+  @override
+  String get counterTitle => 'Rakaat Counter';
+
+  @override
+  String get counterHowToPlace => 'How to place your phone';
+
+  @override
+  String get counterPlaceBelowTurbah => 'Place phone below the turbah';
+
+  @override
+  String get counterPlaceBelowTurbahBody =>
+      'Lay it flat below the turbah, with the top edge pointing toward it. Keep your forehead’s path clear.';
+
+  @override
+  String get counterPrayerLength => 'Prayer length';
+
+  @override
+  String get counterSelectRakaat => 'Select the number of rakaat';
+
+  @override
+  String get counterComplete => 'Complete';
+
+  @override
+  String get counterSajdahDetected => 'Sajdah detected';
+
+  @override
+  String get counterSensorReady => 'Sensor ready';
+
+  @override
+  String get counterCheckingSensor => 'Checking sensor';
+
+  @override
+  String get counterSensingOff => 'Automatic sensing off';
+
+  @override
+  String get counterTapHint =>
+      'Tap only if a sajdah was not detected automatically';
+
+  @override
+  String get counterReady => 'Ready for the first sajdah';
+
+  @override
+  String get counterAutomaticHint =>
+      'Automatic counting · tap only if one is missed';
+
+  @override
+  String get counterManualHint => 'Tap card to add a sajdah manually';
+
+  @override
+  String get counterCheckingDevice => 'Checking this device…';
+
+  @override
+  String get counterNotAvailable =>
+      'Automatic counting is not available on this device.';
+
+  @override
+  String get counterObjectDetected =>
+      'Object detected. Move away to arm the next count.';
+
+  @override
+  String get counterSensorArmed => 'Ready — each detected sajdah counts once.';
+
+  @override
+  String get counterSensorOffSubtitle =>
+      'Off — turn this on to count sajdahs automatically.';
+
+  @override
+  String get counterAutomaticSensing => 'Automatic sensing';
+
+  @override
+  String get counterIphoneNote =>
+      'On iPhone, the display may turn off briefly while the sensor is covered. Sensor position and range vary by model.';
+
+  @override
+  String get counterAndroidNote =>
+      'Sensor position and range vary by phone. Some Android phones use a less reliable virtual proximity sensor.';
+
+  @override
+  String get counterPhonePlacement => 'Phone placement';
+
+  @override
+  String get counterPlacementBody =>
+      'Place the phone flat below the turbah, with its top edge and sensor pointing toward it. Keep the phone completely out of the path of your forehead.';
+
+  @override
+  String get counterPlacementTest =>
+      'Before beginning, enable the sensor and test it with your hand. Move your hand away after each test so the next count can arm.';
+
+  @override
+  String quranJuzNumber(int number) {
+    return 'Juz $number';
+  }
+
+  @override
+  String quranCopiedVerse(String verse) {
+    return 'Copied $verse';
+  }
+
+  @override
+  String get quranRemoveFromSaved => 'Remove from saved';
+
+  @override
+  String get quranSaveVerse => 'Save verse';
+
+  @override
+  String quranRemovedVerse(String verse) {
+    return 'Removed $verse';
+  }
+
+  @override
+  String quranSavedVerse(String verse) {
+    return 'Saved $verse';
+  }
+
+  @override
+  String zikrPartNumber(int number) {
+    return 'Part $number';
+  }
+
+  @override
+  String zikrBookmarkMoveHint(String icon) {
+    return 'Bookmarked. To move it later, drag the $icon on the \"Bookmarked\" label to another line.';
+  }
+
+  @override
+  String get quranCopyVerse => 'Copy verse';
+
+  @override
+  String get quranCopyLink => 'Copy link';
+
+  @override
+  String get quranLinkCopied => 'Link copied';
+
+  @override
+  String get quranShareVerse => 'Share verse';
+
+  @override
+  String get zikrMerits => 'Merits';
+
+  @override
+  String get zikrReportThanks => 'Thanks - we\'ll take a look.';
+
+  @override
+  String get zikrReportFailed => 'Could not send the report. Please try again.';
+
+  @override
+  String get zikrSuggestCorrection => 'Suggest a Correction';
+
+  @override
+  String get zikrSelectedText => 'Selected text';
+
+  @override
+  String get zikrCorrectionHint => 'What should it say instead? (optional)';
+
+  @override
+  String get commonSubmit => 'Submit';
+
+  @override
+  String get zikrSetReminder => 'Set Reminder';
+
+  @override
+  String get zikrUnableToOpen => 'Unable to open this dua.';
+
+  @override
+  String get zikrComingSoon => 'Coming soon...';
+
+  @override
+  String get zikrHideCounter => 'Hide counter';
+
+  @override
+  String deleteAccountSignInFailed(String error) {
+    return 'Sign in failed: $error';
+  }
+
+  @override
+  String deleteAccountSignOutFailed(String error) {
+    return 'Sign out failed: $error';
+  }
+
+  @override
+  String deleteAccountFailed(String error) {
+    return 'Error deleting account: $error';
+  }
+
+  @override
+  String deleteAccountSignedInAs(String account) {
+    return 'You are signed in as $account.';
+  }
+
+  @override
+  String get deleteAccountSignedIn => 'Signed in successfully.';
+
+  @override
+  String get deleteAccountSignedOut => 'Signed out.';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Delete account?';
+
+  @override
+  String get deleteAccountConfirmBody =>
+      'This permanently deletes your Shia Companion account and synced favorites.';
+
+  @override
+  String get deleteAccountDone => 'Account deleted successfully.';
+
+  @override
+  String get deleteAccountTitle => 'Delete Account';
+
+  @override
+  String get deleteAccountHeading => 'Manage your Shia Companion account';
+
+  @override
+  String get deleteAccountSignInPrompt =>
+      'Sign in to review and permanently delete the account tied to your synced favorites.';
+
+  @override
+  String get deleteAccountWhatGetsDeleted => 'What gets deleted';
+
+  @override
+  String get deleteAccountItemSignIn =>
+      'Your Shia Companion account sign-in record.';
+
+  @override
+  String get deleteAccountItemFavorites =>
+      'Your synced favorites and qaza tracker stored for that account.';
+
+  @override
+  String get deleteAccountItemPreferences =>
+      'Your synced reading preferences — Hijri date adjustment and font choices.';
+
+  @override
+  String get deleteAccountItemAnalytics =>
+      'Anonymous analytics or crash reports already collected may remain in aggregate form.';
+
+  @override
+  String get deleteAccountCompleted =>
+      'Your account deletion request has completed.';
+
+  @override
+  String get deleteAccountCompletedNote =>
+      'If you sign in again later, a brand new account will be created.';
+
+  @override
+  String get deleteAccountWebSteps =>
+      'Use the Google sign-in button below, then confirm deletion.';
+
+  @override
+  String get deleteAccountAppSteps =>
+      'Open Preferences in the app and use Delete My Account.';
+
+  @override
+  String get deleteAccountSigningIn => 'Signing in...';
+
+  @override
+  String get deleteAccountDeleting => 'Deleting...';
+
+  @override
+  String get deleteAccountButton => 'Delete my account';
+
+  @override
+  String get deleteAccountSignOut => 'Sign out';
+
+  @override
+  String get deleteAccountHelp =>
+      'Need help? Email developer110@hotmail.com and include the email address tied to your account.';
+
+  @override
+  String statsBestStreak(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Best: $days days',
+      one: 'Best: 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statsTodayDone => 'Today: done';
+
+  @override
+  String get statsTodayNotYet => 'Today: not yet';
+
+  @override
+  String statsDaysToGoal(int remaining, Object goal) {
+    String _temp0 = intl.Intl.pluralLogic(
+      remaining,
+      locale: localeName,
+      other: '$remaining more days to a $goal-day streak',
+      one: '1 more day to a $goal-day streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsUpdatedHoursAgo(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: 'Updated $hours hours ago',
+      one: 'Updated 1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsUpdatedOn(String date) {
+    return 'Updated $date';
+  }
+
+  @override
+  String statsAllTime(String count) {
+    return '$count all time';
+  }
+
+  @override
+  String statsCommunityNote(String updated) {
+    return 'Anonymous totals from everyone using the app. $updated.';
+  }
+
+  @override
+  String get statsTitle => 'My Stats';
+
+  @override
+  String get statsYourMostRecited => 'Your most recited';
+
+  @override
+  String get statsStreakStart =>
+      'Finish reading a dua, ziyarat or surah and your streak begins.';
+
+  @override
+  String get statsWelcomeBack => 'Welcome back - every day is a fresh start.';
+
+  @override
+  String get statsDoneTodayFirst =>
+      'Done for today. Come back tomorrow to start a streak.';
+
+  @override
+  String get statsDoneToday =>
+      'Done for today - see you tomorrow, in sha Allah.';
+
+  @override
+  String get statsReadToday => 'Read something today to keep it going.';
+
+  @override
+  String get statsDayStreak => 'day streak';
+
+  @override
+  String get statsToday => 'Today';
+
+  @override
+  String get statsPrivateSynced =>
+      'Your stats are private and sync across devices signed in to your account.';
+
+  @override
+  String get statsPrivateLocal =>
+      'Your stats are private and kept on this device. Sign in from Preferences to keep them across devices.';
+
+  @override
+  String get statsUpdatedWithinHour => 'Updated within the hour';
+
+  @override
+  String get statsAcrossCommunity => 'Across the community';
+
+  @override
+  String get statsRecitedThisWeek =>
+      'duas, ziyarats and surahs recited this week';
+
+  @override
+  String get statsMostRecitedThisWeek => 'Most recited this week';
+
+  @override
+  String quranSurahNumber(int number) {
+    return 'Surah $number';
+  }
+
+  @override
+  String get listenQuranTextFailed =>
+      'Could not read the Quran text on this device.';
+
+  @override
+  String get listenRecogniserStopped =>
+      'The recogniser stopped unexpectedly. Try again.';
+
+  @override
+  String get listenNothingRecognised =>
+      'Nothing recognisable came through. Try again, a little closer to the reciter.';
+
+  @override
+  String get listenCouldNotPlace =>
+      'Could not place that in the Quran. Try reciting a little more.';
+
+  @override
+  String get listenMicPermissionWeb =>
+      'Listening needs microphone access. You can grant it in this site\'s permissions in your browser.';
+
+  @override
+  String get listenMicPermission =>
+      'Listening needs microphone access. You can grant it in your device settings.';
+
+  @override
+  String get listenBrowserUnsupported =>
+      'This browser cannot recognise speech. Chrome, Edge and Safari can.';
+
+  @override
+  String get listenDeviceUnsupported =>
+      'This device has no speech recogniser available.';
+
+  @override
+  String get listenNoArabic =>
+      'This device has no Arabic speech recognition installed. Adding Arabic in your device\'s language settings enables it.';
+
+  @override
+  String get listenStartFailed => 'Could not start listening. Try again.';
+
+  @override
+  String get listenTitle => 'Listen and follow';
+
+  @override
+  String get listenGettingReady => 'Getting ready…';
+
+  @override
+  String get listenListening => 'Listening…';
+
+  @override
+  String get listenHoldPhone => 'Hold the phone towards the recitation.';
+
+  @override
+  String get listenFindNow => 'Find the verse now';
+
+  @override
+  String get listenFinding => 'Finding the verse…';
+
+  @override
+  String get listenWhichVerse => 'Which verse was it?';
+
+  @override
+  String get listenAgain => 'Listen again';
+
+  @override
+  String get commonTryAgain => 'Try again';
+
+  @override
+  String flightDepartureDateAt(String airport) {
+    return 'Departure date at $airport';
+  }
+
+  @override
+  String flightArrivalDateAt(String airport) {
+    return 'Arrival date at $airport';
+  }
+
+  @override
+  String flightDepartureTimeAt(String airport) {
+    return 'Departure time (local at $airport)';
+  }
+
+  @override
+  String flightArrivalTimeAt(String airport) {
+    return 'Arrival time (local at $airport)';
+  }
+
+  @override
+  String flightDurationTooLong(String duration) {
+    return 'That works out to $duration in the air. Check the arrival date.';
+  }
+
+  @override
+  String get flightFrom => 'From';
+
+  @override
+  String get flightTo => 'To';
+
+  @override
+  String get flightDeparts => 'Departs';
+
+  @override
+  String get flightArrives => 'Arrives';
+
+  @override
+  String get flightDepartureAirport => 'Departure airport';
+
+  @override
+  String get flightArrivalAirport => 'Arrival airport';
+
+  @override
+  String get flightChooseDepartureFirst =>
+      'Choose the departure airport first.';
+
+  @override
+  String get flightChooseArrivalFirst => 'Choose the arrival airport first.';
+
+  @override
+  String get flightChooseBothAirports => 'Choose both airports.';
+
+  @override
+  String get flightSetTimes => 'Set the departure and arrival times.';
+
+  @override
+  String get flightAirportsMustDiffer =>
+      'Departure and arrival airports must be different.';
+
+  @override
+  String get flightTimeZoneUnresolved =>
+      'Could not resolve the time zone for one of those airports.';
+
+  @override
+  String get flightArrivalBeforeDeparture =>
+      'Arrival is before departure once time zones are applied. Check the arrival date — overnight flights land the next day.';
+
+  @override
+  String get flightAdd => 'Add flight';
+
+  @override
+  String get flightDepartsHint => 'Local time at the departure airport';
+
+  @override
+  String get flightArrivesHint => 'Local time at the arrival airport';
+
+  @override
+  String get flightNumberLabel => 'Flight number (optional)';
+
+  @override
+  String get flightSaveChanges => 'Save changes';
+
+  @override
+  String get flightSave => 'Save flight';
+
+  @override
+  String get flightTicketNote =>
+      'Enter the times exactly as they appear on your ticket — each one in the local time of its own airport.';
+
+  @override
+  String get flightChooseAirport => 'Choose an airport';
+
+  @override
+  String get flightChooseDateTime => 'Choose date and time';
 }

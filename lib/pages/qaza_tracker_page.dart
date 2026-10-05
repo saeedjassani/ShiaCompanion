@@ -7,6 +7,7 @@ import '../constants.dart';
 import '../models/qaza_tracker_state.dart';
 import '../services/qaza_tracker_manager.dart';
 import '../widgets/responsive_content.dart';
+import '../l10n/l10n.dart';
 
 class QazaTrackerPage extends StatefulWidget {
   const QazaTrackerPage({super.key});
@@ -29,10 +30,10 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Qaza Tracker'),
+        title: Text(context.l10n.qazaTitle),
         actions: [
           IconButton(
-            tooltip: 'Calculate my qaza',
+            tooltip: context.l10n.qazaCalculate,
             icon: const Icon(Icons.edit_calendar_outlined),
             onPressed: () => unawaited(_showEstimateSheet()),
           ),
@@ -62,7 +63,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                 const SizedBox(height: 18),
                 _buildSection(
                   context,
-                  title: 'Prayers',
+                  title: context.l10n.qazaPrayers,
                   trailing: _buildFullDayButton(state),
                   types: QazaEntryType.values
                       .where((type) => type.isPrayer)
@@ -73,7 +74,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                 const SizedBox(height: 18),
                 _buildSection(
                   context,
-                  title: 'Fasts',
+                  title: context.l10n.qazaFasts,
                   types: const [QazaEntryType.fast],
                   manager: manager,
                   state: state,
@@ -119,7 +120,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Qaza remaining',
+                  context.l10n.qazaRemaining,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.w700,
@@ -127,7 +128,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '${state.totalCompleted} completed',
+                  context.l10n.qazaCompletedCount(state.totalCompleted),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color:
                         colorScheme.onPrimaryContainer.withValues(alpha: 0.76),
@@ -239,7 +240,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${count.completed} completed',
+                      context.l10n.qazaCompletedCount(count.completed),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -279,7 +280,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                     ? () => unawaited(manager.undoCompleted(type))
                     : null,
                 icon: const Icon(Icons.undo_rounded, size: 18),
-                label: const Text('Undo'),
+                label: Text(context.l10n.commonUndo),
               ),
               FilledButton.tonalIcon(
                 style: _compactButtonStyle,
@@ -287,16 +288,18 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                     ? () => unawaited(manager.markCompleted(type))
                     : null,
                 icon: const Icon(Icons.check_rounded, size: 18),
-                label: Text(type.isPrayer ? 'Prayed' : 'Fasted'),
+                label: Text(type.isPrayer
+                      ? context.l10n.qazaPrayed
+                      : context.l10n.qazaFasted),
               ),
               TextButton.icon(
                 style: _compactButtonStyle,
                 onPressed: () => unawaited(manager.addMissed(type)),
                 icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Missed'),
+                label: Text(context.l10n.qazaMissed),
               ),
               IconButton(
-                tooltip: 'Edit count',
+                tooltip: context.l10n.qazaEditCount,
                 onPressed: () => unawaited(_showEditDialog(type, count)),
                 icon: const Icon(Icons.edit_outlined),
               ),
@@ -331,7 +334,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Missed prayers for a while?',
+            context.l10n.qazaMissedAWhile,
             style: theme.textTheme.titleMedium?.copyWith(
               color: colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.w700,
@@ -339,8 +342,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Enter how long, and we will add one of each daily prayer '
-            'for every day missed.',
+            context.l10n.qazaMissedAWhileBody,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
             ),
@@ -349,7 +351,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
           FilledButton.icon(
             onPressed: () => unawaited(_showEstimateSheet()),
             icon: const Icon(Icons.edit_calendar_outlined),
-            label: const Text('Calculate my qaza'),
+            label: Text(context.l10n.qazaCalculate),
           ),
         ],
       ),
@@ -366,7 +368,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
       style: _compactButtonStyle,
       onPressed: canLogFullDay ? _logFullDay : null,
       icon: const Icon(Icons.done_all_rounded, size: 18),
-      label: const Text('Prayed a full day'),
+      label: Text(context.l10n.qazaPrayedFullDay),
     );
   }
 
@@ -380,10 +382,10 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
     messenger.showSnackBar(
       SnackBar(
         content: Text(
-          'Logged one of each daily prayer',
+          context.l10n.qazaLoggedFullDay,
         ),
         action: SnackBarAction(
-          label: 'Undo',
+          label: context.l10n.commonUndo,
           onPressed: () => manager.undoCompletedEach(marked),
         ),
       ),
@@ -405,7 +407,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
     });
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Added to your qaza list')),
+      SnackBar(content: Text(context.l10n.qazaAddedToList)),
     );
   }
 
@@ -433,8 +435,8 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                 autofocus: true,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  labelText: 'Remaining',
+                decoration: InputDecoration(
+                  labelText: context.l10n.qazaRemainingLabel,
                 ),
               ),
               const SizedBox(height: 12),
@@ -442,8 +444,8 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                 controller: completedController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  labelText: 'Completed',
+                decoration: InputDecoration(
+                  labelText: context.l10n.qazaCompletedLabel,
                 ),
               ),
             ],
@@ -454,11 +456,11 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                 context,
                 const _QazaEditResult(remaining: 0, completed: 0),
               ),
-              child: const Text('Clear'),
+              child: Text(context.l10n.commonClear),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.commonCancel),
             ),
             FilledButton(
               onPressed: () {
@@ -470,7 +472,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                   ),
                 );
               },
-              child: const Text('Save'),
+              child: Text(context.l10n.commonSave),
             ),
           ],
         ),
@@ -587,12 +589,12 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
 
     final summaryLines = [
       if (estimate.prayerDays > 0)
-        '${_formatCount(estimate.prayerDays)} of each daily prayer '
-            '(${_formatCount(estimate.prayerDays * qazaDailyPrayers.length)} '
-            'prayers)',
+        context.l10n.qazaEstimatePrayers(
+            _formatCount(estimate.prayerDays),
+            _formatCount(estimate.prayerDays * qazaDailyPrayers.length)),
       if (estimate.fasts > 0)
-        '${_formatCount(estimate.fasts)} '
-            '${estimate.fasts == 1 ? 'fast' : 'fasts'}',
+        context.l10n
+            .qazaEstimateFasts(estimate.fasts, _formatCount(estimate.fasts)),
     ];
 
     return Padding(
@@ -606,43 +608,42 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Calculate my qaza',
+                context.l10n.qazaCalculate,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'Roughly how long did you not pray? A best estimate is fine '
-                '- you can adjust any prayer later.',
+                context.l10n.qazaCalculateBody,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Prayers missed for', style: theme.textTheme.titleSmall),
+              Text(context.l10n.qazaPrayersMissedFor, style: theme.textTheme.titleSmall),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Expanded(child: _numberField(_yearsController, 'Years')),
+                  Expanded(child: _numberField(_yearsController, context.l10n.qazaYears)),
                   const SizedBox(width: 10),
-                  Expanded(child: _numberField(_monthsController, 'Months')),
+                  Expanded(child: _numberField(_monthsController, context.l10n.qazaMonths)),
                   const SizedBox(width: 10),
-                  Expanded(child: _numberField(_daysController, 'Days')),
+                  Expanded(child: _numberField(_daysController, context.l10n.qazaDays)),
                 ],
               ),
               const SizedBox(height: 6),
               Text(
-                'Counted as lunar years of $qazaDaysPerLunarYear days and '
-                'months of $qazaDaysPerMonth days.',
+                context.l10n.qazaLunarNote(
+                    qazaDaysPerLunarYear, qazaDaysPerMonth),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Fasts missed', style: theme.textTheme.titleSmall),
+              Text(context.l10n.qazaFastsMissed, style: theme.textTheme.titleSmall),
               const SizedBox(height: 10),
-              _numberField(_fastsController, 'Number of fasts'),
+              _numberField(_fastsController, context.l10n.qazaNumberOfFasts),
               const SizedBox(height: 20),
               AnimatedSize(
                 duration: const Duration(milliseconds: 150),
@@ -659,7 +660,7 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'This adds to your list:',
+                              context.l10n.qazaThisAdds,
                               style: theme.textTheme.labelLarge?.copyWith(
                                 color: colorScheme.onSecondaryContainer,
                               ),
@@ -681,7 +682,7 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
                 onPressed: estimate.isEmpty
                     ? null
                     : () => Navigator.pop(context, estimate),
-                child: const Text('Add to my list'),
+                child: Text(context.l10n.qazaAddToList),
               ),
             ],
           ),

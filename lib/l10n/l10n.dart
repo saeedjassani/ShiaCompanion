@@ -29,3 +29,36 @@ extension AppLocalizationsContext on BuildContext {
   /// keep seeing English rather than crashing.
   AppLocalizations get l10n => AppLocalizations.of(this) ?? L10n.current;
 }
+
+/// [name] - one of the English prayer names the prayer-time code uses as
+/// identifiers ("Fajr", "Zuhr", "Midnight"...) - as shown in the app
+/// language. Those names key preferences and notifications, so they stay
+/// English everywhere but on screen; anything unrecognised is returned as is.
+String localizedPrayerName(String name, [AppLocalizations? l10n]) {
+  final strings = l10n ?? L10n.current;
+  return switch (name) {
+    'Fajr' => strings.prayerFajr,
+    'Sunrise' => strings.prayerSunrise,
+    'Zuhr' => strings.prayerZuhr,
+    'Asr' => strings.prayerAsr,
+    'Sunset' => strings.prayerSunset,
+    'Maghrib' => strings.prayerMaghrib,
+    'Isha' => strings.prayerIsha,
+    'Midnight' => strings.prayerMidnight,
+    _ => name,
+  };
+}
+
+/// The short name of ISO weekday [weekday] (1 = Monday ... 7 = Sunday).
+String shortWeekdayName(int weekday, [AppLocalizations? l10n]) {
+  final strings = l10n ?? L10n.current;
+  return switch (weekday) {
+    DateTime.monday => strings.weekdayShortMon,
+    DateTime.tuesday => strings.weekdayShortTue,
+    DateTime.wednesday => strings.weekdayShortWed,
+    DateTime.thursday => strings.weekdayShortThu,
+    DateTime.friday => strings.weekdayShortFri,
+    DateTime.saturday => strings.weekdayShortSat,
+    _ => strings.weekdayShortSun,
+  };
+}

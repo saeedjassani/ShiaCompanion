@@ -16,6 +16,7 @@ import '../utils/geomagnetism.dart';
 import '../utils/shared_preferences.dart';
 import '../widgets/qibla_compass_dial.dart';
 import '../widgets/responsive_content.dart';
+import '../l10n/l10n.dart';
 
 /// A real compass, pointed at the Kaaba or at any of the shrines in
 /// [allHolySites].
@@ -97,7 +98,7 @@ class _QiblaFinderState extends State<QiblaFinder> {
   @override
   void initState() {
     super.initState();
-    unawaited(trackScreen('Qibla Finder'));
+    unawaited(trackScreen(context.l10n.qiblaTitle));
     _compass = widget.compassSource ?? const PlatformCompassSource();
     _target = holySiteById(
       SP.isInitialized ? SP.prefs.getString(_targetPreferenceKey) : null,
@@ -269,11 +270,11 @@ class _QiblaFinderState extends State<QiblaFinder> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Qibla Finder'),
+        title: Text(context.l10n.qiblaTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
-            tooltip: 'About this compass',
+            tooltip: context.l10n.qiblaAboutCompass,
             onPressed: () => showDialog<void>(
               context: context,
               builder: (context) => _AboutCompassDialog(
@@ -356,10 +357,9 @@ class _QiblaFinderState extends State<QiblaFinder> {
       notices.add(
         _NoticeCard(
           icon: Icons.location_off_outlined,
-          title: 'Location needed',
-          body: 'The direction depends on where you are. Share your location '
-              'and the compass will point the moment a fix arrives.',
-          action: _location.isRefreshing ? null : 'Use my location',
+          title: context.l10n.qiblaLocationNeeded,
+          body: context.l10n.qiblaLocationNeededBody,
+          action: _location.isRefreshing ? null : context.l10n.qiblaUseMyLocation,
           onAction: _refreshLocation,
         ),
       );
@@ -370,30 +370,26 @@ class _QiblaFinderState extends State<QiblaFinder> {
         notices.add(
           _NoticeCard(
             icon: Icons.explore_outlined,
-            title: 'Turn on the compass',
-            body: 'This browser needs your permission before it will report '
-                'which way the phone is facing.',
-            action: 'Allow compass',
+            title: context.l10n.qiblaTurnOnCompass,
+            body: context.l10n.qiblaTurnOnCompassBody,
+            action: context.l10n.qiblaAllowCompass,
             onAction: _grantPermission,
           ),
         );
       case _CompassStatus.permissionDenied:
         notices.add(
-          const _NoticeCard(
+          _NoticeCard(
             icon: Icons.explore_off_outlined,
-            title: 'Compass blocked',
-            body: 'Motion and orientation access was declined, so the dial is '
-                'held north-up. Allow it in your browser settings, or turn '
-                'until north on the dial matches north around you.',
+            title: context.l10n.qiblaCompassBlocked,
+            body: context.l10n.qiblaCompassBlockedBody,
           ),
         );
       case _CompassStatus.unavailable:
         notices.add(
-          const _NoticeCard(
+          _NoticeCard(
             icon: Icons.explore_off_outlined,
-            title: 'No compass on this device',
-            body: 'The dial is held north-up instead. Face north, and the '
-                'needle shows the direction from there.',
+            title: context.l10n.qiblaNoCompass,
+            body: context.l10n.qiblaNoCompassBody,
           ),
         );
       case _CompassStatus.waiting:
@@ -406,10 +402,8 @@ class _QiblaFinderState extends State<QiblaFinder> {
       notices.add(
         _NoticeCard(
           icon: Icons.refresh,
-          title: 'Compass needs calibrating',
-          body: 'Readings are off by around ${accuracy.round()}°. Move the '
-              'phone in a figure of eight a few times, away from anything '
-              'metal or magnetic.',
+          title: context.l10n.qiblaNeedsCalibrating,
+          body: context.l10n.qiblaNeedsCalibratingBody(accuracy.round()),
         ),
       );
     }
@@ -438,7 +432,7 @@ class _LocationStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final label = here == null
-        ? 'Location unknown'
+        ? context.l10n.qiblaLocationUnknown
         : [city, formatCoordinates(here!)]
             .whereType<String>()
             .where((part) => part.isNotEmpty)
@@ -472,7 +466,7 @@ class _LocationStrip extends StatelessWidget {
             visualDensity: VisualDensity.compact,
             iconSize: 18,
             icon: const Icon(Icons.my_location),
-            tooltip: 'Update location',
+            tooltip: context.l10n.qiblaUpdateLocation,
             onPressed: onRefresh,
           ),
       ],
@@ -516,7 +510,7 @@ class _TargetCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Pointing towards',
+                      context.l10n.qiblaPointingTowards,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                         letterSpacing: 0.6,
@@ -595,20 +589,23 @@ class _TurnInstruction extends StatelessWidget {
 
     if (bearing == null) {
       icon = Icons.location_searching;
-      message = 'Waiting for your location';
+      message = context.l10n.qiblaWaitingForLocation;
       color = theme.colorScheme.onSurfaceVariant;
     } else if (!isLive) {
       icon = Icons.north;
-      message = '${target.name} is ${formatBearing(bearing)} of true north';
+      message = context.l10n
+          .qiblaBearingFromNorth(target.name, formatBearing(bearing));
       color = theme.colorScheme.onSurfaceVariant;
     } else if (isAligned) {
       icon = Icons.check_circle;
-      message = 'Facing ${target.name}';
+      message = context.l10n.qiblaFacing(target.name);
       color = alignedAccentColor(theme.brightness == Brightness.dark);
     } else {
       final offset = relativeBearingDegrees(headingDegrees, bearing);
       icon = offset > 0 ? Icons.turn_right : Icons.turn_left;
-      message = 'Turn ${offset > 0 ? 'right' : 'left'} ${offset.abs().round()}°';
+      message = offset > 0
+          ? context.l10n.qiblaTurnRight(offset.abs().round())
+          : context.l10n.qiblaTurnLeft(offset.abs().round());
       color = theme.colorScheme.primary;
     }
 
@@ -815,7 +812,7 @@ class _HolySitePicker extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
               child: Text(
-                'Point towards',
+                context.l10n.qiblaPointTowards,
                 style: theme.textTheme.titleLarge
                     ?.copyWith(fontWeight: FontWeight.w700),
               ),
@@ -923,37 +920,30 @@ class _AboutCompassDialog extends StatelessWidget {
     final declination = this.declination;
 
     return AlertDialog(
-      title: const Text('About this compass'),
+      title: Text(context.l10n.qiblaAboutCompass),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'The needle points along the great-circle path — the shortest '
-              'way over the surface of the earth, which is the direction the '
-              'qibla is defined by. On a flat map it can look surprising; from '
-              'North America the Kaaba is roughly north-east, not south-east.',
+              context.l10n.qiblaGreatCircleBody,
               style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
             ),
             const SizedBox(height: 14),
             Text(
               declination == null
-                  ? 'Your phone measures the angle to magnetic north, which '
-                      'differs from true north by an amount that depends on '
-                      'where you are. That correction is applied automatically '
-                      'once your location is known.'
-                  : 'Magnetic north is ${declination.abs().toStringAsFixed(1)}° '
-                      '${declination >= 0 ? 'east' : 'west'} of true north '
-                      'where you are, and the reading is corrected for it '
-                      'automatically.',
+                  ? context.l10n.qiblaDeclinationUnknownBody
+                                  : declination >= 0
+                    ? context.l10n.qiblaDeclinationEast(
+                        declination.abs().toStringAsFixed(1))
+                    : context.l10n.qiblaDeclinationWest(
+                        declination.abs().toStringAsFixed(1)),
               style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
             ),
             const SizedBox(height: 14),
             Text(
-              'For a steady reading, hold the phone flat and keep it away from '
-              'laptops, speakers, car dashboards and anything else with a '
-              'magnet in it.',
+              context.l10n.qiblaSteadyReadingBody,
               style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
             ),
           ],
@@ -962,7 +952,7 @@ class _AboutCompassDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+          child: Text(context.l10n.commonClose),
         ),
       ],
     );
@@ -972,6 +962,6 @@ class _AboutCompassDialog extends StatelessWidget {
 /// `1,204 km` — whole kilometres, grouped, since nothing here is precise to
 /// better than the width of a city and a decimal would imply otherwise.
 String formatDistanceKm(double kilometres) {
-  if (kilometres < 1) return 'Here';
+  if (kilometres < 1) return L10n.current.qiblaDistanceHere;
   return '${NumberFormat.decimalPattern().format(kilometres.round())} km';
 }
