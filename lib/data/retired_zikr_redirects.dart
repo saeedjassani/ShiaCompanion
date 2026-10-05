@@ -234,6 +234,11 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// I27 ("Etiquettes of applying Kohl") is I24's "Applying Kohl" tab.
   'I27': RetiredZikrRedirect('I24', tabIndex: 4),
 
+  /// I95 ("Verse for Security against Thieves": recite 17:110-111 before
+  /// sleeping) is I24's "Fear of Thieves" tab. I62 quotes the same verses
+  /// for a different act (reciting them over the door lock), so it stays.
+  'I95': RetiredZikrRedirect('I24', tabIndex: 3),
+
   /// The weekday ziyarat of Lady Fatimah (Sunday) and Imam Husayn (Monday)
   /// were each stored twice, once under the general Ziyarat list (G17,
   /// G19) and once under the weekday (L4, M4). Both now live as the second

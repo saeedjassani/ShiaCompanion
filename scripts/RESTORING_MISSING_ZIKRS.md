@@ -11,23 +11,22 @@ memory note for the bug-report side of this.
 This doc is the restoration process for bringing an individual UID back with
 real, correctly-formatted content — not just a title.
 
-## Resume here (status as of 2026-10-04)
+## Resume here (status as of 2026-10-05)
 
 **Done:** every favorited missing uid (the eight passes below). Of the 209
 *unfavorited* missing uids listed in
 [unfavorited_missing_zikrs.json](unfavorited_missing_zikrs.json), 7 are
-old menu nodes (skip), 43 are retired as duplicates, 22 are restored
-(F16-F65, E131-E136, P1). **137 remain** (80 with Arabic, 57 prose-only),
-each still marked `has-arabic`/`prose-only` in that JSON. When a batch
-ships, set its uids' `kind` to `restored`/`retired` there and recount
-`counts`.
+old menu nodes (skip), 44 are retired as duplicates, 56 are restored
+(F16-F65, E131-E136, P1, and the `I40`-`I126` taweez/funeral batch).
+**102 remain** (57 with Arabic, 45 prose-only), each still marked
+`has-arabic`/`prose-only` in that JSON. When a batch ships, set its uids'
+`kind` to `restored`/`retired` there and recount `counts`.
 
 **Next batches, in the order agreed with the repo owner** (ziyarat last):
 
-1. **Taweez / medicine / funeral rites** - `I40`-`I126` (36 uids). Short,
-   uniform Mafatih/Baqiyat material. Check Step 1.5 duplicates first: `I27`
-   turned out to be `I24`'s tab, and the `I` series has several more
-   compilations (`I9`, `I14`, `I17`, `I24`).
+1. ~~**Taweez / medicine / funeral rites** - `I40`-`I126`~~ - done
+   2026-10-05 (34 restored, `I95` retired, `I79` left out; see "Taweez,
+   medicine and funeral rites" at the end).
 2. **Calendar pages** - Ramadan nights `AA24 AA36 AA41 AA42 AA44 AA45`
    (AA36-AA44 share a closing with the live AA33/AA35/AA37/AA38 - that is
    authentic, not a duplicate), `AC8`, Shawwal `AD1 AD5`, Safar `S2 S3 S4
@@ -61,10 +60,19 @@ ships, set its uids' `kind` to `restored`/`retired` there and recount
    duas.org `*.htm` and `mobile/*.html` pages are Word exports with mojibake
    and a private-use hamza glyph (`U+E832` = hamza+fatha, `U+E835` = +damma,
    `U+E834` = +sukun) - usable, but map those back. al-islam.org refuses
-   automated fetches.
+   automated fetches, and web.archive.org resets the connection. For
+   Mafatih/Baqiyat material duas.org lacks (amulets, funeral rites),
+   mafatih.net - the Urdu Mafatih, WordPress, full vocalized Arabic - is
+   reachable; its Baqiyat al-Salihat posts are listed under `?cat=146`
+   (the taweez chapter is `?p=3569`). It has no English, but its Urdu
+   gloss is a good check on meaning.
 4. Write `assets/zikr/<uid>` (`title`, `data`, optional `merits`/`tabs`) and
    the `assets/zikr.json` entry (title per CLAUDE.md conventions; slug from
-   the *old* title so old links keep working).
+   the *old* title so old links keep working). Then run
+   `python3 scripts/zikr_arabic/histdiff.py <uids>` and account for every
+   line it prints: it lists each Arabic word no longer spelled as in
+   history, which is how stray Qur'anic-style marks (`وَّ`, `مِّنْ`, `ۤ`)
+   and dropped words get caught.
 5. Arabic pipeline (`zikr-arabic` skill): `backup.js`, `normalize.py`,
    `join_wa.py`, then `batch.py plan` + `apply_patch.js` for ṣilah. After it:
    strip ṣilah marks from plural pronouns (`هٗمْ` -> `هُمْ`) and from a hā
@@ -74,7 +82,9 @@ ships, set its uids' `kind` to `restored`/`retired` there and recount
 6. Regenerate every transliteration line from the final Arabic with
    `scripts/zikr_arabic/translit.py`, then **read every line against the
    Arabic** - it is a drafting aid (`--check` scores it against hand-written
-   lines), and the read is what catches source typos.
+   lines), and the read is what catches source typos. Keep the hand fixes
+   in a list you re-apply after each regeneration, or the next run silently
+   undoes them (see the I40-I126 notes for the misreadings it still makes).
 7. Validate: each Arabic line followed by an ALL-CAPS line and an English
    line; no English line repeated across unrelated duas (placeholder smell);
    `python3 scripts/zikr_arabic/audit.py <uids>` clean on INV-2/INV-3;
@@ -98,6 +108,12 @@ ships, set its uids' `kind` to `restored`/`retired` there and recount
 - `day` tags for the new F/E entries were left off on purpose (master only
   tags a few of these series, e.g. F11, E144); adding them is an editorial
   call.
+- The `I40`-`I126` batch: the English of every recited line is new (its
+  history had none), apart from the Qur'anic verses, which follow the
+  Shakir rendering. Three readings differ between our history and the Urdu
+  Mafatih and were settled one way; see that section's notes.
+- `I79` (Imam al-Reza's amulet, Abu'l-Salt story) is still missing: the
+  amulet text itself is lost. Restore it if a source turns up.
 
 ## Step 0: regenerate the missing-UID list (if you don't already have it)
 
@@ -943,3 +959,69 @@ to be tagged `*-*-5`.)
   alif (`ٱلاَرْض` -> `الَارْض`); fix those to `الْاَرْض` - but only where the
   next consonant has a sukun, or it also "fixes" `وَالَاهُمْ` (it did, once,
   in E131; caught and reverted).
+
+### Taweez, medicine and funeral rites, I40-I126 (2026-10-05)
+
+34 restored, one retired, one left out:
+
+- **Restored**: the remaining disease amulets `I40` `I42` `I45`-`I50`
+  (deafness, toothache, colitis, warts, swellings, difficult childbirth,
+  bewitchment, fever), `I59` (harmel, epilepsy, jinn), the duas `I71`,
+  `I73`, `I84`, the Qur'an-merit pages `I89`-`I93`, the medicine and
+  aqiqah pages `I100`-`I103`, `I107`, `I113`, and the death and burial
+  rites `I114`-`I126` (Baqiyat al-Salihat's closing chapter, ending with
+  Shaykh Abbas al-Qummi's colophon in `I126`).
+- **Retired**: `I95` is `I24`'s "Fear of Thieves" tab (17:110-111 before
+  sleeping). `I62` quotes the same verses for a different act and stays.
+- **Not restored**: `I79` keeps only the story of Imam al-Reza and
+  al-Ma'mun; the amulet it introduces is gone from history, and neither
+  duas.org nor mafatih.net has it. Shipping the story alone would promise
+  a text it does not give (the "dangling promise" defect).
+
+What changed from history, and why:
+
+- **Cross-checked against mafatih.net** (the Urdu Mafatih) for the amulets
+  `I40`-`I59`. It recovered a clause history had dropped from `I50`'s
+  tenesmus dua (`اَللّٰهُمَّ اِنِّىْۤ اَعُوْذُ بِكَ اَنْ اَتَّكِلَ ...`), `I45`'s
+  Surah al-Tawhid, and in `I49` the first two verses of al-Fath and Surah
+  al-Nasr, plus what the amulet is for: a man bound by sorcery from his
+  wife. History's English had glossed it as "a man bewitched by a woman so
+  as to make him marry her". `I50`'s second sugar inscription follows the
+  source (`شَدَدْتُ`; history `نَدَدْتُ`).
+- **Left as history where the two disagree**: `I59` says to recite 3:83
+  "in the lowest voice" (Urdu: aloud), and harmel cures "seventy-two
+  maladies" (Urdu: seventy); `I50`'s leprosy cure starts with ghusl (Urdu:
+  wudu). `I101`'s "keep your mouths open" when sleeping looks backwards
+  but is right: the narration says closed mouths trap the wind that rots
+  the teeth.
+- **"So-and-so" gaps** (`۔۔۔ بْنِ ۔۔۔`) are now `فُلَانِ بْنِ فُلَانٍ`, in the
+  case the sentence needs, followed by a line saying whose name goes there
+  (father's or mother's, as the source says).
+- **Dropped**: ordinal prefixes ("Eleventh:", "Twenty-first:"), and in
+  `I73` the two sentences about a 27th dua that is not in history. Its
+  story, the advice of Imam al-Sadiq, and the 28th-30th duas stand alone.
+- **Links**: surahs to their `A<n>` uids, Dua Noor to `E33`, the memory
+  prayer to `F46`/`E81`, and `I40`/`I47` to `I46`, which carries 59:21-24
+  in full.
+- **Orthography** stays history's Indo-Pak spelling; only real errors were
+  fixed (`عَلِىٌّ` tanween, `الْمُسَمَّوْنَ`, waṣl alifs that had a vowel). The
+  word shay' is `شَيْء` (ي), the corpus majority, not history's `شَيْئ`.
+
+Tool notes:
+
+- `translit.py` read every `ى` as alif maqsura, but Indo-Pak text uses it
+  for a real yā' too (`فِىْ`, `عَلِىٍّ`, `وَهِىَ`). Fixed: `ى` is now a yā'
+  when it carries a mark or follows a kasra (`--check` unchanged, 255/274).
+  Still hand-fixed after generation: a root `و` read as the conjunction
+  (`وَجَّهْتُ`, `وَعَدَنَا`, `وَرَاۤءَ`) or a conjunction read as root (`وَجَلَّ`),
+  a ṣilah on a verb ending in a root hā or ḥā (`يَفْقَهُ`, `يُسَبِّحُ لَهٗ`),
+  `تَوَلَّوْا` -> `TAWALLAWAA`, `بِئْسَ`, `لَاَغْلِبَنَّ`, a qaṭ' alif after the
+  article (`الْمَطْلُوْبُ اَلْفَيْتَنِىْ`), `خَطَاٌ`, `مَلْجَاٍ`, `الْقِيٰمَةِ`,
+  `الصَّلَوٰةُ`, `تَعْيٰى`, `ثُمَّ اعْلَمْ`, `وَبِاللّٰهِ` after `بِسْمِ اللّٰهِ`.
+- `silah.py`/`batch.py plan` proposed one change for the whole batch,
+  `يَفْقَهُ` -> `يَفْقَهٗ`, which is wrong (root hā), so the patch was not
+  applied.
+- `audit.py` needs `pip install fonttools`. INV-1 lists fatha, alef and
+  superscript alef for every authored entry, old ones included; INV-2 and
+  INV-3 are the checks that matter, and both are clean.
+

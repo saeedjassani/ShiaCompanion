@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 43,
-  "restored": 22,
-  "toRestoreHasArabic": 80,
-  "toRestoreProseOnly": 57
+  "retired": 44,
+  "restored": 56,
+  "toRestoreHasArabic": 57,
+  "toRestoreProseOnly": 45
  },
  "uids": [
   {
@@ -907,217 +907,219 @@
   {
    "uid": "I40",
    "title": "Taweez against Deafness",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 367
   },
   {
    "uid": "I42",
    "title": "Taweez against Toothache",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 2798
   },
   {
    "uid": "I45",
    "title": "Taweez against Colitis",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1377
   },
   {
    "uid": "I46",
    "title": "Taweez against Warts",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1882
   },
   {
    "uid": "I47",
    "title": "Taweez against all Tumors",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 388
   },
   {
    "uid": "I48",
    "title": "Taweez against Dystocia",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1778
   },
   {
    "uid": "I49",
    "title": "Taweez against Bewitchery",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1204
   },
   {
    "uid": "I50",
    "title": "Taweez against Fever",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 8919
   },
   {
    "uid": "I59",
    "title": "Harmel",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1995
   },
   {
    "uid": "I71",
    "title": "The all inclusive Supplicatory Prayer یا من اظهر الجمیل",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1513
   },
   {
    "uid": "I73",
    "title": "Incident of Abd al Rahman bin Sayyabah and the will of Imam Sadiq (a)",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 9614
   },
   {
    "uid": "I79",
    "title": "Imam Al Rida's Taweez",
    "kind": "prose-only",
-   "itemsBytes": 1295
+   "itemsBytes": 1295,
+   "note": "History keeps only the Abu'l-Salt story; the amulet text itself is lost and no reachable source (mafatih.net, duas.org) carries it. Not restored: the story alone would promise a text it does not give."
   },
   {
    "uid": "I84",
    "title": "Imam Husayn's dua in prayers",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1036
   },
   {
    "uid": "I89",
    "title": "Unique charateristics of Surah Tawheed & 100 Ayahs from Quran",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 1821
   },
   {
    "uid": "I90",
    "title": "Unique charateristics of Surah Ikhlas & some other Small Surahs",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 1489
   },
   {
    "uid": "I91",
    "title": "Quranic Verses for safety from burning & drowning",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 515
   },
   {
    "uid": "I92",
    "title": "Quranic Verse for controlling the riding animal (mount)",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 312
   },
   {
    "uid": "I93",
    "title": "Quranic Verse from safety from wild beasts",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 440
   },
   {
    "uid": "I95",
    "title": "Verse for Security against Thieves",
-   "kind": "has-arabic",
-   "itemsBytes": 553
+   "kind": "retired",
+   "itemsBytes": 553,
+   "retiredTo": "I24 tabs[3]"
   },
   {
    "uid": "I100",
    "title": "Medicine for Dyspnoea (Difficulty in Breathing)",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 837
   },
   {
    "uid": "I101",
    "title": "Instruction of Isa Ibn Mariyam (a) for the ailment of Pale Face & Dark Eyes",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 977
   },
   {
    "uid": "I102",
    "title": "Aqiqah (Ritual sacrifice for the newborns)",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1232
   },
   {
    "uid": "I103",
    "title": "Manners of Aqiqah",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 8053
   },
   {
    "uid": "I107",
    "title": "Affection & Inclination towards Non Believers",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1122
   },
   {
    "uid": "I113",
    "title": "Things to be kept in mind for Good Memory",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 873
   },
   {
    "uid": "I114",
    "title": "Etiquettes and Supplications pertaining to Death",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 4565
   },
   {
    "uid": "I116",
    "title": "The Inscription that should be written and kept with the Dead",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 3393
   },
   {
    "uid": "I117",
    "title": "Brief Manners & Talqeen to be recited near Dead",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 877
   },
   {
    "uid": "I118",
    "title": "Preparing the Shroud (Kafan) of Dead",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 1340
   },
   {
    "uid": "I120",
    "title": "Shrouding the Dead Body",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 1597
   },
   {
    "uid": "I121",
    "title": "Carrying The Dead",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 3587
   },
   {
    "uid": "I122",
    "title": "Testimony from 40 Faithful Believers",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 797
   },
   {
    "uid": "I123",
    "title": "Manners of Carrying the Dead Person",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 488
   },
   {
    "uid": "I124",
    "title": "Burial",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 2789
   },
   {
    "uid": "I125",
    "title": "Laws concerning Burial",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 662
   },
   {
    "uid": "I126",
    "title": "Prompting The Dead",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 5283
   },
   {

@@ -56,6 +56,11 @@ def clusters(word):
             continue
         if 'ء' <= ch <= 'ۿ':
             out.append([ch, []])
+    # Indo-Pak text writes every final yā' as ى, so ى is only an alif maqsura
+    # when it is bare and does not follow a kasra: فِىْ, عَلِىٍّ, وَهِىَ are yā'.
+    for i, (ch, mk) in enumerate(out):
+        if ch == 'ى' and (set(mk) - {DAGGER} or (i and KASRA in out[i - 1][1])):
+            out[i][0] = 'ي'
     return out
 
 

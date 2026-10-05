@@ -2514,6 +2514,22 @@
     "title": "Aamal between Dawn & Sunrise",
     "slug": "aamal-between-dawn-sunrise"
   },
+  "I100": {
+    "title": "Medicine for Dyspnoea (Difficulty in Breathing)",
+    "slug": "medicine-for-dyspnoea-difficulty-in-breathing"
+  },
+  "I101": {
+    "title": "Instruction of Isa ibn Maryam (a.s.) for the Ailment of Pale Faces & Dark Eyes",
+    "slug": "instruction-of-isa-ibn-mariyam-a-for-the-ailment-of-pale-face-dark-eyes"
+  },
+  "I102": {
+    "title": "Aqiqah (Ritual Sacrifice for the Newborn)",
+    "slug": "aqiqah-ritual-sacrifice-for-the-newborns"
+  },
+  "I103": {
+    "title": "Manners of Aqiqah",
+    "slug": "manners-of-aqiqah"
+  },
   "I104": {
     "title": "Tafa'ul and Istikhara",
     "slug": "tafaaul-and-istekhaarah"
@@ -2525,6 +2541,10 @@
   "I106": {
     "title": "Istikhara on Behalf of Others",
     "slug": "appearing-istekhaarah-for-others"
+  },
+  "I107": {
+    "title": "Affection & Inclination towards Non-Believers",
+    "slug": "affection-inclination-towards-non-believers"
   },
   "I108": {
     "title": "Prohibition on Shaving Beard",
@@ -2550,13 +2570,61 @@
     "title": "Importance of a Ring of Aqeeq and Looking at It in the Morning and While Praying",
     "slug": "importance-of-a-ring-of-aqeeq-and-looking-at-it-in-the-morning-and-while-praying"
   },
+  "I113": {
+    "title": "Things to Be Kept in Mind for Good Memory",
+    "slug": "things-to-be-kept-in-mind-for-good-memory"
+  },
+  "I114": {
+    "title": "Etiquettes and Supplications Pertaining to Death",
+    "slug": "etiquettes-and-supplications-pertaining-to-death"
+  },
   "I115": {
     "title": "Writing a Will before Death",
     "slug": "writing-of-will-before-death"
   },
+  "I116": {
+    "title": "The Inscription to Be Written and Kept with the Dead",
+    "slug": "the-inscription-that-should-be-written-and-kept-with-the-dead"
+  },
+  "I117": {
+    "title": "Brief Manners & Talqeen to Be Recited near the Dying",
+    "slug": "brief-manners-talqeen-to-be-recited-near-dead"
+  },
+  "I118": {
+    "title": "Preparing the Shroud (Kafan) of the Dead",
+    "slug": "preparing-the-shroud-kafan-of-dead"
+  },
   "I119": {
     "title": "The Ritual Bathing (Ghusl) of the Deceased",
     "slug": "the-ritual-bathing-ghusl-of-the-deceased"
+  },
+  "I120": {
+    "title": "Shrouding the Dead Body",
+    "slug": "shrouding-the-dead-body"
+  },
+  "I121": {
+    "title": "Carrying the Dead",
+    "slug": "carrying-the-dead"
+  },
+  "I122": {
+    "title": "Testimony from 40 Faithful Believers",
+    "slug": "testimony-from-40-faithful-believers"
+  },
+  "I123": {
+    "title": "Manners of Carrying the Dead Person",
+    "slug": "manners-of-carrying-the-dead-person"
+  },
+  "I124": {
+    "title": "Burial",
+    "slug": "burial"
+  },
+  "I125": {
+    "title": "Laws concerning Burial",
+    "slug": "laws-concerning-burial"
+  },
+  "I126": {
+    "title": "Prompting the Dead (Talqeen)",
+    "slug": "prompting-the-dead"
   },
   "I13": {
     "title": "Merits of Reciting Ayat al-Kursi after Every Namaz",
@@ -2658,9 +2726,17 @@
     "title": "The Ritual Ablution (Wudu)",
     "slug": "ritual-ablution-wuzu"
   },
+  "I40": {
+    "title": "Taweez against Deafness",
+    "slug": "taweez-against-deafness"
+  },
   "I41": {
     "title": "Taweez against Mouth Ache",
     "slug": "taweez-against-mouthache"
+  },
+  "I42": {
+    "title": "Taweez against Toothache",
+    "slug": "taweez-against-toothache"
   },
   "I43": {
     "title": "Taweez for Chest Pains",
@@ -2670,9 +2746,33 @@
     "title": "Taweez for Curing Coughs & against Stomach Pains",
     "slug": "taweez-for-curing-of-coughing-against-stomach-pains"
   },
+  "I45": {
+    "title": "Taweez against Colitis",
+    "slug": "taweez-against-colitis"
+  },
+  "I46": {
+    "title": "Taweez against Warts",
+    "slug": "taweez-against-warts"
+  },
+  "I47": {
+    "title": "Taweez against All Tumors",
+    "slug": "taweez-against-all-tumors"
+  },
+  "I48": {
+    "title": "Taweez against Dystocia (Difficult Childbirth)",
+    "slug": "taweez-against-dystocia"
+  },
+  "I49": {
+    "title": "Taweez against Bewitchment",
+    "slug": "taweez-against-bewitchery"
+  },
   "I5": {
     "title": "Etiquettes of Attending Mosques",
     "slug": "etiquettes-of-attending-mosques"
+  },
+  "I50": {
+    "title": "Taweez against Fever",
+    "slug": "taweez-against-fever"
   },
   "I51": {
     "title": "Taweez against Mange, Furuncle & Herpes",
@@ -2705,6 +2805,10 @@
   "I58": {
     "title": "Ayat al-Sakhrah",
     "slug": "ayah-al-sakharah"
+  },
+  "I59": {
+    "title": "Harmel, Epilepsy and Protection from Jinn",
+    "slug": "harmel"
   },
   "I6": {
     "title": "Pre-Prayer Supplications",
@@ -2758,9 +2862,17 @@
     "title": "Brief Supplications for this World and Other Worldly Desires",
     "slug": "brief-supplications-for-this-world-and-other-worldly-desires"
   },
+  "I71": {
+    "title": "The All-Inclusive Supplication (Ya Man Azhar al-Jamil)",
+    "slug": "the-all-inclusive-supplicatory-prayer"
+  },
   "I72": {
     "title": "Lightning-Fast Prayer (for Worldly Desires)",
     "slug": "lightening-fast-prayer-for-worldly-desires"
+  },
+  "I73": {
+    "title": "Incident of Abd al-Rahman ibn Sayyabah and the Advice of Imam al-Sadiq (a.s.)",
+    "slug": "incident-of-abd-al-rahman-bin-sayyabah-and-the-will-of-imam-sadiq-a"
   },
   "I74": {
     "title": "Hirz of Lady Fatimah (s.a.)",
@@ -2802,6 +2914,10 @@
     "title": "Hirz of Imam al-Mahdi (a.t.f.s.)",
     "slug": "hirz-e-imam-al-mahdi-a-t-f-s"
   },
+  "I84": {
+    "title": "Imam Husayn (a.s.)'s Dua in Prayers",
+    "slug": "imam-husayn-s-dua-in-prayers"
+  },
   "I85": {
     "title": "Holy Prophet (s.a.w.a.)'s Prayer for Security",
     "slug": "holy-prophet-s-a-w-a-s-prayer-for-security"
@@ -2814,9 +2930,29 @@
     "title": "Special Features of Surah al-Qadr, al-Tawhid & Ayat al-Kursi",
     "slug": "special-features-of-surah-qadr-tawheed-ayah-al-kursi"
   },
+  "I89": {
+    "title": "Unique Characteristics of Surah al-Tawhid & 100 Ayahs from the Quran",
+    "slug": "unique-charateristics-of-surah-tawheed-100-ayahs-from-quran"
+  },
   "I9": {
     "title": "General Taqibaat - 1",
     "slug": "general-ta-qeebaat-1"
+  },
+  "I90": {
+    "title": "Unique Characteristics of Surah al-Ikhlas & Some Other Short Surahs",
+    "slug": "unique-charateristics-of-surah-ikhlas-some-other-small-surahs"
+  },
+  "I91": {
+    "title": "Quranic Verses for Safety from Burning & Drowning",
+    "slug": "quranic-verses-for-safety-from-burning-drowning"
+  },
+  "I92": {
+    "title": "Quranic Verse for Controlling a Riding Animal (Mount)",
+    "slug": "quranic-verse-for-controlling-the-riding-animal-mount"
+  },
+  "I93": {
+    "title": "Quranic Verses for Safety from Wild Beasts",
+    "slug": "quranic-verse-from-safety-from-wild-beasts"
   },
   "I94": {
     "title": "Verses to Restore Lost Things",
