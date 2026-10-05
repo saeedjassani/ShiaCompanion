@@ -7,7 +7,6 @@ import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
-import 'package:shia_companion/utils/prayer_clock.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
@@ -113,8 +112,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    // On a chosen city's clock, so are the times, "next day" and the date.
-    final now = PrayerClock.now(debugNow());
+    final now = debugNow();
     final hijri = HijriCalendar.fromDate(now.add(Duration(days: hijriDate)));
     final dateText = '${hijri.hDay} '
         '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
@@ -154,13 +152,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         readings.indexWhere((r) => !_isSameDate(r.dateTime, now));
     final failed = _location.status == LocationRefreshStatus.failed;
     final showUpdated = !failed && city != null && _location.shouldDiscloseAge;
-    // Times on a city's clock, beside a phone that reads otherwise.
-    final clock = PrayerClock.describe(now);
-    final notes = [
-      if (failed) _location.failureMessage,
-      if (showUpdated) 'updated ${_ageLabel(_location.updatedAt!)}',
-      if (clock != null) clock,
-    ];
 
     return Semantics(
       container: true,
@@ -209,11 +200,13 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                     ],
                   ),
                 ),
-                if (notes.isNotEmpty)
+                if (failed || showUpdated)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
-                      notes.join(' · '),
+                      failed
+                          ? _location.failureMessage
+                          : 'updated ${_ageLabel(_location.updatedAt!)}',
                       style: ShiaText.caption.copyWith(
                         color: colors.onPrayerCardMuted,
                       ),

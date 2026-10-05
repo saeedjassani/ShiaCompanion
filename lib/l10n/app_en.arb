@@ -79,18 +79,6 @@
       }
     }
   },
-  "settingsLocationManualClock": "{city} · chosen by you. Times are in {clock}. Tap to change.",
-  "@settingsLocationManualClock": {
-    "description": "{clock} names the clock the times are shown in, e.g. 'Karbala time'.",
-    "placeholders": {
-      "city": {
-        "type": "String"
-      },
-      "clock": {
-        "type": "String"
-      }
-    }
-  },
   "settingsLocationUpdated": "{city} · updated {age}. Refreshes on its own as you move.",
   "@settingsLocationUpdated": {
     "description": "{age} is a relative time such as 'just now' or '5m ago'.",

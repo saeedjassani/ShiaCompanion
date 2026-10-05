@@ -70,11 +70,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String settingsLocationManualClock(String city, String clock) {
-    return '$city · chosen by you. Times are in $clock. Tap to change.';
-  }
-
-  @override
   String settingsLocationUpdated(String city, String age) {
     return '$city · updated $age. Refreshes on its own as you move.';
   }

@@ -75,8 +75,9 @@ List<DateTime> upcomingPrayerRelativeOccurrences({
   for (var offset = 0;
       offset < maxDaysToScan && results.length < count;
       offset++) {
-    // On [now]'s own clock (see dateTimeOnClockOf), by calendar day rather
-    // than 24-hour steps, which a DST change would knock off midnight.
+    // By calendar day rather than 24-hour steps: the day the clocks go back
+    // is 25 hours long, so stepping by 24 lands on it twice and schedules
+    // that day's reminder twice.
     final date = dateTimeOnClockOf(now, now.year, now.month, now.day + offset);
     if (date.weekday != weekday) continue;
 

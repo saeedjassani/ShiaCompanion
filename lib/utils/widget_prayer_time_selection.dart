@@ -1,4 +1,3 @@
-import 'package:shia_companion/utils/prayer_clock.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -218,11 +217,10 @@ DateTime calendarDayFrom(DateTime start, int dayOffset) {
 }
 
 /// The next [count] occurrences of [times], soonest first, starting from
-/// [now] (by default, this moment on the [PrayerClock]). Looks at most one
-/// day past [now]'s date — enough to roll from today's last selected time
-/// into tomorrow's first, since a selection is at most [maxWidgetPrayerTimes]
-/// long and every unclaimed slot on day one is guaranteed to be filled by day
-/// two's full selection.
+/// [now]. Looks at most one day past [now]'s date — enough to roll from
+/// today's last selected time into tomorrow's first, since a selection is at
+/// most [maxWidgetPrayerTimes] long and every unclaimed slot on day one is
+/// guaranteed to be filled by day two's full selection.
 List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
   required PrayerTime prayerTime,
   required double latitude,
@@ -232,9 +230,9 @@ List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
   List<WidgetPrayerTime>? times,
 }) {
   final selected = times ?? selectedWidgetPrayerTimes();
-  final moment = now ?? PrayerClock.now();
-  // Preserve whether the caller is working in UTC, local time or a chosen
-  // city's: building a local midnight from a UTC moment (or vice versa) would
+  final moment = now ?? DateTime.now();
+  // Preserve whether the caller is working in UTC, local time or a city's:
+  // building a local midnight from a UTC moment (or vice versa) would
   // silently swap in the wrong timezone offset for every reading computed
   // below.
   final startOfToday =

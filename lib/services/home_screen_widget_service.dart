@@ -10,8 +10,6 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
-import 'package:shia_companion/utils/prayer_clock.dart';
-import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import '../l10n/l10n.dart';
@@ -279,7 +277,7 @@ class HomeScreenWidgetService {
       dailyPrayerTimesScheduleKey: '',
       prayerLocationKey: lat == null || long == null
           ? L10n.current.widgetLocationNeeded
-          : _locationLabel(),
+          : city ?? L10n.current.widgetSavedLocation,
     };
 
     if (lat == null || long == null) {
@@ -290,7 +288,7 @@ class HomeScreenWidgetService {
       return snapshot;
     }
 
-    final today = PrayerClock.now(now);
+    final today = now ?? DateTime.now();
     final prayers = _buildUpcomingPrayerTimes(today);
     snapshot[dailyPrayerTimesScheduleKey] =
         jsonEncode(_buildDailyPrayerTimesSchedule(today));
@@ -358,7 +356,7 @@ class HomeScreenWidgetService {
       );
     }
 
-    final now = PrayerClock.now();
+    final now = DateTime.now();
     final entries = _buildPrayerSchedule(now);
     final nextEntry = _firstWhereOrNull(
       entries,
@@ -370,7 +368,7 @@ class HomeScreenWidgetService {
         name: L10n.current.widgetPrayerTimes,
         time: L10n.current.widgetOpenApp,
         dateLabel: L10n.current.widgetRefreshSchedule,
-        location: _locationLabel(),
+        location: city ?? L10n.current.widgetSavedLocation,
         encodedSchedule: entries.map((entry) => entry.encode()).join(';'),
         secondaryName: '',
         secondaryTime: '',
@@ -381,7 +379,7 @@ class HomeScreenWidgetService {
       name: nextEntry.name,
       time: nextEntry.displayTime,
       dateLabel: nextEntry.dateLabel,
-      location: _locationLabel(),
+      location: city ?? L10n.current.widgetSavedLocation,
       encodedSchedule: entries.map((entry) => entry.encode()).join(';'),
       secondaryName: nextEntry.secondaryName,
       secondaryTime: nextEntry.secondaryTime,
@@ -391,7 +389,7 @@ class HomeScreenWidgetService {
   List<_PrayerScheduleEntry> _buildPrayerSchedule(DateTime now) {
     final schedule = <_PrayerScheduleEntry>[];
     final selected = selectedWidgetPrayerTimes();
-    final startOfToday = dateTimeOnClockOf(now, now.year, now.month, now.day);
+    final startOfToday = DateTime(now.year, now.month, now.day);
 
     for (var dayOffset = 0; dayOffset < 8; dayOffset++) {
       final date = calendarDayFrom(startOfToday, dayOffset);
@@ -468,7 +466,7 @@ class HomeScreenWidgetService {
   /// at these instants, since the prayer schedule contributes the same dates as
   /// timeline transition points.
   List<Map<String, Object>> _buildDailyPrayerTimesSchedule(DateTime now) {
-    final startOfToday = dateTimeOnClockOf(now, now.year, now.month, now.day);
+    final startOfToday = DateTime(now.year, now.month, now.day);
     final boundaries = <DateTime>{startOfToday};
 
     for (var dayOffset = 0; dayOffset < 8; dayOffset++) {
@@ -497,13 +495,6 @@ class HomeScreenWidgetService {
         },
     ];
   }
-
-  /// Where the times are for. Named for its clock instead ("Karbala time")
-  /// when that is a chosen city's and reads differently from the phone's -
-  /// the widget's times are on it (see PrayerClock), and a glance at the
-  /// phone's own clock beside them would otherwise make them look wrong.
-  String _locationLabel() =>
-      PrayerClock.label() ?? city ?? L10n.current.widgetSavedLocation;
 
   String _dateLabelForDay(DateTime date, int dayOffset) {
     if (dayOffset == 0) return L10n.current.commonToday;

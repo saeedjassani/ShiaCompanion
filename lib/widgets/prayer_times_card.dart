@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shia_companion/utils/prayer_clock.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
@@ -26,23 +25,20 @@ class PrayerTimesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PrayerTime prayerTime = getPrayerTimeObject();
-    // [date] on the prayer clock: a chosen city's times on its own clock.
-    final day = PrayerClock.day(date.year, date.month, date.day);
     final prayerEntries = lat != null && long != null
         ? buildExtendedPrayerTimeEntries(
             prayerTime: prayerTime,
-            date: day,
+            date: date,
             latitude: lat!,
             longitude: long!,
-            timeZone: day.timeZoneOffset.inMinutes / 60.0,
+            timeZone: date.timeZoneOffset.inMinutes / 60.0,
           )
         : null;
     if (prayerEntries == null) {
       return compact ? const _PrayerTimesUnavailable() : Container();
     }
 
-    final clock = PrayerClock.describe(day);
-    final list = ListView.separated(
+    final content = ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
       separatorBuilder: (BuildContext context, int index) => Divider(
         height: compact ? 1.0 : 2.0,
@@ -56,27 +52,6 @@ class PrayerTimesCard extends StatelessWidget {
         );
       },
     );
-
-    final content = clock == null
-        ? list
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: compact ? 0.0 : 8.0,
-                  vertical: 4.0,
-                ),
-                child: Text(
-                  clock,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
-              ),
-              list,
-            ],
-          );
 
     return compact
         ? content

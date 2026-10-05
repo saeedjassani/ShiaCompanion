@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
-import 'package:shia_companion/utils/prayer_clock.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import '../l10n/l10n.dart';
 
@@ -97,12 +96,6 @@ class LocationService extends ChangeNotifier {
     if (!SP.isInitialized) return;
 
     _isManual = SP.prefs.getBool(manualKey) ?? false;
-    // Times are told on a chosen city's clock, and only on a chosen city's.
-    if (_isManual) {
-      PrayerClock.restore();
-    } else if (SP.prefs.containsKey(PrayerClock.zoneKey)) {
-      unawaited(PrayerClock.usePhoneClock());
-    }
 
     final storedMillis = SP.prefs.getInt(updatedAtKey);
     if (storedMillis != null) {
@@ -229,15 +222,10 @@ class LocationService extends ChangeNotifier {
 
     _isManual = true;
     _lastUnproductiveAttemptAt = null;
-    // Before the location itself, which reschedules notifications: they
-    // are written on the city's clock (see PrayerClock).
-    final clockChanged =
-        await PrayerClock.use(chosen.timeZone, place: chosen.name);
     await applyChosenPrayerLocation(
       latitude: chosen.latitude,
       longitude: chosen.longitude,
       label: chosen.name,
-      clockChanged: clockChanged,
     );
     _updatedAt = DateTime.now();
     if (SP.isInitialized) {
@@ -256,25 +244,12 @@ class LocationService extends ChangeNotifier {
   /// Goes back to the phone's own position and fetches it now. [context]
   /// opts into the permission and services dialogs, as for [refresh].
   Future<bool> useDeviceLocation({BuildContext? context}) async {
-    final clockChanged = await PrayerClock.usePhoneClock();
     if (_isManual) {
       _isManual = false;
       if (SP.isInitialized) await SP.prefs.remove(manualKey);
       notifyListeners();
     }
-    final found = await refresh(context: context);
-    if (clockChanged) {
-      // A fix that barely moved from the city reschedules nothing by itself,
-      // and a failed one leaves the city's times standing, now told on the
-      // phone's clock: either way the notifications still read the city's.
-      try {
-        await reschedulePrayerNotificationsIfOutdated();
-        if (!found) await HomeScreenWidgetService.instance.publishAll();
-      } catch (e) {
-        debugPrint('Clock changed, but rescheduling for it failed: $e');
-      }
-    }
-    return found;
+    return refresh(context: context);
   }
 
   void _setStatus(LocationRefreshStatus status) {

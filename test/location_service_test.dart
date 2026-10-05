@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/services/location_service.dart';
-import 'package:shia_companion/utils/prayer_clock.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 void main() {
@@ -25,7 +24,6 @@ void main() {
     needToSchedule = false;
     lastLocationFailure = null;
     service.resetForTest();
-    PrayerClock.resetForTest();
   });
 
   Position _posAt(double latitude, double longitude, DateTime timestamp) =>
@@ -442,48 +440,6 @@ void main() {
       expect(SP.prefs.containsKey(LocationService.manualKey), isFalse);
       expect(geolocator.currentPositionCalls, 1);
       expect(lat, 51.5);
-    });
-
-    test('tells times on its own clock, until the phone\'s location is back',
-        () async {
-      GeolocatorPlatform.instance =
-          _CountingGeolocator(currentPosition: _pos(51.5, -0.1));
-      await service.chooseCity(karbala);
-
-      expect(PrayerClock.zone?.name, 'Asia/Baghdad');
-      expect(SP.prefs.getString(PrayerClock.zoneKey), 'Asia/Baghdad');
-
-      await withGeocode(() => service.useDeviceLocation());
-
-      expect(PrayerClock.zone, isNull);
-      expect(SP.prefs.containsKey(PrayerClock.zoneKey), isFalse);
-    });
-
-    test('keeps its clock across a restart', () async {
-      await service.chooseCity(karbala);
-      service.resetForTest();
-      PrayerClock.resetForTest();
-
-      service.restore();
-      expect(PrayerClock.zone?.name, 'Asia/Baghdad');
-      expect(PrayerClock.label(DateTime.utc(2026, 10, 4, 12)),
-          DateTime.utc(2026, 10, 4, 12).toLocal().timeZoneOffset.inHours == 3
-              ? isNull
-              : 'Karbala time');
-    });
-
-    test('a clock left behind without a chosen city is dropped', () async {
-      SharedPreferences.setMockInitialValues({
-        PrayerClock.zoneKey: 'Asia/Baghdad',
-        PrayerClock.placeKey: 'Karbala',
-      });
-      await SP.init();
-
-      service.restore();
-      await Future<void>.delayed(Duration.zero);
-
-      expect(PrayerClock.zone, isNull);
-      expect(SP.prefs.containsKey(PrayerClock.zoneKey), isFalse);
     });
   });
 }

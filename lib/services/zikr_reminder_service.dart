@@ -8,7 +8,6 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/models/zikr_reminder.dart';
 import 'package:shia_companion/services/analytics_service.dart';
-import 'package:shia_companion/utils/prayer_clock.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/zikr_reminder_scheduling.dart';
 import '../l10n/l10n.dart';
@@ -280,9 +279,7 @@ class ZikrReminderService extends ChangeNotifier {
     for (final weekday in reminder.daysOfWeek) {
       final occurrences = upcomingPrayerRelativeOccurrences(
         prayerTime: prayerTime,
-        // Maghrib on Thursday where the prayer times are, which on a chosen
-        // city's clock need not be the phone's Thursday.
-        now: PrayerClock.now(now),
+        now: now,
         weekday: weekday,
         prayerName: reminder.prayerName,
         offsetMinutes: reminder.offsetMinutes,

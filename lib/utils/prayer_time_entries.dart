@@ -116,7 +116,7 @@ DateTime? dateTimeForTime24(DateTime date, String time24) {
 }
 
 /// [year]-[month]-[day] [hour]:[minute] on the same clock as [like]: UTC, a
-/// chosen city's (a [tz.TZDateTime], see PrayerClock) or the phone's.
+/// city's (a [tz.TZDateTime]) or the phone's.
 ///
 /// Keep whichever zone the caller handed us. Building a local DateTime from a
 /// UTC one silently shifts the result by the machine's offset, which makes any
