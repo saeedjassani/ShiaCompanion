@@ -11,6 +11,7 @@ import 'package:shia_companion/widgets/responsive_content.dart';
 import '../constants.dart';
 import '../services/analytics_service.dart';
 import 'chapter_page.dart';
+import '../l10n/l10n.dart';
 
 class ChapterListPage extends StatefulWidget {
   final String slug;
@@ -136,12 +137,12 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
         await LibraryService.removeSavedBook(widget.slug);
         unawaited(AnalyticsService.feature(
           'library_offline_removed',
-          label: 'Offline copy removed',
+          label: context.l10n.libraryOfflineRemoved,
           parameters: {'book_uid': widget.slug},
         ));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Offline copy removed')),
+            SnackBar(content: Text(context.l10n.libraryOfflineRemoved)),
           );
         }
       } else {
@@ -153,7 +154,8 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
         ));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${widget.title} saved for offline')),
+            SnackBar(
+                content: Text(context.l10n.librarySavedForOffline(widget.title))),
           );
         }
       }
@@ -161,7 +163,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Save failed: $e')),
+          SnackBar(content: Text(context.l10n.librarySaveFailedShort('$e'))),
         );
       }
     } finally {
@@ -204,7 +206,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                     ),
                   )
                 : const Icon(Icons.share),
-            tooltip: 'Share book',
+            tooltip: context.l10n.libraryShareBook,
             onPressed: _isSharing ? null : _shareBook,
           ),
           IconButton(
@@ -219,7 +221,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                     ),
                   )
                 : Icon(_isSaved ? Icons.download_done : Icons.download),
-            tooltip: _isSaved ? 'Remove offline copy' : 'Save book offline',
+            tooltip: _isSaved ? context.l10n.libraryRemoveOffline : context.l10n.librarySaveOffline,
             onPressed: _toggleSave,
           ),
         ],
@@ -238,15 +240,15 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                 ),
               _ when snapshot.hasError => _ChapterMessage(
                   icon: Icons.cloud_off,
-                  title: 'Chapters unavailable',
-                  message: 'Check your connection and try again.',
-                  actionLabel: 'Retry',
+                  title: context.l10n.libraryChaptersUnavailable,
+                  message: context.l10n.audioDownloadCheckConnection,
+                  actionLabel: context.l10n.commonRetry,
                   onAction: _retry,
                 ),
-              _ when chapters.isEmpty => const _ChapterMessage(
+              _ when chapters.isEmpty => _ChapterMessage(
                   icon: Icons.menu_book,
-                  title: 'No chapters found',
-                  message: 'This book has no chapters right now.',
+                  title: context.l10n.libraryNoChapters,
+                  message: context.l10n.libraryNoChaptersBody,
                 ),
               _ => ListView.separated(
                   padding: EdgeInsets.zero,

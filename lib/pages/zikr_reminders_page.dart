@@ -7,6 +7,7 @@ import '../models/zikr_reminder.dart';
 import '../services/zikr_reminder_service.dart';
 import '../widgets/responsive_content.dart';
 import 'zikr_reminder_form_page.dart';
+import '../l10n/l10n.dart';
 
 /// Lists the user's zikr/dua reminders (Tawassul every Tuesday, Dua Kumail 30
 /// minutes after Maghrib on Thursday, ...) and lets them add, edit, toggle or
@@ -61,19 +62,19 @@ class _ZikrRemindersPageState extends State<ZikrRemindersPage> {
     final shouldDelete = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: const Text('Remove reminder?'),
+            title: Text(context.l10n.reminderRemoveTitle),
             content: Text(
-              'This removes the reminder for "${reminder.title}". You can add it again any time.',
+              context.l10n.reminderRemoveBody(reminder.title),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text('Cancel'),
+                child: Text(context.l10n.commonCancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, true),
                 child: Text(
-                  'Remove',
+                  context.l10n.commonRemove,
                   style:
                       TextStyle(color: Theme.of(dialogContext).colorScheme.error),
                 ),
@@ -93,10 +94,10 @@ class _ZikrRemindersPageState extends State<ZikrRemindersPage> {
       ..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Zikr Reminders')),
+      appBar: AppBar(title: Text(context.l10n.settingsZikrReminders)),
       floatingActionButton: FloatingActionButton(
         onPressed: _addReminder,
-        tooltip: 'Add reminder',
+        tooltip: context.l10n.reminderAddTooltip,
         child: const Icon(Icons.add),
       ),
       body: reminders.isEmpty
@@ -131,14 +132,13 @@ class _ZikrRemindersPageState extends State<ZikrRemindersPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No reminders yet',
+              context.l10n.reminderNone,
               style: theme.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              'Tap + to get reminded about a zikr or dua on the days you choose — '
-              'like Tawassul every Tuesday, or Dua Kumail after Maghrib on Thursday.',
+              context.l10n.reminderNoneBody,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.72),
               ),
@@ -175,7 +175,7 @@ class _ZikrRemindersPageState extends State<ZikrRemindersPage> {
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: 'Remove',
+            tooltip: context.l10n.commonRemove,
             onPressed: () => _confirmDelete(reminder),
           ),
         ],

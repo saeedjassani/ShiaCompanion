@@ -7,6 +7,7 @@ import '../constants.dart';
 import '../services/analytics_service.dart';
 import '../utils/shared_preferences.dart';
 import 'responsive_content.dart';
+import '../l10n/l10n.dart';
 
 class TasbeehWidget extends StatefulWidget {
   const TasbeehWidget({super.key});
@@ -85,7 +86,7 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tasbeeh Counter'),
+        title: Text(context.l10n.menuTasbeehCounter),
       ),
       body: ResponsiveContent(
         maxWidth: compactContentWidth,
@@ -101,7 +102,7 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tap the counter circle to count. The beep will play at the milestones below.',
+                      context.l10n.tasbeehHelp,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 16),
@@ -113,15 +114,18 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
                           isChecked = value;
                         });
                       },
-                      title: const Text('Enable beep'),
+                      title: Text(context.l10n.tasbeehEnableBeep),
                     ),
                     Wrap(
                       spacing: 12,
                       runSpacing: 12,
                       children: [
-                        _buildMilestoneField(context, controller1, 'Beep 1'),
-                        _buildMilestoneField(context, controller2, 'Beep 2'),
-                        _buildMilestoneField(context, controller3, 'Beep 3'),
+                        _buildMilestoneField(
+                              context, controller1, context.l10n.tasbeehBeepNumber(1)),
+                        _buildMilestoneField(
+                              context, controller2, context.l10n.tasbeehBeepNumber(2)),
+                        _buildMilestoneField(
+                              context, controller3, context.l10n.tasbeehBeepNumber(3)),
                       ],
                     ),
                   ],
@@ -177,7 +181,7 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  'Tap to count',
+                                  context.l10n.tasbeehTapToCount,
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium
@@ -208,7 +212,7 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
                           }
                         : null,
                     icon: const Icon(Icons.remove),
-                    label: const Text('Minus one'),
+                    label: Text(context.l10n.tasbeehMinusOne),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -220,7 +224,7 @@ class _TasbeehWidgetState extends State<TasbeehWidget> {
                       });
                     },
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Reset'),
+                    label: Text(context.l10n.tasbeehReset),
                   ),
                 ),
               ],

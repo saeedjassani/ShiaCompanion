@@ -19,6 +19,7 @@ import '../constants.dart';
 import '../widgets/reader_content.dart';
 import '../widgets/responsive_content.dart';
 import '../services/analytics_service.dart';
+import '../l10n/l10n.dart';
 
 class ChapterPage extends StatefulWidget {
   final String slug;
@@ -302,7 +303,7 @@ class _ChapterPageState extends State<ChapterPage>
         await LibraryService.removeSavedBook(bookSlug);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Offline copy removed')),
+            SnackBar(content: Text(context.l10n.libraryOfflineRemoved)),
           );
         }
       } else {
@@ -310,7 +311,7 @@ class _ChapterPageState extends State<ChapterPage>
         await LibraryService.saveBookForOffline(bookSlug, title);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$title saved for offline')),
+            SnackBar(content: Text(context.l10n.librarySavedForOffline(title))),
           );
         }
       }
@@ -318,7 +319,7 @@ class _ChapterPageState extends State<ChapterPage>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Save failed: $e')),
+          SnackBar(content: Text(context.l10n.librarySaveFailedShort('$e'))),
         );
       }
     } finally {
@@ -719,7 +720,9 @@ class _ChapterPageState extends State<ChapterPage>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              forward ? 'Next chapter' : 'Previous chapter',
+              forward
+                  ? context.l10n.libraryNextChapter
+                  : context.l10n.libraryPreviousChapter,
               style: theme.textTheme.labelMedium?.copyWith(
                 color: theme.colorScheme.primary,
               ),
@@ -850,7 +853,9 @@ class _ChapterPageState extends State<ChapterPage>
 
     if (chapterTitle == null) {
       return IconButton(
-        tooltip: forward ? 'Next page' : 'Previous page',
+        tooltip: forward
+            ? context.l10n.libraryNextPage
+            : context.l10n.libraryPreviousPage,
         icon: Icon(forward ? Icons.chevron_right : Icons.chevron_left),
         onPressed: onPressed,
       );
@@ -862,8 +867,8 @@ class _ChapterPageState extends State<ChapterPage>
     return Flexible(
       child: Tooltip(
         message: forward
-            ? 'Next chapter: $chapterTitle'
-            : 'Previous chapter: $chapterTitle',
+                      ? context.l10n.libraryNextChapterNamed(chapterTitle)
+          : context.l10n.libraryPreviousChapterNamed(chapterTitle),
         child: TextButton.icon(
           onPressed: onPressed,
           icon: Icon(
@@ -876,7 +881,9 @@ class _ChapterPageState extends State<ChapterPage>
             visualDensity: VisualDensity.compact,
           ),
           label: Text(
-            forward ? 'Next: $chapterTitle' : 'Previous: $chapterTitle',
+            forward
+              ? context.l10n.libraryNextShort(chapterTitle)
+              : context.l10n.libraryPreviousShort(chapterTitle),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: forward ? TextAlign.end : TextAlign.start,
@@ -944,7 +951,7 @@ class _ChapterPageState extends State<ChapterPage>
                         ),
                       )
                     : const Icon(Icons.share),
-                tooltip: 'Share chapter',
+                tooltip: context.l10n.libraryShareChapter,
                 onPressed: _isSharing ? null : _shareChapter,
               ),
               IconButton(
@@ -959,7 +966,7 @@ class _ChapterPageState extends State<ChapterPage>
                         ),
                       )
                     : Icon(_isSaved ? Icons.download_done : Icons.download),
-                tooltip: _isSaved ? 'Remove offline copy' : 'Save book offline',
+                tooltip: _isSaved ? context.l10n.libraryRemoveOffline : context.l10n.librarySaveOffline,
                 onPressed: _toggleSave,
               ),
             ],
@@ -974,9 +981,9 @@ class _ChapterPageState extends State<ChapterPage>
             if (snapshot.hasError) {
               return _buildMessage(
                 icon: Icons.cloud_off,
-                title: 'Chapter unavailable',
-                message: 'Check your connection and try again.',
-                actionLabel: 'Retry',
+                title: context.l10n.libraryChapterUnavailable,
+                message: context.l10n.audioDownloadCheckConnection,
+                actionLabel: context.l10n.commonRetry,
                 onAction: _retry,
               );
             }
@@ -1030,7 +1037,7 @@ class _ChapterPageState extends State<ChapterPage>
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Decrease font size',
+                      tooltip: context.l10n.libraryDecreaseFont,
                       icon: const Icon(Icons.text_decrease),
                       onPressed: _readerFontSize <= _minFontSize
                           ? null
@@ -1041,7 +1048,7 @@ class _ChapterPageState extends State<ChapterPage>
                       style: theme.textTheme.bodyMedium,
                     ),
                     IconButton(
-                      tooltip: 'Increase font size',
+                      tooltip: context.l10n.libraryIncreaseFont,
                       icon: const Icon(Icons.text_increase),
                       onPressed: _readerFontSize >= _maxFontSize
                           ? null

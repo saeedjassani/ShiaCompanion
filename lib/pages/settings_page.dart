@@ -722,7 +722,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   String _widgetPrayerTimesSubtitle() {
     final names =
-        selectedWidgetPrayerTimes().map((time) => time.name).join(', ');
+        selectedWidgetPrayerTimes()
+        .map((time) => localizedPrayerName(time.name, context.l10n))
+        .join(', ');
     return context.l10n.settingsPrayerTimesShownSubtitle(names);
   }
 

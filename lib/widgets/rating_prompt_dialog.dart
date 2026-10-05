@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 /// Asks whether the app is working out before ever showing the OS review
 /// sheet - a "yes" here is what earns the native prompt, a "no" is routed to
@@ -13,26 +14,25 @@ Future<bool?> showRatingPromptDialog(BuildContext context) {
   return showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: const Text('Enjoying Shia Companion?'),
-      content: const Text(
-        "We'd love to hear how it's going for you - your feedback helps us "
-        'keep improving the app.',
+      title: Text(context.l10n.ratingEnjoying),
+      content: Text(
+        context.l10n.ratingEnjoyingBody,
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(dialogContext, false),
-          child: const Text('Not really'),
+          child: Text(context.l10n.ratingNotReally),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(dialogContext, true),
-          child: const Text('Yes!'),
+          child: Text(context.l10n.ratingYes),
         ),
       ],
     ),
   );
 }
 
-/// Shown after a "Not really" - asks before jumping straight to the mail app,
+/// Shown after a context.l10n.ratingNotReally - asks before jumping straight to the mail app,
 /// since that would otherwise fire the moment someone admits they aren't
 /// enjoying the app, whether or not they actually wanted to write anything.
 /// Returns whether to open the feedback email.
@@ -40,19 +40,18 @@ Future<bool> showRatingFeedbackDialog(BuildContext context) async {
   final sendFeedback = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: const Text('Sorry to hear that'),
-      content: const Text(
-        "Would you mind telling us what's not working? It helps us improve "
-        'the app.',
+      title: Text(context.l10n.ratingSorry),
+      content: Text(
+        context.l10n.ratingSorryBody,
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(dialogContext, false),
-          child: const Text('No thanks'),
+          child: Text(context.l10n.ratingNoThanks),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(dialogContext, true),
-          child: const Text('Send feedback'),
+          child: Text(context.l10n.ratingSendFeedback),
         ),
       ],
     ),

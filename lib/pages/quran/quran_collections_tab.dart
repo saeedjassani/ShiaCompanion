@@ -13,18 +13,23 @@ import '../../utils/quran_index.dart';
 import '../../utils/shared_preferences.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/responsive_content.dart';
+import '../../l10n/l10n.dart';
 
 /// The groups the Collections tab can show, in chip order.
 enum QuranCollection {
-  duas('Duas'),
-  imamAli('Imam Ali (a.s.)'),
-  imamMahdi('Imam al-Mahdi (a.t.f.s.)'),
-  prophets('Prophets'),
-  saved('Saved');
+  duas,
+  imamAli,
+  imamMahdi,
+  prophets,
+  saved;
 
-  const QuranCollection(this.label);
-
-  final String label;
+  String get label => switch (this) {
+        QuranCollection.duas => L10n.current.quranCollectionDuas,
+        QuranCollection.imamAli => L10n.current.quranCollectionImamAli,
+        QuranCollection.imamMahdi => L10n.current.quranCollectionImamMahdi,
+        QuranCollection.prophets => L10n.current.quranCollectionProphets,
+        QuranCollection.saved => L10n.current.quranCollectionSaved,
+      };
 }
 
 /// The Quran screen's third tab: everything that is a *selection* of the
@@ -134,8 +139,9 @@ class _QuranCollectionsTabState extends State<QuranCollectionsTab> {
 }
 
 String _verseTitle(VerseKey verse) {
-  final name = surahInfoFor(verse.surah)?.englishName ?? 'Surah ${verse.surah}';
-  return '$name ${verse.ayah}';
+  final name = surahInfoFor(verse.surah)?.englishName ??
+      L10n.current.quranSurahNumber(verse.surah);
+  return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
 }
 
 /// Ayat al Kursi and the duas recited with the Quran - the non-surah zikrs of
@@ -189,7 +195,7 @@ class _QuranDuaList extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
               child: Text(
-                'From the Quran',
+                context.l10n.quranFromTheQuran,
                 style: theme.textTheme.titleSmall?.copyWith(
                   color: theme.colorScheme.primary,
                 ),
@@ -341,13 +347,13 @@ class _SavedVerseList extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'No saved verses yet',
+                context.l10n.quranNoSavedVerses,
                 style: theme.textTheme.titleSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
-                'Tap a verse while reading to keep it here.',
+                context.l10n.quranNoSavedVersesBody,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
@@ -390,7 +396,7 @@ class _SavedVerseList extends StatelessWidget {
                   ),
             trailing: IconButton(
               icon: const Icon(Icons.close),
-              tooltip: 'Remove',
+              tooltip: context.l10n.commonRemove,
               onPressed: () => onRemove(verse),
             ),
             onTap: () => onOpen(verse.verse),

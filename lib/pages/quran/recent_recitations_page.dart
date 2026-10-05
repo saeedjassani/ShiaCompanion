@@ -4,9 +4,10 @@ import 'package:intl/intl.dart';
 import '../../models/recitation_tracker_state.dart';
 import '../../services/recitation_tracker_manager.dart';
 import '../../utils/quran_index.dart';
+import '../../l10n/l10n.dart';
 
 String _surahName(int surah) =>
-    surahInfoFor(surah)?.englishName ?? 'Surah $surah';
+    surahInfoFor(surah)?.englishName ?? L10n.current.quranSurahNumber(surah);
 
 /// Every logged recitation session, newest first, each one movable to
 /// another track or removable - opened from the Quran screen's app bar,
@@ -22,7 +23,7 @@ class RecentRecitationsPage extends StatelessWidget {
     final theme = Theme.of(context);
     final manager = RecitationTrackerManager.instance;
     return Scaffold(
-      appBar: AppBar(title: const Text('Recent sessions')),
+      appBar: AppBar(title: Text(context.l10n.quranRecentSessions)),
       body: ListenableBuilder(
         listenable: manager,
         builder: (context, _) {
@@ -33,8 +34,7 @@ class RecentRecitationsPage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(32),
                 child: Text(
-                  'No sessions yet. Open a surah and start reading - the '
-                  'verses you recite are logged here automatically.',
+                  context.l10n.quranNoSessions,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -59,13 +59,13 @@ class RecentRecitationsPage extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.label_outline, size: 20),
-                      tooltip: 'Move to another label',
+                      tooltip: context.l10n.quranMoveToLabel,
                       onPressed: () =>
                           _showRelabelDialog(context, state, entry),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close, size: 20),
-                      tooltip: 'Remove',
+                      tooltip: context.l10n.commonRemove,
                       onPressed: () => manager.removeEntry(entry.id),
                     ),
                   ],
@@ -92,7 +92,7 @@ class RecentRecitationsPage extends StatelessWidget {
       final newLabel = await showDialog<String>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: Text('Move "${_rangeLabel(entry)}"'),
+          title: Text(context.l10n.quranMoveEntry(_rangeLabel(entry))),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -115,8 +115,8 @@ class RecentRecitationsPage extends StatelessWidget {
                 TextField(
                   controller: controller,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Or a new label',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.quranNewLabel,
                   ),
                   onSubmitted: (value) => Navigator.pop(dialogContext, value),
                 ),
@@ -126,11 +126,11 @@ class RecentRecitationsPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.commonCancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(dialogContext, controller.text),
-              child: const Text('Move'),
+              child: Text(context.l10n.quranMove),
             ),
           ],
         ),
@@ -158,6 +158,6 @@ class RecentRecitationsPage extends StatelessWidget {
         : '${entry.fromAyah}–${entry.toAyah}';
     final verses = entry.versesRecited;
     return '${_surahName(entry.surah)} $range · '
-        '$verses ${verses == 1 ? 'verse' : 'verses'}';
+        '${L10n.current.statsVerseCount(verses, '$verses')}';
   }
 }

@@ -2628,4 +2628,320 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get flightNoneSavedBody =>
       'Add your flight and this page will work out when each prayer comes in along the route — shown in both your departure and arrival city\'s time.';
+
+  @override
+  String librarySavedForOffline(String title) {
+    return '$title saved for offline';
+  }
+
+  @override
+  String librarySaveFailedShort(String error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String get libraryOfflineRemoved => 'Offline copy removed';
+
+  @override
+  String get libraryShareBook => 'Share book';
+
+  @override
+  String get libraryRemoveOffline => 'Remove offline copy';
+
+  @override
+  String get librarySaveOffline => 'Save book offline';
+
+  @override
+  String get libraryChaptersUnavailable => 'Chapters unavailable';
+
+  @override
+  String get libraryNoChapters => 'No chapters found';
+
+  @override
+  String get libraryNoChaptersBody => 'This book has no chapters right now.';
+
+  @override
+  String quranMoveEntry(String entry) {
+    return 'Move \"$entry\"';
+  }
+
+  @override
+  String get quranNoSessions =>
+      'No sessions yet. Open a surah and start reading - the verses you recite are logged here automatically.';
+
+  @override
+  String get quranMoveToLabel => 'Move to another label';
+
+  @override
+  String get quranNewLabel => 'Or a new label';
+
+  @override
+  String get quranMove => 'Move';
+
+  @override
+  String get quranCollectionDuas => 'Duas';
+
+  @override
+  String get quranCollectionImamAli => 'Imam Ali (a.s.)';
+
+  @override
+  String get quranCollectionImamMahdi => 'Imam al-Mahdi (a.t.f.s.)';
+
+  @override
+  String get quranCollectionProphets => 'Prophets';
+
+  @override
+  String get quranCollectionSaved => 'Saved';
+
+  @override
+  String get quranFromTheQuran => 'From the Quran';
+
+  @override
+  String get quranNoSavedVerses => 'No saved verses yet';
+
+  @override
+  String get quranNoSavedVersesBody =>
+      'Tap a verse while reading to keep it here.';
+
+  @override
+  String get libraryNextChapter => 'Next chapter';
+
+  @override
+  String get libraryPreviousChapter => 'Previous chapter';
+
+  @override
+  String get libraryNextPage => 'Next page';
+
+  @override
+  String get libraryPreviousPage => 'Previous page';
+
+  @override
+  String libraryNextChapterNamed(String chapter) {
+    return 'Next chapter: $chapter';
+  }
+
+  @override
+  String libraryPreviousChapterNamed(String chapter) {
+    return 'Previous chapter: $chapter';
+  }
+
+  @override
+  String libraryNextShort(String chapter) {
+    return 'Next: $chapter';
+  }
+
+  @override
+  String libraryPreviousShort(String chapter) {
+    return 'Previous: $chapter';
+  }
+
+  @override
+  String get libraryShareChapter => 'Share chapter';
+
+  @override
+  String get libraryChapterUnavailable => 'Chapter unavailable';
+
+  @override
+  String get libraryDecreaseFont => 'Decrease font size';
+
+  @override
+  String get libraryIncreaseFont => 'Increase font size';
+
+  @override
+  String get azaanTakbirName => 'Takbir Only';
+
+  @override
+  String get azaanTakbirDescription => 'Short takbir notification sound';
+
+  @override
+  String get azaanFullName => 'Full Azan';
+
+  @override
+  String get azaanFullDescription => 'Full azan, played automatically';
+
+  @override
+  String get azaanFullIosDescription =>
+      'The notification plays the Takbir; tap it to hear the full azan';
+
+  @override
+  String get azaanSystemDefaultName => 'System Default';
+
+  @override
+  String get azaanSystemDefaultDescription =>
+      'Use your device\'s default notification sound';
+
+  @override
+  String get azaanSilentName => 'Silent';
+
+  @override
+  String get azaanSilentDescription => 'Notification banner only (no sound)';
+
+  @override
+  String get azaanCustomName => 'Custom Audio';
+
+  @override
+  String get azaanCustomDescription => 'Choose an audio file from your device';
+
+  @override
+  String get ratingEnjoying => 'Enjoying Shia Companion?';
+
+  @override
+  String get ratingEnjoyingBody =>
+      'We\'d love to hear how it\'s going for you - your feedback helps us keep improving the app.';
+
+  @override
+  String get ratingNotReally => 'Not really';
+
+  @override
+  String get ratingYes => 'Yes!';
+
+  @override
+  String get ratingSorry => 'Sorry to hear that';
+
+  @override
+  String get ratingSorryBody =>
+      'Would you mind telling us what\'s not working? It helps us improve the app.';
+
+  @override
+  String get ratingNoThanks => 'No thanks';
+
+  @override
+  String get ratingSendFeedback => 'Send feedback';
+
+  @override
+  String get azaanOptInIntro =>
+      'Shia Companion can send you a notification at Fajr, Zuhr and Maghrib and play the azan.';
+
+  @override
+  String get azaanOptInIosNote =>
+      'On iPhone the notification plays a short takbir. Choose Full Azan in Settings to hear the whole azan when you tap it.';
+
+  @override
+  String get azaanOptInChangeLater =>
+      'You can change which prayers notify you, pick a different sound, or turn this off again at any time in Settings.';
+
+  @override
+  String get azaanOptInTitle => 'Play the azan at prayer times?';
+
+  @override
+  String get azaanOptInNotNow => 'Not now';
+
+  @override
+  String get azaanOptInEnable => 'Enable azan';
+
+  @override
+  String reminderRemoveBody(String title) {
+    return 'This removes the reminder for \"$title\". You can add it again any time.';
+  }
+
+  @override
+  String get reminderRemoveTitle => 'Remove reminder?';
+
+  @override
+  String get reminderAddTooltip => 'Add reminder';
+
+  @override
+  String get reminderNone => 'No reminders yet';
+
+  @override
+  String get reminderNoneBody =>
+      'Tap + to get reminded about a zikr or dua on the days you choose — like Tawassul every Tuesday, or Dua Kumail after Maghrib on Thursday.';
+
+  @override
+  String tasbeehBeepNumber(int number) {
+    return 'Beep $number';
+  }
+
+  @override
+  String get tasbeehHelp =>
+      'Tap the counter circle to count. The beep will play at the milestones below.';
+
+  @override
+  String get tasbeehEnableBeep => 'Enable beep';
+
+  @override
+  String get tasbeehTapToCount => 'Tap to count';
+
+  @override
+  String get tasbeehMinusOne => 'Minus one';
+
+  @override
+  String get tasbeehReset => 'Reset';
+
+  @override
+  String get requestThanks => 'Thanks - we\'ve received your request.';
+
+  @override
+  String get requestFailed => 'Could not send the request. Please try again.';
+
+  @override
+  String get requestBookTitle => 'Book title';
+
+  @override
+  String get requestZikrName => 'Name of dua, ziyarat, etc.';
+
+  @override
+  String get requestBookDetails => 'Author, translator or link (optional)';
+
+  @override
+  String get requestZikrDetails => 'Source, occasion or link (optional)';
+
+  @override
+  String get commonSend => 'Send';
+
+  @override
+  String searchOneMatch(String source) {
+    return '1 match in $source';
+  }
+
+  @override
+  String searchMatches(int count, String source) {
+    return '$count matches in $source';
+  }
+
+  @override
+  String get searchSourceZikr => 'Zikr';
+
+  @override
+  String get searchSourceQuran => 'Quran';
+
+  @override
+  String get searchSourceLibrary => 'Library';
+
+  @override
+  String get searchTitleOrUid => 'Search title or UID';
+
+  @override
+  String get searchShow => 'Show';
+
+  @override
+  String get searchNoResults => 'No results';
+
+  @override
+  String get searchRequestIt => 'Request it';
+
+  @override
+  String widgetPrayerTimesHelp(int min, int max) {
+    return 'Pick $min to $max times. Sunrise, Sunset and Midnight are the deadlines a prayer has to be offered before.';
+  }
+
+  @override
+  String get accountSessionExpired =>
+      'Your session expired. Please sign in again and retry deletion.';
+
+  @override
+  String get accountReauthenticate =>
+      'For security, please sign in again and then retry deleting your account.';
+
+  @override
+  String get accountPopupClosed =>
+      'Sign-in window closed before the action finished.';
+
+  @override
+  String get accountNetworkError =>
+      'Network error. Please check your connection and try again.';
+
+  @override
+  String get commonSomethingWentWrong =>
+      'Something went wrong. Please try again.';
 }

@@ -15,6 +15,7 @@ import 'package:shia_companion/widgets/favorite_icon.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/content_request_service.dart';
 import 'package:shia_companion/widgets/content_request_dialog.dart';
+import '../l10n/l10n.dart';
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;
@@ -158,7 +159,7 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   String? get searchFieldLabel =>
-      isUserAdmin ? 'Search title or UID' : super.searchFieldLabel;
+      isUserAdmin ? L10n.current.searchTitleOrUid : super.searchFieldLabel;
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -257,22 +258,23 @@ class DataSearch extends SearchDelegate<String> {
           ListTile(
             leading: Icon(source.icon),
             title: Text(bySource[source]!.length == 1
-                ? '1 match in ${source.label}'
-                : '${bySource[source]!.length} matches in ${source.label}'),
-            trailing: const Text('Show'),
+                ? context.l10n.searchOneMatch(source.label)
+                : context.l10n
+                    .searchMatches(bySource[source]!.length, source.label)),
+            trailing: Text(context.l10n.searchShow),
             onTap: () => toggle(source, true),
           ),
         if (query.trim().isNotEmpty && results.isEmpty) ...[
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
-            child: Center(child: Text('No results')),
+            child: Center(child: Text(context.l10n.searchNoResults)),
           ),
           // A search that finds nothing is the moment someone knows exactly
           // what's missing, so offer to request it with the query pre-filled.
           Center(
             child: TextButton.icon(
               icon: const Icon(Icons.playlist_add),
-              label: const Text('Request it'),
+              label: Text(context.l10n.searchRequestIt),
               onPressed: () => showContentRequestDialog(
                 context,
                 initialType: _sources.length == 1 &&
@@ -322,14 +324,19 @@ class DataSearch extends SearchDelegate<String> {
 
 /// The kinds of result search can list, each with its own filter chip.
 enum SearchSource {
-  zikr('Zikr', Icons.menu_book_outlined),
-  quran('Quran', Icons.auto_stories_outlined),
-  library('Library', Icons.local_library_outlined);
+  zikr(Icons.menu_book_outlined),
+  quran(Icons.auto_stories_outlined),
+  library(Icons.local_library_outlined);
 
-  const SearchSource(this.label, this.icon);
+  const SearchSource(this.icon);
 
-  final String label;
   final IconData icon;
+
+  String get label => switch (this) {
+        SearchSource.zikr => L10n.current.searchSourceZikr,
+        SearchSource.quran => L10n.current.searchSourceQuran,
+        SearchSource.library => L10n.current.searchSourceLibrary,
+      };
 }
 
 class _SectionHeader extends StatelessWidget {

@@ -1781,5 +1781,187 @@
   "flightRemoveTitle": "Remove flight?",
   "flightRemove": "Remove flight",
   "flightNoneSaved": "No flights saved",
-  "flightNoneSavedBody": "Add your flight and this page will work out when each prayer comes in along the route — shown in both your departure and arrival city's time."
+  "flightNoneSavedBody": "Add your flight and this page will work out when each prayer comes in along the route — shown in both your departure and arrival city's time.",
+  "librarySavedForOffline": "{title} saved for offline",
+  "@librarySavedForOffline": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "librarySaveFailedShort": "Save failed: {error}",
+  "@librarySaveFailedShort": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryOfflineRemoved": "Offline copy removed",
+  "libraryShareBook": "Share book",
+  "libraryRemoveOffline": "Remove offline copy",
+  "librarySaveOffline": "Save book offline",
+  "libraryChaptersUnavailable": "Chapters unavailable",
+  "libraryNoChapters": "No chapters found",
+  "libraryNoChaptersBody": "This book has no chapters right now.",
+  "quranMoveEntry": "Move \"{entry}\"",
+  "@quranMoveEntry": {
+    "placeholders": {
+      "entry": {
+        "type": "String"
+      }
+    }
+  },
+  "quranNoSessions": "No sessions yet. Open a surah and start reading - the verses you recite are logged here automatically.",
+  "quranMoveToLabel": "Move to another label",
+  "quranNewLabel": "Or a new label",
+  "quranMove": "Move",
+  "quranCollectionDuas": "Duas",
+  "quranCollectionImamAli": "Imam Ali (a.s.)",
+  "quranCollectionImamMahdi": "Imam al-Mahdi (a.t.f.s.)",
+  "quranCollectionProphets": "Prophets",
+  "quranCollectionSaved": "Saved",
+  "quranFromTheQuran": "From the Quran",
+  "quranNoSavedVerses": "No saved verses yet",
+  "quranNoSavedVersesBody": "Tap a verse while reading to keep it here.",
+  "libraryNextChapter": "Next chapter",
+  "libraryPreviousChapter": "Previous chapter",
+  "libraryNextPage": "Next page",
+  "libraryPreviousPage": "Previous page",
+  "libraryNextChapterNamed": "Next chapter: {chapter}",
+  "@libraryNextChapterNamed": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryPreviousChapterNamed": "Previous chapter: {chapter}",
+  "@libraryPreviousChapterNamed": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryNextShort": "Next: {chapter}",
+  "@libraryNextShort": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryPreviousShort": "Previous: {chapter}",
+  "@libraryPreviousShort": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryShareChapter": "Share chapter",
+  "libraryChapterUnavailable": "Chapter unavailable",
+  "libraryDecreaseFont": "Decrease font size",
+  "libraryIncreaseFont": "Increase font size",
+  "azaanTakbirName": "Takbir Only",
+  "azaanTakbirDescription": "Short takbir notification sound",
+  "azaanFullName": "Full Azan",
+  "azaanFullDescription": "Full azan, played automatically",
+  "azaanFullIosDescription": "The notification plays the Takbir; tap it to hear the full azan",
+  "azaanSystemDefaultName": "System Default",
+  "azaanSystemDefaultDescription": "Use your device's default notification sound",
+  "azaanSilentName": "Silent",
+  "azaanSilentDescription": "Notification banner only (no sound)",
+  "azaanCustomName": "Custom Audio",
+  "azaanCustomDescription": "Choose an audio file from your device",
+  "ratingEnjoying": "Enjoying Shia Companion?",
+  "ratingEnjoyingBody": "We'd love to hear how it's going for you - your feedback helps us keep improving the app.",
+  "ratingNotReally": "Not really",
+  "ratingYes": "Yes!",
+  "ratingSorry": "Sorry to hear that",
+  "ratingSorryBody": "Would you mind telling us what's not working? It helps us improve the app.",
+  "ratingNoThanks": "No thanks",
+  "ratingSendFeedback": "Send feedback",
+  "azaanOptInIntro": "Shia Companion can send you a notification at Fajr, Zuhr and Maghrib and play the azan.",
+  "azaanOptInIosNote": "On iPhone the notification plays a short takbir. Choose Full Azan in Settings to hear the whole azan when you tap it.",
+  "azaanOptInChangeLater": "You can change which prayers notify you, pick a different sound, or turn this off again at any time in Settings.",
+  "azaanOptInTitle": "Play the azan at prayer times?",
+  "azaanOptInNotNow": "Not now",
+  "azaanOptInEnable": "Enable azan",
+  "reminderRemoveBody": "This removes the reminder for \"{title}\". You can add it again any time.",
+  "@reminderRemoveBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderRemoveTitle": "Remove reminder?",
+  "reminderAddTooltip": "Add reminder",
+  "reminderNone": "No reminders yet",
+  "reminderNoneBody": "Tap + to get reminded about a zikr or dua on the days you choose — like Tawassul every Tuesday, or Dua Kumail after Maghrib on Thursday.",
+  "tasbeehBeepNumber": "Beep {number}",
+  "@tasbeehBeepNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbeehHelp": "Tap the counter circle to count. The beep will play at the milestones below.",
+  "tasbeehEnableBeep": "Enable beep",
+  "tasbeehTapToCount": "Tap to count",
+  "tasbeehMinusOne": "Minus one",
+  "tasbeehReset": "Reset",
+  "requestThanks": "Thanks - we've received your request.",
+  "requestFailed": "Could not send the request. Please try again.",
+  "requestBookTitle": "Book title",
+  "requestZikrName": "Name of dua, ziyarat, etc.",
+  "requestBookDetails": "Author, translator or link (optional)",
+  "requestZikrDetails": "Source, occasion or link (optional)",
+  "commonSend": "Send",
+  "searchOneMatch": "1 match in {source}",
+  "@searchOneMatch": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "searchMatches": "{count} matches in {source}",
+  "@searchMatches": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "searchSourceZikr": "Zikr",
+  "searchSourceQuran": "Quran",
+  "searchSourceLibrary": "Library",
+  "searchTitleOrUid": "Search title or UID",
+  "searchShow": "Show",
+  "searchNoResults": "No results",
+  "searchRequestIt": "Request it",
+  "widgetPrayerTimesHelp": "Pick {min} to {max} times. Sunrise, Sunset and Midnight are the deadlines a prayer has to be offered before.",
+  "@widgetPrayerTimesHelp": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "accountSessionExpired": "Your session expired. Please sign in again and retry deletion.",
+  "accountReauthenticate": "For security, please sign in again and then retry deleting your account.",
+  "accountPopupClosed": "Sign-in window closed before the action finished.",
+  "accountNetworkError": "Network error. Please check your connection and try again.",
+  "commonSomethingWentWrong": "Something went wrong. Please try again."
 }

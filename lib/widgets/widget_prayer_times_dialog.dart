@@ -8,8 +8,9 @@ import '../services/home_screen_widget_service.dart';
 import '../services/prayer_preferences_sync_service.dart';
 import '../utils/widget_prayer_time_selection.dart';
 import 'prayer_glyph.dart';
+import '../l10n/l10n.dart';
 
-/// The "Prayer Times Shown" picker, shared by Settings and the home page card
+/// The context.l10n.settingsPrayerTimesShown picker, shared by Settings and the home page card
 /// so the setting can be reached from the thing it changes as well as from the
 /// settings list. Saves and republishes the home screen widgets itself.
 ///
@@ -27,7 +28,7 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
           final atMaximum = selected.length >= maxWidgetPrayerTimes;
 
           return AlertDialog(
-            title: const Text("Prayer Times Shown"),
+            title: Text(context.l10n.settingsPrayerTimesShown),
             content: SizedBox(
               width: double.maxFinite,
               child: ListView(
@@ -36,9 +37,8 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
                     child: Text(
-                      "Pick $minWidgetPrayerTimes to $maxWidgetPrayerTimes "
-                      "times. Sunrise, Sunset and Midnight are the deadlines "
-                      "a prayer has to be offered before.",
+                      context.l10n.widgetPrayerTimesHelp(
+                          minWidgetPrayerTimes, maxWidgetPrayerTimes),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -50,7 +50,7 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
                         size: 24,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                      title: Text(time.name),
+                      title: Text(localizedPrayerName(time.name, context.l10n)),
                       value: selected.contains(time.id),
                       onChanged:
                           (selected.contains(time.id) ? atMinimum : atMaximum)
@@ -71,11 +71,11 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text("Cancel"),
+                child: Text(context.l10n.commonCancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, true),
-                child: const Text("Save"),
+                child: Text(context.l10n.commonSave),
               ),
             ],
           );

@@ -12,6 +12,7 @@ import 'qaza_tracker_manager.dart';
 import 'recitation_tracker_manager.dart';
 import 'saved_verses_manager.dart';
 import 'zikr_bookmarks_manager.dart';
+import '../l10n/l10n.dart';
 
 class AccountActionException implements Exception {
   final String message;
@@ -122,16 +123,12 @@ class AccountService {
       await user.reauthenticateWithPopup(GoogleAuthProvider());
       final refreshedUser = _auth.currentUser;
       if (refreshedUser == null || refreshedUser.uid != user.uid) {
-        throw const AccountActionException(
-          'Your session expired. Please sign in again and retry deletion.',
-        );
+        throw AccountActionException(L10n.current.accountSessionExpired);
       }
       return refreshedUser;
     }
 
-    throw const AccountActionException(
-      'For security, please sign in again and then retry deleting your account.',
-    );
+    throw AccountActionException(L10n.current.accountReauthenticate);
   }
 
   static bool _hasRecentSignIn(User user) {
@@ -151,9 +148,7 @@ class AccountService {
         await user.reauthenticateWithPopup(GoogleAuthProvider());
         final refreshedUser = _auth.currentUser;
         if (refreshedUser == null) {
-          throw const AccountActionException(
-            'Your session expired. Please sign in again and retry deletion.',
-          );
+          throw AccountActionException(L10n.current.accountSessionExpired);
         }
         await refreshedUser.delete();
         return;
@@ -170,13 +165,13 @@ class AccountService {
   static String _messageForAuthError(FirebaseAuthException error) {
     switch (error.code) {
       case 'requires-recent-login':
-        return 'For security, please sign in again and then retry deleting your account.';
+        return L10n.current.accountReauthenticate;
       case 'popup-closed-by-user':
-        return 'Sign-in window closed before the action finished.';
+        return L10n.current.accountPopupClosed;
       case 'network-request-failed':
-        return 'Network error. Please check your connection and try again.';
+        return L10n.current.accountNetworkError;
       default:
-        return error.message ?? 'Something went wrong. Please try again.';
+        return error.message ?? L10n.current.commonSomethingWentWrong;
     }
   }
 }

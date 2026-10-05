@@ -4378,6 +4378,558 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add your flight and this page will work out when each prayer comes in along the route — shown in both your departure and arrival city\'s time.'**
   String get flightNoneSavedBody;
+
+  /// No description provided for @librarySavedForOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} saved for offline'**
+  String librarySavedForOffline(String title);
+
+  /// No description provided for @librarySaveFailedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed: {error}'**
+  String librarySaveFailedShort(String error);
+
+  /// No description provided for @libraryOfflineRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline copy removed'**
+  String get libraryOfflineRemoved;
+
+  /// No description provided for @libraryShareBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Share book'**
+  String get libraryShareBook;
+
+  /// No description provided for @libraryRemoveOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove offline copy'**
+  String get libraryRemoveOffline;
+
+  /// No description provided for @librarySaveOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Save book offline'**
+  String get librarySaveOffline;
+
+  /// No description provided for @libraryChaptersUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters unavailable'**
+  String get libraryChaptersUnavailable;
+
+  /// No description provided for @libraryNoChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'No chapters found'**
+  String get libraryNoChapters;
+
+  /// No description provided for @libraryNoChaptersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This book has no chapters right now.'**
+  String get libraryNoChaptersBody;
+
+  /// No description provided for @quranMoveEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Move \"{entry}\"'**
+  String quranMoveEntry(String entry);
+
+  /// No description provided for @quranNoSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions yet. Open a surah and start reading - the verses you recite are logged here automatically.'**
+  String get quranNoSessions;
+
+  /// No description provided for @quranMoveToLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to another label'**
+  String get quranMoveToLabel;
+
+  /// No description provided for @quranNewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Or a new label'**
+  String get quranNewLabel;
+
+  /// No description provided for @quranMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get quranMove;
+
+  /// No description provided for @quranCollectionDuas.
+  ///
+  /// In en, this message translates to:
+  /// **'Duas'**
+  String get quranCollectionDuas;
+
+  /// No description provided for @quranCollectionImamAli.
+  ///
+  /// In en, this message translates to:
+  /// **'Imam Ali (a.s.)'**
+  String get quranCollectionImamAli;
+
+  /// No description provided for @quranCollectionImamMahdi.
+  ///
+  /// In en, this message translates to:
+  /// **'Imam al-Mahdi (a.t.f.s.)'**
+  String get quranCollectionImamMahdi;
+
+  /// No description provided for @quranCollectionProphets.
+  ///
+  /// In en, this message translates to:
+  /// **'Prophets'**
+  String get quranCollectionProphets;
+
+  /// No description provided for @quranCollectionSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get quranCollectionSaved;
+
+  /// No description provided for @quranFromTheQuran.
+  ///
+  /// In en, this message translates to:
+  /// **'From the Quran'**
+  String get quranFromTheQuran;
+
+  /// No description provided for @quranNoSavedVerses.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved verses yet'**
+  String get quranNoSavedVerses;
+
+  /// No description provided for @quranNoSavedVersesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a verse while reading to keep it here.'**
+  String get quranNoSavedVersesBody;
+
+  /// No description provided for @libraryNextChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Next chapter'**
+  String get libraryNextChapter;
+
+  /// No description provided for @libraryPreviousChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous chapter'**
+  String get libraryPreviousChapter;
+
+  /// No description provided for @libraryNextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get libraryNextPage;
+
+  /// No description provided for @libraryPreviousPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get libraryPreviousPage;
+
+  /// No description provided for @libraryNextChapterNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Next chapter: {chapter}'**
+  String libraryNextChapterNamed(String chapter);
+
+  /// No description provided for @libraryPreviousChapterNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous chapter: {chapter}'**
+  String libraryPreviousChapterNamed(String chapter);
+
+  /// No description provided for @libraryNextShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {chapter}'**
+  String libraryNextShort(String chapter);
+
+  /// No description provided for @libraryPreviousShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous: {chapter}'**
+  String libraryPreviousShort(String chapter);
+
+  /// No description provided for @libraryShareChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Share chapter'**
+  String get libraryShareChapter;
+
+  /// No description provided for @libraryChapterUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter unavailable'**
+  String get libraryChapterUnavailable;
+
+  /// No description provided for @libraryDecreaseFont.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease font size'**
+  String get libraryDecreaseFont;
+
+  /// No description provided for @libraryIncreaseFont.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase font size'**
+  String get libraryIncreaseFont;
+
+  /// No description provided for @azaanTakbirName.
+  ///
+  /// In en, this message translates to:
+  /// **'Takbir Only'**
+  String get azaanTakbirName;
+
+  /// No description provided for @azaanTakbirDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Short takbir notification sound'**
+  String get azaanTakbirDescription;
+
+  /// No description provided for @azaanFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Azan'**
+  String get azaanFullName;
+
+  /// No description provided for @azaanFullDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Full azan, played automatically'**
+  String get azaanFullDescription;
+
+  /// No description provided for @azaanFullIosDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The notification plays the Takbir; tap it to hear the full azan'**
+  String get azaanFullIosDescription;
+
+  /// No description provided for @azaanSystemDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'System Default'**
+  String get azaanSystemDefaultName;
+
+  /// No description provided for @azaanSystemDefaultDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your device\'s default notification sound'**
+  String get azaanSystemDefaultDescription;
+
+  /// No description provided for @azaanSilentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Silent'**
+  String get azaanSilentName;
+
+  /// No description provided for @azaanSilentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification banner only (no sound)'**
+  String get azaanSilentDescription;
+
+  /// No description provided for @azaanCustomName.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Audio'**
+  String get azaanCustomName;
+
+  /// No description provided for @azaanCustomDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an audio file from your device'**
+  String get azaanCustomDescription;
+
+  /// No description provided for @ratingEnjoying.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoying Shia Companion?'**
+  String get ratingEnjoying;
+
+  /// No description provided for @ratingEnjoyingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'d love to hear how it\'s going for you - your feedback helps us keep improving the app.'**
+  String get ratingEnjoyingBody;
+
+  /// No description provided for @ratingNotReally.
+  ///
+  /// In en, this message translates to:
+  /// **'Not really'**
+  String get ratingNotReally;
+
+  /// No description provided for @ratingYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes!'**
+  String get ratingYes;
+
+  /// No description provided for @ratingSorry.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry to hear that'**
+  String get ratingSorry;
+
+  /// No description provided for @ratingSorryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Would you mind telling us what\'s not working? It helps us improve the app.'**
+  String get ratingSorryBody;
+
+  /// No description provided for @ratingNoThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'No thanks'**
+  String get ratingNoThanks;
+
+  /// No description provided for @ratingSendFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback'**
+  String get ratingSendFeedback;
+
+  /// No description provided for @azaanOptInIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Shia Companion can send you a notification at Fajr, Zuhr and Maghrib and play the azan.'**
+  String get azaanOptInIntro;
+
+  /// No description provided for @azaanOptInIosNote.
+  ///
+  /// In en, this message translates to:
+  /// **'On iPhone the notification plays a short takbir. Choose Full Azan in Settings to hear the whole azan when you tap it.'**
+  String get azaanOptInIosNote;
+
+  /// No description provided for @azaanOptInChangeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change which prayers notify you, pick a different sound, or turn this off again at any time in Settings.'**
+  String get azaanOptInChangeLater;
+
+  /// No description provided for @azaanOptInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Play the azan at prayer times?'**
+  String get azaanOptInTitle;
+
+  /// No description provided for @azaanOptInNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get azaanOptInNotNow;
+
+  /// No description provided for @azaanOptInEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable azan'**
+  String get azaanOptInEnable;
+
+  /// No description provided for @reminderRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the reminder for \"{title}\". You can add it again any time.'**
+  String reminderRemoveBody(String title);
+
+  /// No description provided for @reminderRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove reminder?'**
+  String get reminderRemoveTitle;
+
+  /// No description provided for @reminderAddTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reminder'**
+  String get reminderAddTooltip;
+
+  /// No description provided for @reminderNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders yet'**
+  String get reminderNone;
+
+  /// No description provided for @reminderNoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to get reminded about a zikr or dua on the days you choose — like Tawassul every Tuesday, or Dua Kumail after Maghrib on Thursday.'**
+  String get reminderNoneBody;
+
+  /// No description provided for @tasbeehBeepNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Beep {number}'**
+  String tasbeehBeepNumber(int number);
+
+  /// No description provided for @tasbeehHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the counter circle to count. The beep will play at the milestones below.'**
+  String get tasbeehHelp;
+
+  /// No description provided for @tasbeehEnableBeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable beep'**
+  String get tasbeehEnableBeep;
+
+  /// No description provided for @tasbeehTapToCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to count'**
+  String get tasbeehTapToCount;
+
+  /// No description provided for @tasbeehMinusOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Minus one'**
+  String get tasbeehMinusOne;
+
+  /// No description provided for @tasbeehReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get tasbeehReset;
+
+  /// No description provided for @requestThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks - we\'ve received your request.'**
+  String get requestThanks;
+
+  /// No description provided for @requestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send the request. Please try again.'**
+  String get requestFailed;
+
+  /// No description provided for @requestBookTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Book title'**
+  String get requestBookTitle;
+
+  /// No description provided for @requestZikrName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name of dua, ziyarat, etc.'**
+  String get requestZikrName;
+
+  /// No description provided for @requestBookDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Author, translator or link (optional)'**
+  String get requestBookDetails;
+
+  /// No description provided for @requestZikrDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Source, occasion or link (optional)'**
+  String get requestZikrDetails;
+
+  /// No description provided for @commonSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get commonSend;
+
+  /// No description provided for @searchOneMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'1 match in {source}'**
+  String searchOneMatch(String source);
+
+  /// No description provided for @searchMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} matches in {source}'**
+  String searchMatches(int count, String source);
+
+  /// No description provided for @searchSourceZikr.
+  ///
+  /// In en, this message translates to:
+  /// **'Zikr'**
+  String get searchSourceZikr;
+
+  /// No description provided for @searchSourceQuran.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran'**
+  String get searchSourceQuran;
+
+  /// No description provided for @searchSourceLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get searchSourceLibrary;
+
+  /// No description provided for @searchTitleOrUid.
+  ///
+  /// In en, this message translates to:
+  /// **'Search title or UID'**
+  String get searchTitleOrUid;
+
+  /// No description provided for @searchShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get searchShow;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get searchNoResults;
+
+  /// No description provided for @searchRequestIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Request it'**
+  String get searchRequestIt;
+
+  /// No description provided for @widgetPrayerTimesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick {min} to {max} times. Sunrise, Sunset and Midnight are the deadlines a prayer has to be offered before.'**
+  String widgetPrayerTimesHelp(int min, int max);
+
+  /// No description provided for @accountSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session expired. Please sign in again and retry deletion.'**
+  String get accountSessionExpired;
+
+  /// No description provided for @accountReauthenticate.
+  ///
+  /// In en, this message translates to:
+  /// **'For security, please sign in again and then retry deleting your account.'**
+  String get accountReauthenticate;
+
+  /// No description provided for @accountPopupClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in window closed before the action finished.'**
+  String get accountPopupClosed;
+
+  /// No description provided for @accountNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Network error. Please check your connection and try again.'**
+  String get accountNetworkError;
+
+  /// No description provided for @commonSomethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get commonSomethingWentWrong;
 }
 
 class _AppLocalizationsDelegate
