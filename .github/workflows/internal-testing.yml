@@ -1,0 +1,291 @@
+name: Internal testing
+
+# Manual only: Actions -> Internal testing -> Run workflow. Builds any branch,
+# tag, commit or pull request and uploads it to TestFlight and/or the Google
+# Play internal testing track. Neither goes through review or reaches store
+# users unless that build is later promoted by hand. Setup is in docs/CI.md.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag, commit or PR number to build (blank = the branch picked above)
+        required: false
+        default: ''
+      platforms:
+        description: Where to upload
+        type: choice
+        options:
+          - both
+          - ios
+          - android
+        default: both
+      version:
+        description: Version to upload as (blank = pubspec.yaml's). On iOS it must be above the version live on the App Store.
+        required: false
+        default: ''
+
+# One at a time: two runs started together would read the same latest build
+# number, and the store would reject the second upload as a duplicate.
+concurrency:
+  group: internal-testing
+  cancel-in-progress: false
+
+jobs:
+  # Pins the commit, so both platforms build the same one even if the branch
+  # moves mid-run, and settles the version once for both.
+  prepare:
+    name: Resolve commit and version
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.version.outputs.sha }}
+      version: ${{ steps.version.outputs.version }}
+      pubspec_build: ${{ steps.version.outputs.pubspec_build }}
+    steps:
+      # A bare number (or #number) means that pull request's head.
+      - name: Resolve ref
+        id: ref
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          if [[ "$REF" =~ ^#?[0-9]+$ ]]; then
+            echo "ref=refs/pull/${REF#\#}/head" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.ref.outputs.ref }}
+
+      - name: Pick version
+        id: version
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          read -r pubspec_version pubspec_build < <(
+            sed -nE 's/^version: *([0-9.]+)\+([0-9]+).*/\1 \2/p' pubspec.yaml)
+          version="${VERSION_INPUT:-$pubspec_version}"
+          if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]]; then
+            echo "::error::Version '$version' is not of the form 1.2.3."
+            exit 1
+          fi
+          {
+            echo "sha=$(git rev-parse HEAD)"
+            echo "version=$version"
+            echo "pubspec_build=$pubspec_build"
+          } >> "$GITHUB_OUTPUT"
+
+  ios:
+    name: Build and upload to TestFlight
+    needs: prepare
+    if: inputs.platforms != 'android'
+    runs-on: macos-latest
+    timeout-minutes: 75
+    env:
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+      CERTIFICATE_PRIVATE_KEY: ${{ secrets.CERTIFICATE_PRIVATE_KEY }}
+      BUNDLE_ID: com.developer110.shiacompanion
+      APP_VERSION: ${{ needs.prepare.outputs.version }}
+      PUBSPEC_BUILD: ${{ needs.prepare.outputs.pubspec_build }}
+    steps:
+      - name: Check secrets
+        run: |
+          missing=""
+          for name in APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_KEY_IDENTIFIER \
+                      APP_STORE_CONNECT_PRIVATE_KEY CERTIFICATE_PRIVATE_KEY; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing. See \"Uploading test builds\" in docs/CI.md."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+
+      - name: Show selected Xcode
+        run: |
+          xcode-select -p
+          xcodebuild -version
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      # The same tools Codemagic's machines sign and upload with.
+      - name: Install Codemagic CLI tools
+        run: pip install codemagic-cli-tools
+
+      # One above anything already uploaded, for any version, so a rerun or a
+      # test-only build never collides with an earlier upload.
+      # pubspec.yaml's build number wins when it is higher.
+      - name: Pick build number
+        run: |
+          set -euo pipefail
+          app_id=$(app-store-connect apps list --bundle-id-identifier "$BUNDLE_ID" \
+            --strict-match-identifier --json | jq -r '.[0].id // empty')
+          if [ -z "$app_id" ]; then
+            echo "::error::No App Store Connect app found for $BUNDLE_ID with this API key."
+            exit 1
+          fi
+          latest=$(app-store-connect get-latest-build-number "$app_id" --all-versions)
+          build=$(( ${latest:-0} + 1 ))
+          (( build > PUBSPEC_BUILD )) || build=$PUBSPEC_BUILD
+          echo "APP_BUILD_NUMBER=$build" >> "$GITHUB_ENV"
+          echo "Uploading $APP_VERSION ($build); latest uploaded build is ${latest:-none}."
+
+      # The widget and watch targets carry their own MARKETING_VERSION and
+      # CURRENT_PROJECT_VERSION, and App Store Connect flags extensions whose
+      # version differs from the app's. Align them for this build only.
+      - name: Match extension versions to the app's
+        run: |
+          sed -i '' -E \
+            -e "s/(MARKETING_VERSION = )[^;]+;/\1$APP_VERSION;/" \
+            -e "s/(CURRENT_PROJECT_VERSION = )[^;]+;/\1$APP_BUILD_NUMBER;/" \
+            ios/Runner.xcodeproj/project.pbxproj
+
+      # Fetches App Store profiles for the app and every
+      # com.developer110.shiacompanion.* extension (widgets, watch app, watch
+      # widgets), and the Apple Distribution certificate for
+      # CERTIFICATE_PRIVATE_KEY, creating whichever doesn't exist yet. Then
+      # switches the project from automatic signing to those profiles.
+      - name: Set up code signing
+        run: |
+          set -euo pipefail
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          keychain add-certificates
+          xcode-project use-profiles --project ios/Runner.xcodeproj \
+            --export-options-plist "$RUNNER_TEMP/export_options.plist"
+
+      - name: Build IPA
+        run: |
+          flutter build ipa --release \
+            --build-name "$APP_VERSION" \
+            --build-number "$APP_BUILD_NUMBER" \
+            --export-options-plist "$RUNNER_TEMP/export_options.plist"
+
+      # Upload only. Without --testflight, nothing is submitted for external
+      # beta review; internal testers can install it once Apple has processed it.
+      - name: Upload to App Store Connect
+        run: app-store-connect publish --path build/ios/ipa/*.ipa
+
+      - name: Summary
+        env:
+          REF: ${{ inputs.ref || github.ref_name }}
+        run: |
+          {
+            echo "### Uploaded $APP_VERSION ($APP_BUILD_NUMBER) to TestFlight"
+            echo
+            echo "Built from \`$REF\` at $(git rev-parse --short HEAD). It shows up in" \
+              "TestFlight once Apple finishes processing it, usually within 15 minutes."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  android:
+    name: Build and upload to Play internal testing
+    needs: prepare
+    if: inputs.platforms != 'ios'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      PACKAGE_NAME: com.developer110.shiacompanion
+      APP_VERSION: ${{ needs.prepare.outputs.version }}
+      PUBSPEC_BUILD: ${{ needs.prepare.outputs.pubspec_build }}
+    steps:
+      - name: Check secrets
+        run: |
+          missing=""
+          for name in GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS ANDROID_KEYSTORE_BASE64 \
+                      ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing. See \"Uploading test builds\" in docs/CI.md."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Codemagic CLI tools
+        run: pip install codemagic-cli-tools
+
+      # The highest version code on any track, plus one. Play rejects a
+      # version code it has seen before, whatever the track.
+      - name: Pick version code
+        run: |
+          set -euo pipefail
+          latest=$(google-play get-latest-build-number --package-name "$PACKAGE_NAME")
+          build=$(( ${latest:-0} + 1 ))
+          (( build > PUBSPEC_BUILD )) || build=$PUBSPEC_BUILD
+          echo "APP_BUILD_NUMBER=$build" >> "$GITHUB_ENV"
+          echo "Uploading $APP_VERSION ($build); latest version code on Play is ${latest:-none}."
+
+      # android/app/build.gradle signs release builds with android/key.properties
+      # when it exists; the keystore itself stays outside the checkout.
+      - name: Set up upload key
+        run: |
+          set -euo pipefail
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
+          {
+            echo "storeFile=$RUNNER_TEMP/upload-keystore.jks"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > android/key.properties
+
+      - name: Build app bundle
+        run: |
+          flutter build appbundle --release \
+            --build-name "$APP_VERSION" \
+            --build-number "$APP_BUILD_NUMBER"
+
+      - name: Upload to Play internal testing
+        run: |
+          google-play bundles publish \
+            --bundle build/app/outputs/bundle/release/app-release.aab \
+            --track internal
+
+      - name: Summary
+        env:
+          REF: ${{ inputs.ref || github.ref_name }}
+        run: |
+          {
+            echo "### Uploaded $APP_VERSION ($APP_BUILD_NUMBER) to Play internal testing"
+            echo
+            echo "Built from \`$REF\` at $(git rev-parse --short HEAD). Internal testers" \
+              "get it as an update from the Play Store, usually within minutes."
+          } >> "$GITHUB_STEP_SUMMARY"

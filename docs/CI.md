@@ -8,7 +8,7 @@
 | `web-preview.yml` | push to `master`, every PR, manual | Deploys a Firebase preview channel. Never touches production. |
 | `web-release.yml` | push to `master` that changes the version in `pubspec.yaml`, manual | The only workflow that writes to the live site |
 | `smoke-test.yml` | push to `master` that bumps the version in `pubspec.yaml`, manual | Runs the automated smoke crawler integration test on both an iOS Simulator and an Android emulator |
-| `testflight.yml` | manual only | Builds any branch, commit or PR and uploads it to TestFlight for internal testing. Never submits anything for review. |
+| `internal-testing.yml` | manual only | Builds any branch, commit or PR and uploads it to TestFlight and/or the Play internal testing track. Never submits anything for review. |
 
 `ci.yml` runs analysis and tests first, on Ubuntu, and only starts the slow
 platform builds once they pass. A failing test is reported in about three
@@ -307,22 +307,34 @@ If a future Xcode breaks the build again, the failure belongs in the open
 rather than behind `continue-on-error`. Pin `runs-on` to the last known good
 `macos-NN` deliberately and for as short a time as possible.
 
-## Uploading to TestFlight
+## Uploading test builds
 
-`testflight.yml` puts a build of any branch, commit or pull request on
-TestFlight without merging it first: **Actions → TestFlight → Run workflow**,
-with the branch name or PR number in *ref*. It only uploads. Internal testers
-can install the build once Apple has processed it, and App Store users never
-see it unless that build is later submitted for review by hand. Rolling back
-is just reinstalling from the App Store.
+`internal-testing.yml` puts a build of any branch, commit or pull request on
+TestFlight and the Google Play internal testing track without merging it
+first: **Actions → Internal testing → Run workflow**, with the branch name or
+PR number in *ref* and *platforms* set to both, ios or android. It only
+uploads. Testers you have added can install the build, and store users never
+see it unless that build is later promoted or submitted for review by hand.
 
 It signs and uploads with the Codemagic CLI tools, the same ones Codemagic's
 machines use. Since this repository is public, GitHub doesn't charge for its
 macOS minutes.
 
+### Going back to the store version
+
+- **iOS:** reinstall from the App Store, which replaces the TestFlight build.
+- **Android:** Play never installs a lower version code over a higher one, so
+  leaving the test doesn't bring the production build back. Uninstall and
+  reinstall from the Play Store, which loses anything not synced to an
+  account, or wait for the next production release with a higher version code.
+  That is the reason to try a risky change on iOS first.
+
 ### One-time setup
 
-Add four repository secrets (Settings → Secrets and variables → Actions):
+Add these repository secrets (Settings → Secrets and variables → Actions). A
+platform's job stops at its first step, naming whatever is missing.
+
+**iOS**
 
 | Secret | Value |
 | --- | --- |
@@ -344,15 +356,39 @@ later runs reuse it. Creating it doesn't revoke Codemagic's certificate, but
 Apple caps how many distribution certificates a team can hold. If that limit
 is ever hit, revoke unused ones in the developer portal.
 
+**Android**
+
+| Secret | Value |
+| --- | --- |
+| `GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS` | The JSON key of a Google Cloud service account. See below. |
+| `ANDROID_KEYSTORE_BASE64` | The upload keystore, base64-encoded: `base64 -i upload-keystore.jks` on macOS, `base64 -w0 upload-keystore.jks` on Linux |
+| `ANDROID_KEYSTORE_PASSWORD` | `storePassword` from `android/key.properties` |
+| `ANDROID_KEY_ALIAS` | `keyAlias` from `android/key.properties` |
+| `ANDROID_KEY_PASSWORD` | `keyPassword` from `android/key.properties` |
+
+The keystore is the **upload** key Play App Signing knows, the same one local
+release builds use through `android/key.properties`. For the service account,
+reuse the JSON key Codemagic publishes with if you have it. Otherwise:
+
+1. In Google Cloud, in any project, enable the *Google Play Android Developer
+   API*, create a service account, and download a JSON key for it.
+2. In Play Console → Users and permissions, invite the service account's email
+   with access to this app and the *Release to testing tracks* permission.
+
+Testers need to be on the internal testing track's tester list and to have
+opened its opt-in link once (Play Console → Testing → Internal testing).
+
 ### Version and build number
 
 - **Version** defaults to the one in `pubspec.yaml`. App Store Connect refuses
   uploads for a version that has already been approved, so when `pubspec.yaml`
   still holds the live version, type the next one (e.g. `3.6.1`) in *version*.
-- **Build number** is one above the highest build ever uploaded, or
-  `pubspec.yaml`'s if that is higher. Nothing is committed back. If a later
-  upload of the *same* version from another pipeline is rejected as a
-  duplicate build, bump the `+N` in `pubspec.yaml` past the TestFlight one.
+  Play has no such rule. The version is shared by both platforms.
+- **Build number** is worked out per store: one above the highest build ever
+  uploaded to App Store Connect, or the highest version code on any Play
+  track, or `pubspec.yaml`'s if that is higher. Nothing is committed back. If
+  a later upload from another pipeline is rejected as a duplicate build or
+  version code, bump the `+N` in `pubspec.yaml` past the test build's.
 
 `ios/Runner/Info.plist` sets `ITSAppUsesNonExemptEncryption` to `false`,
 which answers App Store Connect's export compliance question for every build.
