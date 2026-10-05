@@ -347,6 +347,9 @@ class QazaTrackerManager extends ChangeNotifier {
     try {
       final snapshot =
           await _qazaDoc(userId).get().timeout(const Duration(seconds: 8));
+      // Offline, get() falls back to Firestore's cache, which can be older
+      // than the local state (that already has everything this device did).
+      if (snapshot.metadata.isFromCache) return _RemoteQazaRead.failure();
       return _RemoteQazaRead.success(
         exists: snapshot.exists,
         doc: QazaRemoteDoc.fromData(snapshot.data()),
