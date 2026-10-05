@@ -5,6 +5,7 @@ enum QazaOperationKind {
   markCompleted,
   undoCompleted,
   setCount,
+  addCounts,
 }
 
 extension QazaOperationKindInfo on QazaOperationKind {
@@ -13,6 +14,7 @@ extension QazaOperationKindInfo on QazaOperationKind {
         QazaOperationKind.markCompleted => 'mark_completed',
         QazaOperationKind.undoCompleted => 'undo_completed',
         QazaOperationKind.setCount => 'set_count',
+        QazaOperationKind.addCounts => 'add_counts',
       };
 }
 
@@ -77,6 +79,23 @@ class PendingQazaOperation {
     );
   }
 
+  /// Adds [count]'s remaining and completed to the existing ones. Used for
+  /// bulk additions (the qaza estimate, a guest import), which must stack on
+  /// whatever another device changed rather than overwrite it as
+  /// [PendingQazaOperation.setCount] would.
+  factory PendingQazaOperation.addCounts({
+    required String id,
+    required QazaEntryType type,
+    required QazaEntryCount count,
+  }) {
+    return PendingQazaOperation(
+      id: id,
+      kind: QazaOperationKind.addCounts,
+      type: type,
+      count: count,
+    );
+  }
+
   final String id;
   final QazaOperationKind kind;
   final QazaEntryType type;
@@ -100,6 +119,13 @@ class PendingQazaOperation {
     final count = QazaEntryCount.fromJson(value['count']);
     if (kind == QazaOperationKind.setCount) {
       return PendingQazaOperation.setCount(
+        id: id,
+        type: type,
+        count: count,
+      );
+    }
+    if (kind == QazaOperationKind.addCounts) {
+      return PendingQazaOperation.addCounts(
         id: id,
         type: type,
         count: count,
@@ -149,6 +175,8 @@ QazaTrackerState applyPendingQazaOperation(
           ),
     QazaOperationKind.setCount =>
       operation.count?.copyWith() ?? QazaEntryCount.zero,
+    QazaOperationKind.addCounts =>
+      count.plus(operation.count ?? QazaEntryCount.zero),
   };
 
   if (nextCount.remaining == count.remaining &&
@@ -157,4 +185,84 @@ QazaTrackerState applyPendingQazaOperation(
   }
 
   return state.setCount(operation.type, nextCount);
+}
+
+/// How many applied operation ids the remote document remembers. An id only
+/// needs to stay long enough for the device that applied it to drop it from
+/// its pending queue, which happens right after the write lands.
+const qazaAppliedOperationIdLimit = 300;
+
+/// The synced qaza document: the counts plus the ids of the operations
+/// already folded into them.
+///
+/// Operations are deltas ("one fewer Asr owed"), so applying one twice
+/// silently corrupts the counts. The applied ids are what make applying
+/// idempotent: a retry after a crash, an overlapping replay or a duplicate
+/// in the queue all find their id here and are skipped.
+class QazaRemoteDoc {
+  QazaRemoteDoc({
+    required this.state,
+    List<String> appliedOperationIds = const [],
+  }) : appliedOperationIds = List.unmodifiable(appliedOperationIds);
+
+  factory QazaRemoteDoc.fromData(Map<String, dynamic>? data) {
+    final ids = data?['appliedOperationIds'];
+    return QazaRemoteDoc(
+      state: QazaTrackerState.fromJson(data?['entries']),
+      appliedOperationIds: ids is List
+          ? [
+              for (final id in ids)
+                if (id != null && id.toString().isNotEmpty) id.toString(),
+            ]
+          : const [],
+    );
+  }
+
+  static final empty = QazaRemoteDoc(state: QazaTrackerState.empty);
+
+  final QazaTrackerState state;
+  final List<String> appliedOperationIds;
+
+  bool hasApplied(String operationId) =>
+      appliedOperationIds.contains(operationId);
+
+  Map<String, Object> toData() => {
+        'version': 1,
+        'entries': state.toJson(),
+        'appliedOperationIds': appliedOperationIds,
+      };
+}
+
+/// Folds [operations] into [doc] in order, skipping any already applied.
+QazaRemoteDoc applyQazaOperationsToRemote(
+  QazaRemoteDoc doc,
+  Iterable<PendingQazaOperation> operations,
+) {
+  var state = doc.state;
+  final appliedIds = [...doc.appliedOperationIds];
+  final seenIds = appliedIds.toSet();
+  for (final operation in operations) {
+    if (!seenIds.add(operation.id)) continue;
+    state = applyPendingQazaOperation(state, operation);
+    appliedIds.add(operation.id);
+  }
+  final overflow = appliedIds.length - qazaAppliedOperationIdLimit;
+  return QazaRemoteDoc(
+    state: state,
+    appliedOperationIds:
+        overflow > 0 ? appliedIds.sublist(overflow) : appliedIds,
+  );
+}
+
+/// What to show: the remote counts plus the local operations that have not
+/// reached them yet. Pending operations the remote already applied (written,
+/// but not yet dropped from the local queue) are not counted again.
+QazaTrackerState visibleQazaState(
+  QazaRemoteDoc doc,
+  Iterable<PendingQazaOperation> pendingOperations,
+) {
+  return applyPendingQazaOperations(
+    doc.state,
+    pendingOperations.where((operation) => !doc.hasApplied(operation.id)),
+  );
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +12,15 @@ import '../services/analytics_service.dart';
 import '../services/qaza_tracker_sync_policy.dart';
 import '../utils/shared_preferences.dart';
 
+/// Keeps the qaza counts, locally and (when signed in) in Firestore.
+///
+/// Every change is an operation ("one fewer Asr owed") with a unique id. A
+/// signed-in change is applied to the visible state at once, queued in
+/// SharedPreferences, and then folded into the remote document by
+/// [_flushPendingOperations]. The remote document records the ids it has
+/// applied (see [QazaRemoteDoc]), so an operation is applied at most once no
+/// matter how often it is retried - after a crash, an overlapping snapshot or
+/// a burst of taps like "Prayed a full day".
 class QazaTrackerManager extends ChangeNotifier {
   static final QazaTrackerManager _instance = QazaTrackerManager._internal();
 
@@ -25,25 +35,37 @@ class QazaTrackerManager extends ChangeNotifier {
   static const String _guestStorageKey = 'qaza_tracker_guest';
   static const String _guestImportPendingKey =
       'qaza_tracker_guest_import_pending';
+  static const String _guestImportIdKey = 'qaza_tracker_guest_import_id';
   static const String _qazaCollection = 'qaza_tracker';
   static const String _qazaDocId = 'state';
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  /// Tells this install's operation ids apart from another device's ones
+  /// created in the same microsecond.
+  final String _deviceNonce =
+      Random().nextInt(1 << 32).toRadixString(36).padLeft(7, '0');
+
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   Future<void>? _loadQazaFuture;
   Future<void> _storageWriteQueue = Future.value();
+
+  /// Serializes remote writes, so two flushes never race on the document.
+  Future<void> _remoteQueue = Future.value();
+
+  /// Each user's not-yet-synced operations, in the order they were made. The
+  /// in-memory list is the source of truth once loaded; SharedPreferences
+  /// mirrors it so the queue survives a restart.
+  final Map<String, List<PendingQazaOperation>> _pendingByUser = {};
+
   QazaTrackerState _state = QazaTrackerState.empty;
-  QazaTrackerState _pendingGuestImportState = QazaTrackerState.empty;
-  String? _pendingGuestImportUserId;
   String? _loadedUserId;
-  bool _isImportingGuestState = false;
-  /// Operations currently being applied by [_applyOperation]. Replays must
-  /// skip them (or they would be applied remotely twice), and snapshots must
-  /// still show them before they reach the pending queue on disk.
-  final Map<String, PendingQazaOperation> _inFlightOperations = {};
-  bool _isReplayingPendingOperations = false;
+
+  /// Whether [_state] belongs to [_loadedUserId]. Until then (and while the
+  /// signed-in user differs from the loaded one) changes are ignored rather
+  /// than applied on top of someone else's counts.
+  bool _stateReady = false;
   bool _isLoading = false;
   bool _hasLoadedQaza = false;
   int _operationSequence = 0;
@@ -68,6 +90,8 @@ class QazaTrackerManager extends ChangeNotifier {
   String _legacyPendingDeltaStorageKey(String userId) =>
       'qaza_tracker_pending_delta_$userId';
 
+  /// Set by older versions while a guest import was in the user's cache but
+  /// not yet in Firestore.
   String _guestImportMergedStorageKey(String userId) =>
       'qaza_tracker_guest_import_merged_$userId';
 
@@ -130,108 +154,122 @@ class QazaTrackerManager extends ChangeNotifier {
     if (user == null) {
       _updateState(guestState);
       _loadedUserId = null;
+      _stateReady = true;
       debugPrint('QazaTrackerManager: Loaded guest qaza tracker');
       return;
     }
 
-    final cachedState = _loadStateFromStorageKey(_userStorageKey(user.uid));
-    if (!cachedState.isEmpty) {
-      _updateState(cachedState);
-    }
+    final userId = user.uid;
 
-    final remoteRead = await _loadRemoteState(user.uid);
+    // The cache is always written together with the queue, so it already
+    // includes every queued operation. From here on _state is this user's,
+    // and operations made during the awaits below update it and the queue
+    // together.
+    _pendingFor(userId);
+    _loadedUserId = userId;
+    _stateReady = true;
+    _updateState(_loadStateFromStorageKey(_userStorageKey(userId)));
+
     final shouldImportGuestState = (isGuestToUserTransition ||
             SP.prefs.getBool(_guestImportPendingKey) == true) &&
         !guestState.isEmpty;
-    final cachedStateIncludesGuestImport =
-        SP.prefs.getBool(_guestImportMergedStorageKey(user.uid)) == true;
-    final pendingOperations = _loadPendingOperations(user.uid);
+    if (shouldImportGuestState) {
+      await _queueGuestImport(userId, guestState);
+    }
+
+    final remoteRead = await _loadRemoteState(userId);
+    if (_auth.currentUser?.uid != userId) return;
 
     if (!remoteRead.succeeded) {
-      final visibleState = cachedState.isEmpty
-          ? (shouldImportGuestState ? guestState : QazaTrackerState.empty)
-          : cachedState;
-      _updateState(visibleState);
-      await _saveUserStateToSharedPreferences(user.uid, visibleState);
-      if (shouldImportGuestState && cachedState.isEmpty) {
-        await _setGuestImportMergedIntoCache(user.uid, true);
-      }
-      if (shouldImportGuestState) {
-        _pendingGuestImportUserId = user.uid;
-        _pendingGuestImportState = guestState;
-      }
-      _loadedUserId = user.uid;
+      // Offline: keep showing the cache; the listener syncs once a server
+      // snapshot arrives.
       setupRealtimeListener();
       return;
     }
 
-    if (!remoteRead.exists) {
-      final seedState = cachedState.plus(
-        shouldImportGuestState && !cachedStateIncludesGuestImport
-            ? guestState
-            : QazaTrackerState.empty,
-      );
-      _updateState(seedState);
-      await _saveUserStateToSharedPreferences(user.uid, seedState);
-      if (shouldImportGuestState) {
-        await _setGuestImportMergedIntoCache(user.uid, true);
-      }
-
-      try {
-        await _saveRemoteStateForUser(user.uid, seedState);
-        await _clearPendingOperations(user.uid, pendingOperations);
-        if (shouldImportGuestState) {
-          await _clearGuestState();
-          await _setGuestImportMergedIntoCache(user.uid, false);
-        }
-      } catch (error) {
-        _pendingGuestImportUserId =
-            shouldImportGuestState ? user.uid : _pendingGuestImportUserId;
-        _pendingGuestImportState =
-            shouldImportGuestState ? guestState : _pendingGuestImportState;
-        debugPrint('QazaTrackerManager: Error creating qaza state: $error');
-      }
-
-      _loadedUserId = user.uid;
-      setupRealtimeListener();
-      return;
+    if (!remoteRead.exists && !_state.isEmpty) {
+      await _seedRemoteFromCache(userId);
+    } else {
+      _showRemote(userId, remoteRead.doc);
     }
 
-    var visibleState = remoteRead.state;
-    if (shouldImportGuestState) {
-      visibleState = visibleState.plus(guestState);
-    }
-    visibleState = applyPendingQazaOperations(
-      visibleState,
-      pendingOperations,
-    );
-
-    _updateState(visibleState);
-    await _saveUserStateToSharedPreferences(user.uid, visibleState);
-    if (shouldImportGuestState) {
-      await _setGuestImportMergedIntoCache(user.uid, true);
-    }
-
-    if (shouldImportGuestState) {
-      try {
-        await _addRemoteStateForUser(user.uid, guestState);
-        await _clearGuestState();
-        await _setGuestImportMergedIntoCache(user.uid, false);
-        _pendingGuestImportUserId = null;
-        _pendingGuestImportState = QazaTrackerState.empty;
-      } catch (error) {
-        _pendingGuestImportUserId = user.uid;
-        _pendingGuestImportState = guestState;
-        debugPrint('QazaTrackerManager: Error importing guest qaza: $error');
-      }
-    }
-
-    if (pendingOperations.isNotEmpty) {
-      unawaited(_replayPendingOperations(user.uid, pendingOperations));
-    }
-
-    _loadedUserId = user.uid;
+    unawaited(_flushPendingOperations(userId));
     setupRealtimeListener();
+  }
+
+  /// Creates the remote document from the cached state when it has none
+  /// yet - the cache already includes every queued operation, so they are
+  /// recorded as applied rather than applied again.
+  Future<void> _seedRemoteFromCache(String userId) async {
+    final seedState = _state;
+    final seedIds = [for (final operation in _pendingFor(userId)) operation.id];
+    try {
+      await _enqueueRemote(() async {
+        await _firestore.runTransaction((transaction) async {
+          final ref = _qazaDoc(userId);
+          final snapshot = await transaction.get(ref);
+          if (snapshot.exists) return;
+          final seed = QazaRemoteDoc(
+            state: seedState,
+            appliedOperationIds: seedIds.length > qazaAppliedOperationIdLimit
+                ? seedIds.sublist(seedIds.length - qazaAppliedOperationIdLimit)
+                : seedIds,
+          );
+          transaction.set(ref, {
+            ...seed.toData(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        });
+      });
+    } catch (error) {
+      debugPrint('QazaTrackerManager: Error creating qaza state: $error');
+    }
+  }
+
+  /// Turns a guest's counts into queued operations for [userId], with ids
+  /// derived from a persisted import id: if the app dies before the guest
+  /// copy is cleared, the next launch re-queues the same ids, which the
+  /// queue and the remote document both ignore.
+  Future<void> _queueGuestImport(
+    String userId,
+    QazaTrackerState guestState,
+  ) async {
+    final importId = SP.prefs.getString(_guestImportIdKey) ??
+        '${DateTime.now().microsecondsSinceEpoch}_$_deviceNonce';
+    final pending = _pendingFor(userId);
+    final queuedIds = {for (final operation in pending) operation.id};
+    final added = <PendingQazaOperation>[];
+    for (final type in QazaEntryType.values) {
+      final count = guestState.countFor(type);
+      if (count.isEmpty) continue;
+      final operation = PendingQazaOperation.addCounts(
+        id: 'guest_${importId}_${type.key}',
+        type: type,
+        count: count,
+      );
+      if (queuedIds.contains(operation.id)) continue;
+      pending.add(operation);
+      added.add(operation);
+    }
+
+    // Older versions could leave the guest counts merged into the cache
+    // already; adding them again would show them twice until the next sync.
+    final cacheIncludesGuest =
+        SP.prefs.getBool(_guestImportMergedStorageKey(userId)) == true;
+    if (!cacheIncludesGuest) {
+      _updateState(applyPendingQazaOperations(_state, added));
+    }
+    final visibleState = _state;
+
+    await _enqueueStorageWrite(() async {
+      await SP.prefs.setString(_guestImportIdKey, importId);
+      await _writePendingOperations(userId, pending);
+      await _writeState(_userStorageKey(userId), visibleState);
+      await SP.prefs.remove(_guestStorageKey);
+      await SP.prefs.remove(_guestImportPendingKey);
+      await SP.prefs.remove(_guestImportMergedStorageKey(userId));
+      await SP.prefs.remove(_guestImportIdKey);
+    });
   }
 
   void _setLoading(bool value) {
@@ -243,6 +281,22 @@ class QazaTrackerManager extends ChangeNotifier {
   void _updateState(QazaTrackerState nextState) {
     _state = nextState;
     notifyListeners();
+  }
+
+  /// Shows [doc] plus whatever this device has queued that it lacks.
+  void _showRemote(String userId, QazaRemoteDoc doc) {
+    final pending = _pendingFor(userId);
+    final hadApplied = pending.any((operation) => doc.hasApplied(operation.id));
+    if (hadApplied) {
+      pending.removeWhere((operation) => doc.hasApplied(operation.id));
+    }
+
+    final visibleState = visibleQazaState(doc, pending);
+    _updateState(visibleState);
+    unawaited(_enqueueStorageWrite(() async {
+      if (hadApplied) await _writePendingOperations(userId, pending);
+      await _writeState(_userStorageKey(userId), visibleState);
+    }));
   }
 
   QazaTrackerState _loadStateFromStorageKey(String storageKey) {
@@ -262,62 +316,29 @@ class QazaTrackerManager extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveStateToStorageKey(
-    String storageKey,
-    QazaTrackerState state,
-  ) {
-    return _enqueueStorageWrite(() async {
-      try {
-        if (state.isEmpty) {
-          await SP.prefs.remove(storageKey);
-          return;
-        }
-        await SP.prefs.setString(storageKey, jsonEncode(state.toJson()));
-      } catch (error) {
-        debugPrint(
-          'QazaTrackerManager: Error saving state to $storageKey: $error',
-        );
+  /// Writes [state] under [storageKey]. Only call from inside
+  /// [_enqueueStorageWrite].
+  Future<void> _writeState(String storageKey, QazaTrackerState state) async {
+    try {
+      if (state.isEmpty) {
+        await SP.prefs.remove(storageKey);
+        return;
       }
-    });
+      await SP.prefs.setString(storageKey, jsonEncode(state.toJson()));
+    } catch (error) {
+      debugPrint(
+        'QazaTrackerManager: Error saving state to $storageKey: $error',
+      );
+    }
   }
 
-  Future<void> _saveGuestState(
-    QazaTrackerState state, {
-    bool markForImport = false,
-  }) async {
-    await _saveStateToStorageKey(_guestStorageKey, state);
-    await _enqueueStorageWrite(() async {
-      if (markForImport && !state.isEmpty) {
-        await SP.prefs.setBool(_guestImportPendingKey, true);
-      } else if (state.isEmpty) {
+  Future<void> _saveGuestState(QazaTrackerState state) {
+    return _enqueueStorageWrite(() async {
+      await _writeState(_guestStorageKey, state);
+      if (state.isEmpty) {
         await SP.prefs.remove(_guestImportPendingKey);
-      }
-    });
-  }
-
-  Future<void> _saveUserStateToSharedPreferences(
-    String userId,
-    QazaTrackerState state,
-  ) {
-    return _saveStateToStorageKey(_userStorageKey(userId), state);
-  }
-
-  Future<void> _clearGuestState() async {
-    await _enqueueStorageWrite(() async {
-      await SP.prefs.remove(_guestStorageKey);
-      await SP.prefs.remove(_guestImportPendingKey);
-    });
-  }
-
-  Future<void> _setGuestImportMergedIntoCache(
-    String userId,
-    bool value,
-  ) {
-    return _enqueueStorageWrite(() async {
-      if (value) {
-        await SP.prefs.setBool(_guestImportMergedStorageKey(userId), true);
       } else {
-        await SP.prefs.remove(_guestImportMergedStorageKey(userId));
+        await SP.prefs.setBool(_guestImportPendingKey, true);
       }
     });
   }
@@ -328,7 +349,7 @@ class QazaTrackerManager extends ChangeNotifier {
           await _qazaDoc(userId).get().timeout(const Duration(seconds: 8));
       return _RemoteQazaRead.success(
         exists: snapshot.exists,
-        state: _decodeRemoteState(snapshot.data()?['entries']),
+        doc: QazaRemoteDoc.fromData(snapshot.data()),
       );
     } catch (error) {
       debugPrint('QazaTrackerManager: Error loading remote state: $error');
@@ -336,17 +357,21 @@ class QazaTrackerManager extends ChangeNotifier {
     }
   }
 
-  QazaTrackerState _decodeRemoteState(dynamic entries) {
-    return QazaTrackerState.fromJson(entries);
+  /// The live queue for [userId], read from SharedPreferences the first time.
+  List<PendingQazaOperation> _pendingFor(String userId) {
+    return _pendingByUser.putIfAbsent(
+      userId,
+      () => _loadPendingOperations(userId),
+    );
   }
 
   List<PendingQazaOperation> _loadPendingOperations(String userId) {
     final encoded = SP.prefs.getString(_pendingOperationsStorageKey(userId));
-    if (encoded == null || encoded.isEmpty) return const [];
+    if (encoded == null || encoded.isEmpty) return [];
 
     try {
       final parsed = jsonDecode(encoded);
-      if (parsed is! List) return const [];
+      if (parsed is! List) return [];
 
       final operations = <PendingQazaOperation>[];
       final seenIds = <String>{};
@@ -360,61 +385,12 @@ class QazaTrackerManager extends ChangeNotifier {
       debugPrint(
         'QazaTrackerManager: Error decoding pending operations: $error',
       );
-      return const [];
+      return [];
     }
   }
 
-  /// Pending operations on disk plus any in flight that are not stored yet.
-  List<PendingQazaOperation> _loadVisiblePendingOperations(String userId) {
-    final stored = _loadPendingOperations(userId);
-    final storedIds = stored.map((operation) => operation.id).toSet();
-    return [
-      ...stored,
-      for (final operation in _inFlightOperations.values)
-        if (!storedIds.contains(operation.id)) operation,
-    ];
-  }
-
-  Future<void> _recordPendingOperation(
-    String userId,
-    PendingQazaOperation operation,
-  ) {
-    return _enqueueStorageWrite(() async {
-      final operations = [
-        ..._loadPendingOperations(userId),
-        operation,
-      ];
-      await _writePendingOperations(userId, operations);
-    });
-  }
-
-  Future<void> _clearPendingOperation(
-    String userId,
-    PendingQazaOperation operation,
-  ) {
-    return _enqueueStorageWrite(() async {
-      final operations = _loadPendingOperations(userId)
-          .where((pending) => pending.id != operation.id)
-          .toList(growable: false);
-      await _writePendingOperations(userId, operations);
-    });
-  }
-
-  Future<void> _clearPendingOperations(
-    String userId,
-    Iterable<PendingQazaOperation> operationsToClear,
-  ) {
-    final idsToClear = operationsToClear.map((operation) => operation.id).toSet();
-    if (idsToClear.isEmpty) return Future.value();
-
-    return _enqueueStorageWrite(() async {
-      final operations = _loadPendingOperations(userId)
-          .where((pending) => !idsToClear.contains(pending.id))
-          .toList(growable: false);
-      await _writePendingOperations(userId, operations);
-    });
-  }
-
+  /// Writes the queue as it is when the write runs. Only call from inside
+  /// [_enqueueStorageWrite].
   Future<void> _writePendingOperations(
     String userId,
     List<PendingQazaOperation> operations,
@@ -439,51 +415,60 @@ class QazaTrackerManager extends ChangeNotifier {
     return operation;
   }
 
-  Future<void> _saveRemoteStateForUser(
+  Future<void> _enqueueRemote(Future<void> Function() write) {
+    final operation = _remoteQueue.then((_) => write());
+    _remoteQueue = operation.catchError((Object error) {
+      debugPrint('QazaTrackerManager: Remote write failed: $error');
+    });
+    return operation;
+  }
+
+  /// Folds every queued operation for [userId] into the remote document in
+  /// one transaction, then drops them from the queue. Operations queued
+  /// while it runs are picked up by the next flush, and ids the document
+  /// already has are skipped, so overlapping or repeated flushes are safe.
+  ///
+  /// Never throws: on failure the operations simply stay queued, and the
+  /// next snapshot, change or launch retries them.
+  Future<void> _flushPendingOperations(String userId) {
+    return _enqueueRemote(() async {
+      if (_auth.currentUser?.uid != userId) return;
+      final pending = _pendingFor(userId);
+      final batch = List<PendingQazaOperation>.of(pending);
+      if (batch.isEmpty) return;
+
+      try {
+        await _flushBatch(userId, batch);
+      } catch (error) {
+        debugPrint('QazaTrackerManager: Error syncing qaza tracker: $error');
+        return;
+      }
+
+      final flushedIds = {for (final operation in batch) operation.id};
+      pending.removeWhere((operation) => flushedIds.contains(operation.id));
+      await _enqueueStorageWrite(
+        () => _writePendingOperations(userId, pending),
+      );
+      debugPrint(
+        'QazaTrackerManager: Synced ${batch.length} qaza operation(s)',
+      );
+    });
+  }
+
+  Future<void> _flushBatch(
     String userId,
-    QazaTrackerState state,
+    List<PendingQazaOperation> batch,
   ) {
-    return _qazaDoc(userId).set({
-      'version': 1,
-      'entries': state.toJson(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-  }
-
-  Future<void> _addRemoteStateForUser(
-    String userId,
-    QazaTrackerState addition,
-  ) async {
-    if (addition.isEmpty) return;
-    await _firestore.runTransaction((transaction) async {
+    return _firestore.runTransaction((transaction) async {
       final ref = _qazaDoc(userId);
       final snapshot = await transaction.get(ref);
-      final current = snapshot.exists
-          ? _decodeRemoteState(snapshot.data()?['entries'])
-          : QazaTrackerState.empty;
-      final nextState = current.plus(addition);
+      final current = QazaRemoteDoc.fromData(snapshot.data());
+      if (batch.every((operation) => current.hasApplied(operation.id))) {
+        return;
+      }
+      final next = applyQazaOperationsToRemote(current, batch);
       transaction.set(ref, {
-        'version': 1,
-        'entries': nextState.toJson(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    });
-  }
-
-  Future<void> _applyRemoteOperationForUser(
-    String userId,
-    PendingQazaOperation operation,
-  ) async {
-    await _firestore.runTransaction((transaction) async {
-      final ref = _qazaDoc(userId);
-      final snapshot = await transaction.get(ref);
-      final current = snapshot.exists
-          ? _decodeRemoteState(snapshot.data()?['entries'])
-          : QazaTrackerState.empty;
-      final nextState = applyPendingQazaOperation(current, operation);
-      transaction.set(ref, {
-        'version': 1,
-        'entries': nextState.toJson(),
+        ...next.toData(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
     });
@@ -499,78 +484,25 @@ class QazaTrackerManager extends ChangeNotifier {
     }
 
     unawaited(_listener?.cancel());
-    _listener = _qazaDoc(user.uid).snapshots().listen(
-      (snapshot) async {
-        if (_auth.currentUser?.uid != user.uid ||
+    final userId = user.uid;
+    _listener = _qazaDoc(userId).snapshots().listen(
+      (snapshot) {
+        if (_auth.currentUser?.uid != userId ||
+            _loadedUserId != userId ||
             snapshot.metadata.isFromCache ||
             snapshot.metadata.hasPendingWrites) {
           return;
         }
 
-        var remoteState = _decodeRemoteState(snapshot.data()?['entries']);
-        if (_pendingGuestImportUserId == user.uid &&
-            !_pendingGuestImportState.isEmpty &&
-            !_isImportingGuestState) {
-          _isImportingGuestState = true;
-          try {
-            await _addRemoteStateForUser(user.uid, _pendingGuestImportState);
-            remoteState = remoteState.plus(_pendingGuestImportState);
-            await _clearGuestState();
-            await _setGuestImportMergedIntoCache(user.uid, false);
-            _pendingGuestImportUserId = null;
-            _pendingGuestImportState = QazaTrackerState.empty;
-          } catch (error) {
-            debugPrint(
-              'QazaTrackerManager: Deferred guest import failed: $error',
-            );
-          } finally {
-            _isImportingGuestState = false;
-          }
-        }
-
-        await _storageWriteQueue;
-        final pendingOperations = _loadVisiblePendingOperations(user.uid);
-        final visibleState = applyPendingQazaOperations(
-          remoteState,
-          pendingOperations,
-        );
-        _updateState(visibleState);
-        await _saveUserStateToSharedPreferences(user.uid, visibleState);
-
-        if (pendingOperations.isNotEmpty) {
-          unawaited(_replayPendingOperations(user.uid, pendingOperations));
+        _showRemote(userId, QazaRemoteDoc.fromData(snapshot.data()));
+        if (_pendingFor(userId).isNotEmpty) {
+          unawaited(_flushPendingOperations(userId));
         }
       },
       onError: (error) {
         debugPrint('QazaTrackerManager: Error listening to qaza: $error');
       },
     );
-  }
-
-  Future<void> _replayPendingOperations(
-    String userId,
-    List<PendingQazaOperation> operations,
-  ) async {
-    if (_isReplayingPendingOperations || operations.isEmpty) return;
-    _isReplayingPendingOperations = true;
-    try {
-      for (final operation in operations) {
-        // Skip operations whose own apply is running, or that finished (and
-        // were cleared) since this replay list was taken.
-        if (_inFlightOperations.containsKey(operation.id)) continue;
-        final stillPending = _loadPendingOperations(userId)
-            .any((pending) => pending.id == operation.id);
-        if (!stillPending) continue;
-        await _applyRemoteOperationForUser(userId, operation);
-        await _clearPendingOperation(userId, operation);
-      }
-    } catch (error) {
-      debugPrint(
-        'QazaTrackerManager: Pending operation replay failed: $error',
-      );
-    } finally {
-      _isReplayingPendingOperations = false;
-    }
   }
 
   Future<void> addMissed(QazaEntryType type) {
@@ -583,7 +515,9 @@ class QazaTrackerManager extends ChangeNotifier {
   }
 
   Future<void> markCompleted(QazaEntryType type) {
-    if (_state.countFor(type).remaining <= 0) return Future.value();
+    if (!_canApply || _state.countFor(type).remaining <= 0) {
+      return Future.value();
+    }
     unawaited(ActivityStatsStore.instance.recordQazaCompleted());
     return _applyOperation(
       PendingQazaOperation.markCompleted(
@@ -594,7 +528,9 @@ class QazaTrackerManager extends ChangeNotifier {
   }
 
   Future<void> undoCompleted(QazaEntryType type) {
-    if (_state.countFor(type).completed <= 0) return Future.value();
+    if (!_canApply || _state.countFor(type).completed <= 0) {
+      return Future.value();
+    }
     unawaited(ActivityStatsStore.instance.undoQazaCompleted());
     return _applyOperation(
       PendingQazaOperation.undoCompleted(
@@ -626,7 +562,8 @@ class QazaTrackerManager extends ChangeNotifier {
   /// Returns the types that were marked, so the caller can undo them.
   List<QazaEntryType> markCompletedEach(Iterable<QazaEntryType> types) {
     final marked = types.toList();
-    if (marked.any((type) => _state.countFor(type).remaining <= 0)) {
+    if (!_canApply ||
+        marked.any((type) => _state.countFor(type).remaining <= 0)) {
       return const [];
     }
     for (final type in marked) {
@@ -642,24 +579,28 @@ class QazaTrackerManager extends ChangeNotifier {
   }
 
   /// Adds [additions] to the owed count of each type, leaving completed
-  /// counts untouched.
+  /// counts untouched. Sent as additions, not new totals, so they stack on
+  /// whatever another device changed meanwhile.
   Future<void> addMissedCounts(Map<QazaEntryType, int> additions) {
     final futures = <Future<void>>[];
     for (final entry in additions.entries) {
       if (entry.value <= 0) continue;
-      final count = _state.countFor(entry.key);
-      futures.add(setCount(
-        entry.key,
-        remaining: count.remaining + entry.value,
-        completed: count.completed,
+      futures.add(_applyOperation(
+        PendingQazaOperation.addCounts(
+          id: _newOperationId(),
+          type: entry.key,
+          count: QazaEntryCount(remaining: entry.value),
+        ),
       ));
     }
     return Future.wait(futures);
   }
 
+  bool get _canApply => _stateReady && _loadedUserId == _auth.currentUser?.uid;
+
   String _newOperationId() {
     final sequence = _operationSequence++;
-    return '${DateTime.now().microsecondsSinceEpoch}_$sequence';
+    return '${DateTime.now().microsecondsSinceEpoch}_${sequence}_$_deviceNonce';
   }
 
   Future<void> _applyOperation(PendingQazaOperation operation) async {
@@ -670,38 +611,40 @@ class QazaTrackerManager extends ChangeNotifier {
       label: 'Qaza tracker updated',
       parameters: {'operation': operation.kind.key},
     ));
+    if (!_canApply) {
+      debugPrint('QazaTrackerManager: Ignored change before qaza loaded');
+      return;
+    }
     final nextState = applyPendingQazaOperation(_state, operation);
-    final appliedDelta = QazaTrackerDelta.between(_state, nextState);
-    if (appliedDelta.isZero) return;
-
-    _updateState(nextState);
+    if (identical(nextState, _state)) return;
 
     final user = _auth.currentUser;
     if (user == null) {
-      await _saveGuestState(nextState, markForImport: true);
+      _updateState(nextState);
+      await _saveGuestState(nextState);
       debugPrint('QazaTrackerManager: Updated guest qaza tracker');
       return;
     }
 
-    _inFlightOperations[operation.id] = operation;
-    try {
-      await Future.wait([
-        _saveUserStateToSharedPreferences(user.uid, nextState),
-        _recordPendingOperation(user.uid, operation),
-      ]);
-      await _applyRemoteOperationForUser(user.uid, operation);
-      await _clearPendingOperation(user.uid, operation);
-      debugPrint('QazaTrackerManager: Updated qaza tracker in Firestore');
-    } catch (error) {
-      debugPrint('QazaTrackerManager: Error syncing qaza tracker: $error');
-    } finally {
-      _inFlightOperations.remove(operation.id);
-    }
+    // State and queue change together, synchronously, so a snapshot handled
+    // at any later point sees both or neither.
+    final userId = user.uid;
+    final pending = _pendingFor(userId);
+    pending.add(operation);
+    _updateState(nextState);
+    await _enqueueStorageWrite(() async {
+      await _writePendingOperations(userId, pending);
+      await _writeState(_userStorageKey(userId), nextState);
+    });
+    await _flushPendingOperations(userId);
   }
 
   Future<void> deleteAllQazaData(String userId) async {
     try {
-      await _qazaDoc(userId).delete();
+      // Drop the queue first and delete through the remote queue, so a sync
+      // already under way cannot recreate the document afterwards.
+      _pendingByUser[userId]?.clear();
+      await _enqueueRemote(() => _qazaDoc(userId).delete());
       await _enqueueStorageWrite(() async {
         await SP.prefs.remove(_userStorageKey(userId));
         await SP.prefs.remove(_pendingOperationsStorageKey(userId));
@@ -731,15 +674,15 @@ class QazaTrackerManager extends ChangeNotifier {
 class _RemoteQazaRead {
   _RemoteQazaRead.success({
     required this.exists,
-    required this.state,
+    required this.doc,
   }) : succeeded = true;
 
   _RemoteQazaRead.failure()
       : succeeded = false,
         exists = false,
-        state = QazaTrackerState.empty;
+        doc = QazaRemoteDoc.empty;
 
   final bool succeeded;
   final bool exists;
-  final QazaTrackerState state;
+  final QazaRemoteDoc doc;
 }
