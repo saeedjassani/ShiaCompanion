@@ -179,24 +179,27 @@ at the bottom, where the button was**: the button grows into the field
 once the keyboard is dismissed it rests 26 px from the bottom, like the tab
 bar. Results scroll behind it under the same fade.
 - The field: search icon, placeholder "Dua, surah or book", accent border
-  while focused, clear button once there is text.
-- Today's source chips at the top: **Duas & more** (was "Zikr", renamed to
-  match Favorites) · Quran · Library, the first two on by default and
-  remembered in `search_sources`. A selected chip carries a tick, not
-  colour alone.
+  while focused, clear button once there is text. **It is the only
+  control**: nothing sits at the top.
+- **No source chips.** Every source is a section of the results, best
+  match first (today's order), labelled with its name and count ("Duas &
+  more · 6", "Zikr" renamed to match Favorites) and a **Hide** link. Library
+  starts folded to one row, "11 matches in Library · Show", after the
+  others. What is folded is remembered in `search_sources`, the pref the
+  chips use today, with the same defaults, so Library stays folded until
+  someone opens it.
 - Before typing: the large title "Search", then **Try**: four examples in a
   2 × 2 grid (Kumayl, Yasin, 2:255, Mutahhari, each labelled with what it
   is) that fill in the field when tapped, so verse and author search are
   discoverable without a help page; then **Recent** (the last 3 searches,
   kept on this device, with Clear).
-- Results: today's ranking and section order. Each section gets a label
-  ("Duas & more · 6") when more than one shows. A row has the title with
-  the matched text in bold, a title's trailing Arabic on its own line (as in
-  Lists), where it lives on a sub-line ("Ziyarats", "Aamaal › Muharram",
-  from the list or group its uid sits in) and the heart. A switched-off
-  source with matches is one dashed row above the results, where it is
-  seen: "11 matches in Library · Show".
-- No results: "Nothing called “…”", a tip to try one word or another
+- A result row has the title with the matched text in bold, a title's
+  trailing Arabic on its own line (as in Lists), where it lives on a
+  sub-line ("Ziyarats", "Aamaal › Muharram", from the list or group its uid
+  sits in) and the heart. A **Go to verse** result comes first when the
+  query reads as a verse.
+- No results: "Nothing called “…”", where it looked (duas & more, the
+  Quran and the Library, folded or not), a tip to try one word or another
   spelling, and today's request flow as a card, "Still can't find it?" +
   **Request “…”** (`showContentRequestDialog`, pre-filled as today).
 
@@ -268,37 +271,40 @@ tracks, My Stats — only while signed out; "Not now" hides it for a week.
 
 ### Calendar & Prayer Times
 One page, no tabs; it scrolls. The Home prayer card and the Calendar
-shortcut both open it, on today.
+shortcut both open it, on today. Top to bottom:
 - Bar: Back, the title "Calendar & Prayer Times", and **Today** on the
   right once another day is picked.
-- **The day card** comes first, in the Home prayer card's style (brown,
-  radius 22, the same city button): the picked day's date with the city
-  button, then its Hijri date (with a **Today** pill, or "in 13 days" for
-  another day). An event on that day sits inside the card, its kind in
-  small capitals ("CELEBRATION") over the `events.json` text. Then the five
-  prayers in one row exactly as on Home (white `PrayerGlyph`, name, time),
-  but in the day's order; today's upcoming one gets the lighter fill and
-  "next", no countdown. Under a hairline, Sunrise, Sunset and Midnight on a
-  quieter line in three columns (all eight from
+- **The month card:** ‹ › buttons, the Gregorian month and the Hijri months
+  it spans, weeks from Sunday as today. Each day: the Gregorian number, the
+  Hijri day in Eastern Arabic numerals (as today), today ringed, the picked
+  day filled. `events.json` events are told apart by shape, not hue:
+  `color: 1` celebration = filled dot, `color: 0` mourning = ring, no colour
+  = dash, with a legend under the grid. This replaces the red and green
+  tints. Tapping a day updates everything below; the page doesn't move.
+- **The picked day's heading:** its date (20/700, with a **Today** pill),
+  then its Hijri date and, for another day, "in 13 days".
+- **The event card**, always there so the place for events is learnt: each
+  `events.json` entry for the day (the file separates several with blank
+  lines) as its own row, a dot / ring / dash, the kind in small capitals
+  ("CELEBRATION", "MOURNING", "EVENT") and the text. A day without one says
+  "No event today" (or "on this day") and offers the next one, "NEXT · FRI
+  16 OCT · Birth of Hazrat Zainab bint-e-Ali (a.s.)", which picks that day
+  when tapped.
+- **The prayer times card**, in the Home prayer card's style (brown,
+  radius 22, the same city button): "Prayer times" and the city, the five
+  prayers in one row exactly as on Home (white `PrayerGlyph`, name, time)
+  but in the day's order, today's upcoming one with the lighter fill and
+  "next" (no countdown); under a hairline, Sunrise, Sunset and Midnight on
+  a quieter line in three columns (all eight from
   `buildExtendedPrayerTimeEntries`).
-- **The month card** under it: ‹ › buttons, the Gregorian month and the
-  Hijri months it spans, weeks from Sunday as today. Each day: the
-  Gregorian number, the Hijri day in Eastern Arabic numerals (as today),
-  today ringed, the picked day filled. Tapping a day updates the day card
-  above; the page doesn't move. `events.json` events are told apart by
-  shape, not hue: `color: 1` celebration = filled dot, `color: 0` mourning
-  = ring, no colour = dash, with a legend under the grid. This replaces the
-  red and green tints.
-- Then an **Azan** row ("On for Fajr, Maghrib and Isha") and a **Times on
-  the Home card** row that opens today's pick-3-to-5 list as a sheet (until
-  now only reachable by long-pressing the card), with the rest greyed out
-  once five are picked. Footnote: worked out on this phone for the city,
-  Shia Ithna Ashari method.
-- ≥ 1024 px (`W-Calendar`): the day card runs the full 1120 px with all
-  eight times in one row (Sunrise, Sunset and Midnight quieter); under it
-  the month (wide cells carrying a short name for each event) beside a
-  360 px column with **Coming up** (the next three events, as on Home) and
-  the two rows.
+- An **Azan** row ("On for Fajr, Maghrib and Isha") and a **Times on the
+  Home card** row that opens today's pick-3-to-5 list as a sheet (until now
+  only reachable by long-pressing the card), with the rest greyed out once
+  five are picked. Footnote: worked out on this phone for the city, Shia
+  Ithna Ashari method.
+- ≥ 1024 px (`W-Calendar`): the month on the left (wide cells carrying a
+  short name for each event) and, in a 360 px column on the right, the same
+  heading, event card, prayer times card and rows.
 - **Azan** (today's prayer notifications page): a **Default sound** row
   ("Full Azan"), then the eight times in one card, each a split row: the
   left part opens that time's sound, then a divider, then the switch. An on
@@ -388,7 +394,7 @@ today's Quran progress, privacy note and community sections as cards.
 |---|---|
 | < 600 | Phone: single column, pickers as bottom sheets |
 | 600–1023 | Tablet: Home in two columns (prayer card, Continue, Coming up · Shortcuts, hadith); readers in a 640 px column; pickers and city search as centred dialogs |
-| ≥ 1024 | Web/desktop and tablet landscape: same two columns inside 1120 px; readers in a 720 px column; slimmer top bars; Calendar & Prayer Times puts all eight times in one row, with the month and Coming up under it |
+| ≥ 1024 | Web/desktop and tablet landscape: same two columns inside 1120 px; readers in a 720 px column; slimmer top bars; Calendar & Prayer Times puts the month on the left and the picked day in a 360 px column on the right |
 
 The tab bar stays bottom-centre at every width.
 
@@ -417,7 +423,8 @@ The tab bar stays bottom-centre at every width.
 9. Tablet and web layouts.
 10. Search page and zikr lists (the bottom find field, when sub-lines,
     Arabic on its own line, Today's Recitations groups).
-11. Calendar & Prayer Times (day card, month, event shapes) and Azan.
+11. Calendar & Prayer Times (month, event card, prayer times card) and
+    Azan.
 12. Library, Playlists, Downloads, My Stats, Zikr reminders.
 13. Qibla, Qaza, Prayer times in flight, Account.
 

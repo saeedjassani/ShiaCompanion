@@ -36,13 +36,13 @@ behaviour. They only render inside the canvas: `support.js` and the
 | `Rakaat-A.dc.html`, `Rakaat-B.dc.html` | Rakaat counter and dim mode | Tools |
 | `Settings-A.dc.html`, `Settings-A-signedin.dc.html` | Settings signed out / in | Settings |
 | `Nudge-C.dc.html` | Back-up banner (shown on Favorites) | Back-up nudges |
-| `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing (keyboard up), with results, with none; the field at the bottom | Navigation → Search |
+| `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing (keyboard up), with results (sources as sections, Library folded), with none; the field at the bottom is the only control | Navigation → Search |
 | `R3-List.dc.html`, `R3-List-group.dc.html` | A zikr list (Duas), and one with a group row (Ziyarats); the find field at the bottom | Lists |
 | `R3-Todays-recitations.dc.html` | Today's Recitations | Lists |
-| `R3-Calendar.dc.html` | Calendar & Prayer Times, the whole page (390 × 980), on today | Calendar & Prayer Times |
+| `R3-Calendar.dc.html` | Calendar & Prayer Times, the whole page (390 × 1060), on today: month, the day, its event slot, its prayer times | Calendar & Prayer Times |
 | `R3-Calendar-day.dc.html`, `R3-Calendar-dark.dc.html` | The same page with another day picked, light and dark | Calendar & Prayer Times |
 | `R3-Times-on-home.dc.html` | The "Times on the Home card" sheet over that page | Calendar & Prayer Times |
-| `W-Calendar.dc.html` | Web (1440 × 900): the day's eight times in one row, the month and Coming up under it | Calendar & Prayer Times, Responsive |
+| `W-Calendar.dc.html` | Web (1440 × 900): the month, and the picked day beside it | Calendar & Prayer Times, Responsive |
 | `R3-Azan.dc.html` | Azan (prayer notifications) | Calendar & Prayer Times → Azan |
 | `R3-Library.dc.html`, `R3-Library-book.dc.html` | Library, and one book's chapters | Library |
 | `R3-Qibla.dc.html` | Qibla | Tools |
@@ -65,7 +65,9 @@ The round-3 files (`R3-` and `W-Calendar`) cover every remaining screen
 that was still in the old design. They are drawn in the round-2 shell
 (tokens, round Back button, card lists) and sit on the canvas page
 **Round 3 · Remaining screens**. They are static: no file in this round has
-a behaviour script. Two things in them stand in for app parts the canvas has
+a behaviour script. The canvas also keeps `R3-Search-results-B`, the
+chips-on-the-field alternative to sections, for comparison; it is not
+part of the agreed set. Two things in them stand in for app parts the canvas has
 no render of:
 
 - **Sunrise, Sunset and Midnight icons** are outline stand-ins. The app's
@@ -79,7 +81,7 @@ Screens with no mockup on purpose, and what to follow instead:
 | Screen | Follow |
 |---|---|
 | Quran → Recent sessions, Settings → Scheduled notifications, About | Pushed-page chrome plus card lists, as in `R3-Downloads` |
-| Zikr picker (from a reminder's "What" row) | `R3-Search` scoped to zikr: the same field, chips hidden |
+| Zikr picker (from a reminder's "What" row) | `R3-Search` scoped to zikr: the same bottom field, only the Duas & more section |
 | Delete account confirmation | A plain confirm dialog over `R3-Account` |
 | Admin pages (Usage, Mistake reports, Content requests), widget preview | Unchanged: admin and developer only |
 
