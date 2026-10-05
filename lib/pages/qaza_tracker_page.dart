@@ -357,14 +357,14 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
   }
 
   Widget? _buildFullDayButton(QazaTrackerState state) {
-    final owedPrayers = qazaDailyPrayers
-        .where((type) => state.countFor(type).remaining > 0)
-        .length;
-    if (owedPrayers < 2) return null;
+    // A full day is one of each daily prayer, so it only makes sense while
+    // every one of them still has something owed.
+    final canLogFullDay = qazaDailyPrayers
+        .every((type) => state.countFor(type).remaining > 0);
 
     return TextButton.icon(
       style: _compactButtonStyle,
-      onPressed: _logFullDay,
+      onPressed: canLogFullDay ? _logFullDay : null,
       icon: const Icon(Icons.done_all_rounded, size: 18),
       label: const Text('Prayed a full day'),
     );
@@ -380,9 +380,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
     messenger.showSnackBar(
       SnackBar(
         content: Text(
-          marked.length == qazaDailyPrayers.length
-              ? 'Logged one of each daily prayer'
-              : 'Logged ${marked.map((type) => type.label).join(', ')}',
+          'Logged one of each daily prayer',
         ),
         action: SnackBarAction(
           label: 'Undo',

@@ -825,6 +825,18 @@ class FavoritesManager extends ChangeNotifier {
     _isReplayingPendingOperations = true;
     try {
       for (final operation in operations) {
+        // Working from an older copy of the queue: if the favorite has been
+        // toggled since, this operation is stale, and sending it would undo
+        // the newer one (which goes up on its own). The check and the write
+        // below run in the same microtask, and Firestore sends one client's
+        // writes in order, so nothing newer can slip in between.
+        await _storageWriteQueue;
+        final current = _loadPendingOperations(userId).where((pending) =>
+            pending.favorite.favoriteKey == operation.favorite.favoriteKey);
+        if (current.isEmpty ||
+            current.first.shouldExist != operation.shouldExist) {
+          continue;
+        }
         if (operation.shouldExist) {
           await _addRemoteFavoritesForUser(userId, [operation.favorite]);
         } else {

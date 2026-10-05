@@ -129,4 +129,118 @@ void main() {
     expect(state.countFor(QazaEntryType.ayat).remaining, 3);
     expect(state.countFor(QazaEntryType.ayat).completed, 2);
   });
+
+  group('remote document', () {
+    QazaTrackerState twentyFiveOfEach() => QazaTrackerState({
+          for (final type in qazaDailyPrayers)
+            type: const QazaEntryCount(remaining: 25),
+        });
+
+    List<PendingQazaOperation> fullDay(String prefix) => [
+          for (final type in qazaDailyPrayers)
+            PendingQazaOperation.markCompleted(
+              id: '$prefix-${type.key}',
+              type: type,
+            ),
+        ];
+
+    test('a full day applied twice still only counts once', () {
+      final doc = QazaRemoteDoc(state: twentyFiveOfEach());
+      final operations = fullDay('day');
+
+      final once = applyQazaOperationsToRemote(doc, operations);
+      // A replay, an overlapping flush or a retry after a crash.
+      final twice = applyQazaOperationsToRemote(once, operations);
+      final partlyAgain = applyQazaOperationsToRemote(
+        twice,
+        operations.sublist(1, 4),
+      );
+
+      for (final result in [once, twice, partlyAgain]) {
+        for (final type in qazaDailyPrayers) {
+          expect(result.state.countFor(type).remaining, 24, reason: '$type');
+          expect(result.state.countFor(type).completed, 1, reason: '$type');
+        }
+      }
+    });
+
+    test('two separate full days count twice', () {
+      final doc = applyQazaOperationsToRemote(
+        applyQazaOperationsToRemote(
+          QazaRemoteDoc(state: twentyFiveOfEach()),
+          fullDay('first'),
+        ),
+        fullDay('second'),
+      );
+
+      for (final type in qazaDailyPrayers) {
+        expect(doc.state.countFor(type).remaining, 23);
+        expect(doc.state.countFor(type).completed, 2);
+      }
+    });
+
+    test('visible state does not double count applied pending operations', () {
+      final operations = fullDay('day');
+      final remote = applyQazaOperationsToRemote(
+        QazaRemoteDoc(state: twentyFiveOfEach()),
+        operations.sublist(0, 3),
+      );
+
+      // All five still queued locally; three already reached the server.
+      final visible = visibleQazaState(remote, operations);
+
+      for (final type in qazaDailyPrayers) {
+        expect(visible.countFor(type).remaining, 24, reason: '$type');
+        expect(visible.countFor(type).completed, 1, reason: '$type');
+      }
+    });
+
+    test('round trips through Firestore data and trims old ids', () {
+      var doc = QazaRemoteDoc(state: QazaTrackerState.empty);
+      for (var i = 0; i < qazaAppliedOperationIdLimit + 5; i++) {
+        doc = applyQazaOperationsToRemote(doc, [
+          PendingQazaOperation.addMissed(id: 'op-$i', type: QazaEntryType.fast),
+        ]);
+      }
+      final decoded = QazaRemoteDoc.fromData(doc.toData());
+
+      expect(decoded.state.countFor(QazaEntryType.fast).remaining,
+          qazaAppliedOperationIdLimit + 5);
+      expect(decoded.appliedOperationIds.length, qazaAppliedOperationIdLimit);
+      expect(
+          decoded.hasApplied('op-${qazaAppliedOperationIdLimit + 4}'), isTrue);
+      expect(decoded.hasApplied('op-0'), isFalse);
+    });
+
+    test('reads documents written before applied ids existed', () {
+      final doc = QazaRemoteDoc.fromData({
+        'version': 1,
+        'entries': {
+          'asr': {'remaining': 3, 'completed': 1},
+        },
+      });
+
+      expect(doc.appliedOperationIds, isEmpty);
+      expect(doc.state.countFor(QazaEntryType.asr).remaining, 3);
+    });
+
+    test('add counts stacks on the current counts', () {
+      final operation = PendingQazaOperation.addCounts(
+        id: 'estimate',
+        type: QazaEntryType.fajr,
+        count: const QazaEntryCount(remaining: 354),
+      );
+      final decoded = PendingQazaOperation.fromJson(operation.toJson())!;
+      final state = applyPendingQazaOperation(
+        QazaTrackerState({
+          QazaEntryType.fajr: const QazaEntryCount(remaining: 2, completed: 7),
+        }),
+        decoded,
+      );
+
+      expect(decoded.kind, QazaOperationKind.addCounts);
+      expect(state.countFor(QazaEntryType.fajr).remaining, 356);
+      expect(state.countFor(QazaEntryType.fajr).completed, 7);
+    });
+  });
 }
