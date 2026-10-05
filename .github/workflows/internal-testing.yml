@@ -80,6 +80,9 @@ jobs:
     name: Build and upload to TestFlight
     needs: prepare
     if: inputs.platforms != 'android'
+    # The signing and store secrets live in this environment, so only these
+    # two jobs can read them.
+    environment: Prod
     runs-on: macos-latest
     timeout-minutes: 75
     env:
@@ -99,7 +102,7 @@ jobs:
             [ -n "${!name}" ] || missing="$missing $name"
           done
           if [ -n "$missing" ]; then
-            echo "::error::Missing repository secrets:$missing. See \"Uploading test builds\" in docs/CI.md."
+            echo "::error::Missing secrets in the Prod environment:$missing. See \"Uploading test builds\" in docs/CI.md."
             exit 1
           fi
 
@@ -196,6 +199,7 @@ jobs:
     name: Build and upload to Play internal testing
     needs: prepare
     if: inputs.platforms != 'ios'
+    environment: Prod
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -216,7 +220,7 @@ jobs:
             [ -n "${!name}" ] || missing="$missing $name"
           done
           if [ -n "$missing" ]; then
-            echo "::error::Missing repository secrets:$missing. See \"Uploading test builds\" in docs/CI.md."
+            echo "::error::Missing secrets in the Prod environment:$missing. See \"Uploading test builds\" in docs/CI.md."
             exit 1
           fi
 

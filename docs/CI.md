@@ -331,7 +331,9 @@ macOS minutes.
 
 ### One-time setup
 
-Add these repository secrets (Settings → Secrets and variables → Actions). A
+Add these as secrets of the `Prod` environment (Settings → Environments →
+Prod → Environment secrets). Only the two upload jobs name that environment,
+so no other workflow, including CI on pull requests, can read them. A
 platform's job stops at its first step, naming whatever is missing.
 
 **iOS**
