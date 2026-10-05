@@ -60,4 +60,39 @@ void main() {
 
     expect(find.byType(AlertDialog), findsNothing);
   });
+
+  group('platform-specific bullets', () {
+    const entry = WhatsNewEntry(
+      buildNumber: 110,
+      versionName: '1.1.0',
+      bullets: ['shared bullet'],
+      iosBullets: ['ios bullet'],
+      androidBullets: ['android bullet'],
+    );
+
+    test('bulletsFor adds only the matching platform', () {
+      expect(entry.bulletsFor(TargetPlatform.iOS),
+          ['shared bullet', 'ios bullet']);
+      expect(entry.bulletsFor(TargetPlatform.android),
+          ['shared bullet', 'android bullet']);
+      expect(entry.bulletsFor(TargetPlatform.macOS), ['shared bullet']);
+    });
+
+    testWidgets('dialog hides the other platform\'s bullets', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showWhatsNewDialog(context, [entry],
+                platform: TargetPlatform.iOS),
+            child: const Text('open'),
+          ),
+        ),
+      ));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('ios bullet'), findsOneWidget);
+      expect(find.text('android bullet'), findsNothing);
+    });
+  });
 }
