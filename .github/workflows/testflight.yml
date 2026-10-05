@@ -1,0 +1,160 @@
+name: TestFlight
+
+# Manual only: Actions -> TestFlight -> Run workflow. Builds any branch, tag,
+# commit or pull request and uploads it to App Store Connect for internal
+# TestFlight testing. Nothing reaches App Store users unless that build is
+# later submitted for review by hand. Setup is in docs/CI.md.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag, commit or PR number to build (blank = the branch picked above)
+        required: false
+        default: ''
+      version:
+        description: Version to upload as (blank = pubspec.yaml's). Must be above the version live on the App Store.
+        required: false
+        default: ''
+
+# One at a time: two runs started together would read the same latest build
+# number, and App Store Connect would reject the second upload as a duplicate.
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  testflight:
+    name: Build and upload to TestFlight
+    runs-on: macos-latest
+    timeout-minutes: 75
+    env:
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+      CERTIFICATE_PRIVATE_KEY: ${{ secrets.CERTIFICATE_PRIVATE_KEY }}
+      BUNDLE_ID: com.developer110.shiacompanion
+    steps:
+      - name: Check secrets
+        run: |
+          missing=""
+          for name in APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_KEY_IDENTIFIER \
+                      APP_STORE_CONNECT_PRIVATE_KEY CERTIFICATE_PRIVATE_KEY; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing. See \"Uploading to TestFlight\" in docs/CI.md."
+            exit 1
+          fi
+
+      # A bare number (or #number) means that pull request's head.
+      - name: Resolve ref
+        id: ref
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          if [[ "$REF" =~ ^#?[0-9]+$ ]]; then
+            echo "ref=refs/pull/${REF#\#}/head" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.ref.outputs.ref }}
+
+      - name: Show selected Xcode
+        run: |
+          xcode-select -p
+          xcodebuild -version
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      # The same tools Codemagic's machines sign and upload with.
+      - name: Install Codemagic CLI tools
+        run: pip install codemagic-cli-tools
+
+      # The build number is one above anything already uploaded, for any
+      # version, so a rerun or a TestFlight-only build never collides with an
+      # earlier upload. pubspec.yaml's build number wins when it is higher.
+      - name: Pick version and build number
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          read -r pubspec_version pubspec_build < <(
+            sed -nE 's/^version: *([0-9.]+)\+([0-9]+).*/\1 \2/p' pubspec.yaml)
+          version="${VERSION_INPUT:-$pubspec_version}"
+          if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]]; then
+            echo "::error::Version '$version' is not of the form 1.2.3."
+            exit 1
+          fi
+
+          app_id=$(app-store-connect apps list --bundle-id-identifier "$BUNDLE_ID" \
+            --strict-match-identifier --json | jq -r '.[0].id // empty')
+          if [ -z "$app_id" ]; then
+            echo "::error::No App Store Connect app found for $BUNDLE_ID with this API key."
+            exit 1
+          fi
+          latest=$(app-store-connect get-latest-build-number "$app_id" --all-versions)
+          build=$(( ${latest:-0} + 1 ))
+          (( build > pubspec_build )) || build=$pubspec_build
+
+          echo "APP_VERSION=$version" >> "$GITHUB_ENV"
+          echo "APP_BUILD_NUMBER=$build" >> "$GITHUB_ENV"
+          echo "Uploading $version ($build); latest uploaded build is ${latest:-none}."
+
+      # The widget and watch targets carry their own MARKETING_VERSION and
+      # CURRENT_PROJECT_VERSION, and App Store Connect flags extensions whose
+      # version differs from the app's. Align them for this build only.
+      - name: Match extension versions to the app's
+        run: |
+          sed -i '' -E \
+            -e "s/(MARKETING_VERSION = )[^;]+;/\1$APP_VERSION;/" \
+            -e "s/(CURRENT_PROJECT_VERSION = )[^;]+;/\1$APP_BUILD_NUMBER;/" \
+            ios/Runner.xcodeproj/project.pbxproj
+
+      # Fetches App Store profiles for the app and every
+      # com.developer110.shiacompanion.* extension (widgets, watch app, watch
+      # widgets), and the Apple Distribution certificate for
+      # CERTIFICATE_PRIVATE_KEY, creating whichever doesn't exist yet. Then
+      # switches the project from automatic signing to those profiles.
+      - name: Set up code signing
+        run: |
+          set -euo pipefail
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          keychain add-certificates
+          xcode-project use-profiles --project ios/Runner.xcodeproj \
+            --export-options-plist "$RUNNER_TEMP/export_options.plist"
+
+      - name: Build IPA
+        run: |
+          flutter build ipa --release \
+            --build-name "$APP_VERSION" \
+            --build-number "$APP_BUILD_NUMBER" \
+            --export-options-plist "$RUNNER_TEMP/export_options.plist"
+
+      # Upload only. Without --testflight, nothing is submitted for external
+      # beta review; internal testers can install it once Apple has processed it.
+      - name: Upload to App Store Connect
+        run: app-store-connect publish --path build/ios/ipa/*.ipa
+
+      - name: Summary
+        env:
+          REF: ${{ steps.ref.outputs.ref || github.ref_name }}
+        run: |
+          {
+            echo "### Uploaded $APP_VERSION ($APP_BUILD_NUMBER) to TestFlight"
+            echo
+            echo "Built from \`$REF\` at $(git rev-parse --short HEAD). It shows up in" \
+              "TestFlight once Apple finishes processing it, usually within 15 minutes."
+          } >> "$GITHUB_STEP_SUMMARY"
