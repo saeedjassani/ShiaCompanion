@@ -36,6 +36,22 @@ behaviour. They only render inside the canvas: `support.js` and the
 | `Rakaat-A.dc.html`, `Rakaat-B.dc.html` | Rakaat counter and dim mode | Tools |
 | `Settings-A.dc.html`, `Settings-A-signedin.dc.html` | Settings signed out / in | Settings |
 | `Nudge-C.dc.html` | Back-up banner (shown on Favorites) | Back-up nudges |
+| `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing, with results, with none | Navigation → Search |
+| `R3-List.dc.html`, `R3-List-group.dc.html` | A zikr list (Duas), and one with a group row (Ziyarats) | Lists |
+| `R3-Todays-recitations.dc.html` | Today's Recitations | Lists |
+| `R3-Prayer-times.dc.html`, `R3-Times-on-home.dc.html` | Calendar & Prayer Times on the Prayer times view, and the "Times on the Home card" sheet | Calendar & Prayer Times |
+| `R3-Calendar.dc.html`, `R3-Calendar-dark.dc.html` | The same page on the Calendar view, light and dark | Calendar & Prayer Times |
+| `W-Calendar.dc.html` | Web (1440 × 900): calendar and the day's times side by side | Calendar & Prayer Times, Responsive |
+| `R3-Azan.dc.html` | Azan (prayer notifications) | Calendar & Prayer Times → Azan |
+| `R3-Library.dc.html`, `R3-Library-book.dc.html` | Library, and one book's chapters | Library |
+| `R3-Qibla.dc.html` | Qibla | Tools |
+| `R3-Qaza.dc.html` | Qaza tracker | Tools |
+| `R3-Playlists.dc.html`, `R3-Playlist.dc.html` | Playlists, and one playlist playing | Playlists and downloads |
+| `R3-Downloads.dc.html` | Downloads | Playlists and downloads |
+| `R3-Flights.dc.html`, `R3-Flight-times.dc.html` | Prayer times in flight: saved flights, one flight | Tools |
+| `R3-My-stats.dc.html` | My Stats | My Stats |
+| `R3-Reminders.dc.html`, `R3-Reminder-form.dc.html` | Zikr reminders, and adding one | Zikr reminders |
+| `R3-Account.dc.html` | Account (from the signed-in card in Settings) | Settings |
 
 The round-1 files (everything not prefixed `R2-`, `T-` or `W-`) were drawn
 before the home and navigation were settled. Use them for their own screen
@@ -43,6 +59,28 @@ only: `Loc-A-card` and `Verse-A-search` still show the old bottom search
 field, a "Today" heading and the old grid around the part that matters, and
 `Nudge-C` shows Favorites as a plain page rather than the tab. The `R2-`
 files and the spec are authoritative for everything around them.
+
+The round-3 files (`R3-` and `W-Calendar`) cover every remaining screen
+that was still in the old design. They are drawn in the round-2 shell
+(tokens, round Back button, card lists) and sit on the canvas page
+**Round 3 · Remaining screens**. They are static: no file in this round has
+a behaviour script. Two things in them stand in for app parts the canvas has
+no render of:
+
+- **Sunrise, Sunset and Midnight icons** are outline stand-ins. The app's
+  `PrayerGlyph` already paints all three; use it, as for the five prayers.
+- **The Qibla dial** is a flat drawing of today's `QiblaCompassDial` with
+  the round-3 colours. Keep the painter; only its colours and the words
+  around it change.
+
+Screens with no mockup on purpose, and what to follow instead:
+
+| Screen | Follow |
+|---|---|
+| Quran → Recent sessions, Settings → Scheduled notifications, About | Pushed-page chrome plus card lists, as in `R3-Downloads` |
+| Zikr picker (from a reminder's "What" row) | `R3-Search` scoped to zikr: the same field, chips hidden |
+| Delete account confirmation | A plain confirm dialog over `R3-Account` |
+| Admin pages (Usage, Mistake reports, Content requests), widget preview | Unchanged: admin and developer only |
 
 ## Images referenced as `/_blob/<id>`
 

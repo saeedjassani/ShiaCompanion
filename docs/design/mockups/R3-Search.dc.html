@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Search, before typing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+input::placeholder{color:#6A5A4D}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F8F5F0; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+  <div style="position: absolute; left: 0; top: 0; right: 0; box-sizing: border-box; padding: 58px 16px 0; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: center; gap: 8px">
+      <div style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 44px; box-sizing: border-box; padding: 0 11px; border-radius: 12px; background: #FFFFFF; border: 2px solid #6D4C35">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6A5A4D" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M16 16l4 4M17.5 11a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"></path>
+        </svg><input type="search" aria-label="Dua, surah, verse or book" placeholder="Dua, surah, verse or book" style="flex: 1; min-width: 0; border: none; background: transparent; font: inherit; font-size: 17px; color: #2A1E16; outline: none">
+      </div>
+      <button style="flex-shrink: 0; height: 44px; padding: 0 6px; border: none; background: transparent; color: #6D4C35; font-size: 17px; font-weight: 400; cursor: pointer">Cancel</button>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <button aria-pressed="true" style="flex-shrink: 0; display: flex; align-items: center; gap: 4px; height: 36px; padding: 0 14px 0 10px; border-radius: 18px; border: none; background: #6D4C35; color: #FFFFFF; font-size: 15px; font-weight: 600; cursor: pointer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12.5l4.5 4.5L19 7.5"></path>
+        </svg>Duas &amp; more</button>
+      <button aria-pressed="true" style="flex-shrink: 0; display: flex; align-items: center; gap: 4px; height: 36px; padding: 0 14px 0 10px; border-radius: 18px; border: none; background: #6D4C35; color: #FFFFFF; font-size: 15px; font-weight: 600; cursor: pointer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12.5l4.5 4.5L19 7.5"></path>
+        </svg>Quran</button>
+      <button aria-pressed="false" style="flex-shrink: 0; height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #D9CEBF; background: #FFFFFF; color: #2A1E16; font-size: 15px; font-weight: 600; cursor: pointer">Library</button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 4px"><span style="font-size: 13px; line-height: 17px; font-weight: 600; letter-spacing: 0.3px; color: #6A5A4D">RECENT</span>
+        <a href="#" style="font-size: 15px; line-height: 20px; font-weight: 600; text-decoration: none; color: #6D4C35">Clear</a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0px; padding: 0; border-radius: 16px; background: #FFFFFF; border: 1px solid #E8E0D5; overflow: hidden">
+        <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 0 14px; color: #2A1E16; text-decoration: none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6A5A4D" aria-hidden="true" style="flex-shrink: 0; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M20.5 12a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0zM12 7.5V12l3 2"></path>
+          </svg><span style="flex: 1; font-size: 17px; line-height: 22px">kumayl</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A8A7C" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </a>
+        <div aria-hidden="true" style="height: 1px; margin-left: 46px; background: #EFE7DC">
+        </div>
+        <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 0 14px; color: #2A1E16; text-decoration: none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6A5A4D" aria-hidden="true" style="flex-shrink: 0; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M20.5 12a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0zM12 7.5V12l3 2"></path>
+          </svg><span style="flex: 1; font-size: 17px; line-height: 22px">2:255</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A8A7C" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </a>
+        <div aria-hidden="true" style="height: 1px; margin-left: 46px; background: #EFE7DC">
+        </div>
+        <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 0 14px; color: #2A1E16; text-decoration: none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6A5A4D" aria-hidden="true" style="flex-shrink: 0; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M20.5 12a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0zM12 7.5V12l3 2"></path>
+          </svg><span style="flex: 1; font-size: 17px; line-height: 22px">ziyarat warith</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A8A7C" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 4px"><span style="font-size: 13px; line-height: 17px; font-weight: 600; letter-spacing: 0.3px; color: #6A5A4D">YOU CAN SEARCH FOR</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0px; padding: 0; border-radius: 16px; background: #FFFFFF; border: 1px solid #E8E0D5; overflow: hidden">
+        <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 6px 14px; box-sizing: border-box; color: #2A1E16; text-decoration: none"><span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; line-height: 20px; color: #6A5A4D">A dua or ziyarat by name</span><span style="font-size: 17px; line-height: 22px; font-weight: 600; color: #6D4C35">Kumayl</span></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A8A7C" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round"><path d="M9 6l6 6-6 6"></path>
+          </svg>
+        </a>
+        <div aria-hidden="true" style="height: 1px; margin-left: 14px; background: #EFE7DC">
+        </div>
+        <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 6px 14px; box-sizing: border-box; color: #2A1E16; text-decoration: none"><span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; line-height: 20px; color: #6A5A4D">A surah</span><span style="font-size: 17px; line-height: 22px; font-weight: 600; color: #6D4C35">Yasin</span></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A8A7C" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round"><path d="M9 6l6 6-6 6"></path>
+          </svg>
+        </a>
+        <div aria-hidden="true" style="height: 1px; margin-left: 14px; background: #EFE7DC">
+        </div>
+        <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 6px 14px; box-sizing: border-box; color: #2A1E16; text-decoration: none"><span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; line-height: 20px; color: #6A5A4D">A verse</span><span style="font-size: 17px; line-height: 22px; font-weight: 600; color: #6D4C35">2:255  or  baqarah 255</span></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A8A7C" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round"><path d="M9 6l6 6-6 6"></path>
+          </svg>
+        </a>
+        <div aria-hidden="true" style="height: 1px; margin-left: 14px; background: #EFE7DC">
+        </div>
+        <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 6px 14px; box-sizing: border-box; color: #2A1E16; text-decoration: none"><span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; line-height: 20px; color: #6A5A4D">A book or its author</span><span style="font-size: 17px; line-height: 22px; font-weight: 600; color: #6D4C35">Mutahhari</span></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A8A7C" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round"><path d="M9 6l6 6-6 6"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

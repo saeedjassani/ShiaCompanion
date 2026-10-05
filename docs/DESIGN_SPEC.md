@@ -6,9 +6,10 @@ agreed mockups are in [`design/mockups/`](design/mockups/) (one HTML file
 per screen, with exact sizes and colours; see its README for which file is
 which). They were drawn on the design canvas
 https://claude.ai/artifact/AjdZLyGAdFC5faTXco6Um5 (pages **Round 2 · Phone /
-Tablet / Web**, plus the round-1 pages for setup, the city picker, verse
-picker, counters and settings). Where this file and a mockup disagree, this
-file wins.
+Tablet / Web**, the round-1 pages for setup, the city picker, verse
+picker, counters and settings, and **Round 3 · Remaining screens** for
+search, lists, the calendar and every other page). Where this file and a
+mockup disagree, this file wins.
 
 ## Principles
 
@@ -115,9 +116,17 @@ fresh installs). Existing users keep whatever `darkMode` holds today.
   the full screen and today's deep-link handling (`pushRootPageRoute`,
   `routeObserver`, web URL sync) keeps working unchanged.
 - Tab roots live in an `IndexedStack` so each keeps its scroll position.
+- **Pushed pages** (everything that isn't a tab root or a reader): the
+  reader's round 44 px Back button top-left, up to two round or text
+  actions top-right, then a large title with an optional one-line sub-line
+  (a count, a date, or what the page is for). Scrolling folds the title
+  into the bar as a centred one-line title, like the reader. A page title
+  may be shorter than its menu label ("Qaza" for Qaza Tracker); menu labels
+  and analytics ids stay as they are.
 - Settings and sign-in: the round profile button top-right of Home.
-- Search: today's `DataSearch`, plus verse parsing ("2:255",
-  "baqarah 255", "yasin 1") putting a **Go to verse** result first.
+- Search: today's `DataSearch` in the layout under **Search** below, plus
+  verse parsing ("2:255", "baqarah 255", "yasin 1") putting a **Go to
+  verse** result first.
 - Analytics: give every `HomeMenuItem` an explicit `analyticsId` equal to
   today's derived id before any label changes, so counters don't fork
   (e.g. Preferences → Settings).
@@ -162,6 +171,48 @@ list.
 Large title + Edit; segmented **Duas & more / Quran verses**; back-up
 banner while signed out; list.
 
+### Search
+A pushed full-screen page from the round Search button; the field is
+focused on open.
+- Search field (radius 12, accent border while focused, clear button) and
+  **Cancel**. Placeholder "Dua, surah, verse or book".
+- Today's source chips under it: **Duas & more** (was "Zikr", renamed to
+  match Favorites) · Quran · Library, the first two on by default and
+  remembered in `search_sources`. A selected chip carries a tick, not
+  colour alone.
+- Before typing: **Recent** (the last 3 searches, kept on this device, with
+  Clear) and **You can search for**: four examples (Kumayl, Yasin, "2:255 or
+  baqarah 255", Mutahhari) that fill in the field when tapped, so verse and
+  author search are discoverable without a help page.
+- Results: today's ranking and section order. Each section gets a label
+  ("Duas & more · 6") when more than one shows. A row has the title with
+  the matched text in bold, a title's trailing Arabic on its own line (as in
+  Lists), where it lives on a sub-line ("Ziyarats", "Aamaal › Muharram",
+  from the list or group its uid sits in) and the heart. A switched-off
+  source with matches is one dashed row: "11 matches in Library · Show".
+- No results: "Nothing called “…”", a tip to try one word or another
+  spelling, and today's request flow as a card, "Still can't find it?" +
+  **Request “…”** (`showContentRequestDialog`, pre-filled as today).
+
+### Lists (Duas, Ziyarats and the rest)
+`ItemList`, and Today's Recitations.
+- Pushed-page chrome, large title + count ("138 duas"), then a **Find a
+  dua** field that filters this list only (same matching as search, slugs
+  included).
+- One card list in today's order. Rows ≥ 54 px: the title; when it ends in
+  Arabic (`Dua al-Hujjah اِلٰهِيْ …`) the Arabic moves to its own line,
+  right-aligned, in the reader's Arabic font; the heart on the right.
+- A **when** sub-line from the entry's `day` patterns, so occasion duas say
+  so: "Every day", "Saturdays", "On 20 Safar", "On 17 and 29 Safar, 11 and
+  23 Dhul Qa'dah". A **Today** pill when it matches today
+  (`matchTodaysZikrs`); none on every-day entries, where it would be noise.
+- Group rows (`~` uids such as "Ziyarat of Hijaz, Iran & Iraq" and the
+  Aamaal months): a folder tile, bold title, what's inside on a sub-line, a
+  chevron and no heart.
+- **Today's Recitations:** title + today's civil and Hijri dates, then one
+  labelled card per group in today's order (the date or night, the month,
+  "For Saturday", "Every day"), and a note that special dates come first.
+
 ### Reading (zikr and Quran)
 - Top bar: round back button, one-line title, small sub-line ("12% read",
   "Part 3 of 4", "Verse 255 of 286 · My reading"), favourite button, 3 px
@@ -196,9 +247,91 @@ out / Delete account). Then Appearance (Theme, Arabic font with sample,
 Text size), Prayer times (Location, Azan, Adjust Hijri date, Prayer times
 shown), Notifications, Reading, Offline audio, Support.
 
+**Account** (`R3-Account`): name, email and provider, "Backed up · 2
+minutes ago", what the backup holds with counts (favorites, bookmarks, Quran
+progress, saved verses, qaza, My Stats and shortcuts), **Log out**, and
+**Delete account…** in danger colour with one line on what deleting
+removes; the confirmation stays a dialog.
+
 ### Back-up nudges
 One-line banner where synced data is created — Favorites, bookmarks, Quran
 tracks, My Stats — only while signed out; "Not now" hides it for a week.
+
+### Calendar & Prayer Times
+One page with two views on phone, picked with a segmented control under
+the bar: **Prayer times** (opened from the Home prayer card) and
+**Calendar** (from the Calendar shortcut). The city button sits top-right
+on Prayer times, a **Today** button on Calendar.
+- **Prayer times:** a day pager (‹ Saturday 3 October [Today] / 22 Rabi'
+  al-Thani 1448 ›), then all eight times from
+  `buildExtendedPrayerTimeEntries` in one card. Prayers are semibold;
+  Sunrise, Sunset and Midnight are muted, Sunrise with "Fajr time ends" and
+  Midnight with "Half-way between sunset and Fajr". Today's upcoming time
+  gets a tinted row and a **Next** pill, no countdown. Under it, an **Azan**
+  row ("On for Fajr, Maghrib and Isha") and a **Times on the Home card** row
+  that opens today's pick-3-to-5 list as a sheet (until now only reachable
+  by long-pressing the card), with the rest greyed out once five are
+  picked. Footnote: worked out on this phone for the city, Shia Ithna Ashari
+  method.
+- **Calendar:** a month card with ‹ › buttons, the Gregorian month and the
+  Hijri months it spans, weeks from Sunday as today. Each day: the Gregorian
+  number, the Hijri day in Eastern Arabic numerals (as today), today
+  ringed, the selected day filled. `events.json` events are told apart by
+  shape, not hue: `color: 1` celebration = filled dot, `color: 0` mourning
+  = ring, no colour = dash, with a legend under the grid. This replaces the
+  red and green tints. The selected-day card: both dates, "in 13 days", the
+  event and its kind, and **Prayer times for this day**, which switches
+  views on that date.
+- ≥ 1024 px: no segmented control; the month (wide cells carrying a short
+  name for the event) and the selected day's times sit side by side inside
+  1120 px (`W-Calendar`).
+- **Azan** (today's prayer notifications page): a **Default sound** row
+  ("Full Azan"), then the eight times in one card, each a split row: the
+  left part opens that time's sound, then a divider, then the switch. An on
+  row shows its sound; one with its own sound says "Takbir Only · its own
+  sound" in accent.
+
+### Library
+- Title + count, a **Find a book or author** field (title or author, as
+  search matches), the **Continue reading** card (book, chapter, "page 4 of
+  9", progress bar, × to remove; `LibraryProgressStore`), then **All books**
+  with an author line and the heart. "Request a book" moves from after the
+  1,162nd row to the section header.
+- One book: title, author and chapter count; **Continue · Part 2, page 4**
+  and **Save for offline** as labelled buttons instead of app-bar icons;
+  Share stays top-right. Chapters are numbered in wells, the current one
+  filled, with "Reading · page 4 of 9". The chapter page takes the reader's
+  top bar.
+
+### Playlists and downloads
+- **Playlists:** **New playlist** and **Downloads** buttons, then one card:
+  a 48 px play/pause button, the name, what's in it or what's playing
+  ("Playing: Dua Ahad · 1 of 4"), a chevron.
+- **One playlist:** "4 zikr · 3 downloaded", **Play all**/**Pause** and
+  **Add zikr**, numbered rows (the playing one shows a speaker and "3:12 of
+  9:40"), ⋯ per row (open text, choose recordings, download, remove) and ⋯
+  top-right (rename, remove downloads, delete). "Download for offline · 1
+  left" while any aren't downloaded.
+- **Downloads:** the total size in the sub-line, one card (a download in
+  progress shows its bar and Stop; the rest a remove button), the older
+  recordings card, and "Remove all downloads" in danger text.
+
+### My Stats
+Streak card (days in a row, the best, today's state in words with a tick),
+History card (Zikrs / Verses / Qaza chips, one bar per day with its value
+on top, today in accent, Week / Month / All time), Your most recited, then
+today's Quran progress, privacy note and community sections as cards.
+
+### Zikr reminders
+- List: **Add a reminder**, then one card; a row has a tile (the prayer's
+  glyph when it's relative to a prayer, a clock otherwise), the title,
+  "Thursdays · 15 min after Maghrib" and a switch. Tapping a row edits it;
+  Remove moves into the edit page.
+- Form: **What** (a zikr from the library, "From Duas"), **Repeat on** (seven
+  44 px day buttons + "Every day"), **When** (At a set time / Around a
+  prayer; the prayer, a minutes stepper in 5s, Before / After), and a
+  plain-words summary above the pinned **Add reminder** button: "Thursdays,
+  15 minutes after Maghrib (about 6:56 pm this week)".
 
 ### Tools
 - **Tasbeeh:** segmented Tasbih al-Zahra / Free count; in Zahra mode the
@@ -209,6 +342,27 @@ tracks, My Stats — only while signed out; "Not now" hides it for a week.
   type, rakaat bars, sajdah dots + "1 of 2 sajdahs"; Undo / Start over;
   placement help as a link. **Dim mode** after a few seconds without
   touches: numbers only on black, tap to brighten.
+- **Qibla:** "Pointing towards" as a labelled button (**Change** opens
+  today's holy-sites sheet), the dial (today's `QiblaCompassDial`, round-3
+  colours: Kaaba marker, the phone's forward line), the instruction in
+  large words ("Turn right 12°", "Facing the Kaaba"), and Distance /
+  Direction / You face tiles. "About this compass" behind the ⓘ button;
+  permission and calibration states keep today's copy, as cards above the
+  dial.
+- **Qaza:** a summary card (left to make up in large type, done, a progress
+  bar) with **Prayed a full day** and **Work out how many I owe** (today's
+  "Calculate my qaza" sheet) as buttons rather than an app-bar icon. One
+  row per prayer: the name, "248 left · 12 done", one **Prayed** button, and
+  ⋯ for Add a missed one / Undo / Edit count. "Dhuhr" becomes "Zuhr", as
+  everywhere else. Namaz-e-Ayat and Other sit behind a header link until
+  used; Fasts work the same with **Fasted**.
+- **Prayer times in flight:** **Add a flight**, then a card per flight (the
+  route in large type, the cities, date and departure, duration and landing
+  time, a pill naming what comes in on board, ⋯ for edit / remove). One
+  flight: a departs / arrives card, **In the air** (each time on both
+  clocks, how long after take-off and where, the Qibla relative to the
+  aircraft), **On the ground** (what to use instead), and "How these are
+  worked out".
 - **City picker:** offline search over a bundled GeoNames city list
   (≈25k cities, CC BY; the airports list misses Karbala, Qom, Kuwait City
   and others), "Use my current location instead" row. A chosen city is
@@ -220,7 +374,7 @@ tracks, My Stats — only while signed out; "Not now" hides it for a week.
 |---|---|
 | < 600 | Phone: single column, pickers as bottom sheets |
 | 600–1023 | Tablet: Home in two columns (prayer card, Continue, Coming up · Shortcuts, hadith); readers in a 640 px column; pickers and city search as centred dialogs |
-| ≥ 1024 | Web/desktop and tablet landscape: same two columns inside 1120 px; readers in a 720 px column; slimmer top bars |
+| ≥ 1024 | Web/desktop and tablet landscape: same two columns inside 1120 px; readers in a 720 px column; slimmer top bars; Calendar & Prayer Times shows the month and the day side by side |
 
 The tab bar stays bottom-centre at every width.
 
@@ -247,5 +401,10 @@ The tab bar stays bottom-centre at every width.
 7. First-run setup and the "What's new" flow.
 8. Tasbeeh and Rakaat redesign, dim mode.
 9. Tablet and web layouts.
+10. Search page and zikr lists (find field, when sub-lines, Arabic on its
+    own line, Today's Recitations groups).
+11. Calendar & Prayer Times (both views, event shapes) and Azan.
+12. Library, Playlists, Downloads, My Stats, Zikr reminders.
+13. Qibla, Qaza, Prayer times in flight, Account.
 
 Each PR ships with before/after screenshots in `docs/pr-screenshots/`.
