@@ -1316,7 +1316,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (widget.portion != null) return;
     final translation = await ZikrTranslations.instance
         .documentFor(_contentUid, DefaultAssetBundle.of(context));
-    if (!mounted || identical(translation, _translation)) return;
+    if (!mounted) return;
+    // Rebuilt even when the document is unchanged: the title comes from the
+    // language's index, which may have changed on its own.
     setState(() => _translation = translation);
   }
 

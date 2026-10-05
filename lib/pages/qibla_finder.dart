@@ -98,7 +98,7 @@ class _QiblaFinderState extends State<QiblaFinder> {
   @override
   void initState() {
     super.initState();
-    unawaited(trackScreen(context.l10n.qiblaTitle));
+    unawaited(trackScreen('Qibla Finder'));
     _compass = widget.compassSource ?? const PlatformCompassSource();
     _target = holySiteById(
       SP.isInitialized ? SP.prefs.getString(_targetPreferenceKey) : null,

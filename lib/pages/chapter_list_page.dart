@@ -137,7 +137,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
         await LibraryService.removeSavedBook(widget.slug);
         unawaited(AnalyticsService.feature(
           'library_offline_removed',
-          label: context.l10n.libraryOfflineRemoved,
+          label: 'Offline copy removed',
           parameters: {'book_uid': widget.slug},
         ));
         if (mounted) {

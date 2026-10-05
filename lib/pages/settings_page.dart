@@ -864,7 +864,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
         unawaited(AnalyticsService.feature(
           'account_signed_in',
-          label: context.l10n.settingsSignedIn,
+          label: 'Signed in',
           parameters: {'method': 'google'},
         ));
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
@@ -934,7 +934,7 @@ class _SettingsPageState extends State<SettingsPage> {
         final authResult = await _auth.signInWithCredential(credential);
         unawaited(AnalyticsService.feature(
           'account_signed_in',
-          label: context.l10n.settingsSignedIn,
+          label: 'Signed in',
           parameters: {'method': 'apple'},
         ));
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
