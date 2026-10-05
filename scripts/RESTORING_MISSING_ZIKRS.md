@@ -11,6 +11,94 @@ memory note for the bug-report side of this.
 This doc is the restoration process for bringing an individual UID back with
 real, correctly-formatted content — not just a title.
 
+## Resume here (status as of 2026-10-04)
+
+**Done:** every favorited missing uid (the eight passes below). Of the 209
+*unfavorited* missing uids listed in
+[unfavorited_missing_zikrs.json](unfavorited_missing_zikrs.json), 7 are
+old menu nodes (skip), 43 are retired as duplicates, 22 are restored
+(F16-F65, E131-E136, P1). **137 remain** (80 with Arabic, 57 prose-only),
+each still marked `has-arabic`/`prose-only` in that JSON. When a batch
+ships, set its uids' `kind` to `restored`/`retired` there and recount
+`counts`.
+
+**Next batches, in the order agreed with the repo owner** (ziyarat last):
+
+1. **Taweez / medicine / funeral rites** - `I40`-`I126` (36 uids). Short,
+   uniform Mafatih/Baqiyat material. Check Step 1.5 duplicates first: `I27`
+   turned out to be `I24`'s tab, and the `I` series has several more
+   compilations (`I9`, `I14`, `I17`, `I24`).
+2. **Calendar pages** - Ramadan nights `AA24 AA36 AA41 AA42 AA44 AA45`
+   (AA36-AA44 share a closing with the live AA33/AA35/AA37/AA38 - that is
+   authentic, not a duplicate), `AC8`, Shawwal `AD1 AD5`, Safar `S2 S3 S4
+   S6 S8`, Rabi `T1 T3 U1`, Rajab `X9 X12 X16 X17 X18`. Give each a `day`
+   pattern in `assets/zikr.json` (see `lib/utils/lunar_date_matcher.dart`;
+   only canonical uids carry `day`).
+3. **Odds and ends** - `E98`, `E145`, `B1 B2 B5`, `G25 G27 G28 G31 G32`;
+   plus two half-duplicates: `AG15` (merge its missing "However, some books
+   add..." tail into `AG14`, then retire it there) and `AI17` (its Masjid
+   Sa'sa'ah section is not live anywhere - restore it).
+4. **Ziyarat sections, last** - Mashhad/Qom `AE*`, Karbala `AG*`, Najaf
+   `AK*`, Samarra `AL*`, Kazimayn `AH*`, Kufa `AI*`, Mada'in `AJ*`, Baghdad
+   `AM*`, Madinah `AP*`, Uhud `AQ*`. The owner wants these **checked against
+   online sources**, not just restored from history, and laid out like the
+   newer "All Forms" entries (one tabbed entry per shrine, e.g. `AG8`,
+   `AK5`, `AI3`) rather than one uid per page.
+
+**How a batch goes** (each step is detailed further down):
+
+1. `git fetch --unshallow` if the clone is shallow - otherwise the missing-uid
+   union from git history silently comes back empty.
+2. Read each uid's `assets/items/<uid>` history (Step 1) and check for
+   duplicates of live entries **and their tabs** (Step 1.5). Match on the
+   *English* as well as the Arabic: live copies are often re-spelled, and an
+   Arabic-only match missed most of the 32 duplicates found on 2026-10-03.
+3. Look for an online copy. Best source so far is duas.org's JSON store:
+   `python3 scripts/zikr_arabic/duas_org.py search <words>`, then
+   `blocks <page-id>`, then `draft <page-id> <block[,block]> --history
+   <uid>`. That prints Arabic (hamza vowels restored from our history where
+   the words align) / house-style transliteration / English. The older
+   duas.org `*.htm` and `mobile/*.html` pages are Word exports with mojibake
+   and a private-use hamza glyph (`U+E832` = hamza+fatha, `U+E835` = +damma,
+   `U+E834` = +sukun) - usable, but map those back. al-islam.org refuses
+   automated fetches.
+4. Write `assets/zikr/<uid>` (`title`, `data`, optional `merits`/`tabs`) and
+   the `assets/zikr.json` entry (title per CLAUDE.md conventions; slug from
+   the *old* title so old links keep working).
+5. Arabic pipeline (`zikr-arabic` skill): `backup.js`, `normalize.py`,
+   `join_wa.py`, then `batch.py plan` + `apply_patch.js` for ṣilah. After it:
+   strip ṣilah marks from plural pronouns (`هٗمْ` -> `هُمْ`) and from a hā
+   before hamzat al-waṣl, and rewrite `الَارْض`-style article damage (see the
+   P1 notes below). Do not run `batch.py plan` on an existing *imported*
+   entry you only patched - it restyles the whole file.
+6. Regenerate every transliteration line from the final Arabic with
+   `scripts/zikr_arabic/translit.py`, then **read every line against the
+   Arabic** - it is a drafting aid (`--check` scores it against hand-written
+   lines), and the read is what catches source typos.
+7. Validate: each Arabic line followed by an ALL-CAPS line and an English
+   line; no English line repeated across unrelated duas (placeholder smell);
+   `python3 scripts/zikr_arabic/audit.py <uids>` clean on INV-2/INV-3;
+   `flutter test`.
+8. Duplicates go in `lib/data/retired_zikr_redirects.dart` (with `tabIndex`
+   when the content is one tab of the target); check every target and tab
+   index exists.
+
+**Left for a human reviewer** (not blocking, but nobody has checked these):
+- English written fresh because the source had none: the recited lines of
+  F36, F37, F42, F61, F63, F65, and the Imam al-Mahdi tab of P1.
+- All transliteration added since 2026-10-03 is machine-drafted then
+  hand-read, not native-speaker reviewed. F16-F25's lines were hand-written
+  before `translit.py` existed and differ from it in places
+  (`ALLADHEES TAJABTA` vs the rule's `ALLADHIS TAJABTA`, mid-line pausal
+  endings); regenerating them with the tool would make them consistent.
+- F17: duas.org says Imam Husayn's prayer repeats al-Fatihah and al-Tawhid
+  fifty times per unit; our history and the Arabic wikishia summary say
+  twenty-five, which is what ships.
+- E132, E133, E135 rest on our history alone (no reachable online copy).
+- `day` tags for the new F/E entries were left off on purpose (master only
+  tags a few of these series, e.g. F11, E144); adding them is an editorial
+  call.
+
 ## Step 0: regenerate the missing-UID list (if you don't already have it)
 
 `scripts/query_favorited_missing_zikrs.js` does this as its first step (union
@@ -378,7 +466,7 @@ An eighth pass (also 2026-09-19) completed the entire remaining **single-favorit
   - **F1 → F2** (merits/preamble to Namaz e Shab)
   - **AA28 → AA29** (points to Common Aamal of Qadr Nights)
   - **P6 → F15** (points to Namaz of Imam Ali)
-  - **I96 → A99** (points to Surah al-Zalzalah)
+  - **I96 → A103** (points to Surah al-Zalzalah; originally mis-targeted at A99, At-Tin - fixed 2026-10-03)
   - **X8 → X7** (points to First Night/Day of Rajab)
 
 All entries were verified with `normalize.py` (0 non-canonical codepoints),
@@ -683,3 +771,175 @@ The single-favorite tail (72 more UIDs, plus the 10 already-retired ones with
 their own redirect target) is in
 [scripts/favorited_missing_zikrs.json](favorited_missing_zikrs.json) if you
 work through this table and want more.
+
+## The unfavorited remainder (2026-10-03)
+
+With every favorited UID done, **209 UIDs** are still missing from
+`assets/zikr.json` and not covered by `retiredZikrRedirects` - none of them
+favorited by anyone in the 2026-09-08 snapshot, so nobody hits "Unable to
+open this dua." for them, but their content is simply gone from the app.
+They're listed in [scripts/unfavorited_missing_zikrs.json](unfavorited_missing_zikrs.json)
+(regenerate the UID list with the git-history union from Step 0 - note a
+cloud session's clone is shallow, so run `git fetch --unshallow` first or the
+union silently comes back empty).
+
+- **7 are not content** (`AF~AM5`, `AR~AP1`, `AR~AQ2`, `B~AR9`, `C~T11`,
+  `C~U12`, `C~W14`) - old menu-category nodes ("Baghdad", "Hijaz", "Rabi
+  al-Awwal"...), with no `assets/items` file. Skip.
+- **202 have full `assets/items/<uid>` history** (Step 1 applies), 132 with
+  Arabic and 70 prose-only (methods, etiquettes, histories, merits). Most of
+  the bulk is the **ziyarat guide sections**, nearly wiped out: Mashhad/Qom
+  (`AE*`, 17 of 18 missing), Karbala (`AG*`, 12), Kufa (`AI*`, 9), Najaf
+  (`AK*`, 13), Samarra (`AL*`, 8), Baghdad (`AM*`, all 4), Madinah (`AP*`,
+  12), Uhud (`AQ*`, all 4), Kazimayn (`AH*`, 5). Then the Taweez/funeral
+  rites run `I40`-`I126` (37), Friday-night acts `P*` (13), Imam-specific
+  namaz `F16`-`F25` and other `F*` (15), the per-Imam salawat `E131`-`E139`,
+  Muharram/Safar/Rabi day pages (`R2`, `R3`, `S2`-`S8`, `T1`, `T3`, `U1`),
+  Rajab (`X9`, `X12`, `X16`-`X18`), the remaining Ramadan nights (`AA36`,
+  `AA41`, `AA42`, `AA44`, `AA45`, `AA24`) and Shawwal/Eid (`AD1`, `AD5`).
+- **32 were duplicates and are now retired** to `retiredZikrRedirects`
+  (`kind: "retired"` in the JSON, each with its target). Every one was
+  checked side by side, not trusted from the script. Most are the old
+  one-form-per-uid ziyarat pages that were later folded into live "All
+  Forms" compilations: `AG9`-`AG13` -> `AG8`'s tabs, `AK9`-`AK12` + `AK14`
+  -> `AK5`'s tabs, `AI6`-`AI9` -> `AI3`'s tabs, `AL13` -> `AL11`, `AH6`/`AH8`
+  -> `AH5`. Also: the weekday ziyarat pairs `G17`/`L4` -> `L3` tab 0 and
+  `G19`/`M4` -> `M3` tab 0; `R2`/`R3`/`R8`/`R13` -> `R1`/`R1`/`R7`/`G4`;
+  `P14` -> `P15` (byte-identical in history); `AC9` -> `AC5`; `I27` ->
+  `I24`; `AG4` -> `AG5`; Friday salawat `E137`/`E138`/`E139` -> the
+  salawat sections of `AH7`/`AL5`/`AL6`.
+  **Lesson:** an Arabic-only shingle match missed most of the compilation
+  matches (the live copies re-spell the Arabic - `ٱ`, split phrases, etc.);
+  a 5-word shingle match on the *English* prose (`content` + `english`)
+  caught them. Run both before restoring anything from this list.
+- **Three flagged ones are not clean duplicates** (`note` in the JSON):
+  `AG15` (AG14 has only half of its commentary), `AI17` (its Masjid
+  Sa'sa'ah section isn't live anywhere), and `E136` - whose Imam al-Reza
+  salawat *is* live, but inside `AH4` under the wrong heading ("2.Salawaat
+  Upon Imam Musa ibn Jafar") - since fixed, see the E131-E136 section below.
+
+That left **170 to restore** at that point (103 with Arabic, 67 prose-only); see "Resume here" at the top for the current count.
+
+### The F (Namaz) series (2026-10-03)
+
+All 15 missing `F*` uids are restored: F16, F18-F22, F24, F25 (the Imams'
+Friday prayers), F36, F37, F42, F50, F61, F63, F65.
+
+- **The Imams' prayers were checked against an online source and came out
+  fuller than our history.** The old `assets/items` files for F16-F25 only
+  carried the one-line method. Sayyid Ibn Tawus's *Jamal al-Usbu'* (as
+  given in Mafatih al-Jinan; taken from duas.org's "Namaz of Masoomeen"
+  page) pairs each Imam's prayer with **a supplication**, so each entry now
+  carries the method in `merits` and the supplication as triplets in
+  `data`. The live F17 (Imam Husayn, 102 lines) and F23 (Imam al-Jawad)
+  were missing their supplications too and got them in the same pass.
+  That page has the duas.org defects Step 3 warns about: its transliteration
+  is mojibake (`Muï¿½ammad`), so only its Arabic and English were used, and
+  its Arabic stores hamza in a private-use font glyph (`U+E832` = hamza +
+  fatha, `U+E835` = + damma, `U+E834` = + sukun) that had to be mapped back
+  to `اَ`/`اُ`/`اْ`. A few source typos were fixed (`وَاَنَتَ`, `وَهرَبَ`,
+  `وَمَلَاَكُلَّ`, `عِقَابِكَ` -> `عِقَابَكَ`), and in Imam al-Sadiq's dua
+  `شَاهِدُ غَيْرُ` / `غَالِبُ` / `قَرِيبُ` were made accusative, as the
+  source's own transliteration reads them. Imam al-Jawad's rows were
+  misaligned in the source (transliteration shifted one row).
+- **Two known disagreements, left as in our history:** duas.org says Imam
+  Husayn's prayer repeats al-Fatihah and al-Tawhid *fifty* times per unit;
+  our old text and the Arabic wikishia summary say twenty-five. F17 keeps
+  twenty-five.
+- **F36-F65 come from `assets/items` history only.** Their Arabic is the
+  old authored text; the English for the recited lines is **new** (the old
+  items had none) and deserves a reviewer's pass, as does all the
+  transliteration in this batch (hand-written in the F13-F15 house style).
+- **Pipeline gotchas hit here:** `normalize.py`'s `لاَ -> لَا` rule turns the
+  duas.org article `ٱلاَرْض` into `الَارْض` (fatha moved onto the article
+  lam) - rewrite those to `الْاَرْض` afterwards; `silah.py` again marked
+  plural pronouns (`لَهٗمْ`), and source text had ṣilah marks before hamzat
+  al-waṣl (`بِهٖ الْجِبَالَ`). Use `batch.py plan` to apply `silah.py`'s fixes -
+  its own `--json` output is not in `apply_patch.js`'s format.
+
+### The Friday salawat series, E131-E136 (2026-10-03)
+
+The series (Shaykh al-Tusi's Misbah al-Mutahajjid, from Imam al-'Askari) is
+now complete: E128-E136 live, E137-E139 redirect to the shrine entries that
+carry them.
+
+- **E131, E134, E136 were taken from duas.org's per-Imam pages**
+  (`/mobile/imam-hussain-as.html`, `imam-jafar-sadiq-as.html`,
+  `imam-musa-kazim-as.html`), which carry the al-islam.org Mafatih text
+  already split into phrase/transliteration/translation rows - a much
+  better source than the old `duas.org/*.htm` Word exports. The online copy
+  caught a dropped word in our history: E131's `عِشْتَ رَشِيداً مَظْلُوماً`
+  had lost `رَشِيداً`, though our own old English still said "You lived
+  *upright* and persecuted". E134 takes the source's `مُسْتَحْفَظَ` (passive)
+  over our history's `مُسْتَحْفِظَ`.
+- **E132, E133, E135 are not on any page reachable from here**, so they are
+  the historic Arabic split into phrases with the historic English (the same
+  Badr Shahin translation - it matched the online one word for word on
+  E134/E136). Worth an online check when a source turns up.
+- **AH4 was mislabeled**: its section "2. Salawat upon Imam Musa ibn Jafar"
+  actually carried Imam al-Reza's salawat (now E136). That section now
+  carries the real Kazim salawat (E135's text).
+- **Merits name the part, not just the source.** All nine (E128-E136) carry
+  one framing sentence (Misbah al-Mutahajjid, from Imam al-'Askari) plus
+  "This is its part upon ...". A reviewer read the earlier copy-pasted
+  sentence on E136 as crediting al-Reza's salawat to al-'Askari by mistake;
+  it isn't a mistake - the whole series, al-Reza's part included, is his
+  (duas.org's al-Jawad and al-Sadiq pages say the same) - but the sentence
+  has to say it is one part of a series.
+- Don't run `batch.py plan` on an *imported* entry you're only patching -
+  it also normalizes the whole file (`ٱ -> ا` etc.), which the zikr-arabic
+  skill treats as a separate restyle decision. Patch such files directly.
+
+### Friday-night rites, P1-P16 (2026-10-03)
+
+P2-P16 were Mafatih al-Jinan's numbered rites of Thursday night ("First:"
+... "Twelfth:", plus Imam al-Mahdi's prayer), one uid each. They are now a
+single tabbed entry, **P1 "Recommended Rites of Friday Night
+(Shab-e-Jumu'ah)"**, with P2-P16 redirected to its tabs (including the
+already-live P13/P15, whose slugs became P1's `slugAliases`). A `Q5|P1`
+alias lists it in the Thursday menu next to Dua Kumayl (no menu linked the P
+series before), and P1 carries `day: ["*-*-4", "N*-*-5"]` so Today's
+Recitation shows it on Thursday and through Thursday night. (It can't go in
+the Friday `J` list: `test/zikr_day_data_test.dart` requires every J entry
+to be tagged `*-*-5`.)
+
+- **Source: duas.org's v2 JSON store.** The site's new pages are a JS shell
+  that loads `https://www.duas.org/data_v2/<page-id>.json`; each dua is a
+  list of `{arabic, transliteration, translation}` segments, and
+  `data_v2/search_index.json` lists every page id. This is the cleanest
+  source found so far (no Word-export mojibake), and the place to look
+  first for the ziyarat. Used here: `thursday-night-rites-taqeeb`,
+  `thursday-rites-taqeeb`, `dua-man-taaba-tahiaya`,
+  `dua-ya-shahida-kulle-najwa`.
+- **But its Arabic lost most hamza vowels** (the same private-use hamza
+  glyph as the old pages, stripped instead of mapped): `اسْالُكَ`, `وَانْتَ`,
+  `تَعَبَّا`. Each segment was aligned against our `assets/items` Arabic and,
+  where the skeleton matched and history carried more vowel marks, the
+  historic word was taken (~260 words). The ~25 left over were checked by
+  hand: a bare alif after `وَ`/at word start is hamzat al-waṣl only for the
+  article, forms VII/VIII/X and their imperatives, `ابن`/`اسم`/`امرأة`;
+  first-person verbs (`وَاَسْتَغْفِرُكَ`) and form-IV verbs (`وَاَنْزِلْ`) need
+  the hamza back.
+- Its block for Imam al-Mahdi's prayer has **no English** and drops
+  `وَسَائِرِ مَا اَنْعَمْتَ بِهِ عَلَيَّ`; that tab is our historic Arabic with
+  a new translation (flag for review). The "last hour of Thursday" block
+  runs on into the next dua; cut it.
+- **Transliteration came from the new `scripts/zikr_arabic/translit.py`**
+  (house style, rule-based; `--check` scores it against the hand-written
+  F16-F25: 255/274 identical, the rest mostly inconsistencies in the hand
+  versions). It is a drafting aid: every line of P1 was read against the
+  Arabic, which surfaced both tool bugs (fixed) and source typos
+  (`عَلِي` for `عَلٰى`, `مُنَتَهٰى`, `مُحَمِّدٍ`, `الَّرجَاءُ`, `يَارَبِّ`).
+- **No one-line tabs.** Mafatih's "Tenth:" (eating a pomegranate) is a
+  single prose line; it sits, without its ordinal, in "Prayers and Other
+  Acts of the Night" (P12 redirects to tab 1) instead of a stub tab of its
+  own. Tab indices after it moved: P13 -> 7, P14/P15 -> 8, P16 -> 9.
+- **Spell the madda the house way** (`الْاٰجِلِ`, `الْاٰمَالِ`, `الْاٰخِرِينَ`,
+  not `الآ`/`الْآ`) and strip tatweel (`عَظيـمُ` -> `عَظِيمُ`); online sources
+  carry both. Small noon (`ۨ`) is a Qur'an-script convention - the surah
+  files use it, the duas almost never do - so don't add it to duas; just
+  check the transliteration carries the liaison (`MUHAMMADINIL MUSTAFAA`).
+- `normalize.py`'s `لاَ -> لَا` rule mangles an article before a hamzated
+  alif (`ٱلاَرْض` -> `الَارْض`); fix those to `الْاَرْض` - but only where the
+  next consonant has a sukun, or it also "fixes" `وَالَاهُمْ` (it did, once,
+  in E131; caught and reverted).

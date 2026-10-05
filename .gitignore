@@ -297,6 +297,9 @@ test_visual/specs/__screenshots__/*
 # zikr-arabic working files
 .zikr-backups/
 scripts/zikr_arabic/.patch.json
+scripts/zikr_arabic/.norm.json
+scripts/zikr_arabic/.wa.json
+scripts/zikr_arabic/.silah.json
 __pycache__/
 
 # duas.org import working files: the review map is a local artifact,

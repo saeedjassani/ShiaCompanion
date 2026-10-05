@@ -1327,6 +1327,30 @@
     "title": "Salawat upon Lady Fatimah (s.a.)",
     "slug": "salawat-upon-lady-fatimah"
   },
+  "E131": {
+    "title": "Salawat upon Imam al-Hasan and Imam al-Husayn (a.s.)",
+    "slug": "salawat-upon-al-hasan-and-al-husayn"
+  },
+  "E132": {
+    "title": "Salawat upon Imam Zayn al-Abidin (a.s.)",
+    "slug": "salawat-upon-imam-ali-ibn-al-husayn"
+  },
+  "E133": {
+    "title": "Salawat upon Imam al-Baqir (a.s.)",
+    "slug": "salawat-upon-imam-muhammad-ibn-ali"
+  },
+  "E134": {
+    "title": "Salawat upon Imam al-Sadiq (a.s.)",
+    "slug": "salawat-upon-imam-ja-far-ibn-muhammad"
+  },
+  "E135": {
+    "title": "Salawat upon Imam al-Kazim (a.s.)",
+    "slug": "salawat-upon-imam-musa-ibn-ja-far"
+  },
+  "E136": {
+    "title": "Salawat upon Imam al-Reza (a.s.)",
+    "slug": "salawat-upon-imam-ali-ibn-musa"
+  },
   "E14": {
     "title": "Hadith al-Kisa",
     "slug": "hadees-e-kisaa"
@@ -1799,17 +1823,49 @@
     "title": "Namaz of Imam Ali (a.s.)",
     "slug": "namaz-of-imam-ali-a-s"
   },
+  "F16": {
+    "title": "Namaz of Imam al-Hasan (a.s.)",
+    "slug": "namaz-of-imam-al-hasan-a"
+  },
   "F17": {
     "title": "Namaz of Imam al-Husayn (a.s.)",
     "slug": "namaz-of-imam-al-husayn-a"
+  },
+  "F18": {
+    "title": "Namaz of Imam Zayn al-Abidin (a.s.)",
+    "slug": "namaz-of-imam-zayn-al-abidin-a"
+  },
+  "F19": {
+    "title": "Namaz of Imam al-Baqir (a.s.)",
+    "slug": "namaz-of-imam-al-baqir-a"
   },
   "F2": {
     "title": "Namaz-e-Shab",
     "slug": "namaz-e-shab"
   },
+  "F20": {
+    "title": "Namaz of Imam al-Sadiq (a.s.)",
+    "slug": "namaz-of-imam-al-sadiq-a"
+  },
+  "F21": {
+    "title": "Namaz of Imam al-Kazim (a.s.)",
+    "slug": "namaz-of-imam-al-kazim-a"
+  },
+  "F22": {
+    "title": "Namaz of Imam al-Reza (a.s.)",
+    "slug": "namaz-of-imam-al-reza-a"
+  },
   "F23": {
     "title": "Namaz of Imam al-Jawad (a.s.)",
     "slug": "namaz-of-imam-al-jawad-a"
+  },
+  "F24": {
+    "title": "Namaz of Imam al-Hadi (a.s.)",
+    "slug": "namaz-of-imam-al-hadi-a"
+  },
+  "F25": {
+    "title": "Namaz of Imam al-Askari (a.s.)",
+    "slug": "namaz-of-imam-al-askari-a"
   },
   "F26": {
     "title": "Namaz of Imam al-Mahdi (a.t.f.s.)",
@@ -1855,6 +1911,14 @@
     "title": "Namaz for Fulfillment of Needs (2)",
     "slug": "namaz-for-fulfillment-of-needs-2"
   },
+  "F36": {
+    "title": "Namaz for Fulfillment of Needs (3)",
+    "slug": "namaz-for-fulfillment-of-needs-3"
+  },
+  "F37": {
+    "title": "Namaz for Fulfillment of Needs (4)",
+    "slug": "namaz-for-fulfillment-of-needs-4"
+  },
   "F38": {
     "title": "Namaz for Fulfillment of Needs (5)",
     "slug": "namaz-for-fulfillment-of-needs-5"
@@ -1874,6 +1938,10 @@
   "F41": {
     "title": "Namaz of Imam al-Mahdi (a.t.f.s.) at the Jamkaran Mosque",
     "slug": "namaz-of-imam-al-mahdi-a-at-the-jamkaran-mosque"
+  },
+  "F42": {
+    "title": "Namaz to Dispel Fear of Oppressors",
+    "slug": "namaz-to-dispel-fear-of-oppressors"
   },
   "F43": {
     "title": "Namaz on Seeing a Non-Muslim",
@@ -1907,6 +1975,10 @@
     "title": "Namaz-e-Ghufaila",
     "order": 1,
     "slug": "namaz-e-ghofaylah"
+  },
+  "F50": {
+    "title": "Namaz for Settling Needs",
+    "slug": "namaz-for-settling-needs"
   },
   "F51": {
     "title": "Namaz for Settling the Debts and Saving from Despotic Rulers",
@@ -1952,13 +2024,28 @@
     "title": "Namaz of Pardon",
     "slug": "namaz-of-pardon"
   },
+  "F61": {
+    "title": "Namaz of the Hungry",
+    "slug": "namaz-of-the-hungry"
+  },
   "F62": {
     "title": "Namaz of Will",
     "slug": "namaz-of-will"
   },
+  "F63": {
+    "title": "Namaz on Friday Nights and the Night of Eid al-Adha for Fulfillment of Needs",
+    "slug": "namaz-on-friday-night-the-nights-before-eid-al-adha-for-fulfillment-of-needs",
+    "slugAliases": [
+      "namaz-on-friday-night-the-nights-befor-eid-al-adha-for-fulfillment-of-needs"
+    ]
+  },
   "F64": {
     "title": "Namaz for Settling of Debts",
     "slug": "namaz-for-settling-of-debts"
+  },
+  "F65": {
+    "title": "Namaz of the Bedouin (Salat al-A'rabi)",
+    "slug": "namaz-of-the-bedouin-salat-al-rabi"
   },
   "F7": {
     "title": "Namaz-e-Mayyat",
@@ -2891,14 +2978,18 @@
     "slug": "ziyarah-of-wednesday",
     "day": "*-*-3"
   },
-  "P13": {
-    "title": "Recite 100 Times between Nafilah of Fajr and Namaz of Fajr سُبْحَانَ رَبِّيَ الْعَظِيْمِ",
-    "slug": "recite-100-times-between-nafilah-fajr-and-namaz-of-fajr-subhana-rabbiyal-azeem"
-  },
-  "P15": {
-    "title": "Recitations Near Friday Dawn (Fajr)",
-    "slug": "recitations-near-friday-dawn-fajr",
-    "day": "*-*-5"
+  "P1": {
+    "title": "Recommended Rites of Friday Night (Shab-e-Jumu'ah)",
+    "slug": "recommended-rites-of-friday-night-shab-e-jumu-ah",
+    "slugAliases": [
+      "recite-100-times-between-nafilah-fajr-and-namaz-of-fajr-subhana-rabbiyal-azeem",
+      "recitations-near-friday-dawn-fajr",
+      "importance-of-shabe-jumuah"
+    ],
+    "day": [
+      "*-*-4",
+      "N*-*-5"
+    ]
   },
   "Q1": {
     "title": "The Supplication of Thursday",
@@ -2925,6 +3016,10 @@
   "Q4|E31": {
     "title": "Dua Kumayl",
     "slug": "dua-kumayl"
+  },
+  "Q5|P1": {
+    "title": "Recommended Rites of Friday Night (Shab-e-Jumu'ah)",
+    "slug": "recommended-rites-of-friday-night-shab-e-jumu-ah"
   },
   "R1": {
     "title": "Aamal for the 1st Night and Day of the Month of Muharram",
