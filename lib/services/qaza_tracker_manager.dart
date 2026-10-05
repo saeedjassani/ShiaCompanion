@@ -39,6 +39,10 @@ class QazaTrackerManager extends ChangeNotifier {
   String? _pendingGuestImportUserId;
   String? _loadedUserId;
   bool _isImportingGuestState = false;
+  /// Operations currently being applied by [_applyOperation]. Replays must
+  /// skip them (or they would be applied remotely twice), and snapshots must
+  /// still show them before they reach the pending queue on disk.
+  final Map<String, PendingQazaOperation> _inFlightOperations = {};
   bool _isReplayingPendingOperations = false;
   bool _isLoading = false;
   bool _hasLoadedQaza = false;
@@ -360,6 +364,17 @@ class QazaTrackerManager extends ChangeNotifier {
     }
   }
 
+  /// Pending operations on disk plus any in flight that are not stored yet.
+  List<PendingQazaOperation> _loadVisiblePendingOperations(String userId) {
+    final stored = _loadPendingOperations(userId);
+    final storedIds = stored.map((operation) => operation.id).toSet();
+    return [
+      ...stored,
+      for (final operation in _inFlightOperations.values)
+        if (!storedIds.contains(operation.id)) operation,
+    ];
+  }
+
   Future<void> _recordPendingOperation(
     String userId,
     PendingQazaOperation operation,
@@ -514,7 +529,7 @@ class QazaTrackerManager extends ChangeNotifier {
         }
 
         await _storageWriteQueue;
-        final pendingOperations = _loadPendingOperations(user.uid);
+        final pendingOperations = _loadVisiblePendingOperations(user.uid);
         final visibleState = applyPendingQazaOperations(
           remoteState,
           pendingOperations,
@@ -540,6 +555,12 @@ class QazaTrackerManager extends ChangeNotifier {
     _isReplayingPendingOperations = true;
     try {
       for (final operation in operations) {
+        // Skip operations whose own apply is running, or that finished (and
+        // were cleared) since this replay list was taken.
+        if (_inFlightOperations.containsKey(operation.id)) continue;
+        final stillPending = _loadPendingOperations(userId)
+            .any((pending) => pending.id == operation.id);
+        if (!stillPending) continue;
         await _applyRemoteOperationForUser(userId, operation);
         await _clearPendingOperation(userId, operation);
       }
@@ -662,6 +683,7 @@ class QazaTrackerManager extends ChangeNotifier {
       return;
     }
 
+    _inFlightOperations[operation.id] = operation;
     try {
       await Future.wait([
         _saveUserStateToSharedPreferences(user.uid, nextState),
@@ -672,6 +694,8 @@ class QazaTrackerManager extends ChangeNotifier {
       debugPrint('QazaTrackerManager: Updated qaza tracker in Firestore');
     } catch (error) {
       debugPrint('QazaTrackerManager: Error syncing qaza tracker: $error');
+    } finally {
+      _inFlightOperations.remove(operation.id);
     }
   }
 
