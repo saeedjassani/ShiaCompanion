@@ -10,6 +10,7 @@ import '../constants.dart';
 import '../data/uid_title_data.dart';
 import '../models/activity_stats.dart';
 import '../services/activity_stats_store.dart';
+import '../services/zikr_translations.dart';
 import '../services/analytics_service.dart';
 import '../services/community_stats_service.dart';
 import '../services/recitation_tracker_manager.dart';
@@ -18,6 +19,7 @@ import 'stats/quran_progress_section.dart';
 import 'stats/stats_charts.dart';
 import 'stats/stats_widgets.dart';
 import 'zikr/zikr_page.dart';
+import '../l10n/l10n.dart';
 
 /// The one stats screen: streak and week, history, most recited zikrs,
 /// and Quran progress per recitation track, with the anonymous community
@@ -58,7 +60,7 @@ class _MyStatsPageState extends State<MyStatsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Stats')),
+      appBar: AppBar(title: Text(context.l10n.statsTitle)),
       body: ListenableBuilder(
         listenable: Listenable.merge([
           ActivityStatsStore.instance,
@@ -83,7 +85,7 @@ class _MyStatsPageState extends State<MyStatsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        StatsSectionTitle('Your most recited'),
+                        StatsSectionTitle(context.l10n.statsYourMostRecited),
                         ..._topZikrTiles(
                           context,
                           [
@@ -130,7 +132,9 @@ class _MyStatsPageState extends State<MyStatsPage> {
 
   static String _titleFor(String uid, [String? fallback]) {
     final title = items[uid];
-    if (title is String && title.trim().isNotEmpty) return title;
+    if (title is String && title.trim().isNotEmpty) {
+      return zikrDisplayTitle(uid, title);
+    }
     return fallback ?? uid;
   }
 
@@ -171,16 +175,16 @@ class _StreakCard extends StatelessWidget {
   /// Deliberately gentle: a missed day is a fresh start, not a failure.
   String get _message {
     if (summary.isEmpty) {
-      return 'Finish reading a dua, ziyarat or surah and your streak begins.';
+      return L10n.current.statsStreakStart;
     }
     final streak = summary.currentStreak;
-    if (streak == 0) return 'Welcome back - every day is a fresh start.';
+    if (streak == 0) return L10n.current.statsWelcomeBack;
     if (summary.isActiveToday) {
       return streak == 1
-          ? 'Done for today. Come back tomorrow to start a streak.'
-          : 'Done for today - see you tomorrow, in sha Allah.';
+          ? L10n.current.statsDoneTodayFirst
+          : L10n.current.statsDoneToday;
     }
-    return 'Read something today to keep it going.';
+    return L10n.current.statsReadToday;
   }
 
   /// Streak lengths worth aiming for - close together early, so a new
@@ -251,7 +255,7 @@ class _StreakCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
-                            'day streak',
+                            context.l10n.statsDayStreak,
                             style: theme.textTheme.titleSmall
                                 ?.copyWith(color: onCard),
                           ),
@@ -259,8 +263,7 @@ class _StreakCard extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      'Best: ${summary.longestStreak} '
-                      '${summary.longestStreak == 1 ? 'day' : 'days'}',
+                                          context.l10n.statsBestStreak(summary.longestStreak),
                       style: theme.textTheme.labelMedium
                           ?.copyWith(color: onCard.withValues(alpha: 0.76)),
                     ),
@@ -268,7 +271,9 @@ class _StreakCard extends StatelessWidget {
                 ),
               ),
               Semantics(
-                label: doneToday ? 'Today: done' : 'Today: not yet',
+                label: doneToday
+                    ? context.l10n.statsTodayDone
+                    : context.l10n.statsTodayNotYet,
                 excludeSemantics: true,
                 child: Column(
                   children: [
@@ -286,7 +291,7 @@ class _StreakCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Today',
+                      context.l10n.statsToday,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: onCard,
                         fontWeight: FontWeight.w700,
@@ -311,8 +316,7 @@ class _StreakCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '${goal - streak} more ${goal - streak == 1 ? 'day' : 'days'} '
-                    'to a $goal-day streak',
+                    context.l10n.statsDaysToGoal(goal - streak, goal),
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: onCard,
                       fontWeight: FontWeight.w600,
@@ -364,7 +368,7 @@ class _WeekRow extends StatelessWidget {
         for (final day in days)
           Expanded(
             child: _DayCircle(
-              label: day == days.last ? 'Today' : DateFormat('EEE').format(day),
+              label: day == days.last ? context.l10n.statsToday : DateFormat('EEE').format(day),
               done: summary.isActiveOn(day),
               isToday: day == days.last,
               colorScheme: colorScheme,
@@ -395,7 +399,9 @@ class _DayCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     final onCard = colorScheme.onPrimaryContainer;
     return Semantics(
-      label: '$label: ${done ? 'read' : 'not read'}',
+      label: done
+          ? context.l10n.statsDayRead(label)
+          : context.l10n.statsDayNotRead(label),
       excludeSemantics: true,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -445,10 +451,8 @@ class _PrivacyNote extends StatelessWidget {
     final theme = Theme.of(context);
     return Text(
       isSignedIn
-          ? 'Your stats are private and sync across devices signed in to '
-              'your account.'
-          : 'Your stats are private and kept on this device. Sign in from '
-              'Preferences to keep them across devices.',
+          ? context.l10n.statsPrivateSynced
+          : context.l10n.statsPrivateLocal,
       style: theme.textTheme.bodySmall?.copyWith(
         color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
       ),
@@ -469,11 +473,12 @@ class _CommunitySection extends StatelessWidget {
 
   String _updatedAgo() {
     final age = DateTime.now().difference(stats.updatedAt);
-    if (age.inMinutes < 60) return 'Updated within the hour';
+    if (age.inMinutes < 60) return L10n.current.statsUpdatedWithinHour;
     if (age.inHours < 24) {
-      return 'Updated ${age.inHours} hour${age.inHours == 1 ? '' : 's'} ago';
+      return L10n.current.statsUpdatedHoursAgo(age.inHours);
     }
-    return 'Updated ${DateFormat('MMM d').format(stats.updatedAt)}';
+    return L10n.current
+        .statsUpdatedOn(DateFormat('MMM d').format(stats.updatedAt));
   }
 
   @override
@@ -492,7 +497,7 @@ class _CommunitySection extends StatelessWidget {
           children: [
             Icon(Icons.groups_rounded, color: colorScheme.primary),
             const SizedBox(width: 8),
-            Expanded(child: StatsSectionTitle('Across the community')),
+            Expanded(child: StatsSectionTitle(context.l10n.statsAcrossCommunity)),
           ],
         ),
         const SizedBox(height: 10),
@@ -513,7 +518,7 @@ class _CommunitySection extends StatelessWidget {
                 ),
               ),
               Text(
-                'duas, ziyarats and surahs recited this week',
+                context.l10n.statsRecitedThisWeek,
                 style: theme.textTheme.bodyMedium,
               ),
               if (stats.days.isNotEmpty && maxDay > 0) ...[
@@ -536,8 +541,8 @@ class _CommunitySection extends StatelessWidget {
                                   alignment: Alignment.bottomCenter,
                                   child: Tooltip(
                                     message:
-                                        '${DateFormat('EEE, MMM d').format(day.day)}'
-                                        ' - ${format.format(day.recitations)}',
+                                                                              '${DateFormat('EEE, MMM d').format(day.day)}'
+                                      ' - ${format.format(day.recitations)}',
                                     child: Container(
                                       height: math.max(
                                         3,
@@ -567,7 +572,7 @@ class _CommunitySection extends StatelessWidget {
               if (stats.allTimeRecitations > 0) ...[
                 const SizedBox(height: 10),
                 Text(
-                  '${format.format(stats.allTimeRecitations)} all time',
+                  context.l10n.statsAllTime(format.format(stats.allTimeRecitations)),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
@@ -578,13 +583,13 @@ class _CommunitySection extends StatelessWidget {
         ),
         if (topTiles.isNotEmpty) ...[
           const SizedBox(height: 16),
-          StatsSectionTitle('Most recited this week'),
+          StatsSectionTitle(context.l10n.statsMostRecitedThisWeek),
           const SizedBox(height: 4),
           ...topTiles,
         ],
         const SizedBox(height: 8),
         Text(
-          'Anonymous totals from everyone using the app. ${_updatedAgo()}.',
+          context.l10n.statsCommunityNote(_updatedAgo()),
           style: theme.textTheme.bodySmall?.copyWith(
             color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),

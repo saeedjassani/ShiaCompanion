@@ -8,6 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   provider: ^6.0.5
   app_links: ^7.1.1
   auth_buttons: ^3.0.0
@@ -70,6 +72,9 @@ flutter:
     enable-swift-package-manager: false
 
   uses-material-design: true
+  # Generates lib/l10n/app_localizations*.dart from the ARB files in
+  # lib/l10n/ (see l10n.yaml and docs/TRANSLATIONS.md).
+  generate: true
 
   assets:
     - assets/airports.tsv

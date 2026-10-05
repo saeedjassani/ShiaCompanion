@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../utils/quran_index.dart';
+import '../../l10n/l10n.dart';
 
 /// Picks one verse of the Quran - where a recitation track starts, or where
 /// it carries on from.
@@ -158,7 +159,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
     if (juzMatch != null) {
       final juz = int.parse(juzMatch.group(1)!);
       if (juz < 1 || juz > _juzList.length) {
-        setState(() => _queryError = 'There are 30 juz');
+        setState(() => _queryError = context.l10n.pickerThirtyJuz);
         return;
       }
       _browseByJuz = true;
@@ -168,7 +169,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
 
     final verse = VerseKey.tryParse(query);
     if (verse == null) {
-      setState(() => _queryError = 'Try a verse like 33:33, or juz 22');
+      setState(() => _queryError = context.l10n.pickerTryVerse);
       return;
     }
     final ayah = verse.ayah;
@@ -208,7 +209,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
               autocorrect: false,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
-                hintText: 'Go to a verse - 33:33, 18, juz 22',
+                hintText: context.l10n.pickerSearchHint,
                 errorText: _queryError,
                 filled: true,
                 isDense: true,
@@ -227,9 +228,9 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: false, label: Text('Surah')),
-                  ButtonSegment(value: true, label: Text('Juz (Para)')),
+                segments: [
+                  ButtonSegment(value: false, label: Text(context.l10n.trackBySurah)),
+                  ButtonSegment(value: true, label: Text(context.l10n.trackByJuz)),
                 ],
                 selected: {_browseByJuz},
                 onSelectionChanged: (selection) =>
@@ -267,19 +268,24 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
     final String title;
     final String? subtitle;
     if (unit == null) {
-      title = 'Choose a verse';
+      title = context.l10n.pickerChooseVerse;
       subtitle = null;
     } else if (unit.isJuz) {
       final juz = _juzList[unit.number - 1];
-      title = 'Juz ${unit.number}';
-      subtitle = '${_surahName(juz.start.surah)} ${juz.start.ayah} – '
-          '${_surahName(juz.end.surah)} ${juz.end.ayah}';
+      title = context.l10n.quranJuzNumber(unit.number);
+      subtitle = context.l10n.pickerJuzRange(
+          context.l10n.quranSurahAyah(
+              _surahName(juz.start.surah), juz.start.ayah ?? 1),
+          context.l10n.quranSurahAyah(
+              _surahName(juz.end.surah), juz.end.ayah ?? 1));
     } else {
       final info = _surahs[unit.number - 1];
       title = '${info.number}. ${info.englishName}';
-      subtitle = '${info.ayahCount} ayahs · Juz '
-          '${juzOf(info.number, 1)}'
-          '${juzOf(info.number, info.ayahCount) != juzOf(info.number, 1) ? '–${juzOf(info.number, info.ayahCount)}' : ''}';
+      final firstJuz = juzOf(info.number, 1);
+      final lastJuz = juzOf(info.number, info.ayahCount);
+      subtitle = context.l10n.pickerSurahDetails(
+          context.l10n.quranAyahCount(info.ayahCount),
+          firstJuz == lastJuz ? '$firstJuz' : '$firstJuz–$lastJuz');
     }
 
     return Padding(
@@ -288,7 +294,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
         children: [
           if (unit != null)
             IconButton(
-              tooltip: _browseByJuz ? 'All juz' : 'All surahs',
+              tooltip: _browseByJuz ? context.l10n.pickerAllJuz : context.l10n.pickerAllSurahs,
               icon: const Icon(Icons.arrow_back),
               onPressed: _closeUnit,
             ),
@@ -347,7 +353,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
               const SizedBox(width: 12),
               FilledButton(
                 onPressed: () => Navigator.pop(context, _selected),
-                child: const Text('Choose'),
+                child: Text(context.l10n.pickerChoose),
               ),
             ],
           ),
@@ -360,7 +366,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
 }
 
 String _surahNameOf(int surah) =>
-    surahInfoFor(surah)?.englishName ?? 'Surah $surah';
+    surahInfoFor(surah)?.englishName ?? L10n.current.quranSurahNumber(surah);
 
 /// Every surah or every juz, opening onto the one [selected] falls in.
 class _UnitList extends StatefulWidget {
@@ -417,12 +423,13 @@ class _UnitListState extends State<_UnitList> {
         String? arabicName;
         if (byJuz) {
           final juz = _juzList[index];
-          title = 'Juz ${juz.number}';
-          subtitle = 'From ${_surahNameOf(juz.start.surah)} ${juz.start.ayah}';
+          title = context.l10n.quranJuzNumber(juz.number);
+          subtitle = context.l10n.pickerJuzFrom(context.l10n
+              .quranSurahAyah(_surahNameOf(juz.start.surah), juz.start.ayah ?? 1));
         } else {
           final surah = _surahs[index];
           title = surah.englishName;
-          subtitle = '${surah.ayahCount} ayahs';
+          subtitle = context.l10n.quranAyahCount(surah.ayahCount);
           if (surah.arabicName.isNotEmpty) arabicName = surah.arabicName;
         }
         return ListTile(
@@ -565,8 +572,8 @@ class _AyahGridState extends State<_AyahGrid> {
                           const SizedBox(width: 8),
                           Text(
                             run.from == run.to
-                                ? 'ayah ${run.from}'
-                                : 'ayahs ${run.from}–${run.to}',
+                                ? context.l10n.pickerAyahSingle(run.from)
+                                : context.l10n.pickerAyahRange(run.from, run.to),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -626,7 +633,7 @@ class _AyahCell extends StatelessWidget {
     return Semantics(
       selected: isSelected,
       button: true,
-      label: 'Ayah $ayah',
+      label: context.l10n.pickerAyahLabel(ayah),
       excludeSemantics: true,
       child: Material(
         color: isSelected

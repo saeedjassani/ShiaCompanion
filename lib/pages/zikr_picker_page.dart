@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shia_companion/services/zikr_translations.dart';
 
 import '../constants.dart';
 import '../data/uid_title_data.dart';
 import '../utils/data_search_filter.dart';
 import '../widgets/responsive_content.dart';
+import '../l10n/l10n.dart';
 
 /// A simple search-and-pick list over the zikr library, used to prefill a
 /// reminder's title from an existing zikr. Pops the picked [UidTitleData], or
@@ -34,7 +36,11 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
 
   List<UidTitleData> get _results {
     if (_query.trim().isEmpty) return _allZikr;
-    return filterDataSearchResults(_allZikr, _query);
+    return filterDataSearchResults(
+      _allZikr,
+      _query,
+      translatedTitleFor: ZikrTranslations.instance.titleFor,
+    );
   }
 
   @override
@@ -43,7 +49,7 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose a Zikr or Dua'),
+        title: Text(context.l10n.pickerChooseZikr),
       ),
       body: Column(
         children: [
@@ -53,7 +59,7 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
               controller: _controller,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Search zikr, dua, ziyarat...',
+                hintText: context.l10n.pickerSearchZikrHint,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _query.isEmpty
                     ? null
@@ -75,7 +81,7 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
             child: results.isEmpty
                 ? Center(
                     child: Text(
-                      'No matches found.',
+                      context.l10n.pickerNoMatches,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   )
@@ -90,7 +96,7 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
                       itemBuilder: (context, index) {
                         final entry = results[index];
                         return ListTile(
-                          title: Text(entry.title),
+                          title: Text(entry.displayTitle),
                           onTap: () => Navigator.pop(context, entry),
                         );
                       },

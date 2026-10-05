@@ -7,6 +7,8 @@ import '../services/analytics_service.dart';
 import '../services/preferences_sync_service.dart';
 import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
+import 'language_settings.dart';
+import '../l10n/l10n.dart';
 
 /// Whether the reading chrome (progress strip + bottom action bar) auto-hides
 /// while reading. Replaces the old [legacyShowZikrProgressKey] switch, which
@@ -104,16 +106,17 @@ class _ZikrReadingPreferencesControlsState
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
           child: Text(
-            'Fine-tune zikr text. Applied on top of App text size in '
-            'Settings.',
+            context.l10n.readingFineTune,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
         ),
+        if (TranslationLanguageTile.isOffered(context))
+          TranslationLanguageTile(leading: _leading(Icons.translate)),
         ListTile(
           leading: _leading(Icons.format_size),
-          title: const Text('Arabic Font Size'),
+          title: Text(context.l10n.readingArabicFontSize),
           subtitle: Slider(
             activeColor: Theme.of(context).colorScheme.secondary,
             min: 20.0,
@@ -139,7 +142,7 @@ class _ZikrReadingPreferencesControlsState
         ),
         ListTile(
           leading: _leading(Icons.text_fields),
-          title: const Text('English Font Size'),
+          title: Text(context.l10n.readingEnglishFontSize),
           subtitle: Slider(
             activeColor: Theme.of(context).colorScheme.secondary,
             min: 10.0,
@@ -162,7 +165,7 @@ class _ZikrReadingPreferencesControlsState
         ),
         ListTile(
           leading: _leading(Icons.font_download_outlined),
-          title: const Text('Arabic Font'),
+          title: Text(context.l10n.readingArabicFont),
           subtitle: Text(
             'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
             style: TextStyle(fontFamily: arabicFont),
@@ -183,7 +186,7 @@ class _ZikrReadingPreferencesControlsState
               label: 'Keep screen on toggled',
             );
           },
-          title: const Text("Keep screen on while reciting Zikr"),
+          title: Text(context.l10n.readingKeepScreenOn),
         ),
         SwitchListTile(
           secondary: _leading(Icons.center_focus_strong),
@@ -199,10 +202,9 @@ class _ZikrReadingPreferencesControlsState
               label: 'Focus mode toggled',
             );
           },
-          title: const Text("Focus mode"),
+          title: Text(context.l10n.readingFocusMode),
           subtitle:
-              const Text("Hide the progress bar and action bar while reading. "
-                  "Scroll up or tap to bring them back."),
+              Text(context.l10n.readingFocusModeSubtitle),
         ),
         SwitchListTile(
           secondary: _leading(Icons.ios_share),
@@ -215,8 +217,8 @@ class _ZikrReadingPreferencesControlsState
               label: 'Share as image toggled',
             );
           },
-          title: const Text("Share Zikr as Image"),
-          subtitle: const Text("Create a formatted image when sharing."),
+          title: Text(context.l10n.readingShareAsImage),
+          subtitle: Text(context.l10n.readingShareAsImageSubtitle),
         ),
         SwitchListTile(
           secondary: _leading(Icons.notes),
@@ -230,7 +232,7 @@ class _ZikrReadingPreferencesControlsState
               label: 'Show transliteration toggled',
             );
           },
-          title: const Text("Show Transliteration"),
+          title: Text(context.l10n.readingShowTransliteration),
         ),
         SwitchListTile(
           secondary: _leading(Icons.translate),
@@ -244,7 +246,7 @@ class _ZikrReadingPreferencesControlsState
               label: 'Show translation toggled',
             );
           },
-          title: const Text("Show Translation"),
+          title: Text(context.l10n.readingShowTranslation),
         ),
         SwitchListTile(
           secondary: _leading(Icons.wrap_text),
@@ -260,12 +262,10 @@ class _ZikrReadingPreferencesControlsState
                     label: 'Show Arabic as paragraph toggled',
                   );
                 },
-          title: const Text("Show Arabic as Paragraph"),
+          title: Text(context.l10n.readingArabicParagraph),
           subtitle: Text(bothAidsOff
-              ? "Flow the Arabic verses together as one paragraph instead "
-                  "of separate lines."
-              : "Turn off Transliteration and Translation above to use "
-                  "this."),
+              ? context.l10n.readingArabicParagraphOn
+              : context.l10n.readingArabicParagraphOff),
         ),
       ]),
     );
@@ -340,7 +340,7 @@ class _ZikrReadingPreferencesControlsState
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Arabic Font'),
+          title: Text(context.l10n.readingArabicFont),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,

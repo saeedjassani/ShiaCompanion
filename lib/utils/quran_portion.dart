@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../pages/zikr/zikr_content_parser.dart';
 import 'quran_index.dart';
 import 'quran_script.dart';
+import '../l10n/l10n.dart';
 
 /// A readable stretch of the Quran that may run across surah boundaries.
 ///
@@ -115,7 +116,7 @@ Future<QuranPortion?> loadJuzPortion(int juz, AssetBundle bundle) async {
 
   return QuranPortion(
     juz: juz,
-    title: 'Juz $juz',
+    title: L10n.current.quranJuzNumber(juz),
     data: lines.join('\n'),
     index: AyahIndex.fromSpans(spans),
     script: script,

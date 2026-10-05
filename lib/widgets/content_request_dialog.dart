@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../services/analytics_service.dart';
 import '../services/content_request_service.dart';
+import '../l10n/l10n.dart';
 
 /// What the reader filled in, before it is sent anywhere.
 class ContentRequestDraft {
@@ -54,8 +55,8 @@ Future<void> showContentRequestDialog(
   messenger?.showSnackBar(
     SnackBar(
       content: Text(submitted
-          ? "Thanks - we've received your request."
-          : 'Could not send the request. Please try again.'),
+          ? context.l10n.requestThanks
+          : context.l10n.requestFailed),
     ),
   );
 }
@@ -102,7 +103,7 @@ class _ContentRequestDialogState extends State<ContentRequestDialog> {
   Widget build(BuildContext context) {
     final isBook = _type == ContentRequestType.book;
     return AlertDialog(
-      title: const Text('Request a Zikr or Book'),
+      title: Text(context.l10n.settingsRequestContent),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -111,7 +112,11 @@ class _ContentRequestDialogState extends State<ContentRequestDialog> {
             SegmentedButton<ContentRequestType>(
               segments: [
                 for (final type in ContentRequestType.values)
-                  ButtonSegment(value: type, label: Text(type.label)),
+                  ButtonSegment(
+                    value: type,
+                    label: Text(type == ContentRequestType.book
+                        ? context.l10n.requestTypeBook
+                        : context.l10n.requestTypeZikr)),
               ],
               selected: {_type},
               onSelectionChanged: (selection) =>
@@ -125,7 +130,7 @@ class _ContentRequestDialogState extends State<ContentRequestDialog> {
               textInputAction: TextInputAction.next,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
-                labelText: isBook ? 'Book title' : 'Name of dua, ziyarat, etc.',
+                labelText: isBook ? context.l10n.requestBookTitle : context.l10n.requestZikrName,
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -136,8 +141,8 @@ class _ContentRequestDialogState extends State<ContentRequestDialog> {
               maxLines: 3,
               decoration: InputDecoration(
                 labelText: isBook
-                    ? 'Author, translator or link (optional)'
-                    : 'Source, occasion or link (optional)',
+                    ? context.l10n.requestBookDetails
+                    : context.l10n.requestZikrDetails,
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -147,11 +152,11 @@ class _ContentRequestDialogState extends State<ContentRequestDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           onPressed: _canSubmit ? _submit : null,
-          child: const Text('Send'),
+          child: Text(context.l10n.commonSend),
         ),
       ],
     );

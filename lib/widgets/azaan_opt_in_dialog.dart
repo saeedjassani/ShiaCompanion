@@ -2,17 +2,17 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 /// The dialog's body text. iOS gets an extra line because its notifications
 /// can only carry a short clip, so the full azan is not what plays by default.
 String azaanOptInMessage({required bool isIOS}) {
-  const iosNote = 'On iPhone the notification plays a short takbir. Choose '
-      'Full Azan in Settings to hear the whole azan when you tap it.\n\n';
-  return 'Shia Companion can send you a notification at Fajr, Zuhr and '
-      'Maghrib and play the azan.\n\n'
-      '${isIOS ? iosNote : ''}'
-      'You can change which prayers notify you, pick a different sound, or '
-      'turn this off again at any time in Settings.';
+  final l10n = L10n.current;
+  return [
+    l10n.azaanOptInIntro,
+    if (isIOS) l10n.azaanOptInIosNote,
+    l10n.azaanOptInChangeLater,
+  ].join('\n\n');
 }
 
 /// Asks whether the app may notify the user at prayer times and play the azan.
@@ -27,16 +27,16 @@ Future<bool> showAzaanOptInDialog(BuildContext context) async {
     builder: (BuildContext dialogContext) {
       return AlertDialog(
         icon: const Icon(Icons.volume_up),
-        title: const Text('Play the azan at prayer times?'),
+        title: Text(L10n.current.azaanOptInTitle),
         content: Text(azaanOptInMessage(isIOS: !kIsWeb && Platform.isIOS)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Not now'),
+            child: Text(L10n.current.azaanOptInNotNow),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Enable azan'),
+            child: Text(L10n.current.azaanOptInEnable),
           ),
         ],
       );

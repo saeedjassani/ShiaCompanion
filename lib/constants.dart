@@ -27,6 +27,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:flutter/cupertino.dart';
+import 'l10n/l10n.dart';
 
 export 'utils/slug_registry.dart';
 
@@ -483,18 +484,18 @@ Future<bool> initializeLocation(
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Enable Location for Prayer Times'),
+          title: Text(L10n.current.locationEnableTitle),
           content: Text(
-            'Prayer times are unique to your location. We use your location while you are using the app so we can provide accurate prayer times for your area.',
+            L10n.current.locationEnableBody,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text('Cancel'),
+              child: Text(L10n.current.commonCancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text('Continue'),
+              child: Text(L10n.current.commonContinue),
             ),
           ],
         );
@@ -696,21 +697,21 @@ void _showLocationServiceDialog(BuildContext context) {
     barrierDismissible: false,
     builder: (BuildContext dialogContext) {
       return AlertDialog(
-        title: const Text('Location Services Disabled'),
-        content: const Text(
-          'Location services are turned off. Please enable location services in your device settings to get accurate prayer times for your area.',
+        title: Text(L10n.current.locationServicesDisabledTitle),
+        content: Text(
+          L10n.current.locationServicesDisabledBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(L10n.current.commonCancel),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(dialogContext);
               await Geolocator.openLocationSettings();
             },
-            child: const Text('Open Settings'),
+            child: Text(L10n.current.commonOpenSettings),
           ),
         ],
       );
@@ -723,13 +724,13 @@ void _showPermissionDeniedDialog(
   String message;
   if (status == LocationPermission.deniedForever) {
     message =
-        'Location permission was permanently denied. Please open app settings and grant location permission to get accurate prayer times.';
+        L10n.current.locationPermissionDeniedForever;
   } else if (status == LocationPermission.unableToDetermine) {
     message =
-        'Unable to determine location permission status. Please open app settings and ensure location permission is granted.';
+        L10n.current.locationPermissionUnknown;
   } else {
     message =
-        'Location permission is required to show accurate prayer times for your area.';
+        L10n.current.locationPermissionNeeded;
   }
 
   showDialog(
@@ -737,19 +738,19 @@ void _showPermissionDeniedDialog(
     barrierDismissible: false,
     builder: (BuildContext dialogContext) {
       return AlertDialog(
-        title: const Text('Location Permission Required'),
+        title: Text(L10n.current.locationPermissionTitle),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(L10n.current.commonCancel),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(dialogContext);
               Geolocator.openAppSettings();
             },
-            child: const Text('Open Settings'),
+            child: Text(L10n.current.commonOpenSettings),
           ),
         ],
       );
@@ -763,9 +764,9 @@ void _showLocationTimeoutDialog(BuildContext context) {
     barrierDismissible: false,
     builder: (BuildContext dialogContext) {
       return AlertDialog(
-        title: const Text('Location Timeout'),
-        content: const Text(
-          'Unable to get your location within the expected time. This may be due to poor GPS signal or network issues. Please try again.',
+        title: Text(L10n.current.locationTimeoutTitle),
+        content: Text(
+          L10n.current.locationTimeoutBody,
         ),
         actions: [
           ElevatedButton(
@@ -784,21 +785,19 @@ void _showLocationErrorDialog(BuildContext context, dynamic error) {
     barrierDismissible: false,
     builder: (BuildContext dialogContext) {
       return AlertDialog(
-        title: const Text('Location Error'),
-        content: Text(
-          'An error occurred while getting your location: $error\n\nPlease check that location services are enabled and try again.',
-        ),
+        title: Text(L10n.current.locationErrorTitle),
+                  content: Text(L10n.current.locationErrorBody(error.toString())),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(L10n.current.commonCancel),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(dialogContext);
               await Geolocator.openLocationSettings();
             },
-            child: const Text('Open Settings'),
+            child: Text(L10n.current.commonOpenSettings),
           ),
         ],
       );
@@ -918,7 +917,7 @@ Future<void> setUpNotifications() async {
   }
   await Future.wait(schedulingTasks);
   AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails("general", "General");
+      AndroidNotificationDetails("general", L10n.current.notificationChannelGeneral);
   DarwinNotificationDetails iOSPlatformChannelSpecifics =
       DarwinNotificationDetails();
   NotificationDetails platformChannelSpecifics = NotificationDetails(
@@ -926,9 +925,9 @@ Future<void> setUpNotifications() async {
       iOS: iOSPlatformChannelSpecifics);
   await plugin.zonedSchedule(
       id: 786,
-      title: "Open the app to continue getting Azan notifications",
+      title: L10n.current.notificationReopenAppTitle,
       body:
-          "It seems you've not used the application in last $scheduleDays days. Please open the app to continue receive Azan notifications",
+                      L10n.current.notificationReopenAppBody(scheduleDays),
       scheduledDate:
           tz.TZDateTime.now(tz.local).add(Duration(days: scheduleDays - 1)),
       notificationDetails: platformChannelSpecifics,
@@ -1024,16 +1023,16 @@ Future<void> refreshLegacyAndroidPrayerNotificationChannelsIfNeeded() async {
 String _androidPrayerChannelName(AzaanOption azaan) {
   switch (azaan.id) {
     case 'takbir':
-      return 'Prayer Times - Takbir';
+      return L10n.current.notificationChannelTakbir;
     case 'system_default':
-      return 'Prayer Times - System Default';
+      return L10n.current.notificationChannelSystemDefault;
     case 'silent':
-      return 'Prayer Times - Silent';
+      return L10n.current.notificationChannelSilent;
     case 'custom':
-      return 'Prayer Times - Custom Sound';
+      return L10n.current.notificationChannelCustom;
     case 'azaan':
     default:
-      return 'Prayer Times - Full Azan';
+      return L10n.current.notificationChannelFullAzan;
   }
 }
 
@@ -1044,7 +1043,7 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
     return AndroidNotificationDetails(
       _androidPrayerChannelId(azaan),
       _androidPrayerChannelName(azaan),
-      channelDescription: 'Silent prayer time notifications',
+      channelDescription: L10n.current.notificationChannelSilentDescription,
       importance: Importance.high,
       priority: Priority.high,
       playSound: false,
@@ -1078,7 +1077,7 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
   return AndroidNotificationDetails(
     _androidPrayerChannelId(azaan),
     _androidPrayerChannelName(azaan),
-    channelDescription: 'Prayer time notifications',
+    channelDescription: L10n.current.notificationChannelDescription,
     importance: Importance.max,
     priority: Priority.high,
     sound: playsViaAzanPlaybackService ? null : sound,
@@ -1126,13 +1125,14 @@ Future<NotificationDetails> prayerNotificationDetails(
 /// it, so the banner has to say so - nothing else on it does.
 String prayerNotificationBody(String prayerName, AzaanOption azaan,
     {bool? isIOS, bool? playsAutomatically}) {
-  final body = "It's time for ${prayerName.toLowerCase()}";
+  final body = L10n.current.notificationPrayerTime(
+      localizedPrayerName(prayerName).toLowerCase());
   final onIOS = isIOS ?? (!kIsWeb && Platform.isIOS);
   final autoplays = playsAutomatically ?? (!onIOS && azanPlaysAutomatically());
   if (autoplays || !azanUsesPlaybackService(azaan)) return body;
   return azaan.id == AzaanOptions.custom.id
-      ? '$body · Tap to play your audio'
-      : '$body · Tap to hear the full azan';
+      ? L10n.current.notificationTapToPlayCustom(body)
+      : L10n.current.notificationTapToPlayAzan(body);
 }
 
 /// Whether [azaan] is played by AzanPlaybackService rather than as the

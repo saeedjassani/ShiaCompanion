@@ -119,9 +119,9 @@ class _ItemListState extends State<ItemList> {
     String title;
     final isParentZikr = uidTitleData.getUId().contains("~");
     if (kDebugMode || isUserAdmin) {
-      title = itemData.uid + " " + itemData.title;
+      title = itemData.uid + " " + itemData.displayTitle;
     } else {
-      title = itemData.title;
+      title = itemData.displayTitle;
     }
 
     return ListTile(
@@ -132,7 +132,7 @@ class _ItemListState extends State<ItemList> {
               MaterialPageRoute(
                   builder: (context) => ItemList(
                       uidTitleData.getUId().split("~")[1],
-                      uidTitleData.title)));
+                      uidTitleData.displayTitle)));
         } else {
           await handleUniversalDataClick(context, itemData,
               source: ZikrOpenSource.list);

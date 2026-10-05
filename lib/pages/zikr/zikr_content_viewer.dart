@@ -9,9 +9,11 @@ import 'package:flutter/services.dart';
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
 import '../../utils/quran_index.dart';
+import '../../services/zikr_translations.dart';
 import '../../utils/quran_indopak.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_reading_stats.dart';
+import '../../l10n/l10n.dart';
 
 /// Where a reader is in the Quran, and whether they got there by reading.
 ///
@@ -158,7 +160,7 @@ ZikrLineGroup? bookmarkedLineRange({
 }
 
 /// The first line of [range] that actually draws something, which is where
-/// the "Bookmarked" label goes. Null when every line in the range is switched
+/// the context.l10n.zikrBookmarked label goes. Null when every line in the range is switched
 /// off, in which case there is nothing to mark at all.
 int? firstVisibleLineInRange(ZikrLineGroup range, ParsedZikrContent content) {
   for (var index = range.start; index < range.end; index++) {
@@ -354,7 +356,7 @@ class _QuranParagraphs {
   int? paragraphIndexForSpan(int spanIndex) => _paragraphBySpan[spanIndex];
 }
 
-/// The small "Bookmarked" marker - a bookmark icon plus label - shared by
+/// The small context.l10n.zikrBookmarked marker - a bookmark icon plus label - shared by
 /// the bordered per-line marker ([_BookmarkedLine]) and the inline paragraph
 /// marker that sits above a flowing Arabic paragraph in
 /// [isArabicOnlyReadingView], where the highlight lives on the verse's own
@@ -371,7 +373,7 @@ Widget _bookmarkLabelRow(BuildContext context, {bool movable = false}) {
       Icon(Icons.bookmark, size: 13, color: colorScheme.primary),
       const SizedBox(width: 4),
       Text(
-        'Bookmarked',
+        context.l10n.zikrBookmarked,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: colorScheme.primary,
               fontWeight: FontWeight.w600,
@@ -405,7 +407,7 @@ Widget _bookmarkDragFeedback(BuildContext context) {
           Icon(Icons.bookmark, size: 16, color: colorScheme.primary),
           const SizedBox(width: 6),
           Text(
-            'Move bookmark here',
+            context.l10n.zikrMoveBookmarkHere,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: colorScheme.onPrimaryContainer,
                   fontWeight: FontWeight.w600,
@@ -418,7 +420,7 @@ Widget _bookmarkDragFeedback(BuildContext context) {
 }
 
 /// The bookmark icon drawn inline at the start of the bookmarked verse in a
-/// flowing Arabic paragraph, in place of a "Bookmarked" label above it - a
+/// flowing Arabic paragraph, in place of a context.l10n.zikrBookmarked label above it - a
 /// label there sits far from the verse, and breaking the paragraph to put it
 /// nearer would undo the flow.
 ///
@@ -471,7 +473,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
   final ValueChanged<int>? onBookmarkLineResolved;
 
   /// Called with the content line the reader dropped the bookmark on, after
-  /// dragging its "Bookmarked" label somewhere else in the same tab. Null
+  /// dragging its context.l10n.zikrBookmarked label somewhere else in the same tab. Null
   /// leaves the marker fixed in place.
   final ValueChanged<int>? onBookmarkMoved;
 
@@ -531,6 +533,10 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// tabs meanwhile. Null keeps the strip pinned.
   final ValueListenable<bool>? chromeVisible;
 
+  /// The reader's translation of this zikr, laid over its English lines.
+  /// Null in English, or when nothing of this zikr has been translated.
+  final ZikrDocumentTranslation? translation;
+
   const ZikrContentViewerWidget({
     Key? key,
     required this.tabContents,
@@ -557,6 +563,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.tabStripTop = 0,
     this.collapsedTopInset = 0,
     this.chromeVisible,
+    this.translation,
   }) : super(key: key);
 
   @override
@@ -1594,7 +1601,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     _bookmarkAutoScrollSpeed = 0;
   }
 
-  /// The "Bookmarked" label, as the handle the bookmark is moved by when
+  /// The context.l10n.zikrBookmarked label, as the handle the bookmark is moved by when
   /// [ZikrContentViewerWidget.onBookmarkMoved] is set.
   ///
   /// A plain [Draggable] rather than a long-press one: the reading view sits
@@ -1618,7 +1625,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       ),
     );
     return Semantics(
-      hint: 'Drag to move the bookmark to another line',
+      hint: context.l10n.zikrDragBookmarkHint,
       child: Draggable<int>(
         data: tabIndex,
         dragAnchorStrategy: pointerDragAnchorStrategy,
@@ -1878,9 +1885,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         .map((line) => line.trim())
         .where((line) => line.isNotEmpty);
     if (lines.isNotEmpty) {
-      return lines.first;
+      return widget.translation?.lineFor(lines.first) ?? lines.first;
     }
-    return 'Tab ${index + 1}';
+    return context.l10n.zikrTabNumber(index + 1);
   }
 
   /// The parsed content and ayah index for a tab, reparsed only when the tab's
@@ -1893,14 +1900,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final cached = _contentCaches[tabIndex];
     if (cached != null &&
         cached.rawContent == rawContent &&
-        cached.hideHeaderLine == hideHeaderLine) {
+        cached.hideHeaderLine == hideHeaderLine &&
+        identical(cached.translation, widget.translation)) {
       return cached;
     }
 
     final parsed = ZikrContentParser.parseContent(
       rawContent,
       hideHeaderLine: hideHeaderLine,
-    );
+    ).translatedWith(widget.translation);
 
     // Only the first tab is Quran text. Surah documents are single-tab today,
     // but guarding on the index means a tabbed one would degrade to line
@@ -1916,6 +1924,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final cache = _TabContentCache(
       rawContent: rawContent,
       hideHeaderLine: hideHeaderLine,
+      translation: widget.translation,
       parsed: parsed,
       ayahIndex: ayahIndex != null && !ayahIndex.isEmpty ? ayahIndex : null,
     );
@@ -2150,7 +2159,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                         child: InkWell(
                           onTap: widget.onShowMerits,
                           child: Text(
-                            'Merits',
+                            context.l10n.zikrMerits,
                             style: TextStyle(
                               decoration: TextDecoration.underline,
                               fontSize: 14,
@@ -2352,9 +2361,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           ? Text.rich(
               _buildTextSpanForLine(str.toUpperCase(), transliStyle),
               textAlign: TextAlign.center,
+              textDirection: TextDirection.ltr,
             )
           : Container();
     }
+
+    final shown = parsedContent.displayLine(contentIndex).trim();
+    final direction = parsedContent.directionOf(contentIndex);
 
     if (parsedContent.translaCodes.contains(contentIndex)) {
       return showTranslation
@@ -2362,10 +2375,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Text.rich(
                 _buildTextSpanForLine(
-                  str,
+                  shown,
                   TextStyle(fontSize: englishFontSize),
                 ),
                 textAlign: TextAlign.center,
+                textDirection: direction,
               ),
             )
           : Container();
@@ -2375,7 +2389,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     // translation triplet is narration, personal commentary, a heading, or a
     // source citation.
     return _footnoteBox(
-      Text.rich(_buildTextSpanForLine(str, const TextStyle())),
+      Text.rich(_buildTextSpanForLine(shown, const TextStyle())),
+      textDirection: direction,
     );
   }
 
@@ -2388,7 +2403,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   /// A bookmark can in principle land on one of these lines - it is just
   /// whatever line was topmost when the reader last left the tab - so
   /// [bookmarkLabelLine], when it names one of this block's own lines, gets
-  /// the same "Bookmarked" label and tint a single bookmarked line would
+  /// the same context.l10n.zikrBookmarked label and tint a single bookmarked line would
   /// otherwise carry via [_BookmarkedLine].
   Widget _buildFootnoteBlock(
     int tabIndex,
@@ -2408,7 +2423,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           ),
         );
       }
-      final str = parsedContent.lines[lineIndex].trim();
+      final str = parsedContent.displayLine(lineIndex).trim();
       final textSpan = _buildTextSpanForLine(str, const TextStyle());
       paragraphs.add(
         Text.rich(
@@ -2431,15 +2446,32 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: paragraphs,
       ),
+      textDirection: item.lineIndexes.isEmpty
+          ? TextDirection.ltr
+          : parsedContent.directionOf(item.lineIndexes.first),
     );
   }
 
   /// The start-edge accent that marks a standalone line's text as
-  /// quoted/reference material - never Arabic script that could wrap
-  /// right-to-left, so a directional border reads correctly - without an
-  /// italic slant, matching the reader's own blockquote treatment (see
-  /// readerStyleSheet in reader_style.dart).
-  Widget _footnoteBox(Widget child) {
+  /// quoted/reference material, without an italic slant, matching the
+  /// reader's own blockquote treatment (see readerStyleSheet in
+  /// reader_style.dart).
+  ///
+  /// [textDirection] is the text's own, not the app's: English stays
+  /// left-to-right with its rule on the left even in an Urdu app, and an Urdu
+  /// translation reads right-to-left with its rule on the right even in an
+  /// English one.
+  Widget _footnoteBox(
+    Widget child, {
+    TextDirection textDirection = TextDirection.ltr,
+  }) {
+    return Directionality(
+      textDirection: textDirection,
+      child: _footnoteContainer(child),
+    );
+  }
+
+  Widget _footnoteContainer(Widget child) {
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 4.0),
       padding: const EdgeInsetsDirectional.only(start: 14.0),
@@ -2625,7 +2657,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   String _ayahPlainText(ParsedZikrContent parsedContent, AyahSpan span) {
     final parts = <String>[];
     for (var i = span.start; i < span.end; i++) {
-      final line = parsedContent.lines[i].trim();
+      final line = parsedContent.displayLine(i).trim();
       if (line.isEmpty || !isZikrLineVisible(parsedContent, i)) continue;
       // QuranWBW's pause marks and medallions are private-use glyphs that
       // paste as boxes anywhere but the reader.
@@ -2834,12 +2866,14 @@ class _TabContentCache {
   _TabContentCache({
     required this.rawContent,
     required this.hideHeaderLine,
+    required this.translation,
     required this.parsed,
     required this.ayahIndex,
   });
 
   final String rawContent;
   final bool hideHeaderLine;
+  final ZikrDocumentTranslation? translation;
   final ParsedZikrContent parsed;
 
   /// Null for everything that is not Quran, which is what keeps every other
@@ -3090,7 +3124,7 @@ class _AliWatermark extends StatelessWidget {
 class _BookmarkedLine extends StatelessWidget {
   const _BookmarkedLine({required this.label, required this.child});
 
-  /// The "Bookmarked" label, on the verse's first line only - repeating it on
+  /// The context.l10n.zikrBookmarked label, on the verse's first line only - repeating it on
   /// every line under the same tint would just be noise. Null elsewhere.
   final Widget? label;
   final Widget child;

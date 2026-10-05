@@ -86,6 +86,19 @@
   in `lib/utils/slug_registry.dart`), or make it a habit: same title ->
   copy the canonical's slug verbatim; different title -> give it its own.
 
+## Translations
+
+The app is set up for Urdu, Persian, Arabic and Gujarati; see
+`docs/TRANSLATIONS.md`. **Never hardcode user-facing English in Dart**: add
+it to `lib/l10n/app_en.arb` and read it with `context.l10n.key` (or
+`L10n.current.key` where there is no `BuildContext`), then run
+`flutter gen-l10n` and commit the regenerated `lib/l10n/app_localizations*.dart`.
+Analytics labels, `trackScreen` names, preference keys and `debugPrint` text
+stay English literals. Zikr translations are overlays in
+`assets/zikr_i18n/<code>/` keyed by the English line they translate - so
+editing a zikr's English line orphans its translations (they fall back to
+English); `python3 scripts/zikr_i18n/zikr_i18n.py check -v` lists them.
+
 ## Zikr title conventions
 
 Titles (`assets/zikr.json` *and* the matching `assets/zikr/<uid>` file's

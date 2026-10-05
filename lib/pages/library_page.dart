@@ -13,6 +13,7 @@ import 'chapter_page.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/content_request_service.dart';
 import 'package:shia_companion/widgets/content_request_dialog.dart';
+import '../l10n/l10n.dart';
 
 class LibraryPage extends StatefulWidget {
   @override
@@ -56,7 +57,7 @@ class _LibraryPageState extends State<LibraryPage> {
     }
     if (chapterIndex < 0 || chapterIndex >= chapters.length) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Saved chapter is no longer available')),
+        SnackBar(content: Text(context.l10n.librarySavedChapterGone)),
       );
       await LibraryProgressStore.instance.remove(progress.bookSlug);
       setState(_loadRecentProgress);
@@ -113,15 +114,15 @@ class _LibraryPageState extends State<LibraryPage> {
               ),
             _ when snapshot.hasError => _LibraryMessage(
                 icon: Icons.cloud_off,
-                title: 'Library unavailable',
-                message: 'Check your connection and try again.',
-                actionLabel: 'Retry',
+                title: context.l10n.libraryUnavailable,
+                message: context.l10n.audioDownloadCheckConnection,
+                actionLabel: context.l10n.commonRetry,
                 onAction: _retry,
               ),
-            _ when books.isEmpty => const _LibraryMessage(
+            _ when books.isEmpty => _LibraryMessage(
                 icon: Icons.library_books,
-                title: 'No books found',
-                message: 'The library is empty right now.',
+                title: context.l10n.libraryNoBooks,
+                message: context.l10n.libraryEmpty,
               ),
             _ => ListView.separated(
                 padding: EdgeInsets.zero,
@@ -133,7 +134,7 @@ class _LibraryPageState extends State<LibraryPage> {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
-                        'Continue Reading',
+                        context.l10n.libraryContinueReading,
                         style: theme.textTheme.titleSmall?.copyWith(
                           color: theme.colorScheme.primary,
                         ),
@@ -160,9 +161,9 @@ class _LibraryPageState extends State<LibraryPage> {
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 4, vertical: 6),
                       leading: const Icon(Icons.playlist_add),
-                      title: const Text('Request a Book'),
-                      subtitle: const Text(
-                          "Can't find a book? Ask us to add it."),
+                      title: Text(context.l10n.libraryRequestBook),
+                      subtitle: Text(
+                          context.l10n.libraryRequestBookSubtitle),
                       onTap: () => showContentRequestDialog(
                         context,
                         initialType: ContentRequestType.book,
@@ -185,7 +186,7 @@ class _LibraryPageState extends State<LibraryPage> {
                         if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('${book.title} saved for offline.'),
+                            content: Text(context.l10n.librarySavedOffline(book.title)),
                           ),
                         );
                       } catch (e) {
@@ -193,7 +194,8 @@ class _LibraryPageState extends State<LibraryPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Unable to save book: ${e.toString().replaceFirst("Exception: ", "")}',
+                              context.l10n.librarySaveFailed(
+                                    e.toString().replaceFirst("Exception: ", "")),
                             ),
                           ),
                         );
@@ -204,7 +206,7 @@ class _LibraryPageState extends State<LibraryPage> {
                 separatorBuilder: (context, index) => Divider(
                   color: theme.dividerColor.withValues(alpha: 0.4),
                 ),
-                // +1 for the "Request a Book" row after the last book.
+                // +1 for the context.l10n.libraryRequestBook row after the last book.
                 itemCount: books.length +
                     1 +
                     _recentProgress.length +
@@ -242,13 +244,14 @@ class _ContinueReadingTile extends StatelessWidget {
       leading: const Icon(Icons.play_circle_outline),
       title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(
-        '${progress.chapterTitle} - Page $pageIndex of $pageCount',
+        context.l10n.libraryProgress(
+            progress.chapterTitle, pageIndex, pageCount),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
       trailing: IconButton(
         icon: const Icon(Icons.close),
-        tooltip: 'Remove',
+        tooltip: context.l10n.commonRemove,
         onPressed: onDismiss,
       ),
       onTap: onTap,

@@ -21,6 +21,7 @@ import '../pages/settings_page.dart';
 import '../pages/todays_recitation_page.dart';
 import '../widgets/home_glyph.dart';
 import '../widgets/tasbeeh_widget.dart';
+import '../l10n/l10n.dart';
 
 typedef HomeMenuPageBuilder = Widget Function();
 
@@ -71,6 +72,10 @@ class HomeMenuItem {
     return pageBuilder();
   }
 
+  /// [label] as shown, in the app language. [label] itself stays English:
+  /// it identifies the item (analytics, lookups by name).
+  String get displayLabel => homeMenuDisplayLabel(label);
+
   /// Stable id derived from the label, so the counter key survives a rebuild
   /// but forks if the feature is ever genuinely renamed.
   String get analyticsId => label
@@ -83,7 +88,7 @@ final HomeMenuItem calendarMenuItem = HomeMenuItem(
   label: 'Calendar & Prayer Times',
   icon: Icons.calendar_month_rounded,
   pageBuilder: () => Scaffold(
-    appBar: AppBar(title: Text('Calendar')),
+    appBar: AppBar(title: Text(L10n.current.menuCalendar)),
     body: CalendarPage(),
   ),
 );
@@ -104,37 +109,37 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     label: 'Taqeebat e Namaz',
     glyphType: HomeGlyphType.taqeebat,
     icon: Icons.bookmarks_rounded,
-    pageBuilder: () => ItemList("D", "Taqeebat e Namaz"),
+    pageBuilder: () => ItemList("D", L10n.current.menuTaqeebat),
   ),
   HomeMenuItem(
     label: 'Namaz',
     glyphType: HomeGlyphType.namaz,
     icon: Icons.wb_twilight_rounded,
-    pageBuilder: () => ItemList("F", "Namaz"),
+    pageBuilder: () => ItemList("F", L10n.current.menuNamaz),
   ),
   HomeMenuItem(
     label: 'Duas',
     glyphType: HomeGlyphType.duas,
     icon: Icons.front_hand_rounded,
-    pageBuilder: () => ItemList("E", "Duas"),
+    pageBuilder: () => ItemList("E", L10n.current.menuDuas),
   ),
   HomeMenuItem(
     label: 'Ziyarats',
     glyphType: HomeGlyphType.ziyaraat,
     icon: Icons.mosque_rounded,
-    pageBuilder: () => ItemList("G", "Ziyarats"),
+    pageBuilder: () => ItemList("G", L10n.current.menuZiyarats),
   ),
   HomeMenuItem(
     label: 'Surahs',
     glyphType: HomeGlyphType.surahs,
     icon: Icons.menu_book_rounded,
-    pageBuilder: () => ItemList("A", "Surahs"),
+    pageBuilder: () => ItemList("A", L10n.current.menuSurahs),
   ),
   HomeMenuItem(
     label: 'Aamaal',
     glyphType: HomeGlyphType.aamaal,
     icon: Icons.light_mode_rounded,
-    pageBuilder: () => ItemList("C", "Aamaal"),
+    pageBuilder: () => ItemList("C", L10n.current.menuAamaal),
   ),
   calendarMenuItem,
   HomeMenuItem(
@@ -142,7 +147,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     glyphType: HomeGlyphType.library,
     icon: Icons.local_library_rounded,
     pageBuilder: () => Scaffold(
-      appBar: AppBar(title: Text('Library')),
+      appBar: AppBar(title: Text(L10n.current.menuLibrary)),
       body: LibraryPage(),
     ),
   ),
@@ -150,13 +155,13 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     label: 'Munajaat',
     glyphType: HomeGlyphType.munajaat,
     icon: Icons.nights_stay_rounded,
-    pageBuilder: () => ItemList("H", "Munajaat"),
+    pageBuilder: () => ItemList("H", L10n.current.menuMunajaat),
   ),
   HomeMenuItem(
     label: 'Baaqeyaat As Saalehaat',
     glyphType: HomeGlyphType.baqeyaat,
     icon: Icons.history_edu_rounded,
-    pageBuilder: () => ItemList("I", "Baaqeyaat As Saalehaat"),
+    pageBuilder: () => ItemList("I", L10n.current.menuBaaqeyaat),
   ),
   playlistsMenuItem,
   HomeMenuItem(
@@ -191,7 +196,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     label: 'Preferences',
     icon: Icons.settings_rounded,
     pageBuilder: () => Scaffold(
-      appBar: AppBar(title: Text('Preferences')),
+      appBar: AppBar(title: Text(L10n.current.menuPreferences)),
       body: SettingsPage(),
     ),
   ),
@@ -292,3 +297,32 @@ final List<String> zikr =
 
 final List<IconData> zikrIcons =
     List.unmodifiable(homeMenuItems.map((item) => item.icon));
+
+/// [label], one of the home menu's English item labels, in the app language.
+/// Labels the menu does not know (admin tools) are shown as they are.
+String homeMenuDisplayLabel(String label) {
+  return switch (label) {
+    'Calendar & Prayer Times' => L10n.current.menuCalendarPrayerTimes,
+    'Favorites' => L10n.current.menuFavorites,
+    'Today\'s Recitations' => L10n.current.menuTodaysRecitations,
+    'Taqeebat e Namaz' => L10n.current.menuTaqeebat,
+    'Namaz' => L10n.current.menuNamaz,
+    'Duas' => L10n.current.menuDuas,
+    'Ziyarats' => L10n.current.menuZiyarats,
+    'Surahs' => L10n.current.menuSurahs,
+    'Aamaal' => L10n.current.menuAamaal,
+    'Library' => L10n.current.menuLibrary,
+    'Munajaat' => L10n.current.menuMunajaat,
+    'Baaqeyaat As Saalehaat' => L10n.current.menuBaaqeyaat,
+    'Qibla Finder' => L10n.current.menuQiblaFinder,
+    'Tasbeeh Counter' => L10n.current.menuTasbeehCounter,
+    'Qaza Tracker' => L10n.current.menuQazaTracker,
+    'Rakaat Counter' => L10n.current.menuRakaatCounter,
+    'Prayer Times in Flight' => L10n.current.menuPrayerTimesInFlight,
+    'Preferences' => L10n.current.menuPreferences,
+    'Quran' => L10n.current.menuQuran,
+    'Playlists' => L10n.current.menuPlaylists,
+    'My Stats' => L10n.current.menuMyStats,
+    _ => label,
+  };
+}

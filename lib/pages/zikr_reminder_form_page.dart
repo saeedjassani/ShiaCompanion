@@ -6,6 +6,7 @@ import '../models/zikr_reminder.dart';
 import '../services/zikr_reminder_service.dart';
 import '../widgets/responsive_content.dart';
 import 'zikr_picker_page.dart';
+import '../l10n/l10n.dart';
 
 /// Add/edit form for a single [ZikrReminder].
 ///
@@ -38,15 +39,6 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
     DateTime.friday,
     DateTime.saturday,
     DateTime.sunday,
-  ];
-  static const List<String> _weekdayLabels = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun',
   ];
   static const int _maxOffsetMinutes = 180;
 
@@ -133,11 +125,11 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
   Future<void> _save() async {
     final title = _titleController.text.trim();
     if (title.isEmpty) {
-      _showMessage('Please enter a title for this reminder.');
+      _showMessage(context.l10n.reminderTitleRequired);
       return;
     }
     if (_selectedDays.isEmpty) {
-      _showMessage('Pick at least one day.');
+      _showMessage(context.l10n.reminderPickDay);
       return;
     }
 
@@ -145,7 +137,7 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
     if (_mode == ZikrReminderTimeMode.relativeToPrayer) {
       final magnitude = _parsedOffsetMagnitude();
       if (magnitude == null) {
-        _showMessage('Enter a number of minutes between 0 and $_maxOffsetMinutes.');
+        _showMessage(context.l10n.reminderMinutesRange(_maxOffsetMinutes));
         return;
       }
       offsetMinutes = _offsetIsAfter ? magnitude : -magnitude;
@@ -183,9 +175,9 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
       if (!mounted) return;
       if (_mode == ZikrReminderTimeMode.relativeToPrayer &&
           (lat == null || long == null)) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-            "Saved. It'll start firing once your prayer-time location is available.",
+            context.l10n.reminderSavedPendingLocation,
           ),
         ));
       }
@@ -205,7 +197,7 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Reminder' : 'New Reminder'),
+        title: Text(_isEditing ? context.l10n.reminderEditTitle : context.l10n.reminderNewTitle),
       ),
       body: ResponsiveScrollableContent(
         maxWidth: compactContentWidth,
@@ -213,9 +205,9 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildSectionLabel(theme, 'What'),
+            _buildSectionLabel(theme, context.l10n.reminderWhat),
             Text(
-              'Pick a zikr from the library, or just type a title below.',
+              context.l10n.reminderWhatHint,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
               ),
@@ -226,28 +218,28 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
               icon: const Icon(Icons.menu_book),
               label: Text(
                 _zikrUid == null
-                    ? 'Choose from the zikr library'
-                    : 'Change zikr',
+                    ? context.l10n.reminderChooseZikr
+                    : context.l10n.reminderChangeZikr,
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                hintText: 'e.g. Dua Tawassul',
+              decoration: InputDecoration(
+                labelText: context.l10n.reminderTitleLabel,
+                hintText: context.l10n.reminderTitleHint,
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 20),
-            _buildSectionLabel(theme, 'Repeat on'),
+            _buildSectionLabel(theme, context.l10n.reminderRepeatOn),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
                 for (var index = 0; index < _weekdays.length; index++)
                   FilterChip(
-                    label: Text(_weekdayLabels[index]),
+                    label: Text(shortWeekdayName(index + 1, context.l10n)),
                     selected: _selectedDays.contains(_weekdays[index]),
                     onSelected: (selected) =>
                         _toggleDay(_weekdays[index], selected),
@@ -255,17 +247,17 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
               ],
             ),
             const SizedBox(height: 20),
-            _buildSectionLabel(theme, 'When'),
+            _buildSectionLabel(theme, context.l10n.reminderWhen),
             SegmentedButton<ZikrReminderTimeMode>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: ZikrReminderTimeMode.fixedTime,
-                  label: Text('Fixed time'),
+                  label: Text(context.l10n.reminderFixedTime),
                   icon: Icon(Icons.schedule),
                 ),
                 ButtonSegment(
                   value: ZikrReminderTimeMode.relativeToPrayer,
-                  label: Text('Prayer-relative'),
+                  label: Text(context.l10n.reminderPrayerRelative),
                   icon: Icon(Icons.mosque),
                 ),
               ],
@@ -287,7 +279,7 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(_isEditing ? 'Save Changes' : 'Add Reminder'),
+                  : Text(_isEditing ? context.l10n.commonSaveChanges : context.l10n.reminderAdd),
             ),
           ],
         ),
@@ -312,7 +304,7 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: const Icon(Icons.access_time),
-      title: const Text('Time'),
+      title: Text(context.l10n.reminderTime),
       subtitle: Text(_time.format(context)),
       trailing: const Icon(Icons.edit),
       onTap: _pickTime,
@@ -329,13 +321,15 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
           initialValue: prayerNames.contains(_prayerName)
               ? _prayerName
               : prayerNames.first,
-          decoration: const InputDecoration(
-            labelText: 'Prayer',
+          decoration: InputDecoration(
+            labelText: context.l10n.reminderPrayer,
             border: OutlineInputBorder(),
           ),
           items: [
             for (final name in prayerNames)
-              DropdownMenuItem(value: name, child: Text(name)),
+              DropdownMenuItem(
+                  value: name,
+                  child: Text(localizedPrayerName(name, context.l10n))),
           ],
           onChanged: (value) {
             if (value != null) setState(() => _prayerName = value);
@@ -348,8 +342,8 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
               child: TextField(
                 controller: _offsetController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Minutes',
+                decoration: InputDecoration(
+                  labelText: context.l10n.reminderMinutes,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -358,9 +352,9 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
             Expanded(
               flex: 2,
               child: SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: false, label: Text('Before')),
-                  ButtonSegment(value: true, label: Text('After')),
+                segments: [
+                  ButtonSegment(value: false, label: Text(context.l10n.reminderBefore)),
+                  ButtonSegment(value: true, label: Text(context.l10n.reminderAfter)),
                 ],
                 selected: {_offsetIsAfter},
                 onSelectionChanged: (selection) =>
@@ -371,8 +365,7 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Prayer times shift with the calendar, so this schedules the next "
-          "few weeks' occurrences and refreshes them each time you open the app.",
+          context.l10n.reminderPrayerRelativeNote,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
           ),

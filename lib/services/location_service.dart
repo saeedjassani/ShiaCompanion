@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import '../l10n/l10n.dart';
 
 /// What the location layer is doing right now, so the UI can say so.
 enum LocationRefreshStatus { idle, refreshing, failed }
@@ -204,15 +205,15 @@ class LocationService extends ChangeNotifier {
   String get failureMessage {
     switch (failure) {
       case LocationFailure.serviceDisabled:
-        return 'Location services are off';
+        return L10n.current.locationOff;
       case LocationFailure.permissionDenied:
       case LocationFailure.permissionDeniedForever:
-        return 'Location permission needed';
+        return L10n.current.locationPermissionShort;
       case LocationFailure.timeout:
-        return "Couldn't get a location fix";
+        return L10n.current.locationNoFix;
       case LocationFailure.unknown:
       case null:
-        return "Couldn't update location";
+        return L10n.current.locationUpdateFailed;
     }
   }
 

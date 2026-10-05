@@ -1,4 +1,5 @@
 import 'zikr_content_parser.dart';
+import '../../l10n/l10n.dart';
 
 /// Words an average reciter covers per minute of Arabic supplication text.
 ///
@@ -323,18 +324,21 @@ double zikrSmoothedTabFraction({
 /// Human readable duration such as `under 1 min`, `8 min` or `1 hr 5 min`.
 String formatZikrDuration(Duration duration) {
   final totalMinutes = (duration.inSeconds / 60).round();
-  if (totalMinutes < 1) return 'under 1 min';
-  if (totalMinutes < 60) return '$totalMinutes min';
+  final l10n = L10n.current;
+  if (totalMinutes < 1) return l10n.durationUnderOneMinute;
+  if (totalMinutes < 60) return l10n.durationMinutes(totalMinutes);
 
   final hours = totalMinutes ~/ 60;
   final minutes = totalMinutes % 60;
-  final hourLabel = hours == 1 ? '1 hr' : '$hours hrs';
-  return minutes == 0 ? hourLabel : '$hourLabel $minutes min';
+  final hourLabel = l10n.durationHours(hours);
+  return minutes == 0
+      ? hourLabel
+      : l10n.durationHoursMinutes(hourLabel, minutes);
 }
 
 /// Label for the estimated time to recite the whole zikr.
 String zikrReadingTimeLabel(Duration duration) =>
-    '${formatZikrDuration(duration)} read';
+    L10n.current.zikrReadingTime(formatZikrDuration(duration));
 
 /// Label for how far through the tab being read the reader is.
 ///
@@ -343,7 +347,7 @@ String zikrReadingTimeLabel(Duration duration) =>
 /// than for the end of the text merely being on screen, which a short dua
 /// is the moment it opens and any tab is after a fling to the bottom.
 String zikrProgressLabel(double progress, {bool completed = false}) {
-  if (completed) return 'Completed';
+  if (completed) return L10n.current.zikrProgressCompleted;
   final clamped = progress.clamp(0.0, 1.0).toDouble();
-  return '${(clamped * 100).floor()}%';
+  return L10n.current.commonPercent((clamped * 100).floor());
 }

@@ -7,6 +7,7 @@ import '../data/uid_title_data.dart';
 import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
 import '../services/analytics_service.dart';
+import '../services/zikr_translations.dart';
 import '../services/audio_download_store.dart';
 import '../services/favorites_manager.dart';
 import '../services/playlist_audio_service.dart';
@@ -16,12 +17,13 @@ import '../widgets/audio_download_button.dart';
 import '../widgets/responsive_content.dart';
 import 'downloaded_audio_page.dart';
 import 'zikr/zikr_page.dart';
+import '../l10n/l10n.dart';
 
 /// The zikr's title as the index knows it, falling back to its uid while the
 /// index is still loading.
 String _zikrTitle(String uid) {
   final title = items[uid]?.toString().trim() ?? '';
-  return title.isEmpty ? uid : title;
+  return title.isEmpty ? uid : zikrDisplayTitle(uid, title);
 }
 
 /// The content uid behind a possibly-aliased key: `G17|L4` plays `L4`.
@@ -48,13 +50,13 @@ Future<String?> _promptForName(
           controller: controller,
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(hintText: 'e.g. Morning'),
+          decoration: InputDecoration(hintText: context.l10n.playlistNameHint),
           onSubmitted: (_) => submit(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(onPressed: submit, child: Text(action)),
         ],
@@ -74,12 +76,12 @@ Future<void> _startPlaylist(
   final message = switch (result) {
     PlaylistStartResult.started => null,
     PlaylistStartResult.startedDownloadedOnly =>
-      "You're offline - playing only the downloaded recordings",
+      context.l10n.playlistOfflinePartial,
     PlaylistStartResult.nothingToPlay =>
-      'Nothing in this playlist has a recording to play',
+      context.l10n.playlistNothingToPlay,
     PlaylistStartResult.offlineNothingDownloaded =>
-      "You're offline and nothing in this playlist is downloaded yet",
-    PlaylistStartResult.failed => "Couldn't start the playlist. Try again.",
+      context.l10n.playlistOfflineNothingDownloaded,
+    PlaylistStartResult.failed => context.l10n.playlistStartFailed,
   };
   if (message == null) return;
   messenger
@@ -94,7 +96,7 @@ List<ZikrAudioTrack> _tracksOf(ZikrPlaylist playlist) => [
     ];
 
 String _trackLabel(ZikrAudioTrack track, int index) =>
-    track.label ?? 'Recording ${index + 1}';
+    track.label ?? L10n.current.audioRecordingNumber(index + 1);
 
 /// Lets the reader pick which of [uid]'s recordings [playlist] plays - at
 /// least one, since a zikr with none picked would silently drop out.
@@ -128,7 +130,7 @@ Future<void> _chooseRecordings(
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: Text('Choose the recordings to play in this playlist',
+                child: Text(context.l10n.playlistChooseRecordingsHint,
                     style: Theme.of(sheetContext).textTheme.bodySmall),
               ),
               Flexible(
@@ -160,7 +162,7 @@ Future<void> _chooseRecordings(
                     for (final track in available)
                       if (chosen.contains(track.file)) track.file,
                   ]),
-                  child: const Text('Done'),
+                  child: Text(context.l10n.commonDone),
                 ),
               ),
             ],
@@ -208,13 +210,13 @@ Future<void> showAddToPlaylistSheet(
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
               child: Text(
-                'Add to playlist',
+                context.l10n.playlistAddTo,
                 style: Theme.of(sheetContext).textTheme.titleMedium,
               ),
             ),
             ListTile(
               leading: const Icon(Icons.add),
-              title: const Text('New playlist'),
+              title: Text(context.l10n.playlistNew),
               onTap: () => Navigator.of(sheetContext).pop(true),
             ),
             for (final playlist in store.playlists)
@@ -238,8 +240,8 @@ Future<void> showAddToPlaylistSheet(
   if (choice == true) {
     final name = await _promptForName(
       context,
-      title: 'New playlist',
-      action: 'Create',
+      title: context.l10n.playlistNew,
+      action: context.l10n.commonCreate,
     );
     if (name == null) return;
     await store.create(
@@ -251,11 +253,11 @@ Future<void> showAddToPlaylistSheet(
               uid: [track.file]
             },
     );
-    messenger.showSnackBar(SnackBar(content: Text('Added to $name')));
+    messenger.showSnackBar(SnackBar(content: Text(L10n.current.playlistAddedTo(name))));
   } else if (choice is ZikrPlaylist) {
     if (_hasRecording(choice, uid, track)) {
       messenger
-          .showSnackBar(SnackBar(content: Text('Already in ${choice.name}')));
+          .showSnackBar(SnackBar(content: Text(L10n.current.playlistAlreadyIn(choice.name))));
       return;
     }
     if (choice.zikrUids.contains(uid) && track != null) {
@@ -272,7 +274,7 @@ Future<void> showAddToPlaylistSheet(
     } else {
       await store.addZikr(choice.id, uid, trackFile: track?.file);
     }
-    messenger.showSnackBar(SnackBar(content: Text('Added to ${choice.name}')));
+    messenger.showSnackBar(SnackBar(content: Text(L10n.current.playlistAddedTo(choice.name))));
   }
 }
 
@@ -287,7 +289,7 @@ bool _hasRecording(ZikrPlaylist playlist, String uid, ZikrAudioTrack? track) {
 }
 
 // "Zikr" is its own plural here, the way the rest of the app uses it.
-String _countLabel(int count) => '$count zikr';
+String _countLabel(int count) => L10n.current.zikrCount(count);
 
 /// The reader's audio playlists: a morning set of Dua Ahad and Ziyarat
 /// Ashura, say, started with one tap and left playing in the background.
@@ -315,8 +317,8 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
   Future<void> _create(BuildContext context) async {
     final name = await _promptForName(
       context,
-      title: 'New playlist',
-      action: 'Create',
+      title: context.l10n.playlistNew,
+      action: context.l10n.commonCreate,
     );
     if (name == null || !context.mounted) return;
     final playlist = await ZikrPlaylistStore.instance.create(name);
@@ -334,12 +336,12 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Playlists'),
+        title: Text(context.l10n.playlistsTitle),
         actions: [
           if (AudioDownloadStore.isSupported)
             IconButton(
               icon: const Icon(Icons.download_for_offline_outlined),
-              tooltip: 'Downloads',
+              tooltip: context.l10n.playlistDownloads,
               onPressed: () => _openDownloads(context),
             ),
         ],
@@ -347,7 +349,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _create(context),
         icon: const Icon(Icons.add),
-        label: const Text('New playlist'),
+        label: Text(context.l10n.playlistNew),
       ),
       bottomNavigationBar: const NowPlayingBar(),
       body: ListenableBuilder(
@@ -355,11 +357,9 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
         builder: (context, _) {
           final playlists = store.playlists;
           if (playlists.isEmpty) {
-            return const _EmptyState(
+            return _EmptyState(
               icon: Icons.playlist_play_rounded,
-              message: 'Make a playlist of the zikr you listen to '
-                  'every day - Dua Ahad and Ziyarat Ashura each morning, say '
-                  '- and start them all with one tap.',
+              message: context.l10n.playlistsEmpty,
             );
           }
           return ResponsiveContent(
@@ -374,7 +374,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                     icon: Icon(isCurrent && audio.isPlaying
                         ? Icons.pause_rounded
                         : Icons.play_arrow_rounded),
-                    tooltip: isCurrent && audio.isPlaying ? 'Pause' : 'Play',
+                    tooltip: isCurrent && audio.isPlaying ? context.l10n.commonPause : context.l10n.commonPlay,
                     onPressed: playlist.zikrUids.isEmpty
                         ? null
                         : () => isCurrent
@@ -431,9 +431,9 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   Future<void> _rename(BuildContext context, ZikrPlaylist playlist) async {
     final name = await _promptForName(
       context,
-      title: 'Rename playlist',
+      title: context.l10n.playlistRename,
       initial: playlist.name,
-      action: 'Save',
+      action: context.l10n.commonSave,
     );
     if (name == null) return;
     await ZikrPlaylistStore.instance.rename(playlist.id, name);
@@ -447,19 +447,18 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('Delete "${playlist.name}"?'),
+        title: Text(context.l10n.playlistDeleteConfirm(playlist.name)),
         content: Text(hasDownloads
-            ? 'The duas themselves stay in the app, and so does their '
-                'downloaded audio - remove it from Downloads to free space.'
-            : 'The duas themselves stay in the app.'),
+            ? context.l10n.playlistDeleteKeepsDuasAndAudio
+            : context.l10n.playlistDeleteKeepsDuas),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
@@ -493,9 +492,9 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
         if (playlist == null) {
           return Scaffold(
             appBar: AppBar(),
-            body: const _EmptyState(
+            body: _EmptyState(
               icon: Icons.playlist_play_rounded,
-              message: 'This playlist has been deleted.',
+              message: context.l10n.playlistDeleted,
             ),
           );
         }
@@ -521,15 +520,15 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                   if (value == 'downloads') _openDownloads(context);
                 },
                 itemBuilder: (_) => [
-                  const PopupMenuItem(value: 'rename', child: Text('Rename')),
+                  PopupMenuItem(value: 'rename', child: Text(context.l10n.commonRename)),
                   if (downloads.anyDownloaded(allTracks))
-                    const PopupMenuItem(
+                    PopupMenuItem(
                         value: 'remove-downloads',
-                        child: Text('Remove downloads')),
+                        child: Text(context.l10n.playlistRemoveDownloads)),
                   if (AudioDownloadStore.isSupported)
-                    const PopupMenuItem(
-                        value: 'downloads', child: Text('All downloads')),
-                  const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                    PopupMenuItem(
+                        value: 'downloads', child: Text(context.l10n.playlistAllDownloads)),
+                  PopupMenuItem(value: 'delete', child: Text(context.l10n.commonDelete)),
                 ],
               ),
             ],
@@ -539,14 +538,13 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
               builder: (_) => AddRecitationsPage(playlistId: playlist.id),
             )),
             icon: const Icon(Icons.playlist_add),
-            label: const Text('Add'),
+            label: Text(context.l10n.commonAdd),
           ),
           bottomNavigationBar: const NowPlayingBar(),
           body: playlist.zikrUids.isEmpty
-              ? const _EmptyState(
+              ? _EmptyState(
                   icon: Icons.playlist_add,
-                  message: 'Tap Add to choose zikr. You can also add one from '
-                      'the player on any dua with audio.',
+                  message: context.l10n.playlistEmpty,
                 )
               : ResponsiveContent(
                   child: Column(
@@ -566,10 +564,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                                   ? Icons.pause_rounded
                                   : Icons.play_arrow_rounded),
                               label: Text(isCurrent && audio.isPlaying
-                                  ? 'Pause'
+                                  ? context.l10n.commonPause
                                   : isCurrent
-                                      ? 'Resume'
-                                      : 'Play all'),
+                                      ? context.l10n.playlistResume
+                                      : context.l10n.playlistPlayAll),
                             ),
                             if (showDownload) ...[
                               const SizedBox(height: 8),
@@ -608,19 +606,21 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                             final recordings =
                                 available.length < 2 || single != null
                                     ? null
-                                    : '${tracks.length} of '
-                                        '${available.length} recordings';
+                                                                    : context.l10n.audioRecordingsChosen(
+                                    tracks.length, available.length);
                             final downloadState =
                                 audioDownloadStateOf(downloads, tracks);
                             final subtitle = !showDownload || tracks.isEmpty
                                 ? null
                                 : switch (downloadState) {
-                                    AudioDownloadState.done => 'Downloaded',
+                                    AudioDownloadState.done => context.l10n.audioDownloaded,
                                     AudioDownloadState.downloading =>
-                                      'Downloading '
-                                          '${(downloads.overallProgress(tracks) * 100).floor()}%',
+                                                                          context.l10n.audioDownloadingPercent(
+                                        (downloads.overallProgress(tracks) *
+                                                100)
+                                            .floor()),
                                     AudioDownloadState.failed =>
-                                      "Download didn't finish",
+                                      context.l10n.audioDownloadFailed,
                                     _ => null,
                                   };
                             return ListTile(
@@ -694,29 +694,29 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                                   }
                                 },
                                 itemBuilder: (_) => [
-                                  const PopupMenuItem(
-                                      value: 'open', child: Text('Open text')),
+                                  PopupMenuItem(
+                                      value: 'open', child: Text(context.l10n.playlistOpenText)),
                                   if (available.length > 1)
-                                    const PopupMenuItem(
+                                    PopupMenuItem(
                                         value: 'recordings',
-                                        child: Text('Choose recordings')),
+                                        child: Text(context.l10n.playlistChooseRecordings)),
                                   if (showDownload && tracks.isNotEmpty)
                                     switch (downloadState) {
                                       AudioDownloadState.downloading =>
-                                        const PopupMenuItem(
+                                        PopupMenuItem(
                                             value: 'stop-download',
-                                            child: Text('Stop downloading')),
+                                            child: Text(context.l10n.audioStopDownloading)),
                                       AudioDownloadState.done =>
-                                        const PopupMenuItem(
+                                        PopupMenuItem(
                                             value: 'remove-download',
-                                            child: Text('Remove download')),
-                                      _ => const PopupMenuItem(
+                                            child: Text(context.l10n.audioRemoveDownload)),
+                                      _ => PopupMenuItem(
                                           value: 'download',
-                                          child: Text('Download')),
+                                          child: Text(context.l10n.audioDownload)),
                                     },
-                                  const PopupMenuItem(
+                                  PopupMenuItem(
                                       value: 'remove',
-                                      child: Text('Remove from playlist')),
+                                      child: Text(context.l10n.playlistRemoveZikr)),
                                 ],
                               ),
                             );
@@ -783,7 +783,7 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
   Widget build(BuildContext context) {
     if (!_audioReady) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Add zikr')),
+        appBar: AppBar(title: Text(context.l10n.playlistAddZikr)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -823,7 +823,7 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
           }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add zikr')),
+      appBar: AppBar(title: Text(context.l10n.playlistAddZikr)),
       // Ticks save as they are made; Done is the obvious way back to the
       // playlist, so it doesn't feel like the ticks need confirming.
       bottomNavigationBar: SafeArea(
@@ -831,7 +831,7 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: FilledButton(
             onPressed: () => Navigator.of(context).maybePop(),
-            child: const Text('Done'),
+            child: Text(context.l10n.commonDone),
           ),
         ),
       ),
@@ -846,9 +846,9 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                   child: TextField(
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       prefixIcon: Icon(Icons.search),
-                      hintText: 'Search',
+                      hintText: context.l10n.commonSearch,
                       border: OutlineInputBorder(),
                       isDense: true,
                     ),
@@ -886,7 +886,7 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
 
 /// A zikr with several recordings: its own checkbox adds or removes all of
 /// them, and one per recording underneath picks them individually - the
-/// same choice as the playlist page's "Choose recordings".
+/// same choice as the playlist page's context.l10n.playlistChooseRecordings.
 Widget _buildRecordings(
   ZikrPlaylist playlist,
   String uid,
@@ -923,7 +923,7 @@ Widget _buildRecordings(
                 ? true
                 : null,
         title: Text(_zikrTitle(uid)),
-        subtitle: Text('${available.length} recordings'),
+        subtitle: Text(L10n.current.audioRecordingsCount(available.length)),
         // Ticking a partly-chosen zikr fills in the rest; ticking a full
         // one takes it out.
         onChanged: (_) => setChosen(
@@ -959,10 +959,11 @@ class _PlaylistSubtitle extends StatelessWidget {
     final downloads = AudioDownloadStore.instance;
     final state = audioDownloadStateOf(downloads, tracks);
     final String? status = switch (state) {
-      AudioDownloadState.done => 'Downloaded',
+      AudioDownloadState.done => context.l10n.audioDownloaded,
       AudioDownloadState.downloading =>
-        'Downloading ${(downloads.overallProgress(tracks) * 100).floor()}%',
-      AudioDownloadState.partial => 'Partly downloaded',
+        context.l10n.audioDownloadingPercent(
+            (downloads.overallProgress(tracks) * 100).floor()),
+      AudioDownloadState.partial => context.l10n.audioPartlyDownloaded,
       _ => null,
     };
     if (status == null) return count;
@@ -1031,9 +1032,10 @@ class NowPlayingBar extends StatelessWidget {
                               style: theme.textTheme.titleSmall,
                             ),
                             Text(
-                              '${audio.playlist?.name ?? ''} · '
-                              '${audio.zikrPosition ?? 1} of '
-                              '${audio.zikrCount}',
+                              context.l10n.playlistNowPlayingPosition(
+                                  audio.playlist?.name ?? '',
+                                  audio.zikrPosition ?? 1,
+                                  audio.zikrCount),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -1049,13 +1051,13 @@ class NowPlayingBar extends StatelessWidget {
                                 ? theme.colorScheme.primary
                                 : null),
                         tooltip: audio.isRepeating
-                            ? 'Repeat is on'
-                            : 'Repeat playlist',
+                            ? context.l10n.playlistRepeatOn
+                            : context.l10n.playlistRepeat,
                         onPressed: audio.toggleRepeat,
                       ),
                       IconButton(
                         icon: const Icon(Icons.skip_previous_rounded),
-                        tooltip: 'Previous',
+                        tooltip: context.l10n.commonPrevious,
                         onPressed: audio.previous,
                       ),
                       StreamBuilder<PlayerState>(
@@ -1082,19 +1084,19 @@ class NowPlayingBar extends StatelessWidget {
                             icon: Icon(playing
                                 ? Icons.pause_rounded
                                 : Icons.play_arrow_rounded),
-                            tooltip: playing ? 'Pause' : 'Play',
+                            tooltip: playing ? context.l10n.commonPause : context.l10n.commonPlay,
                             onPressed: audio.togglePlay,
                           );
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.skip_next_rounded),
-                        tooltip: 'Next',
+                        tooltip: context.l10n.commonNext,
                         onPressed: player.hasNext ? audio.next : null,
                       ),
                       IconButton(
                         icon: const Icon(Icons.close),
-                        tooltip: 'Stop',
+                        tooltip: context.l10n.commonStop,
                         onPressed: audio.stop,
                       ),
                     ],

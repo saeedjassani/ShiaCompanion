@@ -11,6 +11,7 @@ import '../utils/timezone_database.dart';
 import '../widgets/responsive_content.dart';
 import 'flight_editor_page.dart';
 import 'flight_prayer_times_page.dart';
+import '../l10n/l10n.dart';
 
 /// Saved flights, and the entry point for adding one.
 class FlightsPage extends StatefulWidget {
@@ -59,16 +60,16 @@ class _FlightsPageState extends State<FlightsPage> {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Remove flight?'),
-        content: Text('$label will be removed from your saved flights.'),
+        title: Text(context.l10n.flightRemoveTitle),
+        content: Text(context.l10n.flightRemoveBody(label)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Remove'),
+            child: Text(context.l10n.commonRemove),
           ),
         ],
       ),
@@ -80,11 +81,11 @@ class _FlightsPageState extends State<FlightsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Prayer Times in Flight')),
+      appBar: AppBar(title: Text(context.l10n.menuPrayerTimesInFlight)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _isLoading ? null : _addFlight,
         icon: const Icon(Icons.add),
-        label: const Text('Add flight'),
+        label: Text(context.l10n.flightAdd),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -173,9 +174,10 @@ class _FlightCard extends StatelessWidget {
                     ),
                     if (resolved != null)
                       Text(
-                        '${formatFlightDuration(resolved.duration)} · lands '
-                        '${formatWallClock(flight.arrivalLocal)} '
-                        '${resolved.destination.iata} time',
+                        context.l10n.flightLands(
+                            formatFlightDuration(resolved.duration),
+                            formatWallClock(flight.arrivalLocal),
+                            resolved.destination.iata),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -185,7 +187,7 @@ class _FlightCard extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline),
-                tooltip: 'Remove flight',
+                tooltip: context.l10n.flightRemove,
                 onPressed: onDelete,
               ),
             ],
@@ -216,15 +218,13 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No flights saved',
+              context.l10n.flightNoneSaved,
               style: theme.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              'Add your flight and this page will work out when each prayer '
-              'comes in along the route — shown in both your departure and '
-              'arrival city\'s time.',
+              context.l10n.flightNoneSavedBody,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

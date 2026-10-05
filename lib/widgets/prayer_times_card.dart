@@ -3,6 +3,7 @@ import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 import '../constants.dart';
+import '../l10n/l10n.dart';
 
 /// The prayer times for one date.
 ///
@@ -87,7 +88,7 @@ class _PrayerTimeRow extends StatelessWidget {
           const SizedBox(width: 10.0),
           Expanded(
             child: Text(
-              prayerEntry.name,
+              localizedPrayerName(prayerEntry.name, context.l10n),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
@@ -153,7 +154,7 @@ class _PrayerTimesUnavailable extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          "Location not available",
+          context.l10n.prayerLocationUnavailable,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w600,
@@ -161,7 +162,7 @@ class _PrayerTimesUnavailable extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          "Enable location to display accurate prayer times for your area.",
+          context.l10n.prayerEnableLocationBody,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),

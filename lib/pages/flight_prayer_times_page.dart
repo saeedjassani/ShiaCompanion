@@ -11,6 +11,7 @@ import '../utils/geo_utils.dart';
 import '../widgets/prayer_glyph.dart';
 import '../widgets/responsive_content.dart';
 import 'flight_editor_page.dart';
+import '../l10n/l10n.dart';
 
 /// Prayer times computed along a flight's route, shown in both the departure
 /// and arrival time zones.
@@ -84,11 +85,11 @@ class _FlightPrayerTimesPageState extends State<FlightPrayerTimesPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(resolved?.routeLabel ?? 'Flight'),
+        title: Text(resolved?.routeLabel ?? context.l10n.flightTitleFallback),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            tooltip: 'Edit flight',
+            tooltip: context.l10n.flightEdit,
             onPressed: _edit,
           ),
         ],
@@ -129,28 +130,26 @@ class _FlightPrayerTimesBody extends StatelessWidget {
           _FlightSummaryCard(resolved: resolved, plan: plan),
           const SizedBox(height: 16),
           if (!plan.isValid)
-            const _NoticeCard(
+            _NoticeCard(
               icon: Icons.error_outline,
-              title: 'Check the flight times',
-              body: 'The arrival is not after the departure once each '
-                  'airport\'s time zone is applied. Tap edit to fix the dates.',
+              title: context.l10n.flightCheckTimes,
+              body: context.l10n.flightCheckTimesBody,
               isError: true,
             )
           else ...[
             _SectionHeading(
-              title: 'In the air',
+              title: context.l10n.flightInTheAir,
               subtitle: duringFlight.isEmpty
                   ? null
-                  : 'Times shown at ${resolved.origin.iata} and '
-                      '${resolved.destination.iata} local clocks',
+                  : context.l10n.flightTimesShownAt(
+                      resolved.origin.iata, resolved.destination.iata),
             ),
             const SizedBox(height: 8),
             if (duringFlight.isEmpty)
-              const _NoticeCard(
+              _NoticeCard(
                 icon: Icons.hourglass_empty,
-                title: 'No prayer comes in during this flight',
-                body: 'Every prayer time falls either before take-off or '
-                    'after landing.',
+                title: context.l10n.flightNoPrayerDuring,
+                body: context.l10n.flightNoPrayerDuringBody,
               )
             else
               Card(
@@ -173,7 +172,7 @@ class _FlightPrayerTimesBody extends StatelessWidget {
               ),
             if (outsideFlight.isNotEmpty) ...[
               const SizedBox(height: 20),
-              const _SectionHeading(title: 'Not during this flight'),
+              _SectionHeading(title: context.l10n.flightNotDuring),
               const SizedBox(height: 8),
               Card(
                 child: Padding(
@@ -228,7 +227,7 @@ class _FlightSummaryCard extends StatelessWidget {
                   child: _EndpointColumn(
                     airport: resolved.origin,
                     wallClock: resolved.flight.departureLocal,
-                    label: 'Departs',
+                    label: context.l10n.flightDeparts,
                     alignment: CrossAxisAlignment.start,
                   ),
                 ),
@@ -240,7 +239,7 @@ class _FlightSummaryCard extends StatelessWidget {
                   child: _EndpointColumn(
                     airport: resolved.destination,
                     wallClock: resolved.flight.arrivalLocal,
-                    label: 'Arrives',
+                    label: context.l10n.flightArrives,
                     alignment: CrossAxisAlignment.end,
                   ),
                 ),
@@ -250,8 +249,9 @@ class _FlightSummaryCard extends StatelessWidget {
             const Divider(height: 1),
             const SizedBox(height: 12),
             Text(
-              '${formatFlightDuration(resolved.duration)} in the air · '
-              '${formatDistanceKm(plan.distanceKm)} great-circle',
+              context.l10n.flightDurationAndDistance(
+                  formatFlightDuration(resolved.duration),
+                  formatDistanceKm(plan.distanceKm)),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -333,12 +333,12 @@ class _ColumnHeader extends StatelessWidget {
           const Expanded(flex: 4, child: SizedBox()),
           Expanded(
             flex: 3,
-            child: Text('${resolved.origin.iata} time',
+            child: Text(context.l10n.flightAirportTime(resolved.origin.iata),
                 textAlign: TextAlign.end, style: style),
           ),
           Expanded(
             flex: 3,
-            child: Text('${resolved.destination.iata} time',
+            child: Text(context.l10n.flightAirportTime(resolved.destination.iata),
                 textAlign: TextAlign.end, style: style),
           ),
         ],
@@ -451,11 +451,15 @@ class _PrayerEventRow extends StatelessWidget {
   String _detailLine(Duration elapsed) {
     final position = event.position;
     final where =
-        position == null ? '' : ' · over ${formatCoordinates(position)}';
+        position == null
+            ? ''
+            : L10n.current.flightOverPosition(formatCoordinates(position));
     final prefix = event.prayerIndex == prayerIndexMidnight
-        ? 'End of the Isha window · '
+        ? L10n.current.flightEndOfIshaWindow
         : '';
-    return '$prefix${formatFlightDuration(elapsed)} after take-off$where';
+    return prefix +
+        L10n.current.flightAfterTakeoff(formatFlightDuration(elapsed)) +
+        where;
   }
 
   /// Explains the altitude correction per prayer, in the direction it actually
@@ -467,9 +471,9 @@ class _PrayerEventRow extends StatelessWidget {
     final minutes = shift.inMinutes;
     if (minutes.abs() < 1) return null;
 
-    final direction = minutes > 0 ? 'later' : 'earlier';
-    return '${minutes.abs()} min $direction than the horizon of the ground '
-        'below';
+    return minutes > 0
+        ? L10n.current.flightHorizonLater(minutes.abs())
+        : L10n.current.flightHorizonEarlier(minutes.abs());
   }
 
   String _qiblaLine() {
@@ -479,16 +483,17 @@ class _PrayerEventRow extends StatelessWidget {
 
     final String relativeText;
     if (magnitude <= 10) {
-      relativeText = 'straight ahead';
+      relativeText = L10n.current.flightStraightAhead;
     } else if (magnitude >= 170) {
-      relativeText = 'directly behind you';
+      relativeText = L10n.current.flightDirectlyBehind;
     } else {
-      final side = relative > 0 ? 'right' : 'left';
-      relativeText = '$magnitude° to your $side';
+      relativeText = relative > 0
+          ? L10n.current.flightQiblaToRight(magnitude)
+          : L10n.current.flightQiblaToLeft(magnitude);
     }
 
-    return 'Qibla ${bearing.round()}° (${compassLabel(bearing)}) — '
-        '$relativeText relative to the direction of flight';
+    return L10n.current.flightQiblaLine(
+        bearing.round(), compassLabel(bearing), relativeText);
   }
 }
 
@@ -563,17 +568,14 @@ class _OutsideFlightRow extends StatelessWidget {
     switch (event.status) {
       case FlightPrayerStatus.alreadyInAtDeparture:
         return isMidnight
-            ? 'The Isha window had already closed before take-off.'
-            : 'Already in before take-off — use the prayer times for your '
-                'departure city.';
+            ? L10n.current.flightIshaClosedBeforeTakeoff
+            : L10n.current.flightAlreadyInBeforeTakeoff;
       case FlightPrayerStatus.afterArrival:
         return isMidnight
-            ? 'The Isha window does not close until after landing.'
-            : 'Comes in after landing — use the prayer times for your '
-                'destination.';
+            ? L10n.current.flightIshaOpenUntilLanding
+            : L10n.current.flightAfterLanding;
       case FlightPrayerStatus.sunAngleNeverReached:
-        return 'The sun never reaches the required angle anywhere along this '
-            'route, so no time can be calculated.';
+        return L10n.current.flightSunAngleNeverReached;
       case FlightPrayerStatus.duringFlight:
         return '';
     }
@@ -590,55 +592,38 @@ class _Disclaimers extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _NoticeCard(
+        _NoticeCard(
           icon: Icons.info_outline,
-          title: 'How these are worked out',
-          body: 'The aircraft is assumed to follow the great-circle route at a '
-              'steady speed, and each prayer time is solved for the position '
-              'the aircraft is at when that time arrives. A delay of an hour '
-              'moves these times by roughly half an hour, and routing around '
-              'weather can move them by ten to twenty minutes, so treat them '
-              'as close rather than exact.',
+          title: context.l10n.flightHowWorkedOut,
+          body: context.l10n.flightHowWorkedOutBody,
         ),
         const SizedBox(height: 12),
         _NoticeCard(
           icon: Icons.flight_class,
           title: plan.usesAircraftHorizon
-              ? 'Measured from the horizon at altitude'
-              : 'Measured from the horizon at ground level',
+              ? context.l10n.flightHorizonAtAltitude
+              : context.l10n.flightHorizonAtGround,
           body: plan.usesAircraftHorizon
-              ? 'At ${_cruiseLabel(plan.cruiseAltitudeFeet)} the horizon sits '
-                  'about ${horizonDipDegrees(plan.cruiseAltitudeFeet).toStringAsFixed(1)}° '
-                  'lower than on the ground, so the sun takes longer to set and '
-                  'dawn comes sooner. That moves Maghrib and Isha about twenty '
-                  'minutes later, and Fajr about twenty minutes earlier, than '
-                  'the times for the ground beneath you — each row shows its '
-                  'own shift. Which horizon governs the prayer is a question '
-                  'for your marja, not one this app can settle.'
-              : 'Times follow the horizon of the ground below the aircraft. '
-                  'From the cabin the sun sets later and dawn breaks earlier '
-                  'than shown, by around twenty minutes at cruise altitude.',
+              ? context.l10n.flightAltitudeHorizonBody(
+                  _cruiseLabel(plan.cruiseAltitudeFeet),
+                  horizonDipDegrees(plan.cruiseAltitudeFeet)
+                      .toStringAsFixed(1))
+              : context.l10n.flightGroundHorizonBody,
         ),
         if (plan.crossesHighLatitude) ...[
           const SizedBox(height: 12),
-          const _NoticeCard(
+          _NoticeCard(
             icon: Icons.ac_unit,
-            title: 'This route crosses high latitudes',
-            body: 'Above roughly 48°, the sun may not dip far enough below the '
-                'horizon for dawn and nightfall to happen normally. Times for '
-                'Fajr, Maghrib and Isha there fall back to a proportional '
-                'estimate of the night. Rulings for prayer at high latitude '
-                'differ — please follow your marja.',
+            title: context.l10n.flightHighLatitude,
+            body: context.l10n.flightHighLatitudeBody,
           ),
         ],
         if (plan.hasUncomputablePrayer) ...[
           const SizedBox(height: 12),
-          const _NoticeCard(
+          _NoticeCard(
             icon: Icons.wb_twilight,
-            title: 'Some prayer times could not be calculated',
-            body: 'The sun stays above the required angle for the whole route, '
-                'so those prayers have no calculated time. Please follow your '
-                'marja\'s ruling for these conditions.',
+            title: context.l10n.flightSomeNotCalculated,
+            body: context.l10n.flightSomeNotCalculatedBody,
             isError: true,
           ),
         ],
@@ -655,7 +640,7 @@ String _cruiseLabel(double feet) {
     if (index > 0 && (rounded.length - index) % 3 == 0) buffer.write(',');
     buffer.write(rounded[index]);
   }
-  return '$buffer ft';
+  return L10n.current.flightAltitudeFeet(buffer.toString());
 }
 
 class _NoticeCard extends StatelessWidget {
@@ -755,12 +740,11 @@ class _UnresolvableFlight extends StatelessWidget {
             Icon(Icons.help_outline,
                 size: 40, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(height: 12),
-            Text('Time zones could not be loaded',
+            Text(context.l10n.flightTimeZonesFailed,
                 style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              'One of these airports has a time zone this build does not '
-              'recognise. Tap edit to pick the airports again.',
+              context.l10n.flightTimeZonesFailedBody,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

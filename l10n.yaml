@@ -1,0 +1,10 @@
+# App-text translations. lib/l10n/app_en.arb holds every English string the
+# UI shows; a language is supported by adding lib/l10n/app_<code>.arb next to
+# it (app_ur.arb, app_fa.arb, app_ar.arb, app_gu.arb). Any key a translation
+# leaves out falls back to English. See docs/TRANSLATIONS.md.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+# Keys an app_<code>.arb is still missing, per language, for translators.
+untranslated-messages-file: build/untranslated_messages.json

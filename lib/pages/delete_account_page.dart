@@ -8,6 +8,7 @@ import '../constants.dart';
 import '../services/account_service.dart';
 import '../services/analytics_service.dart';
 import 'home_page.dart';
+import '../l10n/l10n.dart';
 
 class DeleteAccountPage extends StatefulWidget {
   const DeleteAccountPage({super.key});
@@ -37,12 +38,12 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
       if (!mounted) return;
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Signed in successfully.')),
+        SnackBar(content: Text(context.l10n.deleteAccountSignedIn)),
       );
     } on AccountActionException catch (error) {
       _showSnackBar(error.message);
     } catch (error) {
-      _showSnackBar('Sign in failed: $error');
+      _showSnackBar(context.l10n.deleteAccountSignInFailed('$error'));
     } finally {
       if (!mounted) return;
       setState(() {
@@ -61,9 +62,9 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
       user = null;
       if (!mounted) return;
       setState(() {});
-      _showSnackBar('Signed out.');
+      _showSnackBar(context.l10n.deleteAccountSignedOut);
     } catch (error) {
-      _showSnackBar('Sign out failed: $error');
+      _showSnackBar(context.l10n.deleteAccountSignOutFailed('$error'));
     } finally {
       if (!mounted) return;
       setState(() {
@@ -76,18 +77,18 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete account?'),
-        content: const Text(
-          'This permanently deletes your Shia Companion account and synced favorites.',
+        title: Text(context.l10n.deleteAccountConfirmTitle),
+        content: Text(
+          context.l10n.deleteAccountConfirmBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
@@ -114,11 +115,11 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
       setState(() {
         _isDeleted = true;
       });
-      _showSnackBar('Account deleted successfully.');
+      _showSnackBar(context.l10n.deleteAccountDone);
     } on AccountActionException catch (error) {
       _showSnackBar(error.message);
     } catch (error) {
-      _showSnackBar('Error deleting account: $error');
+      _showSnackBar(context.l10n.deleteAccountFailed('$error'));
     } finally {
       if (!mounted) return;
       setState(() {
@@ -161,7 +162,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
 
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Delete Account'),
+              title: Text(context.l10n.deleteAccountTitle),
             ),
             body: Center(
               child: SingleChildScrollView(
@@ -176,14 +177,16 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Manage your Shia Companion account',
+                            context.l10n.deleteAccountHeading,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 12),
                           Text(
                             currentUser == null
-                                ? 'Sign in to review and permanently delete the account tied to your synced favorites.'
-                                : 'You are signed in as ${currentUser.email ?? currentUser.displayName ?? currentUser.uid}.',
+                                ? context.l10n.deleteAccountSignInPrompt
+                                : context.l10n.deleteAccountSignedInAs(currentUser.email ??
+                                      currentUser.displayName ??
+                                      currentUser.uid),
                           ),
                           const SizedBox(height: 20),
                           Container(
@@ -197,43 +200,43 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
-                                  'What gets deleted',
+                                  context.l10n.deleteAccountWhatGetsDeleted,
                                   style: TextStyle(fontWeight: FontWeight.w700),
                                 ),
                                 SizedBox(height: 8),
                                 Text(
-                                    'Your Shia Companion account sign-in record.'),
+                                    context.l10n.deleteAccountItemSignIn),
                                 SizedBox(height: 4),
                                 Text(
-                                    'Your synced favorites and qaza tracker stored for that account.'),
+                                    context.l10n.deleteAccountItemFavorites),
                                 SizedBox(height: 4),
                                 Text(
-                                    'Your synced reading preferences — Hijri date adjustment and font choices.'),
+                                    context.l10n.deleteAccountItemPreferences),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Anonymous analytics or crash reports already collected may remain in aggregate form.',
+                                  context.l10n.deleteAccountItemAnalytics,
                                 ),
                               ],
                             ),
                           ),
                           const SizedBox(height: 20),
                           if (_isDeleted) ...[
-                            const ListTile(
+                            ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: Icon(Icons.check_circle_outline),
                               title: Text(
-                                  'Your account deletion request has completed.'),
+                                  context.l10n.deleteAccountCompleted),
                               subtitle: Text(
-                                'If you sign in again later, a brand new account will be created.',
+                                context.l10n.deleteAccountCompletedNote,
                               ),
                             ),
                           ] else if (currentUser == null) ...[
                             Text(
                               kIsWeb
-                                  ? 'Use the Google sign-in button below, then confirm deletion.'
-                                  : 'Open Preferences in the app and use Delete My Account.',
+                                  ? context.l10n.deleteAccountWebSteps
+                                  : context.l10n.deleteAccountAppSteps,
                             ),
                             const SizedBox(height: 16),
                             if (kIsWeb)
@@ -241,8 +244,8 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                                 onPressed: _isBusy ? null : _signInWithGoogle,
                                 icon: const Icon(Icons.login),
                                 label: Text(_isBusy
-                                    ? 'Signing in...'
-                                    : 'Sign in with Google'),
+                                    ? context.l10n.deleteAccountSigningIn
+                                    : context.l10n.settingsSignInGoogle),
                               ),
                           ] else ...[
                             Wrap(
@@ -254,20 +257,20 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                                   icon:
                                       const Icon(Icons.delete_forever_outlined),
                                   label: Text(_isBusy
-                                      ? 'Deleting...'
-                                      : 'Delete my account'),
+                                      ? context.l10n.deleteAccountDeleting
+                                      : context.l10n.deleteAccountButton),
                                 ),
                                 OutlinedButton.icon(
                                   onPressed: _isBusy ? null : _signOut,
                                   icon: const Icon(Icons.logout),
-                                  label: const Text('Sign out'),
+                                  label: Text(context.l10n.deleteAccountSignOut),
                                 ),
                               ],
                             ),
                           ],
                           const SizedBox(height: 20),
-                          const Text(
-                            'Need help? Email developer110@hotmail.com and include the email address tied to your account.',
+                          Text(
+                            context.l10n.deleteAccountHelp,
                           ),
                         ],
                       ),

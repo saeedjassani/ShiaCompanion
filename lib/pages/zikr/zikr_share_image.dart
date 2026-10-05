@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
+import '../../services/zikr_translations.dart';
 import 'zikr_content_parser.dart';
 
 class ZikrShareImageRequest {
@@ -17,6 +18,14 @@ class ZikrShareImageRequest {
   /// The font the Arabic is drawn in; defaults to [arabicFont].
   final String? arabicFontFamily;
 
+  /// The reader's translation, drawn in place of the English it covers, as
+  /// in the reader itself.
+  final ZikrDocumentTranslation? translation;
+
+  /// Which way [title] reads: right-to-left once it is translated into Urdu,
+  /// Persian or Arabic.
+  final TextDirection titleDirection;
+
   const ZikrShareImageRequest({
     required this.title,
     required this.tabTitle,
@@ -24,6 +33,8 @@ class ZikrShareImageRequest {
     required this.hideHeaderLine,
     required this.colorScheme,
     this.arabicFontFamily,
+    this.translation,
+    this.titleDirection = TextDirection.ltr,
   });
 }
 
@@ -55,6 +66,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
       letterSpacing: 0,
     ),
     maxLines: 1,
+    textDirection: request.titleDirection,
   );
   y += 64;
 
@@ -80,11 +92,11 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
   final parsed = ZikrContentParser.parseContent(
     request.content,
     hideHeaderLine: request.hideHeaderLine || _startsWithVisibleHeader(request),
-  );
+  ).translatedWith(request.translation);
   final shareLines = <_ShareImageLine>[];
 
   for (var i = 0; i < parsed.lines.length; i++) {
-    var line = _plainText(parsed.lines[i].trim());
+    var line = _plainText(parsed.displayLine(i).trim());
     if (line.isEmpty) {
       continue;
     }
@@ -132,7 +144,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
         letterSpacing: 0,
       );
       textAlign = TextAlign.center;
-      textDirection = TextDirection.ltr;
+      textDirection = parsed.directionOf(i);
     } else {
       style = TextStyle(
         color: colors.secondaryText,
@@ -142,7 +154,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
         letterSpacing: 0,
       );
       textAlign = TextAlign.start;
-      textDirection = TextDirection.ltr;
+      textDirection = parsed.directionOf(i);
       topPadding = 7;
     }
 
