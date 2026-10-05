@@ -172,7 +172,7 @@ class _QuranDuaList extends StatelessWidget {
                 UniversalData(uids[index], items[uids[index]].toString(), 0);
 
             return ListTile(
-              title: Text(itemData.title),
+              title: Text(itemData.displayTitle),
               trailing: InkWell(
                 onTap: () => FavoritesManager.instance.toggleFavorite(itemData),
                 child: FavoriteIcon(favorite: itemData),

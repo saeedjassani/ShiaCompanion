@@ -7,6 +7,7 @@ import '../data/uid_title_data.dart';
 import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
 import '../services/analytics_service.dart';
+import '../services/zikr_translations.dart';
 import '../services/audio_download_store.dart';
 import '../services/favorites_manager.dart';
 import '../services/playlist_audio_service.dart';
@@ -21,7 +22,7 @@ import 'zikr/zikr_page.dart';
 /// index is still loading.
 String _zikrTitle(String uid) {
   final title = items[uid]?.toString().trim() ?? '';
-  return title.isEmpty ? uid : title;
+  return title.isEmpty ? uid : zikrDisplayTitle(uid, title);
 }
 
 /// The content uid behind a possibly-aliased key: `G17|L4` plays `L4`.

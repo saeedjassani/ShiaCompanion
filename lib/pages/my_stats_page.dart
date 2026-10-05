@@ -10,6 +10,7 @@ import '../constants.dart';
 import '../data/uid_title_data.dart';
 import '../models/activity_stats.dart';
 import '../services/activity_stats_store.dart';
+import '../services/zikr_translations.dart';
 import '../services/analytics_service.dart';
 import '../services/community_stats_service.dart';
 import '../services/recitation_tracker_manager.dart';
@@ -130,7 +131,9 @@ class _MyStatsPageState extends State<MyStatsPage> {
 
   static String _titleFor(String uid, [String? fallback]) {
     final title = items[uid];
-    if (title is String && title.trim().isNotEmpty) return title;
+    if (title is String && title.trim().isNotEmpty) {
+      return zikrDisplayTitle(uid, title);
+    }
     return fallback ?? uid;
   }
 

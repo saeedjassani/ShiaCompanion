@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/services/zikr_translations.dart';
 
 /*  Used to store favorites, deep links, etc.
     Type 0: Zikr Data
@@ -22,6 +23,10 @@ class UniversalData {
   }
 
   String get favoriteKey => '$type:$canonicalUid';
+
+  /// [title] as shown: a zikr's in the reader's translation language when it
+  /// has been translated. Books keep their own title.
+  String get displayTitle => type == 0 ? zikrDisplayTitle(uid, title) : title;
 
   @override
   bool operator ==(other) {

@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
 import '../../utils/quran_index.dart';
+import '../../services/zikr_translations.dart';
 import '../../utils/quran_indopak.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_reading_stats.dart';
@@ -531,6 +532,10 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// tabs meanwhile. Null keeps the strip pinned.
   final ValueListenable<bool>? chromeVisible;
 
+  /// The reader's translation of this zikr, laid over its English lines.
+  /// Null in English, or when nothing of this zikr has been translated.
+  final ZikrDocumentTranslation? translation;
+
   const ZikrContentViewerWidget({
     Key? key,
     required this.tabContents,
@@ -557,6 +562,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.tabStripTop = 0,
     this.collapsedTopInset = 0,
     this.chromeVisible,
+    this.translation,
   }) : super(key: key);
 
   @override
@@ -1878,7 +1884,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         .map((line) => line.trim())
         .where((line) => line.isNotEmpty);
     if (lines.isNotEmpty) {
-      return lines.first;
+      return widget.translation?.lineFor(lines.first) ?? lines.first;
     }
     return 'Tab ${index + 1}';
   }
@@ -1893,14 +1899,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final cached = _contentCaches[tabIndex];
     if (cached != null &&
         cached.rawContent == rawContent &&
-        cached.hideHeaderLine == hideHeaderLine) {
+        cached.hideHeaderLine == hideHeaderLine &&
+        identical(cached.translation, widget.translation)) {
       return cached;
     }
 
     final parsed = ZikrContentParser.parseContent(
       rawContent,
       hideHeaderLine: hideHeaderLine,
-    );
+    ).translatedWith(widget.translation);
 
     // Only the first tab is Quran text. Surah documents are single-tab today,
     // but guarding on the index means a tabbed one would degrade to line
@@ -1916,6 +1923,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final cache = _TabContentCache(
       rawContent: rawContent,
       hideHeaderLine: hideHeaderLine,
+      translation: widget.translation,
       parsed: parsed,
       ayahIndex: ayahIndex != null && !ayahIndex.isEmpty ? ayahIndex : null,
     );
@@ -2352,9 +2360,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           ? Text.rich(
               _buildTextSpanForLine(str.toUpperCase(), transliStyle),
               textAlign: TextAlign.center,
+              textDirection: TextDirection.ltr,
             )
           : Container();
     }
+
+    final shown = parsedContent.displayLine(contentIndex).trim();
+    final direction = parsedContent.directionOf(contentIndex);
 
     if (parsedContent.translaCodes.contains(contentIndex)) {
       return showTranslation
@@ -2362,10 +2374,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Text.rich(
                 _buildTextSpanForLine(
-                  str,
+                  shown,
                   TextStyle(fontSize: englishFontSize),
                 ),
                 textAlign: TextAlign.center,
+                textDirection: direction,
               ),
             )
           : Container();
@@ -2375,7 +2388,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     // translation triplet is narration, personal commentary, a heading, or a
     // source citation.
     return _footnoteBox(
-      Text.rich(_buildTextSpanForLine(str, const TextStyle())),
+      Text.rich(_buildTextSpanForLine(shown, const TextStyle())),
+      textDirection: direction,
     );
   }
 
@@ -2408,7 +2422,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           ),
         );
       }
-      final str = parsedContent.lines[lineIndex].trim();
+      final str = parsedContent.displayLine(lineIndex).trim();
       final textSpan = _buildTextSpanForLine(str, const TextStyle());
       paragraphs.add(
         Text.rich(
@@ -2431,15 +2445,32 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: paragraphs,
       ),
+      textDirection: item.lineIndexes.isEmpty
+          ? TextDirection.ltr
+          : parsedContent.directionOf(item.lineIndexes.first),
     );
   }
 
   /// The start-edge accent that marks a standalone line's text as
-  /// quoted/reference material - never Arabic script that could wrap
-  /// right-to-left, so a directional border reads correctly - without an
-  /// italic slant, matching the reader's own blockquote treatment (see
-  /// readerStyleSheet in reader_style.dart).
-  Widget _footnoteBox(Widget child) {
+  /// quoted/reference material, without an italic slant, matching the
+  /// reader's own blockquote treatment (see readerStyleSheet in
+  /// reader_style.dart).
+  ///
+  /// [textDirection] is the text's own, not the app's: English stays
+  /// left-to-right with its rule on the left even in an Urdu app, and an Urdu
+  /// translation reads right-to-left with its rule on the right even in an
+  /// English one.
+  Widget _footnoteBox(
+    Widget child, {
+    TextDirection textDirection = TextDirection.ltr,
+  }) {
+    return Directionality(
+      textDirection: textDirection,
+      child: _footnoteContainer(child),
+    );
+  }
+
+  Widget _footnoteContainer(Widget child) {
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 4.0),
       padding: const EdgeInsetsDirectional.only(start: 14.0),
@@ -2625,7 +2656,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   String _ayahPlainText(ParsedZikrContent parsedContent, AyahSpan span) {
     final parts = <String>[];
     for (var i = span.start; i < span.end; i++) {
-      final line = parsedContent.lines[i].trim();
+      final line = parsedContent.displayLine(i).trim();
       if (line.isEmpty || !isZikrLineVisible(parsedContent, i)) continue;
       // QuranWBW's pause marks and medallions are private-use glyphs that
       // paste as boxes anywhere but the reader.
@@ -2834,12 +2865,14 @@ class _TabContentCache {
   _TabContentCache({
     required this.rawContent,
     required this.hideHeaderLine,
+    required this.translation,
     required this.parsed,
     required this.ayahIndex,
   });
 
   final String rawContent;
   final bool hideHeaderLine;
+  final ZikrDocumentTranslation? translation;
   final ParsedZikrContent parsed;
 
   /// Null for everything that is not Quran, which is what keeps every other

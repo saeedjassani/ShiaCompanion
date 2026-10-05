@@ -7,6 +7,7 @@ import '../services/analytics_service.dart';
 import '../services/preferences_sync_service.dart';
 import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
+import 'language_settings.dart';
 
 /// Whether the reading chrome (progress strip + bottom action bar) auto-hides
 /// while reading. Replaces the old [legacyShowZikrProgressKey] switch, which
@@ -111,6 +112,8 @@ class _ZikrReadingPreferencesControlsState
                 ),
           ),
         ),
+        if (TranslationLanguageTile.isOffered(context))
+          TranslationLanguageTile(leading: _leading(Icons.translate)),
         ListTile(
           leading: _leading(Icons.format_size),
           title: const Text('Arabic Font Size'),

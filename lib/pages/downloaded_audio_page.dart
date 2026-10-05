@@ -6,6 +6,7 @@ import '../constants.dart';
 import '../data/uid_title_data.dart';
 import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
+import '../services/zikr_translations.dart';
 import '../services/audio_download_store.dart';
 import '../services/zikr_audio_index.dart';
 import '../widgets/audio_download_button.dart';
@@ -14,7 +15,7 @@ import 'zikr/zikr_page.dart';
 
 String _zikrTitle(String uid) {
   final title = items[uid]?.toString().trim() ?? '';
-  return title.isEmpty ? uid : title;
+  return title.isEmpty ? uid : zikrDisplayTitle(uid, title);
 }
 
 /// Every recitation saved for offline listening, how much room each takes,

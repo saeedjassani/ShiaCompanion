@@ -1,6 +1,8 @@
 import 'dart:math' as math;
+import 'dart:ui' show TextDirection;
 
 import '../../constants.dart';
+import '../../services/zikr_translations.dart';
 
 class ZikrLineSegment {
   final String text;
@@ -37,16 +39,75 @@ class ParsedZikrContent {
   /// - headings, instructions, blank lines - are simply absent.
   final Map<int, ZikrLineGroup> groupForLine;
 
+  /// Line index -> the text to show in place of that line, for the
+  /// translation lines and standalone English lines (instructions, headings,
+  /// citations) a [ZikrDocumentTranslation] covers.
+  ///
+  /// [lines] itself always stays English. Bookmarks, verse matching and
+  /// reading-time estimates are all keyed to it, and the parse that sorted
+  /// lines into Arabic, transliteration and translation must not be redone on
+  /// translated text: Urdu, Persian and Arabic translations are in Arabic
+  /// script, and would read as verses.
+  final Map<int, String> translatedLines;
+
+  /// Which way [translatedLines] read.
+  final TextDirection translationDirection;
+
   const ParsedZikrContent({
     required this.lines,
     required this.arabicCodes,
     required this.transliCodes,
     required this.translaCodes,
     this.groupForLine = const {},
+    this.translatedLines = const {},
+    this.translationDirection = TextDirection.ltr,
   });
 
   /// The triplet [lineIndex] belongs to, or null when it stands alone.
   ZikrLineGroup? groupContaining(int lineIndex) => groupForLine[lineIndex];
+
+  /// Line [lineIndex] as the reader sees it: translated where a translation
+  /// covers it, the corpus text otherwise.
+  String displayLine(int lineIndex) =>
+      translatedLines[lineIndex] ?? lines[lineIndex];
+
+  /// The direction line [lineIndex] reads in. Every untranslated line other
+  /// than the Arabic is English, and is set left-to-right explicitly so it
+  /// still reads correctly when the app itself is in a right-to-left
+  /// language.
+  TextDirection directionOf(int lineIndex) {
+    if (arabicCodes.contains(lineIndex)) return TextDirection.rtl;
+    if (translatedLines.containsKey(lineIndex)) return translationDirection;
+    return TextDirection.ltr;
+  }
+
+  /// Whether line [lineIndex] is one a translation may replace: a
+  /// translation line, or a standalone line of English.
+  bool isTranslatable(int lineIndex) =>
+      !arabicCodes.contains(lineIndex) &&
+      !transliCodes.contains(lineIndex) &&
+      lines[lineIndex].trim().isNotEmpty;
+
+  /// This content with [translation]'s lines laid over it, or unchanged when
+  /// there is no translation.
+  ParsedZikrContent translatedWith(ZikrDocumentTranslation? translation) {
+    if (translation == null) return this;
+    final translated = <int, String>{};
+    for (var i = 0; i < lines.length; i++) {
+      if (!isTranslatable(i)) continue;
+      final line = translation.lineFor(lines[i]);
+      if (line != null) translated[i] = line;
+    }
+    return ParsedZikrContent(
+      lines: lines,
+      arabicCodes: arabicCodes,
+      transliCodes: transliCodes,
+      translaCodes: translaCodes,
+      groupForLine: groupForLine,
+      translatedLines: translated,
+      translationDirection: translation.language.textDirection,
+    );
+  }
 }
 
 class ZikrContentParser {

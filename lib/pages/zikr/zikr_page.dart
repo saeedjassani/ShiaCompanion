@@ -48,6 +48,7 @@ import 'zikr_content_parser.dart';
 import 'zikr_content_viewer.dart';
 import 'zikr_reading_stats.dart';
 import 'zikr_share_image.dart';
+import '../../services/zikr_translations.dart';
 
 /// How far the text has to actually travel in one direction before the
 /// reading chrome reacts.
@@ -204,6 +205,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   bool _didFailToLoadZikrData = false;
   int _selectedZikrTabIndex = 0;
   Map<String, dynamic>? zikrData;
+
+  /// This zikr in the reader's translation language, or null in English or
+  /// when none of it has been translated - see [ZikrTranslations].
+  ZikrDocumentTranslation? _translation;
   PageRoute? _pageRoute;
   Uri? _previousBrowserUri;
   ZikrBookmark? _savedBookmark;
@@ -366,6 +371,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ));
     _readingProgress.addListener(_maybeRecordCompletion);
     _readingProgress.addListener(_maybeMarkQuranEndReached);
+    ZikrTranslations.instance.addListener(_loadTranslation);
     _initializePageData();
     _scheduleChromeIdleHide();
   }
@@ -818,6 +824,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   @override
   void dispose() {
+    ZikrTranslations.instance.removeListener(_loadTranslation);
     SavedVersesManager.instance.removeListener(_handleSavedVersesChanged);
     ZikrBookmarksManager.instance.removeListener(_handleBookmarksChanged);
     _progressSaveTimer?.cancel();
@@ -1295,6 +1302,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (!loaded) _markZikrDataUnavailable();
   }
 
+  /// Loads this zikr's translation into the reader's translation language,
+  /// and again whenever that language changes. A juz has no single content
+  /// file to translate, so it stays in English.
+  Future<void> _loadTranslation() async {
+    if (widget.portion != null) return;
+    final translation = await ZikrTranslations.instance
+        .documentFor(_contentUid, DefaultAssetBundle.of(context));
+    if (!mounted || identical(translation, _translation)) return;
+    setState(() => _translation = translation);
+  }
+
   void _applyZikrData(Map<String, dynamic> data) {
     setState(() {
       _didFailToLoadZikrData = false;
@@ -1317,8 +1335,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       // Recordings live in their own index, not the content file; have it
       // ready by the time the page first draws, so Listen does not pop in.
       final audioLoaded = ZikrAudioIndex.instance.load(bundle);
+      final translationLoaded = _loadTranslation();
       final raw = await bundle.loadString('assets/zikr/$assetUid');
       await audioLoaded;
+      await translationLoaded;
       final decoded = json.decode(raw);
       if (decoded is! Map) {
         return false;
@@ -1373,11 +1393,26 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   /// The title shown in the app bar and used for a new reminder's default
-  /// text — the saved zikr's own title, falling back to what the caller
-  /// opened this page with.
-  String _currentDisplayTitle() {
+  /// text — translated into the reader's translation language when it has
+  /// been, the English title otherwise.
+  String _currentDisplayTitle() =>
+      ZikrTranslations.instance.titleFor(widget.item.uid) ?? _englishTitle();
+
+  /// The zikr's English title — the saved zikr's own title, falling back to
+  /// what the caller opened this page with. What gets stored and reported,
+  /// so a bookmark or correction names the zikr the same way whatever
+  /// language it was made in.
+  String _englishTitle() {
     final savedTitle = zikrData?['title']?.toString().trim() ?? '';
     return savedTitle.isNotEmpty ? savedTitle : widget.item.title;
+  }
+
+  /// The merits note, in the reader's translation language when it has been
+  /// translated.
+  String _merits() {
+    final translated = _translation?.merits?.trim();
+    if (translated != null && translated.isNotEmpty) return translated;
+    return zikrData?['merits']?.toString().trim() ?? '';
   }
 
   Future<void> _openReminderForm() async {
@@ -1396,7 +1431,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   void _showMeritsSheet() {
-    final merits = zikrData?['merits']?.toString().trim() ?? '';
+    final merits = _merits();
+    final meritsDirection = _translation?.merits?.trim().isNotEmpty == true
+        ? _translation!.language.textDirection
+        : TextDirection.ltr;
     if (merits.isEmpty) return;
 
     showModalBottomSheet<void>(
@@ -1441,6 +1479,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
                   children: [
                     SelectableText.rich(
+                      textDirection: meritsDirection,
                       buildZikrTextSpanWithLinks(
                         rawLine: merits,
                         baseStyle: Theme.of(context).textTheme.bodyLarge ??
@@ -1488,7 +1527,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         .map((line) => line.trim())
         .where((line) => line.isNotEmpty);
     if (lines.isNotEmpty) {
-      return ZikrContentParser.parseLineSegments(lines.first)
+      final header = _translation?.lineFor(lines.first) ?? lines.first;
+      return ZikrContentParser.parseLineSegments(header)
           .map((segment) => segment.text)
           .join()
           .trim();
@@ -1584,6 +1624,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           hideHeaderLine: showTabHeaders,
           colorScheme: Theme.of(context).colorScheme,
           arabicFontFamily: arabicFontFamilyOf(zikrData),
+          translation: _translation,
+          titleDirection: ZikrTranslations.instance.titleFor(widget.item.uid) ==
+                  null
+              ? TextDirection.ltr
+              : ZikrTranslations.instance.language.textDirection,
         ),
       );
       if (imageBytes == null) {
@@ -1930,7 +1975,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
     final submitted = await MistakeReportService.submit(
       zikrUid: widget.item.getFirstUId(),
-      zikrTitle: _currentDisplayTitle(),
+      zikrTitle: _englishTitle(),
       selectedText: selection,
       note: note,
     );
@@ -2109,8 +2154,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    final merits = zikrData?['merits']?.toString().trim() ?? '';
-    final hasMerits = merits.isNotEmpty;
+    final hasMerits = _merits().isNotEmpty;
     final tabContents = _buildVisibleTabContents();
     final pageTitle = _currentDisplayTitle();
     final hasAnyContent =
@@ -2221,6 +2265,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
                               child: ZikrContentViewerWidget(
+                                translation: _translation,
                                 tabContents: tabContents,
                                 selectedTabIndex: selectedTabIndex,
                                 onTabChanged: (index) {

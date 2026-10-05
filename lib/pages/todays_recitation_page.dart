@@ -71,7 +71,7 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
                             MaterialPageRoute(
                                 builder: (context) => ItemList(
                                     itemData.getUId().split("~")[1],
-                                    itemData.title)));
+                                    itemData.displayTitle)));
                       } else {
                         await handleUniversalDataClick(context,
                             UniversalData(itemData.uid, itemData.title, 0),
@@ -79,8 +79,8 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
                       }
                     },
                     title: isUserAdmin
-                        ? Text(itemData.uid + " " + itemData.title)
-                        : Text(itemData.title),
+                        ? Text(itemData.uid + " " + itemData.displayTitle)
+                        : Text(itemData.displayTitle),
                     trailing: itemData.getUId().contains("~")
                         ? null
                         : StatefulBuilder(

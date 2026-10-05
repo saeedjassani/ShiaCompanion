@@ -71,8 +71,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   children: [
                     ListTile(
                       title: isUserAdmin
-                          ? Text(item.uid + ' ' + item.title)
-                          : Text(item.title),
+                          ? Text(item.uid + ' ' + item.displayTitle)
+                          : Text(item.displayTitle),
                       onTap: () {
                         handleUniversalDataClick(context, item,
                             source: ZikrOpenSource.favorites);

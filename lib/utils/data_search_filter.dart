@@ -9,6 +9,10 @@ import 'package:shia_companion/utils/slug_registry.dart';
 /// matching slugs too means a search for the spelling someone learned still
 /// finds the zikr.
 ///
+/// [translatedTitleFor], when given, also matches the title an entry is shown
+/// under in the reader's translation language, so a zikr is found by the name
+/// on screen as well as by its English one.
+///
 /// A book also matches on its author, so someone who remembers who wrote a
 /// book but not what it is called still finds it.
 ///
@@ -20,6 +24,7 @@ List<UidTitleData> filterDataSearchResults(
   String query, {
   bool matchUid = false,
   Iterable<String> Function(String uid)? slugsFor,
+  String? Function(String uid)? translatedTitleFor,
 }) {
   final normalizedQuery = query.trim().toLowerCase();
   if (normalizedQuery.isEmpty) {
@@ -32,6 +37,12 @@ List<UidTitleData> filterDataSearchResults(
       slugQuery.isNotEmpty &&
       slugsFor(entry.uid).any((slug) => slug.contains(slugQuery));
 
+  bool matchesTranslatedTitle(UidTitleData entry) =>
+      translatedTitleFor?.call(entry.uid)?.toLowerCase().contains(
+            normalizedQuery,
+          ) ??
+      false;
+
   final matches = entries
       .where(
         (entry) =>
@@ -40,6 +51,7 @@ List<UidTitleData> filterDataSearchResults(
                 (entry.author?.toLowerCase().contains(normalizedQuery) ??
                     false) ||
                 matchesSlug(entry) ||
+                matchesTranslatedTitle(entry) ||
                 (matchUid &&
                     entry.uid.toLowerCase().contains(normalizedQuery))),
       )

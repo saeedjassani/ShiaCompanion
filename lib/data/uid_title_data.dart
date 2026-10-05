@@ -1,3 +1,5 @@
+import '../services/zikr_translations.dart';
+
 final RegExp _uidNumberPattern = RegExp(r'\d+');
 
 class UidTitleData {
@@ -28,6 +30,10 @@ class UidTitleData {
   String getTitle() {
     return title;
   }
+
+  /// [title] as shown, for a zikr: in the reader's translation language when
+  /// it has been translated. Not for library books, whose uids are their own.
+  String get displayTitle => zikrDisplayTitle(uid, title);
 
   int getId() {
     final sortableUid = uid.split("|").first;

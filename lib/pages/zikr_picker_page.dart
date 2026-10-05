@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shia_companion/services/zikr_translations.dart';
 
 import '../constants.dart';
 import '../data/uid_title_data.dart';
@@ -34,7 +35,11 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
 
   List<UidTitleData> get _results {
     if (_query.trim().isEmpty) return _allZikr;
-    return filterDataSearchResults(_allZikr, _query);
+    return filterDataSearchResults(
+      _allZikr,
+      _query,
+      translatedTitleFor: ZikrTranslations.instance.titleFor,
+    );
   }
 
   @override
@@ -90,7 +95,7 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
                       itemBuilder: (context, index) {
                         final entry = results[index];
                         return ListTile(
-                          title: Text(entry.title),
+                          title: Text(entry.displayTitle),
                           onTap: () => Navigator.pop(context, entry),
                         );
                       },

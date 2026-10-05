@@ -1,0 +1,215 @@
+{
+  "@@locale": "en",
+  "appTitle": "Shia Companion",
+  "settingsAppLanguage": "App language",
+  "@settingsAppLanguage": {
+    "description": "Settings row for the language menus and buttons are shown in."
+  },
+  "settingsTranslationLanguage": "Translation language",
+  "@settingsTranslationLanguage": {
+    "description": "Settings row for the language a zikr's translation, instructions and title are shown in."
+  },
+  "languageFollowDevice": "Device language ({language})",
+  "@languageFollowDevice": {
+    "description": "Default app-language option: follow the phone's language. {language} is the language that currently resolves to, in its own script.",
+    "placeholders": {
+      "language": {
+        "type": "String",
+        "example": "English"
+      }
+    }
+  },
+  "languageFollowApp": "Same as app ({language})",
+  "@languageFollowApp": {
+    "description": "Default translation-language option: follow the app language. {language} is the language that currently resolves to, in its own script.",
+    "placeholders": {
+      "language": {
+        "type": "String",
+        "example": "English"
+      }
+    }
+  },
+  "settingsDownloadedRecitationsUsed": "{size} used on this device",
+  "@settingsDownloadedRecitationsUsed": {
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "example": "12.3 MB"
+      }
+    }
+  },
+  "settingsHijriAhead": "{days, plural, =1{1 day ahead} other{{days} days ahead}}",
+  "@settingsHijriAhead": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsHijriBehind": "{days, plural, =1{1 day behind} other{{days} days behind}}",
+  "@settingsHijriBehind": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsLocationFailed": "{message}. Tap to try again.",
+  "@settingsLocationFailed": {
+    "description": "{message} explains why the location refresh failed.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLocationSaved": "Current saved location: {city}.",
+  "@settingsLocationSaved": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLocationUpdated": "{city} · updated {age}. Refreshes on its own as you move.",
+  "@settingsLocationUpdated": {
+    "description": "{age} is a relative time such as 'just now' or '5m ago'.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "timeMinutesAgo": "{minutes}m ago",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursAgo": "{hours}h ago",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "timeDaysAgo": "{days}d ago",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsAdjustHijriBy": "Adjust Hijri Date by {days} days",
+  "@settingsAdjustHijriBy": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPrayerTimesShownSubtitle": "Shown on the home page and home screen widgets: {names}.",
+  "@settingsPrayerTimesShownSubtitle": {
+    "description": "{names} is a comma-separated list of prayer names.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPrayerNotificationsAllOn": "On for all {count} times.",
+  "@settingsPrayerNotificationsAllOn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPrayerNotificationsSomeOn": "{names} · {enabled} of {total} on",
+  "@settingsPrayerNotificationsSomeOn": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "enabled": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSectionPrayerLocation": "Prayer & Location",
+  "settingsAdjustHijriDate": "Adjust Hijri Date",
+  "settingsPrayerTimesShown": "Prayer Times Shown",
+  "settingsRefreshLocation": "Refresh Location",
+  "settingsLocationRefreshed": "Location has been refreshed.",
+  "settingsSectionNotifications": "Notifications",
+  "settingsPrayerNotifications": "Prayer notifications",
+  "settingsZikrReminders": "Zikr Reminders",
+  "settingsZikrRemindersSubtitle": "Get reminded about a zikr on the days you choose.",
+  "settingsPrecisePrayerAlarms": "Precise Prayer Alarms",
+  "settingsScheduledNotifications": "Scheduled Notifications",
+  "settingsScheduledNotificationsSubtitle": "Review pending prayer notifications.",
+  "settingsSectionAppearance": "Appearance",
+  "settingsDarkMode": "Dark mode",
+  "settingsDarkModeSubtitle": "Use the dark appearance across the app.",
+  "settingsAppTextSize": "App text size",
+  "settingsAppTextSizeSubtitle": "Makes all text bigger or smaller, including zikr.",
+  "settingsSectionZikrReading": "Zikr Reading & Sharing",
+  "settingsSectionOfflineAudio": "Offline Audio",
+  "settingsDownloadedRecitations": "Downloaded recitations",
+  "settingsDownloadedRecitationsEmpty": "Listen without a connection",
+  "settingsSectionSupport": "Support",
+  "settingsRateApp": "Rate Shia Companion",
+  "settingsRateAppSubtitle": "Enjoying the app? Leave us a rating.",
+  "settingsRequestContent": "Request a Zikr or Book",
+  "settingsRequestContentSubtitle": "Can't find a dua, ziyarat or book? Ask us to add it.",
+  "settingsFeedback": "Feedback",
+  "settingsFeedbackSubtitle": "Send questions, issues, or suggestions.",
+  "settingsGithub": "Contribute on GitHub",
+  "settingsGithubSubtitle": "Shia Companion is open source. Report issues or help improve it.",
+  "settingsGithubOpenFailed": "Could not open GitHub",
+  "settingsAboutUs": "About Us",
+  "settingsSectionAccount": "Account",
+  "settingsNotSignedIn": "Not signed in",
+  "settingsSignInPrompt": "Sign in to sync favorites across devices.",
+  "settingsLogout": "Logout",
+  "settingsLogoutSubtitle": "Sign out on this device.",
+  "settingsDeleteAccount": "Delete My Account",
+  "settingsDeleteAccountSubtitle": "Permanently remove your account data.",
+  "settingsSignInGoogle": "Sign in with Google",
+  "settingsSignInGoogleSubtitle": "Sync favorites and account data.",
+  "settingsSignInApple": "Sign in with Apple",
+  "settingsSignInAppleSubtitle": "Use your Apple ID to sign in.",
+  "settingsSignedIn": "Signed in",
+  "settingsSyncing": "Favorites and account data are syncing.",
+  "settingsHijriNoAdjustment": "No adjustment",
+  "settingsLocationUpdating": "Updating your location…",
+  "settingsLocationUpdatePrompt": "Update the saved prayer-times location.",
+  "timeJustNow": "just now",
+  "settingsPrayerNotificationsOff": "Off. Turn on to be notified at prayer times.",
+  "settingsPreciseAlarmsOn": "Enabled for exact Azan timing.",
+  "settingsPreciseAlarmsOff": "Off. Android may deliver prayer notifications a bit late.",
+  "settingsNotificationsUnavailable": "Notification system not initialized",
+  "settingsPreciseAlarmsAlreadyOn": "Precise prayer alarms are already enabled.",
+  "settingsPreciseAlarmsDialogTitle": "Enable Precise Prayer Alarms?",
+  "settingsPreciseAlarmsDialogBody": "Android requires Alarms & reminders access for Azan notifications to fire exactly at prayer time. Without it, reminders still work but may arrive a bit late.",
+  "commonCancel": "Cancel",
+  "commonOpenSettings": "Open Settings",
+  "settingsPreciseAlarmsEnabled": "Precise prayer alarms enabled.",
+  "settingsPreciseAlarmsNotEnabled": "Precise prayer alarms were not enabled. Approximate timing will still be used.",
+  "settingsNoEmailApp": "No email app found",
+  "settingsLoginSuccessful": "Login Successful",
+  "settingsGoogleUnavailable": "Google Sign-In isn't available right now. Please try again.",
+  "commonNetworkError": "Couldn't connect. Check your internet connection and try again.",
+  "settingsGoogleFailed": "Google Sign-In didn't work. Please try again in a moment.",
+  "settingsAppleFailed": "Apple Sign-In Failed"
+}

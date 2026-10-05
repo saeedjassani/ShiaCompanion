@@ -31,6 +31,7 @@ import '../utils/shared_preferences.dart';
 import '../utils/widget_prayer_time_selection.dart';
 import 'prayer_notifications_page.dart';
 import '../widgets/content_request_dialog.dart';
+import '../widgets/language_settings.dart';
 import '../widgets/responsive_content.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
@@ -39,6 +40,7 @@ import 'downloaded_audio_page.dart';
 import 'delete_account_page.dart';
 import 'scheduled_notifications_page.dart';
 import 'zikr_reminders_page.dart';
+import '../l10n/l10n.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage();
@@ -114,11 +116,11 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 16),
           _buildSettingsSection(
             context,
-            title: 'Prayer & Location',
+            title: context.l10n.settingsSectionPrayerLocation,
             children: [
               ListTile(
                 leading: const Icon(Icons.adjust),
-                title: const Text("Adjust Hijri Date"),
+                title: Text(context.l10n.settingsAdjustHijriDate),
                 subtitle: Text(_hijriAdjustmentLabel()),
                 onTap: () {
                   adjustHijriAlertDialog(context);
@@ -126,7 +128,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.widgets),
-                title: const Text("Prayer Times Shown"),
+                title: Text(context.l10n.settingsPrayerTimesShown),
                 subtitle: Text(_widgetPrayerTimesSubtitle()),
                 onTap: () async {
                   final changed = await showWidgetPrayerTimesDialog(context);
@@ -135,7 +137,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.location_on),
-                title: const Text("Refresh Location"),
+                title: Text(context.l10n.settingsRefreshLocation),
                 subtitle: Text(_refreshLocationSubtitle()),
                 trailing: LocationService.instance.isRefreshing
                     ? const SizedBox(
@@ -155,7 +157,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (!mounted) return;
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text("Location has been refreshed."),
+                      content: Text(context.l10n.settingsLocationRefreshed),
                     ));
                     return;
                   }
@@ -173,7 +175,7 @@ class _SettingsPageState extends State<SettingsPage> {
           if (!kIsWeb)
             _buildSettingsSection(
               context,
-              title: 'Notifications',
+              title: context.l10n.settingsSectionNotifications,
               children: [
                 // One door instead of four. "Azan Notifications", "Prayer
                 // Notifications" and "Notification Sound" all wrote overlapping
@@ -182,7 +184,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 // notification now live beside the prayers they belong to.
                 ListTile(
                   leading: const Icon(Icons.notifications_active),
-                  title: const Text("Prayer notifications"),
+                  title: Text(context.l10n.settingsPrayerNotifications),
                   subtitle: Text(_prayerNotificationsSubtitle()),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
@@ -192,9 +194,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.notifications_active_outlined),
-                  title: const Text("Zikr Reminders"),
-                  subtitle: const Text(
-                      "Get reminded about a zikr on the days you choose."),
+                  title: Text(context.l10n.settingsZikrReminders),
+                  subtitle: Text(
+                      context.l10n.settingsZikrRemindersSubtitle),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -207,16 +209,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 if (_showPrecisePrayerAlarmSetting)
                   ListTile(
                     leading: const Icon(Icons.alarm_on),
-                    title: const Text("Precise Prayer Alarms"),
+                    title: Text(context.l10n.settingsPrecisePrayerAlarms),
                     subtitle: Text(_precisePrayerAlarmSubtitle()),
                     onTap: _requestPrecisePrayerAlarms,
                   ),
                 if (isUserAdmin)
                   ListTile(
                     leading: const Icon(Icons.notifications_active),
-                    title: const Text("Scheduled Notifications"),
+                    title: Text(context.l10n.settingsScheduledNotifications),
                     subtitle:
-                        const Text("Review pending prayer notifications."),
+                        Text(context.l10n.settingsScheduledNotificationsSubtitle),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -230,25 +232,27 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           _buildSettingsSection(
             context,
-            title: 'Appearance',
+            title: context.l10n.settingsSectionAppearance,
             children: [
+              if (AppLanguageTile.isOffered())
+                const AppLanguageTile(leading: Icon(Icons.language)),
               SwitchListTile(
                 secondary: const Icon(Icons.dark_mode),
                 value: darkModeProvider.isDarkMode,
                 onChanged: (value) {
                   darkModeProvider.toggleDarkMode();
                 },
-                title: const Text("Dark mode"),
-                subtitle: const Text("Use the dark appearance across the app."),
+                title: Text(context.l10n.settingsDarkMode),
+                subtitle: Text(context.l10n.settingsDarkModeSubtitle),
               ),
               ListTile(
                 leading: const Icon(Icons.format_size),
-                title: const Text("App text size"),
+                title: Text(context.l10n.settingsAppTextSize),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                        "Makes all text bigger or smaller, including zikr."),
+                    Text(
+                        context.l10n.settingsAppTextSizeSubtitle),
                     Slider(
                       activeColor: Theme.of(context).colorScheme.secondary,
                       min: AppTextScaleProvider.minScale,
@@ -280,7 +284,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           _buildSettingsSection(
             context,
-            title: 'Zikr Reading & Sharing',
+            title: context.l10n.settingsSectionZikrReading,
             children: [
               ZikrReadingPreferencesControls(
                 showLeadingIcons: true,
@@ -294,7 +298,7 @@ class _SettingsPageState extends State<SettingsPage> {
           if (AudioDownloadStore.isSupported)
             _buildSettingsSection(
               context,
-              title: 'Offline Audio',
+              title: context.l10n.settingsSectionOfflineAudio,
               children: [
                 ListenableBuilder(
                   listenable: AudioDownloadStore.instance,
@@ -302,10 +306,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     final bytes = AudioDownloadStore.instance.totalSavedBytes;
                     return ListTile(
                       leading: const Icon(Icons.download_for_offline_outlined),
-                      title: const Text('Downloaded recitations'),
+                      title: Text(context.l10n.settingsDownloadedRecitations),
                       subtitle: Text(bytes > 0
-                          ? '${formatAudioBytes(bytes)} used on this device'
-                          : 'Listen without a connection'),
+                          ? context.l10n.settingsDownloadedRecitationsUsed(formatAudioBytes(bytes))
+                          : context.l10n.settingsDownloadedRecitationsEmpty),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => Navigator.push(
                         context,
@@ -320,7 +324,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           _buildSettingsSection(
             context,
-            title: 'Support',
+            title: context.l10n.settingsSectionSupport,
             children: [
               // Not gated behind RatingPromptService.shouldAsk() at all -
               // that cooldown is for the automatic pre-screen dialog on
@@ -329,8 +333,8 @@ class _SettingsPageState extends State<SettingsPage> {
               if (!kIsWeb)
                 ListTile(
                   leading: const Icon(Icons.star_rate),
-                  title: const Text("Rate Shia Companion"),
-                  subtitle: const Text("Enjoying the app? Leave us a rating."),
+                  title: Text(context.l10n.settingsRateApp),
+                  subtitle: Text(context.l10n.settingsRateAppSubtitle),
                   onTap: () {
                     unawaited(RatingPromptService.openStoreListing());
                     unawaited(AnalyticsService.feature(
@@ -341,9 +345,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ListTile(
                 leading: const Icon(Icons.playlist_add),
-                title: const Text("Request a Zikr or Book"),
-                subtitle: const Text(
-                    "Can't find a dua, ziyarat or book? Ask us to add it."),
+                title: Text(context.l10n.settingsRequestContent),
+                subtitle: Text(
+                    context.l10n.settingsRequestContentSubtitle),
                 onTap: () => showContentRequestDialog(
                   context,
                   initialType: ContentRequestType.zikr,
@@ -352,17 +356,17 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.feedback),
-                title: const Text("Feedback"),
-                subtitle: const Text("Send questions, issues, or suggestions."),
+                title: Text(context.l10n.settingsFeedback),
+                subtitle: Text(context.l10n.settingsFeedbackSubtitle),
                 onTap: () {
                   _launchURL();
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.code),
-                title: const Text("Contribute on GitHub"),
-                subtitle: const Text(
-                    "Shia Companion is open source. Report issues or help improve it."),
+                title: Text(context.l10n.settingsGithub),
+                subtitle: Text(
+                    context.l10n.settingsGithubSubtitle),
                 trailing: const Icon(Icons.open_in_new),
                 onTap: () async {
                   unawaited(AnalyticsService.feature(
@@ -372,14 +376,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   final launched = await launchExternalUri(githubRepoUri);
                   if (!launched && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Could not open GitHub")),
+                      SnackBar(content: Text(context.l10n.settingsGithubOpenFailed)),
                     );
                   }
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.info),
-                title: const Text("About Us"),
+                title: Text(context.l10n.settingsAboutUs),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -391,7 +395,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           _buildSettingsSection(
             context,
-            title: 'Account',
+            title: context.l10n.settingsSectionAccount,
             children: _buildAccountActionTiles(currentUser),
           ),
           _buildVersionFooter(context),
@@ -436,7 +440,7 @@ class _SettingsPageState extends State<SettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isSignedIn ? _accountTitle(currentUser) : "Not signed in",
+                  isSignedIn ? _accountTitle(currentUser) : context.l10n.settingsNotSignedIn,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.w700,
@@ -446,7 +450,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Text(
                   isSignedIn
                       ? _accountSubtitle(currentUser)
-                      : "Sign in to sync favorites across devices.",
+                      : context.l10n.settingsSignInPrompt,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color:
                         colorScheme.onPrimaryContainer.withValues(alpha: 0.78),
@@ -524,8 +528,8 @@ class _SettingsPageState extends State<SettingsPage> {
       return [
         ListTile(
           leading: const Icon(Icons.power_settings_new),
-          title: const Text("Logout"),
-          subtitle: const Text("Sign out on this device."),
+          title: Text(context.l10n.settingsLogout),
+          subtitle: Text(context.l10n.settingsLogoutSubtitle),
           onTap: () {
             logOff();
           },
@@ -537,10 +541,10 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           onTap: () => _openDeleteAccountPage(context),
           title: Text(
-            'Delete My Account',
+            context.l10n.settingsDeleteAccount,
             style: TextStyle(color: errorColor),
           ),
-          subtitle: const Text("Permanently remove your account data."),
+          subtitle: Text(context.l10n.settingsDeleteAccountSubtitle),
         ),
       ];
     }
@@ -548,8 +552,8 @@ class _SettingsPageState extends State<SettingsPage> {
     return [
       ListTile(
         leading: Image.asset('assets/images/google_logo.png', height: 24.0),
-        title: const Text('Sign in with Google'),
-        subtitle: const Text("Sync favorites and account data."),
+        title: Text(context.l10n.settingsSignInGoogle),
+        subtitle: Text(context.l10n.settingsSignInGoogleSubtitle),
         onTap: () async {
           await _signInWithGoogle();
           await _refreshAfterAuthChange();
@@ -567,8 +571,8 @@ class _SettingsPageState extends State<SettingsPage> {
             height: 24.0,
             color: Theme.of(context).colorScheme.onSurface,
           ),
-          title: const Text('Sign in with Apple'),
-          subtitle: const Text("Use your Apple ID to sign in."),
+          title: Text(context.l10n.settingsSignInApple),
+          subtitle: Text(context.l10n.settingsSignInAppleSubtitle),
           onTap: () async {
             await _signInWithApple();
             await _refreshAfterAuthChange();
@@ -599,14 +603,14 @@ class _SettingsPageState extends State<SettingsPage> {
     final email = currentUser?.email?.trim();
     if (email != null && email.isNotEmpty) return email;
 
-    return "Signed in";
+    return context.l10n.settingsSignedIn;
   }
 
   String _accountSubtitle(User? currentUser) {
     final email = currentUser?.email?.trim();
     if (email != null && email.isNotEmpty) return email;
 
-    return "Favorites and account data are syncing.";
+    return context.l10n.settingsSyncing;
   }
 
   String _avatarLabel(User? currentUser) {
@@ -631,42 +635,43 @@ class _SettingsPageState extends State<SettingsPage> {
 
   String _hijriAdjustmentLabel() {
     final adjustment = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
-    if (adjustment == 0) return "No adjustment";
+    if (adjustment == 0) return context.l10n.settingsHijriNoAdjustment;
 
     final days = adjustment.abs();
-    final suffix = days == 1 ? "day" : "days";
-    return adjustment > 0 ? "$days $suffix ahead" : "$days $suffix behind";
+    return adjustment > 0
+        ? context.l10n.settingsHijriAhead(days)
+        : context.l10n.settingsHijriBehind(days);
   }
 
   String _refreshLocationSubtitle() {
     final location = LocationService.instance;
     if (location.isRefreshing) {
-      return "Updating your location…";
+      return context.l10n.settingsLocationUpdating;
     }
     // Survives the snackbar, and covers the paths that show no dialog at all.
     if (location.status == LocationRefreshStatus.failed) {
-      return "${location.failureMessage}. Tap to try again.";
+      return context.l10n.settingsLocationFailed(location.failureMessage);
     }
 
     final savedCity = city?.trim();
     if (savedCity == null || savedCity.isEmpty) {
-      return "Update the saved prayer-times location.";
+      return context.l10n.settingsLocationUpdatePrompt;
     }
 
     final updatedAt = LocationService.instance.updatedAt;
     if (updatedAt == null) {
-      return "Current saved location: $savedCity.";
+      return context.l10n.settingsLocationSaved(savedCity);
     }
-    return "$savedCity · updated ${_locationAgeLabel(updatedAt)}. "
-        "Refreshes on its own as you move.";
+    return context.l10n
+        .settingsLocationUpdated(savedCity, _locationAgeLabel(updatedAt));
   }
 
   String _locationAgeLabel(DateTime updatedAt) {
     final age = DateTime.now().difference(updatedAt);
-    if (age.inMinutes < 1) return "just now";
-    if (age.inMinutes < 60) return "${age.inMinutes}m ago";
-    if (age.inHours < 24) return "${age.inHours}h ago";
-    return "${age.inDays}d ago";
+    if (age.inMinutes < 1) return context.l10n.timeJustNow;
+    if (age.inMinutes < 60) return context.l10n.timeMinutesAgo(age.inMinutes);
+    if (age.inHours < 24) return context.l10n.timeHoursAgo(age.inHours);
+    return context.l10n.timeDaysAgo(age.inDays);
   }
 
   adjustHijriAlertDialog(BuildContext context) {
@@ -678,7 +683,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     for (int i = 0, n = ints.length; i < n; i++) {
-      String option = "Adjust Hijri Date by ${ints[i]} days";
+      String option = context.l10n.settingsAdjustHijriBy(ints[i]);
 
       options.add(SimpleDialogOption(
         child: InkWell(
@@ -704,7 +709,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     SimpleDialog dialog = SimpleDialog(
-      title: Text("Adjust Hijri Date"),
+      title: Text(context.l10n.settingsAdjustHijriDate),
       children: options,
     );
     showDialog(
@@ -718,7 +723,7 @@ class _SettingsPageState extends State<SettingsPage> {
   String _widgetPrayerTimesSubtitle() {
     final names =
         selectedWidgetPrayerTimes().map((time) => time.name).join(', ');
-    return "Shown on the home page and home screen widgets: $names.";
+    return context.l10n.settingsPrayerTimesShownSubtitle(names);
   }
 
   saveHijriDate() async {
@@ -733,18 +738,19 @@ class _SettingsPageState extends State<SettingsPage> {
   String _prayerNotificationsSubtitle() {
     final enabled = enabledPrayerNotificationNames(kPrayerNotificationList);
     if (enabled.isEmpty) {
-      return "Off. Turn on to be notified at prayer times.";
+      return context.l10n.settingsPrayerNotificationsOff;
     }
     if (enabled.length == kPrayerNotificationList.length) {
-      return "On for all ${enabled.length} times.";
+      return context.l10n.settingsPrayerNotificationsAllOn(enabled.length);
     }
-    return "${enabled.join(', ')} · ${enabled.length} of ${kPrayerNotificationList.length} on";
+    return context.l10n.settingsPrayerNotificationsSomeOn(
+        enabled.join(', '), enabled.length, kPrayerNotificationList.length);
   }
 
   String _precisePrayerAlarmSubtitle() {
     return canScheduleExactPrayerNotifications
-        ? 'Enabled for exact Azan timing.'
-        : 'Off. Android may deliver prayer notifications a bit late.';
+        ? context.l10n.settingsPreciseAlarmsOn
+        : context.l10n.settingsPreciseAlarmsOff;
   }
 
   Future<void> _refreshExactAlarmPermissionStatus() async {
@@ -756,7 +762,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _requestPrecisePrayerAlarms() async {
     if (flutterLocalNotificationsPlugin == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Notification system not initialized')),
+        SnackBar(content: Text(context.l10n.settingsNotificationsUnavailable)),
       );
       return;
     }
@@ -766,7 +772,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (alreadyEnabled) {
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Precise prayer alarms are already enabled.')),
+        SnackBar(content: Text(context.l10n.settingsPreciseAlarmsAlreadyOn)),
       );
       return;
     }
@@ -774,18 +780,18 @@ class _SettingsPageState extends State<SettingsPage> {
     final shouldOpenSettings = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: const Text('Enable Precise Prayer Alarms?'),
-            content: const Text(
-              'Android requires Alarms & reminders access for Azan notifications to fire exactly at prayer time. Without it, reminders still work but may arrive a bit late.',
+            title: Text(context.l10n.settingsPreciseAlarmsDialogTitle),
+            content: Text(
+              context.l10n.settingsPreciseAlarmsDialogBody,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text('Cancel'),
+                child: Text(context.l10n.commonCancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(dialogContext, true),
-                child: const Text('Open Settings'),
+                child: Text(context.l10n.commonOpenSettings),
               ),
             ],
           ),
@@ -805,8 +811,8 @@ class _SettingsPageState extends State<SettingsPage> {
       SnackBar(
         content: Text(
           granted || canScheduleExactPrayerNotifications
-              ? 'Precise prayer alarms enabled.'
-              : 'Precise prayer alarms were not enabled. Approximate timing will still be used.',
+              ? context.l10n.settingsPreciseAlarmsEnabled
+              : context.l10n.settingsPreciseAlarmsNotEnabled,
         ),
       ),
     );
@@ -843,7 +849,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-        content: new Text("No email app found"),
+        content: new Text(context.l10n.settingsNoEmailApp),
       ));
     }
   }
@@ -856,11 +862,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
         unawaited(AnalyticsService.feature(
           'account_signed_in',
-          label: 'Signed in',
+          label: context.l10n.settingsSignedIn,
           parameters: {'method': 'google'},
         ));
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-          content: new Text("Login Successful"),
+          content: new Text(context.l10n.settingsLoginSuccessful),
         ));
         user = authResult.user;
         await _refreshAfterAuthChange();
@@ -875,7 +881,7 @@ class _SettingsPageState extends State<SettingsPage> {
       debugPrint("Google sign-in failed: $error");
       _showGoogleSignInError(
           error.code == GoogleSignInExceptionCode.uiUnavailable
-              ? "Google Sign-In isn't available right now. Please try again."
+              ? context.l10n.settingsGoogleUnavailable
               : null);
     } on FirebaseAuthException catch (error) {
       // Web popup closed/replaced by the user - also a cancel, not a failure.
@@ -885,7 +891,7 @@ class _SettingsPageState extends State<SettingsPage> {
       }
       debugPrint("Google sign-in failed: ${error.code} ${error.message}");
       _showGoogleSignInError(error.code == 'network-request-failed'
-          ? "Couldn't connect. Check your internet connection and try again."
+          ? context.l10n.commonNetworkError
           : null);
     } catch (error) {
       debugPrint("Google sign-in failed: $error");
@@ -897,7 +903,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(message ??
-          "Google Sign-In didn't work. Please try again in a moment."),
+          context.l10n.settingsGoogleFailed),
     ));
   }
 
@@ -926,11 +932,11 @@ class _SettingsPageState extends State<SettingsPage> {
         final authResult = await _auth.signInWithCredential(credential);
         unawaited(AnalyticsService.feature(
           'account_signed_in',
-          label: 'Signed in',
+          label: context.l10n.settingsSignedIn,
           parameters: {'method': 'apple'},
         ));
         ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-          content: new Text("Login Successful"),
+          content: new Text(context.l10n.settingsLoginSuccessful),
         ));
         user = authResult.user;
         await _refreshAfterAuthChange();
@@ -945,13 +951,13 @@ class _SettingsPageState extends State<SettingsPage> {
       debugPrint("Apple sign-in failed: ${error.message}");
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-        content: new Text("Apple Sign-In Failed"),
+        content: new Text(context.l10n.settingsAppleFailed),
       ));
     } catch (error) {
       debugPrint(error.toString());
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-        content: new Text("Apple Sign-In Failed"),
+        content: new Text(context.l10n.settingsAppleFailed),
       ));
     }
   }

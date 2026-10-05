@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ import 'package:shia_companion/services/audio_download_store.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/dark_mode.dart';
+import 'package:shia_companion/utils/language_provider.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/services.dart' show BrowserContextMenu;
 import 'package:shia_companion/utils/crash_reporting.dart';
@@ -20,6 +22,7 @@ import 'package:shia_companion/utils/webview_registry.dart'
     if (dart.library.js_interop) 'package:shia_companion/utils/webview_registry_web.dart';
 
 import 'constants.dart';
+import 'l10n/l10n.dart';
 import 'pages/home_page.dart';
 import 'pages/widget_preview_page.dart';
 import 'utils/deep_links.dart';
@@ -148,13 +151,27 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => DarkModeProvider()),
         ChangeNotifierProvider(create: (context) => AppTextScaleProvider()),
+        ChangeNotifierProvider(create: (context) => LanguageProvider()),
       ],
-      child: Consumer2<DarkModeProvider, AppTextScaleProvider>(
-          builder: (context, darkModeProvider, textScaleProvider, _) {
+      child: Consumer3<DarkModeProvider, AppTextScaleProvider,
+              LanguageProvider>(
+          builder: (context, darkModeProvider, textScaleProvider,
+              languageProvider, _) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
           scaffoldMessengerKey: appScaffoldMessengerKey,
           title: appName,
+          // Always explicit, rather than left to Flutter's own resolution, so
+          // the language the UI is in is the one LanguageProvider reports
+          // (and L10n.current serves outside the widget tree).
+          locale: languageProvider.locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           // The in-app Text size setting, layered over the system's own
           // text scale for every route, dialog and sheet under the navigator.
           builder: (context, child) =>

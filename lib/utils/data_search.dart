@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:shia_companion/services/zikr_translations.dart';
 
 import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
@@ -101,6 +102,9 @@ class DataSearch extends SearchDelegate<String> {
       listWords,
       query,
       matchUid: isUserAdmin,
+      translatedTitleFor: (uid) => libraryUids.contains(uid)
+          ? null
+          : ZikrTranslations.instance.titleFor(uid),
       slugsFor: (uid) => [
         if (itemSlugs[uid] != null) itemSlugs[uid]!,
         ...?itemSlugAliases[uid],
@@ -124,8 +128,8 @@ class DataSearch extends SearchDelegate<String> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        ItemList(entry.getUId().split("~")[1], entry.title)));
+                    builder: (context) => ItemList(
+                        entry.getUId().split("~")[1], itemData.displayTitle)));
           } else {
             handleUniversalDataClick(context, itemData,
                 source: ZikrOpenSource.search);
@@ -133,8 +137,8 @@ class DataSearch extends SearchDelegate<String> {
         },
         onLongPress: _recordSearch,
         title: isUserAdmin
-            ? Text('${entry.uid} ${entry.title}')
-            : Text(entry.title),
+            ? Text('${entry.uid} ${itemData.displayTitle}')
+            : Text(itemData.displayTitle),
         // Several books share near-identical titles (translations of the same
         // work, mostly), so the author is what tells them apart here too.
         subtitle: isLibraryBook && entry.author != null
