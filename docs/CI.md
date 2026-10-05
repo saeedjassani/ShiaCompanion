@@ -354,10 +354,10 @@ is ever hit, revoke unused ones in the developer portal.
   upload of the *same* version from another pipeline is rejected as a
   duplicate build, bump the `+N` in `pubspec.yaml` past the TestFlight one.
 
-TestFlight shows **Missing Compliance** on each new build until the export
-encryption question is answered in App Store Connect. Adding
-`ITSAppUsesNonExemptEncryption` to `ios/Runner/Info.plist` answers it once for
-every build.
+`ios/Runner/Info.plist` sets `ITSAppUsesNonExemptEncryption` to `false`,
+which answers App Store Connect's export compliance question for every build.
+A build from a branch that predates it shows **Missing Compliance** in
+TestFlight until the question is answered by hand.
 
 ## Flutter version
 

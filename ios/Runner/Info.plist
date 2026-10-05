@@ -107,5 +107,12 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<!-- Answers App Store Connect's export compliance question for every
+	     build, so TestFlight builds don't sit at "Missing Compliance". The
+	     only encryption is HTTPS through the OS and Firebase, and a SHA-256
+	     of the Sign in with Apple nonce, both exempt. Revisit if the app
+	     ever encrypts data itself. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
