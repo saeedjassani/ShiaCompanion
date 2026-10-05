@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
+import 'package:shia_companion/utils/city_clock.dart';
+import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import '../l10n/l10n.dart';
 
@@ -49,10 +51,21 @@ class LocationService extends ChangeNotifier {
   /// the phone's own position. A chosen city is never replaced by a GPS
   /// refresh; only "Use my current location instead" goes back to GPS.
   static const String manualKey = 'location_manual';
+
+  /// The chosen city's IANA time zone, for noticing when the phone has
+  /// moved to another one (see [cityClockDifference]).
+  static const String timeZoneKey = 'location_time_zone';
+
+  /// Set once the reader has said they really are in the chosen city even
+  /// though the phone keeps another time zone - a pilgrim whose phone stays
+  /// on home time in airplane mode. Cleared by the next change of location.
+  static const String zoneNudgeDismissedKey = 'location_zone_nudge_dismissed';
   static const String _legacyLiveLocationKey = 'use_live_location';
 
   LocationRefreshStatus _status = LocationRefreshStatus.idle;
   bool _isManual = false;
+  String? _timeZone;
+  bool _zoneNudgeDismissed = false;
   DateTime? _updatedAt;
   DateTime? _lastUnproductiveAttemptAt;
   Future<bool>? _inFlight;
@@ -69,6 +82,26 @@ class LocationService extends ChangeNotifier {
 
   /// Whether the location is a city the reader chose (see [manualKey]).
   bool get isManual => _isManual;
+
+  /// How far the chosen city's clock is from the phone's, when it is not
+  /// the same: a city chosen on a trip and never changed back, most likely.
+  /// Null for the phone's own location, and once the reader has said they
+  /// are still in the city (see [zoneNudgeDismissedKey]).
+  Duration? get chosenCityClockDifference {
+    final zoneId = _timeZone;
+    if (!_isManual || _zoneNudgeDismissed || zoneId == null) return null;
+    final zone = tryGetLocation(zoneId);
+    if (zone == null) return null;
+    final difference = zoneClockDifference(zone);
+    return difference == Duration.zero ? null : difference;
+  }
+
+  /// "Yes, still in the city": stops asking until the location changes.
+  Future<void> dismissZoneNudge() async {
+    _zoneNudgeDismissed = true;
+    if (SP.isInitialized) await SP.prefs.setBool(zoneNudgeDismissedKey, true);
+    notifyListeners();
+  }
 
   DateTime? get updatedAt => _updatedAt;
 
@@ -96,6 +129,8 @@ class LocationService extends ChangeNotifier {
     if (!SP.isInitialized) return;
 
     _isManual = SP.prefs.getBool(manualKey) ?? false;
+    _timeZone = SP.prefs.getString(timeZoneKey);
+    _zoneNudgeDismissed = SP.prefs.getBool(zoneNudgeDismissedKey) ?? false;
 
     final storedMillis = SP.prefs.getInt(updatedAtKey);
     if (storedMillis != null) {
@@ -213,14 +248,18 @@ class LocationService extends ChangeNotifier {
   }
 
   /// Makes [chosen] the location, by the reader's choice, until they choose
-  /// another or go back to [useDeviceLocation].
-  Future<void> chooseCity(City chosen) async {
+  /// another or go back to [useDeviceLocation]. [confirmedInCity] says they
+  /// already answered that they are there despite the phone's time zone, so
+  /// the Home card should not ask again.
+  Future<void> chooseCity(City chosen, {bool confirmedInCity = false}) async {
     // Let a GPS fetch already under way land first, so it cannot overwrite
     // the chosen city a moment later.
     final inFlight = _inFlight;
     if (inFlight != null) await inFlight.catchError((_) => false);
 
     _isManual = true;
+    _timeZone = chosen.timeZone.isEmpty ? null : chosen.timeZone;
+    _zoneNudgeDismissed = confirmedInCity;
     _lastUnproductiveAttemptAt = null;
     await applyChosenPrayerLocation(
       latitude: chosen.latitude,
@@ -231,6 +270,13 @@ class LocationService extends ChangeNotifier {
     if (SP.isInitialized) {
       await SP.prefs.setBool(manualKey, true);
       await SP.prefs.setInt(updatedAtKey, _updatedAt!.millisecondsSinceEpoch);
+      final timeZone = _timeZone;
+      if (timeZone == null) {
+        await SP.prefs.remove(timeZoneKey);
+      } else {
+        await SP.prefs.setString(timeZoneKey, timeZone);
+      }
+      await SP.prefs.setBool(zoneNudgeDismissedKey, confirmedInCity);
     }
     _status = LocationRefreshStatus.idle;
     notifyListeners();
@@ -246,7 +292,13 @@ class LocationService extends ChangeNotifier {
   Future<bool> useDeviceLocation({BuildContext? context}) async {
     if (_isManual) {
       _isManual = false;
-      if (SP.isInitialized) await SP.prefs.remove(manualKey);
+      _timeZone = null;
+      _zoneNudgeDismissed = false;
+      if (SP.isInitialized) {
+        await SP.prefs.remove(manualKey);
+        await SP.prefs.remove(timeZoneKey);
+        await SP.prefs.remove(zoneNudgeDismissedKey);
+      }
       notifyListeners();
     }
     return refresh(context: context);
@@ -278,6 +330,8 @@ class LocationService extends ChangeNotifier {
   void resetForTest() {
     _status = LocationRefreshStatus.idle;
     _isManual = false;
+    _timeZone = null;
+    _zoneNudgeDismissed = false;
     _updatedAt = null;
     _lastUnproductiveAttemptAt = null;
     _inFlight = null;

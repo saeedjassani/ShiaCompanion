@@ -69,7 +69,12 @@ feature they open. `home_menu_all_features` is the All features page itself.
 `rakaat_prayer_completed` (+`total_rakaat`), `prayer_times_selection_changed`
 (+`prayer_times`), `qibla_target_changed` (+`target`), `city_chosen`
 (+`source`: `picker` or `time_zone`, the prayer card's guess; +`country`) and
-`device_location_chosen` (+`source`), for the city picker.
+`device_location_chosen` (+`source`), for the city picker;
+`city_times_viewed` (+`source`: `picker`, from "Just checking times", or
+`calendar`; +`country`) for looking up another city's times without moving
+there, and `city_nudge_answered` (+`answer`: `still_there` or `change_city`)
+for the Home card's "Still in X?" when the phone's time zone no longer
+matches the chosen city's.
 
 **Account & tools** — `account_deleted`, `account_signed_in` (+`method`),
 `favorite_added` / `favorite_removed` (+`content_type`), `favorite_reordered`,

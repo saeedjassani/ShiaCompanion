@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/pages/prayer_notifications_page.dart';
 import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -515,6 +516,7 @@ class _SelectedDateSummary extends StatelessWidget {
             compact: true,
           ),
           const _PrayerNotificationsLink(),
+          _OtherCityLink(date: gregorianDate),
         ],
       ),
     );
@@ -580,6 +582,44 @@ class _PrayerNotificationsLinkState extends State<_PrayerNotificationsLink> {
           await showPrayerNotificationsPage(context);
           if (mounted) setState(() {});
         },
+      ),
+    );
+  }
+}
+
+/// Another city's prayer times for the date on show - "what will they be
+/// when I land in Karbala on the 16th?" - without making it the location.
+class _OtherCityLink extends StatelessWidget {
+  const _OtherCityLink({required this.date});
+
+  final DateTime date;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(Icons.travel_explore, color: colorScheme.primary),
+        title: Text(
+          'Another city',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        subtitle: Text(
+          'See its prayer times for this date',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        trailing:
+            Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+        onTap: () => lookUpCityFlow(context, date: date),
       ),
     );
   }

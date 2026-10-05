@@ -8,7 +8,9 @@ import '../services/analytics_service.dart';
 import '../services/city_repository.dart';
 import '../services/location_service.dart';
 import '../theme/shia_colors.dart';
+import '../utils/city_clock.dart';
 import '../widgets/outline_icon.dart';
+import 'city_prayer_times_page.dart';
 
 /// What the reader chose in the city picker.
 sealed class CityChoice {
@@ -26,6 +28,16 @@ class UseDeviceLocation extends CityChoice {
   const UseDeviceLocation();
 }
 
+/// What the picker is choosing a city for.
+enum CityPickerPurpose {
+  /// Where the reader is: their prayer times, widgets and notifications
+  /// follow it.
+  location,
+
+  /// Only to look at its prayer times (see CityPrayerTimesPage).
+  lookup,
+}
+
 /// The phone's IANA time zone ("Europe/London"), or null where it cannot be
 /// read. Used only to suggest a city, never to compute anything.
 Future<String?> deviceTimeZone() async {
@@ -38,7 +50,10 @@ Future<String?> deviceTimeZone() async {
 
 /// The city picker: a tall bottom sheet on phones, a centred dialog from
 /// tablet width up (docs/DESIGN_SPEC.md, "Responsive behaviour").
-Future<CityChoice?> showCityPicker(BuildContext context) {
+Future<CityChoice?> showCityPicker(
+  BuildContext context, {
+  CityPickerPurpose purpose = CityPickerPurpose.location,
+}) {
   if (MediaQuery.sizeOf(context).width >= 600) {
     return showDialog<CityChoice>(
       context: context,
@@ -47,7 +62,7 @@ Future<CityChoice?> showCityPicker(BuildContext context) {
         backgroundColor: ShiaColors.of(context).ground,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560, maxHeight: 720),
-          child: const CityPicker(),
+          child: CityPicker(purpose: purpose),
         ),
       ),
     );
@@ -59,25 +74,67 @@ Future<CityChoice?> showCityPicker(BuildContext context) {
     backgroundColor: ShiaColors.of(context).ground,
     builder: (context) => SizedBox(
       height: MediaQuery.sizeOf(context).height * 0.92,
-      child: const CityPicker(),
+      child: CityPicker(purpose: purpose),
     ),
   );
 }
 
 /// Opens the picker and applies the answer: the chosen city from now on, or
 /// back to the phone's position (with the permission dialogs, if needed).
+///
+/// A city whose clock reads differently from the phone's is rarely where the
+/// reader is - phones keep their own time zone up to date - and making it
+/// the location would ring notifications at its prayer times, hours off
+/// their own. So that choice asks first, and "Just checking times" only
+/// shows that city's times.
 Future<void> chooseCityFlow(BuildContext context) async {
   final choice = await showCityPicker(context);
   if (choice == null || !context.mounted) return;
+  if (choice case ChosenCity(:final city)) {
+    final difference = cityClockDifference(city);
+    if (difference != null && difference != Duration.zero) {
+      final inCity = await showDialog<bool>(
+        context: context,
+        builder: (context) =>
+            _InCityQuestion(city: city, difference: difference),
+      );
+      if (inCity == null || !context.mounted) return;
+      if (!inCity) {
+        await openCityPrayerTimes(context, city, source: 'picker');
+        return;
+      }
+      await applyCityChoice(
+        context,
+        choice,
+        source: 'picker',
+        confirmedInCity: true,
+      );
+      return;
+    }
+  }
   await applyCityChoice(context, choice, source: 'picker');
+}
+
+/// Opens the picker to look up a city's prayer times, changing nothing - the
+/// Calendar's "Another city". [date] starts on that date.
+Future<void> lookUpCityFlow(BuildContext context, {DateTime? date}) async {
+  final choice = await showCityPicker(
+    context,
+    purpose: CityPickerPurpose.lookup,
+  );
+  if (choice is! ChosenCity || !context.mounted) return;
+  await openCityPrayerTimes(context, choice.city,
+      source: 'calendar', date: date);
 }
 
 /// Applies [choice] through [LocationService] and counts it. [source] says
 /// where it was made: the picker, or the time-zone guess on the prayer card.
+/// [confirmedInCity]: see [LocationService.chooseCity].
 Future<void> applyCityChoice(
   BuildContext context,
   CityChoice choice, {
   required String source,
+  bool confirmedInCity = false,
 }) async {
   switch (choice) {
     case ChosenCity(:final city):
@@ -86,7 +143,8 @@ Future<void> applyCityChoice(
         label: 'City chosen',
         parameters: {'source': source, 'country': city.countryCode},
       ));
-      await LocationService.instance.chooseCity(city);
+      await LocationService.instance
+          .chooseCity(city, confirmedInCity: confirmedInCity);
     case UseDeviceLocation():
       unawaited(AnalyticsService.feature(
         'device_location_chosen',
@@ -100,10 +158,16 @@ Future<void> applyCityChoice(
 /// The picker's content: offline search over the bundled city list, with the
 /// phone's own location as the other way out.
 class CityPicker extends StatefulWidget {
-  const CityPicker({super.key, this.timeZone});
+  const CityPicker({
+    super.key,
+    this.timeZone,
+    this.purpose = CityPickerPurpose.location,
+  });
 
   /// The time zone to suggest cities from; read from the phone when null.
   final String? timeZone;
+
+  final CityPickerPurpose purpose;
 
   @override
   State<CityPicker> createState() => _CityPickerState();
@@ -143,10 +207,16 @@ class _CityPickerState extends State<CityPicker> {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
+    final lookup = widget.purpose == CityPickerPurpose.lookup;
     final query = _query.text.trim();
     final List<CityMatch> results;
     final String? listLabel;
     if (!_loaded) {
+      results = const [];
+      listLabel = null;
+    } else if (query.isEmpty && lookup) {
+      // Suggesting the reader's own time zone is no help for looking
+      // somewhere else up.
       results = const [];
       listLabel = null;
     } else if (query.isEmpty) {
@@ -196,7 +266,7 @@ class _CityPickerState extends State<CityPicker> {
                   child: Semantics(
                     header: true,
                     child: Text(
-                      'Choose your city',
+                      lookup ? 'Another city' : 'Choose your city',
                       textAlign: TextAlign.center,
                       style: ShiaText.cardTitle.copyWith(color: colors.text),
                     ),
@@ -217,11 +287,13 @@ class _CityPickerState extends State<CityPicker> {
               padding: EdgeInsets.fromLTRB(
                   16, 16, 16, 24 + MediaQuery.paddingOf(context).bottom),
               children: [
-                _UseLocationRow(
-                  isManual: LocationService.instance.isManual,
-                  onTap: () => _choose(const UseDeviceLocation()),
-                ),
-                const SizedBox(height: 16),
+                if (!lookup) ...[
+                  _UseLocationRow(
+                    isManual: LocationService.instance.isManual,
+                    onTap: () => _choose(const UseDeviceLocation()),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 if (!_loaded)
                   const Padding(
                     padding: EdgeInsets.all(24),
@@ -265,9 +337,13 @@ class _CityPickerState extends State<CityPicker> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
-                    'Prayer times are worked out on your phone, so this works '
-                    'without internet. You can change city any time from the '
-                    'prayer card.',
+                    lookup
+                        ? 'See any city\'s prayer times on its own clock. Your '
+                            'own prayer times and notifications stay as they '
+                            'are.'
+                        : 'Prayer times are worked out on your phone, so this '
+                            'works without internet. You can change city any '
+                            'time from the prayer card.',
                     style: ShiaText.caption.copyWith(
                       fontSize: 14,
                       height: 20 / 14,
@@ -285,6 +361,57 @@ class _CityPickerState extends State<CityPicker> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Are you in Karbala now?", asked when a city chosen as the location reads
+/// a different time from the phone. Pops true for "I'm in Karbala now",
+/// false for "Just checking times".
+class _InCityQuestion extends StatelessWidget {
+  const _InCityQuestion({required this.city, required this.difference});
+
+  final City city;
+  final Duration difference;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return AlertDialog(
+      title: Text('Are you in ${city.name} now?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            '${city.name} is ${clockDifferenceLabel(difference)}. Checking '
+            'its times won\'t change your own prayer times or notifications.',
+            style: ShiaText.body.copyWith(color: colors.textMuted),
+          ),
+          const SizedBox(height: 20),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            style: FilledButton.styleFrom(
+              backgroundColor: colors.accent,
+              foregroundColor: colors.onAccent,
+              minimumSize: const Size.fromHeight(48),
+              shape: const StadiumBorder(),
+              textStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w600),
+            ),
+            child: const Text('Just checking times'),
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: colors.accent,
+              minimumSize: const Size.fromHeight(44),
+              textStyle: ShiaText.body,
+            ),
+            child: Text("I'm in ${city.name} now"),
           ),
         ],
       ),

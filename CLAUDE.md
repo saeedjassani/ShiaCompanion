@@ -86,6 +86,16 @@
   in `lib/utils/slug_registry.dart`), or make it a habit: same title ->
   copy the canonical's slug verbatim; different title -> give it its own.
 
+- **Name a GPS fix offline from the bundled city list.** The place name on
+  the prayer card comes from an online reverse-geocode (bigdatacloud, in
+  `initializeLocation` in `lib/constants.dart`). Offline, prayer times are
+  still right - they are worked out from the coordinates - but the card
+  keeps the last name it had, or says "Your location" on a first run. When
+  the lookup can't be reached, fall back to the nearest city in
+  `assets/cities.tsv` (`CityRepository`). Caveat: that list only has
+  cities of 100,000+ people and capitals, so someone in a small town would
+  see the nearest big city's name; their times stay their own.
+
 ## Translations
 
 The app is set up for Urdu, Persian, Arabic and Gujarati; see

@@ -280,6 +280,9 @@ const Set<String> _prayerAndWorshipFeatureKeys = {
   // Choosing a city by name, and going back to the phone's location.
   'city_chosen',
   'device_location_chosen',
+  // Looking up another city's times, and the Home card's "Still in X?".
+  'city_times_viewed',
+  'city_nudge_answered',
   'qibla_target_changed',
   'qaza_updated',
   'tasbeeh_session',

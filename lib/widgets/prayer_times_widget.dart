@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/pages/city_picker.dart';
+import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
@@ -75,6 +76,25 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   Future<void> _chooseCity() async {
     await chooseCityFlow(context);
     if (mounted) setState(() {});
+  }
+
+  /// The nudge's "Yes, still here": it stops asking until the city changes.
+  Future<void> _stillInCity() async {
+    unawaited(AnalyticsService.feature(
+      'city_nudge_answered',
+      label: 'City nudge answered',
+      parameters: {'answer': 'still_there'},
+    ));
+    await _location.dismissZoneNudge();
+  }
+
+  Future<void> _changeCityFromNudge() async {
+    unawaited(AnalyticsService.feature(
+      'city_nudge_answered',
+      label: 'City nudge answered',
+      parameters: {'answer': 'change_city'},
+    ));
+    await _chooseCity();
   }
 
   Future<void> _acceptGuess(City guess) async {
@@ -152,6 +172,9 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         readings.indexWhere((r) => !_isSameDate(r.dateTime, now));
     final failed = _location.status == LocationRefreshStatus.failed;
     final showUpdated = !failed && city != null && _location.shouldDiscloseAge;
+    // A chosen city whose clock no longer matches the phone's: most likely
+    // one picked on a trip, still set after the flight home.
+    final askStillInCity = _location.chosenCityClockDifference != null;
 
     return Semantics(
       container: true,
@@ -225,6 +248,12 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                       ),
                   ],
                 ),
+                if (askStillInCity)
+                  _StillInCityNudge(
+                    city: city ?? 'the city you chose',
+                    onStillThere: _stillInCity,
+                    onChangeCity: _changeCityFromNudge,
+                  ),
               ],
             ),
           ),
@@ -236,6 +265,85 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
 
 bool _isSameDate(DateTime a, DateTime b) {
   return a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
+/// "Still in Karbala?", under the times when the chosen city's clock no
+/// longer matches the phone's.
+class _StillInCityNudge extends StatelessWidget {
+  const _StillInCityNudge({
+    required this.city,
+    required this.onStillThere,
+    required this.onChangeCity,
+  });
+
+  final String city;
+  final VoidCallback onStillThere;
+  final VoidCallback onChangeCity;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final buttonText = ShiaText.secondary.copyWith(fontWeight: FontWeight.w600);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 10, 4, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Divider(
+            height: 1,
+            color: colors.onPrayerCard.withValues(alpha: 0.15),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Still in $city?',
+            style: ShiaText.secondary.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colors.onPrayerCard,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Your phone is set to a different time zone.',
+            style: ShiaText.caption.copyWith(color: colors.onPrayerCardMuted),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton(
+                  onPressed: onChangeCity,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colors.gold,
+                    foregroundColor: colors.onGold,
+                    minimumSize: const Size.fromHeight(40),
+                    shape: const StadiumBorder(),
+                    textStyle: buttonText,
+                  ),
+                  child: const Text('Change city'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onStillThere,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: colors.onPrayerCard,
+                    minimumSize: const Size.fromHeight(40),
+                    side: BorderSide(
+                      color: colors.onPrayerCard.withValues(alpha: 0.4),
+                    ),
+                    shape: const StadiumBorder(),
+                    textStyle: buttonText,
+                  ),
+                  child: const Text('Yes, still here'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// The city, as a button: tap to choose another, or to go back to the

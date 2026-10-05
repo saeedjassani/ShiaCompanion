@@ -8,6 +8,7 @@ import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/pages/about_page.dart';
 import 'package:shia_companion/pages/all_features_page.dart';
 import 'package:shia_companion/pages/city_picker.dart';
+import 'package:shia_companion/pages/city_prayer_times_page.dart';
 import 'package:shia_companion/pages/home/coming_up_section.dart';
 import 'package:shia_companion/pages/home/continue_section.dart';
 import 'package:shia_companion/pages/home/hadith_card.dart';
@@ -176,6 +177,20 @@ final List<_Screen> _screens = [
   _Screen(
     'City picker',
     () => const Scaffold(body: CityPicker(timeZone: 'Asia/Baghdad')),
+  ),
+  _Screen(
+    'City prayer times',
+    () => const CityPrayerTimesPage(
+      city: City(
+        name: 'Karbala',
+        countryCode: 'IQ',
+        countryName: 'Iraq',
+        latitude: 32.62,
+        longitude: 44.03,
+        population: 1218732,
+        timeZone: 'Asia/Baghdad',
+      ),
+    ),
   ),
   // Home itself starts the whole app (deep links, notifications, sync), so
   // its sections are rendered on their own, laid out as Home lays them out.
