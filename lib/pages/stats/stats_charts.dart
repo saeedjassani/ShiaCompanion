@@ -6,33 +6,49 @@ import 'package:intl/intl.dart';
 
 import '../../models/activity_stats.dart';
 import 'stats_widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// What the history chart plots.
 enum StatsMetric {
-  verses('Verses', 'verses', 'verse'),
-  zikrs('Zikrs', 'zikrs', 'zikr'),
-  qaza('Qaza', 'qaza', 'qaza');
+  verses,
+  zikrs,
+  qaza;
 
-  const StatsMetric(this.label, this.plural, this.singular);
+  String get label => switch (this) {
+        StatsMetric.verses => L10n.current.statsMetricVerses,
+        StatsMetric.zikrs => L10n.current.statsMetricZikrs,
+        StatsMetric.qaza => L10n.current.statsMetricQaza,
+      };
 
-  final String label;
-  final String plural;
-  final String singular;
+  /// The metric in a caption ("verses in the last 7 days").
+  String get plural => switch (this) {
+        StatsMetric.verses => L10n.current.statsMetricVersesLower,
+        StatsMetric.zikrs => L10n.current.statsMetricZikrsLower,
+        StatsMetric.qaza => L10n.current.statsMetricQazaLower,
+      };
 
-  String count(int value, NumberFormat format) =>
-      '${format.format(value)} ${value == 1 ? singular : plural}';
+  String count(int value, NumberFormat format) => switch (this) {
+        StatsMetric.verses =>
+          L10n.current.statsVerseCount(value, format.format(value)),
+        StatsMetric.zikrs =>
+          L10n.current.statsZikrCount(value, format.format(value)),
+        StatsMetric.qaza =>
+          L10n.current.statsQazaCount(value, format.format(value)),
+      };
 }
 
 /// The window the history chart covers: a bar per day for the week and the
 /// month, a bar per month for all time.
 enum StatsPeriod {
-  week('Week'),
-  month('Month'),
-  allTime('All time');
+  week,
+  month,
+  allTime;
 
-  const StatsPeriod(this.label);
-
-  final String label;
+  String get label => switch (this) {
+        StatsPeriod.week => L10n.current.statsPeriodWeek,
+        StatsPeriod.month => L10n.current.statsPeriodMonth,
+        StatsPeriod.allTime => L10n.current.statsPeriodAllTime,
+      };
 }
 
 /// Months of bars in the all-time view - a year, which the per-day history
@@ -133,16 +149,16 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
         : DateFormat('EEE, MMM d').format(start);
 
     final caption = switch (_period) {
-      StatsPeriod.week => '${_metric.plural} in the last 7 days',
-      StatsPeriod.month => '${_metric.plural} in the last 30 days',
-      StatsPeriod.allTime => '${_metric.plural} in total',
+      StatsPeriod.week => context.l10n.statsCaptionWeek(_metric.plural),
+      StatsPeriod.month => context.l10n.statsCaptionMonth(_metric.plural),
+      StatsPeriod.allTime => context.l10n.statsCaptionAllTime(_metric.plural),
     };
 
     return StatsCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          StatsSectionTitle('History'),
+          StatsSectionTitle(context.l10n.statsHistory),
           const SizedBox(height: 10),
           SegmentedButton<StatsPeriod>(
             showSelectedIcon: false,
@@ -292,11 +308,13 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
             const SizedBox(height: 10),
             Text(
               isAllTime
-                  ? 'Best month: ${barName(bars[bestIndex].start)}'
-                      ' · ${_metric.count(best, _count)}'
-                  : 'Best day: ${barName(bars[bestIndex].start)}'
-                      ' · ${_metric.count(best, _count)}'
-                      ' · ${(periodTotal / days).toStringAsFixed(periodTotal / days < 10 ? 1 : 0)} a day on average',
+                  ? context.l10n.statsBestMonth(
+                      barName(bars[bestIndex].start), _metric.count(best, _count))
+                  : context.l10n.statsBestDay(
+                      barName(bars[bestIndex].start),
+                      _metric.count(best, _count),
+                      (periodTotal / days)
+                          .toStringAsFixed(periodTotal / days < 10 ? 1 : 0)),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -325,14 +343,15 @@ class _TrendBadge extends StatelessWidget {
     final bool up;
     if (previous == 0) {
       if (current == 0) return const SizedBox.shrink();
-      text = 'New';
+      text = context.l10n.statsNew;
       up = true;
     } else {
       final change = ((current - previous) / previous * 100).round();
       up = change >= 0;
       text = up
           ? '▲ $change%'
-          : 'vs ${NumberFormat.compact().format(previous)} before';
+          : context.l10n
+              .statsVersusBefore(NumberFormat.compact().format(previous));
     }
 
     return Container(

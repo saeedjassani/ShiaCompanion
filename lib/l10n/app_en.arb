@@ -1370,5 +1370,416 @@
     }
   },
   "calendarNoEvent": "No event listed for this date.",
-  "calendarNotificationsAllOff": "Off for every prayer"
+  "calendarNotificationsAllOff": "Off for every prayer",
+  "readingFineTune": "Fine-tune zikr text. Applied on top of App text size in Settings.",
+  "readingArabicFontSize": "Arabic Font Size",
+  "readingEnglishFontSize": "English Font Size",
+  "readingArabicFont": "Arabic Font",
+  "readingKeepScreenOn": "Keep screen on while reciting Zikr",
+  "readingFocusMode": "Focus mode",
+  "readingFocusModeSubtitle": "Hide the progress bar and action bar while reading. Scroll up or tap to bring them back.",
+  "readingShareAsImage": "Share Zikr as Image",
+  "readingShareAsImageSubtitle": "Create a formatted image when sharing.",
+  "readingShowTransliteration": "Show Transliteration",
+  "readingShowTranslation": "Show Translation",
+  "readingArabicParagraph": "Show Arabic as Paragraph",
+  "readingArabicParagraphOn": "Flow the Arabic verses together as one paragraph instead of separate lines.",
+  "readingArabicParagraphOff": "Turn off Transliteration and Translation above to use this.",
+  "pickerJuzRange": "{start} – {end}",
+  "@pickerJuzRange": {
+    "description": "The verses a juz runs between, e.g. 'Al-Baqarah 142 – Al-Baqarah 252'.",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "pickerSurahDetails": "{ayahs} · Juz {juz}",
+  "@pickerSurahDetails": {
+    "description": "{ayahs} is e.g. '286 ayahs'; {juz} a juz number or range like '1–3'.",
+    "placeholders": {
+      "ayahs": {
+        "type": "String"
+      },
+      "juz": {
+        "type": "String"
+      }
+    }
+  },
+  "quranAyahCount": "{count, plural, =1{1 ayah} other{{count} ayahs}}",
+  "@quranAyahCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerJuzFrom": "From {start}",
+  "@pickerJuzFrom": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      }
+    }
+  },
+  "pickerAyahSingle": "ayah {ayah}",
+  "@pickerAyahSingle": {
+    "placeholders": {
+      "ayah": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerAyahRange": "ayahs {from}–{to}",
+  "@pickerAyahRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerThirtyJuz": "There are 30 juz",
+  "pickerTryVerse": "Try a verse like 33:33, or juz 22",
+  "pickerSearchHint": "Go to a verse - 33:33, 18, juz 22",
+  "pickerChooseVerse": "Choose a verse",
+  "pickerAllJuz": "All juz",
+  "pickerAllSurahs": "All surahs",
+  "pickerChoose": "Choose",
+  "quranFromPosition": "From {position}",
+  "@quranFromPosition": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "quranPercentRead": "{percent}% of the Quran",
+  "@quranPercentRead": {
+    "description": "{percent} is a formatted number.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "quranEditTrack": "Edit {track} track",
+  "@quranEditTrack": {
+    "placeholders": {
+      "track": {
+        "type": "String"
+      }
+    }
+  },
+  "quranTitle": "Quran",
+  "quranRecentSessions": "Recent sessions",
+  "quranTabSurahs": "Surahs",
+  "quranTabJuz": "Juz",
+  "quranTabCollections": "Collections",
+  "quranStartReading": "Start reading",
+  "quranNewTrack": "New track",
+  "quranGoToVerseError": "Try something like 23:56",
+  "quranGoToVerseHint": "Go to verse, e.g. 23:56",
+  "quranGo": "Go",
+  "statsMetricVerses": "Verses",
+  "statsMetricZikrs": "Zikrs",
+  "statsMetricQaza": "Qaza",
+  "statsMetricVersesLower": "verses",
+  "statsMetricZikrsLower": "zikrs",
+  "statsMetricQazaLower": "qaza",
+  "statsVerseCount": "{count, plural, =1{{formatted} verse} other{{formatted} verses}}",
+  "@statsVerseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsZikrCount": "{count, plural, =1{{formatted} zikr} other{{formatted} zikrs}}",
+  "@statsZikrCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsQazaCount": "{count, plural, other{{formatted} qaza}}",
+  "@statsQazaCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsPeriodWeek": "Week",
+  "statsPeriodMonth": "Month",
+  "statsPeriodAllTime": "All time",
+  "statsCaptionWeek": "{metric} in the last 7 days",
+  "@statsCaptionWeek": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      }
+    }
+  },
+  "statsCaptionMonth": "{metric} in the last 30 days",
+  "@statsCaptionMonth": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      }
+    }
+  },
+  "statsCaptionAllTime": "{metric} in total",
+  "@statsCaptionAllTime": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      }
+    }
+  },
+  "statsHistory": "History",
+  "statsBestMonth": "Best month: {month} · {count}",
+  "@statsBestMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "statsBestDay": "Best day: {day} · {count} · {average} a day on average",
+  "@statsBestDay": {
+    "description": "{average} is a formatted number.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "statsNew": "New",
+  "statsVersusBefore": "vs {count} before",
+  "@statsVersusBefore": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "statsSessionCount": "{count, plural, =1{{formatted} session} other{{formatted} sessions}}",
+  "@statsSessionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsVersesRecited": "{count, plural, =1{{formatted} verse recited} other{{formatted} verses recited}}",
+  "@statsVersesRecited": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsLastOn": "last {date}",
+  "@statsLastOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "statsVersesLeft": "{count} verses left to complete a khatm",
+  "@statsVersesLeft": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "statsJuzCoverage": "Juz {juz}: {percent}%",
+  "@statsJuzCoverage": {
+    "placeholders": {
+      "juz": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "statsJuzComplete": "{count} of 30 juz complete",
+  "@statsJuzComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsQuranProgress": "Quran progress",
+  "statsQuranEmpty": "Open a surah and start reading - the verses you recite are tracked here automatically, with your progress towards a full khatm.",
+  "statsRecitedTill": "Recited till",
+  "statsNotStarted": "Not started",
+  "statsJuzDone": "Juz done",
+  "statsKhatmComplete": "Khatm complete - may it be accepted",
+  "reminderAtPrayer": "At {prayer}",
+  "@reminderAtPrayer": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderMinutesAfter": "{minutes} min after {prayer}",
+  "@reminderMinutesAfter": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderMinutesBefore": "{minutes} min before {prayer}",
+  "@reminderMinutesBefore": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "azanPlaying": "{prayer} Azan is playing",
+  "@azanPlaying": {
+    "description": "Media notification title while the Azan plays.",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryNeedsNetwork": "Library browsing needs a network connection.",
+  "libraryChaptersFailed": "Unable to load chapters. Please try again.",
+  "libraryReadingNeedsNetwork": "Reading books needs a network connection.",
+  "libraryChapterFailed": "Unable to load this chapter. Please try again.",
+  "menuCalendarPrayerTimes": "Calendar & Prayer Times",
+  "menuFavorites": "Favorites",
+  "menuTodaysRecitations": "Today's Recitations",
+  "menuTaqeebat": "Taqeebat e Namaz",
+  "menuNamaz": "Namaz",
+  "menuDuas": "Duas",
+  "menuZiyarats": "Ziyarats",
+  "menuSurahs": "Surahs",
+  "menuAamaal": "Aamaal",
+  "menuLibrary": "Library",
+  "menuMunajaat": "Munajaat",
+  "menuBaaqeyaat": "Baaqeyaat As Saalehaat",
+  "menuQiblaFinder": "Qibla Finder",
+  "menuTasbeehCounter": "Tasbeeh Counter",
+  "menuQazaTracker": "Qaza Tracker",
+  "menuRakaatCounter": "Rakaat Counter",
+  "menuPrayerTimesInFlight": "Prayer Times in Flight",
+  "menuPreferences": "Preferences",
+  "menuQuran": "Quran",
+  "menuPlaylists": "Playlists",
+  "menuMyStats": "My Stats",
+  "menuCalendar": "Calendar",
+  "audioTrackNumber": "Track {number}",
+  "@audioTrackNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "audioPauseRecitation": "Pause recitation",
+  "audioPlayRecitation": "Play recitation",
+  "audioList": "Audio list",
+  "audioOfflineNotDownloaded": "You're offline and this recitation isn't downloaded",
+  "audioLoadFailed": "This recitation couldn't be loaded",
+  "audioClosePlayer": "Close player",
+  "audioChooseRecording": "Choose recording",
+  "audioRecitation": "Recitation",
+  "audioRecitationAudio": "Recitation audio",
+  "librarySavedOffline": "{book} saved for offline.",
+  "@librarySavedOffline": {
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "librarySaveFailed": "Unable to save book: {error}",
+  "@librarySaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryProgress": "{chapter} - Page {page} of {pages}",
+  "@libraryProgress": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      },
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "librarySavedChapterGone": "Saved chapter is no longer available",
+  "libraryUnavailable": "Library unavailable",
+  "libraryNoBooks": "No books found",
+  "libraryEmpty": "The library is empty right now.",
+  "libraryContinueReading": "Continue Reading",
+  "libraryRequestBook": "Request a Book",
+  "libraryRequestBookSubtitle": "Can't find a book? Ask us to add it.",
+  "flightRemoveBody": "{flight} will be removed from your saved flights.",
+  "@flightRemoveBody": {
+    "placeholders": {
+      "flight": {
+        "type": "String"
+      }
+    }
+  },
+  "flightLands": "{duration} · lands {time} {airport} time",
+  "@flightLands": {
+    "description": "{airport} is an airport code.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "airport": {
+        "type": "String"
+      }
+    }
+  },
+  "flightRemoveTitle": "Remove flight?",
+  "flightRemove": "Remove flight",
+  "flightNoneSaved": "No flights saved",
+  "flightNoneSavedBody": "Add your flight and this page will work out when each prayer comes in along the route — shown in both your departure and arrival city's time."
 }

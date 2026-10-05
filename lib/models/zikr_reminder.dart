@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../l10n/l10n.dart';
 
 /// Whether a [ZikrReminder] fires at a clock time the user picked, or at an
 /// offset from a prayer time that shifts with the calendar and location.
@@ -107,28 +108,20 @@ class ZikrReminder {
       return '$hour12:$minuteLabel $suffix';
     }
 
-    if (offsetMinutes == 0) return 'At $prayerName';
+    final prayer = localizedPrayerName(prayerName);
+    if (offsetMinutes == 0) return L10n.current.reminderAtPrayer(prayer);
     final magnitude = offsetMinutes.abs();
-    final direction = offsetMinutes > 0 ? 'after' : 'before';
-    return '$magnitude min $direction $prayerName';
+    return offsetMinutes > 0
+        ? L10n.current.reminderMinutesAfter(magnitude, prayer)
+        : L10n.current.reminderMinutesBefore(magnitude, prayer);
   }
-
-  static const List<String> _weekdayShortLabels = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun',
-  ];
 
   /// "Tue" or "Tue, Fri" — always in Monday-first order regardless of
   /// insertion order.
   String get daysLabel {
     final sortedDays = daysOfWeek.toList()..sort();
     return sortedDays
-        .map((day) => _weekdayShortLabels[(day - 1).clamp(0, 6)])
+        .map((day) => shortWeekdayName(day.clamp(1, 7)))
         .join(', ');
   }
 

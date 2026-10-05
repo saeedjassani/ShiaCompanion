@@ -3610,6 +3610,774 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Off for every prayer'**
   String get calendarNotificationsAllOff;
+
+  /// No description provided for @readingFineTune.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine-tune zikr text. Applied on top of App text size in Settings.'**
+  String get readingFineTune;
+
+  /// No description provided for @readingArabicFontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic Font Size'**
+  String get readingArabicFontSize;
+
+  /// No description provided for @readingEnglishFontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'English Font Size'**
+  String get readingEnglishFontSize;
+
+  /// No description provided for @readingArabicFont.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic Font'**
+  String get readingArabicFont;
+
+  /// No description provided for @readingKeepScreenOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep screen on while reciting Zikr'**
+  String get readingKeepScreenOn;
+
+  /// No description provided for @readingFocusMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus mode'**
+  String get readingFocusMode;
+
+  /// No description provided for @readingFocusModeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the progress bar and action bar while reading. Scroll up or tap to bring them back.'**
+  String get readingFocusModeSubtitle;
+
+  /// No description provided for @readingShareAsImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Zikr as Image'**
+  String get readingShareAsImage;
+
+  /// No description provided for @readingShareAsImageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a formatted image when sharing.'**
+  String get readingShareAsImageSubtitle;
+
+  /// No description provided for @readingShowTransliteration.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Transliteration'**
+  String get readingShowTransliteration;
+
+  /// No description provided for @readingShowTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Translation'**
+  String get readingShowTranslation;
+
+  /// No description provided for @readingArabicParagraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Arabic as Paragraph'**
+  String get readingArabicParagraph;
+
+  /// No description provided for @readingArabicParagraphOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Flow the Arabic verses together as one paragraph instead of separate lines.'**
+  String get readingArabicParagraphOn;
+
+  /// No description provided for @readingArabicParagraphOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off Transliteration and Translation above to use this.'**
+  String get readingArabicParagraphOff;
+
+  /// The verses a juz runs between, e.g. 'Al-Baqarah 142 – Al-Baqarah 252'.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String pickerJuzRange(String start, String end);
+
+  /// {ayahs} is e.g. '286 ayahs'; {juz} a juz number or range like '1–3'.
+  ///
+  /// In en, this message translates to:
+  /// **'{ayahs} · Juz {juz}'**
+  String pickerSurahDetails(String ayahs, String juz);
+
+  /// No description provided for @quranAyahCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 ayah} other{{count} ayahs}}'**
+  String quranAyahCount(int count);
+
+  /// No description provided for @pickerJuzFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {start}'**
+  String pickerJuzFrom(String start);
+
+  /// No description provided for @pickerAyahSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'ayah {ayah}'**
+  String pickerAyahSingle(int ayah);
+
+  /// No description provided for @pickerAyahRange.
+  ///
+  /// In en, this message translates to:
+  /// **'ayahs {from}–{to}'**
+  String pickerAyahRange(int from, int to);
+
+  /// No description provided for @pickerThirtyJuz.
+  ///
+  /// In en, this message translates to:
+  /// **'There are 30 juz'**
+  String get pickerThirtyJuz;
+
+  /// No description provided for @pickerTryVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a verse like 33:33, or juz 22'**
+  String get pickerTryVerse;
+
+  /// No description provided for @pickerSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to a verse - 33:33, 18, juz 22'**
+  String get pickerSearchHint;
+
+  /// No description provided for @pickerChooseVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a verse'**
+  String get pickerChooseVerse;
+
+  /// No description provided for @pickerAllJuz.
+  ///
+  /// In en, this message translates to:
+  /// **'All juz'**
+  String get pickerAllJuz;
+
+  /// No description provided for @pickerAllSurahs.
+  ///
+  /// In en, this message translates to:
+  /// **'All surahs'**
+  String get pickerAllSurahs;
+
+  /// No description provided for @pickerChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get pickerChoose;
+
+  /// No description provided for @quranFromPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'From {position}'**
+  String quranFromPosition(String position);
+
+  /// {percent} is a formatted number.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of the Quran'**
+  String quranPercentRead(String percent);
+
+  /// No description provided for @quranEditTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {track} track'**
+  String quranEditTrack(String track);
+
+  /// No description provided for @quranTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran'**
+  String get quranTitle;
+
+  /// No description provided for @quranRecentSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent sessions'**
+  String get quranRecentSessions;
+
+  /// No description provided for @quranTabSurahs.
+  ///
+  /// In en, this message translates to:
+  /// **'Surahs'**
+  String get quranTabSurahs;
+
+  /// No description provided for @quranTabJuz.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz'**
+  String get quranTabJuz;
+
+  /// No description provided for @quranTabCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Collections'**
+  String get quranTabCollections;
+
+  /// No description provided for @quranStartReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Start reading'**
+  String get quranStartReading;
+
+  /// No description provided for @quranNewTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'New track'**
+  String get quranNewTrack;
+
+  /// No description provided for @quranGoToVerseError.
+  ///
+  /// In en, this message translates to:
+  /// **'Try something like 23:56'**
+  String get quranGoToVerseError;
+
+  /// No description provided for @quranGoToVerseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to verse, e.g. 23:56'**
+  String get quranGoToVerseHint;
+
+  /// No description provided for @quranGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Go'**
+  String get quranGo;
+
+  /// No description provided for @statsMetricVerses.
+  ///
+  /// In en, this message translates to:
+  /// **'Verses'**
+  String get statsMetricVerses;
+
+  /// No description provided for @statsMetricZikrs.
+  ///
+  /// In en, this message translates to:
+  /// **'Zikrs'**
+  String get statsMetricZikrs;
+
+  /// No description provided for @statsMetricQaza.
+  ///
+  /// In en, this message translates to:
+  /// **'Qaza'**
+  String get statsMetricQaza;
+
+  /// No description provided for @statsMetricVersesLower.
+  ///
+  /// In en, this message translates to:
+  /// **'verses'**
+  String get statsMetricVersesLower;
+
+  /// No description provided for @statsMetricZikrsLower.
+  ///
+  /// In en, this message translates to:
+  /// **'zikrs'**
+  String get statsMetricZikrsLower;
+
+  /// No description provided for @statsMetricQazaLower.
+  ///
+  /// In en, this message translates to:
+  /// **'qaza'**
+  String get statsMetricQazaLower;
+
+  /// No description provided for @statsVerseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{formatted} verse} other{{formatted} verses}}'**
+  String statsVerseCount(int count, Object formatted);
+
+  /// No description provided for @statsZikrCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{formatted} zikr} other{{formatted} zikrs}}'**
+  String statsZikrCount(int count, Object formatted);
+
+  /// No description provided for @statsQazaCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other{{formatted} qaza}}'**
+  String statsQazaCount(int count, Object formatted);
+
+  /// No description provided for @statsPeriodWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get statsPeriodWeek;
+
+  /// No description provided for @statsPeriodMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get statsPeriodMonth;
+
+  /// No description provided for @statsPeriodAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get statsPeriodAllTime;
+
+  /// No description provided for @statsCaptionWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{metric} in the last 7 days'**
+  String statsCaptionWeek(String metric);
+
+  /// No description provided for @statsCaptionMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{metric} in the last 30 days'**
+  String statsCaptionMonth(String metric);
+
+  /// No description provided for @statsCaptionAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{metric} in total'**
+  String statsCaptionAllTime(String metric);
+
+  /// No description provided for @statsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get statsHistory;
+
+  /// No description provided for @statsBestMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Best month: {month} · {count}'**
+  String statsBestMonth(String month, String count);
+
+  /// {average} is a formatted number.
+  ///
+  /// In en, this message translates to:
+  /// **'Best day: {day} · {count} · {average} a day on average'**
+  String statsBestDay(String day, String count, String average);
+
+  /// No description provided for @statsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get statsNew;
+
+  /// No description provided for @statsVersusBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'vs {count} before'**
+  String statsVersusBefore(String count);
+
+  /// No description provided for @statsSessionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{formatted} session} other{{formatted} sessions}}'**
+  String statsSessionCount(int count, Object formatted);
+
+  /// No description provided for @statsVersesRecited.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{formatted} verse recited} other{{formatted} verses recited}}'**
+  String statsVersesRecited(int count, Object formatted);
+
+  /// No description provided for @statsLastOn.
+  ///
+  /// In en, this message translates to:
+  /// **'last {date}'**
+  String statsLastOn(String date);
+
+  /// No description provided for @statsVersesLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verses left to complete a khatm'**
+  String statsVersesLeft(String count);
+
+  /// No description provided for @statsJuzCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz {juz}: {percent}%'**
+  String statsJuzCoverage(int juz, int percent);
+
+  /// No description provided for @statsJuzComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 30 juz complete'**
+  String statsJuzComplete(int count);
+
+  /// No description provided for @statsQuranProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran progress'**
+  String get statsQuranProgress;
+
+  /// No description provided for @statsQuranEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a surah and start reading - the verses you recite are tracked here automatically, with your progress towards a full khatm.'**
+  String get statsQuranEmpty;
+
+  /// No description provided for @statsRecitedTill.
+  ///
+  /// In en, this message translates to:
+  /// **'Recited till'**
+  String get statsRecitedTill;
+
+  /// No description provided for @statsNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get statsNotStarted;
+
+  /// No description provided for @statsJuzDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz done'**
+  String get statsJuzDone;
+
+  /// No description provided for @statsKhatmComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Khatm complete - may it be accepted'**
+  String get statsKhatmComplete;
+
+  /// No description provided for @reminderAtPrayer.
+  ///
+  /// In en, this message translates to:
+  /// **'At {prayer}'**
+  String reminderAtPrayer(String prayer);
+
+  /// No description provided for @reminderMinutesAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min after {prayer}'**
+  String reminderMinutesAfter(int minutes, String prayer);
+
+  /// No description provided for @reminderMinutesBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min before {prayer}'**
+  String reminderMinutesBefore(int minutes, String prayer);
+
+  /// Media notification title while the Azan plays.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} Azan is playing'**
+  String azanPlaying(String prayer);
+
+  /// No description provided for @libraryNeedsNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Library browsing needs a network connection.'**
+  String get libraryNeedsNetwork;
+
+  /// No description provided for @libraryChaptersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load chapters. Please try again.'**
+  String get libraryChaptersFailed;
+
+  /// No description provided for @libraryReadingNeedsNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading books needs a network connection.'**
+  String get libraryReadingNeedsNetwork;
+
+  /// No description provided for @libraryChapterFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load this chapter. Please try again.'**
+  String get libraryChapterFailed;
+
+  /// No description provided for @menuCalendarPrayerTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar & Prayer Times'**
+  String get menuCalendarPrayerTimes;
+
+  /// No description provided for @menuFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get menuFavorites;
+
+  /// No description provided for @menuTodaysRecitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Recitations'**
+  String get menuTodaysRecitations;
+
+  /// No description provided for @menuTaqeebat.
+  ///
+  /// In en, this message translates to:
+  /// **'Taqeebat e Namaz'**
+  String get menuTaqeebat;
+
+  /// No description provided for @menuNamaz.
+  ///
+  /// In en, this message translates to:
+  /// **'Namaz'**
+  String get menuNamaz;
+
+  /// No description provided for @menuDuas.
+  ///
+  /// In en, this message translates to:
+  /// **'Duas'**
+  String get menuDuas;
+
+  /// No description provided for @menuZiyarats.
+  ///
+  /// In en, this message translates to:
+  /// **'Ziyarats'**
+  String get menuZiyarats;
+
+  /// No description provided for @menuSurahs.
+  ///
+  /// In en, this message translates to:
+  /// **'Surahs'**
+  String get menuSurahs;
+
+  /// No description provided for @menuAamaal.
+  ///
+  /// In en, this message translates to:
+  /// **'Aamaal'**
+  String get menuAamaal;
+
+  /// No description provided for @menuLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get menuLibrary;
+
+  /// No description provided for @menuMunajaat.
+  ///
+  /// In en, this message translates to:
+  /// **'Munajaat'**
+  String get menuMunajaat;
+
+  /// No description provided for @menuBaaqeyaat.
+  ///
+  /// In en, this message translates to:
+  /// **'Baaqeyaat As Saalehaat'**
+  String get menuBaaqeyaat;
+
+  /// No description provided for @menuQiblaFinder.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla Finder'**
+  String get menuQiblaFinder;
+
+  /// No description provided for @menuTasbeehCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasbeeh Counter'**
+  String get menuTasbeehCounter;
+
+  /// No description provided for @menuQazaTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Qaza Tracker'**
+  String get menuQazaTracker;
+
+  /// No description provided for @menuRakaatCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Rakaat Counter'**
+  String get menuRakaatCounter;
+
+  /// No description provided for @menuPrayerTimesInFlight.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer Times in Flight'**
+  String get menuPrayerTimesInFlight;
+
+  /// No description provided for @menuPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get menuPreferences;
+
+  /// No description provided for @menuQuran.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran'**
+  String get menuQuran;
+
+  /// No description provided for @menuPlaylists.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlists'**
+  String get menuPlaylists;
+
+  /// No description provided for @menuMyStats.
+  ///
+  /// In en, this message translates to:
+  /// **'My Stats'**
+  String get menuMyStats;
+
+  /// No description provided for @menuCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get menuCalendar;
+
+  /// No description provided for @audioTrackNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Track {number}'**
+  String audioTrackNumber(int number);
+
+  /// No description provided for @audioPauseRecitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause recitation'**
+  String get audioPauseRecitation;
+
+  /// No description provided for @audioPlayRecitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Play recitation'**
+  String get audioPlayRecitation;
+
+  /// No description provided for @audioList.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio list'**
+  String get audioList;
+
+  /// No description provided for @audioOfflineNotDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline and this recitation isn\'t downloaded'**
+  String get audioOfflineNotDownloaded;
+
+  /// No description provided for @audioLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This recitation couldn\'t be loaded'**
+  String get audioLoadFailed;
+
+  /// No description provided for @audioClosePlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Close player'**
+  String get audioClosePlayer;
+
+  /// No description provided for @audioChooseRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose recording'**
+  String get audioChooseRecording;
+
+  /// No description provided for @audioRecitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation'**
+  String get audioRecitation;
+
+  /// No description provided for @audioRecitationAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation audio'**
+  String get audioRecitationAudio;
+
+  /// No description provided for @librarySavedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'{book} saved for offline.'**
+  String librarySavedOffline(String book);
+
+  /// No description provided for @librarySaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save book: {error}'**
+  String librarySaveFailed(String error);
+
+  /// No description provided for @libraryProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{chapter} - Page {page} of {pages}'**
+  String libraryProgress(String chapter, int page, int pages);
+
+  /// No description provided for @librarySavedChapterGone.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved chapter is no longer available'**
+  String get librarySavedChapterGone;
+
+  /// No description provided for @libraryUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Library unavailable'**
+  String get libraryUnavailable;
+
+  /// No description provided for @libraryNoBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'No books found'**
+  String get libraryNoBooks;
+
+  /// No description provided for @libraryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The library is empty right now.'**
+  String get libraryEmpty;
+
+  /// No description provided for @libraryContinueReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Reading'**
+  String get libraryContinueReading;
+
+  /// No description provided for @libraryRequestBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a Book'**
+  String get libraryRequestBook;
+
+  /// No description provided for @libraryRequestBookSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t find a book? Ask us to add it.'**
+  String get libraryRequestBookSubtitle;
+
+  /// No description provided for @flightRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{flight} will be removed from your saved flights.'**
+  String flightRemoveBody(String flight);
+
+  /// {airport} is an airport code.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration} · lands {time} {airport} time'**
+  String flightLands(String duration, String time, String airport);
+
+  /// No description provided for @flightRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove flight?'**
+  String get flightRemoveTitle;
+
+  /// No description provided for @flightRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove flight'**
+  String get flightRemove;
+
+  /// No description provided for @flightNoneSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'No flights saved'**
+  String get flightNoneSaved;
+
+  /// No description provided for @flightNoneSavedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your flight and this page will work out when each prayer comes in along the route — shown in both your departure and arrival city\'s time.'**
+  String get flightNoneSavedBody;
 }
 
 class _AppLocalizationsDelegate

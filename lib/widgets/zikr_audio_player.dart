@@ -14,6 +14,7 @@ import '../utils/network_utils.dart';
 import '../utils/shared_preferences.dart';
 import '../pages/playlists_page.dart';
 import 'audio_download_button.dart';
+import '../l10n/l10n.dart';
 
 /// Recitation player hosted inside [ZikrActionBar], in place of its action
 /// row. It is only built once a reader taps Listen, so the ~95% of readings
@@ -240,7 +241,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Audio list', style: theme.textTheme.titleMedium),
+                child: Text(context.l10n.audioList, style: theme.textTheme.titleMedium),
               ),
             ),
             // A ListTile with a trailing check rather than RadioListTile:
@@ -250,10 +251,11 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
             // back later.
             for (var i = 0; i < widget.tracks.length; i++)
               ListTile(
-                title: Text(widget.tracks[i].label ?? 'Track ${i + 1}'),
+                title: Text(widget.tracks[i].label ??
+                      context.l10n.audioTrackNumber(i + 1)),
                 subtitle:
                     AudioDownloadStore.instance.isDownloaded(widget.tracks[i])
-                        ? const Text('Downloaded')
+                        ? Text(context.l10n.audioDownloaded)
                         : null,
                 trailing: i == _trackIndex
                     ? Icon(Icons.check, color: theme.colorScheme.primary)
@@ -307,19 +309,19 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
             Expanded(
               child: Text(
                 offline
-                    ? "You're offline and this recitation isn't downloaded"
-                    : "This recitation couldn't be loaded",
+                    ? context.l10n.audioOfflineNotDownloaded
+                    : context.l10n.audioLoadFailed,
                 style: theme.textTheme.bodySmall,
               ),
             ),
             IconButton(
               icon: const Icon(Icons.refresh),
-              tooltip: 'Try again',
+              tooltip: context.l10n.commonTryAgain,
               onPressed: _retry,
             ),
             IconButton(
               icon: const Icon(Icons.close),
-              tooltip: 'Close player',
+              tooltip: context.l10n.audioClosePlayer,
               onPressed: widget.onClose,
             ),
           ],
@@ -337,7 +339,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           Expanded(child: _buildBody(player, theme)),
           IconButton(
             icon: const Icon(Icons.playlist_add),
-            tooltip: 'Add to playlist',
+            tooltip: context.l10n.playlistAddTo,
             onPressed: () => showAddToPlaylistSheet(
               context,
               zikrUid: widget.zikrUid,
@@ -353,12 +355,12 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           if (widget.tracks.length > 1)
             IconButton(
               icon: const Icon(Icons.playlist_play),
-              tooltip: 'Choose recording',
+              tooltip: context.l10n.audioChooseRecording,
               onPressed: _showTrackPicker,
             ),
           IconButton(
             icon: const Icon(Icons.close),
-            tooltip: 'Close player',
+            tooltip: context.l10n.audioClosePlayer,
             onPressed: widget.onClose,
           ),
         ],
@@ -392,7 +394,9 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           ),
           icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
               size: 28),
-          tooltip: playing ? 'Pause recitation' : 'Play recitation',
+          tooltip: playing
+              ? context.l10n.audioPauseRecitation
+              : context.l10n.audioPlayRecitation,
           onPressed: _togglePlay,
         );
       },
@@ -402,8 +406,8 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   Widget _buildBody(AudioPlayer player, ThemeData theme) {
     final track = _currentTrack;
     final label = widget.tracks.length > 1
-        ? (track?.label ?? 'Recitation')
-        : 'Recitation audio';
+        ? (track?.label ?? context.l10n.audioRecitation)
+        : context.l10n.audioRecitationAudio;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

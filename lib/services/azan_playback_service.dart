@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/l10n.dart';
 
 /// Plays the full Azan - or, on Android, a user's Custom Audio choice - as
 /// real, app-controlled audio rather than a plain notification sound.
@@ -237,7 +238,7 @@ class AzanPlaybackService {
     // sentence rather than a music-player-style track name.
     final tag = MediaItem(
       id: 'azan-$prayerName',
-      title: '$prayerName Azan is playing',
+      title: L10n.current.azanPlaying(localizedPrayerName(prayerName)),
       album: 'Shia Companion',
     );
 

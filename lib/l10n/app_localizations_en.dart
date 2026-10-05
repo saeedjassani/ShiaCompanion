@@ -2128,4 +2128,504 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarNotificationsAllOff => 'Off for every prayer';
+
+  @override
+  String get readingFineTune =>
+      'Fine-tune zikr text. Applied on top of App text size in Settings.';
+
+  @override
+  String get readingArabicFontSize => 'Arabic Font Size';
+
+  @override
+  String get readingEnglishFontSize => 'English Font Size';
+
+  @override
+  String get readingArabicFont => 'Arabic Font';
+
+  @override
+  String get readingKeepScreenOn => 'Keep screen on while reciting Zikr';
+
+  @override
+  String get readingFocusMode => 'Focus mode';
+
+  @override
+  String get readingFocusModeSubtitle =>
+      'Hide the progress bar and action bar while reading. Scroll up or tap to bring them back.';
+
+  @override
+  String get readingShareAsImage => 'Share Zikr as Image';
+
+  @override
+  String get readingShareAsImageSubtitle =>
+      'Create a formatted image when sharing.';
+
+  @override
+  String get readingShowTransliteration => 'Show Transliteration';
+
+  @override
+  String get readingShowTranslation => 'Show Translation';
+
+  @override
+  String get readingArabicParagraph => 'Show Arabic as Paragraph';
+
+  @override
+  String get readingArabicParagraphOn =>
+      'Flow the Arabic verses together as one paragraph instead of separate lines.';
+
+  @override
+  String get readingArabicParagraphOff =>
+      'Turn off Transliteration and Translation above to use this.';
+
+  @override
+  String pickerJuzRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String pickerSurahDetails(String ayahs, String juz) {
+    return '$ayahs · Juz $juz';
+  }
+
+  @override
+  String quranAyahCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ayahs',
+      one: '1 ayah',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pickerJuzFrom(String start) {
+    return 'From $start';
+  }
+
+  @override
+  String pickerAyahSingle(int ayah) {
+    return 'ayah $ayah';
+  }
+
+  @override
+  String pickerAyahRange(int from, int to) {
+    return 'ayahs $from–$to';
+  }
+
+  @override
+  String get pickerThirtyJuz => 'There are 30 juz';
+
+  @override
+  String get pickerTryVerse => 'Try a verse like 33:33, or juz 22';
+
+  @override
+  String get pickerSearchHint => 'Go to a verse - 33:33, 18, juz 22';
+
+  @override
+  String get pickerChooseVerse => 'Choose a verse';
+
+  @override
+  String get pickerAllJuz => 'All juz';
+
+  @override
+  String get pickerAllSurahs => 'All surahs';
+
+  @override
+  String get pickerChoose => 'Choose';
+
+  @override
+  String quranFromPosition(String position) {
+    return 'From $position';
+  }
+
+  @override
+  String quranPercentRead(String percent) {
+    return '$percent% of the Quran';
+  }
+
+  @override
+  String quranEditTrack(String track) {
+    return 'Edit $track track';
+  }
+
+  @override
+  String get quranTitle => 'Quran';
+
+  @override
+  String get quranRecentSessions => 'Recent sessions';
+
+  @override
+  String get quranTabSurahs => 'Surahs';
+
+  @override
+  String get quranTabJuz => 'Juz';
+
+  @override
+  String get quranTabCollections => 'Collections';
+
+  @override
+  String get quranStartReading => 'Start reading';
+
+  @override
+  String get quranNewTrack => 'New track';
+
+  @override
+  String get quranGoToVerseError => 'Try something like 23:56';
+
+  @override
+  String get quranGoToVerseHint => 'Go to verse, e.g. 23:56';
+
+  @override
+  String get quranGo => 'Go';
+
+  @override
+  String get statsMetricVerses => 'Verses';
+
+  @override
+  String get statsMetricZikrs => 'Zikrs';
+
+  @override
+  String get statsMetricQaza => 'Qaza';
+
+  @override
+  String get statsMetricVersesLower => 'verses';
+
+  @override
+  String get statsMetricZikrsLower => 'zikrs';
+
+  @override
+  String get statsMetricQazaLower => 'qaza';
+
+  @override
+  String statsVerseCount(int count, Object formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted verses',
+      one: '$formatted verse',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsZikrCount(int count, Object formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted zikrs',
+      one: '$formatted zikr',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsQazaCount(int count, Object formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted qaza',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statsPeriodWeek => 'Week';
+
+  @override
+  String get statsPeriodMonth => 'Month';
+
+  @override
+  String get statsPeriodAllTime => 'All time';
+
+  @override
+  String statsCaptionWeek(String metric) {
+    return '$metric in the last 7 days';
+  }
+
+  @override
+  String statsCaptionMonth(String metric) {
+    return '$metric in the last 30 days';
+  }
+
+  @override
+  String statsCaptionAllTime(String metric) {
+    return '$metric in total';
+  }
+
+  @override
+  String get statsHistory => 'History';
+
+  @override
+  String statsBestMonth(String month, String count) {
+    return 'Best month: $month · $count';
+  }
+
+  @override
+  String statsBestDay(String day, String count, String average) {
+    return 'Best day: $day · $count · $average a day on average';
+  }
+
+  @override
+  String get statsNew => 'New';
+
+  @override
+  String statsVersusBefore(String count) {
+    return 'vs $count before';
+  }
+
+  @override
+  String statsSessionCount(int count, Object formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted sessions',
+      one: '$formatted session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsVersesRecited(int count, Object formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted verses recited',
+      one: '$formatted verse recited',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsLastOn(String date) {
+    return 'last $date';
+  }
+
+  @override
+  String statsVersesLeft(String count) {
+    return '$count verses left to complete a khatm';
+  }
+
+  @override
+  String statsJuzCoverage(int juz, int percent) {
+    return 'Juz $juz: $percent%';
+  }
+
+  @override
+  String statsJuzComplete(int count) {
+    return '$count of 30 juz complete';
+  }
+
+  @override
+  String get statsQuranProgress => 'Quran progress';
+
+  @override
+  String get statsQuranEmpty =>
+      'Open a surah and start reading - the verses you recite are tracked here automatically, with your progress towards a full khatm.';
+
+  @override
+  String get statsRecitedTill => 'Recited till';
+
+  @override
+  String get statsNotStarted => 'Not started';
+
+  @override
+  String get statsJuzDone => 'Juz done';
+
+  @override
+  String get statsKhatmComplete => 'Khatm complete - may it be accepted';
+
+  @override
+  String reminderAtPrayer(String prayer) {
+    return 'At $prayer';
+  }
+
+  @override
+  String reminderMinutesAfter(int minutes, String prayer) {
+    return '$minutes min after $prayer';
+  }
+
+  @override
+  String reminderMinutesBefore(int minutes, String prayer) {
+    return '$minutes min before $prayer';
+  }
+
+  @override
+  String azanPlaying(String prayer) {
+    return '$prayer Azan is playing';
+  }
+
+  @override
+  String get libraryNeedsNetwork =>
+      'Library browsing needs a network connection.';
+
+  @override
+  String get libraryChaptersFailed =>
+      'Unable to load chapters. Please try again.';
+
+  @override
+  String get libraryReadingNeedsNetwork =>
+      'Reading books needs a network connection.';
+
+  @override
+  String get libraryChapterFailed =>
+      'Unable to load this chapter. Please try again.';
+
+  @override
+  String get menuCalendarPrayerTimes => 'Calendar & Prayer Times';
+
+  @override
+  String get menuFavorites => 'Favorites';
+
+  @override
+  String get menuTodaysRecitations => 'Today\'s Recitations';
+
+  @override
+  String get menuTaqeebat => 'Taqeebat e Namaz';
+
+  @override
+  String get menuNamaz => 'Namaz';
+
+  @override
+  String get menuDuas => 'Duas';
+
+  @override
+  String get menuZiyarats => 'Ziyarats';
+
+  @override
+  String get menuSurahs => 'Surahs';
+
+  @override
+  String get menuAamaal => 'Aamaal';
+
+  @override
+  String get menuLibrary => 'Library';
+
+  @override
+  String get menuMunajaat => 'Munajaat';
+
+  @override
+  String get menuBaaqeyaat => 'Baaqeyaat As Saalehaat';
+
+  @override
+  String get menuQiblaFinder => 'Qibla Finder';
+
+  @override
+  String get menuTasbeehCounter => 'Tasbeeh Counter';
+
+  @override
+  String get menuQazaTracker => 'Qaza Tracker';
+
+  @override
+  String get menuRakaatCounter => 'Rakaat Counter';
+
+  @override
+  String get menuPrayerTimesInFlight => 'Prayer Times in Flight';
+
+  @override
+  String get menuPreferences => 'Preferences';
+
+  @override
+  String get menuQuran => 'Quran';
+
+  @override
+  String get menuPlaylists => 'Playlists';
+
+  @override
+  String get menuMyStats => 'My Stats';
+
+  @override
+  String get menuCalendar => 'Calendar';
+
+  @override
+  String audioTrackNumber(int number) {
+    return 'Track $number';
+  }
+
+  @override
+  String get audioPauseRecitation => 'Pause recitation';
+
+  @override
+  String get audioPlayRecitation => 'Play recitation';
+
+  @override
+  String get audioList => 'Audio list';
+
+  @override
+  String get audioOfflineNotDownloaded =>
+      'You\'re offline and this recitation isn\'t downloaded';
+
+  @override
+  String get audioLoadFailed => 'This recitation couldn\'t be loaded';
+
+  @override
+  String get audioClosePlayer => 'Close player';
+
+  @override
+  String get audioChooseRecording => 'Choose recording';
+
+  @override
+  String get audioRecitation => 'Recitation';
+
+  @override
+  String get audioRecitationAudio => 'Recitation audio';
+
+  @override
+  String librarySavedOffline(String book) {
+    return '$book saved for offline.';
+  }
+
+  @override
+  String librarySaveFailed(String error) {
+    return 'Unable to save book: $error';
+  }
+
+  @override
+  String libraryProgress(String chapter, int page, int pages) {
+    return '$chapter - Page $page of $pages';
+  }
+
+  @override
+  String get librarySavedChapterGone => 'Saved chapter is no longer available';
+
+  @override
+  String get libraryUnavailable => 'Library unavailable';
+
+  @override
+  String get libraryNoBooks => 'No books found';
+
+  @override
+  String get libraryEmpty => 'The library is empty right now.';
+
+  @override
+  String get libraryContinueReading => 'Continue Reading';
+
+  @override
+  String get libraryRequestBook => 'Request a Book';
+
+  @override
+  String get libraryRequestBookSubtitle =>
+      'Can\'t find a book? Ask us to add it.';
+
+  @override
+  String flightRemoveBody(String flight) {
+    return '$flight will be removed from your saved flights.';
+  }
+
+  @override
+  String flightLands(String duration, String time, String airport) {
+    return '$duration · lands $time $airport time';
+  }
+
+  @override
+  String get flightRemoveTitle => 'Remove flight?';
+
+  @override
+  String get flightRemove => 'Remove flight';
+
+  @override
+  String get flightNoneSaved => 'No flights saved';
+
+  @override
+  String get flightNoneSavedBody =>
+      'Add your flight and this page will work out when each prayer comes in along the route — shown in both your departure and arrival city\'s time.';
 }

@@ -8,6 +8,7 @@ import 'package:yaml/yaml.dart';
 
 import '../data/uid_title_data.dart';
 import '../utils/network_utils.dart';
+import '../l10n/l10n.dart';
 
 class LibraryService {
   LibraryService._();
@@ -95,9 +96,7 @@ class LibraryService {
         _chapterCache[bookSlug] = saved;
         return saved;
       }
-      throw const LibraryLoadException(
-        'Library browsing needs a network connection.',
-      );
+      throw LibraryLoadException(L10n.current.libraryNeedsNetwork);
     }
 
     final response =
@@ -109,7 +108,7 @@ class LibraryService {
         return saved;
       }
       throw LibraryLoadException(
-        'Unable to load chapters. Please try again.',
+        L10n.current.libraryChaptersFailed,
         statusCode: response.statusCode,
       );
     }
@@ -145,15 +144,13 @@ class LibraryService {
     }
 
     if (!NetworkUtils().isOnline) {
-      throw const LibraryLoadException(
-        'Reading books needs a network connection.',
-      );
+      throw LibraryLoadException(L10n.current.libraryReadingNeedsNetwork);
     }
 
     final response = await http.get(Uri.parse('$_libraryBaseUrl/$slug.md'));
     if (response.statusCode != 200) {
       throw LibraryLoadException(
-        'Unable to load this chapter. Please try again.',
+        L10n.current.libraryChapterFailed,
         statusCode: response.statusCode,
       );
     }

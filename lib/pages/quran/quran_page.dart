@@ -20,6 +20,7 @@ import 'quran_collections_tab.dart';
 import 'quran_navigation.dart';
 import 'recent_recitations_page.dart';
 import 'recitation_track_sheet.dart';
+import '../../l10n/l10n.dart';
 
 /// The Quran screen: your recitation tracks, a way to jump to any verse, the
 /// two ways of browsing - by surah and by juz - and the collections (duas,
@@ -51,7 +52,7 @@ class _QuranPageState extends State<QuranPage> {
 
   /// Starts building the verse text index while the surah list is being read.
   ///
-  /// Only for admins, since that is who can reach "Listen and follow" - nobody
+  /// Only for admins, since that is who can reach context.l10n.listenTitle - nobody
   /// else should pay 114 document reads for a button they cannot see. Doing it
   /// here rather than on the tap moves the wait off the path between tapping the
   /// microphone and the microphone actually listening, which matters most on web
@@ -101,20 +102,20 @@ class _QuranPageState extends State<QuranPage> {
       initialIndex: widget.initialTabIndex,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Quran'),
+          title: Text(context.l10n.quranTitle),
           actions: [
             // The sessions themselves stay here, beside the reading they
             // record; the stats built from them live on My Stats with the
             // rest of the reader's stats.
             IconButton(
               icon: const Icon(Icons.history_rounded),
-              tooltip: 'Recent sessions',
+              tooltip: context.l10n.quranRecentSessions,
               onPressed: () =>
                   pushPageRoute(context, const RecentRecitationsPage()),
             ),
             IconButton(
               icon: const Icon(Icons.insights_rounded),
-              tooltip: 'My Stats',
+              tooltip: context.l10n.statsTitle,
               onPressed: () => pushPageRoute(context, const MyStatsPage()),
             ),
             // Dark-launched alongside the rest of the Quran reading experience
@@ -124,19 +125,19 @@ class _QuranPageState extends State<QuranPage> {
             if (isUserAdmin)
               IconButton(
                 icon: const Icon(Icons.mic_none),
-                tooltip: 'Listen and follow',
+                tooltip: context.l10n.listenTitle,
                 onPressed: _listenAndFollow,
               ),
           ],
-          bottom: const TabBar(
-            // "Collections" doesn't fit a third of a phone's width at a
+          bottom: TabBar(
+            // context.l10n.quranTabCollections doesn't fit a third of a phone's width at a
             // larger text size, so let the labels size to their text.
             isScrollable: true,
             tabAlignment: TabAlignment.center,
             tabs: [
-              Tab(text: 'Surahs'),
-              Tab(text: 'Juz'),
-              Tab(text: 'Collections'),
+              Tab(text: context.l10n.quranTabSurahs),
+              Tab(text: context.l10n.quranTabJuz),
+              Tab(text: context.l10n.quranTabCollections),
             ],
           ),
         ),
@@ -241,8 +242,8 @@ class _LabelResumeCard extends StatelessWidget {
     final subtitle = !target.isStart
         ? position
         : target.verse == const VerseKey(1, 1)
-            ? 'Start reading'
-            : 'From $position';
+            ? context.l10n.quranStartReading
+            : context.l10n.quranFromPosition(position);
 
     return SizedBox(
       width: 168,
@@ -290,7 +291,7 @@ class _LabelResumeCard extends StatelessWidget {
                             showRecitationTrackSheet(context, label: label),
                         radius: 18,
                         child: Semantics(
-                          label: 'Edit $label track',
+                          label: context.l10n.quranEditTrack(label),
                           button: true,
                           child: Icon(
                             Icons.more_horiz,
@@ -311,7 +312,8 @@ class _LabelResumeCard extends StatelessWidget {
                 Text(
                   percent <= 0
                       ? ' '
-                      : '${percent.toStringAsFixed(percent < 10 ? 1 : 0)}% of the Quran',
+                      : context.l10n.quranPercentRead(
+                          percent.toStringAsFixed(percent < 10 ? 1 : 0)),
                   style: theme.textTheme.labelSmall
                       ?.copyWith(color: foreground.withValues(alpha: 0.7)),
                 ),
@@ -369,7 +371,7 @@ class _AddTrackCard extends StatelessWidget {
                 Icon(Icons.add_rounded, color: colorScheme.primary),
                 const SizedBox(height: 4),
                 Text(
-                  'New track',
+                  context.l10n.quranNewTrack,
                   style: theme.textTheme.labelSmall
                       ?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
@@ -406,7 +408,7 @@ class _GoToVerseFieldState extends State<_GoToVerseField> {
   void _submit() {
     final verse = VerseKey.tryParse(_controller.text);
     if (verse == null) {
-      setState(() => _error = 'Try something like 23:56');
+      setState(() => _error = context.l10n.quranGoToVerseError);
       return;
     }
 
@@ -428,12 +430,12 @@ class _GoToVerseFieldState extends State<_GoToVerseField> {
         decoration: InputDecoration(
           isDense: true,
           prefixIcon: const Icon(Icons.search),
-          hintText: 'Go to verse, e.g. 23:56',
+          hintText: context.l10n.quranGoToVerseHint,
           errorText: _error,
           border: const OutlineInputBorder(),
           suffixIcon: IconButton(
             icon: const Icon(Icons.arrow_forward),
-            tooltip: 'Go',
+            tooltip: context.l10n.quranGo,
             onPressed: _submit,
           ),
         ),
@@ -501,7 +503,7 @@ class _SurahList extends StatelessWidget {
                   ),
               ],
             ),
-            subtitle: Text('${surah.ayahCount} ayahs'),
+            subtitle: Text(context.l10n.quranAyahCount(surah.ayahCount)),
             trailing: InkWell(
               onTap: () => FavoritesManager.instance.toggleFavorite(itemData),
               child: FavoriteIcon(favorite: itemData),
@@ -544,7 +546,7 @@ class _JuzList extends StatelessWidget {
                 ),
               ),
             ),
-            title: Text('Juz ${part.number}'),
+            title: Text(context.l10n.quranJuzNumber(part.number)),
             subtitle: Text(
               '${_verseLabel(part.start)} → ${_verseLabel(part.end)}',
             ),
@@ -557,7 +559,8 @@ class _JuzList extends StatelessWidget {
 
   String _verseLabel(VerseKey verse) {
     final name =
-        surahInfoFor(verse.surah)?.englishName ?? 'Surah ${verse.surah}';
-    return '$name ${verse.ayah}';
+        surahInfoFor(verse.surah)?.englishName ??
+            L10n.current.quranSurahNumber(verse.surah);
+    return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
   }
 }

@@ -4,11 +4,12 @@ import 'package:intl/intl.dart';
 import '../../models/recitation_tracker_state.dart';
 import '../../utils/quran_index.dart';
 import 'stats_widgets.dart';
+import '../../l10n/l10n.dart';
 
 final NumberFormat _count = NumberFormat.decimalPattern();
 
 String _surahName(int surah) =>
-    surahInfoFor(surah)?.englishName ?? 'Surah $surah';
+    surahInfoFor(surah)?.englishName ?? L10n.current.quranSurahNumber(surah);
 
 String _percentText(double percent) =>
     '${percent.toStringAsFixed(percent > 0 && percent < 10 ? 1 : 0)}%';
@@ -33,7 +34,7 @@ class QuranProgressSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        StatsSectionTitle('Quran progress'),
+        StatsSectionTitle(context.l10n.statsQuranProgress),
         const SizedBox(height: 10),
         if (labels.isEmpty)
           const _EmptyQuranCard()
@@ -64,9 +65,7 @@ class _EmptyQuranCard extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'Open a surah and start reading - the verses you recite are '
-              'tracked here automatically, with your progress towards a '
-              'full khatm.',
+              context.l10n.statsQuranEmpty,
               style: theme.textTheme.bodyMedium,
             ),
           ),
@@ -139,18 +138,18 @@ class QuranTrackCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _InfoPanel(
-                    title: 'Recited till',
+                    title: context.l10n.statsRecitedTill,
                     lines: last == null
-                        ? const ['Not started']
+                        ? [context.l10n.statsNotStarted]
                         : [
                             '${_surahName(last.surah)}: ${last.ayah}',
-                            'Juz ${juzOf(last.surah, last.ayah!)}',
+                            context.l10n.quranJuzNumber(juzOf(last.surah, last.ayah!)),
                           ],
                   ),
                 ),
                 const SizedBox(width: 8),
                 _InfoPanel(
-                  title: 'Juz done',
+                  title: context.l10n.statsJuzDone,
                   big: '$juzDone',
                   lines: const ['of 30'],
                 ),
@@ -162,10 +161,11 @@ class QuranTrackCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             [
-              '${_count.format(sessions)} ${sessions == 1 ? 'session' : 'sessions'}',
-              '${_count.format(verses)} ${verses == 1 ? 'verse' : 'verses'} recited',
+              context.l10n.statsSessionCount(sessions, _count.format(sessions)),
+              context.l10n.statsVersesRecited(verses, _count.format(verses)),
               if (lastAt != null)
-                'last ${DateFormat('MMM d').format(lastAt.toLocal())}',
+                context.l10n.statsLastOn(
+                    DateFormat('MMM d').format(lastAt.toLocal())),
             ].join(' · '),
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: colorScheme.onSurfaceVariant),
@@ -173,7 +173,7 @@ class QuranTrackCard extends StatelessWidget {
           if (distinct > 0 && remaining > 0) ...[
             const SizedBox(height: 2),
             Text(
-              '${_count.format(remaining)} verses left to complete a khatm',
+              context.l10n.statsVersesLeft(_count.format(remaining)),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.primary,
                 fontWeight: FontWeight.w600,
@@ -182,7 +182,7 @@ class QuranTrackCard extends StatelessWidget {
           ] else if (remaining <= 0) ...[
             const SizedBox(height: 2),
             Text(
-              'Khatm complete - may it be accepted',
+              context.l10n.statsKhatmComplete,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.primary,
                 fontWeight: FontWeight.w600,
@@ -254,7 +254,8 @@ class _JuzMap extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Semantics(
-      label: '${coverage.where((f) => f >= 1).length} of 30 juz complete',
+      label: context.l10n
+          .statsJuzComplete(coverage.where((f) => f >= 1).length),
       excludeSemantics: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -269,8 +270,8 @@ class _JuzMap extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 1.5),
                         child: Tooltip(
-                          message: 'Juz ${i + 1}: '
-                              '${(coverage[i] * 100).floor()}%',
+                          message: context.l10n.statsJuzCoverage(
+                              i + 1, (coverage[i] * 100).floor()),
                           child: Container(
                             height: 18,
                             alignment: Alignment.center,
