@@ -294,6 +294,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// P13 and P15 had been restored standalone and are folded in too (their
   /// slugs are P1's slugAliases). P6 used to point at F15, but its history
   /// also carried items Third-Fifth; P14 was byte-identical to P15.
+  /// P12 ("Tenth", eating a pomegranate) is a single prose line, so it sits
+  /// in the "Prayers and Other Acts of the Night" tab rather than a tab of
+  /// its own.
   'P2': RetiredZikrRedirect('P1'),
   'P3': RetiredZikrRedirect('P1'),
   'P4': RetiredZikrRedirect('P1'),
@@ -304,9 +307,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'P9': RetiredZikrRedirect('P1', tabIndex: 4),
   'P10': RetiredZikrRedirect('P1', tabIndex: 5),
   'P11': RetiredZikrRedirect('P1', tabIndex: 6),
-  'P12': RetiredZikrRedirect('P1', tabIndex: 7),
-  'P13': RetiredZikrRedirect('P1', tabIndex: 8),
-  'P14': RetiredZikrRedirect('P1', tabIndex: 9),
-  'P15': RetiredZikrRedirect('P1', tabIndex: 9),
-  'P16': RetiredZikrRedirect('P1', tabIndex: 10),
+  'P12': RetiredZikrRedirect('P1', tabIndex: 1),
+  'P13': RetiredZikrRedirect('P1', tabIndex: 7),
+  'P14': RetiredZikrRedirect('P1', tabIndex: 8),
+  'P15': RetiredZikrRedirect('P1', tabIndex: 8),
+  'P16': RetiredZikrRedirect('P1', tabIndex: 9),
 };

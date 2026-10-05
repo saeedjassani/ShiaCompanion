@@ -2034,7 +2034,10 @@
   },
   "F63": {
     "title": "Namaz on Friday Nights and the Night of Eid al-Adha for Fulfillment of Needs",
-    "slug": "namaz-on-friday-night-the-nights-befor-eid-al-adha-for-fulfillment-of-needs"
+    "slug": "namaz-on-friday-night-the-nights-before-eid-al-adha-for-fulfillment-of-needs",
+    "slugAliases": [
+      "namaz-on-friday-night-the-nights-befor-eid-al-adha-for-fulfillment-of-needs"
+    ]
   },
   "F64": {
     "title": "Namaz for Settling of Debts",

@@ -879,6 +879,13 @@ carry them.
 - **AH4 was mislabeled**: its section "2. Salawat upon Imam Musa ibn Jafar"
   actually carried Imam al-Reza's salawat (now E136). That section now
   carries the real Kazim salawat (E135's text).
+- **Merits name the part, not just the source.** All nine (E128-E136) carry
+  one framing sentence (Misbah al-Mutahajjid, from Imam al-'Askari) plus
+  "This is its part upon ...". A reviewer read the earlier copy-pasted
+  sentence on E136 as crediting al-Reza's salawat to al-'Askari by mistake;
+  it isn't a mistake - the whole series, al-Reza's part included, is his
+  (duas.org's al-Jawad and al-Sadiq pages say the same) - but the sentence
+  has to say it is one part of a series.
 - Don't run `batch.py plan` on an *imported* entry you're only patching -
   it also normalizes the whole file (`ٱ -> ا` etc.), which the zikr-arabic
   skill treats as a separate restyle decision. Patch such files directly.
@@ -923,6 +930,15 @@ to be tagged `*-*-5`.)
   versions). It is a drafting aid: every line of P1 was read against the
   Arabic, which surfaced both tool bugs (fixed) and source typos
   (`عَلِي` for `عَلٰى`, `مُنَتَهٰى`, `مُحَمِّدٍ`, `الَّرجَاءُ`, `يَارَبِّ`).
+- **No one-line tabs.** Mafatih's "Tenth:" (eating a pomegranate) is a
+  single prose line; it sits, without its ordinal, in "Prayers and Other
+  Acts of the Night" (P12 redirects to tab 1) instead of a stub tab of its
+  own. Tab indices after it moved: P13 -> 7, P14/P15 -> 8, P16 -> 9.
+- **Spell the madda the house way** (`الْاٰجِلِ`, `الْاٰمَالِ`, `الْاٰخِرِينَ`,
+  not `الآ`/`الْآ`) and strip tatweel (`عَظيـمُ` -> `عَظِيمُ`); online sources
+  carry both. Small noon (`ۨ`) is a Qur'an-script convention - the surah
+  files use it, the duas almost never do - so don't add it to duas; just
+  check the transliteration carries the liaison (`MUHAMMADINIL MUSTAFAA`).
 - `normalize.py`'s `لاَ -> لَا` rule mangles an article before a hamzated
   alif (`ٱلاَرْض` -> `الَارْض`); fix those to `الْاَرْض` - but only where the
   next consonant has a sukun, or it also "fixes" `وَالَاهُمْ` (it did, once,
