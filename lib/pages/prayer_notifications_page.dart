@@ -11,6 +11,7 @@ import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
+import '../l10n/l10n.dart';
 
 /// Every time the app can notify on, in the order the rest of the app shows
 /// them.
@@ -161,14 +162,14 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Prayer notifications')),
+      appBar: AppBar(title: Text(context.l10n.settingsPrayerNotifications)),
       body: ListView(
         children: [
           ListTile(
             leading: Icon(Icons.volume_up, color: colorScheme.onSurfaceVariant),
-            title: const Text('Default sound'),
+            title: Text(context.l10n.notifDefaultSound),
             subtitle: Text(
-              '${_defaultSoundName()} · used unless a time below overrides it',
+              context.l10n.notifDefaultSoundSubtitle(_defaultSoundName()),
             ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _openSound(),
@@ -177,7 +178,7 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
             child: Text(
-              'TIMES',
+              context.l10n.notifTimesHeading,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: colorScheme.primary,
                 fontWeight: FontWeight.w700,
@@ -211,7 +212,7 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
           ? SP.prefs.getString(azaanCustomFilePathKey)
           : null;
       if (path != null && path.isNotEmpty) {
-        return 'Custom: ${path.split('/').last}';
+        return context.l10n.notifCustomSound(path.split('/').last);
       }
     }
     return azaan.name;
@@ -277,8 +278,8 @@ class _PrayerRow extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              prayer,
+                                                      Text(
+                            localizedPrayerName(prayer, context.l10n),
                               style: theme.textTheme.bodyLarge?.copyWith(
                                 fontWeight: enabled
                                     ? FontWeight.w600
@@ -415,7 +416,7 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       if (!await pickedFile.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('That audio file could not be read.')),
+            SnackBar(content: Text(context.l10n.notifAudioUnreadable)),
           );
         }
         return false;
@@ -441,7 +442,7 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       debugPrint('Custom audio pick failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not pick that file. Try again.')),
+          SnackBar(content: Text(context.l10n.notifPickFailed)),
         );
       }
       return false;
@@ -454,8 +455,8 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
     final plugin = flutterLocalNotificationsPlugin;
     if (plugin == null) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Playing a sample in a moment…'),
+      SnackBar(
+        content: Text(context.l10n.notifPlayingSample),
         duration: Duration(seconds: 2),
       ),
     );
@@ -483,15 +484,18 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            _isPerPrayer ? '${widget.prayerName} sound' : 'Default sound',
+            _isPerPrayer
+                ? context.l10n.notifPrayerSound(
+                    localizedPrayerName(widget.prayerName!, context.l10n))
+                : context.l10n.notifDefaultSound,
           ),
         ),
         body: ListView(
           children: [
             if (_isPerPrayer)
               _SoundOptionTile(
-                title: 'Use default',
-                subtitle: 'Follows ${getSelectedAzaan().name}',
+                title: context.l10n.notifUseDefault,
+                subtitle: context.l10n.notifFollows(getSelectedAzaan().name),
                 selected: selection == 'app_default',
                 onTap: () => _select('app_default'),
               ),
@@ -530,8 +534,8 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
 
   String _footnote() {
     return _isPerPrayer
-        ? 'This time keeps its own sound. Everything else follows the default.'
-        : 'Every time follows this unless you give it a sound of its own.';
+        ? context.l10n.notifOwnSoundNote
+        : context.l10n.notifDefaultNote;
   }
 }
 
@@ -570,7 +574,7 @@ class _SoundOptionTile extends StatelessWidget {
           ? null
           : IconButton(
               icon: const Icon(Icons.play_arrow),
-              tooltip: 'Preview',
+              tooltip: context.l10n.notifPreview,
               color: colorScheme.primary,
               onPressed: onPreview,
             ),

@@ -1807,4 +1807,325 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get flightChooseDateTime => 'Choose date and time';
+
+  @override
+  String get widgetIslamicCalendar => 'Islamic Calendar';
+
+  @override
+  String get widgetFavorites => 'Favorites';
+
+  @override
+  String get widgetNoFavorites => 'No favorites yet';
+
+  @override
+  String get widgetTodaysRecitations => 'Today\'s Recitations';
+
+  @override
+  String get widgetOpenAppToRefresh => 'Open app to refresh';
+
+  @override
+  String get widgetUpNext => 'Up Next';
+
+  @override
+  String get widgetPrayerTimes => 'Prayer Times';
+
+  @override
+  String get widgetLocationNeeded => 'Location needed';
+
+  @override
+  String get widgetSavedLocation => 'Saved location';
+
+  @override
+  String get widgetSetLocation => 'Set location';
+
+  @override
+  String get widgetOpenApp => 'Open app';
+
+  @override
+  String get widgetRefreshSchedule => 'Refresh schedule';
+
+  @override
+  String get commonToday => 'Today';
+
+  @override
+  String get commonTomorrow => 'Tomorrow';
+
+  @override
+  String quranSurahAyah(String surah, int ayah) {
+    return '$surah $ayah';
+  }
+
+  @override
+  String trackNameTaken(String name) {
+    return 'There is already a track called \"$name\"';
+  }
+
+  @override
+  String get trackNameRequired => 'Give the track a name';
+
+  @override
+  String get trackBeginning => 'The beginning';
+
+  @override
+  String get trackNew => 'New recitation track';
+
+  @override
+  String get trackName => 'Name';
+
+  @override
+  String get trackNameHint => 'e.g. Family, Tahajjud';
+
+  @override
+  String get trackReadBy => 'Read by';
+
+  @override
+  String get trackBySurah => 'Surah';
+
+  @override
+  String get trackByJuz => 'Juz (Para)';
+
+  @override
+  String get trackContinueFrom => 'Continue from';
+
+  @override
+  String get trackStartFrom => 'Start from';
+
+  @override
+  String get trackStartAt => 'Start at';
+
+  @override
+  String get trackEditNote =>
+      'Your track moves on by itself as you read. Change this only to pick up somewhere else.';
+
+  @override
+  String get trackNewNote =>
+      'You can change these anytime from the track card.';
+
+  @override
+  String get trackCreate => 'Create track';
+
+  @override
+  String notifDefaultSoundSubtitle(String sound) {
+    return '$sound · used unless a time below overrides it';
+  }
+
+  @override
+  String notifCustomSound(String file) {
+    return 'Custom: $file';
+  }
+
+  @override
+  String notifPrayerSound(String prayer) {
+    return '$prayer sound';
+  }
+
+  @override
+  String notifFollows(String sound) {
+    return 'Follows $sound';
+  }
+
+  @override
+  String get notifDefaultSound => 'Default sound';
+
+  @override
+  String get notifTimesHeading => 'TIMES';
+
+  @override
+  String get notifAudioUnreadable => 'That audio file could not be read.';
+
+  @override
+  String get notifPickFailed => 'Could not pick that file. Try again.';
+
+  @override
+  String get notifPlayingSample => 'Playing a sample in a moment…';
+
+  @override
+  String get notifUseDefault => 'Use default';
+
+  @override
+  String get notifOwnSoundNote =>
+      'This time keeps its own sound. Everything else follows the default.';
+
+  @override
+  String get notifDefaultNote =>
+      'Every time follows this unless you give it a sound of its own.';
+
+  @override
+  String get notifPreview => 'Preview';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get aboutDedication =>
+      'We thank Almighty Allah and His beloved Fourteen Infallibles (a.s.) for Their help which made us able to share this humble work with the Momeneen. We dedicate the app to them and the following Marhumeems:\n\nMarhooma Amina Mohammed Raza Jassani\nMarhoom Haji Mohammad Raza Jassani\nMarhoom Haji Yusufali Bhojani\n\n\nPlease recite Surah Fateha for Marhumeen and Marhumaat\n\nFor feedback, queries or suggestions contact :';
+
+  @override
+  String get aboutNoEmailApp => 'No e-mail app found';
+
+  @override
+  String get aboutCredits => 'Credits';
+
+  @override
+  String get aboutCreditAudio =>
+      'Recitation audio is hosted on our own servers; the recordings are used with duas.org\'s kind permission.';
+
+  @override
+  String get aboutCreditScheherazade =>
+      'Arabic is set in Scheherazade New by SIL Global, used under the SIL Open Font License.';
+
+  @override
+  String get aboutCreditTanzil =>
+      'The Uthmani Quran text, shown with Scheherazade, is from the Tanzil Project, used under Creative Commons Attribution 3.0.';
+
+  @override
+  String get aboutCreditQuranWbw =>
+      'The IndoPak Quran text and font, shown with Qalam, are from QuranWBW.com. The licence to use the Quran text and font unmodified was received from QuranWBW.com, the original contributor.';
+
+  @override
+  String get aboutCreditIndoPakFont =>
+      'Font: AlQuran IndoPak by QuranWBW, made by Ayman Siddiqui, based on the Al Qalam Quran Majeed fonts, with ayah numbers from the KFGQPC Nastaleeq font. © Al Qalam © Ghandhara © KFGQPC © Ayman Siddiqui. Credits: Abdul Majeed Khan, Arif Karim, Shakir-ul-Qadree, Jawad. Quran text: typemybook.com, originally by InPage.';
+
+  @override
+  String downloadsRemoveAllBody(String size) {
+    return 'Every recitation will stream again, so you\'ll need a connection to listen. Frees $size.';
+  }
+
+  @override
+  String downloadsOlderSubtitle(int count, String size) {
+    return '$count no longer used by any dua · $size';
+  }
+
+  @override
+  String get downloadsRemoveAllTitle => 'Remove all downloads?';
+
+  @override
+  String get downloadsRemoveAll => 'Remove all';
+
+  @override
+  String get downloadsEmpty => 'No downloads yet';
+
+  @override
+  String get downloadsEmptyBody =>
+      'Download a recitation to listen without a connection - tap the download button in a dua\'s audio player, or Download all on a playlist.';
+
+  @override
+  String get downloadsOlder => 'Older recordings';
+
+  @override
+  String get downloadsRemoveOlder => 'Remove older recordings';
+
+  @override
+  String get hijriMonth1 => 'Muharram';
+
+  @override
+  String get hijriMonth2 => 'Safar';
+
+  @override
+  String get hijriMonth3 => 'Rabi\' Al-Awwal';
+
+  @override
+  String get hijriMonth4 => 'Rabi\' Al-Thani';
+
+  @override
+  String get hijriMonth5 => 'Jumada Al-Awwal';
+
+  @override
+  String get hijriMonth6 => 'Jumada Al-Thani';
+
+  @override
+  String get hijriMonth7 => 'Rajab';
+
+  @override
+  String get hijriMonth8 => 'Sha\'aban';
+
+  @override
+  String get hijriMonth9 => 'Ramadan';
+
+  @override
+  String get hijriMonth10 => 'Shawwal';
+
+  @override
+  String get hijriMonth11 => 'Dhu Al-Qi\'dah';
+
+  @override
+  String get hijriMonth12 => 'Dhu Al-Hijjah';
+
+  @override
+  String get hijriMonthShort1 => 'Muh';
+
+  @override
+  String get hijriMonthShort2 => 'Saf';
+
+  @override
+  String get hijriMonthShort3 => 'Rab I';
+
+  @override
+  String get hijriMonthShort4 => 'Rab II';
+
+  @override
+  String get hijriMonthShort5 => 'Jum I';
+
+  @override
+  String get hijriMonthShort6 => 'Jum II';
+
+  @override
+  String get hijriMonthShort7 => 'Raj';
+
+  @override
+  String get hijriMonthShort8 => 'Sha';
+
+  @override
+  String get hijriMonthShort9 => 'Ram';
+
+  @override
+  String get hijriMonthShort10 => 'Shaw';
+
+  @override
+  String get hijriMonthShort11 => 'Dhul Q';
+
+  @override
+  String get hijriMonthShort12 => 'Dhul H';
+
+  @override
+  String prayerUpdatedAgo(String age) {
+    return 'updated $age';
+  }
+
+  @override
+  String get prayerNextDay => '(next day)';
+
+  @override
+  String get prayerLocating => 'Locating…';
+
+  @override
+  String get prayerForYourLocation => 'Prayer times for your location';
+
+  @override
+  String get prayerFindingLocation => 'Finding your location';
+
+  @override
+  String get prayerAppearSoon => 'Prayer times will appear in a moment';
+
+  @override
+  String get prayerTapToRetry => 'Tap to try again';
+
+  @override
+  String get prayerLocationUnavailable => 'Location not available';
+
+  @override
+  String get prayerTapToEnableLocation => 'Tap here to enable location';
+
+  @override
+  String calendarNotificationsSomeOn(int enabled, int total) {
+    return '$enabled of $total on';
+  }
+
+  @override
+  String get calendarNoEvent => 'No event listed for this date.';
+
+  @override
+  String get calendarNotificationsAllOff => 'Off for every prayer';
 }

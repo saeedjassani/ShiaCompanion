@@ -1183,5 +1183,192 @@
   "flightSave": "Save flight",
   "flightTicketNote": "Enter the times exactly as they appear on your ticket — each one in the local time of its own airport.",
   "flightChooseAirport": "Choose an airport",
-  "flightChooseDateTime": "Choose date and time"
+  "flightChooseDateTime": "Choose date and time",
+  "widgetIslamicCalendar": "Islamic Calendar",
+  "widgetFavorites": "Favorites",
+  "widgetNoFavorites": "No favorites yet",
+  "widgetTodaysRecitations": "Today's Recitations",
+  "widgetOpenAppToRefresh": "Open app to refresh",
+  "widgetUpNext": "Up Next",
+  "widgetPrayerTimes": "Prayer Times",
+  "widgetLocationNeeded": "Location needed",
+  "widgetSavedLocation": "Saved location",
+  "widgetSetLocation": "Set location",
+  "widgetOpenApp": "Open app",
+  "widgetRefreshSchedule": "Refresh schedule",
+  "commonToday": "Today",
+  "commonTomorrow": "Tomorrow",
+  "quranSurahAyah": "{surah} {ayah}",
+  "@quranSurahAyah": {
+    "description": "A surah name followed by a verse number, e.g. 'Al-Baqarah 142'.",
+    "placeholders": {
+      "surah": {
+        "type": "String"
+      },
+      "ayah": {
+        "type": "int"
+      }
+    }
+  },
+  "trackNameTaken": "There is already a track called \"{name}\"",
+  "@trackNameTaken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trackNameRequired": "Give the track a name",
+  "trackBeginning": "The beginning",
+  "trackNew": "New recitation track",
+  "trackName": "Name",
+  "trackNameHint": "e.g. Family, Tahajjud",
+  "trackReadBy": "Read by",
+  "trackBySurah": "Surah",
+  "trackByJuz": "Juz (Para)",
+  "trackContinueFrom": "Continue from",
+  "trackStartFrom": "Start from",
+  "trackStartAt": "Start at",
+  "trackEditNote": "Your track moves on by itself as you read. Change this only to pick up somewhere else.",
+  "trackNewNote": "You can change these anytime from the track card.",
+  "trackCreate": "Create track",
+  "notifDefaultSoundSubtitle": "{sound} · used unless a time below overrides it",
+  "@notifDefaultSoundSubtitle": {
+    "description": "{sound} is the name of a notification sound.",
+    "placeholders": {
+      "sound": {
+        "type": "String"
+      }
+    }
+  },
+  "notifCustomSound": "Custom: {file}",
+  "@notifCustomSound": {
+    "description": "{file} is an audio file name.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "notifPrayerSound": "{prayer} sound",
+  "@notifPrayerSound": {
+    "description": "Title of the sound picker for one prayer.",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notifFollows": "Follows {sound}",
+  "@notifFollows": {
+    "placeholders": {
+      "sound": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDefaultSound": "Default sound",
+  "notifTimesHeading": "TIMES",
+  "notifAudioUnreadable": "That audio file could not be read.",
+  "notifPickFailed": "Could not pick that file. Try again.",
+  "notifPlayingSample": "Playing a sample in a moment…",
+  "notifUseDefault": "Use default",
+  "notifOwnSoundNote": "This time keeps its own sound. Everything else follows the default.",
+  "notifDefaultNote": "Every time follows this unless you give it a sound of its own.",
+  "notifPreview": "Preview",
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutDedication": "We thank Almighty Allah and His beloved Fourteen Infallibles (a.s.) for Their help which made us able to share this humble work with the Momeneen. We dedicate the app to them and the following Marhumeems:\n\nMarhooma Amina Mohammed Raza Jassani\nMarhoom Haji Mohammad Raza Jassani\nMarhoom Haji Yusufali Bhojani\n\n\nPlease recite Surah Fateha for Marhumeen and Marhumaat\n\nFor feedback, queries or suggestions contact :",
+  "aboutNoEmailApp": "No e-mail app found",
+  "aboutCredits": "Credits",
+  "aboutCreditAudio": "Recitation audio is hosted on our own servers; the recordings are used with duas.org's kind permission.",
+  "aboutCreditScheherazade": "Arabic is set in Scheherazade New by SIL Global, used under the SIL Open Font License.",
+  "aboutCreditTanzil": "The Uthmani Quran text, shown with Scheherazade, is from the Tanzil Project, used under Creative Commons Attribution 3.0.",
+  "aboutCreditQuranWbw": "The IndoPak Quran text and font, shown with Qalam, are from QuranWBW.com. The licence to use the Quran text and font unmodified was received from QuranWBW.com, the original contributor.",
+  "aboutCreditIndoPakFont": "Font: AlQuran IndoPak by QuranWBW, made by Ayman Siddiqui, based on the Al Qalam Quran Majeed fonts, with ayah numbers from the KFGQPC Nastaleeq font. © Al Qalam © Ghandhara © KFGQPC © Ayman Siddiqui. Credits: Abdul Majeed Khan, Arif Karim, Shakir-ul-Qadree, Jawad. Quran text: typemybook.com, originally by InPage.",
+  "downloadsRemoveAllBody": "Every recitation will stream again, so you'll need a connection to listen. Frees {size}.",
+  "@downloadsRemoveAllBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsOlderSubtitle": "{count} no longer used by any dua · {size}",
+  "@downloadsOlderSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsRemoveAllTitle": "Remove all downloads?",
+  "downloadsRemoveAll": "Remove all",
+  "downloadsEmpty": "No downloads yet",
+  "downloadsEmptyBody": "Download a recitation to listen without a connection - tap the download button in a dua's audio player, or Download all on a playlist.",
+  "downloadsOlder": "Older recordings",
+  "downloadsRemoveOlder": "Remove older recordings",
+  "hijriMonth1": "Muharram",
+  "hijriMonth2": "Safar",
+  "hijriMonth3": "Rabi' Al-Awwal",
+  "hijriMonth4": "Rabi' Al-Thani",
+  "hijriMonth5": "Jumada Al-Awwal",
+  "hijriMonth6": "Jumada Al-Thani",
+  "hijriMonth7": "Rajab",
+  "hijriMonth8": "Sha'aban",
+  "hijriMonth9": "Ramadan",
+  "hijriMonth10": "Shawwal",
+  "hijriMonth11": "Dhu Al-Qi'dah",
+  "hijriMonth12": "Dhu Al-Hijjah",
+  "hijriMonthShort1": "Muh",
+  "hijriMonthShort2": "Saf",
+  "hijriMonthShort3": "Rab I",
+  "hijriMonthShort4": "Rab II",
+  "hijriMonthShort5": "Jum I",
+  "hijriMonthShort6": "Jum II",
+  "hijriMonthShort7": "Raj",
+  "hijriMonthShort8": "Sha",
+  "hijriMonthShort9": "Ram",
+  "hijriMonthShort10": "Shaw",
+  "hijriMonthShort11": "Dhul Q",
+  "hijriMonthShort12": "Dhul H",
+  "prayerUpdatedAgo": "updated {age}",
+  "@prayerUpdatedAgo": {
+    "description": "{age} is a relative time such as '3h ago'.",
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "prayerNextDay": "(next day)",
+  "prayerLocating": "Locating…",
+  "prayerForYourLocation": "Prayer times for your location",
+  "prayerFindingLocation": "Finding your location",
+  "prayerAppearSoon": "Prayer times will appear in a moment",
+  "prayerTapToRetry": "Tap to try again",
+  "prayerLocationUnavailable": "Location not available",
+  "prayerTapToEnableLocation": "Tap here to enable location",
+  "calendarNotificationsSomeOn": "{enabled} of {total} on",
+  "@calendarNotificationsSomeOn": {
+    "placeholders": {
+      "enabled": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarNoEvent": "No event listed for this date.",
+  "calendarNotificationsAllOff": "Off for every prayer"
 }

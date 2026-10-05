@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:date_format/date_format.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/pages/prayer_notifications_page.dart';
@@ -13,6 +13,8 @@ import 'package:shia_companion/widgets/prayer_times_card.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../constants.dart';
+import '../l10n/l10n.dart';
+import '../l10n/hijri_l10n.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({
@@ -407,11 +409,8 @@ class _CalendarHeaderTitle extends StatelessWidget {
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(
-          "${formatDate(gregorianMonth, [
-                M,
-                " ",
-                yyyy
-              ])} / ${hijriMonth.toFormat("MMMM yyyy")}",
+          "${DateFormat('MMMM yyyy').format(gregorianMonth)} / "
+          "${formatHijri(hijriMonth, "MMMM yyyy", context.l10n)}",
           maxLines: 1,
           textAlign: TextAlign.center,
           style: theme.textTheme.titleMedium?.copyWith(
@@ -454,7 +453,7 @@ class _SelectedDateSummary extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      hijriDate.toFormat("dd MMMM, yyyy"),
+                      formatHijri(hijriDate, "dd MMMM, yyyy", context.l10n),
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.w800,
@@ -462,8 +461,7 @@ class _SelectedDateSummary extends StatelessWidget {
                     ),
                     const SizedBox(height: 2.0),
                     Text(
-                      formatDate(
-                          gregorianDate, [DD, ", ", M, " ", d, ", ", yyyy]),
+                      DateFormat('EEEE, MMMM d, yyyy').format(gregorianDate),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -497,7 +495,7 @@ class _SelectedDateSummary extends StatelessWidget {
           ] else ...[
             const SizedBox(height: 14.0),
             Text(
-              "No event listed for this date.",
+              context.l10n.calendarNoEvent,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
                 height: 1.35,
@@ -561,7 +559,7 @@ class _PrayerNotificationsLinkState extends State<_PrayerNotificationsLink> {
           color: anyOn ? colorScheme.primary : colorScheme.onSurfaceVariant,
         ),
         title: Text(
-          'Prayer notifications',
+          context.l10n.settingsPrayerNotifications,
           style: theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
@@ -569,8 +567,9 @@ class _PrayerNotificationsLinkState extends State<_PrayerNotificationsLink> {
         ),
         subtitle: Text(
           anyOn
-              ? '${enabled.length} of ${kPrayerNotificationList.length} on'
-              : 'Off for every prayer',
+              ? context.l10n.calendarNotificationsSomeOn(
+                  enabled.length, kPrayerNotificationList.length)
+              : context.l10n.calendarNotificationsAllOff,
           style: theme.textTheme.bodySmall?.copyWith(
             color: colorScheme.onSurfaceVariant,
           ),

@@ -1,6 +1,7 @@
 import 'package:hijri/hijri_calendar.dart';
 
 import 'widget_prayer_time_selection.dart';
+import '../l10n/hijri_l10n.dart';
 
 /// How far ahead the calendar widgets can run without the app being opened.
 /// Each day is its own entry, so the widget rolls over at midnight by itself
@@ -16,28 +17,14 @@ const int calendarWidgetEventLimit = 30;
 /// Compact month names for the watch complications and the widgets' date
 /// column, where the hijri package's own short forms ("Rab1", "DhuQ") read
 /// as codes.
-const Map<int, String> _shortHijriMonthNames = {
-  1: 'Muh',
-  2: 'Saf',
-  3: 'Rab I',
-  4: 'Rab II',
-  5: 'Jum I',
-  6: 'Jum II',
-  7: 'Raj',
-  8: 'Sha',
-  9: 'Ram',
-  10: 'Shaw',
-  11: 'Dhul Q',
-  12: 'Dhul H',
-};
 
 /// The hijri package's month name in the house style: "Rabi' al-Thani", not
 /// "Rabi' Al-Thani".
 String _monthName(HijriCalendar date) =>
-    date.longMonthName.replaceAll(' Al-', ' al-');
+    hijriMonthName(date.hMonth).replaceAll(' Al-', ' al-');
 
 String _monthShort(HijriCalendar date) =>
-    _shortHijriMonthNames[date.hMonth] ?? date.shortMonthName;
+    hijriMonthShortName(date.hMonth);
 
 /// The hijri date the Calendar page shows for [day], moon-sighting
 /// adjustment included. Built the same way as `_hijriDateFor` there so the

@@ -6,6 +6,7 @@ import '../../models/recitation_tracker_state.dart';
 import '../../services/recitation_tracker_manager.dart';
 import '../../utils/quran_index.dart';
 import 'verse_position_picker.dart';
+import '../../l10n/l10n.dart';
 
 /// "Juz 5" / "Juz 5 · An-Nisa 30" when reading by juz, "Al-Baqarah" /
 /// "Al-Baqarah 142" when reading by surah - the start of a unit reads as just
@@ -20,23 +21,27 @@ String describeRecitationPosition(
 }) {
   final ayah = verse.ayah ?? 1;
   final surahName =
-      surahInfoFor(verse.surah)?.englishName ?? 'Surah ${verse.surah}';
-  if (!byJuz) return ayah == 1 ? surahName : '$surahName $ayah';
+      surahInfoFor(verse.surah)?.englishName ??
+          L10n.current.quranSurahNumber(verse.surah);
+  if (!byJuz) {
+    return ayah == 1 ? surahName : L10n.current.quranSurahAyah(surahName, ayah);
+  }
 
   final juz = juzOf(verse.surah, ayah);
   final juzStart = allJuz()[juz - 1].start;
+  final juzLabel = L10n.current.quranJuzNumber(juz);
   return juzStart == VerseKey(verse.surah, ayah)
-      ? 'Juz $juz'
+      ? juzLabel
       : compact
-          ? 'Juz $juz · ${verse.surah}:$ayah'
-          : 'Juz $juz · $surahName $ayah';
+          ? '$juzLabel · ${verse.surah}:$ayah'
+          : '$juzLabel · ${L10n.current.quranSurahAyah(surahName, ayah)}';
 }
 
 /// Creates a recitation track, or - with [label] - changes an existing one.
 ///
 /// Both ask the same two things: read by surah or by juz, and where to start.
 /// Creating also asks for a name; editing shows where the track has got to
-/// as "Continue from", so moving a khatm along after reading some of it away
+/// as context.l10n.trackContinueFrom, so moving a khatm along after reading some of it away
 /// from the app is the same tap as choosing where a new one begins.
 Future<void> showRecitationTrackSheet(BuildContext context, {String? label}) {
   return showModalBottomSheet<void>(
@@ -99,7 +104,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
       initial: _position ?? const VerseKey(1, 1),
       browseByJuz: readByJuz,
       describe: (verse) => describeRecitationPosition(verse, byJuz: readByJuz),
-      confirmVerb: _isEditing ? 'Continue from' : 'Start at',
+      confirmVerb: _isEditing ? context.l10n.trackContinueFrom : context.l10n.trackStartAt,
     );
     if (picked == null || !mounted) return;
     setState(() {
@@ -137,10 +142,10 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
 
     final name = _nameController.text.trim();
     final error = name.isEmpty
-        ? 'Give the track a name'
+        ? context.l10n.trackNameRequired
         : name == unlabeledRecitationLabel ||
                 manager.state.customLabels.contains(name)
-            ? 'There is already a track called "$name"'
+            ? context.l10n.trackNameTaken(name)
             : null;
     if (error != null) {
       setState(() => _nameError = error);
@@ -167,7 +172,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     final colorScheme = theme.colorScheme;
     final position = _position;
     final positionText = position == null
-        ? 'The beginning'
+        ? context.l10n.trackBeginning
         : describeRecitationPosition(position, byJuz: _readByJuz);
 
     return Padding(
@@ -182,7 +187,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                _isEditing ? widget.label! : 'New recitation track',
+                _isEditing ? widget.label! : context.l10n.trackNew,
                 style: theme.textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
@@ -192,8 +197,8 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
                   autofocus: true,
                   textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
-                    labelText: 'Name',
-                    hintText: 'e.g. Family, Tahajjud',
+                    labelText: context.l10n.trackName,
+                    hintText: context.l10n.trackNameHint,
                     errorText: _nameError,
                     border: const OutlineInputBorder(),
                   ),
@@ -205,18 +210,18 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
                 ),
                 const SizedBox(height: 20),
               ],
-              Text('Read by', style: theme.textTheme.labelLarge),
+              Text(context.l10n.trackReadBy, style: theme.textTheme.labelLarge),
               const SizedBox(height: 8),
               SegmentedButton<bool>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: false,
-                    label: Text('Surah'),
+                    label: Text(context.l10n.trackBySurah),
                     icon: Icon(Icons.menu_book_outlined),
                   ),
                   ButtonSegment(
                     value: true,
-                    label: Text('Juz (Para)'),
+                    label: Text(context.l10n.trackByJuz),
                     icon: Icon(Icons.auto_stories_outlined),
                   ),
                 ],
@@ -226,7 +231,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
               ),
               const SizedBox(height: 20),
               Text(
-                _isEditing ? 'Continue from' : 'Start from',
+                _isEditing ? context.l10n.trackContinueFrom : context.l10n.trackStartFrom,
                 style: theme.textTheme.labelLarge,
               ),
               const SizedBox(height: 8),
@@ -246,16 +251,15 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
               const SizedBox(height: 12),
               Text(
                 _isEditing
-                    ? 'Your track moves on by itself as you read. Change this '
-                        'only to pick up somewhere else.'
-                    : 'You can change these anytime from the track card.',
+                    ? context.l10n.trackEditNote
+                    : context.l10n.trackNewNote,
                 style: theme.textTheme.bodySmall
                     ?.copyWith(color: colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 20),
               FilledButton(
                 onPressed: _save,
-                child: Text(_isEditing ? 'Save' : 'Create track'),
+                child: Text(_isEditing ? context.l10n.commonSave : context.l10n.trackCreate),
               ),
             ],
           ),

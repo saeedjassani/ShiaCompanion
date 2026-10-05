@@ -3034,6 +3034,582 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose date and time'**
   String get flightChooseDateTime;
+
+  /// No description provided for @widgetIslamicCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Islamic Calendar'**
+  String get widgetIslamicCalendar;
+
+  /// No description provided for @widgetFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get widgetFavorites;
+
+  /// No description provided for @widgetNoFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get widgetNoFavorites;
+
+  /// No description provided for @widgetTodaysRecitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Recitations'**
+  String get widgetTodaysRecitations;
+
+  /// No description provided for @widgetOpenAppToRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Open app to refresh'**
+  String get widgetOpenAppToRefresh;
+
+  /// No description provided for @widgetUpNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Up Next'**
+  String get widgetUpNext;
+
+  /// No description provided for @widgetPrayerTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer Times'**
+  String get widgetPrayerTimes;
+
+  /// No description provided for @widgetLocationNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Location needed'**
+  String get widgetLocationNeeded;
+
+  /// No description provided for @widgetSavedLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved location'**
+  String get widgetSavedLocation;
+
+  /// No description provided for @widgetSetLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Set location'**
+  String get widgetSetLocation;
+
+  /// No description provided for @widgetOpenApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open app'**
+  String get widgetOpenApp;
+
+  /// No description provided for @widgetRefreshSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh schedule'**
+  String get widgetRefreshSchedule;
+
+  /// No description provided for @commonToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get commonToday;
+
+  /// No description provided for @commonTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get commonTomorrow;
+
+  /// A surah name followed by a verse number, e.g. 'Al-Baqarah 142'.
+  ///
+  /// In en, this message translates to:
+  /// **'{surah} {ayah}'**
+  String quranSurahAyah(String surah, int ayah);
+
+  /// No description provided for @trackNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'There is already a track called \"{name}\"'**
+  String trackNameTaken(String name);
+
+  /// No description provided for @trackNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the track a name'**
+  String get trackNameRequired;
+
+  /// No description provided for @trackBeginning.
+  ///
+  /// In en, this message translates to:
+  /// **'The beginning'**
+  String get trackBeginning;
+
+  /// No description provided for @trackNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New recitation track'**
+  String get trackNew;
+
+  /// No description provided for @trackName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get trackName;
+
+  /// No description provided for @trackNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Family, Tahajjud'**
+  String get trackNameHint;
+
+  /// No description provided for @trackReadBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Read by'**
+  String get trackReadBy;
+
+  /// No description provided for @trackBySurah.
+  ///
+  /// In en, this message translates to:
+  /// **'Surah'**
+  String get trackBySurah;
+
+  /// No description provided for @trackByJuz.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz (Para)'**
+  String get trackByJuz;
+
+  /// No description provided for @trackContinueFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue from'**
+  String get trackContinueFrom;
+
+  /// No description provided for @trackStartFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from'**
+  String get trackStartFrom;
+
+  /// No description provided for @trackStartAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Start at'**
+  String get trackStartAt;
+
+  /// No description provided for @trackEditNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your track moves on by itself as you read. Change this only to pick up somewhere else.'**
+  String get trackEditNote;
+
+  /// No description provided for @trackNewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change these anytime from the track card.'**
+  String get trackNewNote;
+
+  /// No description provided for @trackCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create track'**
+  String get trackCreate;
+
+  /// {sound} is the name of a notification sound.
+  ///
+  /// In en, this message translates to:
+  /// **'{sound} · used unless a time below overrides it'**
+  String notifDefaultSoundSubtitle(String sound);
+
+  /// {file} is an audio file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom: {file}'**
+  String notifCustomSound(String file);
+
+  /// Title of the sound picker for one prayer.
+  ///
+  /// In en, this message translates to:
+  /// **'{prayer} sound'**
+  String notifPrayerSound(String prayer);
+
+  /// No description provided for @notifFollows.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows {sound}'**
+  String notifFollows(String sound);
+
+  /// No description provided for @notifDefaultSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Default sound'**
+  String get notifDefaultSound;
+
+  /// No description provided for @notifTimesHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'TIMES'**
+  String get notifTimesHeading;
+
+  /// No description provided for @notifAudioUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'That audio file could not be read.'**
+  String get notifAudioUnreadable;
+
+  /// No description provided for @notifPickFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not pick that file. Try again.'**
+  String get notifPickFailed;
+
+  /// No description provided for @notifPlayingSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing a sample in a moment…'**
+  String get notifPlayingSample;
+
+  /// No description provided for @notifUseDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Use default'**
+  String get notifUseDefault;
+
+  /// No description provided for @notifOwnSoundNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This time keeps its own sound. Everything else follows the default.'**
+  String get notifOwnSoundNote;
+
+  /// No description provided for @notifDefaultNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Every time follows this unless you give it a sound of its own.'**
+  String get notifDefaultNote;
+
+  /// No description provided for @notifPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get notifPreview;
+
+  /// No description provided for @aboutVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String aboutVersion(String version);
+
+  /// No description provided for @aboutDedication.
+  ///
+  /// In en, this message translates to:
+  /// **'We thank Almighty Allah and His beloved Fourteen Infallibles (a.s.) for Their help which made us able to share this humble work with the Momeneen. We dedicate the app to them and the following Marhumeems:\n\nMarhooma Amina Mohammed Raza Jassani\nMarhoom Haji Mohammad Raza Jassani\nMarhoom Haji Yusufali Bhojani\n\n\nPlease recite Surah Fateha for Marhumeen and Marhumaat\n\nFor feedback, queries or suggestions contact :'**
+  String get aboutDedication;
+
+  /// No description provided for @aboutNoEmailApp.
+  ///
+  /// In en, this message translates to:
+  /// **'No e-mail app found'**
+  String get aboutNoEmailApp;
+
+  /// No description provided for @aboutCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Credits'**
+  String get aboutCredits;
+
+  /// No description provided for @aboutCreditAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation audio is hosted on our own servers; the recordings are used with duas.org\'s kind permission.'**
+  String get aboutCreditAudio;
+
+  /// No description provided for @aboutCreditScheherazade.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic is set in Scheherazade New by SIL Global, used under the SIL Open Font License.'**
+  String get aboutCreditScheherazade;
+
+  /// No description provided for @aboutCreditTanzil.
+  ///
+  /// In en, this message translates to:
+  /// **'The Uthmani Quran text, shown with Scheherazade, is from the Tanzil Project, used under Creative Commons Attribution 3.0.'**
+  String get aboutCreditTanzil;
+
+  /// No description provided for @aboutCreditQuranWbw.
+  ///
+  /// In en, this message translates to:
+  /// **'The IndoPak Quran text and font, shown with Qalam, are from QuranWBW.com. The licence to use the Quran text and font unmodified was received from QuranWBW.com, the original contributor.'**
+  String get aboutCreditQuranWbw;
+
+  /// No description provided for @aboutCreditIndoPakFont.
+  ///
+  /// In en, this message translates to:
+  /// **'Font: AlQuran IndoPak by QuranWBW, made by Ayman Siddiqui, based on the Al Qalam Quran Majeed fonts, with ayah numbers from the KFGQPC Nastaleeq font. © Al Qalam © Ghandhara © KFGQPC © Ayman Siddiqui. Credits: Abdul Majeed Khan, Arif Karim, Shakir-ul-Qadree, Jawad. Quran text: typemybook.com, originally by InPage.'**
+  String get aboutCreditIndoPakFont;
+
+  /// No description provided for @downloadsRemoveAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every recitation will stream again, so you\'ll need a connection to listen. Frees {size}.'**
+  String downloadsRemoveAllBody(String size);
+
+  /// No description provided for @downloadsOlderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} no longer used by any dua · {size}'**
+  String downloadsOlderSubtitle(int count, String size);
+
+  /// No description provided for @downloadsRemoveAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all downloads?'**
+  String get downloadsRemoveAllTitle;
+
+  /// No description provided for @downloadsRemoveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all'**
+  String get downloadsRemoveAll;
+
+  /// No description provided for @downloadsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No downloads yet'**
+  String get downloadsEmpty;
+
+  /// No description provided for @downloadsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Download a recitation to listen without a connection - tap the download button in a dua\'s audio player, or Download all on a playlist.'**
+  String get downloadsEmptyBody;
+
+  /// No description provided for @downloadsOlder.
+  ///
+  /// In en, this message translates to:
+  /// **'Older recordings'**
+  String get downloadsOlder;
+
+  /// No description provided for @downloadsRemoveOlder.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove older recordings'**
+  String get downloadsRemoveOlder;
+
+  /// No description provided for @hijriMonth1.
+  ///
+  /// In en, this message translates to:
+  /// **'Muharram'**
+  String get hijriMonth1;
+
+  /// No description provided for @hijriMonth2.
+  ///
+  /// In en, this message translates to:
+  /// **'Safar'**
+  String get hijriMonth2;
+
+  /// No description provided for @hijriMonth3.
+  ///
+  /// In en, this message translates to:
+  /// **'Rabi\' Al-Awwal'**
+  String get hijriMonth3;
+
+  /// No description provided for @hijriMonth4.
+  ///
+  /// In en, this message translates to:
+  /// **'Rabi\' Al-Thani'**
+  String get hijriMonth4;
+
+  /// No description provided for @hijriMonth5.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumada Al-Awwal'**
+  String get hijriMonth5;
+
+  /// No description provided for @hijriMonth6.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumada Al-Thani'**
+  String get hijriMonth6;
+
+  /// No description provided for @hijriMonth7.
+  ///
+  /// In en, this message translates to:
+  /// **'Rajab'**
+  String get hijriMonth7;
+
+  /// No description provided for @hijriMonth8.
+  ///
+  /// In en, this message translates to:
+  /// **'Sha\'aban'**
+  String get hijriMonth8;
+
+  /// No description provided for @hijriMonth9.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramadan'**
+  String get hijriMonth9;
+
+  /// No description provided for @hijriMonth10.
+  ///
+  /// In en, this message translates to:
+  /// **'Shawwal'**
+  String get hijriMonth10;
+
+  /// No description provided for @hijriMonth11.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhu Al-Qi\'dah'**
+  String get hijriMonth11;
+
+  /// No description provided for @hijriMonth12.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhu Al-Hijjah'**
+  String get hijriMonth12;
+
+  /// No description provided for @hijriMonthShort1.
+  ///
+  /// In en, this message translates to:
+  /// **'Muh'**
+  String get hijriMonthShort1;
+
+  /// No description provided for @hijriMonthShort2.
+  ///
+  /// In en, this message translates to:
+  /// **'Saf'**
+  String get hijriMonthShort2;
+
+  /// No description provided for @hijriMonthShort3.
+  ///
+  /// In en, this message translates to:
+  /// **'Rab I'**
+  String get hijriMonthShort3;
+
+  /// No description provided for @hijriMonthShort4.
+  ///
+  /// In en, this message translates to:
+  /// **'Rab II'**
+  String get hijriMonthShort4;
+
+  /// No description provided for @hijriMonthShort5.
+  ///
+  /// In en, this message translates to:
+  /// **'Jum I'**
+  String get hijriMonthShort5;
+
+  /// No description provided for @hijriMonthShort6.
+  ///
+  /// In en, this message translates to:
+  /// **'Jum II'**
+  String get hijriMonthShort6;
+
+  /// No description provided for @hijriMonthShort7.
+  ///
+  /// In en, this message translates to:
+  /// **'Raj'**
+  String get hijriMonthShort7;
+
+  /// No description provided for @hijriMonthShort8.
+  ///
+  /// In en, this message translates to:
+  /// **'Sha'**
+  String get hijriMonthShort8;
+
+  /// No description provided for @hijriMonthShort9.
+  ///
+  /// In en, this message translates to:
+  /// **'Ram'**
+  String get hijriMonthShort9;
+
+  /// No description provided for @hijriMonthShort10.
+  ///
+  /// In en, this message translates to:
+  /// **'Shaw'**
+  String get hijriMonthShort10;
+
+  /// No description provided for @hijriMonthShort11.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhul Q'**
+  String get hijriMonthShort11;
+
+  /// No description provided for @hijriMonthShort12.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhul H'**
+  String get hijriMonthShort12;
+
+  /// {age} is a relative time such as '3h ago'.
+  ///
+  /// In en, this message translates to:
+  /// **'updated {age}'**
+  String prayerUpdatedAgo(String age);
+
+  /// No description provided for @prayerNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'(next day)'**
+  String get prayerNextDay;
+
+  /// No description provided for @prayerLocating.
+  ///
+  /// In en, this message translates to:
+  /// **'Locating…'**
+  String get prayerLocating;
+
+  /// No description provided for @prayerForYourLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times for your location'**
+  String get prayerForYourLocation;
+
+  /// No description provided for @prayerFindingLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your location'**
+  String get prayerFindingLocation;
+
+  /// No description provided for @prayerAppearSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times will appear in a moment'**
+  String get prayerAppearSoon;
+
+  /// No description provided for @prayerTapToRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to try again'**
+  String get prayerTapToRetry;
+
+  /// No description provided for @prayerLocationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Location not available'**
+  String get prayerLocationUnavailable;
+
+  /// No description provided for @prayerTapToEnableLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here to enable location'**
+  String get prayerTapToEnableLocation;
+
+  /// No description provided for @calendarNotificationsSomeOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{enabled} of {total} on'**
+  String calendarNotificationsSomeOn(int enabled, int total);
+
+  /// No description provided for @calendarNoEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'No event listed for this date.'**
+  String get calendarNoEvent;
+
+  /// No description provided for @calendarNotificationsAllOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off for every prayer'**
+  String get calendarNotificationsAllOff;
 }
 
 class _AppLocalizationsDelegate

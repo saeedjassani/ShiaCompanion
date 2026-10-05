@@ -12,6 +12,7 @@ import '../services/zikr_audio_index.dart';
 import '../widgets/audio_download_button.dart';
 import '../widgets/responsive_content.dart';
 import 'zikr/zikr_page.dart';
+import '../l10n/l10n.dart';
 
 String _zikrTitle(String uid) {
   final title = items[uid]?.toString().trim() ?? '';
@@ -47,19 +48,18 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Remove all downloads?'),
+        title: Text(context.l10n.downloadsRemoveAllTitle),
         content: Text(
-          "Every recitation will stream again, so you'll need a connection "
-          'to listen. Frees ${formatAudioBytes(bytes)}.',
+          context.l10n.downloadsRemoveAllBody(formatAudioBytes(bytes)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Remove all'),
+            child: Text(context.l10n.downloadsRemoveAll),
           ),
         ],
       ),
@@ -80,7 +80,7 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
   Widget build(BuildContext context) {
     final store = AudioDownloadStore.instance;
     return Scaffold(
-      appBar: AppBar(title: const Text('Downloads')),
+      appBar: AppBar(title: Text(context.l10n.playlistDownloads)),
       body: !_ready
           ? const Center(child: CircularProgressIndicator())
           : ListenableBuilder(
@@ -124,14 +124,12 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
                   size: 48, color: theme.colorScheme.outline),
               const SizedBox(height: 16),
               Text(
-                'No downloads yet',
+                context.l10n.downloadsEmpty,
                 style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                'Download a recitation to listen without a connection - '
-                'tap the download button in a dua\'s audio player, or '
-                'Download all on a playlist.',
+                context.l10n.downloadsEmptyBody,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
@@ -156,14 +154,14 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    '${formatAudioBytes(totalBytes)} used on this device',
+                    context.l10n.settingsDownloadedRecitationsUsed(formatAudioBytes(totalBytes)),
                     style: theme.textTheme.titleSmall,
                   ),
                 ),
                 if (totalBytes > 0)
                   TextButton(
                     onPressed: () => _removeAll(context, totalBytes),
-                    child: const Text('Remove all'),
+                    child: Text(context.l10n.downloadsRemoveAll),
                   ),
               ],
             ),
@@ -178,14 +176,14 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
           if (orphans.isNotEmpty)
             ListTile(
               leading: const Icon(Icons.audio_file_outlined),
-              title: const Text('Older recordings'),
+              title: Text(context.l10n.downloadsOlder),
               subtitle: Text(
-                '${orphans.length} no longer used by any dua · '
-                '${formatAudioBytes(_orphanBytes(store, orphans))}',
+                context.l10n.downloadsOlderSubtitle(orphans.length,
+                    formatAudioBytes(_orphanBytes(store, orphans))),
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.delete_outline),
-                tooltip: 'Remove older recordings',
+                tooltip: context.l10n.downloadsRemoveOlder,
                 onPressed: () =>
                     unawaited(store.remove(_orphanTracks(orphans))),
               ),
@@ -224,12 +222,12 @@ class _DownloadedZikrTile extends StatelessWidget {
     final String subtitle;
     if (downloading) {
       final percent = (store.overallProgress(tracks) * 100).floor();
-      subtitle = 'Downloading $percent%';
+      subtitle = context.l10n.audioDownloadingPercent(percent);
     } else {
       final count = tracks.length > 1
           ? (saved == tracks.length
-              ? '${tracks.length} recordings'
-              : '$saved of ${tracks.length} recordings')
+              ? context.l10n.audioRecordingsCount(tracks.length)
+              : context.l10n.audioRecordingsChosen(saved, tracks.length))
           : null;
       subtitle = [
         if (count != null) count,
@@ -248,12 +246,12 @@ class _DownloadedZikrTile extends StatelessWidget {
       trailing: downloading
           ? IconButton(
               icon: const Icon(Icons.close),
-              tooltip: 'Stop downloading',
+              tooltip: context.l10n.audioStopDownloading,
               onPressed: () => store.cancel(tracks),
             )
           : IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Remove download',
+              tooltip: context.l10n.audioRemoveDownload,
               onPressed: () =>
                   confirmRemoveAudioDownload(context, tracks, label: title),
             ),

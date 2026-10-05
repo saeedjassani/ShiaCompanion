@@ -8,6 +8,8 @@ import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
+import '../l10n/l10n.dart';
+import '../l10n/hijri_l10n.dart';
 
 class HomePrayerTimesCard extends StatefulWidget {
   const HomePrayerTimesCard({super.key, this.onTap});
@@ -74,7 +76,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         HijriCalendar.fromDate(now.add(Duration(days: hijriDate)));
     PrayerTime prayerTime = getPrayerTimeObject();
     final selected = selectedWidgetPrayerTimes();
-    final dateText = _today.toFormat("dd MMMM yyyy");
+    final dateText = formatHijri(_today, "dd MMMM yyyy", context.l10n);
 
     // Always render from the last known fix. A refresh in flight, or one that
     // just failed, never blanks times the user could still be relying on.
@@ -195,8 +197,8 @@ class _CardHeader extends StatelessWidget {
       // renders once there are coordinates, and the geocode that names them
       // is allowed to fail or still be running on its own.
       suffix = location.isRefreshing
-          ? "Locating…"
-          : "Prayer times for your location";
+          ? context.l10n.prayerLocating
+          : context.l10n.prayerForYourLocation;
     }
 
     // Only once there's a named location worth dating, and only when that
@@ -271,7 +273,7 @@ class _CardHeader extends StatelessWidget {
         ),
         if (showUpdated)
           Text(
-            "updated ${_ageLabel(location.updatedAt!)}",
+            context.l10n.prayerUpdatedAgo(_ageLabel(location.updatedAt!)),
             style: theme.textTheme.labelSmall
                 ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
@@ -309,7 +311,7 @@ class _PrayerTimeColumn extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            reading.time.name,
+            localizedPrayerName(reading.time.name, context.l10n),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -343,7 +345,6 @@ class _NextDayNote extends StatelessWidget {
   final int index;
   final int count;
 
-  static const String _label = "(next day)";
 
   @override
   Widget build(BuildContext context) {
@@ -359,7 +360,7 @@ class _NextDayNote extends StatelessWidget {
         builder: (context, constraints) {
           final width = constraints.maxWidth;
           final painter = TextPainter(
-            text: TextSpan(text: _label, style: style),
+            text: TextSpan(text: context.l10n.prayerNextDay, style: style),
             textDirection: Directionality.of(context),
             maxLines: 1,
           )..layout();
@@ -367,7 +368,7 @@ class _NextDayNote extends StatelessWidget {
           return Align(
             alignment: Alignment(_horizontalAlignment(width, painter.width), 0),
             child: Text(
-              _label,
+              context.l10n.prayerNextDay,
               maxLines: 1,
               softWrap: false,
               style: style,
@@ -423,14 +424,14 @@ class _LocationEmptyState extends StatelessWidget {
     final String title;
     final String subtitle;
     if (refreshing) {
-      title = "Finding your location";
-      subtitle = "Prayer times will appear in a moment";
+      title = context.l10n.prayerFindingLocation;
+      subtitle = context.l10n.prayerAppearSoon;
     } else if (failed) {
       title = location.failureMessage;
-      subtitle = "Tap to try again";
+      subtitle = context.l10n.prayerTapToRetry;
     } else {
-      title = "Location not available";
-      subtitle = "Tap here to enable location";
+      title = context.l10n.prayerLocationUnavailable;
+      subtitle = context.l10n.prayerTapToEnableLocation;
     }
 
     return InkWell(
@@ -481,7 +482,7 @@ class _LocationEmptyState extends StatelessWidget {
 String _ageLabel(DateTime updatedAt) {
   final age = DateTime.now().difference(updatedAt);
   if (age.inDays >= 1) {
-    return "${age.inDays}d ago";
+    return L10n.current.timeDaysAgo(age.inDays);
   }
-  return "${age.inHours}h ago";
+  return L10n.current.timeHoursAgo(age.inHours);
 }

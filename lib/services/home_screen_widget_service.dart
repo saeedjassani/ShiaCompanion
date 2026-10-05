@@ -12,6 +12,7 @@ import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
+import '../l10n/l10n.dart';
 
 class HomeScreenWidgetService {
   HomeScreenWidgetService._();
@@ -161,7 +162,7 @@ class HomeScreenWidgetService {
     final eventMap = events ?? _calendarEvents ?? const <String, dynamic>{};
     final offset = hijriOffsetDays ?? hijriDate;
     return {
-      calendarTitleKey: 'Islamic Calendar',
+      calendarTitleKey: L10n.current.widgetIslamicCalendar,
       calendarUrlKey: buildCalendarDeepLinkUrl(),
       calendarDaysKey: jsonEncode(buildCalendarWidgetDays(
         now: moment,
@@ -197,14 +198,14 @@ class HomeScreenWidgetService {
           growable: false,
         );
     final snapshot = <String, String>{
-      favoritesTitleKey: 'Favorites',
+      favoritesTitleKey: L10n.current.widgetFavorites,
       favoritesSubtitleKey: '',
     };
 
     for (var index = 0; index < favoriteItemKeys.length; index++) {
       final item = _itemAt(topFavorites, index);
       snapshot[favoriteItemKeys[index]] = _widgetTitleForUniversalData(item) ??
-          (index == 0 ? 'No favorites yet' : '');
+          (index == 0 ? L10n.current.widgetNoFavorites : '');
       snapshot[favoriteUrlKeys[index]] = _widgetUrlForUniversalData(item);
     }
 
@@ -215,7 +216,7 @@ class HomeScreenWidgetService {
     final today = now ?? DateTime.now();
     final recitations = _buildRecitationItemsForDay(today);
     final snapshot = <String, String>{
-      recitationTitleKey: "Today's Recitations",
+      recitationTitleKey: L10n.current.widgetTodaysRecitations,
       recitationSubtitleKey: '',
       recitationScheduleKey: jsonEncode(_buildRecitationSchedule(today)),
     };
@@ -223,7 +224,7 @@ class HomeScreenWidgetService {
     for (var index = 0; index < recitationItemKeys.length; index++) {
       final item = _itemAt(recitations, index);
       snapshot[recitationItemKeys[index]] = _widgetTitleForRecitation(item) ??
-          (index == 0 ? 'Open app to refresh' : '');
+          (index == 0 ? L10n.current.widgetOpenAppToRefresh : '');
       snapshot[recitationUrlKeys[index]] = _widgetUrlForRecitation(item);
     }
 
@@ -259,7 +260,7 @@ class HomeScreenWidgetService {
   Map<String, String> buildUpcomingPrayerSnapshot() {
     final prayerSnapshot = _buildPrayerSnapshot();
     return {
-      prayerTitleKey: 'Up Next',
+      prayerTitleKey: L10n.current.widgetUpNext,
       prayerNameKey: prayerSnapshot.name,
       prayerTimeKey: prayerSnapshot.time,
       prayerDateKey: prayerSnapshot.dateLabel,
@@ -272,17 +273,17 @@ class HomeScreenWidgetService {
 
   Map<String, String> buildDailyPrayerTimesSnapshot({DateTime? now}) {
     final snapshot = <String, String>{
-      dailyPrayerTimesTitleKey: 'Prayer Times',
+      dailyPrayerTimesTitleKey: L10n.current.widgetPrayerTimes,
       dailyPrayerTimesScheduleKey: '',
       prayerLocationKey: lat == null || long == null
-          ? 'Location needed'
-          : city ?? 'Saved location',
+          ? L10n.current.widgetLocationNeeded
+          : city ?? L10n.current.widgetSavedLocation,
     };
 
     if (lat == null || long == null) {
       for (var index = 0; index < dailyPrayerTimesItemCount; index++) {
-        snapshot[dailyPrayerNameKeys[index]] = index == 0 ? 'Set location' : '';
-        snapshot[dailyPrayerTimeKeys[index]] = index == 0 ? 'Open app' : '';
+        snapshot[dailyPrayerNameKeys[index]] = index == 0 ? L10n.current.widgetSetLocation : '';
+        snapshot[dailyPrayerTimeKeys[index]] = index == 0 ? L10n.current.widgetOpenApp : '';
       }
       return snapshot;
     }
@@ -344,11 +345,11 @@ class HomeScreenWidgetService {
 
   _PrayerSnapshot _buildPrayerSnapshot() {
     if (lat == null || long == null) {
-      return const _PrayerSnapshot(
-        name: 'Prayer Times',
-        time: 'Set location',
-        dateLabel: 'Open app',
-        location: 'Location needed',
+      return _PrayerSnapshot(
+        name: L10n.current.widgetPrayerTimes,
+        time: L10n.current.widgetSetLocation,
+        dateLabel: L10n.current.widgetOpenApp,
+        location: L10n.current.widgetLocationNeeded,
         encodedSchedule: '',
         secondaryName: '',
         secondaryTime: '',
@@ -364,10 +365,10 @@ class HomeScreenWidgetService {
 
     if (nextEntry == null) {
       return _PrayerSnapshot(
-        name: 'Prayer Times',
-        time: 'Open app',
-        dateLabel: 'Refresh schedule',
-        location: city ?? 'Saved location',
+        name: L10n.current.widgetPrayerTimes,
+        time: L10n.current.widgetOpenApp,
+        dateLabel: L10n.current.widgetRefreshSchedule,
+        location: city ?? L10n.current.widgetSavedLocation,
         encodedSchedule: entries.map((entry) => entry.encode()).join(';'),
         secondaryName: '',
         secondaryTime: '',
@@ -378,7 +379,7 @@ class HomeScreenWidgetService {
       name: nextEntry.name,
       time: nextEntry.displayTime,
       dateLabel: nextEntry.dateLabel,
-      location: city ?? 'Saved location',
+      location: city ?? L10n.current.widgetSavedLocation,
       encodedSchedule: entries.map((entry) => entry.encode()).join(';'),
       secondaryName: nextEntry.secondaryName,
       secondaryTime: nextEntry.secondaryTime,
@@ -496,8 +497,8 @@ class HomeScreenWidgetService {
   }
 
   String _dateLabelForDay(DateTime date, int dayOffset) {
-    if (dayOffset == 0) return 'Today';
-    if (dayOffset == 1) return 'Tomorrow';
+    if (dayOffset == 0) return L10n.current.commonToday;
+    if (dayOffset == 1) return L10n.current.commonTomorrow;
     return '${date.month}/${date.day}';
   }
 

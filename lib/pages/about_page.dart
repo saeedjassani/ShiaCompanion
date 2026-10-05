@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/utils/external_launch.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import '../l10n/l10n.dart';
 
 class AboutPage extends StatefulWidget {
   @override
@@ -41,7 +42,7 @@ class _AboutPageState extends State<AboutPage> {
                 textAlign: TextAlign.center,
               ),
               subtitle: Text(
-                "Version $appVersion",
+                context.l10n.aboutVersion(appVersion),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -53,7 +54,7 @@ class _AboutPageState extends State<AboutPage> {
             ),
             ListTile(
               title: Text(
-                "We thank Almighty Allah and His beloved Fourteen Infallibles (a.s.) for Their help which made us able to share this humble work with the Momeneen. We dedicate the app to them and the following Marhumeems:\n\nMarhooma Amina Mohammed Raza Jassani\nMarhoom Haji Mohammad Raza Jassani\nMarhoom Haji Yusufali Bhojani\n\n\nPlease recite Surah Fateha for Marhumeen and Marhumaat\n\nFor feedback, queries or suggestions contact :",
+                context.l10n.aboutDedication,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -63,7 +64,7 @@ class _AboutPageState extends State<AboutPage> {
                   final launched = await launchSupportEmail();
                   if (!launched && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("No e-mail app found")),
+                      SnackBar(content: Text(context.l10n.aboutNoEmailApp)),
                     );
                   }
                 },
@@ -75,12 +76,11 @@ class _AboutPageState extends State<AboutPage> {
             // duas.org permit use of their recitations on condition of
             // credit - this is that acknowledgement.
             ListTile(
-              title: const Text('Credits', textAlign: TextAlign.center),
+              title: Text(context.l10n.aboutCredits, textAlign: TextAlign.center),
               subtitle: Column(
                 children: [
-                  const Text(
-                    'Recitation audio is hosted on our own servers; the recordings '
-                    'are used with duas.org\'s kind permission.',
+                  Text(
+                    context.l10n.aboutCreditAudio,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
@@ -92,9 +92,8 @@ class _AboutPageState extends State<AboutPage> {
                   const SizedBox(height: 12),
                   // Scheherazade New ships under the SIL Open Font License,
                   // which asks that the font be acknowledged where it is used.
-                  const Text(
-                    'Arabic is set in Scheherazade New by SIL Global, used '
-                    'under the SIL Open Font License.',
+                  Text(
+                    context.l10n.aboutCreditScheherazade,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
@@ -106,10 +105,8 @@ class _AboutPageState extends State<AboutPage> {
                   const SizedBox(height: 12),
                   // Tanzil's terms (CC BY 3.0) require the source to be named
                   // and linked wherever its text is shown.
-                  const Text(
-                    'The Uthmani Quran text, shown with Scheherazade, is from '
-                    'the Tanzil Project, used under Creative Commons '
-                    'Attribution 3.0.',
+                  Text(
+                    context.l10n.aboutCreditTanzil,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
@@ -122,21 +119,13 @@ class _AboutPageState extends State<AboutPage> {
                   // QuranWBW's licence asks for the font's own credits and
                   // for the licence itself to be stated. See
                   // assets/fonts/QuranWBW-IndoPak-NOTICE.txt.
-                  const Text(
-                    'The IndoPak Quran text and font, shown with Qalam, are '
-                    'from QuranWBW.com. The licence to use the Quran text and '
-                    'font unmodified was received from QuranWBW.com, the '
-                    'original contributor.',
+                  Text(
+                    context.l10n.aboutCreditQuranWbw,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Font: AlQuran IndoPak by QuranWBW, made by Ayman Siddiqui, '
-                    'based on the Al Qalam Quran Majeed fonts, with ayah '
-                    'numbers from the KFGQPC Nastaleeq font. © Al Qalam © '
-                    'Ghandhara © KFGQPC © Ayman Siddiqui. Credits: Abdul Majeed '
-                    'Khan, Arif Karim, Shakir-ul-Qadree, Jawad. Quran text: '
-                    'typemybook.com, originally by InPage.',
+                  Text(
+                    context.l10n.aboutCreditIndoPakFont,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
