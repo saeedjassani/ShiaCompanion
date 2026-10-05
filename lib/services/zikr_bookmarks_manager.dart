@@ -44,6 +44,11 @@ class ZikrBookmarksManager extends ChangeNotifier {
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   Future<void>? _loadFuture;
   Future<void> _storageWriteQueue = Future.value();
+
+  /// Serializes remote transactions: two in flight at once can commit in
+  /// either order, so a save and the unsave right after it could land
+  /// reversed.
+  Future<void> _remoteQueue = Future.value();
   ZikrBookmarksState _state = ZikrBookmarksState.empty;
   ZikrBookmarksState _pendingGuestImportState = ZikrBookmarksState.empty;
   String? _pendingGuestImportUserId;
@@ -314,6 +319,19 @@ class ZikrBookmarksManager extends ChangeNotifier {
 
   Future<void> _writeRemote(
     String userId,
+    ZikrBookmarksState Function(ZikrBookmarksState current) change, {
+    bool Function()? stillWanted,
+  }) {
+    final write = _remoteQueue.then((_) async {
+      if (stillWanted != null && !stillWanted()) return;
+      await _runRemoteTransaction(userId, change);
+    });
+    _remoteQueue = write.catchError((Object _) {});
+    return write;
+  }
+
+  Future<void> _runRemoteTransaction(
+    String userId,
     ZikrBookmarksState Function(ZikrBookmarksState current) change,
   ) {
     return _firestore.runTransaction((transaction) async {
@@ -340,12 +358,22 @@ class ZikrBookmarksManager extends ChangeNotifier {
     await _writeRemote(userId, (current) => current.plus(addition));
   }
 
+  /// With [onlyIfPending], skips [operation] if, by the time its turn comes,
+  /// it is no longer the queued version for its item - a replay working from
+  /// an older copy of the queue must not undo a change made since.
   Future<void> _applyRemoteOperationForUser(
     String userId,
-    PendingZikrBookmarkOperation operation,
-  ) {
+    PendingZikrBookmarkOperation operation, {
+    bool onlyIfPending = false,
+  }) {
+    final synced = jsonEncode(operation.toJson());
     return _writeRemote(
       userId,
+      stillWanted: onlyIfPending
+          ? () => _loadPendingOperations(userId).any((pending) =>
+              pending.id == operation.id &&
+              jsonEncode(pending.toJson()) == synced)
+          : null,
       (current) => applyPendingZikrBookmarkOperation(current, operation),
     );
   }
@@ -409,7 +437,11 @@ class ZikrBookmarksManager extends ChangeNotifier {
     _isReplayingPendingOperations = true;
     try {
       for (final operation in operations) {
-        await _applyRemoteOperationForUser(userId, operation);
+        await _applyRemoteOperationForUser(
+          userId,
+          operation,
+          onlyIfPending: true,
+        );
         await _clearPendingOperation(userId, operation);
       }
     } catch (error) {

@@ -40,6 +40,11 @@ class SavedVersesManager extends ChangeNotifier {
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   Future<void>? _loadFuture;
   Future<void> _storageWriteQueue = Future.value();
+
+  /// Serializes remote transactions: two in flight at once can commit in
+  /// either order, so a save and the unsave right after it could land
+  /// reversed.
+  Future<void> _remoteQueue = Future.value();
   SavedVersesState _state = SavedVersesState.empty;
   SavedVersesState _pendingGuestImportState = SavedVersesState.empty;
   String? _pendingGuestImportUserId;
@@ -310,6 +315,19 @@ class SavedVersesManager extends ChangeNotifier {
 
   Future<void> _writeRemote(
     String userId,
+    SavedVersesState Function(SavedVersesState current) change, {
+    bool Function()? stillWanted,
+  }) {
+    final write = _remoteQueue.then((_) async {
+      if (stillWanted != null && !stillWanted()) return;
+      await _runRemoteTransaction(userId, change);
+    });
+    _remoteQueue = write.catchError((Object _) {});
+    return write;
+  }
+
+  Future<void> _runRemoteTransaction(
+    String userId,
     SavedVersesState Function(SavedVersesState current) change,
   ) {
     return _firestore.runTransaction((transaction) async {
@@ -336,12 +354,22 @@ class SavedVersesManager extends ChangeNotifier {
     await _writeRemote(userId, (current) => current.plus(addition));
   }
 
+  /// With [onlyIfPending], skips [operation] if, by the time its turn comes,
+  /// it is no longer the queued version for its item - a replay working from
+  /// an older copy of the queue must not undo a change made since.
   Future<void> _applyRemoteOperationForUser(
     String userId,
-    PendingSavedVerseOperation operation,
-  ) {
+    PendingSavedVerseOperation operation, {
+    bool onlyIfPending = false,
+  }) {
+    final synced = jsonEncode(operation.toJson());
     return _writeRemote(
       userId,
+      stillWanted: onlyIfPending
+          ? () => _loadPendingOperations(userId).any((pending) =>
+              pending.id == operation.id &&
+              jsonEncode(pending.toJson()) == synced)
+          : null,
       (current) => applyPendingSavedVerseOperation(current, operation),
     );
   }
@@ -404,7 +432,11 @@ class SavedVersesManager extends ChangeNotifier {
     _isReplayingPendingOperations = true;
     try {
       for (final operation in operations) {
-        await _applyRemoteOperationForUser(userId, operation);
+        await _applyRemoteOperationForUser(
+          userId,
+          operation,
+          onlyIfPending: true,
+        );
         await _clearPendingOperation(userId, operation);
       }
     } catch (error) {
