@@ -8,7 +8,7 @@ class WhatsNewEntry {
     required this.bullets,
   });
 
-  /// The Android/iOS build number (pubspec.yaml's `+N`) this entry ships
+  /// The build number (pubspec.yaml's `+N`) this entry ships
   /// with. Compared against what an install last saw, so it only has to be
   /// correct relative to the entries around it, not globally unique in any
   /// other sense.
@@ -51,16 +51,15 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       'Bookmarks now sync across your devices when you are signed in, and '
           'you can drag a bookmark to move it.',
       'Qaza Tracker can estimate your missed prayers and log many at once.',
-      'New widgets: an Islamic calendar (Android, iPhone and Apple Watch) '
-          'and the next prayer on the iPhone Lock Screen. Android prayer '
-          'widgets now resize to fit.',
+      'New widgets: an Islamic calendar (iPhone and Apple Watch) '
+          'and the next prayer on the iPhone Lock Screen.',
       'Easier reading: a Text Size setting for the whole app, a cleaner '
           'Focus mode, Arabic as a paragraph, and the Quran in IndoPak '
           'script with the Qalam font.',
       'The Quran now has Ali Quli Qarai\'s translation and transliteration '
           'for every surah.',
       'A new azan recording by Abather Al-Halawaji, and Full Azan now '
-          'plays properly on Android.',
+          'plays more reliably.',
       'Spotted a mistake? Select the text to report it. Missing a dua or '
           'book? Request it in Settings.',
     ],
