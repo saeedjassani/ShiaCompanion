@@ -673,14 +673,6 @@
   "reminderBefore": "Before",
   "reminderAfter": "After",
   "reminderPrayerRelativeNote": "Prayer times shift with the calendar, so this schedules the next few weeks' occurrences and refreshes them each time you open the app.",
-  "qazaCompletedCount": "{count} completed",
-  "@qazaCompletedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "qazaPrayed": "Prayed",
   "qazaFasted": "Fasted",
   "qazaEstimatePrayers": "{days} of each daily prayer ({prayers} prayers)",
@@ -714,13 +706,10 @@
       }
     }
   },
-  "qazaTitle": "Qaza Tracker",
   "qazaCalculate": "Calculate my qaza",
   "qazaPrayers": "Prayers",
   "qazaFasts": "Fasts",
-  "qazaRemaining": "Qaza remaining",
   "commonUndo": "Undo",
-  "qazaMissed": "Missed",
   "qazaEditCount": "Edit count",
   "qazaMissedAWhile": "Missed prayers for a while?",
   "qazaMissedAWhileBody": "Enter how long, and we will add one of each daily prayer for every day missed.",
@@ -739,8 +728,7 @@
   "qazaNumberOfFasts": "Number of fasts",
   "qazaThisAdds": "This adds to your list:",
   "qazaAddToList": "Add to my list",
-  "qazaDhuhr": "Dhuhr",
-  "qazaAyat": "Namaz e Ayat",
+  "qazaAyat": "Namaz-e-Ayat",
   "qazaOther": "Other",
   "audioMobileDataSizedBody": "You're not on Wi-Fi. This will use about {size} of mobile data.",
   "@audioMobileDataSizedBody": {
@@ -3335,7 +3323,6 @@
       }
     }
   },
-  "reminderChooseZikrShort": "Choose a zikr",
   "reminderFrom": "From {list}",
   "@reminderFrom": {
     "description": "Under the zikr a reminder is for: where it lives, 'From Duas'.",
@@ -3431,5 +3418,42 @@
   },
   "qiblaChange": "Change",
   "qiblaChangeTarget": "Change what the compass points towards",
-  "qiblaHoldFlat": "Hold the phone flat, top edge pointing ahead."
+  "qiblaHoldFlat": "Hold the phone flat, top edge pointing ahead.",
+  "qazaPageTitle": "Qaza",
+  "@qazaPageTitle": {
+    "description": "Title of the Qaza page; the menu keeps 'Qaza Tracker'."
+  },
+  "qazaSubtitle": "Prayers and fasts to make up",
+  "qazaLeftToMakeUp": "left to make up",
+  "qazaDoneCount": "{count} done",
+  "@qazaDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaLeftAndDone": "{left} left · {done} done",
+  "@qazaLeftAndDone": {
+    "description": "Under a prayer: how many are owed (shown in bold) and how many made up.",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "done": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaWorkOut": "Work out how many I owe",
+  "qazaShowExtras": "Add Namaz-e-Ayat or other",
+  "qazaAddMissedOne": "Add a missed one",
+  "qazaMoreFor": "More for {name}",
+  "@qazaMoreFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

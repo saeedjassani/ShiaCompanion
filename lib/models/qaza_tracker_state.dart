@@ -25,7 +25,8 @@ extension QazaEntryTypeInfo on QazaEntryType {
 
   String get label => switch (this) {
         QazaEntryType.fajr => L10n.current.prayerFajr,
-        QazaEntryType.dhuhr => L10n.current.qazaDhuhr,
+        // Zuhr, as everywhere else in the app.
+        QazaEntryType.dhuhr => L10n.current.prayerZuhr,
         QazaEntryType.asr => L10n.current.prayerAsr,
         QazaEntryType.maghrib => L10n.current.prayerMaghrib,
         QazaEntryType.isha => L10n.current.prayerIsha,

@@ -431,8 +431,11 @@ class PageTextAction extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Center(
               widthFactor: 1,
+              // Wraps rather than overflows where a row gives it less room
+              // than it would like.
               child: Text(
                 label,
+                textAlign: TextAlign.end,
                 style: ShiaText.body.copyWith(
                   color: colors.accent,
                   fontWeight: FontWeight.w600,
