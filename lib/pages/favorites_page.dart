@@ -60,7 +60,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
             maxWidth: listContentWidth,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ReorderableListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              // Clears the floating tab bar when this is a tab's root, and the
+              // system's bottom inset otherwise.
+              padding: EdgeInsets.only(
+                  top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
               itemCount: favorites.length,
               buildDefaultDragHandles: false,
               onReorderItem: _onReorder,

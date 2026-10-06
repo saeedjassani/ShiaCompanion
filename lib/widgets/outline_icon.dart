@@ -1,0 +1,241 @@
+import 'package:flutter/widgets.dart';
+
+/// The revamp's line icons for everything that is not content: drawn on a
+/// 24-unit grid with round caps and joins, path for path as in the agreed
+/// mockups. Content keeps the [HomeGlyph] and [PrayerGlyph] painters.
+enum OutlineGlyph {
+  home,
+  heart,
+  search,
+  profile,
+  calendar,
+  calendarCheck,
+  compass,
+  grid,
+  share,
+  pin,
+  chevronDown,
+  chevronLeft,
+  chevronRight,
+  playlist,
+  plane,
+  stats,
+  sliders,
+  plus,
+  minus,
+  dragHandle,
+  check,
+}
+
+class OutlineIcon extends StatelessWidget {
+  const OutlineIcon(
+    this.glyph, {
+    super.key,
+    this.size = 24,
+    required this.color,
+    this.strokeWidth = 1.8,
+  });
+
+  final OutlineGlyph glyph;
+  final double size;
+  final Color color;
+
+  /// In grid units; scales with [size].
+  final double strokeWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(
+        painter: _OutlinePainter(glyph, color, strokeWidth),
+      ),
+    );
+  }
+}
+
+class _OutlinePainter extends CustomPainter {
+  _OutlinePainter(this.glyph, this.color, this.strokeWidth);
+
+  final OutlineGlyph glyph;
+  final Color color;
+  final double strokeWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / 24, size.height / 24);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(_path(glyph), paint);
+  }
+
+  static Path _line(double x1, double y1, double x2, double y2) => Path()
+    ..moveTo(x1, y1)
+    ..lineTo(x2, y2);
+
+  static Path _circle(double cx, double cy, double r) =>
+      Path()..addOval(Rect.fromCircle(center: Offset(cx, cy), radius: r));
+
+  static Path _calendar() => Path()
+    ..addRRect(RRect.fromLTRBR(4, 5, 20, 20, const Radius.circular(2.5)))
+    ..addPath(_line(4, 10, 20, 10), Offset.zero)
+    ..addPath(_line(8, 3, 8, 7), Offset.zero)
+    ..addPath(_line(16, 3, 16, 7), Offset.zero);
+
+  static Path _path(OutlineGlyph glyph) {
+    switch (glyph) {
+      case OutlineGlyph.home:
+        return Path()
+          ..moveTo(4, 11)
+          ..lineTo(12, 4)
+          ..lineTo(20, 11)
+          ..lineTo(20, 19.5)
+          ..arcToPoint(const Offset(18.5, 21),
+              radius: const Radius.circular(1.5))
+          ..lineTo(15, 21)
+          ..lineTo(15, 15)
+          ..lineTo(9, 15)
+          ..lineTo(9, 21)
+          ..lineTo(5.5, 21)
+          ..arcToPoint(const Offset(4, 19.5),
+              radius: const Radius.circular(1.5))
+          ..close();
+      case OutlineGlyph.heart:
+        return Path()
+          ..moveTo(12, 20)
+          ..cubicTo(12, 20, 5, 15.6, 5, 10)
+          ..arcToPoint(const Offset(12, 7.4), radius: const Radius.circular(4))
+          ..arcToPoint(const Offset(19, 10), radius: const Radius.circular(4))
+          ..cubicTo(19, 15.6, 12, 20, 12, 20)
+          ..close();
+      case OutlineGlyph.search:
+        return _circle(11, 11, 6.5)
+          ..addPath(_line(16, 16, 20, 20), Offset.zero);
+      case OutlineGlyph.profile:
+        return _circle(12, 8.5, 3.5)
+          ..moveTo(5, 19.5)
+          ..cubicTo(6.2, 16.2, 8.9, 14.5, 12, 14.5)
+          ..cubicTo(15.1, 14.5, 17.8, 16.2, 19, 19.5);
+      case OutlineGlyph.calendar:
+        return _calendar();
+      case OutlineGlyph.calendarCheck:
+        return _calendar()
+          ..moveTo(9, 15)
+          ..lineTo(11, 17)
+          ..lineTo(15, 13);
+      case OutlineGlyph.compass:
+        return _circle(12, 12, 8.5)
+          ..moveTo(15.5, 8.5)
+          ..lineTo(13.5, 13.5)
+          ..lineTo(8.5, 15.5)
+          ..lineTo(10.5, 10.5)
+          ..close();
+      case OutlineGlyph.grid:
+        const r = Radius.circular(1.5);
+        return Path()
+          ..addRRect(RRect.fromLTRBR(4, 4, 10.5, 10.5, r))
+          ..addRRect(RRect.fromLTRBR(13.5, 4, 20, 10.5, r))
+          ..addRRect(RRect.fromLTRBR(4, 13.5, 10.5, 20, r))
+          ..addRRect(RRect.fromLTRBR(13.5, 13.5, 20, 20, r));
+      case OutlineGlyph.share:
+        return _line(12, 15, 12, 4)
+          ..moveTo(8, 8)
+          ..lineTo(12, 4)
+          ..lineTo(16, 8)
+          ..moveTo(5, 12)
+          ..lineTo(5, 18)
+          ..arcToPoint(const Offset(7, 20),
+              radius: const Radius.circular(2), clockwise: false)
+          ..lineTo(17, 20)
+          ..arcToPoint(const Offset(19, 18),
+              radius: const Radius.circular(2), clockwise: false)
+          ..lineTo(19, 12);
+      case OutlineGlyph.pin:
+        return Path()
+          ..moveTo(12, 21)
+          ..cubicTo(12, 21, 5.5, 15, 5.5, 10)
+          ..arcToPoint(const Offset(18.5, 10),
+              radius: const Radius.circular(6.5))
+          ..cubicTo(18.5, 15, 12, 21, 12, 21)
+          ..close()
+          ..addPath(_circle(12, 10, 2.3), Offset.zero);
+      case OutlineGlyph.chevronDown:
+        return Path()
+          ..moveTo(6, 9)
+          ..lineTo(12, 15)
+          ..lineTo(18, 9);
+      case OutlineGlyph.chevronLeft:
+        return Path()
+          ..moveTo(15, 5)
+          ..lineTo(8, 12)
+          ..lineTo(15, 19);
+      case OutlineGlyph.chevronRight:
+        return Path()
+          ..moveTo(9, 6)
+          ..lineTo(15, 12)
+          ..lineTo(9, 18);
+      case OutlineGlyph.playlist:
+        return _line(4, 6, 16, 6)
+          ..addPath(_line(4, 11, 16, 11), Offset.zero)
+          ..addPath(_line(4, 16, 11, 16), Offset.zero)
+          ..moveTo(16, 14)
+          ..lineTo(16, 20)
+          ..lineTo(21, 17)
+          ..close();
+      case OutlineGlyph.plane:
+        return Path()
+          ..moveTo(21, 15.5)
+          ..lineTo(21, 13.7)
+          ..lineTo(13.5, 9)
+          ..lineTo(13.5, 4.5)
+          ..arcToPoint(const Offset(10.5, 4.5),
+              radius: const Radius.circular(1.5), clockwise: false)
+          ..lineTo(10.5, 9)
+          ..lineTo(3, 13.7)
+          ..lineTo(3, 15.5)
+          ..lineTo(10.5, 13.3)
+          ..lineTo(10.5, 18)
+          ..lineTo(8.5, 19.5)
+          ..lineTo(8.5, 21)
+          ..lineTo(12, 20)
+          ..lineTo(15.5, 21)
+          ..lineTo(15.5, 19.5)
+          ..lineTo(13.5, 18)
+          ..lineTo(13.5, 13.3)
+          ..close();
+      case OutlineGlyph.stats:
+        return _line(5, 20, 5, 11)
+          ..addPath(_line(10, 20, 10, 5), Offset.zero)
+          ..addPath(_line(15, 20, 15, 13), Offset.zero)
+          ..addPath(_line(20, 20, 20, 8), Offset.zero);
+      case OutlineGlyph.sliders:
+        return _line(4, 7, 14, 7)
+          ..addPath(_line(18, 7, 20, 7), Offset.zero)
+          ..addPath(_line(4, 17, 8, 17), Offset.zero)
+          ..addPath(_line(12, 17, 20, 17), Offset.zero)
+          ..addPath(_circle(16, 7, 2), Offset.zero)
+          ..addPath(_circle(10, 17, 2), Offset.zero);
+      case OutlineGlyph.plus:
+        return _line(12, 6, 12, 18)..addPath(_line(6, 12, 18, 12), Offset.zero);
+      case OutlineGlyph.minus:
+        return _line(6, 12, 18, 12);
+      case OutlineGlyph.dragHandle:
+        return _line(5, 9, 19, 9)..addPath(_line(5, 15, 19, 15), Offset.zero);
+      case OutlineGlyph.check:
+        return Path()
+          ..moveTo(5, 12.5)
+          ..lineTo(9.5, 17)
+          ..lineTo(19, 7.5);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_OutlinePainter old) =>
+      old.glyph != glyph ||
+      old.color != color ||
+      old.strokeWidth != strokeWidth;
+}

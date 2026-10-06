@@ -212,9 +212,8 @@ List<WidgetPrayerTimeReading> readWidgetPrayerTimes({
 /// normalises an out-of-range day field, so arithmetic on the components
 /// lands on the intended calendar date in every zone.
 DateTime calendarDayFrom(DateTime start, int dayOffset) {
-  return start.isUtc
-      ? DateTime.utc(start.year, start.month, start.day + dayOffset)
-      : DateTime(start.year, start.month, start.day + dayOffset);
+  return dateTimeOnClockOf(
+      start, start.year, start.month, start.day + dayOffset);
 }
 
 /// The next [count] occurrences of [times], soonest first, starting from
@@ -232,12 +231,12 @@ List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
 }) {
   final selected = times ?? selectedWidgetPrayerTimes();
   final moment = now ?? DateTime.now();
-  // Preserve whether the caller is working in UTC or local time: building a
-  // local midnight from a UTC moment (or vice versa) would silently swap in
-  // the wrong timezone offset for every reading computed below.
-  final startOfToday = moment.isUtc
-      ? DateTime.utc(moment.year, moment.month, moment.day)
-      : DateTime(moment.year, moment.month, moment.day);
+  // Preserve whether the caller is working in UTC, local time or a city's:
+  // building a local midnight from a UTC moment (or vice versa) would
+  // silently swap in the wrong timezone offset for every reading computed
+  // below.
+  final startOfToday =
+      dateTimeOnClockOf(moment, moment.year, moment.month, moment.day);
 
   final upcoming = <WidgetPrayerTimeReading>[];
   for (var dayOffset = 0; dayOffset < 2 && upcoming.length < count; dayOffset++) {

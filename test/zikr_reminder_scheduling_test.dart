@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:shia_companion/utils/zikr_reminder_scheduling.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 void main() {
   group('zikrReminderNotificationId', () {
@@ -130,6 +132,27 @@ void main() {
         atPrayerTime.single.difference(withOffset.single).inMinutes,
         15,
       );
+    });
+
+    test('schedules the Sunday the clocks go back once, not twice', () {
+      ensureTimeZoneDatabaseInitialized();
+      // Tuesday 20 October 2026 in London; the clocks go back on Sunday the
+      // 25th, making it 25 hours long.
+      final now = tz.TZDateTime(tz.getLocation('Europe/London'), 2026, 10, 20, 10);
+
+      final occurrences = upcomingPrayerRelativeOccurrences(
+        prayerTime: getPrayerTimeObject(),
+        now: now,
+        weekday: DateTime.sunday,
+        prayerName: 'Maghrib',
+        offsetMinutes: 0,
+        latitude: 51.51,
+        longitude: -0.13,
+        count: 3,
+      );
+
+      expect([for (final o in occurrences) '${o.month}/${o.day}'],
+          ['10/25', '11/1', '11/8']);
     });
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
+import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:shia_companion/widgets/prayer_times_card.dart';
 
@@ -93,6 +94,22 @@ void main() {
       PrayerGlyphType.midnight,
     });
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('offers another city\'s times for the date on show',
+      (tester) async {
+    CityRepository.instance.seedForTesting(const []);
+    await _pumpCalendar(tester, brightness: Brightness.light);
+
+    final link = find.text('Another city');
+    await tester.scrollUntilVisible(link, 200,
+        scrollable: find.byType(Scrollable).first);
+    await tester.tap(link);
+    await tester.pumpAndSettle();
+
+    // The picker, for looking only: no way to move the location from here.
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('Use my current location'), findsNothing);
   });
 
   testWidgets('marks mourning days green and celebration days red',

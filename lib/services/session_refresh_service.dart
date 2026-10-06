@@ -12,7 +12,10 @@ class SessionRefreshService {
 
   static Future<void> refreshSessionState() async {
     user = FirebaseAuth.instance.currentUser;
-    isUserAdmin = false;
+    // Settled once, at the end, rather than reset to false up front: the tab
+    // shell listens to it, and a false between here and the claim read would
+    // swap an admin's Quran tab to the surah list and back, losing its place.
+    if (user == null) isUserAdmin = false;
 
     // Load the bundled zikr index first: it's a local asset read with no
     // network dependency. Running it before the admin-claim check below
@@ -21,17 +24,19 @@ class SessionRefreshService {
     await loadItemsFromAssets();
 
     if (user != null) {
+      var admin = false;
       try {
         final idTokenResult =
             await user!.getIdTokenResult().timeout(const Duration(seconds: 4));
         final claims = idTokenResult.claims;
         if (claims != null && claims['admin'] == true) {
-          isUserAdmin = true;
+          admin = true;
         }
       } catch (error) {
         debugPrint(
             'Unable to refresh admin claim, using bundled index: $error');
       }
+      isUserAdmin = admin;
       unawaited(_refreshAdminClaim(user!));
     }
   }

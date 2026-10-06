@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../services/account_service.dart';
 import '../services/analytics_service.dart';
-import 'home_page.dart';
+import '../navigation/app_shell.dart';
 import '../l10n/l10n.dart';
 
 class DeleteAccountPage extends StatefulWidget {
@@ -142,7 +142,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
   // instead.
   void _goHome(BuildContext context) {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => MyHomePage(title: appName)),
+      MaterialPageRoute(builder: (_) => const AppShell()),
       (route) => false,
     );
   }

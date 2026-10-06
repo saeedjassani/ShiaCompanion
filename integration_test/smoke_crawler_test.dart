@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shia_companion/main.dart' as app;
+import 'package:shia_companion/navigation/app_shell.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
 
 /// Automated Smoke Crawler for iOS & Android.
 ///
-/// Discovers and navigates through every section of ShiaCompanion's home
-/// grid without a hardcoded, easily-stale copy of the menu — the crawl list
-/// comes straight from [visibleHomeMenuItems], the same source the grid
+/// Discovers and navigates through every feature on the All features page
+/// without a hardcoded, easily-stale copy of the menu — the crawl list
+/// comes straight from [allFeaturesMenuItems], the same source the page
 /// itself renders from (mirrors the approach `test/ui/page_render_test.dart`
 /// already takes for exactly this reason: a new menu entry is covered the
-/// day it is added, nothing here needs updating for it). Verifies that every
+/// day it is added, nothing here needs updating for it), then the Quran and
+/// Favorites tabs and search from the tab bar. Verifies that every
 /// visited screen builds, mounts, handles scrolling, and dismisses without
 /// throwing uncaught framework exceptions or crashing native platform
 /// channels.
@@ -88,15 +90,26 @@ void main() {
     await tester.pump();
     await binding.takeScreenshot('00_home');
 
-    // 4. Every section on the home grid, in the order it renders there.
+    // 4. Every feature on All features, in the order it renders there,
+    // reached from the last Home shortcut. Quran and Favorites are tabs
+    // rather than features; they are visited from the tab bar further down.
+    debugPrint('==> Smoke Crawler: Opening All features...');
+    final allFeaturesTile = find.text('All features');
+    await tester.ensureVisible(allFeaturesTile.first);
+    await tester.tap(allFeaturesTile.first);
+    await settleBounded(tester, duration: const Duration(seconds: 2));
+    expect(tester.takeException(), isNull,
+        reason: 'Exception thrown when opening All features');
+    await binding.takeScreenshot('00b_all_features');
+
     final sectionsToCrawl =
-        visibleHomeMenuItems.map((item) => item.label).toList();
+        allFeaturesMenuItems.map((item) => item.label).toList();
 
     for (var i = 0; i < sectionsToCrawl.length; i++) {
       final section = sectionsToCrawl[i];
       debugPrint('==> Smoke Crawler: Navigating to "$section"...');
 
-      // Locate section card/label on home screen, scrolling further down each
+      // Locate the feature on All features, scrolling further down each
       // attempt if not yet in view. Bounded so a genuinely missing label
       // (the failure mode this exists to catch) skips instead of looping.
       Finder itemFinder = find.text(section);
@@ -105,7 +118,8 @@ void main() {
         final homeScrollables = find.byType(Scrollable);
         if (homeScrollables.evaluate().isEmpty) break;
         await tester.drag(homeScrollables.first, const Offset(0, -300));
-        await settleBounded(tester, duration: const Duration(milliseconds: 500));
+        await settleBounded(tester,
+            duration: const Duration(milliseconds: 500));
         itemFinder = find.text(section);
         scrollAttempts++;
       }
@@ -119,7 +133,8 @@ void main() {
         // run reporting "not visible" instead of the real cause. Scroll it
         // fully into view first.
         await tester.ensureVisible(itemFinder.first);
-        await settleBounded(tester, duration: const Duration(milliseconds: 300));
+        await settleBounded(tester,
+            duration: const Duration(milliseconds: 300));
 
         // Tap section
         await tester.tap(itemFinder.first);
@@ -140,12 +155,13 @@ void main() {
         final pageScrollables = find.byType(Scrollable);
         if (pageScrollables.evaluate().isNotEmpty) {
           await tester.drag(pageScrollables.first, const Offset(0, -200));
-          await settleBounded(tester, duration: const Duration(milliseconds: 500));
+          await settleBounded(tester,
+              duration: const Duration(milliseconds: 500));
           expect(tester.takeException(), isNull,
               reason: 'Exception thrown when scrolling "$section"');
         }
 
-        // Navigate back to the home screen
+        // Navigate back to All features
         final backButtons = find.byType(BackButton);
         final backTooltips = find.byTooltip('Back');
         if (backButtons.evaluate().isNotEmpty) {
@@ -165,7 +181,7 @@ void main() {
         await binding.takeScreenshot(
             '${(i + 1).toString().padLeft(2, '0')}b_after_${screenshotSafeName(section)}');
 
-        // Verify we actually returned to a live Home screen. This was
+        // Verify we actually returned to a live All features page. This was
         // previously unchecked, so a failed pop — or an exception thrown
         // asynchronously during a section's teardown — went completely
         // undetected: the loop kept running, but every subsequent
@@ -173,22 +189,62 @@ void main() {
         // test, logging each remaining section as "not visible, skipped"
         // instead of surfacing the real failure at its actual source.
         expect(tester.takeException(), isNull,
-            reason: 'Exception thrown returning from "$section" to Home');
-        expect(find.byType(Scrollable), findsWidgets,
             reason:
-                'Did not return to a scrollable Home screen after "$section"');
+                'Exception thrown returning from "$section" to All features');
+        expect(find.byType(Scrollable), findsWidgets,
+            reason: 'Did not return to a scrollable All features page after '
+                '"$section"');
 
         debugPrint('==> Smoke Crawler: "$section" passed cleanly.');
       } else {
-        debugPrint('==> Smoke Crawler: Section "$section" was not visible, skipped.');
+        debugPrint(
+            '==> Smoke Crawler: Section "$section" was not visible, skipped.');
       }
     }
 
-    // 5. Test search bar interaction
+    // Back from All features to Home.
+    final allFeaturesBack = find.byType(BackButton);
+    if (allFeaturesBack.evaluate().isNotEmpty) {
+      await tester.tap(allFeaturesBack.first);
+    } else {
+      tester.state<NavigatorState>(find.byType(Navigator).last).pop();
+    }
+    await settleBounded(tester, duration: const Duration(seconds: 2));
+    expect(find.byType(AppTabBar), findsOneWidget,
+        reason: 'Did not return to Home from All features');
+
+    // 5. The other tabs, through the tab bar, and back to Home.
+    Finder tabLabel(String label) =>
+        find.descendant(of: find.byType(AppTabBar), matching: find.text(label));
+    for (final tab in ['Quran', 'Favorites']) {
+      debugPrint('==> Smoke Crawler: Opening the "$tab" tab...');
+      expect(tabLabel(tab), findsOneWidget,
+          reason: 'The tab bar has no "$tab" tab');
+      await tester.tap(tabLabel(tab));
+      await settleBounded(tester, duration: const Duration(seconds: 2));
+      expect(tester.takeException(), isNull,
+          reason: 'Exception thrown when opening the "$tab" tab');
+      await binding.takeScreenshot('tab_${screenshotSafeName(tab)}');
+
+      final tabScrollables = find.byType(Scrollable);
+      if (tabScrollables.evaluate().isNotEmpty) {
+        await tester.drag(tabScrollables.last, const Offset(0, -200));
+        await settleBounded(tester,
+            duration: const Duration(milliseconds: 500));
+        expect(tester.takeException(), isNull,
+            reason: 'Exception thrown when scrolling the "$tab" tab');
+      }
+    }
+    await tester.tap(tabLabel('Home'));
+    await settleBounded(tester, duration: const Duration(seconds: 1));
+
+    // 6. Test search bar interaction
     debugPrint('==> Smoke Crawler: Testing search interaction...');
-    final searchIcons = find.byIcon(Icons.search);
-    if (searchIcons.evaluate().isNotEmpty) {
-      await tester.tap(searchIcons.first);
+    final searchButtons = find.byTooltip('Search');
+    expect(searchButtons, findsOneWidget,
+        reason: 'The search button beside the tab bar is missing');
+    if (searchButtons.evaluate().isNotEmpty) {
+      await tester.tap(searchButtons.first);
       await settleBounded(tester, duration: const Duration(seconds: 1));
 
       // Type a search query

@@ -25,17 +25,19 @@ import '../services/rating_prompt_service.dart';
 import '../services/session_refresh_service.dart';
 import '../services/zikr_bookmarks_manager.dart';
 import '../utils/app_text_scale.dart';
-import '../utils/dark_mode.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
+import '../utils/theme_mode.dart';
 import '../utils/widget_prayer_time_selection.dart';
 import 'prayer_notifications_page.dart';
 import '../widgets/content_request_dialog.dart';
 import '../widgets/language_settings.dart';
 import '../widgets/responsive_content.dart';
+import '../widgets/theme_mode_picker.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
+import 'city_picker.dart';
 import 'downloaded_audio_page.dart';
 import 'delete_account_page.dart';
 import 'scheduled_notifications_page.dart';
@@ -102,7 +104,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final darkModeProvider = Provider.of<DarkModeProvider>(context);
+    final themeModeProvider = Provider.of<ThemeModeProvider>(context);
     final textScaleProvider = Provider.of<AppTextScaleProvider>(context);
     final currentUser = user ?? _auth.currentUser;
 
@@ -137,33 +139,26 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.location_on),
-                title: Text(context.l10n.settingsRefreshLocation),
-                subtitle: Text(_refreshLocationSubtitle()),
+                title: Text(context.l10n.settingsLocation),
+                subtitle: Text(_locationSubtitle()),
                 trailing: LocationService.instance.isRefreshing
                     ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : null,
-                enabled: !LocationService.instance.isRefreshing,
+                    : const Icon(Icons.chevron_right),
                 onTap: () async {
-                  // Passing context lets initializeLocation explain *why* it
-                  // failed and offer the relevant settings screen, instead of
-                  // a snackbar that guesses. The row redraws from the service
-                  // listener, so there is no setState to sequence here.
-                  final success =
-                      await LocationService.instance.refresh(context: context);
+                  // The picker offers both ways: a city by name, or the
+                  // phone's own location (with its permission dialogs). The
+                  // row redraws from the service listener.
+                  await chooseCityFlow(context);
                   if (!mounted) return;
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(context.l10n.settingsLocationRefreshed),
-                    ));
-                    return;
-                  }
                   // Those diagnostic dialogs are all guarded on !kIsWeb, so on
                   // web a failure would otherwise look like a dead tap.
-                  if (kIsWeb) {
+                  if (kIsWeb &&
+                      LocationService.instance.status ==
+                          LocationRefreshStatus.failed) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(LocationService.instance.failureMessage),
                     ));
@@ -236,14 +231,13 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               if (AppLanguageTile.isOffered())
                 const AppLanguageTile(leading: Icon(Icons.language)),
-              SwitchListTile(
-                secondary: const Icon(Icons.dark_mode),
-                value: darkModeProvider.isDarkMode,
-                onChanged: (value) {
-                  darkModeProvider.toggleDarkMode();
-                },
-                title: Text(context.l10n.settingsDarkMode),
-                subtitle: Text(context.l10n.settingsDarkModeSubtitle),
+              ListTile(
+                leading: const Icon(Icons.dark_mode),
+                title: Text(context.l10n.settingsTheme),
+                subtitle: Text(ThemeModeProvider.label(
+                    themeModeProvider.themeMode, context.l10n)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => showThemeModePicker(context),
               ),
               ListTile(
                 leading: const Icon(Icons.format_size),
@@ -643,7 +637,7 @@ class _SettingsPageState extends State<SettingsPage> {
         : context.l10n.settingsHijriBehind(days);
   }
 
-  String _refreshLocationSubtitle() {
+  String _locationSubtitle() {
     final location = LocationService.instance;
     if (location.isRefreshing) {
       return context.l10n.settingsLocationUpdating;
@@ -657,8 +651,11 @@ class _SettingsPageState extends State<SettingsPage> {
     if (savedCity == null || savedCity.isEmpty) {
       return context.l10n.settingsLocationUpdatePrompt;
     }
+    if (location.isManual) {
+      return context.l10n.settingsLocationManual(savedCity);
+    }
 
-    final updatedAt = LocationService.instance.updatedAt;
+    final updatedAt = location.updatedAt;
     if (updatedAt == null) {
       return context.l10n.settingsLocationSaved(savedCity);
     }

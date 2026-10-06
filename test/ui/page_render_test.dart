@@ -2,10 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shia_companion/navigation/app_shell.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
+import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/pages/about_page.dart';
+import 'package:shia_companion/pages/all_features_page.dart';
+import 'package:shia_companion/pages/city_picker.dart';
+import 'package:shia_companion/pages/city_prayer_times_page.dart';
+import 'package:shia_companion/pages/home/coming_up_section.dart';
+import 'package:shia_companion/pages/home/continue_section.dart';
+import 'package:shia_companion/pages/home/hadith_card.dart';
+import 'package:shia_companion/pages/home/home_header.dart';
+import 'package:shia_companion/pages/home/shortcuts_section.dart';
+import 'package:shia_companion/pages/list_items.dart';
+import 'package:shia_companion/services/city_repository.dart';
+import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
-import 'package:shia_companion/utils/dark_mode.dart';
+import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 import 'firebase_test_doubles.dart';
@@ -29,6 +43,23 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await SP.init();
     await setUpFirebaseForRenderTests();
+    // The real list is 2 MB; a few rows exercise the same layout.
+    CityRepository.instance.seedForTesting([
+      for (final (name, country) in [
+        ('Baghdad', 'Iraq'),
+        ('Karbala', 'Iraq'),
+        ('Al Madīnah al Munawwarah ash Sharqiyah', 'Iraq'),
+      ])
+        City(
+          name: name,
+          countryCode: 'IQ',
+          countryName: country,
+          latitude: 33,
+          longitude: 44,
+          population: 1000000,
+          timeZone: 'Asia/Baghdad',
+        ),
+    ]);
   });
 
   for (final screen in _screens) {
@@ -50,7 +81,70 @@ void main() {
       }
     }
   }
+
+  // The real Quran and Favorites tab roots inside the shell, under the
+  // floating bar. Home is left out: it starts the whole app (deep links,
+  // notifications, sync) and needs plugins this suite does not mock.
+  testWidgets('the tab shell renders each tab at 1.5x system text',
+      (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await _pump(
+      tester,
+      _Screen('App shell', () => AppShell(tabs: _shellTabs())),
+      _viewports.first,
+      Brightness.light,
+    );
+    for (final label in ['Quran', 'Favorites', 'Home']) {
+      await tester.tap(find.text(label).last);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(tester.takeException(), isNull, reason: label);
+    }
+  });
+
+  for (final viewport in _viewports) {
+    for (final brightness in Brightness.values) {
+      testWidgets(
+        'the tab shell renders each tab on ${viewport.name} in '
+        '${brightness.name} mode',
+        (tester) async {
+          await _pump(
+            tester,
+            _Screen('App shell', () => AppShell(tabs: _shellTabs())),
+            viewport,
+            brightness,
+          );
+          for (final label in ['Quran', 'Favorites', 'Home']) {
+            await tester.tap(find.text(label).last);
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 500));
+            expect(tester.takeException(), isNull, reason: label);
+          }
+        },
+      );
+    }
+  }
 }
+
+List<AppShellTab> _shellTabs() => [
+      AppShellTab(
+        label: 'Home',
+        icon: (color) => Icon(Icons.home_outlined, color: color),
+        builder: (_) => const Scaffold(body: SizedBox.expand()),
+      ),
+      AppShellTab(
+        label: 'Quran',
+        icon: (color) => Icon(Icons.menu_book_outlined, color: color),
+        builder: (_) => ItemList('A', 'Quran'),
+      ),
+      AppShellTab(
+        label: 'Favorites',
+        icon: (color) => Icon(Icons.favorite_border, color: color),
+        builder: (_) => favoritesMenuItem.pageBuilder(),
+      ),
+    ];
 
 class _Screen {
   const _Screen(this.name, this.build);
@@ -79,7 +173,72 @@ final List<_Screen> _screens = [
       _Screen(item.label, item.buildPage),
   // Reachable from the app bar rather than the menu.
   _Screen('About', () => AboutPage()),
+  _Screen('All features', () => const AllFeaturesPage()),
+  _Screen(
+    'City picker',
+    () => const Scaffold(body: CityPicker(timeZone: 'Asia/Baghdad')),
+  ),
+  _Screen(
+    'City prayer times',
+    () => const CityPrayerTimesPage(
+      city: City(
+        name: 'Karbala',
+        countryCode: 'IQ',
+        countryName: 'Iraq',
+        latitude: 32.62,
+        longitude: 44.03,
+        population: 1218732,
+        timeZone: 'Asia/Baghdad',
+      ),
+    ),
+  ),
+  // Home itself starts the whole app (deep links, notifications, sync), so
+  // its sections are rendered on their own, laid out as Home lays them out.
+  _Screen('Home sections', () => const _HomeSections()),
 ];
+
+class _HomeSections extends StatelessWidget {
+  const _HomeSections();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                HomeHeader(onOpenSettings: () {}),
+                const SizedBox(height: 18),
+                const HomePrayerTimesCard(),
+              ],
+            ),
+          ),
+          const ContinueSection(topSpacing: 18),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {}),
+                ComingUpSection(topSpacing: 18, onOpenCalendar: () {}),
+                const SizedBox(height: 18),
+                const HadithOfTheDayCard(
+                  hadith: "Imam Ali (a.s.) said: 'Increase your silence and "
+                      "your thoughts will flourish.'\n[Ghurar al-Hikam, no. "
+                      '3725]',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 const List<_Viewport> _viewports = [
   _Viewport('a phone', Size(393, 852)),
@@ -99,21 +258,15 @@ Future<void> _pump(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   await tester.pumpWidget(
-    // Settings reads DarkModeProvider and AppTextScaleProvider from the tree,
-    // exactly as main.dart supplies them.
+    // Settings reads ThemeModeProvider and AppTextScaleProvider from the
+    // tree, exactly as main.dart supplies them.
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => DarkModeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeModeProvider()),
         ChangeNotifierProvider(create: (_) => AppTextScaleProvider()),
       ],
       child: MaterialApp(
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.brown,
-            brightness: brightness,
-          ),
-        ),
+        theme: buildAppTheme(brightness),
         home: screen.build(),
       ),
     ),

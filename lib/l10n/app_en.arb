@@ -54,7 +54,7 @@
       }
     }
   },
-  "settingsLocationFailed": "{message}. Tap to try again.",
+  "settingsLocationFailed": "{message}. Tap to choose a city or try again.",
   "@settingsLocationFailed": {
     "description": "{message} explains why the location refresh failed.",
     "placeholders": {
@@ -63,8 +63,16 @@
       }
     }
   },
-  "settingsLocationSaved": "Current saved location: {city}.",
+  "settingsLocationSaved": "{city} · from your phone's location.",
   "@settingsLocationSaved": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLocationManual": "{city} · chosen by you. Tap to change.",
+  "@settingsLocationManual": {
     "placeholders": {
       "city": {
         "type": "String"
@@ -149,8 +157,7 @@
   "settingsSectionPrayerLocation": "Prayer & Location",
   "settingsAdjustHijriDate": "Adjust Hijri Date",
   "settingsPrayerTimesShown": "Prayer Times Shown",
-  "settingsRefreshLocation": "Refresh Location",
-  "settingsLocationRefreshed": "Location has been refreshed.",
+  "settingsLocation": "Location",
   "settingsSectionNotifications": "Notifications",
   "settingsPrayerNotifications": "Prayer notifications",
   "settingsZikrReminders": "Zikr Reminders",
@@ -159,8 +166,6 @@
   "settingsScheduledNotifications": "Scheduled Notifications",
   "settingsScheduledNotificationsSubtitle": "Review pending prayer notifications.",
   "settingsSectionAppearance": "Appearance",
-  "settingsDarkMode": "Dark mode",
-  "settingsDarkModeSubtitle": "Use the dark appearance across the app.",
   "settingsAppTextSize": "App text size",
   "settingsAppTextSizeSubtitle": "Makes all text bigger or smaller, including zikr.",
   "settingsSectionZikrReading": "Zikr Reading & Sharing",
@@ -193,7 +198,7 @@
   "settingsSyncing": "Favorites and account data are syncing.",
   "settingsHijriNoAdjustment": "No adjustment",
   "settingsLocationUpdating": "Updating your location…",
-  "settingsLocationUpdatePrompt": "Update the saved prayer-times location.",
+  "settingsLocationUpdatePrompt": "Choose a city, or use your phone's location.",
   "timeJustNow": "just now",
   "settingsPrayerNotificationsOff": "Off. Turn on to be notified at prayer times.",
   "settingsPreciseAlarmsOn": "Enabled for exact Azan timing.",
@@ -633,6 +638,7 @@
   "qiblaNeedsCalibrating": "Compass needs calibrating",
   "qiblaLocationUnknown": "Location unknown",
   "qiblaUpdateLocation": "Update location",
+  "cityChangeCity": "Change city",
   "qiblaPointingTowards": "Pointing towards",
   "qiblaWaitingForLocation": "Waiting for your location",
   "qiblaPointTowards": "Point towards",
@@ -1024,7 +1030,7 @@
   "deleteAccountCompleted": "Your account deletion request has completed.",
   "deleteAccountCompletedNote": "If you sign in again later, a brand new account will be created.",
   "deleteAccountWebSteps": "Use the Google sign-in button below, then confirm deletion.",
-  "deleteAccountAppSteps": "Open Preferences in the app and use Delete My Account.",
+  "deleteAccountAppSteps": "Open Settings in the app and use Delete My Account.",
   "deleteAccountSigningIn": "Signing in...",
   "deleteAccountDeleting": "Deleting...",
   "deleteAccountButton": "Delete my account",
@@ -1350,14 +1356,10 @@
       }
     }
   },
-  "prayerNextDay": "(next day)",
+  "prayerNextDay": "next day",
   "prayerLocating": "Locating…",
-  "prayerForYourLocation": "Prayer times for your location",
-  "prayerFindingLocation": "Finding your location",
-  "prayerAppearSoon": "Prayer times will appear in a moment",
-  "prayerTapToRetry": "Tap to try again",
+  "prayerFindingLocation": "Finding your location…",
   "prayerLocationUnavailable": "Location not available",
-  "prayerTapToEnableLocation": "Tap here to enable location",
   "calendarNotificationsSomeOn": "{enabled} of {total} on",
   "@calendarNotificationsSomeOn": {
     "placeholders": {
@@ -2155,5 +2157,439 @@
     }
   },
   "requestTypeZikr": "Zikr",
-  "requestTypeBook": "Book"
+  "requestTypeBook": "Book",
+  "shellTabHome": "Home",
+  "@shellTabHome": {
+    "description": "The Home tab in the bottom tab bar."
+  },
+  "shellTabQuran": "Quran",
+  "@shellTabQuran": {
+    "description": "The Quran tab in the bottom tab bar, and the title of the surah list it opens."
+  },
+  "shellTabFavorites": "Favorites",
+  "@shellTabFavorites": {
+    "description": "The Favorites tab in the bottom tab bar."
+  },
+  "shellTabSemantics": "{tab}, tab {position} of {count}",
+  "@shellTabSemantics": {
+    "description": "Screen-reader label for a tab bar item, as a platform tab bar reads: 'Home, tab 1 of 3'.",
+    "placeholders": {
+      "tab": {
+        "type": "String"
+      },
+      "position": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "menuQiblaShort": "Qibla",
+  "@menuQiblaShort": {
+    "description": "Short name of Qibla Finder, for a Home shortcut tile."
+  },
+  "menuTasbeehShort": "Tasbeeh",
+  "@menuTasbeehShort": {
+    "description": "Short name of Tasbeeh Counter, for a Home shortcut tile."
+  },
+  "homeAllFeatures": "All features",
+  "@homeAllFeatures": {
+    "description": "The tile, page and editor row that lists every feature of the app."
+  },
+  "homeShortcutsTitle": "Shortcuts",
+  "@homeShortcutsTitle": {
+    "description": "Heading of Home's section of feature shortcuts, and of its editor sheet."
+  },
+  "homeSectionEdit": "Edit",
+  "@homeSectionEdit": {
+    "description": "Action at the end of a Home section heading that opens its editor."
+  },
+  "homeEditShortcuts": "Edit shortcuts",
+  "homeShortcutOnHomeSemantics": "{feature}, on your Home",
+  "@homeShortcutOnHomeSemantics": {
+    "description": "Screen-reader label for a feature that is already one of the Home shortcuts.",
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "homeShortcutsOnHomeCount": "On your Home · {count} of {max}",
+  "@homeShortcutsOnHomeCount": {
+    "description": "Heading over the shortcuts already on Home in the editor, e.g. 'On your Home · 5 of 7'. Shown in capitals.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "homeShortcutRemove": "Remove {feature}",
+  "@homeShortcutRemove": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "homeShortcutAdd": "Add {feature}",
+  "@homeShortcutAdd": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "homeAllFeaturesAlwaysLast": "Always last, so nothing gets lost",
+  "@homeAllFeaturesAlwaysLast": {
+    "description": "Under 'All features' in the shortcuts editor: that tile cannot be removed or moved."
+  },
+  "homeShortcutsMore": "More",
+  "@homeShortcutsMore": {
+    "description": "Heading over the features that can be added as shortcuts. Shown in capitals."
+  },
+  "homeShortcutsMoreFull": "More · remove one above to add one here",
+  "@homeShortcutsMoreFull": {
+    "description": "The 'More' heading when Home already has the most shortcuts it can take. Shown in capitals."
+  },
+  "homeAlreadyShortcut": "Already one of your Home shortcuts",
+  "@homeAlreadyShortcut": {
+    "description": "Key under the All features grid, next to the check that marks a feature already on Home."
+  },
+  "homeGreeting": "Assalamu alaykum",
+  "@homeGreeting": {
+    "description": "The greeting at the top of Home."
+  },
+  "homeSettingsAndAccount": "Settings and account",
+  "@homeSettingsAndAccount": {
+    "description": "Tooltip and screen-reader label of the profile button on Home."
+  },
+  "homeEventInDays": "{days, plural, =1{In 1 day} other{In {days} days}}",
+  "@homeEventInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    },
+    "description": "How far off a Coming up event on Home is. Today and tomorrow have their own words."
+  },
+  "homeEventKindOf": "{kind} of {name}",
+  "@homeEventKindOf": {
+    "description": "A Coming up event on Home: what happened, and to whom, e.g. 'Wiladat of Imam Ali (a.s.)'. Both come from the calendar's event list.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeComingUpTitle": "Coming up",
+  "@homeComingUpTitle": {
+    "description": "Heading of Home's section of upcoming Islamic calendar events."
+  },
+  "homeOpenCalendar": "Open the calendar",
+  "@homeOpenCalendar": {
+    "description": "Screen-reader label of the Calendar link beside the Coming up heading."
+  },
+  "homeHadithOfTheDay": "Hadith of the day",
+  "homeContinueTitle": "Continue",
+  "@homeContinueTitle": {
+    "description": "Heading of Home's section that picks up the latest Quran track, bookmark or book."
+  },
+  "homeCategoryQuran": "Quran",
+  "@homeCategoryQuran": {
+    "description": "What a zikr category is called on a Continue card on Home, before ' · bookmark'."
+  },
+  "homeCategoryAamaal": "Aamaal",
+  "@homeCategoryAamaal": {
+    "description": "What a zikr category is called on a Continue card on Home, before ' · bookmark'."
+  },
+  "homeCategoryTaqibaat": "Taqibaat",
+  "@homeCategoryTaqibaat": {
+    "description": "What a zikr category is called on a Continue card on Home, before ' · bookmark'."
+  },
+  "homeCategoryDua": "Dua",
+  "@homeCategoryDua": {
+    "description": "What a zikr category is called on a Continue card on Home, before ' · bookmark'."
+  },
+  "homeCategoryNamaz": "Namaz",
+  "@homeCategoryNamaz": {
+    "description": "What a zikr category is called on a Continue card on Home, before ' · bookmark'."
+  },
+  "homeCategoryZiyarat": "Ziyarat",
+  "@homeCategoryZiyarat": {
+    "description": "What a zikr category is called on a Continue card on Home, before ' · bookmark'."
+  },
+  "homeCategoryMunajat": "Munajat",
+  "@homeCategoryMunajat": {
+    "description": "What a zikr category is called on a Continue card on Home, before ' · bookmark'."
+  },
+  "homeCategoryZikr": "Zikr",
+  "@homeCategoryZikr": {
+    "description": "What a zikr category is called on a Continue card on Home, before ' · bookmark'."
+  },
+  "homeContinueQuranTrack": "Quran · {track}",
+  "@homeContinueQuranTrack": {
+    "description": "Caption of a Continue card for a named Quran recitation track.",
+    "placeholders": {
+      "track": {
+        "type": "String"
+      }
+    }
+  },
+  "homeContinueVerseOf": "Verse {ayah} of {count}",
+  "@homeContinueVerseOf": {
+    "placeholders": {
+      "ayah": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeContinueBookmarkCaption": "{category} · bookmark",
+  "@homeContinueBookmarkCaption": {
+    "description": "Caption of a Continue card for a zikr bookmark, e.g. 'Dua · bookmark'.",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "homeContinueAtBookmark": "Pick up at your bookmark",
+  "homeContinueInTab": "Pick up in {tab}",
+  "@homeContinueInTab": {
+    "description": "{tab} is the title of the tab of the zikr the bookmark is in.",
+    "placeholders": {
+      "tab": {
+        "type": "String"
+      }
+    }
+  },
+  "homeContinueWhereStopped": "Pick up where you stopped",
+  "homeContinueSurahProgress": "Progress through the surah",
+  "@homeContinueSurahProgress": {
+    "description": "Screen-reader label of the progress bar on a Quran Continue card."
+  },
+  "cityClockHours": "{hours} hr",
+  "@cityClockHours": {
+    "description": "Part of a clock difference, e.g. '2 hr' in '2 hr 30 min ahead of your phone'.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "cityClockMinutes": "{minutes} min",
+  "@cityClockMinutes": {
+    "description": "Part of a clock difference, e.g. '30 min' in '2 hr 30 min ahead of your phone'.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "cityClockAhead": "{amount} ahead of your phone",
+  "@cityClockAhead": {
+    "description": "How far a city's clock is ahead of the phone's; {amount} is e.g. '2 hr 30 min'.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cityClockBehind": "{amount} behind your phone",
+  "@cityClockBehind": {
+    "description": "How far a city's clock is behind the phone's; {amount} is e.g. '2 hr 30 min'.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cityInYourTimeZone": "In your time zone",
+  "@cityInYourTimeZone": {
+    "description": "Heading over the cities suggested before anything is typed. Shown in capitals."
+  },
+  "cityResults": "Cities",
+  "@cityResults": {
+    "description": "Heading over the city search results. Shown in capitals."
+  },
+  "cityAnotherCity": "Another city",
+  "@cityAnotherCity": {
+    "description": "Title of the picker that looks up another city's prayer times without changing the reader's own."
+  },
+  "cityChooseYourCity": "Choose your city",
+  "cityNoMatch": "No city called “{query}”. Try another spelling, or the nearest bigger city - its prayer times will be within a minute or two of yours.",
+  "@cityNoMatch": {
+    "description": "{query} is what the reader typed.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "cityLookupNote": "See any city's prayer times on its own clock. Your own prayer times and notifications stay as they are.",
+  "cityOfflineNote": "Prayer times are worked out on your phone, so this works without internet. You can change city any time from the prayer card.",
+  "cityListCredit": "City list: GeoNames (geonames.org), CC BY 4.0",
+  "@cityListCredit": {
+    "description": "Attribution required by the city list's licence. Keep 'GeoNames', 'geonames.org' and 'CC BY 4.0' as they are."
+  },
+  "cityInCityQuestion": "Are you in {city} now?",
+  "@cityInCityQuestion": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "cityInCityBody": "{city} is {difference}. Checking its times won't change your own prayer times or notifications.",
+  "@cityInCityBody": {
+    "description": "{difference} is e.g. '2 hr ahead of your phone'.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "difference": {
+        "type": "String"
+      }
+    }
+  },
+  "cityJustChecking": "Just checking times",
+  "@cityJustChecking": {
+    "description": "Answer to 'Are you in {city} now?': only looking at that city's times."
+  },
+  "cityImInCity": "I'm in {city} now",
+  "@cityImInCity": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "citySearchHint": "Search for a city",
+  "cityUseCurrentLocationInstead": "Use my current location instead",
+  "cityUseCurrentLocation": "Use my current location",
+  "cityUpdatesWhenTravelling": "Updates by itself when you travel",
+  "@cityUpdatesWhenTravelling": {
+    "description": "Under 'Use my current location': the phone's location follows the reader."
+  },
+  "cityAlsoKnownAs": "{place} · also {alias}",
+  "@cityAlsoKnownAs": {
+    "description": "A city search result found by another name of the city, e.g. 'Iraq · also Kerbela'.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "alias": {
+        "type": "String"
+      }
+    }
+  },
+  "cityPreviousDay": "Previous day",
+  "cityNextDay": "Next day",
+  "cityTodayIn": "Today in {city}",
+  "@cityTodayIn": {
+    "description": "Button that jumps back to the city's today.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "cityTimeDifference": "{city} time, {difference}",
+  "@cityTimeDifference": {
+    "description": "Which clock the times are on, e.g. 'Karbala time, 2 hr ahead of your phone'.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "difference": {
+        "type": "String"
+      }
+    }
+  },
+  "cityJustLookingNote": "Just for looking: your own prayer times and notifications stay as they are.",
+  "cityAnotherCitySubtitle": "See its prayer times for this date",
+  "@cityAnotherCitySubtitle": {
+    "description": "Under 'Another city' on the calendar."
+  },
+  "aboutCityListCredit": "The city list is from GeoNames, used under Creative Commons Attribution 4.0.",
+  "@aboutCityListCredit": {
+    "description": "Attribution required by the city list's licence. Keep 'GeoNames' as it is."
+  },
+  "settingsTheme": "Theme",
+  "themeSameAsPhone": "Same as phone",
+  "@themeSameAsPhone": {
+    "description": "Theme option: light or dark following the phone's setting."
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Theme option."
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Theme option."
+  },
+  "themeSameAsPhoneSubtitle": "Light or dark, as your phone is set",
+  "prayerTimesTitle": "Prayer times",
+  "@prayerTimesTitle": {
+    "description": "Caption of Home's prayer card, and its screen-reader label."
+  },
+  "prayerTheCityYouChose": "the city you chose",
+  "@prayerTheCityYouChose": {
+    "description": "Stands in for the city's name in 'Still in {city}?' when the city has no name."
+  },
+  "prayerStillInCity": "Still in {city}?",
+  "@prayerStillInCity": {
+    "description": "Asked on the prayer card when a chosen city's clock no longer matches the phone's, e.g. after flying home.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "prayerPhoneZoneDiffers": "Your phone is set to a different time zone.",
+  "prayerYesStillHere": "Yes, still here",
+  "prayerYourLocation": "Your location",
+  "@prayerYourLocation": {
+    "description": "The place button on the prayer card while the location has no name yet."
+  },
+  "prayerCityButtonSemantics": "{place}. Change city",
+  "@prayerCityButtonSemantics": {
+    "description": "Screen-reader label of the place button on the prayer card.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "prayerChooseCity": "Choose city",
+  "prayerWhichCity": "Which city are you in?",
+  "@prayerWhichCity": {
+    "description": "Title of the prayer card before any location is known."
+  },
+  "prayerWhichCityBody": "We'll show today's prayer times and the next azan.",
+  "prayerZoneSuggests": "Your phone's time zone suggests {city}.",
+  "@prayerZoneSuggests": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "prayerYesImIn": "Yes, I'm in {city}",
+  "@prayerYesImIn": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  }
 }

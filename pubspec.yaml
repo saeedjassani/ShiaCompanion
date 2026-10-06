@@ -78,6 +78,7 @@ flutter:
 
   assets:
     - assets/airports.tsv
+    - assets/cities.tsv
     - assets/books.json
     - assets/events.json
     - assets/logo.png
