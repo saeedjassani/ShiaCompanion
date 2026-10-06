@@ -7,15 +7,16 @@ import '../../data/quran_mahdi_verses.dart';
 import '../../data/quran_prophet_stories.dart';
 import '../../data/universal_data.dart';
 import '../../services/analytics_service.dart';
-import '../../services/favorites_manager.dart';
 import '../../services/saved_verses_store.dart';
+import '../../theme/shia_colors.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/shared_preferences.dart';
 import '../../widgets/favorite_icon.dart';
-import '../../widgets/responsive_content.dart';
+import '../../widgets/outline_icon.dart';
+import '../../widgets/page_chrome.dart';
 import '../../l10n/l10n.dart';
 
-/// The groups the Collections tab can show, in chip order.
+/// The groups the Collections view can show, in pill order.
 enum QuranCollection {
   duas,
   imamAli,
@@ -30,110 +31,94 @@ enum QuranCollection {
         QuranCollection.prophets => L10n.current.quranCollectionProphets,
         QuranCollection.saved => L10n.current.quranCollectionSaved,
       };
+
+  /// Remembers the collection last picked, so someone who comes for their
+  /// saved verses is not sent back to Duas every visit.
+  static const String selectedKey = 'quran_collections_selected';
+
+  static QuranCollection readSelected() {
+    if (!SP.isInitialized) return values.first;
+    final stored = SP.prefs.getString(selectedKey);
+    return values.firstWhere(
+      (collection) => collection.name == stored,
+      orElse: () => values.first,
+    );
+  }
+
+  void remember() {
+    if (SP.isInitialized) SP.prefs.setString(selectedKey, name);
+  }
 }
 
-/// The Quran screen's third tab: everything that is a *selection* of the
-/// Quran rather than a way of walking through it, picked with a row of chips.
+/// The Quran screen's Collections view: everything that is a *selection* of
+/// the Quran rather than a way of walking through it, picked with a row of
+/// pills.
 ///
 /// This is also where the zikrs the old 'Surahs' list carried alongside the
-/// 114 - Ayat al Kursi and the Quran duas - live now, since the surah list
-/// only shows surahs. New groups are one more [QuranCollection] value and one
-/// more case in [_buildBody].
-class QuranCollectionsTab extends StatefulWidget {
-  const QuranCollectionsTab({
+/// 114 - Ayat al Kursi and the Quran duas - live, since the surah list only
+/// shows surahs. New groups are one more [QuranCollection] value and one
+/// more case in [_bodySlivers].
+///
+/// Built as slivers, so the list scrolls with the rest of the Quran screen
+/// rather than in a box of its own under it.
+class QuranCollectionsSliver extends StatelessWidget {
+  const QuranCollectionsSliver({
     super.key,
+    required this.selected,
+    required this.onSelect,
     required this.saved,
     required this.onOpenVerse,
     required this.onRemoveSaved,
   });
 
+  final QuranCollection selected;
+  final ValueChanged<QuranCollection> onSelect;
   final List<SavedVerse> saved;
   final void Function(VerseKey verse) onOpenVerse;
   final void Function(SavedVerse saved) onRemoveSaved;
 
-  /// Remembers the chip last picked, so someone who comes here for their
-  /// saved verses is not sent back to Duas every visit.
-  static const String selectedCollectionKey = 'quran_collections_selected';
-
-  @override
-  State<QuranCollectionsTab> createState() => _QuranCollectionsTabState();
-}
-
-class _QuranCollectionsTabState extends State<QuranCollectionsTab> {
-  late QuranCollection _selected;
-
-  @override
-  void initState() {
-    super.initState();
-    _selected = _readSelected();
-  }
-
-  QuranCollection _readSelected() {
-    if (!SP.isInitialized) return QuranCollection.values.first;
-    final stored =
-        SP.prefs.getString(QuranCollectionsTab.selectedCollectionKey);
-    return QuranCollection.values.firstWhere(
-      (collection) => collection.name == stored,
-      orElse: () => QuranCollection.values.first,
-    );
-  }
-
-  void _select(QuranCollection collection) {
-    setState(() => _selected = collection);
-    if (SP.isInitialized) {
-      SP.prefs.setString(
-          QuranCollectionsTab.selectedCollectionKey, collection.name);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ResponsiveContent(
-          maxWidth: listContentWidth,
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+    return SliverMainAxisGroup(
+      slivers: [
+        SliverToBoxAdapter(
           // Wrapped rather than scrolled sideways: with five collections a
           // single row runs off a phone screen and hides the last ones.
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                for (final collection in QuranCollection.values)
-                  ChoiceChip(
-                    label: Text(collection.label),
-                    selected: collection == _selected,
-                    onSelected: (_) => _select(collection),
-                  ),
-              ],
-            ),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final collection in QuranCollection.values)
+                ChoicePill(
+                  label: collection.label,
+                  selected: collection == selected,
+                  onTap: () => onSelect(collection),
+                ),
+            ],
           ),
         ),
-        Expanded(child: _buildBody()),
+        const SliverToBoxAdapter(child: SizedBox(height: 14)),
+        ..._bodySlivers(context),
       ],
     );
   }
 
-  Widget _buildBody() {
-    switch (_selected) {
+  List<Widget> _bodySlivers(BuildContext context) {
+    switch (selected) {
       case QuranCollection.duas:
-        return _QuranDuaList(onOpenVerse: widget.onOpenVerse);
+        return _quranDuaSlivers(context, onOpenVerse);
       case QuranCollection.imamAli:
-        return _NotedVerseList(
-            notes: quranAliVerses, onOpen: widget.onOpenVerse);
+        return [_notedVerseSliver(quranAliVerses, onOpenVerse)];
       case QuranCollection.imamMahdi:
-        return _NotedVerseList(
-            notes: quranMahdiVerses, onOpen: widget.onOpenVerse);
+        return [_notedVerseSliver(quranMahdiVerses, onOpenVerse)];
       case QuranCollection.prophets:
-        return _ProphetStoryList(onOpen: widget.onOpenVerse);
+        return _prophetStorySlivers(onOpenVerse);
       case QuranCollection.saved:
-        return _SavedVerseList(
-          saved: widget.saved,
-          onOpen: widget.onOpenVerse,
-          onRemove: widget.onRemoveSaved,
-        );
+        return [
+          saved.isEmpty
+              ? const SliverToBoxAdapter(child: _NoSavedVerses())
+              : _savedVerseSliver(context, saved, onOpenVerse, onRemoveSaved),
+        ];
     }
   }
 }
@@ -147,178 +132,119 @@ String _verseTitle(VerseKey verse) {
 /// Ayat al Kursi and the duas recited with the Quran - the non-surah zikrs of
 /// the Quran category, opened like any other zikr - followed by the duas the
 /// Quran itself contains ([quranDuas]), opened in the reader at their ayah.
-class _QuranDuaList extends StatelessWidget {
-  const _QuranDuaList({required this.onOpenVerse});
-
-  final void Function(VerseKey verse) onOpenVerse;
-
-  @override
-  Widget build(BuildContext context) {
-    final uids = quranCompanionZikrUids();
-    final theme = Theme.of(context);
-
-    // Zikr rows, then a heading, then the verse duas.
-    final itemCount = uids.length + 1 + quranDuas.length;
-
-    return ResponsiveContent(
-      maxWidth: listContentWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.separated(
-        // Clears the floating tab bar when this is a tab's root, and the
-        // system's bottom inset otherwise.
-        padding: EdgeInsets.only(
-            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
-        separatorBuilder: (context, index) =>
-            index >= uids.length - 1 && index <= uids.length
-                ? const SizedBox.shrink()
-                : const Divider(height: 1),
-        itemCount: itemCount,
+List<Widget> _quranDuaSlivers(
+    BuildContext context, void Function(VerseKey verse) onOpenVerse) {
+  final uids = quranCompanionZikrUids();
+  return [
+    if (uids.isNotEmpty) ...[
+      SliverCardList(
+        itemCount: uids.length,
         itemBuilder: (context, index) {
-          if (index < uids.length) {
-            // The same UniversalData shape the category lists build, so the
-            // favourite here is the same favourite as in the old Surahs list.
-            final itemData =
-                UniversalData(uids[index], items[uids[index]].toString(), 0);
-
-            return ListTile(
-              title: Text(itemData.displayTitle),
-              trailing: InkWell(
-                onTap: () => FavoritesManager.instance.toggleFavorite(itemData),
-                child: FavoriteIcon(favorite: itemData),
-              ),
-              onTap: () => handleUniversalDataClick(
-                context,
-                itemData,
-                source: ZikrOpenSource.quran,
-              ),
-            );
-          }
-
-          if (index == uids.length) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-              child: Text(
-                context.l10n.quranFromTheQuran,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            );
-          }
-
-          final dua = quranDuas[index - uids.length - 1];
-          final reference = dua.endAyah == null
-              ? _verseTitle(dua.verse)
-              : '${_verseTitle(dua.verse)}-${dua.endAyah}';
-
-          return ListTile(
-            title: Text(dua.opening),
-            subtitle: Text('$reference · ${dua.note}'),
-            onTap: () => onOpenVerse(dua.verse),
+          // The same UniversalData shape the category lists build, so the
+          // favourite here is the same favourite as in the old Surahs list.
+          final itemData =
+              UniversalData(uids[index], items[uids[index]].toString(), 0);
+          return CardListRow(
+            first: index == 0,
+            last: index == uids.length - 1,
+            title: Text(itemData.displayTitle),
+            trailing: FavoriteHeartButton(favorite: itemData),
+            onTap: () => handleUniversalDataClick(
+              context,
+              itemData,
+              source: ZikrOpenSource.quran,
+            ),
           );
         },
       ),
-    );
-  }
+      const SliverToBoxAdapter(child: SizedBox(height: 20)),
+    ],
+    SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: GroupLabel(context.l10n.quranFromTheQuran),
+      ),
+    ),
+    SliverCardList(
+      itemCount: quranDuas.length,
+      itemBuilder: (context, index) {
+        final dua = quranDuas[index];
+        final reference = dua.endAyah == null
+            ? _verseTitle(dua.verse)
+            : '${_verseTitle(dua.verse)}-${dua.endAyah}';
+        return CardListRow(
+          first: index == 0,
+          last: index == quranDuas.length - 1,
+          title: Text(dua.opening),
+          subtitle: Text('$reference · ${dua.note}'),
+          onTap: () => onOpenVerse(dua.verse),
+        );
+      },
+    ),
+  ];
 }
 
 /// A curated verse collection - the verses about Imam Ali (a.s.)
 /// ([quranAliVerses]) or Imam al-Mahdi (a.t.f.s.) ([quranMahdiVerses]) - in
 /// mushaf order, each with the note it is known by.
-class _NotedVerseList extends StatelessWidget {
-  const _NotedVerseList({required this.notes, required this.onOpen});
+Widget _notedVerseSliver(
+    Map<VerseKey, String> notes, void Function(VerseKey verse) onOpen) {
+  final verses = notes.keys.toList()
+    ..sort((a, b) => a.surah != b.surah
+        ? a.surah.compareTo(b.surah)
+        : (a.ayah ?? 0).compareTo(b.ayah ?? 0));
 
-  final Map<VerseKey, String> notes;
-  final void Function(VerseKey verse) onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    final verses = notes.keys.toList()
-      ..sort((a, b) => a.surah != b.surah
-          ? a.surah.compareTo(b.surah)
-          : (a.ayah ?? 0).compareTo(b.ayah ?? 0));
-
-    return ResponsiveContent(
-      maxWidth: listContentWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.separated(
-        // Clears the floating tab bar when this is a tab's root, and the
-        // system's bottom inset otherwise.
-        padding: EdgeInsets.only(
-            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemCount: verses.length,
-        itemBuilder: (context, index) {
-          final verse = verses[index];
-          return ListTile(
-            title: Text(_verseTitle(verse)),
-            subtitle: Text(notes[verse]!),
-            onTap: () => onOpen(verse),
-          );
-        },
-      ),
-    );
-  }
+  return SliverCardList(
+    itemCount: verses.length,
+    itemBuilder: (context, index) {
+      final verse = verses[index];
+      return CardListRow(
+        first: index == 0,
+        last: index == verses.length - 1,
+        title: Text(_verseTitle(verse)),
+        subtitle: Text(notes[verse]!),
+        onTap: () => onOpen(verse),
+      );
+    },
+  );
 }
 
-/// The stories of the prophets ([quranProphetStories]), under a heading per
-/// prophet, each opened in the reader at its first ayah.
-class _ProphetStoryList extends StatelessWidget {
-  const _ProphetStoryList({required this.onOpen});
+/// The stories of the prophets ([quranProphetStories]), one card per
+/// prophet, each story opened in the reader at its first ayah.
+List<Widget> _prophetStorySlivers(void Function(VerseKey verse) onOpen) {
+  final groups = <String, List<QuranStory>>{};
+  for (final story in quranProphetStories) {
+    groups.putIfAbsent(story.prophet, () => []).add(story);
+  }
 
-  final void Function(VerseKey verse) onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    // A heading row before the first story of each prophet.
-    final rows = <Object>[];
-    for (final story in quranProphetStories) {
-      if (rows.isEmpty || (rows.last as QuranStory).prophet != story.prophet) {
-        rows.add(story.prophet);
-      }
-      rows.add(story);
-    }
-
-    return ResponsiveContent(
-      maxWidth: listContentWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.builder(
-        // Clears the floating tab bar when this is a tab's root, and the
-        // system's bottom inset otherwise.
-        padding: EdgeInsets.only(
-            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
-        itemCount: rows.length,
+  return [
+    for (final entry in groups.entries) ...[
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.only(
+              top: entry.key == groups.keys.first ? 0 : 20, bottom: 8),
+          child: GroupLabel(entry.key, upperCase: false),
+        ),
+      ),
+      SliverCardList(
+        itemCount: entry.value.length,
         itemBuilder: (context, index) {
-          final row = rows[index];
-          if (row is String) {
-            return Padding(
-              padding: EdgeInsets.fromLTRB(16, index == 0 ? 8 : 20, 16, 4),
-              child: Text(
-                row,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            );
-          }
-
-          final story = row as QuranStory;
+          final story = entry.value[index];
           final start = _verseTitle(story.verse);
           final reference = story.endAyah == story.verse.ayah
               ? start
               : '$start-${story.endAyah}';
-
-          return ListTile(
+          return CardListRow(
+            first: index == 0,
+            last: index == entry.value.length - 1,
             title: Text(story.title),
             subtitle: Text(reference),
             onTap: () => onOpen(story.verse),
           );
         },
       ),
-    );
-  }
+    ],
+  ];
 }
 
 /// The verses the reader has kept.
@@ -326,95 +252,101 @@ class _ProphetStoryList extends StatelessWidget {
 /// In mushaf order rather than most-recent-first: this is a reference list
 /// someone builds up and returns to, so it should read like an index of their
 /// own Quran rather than a feed of recent activity.
-class _SavedVerseList extends StatelessWidget {
-  const _SavedVerseList({
-    required this.saved,
+Widget _savedVerseSliver(
+  BuildContext context,
+  List<SavedVerse> saved,
+  void Function(VerseKey verse) onOpen,
+  void Function(SavedVerse saved) onRemove,
+) {
+  return SliverCardList(
+    itemCount: saved.length,
+    itemBuilder: (context, index) => SavedVerseRow(
+      verse: saved[index],
+      first: index == 0,
+      last: index == saved.length - 1,
+      onOpen: () => onOpen(saved[index].verse),
+      onRemove: () => onRemove(saved[index]),
+    ),
+  );
+}
+
+/// One kept verse: its reference, the opening of its Arabic, and a remove
+/// button. Also the rows of Favorites' Quran verses.
+class SavedVerseRow extends StatelessWidget {
+  const SavedVerseRow({
+    super.key,
+    required this.verse,
     required this.onOpen,
     required this.onRemove,
+    this.first = false,
+    this.last = false,
   });
 
-  final List<SavedVerse> saved;
-  final void Function(VerseKey verse) onOpen;
-  final void Function(SavedVerse saved) onRemove;
+  final SavedVerse verse;
+  final VoidCallback onOpen;
+  final VoidCallback onRemove;
+  final bool first;
+  final bool last;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = ShiaColors.of(context);
+    final title = verse.surahName.isNotEmpty
+        ? '${verse.surahName} ${verse.ayah}'
+        : _verseTitle(verse.verse);
 
-    if (saved.isEmpty) {
-      return ResponsiveContent(
-        maxWidth: listContentWidth,
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.bookmark_outline,
-                size: 40,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                context.l10n.quranNoSavedVerses,
-                style: theme.textTheme.titleSmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                context.l10n.quranNoSavedVersesBody,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+    return CardListRow(
+      first: first,
+      last: last,
+      title: Text(title),
+      subtitle: verse.excerpt.isEmpty
+          ? null
+          : SizedBox(
+              width: double.infinity,
+              child: Text(
+                verse.excerpt,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+                textDirection: TextDirection.rtl,
+                style: TextStyle(
+                  fontFamily: arabicFont,
+                  fontFamilyFallback: const ['Qalam'],
+                  fontSize: 18,
+                  height: 1.8,
+                  color: colors.text,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ],
+            ),
+      trailing: Tooltip(
+        message: context.l10n.commonRemove,
+        child: InkResponse(
+          onTap: onRemove,
+          radius: 22,
+          child: SizedBox.square(
+            dimension: 44,
+            child: Center(
+              child: OutlineIcon(OutlineGlyph.close,
+                  size: 20, color: colors.chevron, strokeWidth: 2),
+            ),
           ),
         ),
-      );
-    }
-
-    return ResponsiveContent(
-      maxWidth: listContentWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.separated(
-        // Clears the floating tab bar when this is a tab's root, and the
-        // system's bottom inset otherwise.
-        padding: EdgeInsets.only(
-            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemCount: saved.length,
-        itemBuilder: (context, index) {
-          final verse = saved[index];
-          final title = verse.surahName.isNotEmpty
-              ? '${verse.surahName} ${verse.ayah}'
-              : _verseTitle(verse.verse);
-
-          return ListTile(
-            title: Text(title),
-            subtitle: verse.excerpt.isEmpty
-                ? null
-                : Text(
-                    verse.excerpt,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.end,
-                    textDirection: TextDirection.rtl,
-                    style: TextStyle(
-                      fontFamily: arabicFont,
-                      fontFamilyFallback: const ['Qalam'],
-                      fontSize: 16,
-                    ),
-                  ),
-            trailing: IconButton(
-              icon: const Icon(Icons.close),
-              tooltip: context.l10n.commonRemove,
-              onPressed: () => onRemove(verse),
-            ),
-            onTap: () => onOpen(verse.verse),
-          );
-        },
       ),
+      onTap: onOpen,
+    );
+  }
+}
+
+/// What the saved list says before anything is kept, and how to keep one.
+class _NoSavedVerses extends StatelessWidget {
+  const _NoSavedVerses();
+
+  @override
+  Widget build(BuildContext context) {
+    return EmptyStateCard(
+      glyph: OutlineGlyph.heart,
+      title: context.l10n.quranNoSavedVerses,
+      body: context.l10n.quranNoSavedVersesBody,
     );
   }
 }
