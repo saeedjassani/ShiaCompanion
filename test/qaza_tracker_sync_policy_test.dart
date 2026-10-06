@@ -5,7 +5,7 @@ import 'package:shia_companion/services/qaza_tracker_sync_policy.dart';
 void main() {
   test('entry metadata includes Namaz e Ayat as a prayer', () {
     expect(QazaEntryType.ayat.key, 'namaz_e_ayat');
-    expect(QazaEntryType.ayat.label, 'Namaz e Ayat');
+    expect(QazaEntryType.ayat.label, 'Namaz-e-Ayat');
     expect(QazaEntryType.ayat.isPrayer, isTrue);
     expect(qazaEntryTypeFromKey('namaz_e_ayat'), QazaEntryType.ayat);
   });

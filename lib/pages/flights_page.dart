@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -6,14 +7,22 @@ import '../constants.dart';
 import '../models/flight.dart';
 import '../services/airport_repository.dart';
 import '../services/flight_store.dart';
+import '../theme/shia_colors.dart';
 import '../utils/flight_formatting.dart';
+import '../utils/flight_prayer_times.dart';
+import '../utils/prayer_time_entries.dart';
 import '../utils/timezone_database.dart';
-import '../widgets/responsive_content.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
+import '../widgets/responsive_content.dart' show compactContentWidth;
 import 'flight_editor_page.dart';
 import 'flight_prayer_times_page.dart';
 import '../l10n/l10n.dart';
 
-/// Saved flights, and the entry point for adding one.
+/// Prayer times in flight (docs/DESIGN_SPEC.md, "Prayer times in flight";
+/// mockup `R3-Flights`): **Add a flight**, then a card per saved flight -
+/// the route in large type, the cities, when it leaves and lands, and which
+/// prayers come in on board.
 class FlightsPage extends StatefulWidget {
   const FlightsPage({super.key, this.trackScreenOnInit = true});
 
@@ -26,6 +35,10 @@ class FlightsPage extends StatefulWidget {
 
 class _FlightsPageState extends State<FlightsPage> {
   late bool _isLoading;
+
+  /// Each card's plan, worked out once per saved flight: an edit saves a new
+  /// [Flight], which gets its own.
+  final Expando<FlightPrayerPlan> _plans = Expando();
 
   @override
   void initState() {
@@ -54,6 +67,10 @@ class _FlightsPageState extends State<FlightsPage> {
     await pushPageRoute(context, FlightPrayerTimesPage(flight: flight));
   }
 
+  Future<void> _editFlight(Flight flight) async {
+    await pushPageRoute<Flight>(context, FlightEditorPage(existing: flight));
+  }
+
   Future<void> _confirmDelete(Flight flight) async {
     final label = flight.routeLabel;
 
@@ -78,117 +95,251 @@ class _FlightsPageState extends State<FlightsPage> {
     if (shouldDelete == true) await FlightStore.instance.delete(flight.id);
   }
 
+  Future<void> _showOptions(BuildContext anchor, Flight flight) async {
+    final l10n = anchor.l10n;
+    final value = await showMenuAt<String>(anchor, [
+      PopupMenuItem(value: 'edit', child: Text(l10n.flightEdit)),
+      PopupMenuItem(value: 'remove', child: Text(l10n.flightRemove)),
+    ]);
+    if (!mounted) return;
+    switch (value) {
+      case 'edit':
+        unawaited(_editFlight(flight));
+      case 'remove':
+        unawaited(_confirmDelete(flight));
+    }
+  }
+
+  FlightPrayerPlan? _planFor(Flight flight, ResolvedFlight? resolved) {
+    if (resolved == null) return null;
+    return _plans[flight] ??= flightPrayerPlanFor(resolved);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.menuPrayerTimesInFlight)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _isLoading ? null : _addFlight,
-        icon: const Icon(Icons.add),
-        label: Text(context.l10n.flightAdd),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListenableBuilder(
-              listenable: FlightStore.instance,
-              builder: (context, _) {
-                final flights = FlightStore.instance.flights;
-                if (flights.isEmpty) return const _EmptyState();
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context, maxWidth: compactContentWidth);
 
-                return ResponsiveScrollableContent(
-                  maxWidth: compactContentWidth,
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final flight in flights)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _FlightCard(
+    return LargeTitlePage(
+      title: l10n.flightsPageTitle,
+      subtitle: l10n.flightsSubtitle,
+      maxWidth: compactContentWidth,
+      slivers: [
+        SliverPadding(
+          padding: gutter.copyWith(bottom: 14),
+          sliver: SliverToBoxAdapter(
+            child: PageButton(
+              label: l10n.flightAddAFlight,
+              glyph: OutlineGlyph.plus,
+              filled: true,
+              onPressed: _isLoading ? null : _addFlight,
+            ),
+          ),
+        ),
+        if (_isLoading)
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(top: 32),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          )
+        else
+          ListenableBuilder(
+            listenable: FlightStore.instance,
+            builder: (context, _) {
+              final flights = FlightStore.instance.flights;
+              return SliverPadding(
+                padding: gutter,
+                sliver: SliverList.list(
+                  children: [
+                    if (flights.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: EmptyStateCard(
+                          glyph: OutlineGlyph.plane,
+                          title: l10n.flightNoneSaved,
+                          body: l10n.flightNoneSavedBody,
+                        ),
+                      ),
+                    for (final flight in flights)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: Builder(builder: (context) {
+                          final resolved = ResolvedFlight.resolve(flight);
+                          return _FlightCard(
                             flight: flight,
+                            resolved: resolved,
+                            plan: _planFor(flight, resolved),
                             onOpen: () => pushPageRoute(
                               context,
                               FlightPrayerTimesPage(flight: flight),
                             ),
-                            onDelete: () => _confirmDelete(flight),
-                          ),
+                            onOptions: (anchor) => _showOptions(anchor, flight),
+                          );
+                        }),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        l10n.flightsFootnote,
+                        style: ShiaText.caption.copyWith(
+                          height: 18 / 13,
+                          color: colors.textMuted,
                         ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 }
 
+/// One saved flight: "LHR ✈ JED", "London to Jeddah", the ⋯ for edit and
+/// remove; then the date and departure, the time in the air and landing,
+/// and a pill naming what comes in on board. Tapping it opens the flight.
 class _FlightCard extends StatelessWidget {
   const _FlightCard({
     required this.flight,
+    required this.resolved,
+    required this.plan,
     required this.onOpen,
-    required this.onDelete,
+    required this.onOptions,
   });
 
   final Flight flight;
+  final ResolvedFlight? resolved;
+  final FlightPrayerPlan? plan;
   final VoidCallback onOpen;
-  final VoidCallback onDelete;
+  final void Function(BuildContext anchor) onOptions;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final resolved = ResolvedFlight.resolve(flight);
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final resolved = this.resolved;
+    final cities =
+        l10n.flightCities(flight.origin.place, flight.destination.place);
+    final flightNumber = flight.flightNumber;
+    final codeStyle = ShiaText.sectionTitle.copyWith(
+      fontSize: 22,
+      height: 28 / 22,
+      fontWeight: FontWeight.w700,
+      color: colors.text,
+    );
+    final rtl = Directionality.of(context) == TextDirection.rtl;
 
-    return Card(
+    return Material(
+      color: colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: colors.line),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onOpen,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
-          child: Row(
+          padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 6, 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Semantics(
+                          label: cities,
+                          excludeSemantics: true,
+                          child: Row(
+                            children: [
+                              Text(flight.origin.iata, style: codeStyle),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                // The glyph points up; turned to fly from the
+                                // first code to the second.
+                                child: Transform.rotate(
+                                  angle: (rtl ? -1 : 1) * math.pi / 2,
+                                  child: OutlineIcon(OutlineGlyph.plane,
+                                      size: 18,
+                                      color: colors.accent,
+                                      strokeWidth: 1.2,
+                                      filled: true),
+                                ),
+                              ),
+                              Text(flight.destination.iata, style: codeStyle),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          flightNumber == null
+                              ? cities
+                              : '$cities · $flightNumber',
+                          style: ShiaText.secondary
+                              .copyWith(color: colors.textMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Builder(
+                    builder: (anchor) => MoreButton(
+                      label: l10n.flightOptionsFor(cities),
+                      onPressed: () => onOptions(anchor),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          flight.routeLabel,
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        if (flight.flightNumber != null) ...[
-                          const SizedBox(width: 8),
-                          Text(
-                            flight.flightNumber!,
-                            style: theme.textTheme.labelMedium
-                                ?.copyWith(color: theme.colorScheme.primary),
+                          l10n.flightDepartsOn(
+                            formatShortDate(flight.departureLocal),
+                            formatClock12(flight.departureLocal),
                           ),
+                          style:
+                              ShiaText.cardTitle.copyWith(color: colors.text),
+                        ),
+                        if (resolved != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            l10n.flightLandsAt(
+                              formatFlightDuration(resolved.duration, l10n),
+                              formatClock12(flight.arrivalLocal),
+                              flight.destination.place,
+                            ),
+                            style: ShiaText.secondary.copyWith(
+                              fontSize: 14,
+                              height: 18 / 14,
+                              color: colors.textMuted,
+                            ),
+                          ),
+                        ],
+                        if (_pill(context) case final pill?) ...[
+                          const SizedBox(height: 6),
+                          pill,
                         ],
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      formatWallClock(flight.departureLocal),
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    if (resolved != null)
-                      Text(
-                        context.l10n.flightLands(
-                            formatFlightDuration(resolved.duration),
-                            formatWallClock(flight.arrivalLocal),
-                            resolved.destination.iata),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline),
-                tooltip: context.l10n.flightRemove,
-                onPressed: onDelete,
+                  ),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
+                    child: OutlineIcon(OutlineGlyph.chevronRight,
+                        size: 16, color: colors.chevron, strokeWidth: 2.4),
+                  ),
+                ],
               ),
             ],
           ),
@@ -196,41 +347,65 @@ class _FlightCard extends StatelessWidget {
       ),
     );
   }
+
+  /// What comes in on board: the prayers by name, "No prayer in the air",
+  /// or a warning that the times entered cannot be right.
+  Widget? _pill(BuildContext context) {
+    final plan = this.plan;
+    if (plan == null) return null;
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+
+    if (!plan.isValid) {
+      return _Pill(text: l10n.flightCheckTimes, color: colors.danger);
+    }
+    final names = <String>[];
+    for (final event in plan.eventsDuringFlight) {
+      if (!_prayers.contains(event.prayerIndex)) continue;
+      final name = localizedPrayerName(event.name, l10n);
+      if (!names.contains(name)) names.add(name);
+    }
+    if (names.isEmpty) {
+      return _Pill(text: l10n.flightNoPrayerInAir, color: colors.textMuted);
+    }
+    return _Pill(
+      text: l10n.flightPrayersInAir(names.join(l10n.listSeparator)),
+      color: colors.accent,
+    );
+  }
+
+  /// The five prayers; sunrise and the end of Isha are not something to
+  /// pray, so they stay off the pill.
+  static const _prayers = {
+    prayerIndexFajr,
+    prayerIndexZuhr,
+    prayerIndexAsr,
+    prayerIndexMaghrib,
+    prayerIndexIsha,
+  };
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
+class _Pill extends StatelessWidget {
+  const _Pill({required this.text, required this.color});
+
+  final String text;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.flight_takeoff,
-              size: 48,
-              color: theme.colorScheme.primary,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              context.l10n.flightNoneSaved,
-              style: theme.textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              context.l10n.flightNoneSavedBody,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(11),
+      ),
+      child: Text(
+        text,
+        style: ShiaText.caption.copyWith(
+          fontSize: 12,
+          height: 16 / 12,
+          fontWeight: FontWeight.w700,
+          color: color,
         ),
       ),
     );

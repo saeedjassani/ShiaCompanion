@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../theme/shia_colors.dart';
 import '../utils/geo_utils.dart';
 
 /// The compass rose.
@@ -44,8 +45,7 @@ class QiblaCompassDial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = ShiaColors.of(context);
 
     return AspectRatio(
       aspectRatio: 1,
@@ -56,34 +56,25 @@ class QiblaCompassDial extends StatelessWidget {
           qiblaBearingDegrees: qiblaBearingDegrees,
           isAligned: isAligned,
           isLive: isLive,
-          // Light and dark want opposite gradients. On a pale page the dial has
-          // to be lighter than its surroundings at the centre and shade darker
-          // at the rim to read as a raised disc; on a dark page the same disc
-          // reads by being lighter in the middle of a darker field.
-          face: isDark ? scheme.surfaceContainerHigh : scheme.surface,
-          faceEdge: isDark
-              ? scheme.surfaceContainerLowest
-              : scheme.surfaceContainerHighest,
-          ring: scheme.outlineVariant,
-          tick: scheme.onSurfaceVariant,
-          label: scheme.onSurface,
-          northAccent: scheme.error,
-          accent: isAligned ? alignedAccentColor(isDark) : scheme.primary,
-          muted: scheme.onSurfaceVariant.withValues(alpha: 0.45),
+          // A flat disc on the surface with a 1 px line, like the cards
+          // around it (docs/DESIGN_SPEC.md, "Qibla").
+          face: colors.surface,
+          faceEdge: colors.surface,
+          ring: colors.line,
+          tick: colors.chevron,
+          label: colors.textMuted,
+          northAccent: colors.accent,
+          accent: isAligned ? colors.success : colors.accent,
+          index: isLive ? colors.text : colors.chevron,
+          muted: colors.chevron.withValues(alpha: 0.6),
           textDirection: Directionality.of(context),
           hubLabel: targetLabel,
-          hubLabelColor: scheme.onSurfaceVariant,
+          hubLabelColor: colors.textMuted,
         ),
       ),
     );
   }
 }
-
-/// Green for "you are facing it", chosen for contrast rather than pulled from
-/// the brown seed palette — the whole point is that it reads as a different
-/// state at a glance, from arm's length, in sunlight.
-Color alignedAccentColor(bool isDark) =>
-    isDark ? const Color(0xFF4ADE80) : const Color(0xFF15803D);
 
 class _CompassDialPainter extends CustomPainter {
   _CompassDialPainter({
@@ -99,6 +90,7 @@ class _CompassDialPainter extends CustomPainter {
     required this.label,
     required this.northAccent,
     required this.accent,
+    required this.index,
     required this.muted,
     required this.textDirection,
     required this.hubLabel,
@@ -117,6 +109,9 @@ class _CompassDialPainter extends CustomPainter {
   final Color label;
   final Color northAccent;
   final Color accent;
+
+  /// The fixed marker at 12 o'clock: where the phone points.
+  final Color index;
   final Color muted;
   final TextDirection textDirection;
   final String hubLabel;
@@ -213,8 +208,7 @@ class _CompassDialPainter extends CustomPainter {
     for (var degrees = 0; degrees < 360; degrees += 3) {
       final isMajor = degrees % 45 == 0;
       final isMedium = degrees % 15 == 0;
-      final length =
-          radius * (isMajor ? 0.085 : (isMedium ? 0.055 : 0.028));
+      final length = radius * (isMajor ? 0.085 : (isMedium ? 0.055 : 0.028));
       final paint = Paint()
         ..strokeCap = StrokeCap.round
         ..strokeWidth = radius * (isMajor ? 0.016 : (isMedium ? 0.010 : 0.006))
@@ -354,10 +348,7 @@ class _CompassDialPainter extends CustomPainter {
       ..lineTo(center.dx + radius * 0.055, top)
       ..close();
 
-    canvas.drawPath(
-      marker,
-      Paint()..color = isLive ? accent : muted,
-    );
+    canvas.drawPath(marker, Paint()..color = index);
   }
 
   void _paintHub(Canvas canvas, Offset center, double radius) {
@@ -407,6 +398,7 @@ class _CompassDialPainter extends CustomPainter {
         old.isAligned != isAligned ||
         old.isLive != isLive ||
         old.accent != accent ||
+        old.index != index ||
         old.face != face ||
         old.hubLabel != hubLabel;
   }

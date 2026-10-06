@@ -32,6 +32,10 @@ class Airport {
   /// equivalents, so the resulting times are unchanged.
   final String timeZoneId;
 
+  /// Where the airport is, for people: its city ("London"), or its name
+  /// where the dataset has no city.
+  String get place => city.isNotEmpty ? city : name;
+
   /// "San Francisco, United States" — falls back to the airport name when the
   /// dataset has no city for the entry.
   String get locationLabel {

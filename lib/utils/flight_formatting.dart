@@ -1,5 +1,7 @@
 import 'package:timezone/timezone.dart' as tz;
 
+import '../l10n/l10n.dart';
+
 const List<String> _weekdayNames = [
   'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', //
 ];
@@ -27,13 +29,16 @@ String formatWallClock(DateTime value) {
   return '${formatShortDate(value)}, ${formatClock12(value)}';
 }
 
-/// `13h 10m`, or `45m` for anything under an hour.
-String formatFlightDuration(Duration duration) {
+/// `13 h 10 min`, `7 h`, or `45 min` for anything under an hour.
+String formatFlightDuration(Duration duration, [AppLocalizations? l10n]) {
+  final strings = l10n ?? L10n.current;
   final totalMinutes = duration.inMinutes.abs();
   final hours = totalMinutes ~/ 60;
   final minutes = totalMinutes % 60;
-  if (hours == 0) return '${minutes}m';
-  return minutes == 0 ? '${hours}h' : '${hours}h ${minutes}m';
+  if (hours == 0) return strings.durationMinutes(minutes);
+  return minutes == 0
+      ? strings.flightDurationHours(hours)
+      : strings.flightDurationHoursMinutes(hours, minutes);
 }
 
 /// Converts a UTC instant into wall-clock time in [location].

@@ -108,8 +108,7 @@ void main() {
       (tester) async {
     await pumpPage(tester);
 
-    expect(find.text('Kaaba'), findsOneWidget);
-    expect(find.text('Makkah, Saudi Arabia'), findsOneWidget);
+    expect(find.text('Kaaba, Makkah'), findsOneWidget);
 
     // Roughly 19° east of north from the Bay Area. The exact value is
     // whatever the shared bearing maths says; what is asserted here is that
@@ -167,7 +166,7 @@ void main() {
       (tester) async {
     await pumpPage(tester);
 
-    await tester.tap(find.text('Kaaba'));
+    await tester.tap(find.text('Change'));
     await tester.pumpAndSettle();
 
     final karbala = otherHolySites
@@ -175,8 +174,7 @@ void main() {
     await tester.tap(find.text(karbala.name));
     await tester.pumpAndSettle();
 
-    expect(find.text(karbala.name), findsOneWidget);
-    expect(find.text('Karbala, Iraq'), findsOneWidget);
+    expect(find.text('${karbala.name}, ${karbala.city}'), findsOneWidget);
     expect(
       find.text(formatBearing(initialBearingDegrees(_berkeley, karbala.location))),
       findsOneWidget,
@@ -207,8 +205,7 @@ void main() {
     final compass = await pumpPage(tester, requiresPermission: true);
 
     expect(find.text('Turn on the compass'), findsOneWidget);
-    await tester.ensureVisible(find.text('Allow compass'));
-    await tester.pumpAndSettle();
+    // Above the dial, so on screen without scrolling.
     await tester.tap(find.text('Allow compass'));
     await tester.pumpAndSettle();
 

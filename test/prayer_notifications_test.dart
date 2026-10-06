@@ -254,6 +254,31 @@ void main() {
       );
     });
 
+    testWidgets('heads the times with how many are on', (tester) async {
+      await pumpPage(tester);
+      expect(find.text('TIMES · 0 ON'), findsOneWidget);
+
+      await tester.tap(find.byType(Switch).at(0));
+      await tester.pumpAndSettle();
+      expect(find.text('TIMES · 1 ON'), findsOneWidget);
+    });
+
+    testWidgets('an on time names its sound, and says when it is its own',
+        (tester) async {
+      await SP.prefs.setBool(notificationPreferenceKeyForPrayer('Fajr'), true);
+      await SP.prefs.setBool(notificationPreferenceKeyForPrayer('Isha'), true);
+      await saveAzaanPreferenceForPrayer('Isha', 'takbir');
+      await pumpPage(tester);
+
+      expect(find.text(getSelectedAzaan().name), findsWidgets);
+      expect(
+        find.text('${getAzaanOptionForPrayer('Isha').name} · its own sound'),
+        findsOneWidget,
+      );
+      // The six times left off say so.
+      expect(find.text('Off'), findsNWidgets(6));
+    });
+
     testWidgets('an explicit change counts as answering the opt-in question',
         (tester) async {
       expect(AzaanOptInService.hasBeenAsked, isFalse);

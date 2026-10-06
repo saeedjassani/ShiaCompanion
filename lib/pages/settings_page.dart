@@ -39,7 +39,7 @@ import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
 import 'city_picker.dart';
 import 'downloaded_audio_page.dart';
-import 'delete_account_page.dart';
+import 'account_page.dart';
 import 'scheduled_notifications_page.dart';
 import 'zikr_reminders_page.dart';
 import '../l10n/l10n.dart';
@@ -403,57 +403,75 @@ class _SettingsPageState extends State<SettingsPage> {
     final colorScheme = theme.colorScheme;
     final isSignedIn = currentUser != null;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: colorScheme.primary,
-            child: isSignedIn
-                ? Text(
-                    _avatarLabel(currentUser),
-                    style: TextStyle(
-                      color: colorScheme.onPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  )
-                : Icon(
-                    Icons.account_circle,
-                    color: colorScheme.onPrimary,
-                    size: 30,
-                  ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    // Signed in, the card opens Account, where logging out and deleting the
+    // account live.
+    return Material(
+      color: colorScheme.primaryContainer,
+      borderRadius: BorderRadius.circular(8),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: isSignedIn ? () => _openAccountPage(context) : null,
+        child: Semantics(
+          button: isSignedIn,
+          hint: isSignedIn ? context.l10n.accountOpen : null,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                Text(
-                  isSignedIn ? _accountTitle(currentUser) : context.l10n.settingsNotSignedIn,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w700,
+                CircleAvatar(
+                  radius: 26,
+                  backgroundColor: colorScheme.primary,
+                  child: isSignedIn
+                      ? Text(
+                          _avatarLabel(currentUser),
+                          style: TextStyle(
+                            color: colorScheme.onPrimary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        )
+                      : Icon(
+                          Icons.account_circle,
+                          color: colorScheme.onPrimary,
+                          size: 30,
+                        ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isSignedIn
+                            ? _accountTitle(currentUser)
+                            : context.l10n.settingsNotSignedIn,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        isSignedIn
+                            ? _accountSubtitle(currentUser)
+                            : context.l10n.settingsSignInPrompt,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onPrimaryContainer
+                              .withValues(alpha: 0.78),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  isSignedIn
-                      ? _accountSubtitle(currentUser)
-                      : context.l10n.settingsSignInPrompt,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                if (isSignedIn)
+                  Icon(
+                    Icons.chevron_right,
                     color:
-                        colorScheme.onPrimaryContainer.withValues(alpha: 0.78),
+                        colorScheme.onPrimaryContainer.withValues(alpha: 0.6),
                   ),
-                ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -516,32 +534,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   List<Widget> _buildAccountActionTiles(User? currentUser) {
-    if (currentUser != null) {
-      final errorColor = Theme.of(context).colorScheme.error;
-
-      return [
-        ListTile(
-          leading: const Icon(Icons.power_settings_new),
-          title: Text(context.l10n.settingsLogout),
-          subtitle: Text(context.l10n.settingsLogoutSubtitle),
-          onTap: () {
-            logOff();
-          },
-        ),
-        ListTile(
-          leading: Icon(
-            Icons.delete_forever_outlined,
-            color: errorColor,
-          ),
-          onTap: () => _openDeleteAccountPage(context),
-          title: Text(
-            context.l10n.settingsDeleteAccount,
-            style: TextStyle(color: errorColor),
-          ),
-          subtitle: Text(context.l10n.settingsDeleteAccountSubtitle),
-        ),
-      ];
-    }
+    // Signed in, logging out and deleting the account are on Account.
+    if (currentUser != null) return const [];
 
     return [
       ListTile(
@@ -961,12 +955,11 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  // Confirmation, deletion and error handling all live on DeleteAccountPage
-  // now — it's also the page Google Play's public account-deletion link
-  // opens, so Settings and that link go through one implementation instead
-  // of a second, modal-based copy of the same flow.
-  Future<void> _openDeleteAccountPage(BuildContext context) async {
-    await pushPageRoute(context, const DeleteAccountPage());
+  // Logging out and deleting the account live on AccountPage; deleting
+  // shares its confirmation and deletion with DeleteAccountPage, the page
+  // Google Play's public account-deletion link opens.
+  Future<void> _openAccountPage(BuildContext context) async {
+    await pushPageRoute(context, const AccountPage());
     if (!mounted) return;
     await _refreshAfterAuthChange();
   }

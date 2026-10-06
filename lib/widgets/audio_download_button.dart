@@ -7,6 +7,8 @@ import '../models/zikr_audio_track.dart';
 import '../services/audio_download_store.dart';
 import '../utils/network_utils.dart';
 import '../l10n/l10n.dart';
+import 'outline_icon.dart';
+import 'page_chrome.dart';
 
 /// Where an [AudioDownloadButton] stands, worked out once per build so the
 /// icon and the labelled forms can never disagree.
@@ -292,14 +294,18 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
         }
         return Tooltip(
           message: tooltip,
-          child: OutlinedButton.icon(
+          child: PageButton(
             onPressed: () => _onPressed(state),
-            icon: icon,
-            label: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            // The revamp's outline glyphs, where the icon button keeps
+            // Material's.
+            icon: state == AudioDownloadState.downloading ? icon : null,
+            glyph: switch (state) {
+              AudioDownloadState.done => OutlineGlyph.check,
+              AudioDownloadState.failed => OutlineGlyph.repeat,
+              _ => OutlineGlyph.download,
+            },
+            danger: state == AudioDownloadState.failed,
+            label: label,
           ),
         );
       },

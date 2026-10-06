@@ -6,7 +6,11 @@ import 'package:flutter/services.dart';
 import '../constants.dart';
 import '../models/qaza_tracker_state.dart';
 import '../services/qaza_tracker_manager.dart';
-import '../widgets/responsive_content.dart';
+import '../theme/shia_colors.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
+import '../widgets/responsive_content.dart' show compactContentWidth;
+import 'stats/stats_widgets.dart';
 import '../l10n/l10n.dart';
 
 class QazaTrackerPage extends StatefulWidget {
@@ -17,6 +21,10 @@ class QazaTrackerPage extends StatefulWidget {
 }
 
 class _QazaTrackerPageState extends State<QazaTrackerPage> {
+  /// Namaz-e-Ayat and Other show once they hold something, or once asked
+  /// for: most people only ever owe the five daily prayers.
+  bool _showExtras = false;
+
   @override
   void initState() {
     super.initState();
@@ -26,349 +34,283 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final manager = QazaTrackerManager.instance;
+    final gutter = pageGutter(context, maxWidth: compactContentWidth);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.qazaTitle),
-        actions: [
-          IconButton(
-            tooltip: context.l10n.qazaCalculate,
-            icon: const Icon(Icons.edit_calendar_outlined),
-            onPressed: () => unawaited(_showEstimateSheet()),
-          ),
-        ],
-      ),
-      body: ListenableBuilder(
-        listenable: manager,
-        builder: (context, _) {
-          final state = manager.state;
-          final shouldShowLoading =
-              manager.isLoading && !manager.hasLoadedQaza && state.isEmpty;
+    return ListenableBuilder(
+      listenable: manager,
+      builder: (context, _) {
+        final state = manager.state;
+        final shouldShowLoading =
+            manager.isLoading && !manager.hasLoadedQaza && state.isEmpty;
 
-          if (shouldShowLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        Widget section(Widget child, {double bottom = 18}) => SliverPadding(
+              padding: gutter.copyWith(bottom: bottom),
+              sliver: SliverToBoxAdapter(child: child),
+            );
 
-          return ResponsiveScrollableContent(
-            maxWidth: compactContentWidth,
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (state.isEmpty)
-                  _buildBulkPrompt(context)
-                else
-                  _buildSummary(context, state),
-                const SizedBox(height: 18),
-                _buildSection(
-                  context,
-                  title: context.l10n.qazaPrayers,
-                  trailing: _buildFullDayButton(state),
-                  types: QazaEntryType.values
-                      .where((type) => type.isPrayer)
-                      .toList(growable: false),
-                  manager: manager,
-                  state: state,
-                ),
-                const SizedBox(height: 18),
-                _buildSection(
-                  context,
-                  title: context.l10n.qazaFasts,
-                  types: const [QazaEntryType.fast],
-                  manager: manager,
-                  state: state,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+        bool used(QazaEntryType type) {
+          final count = state.countFor(type);
+          return count.remaining > 0 || count.completed > 0;
+        }
+
+        final extras = const [QazaEntryType.ayat, QazaEntryType.other];
+        final showExtras = _showExtras || extras.any(used);
+        final prayers = [
+          ...qazaDailyPrayers,
+          if (showExtras) ...extras,
+        ];
+
+        return LargeTitlePage(
+          title: l10n.qazaPageTitle,
+          subtitle: l10n.qazaSubtitle,
+          maxWidth: compactContentWidth,
+          slivers: shouldShowLoading
+              ? const [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 48),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
+                ]
+              : [
+                  section(state.isEmpty
+                      ? _buildBulkPrompt(context)
+                      : _buildSummary(context, state)),
+                  section(
+                    Row(
+                      children: [
+                        Expanded(child: GroupLabel(l10n.qazaPrayers)),
+                        if (!showExtras)
+                          Flexible(
+                            flex: 2,
+                            child: PageTextAction(
+                              label: l10n.qazaShowExtras,
+                              onPressed: () =>
+                                  setState(() => _showExtras = true),
+                            ),
+                          ),
+                      ],
+                    ),
+                    bottom: 8,
+                  ),
+                  section(_buildCard(context, prayers, state)),
+                  section(GroupLabel(l10n.qazaFasts), bottom: 8),
+                  section(
+                    _buildCard(context, const [QazaEntryType.fast], state),
+                    bottom: 0,
+                  ),
+                ],
+        );
+      },
     );
   }
 
+  /// Left to make up in large type, how many are done and a bar of the
+  /// two, and the two ways to change many at once.
   Widget _buildSummary(BuildContext context, QazaTrackerState state) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final left = state.totalRemaining;
+    final done = state.totalCompleted;
+    final total = left + done;
+    // A full day is one of each daily prayer, so it only makes sense while
+    // every one of them still has something owed.
+    final canLogFullDay =
+        qazaDailyPrayers.every((type) => state.countFor(type).remaining > 0);
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: colorScheme.primary.withValues(alpha: 0.18),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: colorScheme.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.event_available_rounded,
-              color: colorScheme.onPrimary,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.qazaRemaining,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  context.l10n.qazaCompletedCount(state.totalCompleted),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color:
-                        colorScheme.onPrimaryContainer.withValues(alpha: 0.76),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            state.totalRemaining.toString(),
-            style: theme.textTheme.displaySmall?.copyWith(
-              color: colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSection(
-    BuildContext context, {
-    required String title,
-    Widget? trailing,
-    required List<QazaEntryType> types,
-    required QazaTrackerManager manager,
-    required QazaTrackerState state,
-  }) {
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              if (trailing != null) trailing,
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        for (final type in types) ...[
-          _buildEntryTile(
-            context,
-            type: type,
-            count: state.countFor(type),
-            manager: manager,
-          ),
-          if (type != types.last) const SizedBox(height: 10),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildEntryTile(
-    BuildContext context, {
-    required QazaEntryType type,
-    required QazaEntryCount count,
-    required QazaTrackerManager manager,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 10, 10),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
+    return StatsCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _iconForType(type),
-                  color: colorScheme.primary,
-                  size: 21,
-                ),
-              ),
-              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      type.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                      _formatCount(left),
+                      style: ShiaText.largeTitle.copyWith(
+                        fontSize: 40,
+                        height: 46 / 40,
+                        color: colors.text,
                       ),
                     ),
-                    const SizedBox(height: 2),
                     Text(
-                      context.l10n.qazaCompletedCount(count.completed),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      l10n.qazaLeftToMakeUp,
+                      style:
+                          ShiaText.secondary.copyWith(color: colors.textMuted),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    count.remaining.toString(),
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  Text(
-                    'left',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  l10n.qazaDoneCount(_formatCount(done)),
+                  style: ShiaText.cardTitle.copyWith(color: colors.text),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            alignment: WrapAlignment.end,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 4,
-            children: [
-              TextButton.icon(
-                style: _compactButtonStyle,
-                onPressed: count.completed > 0
-                    ? () => unawaited(manager.undoCompleted(type))
-                    : null,
-                icon: const Icon(Icons.undo_rounded, size: 18),
-                label: Text(context.l10n.commonUndo),
-              ),
-              FilledButton.tonalIcon(
-                style: _compactButtonStyle,
-                onPressed: count.remaining > 0
-                    ? () => unawaited(manager.markCompleted(type))
-                    : null,
-                icon: const Icon(Icons.check_rounded, size: 18),
-                label: Text(type.isPrayer
-                      ? context.l10n.qazaPrayed
-                      : context.l10n.qazaFasted),
-              ),
-              TextButton.icon(
-                style: _compactButtonStyle,
-                onPressed: () => unawaited(manager.addMissed(type)),
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: Text(context.l10n.qazaMissed),
-              ),
-              IconButton(
-                tooltip: context.l10n.qazaEditCount,
-                onPressed: () => unawaited(_showEditDialog(type, count)),
-                icon: const Icon(Icons.edit_outlined),
-              ),
-            ],
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: total == 0 ? 0 : done / total,
+              minHeight: 6,
+              color: colors.accent,
+              backgroundColor: colors.divider,
+            ),
+          ),
+          const SizedBox(height: 12),
+          PageButton(
+            glyph: OutlineGlyph.check,
+            label: l10n.qazaPrayedFullDay,
+            onPressed: canLogFullDay ? _logFullDay : null,
+          ),
+          const SizedBox(height: 8),
+          PageButton(
+            glyph: OutlineGlyph.calendar,
+            label: l10n.qazaWorkOut,
+            onPressed: () => unawaited(_showEstimateSheet()),
           ),
         ],
       ),
     );
   }
 
-  static final _compactButtonStyle = ButtonStyle(
-    visualDensity: VisualDensity.compact,
-    padding: WidgetStateProperty.all(
-      const EdgeInsets.symmetric(horizontal: 12),
-    ),
-  );
+  Widget _buildCard(
+    BuildContext context,
+    List<QazaEntryType> types,
+    QazaTrackerState state,
+  ) {
+    return CardList(
+      children: [
+        for (var i = 0; i < types.length; i++)
+          _buildRow(
+            context,
+            types[i],
+            state.countFor(types[i]),
+            first: i == 0,
+            last: i == types.length - 1,
+          ),
+      ],
+    );
+  }
 
-  Widget _buildBulkPrompt(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  /// One prayer, or the fasts: "248 left · 12 done", one Prayed button,
+  /// and ⋯ for the rest.
+  Widget _buildRow(
+    BuildContext context,
+    QazaEntryType type,
+    QazaEntryCount count, {
+    required bool first,
+    required bool last,
+  }) {
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final manager = QazaTrackerManager.instance;
+    final left = _formatCount(count.remaining);
+    final line = l10n.qazaLeftAndDone(left, _formatCount(count.completed));
+    final at = line.indexOf(left);
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: colorScheme.primary.withValues(alpha: 0.18),
+    return CardListRow(
+      first: first,
+      last: last,
+      minHeight: 64,
+      title: Text(type.label),
+      titleStyle: ShiaText.cardTitle,
+      subtitle: Text.rich(
+        TextSpan(
+          children: at < 0
+              ? [TextSpan(text: line)]
+              : [
+                  TextSpan(text: line.substring(0, at)),
+                  TextSpan(
+                    text: left,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: colors.text,
+                    ),
+                  ),
+                  TextSpan(text: line.substring(at + left.length)),
+                ],
         ),
       ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _DoneButton(
+            label: type.isPrayer ? l10n.qazaPrayed : l10n.qazaFasted,
+            onPressed: count.remaining > 0
+                ? () => unawaited(manager.markCompleted(type))
+                : null,
+          ),
+          Builder(
+            builder: (anchor) => MoreButton(
+              label: l10n.qazaMoreFor(type.label),
+              onPressed: () => _showRowMenu(anchor, type, count),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showRowMenu(
+    BuildContext anchor,
+    QazaEntryType type,
+    QazaEntryCount count,
+  ) async {
+    final l10n = anchor.l10n;
+    final value = await showMenuAt<String>(anchor, [
+      PopupMenuItem(value: 'missed', child: Text(l10n.qazaAddMissedOne)),
+      if (count.completed > 0)
+        PopupMenuItem(value: 'undo', child: Text(l10n.commonUndo)),
+      PopupMenuItem(value: 'edit', child: Text(l10n.qazaEditCount)),
+    ]);
+    if (!mounted) return;
+    final manager = QazaTrackerManager.instance;
+    switch (value) {
+      case 'missed':
+        unawaited(manager.addMissed(type));
+      case 'undo':
+        unawaited(manager.undoCompleted(type));
+      case 'edit':
+        unawaited(_showEditDialog(type, count));
+    }
+  }
+
+  Widget _buildBulkPrompt(BuildContext context) {
+    final colors = ShiaColors.of(context);
+
+    return StatsCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             context.l10n.qazaMissedAWhile,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.w700,
-            ),
+            style: ShiaText.cardTitle.copyWith(color: colors.text),
           ),
           const SizedBox(height: 4),
           Text(
             context.l10n.qazaMissedAWhileBody,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
-            ),
+            style: ShiaText.secondary.copyWith(color: colors.textMuted),
           ),
           const SizedBox(height: 14),
-          FilledButton.icon(
+          PageButton(
+            filled: true,
+            glyph: OutlineGlyph.calendar,
+            label: context.l10n.qazaWorkOut,
             onPressed: () => unawaited(_showEstimateSheet()),
-            icon: const Icon(Icons.edit_calendar_outlined),
-            label: Text(context.l10n.qazaCalculate),
           ),
         ],
       ),
-    );
-  }
-
-  Widget? _buildFullDayButton(QazaTrackerState state) {
-    // A full day is one of each daily prayer, so it only makes sense while
-    // every one of them still has something owed.
-    final canLogFullDay = qazaDailyPrayers
-        .every((type) => state.countFor(type).remaining > 0);
-
-    return TextButton.icon(
-      style: _compactButtonStyle,
-      onPressed: canLogFullDay ? _logFullDay : null,
-      icon: const Icon(Icons.done_all_rounded, size: 18),
-      label: Text(context.l10n.qazaPrayedFullDay),
     );
   }
 
@@ -489,18 +431,50 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
       completedController.dispose();
     }
   }
+}
 
-  IconData _iconForType(QazaEntryType type) {
-    return switch (type) {
-      QazaEntryType.fajr => Icons.wb_twilight_rounded,
-      QazaEntryType.dhuhr => Icons.light_mode_outlined,
-      QazaEntryType.asr => Icons.wb_sunny_outlined,
-      QazaEntryType.maghrib => Icons.nightlight_round,
-      QazaEntryType.isha => Icons.dark_mode_outlined,
-      QazaEntryType.ayat => Icons.brightness_low_rounded,
-      QazaEntryType.other => Icons.help_outline_rounded,
-      QazaEntryType.fast => Icons.restaurant_menu_rounded,
-    };
+/// The tinted pill that marks one made up: "Prayed", "Fasted".
+class _DoneButton extends StatelessWidget {
+  const _DoneButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final enabled = onPressed != null;
+    final foreground = enabled ? colors.accent : colors.chevron;
+    return Material(
+      color: colors.accent.withValues(alpha: enabled ? 0.16 : 0.06),
+      shape: const StadiumBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onPressed,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 16, 0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                OutlineIcon(OutlineGlyph.check,
+                    size: 18, color: foreground, strokeWidth: 2.4),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: ShiaText.body.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: foreground,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -589,8 +563,7 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
 
     final summaryLines = [
       if (estimate.prayerDays > 0)
-        context.l10n.qazaEstimatePrayers(
-            _formatCount(estimate.prayerDays),
+        context.l10n.qazaEstimatePrayers(_formatCount(estimate.prayerDays),
             _formatCount(estimate.prayerDays * qazaDailyPrayers.length)),
       if (estimate.fasts > 0)
         context.l10n
@@ -621,27 +594,35 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text(context.l10n.qazaPrayersMissedFor, style: theme.textTheme.titleSmall),
+              Text(context.l10n.qazaPrayersMissedFor,
+                  style: theme.textTheme.titleSmall),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Expanded(child: _numberField(_yearsController, context.l10n.qazaYears)),
+                  Expanded(
+                      child: _numberField(
+                          _yearsController, context.l10n.qazaYears)),
                   const SizedBox(width: 10),
-                  Expanded(child: _numberField(_monthsController, context.l10n.qazaMonths)),
+                  Expanded(
+                      child: _numberField(
+                          _monthsController, context.l10n.qazaMonths)),
                   const SizedBox(width: 10),
-                  Expanded(child: _numberField(_daysController, context.l10n.qazaDays)),
+                  Expanded(
+                      child:
+                          _numberField(_daysController, context.l10n.qazaDays)),
                 ],
               ),
               const SizedBox(height: 6),
               Text(
-                context.l10n.qazaLunarNote(
-                    qazaDaysPerLunarYear, qazaDaysPerMonth),
+                context.l10n
+                    .qazaLunarNote(qazaDaysPerLunarYear, qazaDaysPerMonth),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 20),
-              Text(context.l10n.qazaFastsMissed, style: theme.textTheme.titleSmall),
+              Text(context.l10n.qazaFastsMissed,
+                  style: theme.textTheme.titleSmall),
               const SizedBox(height: 10),
               _numberField(_fastsController, context.l10n.qazaNumberOfFasts),
               const SizedBox(height: 20),

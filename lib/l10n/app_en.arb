@@ -186,10 +186,6 @@
   "settingsSectionAccount": "Account",
   "settingsNotSignedIn": "Not signed in",
   "settingsSignInPrompt": "Sign in to sync favorites across devices.",
-  "settingsLogout": "Logout",
-  "settingsLogoutSubtitle": "Sign out on this device.",
-  "settingsDeleteAccount": "Delete My Account",
-  "settingsDeleteAccountSubtitle": "Permanently remove your account data.",
   "settingsSignInGoogle": "Sign in with Google",
   "settingsSignInGoogleSubtitle": "Sync favorites and account data.",
   "settingsSignInApple": "Sign in with Apple",
@@ -343,42 +339,11 @@
   "commonPrevious": "Previous",
   "commonNext": "Next",
   "commonStop": "Stop",
-  "flightTimesShownAt": "Times shown at {origin} and {destination} local clocks",
-  "@flightTimesShownAt": {
-    "description": "{origin} and {destination} are airport codes.",
-    "placeholders": {
-      "origin": {
-        "type": "String"
-      },
-      "destination": {
-        "type": "String"
-      }
-    }
-  },
-  "flightDurationAndDistance": "{duration} in the air · {distance} great-circle",
-  "@flightDurationAndDistance": {
-    "placeholders": {
-      "duration": {
-        "type": "String"
-      },
-      "distance": {
-        "type": "String"
-      }
-    }
-  },
   "flightAirportTime": "{airport} time",
   "@flightAirportTime": {
     "description": "Column heading: local time at an airport (airport code).",
     "placeholders": {
       "airport": {
-        "type": "String"
-      }
-    }
-  },
-  "flightOverPosition": " · over {position}",
-  "@flightOverPosition": {
-    "placeholders": {
-      "position": {
         "type": "String"
       }
     }
@@ -404,36 +369,6 @@
     "placeholders": {
       "minutes": {
         "type": "int"
-      }
-    }
-  },
-  "flightQiblaToRight": "{degrees}° to your right",
-  "@flightQiblaToRight": {
-    "placeholders": {
-      "degrees": {
-        "type": "int"
-      }
-    }
-  },
-  "flightQiblaToLeft": "{degrees}° to your left",
-  "@flightQiblaToLeft": {
-    "placeholders": {
-      "degrees": {
-        "type": "int"
-      }
-    }
-  },
-  "flightQiblaLine": "Qibla {bearing}° ({compass}) — {relative} relative to the direction of flight",
-  "@flightQiblaLine": {
-    "placeholders": {
-      "bearing": {
-        "type": "int"
-      },
-      "compass": {
-        "type": "String"
-      },
-      "relative": {
-        "type": "String"
       }
     }
   },
@@ -464,14 +399,8 @@
   "flightInTheAir": "In the air",
   "flightNoPrayerDuring": "No prayer comes in during this flight",
   "flightNoPrayerDuringBody": "Every prayer time falls either before take-off or after landing.",
-  "flightNotDuring": "Not during this flight",
-  "flightEndOfIshaWindow": "End of the Isha window · ",
   "flightStraightAhead": "straight ahead",
   "flightDirectlyBehind": "directly behind you",
-  "flightIshaClosedBeforeTakeoff": "The Isha window had already closed before take-off.",
-  "flightAlreadyInBeforeTakeoff": "Already in before take-off — use the prayer times for your departure city.",
-  "flightIshaOpenUntilLanding": "The Isha window does not close until after landing.",
-  "flightAfterLanding": "Comes in after landing — use the prayer times for your destination.",
   "flightSunAngleNeverReached": "The sun never reaches the required angle anywhere along this route, so no time can be calculated.",
   "flightHowWorkedOut": "How these are worked out",
   "flightHowWorkedOutBody": "The aircraft is assumed to follow the great-circle route at a steady speed, and each prayer time is solved for the position the aircraft is at when that time arrives. A delay of an hour moves these times by roughly half an hour, and routing around weather can move them by ten to twenty minutes, so treat them as close rather than exact.",
@@ -623,7 +552,6 @@
   "@qiblaDistanceHere": {
     "description": "Distance shown when you are already at the place."
   },
-  "qiblaTitle": "Qibla Finder",
   "qiblaAboutCompass": "About this compass",
   "qiblaLocationNeeded": "Location needed",
   "qiblaLocationNeededBody": "The direction depends on where you are. Share your location and the compass will point the moment a fix arrives.",
@@ -653,45 +581,27 @@
   "weekdayShortFri": "Fri",
   "weekdayShortSat": "Sat",
   "weekdayShortSun": "Sun",
-  "reminderMinutesRange": "Enter a number of minutes between 0 and {max}.",
-  "@reminderMinutesRange": {
-    "placeholders": {
-      "max": {
-        "type": "int"
-      }
-    }
-  },
   "reminderTitleRequired": "Please enter a title for this reminder.",
   "reminderPickDay": "Pick at least one day.",
   "reminderSavedPendingLocation": "Saved. It'll start firing once your prayer-time location is available.",
-  "reminderEditTitle": "Edit Reminder",
-  "reminderNewTitle": "New Reminder",
+  "reminderEditTitle": "Edit reminder",
+  "reminderNewTitle": "New reminder",
   "reminderWhat": "What",
-  "reminderWhatHint": "Pick a zikr from the library, or just type a title below.",
   "reminderChooseZikr": "Choose from the zikr library",
-  "reminderChangeZikr": "Change zikr",
   "reminderTitleLabel": "Title",
   "reminderTitleHint": "e.g. Dua Tawassul",
   "reminderRepeatOn": "Repeat on",
   "reminderWhen": "When",
-  "reminderFixedTime": "Fixed time",
-  "reminderPrayerRelative": "Prayer-relative",
+  "reminderFixedTime": "At a set time",
+  "reminderPrayerRelative": "Around a prayer",
   "commonSaveChanges": "Save Changes",
-  "reminderAdd": "Add Reminder",
+  "reminderAdd": "Add reminder",
   "reminderTime": "Time",
   "reminderPrayer": "Prayer",
   "reminderMinutes": "Minutes",
   "reminderBefore": "Before",
   "reminderAfter": "After",
   "reminderPrayerRelativeNote": "Prayer times shift with the calendar, so this schedules the next few weeks' occurrences and refreshes them each time you open the app.",
-  "qazaCompletedCount": "{count} completed",
-  "@qazaCompletedCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "qazaPrayed": "Prayed",
   "qazaFasted": "Fasted",
   "qazaEstimatePrayers": "{days} of each daily prayer ({prayers} prayers)",
@@ -725,13 +635,10 @@
       }
     }
   },
-  "qazaTitle": "Qaza Tracker",
   "qazaCalculate": "Calculate my qaza",
   "qazaPrayers": "Prayers",
   "qazaFasts": "Fasts",
-  "qazaRemaining": "Qaza remaining",
   "commonUndo": "Undo",
-  "qazaMissed": "Missed",
   "qazaEditCount": "Edit count",
   "qazaMissedAWhile": "Missed prayers for a while?",
   "qazaMissedAWhileBody": "Enter how long, and we will add one of each daily prayer for every day missed.",
@@ -750,8 +657,7 @@
   "qazaNumberOfFasts": "Number of fasts",
   "qazaThisAdds": "This adds to your list:",
   "qazaAddToList": "Add to my list",
-  "qazaDhuhr": "Dhuhr",
-  "qazaAyat": "Namaz e Ayat",
+  "qazaAyat": "Namaz-e-Ayat",
   "qazaOther": "Other",
   "audioMobileDataSizedBody": "You're not on Wi-Fi. This will use about {size} of mobile data.",
   "@audioMobileDataSizedBody": {
@@ -1030,30 +936,11 @@
   "deleteAccountCompleted": "Your account deletion request has completed.",
   "deleteAccountCompletedNote": "If you sign in again later, a brand new account will be created.",
   "deleteAccountWebSteps": "Use the Google sign-in button below, then confirm deletion.",
-  "deleteAccountAppSteps": "Open Settings in the app and use Delete My Account.",
   "deleteAccountSigningIn": "Signing in...",
   "deleteAccountDeleting": "Deleting...",
   "deleteAccountButton": "Delete my account",
   "deleteAccountSignOut": "Sign out",
   "deleteAccountHelp": "Need help? Email developer110@hotmail.com and include the email address tied to your account.",
-  "statsBestStreak": "{days, plural, =1{Best: 1 day} other{Best: {days} days}}",
-  "@statsBestStreak": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "statsTodayDone": "Today: done",
-  "statsTodayNotYet": "Today: not yet",
-  "statsDaysToGoal": "{remaining, plural, =1{1 more day to a {goal}-day streak} other{{remaining} more days to a {goal}-day streak}}",
-  "@statsDaysToGoal": {
-    "placeholders": {
-      "remaining": {
-        "type": "int"
-      }
-    }
-  },
   "statsUpdatedHoursAgo": "{hours, plural, =1{Updated 1 hour ago} other{Updated {hours} hours ago}}",
   "@statsUpdatedHoursAgo": {
     "placeholders": {
@@ -1091,12 +978,10 @@
   "statsStreakStart": "Finish reading a dua, ziyarat or surah and your streak begins.",
   "statsWelcomeBack": "Welcome back - every day is a fresh start.",
   "statsDoneTodayFirst": "Done for today. Come back tomorrow to start a streak.",
-  "statsDoneToday": "Done for today - see you tomorrow, in sha Allah.",
   "statsReadToday": "Read something today to keep it going.",
-  "statsDayStreak": "day streak",
   "statsToday": "Today",
   "statsPrivateSynced": "Your stats are private and sync across devices signed in to your account.",
-  "statsPrivateLocal": "Your stats are private and kept on this device. Sign in from Preferences to keep them across devices.",
+  "statsPrivateLocal": "Your stats are private and kept on this device. Sign in from Settings to keep them across devices.",
   "statsUpdatedWithinHour": "Updated within the hour",
   "statsAcrossCommunity": "Across the community",
   "statsRecitedThisWeek": "duas, ziyarats and surahs recited this week",
@@ -1238,15 +1123,6 @@
   "trackEditNote": "Your track moves on by itself as you read. Change this only to pick up somewhere else.",
   "trackNewNote": "You can change these anytime from the track card.",
   "trackCreate": "Create track",
-  "notifDefaultSoundSubtitle": "{sound} · used unless a time below overrides it",
-  "@notifDefaultSoundSubtitle": {
-    "description": "{sound} is the name of a notification sound.",
-    "placeholders": {
-      "sound": {
-        "type": "String"
-      }
-    }
-  },
   "notifCustomSound": "Custom: {file}",
   "@notifCustomSound": {
     "description": "{file} is an audio file name.",
@@ -1274,7 +1150,6 @@
     }
   },
   "notifDefaultSound": "Default sound",
-  "notifTimesHeading": "TIMES",
   "notifAudioUnreadable": "That audio file could not be read.",
   "notifPickFailed": "Could not pick that file. Try again.",
   "notifPlayingSample": "Playing a sample in a moment…",
@@ -1306,22 +1181,10 @@
       }
     }
   },
-  "downloadsOlderSubtitle": "{count} no longer used by any dua · {size}",
-  "@downloadsOlderSubtitle": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "downloadsRemoveAllTitle": "Remove all downloads?",
   "downloadsRemoveAll": "Remove all",
   "downloadsEmpty": "No downloads yet",
   "downloadsEmptyBody": "Download a recitation to listen without a connection - tap the download button in a dua's audio player, or Download all on a playlist.",
-  "downloadsOlder": "Older recordings",
   "downloadsRemoveOlder": "Remove older recordings",
   "hijriMonth1": "Muharram",
   "hijriMonth2": "Safar",
@@ -1543,41 +1406,6 @@
     }
   },
   "statsHistory": "History",
-  "statsBestMonth": "Best month: {month} · {count}",
-  "@statsBestMonth": {
-    "placeholders": {
-      "month": {
-        "type": "String"
-      },
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "statsBestDay": "Best day: {day} · {count} · {average} a day on average",
-  "@statsBestDay": {
-    "description": "{average} is a formatted number.",
-    "placeholders": {
-      "day": {
-        "type": "String"
-      },
-      "count": {
-        "type": "String"
-      },
-      "average": {
-        "type": "String"
-      }
-    }
-  },
-  "statsNew": "New",
-  "statsVersusBefore": "vs {count} before",
-  "@statsVersusBefore": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
   "statsSessionCount": "{count, plural, =1{{formatted} session} other{{formatted} sessions}}",
   "@statsSessionCount": {
     "placeholders": {
@@ -1717,62 +1545,17 @@
   "audioChooseRecording": "Choose recording",
   "audioRecitation": "Recitation",
   "audioRecitationAudio": "Recitation audio",
-  "librarySavedOffline": "{book} saved for offline.",
-  "@librarySavedOffline": {
-    "placeholders": {
-      "book": {
-        "type": "String"
-      }
-    }
-  },
-  "librarySaveFailed": "Unable to save book: {error}",
-  "@librarySaveFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "libraryProgress": "{chapter} - Page {page} of {pages}",
-  "@libraryProgress": {
-    "placeholders": {
-      "chapter": {
-        "type": "String"
-      },
-      "page": {
-        "type": "int"
-      },
-      "pages": {
-        "type": "int"
-      }
-    }
-  },
   "librarySavedChapterGone": "Saved chapter is no longer available",
   "libraryUnavailable": "Library unavailable",
   "libraryNoBooks": "No books found",
   "libraryEmpty": "The library is empty right now.",
-  "libraryContinueReading": "Continue Reading",
-  "libraryRequestBook": "Request a Book",
+  "libraryContinueReading": "Continue reading",
+  "libraryRequestBook": "Request a book",
   "libraryRequestBookSubtitle": "Can't find a book? Ask us to add it.",
   "flightRemoveBody": "{flight} will be removed from your saved flights.",
   "@flightRemoveBody": {
     "placeholders": {
       "flight": {
-        "type": "String"
-      }
-    }
-  },
-  "flightLands": "{duration} · lands {time} {airport} time",
-  "@flightLands": {
-    "description": "{airport} is an airport code.",
-    "placeholders": {
-      "duration": {
-        "type": "String"
-      },
-      "time": {
-        "type": "String"
-      },
-      "airport": {
         "type": "String"
       }
     }
@@ -1898,9 +1681,8 @@
     }
   },
   "reminderRemoveTitle": "Remove reminder?",
-  "reminderAddTooltip": "Add reminder",
   "reminderNone": "No reminders yet",
-  "reminderNoneBody": "Tap + to get reminded about a zikr or dua on the days you choose — like Tawassul every Tuesday, or Dua Kumail after Maghrib on Thursday.",
+  "reminderNoneBody": "Add one to be reminded about a zikr or dua on the days you choose - like Tawassul every Tuesday, or Dua Kumail after Maghrib on Thursday.",
   "tasbeehBeepNumber": "Beep {number}",
   "@tasbeehBeepNumber": {
     "placeholders": {
@@ -1940,13 +1722,11 @@
       }
     }
   },
-  "searchSourceZikr": "Zikr",
+  "searchSourceZikr": "Duas & more",
   "searchSourceQuran": "Quran",
   "searchSourceLibrary": "Library",
   "searchTitleOrUid": "Search title or UID",
   "searchShow": "Show",
-  "searchNoResults": "No results",
-  "searchRequestIt": "Request it",
   "widgetPrayerTimesHelp": "Pick {min} to {max} times. Sunrise, Sunset and Midnight are the deadlines a prayer has to be offered before.",
   "@widgetPrayerTimesHelp": {
     "placeholders": {
@@ -2094,9 +1874,8 @@
   "linkNotFoundGoHome": "Go Home",
   "whatsNewTitle": "What's new",
   "whatsNewGotIt": "Got it",
-  "pickerChooseZikr": "Choose a Zikr or Dua",
+  "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
-  "pickerNoMatches": "No matches found.",
   "todaysNone": "No recitations configured.",
   "scheduledFallbackTitle": "Scheduled notification",
   "scheduledNone": "No scheduled notifications.",
@@ -2116,22 +1895,6 @@
   "actionSettings": "Settings",
   "actionCounter": "Counter",
   "prayerEnableLocationBody": "Enable location to display accurate prayer times for your area.",
-  "statsDayRead": "{day}: read",
-  "@statsDayRead": {
-    "placeholders": {
-      "day": {
-        "type": "String"
-      }
-    }
-  },
-  "statsDayNotRead": "{day}: not read",
-  "@statsDayNotRead": {
-    "placeholders": {
-      "day": {
-        "type": "String"
-      }
-    }
-  },
   "qiblaDistance": "Distance",
   "qiblaDirection": "Direction",
   "qiblaYouFace": "You face",
@@ -2695,5 +2458,1156 @@
         "type": "String"
       }
     }
-  }
+  },
+  "zikrMonth1": "Muharram",
+  "@zikrMonth1": {
+    "description": "Hijri month names as the zikr titles spell them, for saying when a dua is recited ('On 10 Muharram'). zikrMonth1 to zikrMonth12 run Muharram to Dhul Hijjah."
+  },
+  "zikrMonth2": "Safar",
+  "zikrMonth3": "Rabi al-Awwal",
+  "zikrMonth4": "Rabi al-Thani",
+  "zikrMonth5": "Jumada al-Awwal",
+  "zikrMonth6": "Jumada al-Akhirah",
+  "zikrMonth7": "Rajab",
+  "zikrMonth8": "Shaban",
+  "zikrMonth9": "Ramazan",
+  "zikrMonth10": "Shawwal",
+  "zikrMonth11": "Dhul Qa'dah",
+  "zikrMonth12": "Dhul Hijjah",
+  "occasionEveryDay": "Every day",
+  "occasionEveryNight": "Every night",
+  "occasionWeekly": "{weekday}s",
+  "@occasionWeekly": {
+    "description": "Recited every week on {weekday}, a full weekday name: 'Fridays'.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionWeeklyNight": "{weekday} nights",
+  "@occasionWeeklyNight": {
+    "description": "Recited every week on the night after {weekday}, before the next day dawns: 'Thursday nights' is the night leading into Friday.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionWeeklyInMonth": "{weekday}s in {month}",
+  "@occasionWeeklyInMonth": {
+    "description": "Every {weekday} of one Hijri month: 'Sundays in Dhul Qa'dah'.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNthWeekday": "{ordinal, select, 1{First} 2{Second} 3{Third} 4{Fourth} other{Fifth}} {weekday} of {month}",
+  "@occasionNthWeekday": {
+    "description": "One weekday of a Hijri month: 'First Thursday of Rajab'.",
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNthWeekdayNight": "Night of the {ordinal, select, 1{first} 2{second} 3{third} 4{fourth} other{fifth}} {weekday} of {month}",
+  "@occasionNthWeekdayNight": {
+    "description": "The night leading into one weekday of a Hijri month: 'Night of the first Friday of Rajab'.",
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNthWeekdayMonthly": "{ordinal, select, 1{First} 2{Second} 3{Third} 4{Fourth} other{Fifth}} {weekday} of every month",
+  "@occasionNthWeekdayMonthly": {
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNthWeekdayNightMonthly": "Night of the {ordinal, select, 1{first} 2{second} 3{third} 4{fourth} other{fifth}} {weekday} of every month",
+  "@occasionNthWeekdayNightMonthly": {
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionThroughMonth": "Throughout {month}",
+  "@occasionThroughMonth": {
+    "description": "Recited every day of one Hijri month.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionMonthNights": "Every night of {month}",
+  "@occasionMonthNights": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionOnDates": "On {dates}",
+  "@occasionOnDates": {
+    "description": "{dates} is a list of Hijri dates: 'On 17 and 29 Safar, 11 and 23 Dhul Qa'dah'.",
+    "placeholders": {
+      "dates": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNightsOf": "{count, plural, =1{Night of {dates}} other{Nights of {dates}}}",
+  "@occasionNightsOf": {
+    "description": "The night leading into each of {dates}: 'Night of 15 Shaban', 'Nights of 19, 21 and 23 Ramazan'. {count} is how many dates.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "dates": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNightAndDayOf": "{count, plural, =1{Night and day of {dates}} other{Nights and days of {dates}}}",
+  "@occasionNightAndDayOf": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "dates": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionDaysOfMonth": "{days} {month}",
+  "@occasionDaysOfMonth": {
+    "description": "Days of one Hijri month: '20 Safar', '17 and 29 Safar', '21–30 Ramazan'.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "listAnd": "{items} and {last}",
+  "@listAnd": {
+    "description": "The end of a list: '{items}' is every item but the last, already joined by listSeparator.",
+    "placeholders": {
+      "items": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "listSeparator": ", ",
+  "@listSeparator": {
+    "description": "Goes between the items of a list, before listAnd joins the last one."
+  },
+  "listCountSurahs": "{count, plural, =1{1 surah} other{{count} surahs}}",
+  "@listCountSurahs": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountDuas": "{count, plural, =1{1 dua} other{{count} duas}}",
+  "@listCountDuas": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountZiyarats": "{count, plural, =1{1 ziyarat} other{{count} ziyarats}}",
+  "@listCountZiyarats": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountPrayers": "{count, plural, =1{1 prayer} other{{count} prayers}}",
+  "@listCountPrayers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountMunajat": "{count, plural, =1{1 munajat} other{{count} munajat}}",
+  "@listCountMunajat": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountSections": "{count, plural, =1{1 section} other{{count} sections}}",
+  "@listCountSections": {
+    "description": "How many rows a list of zikr has, where they are not all one kind; also what a group row holds.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listFindSurah": "Find a surah",
+  "listFindDua": "Find a dua",
+  "listFindZiyarat": "Find a ziyarat",
+  "listFindPrayer": "Find a prayer",
+  "listFindMunajat": "Find a munajat",
+  "listFindIn": "Find in {title}",
+  "@listFindIn": {
+    "description": "Placeholder of the field that filters a list, {title} being the list's name: 'Find in Aamaal'.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "listFindNone": "Nothing called “{query}” here",
+  "@listFindNone": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "listFindNoneBody": "Try one word, or another spelling - or search the whole app.",
+  "listSearchEverywhere": "Search everything",
+  "listGroupContents": "{names} · {count, plural, =1{1 section} other{{count} sections}}",
+  "@listGroupContents": {
+    "description": "Sub-line of a row that opens a group: what is inside it ('Iran, Iraq') and how many rows.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todaysGroupMonth": "In {month}",
+  "@todaysGroupMonth": {
+    "description": "Heading over Today's Recitations for the whole of the current Hijri month.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "todaysGroupWeekday": "For {weekday}",
+  "@todaysGroupWeekday": {
+    "description": "Heading over Today's Recitations for today's weekday: 'For Saturday'.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "todaysSpecialDatesNote": "On a special date - Ashura, the 15th of Shaban, a night of Qadr - its recitations come first, above these.",
+  "occasionWeeklyNightInMonth": "{weekday} nights in {month}",
+  "@occasionWeeklyNightInMonth": {
+    "description": "Every night after {weekday} in one Hijri month: 'Thursday nights in Rajab' are the nights leading into its Fridays.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "findClear": "Clear search",
+  "@findClear": {
+    "description": "Screen-reader label of the × in a find or search field."
+  },
+  "searchHint": "Dua, surah or book",
+  "@searchHint": {
+    "description": "Placeholder of the search field: what can be searched for."
+  },
+  "searchClose": "Close search",
+  "searchTry": "Try",
+  "@searchTry": {
+    "description": "Heading over example searches, shown before anything is typed."
+  },
+  "searchTryDuaLabel": "A dua or ziyarat",
+  "searchTryDua": "Kumayl",
+  "@searchTryDua": {
+    "description": "An example search that finds a dua. Keep it a word the titles contain."
+  },
+  "searchTrySurahLabel": "A surah",
+  "searchTrySurah": "Yasin",
+  "@searchTrySurah": {
+    "description": "An example search that finds a surah. Keep it a word the titles or their links contain."
+  },
+  "searchTryVerseLabel": "A verse",
+  "searchTryVerse": "2:255",
+  "searchTryOccasionLabel": "A day's aamaal",
+  "searchTryOccasion": "Ashura",
+  "@searchTryOccasion": {
+    "description": "An example search for the aamaal of a day. Keep it a word the titles contain."
+  },
+  "searchTryBookLabel": "A book or author",
+  "searchTryBook": "Mutahhari",
+  "@searchTryBook": {
+    "description": "An example search that finds books by an author. Keep it a name the library contains."
+  },
+  "searchRecent": "Recent",
+  "searchRecentClear": "Clear recent searches",
+  "searchSection": "{source} · {count}",
+  "@searchSection": {
+    "description": "Heading over one kind of search result: 'Duas & more · 6'.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchHide": "Hide",
+  "searchHideSource": "Hide {source}",
+  "@searchHideSource": {
+    "description": "Screen-reader label of a results section's Hide link.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "searchShowSource": "Show {source}",
+  "@searchShowSource": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "searchLocation": "{parent} › {child}",
+  "@searchLocation": {
+    "description": "Where a search result sits, list by list: 'Aamaal › Muharram'.",
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      },
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "searchNoneTitle": "Nothing called “{query}”",
+  "@searchNoneTitle": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchNoneLooked": "Looked in duas & more, the Quran and the Library.",
+  "searchNoneTipWord": "Spellings differ a lot, so try just one word, like {word}, or spell it another way.",
+  "@searchNoneTipWord": {
+    "description": "{word} is one word of what was searched for, shown in bold.",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "searchNoneTipSpelling": "Spellings differ a lot, so try spelling it another way.",
+  "searchStillMissing": "Still can't find it?",
+  "searchStillMissingBody": "Tell us what's missing and we'll try to add it.",
+  "searchRequest": "Request “{query}”",
+  "@searchRequest": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchGoToVerse": "Go to verse",
+  "searchVerseOf": "Verse {ayah} of {count}",
+  "@searchVerseOf": {
+    "placeholders": {
+      "ayah": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchOpenVerse": "Open verse {ayah}",
+  "@searchOpenVerse": {
+    "placeholders": {
+      "ayah": {
+        "type": "int"
+      }
+    }
+  },
+  "searchVerseTitle": "{surah} {reference}",
+  "@searchVerseTitle": {
+    "description": "The verse a search names: 'Al-Baqarah 2:255'.",
+    "placeholders": {
+      "surah": {
+        "type": "String"
+      },
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "azanTitle": "Azan",
+  "@azanTitle": {
+    "description": "Title of the prayer notifications page."
+  },
+  "azanSubtitle": "Pick the times that notify you, and the sound each one plays.",
+  "azanDefaultSoundBody": "Used unless a time has its own",
+  "azanTimesOn": "Times · {count} on",
+  "@azanTimesOn": {
+    "description": "Heading over the notification times: how many are switched on.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "azanOff": "Off",
+  "azanOwnSound": "{sound} · its own sound",
+  "@azanOwnSound": {
+    "description": "Under a time that plays a sound other than the default.",
+    "placeholders": {
+      "sound": {
+        "type": "String"
+      }
+    }
+  },
+  "azanNotifyAt": "Notify at {prayer}",
+  "@azanNotifyAt": {
+    "description": "Screen-reader label of a time's switch.",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "azanFootnote": "Tap a time to give it its own sound.",
+  "azanFootnoteIos": "On iPhone the notification itself plays a short takbir.",
+  "libraryTitle": "Library",
+  "libraryCount": "{count, plural, =1{1 book} other{{count} books}}",
+  "@libraryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "libraryFindHint": "Find a book or author",
+  "libraryAllBooks": "All books",
+  "libraryRemoveContinue": "Remove {book} from Continue reading",
+  "@libraryRemoveContinue": {
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryChapterPage": "{chapter} · page {page} of {pages}",
+  "@libraryChapterPage": {
+    "description": "Where a reader left a book: the chapter's title and the page in it.",
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      },
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryChapterCount": "{count, plural, =1{1 chapter} other{{count} chapters}}",
+  "@libraryChapterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryAuthorAndChapters": "{author} · {chapters}",
+  "@libraryAuthorAndChapters": {
+    "description": "Under a book's title: who wrote it, and libraryChapterCount.",
+    "placeholders": {
+      "author": {
+        "type": "String"
+      },
+      "chapters": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryContinueAt": "Continue · chapter {chapter}, page {page}",
+  "@libraryContinueAt": {
+    "placeholders": {
+      "chapter": {
+        "type": "int"
+      },
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryStartReading": "Start reading",
+  "librarySaveForOffline": "Save for offline",
+  "libraryChapters": "Chapters",
+  "libraryReadingAt": "Reading · page {page} of {pages}",
+  "@libraryReadingAt": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistsSubtitle": "Play the zikr you listen to every day with one tap.",
+  "playlistsNoneTitle": "No playlists yet",
+  "playlistsFootnote": "You can also add a zikr from the Listen player on any dua with audio.",
+  "playlistPlayNamed": "Play {name}",
+  "@playlistPlayNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistPauseNamed": "Pause {name}",
+  "@playlistPauseNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistPlayingNow": "Playing: {title} · {position} of {count}",
+  "@playlistPlayingNow": {
+    "description": "Under a playlist that is playing: what, and where it is in the playlist.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "position": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistSummaryDownloaded": "{summary} · downloaded",
+  "@playlistSummaryDownloaded": {
+    "description": "{summary} is what is in a playlist: its zikr by name, or how many.",
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistSummaryNotDownloaded": "{summary} · {count} not downloaded yet",
+  "@playlistSummaryNotDownloaded": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistSummaryDownloading": "{summary} · downloading {percent}%",
+  "@playlistSummaryDownloading": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistDownloadedCount": "{count} downloaded",
+  "@playlistDownloadedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistOptions": "Playlist options",
+  "playlistMoreFor": "More for {title}",
+  "@playlistMoreFor": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistPlayingAt": "Playing · {position} of {duration}",
+  "@playlistPlayingAt": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistPlaying": "Playing",
+  "playlistRecordingDownloaded": "{recording} · downloaded",
+  "@playlistRecordingDownloaded": {
+    "placeholders": {
+      "recording": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistNotDownloaded": "Not downloaded · plays online",
+  "playlistMoveUp": "Move up",
+  "playlistMoveDown": "Move down",
+  "playlistEmptyTitle": "Nothing in this playlist yet",
+  "downloadsSubtitle": "Recitations saved on this phone · {size}",
+  "@downloadsSubtitle": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsRemoveNamed": "Remove download of {title}",
+  "@downloadsRemoveNamed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsOlderCount": "{count, plural, =1{1 older recording} other{{count} older recordings}}",
+  "@downloadsOlderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsOlderBody": "Replaced by newer ones · {size}",
+  "@downloadsOlderBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsRemoveAllButton": "Remove all downloads",
+  "statsStreakDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@statsStreakDays": {
+    "description": "The streak, in large type: how many days in a row.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsStreakInARow": "in a row",
+  "statsStreakInARowBest": "in a row · your best is {best}",
+  "@statsStreakInARowBest": {
+    "placeholders": {
+      "best": {
+        "type": "int"
+      }
+    }
+  },
+  "statsDoneTodayLabel": "Done for today",
+  "statsDoneTodayLine": "{done} - see you tomorrow, in sha Allah.",
+  "@statsDoneTodayLine": {
+    "description": "{done} is statsDoneTodayLabel, shown in bold.",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      }
+    }
+  },
+  "statsBestDayShort": "Best day: {day}",
+  "@statsBestDayShort": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "statsBestMonthShort": "Best month: {month}",
+  "@statsBestMonthShort": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTotalCaption": "{total} {caption}",
+  "@statsTotalCaption": {
+    "description": "How much in the chart's window: '25 zikrs in the last 7 days'. {caption} is statsCaptionWeek, statsCaptionMonth or statsCaptionAllTime.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "caption": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTimes": "{count, plural, =1{once} other{{formatted} times}}",
+  "@statsTimes": {
+    "description": "How often a zikr was recited: '41 times'.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "statsHistoryChart": "{metric} each day: {values}",
+  "@statsHistoryChart": {
+    "description": "Screen-reader label of the history chart. {values} lists each bar: 'Sunday 3, Monday 2'.",
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      },
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "remindersTitle": "Zikr reminders",
+  "remindersSubtitle": "A notification on the days you choose, at a set time or around a prayer.",
+  "remindersAdd": "Add a reminder",
+  "remindersFootnote": "Tap a reminder to change or remove it.",
+  "reminderSwitchLabel": "Reminder for {title}",
+  "@reminderSwitchLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderFrom": "From {list}",
+  "@reminderFrom": {
+    "description": "Under the zikr a reminder is for: where it lives, 'From Duas'.",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderEveryDayLink": "Every day",
+  "@reminderEveryDayLink": {
+    "description": "Picks all seven days at once."
+  },
+  "reminderMinutesFewer": "5 minutes fewer",
+  "reminderMinutesMore": "5 minutes more",
+  "reminderAtPrayerLong": "at {prayer}",
+  "@reminderAtPrayerLong": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderMinutesAfterLong": "{minutes, plural, =1{1 minute after {prayer}} other{{minutes} minutes after {prayer}}}",
+  "@reminderMinutesAfterLong": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderMinutesBeforeLong": "{minutes, plural, =1{1 minute before {prayer}} other{{minutes} minutes before {prayer}}}",
+  "@reminderMinutesBeforeLong": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSummary": "{days}, {when}",
+  "@reminderSummary": {
+    "description": "What a reminder will do, in words: 'Thursdays, 15 minutes after Maghrib', 'Every day, at 7:00 am'.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderAtTime": "at {time}",
+  "@reminderAtTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderAboutThisWeek": "{summary} (about {time} this week)",
+  "@reminderAboutThisWeek": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderRemove": "Remove reminder",
+  "qiblaPageTitle": "Qibla",
+  "@qiblaPageTitle": {
+    "description": "Title of the Qibla page; the menu keeps 'Qibla Finder'."
+  },
+  "qiblaTargetIn": "{name}, {city}",
+  "@qiblaTargetIn": {
+    "description": "What the compass points at: 'Kaaba, Makkah'.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaChange": "Change",
+  "qiblaChangeTarget": "Change what the compass points towards",
+  "qiblaHoldFlat": "Hold the phone flat, top edge pointing ahead.",
+  "qazaPageTitle": "Qaza",
+  "@qazaPageTitle": {
+    "description": "Title of the Qaza page; the menu keeps 'Qaza Tracker'."
+  },
+  "qazaSubtitle": "Prayers and fasts to make up",
+  "qazaLeftToMakeUp": "left to make up",
+  "qazaDoneCount": "{count} done",
+  "@qazaDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaLeftAndDone": "{left} left · {done} done",
+  "@qazaLeftAndDone": {
+    "description": "Under a prayer: how many are owed (shown in bold) and how many made up.",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "done": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaWorkOut": "Work out how many I owe",
+  "qazaShowExtras": "Add Namaz-e-Ayat or other",
+  "qazaAddMissedOne": "Add a missed one",
+  "qazaMoreFor": "More for {name}",
+  "@qazaMoreFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "flightsSubtitle": "When each prayer comes in along your route.",
+  "flightAddAFlight": "Add a flight",
+  "flightsFootnote": "Times are worked out on your phone from the route, so they work in airplane mode.",
+  "flightCities": "{from} to {to}",
+  "@flightCities": {
+    "description": "A flight's route by city: 'London to Jeddah'.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "flightOptionsFor": "Options for {flight}",
+  "@flightOptionsFor": {
+    "description": "Spoken label of the ⋯ button on a saved flight's card, which offers edit and remove.",
+    "placeholders": {
+      "flight": {
+        "type": "String"
+      }
+    }
+  },
+  "flightDepartsOn": "{date} · departs {time}",
+  "@flightDepartsOn": {
+    "description": "'Sat 3 Oct · departs 9:40 pm', in the departure airport's local time.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "flightLandsAt": "{duration} · lands {time} {city} time",
+  "@flightLandsAt": {
+    "description": "'6 h 5 min · lands 5:45 am Jeddah time'.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightPrayersInAir": "{prayers} in the air",
+  "@flightPrayersInAir": {
+    "description": "Pill on a saved flight naming the prayers that come in on board: 'Asr, Maghrib in the air'.",
+    "placeholders": {
+      "prayers": {
+        "type": "String"
+      }
+    }
+  },
+  "flightNoPrayerInAir": "No prayer in the air",
+  "flightDepartsFrom": "Departs {city}",
+  "@flightDepartsFrom": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightArrivesIn": "Arrives {city}",
+  "@flightArrivesIn": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightDateAtAirport": "{date} · {airport} time",
+  "@flightDateAtAirport": {
+    "description": "'Sat 3 Oct · LHR time': the date of a departure or arrival, and whose clock the time above it is on.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "airport": {
+        "type": "String"
+      }
+    }
+  },
+  "flightInAirDistance": "{duration} in the air · {distance}",
+  "@flightInAirDistance": {
+    "description": "'6 h 5 min in the air · 4,740 km'.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "flightOnTheGround": "On the ground",
+  "flightIshaEnds": "Isha time ends",
+  "flightAfterTakeoffOver": "{duration} after take-off, over {position}",
+  "@flightAfterTakeoffOver": {
+    "description": "'2 h 18 min after take-off, over 44.1°N 14.2°E'.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "flightQiblaShort": "Qibla {bearing}° · {relative}",
+  "@flightQiblaShort": {
+    "description": "'Qibla 100° · about 50° to your left': the bearing from north, then where that is from a seat facing the front of the aircraft.",
+    "placeholders": {
+      "bearing": {
+        "type": "int"
+      },
+      "relative": {
+        "type": "String"
+      }
+    }
+  },
+  "flightAboutToLeft": "about {degrees}° to your left",
+  "@flightAboutToLeft": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "flightAboutToRight": "about {degrees}° to your right",
+  "@flightAboutToRight": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "flightGroundAlreadyIn": "Already in before take-off: use {city} times",
+  "@flightGroundAlreadyIn": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightGroundAfterLanding": "Comes in after landing: use {city} times",
+  "@flightGroundAfterLanding": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightGroundIshaEnded": "Already over before take-off",
+  "flightGroundIshaOpen": "Not until after landing: use {city} times",
+  "@flightGroundIshaOpen": {
+    "description": "Under 'Isha time ends', when the end of Isha's time falls after the flight lands.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightDurationHoursMinutes": "{hours} h {minutes} min",
+  "@flightDurationHoursMinutes": {
+    "description": "A flight time: '6 h 5 min'.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "flightDurationHours": "{hours} h",
+  "@flightDurationHours": {
+    "description": "A flight time in whole hours: '7 h'.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "flightsPageTitle": "Prayer times in flight",
+  "accountTitle": "Account",
+  "accountOpen": "Open your account",
+  "accountEmailAndProvider": "{email} · {provider}",
+  "@accountEmailAndProvider": {
+    "description": "Under the account's name: 'you@example.com · Google'.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      },
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "accountProviderGoogle": "Google",
+  "accountProviderApple": "Apple",
+  "accountBackupChecking": "Checking your backup…",
+  "accountBackedUp": "Backed up",
+  "accountBackupOffline": "Offline · backs up when you reconnect",
+  "accountKeptSafe": "Kept safe in your backup",
+  "accountItemFavorites": "Favorites",
+  "accountItemBookmarks": "Bookmarks",
+  "accountItemQuranProgress": "Quran progress",
+  "accountItemSavedVerses": "Saved verses",
+  "accountItemQaza": "Qaza tracker",
+  "accountItemStats": "My Stats and shortcuts",
+  "accountTracks": "{count, plural, =1{1 track} other{{count} tracks}}",
+  "@accountTracks": {
+    "description": "How many Quran recitation tracks are backed up.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountQazaLeft": "{count} left",
+  "@accountQazaLeft": {
+    "description": "Qaza prayers and fasts still owed, e.g. '1,270 left'; {count} is already formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "accountLogOut": "Log out",
+  "accountDelete": "Delete account…",
+  "accountDeleteNote": "Deleting removes your account and its backup for good. You will be asked to confirm.",
+  "deleteAccountAppStepsAccount": "Open Settings in the app, tap your account, then Delete account…"
 }

@@ -28,6 +28,8 @@ class LargeTitlePage extends StatefulWidget {
     this.actions = const [],
     required this.slivers,
     this.maxWidth = largeTitlePageWidth,
+    this.bottom,
+    this.bottomBar,
   });
 
   final String title;
@@ -41,8 +43,54 @@ class LargeTitlePage extends StatefulWidget {
   /// The widest the title and [pageGutter]-padded content get.
   final double maxWidth;
 
+  /// A control floating at the bottom, over the content, which scrolls
+  /// behind it under a fade: a [FindField]. As wide as the content, 26 px
+  /// off the bottom, or just above the keyboard while that is up.
+  final Widget? bottom;
+
+  /// A bar docked below the content rather than floating over it: what a
+  /// playlist is playing.
+  final Widget? bottomBar;
+
   @override
   State<LargeTitlePage> createState() => _LargeTitlePageState();
+}
+
+/// How far a control floating at the bottom of the screen (the tab bar, a
+/// find field) sits from it: 26, but never closer than 8 to the system's own
+/// bottom inset (home indicator, gesture or button bar); and 8 above the
+/// keyboard while that is up, which the page has already been raised clear
+/// of.
+double floatingBottomOffset(BuildContext context) {
+  if (MediaQuery.viewInsetsOf(context).bottom > 0) return 8;
+  return math.max(26, MediaQuery.viewPaddingOf(context).bottom + 8);
+}
+
+/// The fade over content scrolling beneath a floating bottom control, so
+/// rows do not show through below and beside it. Taps pass through.
+class BottomFade extends StatelessWidget {
+  const BottomFade({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ground = ShiaColors.of(context).ground;
+    return IgnorePointer(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              ground.withValues(alpha: 0),
+              ground.withValues(alpha: 0.92),
+              ground,
+            ],
+            stops: const [0, 0.55, 1],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// [style] on top of the theme's button text: a button's `textStyle`
@@ -65,6 +113,9 @@ EdgeInsets pageGutter(BuildContext context,
   final side = math.max(gutter, (width - maxWidth) / 2);
   return EdgeInsets.symmetric(horizontal: side);
 }
+
+/// The height of a [LargeTitlePage.bottom] control: a [FindField]'s.
+const double _bottomControlHeight = 62;
 
 class _LargeTitlePageState extends State<LargeTitlePage> {
   /// Whether the large title has scrolled away, so the compact bar shows.
@@ -140,27 +191,54 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
       ],
     );
 
+    final bottom = widget.bottom;
+    final bottomOffset = floatingBottomOffset(context);
+    // What the last row has to clear: the floating control, or on a tab
+    // root the tab bar (its height is in the bottom inset), and otherwise
+    // the home indicator.
+    final endPadding = bottom != null
+        ? bottomOffset + _bottomControlHeight + 24
+        : insets.bottom + 24;
+
     return Scaffold(
       backgroundColor: colors.ground,
+      bottomNavigationBar: widget.bottomBar,
       body: Stack(
         children: [
           NotificationListener<ScrollNotification>(
             onNotification: _onScroll,
             child: CustomScrollView(
+              keyboardDismissBehavior: bottom != null
+                  ? ScrollViewKeyboardDismissBehavior.onDrag
+                  : ScrollViewKeyboardDismissBehavior.manual,
               slivers: [
                 SliverPadding(
                   padding: gutter.copyWith(top: insets.top + 12, bottom: 14),
                   sliver: SliverToBoxAdapter(child: header),
                 ),
                 ...widget.slivers,
-                // Clears the floating tab bar on a tab root (its height is
-                // in the bottom inset), and the home indicator otherwise.
-                SliverPadding(
-                  padding: EdgeInsets.only(bottom: insets.bottom + 24),
-                ),
+                SliverPadding(padding: EdgeInsets.only(bottom: endPadding)),
               ],
             ),
           ),
+          if (bottom != null) ...[
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: bottomOffset + _bottomControlHeight + 62,
+              child: const BottomFade(),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: bottomOffset,
+              child: Padding(
+                padding: gutter,
+                child: bottom,
+              ),
+            ),
+          ],
           _CompactTitleBar(
             title: widget.title,
             visible: _compact,
@@ -353,8 +431,11 @@ class PageTextAction extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Center(
               widthFactor: 1,
+              // Wraps rather than overflows where a row gives it less room
+              // than it would like.
               child: Text(
                 label,
+                textAlign: TextAlign.end,
                 style: ShiaText.body.copyWith(
                   color: colors.accent,
                   fontWeight: FontWeight.w600,
@@ -783,14 +864,14 @@ class EmptyStateCard extends StatelessWidget {
     super.key,
     required this.glyph,
     required this.title,
-    required this.body,
+    this.body,
     this.actionLabel,
     this.onAction,
   });
 
   final OutlineGlyph glyph;
   final String title;
-  final String body;
+  final String? body;
   final String? actionLabel;
   final VoidCallback? onAction;
 
@@ -823,12 +904,14 @@ class EmptyStateCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: ShiaText.cardTitle.copyWith(color: colors.text),
             ),
-            const SizedBox(height: 4),
-            Text(
-              body,
-              textAlign: TextAlign.center,
-              style: ShiaText.secondary.copyWith(color: colors.textMuted),
-            ),
+            if (body != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                body!,
+                textAlign: TextAlign.center,
+                style: ShiaText.secondary.copyWith(color: colors.textMuted),
+              ),
+            ],
             if (actionLabel != null) ...[
               const SizedBox(height: 14),
               FilledButton(
@@ -849,4 +932,165 @@ class EmptyStateCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A full-width, 50 px, fully rounded button with a glyph before its label:
+/// the revamp's labelled page actions ("Continue · chapter 4, page 4",
+/// "Save for offline", "Add a reminder"). [filled] for the page's main one,
+/// in the accent; the rest outlined on the surface.
+class PageButton extends StatelessWidget {
+  const PageButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.glyph,
+    this.icon,
+    this.filled = false,
+    this.busy = false,
+    this.danger = false,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final OutlineGlyph? glyph;
+
+  /// Drawn instead of [glyph]: a progress ring, say.
+  final Widget? icon;
+  final bool filled;
+
+  /// Shows a spinner in place of the glyph, and ignores taps.
+  final bool busy;
+
+  /// Danger text on the outline, for an action that removes something.
+  final bool danger;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final foreground = filled
+        ? colors.onAccent
+        : danger
+            ? colors.danger
+            : colors.accent;
+    final textStyle = buttonTextStyle(context, ShiaText.body)
+        .copyWith(fontWeight: FontWeight.w600);
+    final glyph = this.glyph;
+
+    final child = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (busy)
+          SizedBox.square(
+            dimension: 18,
+            child: CircularProgressIndicator(strokeWidth: 2, color: foreground),
+          )
+        else if (icon != null)
+          icon!
+        else if (glyph != null)
+          OutlineIcon(
+            glyph,
+            size: 20,
+            color: foreground,
+            strokeWidth: 2,
+            // A play triangle reads as one when it is solid.
+            filled: glyph == OutlineGlyph.play,
+          ),
+        if (busy || icon != null || glyph != null) const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
+        ),
+      ],
+    );
+    final onTap = busy ? null : onPressed;
+    const minimumSize = Size.fromHeight(50);
+    const padding = EdgeInsets.symmetric(horizontal: 18, vertical: 8);
+
+    return filled
+        ? FilledButton(
+            onPressed: onTap,
+            style: FilledButton.styleFrom(
+              minimumSize: minimumSize,
+              padding: padding,
+              backgroundColor: colors.accent,
+              foregroundColor: colors.onAccent,
+              disabledBackgroundColor: colors.accent.withValues(alpha: 0.6),
+              disabledForegroundColor: colors.onAccent,
+              shape: const StadiumBorder(),
+              textStyle: textStyle,
+            ),
+            child: child,
+          )
+        : OutlinedButton(
+            onPressed: onTap,
+            style: OutlinedButton.styleFrom(
+              minimumSize: minimumSize,
+              padding: padding,
+              foregroundColor: foreground,
+              disabledForegroundColor: foreground.withValues(alpha: 0.6),
+              backgroundColor: colors.surface,
+              side: BorderSide(
+                  color: Color.lerp(colors.line, colors.chevron, 0.25)!),
+              shape: const StadiumBorder(),
+              textStyle: textStyle,
+            ),
+            child: child,
+          );
+  }
+}
+
+/// The ⋯ at the end of a row or card, 44 px square: opens that row's
+/// options, usually with [showMenuAt].
+class MoreButton extends StatelessWidget {
+  const MoreButton({super.key, required this.label, required this.onPressed});
+
+  /// What it opens the options of: "Options for Fajr".
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      onTap: onPressed,
+      child: InkResponse(
+        onTap: onPressed,
+        radius: 22,
+        child: SizedBox.square(
+          dimension: 44,
+          child: Center(
+            child: OutlineIcon(OutlineGlyph.more,
+                size: 22,
+                color: ShiaColors.of(context).accent,
+                strokeWidth: 2.6),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shows a menu of [items] under the button [anchor] was built in: build the
+/// [MoreButton] in a [Builder] and pass that builder's context.
+Future<T?> showMenuAt<T>(BuildContext anchor, List<PopupMenuEntry<T>> items) {
+  final button = anchor.findRenderObject()! as RenderBox;
+  final overlay =
+      Navigator.of(anchor).overlay!.context.findRenderObject()! as RenderBox;
+  final position = RelativeRect.fromRect(
+    Rect.fromPoints(
+      button.localToGlobal(button.size.bottomLeft(Offset.zero),
+          ancestor: overlay),
+      button.localToGlobal(button.size.bottomRight(Offset.zero),
+          ancestor: overlay),
+    ),
+    Offset.zero & overlay.size,
+  );
+  return showMenu<T>(context: anchor, position: position, items: items);
 }

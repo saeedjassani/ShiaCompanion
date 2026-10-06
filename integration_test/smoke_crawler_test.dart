@@ -255,10 +255,10 @@ void main() {
 
       await binding.takeScreenshot('99_search');
 
-      // Dismiss search
-      final searchBackButtons = find.byType(BackButton);
-      if (searchBackButtons.evaluate().isNotEmpty) {
-        await tester.tap(searchBackButtons.first);
+      // Dismiss search with the Close button beside its field
+      final closeSearch = find.byTooltip('Close search');
+      if (closeSearch.evaluate().isNotEmpty) {
+        await tester.tap(closeSearch.first);
       } else {
         final nav = tester.state<NavigatorState>(find.byType(Navigator).last);
         nav.pop();

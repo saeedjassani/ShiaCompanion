@@ -38,12 +38,16 @@ void main() {
       (tester) async {
     await _pump(tester, sfoToIstanbul);
 
-    expect(find.text('SFO → IST'), findsOneWidget);
+    // Each airport by its city, as the airport list has it.
+    final istanbul = _airport('IST').place;
+    expect(find.text('San Francisco to $istanbul'), findsWidgets);
     expect(find.text('TK 80'), findsOneWidget);
+    expect(find.text('Departs San Francisco'), findsOneWidget);
+    expect(find.text('Arrives $istanbul'), findsOneWidget);
     // The two time columns the feature exists to provide.
     expect(find.text('SFO time'), findsOneWidget);
     expect(find.text('IST time'), findsOneWidget);
-    expect(find.textContaining('13h 10m in the air'), findsOneWidget);
+    expect(find.textContaining('13 h 10 min in the air'), findsOneWidget);
 
     // Every prayer comes in en route on this flight, so nothing is left over.
     expect(find.text('Fajr'), findsOneWidget);
@@ -51,13 +55,15 @@ void main() {
     expect(find.text('Asr'), findsOneWidget);
     expect(find.text('Maghrib'), findsOneWidget);
     expect(find.text('Isha'), findsOneWidget);
-    expect(find.text('Not during this flight'), findsNothing);
+    expect(find.text('ON THE GROUND'), findsNothing);
 
     // Maghrib arrives soon after take-off, over the western United States.
-    expect(find.textContaining('1h 11m after take-off'), findsOneWidget);
+    expect(find.textContaining('1 h 11 min after take-off, over '),
+        findsOneWidget);
     // The qibla is given relative to the cabin, not just as a bearing.
     expect(
-      find.textContaining('relative to the direction of flight'),
+      find.textContaining(RegExp(r'^Qibla \d+° · (about \d+° to your '
+          r'(left|right)|straight ahead|directly behind you)$')),
       findsWidgets,
     );
 
@@ -79,6 +85,11 @@ void main() {
       (tester) async {
     await _pump(tester, sfoToIstanbul);
 
+    // Behind a link, so the times come first.
+    expect(find.text('Measured from the horizon at altitude'), findsNothing);
+    await tester.scrollUntilVisible(find.text('How these are worked out'), 300);
+    await tester.tap(find.text('How these are worked out'));
+    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
       find.text('Measured from the horizon at altitude'),
       300,
@@ -103,9 +114,15 @@ void main() {
       ),
     );
 
-    expect(find.text('Not during this flight'), findsOneWidget);
-    expect(find.textContaining('Already in before take-off'), findsWidgets);
-    expect(find.textContaining('Comes in after landing'), findsWidgets);
+    expect(find.text('ON THE GROUND'), findsOneWidget);
+    expect(
+      find.text('Already in before take-off: use San Francisco times'),
+      findsWidgets,
+    );
+    expect(
+      find.text('Comes in after landing: use New York times'),
+      findsWidgets,
+    );
     expect(tester.takeException(), isNull);
   });
 

@@ -271,10 +271,15 @@ void main() {
     testWidgets('lists playlists with a play button each', (tester) async {
       await ZikrPlaylistStore.instance
           .create('Morning', zikrUids: ['E18', 'G4']);
+      await ZikrPlaylistStore.instance
+          .create('Thursday night', zikrUids: ['E18', 'G4', 'E31']);
       await tester.pumpWidget(const MaterialApp(home: PlaylistsPage()));
       expect(find.text('Morning'), findsOneWidget);
-      expect(find.text('2 zikr'), findsOneWidget);
-      expect(find.byTooltip('Play'), findsOneWidget);
+      // One or two zikr go by name; more, by how many.
+      expect(find.text('Dua e Ahad, Ziyarat Ashura'), findsOneWidget);
+      expect(find.text('3 zikr'), findsOneWidget);
+      expect(find.byTooltip('Play'), findsNWidgets(2));
+      expect(find.bySemanticsLabel('Play Morning'), findsOneWidget);
     });
 
     testWidgets('the picker ticks recitations into the playlist',
@@ -358,7 +363,7 @@ void main() {
           .setTrackFiles(playlist.id, 'G1', ['yasin.mp3', 'yasin-dua.mp3']);
       await tester.pump();
       expect(find.text('Ziyarat Aal e Yasin'), findsOneWidget);
-      expect(find.text('2 of 2 recordings'), findsOneWidget);
+      expect(find.textContaining('2 of 2 recordings'), findsOneWidget);
     });
 
     testWidgets('the detail page shows the queue in order', (tester) async {

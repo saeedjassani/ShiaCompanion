@@ -10,6 +10,50 @@ import '../services/analytics_service.dart';
 import '../navigation/app_shell.dart';
 import '../l10n/l10n.dart';
 
+/// Asks before an account is deleted; true to go ahead. Shared by the
+/// Account page and [DeleteAccountPage], so both ask the same way.
+Future<bool> confirmAccountDeletion(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(context.l10n.deleteAccountConfirmTitle),
+      content: Text(context.l10n.deleteAccountConfirmBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(context.l10n.commonCancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text(context.l10n.commonDelete),
+        ),
+      ],
+    ),
+  );
+  return confirmed == true;
+}
+
+/// Deletes the signed-in account and everything synced to it. Null once it
+/// is gone; otherwise what went wrong, to show the user.
+Future<String?> deleteSignedInAccount() async {
+  try {
+    await AccountService.deleteCurrentAccountAndData();
+    user = null;
+    unawaited(AnalyticsService.feature(
+      'account_deleted',
+      label: 'Account deleted',
+    ));
+    return null;
+  } on AccountActionException catch (error) {
+    return error.message;
+  } catch (error) {
+    return L10n.current.deleteAccountFailed('$error');
+  }
+}
+
+/// The public account-deletion page - Google Play requires one at
+/// `/delete-account` - which signs in on the web if need be. In the app,
+/// deleting starts from the Account page.
 class DeleteAccountPage extends StatefulWidget {
   const DeleteAccountPage({super.key});
 
@@ -74,29 +118,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
   }
 
   Future<void> _confirmDeletion() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(context.l10n.deleteAccountConfirmTitle),
-        content: Text(
-          context.l10n.deleteAccountConfirmBody,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(context.l10n.commonCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(context.l10n.commonDelete),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await _deleteAccount();
-    }
+    if (await confirmAccountDeletion(context)) await _deleteAccount();
   }
 
   Future<void> _deleteAccount() async {
@@ -104,28 +126,13 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
       _isBusy = true;
     });
 
-    try {
-      await AccountService.deleteCurrentAccountAndData();
-      user = null;
-      unawaited(AnalyticsService.feature(
-        'account_deleted',
-        label: 'Account deleted',
-      ));
-      if (!mounted) return;
-      setState(() {
-        _isDeleted = true;
-      });
-      _showSnackBar(context.l10n.deleteAccountDone);
-    } on AccountActionException catch (error) {
-      _showSnackBar(error.message);
-    } catch (error) {
-      _showSnackBar(context.l10n.deleteAccountFailed('$error'));
-    } finally {
-      if (!mounted) return;
-      setState(() {
-        _isBusy = false;
-      });
-    }
+    final error = await deleteSignedInAccount();
+    if (!mounted) return;
+    setState(() {
+      _isBusy = false;
+      _isDeleted = error == null;
+    });
+    _showSnackBar(error ?? context.l10n.deleteAccountDone);
   }
 
   void _showSnackBar(String message) {
@@ -236,7 +243,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                             Text(
                               kIsWeb
                                   ? context.l10n.deleteAccountWebSteps
-                                  : context.l10n.deleteAccountAppSteps,
+                                  : context.l10n.deleteAccountAppStepsAccount,
                             ),
                             const SizedBox(height: 16),
                             if (kIsWeb)

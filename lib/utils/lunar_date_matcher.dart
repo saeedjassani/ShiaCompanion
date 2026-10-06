@@ -29,7 +29,9 @@ class LunarDay {
   int get weekday => civilDate.weekday % 7;
 }
 
-List<String> _patternsFromValue(Object? value) {
+/// The `day` patterns in [value], a zikr's `day` field: one pattern, several
+/// separated by commas, or a list of either.
+List<String> lunarPatternsFrom(Object? value) {
   if (value is String) {
     return value
         .split(',')
@@ -40,7 +42,7 @@ List<String> _patternsFromValue(Object? value) {
 
   if (value is Iterable) {
     return value
-        .expand((pattern) => _patternsFromValue(pattern))
+        .expand((pattern) => lunarPatternsFrom(pattern))
         .where((pattern) => pattern.isNotEmpty)
         .toList();
   }
@@ -176,17 +178,29 @@ Map<String, int> matchTodaysZikrs(
   Map<String, dynamic> zikrData, {
   required LunarDay day,
   LunarDay? night,
+}) =>
+    matchTodaysZikrPatterns(zikrData, day: day, night: night)
+        .map((uid, pattern) => MapEntry(uid, lunarPatternSpecificity(pattern)));
+
+/// [matchTodaysZikrs], with the most specific matching pattern itself rather
+/// than its specificity, so it can tell a night ("N09-19") from a day.
+Map<String, String> matchTodaysZikrPatterns(
+  Map<String, dynamic> zikrData, {
+  required LunarDay day,
+  LunarDay? night,
 }) {
-  final matches = <String, int>{};
+  final matches = <String, String>{};
 
   zikrData.forEach((uid, value) {
     if (value is! Map<String, dynamic>) return;
 
-    for (final pattern in _patternsFromValue(value['day'])) {
+    for (final pattern in lunarPatternsFrom(value['day'])) {
       if (!matchesLunarDatePattern(pattern, day: day, night: night)) continue;
-      final specificity = lunarPatternSpecificity(pattern);
       final best = matches[uid];
-      if (best == null || specificity < best) matches[uid] = specificity;
+      if (best == null ||
+          lunarPatternSpecificity(pattern) < lunarPatternSpecificity(best)) {
+        matches[uid] = pattern;
+      }
     }
   });
 
