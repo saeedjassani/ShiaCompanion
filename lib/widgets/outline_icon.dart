@@ -31,6 +31,13 @@ enum OutlineGlyph {
   clock,
   arrowRight,
   playlistAdd,
+  speaker,
+  play,
+  pause,
+  download,
+  more,
+  trash,
+  repeat,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -281,6 +288,66 @@ class _OutlinePainter extends CustomPainter {
           ..addPath(_line(4, 16, 11, 16), Offset.zero)
           ..addPath(_line(18, 13, 18, 19), Offset.zero)
           ..addPath(_line(15, 16, 21, 16), Offset.zero);
+      case OutlineGlyph.speaker:
+        return Path()
+          ..moveTo(4, 9.5)
+          ..lineTo(7.5, 9.5)
+          ..lineTo(12, 5.5)
+          ..lineTo(12, 18.5)
+          ..lineTo(7.5, 14.5)
+          ..lineTo(4, 14.5)
+          ..close()
+          ..moveTo(15.5, 9)
+          ..arcToPoint(const Offset(15.5, 15), radius: const Radius.circular(4))
+          ..moveTo(18, 6.5)
+          ..arcToPoint(const Offset(18, 17.5),
+              radius: const Radius.circular(7.5));
+      case OutlineGlyph.play:
+        return Path()
+          ..moveTo(8, 5.5)
+          ..lineTo(8, 18.5)
+          ..lineTo(18, 12)
+          ..close();
+      case OutlineGlyph.pause:
+        return _line(8, 5.5, 8, 18.5)
+          ..addPath(_line(16, 5.5, 16, 18.5), Offset.zero);
+      case OutlineGlyph.download:
+        return _line(12, 4, 12, 15)
+          ..moveTo(7.5, 10.5)
+          ..lineTo(12, 15)
+          ..lineTo(16.5, 10.5)
+          ..addPath(_line(5, 19.5, 19, 19.5), Offset.zero);
+      case OutlineGlyph.more:
+        // Three dots, drawn as round-capped strokes of no length.
+        return _line(5.5, 12, 5.51, 12)
+          ..addPath(_line(12, 12, 12.01, 12), Offset.zero)
+          ..addPath(_line(18.5, 12, 18.51, 12), Offset.zero);
+      case OutlineGlyph.trash:
+        return _line(5, 7, 19, 7)
+          ..moveTo(10, 7)
+          ..lineTo(10, 5)
+          ..lineTo(14, 5)
+          ..lineTo(14, 7)
+          ..moveTo(7, 7)
+          ..lineTo(8, 20)
+          ..lineTo(16, 20)
+          ..lineTo(17, 7);
+      case OutlineGlyph.repeat:
+        return Path()
+          ..moveTo(17, 3.5)
+          ..lineTo(20, 6.5)
+          ..lineTo(17, 9.5)
+          ..moveTo(4, 11.5)
+          ..lineTo(4, 10.5)
+          ..arcToPoint(const Offset(8, 6.5), radius: const Radius.circular(4))
+          ..lineTo(20, 6.5)
+          ..moveTo(7, 20.5)
+          ..lineTo(4, 17.5)
+          ..lineTo(7, 14.5)
+          ..moveTo(20, 12.5)
+          ..lineTo(20, 13.5)
+          ..arcToPoint(const Offset(16, 17.5), radius: const Radius.circular(4))
+          ..lineTo(4, 17.5);
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)

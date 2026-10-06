@@ -1238,15 +1238,6 @@
   "trackEditNote": "Your track moves on by itself as you read. Change this only to pick up somewhere else.",
   "trackNewNote": "You can change these anytime from the track card.",
   "trackCreate": "Create track",
-  "notifDefaultSoundSubtitle": "{sound} · used unless a time below overrides it",
-  "@notifDefaultSoundSubtitle": {
-    "description": "{sound} is the name of a notification sound.",
-    "placeholders": {
-      "sound": {
-        "type": "String"
-      }
-    }
-  },
   "notifCustomSound": "Custom: {file}",
   "@notifCustomSound": {
     "description": "{file} is an audio file name.",
@@ -1274,7 +1265,6 @@
     }
   },
   "notifDefaultSound": "Default sound",
-  "notifTimesHeading": "TIMES",
   "notifAudioUnreadable": "That audio file could not be read.",
   "notifPickFailed": "Could not pick that file. Try again.",
   "notifPlayingSample": "Playing a sample in a moment…",
@@ -3123,5 +3113,41 @@
         "type": "String"
       }
     }
-  }
+  },
+  "azanTitle": "Azan",
+  "@azanTitle": {
+    "description": "Title of the prayer notifications page."
+  },
+  "azanSubtitle": "Pick the times that notify you, and the sound each one plays.",
+  "azanDefaultSoundBody": "Used unless a time has its own",
+  "azanTimesOn": "Times · {count} on",
+  "@azanTimesOn": {
+    "description": "Heading over the notification times: how many are switched on.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "azanOff": "Off",
+  "azanOwnSound": "{sound} · its own sound",
+  "@azanOwnSound": {
+    "description": "Under a time that plays a sound other than the default.",
+    "placeholders": {
+      "sound": {
+        "type": "String"
+      }
+    }
+  },
+  "azanNotifyAt": "Notify at {prayer}",
+  "@azanNotifyAt": {
+    "description": "Screen-reader label of a time's switch.",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "azanFootnote": "Tap a time to give it its own sound.",
+  "azanFootnoteIos": "On iPhone the notification itself plays a short takbir."
 }

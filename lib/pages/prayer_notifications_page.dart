@@ -10,6 +10,10 @@ import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/utils/prayer_time_entries.dart';
+import 'package:shia_companion/widgets/outline_icon.dart';
+import 'package:shia_companion/widgets/page_chrome.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 import '../l10n/l10n.dart';
 
@@ -132,7 +136,8 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
     await SP.prefs.setBool(AzaanOptInService.askedKey, true);
     if (value) await requestNotificationPermissions();
 
-    unawaited(PrayerPreferencesSyncService.instance.pushNotificationToggle(key));
+    unawaited(
+        PrayerPreferencesSyncService.instance.pushNotificationToggle(key));
     _scheduleReschedule();
     if (!mounted) return;
     setState(() {});
@@ -156,66 +161,175 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
   bool _isOverridden(String prayer) =>
       hasCustomAzaanPreferenceForPrayer(prayer);
 
+  /// Today's time for each prayer, as the prayer card shows it ("5:25 am");
+  /// empty without a location.
+  Map<String, String> _todaysTimes() {
+    final latitude = lat;
+    final longitude = long;
+    if (latitude == null || longitude == null) return const {};
+    try {
+      return {
+        for (final entry in buildPrayerNotificationEntriesForDay(
+          prayerTime: getPrayerTimeObject(),
+          date: DateTime.now(),
+          latitude: latitude,
+          longitude: longitude,
+        ))
+          entry.name: formatPrayerDateTime12(entry.dateTime)
+              .replaceFirst(RegExp(r'^0(?=\d)'), ''),
+      };
+    } catch (_) {
+      return const {};
+    }
+  }
+
+  bool _isEnabled(String prayer) =>
+      SP.isInitialized &&
+      (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayer)) ?? false);
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context);
+    final times = _todaysTimes();
+    final onCount = kPrayerNotificationList.where(_isEnabled).length;
+    final isIOS = !kIsWeb && Platform.isIOS;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.settingsPrayerNotifications)),
-      body: ListView(
-        children: [
-          ListTile(
-            leading: Icon(Icons.volume_up, color: colorScheme.onSurfaceVariant),
-            title: Text(context.l10n.notifDefaultSound),
-            subtitle: Text(
-              context.l10n.notifDefaultSoundSubtitle(_defaultSoundName()),
+    return LargeTitlePage(
+      title: l10n.azanTitle,
+      subtitle: l10n.azanSubtitle,
+      slivers: [
+        SliverPadding(
+          padding: gutter.copyWith(bottom: 14),
+          sliver: SliverToBoxAdapter(
+            child: CardList(
+              children: [
+                CardListRow(
+                  first: true,
+                  last: true,
+                  leading: _IconTile(
+                    child: OutlineIcon(OutlineGlyph.speaker,
+                        size: 20, color: colors.accent),
+                  ),
+                  title: Text(l10n.notifDefaultSound),
+                  subtitle: Text(l10n.azanDefaultSoundBody),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxWidth: MediaQuery.sizeOf(context).width * 0.35),
+                        child: Text(
+                          _defaultSoundName(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                          style:
+                              ShiaText.body.copyWith(color: colors.textMuted),
+                        ),
+                      ),
+                      const _Chevron(),
+                    ],
+                  ),
+                  onTap: () => _openSound(),
+                ),
+              ],
             ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _openSound(),
           ),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
-            child: Text(
-              context.l10n.notifTimesHeading,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.1,
+        ),
+        SliverPadding(
+          padding: gutter.copyWith(bottom: 8),
+          sliver:
+              SliverToBoxAdapter(child: GroupLabel(l10n.azanTimesOn(onCount))),
+        ),
+        SliverPadding(
+          padding: gutter.copyWith(bottom: 14),
+          sliver: SliverToBoxAdapter(
+            child: CardList(
+              children: [
+                for (var i = 0; i < kPrayerNotificationList.length; i++)
+                  _PrayerRow(
+                    key: _rowKeys[kPrayerNotificationList[i]],
+                    prayer: kPrayerNotificationList[i],
+                    time: times[kPrayerNotificationList[i]],
+                    enabled: _isEnabled(kPrayerNotificationList[i]),
+                    soundLabel: _soundLabel(kPrayerNotificationList[i]),
+                    overridden: _isOverridden(kPrayerNotificationList[i]),
+                    highlighted: _highlighted == kPrayerNotificationList[i],
+                    last: i == kPrayerNotificationList.length - 1,
+                    onToggle: (value) =>
+                        _togglePrayer(kPrayerNotificationList[i], value),
+                    onOpenSound: () =>
+                        _openSound(prayer: kPrayerNotificationList[i]),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: gutter,
+          sliver: SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                isIOS
+                    ? '${l10n.azanFootnote} ${l10n.azanFootnoteIos}'
+                    : l10n.azanFootnote,
+                style: ShiaText.caption
+                    .copyWith(height: 18 / 13, color: colors.textMuted),
               ),
             ),
           ),
-          for (final prayer in kPrayerNotificationList)
-            _PrayerRow(
-              key: _rowKeys[prayer],
-              prayer: prayer,
-              enabled: SP.isInitialized &&
-                  (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayer)) ??
-                      false),
-              soundLabel: _soundLabel(prayer),
-              overridden: _isOverridden(prayer),
-              highlighted: _highlighted == prayer,
-              onToggle: (value) => _togglePrayer(prayer, value),
-              onOpenSound: () => _openSound(prayer: prayer),
-            ),
-          const SizedBox(height: 16),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   String _defaultSoundName() {
     final azaan = getSelectedAzaan();
     if (azaan.id == 'custom') {
-      final path = SP.isInitialized
-          ? SP.prefs.getString(azaanCustomFilePathKey)
-          : null;
+      final path =
+          SP.isInitialized ? SP.prefs.getString(azaanCustomFilePathKey) : null;
       if (path != null && path.isNotEmpty) {
         return context.l10n.notifCustomSound(path.split('/').last);
       }
     }
     return azaan.name;
+  }
+}
+
+/// A 34 px well holding a row's glyph.
+class _IconTile extends StatelessWidget {
+  const _IconTile({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 34,
+      height: 34,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: ShiaColors.of(context).well,
+        borderRadius: BorderRadius.circular(9),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _Chevron extends StatelessWidget {
+  const _Chevron();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 6, end: 2),
+      child: OutlineIcon(OutlineGlyph.chevronRight,
+          size: 16, color: ShiaColors.of(context).chevron, strokeWidth: 2.4),
+    );
   }
 }
 
@@ -229,115 +343,143 @@ class _PrayerRow extends StatelessWidget {
   const _PrayerRow({
     super.key,
     required this.prayer,
+    required this.time,
     required this.enabled,
     required this.soundLabel,
     required this.overridden,
     required this.highlighted,
+    required this.last,
     required this.onToggle,
     required this.onOpenSound,
   });
 
   final String prayer;
+
+  /// Today's time ("5:25 am"), when there is a location to work it out.
+  final String? time;
   final bool enabled;
   final String soundLabel;
   final bool overridden;
   final bool highlighted;
+  final bool last;
   final ValueChanged<bool> onToggle;
   final VoidCallback onOpenSound;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final name = localizedPrayerName(prayer, l10n);
 
     return Container(
-      color: highlighted
-          ? colorScheme.primaryContainer.withValues(alpha: 0.35)
-          : null,
+      decoration: BoxDecoration(
+        color: highlighted ? colors.selectedTint : null,
+        border: last ? null : Border(bottom: BorderSide(color: colors.divider)),
+      ),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: InkWell(
+              child: Semantics(
+                button: true,
+                label: l10n.notifPrayerSound(name),
+                value: enabled ? soundLabel : l10n.azanOff,
+                excludeSemantics: true,
                 onTap: onOpenSound,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-                  child: Row(
-                    children: [
-                      PrayerGlyph(
-                        name: prayer,
-                        size: 22,
-                        color: enabled
-                            ? colorScheme.primary
-                            : colorScheme.outline,
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                                                      Text(
-                            localizedPrayerName(prayer, context.l10n),
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                fontWeight: enabled
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                                color: enabled
-                                    ? colorScheme.onSurface
-                                    : colorScheme.onSurface
-                                        .withValues(alpha: 0.7),
-                              ),
+                child: InkWell(
+                  onTap: onOpenSound,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 58),
+                    child: Padding(
+                      padding:
+                          const EdgeInsetsDirectional.fromSTEB(14, 6, 8, 6),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 26,
+                            child: Center(
+                              child: PrayerGlyph(
+                                  name: prayer, size: 22, color: colors.accent),
                             ),
-                            if (enabled) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                soundLabel,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: overridden
-                                      ? colorScheme.primary
-                                      : colorScheme.onSurfaceVariant,
-                                  fontWeight: overridden
-                                      ? FontWeight.w500
-                                      : FontWeight.normal,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text.rich(
+                                  TextSpan(
+                                    text: name,
+                                    children: [
+                                      if (time != null)
+                                        TextSpan(
+                                          text: ' · $time',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            color: colors.textMuted,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  style: ShiaText.body.copyWith(
+                                    fontWeight: enabled
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                    color: colors.text,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ],
-                        ),
+                                const SizedBox(height: 1),
+                                Text(
+                                  !enabled
+                                      ? l10n.azanOff
+                                      : overridden
+                                          ? l10n.azanOwnSound(soundLabel)
+                                          : soundLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: ShiaText.caption.copyWith(
+                                    color: enabled && overridden
+                                        ? colors.accent
+                                        : colors.textMuted,
+                                    fontWeight: enabled && overridden
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const _Chevron(),
+                        ],
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        size: 20,
-                        color: colorScheme.onSurfaceVariant
-                            .withValues(alpha: 0.7),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: VerticalDivider(
                 width: 1,
                 thickness: 1,
-                color: colorScheme.outlineVariant,
+                color: colors.divider,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Center(
                 // A plain Switch, not .adaptive: every other switch in the app
                 // stays Material and picks up the brown ColorScheme. Adaptive
                 // renders Cupertino green on iOS and would be the only one
                 // that doesn't match.
-                child: Switch(
-                  value: enabled,
-                  onChanged: onToggle,
+                child: Semantics(
+                  label: l10n.azanNotifyAt(name),
+                  child: Switch(
+                    value: enabled,
+                    onChanged: onToggle,
+                  ),
                 ),
               ),
             ),
@@ -383,7 +525,8 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
     } else if (_isPerPrayer) {
       await saveAzaanPreferenceForPrayer(widget.prayerName!, soundId);
       unawaited(
-        PrayerPreferencesSyncService.instance.pushPrayerSound(widget.prayerName!),
+        PrayerPreferencesSyncService.instance
+            .pushPrayerSound(widget.prayerName!),
       );
     } else {
       await saveAzaanPreference(soundId);
@@ -430,7 +573,8 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
         await saveCustomAudioFilePathForPrayer(widget.prayerName!, path);
         await saveAzaanPreferenceForPrayer(widget.prayerName!, 'custom');
         unawaited(
-          PrayerPreferencesSyncService.instance.pushPrayerSound(widget.prayerName!),
+          PrayerPreferencesSyncService.instance
+              .pushPrayerSound(widget.prayerName!),
         );
       } else {
         await saveCustomAudioFilePath(path);
@@ -471,52 +615,65 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context);
     final selection = _currentSelection;
     final options = getAvailableAzaanOptions();
+    final rows = [
+      if (_isPerPrayer)
+        _SoundOptionRow(
+          title: l10n.notifUseDefault,
+          subtitle: l10n.notifFollows(getSelectedAzaan().name),
+          selected: selection == 'app_default',
+          onTap: () => _select('app_default'),
+        ),
+      for (final option in options)
+        _SoundOptionRow(
+          title: option.name,
+          subtitle: _subtitleFor(option),
+          selected: selection == option.id,
+          onPreview: option.id == 'silent' ? null : () => _preview(option.id),
+          onTap: () => _select(option.id),
+        ),
+    ];
 
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) Navigator.pop(context, _changed);
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            _isPerPrayer
-                ? context.l10n.notifPrayerSound(
-                    localizedPrayerName(widget.prayerName!, context.l10n))
-                : context.l10n.notifDefaultSound,
-          ),
-        ),
-        body: ListView(
-          children: [
-            if (_isPerPrayer)
-              _SoundOptionTile(
-                title: context.l10n.notifUseDefault,
-                subtitle: context.l10n.notifFollows(getSelectedAzaan().name),
-                selected: selection == 'app_default',
-                onTap: () => _select('app_default'),
-              ),
-            for (final option in options)
-              _SoundOptionTile(
-                title: option.name,
-                subtitle: _subtitleFor(option),
-                selected: selection == option.id,
-                onPreview: option.id == 'silent' ? null : () => _preview(option.id),
-                onTap: () => _select(option.id),
-              ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 28),
-              child: Text(
-                _footnote(),
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: colorScheme.onSurfaceVariant),
+      child: LargeTitlePage(
+        title: _isPerPrayer
+            ? l10n
+                .notifPrayerSound(localizedPrayerName(widget.prayerName!, l10n))
+            : l10n.notifDefaultSound,
+        slivers: [
+          SliverPadding(
+            padding: gutter.copyWith(bottom: 14),
+            sliver: SliverToBoxAdapter(
+              child: CardList(
+                children: [
+                  for (var i = 0; i < rows.length; i++)
+                    rows[i].copyWith(first: i == 0, last: i == rows.length - 1),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+          SliverPadding(
+            padding: gutter,
+            sliver: SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  _footnote(),
+                  style: ShiaText.caption
+                      .copyWith(height: 18 / 13, color: colors.textMuted),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -539,13 +696,17 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
   }
 }
 
-class _SoundOptionTile extends StatelessWidget {
-  const _SoundOptionTile({
+/// One sound to choose: a tick in a circle once chosen, its name and what
+/// it is, and a button to hear it.
+class _SoundOptionRow extends StatelessWidget {
+  const _SoundOptionRow({
     required this.title,
     required this.subtitle,
     required this.selected,
     required this.onTap,
     this.onPreview,
+    this.first = false,
+    this.last = false,
   });
 
   final String title;
@@ -553,32 +714,76 @@ class _SoundOptionTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   final VoidCallback? onPreview;
+  final bool first;
+  final bool last;
+
+  _SoundOptionRow copyWith({required bool first, required bool last}) =>
+      _SoundOptionRow(
+        title: title,
+        subtitle: subtitle,
+        selected: selected,
+        onTap: onTap,
+        onPreview: onPreview,
+        first: first,
+        last: last,
+      );
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = ShiaColors.of(context);
+    final preview = context.l10n.notifPreview;
 
-    return ListTile(
-      leading: Icon(
-        selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: selected ? colorScheme.primary : colorScheme.outline,
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+    return Semantics(
+      inMutuallyExclusiveGroup: true,
+      checked: selected,
+      child: CardListRow(
+        first: first,
+        last: last,
+        leading: Container(
+          width: 24,
+          height: 24,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: selected ? colors.accent : null,
+            border:
+                selected ? null : Border.all(color: colors.chevron, width: 1.5),
+          ),
+          child: selected
+              ? OutlineIcon(OutlineGlyph.check,
+                  size: 16, color: colors.onAccent, strokeWidth: 2.6)
+              : null,
         ),
+        title: Text(title),
+        titleStyle: ShiaText.body
+            .copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
+        subtitle: Text(subtitle),
+        trailing: onPreview == null
+            ? null
+            : Tooltip(
+                message: preview,
+                excludeFromSemantics: true,
+                child: Semantics(
+                  container: true,
+                  button: true,
+                  label: '$preview $title',
+                  excludeSemantics: true,
+                  onTap: onPreview,
+                  child: InkResponse(
+                    onTap: onPreview,
+                    radius: 22,
+                    child: SizedBox.square(
+                      dimension: 44,
+                      child: Center(
+                        child: OutlineIcon(OutlineGlyph.play,
+                            size: 20, color: colors.accent, filled: true),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+        onTap: onTap,
       ),
-      subtitle: Text(subtitle),
-      trailing: onPreview == null
-          ? null
-          : IconButton(
-              icon: const Icon(Icons.play_arrow),
-              tooltip: context.l10n.notifPreview,
-              color: colorScheme.primary,
-              onPressed: onPreview,
-            ),
-      onTap: onTap,
     );
   }
 }
