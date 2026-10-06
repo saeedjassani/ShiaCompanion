@@ -10,8 +10,8 @@ import '../../theme/shia_colors.dart';
 import '../../widgets/outline_icon.dart';
 import 'home_section.dart';
 
-/// "Shortcuts": up to seven features the reader picked, then All features,
-/// four to a row.
+/// Home's shortcuts: up to eleven features the reader picked, then All
+/// features, four to a row - two rows, or three once there are eight or more.
 class ShortcutsSection extends StatelessWidget {
   const ShortcutsSection({
     super.key,
@@ -45,41 +45,31 @@ class ShortcutsSection extends StatelessWidget {
           ),
         ];
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            HomeSectionHeader(
-              title: context.l10n.homeShortcutsTitle,
-              actionLabel: context.l10n.homeSectionEdit,
-              actionSemanticsLabel: context.l10n.homeEditShortcuts,
-              onAction: () => showShortcutsEditor(context),
-            ),
-            const SizedBox(height: 10),
-            HomeCard(
-              radius: 20,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              child: Column(
-                children: [
-                  for (var start = 0; start < tiles.length; start += 4)
-                    // Each row as tall as its tallest label, so a two-line
-                    // label never leaves its neighbours' tap areas short.
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (var i = start; i < start + 4; i++)
-                            Expanded(
-                              child: i < tiles.length
-                                  ? tiles[i]
-                                  : const SizedBox.shrink(),
-                            ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
+        // No heading: the tiles say what they are. They are edited from
+        // All features, the last tile.
+        return HomeCard(
+          radius: 20,
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          child: Column(
+            children: [
+              for (var start = 0; start < tiles.length; start += 4)
+                // Each row as tall as its tallest label, so a two-line
+                // label never leaves its neighbours' tap areas short.
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i = start; i < start + 4; i++)
+                        Expanded(
+                          child: i < tiles.length
+                              ? tiles[i]
+                              : const SizedBox.shrink(),
+                        ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         );
       },
     );
@@ -198,7 +188,7 @@ class OnHomeBadge extends StatelessWidget {
   }
 }
 
-/// Opens the shortcuts editor: remove, reorder and add, up to seven.
+/// Opens the shortcuts editor: remove, reorder and add, up to eleven.
 Future<void> showShortcutsEditor(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,

@@ -80,8 +80,8 @@ fresh installs). Existing users keep whatever `darkMode` holds today.
 | Role | Size / line height | Weight | Example |
 |---|---|---|---|
 | Large title | 34 / 41 | 700 | "Favorites", "Quran", "Settings" |
-| Greeting | 32 / 38 (36 / 43 tablet+) | 700 | "Assalamu alaykum" |
-| Section title | 20 / 24 | 700 | "Shortcuts", "Coming up" |
+| Home title | 32 / 38 (36 / 43 tablet+) | 700 | "22 Rabi' al-Thani" |
+| Section title | 20 / 24 | 700 | "Continue", "Coming up" |
 | Card title | 17 / 21–22 | 600 | "Al-Baqarah", list rows |
 | Body | 17 / 22 | 400 | List rows, buttons |
 | Secondary | 15 / 20 | 400–600 | Dates, sub-lines |
@@ -136,19 +136,25 @@ fresh installs). Existing users keep whatever `darkMode` holds today.
 ### Home (tab 1)
 Top to bottom, each section hidden when it has nothing to show:
 
-1. **Header** — Gregorian date (secondary), "Assalamu alaykum", profile button.
-2. **Prayer card** — Hijri date + city button (opens the city picker);
-   today's behaviour for the times: the 3–5 the user picked, starting with
-   the upcoming one, "next day" under the first time that's tomorrow. No
-   "next prayer" headline. Tap → Calendar & Prayer Times; long-press →
+1. **Header** — today's Hijri day and month as the title ("22 Rabi'
+   al-Thani"), then the year ("1448 AH") and the city button (opens the
+   city picker) under it, and the profile button. No greeting and no
+   Gregorian date. The city button is left out until there is a location;
+   the prayer card asks for one instead.
+2. **Prayer card** — the times only: the 3–5 the user picked, starting
+   with the upcoming one, "next day" under the first time that's tomorrow,
+   with no divider before it. No "next prayer" headline. Tap → Calendar & Prayer Times; long-press →
    "Prayer times shown" picker (as today). No-location state = the
    round-1 "Which city are you in?" card (time-zone guess, Use my location,
    Choose city).
 3. **Continue** — up to 3 cards, newest first: Quran track
    (`RecitationTrackerManager`), dua bookmark (`ZikrBookmarksManager`),
    library chapter (`LibraryProgressStore`). Horizontal scroll on phone.
-4. **Shortcuts** — 4 × 2 grid: 7 user-picked + fixed **All features**.
-   "Edit" opens the editor sheet (remove/drag/add, max 7). Stored in prefs
+4. **Shortcuts** — no heading. Up to 11 user-picked + fixed **All
+   features**, four to a row: two rows for up to 7 picks, a third from 8
+   (no rows setting; the grid grows with the picks). Edited from **Edit
+   shortcuts** on All features, which opens the editor sheet
+   (remove/drag/add, max 11). Stored in prefs
    and synced via `PreferencesSyncService`. Defaults: Duas, Ziyarats,
    Today's Recitations, Munajaat, Calendar, Tasbeeh, Qibla.
 5. **Coming up** — next 2 events from `buildUpcomingCalendarWidgetEvents`;

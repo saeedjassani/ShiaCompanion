@@ -35,17 +35,32 @@ void main() {
       expect(HomeShortcutsStore.instance.isCustomized, isFalse);
     });
 
-    test('saves a choice, without repeats and at most seven', () async {
+    test('saves a choice, without repeats and at most eleven', () async {
       var notified = 0;
       void listener() => notified++;
       HomeShortcutsStore.instance.addListener(listener);
       addTearDown(() => HomeShortcutsStore.instance.removeListener(listener));
 
-      await HomeShortcutsStore.instance
-          .save(['duas', 'duas', '', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
+      await HomeShortcutsStore.instance.save([
+        'duas',
+        'duas',
+        '',
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+        'f',
+        'g',
+        'h',
+        'i',
+        'j',
+        'k',
+        'l'
+      ]);
 
       expect(HomeShortcutsStore.instance.ids,
-          ['duas', 'a', 'b', 'c', 'd', 'e', 'f']);
+          ['duas', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']);
       expect(HomeShortcutsStore.instance.isCustomized, isTrue);
       expect(notified, 1);
     });
@@ -218,33 +233,64 @@ void main() {
       expect(allFeatures, 1);
     });
 
-    testWidgets('the editor removes, adds and saves on Done', (tester) async {
-      tester.view.physicalSize = const Size(390, 1600);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-
+    testWidgets('has no heading and grows to a third row past seven',
+        (tester) async {
+      await HomeShortcutsStore.instance.save([
+        'duas',
+        'ziyarats',
+        'today_s_recitations',
+        'munajaat',
+        'calendar_prayer_times',
+        'tasbeeh_counter',
+        'qibla_finder',
+        'library',
+      ]);
       await tester.pumpWidget(_app(ShortcutsSection(
         onOpen: (_) {},
         onOpenAllFeatures: () {},
       )));
-      await tester.tap(find.bySemanticsLabel('Edit shortcuts'));
-      await tester.pumpAndSettle();
 
-      expect(find.text('ON YOUR HOME · 7 OF 7'), findsOneWidget);
-      // Full: nothing more can be added until one is removed.
-      expect(
-        tester
-            .getSemantics(find.bySemanticsLabel('Add Library'))
-            .flagsCollection
-            .isEnabled,
-        isNot(true),
-      );
+      expect(find.text('Shortcuts'), findsNothing);
+      expect(find.text('Edit'), findsNothing);
+      // Eight picks and All features: two full rows, then All features alone.
+      final duas = tester.getCenter(find.text('Duas'));
+      final library = tester.getCenter(find.text('Library'));
+      final allFeatures = tester.getCenter(find.text('All features'));
+      expect(library.dy, greaterThan(duas.dy));
+      expect(allFeatures.dy, greaterThan(library.dy));
+      expect(allFeatures.dx, closeTo(duas.dx, 1));
+    });
+
+    Future<void> pumpEditor(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(390, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(_app(Builder(
+        builder: (context) => Column(
+          children: [
+            ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {}),
+            TextButton(
+              onPressed: () => showShortcutsEditor(context),
+              child: const Text('Open editor'),
+            ),
+          ],
+        ),
+      )));
+      await tester.tap(find.text('Open editor'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('the editor removes, adds and saves on Done', (tester) async {
+      await pumpEditor(tester);
+
+      expect(find.text('ON YOUR HOME · 7 OF 11'), findsOneWidget);
 
       // Each row reads as one stop, "Remove Qibla" first; activating it
       // removes, as a screen reader's double-tap would.
       tester.semantics.tap(find.semantics.byLabel(RegExp(r'^Remove Qibla')));
       await tester.pump();
-      expect(find.text('ON YOUR HOME · 6 OF 7'), findsOneWidget);
+      expect(find.text('ON YOUR HOME · 6 OF 11'), findsOneWidget);
 
       await tester.tap(find.bySemanticsLabel('Add Library'));
       await tester.pump();
@@ -264,17 +310,25 @@ void main() {
       expect(find.text('Qibla'), findsNothing);
     });
 
-    testWidgets('Cancel leaves the shortcuts as they were', (tester) async {
-      tester.view.physicalSize = const Size(390, 1600);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
+    testWidgets('the editor stops adding at eleven', (tester) async {
+      await HomeShortcutsStore.instance.save([
+        for (final item in shortcutCandidateMenuItems.take(11))
+          item.analyticsId,
+      ]);
+      await pumpEditor(tester);
 
-      await tester.pumpWidget(_app(ShortcutsSection(
-        onOpen: (_) {},
-        onOpenAllFeatures: () {},
-      )));
-      await tester.tap(find.bySemanticsLabel('Edit shortcuts'));
-      await tester.pumpAndSettle();
+      expect(find.text('ON YOUR HOME · 11 OF 11'), findsOneWidget);
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel(RegExp(r'^Add ')).first)
+            .flagsCollection
+            .isEnabled,
+        isNot(true),
+      );
+    });
+
+    testWidgets('Cancel leaves the shortcuts as they were', (tester) async {
+      await pumpEditor(tester);
       tester.semantics.tap(find.semantics.byLabel(RegExp(r'^Remove Duas')));
       await tester.pump();
       await tester.tap(find.text('Cancel'));
