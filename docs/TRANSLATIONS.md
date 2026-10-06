@@ -35,6 +35,12 @@ of them - in Flutter's [ARB format](https://github.com/google/app-resource-bundl
 `context.l10n.someKey` in widgets, `L10n.current.someKey` where there is no
 `BuildContext` (notifications, home screen widgets, model labels).
 
+That class lives in `lib/l10n/app_localizations*.dart`, which `flutter
+gen-l10n` generates from the ARB files. `flutter pub get`, `run`, `build` and
+`test` all regenerate it (`generate: true` in `pubspec.yaml`), so the files
+are gitignored: never commit them. Run `flutter pub get` after pulling a
+change to any `.arb` file if your IDE shows missing `l10n` getters.
+
 ### Adding a language
 
 1. Copy `lib/l10n/app_en.arb` to `lib/l10n/app_<code>.arb`, set
@@ -46,8 +52,8 @@ of them - in Flutter's [ARB format](https://github.com/google/app-resource-bundl
    Plurals use ICU syntax: Arabic needs its `zero`/`one`/`two`/`few`/`many`
    forms, e.g.
    `"{count, plural, zero{...} one{...} two{...} few{...} many{...} other{...}}"`.
-3. Run `flutter gen-l10n` (or any `flutter run`/`build`, which does it too)
-   and commit the regenerated `lib/l10n/app_localizations*.dart`.
+3. Run `flutter gen-l10n` (or `flutter pub get`/`run`/`build`, which do it
+   too) to check the file compiles. Commit only the `.arb`.
 4. Tell the platforms the app now speaks the language:
    - **iOS**: add the code to a `CFBundleLocalizations` array in
      `ios/Runner/Info.plist`.
@@ -69,6 +75,23 @@ English in code - prayer names (`"Fajr"`, `"Midnight"` key preferences and
 notifications), home menu labels (analytics ids), Azan option ids - so each
 has a display mapping instead: `localizedPrayerName`, `homeMenuDisplayLabel`,
 `AzaanOption.name`. Analytics labels and `debugPrint` messages stay English.
+
+### Keeping translations in step
+
+UI work and translation work touch different files, so they never conflict:
+
+- **Feature and design PRs** add, change or remove keys in `app_en.arb`
+  only. They never edit an `app_<code>.arb`.
+- **Translation PRs** edit `app_<code>.arb` only, one language per PR,
+  each based on `master`.
+
+A new English key simply shows in English in every other language until it
+is translated, and a key removed from `app_en.arb` but still in an
+`app_<code>.arb` is ignored, so either kind of PR can merge first. After a
+feature lands, a catch-up PR per language fills in what is missing:
+`flutter gen-l10n` lists it, per language, in
+`build/untranslated_messages.json`. Hold off translating a screen that is
+about to be redesigned - its strings are likely to change.
 
 ## Zikr content (`assets/zikr_i18n/<code>/`)
 
