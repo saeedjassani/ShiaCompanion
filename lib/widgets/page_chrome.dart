@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
+import 'arabic_runs.dart';
 import 'glass_surface.dart';
 import 'outline_icon.dart';
 
@@ -754,14 +755,9 @@ class CardListRow extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       DefaultTextStyle.merge(
-                        // A title's trailing Arabic ("36: Ya-Sin يس") in
-                        // the Arabic font rather than whatever the UI font
-                        // falls back to.
-                        style: (titleStyle ?? ShiaText.body).copyWith(
-                          color: colors.text,
-                          fontFamilyFallback: const ['Qalam'],
-                        ),
-                        child: title,
+                        style: (titleStyle ?? ShiaText.body)
+                            .copyWith(color: colors.text),
+                        child: _withArabicRuns(title),
                       ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 1),
@@ -782,6 +778,26 @@ class CardListRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A plain [Text] title with the Arabic in it ("Ziyarat Rajabiyah (الحمد
+/// لله …)") in the reader's Arabic font rather than whatever the UI font
+/// falls back to; any other title as it is.
+Widget _withArabicRuns(Widget title) {
+  if (title is! Text || title.data == null) return title;
+  final spans = arabicRunSpans(title.data!);
+  if (spans == null) return title;
+  return Text.rich(
+    TextSpan(children: spans),
+    key: title.key,
+    style: title.style,
+    textAlign: title.textAlign,
+    textDirection: title.textDirection,
+    softWrap: title.softWrap,
+    overflow: title.overflow,
+    maxLines: title.maxLines,
+    semanticsLabel: title.semanticsLabel ?? title.data,
+  );
 }
 
 /// The 34 px numbered well at the start of a surah or juz row; filled with

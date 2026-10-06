@@ -4,17 +4,14 @@ import '../constants.dart';
 import '../data/universal_data.dart';
 import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
+import 'arabic_runs.dart';
 import 'favorite_icon.dart';
 import 'outline_icon.dart';
 import 'page_chrome.dart';
 
-/// Arabic script, as titles use it: letters, harakat and presentation forms.
-const String _arabic = r'؀-ۿݐ-ݿࢠ-ࣿ'
-    r'ﭐ-﷿ﹰ-﻿';
-
 /// A title ending in a run of Arabic: "Dua al-Hujjah اِلٰهِيْ بِحَقِّ …".
 final RegExp _trailingArabic = RegExp(
-  '^(.*?[^\\s$_arabic])\\s+([$_arabic][$_arabic\\u200C\\u200D\\s.…]*)\$',
+  '^(.*?[^\\s$arabicScript])\\s+([$arabicScript][$arabicScript\\u200C\\u200D\\s.…]*)\$',
 );
 
 /// [title] split into its words and the Arabic it ends with, if it does:
@@ -108,9 +105,10 @@ class ZikrListRow extends StatelessWidget {
 }
 
 /// [text] with every case-insensitive occurrence of [query] in bold.
+/// Arabic in it is set in the reader's Arabic font ([arabicRunSpans]).
 Widget highlightedText(String text, String? query) {
   final needle = query?.trim().toLowerCase() ?? '';
-  if (needle.isEmpty) return Text(text);
+  if (needle.isEmpty) return textWithArabicRuns(text);
 
   final lower = text.toLowerCase();
   final spans = <TextSpan>[];
@@ -120,17 +118,21 @@ Widget highlightedText(String text, String? query) {
   // then offsets into [lower] would not line up with [text].
   if (lower.length != text.length) index = -1;
   while (index >= 0) {
-    if (index > start) spans.add(TextSpan(text: text.substring(start, index)));
-    spans.add(TextSpan(
-      text: text.substring(index, index + needle.length),
-      style: const TextStyle(fontWeight: FontWeight.w700),
+    if (index > start) spans.addAll(_runs(text.substring(start, index)));
+    spans.addAll(_runs(
+      text.substring(index, index + needle.length),
+      const TextStyle(fontWeight: FontWeight.w700),
     ));
     start = index + needle.length;
     index = lower.indexOf(needle, start);
   }
-  if (start < text.length) spans.add(TextSpan(text: text.substring(start)));
+  if (start < text.length) spans.addAll(_runs(text.substring(start)));
   return Text.rich(TextSpan(children: spans), semanticsLabel: text);
 }
+
+/// [text] as one span, or several when it holds Arabic.
+List<TextSpan> _runs(String text, [TextStyle? style]) =>
+    arabicRunSpans(text, style: style) ?? [TextSpan(text: text, style: style)];
 
 /// The small **Today** pill beside a recitation that falls today.
 class TodayPill extends StatelessWidget {
