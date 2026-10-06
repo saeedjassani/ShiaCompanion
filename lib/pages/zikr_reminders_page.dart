@@ -5,13 +5,18 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../models/zikr_reminder.dart';
 import '../services/zikr_reminder_service.dart';
-import '../widgets/responsive_content.dart';
+import '../theme/shia_colors.dart';
+import '../utils/zikr_reminder_labels.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
+import '../widgets/prayer_glyph.dart';
 import 'zikr_reminder_form_page.dart';
 import '../l10n/l10n.dart';
 
 /// Lists the user's zikr/dua reminders (Tawassul every Tuesday, Dua Kumail 30
-/// minutes after Maghrib on Thursday, ...) and lets them add, edit, toggle or
-/// remove one.
+/// minutes after Maghrib on Thursday, ...) and lets them add, edit or toggle
+/// one (docs/DESIGN_SPEC.md, "Zikr reminders"; mockup `R3-Reminders`).
+/// Removing one is on its edit page.
 class ZikrRemindersPage extends StatefulWidget {
   const ZikrRemindersPage({super.key});
 
@@ -58,128 +63,115 @@ class _ZikrRemindersPageState extends State<ZikrRemindersPage> {
     );
   }
 
-  Future<void> _confirmDelete(ZikrReminder reminder) async {
-    final shouldDelete = await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: Text(context.l10n.reminderRemoveTitle),
-            content: Text(
-              context.l10n.reminderRemoveBody(reminder.title),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                child: Text(context.l10n.commonCancel),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                child: Text(
-                  context.l10n.commonRemove,
-                  style:
-                      TextStyle(color: Theme.of(dialogContext).colorScheme.error),
-                ),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-    if (!shouldDelete) return;
-
-    await _service.deleteReminder(reminder.id);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context);
+    final firstDay = MaterialLocalizations.of(context).firstDayOfWeekIndex;
     final reminders = List<ZikrReminder>.of(_service.reminders)
       ..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
 
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.settingsZikrReminders)),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addReminder,
-        tooltip: context.l10n.reminderAddTooltip,
-        child: const Icon(Icons.add),
-      ),
-      body: reminders.isEmpty
-          ? _buildEmptyState(context)
-          : ResponsiveContent(
-              maxWidth: listContentWidth,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: reminders.length,
-                separatorBuilder: (context, index) => const Divider(height: 1),
-                itemBuilder: (context, index) =>
-                    _buildReminderTile(context, reminders[index]),
+    return LargeTitlePage(
+      title: l10n.remindersTitle,
+      subtitle: l10n.remindersSubtitle,
+      slivers: [
+        SliverPadding(
+          padding: gutter.copyWith(bottom: 14),
+          sliver: SliverToBoxAdapter(
+            child: PageButton(
+              filled: true,
+              glyph: OutlineGlyph.plus,
+              label: l10n.remindersAdd,
+              onPressed: _addReminder,
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: gutter.copyWith(bottom: 14),
+          sliver: reminders.isEmpty
+              ? SliverToBoxAdapter(
+                  child: EmptyStateCard(
+                    glyph: OutlineGlyph.clock,
+                    title: l10n.reminderNone,
+                    body: l10n.reminderNoneBody,
+                  ),
+                )
+              : SliverCardList(
+                  itemCount: reminders.length,
+                  itemBuilder: (context, index) => _buildReminderRow(
+                    context,
+                    reminders[index],
+                    firstDay: firstDay,
+                    first: index == 0,
+                    last: index == reminders.length - 1,
+                  ),
+                ),
+        ),
+        if (reminders.isNotEmpty)
+          SliverPadding(
+            padding: gutter,
+            sliver: SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  l10n.remindersFootnote,
+                  style: ShiaText.caption
+                      .copyWith(height: 18 / 13, color: colors.textMuted),
+                ),
               ),
             ),
+          ),
+      ],
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    final theme = Theme.of(context);
-    return ResponsiveContent(
-      maxWidth: compactContentWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.notifications_none,
-              size: 56,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              context.l10n.reminderNone,
-              style: theme.textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              context.l10n.reminderNoneBody,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.72),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+  /// One reminder: the prayer's glyph when it is relative to a prayer, a
+  /// clock otherwise; the title, "Thursdays · 15 min after Maghrib", and
+  /// the switch. Tapping it edits it, which is where Remove is.
+  Widget _buildReminderRow(
+    BuildContext context,
+    ZikrReminder reminder, {
+    required int firstDay,
+    required bool first,
+    required bool last,
+  }) {
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    return CardListRow(
+      first: first,
+      last: last,
+      minHeight: 64,
+      leading: Container(
+        width: 36,
+        height: 36,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: colors.well,
+          borderRadius: BorderRadius.circular(10),
         ),
-      ),
-    );
-  }
-
-  Widget _buildReminderTile(BuildContext context, ZikrReminder reminder) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: reminder.enabled
-            ? Theme.of(context).colorScheme.primaryContainer
-            : Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: Icon(
-          reminder.mode == ZikrReminderTimeMode.relativeToPrayer
-              ? Icons.mosque
-              : Icons.schedule,
-          size: 20,
-        ),
+        child: reminder.mode == ZikrReminderTimeMode.relativeToPrayer
+            ? PrayerGlyph(
+                name: reminder.prayerName, size: 22, color: colors.accent)
+            : OutlineIcon(OutlineGlyph.clock, size: 20, color: colors.accent),
       ),
       title: Text(reminder.title),
-      subtitle: Text('${reminder.daysLabel} · ${reminder.timeLabel}'),
-      onTap: () => _editReminder(reminder),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Switch(
+      titleStyle: ShiaText.cardTitle,
+      subtitle: Text(
+        '${reminderDaysLabel(reminder.daysOfWeek, l10n, firstDayOfWeek: firstDay)}'
+        ' · ${reminderWhenLabel(reminder)}',
+      ),
+      trailing: Padding(
+        padding: const EdgeInsetsDirectional.only(start: 8, end: 4),
+        child: Semantics(
+          label: l10n.reminderSwitchLabel(reminder.title),
+          child: Switch(
             value: reminder.enabled,
             onChanged: (value) => _service.setEnabled(reminder.id, value),
           ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            tooltip: context.l10n.commonRemove,
-            onPressed: () => _confirmDelete(reminder),
-          ),
-        ],
+        ),
       ),
+      onTap: () => _editReminder(reminder),
     );
   }
 }

@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 import '../constants.dart';
 import '../data/uid_title_data.dart';
 import '../models/zikr_reminder.dart';
 import '../services/zikr_reminder_service.dart';
-import '../widgets/responsive_content.dart';
+import '../theme/shia_colors.dart';
+import '../utils/zikr_lists.dart';
+import '../utils/zikr_occasions.dart';
+import '../utils/zikr_reminder_labels.dart';
+import '../widgets/home_glyph.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
+import '../widgets/prayer_glyph.dart';
 import 'zikr_picker_page.dart';
 import '../l10n/l10n.dart';
 
@@ -41,9 +49,10 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
     DateTime.sunday,
   ];
   static const int _maxOffsetMinutes = 180;
+  static const int _offsetStep = 5;
 
   late final TextEditingController _titleController;
-  late final TextEditingController _offsetController;
+  late int _offsetMagnitude;
   String? _zikrUid;
   late Set<int> _selectedDays;
   late ZikrReminderTimeMode _mode;
@@ -68,16 +77,15 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
         ? TimeOfDay(hour: existing.hour, minute: existing.minute)
         : const TimeOfDay(hour: 21, minute: 0);
     final availablePrayerNames = getPrayerNotificationPrayerNames();
-    _prayerName = existing != null &&
-            availablePrayerNames.contains(existing.prayerName)
-        ? existing.prayerName
-        : (availablePrayerNames.contains('Maghrib')
-            ? 'Maghrib'
-            : availablePrayerNames.first);
+    _prayerName =
+        existing != null && availablePrayerNames.contains(existing.prayerName)
+            ? existing.prayerName
+            : (availablePrayerNames.contains('Maghrib')
+                ? 'Maghrib'
+                : availablePrayerNames.first);
     _offsetIsAfter = (existing?.offsetMinutes ?? 30) >= 0;
-    _offsetController = TextEditingController(
-      text: (existing?.offsetMinutes ?? 30).abs().toString(),
-    );
+    _offsetMagnitude =
+        (existing?.offsetMinutes ?? 30).abs().clamp(0, _maxOffsetMinutes);
     trackScreen(
         _isEditing ? 'Edit Zikr Reminder Page' : 'Add Zikr Reminder Page');
   }
@@ -85,7 +93,6 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
   @override
   void dispose() {
     _titleController.dispose();
-    _offsetController.dispose();
     super.dispose();
   }
 
@@ -97,7 +104,7 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
     if (picked == null || !mounted) return;
     setState(() {
       _zikrUid = picked.uid;
-      _titleController.text = picked.title;
+      _titleController.text = picked.displayTitle;
     });
   }
 
@@ -106,20 +113,73 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
     if (picked != null) setState(() => _time = picked);
   }
 
-  void _toggleDay(int weekday, bool selected) {
+  void _toggleDay(int weekday) {
     setState(() {
-      if (selected) {
-        _selectedDays.add(weekday);
-      } else {
-        _selectedDays.remove(weekday);
-      }
+      if (!_selectedDays.remove(weekday)) _selectedDays.add(weekday);
     });
   }
 
-  int? _parsedOffsetMagnitude() {
-    final value = int.tryParse(_offsetController.text.trim());
-    if (value == null || value < 0 || value > _maxOffsetMinutes) return null;
-    return value;
+  void _stepOffset(int by) {
+    setState(() {
+      _offsetMagnitude = (_offsetMagnitude + by).clamp(0, _maxOffsetMinutes);
+    });
+  }
+
+  Future<void> _pickPrayer() async {
+    final colors = ShiaColors.of(context);
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            for (final name in getPrayerNotificationPrayerNames())
+              ListTile(
+                leading:
+                    PrayerGlyph(name: name, size: 22, color: colors.accent),
+                title: Text(localizedPrayerName(name, context.l10n)),
+                trailing: name == _prayerName
+                    ? OutlineIcon(OutlineGlyph.check,
+                        size: 20, color: colors.accent, strokeWidth: 2.4)
+                    : null,
+                onTap: () => Navigator.pop(sheetContext, name),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked != null && mounted) setState(() => _prayerName = picked);
+  }
+
+  Future<void> _confirmDelete() async {
+    final reminder = widget.existing;
+    if (reminder == null) return;
+    final shouldDelete = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: Text(context.l10n.reminderRemoveTitle),
+            content: Text(context.l10n.reminderRemoveBody(reminder.title)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: Text(context.l10n.commonCancel),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: Text(
+                  context.l10n.commonRemove,
+                  style: TextStyle(
+                      color: Theme.of(dialogContext).colorScheme.error),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    if (!shouldDelete || !mounted) return;
+    await ZikrReminderService.instance.deleteReminder(reminder.id);
+    if (mounted) Navigator.pop(context);
   }
 
   Future<void> _save() async {
@@ -133,15 +193,9 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
       return;
     }
 
-    int offsetMinutes = 0;
-    if (_mode == ZikrReminderTimeMode.relativeToPrayer) {
-      final magnitude = _parsedOffsetMagnitude();
-      if (magnitude == null) {
-        _showMessage(context.l10n.reminderMinutesRange(_maxOffsetMinutes));
-        return;
-      }
-      offsetMinutes = _offsetIsAfter ? magnitude : -magnitude;
-    }
+    final offsetMinutes = _mode == ZikrReminderTimeMode.relativeToPrayer
+        ? (_offsetIsAfter ? _offsetMagnitude : -_offsetMagnitude)
+        : 0;
 
     setState(() => _saving = true);
     try {
@@ -188,189 +242,424 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context);
+    final firstDay = MaterialLocalizations.of(context).firstDayOfWeekIndex;
+    final days = orderedWeekdays(_weekdays, firstDay);
+    final zikrUid = _zikrUid;
+    final location = zikrUid == null ? null : _zikrLocation(zikrUid);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? context.l10n.reminderEditTitle : context.l10n.reminderNewTitle),
-      ),
-      body: ResponsiveScrollableContent(
-        maxWidth: compactContentWidth,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSectionLabel(theme, context.l10n.reminderWhat),
-            Text(
-              context.l10n.reminderWhatHint,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
-              ),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _pickZikr,
-              icon: const Icon(Icons.menu_book),
-              label: Text(
-                _zikrUid == null
-                    ? context.l10n.reminderChooseZikr
-                    : context.l10n.reminderChangeZikr,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: context.l10n.reminderTitleLabel,
-                hintText: context.l10n.reminderTitleHint,
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-            _buildSectionLabel(theme, context.l10n.reminderRepeatOn),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+    Widget section(String label, Widget child, {Widget? action}) =>
+        SliverPadding(
+          padding: gutter.copyWith(bottom: 16),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (var index = 0; index < _weekdays.length; index++)
-                  FilterChip(
-                    label: Text(shortWeekdayName(index + 1, context.l10n)),
-                    selected: _selectedDays.contains(_weekdays[index]),
-                    onSelected: (selected) =>
-                        _toggleDay(_weekdays[index], selected),
-                  ),
+                Row(
+                  children: [
+                    Expanded(child: GroupLabel(label)),
+                    if (action != null) action,
+                  ],
+                ),
+                const SizedBox(height: 8),
+                child,
               ],
             ),
-            const SizedBox(height: 20),
-            _buildSectionLabel(theme, context.l10n.reminderWhen),
-            SegmentedButton<ZikrReminderTimeMode>(
-              segments: [
-                ButtonSegment(
-                  value: ZikrReminderTimeMode.fixedTime,
-                  label: Text(context.l10n.reminderFixedTime),
-                  icon: Icon(Icons.schedule),
-                ),
-                ButtonSegment(
-                  value: ZikrReminderTimeMode.relativeToPrayer,
-                  label: Text(context.l10n.reminderPrayerRelative),
-                  icon: Icon(Icons.mosque),
-                ),
-              ],
-              selected: {_mode},
-              onSelectionChanged: (selection) =>
-                  setState(() => _mode = selection.first),
-            ),
-            const SizedBox(height: 16),
-            if (_mode == ZikrReminderTimeMode.fixedTime)
-              _buildFixedTimeControls(theme)
-            else
-              _buildPrayerRelativeControls(theme),
-            const SizedBox(height: 28),
-            FilledButton(
-              onPressed: _saving ? null : _save,
-              child: _saving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(_isEditing ? context.l10n.commonSaveChanges : context.l10n.reminderAdd),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionLabel(ThemeData theme, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        label,
-        style: theme.textTheme.labelLarge?.copyWith(
-          color: theme.colorScheme.primary,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFixedTimeControls(ThemeData theme) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.access_time),
-      title: Text(context.l10n.reminderTime),
-      subtitle: Text(_time.format(context)),
-      trailing: const Icon(Icons.edit),
-      onTap: _pickTime,
-    );
-  }
-
-  Widget _buildPrayerRelativeControls(ThemeData theme) {
-    final prayerNames = getPrayerNotificationPrayerNames();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        DropdownButtonFormField<String>(
-          initialValue: prayerNames.contains(_prayerName)
-              ? _prayerName
-              : prayerNames.first,
-          decoration: InputDecoration(
-            labelText: context.l10n.reminderPrayer,
-            border: OutlineInputBorder(),
           ),
-          items: [
-            for (final name in prayerNames)
-              DropdownMenuItem(
-                  value: name,
-                  child: Text(localizedPrayerName(name, context.l10n))),
-          ],
-          onChanged: (value) {
-            if (value != null) setState(() => _prayerName = value);
-          },
+        );
+
+    return LargeTitlePage(
+      title: _isEditing ? l10n.reminderEditTitle : l10n.reminderNewTitle,
+      bottomBar: _SaveBar(
+        summary: _selectedDays.isEmpty
+            ? null
+            : reminderSummary(
+                days: _selectedDays,
+                mode: _mode,
+                hour: _time.hour,
+                minute: _time.minute,
+                prayerName: _prayerName,
+                offsetMinutes:
+                    _offsetIsAfter ? _offsetMagnitude : -_offsetMagnitude,
+                l10n: l10n,
+                firstDayOfWeek: firstDay,
+              ),
+        label: _isEditing ? l10n.commonSaveChanges : l10n.reminderAdd,
+        saving: _saving,
+        onSave: _save,
+      ),
+      slivers: [
+        section(
+          l10n.reminderWhat,
+          CardList(
+            children: [
+              CardListRow(
+                first: true,
+                minHeight: 60,
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: colors.well,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: HomeGlyph(
+                      type: HomeGlyphType.duas, size: 26, color: colors.accent),
+                ),
+                title: Text(zikrUid == null
+                    ? l10n.reminderChooseZikr
+                    : _zikrTitle(zikrUid)),
+                titleStyle: ShiaText.cardTitle,
+                subtitle:
+                    location == null ? null : Text(l10n.reminderFrom(location)),
+                trailing: const _Chevron(),
+                onTap: _pickZikr,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
+                child: TextField(
+                  controller: _titleController,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    labelText: l10n.reminderTitleLabel,
+                    hintText: l10n.reminderTitleHint,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _offsetController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: context.l10n.reminderMinutes,
-                  border: OutlineInputBorder(),
+        section(
+          l10n.reminderRepeatOn,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              for (final day in days)
+                _DayButton(
+                  letter: DateFormat('EEEEE')
+                      .format(DateTime(2024, 6, 16 + day % 7)),
+                  name: weekdayName(day % 7),
+                  selected: _selectedDays.contains(day),
+                  onTap: () => _toggleDay(day),
+                ),
+            ],
+          ),
+          action: PageTextAction(
+            label: l10n.reminderEveryDayLink,
+            onPressed: () => setState(() => _selectedDays = {..._weekdays}),
+          ),
+        ),
+        section(
+          l10n.reminderWhen,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SegmentedSwitcher<ZikrReminderTimeMode>(
+                segments: [
+                  Segment(
+                      ZikrReminderTimeMode.fixedTime, l10n.reminderFixedTime),
+                  Segment(ZikrReminderTimeMode.relativeToPrayer,
+                      l10n.reminderPrayerRelative),
+                ],
+                selected: _mode,
+                onChanged: (mode) => setState(() => _mode = mode),
+              ),
+              const SizedBox(height: 8),
+              if (_mode == ZikrReminderTimeMode.fixedTime)
+                _buildFixedTimeControls()
+              else
+                _buildPrayerRelativeControls(),
+            ],
+          ),
+        ),
+        if (_mode == ZikrReminderTimeMode.relativeToPrayer)
+          SliverPadding(
+            padding: gutter.copyWith(bottom: 16),
+            sliver: SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  l10n.reminderPrayerRelativeNote,
+                  style: ShiaText.caption
+                      .copyWith(height: 18 / 13, color: colors.textMuted),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 2,
-              child: SegmentedButton<bool>(
-                segments: [
-                  ButtonSegment(value: false, label: Text(context.l10n.reminderBefore)),
-                  ButtonSegment(value: true, label: Text(context.l10n.reminderAfter)),
-                ],
-                selected: {_offsetIsAfter},
-                onSelectionChanged: (selection) =>
-                    setState(() => _offsetIsAfter = selection.first),
+          ),
+        if (_isEditing)
+          SliverPadding(
+            padding: gutter,
+            sliver: SliverToBoxAdapter(
+              child: Center(
+                child: TextButton(
+                  onPressed: _confirmDelete,
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(44, 44),
+                    foregroundColor: colors.danger,
+                    textStyle: buttonTextStyle(context, ShiaText.body)
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  child: Text(l10n.reminderRemove),
+                ),
               ),
             ),
-          ],
+          ),
+      ],
+    );
+  }
+
+  String _zikrTitle(String uid) {
+    final title = items[uid];
+    if (title is String && title.trim().isNotEmpty) {
+      return UidTitleData(uid, title).displayTitle;
+    }
+    return _titleController.text.trim();
+  }
+
+  /// The list the reminder's zikr lives in, for "From Duas".
+  String? _zikrLocation(String uid) {
+    final l10n = context.l10n;
+    return (_locations ??= zikrLocations(
+      [
+        ('E', l10n.menuDuas),
+        ('G', l10n.menuZiyarats),
+        ('C', l10n.menuAamaal),
+        ('D', l10n.menuTaqeebat),
+        ('F', l10n.menuNamaz),
+        ('H', l10n.menuMunajaat),
+        ('I', l10n.menuBaaqeyaat),
+        ('A', l10n.shellTabQuran),
+      ],
+      join: l10n.searchLocation,
+    ))[uid];
+  }
+
+  Map<String, String>? _locations;
+
+  Widget _buildFixedTimeControls() {
+    final colors = ShiaColors.of(context);
+    return CardList(
+      children: [
+        CardListRow(
+          first: true,
+          last: true,
+          leading:
+              OutlineIcon(OutlineGlyph.clock, size: 22, color: colors.accent),
+          title: Text(context.l10n.reminderTime),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                clockLabel(_time.hour, _time.minute),
+                style: ShiaText.body.copyWith(color: colors.textMuted),
+              ),
+              const _Chevron(),
+            ],
+          ),
+          onTap: _pickTime,
         ),
-        const SizedBox(height: 8),
-        Text(
-          context.l10n.reminderPrayerRelativeNote,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+      ],
+    );
+  }
+
+  Widget _buildPrayerRelativeControls() {
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    return CardList(
+      children: [
+        CardListRow(
+          first: true,
+          leading:
+              PrayerGlyph(name: _prayerName, size: 22, color: colors.accent),
+          title: Text(l10n.reminderPrayer),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                localizedPrayerName(_prayerName, l10n),
+                style: ShiaText.body.copyWith(color: colors.textMuted),
+              ),
+              const _Chevron(),
+            ],
+          ),
+          onTap: _pickPrayer,
+        ),
+        CardListRow(
+          minHeight: 56,
+          title: Text(l10n.reminderMinutes),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RoundIconButton(
+                label: l10n.reminderMinutesFewer,
+                icon: OutlineIcon(OutlineGlyph.minus,
+                    size: 20, color: colors.accent, strokeWidth: 2),
+                onPressed: _offsetMagnitude == 0
+                    ? null
+                    : () => _stepOffset(-_offsetStep),
+              ),
+              SizedBox(
+                width: 48,
+                child: Text(
+                  '$_offsetMagnitude',
+                  textAlign: TextAlign.center,
+                  style: ShiaText.sectionTitle.copyWith(color: colors.text),
+                ),
+              ),
+              RoundIconButton(
+                label: l10n.reminderMinutesMore,
+                icon: OutlineIcon(OutlineGlyph.plus,
+                    size: 20, color: colors.accent, strokeWidth: 2),
+                onPressed: _offsetMagnitude >= _maxOffsetMinutes
+                    ? null
+                    : () => _stepOffset(_offsetStep),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+          child: SegmentedSwitcher<bool>(
+            segments: [
+              Segment(false, l10n.reminderBefore),
+              Segment(true, l10n.reminderAfter),
+            ],
+            selected: _offsetIsAfter,
+            onChanged: (after) => setState(() => _offsetIsAfter = after),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _Chevron extends StatelessWidget {
+  const _Chevron();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 6, end: 8),
+      child: OutlineIcon(OutlineGlyph.chevronRight,
+          size: 16, color: ShiaColors.of(context).chevron, strokeWidth: 2.4),
+    );
+  }
+}
+
+/// One of the seven 44 px day buttons, filled once chosen.
+class _DayButton extends StatelessWidget {
+  const _DayButton({
+    required this.letter,
+    required this.name,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String letter;
+  final String name;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: name,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Material(
+        color: selected ? colors.accent : colors.surface,
+        shape: CircleBorder(
+          side: selected
+              ? BorderSide.none
+              : BorderSide(
+                  color: Color.lerp(colors.line, colors.chevron, 0.25)!),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox.square(
+            dimension: 44,
+            child: Center(
+              child: Text(
+                letter,
+                style: ShiaText.body.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: selected ? colors.onAccent : colors.text,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The summary in words and the save button, pinned under the form.
+class _SaveBar extends StatelessWidget {
+  const _SaveBar({
+    required this.summary,
+    required this.label,
+    required this.saving,
+    required this.onSave,
+  });
+
+  final String? summary;
+  final String label;
+  final bool saving;
+  final VoidCallback onSave;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.ground,
+        border: Border(top: BorderSide(color: colors.line)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: pageGutter(context).copyWith(top: 12, bottom: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (summary != null) ...[
+                Text(
+                  summary!,
+                  textAlign: TextAlign.center,
+                  style: ShiaText.secondary.copyWith(color: colors.textMuted),
+                ),
+                const SizedBox(height: 8),
+              ],
+              PageButton(
+                filled: true,
+                label: label,
+                busy: saving,
+                onPressed: onSave,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

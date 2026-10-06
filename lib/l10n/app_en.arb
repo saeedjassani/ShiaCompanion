@@ -653,31 +653,21 @@
   "weekdayShortFri": "Fri",
   "weekdayShortSat": "Sat",
   "weekdayShortSun": "Sun",
-  "reminderMinutesRange": "Enter a number of minutes between 0 and {max}.",
-  "@reminderMinutesRange": {
-    "placeholders": {
-      "max": {
-        "type": "int"
-      }
-    }
-  },
   "reminderTitleRequired": "Please enter a title for this reminder.",
   "reminderPickDay": "Pick at least one day.",
   "reminderSavedPendingLocation": "Saved. It'll start firing once your prayer-time location is available.",
-  "reminderEditTitle": "Edit Reminder",
-  "reminderNewTitle": "New Reminder",
+  "reminderEditTitle": "Edit reminder",
+  "reminderNewTitle": "New reminder",
   "reminderWhat": "What",
-  "reminderWhatHint": "Pick a zikr from the library, or just type a title below.",
   "reminderChooseZikr": "Choose from the zikr library",
-  "reminderChangeZikr": "Change zikr",
   "reminderTitleLabel": "Title",
   "reminderTitleHint": "e.g. Dua Tawassul",
   "reminderRepeatOn": "Repeat on",
   "reminderWhen": "When",
-  "reminderFixedTime": "Fixed time",
-  "reminderPrayerRelative": "Prayer-relative",
+  "reminderFixedTime": "At a set time",
+  "reminderPrayerRelative": "Around a prayer",
   "commonSaveChanges": "Save Changes",
-  "reminderAdd": "Add Reminder",
+  "reminderAdd": "Add reminder",
   "reminderTime": "Time",
   "reminderPrayer": "Prayer",
   "reminderMinutes": "Minutes",
@@ -1791,9 +1781,8 @@
     }
   },
   "reminderRemoveTitle": "Remove reminder?",
-  "reminderAddTooltip": "Add reminder",
   "reminderNone": "No reminders yet",
-  "reminderNoneBody": "Tap + to get reminded about a zikr or dua on the days you choose — like Tawassul every Tuesday, or Dua Kumail after Maghrib on Thursday.",
+  "reminderNoneBody": "Add one to be reminded about a zikr or dua on the days you choose - like Tawassul every Tuesday, or Dua Kumail after Maghrib on Thursday.",
   "tasbeehBeepNumber": "Beep {number}",
   "@tasbeehBeepNumber": {
     "placeholders": {
@@ -1985,9 +1974,8 @@
   "linkNotFoundGoHome": "Go Home",
   "whatsNewTitle": "What's new",
   "whatsNewGotIt": "Got it",
-  "pickerChooseZikr": "Choose a Zikr or Dua",
+  "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
-  "pickerNoMatches": "No matches found.",
   "todaysNone": "No recitations configured.",
   "scheduledFallbackTitle": "Scheduled notification",
   "scheduledNone": "No scheduled notifications.",
@@ -3335,5 +3323,95 @@
         "type": "String"
       }
     }
-  }
+  },
+  "remindersTitle": "Zikr reminders",
+  "remindersSubtitle": "A notification on the days you choose, at a set time or around a prayer.",
+  "remindersAdd": "Add a reminder",
+  "remindersFootnote": "Tap a reminder to change or remove it.",
+  "reminderSwitchLabel": "Reminder for {title}",
+  "@reminderSwitchLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderChooseZikrShort": "Choose a zikr",
+  "reminderFrom": "From {list}",
+  "@reminderFrom": {
+    "description": "Under the zikr a reminder is for: where it lives, 'From Duas'.",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderEveryDayLink": "Every day",
+  "@reminderEveryDayLink": {
+    "description": "Picks all seven days at once."
+  },
+  "reminderMinutesFewer": "5 minutes fewer",
+  "reminderMinutesMore": "5 minutes more",
+  "reminderAtPrayerLong": "at {prayer}",
+  "@reminderAtPrayerLong": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderMinutesAfterLong": "{minutes, plural, =1{1 minute after {prayer}} other{{minutes} minutes after {prayer}}}",
+  "@reminderMinutesAfterLong": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderMinutesBeforeLong": "{minutes, plural, =1{1 minute before {prayer}} other{{minutes} minutes before {prayer}}}",
+  "@reminderMinutesBeforeLong": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSummary": "{days}, {when}",
+  "@reminderSummary": {
+    "description": "What a reminder will do, in words: 'Thursdays, 15 minutes after Maghrib', 'Every day, at 7:00 am'.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderAtTime": "at {time}",
+  "@reminderAtTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderAboutThisWeek": "{summary} (about {time} this week)",
+  "@reminderAboutThisWeek": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderRemove": "Remove reminder"
 }
