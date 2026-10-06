@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/utils/quran_index.dart';
-import 'package:shia_companion/utils/slug_registry.dart';
 import 'package:shia_companion/utils/verse_query.dart';
 
 void main() {
