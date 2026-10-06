@@ -39,6 +39,7 @@ enum OutlineGlyph {
   trash,
   repeat,
   flame,
+  info,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -360,6 +361,10 @@ class _OutlinePainter extends CustomPainter {
           ..relativeCubicTo(0.9, 1.3, 1.6, 2.6, 1.6, 4.4)
           ..relativeCubicTo(0, 4, -2.7, 7.3, -7.6, 7.3)
           ..close();
+      case OutlineGlyph.info:
+        return _circle(12, 12, 8.5)
+          ..addPath(_line(12, 11, 12, 16), Offset.zero)
+          ..addPath(_line(12, 8, 12.01, 8), Offset.zero);
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)

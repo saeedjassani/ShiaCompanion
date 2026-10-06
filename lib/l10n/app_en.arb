@@ -623,7 +623,6 @@
   "@qiblaDistanceHere": {
     "description": "Distance shown when you are already at the place."
   },
-  "qiblaTitle": "Qibla Finder",
   "qiblaAboutCompass": "About this compass",
   "qiblaLocationNeeded": "Location needed",
   "qiblaLocationNeededBody": "The direction depends on where you are. Share your location and the compass will point the moment a fix arrives.",
@@ -3413,5 +3412,24 @@
       }
     }
   },
-  "reminderRemove": "Remove reminder"
+  "reminderRemove": "Remove reminder",
+  "qiblaPageTitle": "Qibla",
+  "@qiblaPageTitle": {
+    "description": "Title of the Qibla page; the menu keeps 'Qibla Finder'."
+  },
+  "qiblaTargetIn": "{name}, {city}",
+  "@qiblaTargetIn": {
+    "description": "What the compass points at: 'Kaaba, Makkah'.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "qiblaChange": "Change",
+  "qiblaChangeTarget": "Change what the compass points towards",
+  "qiblaHoldFlat": "Hold the phone flat, top edge pointing ahead."
 }
