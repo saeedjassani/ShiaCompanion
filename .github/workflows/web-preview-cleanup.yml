@@ -1,0 +1,46 @@
+name: Web preview cleanup
+
+# Counterpart to web-preview.yml: delete the pull request's Firebase Hosting
+# preview channel as soon as the PR is closed or merged, rather than leaving it
+# to expire on its own.
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    name: Delete preview channel
+    # Forks never got a preview (no secrets), so there is nothing to delete.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Delete the pull request preview channel
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          set -euo pipefail
+          export GOOGLE_APPLICATION_CREDENTIALS="${RUNNER_TEMP}/firebase-sa.json"
+          printf '%s' "${FIREBASE_SERVICE_ACCOUNT}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
+
+          fb() { npx --yes firebase-tools@latest "$@" --project shia-comapnion --non-interactive; }
+
+          # The deploy action names channels "pr<number>-<branch>", so look the
+          # id up by its prefix instead of reconstructing the branch slug.
+          channels=$(fb hosting:channel:list --site shia-companion --json \
+            | jq -r --arg prefix "pr${PR_NUMBER}-" \
+                '.result.channels[]?.name | split("/") | last | select(startswith($prefix))')
+
+          if [ -z "${channels}" ]; then
+            echo "No preview channel found for pull request #${PR_NUMBER}."
+            exit 0
+          fi
+
+          while read -r channel; do
+            echo "Deleting channel ${channel}"
+            fb hosting:channel:delete "${channel}" --site shia-companion --force
+          done <<< "${channels}"
+
+          rm -f "${GOOGLE_APPLICATION_CREDENTIALS}"
