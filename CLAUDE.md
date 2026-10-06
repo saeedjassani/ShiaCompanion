@@ -102,7 +102,11 @@ The app is set up for Urdu, Persian, Arabic and Gujarati; see
 `docs/TRANSLATIONS.md`. **Never hardcode user-facing English in Dart**: add
 it to `lib/l10n/app_en.arb` and read it with `context.l10n.key` (or
 `L10n.current.key` where there is no `BuildContext`), then run
-`flutter gen-l10n` and commit the regenerated `lib/l10n/app_localizations*.dart`.
+`flutter gen-l10n` (`flutter pub get` does it too). The generated
+`lib/l10n/app_localizations*.dart` are gitignored - never commit them.
+Design/feature PRs touch only `app_en.arb`; translation PRs touch only
+`app_<code>.arb`, and new English keys are translated afterwards in a
+catch-up PR (see "Keeping translations in step" in `docs/TRANSLATIONS.md`).
 Analytics labels, `trackScreen` names, preference keys and `debugPrint` text
 stay English literals. Zikr translations are overlays in
 `assets/zikr_i18n/<code>/` keyed by the English line they translate - so
