@@ -1296,22 +1296,10 @@
       }
     }
   },
-  "downloadsOlderSubtitle": "{count} no longer used by any dua · {size}",
-  "@downloadsOlderSubtitle": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "size": {
-        "type": "String"
-      }
-    }
-  },
   "downloadsRemoveAllTitle": "Remove all downloads?",
   "downloadsRemoveAll": "Remove all",
   "downloadsEmpty": "No downloads yet",
   "downloadsEmptyBody": "Download a recitation to listen without a connection - tap the download button in a dua's audio player, or Download all on a playlist.",
-  "downloadsOlder": "Older recordings",
   "downloadsRemoveOlder": "Remove older recordings",
   "hijriMonth1": "Muharram",
   "hijriMonth2": "Safar",
@@ -3199,5 +3187,144 @@
         "type": "int"
       }
     }
-  }
+  },
+  "playlistsSubtitle": "Play the zikr you listen to every day with one tap.",
+  "playlistsNoneTitle": "No playlists yet",
+  "playlistsFootnote": "You can also add a zikr from the Listen player on any dua with audio.",
+  "playlistPlayNamed": "Play {name}",
+  "@playlistPlayNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistPauseNamed": "Pause {name}",
+  "@playlistPauseNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistPlayingNow": "Playing: {title} · {position} of {count}",
+  "@playlistPlayingNow": {
+    "description": "Under a playlist that is playing: what, and where it is in the playlist.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "position": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistSummaryDownloaded": "{summary} · downloaded",
+  "@playlistSummaryDownloaded": {
+    "description": "{summary} is what is in a playlist: its zikr by name, or how many.",
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistSummaryNotDownloaded": "{summary} · {count} not downloaded yet",
+  "@playlistSummaryNotDownloaded": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistSummaryDownloading": "{summary} · downloading {percent}%",
+  "@playlistSummaryDownloading": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistDownloadedCount": "{count} downloaded",
+  "@playlistDownloadedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistOptions": "Playlist options",
+  "playlistMoreFor": "More for {title}",
+  "@playlistMoreFor": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistPlayingAt": "Playing · {position} of {duration}",
+  "@playlistPlayingAt": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistPlaying": "Playing",
+  "playlistRecordingDownloaded": "{recording} · downloaded",
+  "@playlistRecordingDownloaded": {
+    "placeholders": {
+      "recording": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistNotDownloaded": "Not downloaded · plays online",
+  "playlistMoveUp": "Move up",
+  "playlistMoveDown": "Move down",
+  "playlistEmptyTitle": "Nothing in this playlist yet",
+  "downloadsSubtitle": "Recitations saved on this phone · {size}",
+  "@downloadsSubtitle": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsRemoveNamed": "Remove download of {title}",
+  "@downloadsRemoveNamed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsOlderCount": "{count, plural, =1{1 older recording} other{{count} older recordings}}",
+  "@downloadsOlderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsOlderBody": "Replaced by newer ones · {size}",
+  "@downloadsOlderBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsRemoveAllButton": "Remove all downloads"
 }

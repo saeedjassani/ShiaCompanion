@@ -29,6 +29,7 @@ class LargeTitlePage extends StatefulWidget {
     required this.slivers,
     this.maxWidth = largeTitlePageWidth,
     this.bottom,
+    this.bottomBar,
   });
 
   final String title;
@@ -46,6 +47,10 @@ class LargeTitlePage extends StatefulWidget {
   /// behind it under a fade: a [FindField]. As wide as the content, 26 px
   /// off the bottom, or just above the keyboard while that is up.
   final Widget? bottom;
+
+  /// A bar docked below the content rather than floating over it: what a
+  /// playlist is playing.
+  final Widget? bottomBar;
 
   @override
   State<LargeTitlePage> createState() => _LargeTitlePageState();
@@ -197,6 +202,7 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
 
     return Scaffold(
       backgroundColor: colors.ground,
+      bottomNavigationBar: widget.bottomBar,
       body: Stack(
         children: [
           NotificationListener<ScrollNotification>(
@@ -935,6 +941,7 @@ class PageButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.glyph,
+    this.icon,
     this.filled = false,
     this.busy = false,
     this.danger = false,
@@ -943,6 +950,9 @@ class PageButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final OutlineGlyph? glyph;
+
+  /// Drawn instead of [glyph]: a progress ring, say.
+  final Widget? icon;
   final bool filled;
 
   /// Shows a spinner in place of the glyph, and ignores taps.
@@ -971,6 +981,8 @@ class PageButton extends StatelessWidget {
             dimension: 18,
             child: CircularProgressIndicator(strokeWidth: 2, color: foreground),
           )
+        else if (icon != null)
+          icon!
         else if (glyph != null)
           OutlineIcon(
             glyph,
@@ -980,7 +992,7 @@ class PageButton extends StatelessWidget {
             // A play triangle reads as one when it is solid.
             filled: glyph == OutlineGlyph.play,
           ),
-        if (busy || glyph != null) const SizedBox(width: 8),
+        if (busy || icon != null || glyph != null) const SizedBox(width: 8),
         Flexible(
           child: Text(
             label,
