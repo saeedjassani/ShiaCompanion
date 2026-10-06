@@ -186,10 +186,6 @@
   "settingsSectionAccount": "Account",
   "settingsNotSignedIn": "Not signed in",
   "settingsSignInPrompt": "Sign in to sync favorites across devices.",
-  "settingsLogout": "Logout",
-  "settingsLogoutSubtitle": "Sign out on this device.",
-  "settingsDeleteAccount": "Delete My Account",
-  "settingsDeleteAccountSubtitle": "Permanently remove your account data.",
   "settingsSignInGoogle": "Sign in with Google",
   "settingsSignInGoogleSubtitle": "Sync favorites and account data.",
   "settingsSignInApple": "Sign in with Apple",
@@ -940,7 +936,6 @@
   "deleteAccountCompleted": "Your account deletion request has completed.",
   "deleteAccountCompletedNote": "If you sign in again later, a brand new account will be created.",
   "deleteAccountWebSteps": "Use the Google sign-in button below, then confirm deletion.",
-  "deleteAccountAppSteps": "Open Settings in the app and use Delete My Account.",
   "deleteAccountSigningIn": "Signing in...",
   "deleteAccountDeleting": "Deleting...",
   "deleteAccountButton": "Delete my account",
@@ -3564,5 +3559,53 @@
       }
     }
   },
-  "flightsPageTitle": "Prayer times in flight"
+  "flightsPageTitle": "Prayer times in flight",
+  "accountTitle": "Account",
+  "accountOpen": "Open your account",
+  "accountEmailAndProvider": "{email} · {provider}",
+  "@accountEmailAndProvider": {
+    "description": "Under the account's name: 'you@example.com · Google'.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      },
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "accountProviderGoogle": "Google",
+  "accountProviderApple": "Apple",
+  "accountBackupChecking": "Checking your backup…",
+  "accountBackedUp": "Backed up",
+  "accountBackupOffline": "Offline · backs up when you reconnect",
+  "accountKeptSafe": "Kept safe in your backup",
+  "accountItemFavorites": "Favorites",
+  "accountItemBookmarks": "Bookmarks",
+  "accountItemQuranProgress": "Quran progress",
+  "accountItemSavedVerses": "Saved verses",
+  "accountItemQaza": "Qaza tracker",
+  "accountItemStats": "My Stats and shortcuts",
+  "accountTracks": "{count, plural, =1{1 track} other{{count} tracks}}",
+  "@accountTracks": {
+    "description": "How many Quran recitation tracks are backed up.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountQazaLeft": "{count} left",
+  "@accountQazaLeft": {
+    "description": "Qaza prayers and fasts still owed, e.g. '1,270 left'; {count} is already formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "accountLogOut": "Log out",
+  "accountDelete": "Delete account…",
+  "accountDeleteNote": "Deleting removes your account and its backup for good. You will be asked to confirm.",
+  "deleteAccountAppStepsAccount": "Open Settings in the app, tap your account, then Delete account…"
 }

@@ -33,7 +33,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(
-      find.text('Open Settings in the app and use Delete My Account.'),
+      find.text('Open Settings in the app, tap your account, then Delete account…'),
       findsOneWidget,
     );
   });
@@ -61,7 +61,7 @@ void main() {
         builder: (context) => Scaffold(
           body: Center(
             child: TextButton(
-              // The same call Settings' "Delete My Account" tile makes.
+              // Pushed the way any page is.
               onPressed: () =>
                   pushPageRoute(context, const DeleteAccountPage()),
               child: const Text('Open delete account'),

@@ -41,6 +41,9 @@ enum OutlineGlyph {
   flame,
   info,
   alert,
+  cloud,
+  cloudCheck,
+  logOut,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -114,6 +117,14 @@ class _OutlinePainter extends CustomPainter {
     ..addPath(_line(4, 10, 20, 10), Offset.zero)
     ..addPath(_line(8, 3, 8, 7), Offset.zero)
     ..addPath(_line(16, 3, 16, 7), Offset.zero);
+
+  /// Three puffs on a flat base, as one outline.
+  static Path _cloud() => [
+        _circle(16.5, 14.5, 4),
+        _circle(12, 10.5, 5),
+        Path()..addRect(const Rect.fromLTRB(8, 14.5, 16.5, 18.5)),
+      ].fold(_circle(8, 14.5, 4),
+          (cloud, part) => Path.combine(PathOperation.union, cloud, part));
 
   static Path _path(OutlineGlyph glyph) {
     switch (glyph) {
@@ -379,6 +390,29 @@ class _OutlinePainter extends CustomPainter {
           ..close()
           ..addPath(_line(12, 9.5, 12, 13.5), Offset.zero)
           ..addPath(_line(12, 16.5, 12.01, 16.5), Offset.zero);
+      case OutlineGlyph.cloud:
+        return _cloud();
+      case OutlineGlyph.cloudCheck:
+        return _cloud()
+          ..addPath(
+              Path()
+                ..moveTo(9.6, 14.4)
+                ..lineTo(11.4, 16.2)
+                ..lineTo(14.8, 12.8),
+              Offset.zero);
+      case OutlineGlyph.logOut:
+        return Path()
+          ..moveTo(10, 4)
+          ..lineTo(5.5, 4)
+          ..lineTo(5.5, 20)
+          ..lineTo(10, 20)
+          ..addPath(_line(10.5, 12, 20, 12), Offset.zero)
+          ..addPath(
+              Path()
+                ..moveTo(16.5, 8.5)
+                ..lineTo(20, 12)
+                ..lineTo(16.5, 15.5),
+              Offset.zero);
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)
