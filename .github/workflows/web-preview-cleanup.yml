@@ -28,8 +28,11 @@ jobs:
       pull-requests: read
     steps:
       # The Firebase CLI refuses to run hosting commands outside a directory
-      # holding firebase.json, even with --project and --site given.
+      # holding firebase.json, even with --project and --site given. Take it
+      # from the default branch: a closed, unmerged PR's merge ref may be gone.
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
 
       - name: Delete preview channels of closed pull requests
         env:
