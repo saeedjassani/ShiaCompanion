@@ -6,4 +6,5 @@
     <locale android:name="en" />
     <locale android:name="ar" />
     <locale android:name="ur" />
+    <locale android:name="fa" />
 </locale-config>

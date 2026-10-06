@@ -11,6 +11,7 @@
 		<string>en</string>
 		<string>ar</string>
 		<string>ur</string>
+		<string>fa</string>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
