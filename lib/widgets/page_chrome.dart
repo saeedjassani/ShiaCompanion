@@ -28,6 +28,7 @@ class LargeTitlePage extends StatefulWidget {
     this.actions = const [],
     required this.slivers,
     this.maxWidth = largeTitlePageWidth,
+    this.bottom,
   });
 
   final String title;
@@ -41,8 +42,50 @@ class LargeTitlePage extends StatefulWidget {
   /// The widest the title and [pageGutter]-padded content get.
   final double maxWidth;
 
+  /// A control floating at the bottom, over the content, which scrolls
+  /// behind it under a fade: a [FindField]. As wide as the content, 26 px
+  /// off the bottom, or just above the keyboard while that is up.
+  final Widget? bottom;
+
   @override
   State<LargeTitlePage> createState() => _LargeTitlePageState();
+}
+
+/// How far a control floating at the bottom of the screen (the tab bar, a
+/// find field) sits from it: 26, but never closer than 8 to the system's own
+/// bottom inset (home indicator, gesture or button bar); and 8 above the
+/// keyboard while that is up, which the page has already been raised clear
+/// of.
+double floatingBottomOffset(BuildContext context) {
+  if (MediaQuery.viewInsetsOf(context).bottom > 0) return 8;
+  return math.max(26, MediaQuery.viewPaddingOf(context).bottom + 8);
+}
+
+/// The fade over content scrolling beneath a floating bottom control, so
+/// rows do not show through below and beside it. Taps pass through.
+class BottomFade extends StatelessWidget {
+  const BottomFade({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ground = ShiaColors.of(context).ground;
+    return IgnorePointer(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              ground.withValues(alpha: 0),
+              ground.withValues(alpha: 0.92),
+              ground,
+            ],
+            stops: const [0, 0.55, 1],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// [style] on top of the theme's button text: a button's `textStyle`
@@ -65,6 +108,9 @@ EdgeInsets pageGutter(BuildContext context,
   final side = math.max(gutter, (width - maxWidth) / 2);
   return EdgeInsets.symmetric(horizontal: side);
 }
+
+/// The height of a [LargeTitlePage.bottom] control: a [FindField]'s.
+const double _bottomControlHeight = 62;
 
 class _LargeTitlePageState extends State<LargeTitlePage> {
   /// Whether the large title has scrolled away, so the compact bar shows.
@@ -140,6 +186,15 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
       ],
     );
 
+    final bottom = widget.bottom;
+    final bottomOffset = floatingBottomOffset(context);
+    // What the last row has to clear: the floating control, or on a tab
+    // root the tab bar (its height is in the bottom inset), and otherwise
+    // the home indicator.
+    final endPadding = bottom != null
+        ? bottomOffset + _bottomControlHeight + 24
+        : insets.bottom + 24;
+
     return Scaffold(
       backgroundColor: colors.ground,
       body: Stack(
@@ -147,20 +202,37 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
           NotificationListener<ScrollNotification>(
             onNotification: _onScroll,
             child: CustomScrollView(
+              keyboardDismissBehavior: bottom != null
+                  ? ScrollViewKeyboardDismissBehavior.onDrag
+                  : ScrollViewKeyboardDismissBehavior.manual,
               slivers: [
                 SliverPadding(
                   padding: gutter.copyWith(top: insets.top + 12, bottom: 14),
                   sliver: SliverToBoxAdapter(child: header),
                 ),
                 ...widget.slivers,
-                // Clears the floating tab bar on a tab root (its height is
-                // in the bottom inset), and the home indicator otherwise.
-                SliverPadding(
-                  padding: EdgeInsets.only(bottom: insets.bottom + 24),
-                ),
+                SliverPadding(padding: EdgeInsets.only(bottom: endPadding)),
               ],
             ),
           ),
+          if (bottom != null) ...[
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: bottomOffset + _bottomControlHeight + 62,
+              child: const BottomFade(),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: bottomOffset,
+              child: Padding(
+                padding: gutter,
+                child: bottom,
+              ),
+            ),
+          ],
           _CompactTitleBar(
             title: widget.title,
             visible: _compact,
@@ -783,14 +855,14 @@ class EmptyStateCard extends StatelessWidget {
     super.key,
     required this.glyph,
     required this.title,
-    required this.body,
+    this.body,
     this.actionLabel,
     this.onAction,
   });
 
   final OutlineGlyph glyph;
   final String title;
-  final String body;
+  final String? body;
   final String? actionLabel;
   final VoidCallback? onAction;
 
@@ -823,12 +895,14 @@ class EmptyStateCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: ShiaText.cardTitle.copyWith(color: colors.text),
             ),
-            const SizedBox(height: 4),
-            Text(
-              body,
-              textAlign: TextAlign.center,
-              style: ShiaText.secondary.copyWith(color: colors.textMuted),
-            ),
+            if (body != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                body!,
+                textAlign: TextAlign.center,
+                style: ShiaText.secondary.copyWith(color: colors.textMuted),
+              ),
+            ],
             if (actionLabel != null) ...[
               const SizedBox(height: 14),
               FilledButton(

@@ -7,11 +7,8 @@ import 'package:flutter/services.dart';
 
 import '../constants.dart';
 import '../l10n/l10n.dart';
-import '../data/uid_title_data.dart';
 import '../pages/home_page.dart';
 import '../pages/list_items.dart';
-import '../services/analytics_service.dart';
-import '../services/library_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/shia_colors.dart';
 import '../utils/data_search.dart';
@@ -19,6 +16,7 @@ import '../widgets/azan_playing_banner.dart';
 import '../widgets/glass_surface.dart';
 import '../widgets/home_glyph.dart';
 import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
 import 'home_menu.dart';
 
 /// One tab of [AppShell].
@@ -144,44 +142,7 @@ class _AppShellState extends State<AppShell> {
       return;
     }
 
-    final books = await LibraryService.loadBooks();
-    if (!mounted) return;
-
-    // Ties in search rank keep this order, so give it the one the lists use:
-    // by category, then as each category's list shows it. Plain key order put
-    // A117 (Al-Falaq) ahead of A5 (Al-Fatihah).
-    final zikrEntries = items.entries
-        .map((entry) => UidTitleData(entry.key, entry.value))
-        .toList()
-      ..sort(_compareSearchOrder);
-
-    unawaited(AnalyticsService.searchOpened());
-    if (!mounted) return;
-    showSearch(
-      context: context,
-      delegate: DataSearch(
-        [
-          ...zikrEntries,
-          ...books,
-        ],
-        libraryUids: books.map((book) => book.uid).toSet(),
-      ),
-    );
-  }
-
-  static final RegExp _categoryPattern = RegExp(r'^[A-Za-z]*');
-
-  static int _compareSearchOrder(UidTitleData a, UidTitleData b) {
-    final byCategory = _categoryPattern
-        .stringMatch(a.uid)!
-        .compareTo(_categoryPattern.stringMatch(b.uid)!);
-    if (byCategory != 0) return byCategory;
-    final byOrder =
-        getItemOrderValue(a.uid).compareTo(getItemOrderValue(b.uid));
-    if (byOrder != 0) return byOrder;
-    final byId = a.getId().compareTo(b.getId());
-    if (byId != 0) return byId;
-    return a.uid.compareTo(b.uid);
+    await openAppSearch(context);
   }
 
   /// Tab roots title themselves with the large title (34 / 41); pages
@@ -286,30 +247,11 @@ class AppTabBar extends StatelessWidget {
       onSelect: onSelect,
     );
 
-    final ground = ShiaColors.of(context).ground;
-
     return Stack(
       children: [
         // Fades whatever scrolls beneath into the ground, so rows do not
-        // show through below and beside the floating bar. Taps pass through.
-        Positioned.fill(
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    ground.withValues(alpha: 0),
-                    ground.withValues(alpha: 0.92),
-                    ground,
-                  ],
-                  stops: const [0, 0.55, 1],
-                ),
-              ),
-            ),
-          ),
-        ),
+        // show through below and beside the floating bar.
+        const Positioned.fill(child: BottomFade()),
         Padding(
           padding: EdgeInsets.fromLTRB(
               gutter, 0, gutter, AppTabBar.bottomOffset(context)),

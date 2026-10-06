@@ -8,6 +8,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/pages/quran/quran_navigation.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
+import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/utils/data_search_filter.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -18,6 +19,47 @@ import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/content_request_service.dart';
 import 'package:shia_companion/widgets/content_request_dialog.dart';
 import '../l10n/l10n.dart';
+
+/// Opens search over every zikr, surah and book, starting from [query].
+Future<void> openAppSearch(BuildContext context, {String query = ''}) async {
+  final books = await LibraryService.loadBooks();
+  if (!context.mounted) return;
+
+  // Ties in search rank keep this order, so give it the one the lists use:
+  // by category, then as each category's list shows it. Plain key order put
+  // A117 (Al-Falaq) ahead of A5 (Al-Fatihah).
+  final zikrEntries = items.entries
+      .map((entry) => UidTitleData(entry.key, entry.value))
+      .toList()
+    ..sort(_compareSearchOrder);
+
+  unawaited(AnalyticsService.searchOpened());
+  showSearch(
+    context: context,
+    query: query,
+    delegate: DataSearch(
+      [
+        ...zikrEntries,
+        ...books,
+      ],
+      libraryUids: books.map((book) => book.uid).toSet(),
+    ),
+  );
+}
+
+final RegExp _categoryPattern = RegExp(r'^[A-Za-z]*');
+
+int _compareSearchOrder(UidTitleData a, UidTitleData b) {
+  final byCategory = _categoryPattern
+      .stringMatch(a.uid)!
+      .compareTo(_categoryPattern.stringMatch(b.uid)!);
+  if (byCategory != 0) return byCategory;
+  final byOrder = getItemOrderValue(a.uid).compareTo(getItemOrderValue(b.uid));
+  if (byOrder != 0) return byOrder;
+  final byId = a.getId().compareTo(b.getId());
+  if (byId != 0) return byId;
+  return a.uid.compareTo(b.uid);
+}
 
 class DataSearch extends SearchDelegate<String> {
   final List<UidTitleData> listWords;

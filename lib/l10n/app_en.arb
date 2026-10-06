@@ -2693,5 +2693,301 @@
         "type": "String"
       }
     }
+  },
+  "zikrMonth1": "Muharram",
+  "@zikrMonth1": {
+    "description": "Hijri month names as the zikr titles spell them, for saying when a dua is recited ('On 10 Muharram'). zikrMonth1 to zikrMonth12 run Muharram to Dhul Hijjah."
+  },
+  "zikrMonth2": "Safar",
+  "zikrMonth3": "Rabi al-Awwal",
+  "zikrMonth4": "Rabi al-Thani",
+  "zikrMonth5": "Jumada al-Awwal",
+  "zikrMonth6": "Jumada al-Akhirah",
+  "zikrMonth7": "Rajab",
+  "zikrMonth8": "Shaban",
+  "zikrMonth9": "Ramazan",
+  "zikrMonth10": "Shawwal",
+  "zikrMonth11": "Dhul Qa'dah",
+  "zikrMonth12": "Dhul Hijjah",
+  "occasionEveryDay": "Every day",
+  "occasionEveryNight": "Every night",
+  "occasionWeekly": "{weekday}s",
+  "@occasionWeekly": {
+    "description": "Recited every week on {weekday}, a full weekday name: 'Fridays'.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionWeeklyNight": "{weekday} nights",
+  "@occasionWeeklyNight": {
+    "description": "Recited every week on the night after {weekday}, before the next day dawns: 'Thursday nights' is the night leading into Friday.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionWeeklyInMonth": "{weekday}s in {month}",
+  "@occasionWeeklyInMonth": {
+    "description": "Every {weekday} of one Hijri month: 'Sundays in Dhul Qa'dah'.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNthWeekday": "{ordinal, select, 1{First} 2{Second} 3{Third} 4{Fourth} other{Fifth}} {weekday} of {month}",
+  "@occasionNthWeekday": {
+    "description": "One weekday of a Hijri month: 'First Thursday of Rajab'.",
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNthWeekdayNight": "Night of the {ordinal, select, 1{first} 2{second} 3{third} 4{fourth} other{fifth}} {weekday} of {month}",
+  "@occasionNthWeekdayNight": {
+    "description": "The night leading into one weekday of a Hijri month: 'Night of the first Friday of Rajab'.",
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNthWeekdayMonthly": "{ordinal, select, 1{First} 2{Second} 3{Third} 4{Fourth} other{Fifth}} {weekday} of every month",
+  "@occasionNthWeekdayMonthly": {
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNthWeekdayNightMonthly": "Night of the {ordinal, select, 1{first} 2{second} 3{third} 4{fourth} other{fifth}} {weekday} of every month",
+  "@occasionNthWeekdayNightMonthly": {
+    "placeholders": {
+      "ordinal": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionThroughMonth": "Throughout {month}",
+  "@occasionThroughMonth": {
+    "description": "Recited every day of one Hijri month.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionMonthNights": "Every night of {month}",
+  "@occasionMonthNights": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionOnDates": "On {dates}",
+  "@occasionOnDates": {
+    "description": "{dates} is a list of Hijri dates: 'On 17 and 29 Safar, 11 and 23 Dhul Qa'dah'.",
+    "placeholders": {
+      "dates": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNightsOf": "{count, plural, =1{Night of {dates}} other{Nights of {dates}}}",
+  "@occasionNightsOf": {
+    "description": "The night leading into each of {dates}: 'Night of 15 Shaban', 'Nights of 19, 21 and 23 Ramazan'. {count} is how many dates.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "dates": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionNightAndDayOf": "{count, plural, =1{Night and day of {dates}} other{Nights and days of {dates}}}",
+  "@occasionNightAndDayOf": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "dates": {
+        "type": "String"
+      }
+    }
+  },
+  "occasionDaysOfMonth": "{days} {month}",
+  "@occasionDaysOfMonth": {
+    "description": "Days of one Hijri month: '20 Safar', '17 and 29 Safar', '21–30 Ramazan'.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "listAnd": "{items} and {last}",
+  "@listAnd": {
+    "description": "The end of a list: '{items}' is every item but the last, already joined by listSeparator.",
+    "placeholders": {
+      "items": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "listSeparator": ", ",
+  "@listSeparator": {
+    "description": "Goes between the items of a list, before listAnd joins the last one."
+  },
+  "listCountSurahs": "{count, plural, =1{1 surah} other{{count} surahs}}",
+  "@listCountSurahs": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountDuas": "{count, plural, =1{1 dua} other{{count} duas}}",
+  "@listCountDuas": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountZiyarats": "{count, plural, =1{1 ziyarat} other{{count} ziyarats}}",
+  "@listCountZiyarats": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountPrayers": "{count, plural, =1{1 prayer} other{{count} prayers}}",
+  "@listCountPrayers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountMunajat": "{count, plural, =1{1 munajat} other{{count} munajat}}",
+  "@listCountMunajat": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listCountSections": "{count, plural, =1{1 section} other{{count} sections}}",
+  "@listCountSections": {
+    "description": "How many rows a list of zikr has, where they are not all one kind; also what a group row holds.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listFindSurah": "Find a surah",
+  "listFindDua": "Find a dua",
+  "listFindZiyarat": "Find a ziyarat",
+  "listFindPrayer": "Find a prayer",
+  "listFindMunajat": "Find a munajat",
+  "listFindIn": "Find in {title}",
+  "@listFindIn": {
+    "description": "Placeholder of the field that filters a list, {title} being the list's name: 'Find in Aamaal'.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "listFindNone": "Nothing called “{query}” here",
+  "@listFindNone": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "listFindNoneBody": "Try one word, or another spelling - or search the whole app.",
+  "listSearchEverywhere": "Search everything",
+  "listGroupContents": "{names} · {count, plural, =1{1 section} other{{count} sections}}",
+  "@listGroupContents": {
+    "description": "Sub-line of a row that opens a group: what is inside it ('Iran, Iraq') and how many rows.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todaysGroupMonth": "In {month}",
+  "@todaysGroupMonth": {
+    "description": "Heading over Today's Recitations for the whole of the current Hijri month.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "todaysGroupWeekday": "For {weekday}",
+  "@todaysGroupWeekday": {
+    "description": "Heading over Today's Recitations for today's weekday: 'For Saturday'.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "todaysSpecialDatesNote": "On a special date - Ashura, the 15th of Shaban, a night of Qadr - its recitations come first, above these.",
+  "occasionWeeklyNightInMonth": "{weekday} nights in {month}",
+  "@occasionWeeklyNightInMonth": {
+    "description": "Every night after {weekday} in one Hijri month: 'Thursday nights in Rajab' are the nights leading into its Fridays.",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "findClear": "Clear search",
+  "@findClear": {
+    "description": "Screen-reader label of the × in a find or search field."
   }
 }

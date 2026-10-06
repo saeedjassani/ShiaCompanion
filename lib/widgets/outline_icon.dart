@@ -27,6 +27,7 @@ enum OutlineGlyph {
   check,
   close,
   history,
+  folder,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -247,6 +248,20 @@ class _OutlinePainter extends CustomPainter {
           ..lineTo(19, 7.5);
       case OutlineGlyph.close:
         return _line(6, 6, 18, 18)..addPath(_line(18, 6, 6, 18), Offset.zero);
+      case OutlineGlyph.folder:
+        const r = Radius.circular(1.5);
+        return Path()
+          ..moveTo(4, 7.5)
+          ..arcToPoint(const Offset(5.5, 6), radius: r)
+          ..lineTo(9.5, 6)
+          ..lineTo(11.5, 8)
+          ..lineTo(18.5, 8)
+          ..arcToPoint(const Offset(20, 9.5), radius: r)
+          ..lineTo(20, 17.5)
+          ..arcToPoint(const Offset(18.5, 19), radius: r)
+          ..lineTo(5.5, 19)
+          ..arcToPoint(const Offset(4, 17.5), radius: r)
+          ..close();
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)
