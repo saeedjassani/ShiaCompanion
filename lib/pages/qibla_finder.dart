@@ -476,7 +476,7 @@ class _LocationStrip extends StatelessWidget {
                 ? Icons.edit_location_alt_outlined
                 : Icons.my_location),
             tooltip: location.isManual
-                ? context.l10n.qiblaChangeCity
+                ? context.l10n.cityChangeCity
                 : context.l10n.qiblaUpdateLocation,
             onPressed: onRefresh,
           ),

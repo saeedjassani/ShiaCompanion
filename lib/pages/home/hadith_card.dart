@@ -64,7 +64,7 @@ class HadithOfTheDayCard extends StatelessWidget {
 
     return Semantics(
       container: true,
-      label: 'Hadith of the day',
+      label: context.l10n.homeHadithOfTheDay,
       child: HomeCard(
         radius: 20,
         padding: const EdgeInsets.all(18),
@@ -72,7 +72,7 @@ class HadithOfTheDayCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Hadith of the day',
+              context.l10n.homeHadithOfTheDay,
               style: ShiaText.caption.copyWith(
                 fontSize: 14,
                 height: 18 / 14,
@@ -118,7 +118,7 @@ class HadithOfTheDayCard extends StatelessWidget {
                 size: 18,
                 color: colors.accent,
               ),
-              label: const Text('Share'),
+              label: Text(context.l10n.actionShare),
               style: OutlinedButton.styleFrom(
                 foregroundColor: colors.accent,
                 minimumSize: const Size(0, 44),

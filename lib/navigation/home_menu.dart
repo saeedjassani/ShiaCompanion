@@ -92,6 +92,9 @@ class HomeMenuItem {
   /// it identifies the item (analytics, lookups by name).
   String get displayLabel => homeMenuDisplayLabel(label);
 
+  /// [shortLabel] as shown, in the app language.
+  String get displayShortLabel => homeMenuDisplayLabel(shortLabel);
+
   /// Counts one opening of this feature. Every home menu feature is opened
   /// through [buildPage] or a tab of the app shell, so one hook ranks Qibla,
   /// Tasbeeh, Qaza, Calendar and the rest against each other without each
@@ -397,11 +400,13 @@ final List<String> zikr =
 final List<IconData> zikrIcons =
     List.unmodifiable(homeMenuItems.map((item) => item.icon));
 
-/// [label], one of the home menu's English item labels, in the app language.
+/// [label], one of the home menu's English item labels (or a short label,
+/// see [HomeMenuItem.shortLabel]), in the app language.
 /// Labels the menu does not know (admin tools) are shown as they are.
 String homeMenuDisplayLabel(String label) {
   return switch (label) {
     'Calendar & Prayer Times' => L10n.current.menuCalendarPrayerTimes,
+    'Calendar' => L10n.current.menuCalendar,
     'Favorites' => L10n.current.menuFavorites,
     'Today\'s Recitations' => L10n.current.menuTodaysRecitations,
     'Taqeebat e Namaz' => L10n.current.menuTaqeebat,
@@ -414,7 +419,9 @@ String homeMenuDisplayLabel(String label) {
     'Munajaat' => L10n.current.menuMunajaat,
     'Baaqeyaat As Saalehaat' => L10n.current.menuBaaqeyaat,
     'Qibla Finder' => L10n.current.menuQiblaFinder,
+    'Qibla' => L10n.current.menuQiblaShort,
     'Tasbeeh Counter' => L10n.current.menuTasbeehCounter,
+    'Tasbeeh' => L10n.current.menuTasbeehShort,
     'Qaza Tracker' => L10n.current.menuQazaTracker,
     'Rakaat Counter' => L10n.current.menuRakaatCounter,
     'Prayer Times in Flight' => L10n.current.menuPrayerTimesInFlight,

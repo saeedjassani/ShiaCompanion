@@ -137,9 +137,8 @@ class _AboutPageState extends State<AboutPage> {
                   const SizedBox(height: 12),
                   // GeoNames data is CC BY 4.0: credit and link wherever it is
                   // used. The city picker names it too.
-                  const Text(
-                    'The city list is from GeoNames, used under Creative '
-                    'Commons Attribution 4.0.',
+                  Text(
+                    context.l10n.aboutCityListCredit,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),

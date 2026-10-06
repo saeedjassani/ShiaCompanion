@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants.dart';
+import '../l10n/l10n.dart';
 import '../data/uid_title_data.dart';
 import '../pages/home_page.dart';
 import '../pages/list_items.dart';
@@ -78,30 +79,30 @@ class _AppShellState extends State<AppShell> {
   /// up front would load and count screens nobody opened.
   final Set<int> _visited = {0};
 
-  List<AppShellTab> get _tabs => widget.tabs ?? _defaultTabs();
+  List<AppShellTab> get _tabs => widget.tabs ?? _defaultTabs(context.l10n);
 
-  static List<AppShellTab> _defaultTabs() {
+  static List<AppShellTab> _defaultTabs(AppLocalizations l10n) {
     final quranItem = quranTabMenuItem;
     return [
       AppShellTab(
-        label: 'Home',
+        label: l10n.shellTabHome,
         icon: (color) =>
             OutlineIcon(OutlineGlyph.home, color: color, strokeWidth: 1.9),
         builder: (_) => const MyHomePage(),
       ),
       AppShellTab(
-        label: 'Quran',
+        label: l10n.shellTabQuran,
         icon: (color) =>
             HomeGlyph(type: HomeGlyphType.surahs, size: 24, color: color),
         builder: (_) => quranItem == surahsMenuItem
             // Titled after the tab rather than the old grid entry.
-            ? ItemList('A', 'Quran')
+            ? ItemList('A', l10n.shellTabQuran)
             : quranItem.pageBuilder(),
         onSelected: quranItem.recordOpen,
         contentKey: quranItem.analyticsId,
       ),
       AppShellTab(
-        label: 'Favorites',
+        label: l10n.shellTabFavorites,
         icon: (color) => OutlineIcon(OutlineGlyph.heart, color: color),
         builder: (_) => favoritesMenuItem.pageBuilder(),
         onSelected: favoritesMenuItem.recordOpen,
@@ -386,7 +387,7 @@ class _TabButton extends StatelessWidget {
       button: true,
       selected: selected,
       // "Home, tab 1 of 3", as a platform tab bar reads.
-      label: '${tab.label}, tab ${position + 1} of $count',
+      label: context.l10n.shellTabSemantics(tab.label, position + 1, count),
       excludeSemantics: true,
       onTap: onTap,
       child: Material(
@@ -438,11 +439,11 @@ class _SearchButton extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: 'Search',
+      label: context.l10n.commonSearch,
       excludeSemantics: true,
       onTap: onPressed,
       child: Tooltip(
-        message: 'Search',
+        message: context.l10n.commonSearch,
         excludeFromSemantics: true,
         child: SizedBox.square(
           dimension: size,

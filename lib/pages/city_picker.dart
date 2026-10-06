@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 
+import '../l10n/l10n.dart';
 import '../models/city.dart';
 import '../services/analytics_service.dart';
 import '../services/city_repository.dart';
@@ -224,10 +225,10 @@ class _CityPickerState extends State<CityPicker> {
         for (final city in CityRepository.instance.biggestInTimeZone(_timeZone))
           CityMatch(city),
       ];
-      listLabel = results.isEmpty ? null : 'In your time zone';
+      listLabel = results.isEmpty ? null : context.l10n.cityInYourTimeZone;
     } else {
       results = CityRepository.instance.search(query);
-      listLabel = results.isEmpty ? null : 'Cities';
+      listLabel = results.isEmpty ? null : context.l10n.cityResults;
     }
     // Two results of the same name in the same country say which province.
     final nameCounts = <String, int>{};
@@ -260,13 +261,15 @@ class _CityPickerState extends State<CityPicker> {
                     minimumSize: const Size(44, 44),
                     textStyle: ShiaText.body,
                   ),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.commonCancel),
                 ),
                 Expanded(
                   child: Semantics(
                     header: true,
                     child: Text(
-                      lookup ? 'Another city' : 'Choose your city',
+                      lookup
+                          ? context.l10n.cityAnotherCity
+                          : context.l10n.cityChooseYourCity,
                       textAlign: TextAlign.center,
                       style: ShiaText.cardTitle.copyWith(color: colors.text),
                     ),
@@ -303,9 +306,7 @@ class _CityPickerState extends State<CityPicker> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Text(
-                      'No city called “$query”. Try another spelling, or the '
-                      'nearest bigger city - its prayer times will be within '
-                      'a minute or two of yours.',
+                      context.l10n.cityNoMatch(query),
                       style:
                           ShiaText.secondary.copyWith(color: colors.textMuted),
                     ),
@@ -338,12 +339,8 @@ class _CityPickerState extends State<CityPicker> {
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
                     lookup
-                        ? 'See any city\'s prayer times on its own clock. Your '
-                            'own prayer times and notifications stay as they '
-                            'are.'
-                        : 'Prayer times are worked out on your phone, so this '
-                            'works without internet. You can change city any '
-                            'time from the prayer card.',
+                        ? context.l10n.cityLookupNote
+                        : context.l10n.cityOfflineNote,
                     style: ShiaText.caption.copyWith(
                       fontSize: 14,
                       height: 20 / 14,
@@ -355,7 +352,7 @@ class _CityPickerState extends State<CityPicker> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
-                    'City list: GeoNames (geonames.org), CC BY 4.0',
+                    context.l10n.cityListCredit,
                     style: ShiaText.caption.copyWith(color: colors.textMuted),
                   ),
                 ),
@@ -381,14 +378,16 @@ class _InCityQuestion extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     return AlertDialog(
-      title: Text('Are you in ${city.name} now?'),
+      title: Text(context.l10n.cityInCityQuestion(city.name)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            '${city.name} is ${clockDifferenceLabel(difference)}. Checking '
-            'its times won\'t change your own prayer times or notifications.',
+            context.l10n.cityInCityBody(
+              city.name,
+              clockDifferenceLabel(difference, context.l10n) ?? '',
+            ),
             style: ShiaText.body.copyWith(color: colors.textMuted),
           ),
           const SizedBox(height: 20),
@@ -401,7 +400,7 @@ class _InCityQuestion extends StatelessWidget {
               shape: const StadiumBorder(),
               textStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w600),
             ),
-            child: const Text('Just checking times'),
+            child: Text(context.l10n.cityJustChecking),
           ),
           const SizedBox(height: 4),
           TextButton(
@@ -411,7 +410,7 @@ class _InCityQuestion extends StatelessWidget {
               minimumSize: const Size.fromHeight(44),
               textStyle: ShiaText.body,
             ),
-            child: Text("I'm in ${city.name} now"),
+            child: Text(context.l10n.cityImInCity(city.name)),
           ),
         ],
       ),
@@ -434,7 +433,7 @@ class _SearchField extends StatelessWidget {
       autocorrect: false,
       style: ShiaText.body.copyWith(color: colors.text),
       decoration: InputDecoration(
-        hintText: 'Search for a city',
+        hintText: context.l10n.citySearchHint,
         hintStyle: ShiaText.body.copyWith(color: colors.textMuted),
         filled: true,
         fillColor: colors.well,
@@ -453,7 +452,7 @@ class _SearchField extends StatelessWidget {
         suffixIcon: controller.text.isEmpty
             ? null
             : IconButton(
-                tooltip: 'Clear',
+                tooltip: context.l10n.commonClear,
                 icon: Icon(Icons.close_rounded, color: colors.textMuted),
                 onPressed: controller.clear,
               ),
@@ -510,8 +509,8 @@ class _UseLocationRow extends StatelessWidget {
                   children: [
                     Text(
                       isManual
-                          ? 'Use my current location instead'
-                          : 'Use my current location',
+                          ? context.l10n.cityUseCurrentLocationInstead
+                          : context.l10n.cityUseCurrentLocation,
                       style: TextStyle(
                         fontSize: 16,
                         height: 21 / 16,
@@ -521,7 +520,7 @@ class _UseLocationRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      'Updates by itself when you travel',
+                      context.l10n.cityUpdatesWhenTravelling,
                       style: ShiaText.caption.copyWith(color: colors.textMuted),
                     ),
                   ],
@@ -597,8 +596,9 @@ class _ResultRow extends StatelessWidget {
       if (showProvince && city.admin1Name.isNotEmpty) city.admin1Name,
       city.countryName,
     ].join(', ');
-    final subtitle =
-        match.alias == null ? place : '$place · also ${match.alias}';
+    final subtitle = match.alias == null
+        ? place
+        : context.l10n.cityAlsoKnownAs(place, match.alias!);
     final nameStyle = ShiaText.body.copyWith(color: colors.text);
 
     return InkWell(

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../services/analytics_service.dart';
 import '../utils/theme_mode.dart';
 
@@ -30,7 +31,8 @@ Future<void> showThemeModePicker(BuildContext context) async {
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text('Theme', style: theme.textTheme.titleMedium),
+              child: Text(context.l10n.settingsTheme,
+                  style: theme.textTheme.titleMedium),
             ),
           ),
           // A trailing check rather than RadioListTile, as in the audio
@@ -38,9 +40,9 @@ Future<void> showThemeModePicker(BuildContext context) async {
           for (final mode in themeModeChoices)
             ListTile(
               leading: Icon(_iconFor(mode)),
-              title: Text(ThemeModeProvider.label(mode)),
+              title: Text(ThemeModeProvider.label(mode, context.l10n)),
               subtitle: mode == ThemeMode.system
-                  ? const Text('Light or dark, as your phone is set')
+                  ? Text(context.l10n.themeSameAsPhoneSubtitle)
                   : null,
               trailing: mode == current
                   ? Icon(Icons.check, color: theme.colorScheme.primary)

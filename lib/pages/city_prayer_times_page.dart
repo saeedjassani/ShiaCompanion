@@ -1,11 +1,13 @@
 import 'dart:async';
 
-import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../constants.dart';
+import '../l10n/hijri_l10n.dart';
+import '../l10n/l10n.dart';
 import '../models/city.dart';
 import '../services/analytics_service.dart';
 import '../theme/shia_colors.dart';
@@ -100,7 +102,7 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
             zone,
             dateTimeOnClockOf(_day, _day.year, _day.month, _day.day, 12),
           );
-    final clockLabel = clockDifferenceLabel(difference);
+    final clockLabel = clockDifferenceLabel(difference, context.l10n);
 
     return Scaffold(
       backgroundColor: colors.ground,
@@ -143,14 +145,14 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
                       children: [
                         _DayButton(
                           glyph: OutlineGlyph.chevronLeft,
-                          tooltip: 'Previous day',
+                          tooltip: context.l10n.cityPreviousDay,
                           onPressed: () => _move(-1),
                         ),
                         Expanded(
                           child: Column(
                             children: [
                               Text(
-                                formatDate(_day, [DD, ' ', d, ' ', MM]),
+                                DateFormat('EEEE d MMMM').format(_day),
                                 textAlign: TextAlign.center,
                                 style: ShiaText.cardTitle
                                     .copyWith(color: colors.text),
@@ -158,7 +160,7 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
                               const SizedBox(height: 2),
                               Text(
                                 '${hijri.hDay} '
-                                '${hijri.longMonthName.replaceAll(' Al-', ' al-')} '
+                                '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
                                 '${hijri.hYear}',
                                 textAlign: TextAlign.center,
                                 style: ShiaText.secondary
@@ -169,7 +171,7 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
                         ),
                         _DayButton(
                           glyph: OutlineGlyph.chevronRight,
-                          tooltip: 'Next day',
+                          tooltip: context.l10n.cityNextDay,
                           onPressed: () => _move(1),
                         ),
                       ],
@@ -181,14 +183,15 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
                           style: TextButton.styleFrom(
                             foregroundColor: colors.accent,
                           ),
-                          child: Text("Today in ${city.name}"),
+                          child: Text(context.l10n.cityTodayIn(city.name)),
                         ),
                       ),
                     if (clockLabel != null)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                         child: Text(
-                          '${city.name} time, $clockLabel',
+                          context.l10n
+                              .cityTimeDifference(city.name, clockLabel),
                           style: ShiaText.caption
                               .copyWith(color: colors.textMuted),
                         ),
@@ -210,8 +213,7 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
-                'Just for looking: your own prayer times and notifications '
-                'stay as they are.',
+                context.l10n.cityJustLookingNote,
                 style: ShiaText.caption.copyWith(color: colors.textMuted),
               ),
             ),

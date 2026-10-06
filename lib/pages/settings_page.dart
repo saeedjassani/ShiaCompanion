@@ -233,9 +233,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 const AppLanguageTile(leading: Icon(Icons.language)),
               ListTile(
                 leading: const Icon(Icons.dark_mode),
-                title: const Text("Theme"),
-                subtitle:
-                    Text(ThemeModeProvider.label(themeModeProvider.themeMode)),
+                title: Text(context.l10n.settingsTheme),
+                subtitle: Text(ThemeModeProvider.label(
+                    themeModeProvider.themeMode, context.l10n)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => showThemeModePicker(context),
               ),

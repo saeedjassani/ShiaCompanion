@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../constants.dart';
 import '../../data/uid_title_data.dart';
+import '../../l10n/l10n.dart';
 import '../../models/recitation_tracker_state.dart';
 import '../../services/analytics_service.dart';
 import '../../services/library_progress_store.dart';
@@ -55,18 +56,21 @@ class ContinueEntry {
   final LibraryProgress? library;
 }
 
-/// What each zikr category is called on a bookmark card, and its glyph, by
-/// uid prefix.
-const Map<String, (String, HomeGlyphType)> _bookmarkCategories = {
-  'A': ('Quran', HomeGlyphType.surahs),
-  'C': ('Aamaal', HomeGlyphType.aamaal),
-  'D': ('Taqibaat', HomeGlyphType.taqeebat),
-  'E': ('Dua', HomeGlyphType.duas),
-  'F': ('Namaz', HomeGlyphType.namaz),
-  'G': ('Ziyarat', HomeGlyphType.ziyaraat),
-  'H': ('Munajat', HomeGlyphType.munajaat),
-  'I': ('Zikr', HomeGlyphType.baqeyaat),
-};
+/// What a zikr category is called on a bookmark card, and its glyph, by uid
+/// [prefix].
+(String, HomeGlyphType) _bookmarkCategory(String prefix, AppLocalizations s) {
+  return switch (prefix) {
+    'A' => (s.homeCategoryQuran, HomeGlyphType.surahs),
+    'C' => (s.homeCategoryAamaal, HomeGlyphType.aamaal),
+    'D' => (s.homeCategoryTaqibaat, HomeGlyphType.taqeebat),
+    'E' => (s.homeCategoryDua, HomeGlyphType.duas),
+    'F' => (s.homeCategoryNamaz, HomeGlyphType.namaz),
+    'G' => (s.homeCategoryZiyarat, HomeGlyphType.ziyaraat),
+    'H' => (s.homeCategoryMunajat, HomeGlyphType.munajaat),
+    'I' => (s.homeCategoryZikr, HomeGlyphType.baqeyaat),
+    _ => (s.homeCategoryZikr, HomeGlyphType.duas),
+  };
+}
 
 /// Up to three cards, newest first: the most recent Quran track, zikr
 /// bookmark and library book - one of each, so a busy week in one never
@@ -78,7 +82,9 @@ List<ContinueEntry> continueEntries({
   required List<LibraryProgress> library,
   required bool includeQuran,
   Map<dynamic, dynamic> titles = const {},
+  AppLocalizations? l10n,
 }) {
+  final s = l10n ?? L10n.current;
   final entries = <ContinueEntry>[];
 
   final latestRecitation =
@@ -91,10 +97,12 @@ List<ContinueEntry> continueEntries({
       final ayah = resume.ayah ?? 1;
       entries.add(ContinueEntry(
         kind: ContinueKind.quran,
-        caption: label == unlabeledRecitationLabel ? 'Quran' : 'Quran · $label',
+        caption: label == unlabeledRecitationLabel
+            ? s.homeCategoryQuran
+            : s.homeContinueQuranTrack(label),
         glyph: HomeGlyphType.surahs,
         title: info.englishName,
-        subtitle: 'Verse $ayah of ${info.ayahCount}',
+        subtitle: s.homeContinueVerseOf(ayah, info.ayahCount),
         progress: ayah / info.ayahCount,
         updatedAt: latestRecitation.recitedAt,
         recitationLabel: label,
@@ -112,16 +120,16 @@ List<ContinueEntry> continueEntries({
   }
   if (latestBookmark != null) {
     final prefix = RegExp(r'^[A-Za-z]+').stringMatch(latestBookmark.uid) ?? '';
-    final (word, glyph) =
-        _bookmarkCategories[prefix] ?? ('Zikr', HomeGlyphType.duas);
+    final (word, glyph) = _bookmarkCategory(prefix, s);
     final tab = latestBookmark.tabTitle?.trim() ?? '';
     final title = titles[latestBookmark.uid]?.toString();
     entries.add(ContinueEntry(
       kind: ContinueKind.bookmark,
-      caption: '$word · bookmark',
+      caption: s.homeContinueBookmarkCaption(word),
       glyph: glyph,
       title: (title == null || title.isEmpty) ? latestBookmark.title : title,
-      subtitle: tab.isEmpty ? 'Pick up at your bookmark' : 'Pick up in $tab',
+      subtitle:
+          tab.isEmpty ? s.homeContinueAtBookmark : s.homeContinueInTab(tab),
       updatedAt: latestBookmark.updatedAt,
       bookmark: latestBookmark,
     ));
@@ -132,11 +140,11 @@ List<ContinueEntry> continueEntries({
     final book = latestBook.bookTitle.trim();
     entries.add(ContinueEntry(
       kind: ContinueKind.library,
-      caption: 'Library',
+      caption: s.menuLibrary,
       glyph: HomeGlyphType.library,
       title: book.isEmpty ? latestBook.chapterTitle : book,
       subtitle:
-          book.isEmpty ? 'Pick up where you stopped' : latestBook.chapterTitle,
+          book.isEmpty ? s.homeContinueWhereStopped : latestBook.chapterTitle,
       updatedAt: latestBook.updatedAt,
       library: latestBook,
     ));
@@ -204,6 +212,7 @@ class ContinueSection extends StatelessWidget {
           // reading (see quranMenuItem), so only admins see a track here.
           includeQuran: isUserAdmin,
           titles: items,
+          l10n: context.l10n,
         );
         if (entries.isEmpty) return const SizedBox.shrink();
 
@@ -216,7 +225,7 @@ class ContinueSection extends StatelessWidget {
             SizedBox(height: topSpacing),
             Padding(
               padding: gutter,
-              child: const HomeSectionHeader(title: 'Continue'),
+              child: HomeSectionHeader(title: context.l10n.homeContinueTitle),
             ),
             const SizedBox(height: 10),
             if (wide)
@@ -350,7 +359,7 @@ class _ContinueCard extends StatelessWidget {
                     minHeight: 4,
                     color: colors.accent,
                     backgroundColor: colors.divider,
-                    semanticsLabel: 'Progress through the surah',
+                    semanticsLabel: context.l10n.homeContinueSurahProgress,
                   ),
                 ),
               ],

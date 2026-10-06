@@ -1,5 +1,6 @@
 import 'package:timezone/timezone.dart' as tz;
 
+import '../l10n/l10n.dart';
 import '../models/city.dart';
 import 'timezone_database.dart';
 
@@ -31,14 +32,15 @@ Duration _phoneOffsetAt(DateTime instant) =>
 
 /// "2 hr ahead of your phone", "30 min behind your phone"; null when there is
 /// no difference.
-String? clockDifferenceLabel(Duration? difference) {
+String? clockDifferenceLabel(Duration? difference, [AppLocalizations? l10n]) {
+  final s = l10n ?? L10n.current;
   if (difference == null || difference == Duration.zero) return null;
   final minutes = difference.inMinutes.abs();
   final amount = [
-    if (minutes >= 60) '${minutes ~/ 60} hr',
-    if (minutes % 60 != 0) '${minutes % 60} min',
+    if (minutes >= 60) s.cityClockHours(minutes ~/ 60),
+    if (minutes % 60 != 0) s.cityClockMinutes(minutes % 60),
   ].join(' ');
   return difference.isNegative
-      ? '$amount behind your phone'
-      : '$amount ahead of your phone';
+      ? s.cityClockBehind(amount)
+      : s.cityClockAhead(amount);
 }

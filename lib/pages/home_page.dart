@@ -56,6 +56,7 @@ import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/whats_new_dialog.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import '../l10n/l10n.dart';
 
 /// The Home tab: everything that used to be the home screen, under a
 /// greeting with the profile button (Settings) in place of the old app bar.
@@ -748,8 +749,8 @@ class _CompactTitleBar extends StatelessWidget {
         color: solid ? colors.ground : colors.ground.withValues(alpha: 0.88),
         border: Border(bottom: BorderSide(color: colors.line)),
       ),
-      child:
-          Text('Home', style: ShiaText.cardTitle.copyWith(color: colors.text)),
+      child: Text(context.l10n.shellTabHome,
+          style: ShiaText.cardTitle.copyWith(color: colors.text)),
     );
     if (!solid) {
       bar = ClipRect(

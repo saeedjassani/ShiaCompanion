@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../../navigation/home_menu.dart';
 import '../../services/analytics_service.dart';
 import '../../services/home_shortcuts_store.dart';
@@ -31,12 +32,12 @@ class ShortcutsSection extends StatelessWidget {
         final tiles = <Widget>[
           for (final item in shortcuts)
             ShortcutTile(
-              label: item.shortLabel,
+              label: item.displayShortLabel,
               icon: (color) => item.buildIcon(size: 30, color: color),
               onTap: () => onOpen(item),
             ),
           ShortcutTile(
-            label: 'All features',
+            label: context.l10n.homeAllFeatures,
             filled: true,
             icon: (color) =>
                 OutlineIcon(OutlineGlyph.grid, size: 26, color: color),
@@ -48,9 +49,9 @@ class ShortcutsSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             HomeSectionHeader(
-              title: 'Shortcuts',
-              actionLabel: 'Edit',
-              actionSemanticsLabel: 'Edit shortcuts',
+              title: context.l10n.homeShortcutsTitle,
+              actionLabel: context.l10n.homeSectionEdit,
+              actionSemanticsLabel: context.l10n.homeEditShortcuts,
               onAction: () => showShortcutsEditor(context),
             ),
             const SizedBox(height: 10),
@@ -118,7 +119,7 @@ class ShortcutTile extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: onHome ? '$label, on your Home' : label,
+      label: onHome ? context.l10n.homeShortcutOnHomeSemantics(label) : label,
       excludeSemantics: true,
       onTap: onTap,
       child: InkWell(
@@ -287,13 +288,13 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                     minimumSize: const Size(44, 44),
                     textStyle: ShiaText.body,
                   ),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.commonCancel),
                 ),
                 Expanded(
                   child: Semantics(
                     header: true,
                     child: Text(
-                      'Shortcuts',
+                      context.l10n.homeShortcutsTitle,
                       textAlign: TextAlign.center,
                       style: ShiaText.cardTitle.copyWith(color: colors.text),
                     ),
@@ -307,7 +308,7 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                     textStyle:
                         ShiaText.body.copyWith(fontWeight: FontWeight.w700),
                   ),
-                  child: const Text('Done'),
+                  child: Text(context.l10n.commonDone),
                 ),
               ],
             ),
@@ -324,8 +325,8 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _ListLabel(
-                    'On your Home · ${_onHome.length} of '
-                    '${HomeShortcutsStore.maxShortcuts}',
+                    context.l10n.homeShortcutsOnHomeCount(
+                        _onHome.length, HomeShortcutsStore.maxShortcuts),
                   ),
                   const SizedBox(height: 8),
                   HomeCard(
@@ -349,10 +350,11 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                             final item = _onHome[index];
                             return _EditorRow(
                               key: ValueKey(item.analyticsId),
-                              label: item.shortLabel,
+                              label: item.displayShortLabel,
                               leading: _RoundAction(
                                 glyph: OutlineGlyph.minus,
-                                semanticsLabel: 'Remove ${item.shortLabel}',
+                                semanticsLabel: context.l10n
+                                    .homeShortcutRemove(item.displayShortLabel),
                                 fill: Theme.of(context).colorScheme.error,
                                 iconColor:
                                     Theme.of(context).colorScheme.onError,
@@ -377,8 +379,8 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                           },
                         ),
                         _EditorRow(
-                          label: 'All features',
-                          subtitle: 'Always last, so nothing gets lost',
+                          label: context.l10n.homeAllFeatures,
+                          subtitle: context.l10n.homeAllFeaturesAlwaysLast,
                           showDivider: false,
                           leading: SizedBox.square(
                             dimension: 44,
@@ -407,8 +409,8 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                   if (more.isNotEmpty) ...[
                     const SizedBox(height: 20),
                     _ListLabel(_isFull
-                        ? 'More · remove one above to add one here'
-                        : 'More'),
+                        ? context.l10n.homeShortcutsMoreFull
+                        : context.l10n.homeShortcutsMore),
                     const SizedBox(height: 8),
                     HomeCard(
                       radius: 16,
@@ -416,12 +418,13 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                         children: [
                           for (var i = 0; i < more.length; i++)
                             _EditorRow(
-                              label: more[i].shortLabel,
+                              label: more[i].displayShortLabel,
                               muted: _isFull,
                               showDivider: i < more.length - 1,
                               leading: _RoundAction(
                                 glyph: OutlineGlyph.plus,
-                                semanticsLabel: 'Add ${more[i].shortLabel}',
+                                semanticsLabel: context.l10n
+                                    .homeShortcutAdd(more[i].displayShortLabel),
                                 fill: _isFull
                                     ? Color.lerp(
                                         colors.line, colors.chevron, 0.4)!

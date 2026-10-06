@@ -281,18 +281,6 @@ abstract class AppLocalizations {
   /// **'Appearance'**
   String get settingsSectionAppearance;
 
-  /// No description provided for @settingsDarkMode.
-  ///
-  /// In en, this message translates to:
-  /// **'Dark mode'**
-  String get settingsDarkMode;
-
-  /// No description provided for @settingsDarkModeSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Use the dark appearance across the app.'**
-  String get settingsDarkModeSubtitle;
-
   /// No description provided for @settingsAppTextSize.
   ///
   /// In en, this message translates to:
@@ -1493,11 +1481,11 @@ abstract class AppLocalizations {
   /// **'Update location'**
   String get qiblaUpdateLocation;
 
-  /// No description provided for @qiblaChangeCity.
+  /// No description provided for @cityChangeCity.
   ///
   /// In en, this message translates to:
   /// **'Change city'**
-  String get qiblaChangeCity;
+  String get cityChangeCity;
 
   /// No description provided for @qiblaPointingTowards.
   ///
@@ -3554,7 +3542,7 @@ abstract class AppLocalizations {
   /// No description provided for @prayerNextDay.
   ///
   /// In en, this message translates to:
-  /// **'(next day)'**
+  /// **'next day'**
   String get prayerNextDay;
 
   /// No description provided for @prayerLocating.
@@ -3563,41 +3551,17 @@ abstract class AppLocalizations {
   /// **'Locating…'**
   String get prayerLocating;
 
-  /// No description provided for @prayerForYourLocation.
-  ///
-  /// In en, this message translates to:
-  /// **'Prayer times for your location'**
-  String get prayerForYourLocation;
-
   /// No description provided for @prayerFindingLocation.
   ///
   /// In en, this message translates to:
-  /// **'Finding your location'**
+  /// **'Finding your location…'**
   String get prayerFindingLocation;
-
-  /// No description provided for @prayerAppearSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Prayer times will appear in a moment'**
-  String get prayerAppearSoon;
-
-  /// No description provided for @prayerTapToRetry.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap to try again'**
-  String get prayerTapToRetry;
 
   /// No description provided for @prayerLocationUnavailable.
   ///
   /// In en, this message translates to:
   /// **'Location not available'**
   String get prayerLocationUnavailable;
-
-  /// No description provided for @prayerTapToEnableLocation.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap here to enable location'**
-  String get prayerTapToEnableLocation;
 
   /// No description provided for @calendarNotificationsSomeOn.
   ///
@@ -5332,6 +5296,522 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Book'**
   String get requestTypeBook;
+
+  /// The Home tab in the bottom tab bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get shellTabHome;
+
+  /// The Quran tab in the bottom tab bar, and the title of the surah list it opens.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran'**
+  String get shellTabQuran;
+
+  /// The Favorites tab in the bottom tab bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get shellTabFavorites;
+
+  /// Screen-reader label for a tab bar item, as a platform tab bar reads: 'Home, tab 1 of 3'.
+  ///
+  /// In en, this message translates to:
+  /// **'{tab}, tab {position} of {count}'**
+  String shellTabSemantics(String tab, int position, int count);
+
+  /// Short name of Qibla Finder, for a Home shortcut tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla'**
+  String get menuQiblaShort;
+
+  /// Short name of Tasbeeh Counter, for a Home shortcut tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasbeeh'**
+  String get menuTasbeehShort;
+
+  /// The tile, page and editor row that lists every feature of the app.
+  ///
+  /// In en, this message translates to:
+  /// **'All features'**
+  String get homeAllFeatures;
+
+  /// Heading of Home's section of feature shortcuts, and of its editor sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortcuts'**
+  String get homeShortcutsTitle;
+
+  /// Action at the end of a Home section heading that opens its editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get homeSectionEdit;
+
+  /// No description provided for @homeEditShortcuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit shortcuts'**
+  String get homeEditShortcuts;
+
+  /// Screen-reader label for a feature that is already one of the Home shortcuts.
+  ///
+  /// In en, this message translates to:
+  /// **'{feature}, on your Home'**
+  String homeShortcutOnHomeSemantics(String feature);
+
+  /// Heading over the shortcuts already on Home in the editor, e.g. 'On your Home · 5 of 7'. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'On your Home · {count} of {max}'**
+  String homeShortcutsOnHomeCount(int count, int max);
+
+  /// No description provided for @homeShortcutRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {feature}'**
+  String homeShortcutRemove(String feature);
+
+  /// No description provided for @homeShortcutAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {feature}'**
+  String homeShortcutAdd(String feature);
+
+  /// Under 'All features' in the shortcuts editor: that tile cannot be removed or moved.
+  ///
+  /// In en, this message translates to:
+  /// **'Always last, so nothing gets lost'**
+  String get homeAllFeaturesAlwaysLast;
+
+  /// Heading over the features that can be added as shortcuts. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get homeShortcutsMore;
+
+  /// The 'More' heading when Home already has the most shortcuts it can take. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'More · remove one above to add one here'**
+  String get homeShortcutsMoreFull;
+
+  /// Key under the All features grid, next to the check that marks a feature already on Home.
+  ///
+  /// In en, this message translates to:
+  /// **'Already one of your Home shortcuts'**
+  String get homeAlreadyShortcut;
+
+  /// The greeting at the top of Home.
+  ///
+  /// In en, this message translates to:
+  /// **'Assalamu alaykum'**
+  String get homeGreeting;
+
+  /// Tooltip and screen-reader label of the profile button on Home.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings and account'**
+  String get homeSettingsAndAccount;
+
+  /// How far off a Coming up event on Home is. Today and tomorrow have their own words.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{In 1 day} other{In {days} days}}'**
+  String homeEventInDays(int days);
+
+  /// A Coming up event on Home: what happened, and to whom, e.g. 'Wiladat of Imam Ali (a.s.)'. Both come from the calendar's event list.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} of {name}'**
+  String homeEventKindOf(String kind, String name);
+
+  /// Heading of Home's section of upcoming Islamic calendar events.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get homeComingUpTitle;
+
+  /// Screen-reader label of the Calendar link beside the Coming up heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the calendar'**
+  String get homeOpenCalendar;
+
+  /// No description provided for @homeHadithOfTheDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Hadith of the day'**
+  String get homeHadithOfTheDay;
+
+  /// Heading of Home's section that picks up the latest Quran track, bookmark or book.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get homeContinueTitle;
+
+  /// What a zikr category is called on a Continue card on Home, before ' · bookmark'.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran'**
+  String get homeCategoryQuran;
+
+  /// What a zikr category is called on a Continue card on Home, before ' · bookmark'.
+  ///
+  /// In en, this message translates to:
+  /// **'Aamaal'**
+  String get homeCategoryAamaal;
+
+  /// What a zikr category is called on a Continue card on Home, before ' · bookmark'.
+  ///
+  /// In en, this message translates to:
+  /// **'Taqibaat'**
+  String get homeCategoryTaqibaat;
+
+  /// What a zikr category is called on a Continue card on Home, before ' · bookmark'.
+  ///
+  /// In en, this message translates to:
+  /// **'Dua'**
+  String get homeCategoryDua;
+
+  /// What a zikr category is called on a Continue card on Home, before ' · bookmark'.
+  ///
+  /// In en, this message translates to:
+  /// **'Namaz'**
+  String get homeCategoryNamaz;
+
+  /// What a zikr category is called on a Continue card on Home, before ' · bookmark'.
+  ///
+  /// In en, this message translates to:
+  /// **'Ziyarat'**
+  String get homeCategoryZiyarat;
+
+  /// What a zikr category is called on a Continue card on Home, before ' · bookmark'.
+  ///
+  /// In en, this message translates to:
+  /// **'Munajat'**
+  String get homeCategoryMunajat;
+
+  /// What a zikr category is called on a Continue card on Home, before ' · bookmark'.
+  ///
+  /// In en, this message translates to:
+  /// **'Zikr'**
+  String get homeCategoryZikr;
+
+  /// Caption of a Continue card for a named Quran recitation track.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran · {track}'**
+  String homeContinueQuranTrack(String track);
+
+  /// No description provided for @homeContinueVerseOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Verse {ayah} of {count}'**
+  String homeContinueVerseOf(int ayah, int count);
+
+  /// Caption of a Continue card for a zikr bookmark, e.g. 'Dua · bookmark'.
+  ///
+  /// In en, this message translates to:
+  /// **'{category} · bookmark'**
+  String homeContinueBookmarkCaption(String category);
+
+  /// No description provided for @homeContinueAtBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up at your bookmark'**
+  String get homeContinueAtBookmark;
+
+  /// {tab} is the title of the tab of the zikr the bookmark is in.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up in {tab}'**
+  String homeContinueInTab(String tab);
+
+  /// No description provided for @homeContinueWhereStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up where you stopped'**
+  String get homeContinueWhereStopped;
+
+  /// Screen-reader label of the progress bar on a Quran Continue card.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress through the surah'**
+  String get homeContinueSurahProgress;
+
+  /// Part of a clock difference, e.g. '2 hr' in '2 hr 30 min ahead of your phone'.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hr'**
+  String cityClockHours(int hours);
+
+  /// Part of a clock difference, e.g. '30 min' in '2 hr 30 min ahead of your phone'.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String cityClockMinutes(int minutes);
+
+  /// How far a city's clock is ahead of the phone's; {amount} is e.g. '2 hr 30 min'.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} ahead of your phone'**
+  String cityClockAhead(String amount);
+
+  /// How far a city's clock is behind the phone's; {amount} is e.g. '2 hr 30 min'.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} behind your phone'**
+  String cityClockBehind(String amount);
+
+  /// Heading over the cities suggested before anything is typed. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'In your time zone'**
+  String get cityInYourTimeZone;
+
+  /// Heading over the city search results. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Cities'**
+  String get cityResults;
+
+  /// Title of the picker that looks up another city's prayer times without changing the reader's own.
+  ///
+  /// In en, this message translates to:
+  /// **'Another city'**
+  String get cityAnotherCity;
+
+  /// No description provided for @cityChooseYourCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your city'**
+  String get cityChooseYourCity;
+
+  /// {query} is what the reader typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No city called “{query}”. Try another spelling, or the nearest bigger city - its prayer times will be within a minute or two of yours.'**
+  String cityNoMatch(String query);
+
+  /// No description provided for @cityLookupNote.
+  ///
+  /// In en, this message translates to:
+  /// **'See any city\'s prayer times on its own clock. Your own prayer times and notifications stay as they are.'**
+  String get cityLookupNote;
+
+  /// No description provided for @cityOfflineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times are worked out on your phone, so this works without internet. You can change city any time from the prayer card.'**
+  String get cityOfflineNote;
+
+  /// Attribution required by the city list's licence. Keep 'GeoNames', 'geonames.org' and 'CC BY 4.0' as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'City list: GeoNames (geonames.org), CC BY 4.0'**
+  String get cityListCredit;
+
+  /// No description provided for @cityInCityQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you in {city} now?'**
+  String cityInCityQuestion(String city);
+
+  /// {difference} is e.g. '2 hr ahead of your phone'.
+  ///
+  /// In en, this message translates to:
+  /// **'{city} is {difference}. Checking its times won\'t change your own prayer times or notifications.'**
+  String cityInCityBody(String city, String difference);
+
+  /// Answer to 'Are you in {city} now?': only looking at that city's times.
+  ///
+  /// In en, this message translates to:
+  /// **'Just checking times'**
+  String get cityJustChecking;
+
+  /// No description provided for @cityImInCity.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m in {city} now'**
+  String cityImInCity(String city);
+
+  /// No description provided for @citySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a city'**
+  String get citySearchHint;
+
+  /// No description provided for @cityUseCurrentLocationInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my current location instead'**
+  String get cityUseCurrentLocationInstead;
+
+  /// No description provided for @cityUseCurrentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my current location'**
+  String get cityUseCurrentLocation;
+
+  /// Under 'Use my current location': the phone's location follows the reader.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates by itself when you travel'**
+  String get cityUpdatesWhenTravelling;
+
+  /// A city search result found by another name of the city, e.g. 'Iraq · also Kerbela'.
+  ///
+  /// In en, this message translates to:
+  /// **'{place} · also {alias}'**
+  String cityAlsoKnownAs(String place, String alias);
+
+  /// No description provided for @cityPreviousDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get cityPreviousDay;
+
+  /// No description provided for @cityNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get cityNextDay;
+
+  /// Button that jumps back to the city's today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today in {city}'**
+  String cityTodayIn(String city);
+
+  /// Which clock the times are on, e.g. 'Karbala time, 2 hr ahead of your phone'.
+  ///
+  /// In en, this message translates to:
+  /// **'{city} time, {difference}'**
+  String cityTimeDifference(String city, String difference);
+
+  /// No description provided for @cityJustLookingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Just for looking: your own prayer times and notifications stay as they are.'**
+  String get cityJustLookingNote;
+
+  /// Under 'Another city' on the calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'See its prayer times for this date'**
+  String get cityAnotherCitySubtitle;
+
+  /// Attribution required by the city list's licence. Keep 'GeoNames' as it is.
+  ///
+  /// In en, this message translates to:
+  /// **'The city list is from GeoNames, used under Creative Commons Attribution 4.0.'**
+  String get aboutCityListCredit;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsTheme;
+
+  /// Theme option: light or dark following the phone's setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as phone'**
+  String get themeSameAsPhone;
+
+  /// Theme option.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// Theme option.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @themeSameAsPhoneSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Light or dark, as your phone is set'**
+  String get themeSameAsPhoneSubtitle;
+
+  /// Caption of Home's prayer card, and its screen-reader label.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times'**
+  String get prayerTimesTitle;
+
+  /// Stands in for the city's name in 'Still in {city}?' when the city has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'the city you chose'**
+  String get prayerTheCityYouChose;
+
+  /// Asked on the prayer card when a chosen city's clock no longer matches the phone's, e.g. after flying home.
+  ///
+  /// In en, this message translates to:
+  /// **'Still in {city}?'**
+  String prayerStillInCity(String city);
+
+  /// No description provided for @prayerPhoneZoneDiffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone is set to a different time zone.'**
+  String get prayerPhoneZoneDiffers;
+
+  /// No description provided for @prayerYesStillHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, still here'**
+  String get prayerYesStillHere;
+
+  /// The place button on the prayer card while the location has no name yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location'**
+  String get prayerYourLocation;
+
+  /// Screen-reader label of the place button on the prayer card.
+  ///
+  /// In en, this message translates to:
+  /// **'{place}. Change city'**
+  String prayerCityButtonSemantics(String place);
+
+  /// No description provided for @prayerChooseCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose city'**
+  String get prayerChooseCity;
+
+  /// Title of the prayer card before any location is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Which city are you in?'**
+  String get prayerWhichCity;
+
+  /// No description provided for @prayerWhichCityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll show today\'s prayer times and the next azan.'**
+  String get prayerWhichCityBody;
+
+  /// No description provided for @prayerZoneSuggests.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone\'s time zone suggests {city}.'**
+  String prayerZoneSuggests(String city);
+
+  /// No description provided for @prayerYesImIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I\'m in {city}'**
+  String prayerYesImIn(String city);
 }
 
 class _AppLocalizationsDelegate

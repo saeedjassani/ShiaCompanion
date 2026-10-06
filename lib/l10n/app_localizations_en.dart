@@ -149,13 +149,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionAppearance => 'Appearance';
 
   @override
-  String get settingsDarkMode => 'Dark mode';
-
-  @override
-  String get settingsDarkModeSubtitle =>
-      'Use the dark appearance across the app.';
-
-  @override
   String get settingsAppTextSize => 'App text size';
 
   @override
@@ -880,7 +873,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qiblaUpdateLocation => 'Update location';
 
   @override
-  String get qiblaChangeCity => 'Change city';
+  String get cityChangeCity => 'Change city';
 
   @override
   String get qiblaPointingTowards => 'Pointing towards';
@@ -2100,28 +2093,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get prayerNextDay => '(next day)';
+  String get prayerNextDay => 'next day';
 
   @override
   String get prayerLocating => 'Locating…';
 
   @override
-  String get prayerForYourLocation => 'Prayer times for your location';
-
-  @override
-  String get prayerFindingLocation => 'Finding your location';
-
-  @override
-  String get prayerAppearSoon => 'Prayer times will appear in a moment';
-
-  @override
-  String get prayerTapToRetry => 'Tap to try again';
+  String get prayerFindingLocation => 'Finding your location…';
 
   @override
   String get prayerLocationUnavailable => 'Location not available';
-
-  @override
-  String get prayerTapToEnableLocation => 'Tap here to enable location';
 
   @override
   String calendarNotificationsSomeOn(int enabled, int total) {
@@ -3192,4 +3173,326 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get requestTypeBook => 'Book';
+
+  @override
+  String get shellTabHome => 'Home';
+
+  @override
+  String get shellTabQuran => 'Quran';
+
+  @override
+  String get shellTabFavorites => 'Favorites';
+
+  @override
+  String shellTabSemantics(String tab, int position, int count) {
+    return '$tab, tab $position of $count';
+  }
+
+  @override
+  String get menuQiblaShort => 'Qibla';
+
+  @override
+  String get menuTasbeehShort => 'Tasbeeh';
+
+  @override
+  String get homeAllFeatures => 'All features';
+
+  @override
+  String get homeShortcutsTitle => 'Shortcuts';
+
+  @override
+  String get homeSectionEdit => 'Edit';
+
+  @override
+  String get homeEditShortcuts => 'Edit shortcuts';
+
+  @override
+  String homeShortcutOnHomeSemantics(String feature) {
+    return '$feature, on your Home';
+  }
+
+  @override
+  String homeShortcutsOnHomeCount(int count, int max) {
+    return 'On your Home · $count of $max';
+  }
+
+  @override
+  String homeShortcutRemove(String feature) {
+    return 'Remove $feature';
+  }
+
+  @override
+  String homeShortcutAdd(String feature) {
+    return 'Add $feature';
+  }
+
+  @override
+  String get homeAllFeaturesAlwaysLast => 'Always last, so nothing gets lost';
+
+  @override
+  String get homeShortcutsMore => 'More';
+
+  @override
+  String get homeShortcutsMoreFull => 'More · remove one above to add one here';
+
+  @override
+  String get homeAlreadyShortcut => 'Already one of your Home shortcuts';
+
+  @override
+  String get homeGreeting => 'Assalamu alaykum';
+
+  @override
+  String get homeSettingsAndAccount => 'Settings and account';
+
+  @override
+  String homeEventInDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'In $days days',
+      one: 'In 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeEventKindOf(String kind, String name) {
+    return '$kind of $name';
+  }
+
+  @override
+  String get homeComingUpTitle => 'Coming up';
+
+  @override
+  String get homeOpenCalendar => 'Open the calendar';
+
+  @override
+  String get homeHadithOfTheDay => 'Hadith of the day';
+
+  @override
+  String get homeContinueTitle => 'Continue';
+
+  @override
+  String get homeCategoryQuran => 'Quran';
+
+  @override
+  String get homeCategoryAamaal => 'Aamaal';
+
+  @override
+  String get homeCategoryTaqibaat => 'Taqibaat';
+
+  @override
+  String get homeCategoryDua => 'Dua';
+
+  @override
+  String get homeCategoryNamaz => 'Namaz';
+
+  @override
+  String get homeCategoryZiyarat => 'Ziyarat';
+
+  @override
+  String get homeCategoryMunajat => 'Munajat';
+
+  @override
+  String get homeCategoryZikr => 'Zikr';
+
+  @override
+  String homeContinueQuranTrack(String track) {
+    return 'Quran · $track';
+  }
+
+  @override
+  String homeContinueVerseOf(int ayah, int count) {
+    return 'Verse $ayah of $count';
+  }
+
+  @override
+  String homeContinueBookmarkCaption(String category) {
+    return '$category · bookmark';
+  }
+
+  @override
+  String get homeContinueAtBookmark => 'Pick up at your bookmark';
+
+  @override
+  String homeContinueInTab(String tab) {
+    return 'Pick up in $tab';
+  }
+
+  @override
+  String get homeContinueWhereStopped => 'Pick up where you stopped';
+
+  @override
+  String get homeContinueSurahProgress => 'Progress through the surah';
+
+  @override
+  String cityClockHours(int hours) {
+    return '$hours hr';
+  }
+
+  @override
+  String cityClockMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String cityClockAhead(String amount) {
+    return '$amount ahead of your phone';
+  }
+
+  @override
+  String cityClockBehind(String amount) {
+    return '$amount behind your phone';
+  }
+
+  @override
+  String get cityInYourTimeZone => 'In your time zone';
+
+  @override
+  String get cityResults => 'Cities';
+
+  @override
+  String get cityAnotherCity => 'Another city';
+
+  @override
+  String get cityChooseYourCity => 'Choose your city';
+
+  @override
+  String cityNoMatch(String query) {
+    return 'No city called “$query”. Try another spelling, or the nearest bigger city - its prayer times will be within a minute or two of yours.';
+  }
+
+  @override
+  String get cityLookupNote =>
+      'See any city\'s prayer times on its own clock. Your own prayer times and notifications stay as they are.';
+
+  @override
+  String get cityOfflineNote =>
+      'Prayer times are worked out on your phone, so this works without internet. You can change city any time from the prayer card.';
+
+  @override
+  String get cityListCredit => 'City list: GeoNames (geonames.org), CC BY 4.0';
+
+  @override
+  String cityInCityQuestion(String city) {
+    return 'Are you in $city now?';
+  }
+
+  @override
+  String cityInCityBody(String city, String difference) {
+    return '$city is $difference. Checking its times won\'t change your own prayer times or notifications.';
+  }
+
+  @override
+  String get cityJustChecking => 'Just checking times';
+
+  @override
+  String cityImInCity(String city) {
+    return 'I\'m in $city now';
+  }
+
+  @override
+  String get citySearchHint => 'Search for a city';
+
+  @override
+  String get cityUseCurrentLocationInstead => 'Use my current location instead';
+
+  @override
+  String get cityUseCurrentLocation => 'Use my current location';
+
+  @override
+  String get cityUpdatesWhenTravelling => 'Updates by itself when you travel';
+
+  @override
+  String cityAlsoKnownAs(String place, String alias) {
+    return '$place · also $alias';
+  }
+
+  @override
+  String get cityPreviousDay => 'Previous day';
+
+  @override
+  String get cityNextDay => 'Next day';
+
+  @override
+  String cityTodayIn(String city) {
+    return 'Today in $city';
+  }
+
+  @override
+  String cityTimeDifference(String city, String difference) {
+    return '$city time, $difference';
+  }
+
+  @override
+  String get cityJustLookingNote =>
+      'Just for looking: your own prayer times and notifications stay as they are.';
+
+  @override
+  String get cityAnotherCitySubtitle => 'See its prayer times for this date';
+
+  @override
+  String get aboutCityListCredit =>
+      'The city list is from GeoNames, used under Creative Commons Attribution 4.0.';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get themeSameAsPhone => 'Same as phone';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeSameAsPhoneSubtitle => 'Light or dark, as your phone is set';
+
+  @override
+  String get prayerTimesTitle => 'Prayer times';
+
+  @override
+  String get prayerTheCityYouChose => 'the city you chose';
+
+  @override
+  String prayerStillInCity(String city) {
+    return 'Still in $city?';
+  }
+
+  @override
+  String get prayerPhoneZoneDiffers =>
+      'Your phone is set to a different time zone.';
+
+  @override
+  String get prayerYesStillHere => 'Yes, still here';
+
+  @override
+  String get prayerYourLocation => 'Your location';
+
+  @override
+  String prayerCityButtonSemantics(String place) {
+    return '$place. Change city';
+  }
+
+  @override
+  String get prayerChooseCity => 'Choose city';
+
+  @override
+  String get prayerWhichCity => 'Which city are you in?';
+
+  @override
+  String get prayerWhichCityBody =>
+      'We\'ll show today\'s prayer times and the next azan.';
+
+  @override
+  String prayerZoneSuggests(String city) {
+    return 'Your phone\'s time zone suggests $city.';
+  }
+
+  @override
+  String prayerYesImIn(String city) {
+    return 'Yes, I\'m in $city';
+  }
 }

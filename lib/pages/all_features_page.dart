@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
+import '../l10n/l10n.dart';
 import '../navigation/home_menu.dart';
 import '../services/home_shortcuts_store.dart';
 import '../theme/shia_colors.dart';
@@ -38,7 +39,7 @@ class _AllFeaturesPageState extends State<AllFeaturesPage> {
               foregroundColor: colors.accent,
               textStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w600),
             ),
-            child: const Text('Edit shortcuts'),
+            child: Text(context.l10n.homeEditShortcuts),
           ),
           const SizedBox(width: 8),
         ],
@@ -66,7 +67,7 @@ class _AllFeaturesPageState extends State<AllFeaturesPage> {
                       Semantics(
                         header: true,
                         child: Text(
-                          'All features',
+                          context.l10n.homeAllFeatures,
                           style: ShiaText.largeTitle.copyWith(
                             color: colors.text,
                           ),
@@ -90,7 +91,7 @@ class _AllFeaturesPageState extends State<AllFeaturesPage> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Already one of your Home shortcuts',
+                                context.l10n.homeAlreadyShortcut,
                                 style: ShiaText.caption.copyWith(
                                   fontSize: 14,
                                   height: 20 / 14,

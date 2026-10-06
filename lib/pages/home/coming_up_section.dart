@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../constants.dart';
+import '../../l10n/l10n.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/islamic_calendar_widget_data.dart';
 import 'home_section.dart';
@@ -28,15 +29,16 @@ class ComingUpEvent {
   final String hijri;
 
   /// "Today", "Tomorrow" or "In 13 days" - "Today" only for today's event.
-  String whenFrom(DateTime now) {
+  String whenFrom(DateTime now, [AppLocalizations? l10n]) {
+    final strings = l10n ?? L10n.current;
     // Counted on UTC dates so a day that holds a clock change, 23 or 25
     // hours long locally, still counts as one.
     final days = DateTime.utc(date.year, date.month, date.day)
         .difference(DateTime.utc(now.year, now.month, now.day))
         .inDays;
-    if (days <= 0) return 'Today';
-    if (days == 1) return 'Tomorrow';
-    return 'In $days days';
+    if (days <= 0) return strings.commonToday;
+    if (days == 1) return strings.commonTomorrow;
+    return strings.homeEventInDays(days);
   }
 }
 
@@ -62,7 +64,8 @@ List<ComingUpEvent> upcomingEvents({
         // what happened too.
         title: (event['kind'] as String).isEmpty
             ? event['title'] as String
-            : '${event['kind']} of ${event['title']}',
+            : L10n.current.homeEventKindOf(
+                event['kind'] as String, event['title'] as String),
         hijri: event['hijri'] as String,
       ),
   ];
@@ -126,9 +129,9 @@ class _ComingUpSectionState extends State<ComingUpSection> {
           children: [
             SizedBox(height: widget.topSpacing),
             HomeSectionHeader(
-              title: 'Coming up',
-              actionLabel: 'Calendar',
-              actionSemanticsLabel: 'Open the calendar',
+              title: context.l10n.homeComingUpTitle,
+              actionLabel: context.l10n.menuCalendar,
+              actionSemanticsLabel: context.l10n.homeOpenCalendar,
               onAction: widget.onOpenCalendar,
             ),
             const SizedBox(height: 10),
@@ -225,7 +228,7 @@ class _EventRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${event.whenFrom(now)} · ${event.hijri}',
+                    '${event.whenFrom(now, context.l10n)} · ${event.hijri}',
                     style: ShiaText.caption.copyWith(color: colors.textMuted),
                   ),
                 ],

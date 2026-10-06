@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../l10n/l10n.dart';
 import '../../theme/shia_colors.dart';
 import '../../widgets/outline_icon.dart';
 import 'home_section.dart';
@@ -32,7 +33,7 @@ class HomeHeader extends StatelessWidget {
               Semantics(
                 header: true,
                 child: Text(
-                  'Assalamu alaykum',
+                  context.l10n.homeGreeting,
                   style: (wide ? ShiaText.greetingWide : ShiaText.greeting)
                       .copyWith(color: colors.text),
                 ),
@@ -44,10 +45,10 @@ class HomeHeader extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Tooltip(
-            message: 'Settings and account',
+            message: context.l10n.homeSettingsAndAccount,
             child: Semantics(
               button: true,
-              label: 'Settings and account',
+              label: context.l10n.homeSettingsAndAccount,
               excludeSemantics: true,
               onTap: onOpenSettings,
               child: Material(

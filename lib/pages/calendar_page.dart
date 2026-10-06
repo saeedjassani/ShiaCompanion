@@ -605,14 +605,14 @@ class _OtherCityLink extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         leading: Icon(Icons.travel_explore, color: colorScheme.primary),
         title: Text(
-          'Another city',
+          context.l10n.cityAnotherCity,
           style: theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
           ),
         ),
         subtitle: Text(
-          'See its prayer times for this date',
+          context.l10n.cityAnotherCitySubtitle,
           style: theme.textTheme.bodySmall?.copyWith(
             color: colorScheme.onSurfaceVariant,
           ),

@@ -178,7 +178,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
 
     return Semantics(
       container: true,
-      label: 'Prayer times',
+      label: context.l10n.prayerTimesTitle,
       child: Material(
         color: colors.prayerCard,
         shape: RoundedRectangleBorder(
@@ -229,7 +229,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                     child: Text(
                       failed
                           ? _location.failureMessage
-                          : 'updated ${_ageLabel(_location.updatedAt!)}',
+                          : context.l10n.prayerUpdatedAgo(
+                              _ageLabel(_location.updatedAt!)),
                       style: ShiaText.caption.copyWith(
                         color: colors.onPrayerCardMuted,
                       ),
@@ -250,7 +251,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                 ),
                 if (askStillInCity)
                   _StillInCityNudge(
-                    city: city ?? 'the city you chose',
+                    city: city ?? context.l10n.prayerTheCityYouChose,
                     onStillThere: _stillInCity,
                     onChangeCity: _changeCityFromNudge,
                   ),
@@ -295,7 +296,7 @@ class _StillInCityNudge extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Still in $city?',
+            context.l10n.prayerStillInCity(city),
             style: ShiaText.secondary.copyWith(
               fontWeight: FontWeight.w600,
               color: colors.onPrayerCard,
@@ -303,7 +304,7 @@ class _StillInCityNudge extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'Your phone is set to a different time zone.',
+            context.l10n.prayerPhoneZoneDiffers,
             style: ShiaText.caption.copyWith(color: colors.onPrayerCardMuted),
           ),
           const SizedBox(height: 10),
@@ -319,7 +320,7 @@ class _StillInCityNudge extends StatelessWidget {
                     shape: const StadiumBorder(),
                     textStyle: buttonText,
                   ),
-                  child: const Text('Change city'),
+                  child: Text(context.l10n.cityChangeCity),
                 ),
               ),
               const SizedBox(width: 8),
@@ -335,7 +336,7 @@ class _StillInCityNudge extends StatelessWidget {
                     shape: const StadiumBorder(),
                     textStyle: buttonText,
                   ),
-                  child: const Text('Yes, still here'),
+                  child: Text(context.l10n.prayerYesStillHere),
                 ),
               ),
             ],
@@ -362,14 +363,17 @@ class _CityButton extends StatelessWidget {
     // there are coordinates, and the geocode that names them can fail or
     // still be running on its own.
     // A refresh only swaps the pin for a spinner; the name stays put.
-    final label = city ?? (refreshing ? context.l10n.prayerLocating : 'Your location');
+    final label = city ??
+        (refreshing
+            ? context.l10n.prayerLocating
+            : context.l10n.prayerYourLocation);
 
     return Tooltip(
-      message: 'Change city',
+      message: context.l10n.cityChangeCity,
       excludeFromSemantics: true,
       child: Semantics(
         button: true,
-        label: '$label. Change city',
+        label: context.l10n.prayerCityButtonSemantics(label),
         excludeSemantics: true,
         onTap: onTap,
         child: Material(
@@ -481,7 +485,7 @@ class _PrayerTimeColumn extends StatelessWidget {
           if (startsNextDay) ...[
             const SizedBox(height: 3),
             Text(
-              'next day',
+              context.l10n.prayerNextDay,
               textAlign: TextAlign.center,
               style: ShiaText.tabLabel.copyWith(
                 fontWeight: FontWeight.w400,
@@ -551,10 +555,10 @@ class _ChooseLocationCard extends StatelessWidget {
     final guess = this.guess;
 
     final useLocationLabel = refreshing
-        ? 'Finding your location…'
+        ? context.l10n.prayerFindingLocation
         : failed
-            ? 'Try again'
-            : 'Use my location';
+            ? context.l10n.commonTryAgain
+            : context.l10n.qiblaUseMyLocation;
     final useLocationIcon = refreshing
         ? SizedBox.square(
             dimension: 16,
@@ -576,13 +580,13 @@ class _ChooseLocationCard extends StatelessWidget {
         color: colors.onPrayerCard,
         strokeWidth: 2,
       ),
-      label: 'Choose city',
+      label: context.l10n.prayerChooseCity,
       onPressed: onChooseCity,
     );
 
     return Semantics(
       container: true,
-      label: 'Prayer times',
+      label: context.l10n.prayerTimesTitle,
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -594,7 +598,7 @@ class _ChooseLocationCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Prayer times',
+              context.l10n.prayerTimesTitle,
               style: ShiaText.caption.copyWith(
                 fontSize: 14,
                 height: 18 / 14,
@@ -603,7 +607,7 @@ class _ChooseLocationCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Which city are you in?',
+              context.l10n.prayerWhichCity,
               style: TextStyle(
                 fontSize: 23,
                 height: 28 / 23,
@@ -615,13 +619,13 @@ class _ChooseLocationCard extends StatelessWidget {
             Text(
               failed
                   ? location.failureMessage
-                  : "We'll show today's prayer times and the next azan.",
+                  : context.l10n.prayerWhichCityBody,
               style: muted,
             ),
             const SizedBox(height: 14),
             if (guess != null) ...[
               Text(
-                "Your phone's time zone suggests ${guess.name}.",
+                context.l10n.prayerZoneSuggests(guess.name),
                 style: ShiaText.caption.copyWith(
                   fontSize: 14,
                   height: 18 / 14,
@@ -630,7 +634,7 @@ class _ChooseLocationCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               _GoldButton(
-                label: "Yes, I'm in ${guess.name}",
+                label: context.l10n.prayerYesImIn(guess.name),
                 onPressed: () => onAcceptGuess(guess),
               ),
               const SizedBox(height: 8),
@@ -639,7 +643,9 @@ class _ChooseLocationCard extends StatelessWidget {
                   Expanded(
                     child: _OutlineCardButton(
                       icon: useLocationIcon,
-                      label: refreshing ? 'Locating…' : useLocationLabel,
+                      label: refreshing
+                          ? context.l10n.prayerLocating
+                          : useLocationLabel,
                       onPressed: onUseLocation,
                     ),
                   ),

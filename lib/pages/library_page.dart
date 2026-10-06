@@ -318,7 +318,7 @@ Future<void> resumeLibraryReading(
   }
   if (chapterIndex < 0 || chapterIndex >= chapters.length) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Saved chapter is no longer available')),
+      SnackBar(content: Text(context.l10n.librarySavedChapterGone)),
     );
     await LibraryProgressStore.instance.remove(progress.bookSlug);
     return;

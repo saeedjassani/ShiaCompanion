@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/l10n/l10n.dart';
 
 /// The Theme setting: Light, Dark or Same as phone.
 ///
@@ -68,9 +69,12 @@ class ThemeModeProvider extends ChangeNotifier {
   }
 
   /// The words the setting shows for [mode].
-  static String label(ThemeMode mode) => switch (mode) {
-        ThemeMode.system => 'Same as phone',
-        ThemeMode.light => 'Light',
-        ThemeMode.dark => 'Dark',
-      };
+  static String label(ThemeMode mode, [AppLocalizations? l10n]) {
+    final s = l10n ?? L10n.current;
+    return switch (mode) {
+      ThemeMode.system => s.themeSameAsPhone,
+      ThemeMode.light => s.themeLight,
+      ThemeMode.dark => s.themeDark,
+    };
+  }
 }
