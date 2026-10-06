@@ -1042,3 +1042,55 @@ class PageButton extends StatelessWidget {
           );
   }
 }
+
+/// The ⋯ at the end of a row or card, 44 px square: opens that row's
+/// options, usually with [showMenuAt].
+class MoreButton extends StatelessWidget {
+  const MoreButton({super.key, required this.label, required this.onPressed});
+
+  /// What it opens the options of: "Options for Fajr".
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      onTap: onPressed,
+      child: InkResponse(
+        onTap: onPressed,
+        radius: 22,
+        child: SizedBox.square(
+          dimension: 44,
+          child: Center(
+            child: OutlineIcon(OutlineGlyph.more,
+                size: 22,
+                color: ShiaColors.of(context).accent,
+                strokeWidth: 2.6),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shows a menu of [items] under the button [anchor] was built in: build the
+/// [MoreButton] in a [Builder] and pass that builder's context.
+Future<T?> showMenuAt<T>(BuildContext anchor, List<PopupMenuEntry<T>> items) {
+  final button = anchor.findRenderObject()! as RenderBox;
+  final overlay =
+      Navigator.of(anchor).overlay!.context.findRenderObject()! as RenderBox;
+  final position = RelativeRect.fromRect(
+    Rect.fromPoints(
+      button.localToGlobal(button.size.bottomLeft(Offset.zero),
+          ancestor: overlay),
+      button.localToGlobal(button.size.bottomRight(Offset.zero),
+          ancestor: overlay),
+    ),
+    Offset.zero & overlay.size,
+  );
+  return showMenu<T>(context: anchor, position: position, items: items);
+}

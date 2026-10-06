@@ -40,6 +40,7 @@ enum OutlineGlyph {
   repeat,
   flame,
   info,
+  alert,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -365,6 +366,19 @@ class _OutlinePainter extends CustomPainter {
         return _circle(12, 12, 8.5)
           ..addPath(_line(12, 11, 12, 16), Offset.zero)
           ..addPath(_line(12, 8, 12.01, 8), Offset.zero);
+      case OutlineGlyph.alert:
+        return Path()
+          ..moveTo(10.3, 4.9)
+          ..arcToPoint(const Offset(13.7, 4.9),
+              radius: const Radius.circular(2))
+          ..lineTo(20.6, 17.1)
+          ..arcToPoint(const Offset(18.9, 20), radius: const Radius.circular(2))
+          ..lineTo(5.1, 20)
+          ..arcToPoint(const Offset(3.4, 17.1),
+              radius: const Radius.circular(2))
+          ..close()
+          ..addPath(_line(12, 9.5, 12, 13.5), Offset.zero)
+          ..addPath(_line(12, 16.5, 12.01, 16.5), Offset.zero);
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)

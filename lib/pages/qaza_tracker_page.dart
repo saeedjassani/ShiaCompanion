@@ -252,7 +252,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                 : null,
           ),
           Builder(
-            builder: (anchor) => _MoreButton(
+            builder: (anchor) => MoreButton(
               label: l10n.qazaMoreFor(type.label),
               onPressed: () => _showRowMenu(anchor, type, count),
             ),
@@ -268,27 +268,12 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
     QazaEntryCount count,
   ) async {
     final l10n = anchor.l10n;
-    final button = anchor.findRenderObject()! as RenderBox;
-    final overlay =
-        Navigator.of(anchor).overlay!.context.findRenderObject()! as RenderBox;
-    final value = await showMenu<String>(
-      context: anchor,
-      position: RelativeRect.fromRect(
-        Rect.fromPoints(
-          button.localToGlobal(button.size.bottomLeft(Offset.zero),
-              ancestor: overlay),
-          button.localToGlobal(button.size.bottomRight(Offset.zero),
-              ancestor: overlay),
-        ),
-        Offset.zero & overlay.size,
-      ),
-      items: [
-        PopupMenuItem(value: 'missed', child: Text(l10n.qazaAddMissedOne)),
-        if (count.completed > 0)
-          PopupMenuItem(value: 'undo', child: Text(l10n.commonUndo)),
-        PopupMenuItem(value: 'edit', child: Text(l10n.qazaEditCount)),
-      ],
-    );
+    final value = await showMenuAt<String>(anchor, [
+      PopupMenuItem(value: 'missed', child: Text(l10n.qazaAddMissedOne)),
+      if (count.completed > 0)
+        PopupMenuItem(value: 'undo', child: Text(l10n.commonUndo)),
+      PopupMenuItem(value: 'edit', child: Text(l10n.qazaEditCount)),
+    ]);
     if (!mounted) return;
     final manager = QazaTrackerManager.instance;
     switch (value) {
@@ -486,38 +471,6 @@ class _DoneButton extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The ⋯ at the end of a row.
-class _MoreButton extends StatelessWidget {
-  const _MoreButton({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      container: true,
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      onTap: onPressed,
-      child: InkResponse(
-        onTap: onPressed,
-        radius: 22,
-        child: SizedBox.square(
-          dimension: 44,
-          child: Center(
-            child: OutlineIcon(OutlineGlyph.more,
-                size: 22,
-                color: ShiaColors.of(context).accent,
-                strokeWidth: 2.6),
           ),
         ),
       ),

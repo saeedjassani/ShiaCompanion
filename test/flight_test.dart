@@ -283,9 +283,9 @@ void main() {
       expect(formatWallClock(DateTime(2026, 7, 30, 19, 55)),
           'Thu 30 Jul, 7:55 pm');
       expect(formatFlightDuration(const Duration(hours: 13, minutes: 10)),
-          '13h 10m');
-      expect(formatFlightDuration(const Duration(minutes: 45)), '45m');
-      expect(formatFlightDuration(const Duration(hours: 2)), '2h');
+          '13 h 10 min');
+      expect(formatFlightDuration(const Duration(minutes: 45)), '45 min');
+      expect(formatFlightDuration(const Duration(hours: 2)), '2 h');
     });
 
     test('formats distances with thousands separators', () {

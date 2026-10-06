@@ -343,42 +343,11 @@
   "commonPrevious": "Previous",
   "commonNext": "Next",
   "commonStop": "Stop",
-  "flightTimesShownAt": "Times shown at {origin} and {destination} local clocks",
-  "@flightTimesShownAt": {
-    "description": "{origin} and {destination} are airport codes.",
-    "placeholders": {
-      "origin": {
-        "type": "String"
-      },
-      "destination": {
-        "type": "String"
-      }
-    }
-  },
-  "flightDurationAndDistance": "{duration} in the air · {distance} great-circle",
-  "@flightDurationAndDistance": {
-    "placeholders": {
-      "duration": {
-        "type": "String"
-      },
-      "distance": {
-        "type": "String"
-      }
-    }
-  },
   "flightAirportTime": "{airport} time",
   "@flightAirportTime": {
     "description": "Column heading: local time at an airport (airport code).",
     "placeholders": {
       "airport": {
-        "type": "String"
-      }
-    }
-  },
-  "flightOverPosition": " · over {position}",
-  "@flightOverPosition": {
-    "placeholders": {
-      "position": {
         "type": "String"
       }
     }
@@ -404,36 +373,6 @@
     "placeholders": {
       "minutes": {
         "type": "int"
-      }
-    }
-  },
-  "flightQiblaToRight": "{degrees}° to your right",
-  "@flightQiblaToRight": {
-    "placeholders": {
-      "degrees": {
-        "type": "int"
-      }
-    }
-  },
-  "flightQiblaToLeft": "{degrees}° to your left",
-  "@flightQiblaToLeft": {
-    "placeholders": {
-      "degrees": {
-        "type": "int"
-      }
-    }
-  },
-  "flightQiblaLine": "Qibla {bearing}° ({compass}) — {relative} relative to the direction of flight",
-  "@flightQiblaLine": {
-    "placeholders": {
-      "bearing": {
-        "type": "int"
-      },
-      "compass": {
-        "type": "String"
-      },
-      "relative": {
-        "type": "String"
       }
     }
   },
@@ -464,14 +403,8 @@
   "flightInTheAir": "In the air",
   "flightNoPrayerDuring": "No prayer comes in during this flight",
   "flightNoPrayerDuringBody": "Every prayer time falls either before take-off or after landing.",
-  "flightNotDuring": "Not during this flight",
-  "flightEndOfIshaWindow": "End of the Isha window · ",
   "flightStraightAhead": "straight ahead",
   "flightDirectlyBehind": "directly behind you",
-  "flightIshaClosedBeforeTakeoff": "The Isha window had already closed before take-off.",
-  "flightAlreadyInBeforeTakeoff": "Already in before take-off — use the prayer times for your departure city.",
-  "flightIshaOpenUntilLanding": "The Isha window does not close until after landing.",
-  "flightAfterLanding": "Comes in after landing — use the prayer times for your destination.",
   "flightSunAngleNeverReached": "The sun never reaches the required angle anywhere along this route, so no time can be calculated.",
   "flightHowWorkedOut": "How these are worked out",
   "flightHowWorkedOutBody": "The aircraft is assumed to follow the great-circle route at a steady speed, and each prayer time is solved for the position the aircraft is at when that time arrives. A delay of an hour moves these times by roughly half an hour, and routing around weather can move them by ten to twenty minutes, so treat them as close rather than exact.",
@@ -1628,21 +1561,6 @@
   "@flightRemoveBody": {
     "placeholders": {
       "flight": {
-        "type": "String"
-      }
-    }
-  },
-  "flightLands": "{duration} · lands {time} {airport} time",
-  "@flightLands": {
-    "description": "{airport} is an airport code.",
-    "placeholders": {
-      "duration": {
-        "type": "String"
-      },
-      "time": {
-        "type": "String"
-      },
-      "airport": {
         "type": "String"
       }
     }
@@ -3455,5 +3373,196 @@
         "type": "String"
       }
     }
-  }
+  },
+  "flightsSubtitle": "When each prayer comes in along your route.",
+  "flightAddAFlight": "Add a flight",
+  "flightsFootnote": "Times are worked out on your phone from the route, so they work in airplane mode.",
+  "flightCities": "{from} to {to}",
+  "@flightCities": {
+    "description": "A flight's route by city: 'London to Jeddah'.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "flightOptionsFor": "Options for {flight}",
+  "@flightOptionsFor": {
+    "description": "Spoken label of the ⋯ button on a saved flight's card, which offers edit and remove.",
+    "placeholders": {
+      "flight": {
+        "type": "String"
+      }
+    }
+  },
+  "flightDepartsOn": "{date} · departs {time}",
+  "@flightDepartsOn": {
+    "description": "'Sat 3 Oct · departs 9:40 pm', in the departure airport's local time.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "flightLandsAt": "{duration} · lands {time} {city} time",
+  "@flightLandsAt": {
+    "description": "'6 h 5 min · lands 5:45 am Jeddah time'.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightPrayersInAir": "{prayers} in the air",
+  "@flightPrayersInAir": {
+    "description": "Pill on a saved flight naming the prayers that come in on board: 'Asr, Maghrib in the air'.",
+    "placeholders": {
+      "prayers": {
+        "type": "String"
+      }
+    }
+  },
+  "flightNoPrayerInAir": "No prayer in the air",
+  "flightDepartsFrom": "Departs {city}",
+  "@flightDepartsFrom": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightArrivesIn": "Arrives {city}",
+  "@flightArrivesIn": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightDateAtAirport": "{date} · {airport} time",
+  "@flightDateAtAirport": {
+    "description": "'Sat 3 Oct · LHR time': the date of a departure or arrival, and whose clock the time above it is on.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "airport": {
+        "type": "String"
+      }
+    }
+  },
+  "flightInAirDistance": "{duration} in the air · {distance}",
+  "@flightInAirDistance": {
+    "description": "'6 h 5 min in the air · 4,740 km'.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "flightOnTheGround": "On the ground",
+  "flightIshaEnds": "Isha time ends",
+  "flightAfterTakeoffOver": "{duration} after take-off, over {position}",
+  "@flightAfterTakeoffOver": {
+    "description": "'2 h 18 min after take-off, over 44.1°N 14.2°E'.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "position": {
+        "type": "String"
+      }
+    }
+  },
+  "flightQiblaShort": "Qibla {bearing}° · {relative}",
+  "@flightQiblaShort": {
+    "description": "'Qibla 100° · about 50° to your left': the bearing from north, then where that is from a seat facing the front of the aircraft.",
+    "placeholders": {
+      "bearing": {
+        "type": "int"
+      },
+      "relative": {
+        "type": "String"
+      }
+    }
+  },
+  "flightAboutToLeft": "about {degrees}° to your left",
+  "@flightAboutToLeft": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "flightAboutToRight": "about {degrees}° to your right",
+  "@flightAboutToRight": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "flightGroundAlreadyIn": "Already in before take-off: use {city} times",
+  "@flightGroundAlreadyIn": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightGroundAfterLanding": "Comes in after landing: use {city} times",
+  "@flightGroundAfterLanding": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightGroundIshaEnded": "Already over before take-off",
+  "flightGroundIshaOpen": "Not until after landing: use {city} times",
+  "@flightGroundIshaOpen": {
+    "description": "Under 'Isha time ends', when the end of Isha's time falls after the flight lands.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "flightDurationHoursMinutes": "{hours} h {minutes} min",
+  "@flightDurationHoursMinutes": {
+    "description": "A flight time: '6 h 5 min'.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "flightDurationHours": "{hours} h",
+  "@flightDurationHours": {
+    "description": "A flight time in whole hours: '7 h'.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "flightsPageTitle": "Prayer times in flight"
 }

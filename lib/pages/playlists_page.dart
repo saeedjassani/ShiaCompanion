@@ -295,23 +295,6 @@ bool _hasRecording(ZikrPlaylist playlist, String uid, ZikrAudioTrack? track) {
 // "Zikr" is its own plural here, the way the rest of the app uses it.
 String _countLabel(int count) => L10n.current.zikrCount(count);
 
-/// Shows a menu of [items] under the button [anchor] was built in.
-Future<T?> _showMenuAt<T>(BuildContext anchor, List<PopupMenuEntry<T>> items) {
-  final button = anchor.findRenderObject()! as RenderBox;
-  final overlay =
-      Navigator.of(anchor).overlay!.context.findRenderObject()! as RenderBox;
-  final position = RelativeRect.fromRect(
-    Rect.fromPoints(
-      button.localToGlobal(button.size.bottomLeft(Offset.zero),
-          ancestor: overlay),
-      button.localToGlobal(button.size.bottomRight(Offset.zero),
-          ancestor: overlay),
-    ),
-    Offset.zero & overlay.size,
-  );
-  return showMenu<T>(context: anchor, position: position, items: items);
-}
-
 /// The 48 px round play / pause button at the start of a playlist's row.
 class _PlayButton extends StatelessWidget {
   const _PlayButton({
@@ -658,7 +641,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     List<ZikrAudioTrack> allTracks,
   ) async {
     final l10n = anchor.l10n;
-    final value = await _showMenuAt<String>(anchor, [
+    final value = await showMenuAt<String>(anchor, [
       PopupMenuItem(value: 'rename', child: Text(l10n.commonRename)),
       if (AudioDownloadStore.instance.anyDownloaded(allTracks))
         PopupMenuItem(
@@ -891,10 +874,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                       : null,
                 ),
       trailing: Builder(
-        builder: (anchor) => _MoreButton(
+        builder: (anchor) => MoreButton(
           label: l10n.playlistMoreFor(title),
           onPressed: () async {
-            final value = await _showMenuAt<String>(anchor, [
+            final value = await showMenuAt<String>(anchor, [
               PopupMenuItem(value: 'open', child: Text(l10n.playlistOpenText)),
               if (available.length > 1)
                 PopupMenuItem(
@@ -942,38 +925,6 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
         ),
       ),
       onTap: () => _startPlaylist(context, playlist, startZikrIndex: index),
-    );
-  }
-}
-
-/// The ⋯ at the end of a playlist row.
-class _MoreButton extends StatelessWidget {
-  const _MoreButton({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      container: true,
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      onTap: onPressed,
-      child: InkResponse(
-        onTap: onPressed,
-        radius: 22,
-        child: SizedBox.square(
-          dimension: 44,
-          child: Center(
-            child: OutlineIcon(OutlineGlyph.more,
-                size: 22,
-                color: ShiaColors.of(context).accent,
-                strokeWidth: 2.6),
-          ),
-        ),
-      ),
     );
   }
 }
