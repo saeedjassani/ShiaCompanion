@@ -116,7 +116,11 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+        <!-- In place of flutter_local_notifications' own
+             ScheduledNotificationBootReceiver, which it wraps: drops prayer
+             notifications missed while the phone was off, so a reboot after
+             days off doesn't fire them all at once. -->
+        <receiver android:name="com.developer110.shiacompanion.StaleNotificationBootReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
