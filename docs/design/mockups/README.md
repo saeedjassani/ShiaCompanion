@@ -39,8 +39,8 @@ behaviour. They only render inside the canvas: `support.js` and the
 | `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing (keyboard up), with results (sources as sections, Library folded), with none; the field at the bottom is the only control | Navigation → Search |
 | `R3-List.dc.html`, `R3-List-group.dc.html` | A zikr list (Duas), and one with a group row (Ziyarats); the find field at the bottom | Lists |
 | `R3-Todays-recitations.dc.html` | Today's Recitations | Lists |
-| `R3-Calendar.dc.html` | Calendar & Prayer Times, the whole page (390 × 1060), on today: month, the day, its event slot, its prayer times | Calendar & Prayer Times |
-| `R3-Calendar-day.dc.html`, `R3-Calendar-dark.dc.html` | The same page with another day picked, light and dark | Calendar & Prayer Times |
+| `R3-Calendar.dc.html` | Calendar & Prayer Times on today: the month as the title, the grid, the day, its prayer times | Calendar & Prayer Times |
+| `R3-Calendar-day.dc.html`, `R3-Calendar-dark.dc.html` | The same page with a day that has an event picked (390 × 900), light and dark | Calendar & Prayer Times |
 | `R3-Times-on-home.dc.html` | The "Times on the Home card" sheet over that page | Calendar & Prayer Times |
 | `W-Calendar.dc.html` | Web (1440 × 900): the month, and the picked day beside it | Calendar & Prayer Times, Responsive |
 | `R3-Azan.dc.html` | Azan (prayer notifications) | Calendar & Prayer Times → Azan |
@@ -65,9 +65,10 @@ The round-3 files (`R3-` and `W-Calendar`) cover every remaining screen
 that was still in the old design. They are drawn in the round-2 shell
 (tokens, round Back button, card lists) and sit on the canvas page
 **Round 3 · Remaining screens**. They are static: no file in this round has
-a behaviour script. The canvas also keeps `R3-Search-results-B`, the
-chips-on-the-field alternative to sections, for comparison; it is not
-part of the agreed set. Two things in them stand in for app parts the canvas has
+a behaviour script. The canvas also keeps two alternatives for comparison,
+not part of the agreed set: `R3-Search-results-B` (search chips sitting on
+the field instead of sections) and `R3-Calendar-B` (a week strip that opens
+into the month, with this month's events listed under the prayer times). Two things in them stand in for app parts the canvas has
 no render of:
 
 - **Sunrise, Sunset and Midnight icons** are outline stand-ins. The app's
