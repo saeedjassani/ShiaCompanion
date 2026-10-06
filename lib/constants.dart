@@ -35,7 +35,15 @@ double screenWidth = 0;
 double screenHeight = 0;
 
 User? user;
-bool isUserAdmin = false;
+
+/// Whether the signed-in user holds the admin claim, as something to listen
+/// to. The claim is read a few seconds into start-up (SessionRefreshService),
+/// after the tab shell is already up, so the shell listens to this to swap
+/// its Quran tab over to the dark-launched Quran screen when the claim lands.
+final ValueNotifier<bool> adminState = ValueNotifier(false);
+
+bool get isUserAdmin => adminState.value;
+set isUserAdmin(bool value) => adminState.value = value;
 
 final String appName = "Shia Companion";
 final Color appColor = Colors.brown;

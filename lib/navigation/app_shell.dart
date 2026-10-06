@@ -81,6 +81,24 @@ class _AppShellState extends State<AppShell> {
 
   List<AppShellTab> get _tabs => widget.tabs ?? _defaultTabs(context.l10n);
 
+  @override
+  void initState() {
+    super.initState();
+    // The admin claim lands after the shell is built; rebuilding then lets
+    // the Quran tab's contentKey swap the surah list for the Quran screen.
+    adminState.addListener(_handleAdminChanged);
+  }
+
+  @override
+  void dispose() {
+    adminState.removeListener(_handleAdminChanged);
+    super.dispose();
+  }
+
+  void _handleAdminChanged() {
+    if (mounted) setState(() {});
+  }
+
   static List<AppShellTab> _defaultTabs(AppLocalizations l10n) {
     final quranItem = quranTabMenuItem;
     return [

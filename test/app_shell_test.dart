@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shia_companion/constants.dart' show isUserAdmin;
 import 'package:shia_companion/navigation/app_shell.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/widgets/glass_surface.dart';
@@ -111,6 +112,43 @@ void main() {
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
     expect(h.selected, isEmpty);
+  });
+
+  testWidgets('rebuilds when the admin claim lands, without a tab tap',
+      (tester) async {
+    addTearDown(() => isUserAdmin = false);
+    isUserAdmin = false;
+    final shown = <String>[];
+    await tester.pumpWidget(MaterialApp(
+      theme: buildAppTheme(Brightness.light),
+      home: AppShell(tabs: [
+        AppShellTab(
+          label: 'Home',
+          icon: (color) => Icon(Icons.circle, color: color),
+          builder: (_) => const Text('Home page'),
+        ),
+        // Reads the flag as it builds, the way the real Quran tab does.
+        AppShellTab(
+          label: 'Quran',
+          icon: (color) => Icon(Icons.circle, color: color),
+          builder: (_) {
+            final page = isUserAdmin ? 'Quran screen' : 'Surah list';
+            shown.add(page);
+            return Text(page);
+          },
+        ),
+      ]),
+    ));
+
+    // Opened before the claim is known, as a quick tap after launch is.
+    await tester.tap(find.text('Quran'));
+    await tester.pumpAndSettle();
+    expect(find.text('Surah list'), findsOneWidget);
+
+    isUserAdmin = true;
+    await tester.pump();
+    expect(find.text('Quran screen'), findsOneWidget);
+    expect(shown.last, 'Quran screen');
   });
 
   testWidgets('the search button opens search', (tester) async {
