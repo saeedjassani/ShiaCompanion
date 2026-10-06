@@ -45,7 +45,7 @@ class QazaTrackerManager extends ChangeNotifier {
   /// Tells this install's operation ids apart from another device's ones
   /// created in the same microsecond.
   final String _deviceNonce =
-      Random().nextInt(1 << 32).toRadixString(36).padLeft(7, '0');
+      Random().nextInt(0x100000000).toRadixString(36).padLeft(7, '0');
 
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   Future<void>? _loadQazaFuture;
