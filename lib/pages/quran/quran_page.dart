@@ -6,15 +6,17 @@ import '../../constants.dart';
 import '../../data/universal_data.dart';
 import '../../models/recitation_tracker_state.dart';
 import '../../services/analytics_service.dart';
-import '../../services/favorites_manager.dart';
 import '../../services/recitation_tracker_manager.dart';
 import '../../services/saved_verses_manager.dart';
 import '../../models/saved_verse.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/quran_text_index.dart';
+import '../../theme/shia_colors.dart';
 import '../../widgets/favorite_icon.dart';
-import '../../widgets/responsive_content.dart';
+import '../../widgets/outline_icon.dart';
+import '../../widgets/page_chrome.dart';
 import '../my_stats_page.dart';
+import 'go_to_verse_sheet.dart';
 import 'listen_and_follow_sheet.dart';
 import 'quran_collections_tab.dart';
 import 'quran_navigation.dart';
@@ -29,6 +31,7 @@ import '../../l10n/l10n.dart';
 class QuranPage extends StatefulWidget {
   const QuranPage({super.key, this.initialTabIndex = 0});
 
+  /// Which list opens: 0 surahs, 1 juz, 2 collections.
   final int initialTabIndex;
 
   @override
@@ -38,6 +41,8 @@ class QuranPage extends StatefulWidget {
 class _QuranPageState extends State<QuranPage> {
   late final List<SurahInfo> _surahs;
   late final List<Juz> _juz;
+  late _QuranView _view;
+  QuranCollection _collection = QuranCollection.readSelected();
   bool _prewarmed = false;
 
   @override
@@ -46,6 +51,8 @@ class _QuranPageState extends State<QuranPage> {
     trackScreen('Quran Page');
     _surahs = allSurahs();
     _juz = allJuz();
+    _view = _QuranView.values[
+        widget.initialTabIndex.clamp(0, _QuranView.values.length - 1)];
     unawaited(RecitationTrackerManager.instance.loadRecitations());
     unawaited(SavedVersesManager.instance.loadSavedVerses());
   }
@@ -87,6 +94,12 @@ class _QuranPageState extends State<QuranPage> {
     await _open(verse, source: ZikrOpenSource.quranListenAndFollow);
   }
 
+  Future<void> _goToVerse() async {
+    final verse = await showGoToVerseSheet(context);
+    if (verse == null || !mounted) return;
+    await _open(verse);
+  }
+
   Future<void> _openJuz(int juz) async {
     await openQuranJuz(context, juz);
   }
@@ -97,97 +110,105 @@ class _QuranPageState extends State<QuranPage> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      initialIndex: widget.initialTabIndex,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(context.l10n.quranTitle),
-          actions: [
-            // The sessions themselves stay here, beside the reading they
-            // record; the stats built from them live on My Stats with the
-            // rest of the reader's stats.
-            IconButton(
-              icon: const Icon(Icons.history_rounded),
-              tooltip: context.l10n.quranRecentSessions,
-              onPressed: () =>
-                  pushPageRoute(context, const RecentRecitationsPage()),
-            ),
-            IconButton(
-              icon: const Icon(Icons.insights_rounded),
-              tooltip: context.l10n.statsTitle,
-              onPressed: () => pushPageRoute(context, const MyStatsPage()),
-            ),
-            // Dark-launched alongside the rest of the Quran reading experience
-            // (see zikr_page.dart's _surahNumber and home_menu.dart), so the
-            // microphone prompt reaches nobody until the matching is known to
-            // be worth the interruption.
-            if (isUserAdmin)
-              IconButton(
-                icon: const Icon(Icons.mic_none),
-                tooltip: context.l10n.listenTitle,
-                onPressed: _listenAndFollow,
-              ),
-          ],
-          bottom: TabBar(
-            // context.l10n.quranTabCollections doesn't fit a third of a phone's width at a
-            // larger text size, so let the labels size to their text.
-            isScrollable: true,
-            tabAlignment: TabAlignment.center,
-            tabs: [
-              Tab(text: context.l10n.quranTabSurahs),
-              Tab(text: context.l10n.quranTabJuz),
-              Tab(text: context.l10n.quranTabCollections),
-            ],
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context);
+
+    return LargeTitlePage(
+      title: context.l10n.quranTitle,
+      actions: [
+        // The sessions themselves stay here, beside the reading they
+        // record; the stats built from them live on My Stats with the rest
+        // of the reader's stats.
+        RoundIconButton(
+          label: context.l10n.quranRecentSessions,
+          icon: OutlineIcon(OutlineGlyph.history,
+              size: 22, color: colors.accent),
+          onPressed: () =>
+              pushPageRoute(context, const RecentRecitationsPage()),
+        ),
+        RoundIconButton(
+          label: context.l10n.statsTitle,
+          icon:
+              OutlineIcon(OutlineGlyph.stats, size: 22, color: colors.accent),
+          onPressed: () => pushPageRoute(context, const MyStatsPage()),
+        ),
+        // Dark-launched alongside the rest of the Quran reading experience
+        // (see zikr_page.dart's _surahNumber and home_menu.dart), so the
+        // microphone prompt reaches nobody until the matching is known to be
+        // worth the interruption.
+        if (isUserAdmin)
+          RoundIconButton(
+            label: context.l10n.listenTitle,
+            icon: Icon(Icons.mic_none, size: 22, color: colors.accent),
+            onPressed: _listenAndFollow,
+          ),
+      ],
+      slivers: [
+        // Runs to the screen's edge, so the cards scroll out from under the
+        // gutter rather than being cut off at it.
+        SliverToBoxAdapter(child: _RecitationTrackCards(gutter: gutter)),
+        SliverPadding(
+          padding: gutter.copyWith(top: 14),
+          sliver: SliverToBoxAdapter(
+            child: _GoToVerseButton(onPressed: _goToVerse),
           ),
         ),
-        body: Column(
-          children: [
-            ResponsiveContent(
-              maxWidth: listContentWidth,
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Column(
-                children: [
-                  const _RecitationLabelCards(),
-                  const SizedBox(height: 8),
-                  _GoToVerseField(onSubmit: _open),
-                ],
-              ),
+        SliverPadding(
+          padding: gutter.copyWith(top: 14, bottom: 14),
+          sliver: SliverToBoxAdapter(
+            child: SegmentedSwitcher<_QuranView>(
+              segments: [
+                Segment(_QuranView.surahs, context.l10n.quranTabSurahs),
+                Segment(_QuranView.juz, context.l10n.quranTabJuz),
+                Segment(
+                    _QuranView.collections, context.l10n.quranTabCollections),
+              ],
+              selected: _view,
+              onChanged: (view) => setState(() => _view = view),
             ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  _SurahList(surahs: _surahs, onOpen: _open),
-                  _JuzList(juz: _juz, onOpenJuz: _openJuz),
-                  // Saved verses sync, so the list follows them - including a
-                  // verse saved on another device.
-                  ListenableBuilder(
-                    listenable: SavedVersesManager.instance,
-                    builder: (context, _) => QuranCollectionsTab(
-                      saved: SavedVersesManager.instance.state.inMushafOrder,
-                      onOpenVerse: _open,
-                      onRemoveSaved: _removeSaved,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        SliverPadding(
+          padding: gutter,
+          sliver: switch (_view) {
+            _QuranView.surahs => _SurahList(surahs: _surahs, onOpen: _open),
+            _QuranView.juz => _JuzList(juz: _juz, onOpenJuz: _openJuz),
+            // Saved verses sync, so the list follows them - including a
+            // verse saved on another device.
+            _QuranView.collections => ListenableBuilder(
+                listenable: SavedVersesManager.instance,
+                builder: (context, _) => QuranCollectionsSliver(
+                  selected: _collection,
+                  onSelect: (collection) {
+                    setState(() => _collection = collection);
+                    collection.remember();
+                  },
+                  saved: SavedVersesManager.instance.state.inMushafOrder,
+                  onOpenVerse: _open,
+                  onRemoveSaved: _removeSaved,
+                ),
+              ),
+          },
+        ),
+      ],
     );
   }
 }
 
-/// One resume card per recitation track, plus the reserved "Unlabeled"
-/// bucket last and a card to start a new track.
+/// The three ways the Quran screen lists the Quran.
+enum _QuranView { surahs, juz, collections }
+
+/// One resume card per recitation track - the default track first, as "My
+/// reading" - and a card to start a new one.
 ///
 /// This is what replaced the old single "Continue reciting" card: instead of
 /// one global place to resume, every track keeps its own, since where you
 /// left off reading with family and where you left off reading alone are not
 /// the same place.
-class _RecitationLabelCards extends StatelessWidget {
-  const _RecitationLabelCards();
+class _RecitationTrackCards extends StatelessWidget {
+  const _RecitationTrackCards({required this.gutter});
+
+  final EdgeInsets gutter;
 
   @override
   Widget build(BuildContext context) {
@@ -195,22 +216,23 @@ class _RecitationLabelCards extends StatelessWidget {
       listenable: RecitationTrackerManager.instance,
       builder: (context, _) {
         final state = RecitationTrackerManager.instance.state;
-        final labels = [...state.labels, unlabeledRecitationLabel];
+        final labels = [unlabeledRecitationLabel, ...state.labels];
 
-        return SizedBox(
-          height: 88,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: labels.length + 1,
-            separatorBuilder: (context, index) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              if (index == labels.length) {
-                return _AddTrackCard(
-                  onTap: () => showRecitationTrackSheet(context),
-                );
-              }
-              return _LabelResumeCard(label: labels[index], state: state);
-            },
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: gutter,
+          // Every card as tall as the tallest, whatever the text size.
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final label in labels) ...[
+                  _TrackCard(label: label, state: state),
+                  const SizedBox(width: 10),
+                ],
+                _AddTrackCard(onTap: () => showRecitationTrackSheet(context)),
+              ],
+            ),
           ),
         );
       },
@@ -218,105 +240,105 @@ class _RecitationLabelCards extends StatelessWidget {
   }
 }
 
-class _LabelResumeCard extends StatelessWidget {
-  const _LabelResumeCard({required this.label, required this.state});
+class _TrackCard extends StatelessWidget {
+  const _TrackCard({required this.label, required this.state});
 
   final String label;
   final RecitationTrackerState state;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isUnlabeled = label == unlabeledRecitationLabel;
+    final colors = ShiaColors.of(context);
+    final isDefault = label == unlabeledRecitationLabel;
     final target = state.resumeTargetFor(label);
     final percent = state.percentCompleteFor(label);
-    final foreground = isUnlabeled
-        ? colorScheme.onSurfaceVariant
-        : colorScheme.onSecondaryContainer;
     final position = describeRecitationPosition(
       target.verse,
       byJuz: target.inJuz,
       compact: true,
     );
-    final subtitle = !target.isStart
-        ? position
-        : target.verse == const VerseKey(1, 1)
+    final progress = percent > 0
+        ? context.l10n
+            .quranPercentRead(percent.toStringAsFixed(percent < 10 ? 1 : 0))
+        : target.isStart
             ? context.l10n.quranStartReading
-            : context.l10n.quranFromPosition(position);
+            : null;
+    final name = isDefault ? context.l10n.quranMyReading : label;
+
+    // The default track is the one most people only ever use, so it is the
+    // dark card; the rest sit on the surface.
+    final fill = isDefault ? colors.prayerCard : colors.surface;
+    final border = isDefault ? colors.prayerCardBorder : colors.line;
+    final labelColor =
+        isDefault ? colors.onPrayerCardMuted : colors.textMuted;
+    final titleColor = isDefault ? colors.onPrayerCard : colors.text;
+    final progressColor = isDefault ? colors.gold : colors.textMuted;
 
     return SizedBox(
-      width: 168,
-      child: Card(
-        margin: EdgeInsets.zero,
-        color: isUnlabeled
-            ? colorScheme.surfaceContainerLow
-            : colorScheme.secondaryContainer,
+      width: 200,
+      child: Material(
+        color: fill,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(color: border),
+        ),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
           onTap: () => _resume(context),
-          onLongPress: isUnlabeled
-              ? null
-              : () => showRecitationTrackSheet(context, label: label),
           child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 4, 12),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      isUnlabeled
-                          ? Icons.menu_book_outlined
-                          : Icons.play_circle_outline,
-                      size: 18,
-                      color: foreground,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        label,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: foreground,
+                        style: ShiaText.caption
+                            .copyWith(fontSize: 13, color: labelColor),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        position,
+                        style: ShiaText.cardTitle.copyWith(color: titleColor),
+                      ),
+                      if (progress != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          progress,
+                          style:
+                              ShiaText.caption.copyWith(color: progressColor),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (!isDefault)
+                  Tooltip(
+                    message: context.l10n.quranEditTrack(label),
+                    excludeFromSemantics: true,
+                    child: Semantics(
+                      button: true,
+                      label: context.l10n.quranEditTrack(label),
+                      excludeSemantics: true,
+                      onTap: () =>
+                          showRecitationTrackSheet(context, label: label),
+                      child: InkResponse(
+                        onTap: () =>
+                            showRecitationTrackSheet(context, label: label),
+                        radius: 20,
+                        child: SizedBox.square(
+                          dimension: 40,
+                          child: Icon(Icons.more_horiz,
+                              size: 20, color: labelColor),
                         ),
                       ),
                     ),
-                    if (!isUnlabeled)
-                      InkResponse(
-                        onTap: () =>
-                            showRecitationTrackSheet(context, label: label),
-                        radius: 18,
-                        child: Semantics(
-                          label: context.l10n.quranEditTrack(label),
-                          button: true,
-                          child: Icon(
-                            Icons.more_horiz,
-                            size: 18,
-                            color: foreground,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: foreground.withValues(alpha: 0.85)),
-                ),
-                Text(
-                  percent <= 0
-                      ? ' '
-                      : context.l10n.quranPercentRead(
-                          percent.toStringAsFixed(percent < 10 ? 1 : 0)),
-                  style: theme.textTheme.labelSmall
-                      ?.copyWith(color: foreground.withValues(alpha: 0.7)),
-                ),
+                  ),
               ],
             ),
           ),
@@ -353,27 +375,34 @@ class _AddTrackCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colors = ShiaColors.of(context);
 
     return SizedBox(
-      width: 96,
-      child: Card(
-        margin: EdgeInsets.zero,
-        color: colorScheme.surfaceContainerLow,
+      width: 120,
+      child: Material(
+        color: colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(color: colors.line),
+        ),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
           onTap: onTap,
-          child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add_rounded, color: colorScheme.primary),
+                OutlineIcon(OutlineGlyph.plus,
+                    size: 22, color: colors.accent, strokeWidth: 2),
                 const SizedBox(height: 4),
                 Text(
                   context.l10n.quranNewTrack,
-                  style: theme.textTheme.labelSmall
-                      ?.copyWith(color: colorScheme.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                  style: ShiaText.caption.copyWith(
+                    color: colors.accent,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -384,61 +413,28 @@ class _AddTrackCard extends StatelessWidget {
   }
 }
 
-/// Jump straight to a verse by typing it, in whatever form comes to hand -
-/// `23:56`, `23/56` or just `23`.
-class _GoToVerseField extends StatefulWidget {
-  const _GoToVerseField({required this.onSubmit});
+/// Opens [showGoToVerseSheet].
+class _GoToVerseButton extends StatelessWidget {
+  const _GoToVerseButton({required this.onPressed});
 
-  final void Function(VerseKey verse) onSubmit;
-
-  @override
-  State<_GoToVerseField> createState() => _GoToVerseFieldState();
-}
-
-class _GoToVerseFieldState extends State<_GoToVerseField> {
-  final TextEditingController _controller = TextEditingController();
-  String? _error;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    final verse = VerseKey.tryParse(_controller.text);
-    if (verse == null) {
-      setState(() => _error = context.l10n.quranGoToVerseError);
-      return;
-    }
-
-    setState(() => _error = null);
-    _controller.clear();
-    FocusScope.of(context).unfocus();
-    widget.onSubmit(verse);
-  }
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: TextField(
-        controller: _controller,
-        keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.go,
-        onSubmitted: (_) => _submit(),
-        decoration: InputDecoration(
-          isDense: true,
-          prefixIcon: const Icon(Icons.search),
-          hintText: context.l10n.quranGoToVerseHint,
-          errorText: _error,
-          border: const OutlineInputBorder(),
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.arrow_forward),
-            tooltip: context.l10n.quranGo,
-            onPressed: _submit,
-          ),
-        ),
+    final colors = ShiaColors.of(context);
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: OutlineIcon(OutlineGlyph.search,
+          size: 20, color: colors.accent, strokeWidth: 2),
+      label: Text(context.l10n.goToVerseTitle),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(50),
+        backgroundColor: colors.surface,
+        foregroundColor: colors.accent,
+        side: BorderSide(color: colors.accent),
+        shape: const StadiumBorder(),
+        textStyle: buttonTextStyle(context, ShiaText.body)
+            .copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -452,69 +448,41 @@ class _SurahList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    return SliverCardList(
+      itemCount: surahs.length,
+      itemBuilder: (context, index) {
+        final surah = surahs[index];
+        // The same UniversalData shape the category lists build, so
+        // favouriting a surah here is the same favourite as anywhere else.
+        final itemData = UniversalData(
+          surah.uid,
+          items[surah.uid]?.toString() ?? surah.fullTitle,
+          0,
+        );
 
-    return ResponsiveContent(
-      maxWidth: listContentWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.separated(
-        // Clears the floating tab bar when this is a tab's root, and the
-        // system's bottom inset otherwise.
-        padding: EdgeInsets.only(
-            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemCount: surahs.length,
-        itemBuilder: (context, index) {
-          final surah = surahs[index];
-          // The same UniversalData shape the category lists build, so
-          // favouriting a surah here is the same favourite as anywhere else.
-          final itemData = UniversalData(
-            surah.uid,
-            items[surah.uid]?.toString() ?? surah.fullTitle,
-            0,
-          );
-
-          return ListTile(
-            leading: SizedBox(
-              width: 32,
-              child: Text(
-                '${surah.number}',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.primary,
+        return CardListRow(
+          first: index == 0,
+          last: index == surahs.length - 1,
+          minHeight: 60,
+          leading: NumberWell(surah.number),
+          title: Text(surah.englishName),
+          subtitle: Text(context.l10n.quranVerseCount(surah.ayahCount)),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (surah.arabicName.isNotEmpty)
+                // Capped, so a long name can never push the heart off.
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                      maxWidth: MediaQuery.sizeOf(context).width * 0.4),
+                  child: SurahArabicName(surah.arabicName),
                 ),
-              ),
-            ),
-            // The Arabic name shares the title row rather than sitting in
-            // `trailing`: some are long enough to consume the whole tile
-            // width there, which ListTile treats as a layout error.
-            title: Row(
-              children: [
-                Expanded(child: Text(surah.englishName)),
-                if (surah.arabicName.isNotEmpty)
-                  Flexible(
-                    child: Text(
-                      surah.arabicName,
-                      textAlign: TextAlign.end,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: arabicFont,
-                        fontFamilyFallback: const ['Qalam'],
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            subtitle: Text(context.l10n.quranAyahCount(surah.ayahCount)),
-            trailing: InkWell(
-              onTap: () => FavoritesManager.instance.toggleFavorite(itemData),
-              child: FavoriteIcon(favorite: itemData),
-            ),
-            onTap: () => onOpen(VerseKey(surah.number)),
-          );
-        },
-      ),
+              FavoriteHeartButton(favorite: itemData),
+            ],
+          ),
+          onTap: () => onOpen(VerseKey(surah.number)),
+        );
+      },
     );
   }
 }
@@ -527,46 +495,28 @@ class _JuzList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return ResponsiveContent(
-      maxWidth: listContentWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.separated(
-        // Clears the floating tab bar when this is a tab's root, and the
-        // system's bottom inset otherwise.
-        padding: EdgeInsets.only(
-            top: 8, bottom: 8 + MediaQuery.paddingOf(context).bottom),
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemCount: juz.length,
-        itemBuilder: (context, index) {
-          final part = juz[index];
-          return ListTile(
-            leading: SizedBox(
-              width: 32,
-              child: Text(
-                '${part.number}',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ),
-            title: Text(context.l10n.quranJuzNumber(part.number)),
-            subtitle: Text(
-              '${_verseLabel(part.start)} → ${_verseLabel(part.end)}',
-            ),
-            onTap: () => onOpenJuz(part.number),
-          );
-        },
-      ),
+    return SliverCardList(
+      itemCount: juz.length,
+      itemBuilder: (context, index) {
+        final part = juz[index];
+        return CardListRow(
+          first: index == 0,
+          last: index == juz.length - 1,
+          minHeight: 60,
+          leading: NumberWell(part.number),
+          title: Text(context.l10n.quranJuzNumber(part.number)),
+          subtitle: Text(
+            '${_verseLabel(part.start)} → ${_verseLabel(part.end)}',
+          ),
+          onTap: () => onOpenJuz(part.number),
+        );
+      },
     );
   }
 
   String _verseLabel(VerseKey verse) {
-    final name =
-        surahInfoFor(verse.surah)?.englishName ??
-            L10n.current.quranSurahNumber(verse.surah);
+    final name = surahInfoFor(verse.surah)?.englishName ??
+        L10n.current.quranSurahNumber(verse.surah);
     return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
   }
 }

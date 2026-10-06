@@ -1485,9 +1485,6 @@
   "quranTabCollections": "Collections",
   "quranStartReading": "Start reading",
   "quranNewTrack": "New track",
-  "quranGoToVerseError": "Try something like 23:56",
-  "quranGoToVerseHint": "Go to verse, e.g. 23:56",
-  "quranGo": "Go",
   "statsMetricVerses": "Verses",
   "statsMetricZikrs": "Zikrs",
   "statsMetricQaza": "Qaza",
@@ -2084,7 +2081,6 @@
     }
   },
   "favoritesReorderFailed": "Could not save the new order. Try again.",
-  "favoritesNone": "No favorites yet.",
   "linkNotFoundRequested": "Requested link: {link}",
   "@linkNotFoundRequested": {
     "placeholders": {
@@ -2590,6 +2586,112 @@
   "@prayerYesImIn": {
     "placeholders": {
       "city": {
+        "type": "String"
+      }
+    }
+  },
+  "goToVerseTitle": "Go to a verse",
+  "goToVerseStepSurah": "Step 1 of 2 · Choose a surah",
+  "goToVerseStepVerse": "Step 2 of 2 · Choose a verse (1 to {count})",
+  "@goToVerseStepVerse": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "goToVerseSurahHint": "Surah name or number",
+  "goToVerseQuickPicks": "Quick picks",
+  "goToVerseBackToSurahs": "Back to surahs",
+  "goToVerseStartOfSurah": "Start of surah (verse 1)",
+  "goToVerseOpen": "Open {surah} {reference}",
+  "@goToVerseOpen": {
+    "description": "The picker's button, e.g. 'Open Al-Baqarah 2:255'.",
+    "placeholders": {
+      "surah": {
+        "type": "String"
+      },
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "goToVerseJump": "Go to {surah} {reference}",
+  "@goToVerseJump": {
+    "description": "Offered when a whole verse reference is typed, e.g. 'Go to Al-Baqarah 2:255'.",
+    "placeholders": {
+      "surah": {
+        "type": "String"
+      },
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "goToVerseNoSurah": "No surah called “{query}”",
+  "@goToVerseNoSurah": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "goToVerseVerseLabel": "Verse {verse}",
+  "@goToVerseVerseLabel": {
+    "placeholders": {
+      "verse": {
+        "type": "int"
+      }
+    }
+  },
+  "goToVerseRange": "Verses {from} to {to}",
+  "@goToVerseRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "quranVerseCount": "{count, plural, =1{1 verse} other{{count} verses}}",
+  "@quranVerseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quranMyReading": "My reading",
+  "@quranMyReading": {
+    "description": "The default Quran reading track's card on the Quran screen."
+  },
+  "favoriteToggleLabel": "Favorite {title}",
+  "@favoriteToggleLabel": {
+    "description": "Screen-reader label of a heart button; read with its on/off state.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "commonEdit": "Edit",
+  "favoritesEdit": "Edit favorites",
+  "@favoritesEdit": {
+    "description": "Screen-reader label of Favorites' Edit button."
+  },
+  "favoritesTabZikr": "Duas & more",
+  "@favoritesTabZikr": {
+    "description": "Favorites' first list: duas, ziyarats, surahs and the rest of the zikr."
+  },
+  "favoritesTabVerses": "Quran verses",
+  "favoritesNoneTitle": "No favorites yet",
+  "favoritesNoneBody": "Tap the heart beside any dua, ziyarat or surah to keep it here.",
+  "favoritesRemove": "Remove {title} from favorites",
+  "@favoritesRemove": {
+    "placeholders": {
+      "title": {
         "type": "String"
       }
     }
