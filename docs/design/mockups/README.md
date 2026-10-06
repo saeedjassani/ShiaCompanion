@@ -39,11 +39,7 @@ behaviour. They only render inside the canvas: `support.js` and the
 | `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing (keyboard up), with results (sources as sections, Library folded), with none; the field at the bottom is the only control | Navigation → Search |
 | `R3-List.dc.html`, `R3-List-group.dc.html` | A zikr list (Duas), and one with a group row (Ziyarats); the find field at the bottom | Lists |
 | `R3-Todays-recitations.dc.html` | Today's Recitations | Lists |
-| `R3-Calendar.dc.html` | Calendar & Prayer Times on today: the month as the title, the grid, the day, its prayer times | Calendar & Prayer Times |
-| `R3-Calendar-day.dc.html`, `R3-Calendar-dark.dc.html` | The same page with a day that has an event picked (390 × 900), light and dark | Calendar & Prayer Times |
-| `R3-Times-on-home.dc.html` | The "Times on the Home card" sheet over that page | Calendar & Prayer Times |
-| `W-Calendar.dc.html` | Web (1440 × 900): the month, and the picked day beside it | Calendar & Prayer Times, Responsive |
-| `R3-Azan.dc.html` | Azan (prayer notifications) | Calendar & Prayer Times → Azan |
+| `R3-Azan.dc.html` | Azan (prayer notifications) | Azan |
 | `R3-Library.dc.html`, `R3-Library-book.dc.html` | Library, and one book's chapters | Library |
 | `R3-Qibla.dc.html` | Qibla | Tools |
 | `R3-Qaza.dc.html` | Qaza tracker | Tools |
@@ -61,15 +57,15 @@ field, a "Today" heading and the old grid around the part that matters, and
 `Nudge-C` shows Favorites as a plain page rather than the tab. The `R2-`
 files and the spec are authoritative for everything around them.
 
-The round-3 files (`R3-` and `W-Calendar`) cover every remaining screen
-that was still in the old design. They are drawn in the round-2 shell
-(tokens, round Back button, card lists) and sit on the canvas page
-**Round 3 · Remaining screens**. They are static: no file in this round has
-a behaviour script. The canvas also keeps two alternatives for comparison,
-not part of the agreed set: `R3-Search-results-B` (search chips sitting on
-the field instead of sections) and `R3-Calendar-B` (a week strip that opens
-into the month, with this month's events listed under the prayer times). Two things in them stand in for app parts the canvas has
-no render of:
+The round-3 files (`R3-`) cover every remaining screen that was still in
+the old design, except Calendar & Prayer Times, which is still being
+designed on the canvas and comes in its own PR. They are drawn in the
+round-2 shell (tokens, round Back button, card lists), sit on the canvas
+page **Round 3 · Remaining screens**, and are static: no file in this round
+has a behaviour script. The canvas also keeps `R3-Search-results-B`, search
+chips sitting on the field instead of sections, for comparison; it is not
+part of the agreed set. Two things in them stand in for app parts the
+canvas has no render of:
 
 - **Sunrise, Sunset and Midnight icons** are outline stand-ins. The app's
   `PrayerGlyph` already paints all three; use it, as for the five prayers.
