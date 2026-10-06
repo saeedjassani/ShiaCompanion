@@ -8,6 +8,7 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_fa.dart';
+import 'app_localizations_gu.dart';
 import 'app_localizations_ur.dart';
 
 // ignore_for_file: type=lint
@@ -99,6 +100,7 @@ abstract class AppLocalizations {
     Locale('ar'),
     Locale('en'),
     Locale('fa'),
+    Locale('gu'),
     Locale('ur')
   ];
 
@@ -5347,7 +5349,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['ar', 'en', 'fa', 'ur'].contains(locale.languageCode);
+      <String>['ar', 'en', 'fa', 'gu', 'ur'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -5362,6 +5364,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'fa':
       return AppLocalizationsFa();
+    case 'gu':
+      return AppLocalizationsGu();
     case 'ur':
       return AppLocalizationsUr();
   }
