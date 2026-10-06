@@ -1036,24 +1036,6 @@
   "deleteAccountButton": "Delete my account",
   "deleteAccountSignOut": "Sign out",
   "deleteAccountHelp": "Need help? Email developer110@hotmail.com and include the email address tied to your account.",
-  "statsBestStreak": "{days, plural, =1{Best: 1 day} other{Best: {days} days}}",
-  "@statsBestStreak": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "statsTodayDone": "Today: done",
-  "statsTodayNotYet": "Today: not yet",
-  "statsDaysToGoal": "{remaining, plural, =1{1 more day to a {goal}-day streak} other{{remaining} more days to a {goal}-day streak}}",
-  "@statsDaysToGoal": {
-    "placeholders": {
-      "remaining": {
-        "type": "int"
-      }
-    }
-  },
   "statsUpdatedHoursAgo": "{hours, plural, =1{Updated 1 hour ago} other{Updated {hours} hours ago}}",
   "@statsUpdatedHoursAgo": {
     "placeholders": {
@@ -1091,12 +1073,10 @@
   "statsStreakStart": "Finish reading a dua, ziyarat or surah and your streak begins.",
   "statsWelcomeBack": "Welcome back - every day is a fresh start.",
   "statsDoneTodayFirst": "Done for today. Come back tomorrow to start a streak.",
-  "statsDoneToday": "Done for today - see you tomorrow, in sha Allah.",
   "statsReadToday": "Read something today to keep it going.",
-  "statsDayStreak": "day streak",
   "statsToday": "Today",
   "statsPrivateSynced": "Your stats are private and sync across devices signed in to your account.",
-  "statsPrivateLocal": "Your stats are private and kept on this device. Sign in from Preferences to keep them across devices.",
+  "statsPrivateLocal": "Your stats are private and kept on this device. Sign in from Settings to keep them across devices.",
   "statsUpdatedWithinHour": "Updated within the hour",
   "statsAcrossCommunity": "Across the community",
   "statsRecitedThisWeek": "duas, ziyarats and surahs recited this week",
@@ -1521,41 +1501,6 @@
     }
   },
   "statsHistory": "History",
-  "statsBestMonth": "Best month: {month} · {count}",
-  "@statsBestMonth": {
-    "placeholders": {
-      "month": {
-        "type": "String"
-      },
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "statsBestDay": "Best day: {day} · {count} · {average} a day on average",
-  "@statsBestDay": {
-    "description": "{average} is a formatted number.",
-    "placeholders": {
-      "day": {
-        "type": "String"
-      },
-      "count": {
-        "type": "String"
-      },
-      "average": {
-        "type": "String"
-      }
-    }
-  },
-  "statsNew": "New",
-  "statsVersusBefore": "vs {count} before",
-  "@statsVersusBefore": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
   "statsSessionCount": "{count, plural, =1{{formatted} session} other{{formatted} sessions}}",
   "@statsSessionCount": {
     "placeholders": {
@@ -2062,22 +2007,6 @@
   "actionSettings": "Settings",
   "actionCounter": "Counter",
   "prayerEnableLocationBody": "Enable location to display accurate prayer times for your area.",
-  "statsDayRead": "{day}: read",
-  "@statsDayRead": {
-    "placeholders": {
-      "day": {
-        "type": "String"
-      }
-    }
-  },
-  "statsDayNotRead": "{day}: not read",
-  "@statsDayNotRead": {
-    "placeholders": {
-      "day": {
-        "type": "String"
-      }
-    }
-  },
   "qiblaDistance": "Distance",
   "qiblaDirection": "Direction",
   "qiblaYouFace": "You face",
@@ -3326,5 +3255,85 @@
       }
     }
   },
-  "downloadsRemoveAllButton": "Remove all downloads"
+  "downloadsRemoveAllButton": "Remove all downloads",
+  "statsStreakDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@statsStreakDays": {
+    "description": "The streak, in large type: how many days in a row.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsStreakInARow": "in a row",
+  "statsStreakInARowBest": "in a row · your best is {best}",
+  "@statsStreakInARowBest": {
+    "placeholders": {
+      "best": {
+        "type": "int"
+      }
+    }
+  },
+  "statsDoneTodayLabel": "Done for today",
+  "statsDoneTodayLine": "{done} - see you tomorrow, in sha Allah.",
+  "@statsDoneTodayLine": {
+    "description": "{done} is statsDoneTodayLabel, shown in bold.",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      }
+    }
+  },
+  "statsBestDayShort": "Best day: {day}",
+  "@statsBestDayShort": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "statsBestMonthShort": "Best month: {month}",
+  "@statsBestMonthShort": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTotalCaption": "{total} {caption}",
+  "@statsTotalCaption": {
+    "description": "How much in the chart's window: '25 zikrs in the last 7 days'. {caption} is statsCaptionWeek, statsCaptionMonth or statsCaptionAllTime.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "caption": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTimes": "{count, plural, =1{once} other{{formatted} times}}",
+  "@statsTimes": {
+    "description": "How often a zikr was recited: '41 times'.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "statsHistoryChart": "{metric} each day: {values}",
+  "@statsHistoryChart": {
+    "description": "Screen-reader label of the history chart. {values} lists each bar: 'Sunday 3, Monday 2'.",
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      },
+      "values": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/activity_stats.dart';
+import '../../theme/shia_colors.dart';
+import '../../widgets/page_chrome.dart';
 import 'stats_widgets.dart';
 import '../../l10n/l10n.dart';
 
@@ -62,9 +63,11 @@ DateTime _day(DateTime now, int offset) =>
 /// One bar: the day or month it covers, and its total.
 typedef _Bar = ({DateTime start, int value});
 
-/// A metric over a chosen window, with what turns a chart into
-/// encouragement: the week or month against the one before it, the best day
-/// or month in it, and - under All time - the lifetime total.
+/// A metric over a chosen window (docs/DESIGN_SPEC.md, "My Stats"; mockup
+/// `R3-My-stats`): Zikrs / Verses / Qaza as pills, one bar per day (per
+/// month under All time) with its value on top and today in the accent,
+/// the window as a segmented switcher, and the best day and the total in
+/// words.
 class StatsHistoryCard extends StatefulWidget {
   const StatsHistoryCard({super.key, required this.summary});
 
@@ -76,8 +79,9 @@ class StatsHistoryCard extends StatefulWidget {
 
 class _StatsHistoryCardState extends State<StatsHistoryCard> {
   static final NumberFormat _count = NumberFormat.decimalPattern();
+  static final NumberFormat _compact = NumberFormat.compact();
 
-  StatsMetric _metric = StatsMetric.verses;
+  StatsMetric _metric = StatsMetric.zikrs;
   StatsPeriod _period = StatsPeriod.week;
 
   int _valueOn(DateTime day) {
@@ -95,8 +99,8 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
         StatsMetric.qaza => widget.summary.totalQaza,
       };
 
-  List<_Bar> _dailyBars(DateTime now, int days, {int offset = 0}) => [
-        for (var i = days - 1 + offset; i >= offset; i--)
+  List<_Bar> _dailyBars(DateTime now, int days) => [
+        for (var i = days - 1; i >= 0; i--)
           (start: _day(now, -i), value: _valueOn(_day(now, -i))),
       ];
 
@@ -119,8 +123,8 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
     final now = DateTime.now();
     final isAllTime = _period == StatsPeriod.allTime;
     final days = _period == StatsPeriod.week ? 7 : 30;
@@ -129,248 +133,210 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
     final values = [for (final bar in bars) bar.value];
     final periodTotal = values.fold<int>(0, (sum, v) => sum + v);
     final total = isAllTime ? _lifetimeTotal : periodTotal;
-    final previousTotal = isAllTime
-        ? 0
-        : _dailyBars(now, days, offset: days)
-            .fold<int>(0, (sum, bar) => sum + bar.value);
     final best = values.fold<int>(0, math.max);
     final bestIndex = best == 0 ? -1 : values.lastIndexOf(best);
-    final maxY = best == 0 ? 1.0 : best * 1.2;
-    final narrowBars = _period == StatsPeriod.month;
 
-    String barLabel(DateTime start) => switch (_period) {
-          StatsPeriod.week => DateFormat('E').format(start).substring(0, 1),
+    String barLabel(DateTime start, bool last) => switch (_period) {
+          StatsPeriod.week =>
+            last ? l10n.statsToday : DateFormat('EEE').format(start),
           StatsPeriod.month => DateFormat('d').format(start),
           StatsPeriod.allTime =>
             DateFormat('MMM').format(start).substring(0, 1),
         };
-    String barName(DateTime start) => isAllTime
-        ? DateFormat('MMMM y').format(start)
-        : DateFormat('EEE, MMM d').format(start);
+    String barName(DateTime start) => switch (_period) {
+          StatsPeriod.week => DateFormat('EEEE').format(start),
+          StatsPeriod.month => DateFormat('EEE d MMM').format(start),
+          StatsPeriod.allTime => DateFormat('MMMM y').format(start),
+        };
 
     final caption = switch (_period) {
-      StatsPeriod.week => context.l10n.statsCaptionWeek(_metric.plural),
-      StatsPeriod.month => context.l10n.statsCaptionMonth(_metric.plural),
-      StatsPeriod.allTime => context.l10n.statsCaptionAllTime(_metric.plural),
+      StatsPeriod.week => l10n.statsCaptionWeek(_metric.plural),
+      StatsPeriod.month => l10n.statsCaptionMonth(_metric.plural),
+      StatsPeriod.allTime => l10n.statsCaptionAllTime(_metric.plural),
     };
 
     return StatsCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          StatsSectionTitle(context.l10n.statsHistory),
-          const SizedBox(height: 10),
-          SegmentedButton<StatsPeriod>(
-            showSelectedIcon: false,
-            style: const ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            segments: [
-              for (final period in StatsPeriod.values)
-                ButtonSegment(value: period, label: Text(period.label)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: StatsSectionTitle(l10n.statsHistory)),
+              if (bestIndex >= 0)
+                Flexible(
+                  child: Text(
+                    isAllTime
+                        ? l10n.statsBestMonthShort(
+                            DateFormat('MMMM').format(bars[bestIndex].start))
+                        : l10n
+                            .statsBestDayShort(barName(bars[bestIndex].start)),
+                    textAlign: TextAlign.end,
+                    style: ShiaText.caption.copyWith(color: colors.textMuted),
+                  ),
+                ),
             ],
-            selected: {_period},
-            onSelectionChanged: (value) =>
-                setState(() => _period = value.first),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final metric in StatsMetric.values)
-                ChoiceChip(
-                  showCheckmark: false,
-                  label: Text(metric.label),
+              for (final metric in const [
+                StatsMetric.zikrs,
+                StatsMetric.verses,
+                StatsMetric.qaza,
+              ])
+                ChoicePill(
+                  label: metric.label,
                   selected: metric == _metric,
-                  onSelected: (_) => setState(() => _metric = metric),
+                  onTap: () => setState(() => _metric = metric),
                 ),
             ],
           ),
-          const SizedBox(height: 14),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _count.format(total),
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      caption,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (!isAllTime)
-                _TrendBadge(current: periodTotal, previous: previousTotal),
+          const SizedBox(height: 12),
+          Semantics(
+            label: l10n.statsHistoryChart(
+              _metric.label,
+              [
+                for (final bar in bars)
+                  '${barName(bar.start)} ${_count.format(bar.value)}',
+              ].join(l10n.listSeparator),
+            ),
+            excludeSemantics: true,
+            child: _HistoryBars(
+              values: values,
+              labels: [
+                for (var i = 0; i < bars.length; i++)
+                  // A month of labels would overlap: every fifth day,
+                  // counted back from today so today is always named.
+                  _period == StatsPeriod.month && (bars.length - 1 - i) % 5 != 0
+                      ? ''
+                      : barLabel(bars[i].start, i == bars.length - 1),
+              ],
+              // Thirty values would overlap too.
+              showValues: _period != StatsPeriod.month,
+              format: (value) =>
+                  value < 1000 ? _count.format(value) : _compact.format(value),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.statsTotalCaption(_count.format(total), caption),
+            style: ShiaText.caption.copyWith(color: colors.textMuted),
+          ),
+          const SizedBox(height: 12),
+          SegmentedSwitcher<StatsPeriod>(
+            segments: [
+              for (final period in StatsPeriod.values)
+                Segment(period, period.label),
             ],
+            selected: _period,
+            onChanged: (period) => setState(() => _period = period),
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 160,
-            child: BarChart(
-              BarChartData(
-                maxY: maxY,
-                alignment: BarChartAlignment.spaceAround,
-                borderData: FlBorderData(show: false),
-                gridData: FlGridData(
-                  drawVerticalLine: false,
-                  horizontalInterval: maxY / 4,
-                  getDrawingHorizontalLine: (_) => FlLine(
-                    color: colorScheme.outlineVariant.withValues(alpha: 0.4),
-                    strokeWidth: 1,
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(),
-                  rightTitles: const AxisTitles(),
-                  leftTitles: const AxisTitles(),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 22,
-                      getTitlesWidget: (value, meta) {
-                        final index = value.round();
-                        if (index < 0 || index >= bars.length) {
-                          return const SizedBox.shrink();
-                        }
-                        // A month of labels would overlap: every fifth day,
-                        // counted back from today so today is always named.
-                        final fromEnd = bars.length - 1 - index;
-                        if (narrowBars && fromEnd % 5 != 0) {
-                          return const SizedBox.shrink();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            barLabel(bars[index].start),
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                              fontWeight: fromEnd == 0 ? FontWeight.w800 : null,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                barTouchData: BarTouchData(
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => colorScheme.inverseSurface,
-                    getTooltipItem: (group, groupIndex, rod, rodIndex) =>
-                        BarTooltipItem(
-                      '${barName(bars[group.x].start)}\n'
-                      '${_metric.count(rod.toY.round(), _count)}',
-                      TextStyle(
-                        color: colorScheme.onInverseSurface,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ),
-                barGroups: [
-                  for (var i = 0; i < values.length; i++)
-                    BarChartGroupData(
-                      x: i,
-                      barRods: [
-                        BarChartRodData(
-                          toY: values[i].toDouble(),
-                          width: narrowBars ? 6 : (isAllTime ? 14 : 22),
-                          color: i == bestIndex
-                              ? colorScheme.primary
-                              : colorScheme.primary.withValues(alpha: 0.55),
-                          borderRadius:
-                              BorderRadius.circular(narrowBars ? 2 : 5),
-                          backDrawRodData: BackgroundBarChartRodData(
-                            show: true,
-                            toY: maxY,
-                            color:
-                                colorScheme.onSurface.withValues(alpha: 0.04),
-                          ),
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-            ),
-          ),
-          if (best > 0) ...[
-            const SizedBox(height: 10),
-            Text(
-              isAllTime
-                  ? context.l10n.statsBestMonth(
-                      barName(bars[bestIndex].start), _metric.count(best, _count))
-                  : context.l10n.statsBestDay(
-                      barName(bars[bestIndex].start),
-                      _metric.count(best, _count),
-                      (periodTotal / days)
-                          .toStringAsFixed(periodTotal / days < 10 ? 1 : 0)),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 }
 
-/// "▲ 24%" against the previous period - only ever shown in a positive or
-/// neutral light: a dip reads as "last time", not as a red failure.
-class _TrendBadge extends StatelessWidget {
-  const _TrendBadge({required this.current, required this.previous});
+/// The bars of [StatsHistoryCard]: one per value, its value on top when
+/// [showValues], its label under it, and the last - today, or this month -
+/// in the accent.
+class _HistoryBars extends StatelessWidget {
+  const _HistoryBars({
+    required this.values,
+    required this.labels,
+    required this.showValues,
+    required this.format,
+  });
 
-  final int current;
-  final int previous;
+  final List<int> values;
+  final List<String> labels;
+  final bool showValues;
+  final String Function(int value) format;
+
+  static const double _barArea = 96;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colors = ShiaColors.of(context);
+    final best = values.fold<int>(0, math.max);
+    final style = ShiaText.caption.copyWith(color: colors.textMuted);
+    final last = values.length - 1;
 
-    final String text;
-    final bool up;
-    if (previous == 0) {
-      if (current == 0) return const SizedBox.shrink();
-      text = context.l10n.statsNew;
-      up = true;
-    } else {
-      final change = ((current - previous) / previous * 100).round();
-      up = change >= 0;
-      text = up
-          ? '▲ $change%'
-          : context.l10n
-              .statsVersusBefore(NumberFormat.compact().format(previous));
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: up
-            ? colorScheme.primaryContainer
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        text,
-        style: theme.textTheme.labelMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: up
-              ? colorScheme.onPrimaryContainer
-              : colorScheme.onSurfaceVariant,
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final column = constraints.maxWidth / values.length;
+        final barWidth = math.min(26.0, column * 0.7);
+        return Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (var i = 0; i < values.length; i++)
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (showValues)
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              format(values[i]),
+                              maxLines: 1,
+                              style: style.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: i == last ? colors.text : null,
+                              ),
+                            ),
+                          ),
+                        if (showValues) const SizedBox(height: 4),
+                        Container(
+                          width: barWidth,
+                          height: best == 0
+                              ? 2
+                              : math.max(2, _barArea * values[i] / best),
+                          decoration: BoxDecoration(
+                            color: i == last
+                                ? colors.accent
+                                : Color.lerp(colors.line, colors.chevron, 0.25),
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(math.min(6, barWidth / 3)),
+                              bottom: const Radius.circular(2),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                for (var i = 0; i < labels.length; i++)
+                  Expanded(
+                    // A label can be wider than its bar's column (a month's
+                    // "25" under a 10 px bar); let it spill rather than wrap.
+                    child: Text(
+                      labels[i],
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.visible,
+                      textAlign: TextAlign.center,
+                      style: style.copyWith(
+                        fontWeight:
+                            i == last ? FontWeight.w700 : FontWeight.w500,
+                        color: i == last ? colors.text : null,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

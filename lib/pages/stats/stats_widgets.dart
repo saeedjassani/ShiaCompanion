@@ -2,7 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// The rounded panel every section of My Stats sits in.
+import '../../theme/shia_colors.dart';
+
+/// The rounded panel every section of My Stats sits in: the surface, a
+/// 1 px line, 20 px corners.
 class StatsCard extends StatelessWidget {
   const StatsCard({
     super.key,
@@ -17,13 +20,13 @@ class StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = ShiaColors.of(context);
     final radius = BorderRadius.circular(20);
     return Material(
-      color: colorScheme.surfaceContainerLow,
+      color: colors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: radius,
-        side: BorderSide(color: colorScheme.outlineVariant),
+        side: BorderSide(color: colors.line),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -41,12 +44,13 @@ class StatsSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: Theme.of(context)
-          .textTheme
-          .titleMedium
-          ?.copyWith(fontWeight: FontWeight.w700),
+    return Semantics(
+      header: true,
+      child: Text(
+        text,
+        style:
+            ShiaText.sectionTitle.copyWith(color: ShiaColors.of(context).text),
+      ),
     );
   }
 }

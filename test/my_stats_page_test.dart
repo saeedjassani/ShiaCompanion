@@ -62,15 +62,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('day streak'), findsOneWidget);
+    expect(find.textContaining('in a row'), findsOneWidget);
     expect(find.text('History'), findsOneWidget);
-    expect(find.text('Your most recited'), findsOneWidget);
+    expect(find.text('YOUR MOST RECITED'), findsOneWidget);
     expect(find.text('Milestones'), findsNothing);
     expect(find.text('Recent sessions'), findsNothing);
     // The totals live under History's All time tab, not in tiles.
     expect(find.text('Verses recited'), findsNothing);
     expect(find.text('Active days'), findsNothing);
-    expect(find.widgetWithText(ChoiceChip, 'Sessions'), findsNothing);
+    expect(find.text('Sessions'), findsNothing);
     expect(find.text('Quran progress'), findsOneWidget);
     expect(find.text('Family'), findsWidgets);
     expect(find.text('Recited till'), findsOneWidget);
@@ -80,19 +80,18 @@ void main() {
     expect(find.text('Continue'), findsNothing);
 
     // Switching the history metric re-plots without error.
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Zikrs'));
+    await tester.tap(find.text('Zikrs'));
     await tester.tap(find.text('Month'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
 
-    // All time: the lifetime total - 7 + 141 + 19 verses - with no
-    // comparison badge, and months for bars.
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Verses'));
+    // All time: the lifetime total - 7 + 141 + 19 verses - and months for
+    // bars.
+    await tester.tap(find.text('Verses'));
     await tester.tap(find.text('All time'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    expect(find.text('167'), findsOneWidget);
-    expect(find.text('verses in total'), findsOneWidget);
+    expect(find.text('167 verses in total'), findsOneWidget);
     expect(find.textContaining('Best month:'), findsOneWidget);
   });
 }
