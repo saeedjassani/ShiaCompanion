@@ -27,6 +27,10 @@ jobs:
       contents: read
       pull-requests: read
     steps:
+      # The Firebase CLI refuses to run hosting commands outside a directory
+      # holding firebase.json, even with --project and --site given.
+      - uses: actions/checkout@v5
+
       - name: Delete preview channels of closed pull requests
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
@@ -43,8 +47,13 @@ jobs:
 
           # The deploy action names channels "pr<number>-<branch>", so read
           # the PR number back out of the id instead of rebuilding the slug.
-          channels=$(fb hosting:channel:list --site shia-companion --json \
-            | jq -r '.result.channels[]?.name | split("/") | last | select(test("^pr[0-9]+-"))')
+          # Not piped straight into jq: on failure the CLI prints its error as
+          # JSON on stdout, which jq would swallow, leaving a bare exit 1.
+          if ! listing=$(fb hosting:channel:list --site shia-companion --json); then
+            echo "::error::Listing preview channels failed: $(jq -r '.error // .' <<< "${listing}" 2>/dev/null || echo "${listing}")"
+            exit 1
+          fi
+          channels=$(jq -r '.result.channels[]?.name | split("/") | last | select(test("^pr[0-9]+-"))' <<< "${listing}")
 
           if [ -n "${PR_NUMBER}" ]; then
             open_prs=""
