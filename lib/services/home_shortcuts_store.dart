@@ -18,7 +18,7 @@ class HomeShortcutsStore extends ChangeNotifier {
   static final HomeShortcutsStore instance = HomeShortcutsStore._();
 
   static const String prefsKey = 'home_shortcuts';
-  static const int maxShortcuts = 7;
+  static const int maxShortcuts = 11;
 
   /// What a fresh install, or one that never opened the editor, shows.
   static const List<String> defaultIds = [

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/services/analytics_service.dart';
@@ -14,11 +13,10 @@ import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 import '../l10n/l10n.dart';
-import '../l10n/hijri_l10n.dart';
 
-/// Home's prayer card: the Hijri date and the city, then the prayer times the
-/// reader picked, starting with the next one. Tap for Calendar & Prayer
-/// Times; long-press to choose which times are shown.
+/// Home's prayer card: the prayer times the reader picked, starting with the
+/// next one (the Hijri date and the city sit in Home's header above it). Tap
+/// for Calendar & Prayer Times; long-press to choose which times are shown.
 ///
 /// With no location yet it asks "Which city are you in?" instead.
 class HomePrayerTimesCard extends StatefulWidget {
@@ -133,10 +131,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final now = debugNow();
-    final hijri = HijriCalendar.fromDate(now.add(Duration(days: hijriDate)));
-    final dateText = '${hijri.hDay} '
-        '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
-        '${hijri.hYear}';
     final selected = selectedWidgetPrayerTimes();
 
     // Always render from the last known fix. A refresh in flight, or one that
@@ -167,7 +161,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
 
     // Where "tomorrow" starts, if at all — the row is chronological, so once
     // one time crosses midnight every time after it has too. Only that first
-    // one is marked, like a date divider in a list.
+    // one is marked.
     final firstTomorrowIndex =
         readings.indexWhere((r) => !_isSameDate(r.dateTime, now));
     final failed = _location.status == LocationRefreshStatus.failed;
@@ -192,40 +186,13 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
           // for people who prod at a thing before hunting for its setting.
           onLongPress: _editTimesShown,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 12, 10),
+            padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                LayoutBuilder(
-                  builder: (context, constraints) => Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          dateText,
-                          style: ShiaText.secondary.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colors.onPrayerCard,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Capped so a long place name ("City of
-                      // Westminster") gives way to the date, not the reverse.
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: constraints.maxWidth * 0.42,
-                        ),
-                        child: _CityButton(
-                          location: _location,
-                          onTap: _chooseCity,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
                 if (failed || showUpdated)
                   Padding(
-                    padding: const EdgeInsets.only(top: 2),
+                    padding: const EdgeInsets.only(bottom: 6),
                     child: Text(
                       failed
                           ? _location.failureMessage
@@ -236,7 +203,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                       ),
                     ),
                   ),
-                const SizedBox(height: 8),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -348,9 +314,9 @@ class _StillInCityNudge extends StatelessWidget {
 }
 
 /// The city, as a button: tap to choose another, or to go back to the
-/// phone's own location.
-class _CityButton extends StatelessWidget {
-  const _CityButton({required this.location, required this.onTap});
+/// phone's own location. Sits under Home's title.
+class CityButton extends StatelessWidget {
+  const CityButton({super.key, required this.location, required this.onTap});
 
   final LocationService location;
   final VoidCallback onTap;
@@ -358,6 +324,7 @@ class _CityButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
+    final foreground = colors.accent;
     final refreshing = location.isRefreshing;
     // A missing name does not mean a missing location: this only shows once
     // there are coordinates, and the geocode that names them can fail or
@@ -377,13 +344,13 @@ class _CityButton extends StatelessWidget {
         excludeSemantics: true,
         onTap: onTap,
         child: Material(
-          color: colors.onPrayerCard.withValues(alpha: 0.12),
-          shape: const StadiumBorder(),
+          color: colors.surface,
+          shape: StadiumBorder(side: BorderSide(color: colors.line)),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
             child: ConstrainedBox(
-              // 34 px drawn, as in the mockup; the card around it takes the
+              // 34 px drawn, as in the mockup; what is around it takes the
               // tap when it lands just outside.
               constraints: const BoxConstraints(minHeight: 34),
               child: Padding(
@@ -396,13 +363,13 @@ class _CityButton extends StatelessWidget {
                             dimension: 14,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: colors.onPrayerCard,
+                              color: foreground,
                             ),
                           )
                         : OutlineIcon(
                             OutlineGlyph.pin,
                             size: 16,
-                            color: colors.onPrayerCard,
+                            color: foreground,
                           ),
                     const SizedBox(width: 4),
                     Flexible(
@@ -414,7 +381,7 @@ class _CityButton extends StatelessWidget {
                           fontSize: 14,
                           height: 18 / 14,
                           fontWeight: FontWeight.w600,
-                          color: colors.onPrayerCard,
+                          color: foreground,
                         ),
                       ),
                     ),
@@ -422,7 +389,7 @@ class _CityButton extends StatelessWidget {
                     OutlineIcon(
                       OutlineGlyph.chevronDown,
                       size: 14,
-                      color: colors.onPrayerCard,
+                      color: foreground,
                       strokeWidth: 2.2,
                     ),
                   ],
@@ -437,8 +404,7 @@ class _CityButton extends StatelessWidget {
 }
 
 /// One prayer: glyph, name and time, all at equal weight — order alone says
-/// what's next. The first time that falls tomorrow is set off by a dashed
-/// rule and says "next day" under it.
+/// what's next. The first time that falls tomorrow says "next day" under it.
 class _PrayerTimeColumn extends StatelessWidget {
   const _PrayerTimeColumn({
     required this.reading,
@@ -453,7 +419,7 @@ class _PrayerTimeColumn extends StatelessWidget {
     final colors = ShiaColors.of(context);
     final textStyle = ShiaText.caption.copyWith(height: 16 / 13);
 
-    final column = Padding(
+    return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -497,34 +463,7 @@ class _PrayerTimeColumn extends StatelessWidget {
         ],
       ),
     );
-
-    if (!startsNextDay) return column;
-    return CustomPaint(
-      painter: _DashedStartRule(colors.onPrayerCard.withValues(alpha: 0.3)),
-      child: column,
-    );
   }
-}
-
-/// A 1 px dashed rule down the leading edge.
-class _DashedStartRule extends CustomPainter {
-  _DashedStartRule(this.color);
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1;
-    const dash = 3.0;
-    for (var y = 0.0; y < size.height; y += dash * 2) {
-      canvas.drawLine(Offset(0.5, y), Offset(0.5, y + dash), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedStartRule old) => old.color != color;
 }
 
 /// No location has ever been resolved, so there are no times to show: ask

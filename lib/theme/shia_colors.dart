@@ -296,12 +296,12 @@ abstract final class ShiaText {
   static final TextStyle largeTitle =
       _style(34, 41, FontWeight.w700, letterSpacing: -0.4);
 
-  /// "Assalamu alaykum" on phones.
-  static final TextStyle greeting =
+  /// Home's title, today's Hijri date, on phones.
+  static final TextStyle homeTitle =
       _style(32, 38, FontWeight.w700, letterSpacing: -0.5);
 
-  /// "Assalamu alaykum" from tablet width up.
-  static final TextStyle greetingWide =
+  /// Home's title from tablet width up.
+  static final TextStyle homeTitleWide =
       _style(36, 43, FontWeight.w700, letterSpacing: -0.5);
 
   /// "Shortcuts", "Coming up".

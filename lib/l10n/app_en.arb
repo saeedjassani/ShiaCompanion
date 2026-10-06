@@ -2195,11 +2195,7 @@
   },
   "homeShortcutsTitle": "Shortcuts",
   "@homeShortcutsTitle": {
-    "description": "Heading of Home's section of feature shortcuts, and of its editor sheet."
-  },
-  "homeSectionEdit": "Edit",
-  "@homeSectionEdit": {
-    "description": "Action at the end of a Home section heading that opens its editor."
+    "description": "Title of the editor sheet for Home's feature shortcuts."
   },
   "homeEditShortcuts": "Edit shortcuts",
   "homeShortcutOnHomeSemantics": "{feature}, on your Home",
@@ -2213,7 +2209,7 @@
   },
   "homeShortcutsOnHomeCount": "On your Home · {count} of {max}",
   "@homeShortcutsOnHomeCount": {
-    "description": "Heading over the shortcuts already on Home in the editor, e.g. 'On your Home · 5 of 7'. Shown in capitals.",
+    "description": "Heading over the shortcuts already on Home in the editor, e.g. 'On your Home · 5 of 11'. Shown in capitals.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2255,9 +2251,15 @@
   "@homeAlreadyShortcut": {
     "description": "Key under the All features grid, next to the check that marks a feature already on Home."
   },
-  "homeGreeting": "Assalamu alaykum",
-  "@homeGreeting": {
-    "description": "The greeting at the top of Home."
+  "homeHijriYear": "{year} AH",
+  "@homeHijriYear": {
+    "description": "The Hijri year under Home's title (today's Hijri day and month), e.g. '1448 AH'.",
+    "placeholders": {
+      "year": {
+        "type": "String",
+        "example": "1448"
+      }
+    }
   },
   "homeSettingsAndAccount": "Settings and account",
   "@homeSettingsAndAccount": {
