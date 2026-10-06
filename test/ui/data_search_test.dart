@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/utils/data_search.dart';
 
@@ -145,5 +146,36 @@ void main() {
       tester.getTopLeft(find.text('Zikr (1)')).dy,
       lessThan(tester.getTopLeft(find.text('Quran (1)')).dy),
     );
+  });
+
+  group('a verse reference', () {
+    setUp(() => items = {'A6': '2: Al-Baqarah البقرة'});
+    tearDown(() {
+      items = {};
+      isUserAdmin = false;
+    });
+
+    testWidgets('is offered first, as Go to verse', (tester) async {
+      isUserAdmin = true;
+      await openSearch(tester, 'baqarah 255');
+
+      expect(find.text('Go to Al-Baqarah 2:255'), findsOneWidget);
+      // Found, so not a search that came up empty.
+      expect(find.text('No results'), findsNothing);
+    });
+
+    testWidgets('is offered in its numeric form too', (tester) async {
+      isUserAdmin = true;
+      await openSearch(tester, '2:255');
+
+      expect(find.text('Go to Al-Baqarah 2:255'), findsOneWidget);
+    });
+
+    testWidgets('is left out where the reader cannot open at a verse',
+        (tester) async {
+      await openSearch(tester, '2:255');
+
+      expect(find.textContaining('Go to'), findsNothing);
+    });
   });
 }

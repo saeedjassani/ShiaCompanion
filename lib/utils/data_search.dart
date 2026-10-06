@@ -6,10 +6,12 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/list_items.dart';
+import 'package:shia_companion/pages/quran/quran_navigation.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/utils/data_search_filter.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/utils/verse_query.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
 import 'package:shia_companion/services/analytics_service.dart';
@@ -110,6 +112,37 @@ class DataSearch extends SearchDelegate<String> {
         if (itemSlugs[uid] != null) itemSlugs[uid]!,
         ...?itemSlugAliases[uid],
       ],
+    );
+  }
+
+  /// The verse the query names (`2:255`, `baqarah 255`, `yasin 1`), offered
+  /// above every other result.
+  ///
+  /// Only where the reader can open at a verse: that is part of the Quran
+  /// revamp dark-launched to admins (see ZikrPage._surahNumber), and for
+  /// everyone else "Go to 2:255" would open al-Baqarah at its first verse.
+  VerseKey? _verseQuery() {
+    if (!isUserAdmin) return null;
+    return parseVerseQuery(query);
+  }
+
+  Widget _buildVerseTile(BuildContext context, VerseKey verse) {
+    final name = surahInfoFor(verse.surah)?.englishName ??
+        context.l10n.quranSurahNumber(verse.surah);
+    return ListTile(
+      leading: Icon(Icons.auto_stories_outlined,
+          color: Theme.of(context).colorScheme.primary),
+      title: Text(
+        context.l10n.goToVerseJump(name, '$verse'),
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      onTap: () {
+        _recordSearch();
+        openQuranVerse(context, verse, source: ZikrOpenSource.search);
+      },
     );
   }
 
@@ -243,7 +276,10 @@ class DataSearch extends SearchDelegate<String> {
             source,
       ];
 
+      final verse = _verseQuery();
+
       final rows = <Widget>[
+        if (verse != null) _buildVerseTile(context, verse),
         for (final source in shown) ...[
           // A lone section needs no heading; the chips already say what it is.
           if (shown.length > 1)
@@ -264,7 +300,7 @@ class DataSearch extends SearchDelegate<String> {
             trailing: Text(context.l10n.searchShow),
             onTap: () => toggle(source, true),
           ),
-        if (query.trim().isNotEmpty && results.isEmpty) ...[
+        if (query.trim().isNotEmpty && results.isEmpty && verse == null) ...[
           Padding(
             padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
             child: Center(child: Text(context.l10n.searchNoResults)),
