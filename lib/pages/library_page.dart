@@ -3,11 +3,15 @@ import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/library_progress_store.dart';
 import 'package:shia_companion/services/library_service.dart';
-import 'package:shia_companion/widgets/favorite_icon.dart';
-import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/utils/data_search_filter.dart';
+import 'package:shia_companion/widgets/find_field.dart';
+import 'package:shia_companion/widgets/home_glyph.dart';
+import 'package:shia_companion/widgets/outline_icon.dart';
+import 'package:shia_companion/widgets/page_chrome.dart';
+import 'package:shia_companion/widgets/zikr_list_row.dart';
 
 import '../constants.dart';
-import '../services/favorites_manager.dart';
 import 'chapter_list_page.dart';
 import 'chapter_page.dart';
 import 'package:shia_companion/services/analytics_service.dart';
@@ -15,6 +19,10 @@ import 'package:shia_companion/services/content_request_service.dart';
 import 'package:shia_companion/widgets/content_request_dialog.dart';
 import '../l10n/l10n.dart';
 
+/// The Library (docs/DESIGN_SPEC.md, "Library"; mockup `R3-Library`): the
+/// title with how many books there are, where the reader left off, then
+/// every book with its author and the heart, narrowed by the "Find a book
+/// or author" field at the bottom.
 class LibraryPage extends StatefulWidget {
   @override
   _LibraryPageState createState() => _LibraryPageState();
@@ -23,6 +31,7 @@ class LibraryPage extends StatefulWidget {
 class _LibraryPageState extends State<LibraryPage> {
   late Future<List<UidTitleData>> _booksFuture;
   List<LibraryProgress> _recentProgress = const [];
+  final TextEditingController _find = TextEditingController();
 
   @override
   void initState() {
@@ -30,6 +39,13 @@ class _LibraryPageState extends State<LibraryPage> {
     trackScreen('Library Page');
     _booksFuture = LibraryService.loadBooks();
     _loadRecentProgress();
+    _find.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _find.dispose();
+    super.dispose();
   }
 
   void _retry() {
@@ -49,131 +65,161 @@ class _LibraryPageState extends State<LibraryPage> {
     setState(_loadRecentProgress);
   }
 
+  Future<void> _forget(LibraryProgress progress) async {
+    await LibraryProgressStore.instance.remove(progress.bookSlug);
+    if (!mounted) return;
+    setState(_loadRecentProgress);
+  }
+
+  Future<void> _openBook(UidTitleData book) async {
+    await handleUniversalDataClick(
+        context, UniversalData(book.uid, book.title, 1),
+        source: ZikrOpenSource.library);
+    // Reading a chapter moves where the reader left off.
+    if (mounted) setState(_loadRecentProgress);
+  }
+
+  void _requestBook({String title = ''}) => showContentRequestDialog(
+        context,
+        initialType: ContentRequestType.book,
+        initialTitle: title,
+        source: 'library',
+      );
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final gutter = pageGutter(context);
 
     return FutureBuilder<List<UidTitleData>>(
       future: _booksFuture,
       builder: (context, snapshot) {
         final books = snapshot.data ?? const <UidTitleData>[];
+        final loaded = snapshot.connectionState != ConnectionState.waiting;
+        final query = _find.text.trim();
+        final shown = query.isEmpty
+            ? books
+            : filterDataSearchResults(books, query, matchUid: isUserAdmin);
 
-        return ResponsiveContent(
-          maxWidth: listContentWidth,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          child: switch (snapshot.connectionState) {
-            ConnectionState.waiting => const Center(
-                child: CircularProgressIndicator(),
+        final List<Widget> content;
+        if (!loaded) {
+          content = const [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(top: 48),
+                child: Center(child: CircularProgressIndicator()),
               ),
-            _ when snapshot.hasError => _LibraryMessage(
-                icon: Icons.cloud_off,
-                title: context.l10n.libraryUnavailable,
-                message: context.l10n.audioDownloadCheckConnection,
-                actionLabel: context.l10n.commonRetry,
-                onAction: _retry,
+            ),
+          ];
+        } else if (snapshot.hasError) {
+          content = [
+            SliverPadding(
+              padding: gutter,
+              sliver: SliverToBoxAdapter(
+                child: EmptyStateCard(
+                  glyph: OutlineGlyph.search,
+                  title: l10n.libraryUnavailable,
+                  body: l10n.audioDownloadCheckConnection,
+                  actionLabel: l10n.commonRetry,
+                  onAction: _retry,
+                ),
               ),
-            _ when books.isEmpty => _LibraryMessage(
-                icon: Icons.library_books,
-                title: context.l10n.libraryNoBooks,
-                message: context.l10n.libraryEmpty,
+            ),
+          ];
+        } else if (books.isEmpty) {
+          content = [
+            SliverPadding(
+              padding: gutter,
+              sliver: SliverToBoxAdapter(
+                child: EmptyStateCard(
+                  glyph: OutlineGlyph.search,
+                  title: l10n.libraryNoBooks,
+                  body: l10n.libraryEmpty,
+                ),
               ),
-            _ => ListView.separated(
-                padding: EdgeInsets.zero,
-                itemBuilder: (context, index) {
-                  final continueCount = _recentProgress.length;
-                  final headerOffset = continueCount == 0 ? 0 : 1;
-
-                  if (continueCount > 0 && index == 0) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text(
-                        context.l10n.libraryContinueReading,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    );
-                  }
-
-                  if (index < continueCount + headerOffset) {
-                    final progress = _recentProgress[index - headerOffset];
-                    return _ContinueReadingTile(
+            ),
+          ];
+        } else {
+          content = [
+            // Where the reader left off belongs to the whole library, not
+            // to a search through it.
+            if (query.isEmpty)
+              for (final progress in _recentProgress)
+                SliverPadding(
+                  padding: gutter.copyWith(bottom: 14),
+                  sliver: SliverToBoxAdapter(
+                    child: _ContinueReadingCard(
                       progress: progress,
                       onTap: () => _continueReading(progress),
-                      onDismiss: () async {
-                        await LibraryProgressStore.instance.remove(progress.bookSlug);
-                        if (!mounted) return;
-                        setState(_loadRecentProgress);
-                      },
-                    );
-                  }
-
-                  final bookIndex = index - continueCount - headerOffset;
-                  if (bookIndex == books.length) {
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 6),
-                      leading: const Icon(Icons.playlist_add),
-                      title: Text(context.l10n.libraryRequestBook),
-                      subtitle: Text(
-                          context.l10n.libraryRequestBookSubtitle),
-                      onTap: () => showContentRequestDialog(
-                        context,
-                        initialType: ContentRequestType.book,
-                        source: 'library',
-                      ),
-                    );
-                  }
-                  final book = books[bookIndex];
-                  final itemData = UniversalData(book.uid, book.title, 1);
-                  return _BookTile(
-                    book: book,
-                    itemData: itemData,
-                    isSaved: false,
-                    onSaveToggle: () async {
-                      try {
-                        await LibraryService.saveBookForOffline(
-                          book.uid,
-                          book.title,
-                        );
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(context.l10n.librarySavedOffline(book.title)),
-                          ),
-                        );
-                      } catch (e) {
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              context.l10n.librarySaveFailed(
-                                    e.toString().replaceFirst("Exception: ", "")),
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                  );
-                },
-                separatorBuilder: (context, index) => Divider(
-                  color: theme.dividerColor.withValues(alpha: 0.4),
+                      onDismiss: () => _forget(progress),
+                    ),
+                  ),
                 ),
-                // +1 for the context.l10n.libraryRequestBook row after the last book.
-                itemCount: books.length +
-                    1 +
-                    _recentProgress.length +
-                    (_recentProgress.isEmpty ? 0 : 1),
+            SliverPadding(
+              padding: gutter.copyWith(bottom: 8),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  children: [
+                    Expanded(child: GroupLabel(l10n.libraryAllBooks)),
+                    PageTextAction(
+                      label: l10n.libraryRequestBook,
+                      onPressed: _requestBook,
+                    ),
+                  ],
+                ),
               ),
-          },
+            ),
+            SliverPadding(
+              padding: gutter,
+              sliver: shown.isEmpty
+                  ? SliverToBoxAdapter(
+                      child: EmptyStateCard(
+                        glyph: OutlineGlyph.search,
+                        title: l10n.listFindNone(query),
+                        body: l10n.libraryRequestBookSubtitle,
+                        actionLabel: l10n.libraryRequestBook,
+                        onAction: () => _requestBook(title: query),
+                      ),
+                    )
+                  : SliverCardList(
+                      itemCount: shown.length,
+                      itemBuilder: (context, i) {
+                        final book = shown[i];
+                        return ZikrListRow(
+                          item: UniversalData(book.uid, book.title, 1),
+                          // Several books share near-identical titles -
+                          // translations of the same work, mostly - so the
+                          // author is what tells them apart. Not every book
+                          // names one.
+                          subtitle: book.author,
+                          highlight: query,
+                          first: i == 0,
+                          last: i == shown.length - 1,
+                          onTap: () => _openBook(book),
+                        );
+                      },
+                    ),
+            ),
+          ];
+        }
+
+        return LargeTitlePage(
+          title: l10n.libraryTitle,
+          subtitle: books.isEmpty ? null : l10n.libraryCount(books.length),
+          bottom: books.isEmpty
+              ? null
+              : FindField(controller: _find, hint: l10n.libraryFindHint),
+          slivers: content,
         );
       },
     );
   }
 }
 
-class _ContinueReadingTile extends StatelessWidget {
-  const _ContinueReadingTile({
+/// Where the reader left a book: the book, the chapter and page, how far
+/// through the chapter, and × to forget it.
+class _ContinueReadingCard extends StatelessWidget {
+  const _ContinueReadingCard({
     required this.progress,
     required this.onTap,
     required this.onDismiss,
@@ -185,111 +231,99 @@ class _ContinueReadingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
     final pageCount = progress.pageCount <= 0 ? 1 : progress.pageCount;
-    final pageIndex = progress.pageIndex.clamp(0, pageCount - 1) + 1;
-
+    final page = progress.pageIndex.clamp(0, pageCount - 1) + 1;
     final title = progress.bookTitle.trim().isNotEmpty
         ? progress.bookTitle
         : progress.chapterTitle;
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      leading: const Icon(Icons.play_circle_outline),
-      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(
-        context.l10n.libraryProgress(
-            progress.chapterTitle, pageIndex, pageCount),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
+    return Material(
+      color: colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: colors.line),
       ),
-      trailing: IconButton(
-        icon: const Icon(Icons.close),
-        tooltip: context.l10n.commonRemove,
-        onPressed: onDismiss,
-      ),
-      onTap: onTap,
-    );
-  }
-}
-
-class _BookTile extends StatelessWidget {
-  const _BookTile({
-    required this.book,
-    required this.itemData,
-    required this.isSaved,
-    required this.onSaveToggle,
-  });
-
-  final UidTitleData book;
-  final UniversalData itemData;
-  final bool isSaved;
-  final Future<void> Function() onSaveToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    final author = book.author;
-
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-      title: Text(book.title),
-      // The library holds several works under near-identical titles — separate
-      // translations of the same book, most often — so the author is what tells
-      // two rows apart. Not every book names one, and those rows simply have no
-      // subtitle rather than a placeholder.
-      subtitle: author == null
-          ? null
-          : Text(author, maxLines: 2, overflow: TextOverflow.ellipsis),
-      onTap: () => handleUniversalDataClick(context, itemData,
-          source: ZikrOpenSource.library),
-      trailing: Wrap(
-        spacing: 12,
-        children: [
-          InkWell(
-            onTap: () async {
-              await FavoritesManager.instance.toggleFavorite(itemData);
-            },
-            child: FavoriteIcon(favorite: itemData),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 6, 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        HomeGlyph(
+                            type: HomeGlyphType.library,
+                            size: 16,
+                            color: colors.accent),
+                        const SizedBox(width: 6),
+                        Text(
+                          l10n.libraryContinueReading,
+                          style: ShiaText.caption
+                              .copyWith(color: colors.textMuted),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: ShiaText.cardTitle.copyWith(color: colors.text),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.libraryChapterPage(
+                          progress.chapterTitle, page, pageCount),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: ShiaText.caption.copyWith(color: colors.textMuted),
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: page / pageCount,
+                        minHeight: 4,
+                        color: colors.accent,
+                        backgroundColor: colors.divider,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              Tooltip(
+                message: l10n.commonRemove,
+                excludeFromSemantics: true,
+                child: Semantics(
+                  button: true,
+                  label: l10n.libraryRemoveContinue(title),
+                  excludeSemantics: true,
+                  onTap: onDismiss,
+                  child: InkResponse(
+                    onTap: onDismiss,
+                    radius: 22,
+                    child: SizedBox.square(
+                      dimension: 44,
+                      child: Center(
+                        child: OutlineIcon(OutlineGlyph.close,
+                            size: 18, color: colors.textMuted, strokeWidth: 2),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LibraryMessage extends StatelessWidget {
-  const _LibraryMessage({
-    required this.icon,
-    required this.title,
-    required this.message,
-    this.actionLabel,
-    this.onAction,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 40),
-          const SizedBox(height: 12),
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 4),
-          Text(message, textAlign: TextAlign.center),
-          if (actionLabel != null && onAction != null) ...[
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: onAction,
-              child: Text(actionLabel!),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

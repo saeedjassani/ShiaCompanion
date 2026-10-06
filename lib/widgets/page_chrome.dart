@@ -924,3 +924,106 @@ class EmptyStateCard extends StatelessWidget {
     );
   }
 }
+
+/// A full-width, 50 px, fully rounded button with a glyph before its label:
+/// the revamp's labelled page actions ("Continue · chapter 4, page 4",
+/// "Save for offline", "Add a reminder"). [filled] for the page's main one,
+/// in the accent; the rest outlined on the surface.
+class PageButton extends StatelessWidget {
+  const PageButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.glyph,
+    this.filled = false,
+    this.busy = false,
+    this.danger = false,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final OutlineGlyph? glyph;
+  final bool filled;
+
+  /// Shows a spinner in place of the glyph, and ignores taps.
+  final bool busy;
+
+  /// Danger text on the outline, for an action that removes something.
+  final bool danger;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final foreground = filled
+        ? colors.onAccent
+        : danger
+            ? colors.danger
+            : colors.accent;
+    final textStyle = buttonTextStyle(context, ShiaText.body)
+        .copyWith(fontWeight: FontWeight.w600);
+    final glyph = this.glyph;
+
+    final child = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (busy)
+          SizedBox.square(
+            dimension: 18,
+            child: CircularProgressIndicator(strokeWidth: 2, color: foreground),
+          )
+        else if (glyph != null)
+          OutlineIcon(
+            glyph,
+            size: 20,
+            color: foreground,
+            strokeWidth: 2,
+            // A play triangle reads as one when it is solid.
+            filled: glyph == OutlineGlyph.play,
+          ),
+        if (busy || glyph != null) const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
+        ),
+      ],
+    );
+    final onTap = busy ? null : onPressed;
+    const minimumSize = Size.fromHeight(50);
+    const padding = EdgeInsets.symmetric(horizontal: 18, vertical: 8);
+
+    return filled
+        ? FilledButton(
+            onPressed: onTap,
+            style: FilledButton.styleFrom(
+              minimumSize: minimumSize,
+              padding: padding,
+              backgroundColor: colors.accent,
+              foregroundColor: colors.onAccent,
+              disabledBackgroundColor: colors.accent.withValues(alpha: 0.6),
+              disabledForegroundColor: colors.onAccent,
+              shape: const StadiumBorder(),
+              textStyle: textStyle,
+            ),
+            child: child,
+          )
+        : OutlinedButton(
+            onPressed: onTap,
+            style: OutlinedButton.styleFrom(
+              minimumSize: minimumSize,
+              padding: padding,
+              foregroundColor: foreground,
+              disabledForegroundColor: foreground.withValues(alpha: 0.6),
+              backgroundColor: colors.surface,
+              side: BorderSide(
+                  color: Color.lerp(colors.line, colors.chevron, 0.25)!),
+              shape: const StadiumBorder(),
+              textStyle: textStyle,
+            ),
+            child: child,
+          );
+  }
+}

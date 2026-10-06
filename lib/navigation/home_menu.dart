@@ -172,10 +172,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     analyticsId: 'library',
     glyphType: HomeGlyphType.library,
     icon: Icons.local_library_rounded,
-    pageBuilder: () => Scaffold(
-      appBar: AppBar(title: Text(L10n.current.menuLibrary)),
-      body: LibraryPage(),
-    ),
+    pageBuilder: () => LibraryPage(),
   ),
   HomeMenuItem(
     label: 'Munajaat',
@@ -187,7 +184,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   HomeMenuItem(
     label: 'Baaqeyaat As Saalehaat',
     analyticsId: 'baaqeyaat_as_saalehaat',
-      glyphType: HomeGlyphType.baqeyaat,
+    glyphType: HomeGlyphType.baqeyaat,
     icon: Icons.history_edu_rounded,
     pageBuilder: () => ItemList("I", L10n.current.menuBaaqeyaat),
   ),
@@ -219,7 +216,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     HomeMenuItem(
       label: 'Rakaat Counter',
       analyticsId: 'rakaat_counter',
-        glyphType: HomeGlyphType.rakaat,
+      glyphType: HomeGlyphType.rakaat,
       icon: Icons.touch_app_rounded,
       pageBuilder: () => const PrayerCounterPage(),
     ),

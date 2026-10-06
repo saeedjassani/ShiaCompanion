@@ -1707,42 +1707,12 @@
   "audioChooseRecording": "Choose recording",
   "audioRecitation": "Recitation",
   "audioRecitationAudio": "Recitation audio",
-  "librarySavedOffline": "{book} saved for offline.",
-  "@librarySavedOffline": {
-    "placeholders": {
-      "book": {
-        "type": "String"
-      }
-    }
-  },
-  "librarySaveFailed": "Unable to save book: {error}",
-  "@librarySaveFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "libraryProgress": "{chapter} - Page {page} of {pages}",
-  "@libraryProgress": {
-    "placeholders": {
-      "chapter": {
-        "type": "String"
-      },
-      "page": {
-        "type": "int"
-      },
-      "pages": {
-        "type": "int"
-      }
-    }
-  },
   "librarySavedChapterGone": "Saved chapter is no longer available",
   "libraryUnavailable": "Library unavailable",
   "libraryNoBooks": "No books found",
   "libraryEmpty": "The library is empty right now.",
-  "libraryContinueReading": "Continue Reading",
-  "libraryRequestBook": "Request a Book",
+  "libraryContinueReading": "Continue reading",
+  "libraryRequestBook": "Request a book",
   "libraryRequestBookSubtitle": "Can't find a book? Ask us to add it.",
   "flightRemoveBody": "{flight} will be removed from your saved flights.",
   "@flightRemoveBody": {
@@ -3149,5 +3119,85 @@
     }
   },
   "azanFootnote": "Tap a time to give it its own sound.",
-  "azanFootnoteIos": "On iPhone the notification itself plays a short takbir."
+  "azanFootnoteIos": "On iPhone the notification itself plays a short takbir.",
+  "libraryTitle": "Library",
+  "libraryCount": "{count, plural, =1{1 book} other{{count} books}}",
+  "@libraryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "libraryFindHint": "Find a book or author",
+  "libraryAllBooks": "All books",
+  "libraryRemoveContinue": "Remove {book} from Continue reading",
+  "@libraryRemoveContinue": {
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryChapterPage": "{chapter} · page {page} of {pages}",
+  "@libraryChapterPage": {
+    "description": "Where a reader left a book: the chapter's title and the page in it.",
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      },
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryChapterCount": "{count, plural, =1{1 chapter} other{{count} chapters}}",
+  "@libraryChapterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryAuthorAndChapters": "{author} · {chapters}",
+  "@libraryAuthorAndChapters": {
+    "description": "Under a book's title: who wrote it, and libraryChapterCount.",
+    "placeholders": {
+      "author": {
+        "type": "String"
+      },
+      "chapters": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryContinueAt": "Continue · chapter {chapter}, page {page}",
+  "@libraryContinueAt": {
+    "placeholders": {
+      "chapter": {
+        "type": "int"
+      },
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryStartReading": "Start reading",
+  "librarySaveForOffline": "Save for offline",
+  "libraryChapters": "Chapters",
+  "libraryReadingAt": "Reading · page {page} of {pages}",
+  "@libraryReadingAt": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  }
 }
