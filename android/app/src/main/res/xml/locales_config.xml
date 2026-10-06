@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 13+ per-app languages: the locales the app ships UI text for.
+     Extend this list (and ios/Runner/Info.plist's CFBundleLocalizations)
+     whenever a new lib/l10n/app_<code>.arb lands. See docs/TRANSLATIONS.md. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ar" />
+    <locale android:name="ur" />
+    <locale android:name="fa" />
+    <locale android:name="gu" />
+</locale-config>
