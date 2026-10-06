@@ -3,44 +3,67 @@ name: Web preview cleanup
 # Counterpart to web-preview.yml: delete the pull request's Firebase Hosting
 # preview channel as soon as the PR is closed or merged, rather than leaving it
 # to expire on its own.
+#
+# The site has a channel quota, and once it is full every new PR's preview
+# deploy fails with "429 channel quota reached". So a daily sweep (also
+# runnable by hand) deletes the channel of every PR that is no longer open,
+# catching anything the on-close job missed.
 on:
   pull_request:
     types: [closed]
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
 
 jobs:
   cleanup:
     name: Delete preview channel
     # Forks never got a preview (no secrets), so there is nothing to delete.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: >
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: read
     steps:
-      - name: Delete the pull request preview channel
+      - name: Delete preview channels of closed pull requests
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
+          GH_TOKEN: ${{ github.token }}
+          # Set only on a pull_request event: then just that PR's channel.
           PR_NUMBER: ${{ github.event.number }}
         run: |
           set -euo pipefail
           export GOOGLE_APPLICATION_CREDENTIALS="${RUNNER_TEMP}/firebase-sa.json"
           printf '%s' "${FIREBASE_SERVICE_ACCOUNT}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
+          trap 'rm -f "${GOOGLE_APPLICATION_CREDENTIALS}"' EXIT
 
           fb() { npx --yes firebase-tools@latest "$@" --project shia-comapnion --non-interactive; }
 
-          # The deploy action names channels "pr<number>-<branch>", so look the
-          # id up by its prefix instead of reconstructing the branch slug.
+          # The deploy action names channels "pr<number>-<branch>", so read
+          # the PR number back out of the id instead of rebuilding the slug.
           channels=$(fb hosting:channel:list --site shia-companion --json \
-            | jq -r --arg prefix "pr${PR_NUMBER}-" \
-                '.result.channels[]?.name | split("/") | last | select(startswith($prefix))')
+            | jq -r '.result.channels[]?.name | split("/") | last | select(test("^pr[0-9]+-"))')
 
-          if [ -z "${channels}" ]; then
-            echo "No preview channel found for pull request #${PR_NUMBER}."
-            exit 0
+          if [ -n "${PR_NUMBER}" ]; then
+            open_prs=""
+            channels=$(grep "^pr${PR_NUMBER}-" <<< "${channels}" || true)
+          else
+            open_prs=$(gh pr list --repo "${GITHUB_REPOSITORY}" --state open \
+              --limit 1000 --json number --jq '.[].number')
           fi
 
+          deleted=0
           while read -r channel; do
+            [ -n "${channel}" ] || continue
+            number=$(sed -E 's/^pr([0-9]+)-.*/\1/' <<< "${channel}")
+            if grep -qx "${number}" <<< "${open_prs}"; then
+              continue
+            fi
             echo "Deleting channel ${channel}"
             fb hosting:channel:delete "${channel}" --site shia-companion --force
+            deleted=$((deleted + 1))
           done <<< "${channels}"
 
-          rm -f "${GOOGLE_APPLICATION_CREDENTIALS}"
+          echo "Deleted ${deleted} preview channel(s)."
