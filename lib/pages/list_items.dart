@@ -4,11 +4,12 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/quran/go_to_verse_sheet.dart'
     show SurahArabicName;
 import 'package:shia_companion/services/zikr_translations.dart';
-import 'package:shia_companion/utils/data_search.dart';
+import 'package:shia_companion/pages/search_page.dart';
 import 'package:shia_companion/utils/data_search_filter.dart';
 import 'package:shia_companion/utils/lunar_date_matcher.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
+import 'package:shia_companion/utils/zikr_lists.dart';
 import 'package:shia_companion/utils/zikr_occasions.dart';
 import 'package:shia_companion/widgets/favorite_icon.dart';
 import 'package:shia_companion/widgets/find_field.dart';
@@ -19,42 +20,6 @@ import 'package:shia_companion/widgets/zikr_list_row.dart';
 import '../constants.dart';
 import '../l10n/l10n.dart';
 import 'package:shia_companion/services/analytics_service.dart';
-
-/// The entries of zikr list [item] ("E" for Duas, "G" for Ziyarats, the
-/// part after a group's `~`), in the order the list shows them.
-List<UidTitleData> zikrListEntries(String item) {
-  String tableName = item;
-  if (item == "D1") tableName = "D";
-  tableName = tableName
-      .replaceAll(RegExp("[0-9].*"), "")
-      .replaceAll(RegExp("[A-Z].*~"), "");
-  if (tableName.contains("|"))
-    tableName = tableName.split("\\|")[0].replaceAll(RegExp("[0-9].*"), "");
-
-  final entries = <UidTitleData>[];
-  for (String s in items.keys) {
-    if (tableName == s.split("~")[0] ||
-        tableName == s.replaceAll(RegExp("[0-9].*"), "")) {
-      entries.add(UidTitleData(s, items[s]));
-    }
-  }
-  entries.sort((a, b) {
-    final double aOrder = getItemOrderValue(a.getUId());
-    final double bOrder = getItemOrderValue(b.getUId());
-    if (aOrder != bOrder) {
-      return aOrder.compareTo(bOrder);
-    }
-    final int byId = a.getId().compareTo(b.getId());
-    if (byId != 0) {
-      return byId;
-    }
-    return a.getUId().compareTo(b.getUId());
-  });
-  return entries;
-}
-
-/// Whether [entry] opens a group of zikr rather than a zikr.
-bool isZikrGroup(UidTitleData entry) => entry.getUId().contains("~");
 
 /// A zikr list - Duas, Ziyarats, Surahs and the rest, and the groups inside
 /// them (docs/DESIGN_SPEC.md, "Lists"; mockups `R3-List`, `R3-List-group`):

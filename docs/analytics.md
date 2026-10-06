@@ -39,7 +39,7 @@ Flip `AnalyticsService.recordUsageInDebug` to exercise the pipeline locally.
 | `library_view` | `ChapterPage`, book taps | `book_uid`, `book_title`, `chapter_uid` |
 | `stream_view` | live streaming taps | `stream_title`, `link` |
 | `feature_use` | everywhere below | `feature`, plus per-feature extras |
-| `search` | `DataSearch`, once per settled query | `search_term` |
+| `search` | `SearchPage`, once per settled query | `search_term` |
 
 ### `feature_use` values
 
@@ -186,7 +186,7 @@ be its only caller — runs only when the query is *submitted*. Nobody submits:
 normal path is type → tap → gone, and `buildResults` never builds. The counter
 read one search against every zikr opened with `source: search`.
 
-`DataSearch` now records a search when the query settles (900 ms), and
+`SearchPage` records a search when the query settles (900 ms), and
 immediately when the user acts on it — taps a result, submits, or closes the
 search. `isNewSearchTerm` keeps one refined query as one search: a term that
 extends, or is extended by, the one already recorded does not count again, so

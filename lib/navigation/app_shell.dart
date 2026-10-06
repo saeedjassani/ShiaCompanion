@@ -11,7 +11,7 @@ import '../pages/home_page.dart';
 import '../pages/list_items.dart';
 import '../theme/app_theme.dart';
 import '../theme/shia_colors.dart';
-import '../utils/data_search.dart';
+import '../pages/search_page.dart';
 import '../widgets/azan_playing_banner.dart';
 import '../widgets/glass_surface.dart';
 import '../widgets/home_glyph.dart';

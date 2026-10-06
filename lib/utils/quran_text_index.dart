@@ -11,9 +11,9 @@ import 'quran_index.dart';
 /// recitation heard through the microphone to the verse being recited.
 ///
 /// This is the first thing in the app to look *inside* the Quran documents
-/// rather than at their titles - `data_search.dart` matches titles only. It is
-/// built from the same documents the reader draws, through the same parser, so
-/// a verse can never be findable here and absent there.
+/// rather than at their titles - search (`search_page.dart`) matches titles
+/// only. It is built from the same documents the reader draws, through the
+/// same parser, so a verse can never be findable here and absent there.
 ///
 /// Built at runtime rather than shipped as a generated asset: a generated index
 /// would be one more thing to drift out of step with `assets/zikr/`. The cost is

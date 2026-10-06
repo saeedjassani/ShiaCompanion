@@ -28,6 +28,9 @@ enum OutlineGlyph {
   close,
   history,
   folder,
+  clock,
+  arrowRight,
+  playlistAdd,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -262,6 +265,22 @@ class _OutlinePainter extends CustomPainter {
           ..lineTo(5.5, 19)
           ..arcToPoint(const Offset(4, 17.5), radius: r)
           ..close();
+      case OutlineGlyph.clock:
+        return _circle(12, 12, 8.5)
+          ..moveTo(12, 7.5)
+          ..lineTo(12, 12)
+          ..lineTo(15, 14);
+      case OutlineGlyph.arrowRight:
+        return _line(5, 12, 19, 12)
+          ..moveTo(13, 6)
+          ..lineTo(19, 12)
+          ..lineTo(13, 18);
+      case OutlineGlyph.playlistAdd:
+        return _line(4, 6, 16, 6)
+          ..addPath(_line(4, 11, 16, 11), Offset.zero)
+          ..addPath(_line(4, 16, 11, 16), Offset.zero)
+          ..addPath(_line(18, 13, 18, 19), Offset.zero)
+          ..addPath(_line(15, 16, 21, 16), Offset.zero);
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)

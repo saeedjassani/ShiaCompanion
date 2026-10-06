@@ -1940,13 +1940,11 @@
       }
     }
   },
-  "searchSourceZikr": "Zikr",
+  "searchSourceZikr": "Duas & more",
   "searchSourceQuran": "Quran",
   "searchSourceLibrary": "Library",
   "searchTitleOrUid": "Search title or UID",
   "searchShow": "Show",
-  "searchNoResults": "No results",
-  "searchRequestIt": "Request it",
   "widgetPrayerTimesHelp": "Pick {min} to {max} times. Sunrise, Sunset and Midnight are the deadlines a prayer has to be offered before.",
   "@widgetPrayerTimesHelp": {
     "placeholders": {
@@ -2989,5 +2987,141 @@
   "findClear": "Clear search",
   "@findClear": {
     "description": "Screen-reader label of the × in a find or search field."
+  },
+  "searchHint": "Dua, surah or book",
+  "@searchHint": {
+    "description": "Placeholder of the search field: what can be searched for."
+  },
+  "searchClose": "Close search",
+  "searchTry": "Try",
+  "@searchTry": {
+    "description": "Heading over example searches, shown before anything is typed."
+  },
+  "searchTryDuaLabel": "A dua or ziyarat",
+  "searchTryDua": "Kumayl",
+  "@searchTryDua": {
+    "description": "An example search that finds a dua. Keep it a word the titles contain."
+  },
+  "searchTrySurahLabel": "A surah",
+  "searchTrySurah": "Yasin",
+  "@searchTrySurah": {
+    "description": "An example search that finds a surah. Keep it a word the titles or their links contain."
+  },
+  "searchTryVerseLabel": "A verse",
+  "searchTryVerse": "2:255",
+  "searchTryOccasionLabel": "A day's aamaal",
+  "searchTryOccasion": "Ashura",
+  "@searchTryOccasion": {
+    "description": "An example search for the aamaal of a day. Keep it a word the titles contain."
+  },
+  "searchTryBookLabel": "A book or author",
+  "searchTryBook": "Mutahhari",
+  "@searchTryBook": {
+    "description": "An example search that finds books by an author. Keep it a name the library contains."
+  },
+  "searchRecent": "Recent",
+  "searchRecentClear": "Clear recent searches",
+  "searchSection": "{source} · {count}",
+  "@searchSection": {
+    "description": "Heading over one kind of search result: 'Duas & more · 6'.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchHide": "Hide",
+  "searchHideSource": "Hide {source}",
+  "@searchHideSource": {
+    "description": "Screen-reader label of a results section's Hide link.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "searchShowSource": "Show {source}",
+  "@searchShowSource": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "searchLocation": "{parent} › {child}",
+  "@searchLocation": {
+    "description": "Where a search result sits, list by list: 'Aamaal › Muharram'.",
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      },
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "searchNoneTitle": "Nothing called “{query}”",
+  "@searchNoneTitle": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchNoneLooked": "Looked in duas & more, the Quran and the Library.",
+  "searchNoneTipWord": "Spellings differ a lot, so try just one word, like {word}, or spell it another way.",
+  "@searchNoneTipWord": {
+    "description": "{word} is one word of what was searched for, shown in bold.",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "searchNoneTipSpelling": "Spellings differ a lot, so try spelling it another way.",
+  "searchStillMissing": "Still can't find it?",
+  "searchStillMissingBody": "Tell us what's missing and we'll try to add it.",
+  "searchRequest": "Request “{query}”",
+  "@searchRequest": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchGoToVerse": "Go to verse",
+  "searchVerseOf": "Verse {ayah} of {count}",
+  "@searchVerseOf": {
+    "placeholders": {
+      "ayah": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchOpenVerse": "Open verse {ayah}",
+  "@searchOpenVerse": {
+    "placeholders": {
+      "ayah": {
+        "type": "int"
+      }
+    }
+  },
+  "searchVerseTitle": "{surah} {reference}",
+  "@searchVerseTitle": {
+    "description": "The verse a search names: 'Al-Baqarah 2:255'.",
+    "placeholders": {
+      "surah": {
+        "type": "String"
+      },
+      "reference": {
+        "type": "String"
+      }
+    }
   }
 }
