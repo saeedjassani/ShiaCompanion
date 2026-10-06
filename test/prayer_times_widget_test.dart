@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/pages/home/home_header.dart';
 import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -53,9 +54,18 @@ void main() {
         speedAccuracy: 1,
       );
 
+  /// The top of Home: the header, which holds the city button, over the
+  /// card.
   Future<void> pumpCard(WidgetTester tester) {
     return tester.pumpWidget(MaterialApp(
-      home: Scaffold(body: HomePrayerTimesCard()),
+      home: Scaffold(
+        body: Column(
+          children: [
+            HomeHeader(onOpenSettings: () {}),
+            HomePrayerTimesCard(),
+          ],
+        ),
+      ),
     ));
   }
 
@@ -207,7 +217,7 @@ void main() {
     expect(tagged, greaterThanOrEqualTo(0),
         reason: 'this time of day must roll into tomorrow');
 
-    // Once only, like a date divider, and under that time's own name.
+    // Once only, and under that time's own name.
     final note = find.text('next day');
     expect(note, findsOneWidget);
     final name = find.text(readings[tagged].time.name);
@@ -217,6 +227,26 @@ void main() {
     );
     expect(tester.getRect(note).top, greaterThan(tester.getRect(name).bottom));
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the header shows the Hijri date and the city, no greeting',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    hijriDate = 0;
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    HomeHeader.debugNow = () => DateTime(2024, 6, 16);
+    addTearDown(() => HomeHeader.debugNow = DateTime.now);
+
+    await pumpCard(tester);
+
+    // 16 June 2024 is 10 Dhul Hijjah 1445.
+    expect(find.textContaining(RegExp(r'^10 Dh')), findsOneWidget);
+    expect(find.text('1445 AH'), findsOneWidget);
+    expect(find.text('Najaf'), findsOneWidget);
+    expect(find.text('Assalamu alaykum'), findsNothing);
+    expect(find.byTooltip('Settings and account'), findsOneWidget);
   });
 
   testWidgets('discloses the age of a stale reading', (tester) async {

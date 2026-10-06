@@ -16,8 +16,10 @@ behaviour. They only render inside the canvas: `support.js` and the
 
 | File | Screen | Spec section |
 |---|---|---|
-| `R2-Home.dc.html`, `R2-Home-scrolled.dc.html`, `R2-Home-dark.dc.html` | Home (top, scrolled, dark) | Home |
-| `R2-Shortcuts-edit.dc.html` | Edit shortcuts sheet | Home → Shortcuts |
+| `R4-Home.dc.html` | Home (top): Hijri date as the title, times-only prayer card, Shortcuts without a heading | Home |
+| `R2-Home-scrolled.dc.html`, `R2-Home-dark.dc.html` | Home (scrolled, dark) | Home |
+| `R4-Shortcuts-edit.dc.html` | Edit shortcuts sheet, up to 11 (opened from All features) | Home → Shortcuts |
+| `R2-Home.dc.html`, `R2-Shortcuts-edit.dc.html` | Superseded by the `R4-` files above; kept for history | — |
 | `R2-All-features.dc.html` | All features grid | All features |
 | `R2-Quran.dc.html` | Quran tab | Quran |
 | `R2-Favorites.dc.html` | Favorites tab | Favorites |
@@ -72,6 +74,17 @@ canvas has no render of:
 - **The Qibla dial** is a flat drawing of today's `QiblaCompassDial` with
   the round-3 colours. Keep the painter; only its colours and the words
   around it change.
+
+The round-4 files (`R4-`, canvas page **Round 4 · Home feedback**) change
+the top of Home only: the greeting and the Gregorian date are gone, the
+Hijri day and month are the title with the year and city under it, the
+prayer card holds just the times (no divider before "next day"), the
+Shortcuts heading and its Edit are gone (edit from All features), and up to
+11 shortcuts grow the grid to a third row. Where `R2-Home-dark`, `T-Home`
+or `W-Home` still show the greeting, the date row or the "Shortcuts"
+heading, the round-4 files win. The canvas also keeps two comparisons that
+are not part of the agreed set: `R4-Home-B` (no title, app name on top) and
+`R4-Home-C-calendar-tab` (Calendar as a fourth tab).
 
 Screens with no mockup on purpose, and what to follow instead:
 
