@@ -25,6 +25,8 @@ enum OutlineGlyph {
   minus,
   dragHandle,
   check,
+  close,
+  history,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -34,6 +36,7 @@ class OutlineIcon extends StatelessWidget {
     this.size = 24,
     required this.color,
     this.strokeWidth = 1.8,
+    this.filled = false,
   });
 
   final OutlineGlyph glyph;
@@ -43,23 +46,27 @@ class OutlineIcon extends StatelessWidget {
   /// In grid units; scales with [size].
   final double strokeWidth;
 
+  /// Fills the shape as well as outlining it (a favourite's heart).
+  final bool filled;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: size,
       child: CustomPaint(
-        painter: _OutlinePainter(glyph, color, strokeWidth),
+        painter: _OutlinePainter(glyph, color, strokeWidth, filled),
       ),
     );
   }
 }
 
 class _OutlinePainter extends CustomPainter {
-  _OutlinePainter(this.glyph, this.color, this.strokeWidth);
+  _OutlinePainter(this.glyph, this.color, this.strokeWidth, this.filled);
 
   final OutlineGlyph glyph;
   final Color color;
   final double strokeWidth;
+  final bool filled;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -70,7 +77,15 @@ class _OutlinePainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    canvas.drawPath(_path(glyph), paint);
+    final path = _path(glyph);
+    if (filled) {
+      canvas.drawPath(
+          path,
+          Paint()
+            ..color = color
+            ..style = PaintingStyle.fill);
+    }
+    canvas.drawPath(path, paint);
   }
 
   static Path _line(double x1, double y1, double x2, double y2) => Path()
@@ -230,6 +245,27 @@ class _OutlinePainter extends CustomPainter {
           ..moveTo(5, 12.5)
           ..lineTo(9.5, 17)
           ..lineTo(19, 7.5);
+      case OutlineGlyph.close:
+        return _line(6, 6, 18, 18)..addPath(_line(18, 6, 6, 18), Offset.zero);
+      case OutlineGlyph.history:
+        return Path()
+          ..moveTo(4, 12)
+          ..arcToPoint(const Offset(6.3, 6.4),
+              radius: const Radius.circular(8),
+              largeArc: true,
+              clockwise: false)
+          ..addPath(
+              Path()
+                ..moveTo(4, 4)
+                ..lineTo(4, 8)
+                ..lineTo(8, 8),
+              Offset.zero)
+          ..addPath(
+              Path()
+                ..moveTo(12, 8)
+                ..lineTo(12, 12)
+                ..lineTo(15, 14),
+              Offset.zero);
     }
   }
 
@@ -237,5 +273,6 @@ class _OutlinePainter extends CustomPainter {
   bool shouldRepaint(_OutlinePainter old) =>
       old.glyph != glyph ||
       old.color != color ||
-      old.strokeWidth != strokeWidth;
+      old.strokeWidth != strokeWidth ||
+      old.filled != filled;
 }

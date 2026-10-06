@@ -5,6 +5,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/data/quran_mahdi_verses.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
+import 'package:shia_companion/widgets/page_chrome.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/services/saved_verses_store.dart';
@@ -42,15 +43,26 @@ void main() {
   Future<void> openCollection(WidgetTester tester, String chip) async {
     await tester.tap(find.text('Collections'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ChoiceChip, chip));
+    await tester.tap(find.widgetWithText(ChoicePill, chip));
     await tester.pumpAndSettle();
   }
 
-  testWidgets('lists every surah with its ayah count', (tester) async {
+  Future<void> tapNewTrack(WidgetTester tester) async {
+    // Tracks made by earlier tests can push the card past the screen's edge.
+    // (Dragged rather than ensureVisible'd, which would also scroll the page
+    // and leave the card under the folded title bar.)
+    await tester.drag(find.text('My reading'), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('New track'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('lists every surah with its verse count', (tester) async {
     await pump(tester);
 
-    expect(find.text('Surah1'), findsOneWidget);
-    expect(find.text('7 ayahs'), findsOneWidget);
+    // Once in the list, once as where My reading starts.
+    expect(find.text('Surah1'), findsNWidgets(2));
+    expect(find.text('7 verses'), findsOneWidget);
     // Ayat al Kursi is not a surah and must not appear among the 114.
     expect(find.text('Ayat al Kursi'), findsNothing);
   });
@@ -74,23 +86,67 @@ void main() {
     expect(find.textContaining('No sessions yet'), findsOneWidget);
   });
 
-  testWidgets('rejects a verse reference it cannot read', (tester) async {
+  testWidgets('Go to a verse picks a surah, then a verse', (tester) async {
     await pump(tester);
 
-    await tester.enterText(find.byType(TextField), 'not a verse');
-    await tester.testTextInput.receiveAction(TextInputAction.go);
+    await tester.tap(find.text('Go to a verse'));
     await tester.pumpAndSettle();
+    expect(find.text('Step 1 of 2 · Choose a surah'), findsOneWidget);
 
-    expect(find.text('Try something like 23:56'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), '2');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Surah2').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Step 2 of 2 · Choose a verse (1 to 286)'),
+        findsOneWidget);
+    // Nothing is chosen until a verse is tapped.
+    expect(
+      tester
+          .widget<FilledButton>(find.widgetWithText(FilledButton,
+              'Choose a verse'))
+          .onPressed,
+      isNull,
+    );
+
+    await tester.drag(find.text('1–50'), const Offset(-500, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('251–286'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Verse 255'));
+    await tester.pumpAndSettle();
+    expect(find.text('Open Surah2 2:255'), findsOneWidget);
   });
 
-  testWidgets(
-      'the Unlabeled recitation track always shows, with nothing to resume yet',
+  testWidgets('Go to a verse offers a reference typed in full',
       (tester) async {
     await pump(tester);
 
-    expect(find.text('Unlabeled'), findsOneWidget);
-    expect(find.text('Start reading'), findsOneWidget);
+    await tester.tap(find.text('Go to a verse'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '36:9');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Go to Surah36 36:9'), findsOneWidget);
+  });
+
+  testWidgets('Go to a verse says when no surah matches', (tester) async {
+    await pump(tester);
+
+    await tester.tap(find.text('Go to a verse'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'zzz');
+    await tester.pumpAndSettle();
+
+    expect(find.text('No surah called “zzz”'), findsOneWidget);
+  });
+
+  testWidgets(
+      'the default track always shows as My reading, with nothing to resume '
+      'yet', (tester) async {
+    await pump(tester);
+
+    expect(find.text('My reading'), findsOneWidget);
+    expect(find.text('Start reading'), findsWidgets);
   });
 
   testWidgets('the Saved collection says so when nothing is kept',
@@ -186,7 +242,9 @@ void main() {
     expect(find.text('Ayat al Kursi'), findsOneWidget);
     expect(find.text('Dua after reciting Holy Quran'), findsOneWidget);
     expect(find.text('Some other dua'), findsNothing);
-    expect(find.text('Surah1'), findsNothing);
+    // Only as where My reading starts, not as a row of the collection.
+    expect(find.text('Surah1'), findsOneWidget);
+    expect(find.text('7 verses'), findsNothing);
   });
 
   testWidgets('the Duas collection lists the duas of the Quran after the zikrs',
@@ -194,7 +252,7 @@ void main() {
     await pump(tester);
     await openCollection(tester, 'Duas');
 
-    expect(find.text('From the Quran'), findsOneWidget);
+    expect(find.text('FROM THE QURAN'), findsOneWidget);
     expect(find.text('Rabbana Atina fid-Dunya Hasanah'), findsOneWidget);
     expect(find.text('Surah2 201 · For good in this world and the hereafter'),
         findsOneWidget);
@@ -246,8 +304,7 @@ void main() {
       (tester) async {
     await pump(tester);
 
-    await tester.tap(find.text('New track'));
-    await tester.pumpAndSettle();
+    await tapNewTrack(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Khatm');
     await tester.tap(find.text('Juz (Para)'));
     await tester.pumpAndSettle();
@@ -271,14 +328,13 @@ void main() {
 
     expect(find.text('Create track'), findsNothing);
     expect(find.bySemanticsLabel('Edit Khatm track'), findsOneWidget);
-    expect(find.text('From Juz 12'), findsOneWidget);
+    expect(find.text('Juz 12'), findsOneWidget);
   });
 
   testWidgets('a track can be switched to juz later', (tester) async {
     await pump(tester);
 
-    await tester.tap(find.text('New track'));
-    await tester.pumpAndSettle();
+    await tapNewTrack(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Later');
     await tester.tap(find.text('Create track'));
     await tester.pumpAndSettle();
@@ -301,8 +357,7 @@ void main() {
   testWidgets('a start can be typed down to the ayah', (tester) async {
     await pump(tester);
 
-    await tester.tap(find.text('New track'));
-    await tester.pumpAndSettle();
+    await tapNewTrack(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Ahzab');
     await tester.tap(find.text('Juz (Para)'));
     await tester.pumpAndSettle();
@@ -326,7 +381,7 @@ void main() {
     await tester.tap(find.text('Create track'));
     await tester.pumpAndSettle();
 
-    expect(find.text('From Juz 22 · 33:35'), findsOneWidget);
+    expect(find.text('Juz 22 · 33:35'), findsOneWidget);
     final target =
         RecitationTrackerManager.instance.state.resumeTargetFor('Ahzab');
     expect(target.verse, const VerseKey(33, 35));
@@ -336,15 +391,14 @@ void main() {
   testWidgets('a new track needs a name', (tester) async {
     await pump(tester);
 
-    await tester.tap(find.text('New track'));
-    await tester.pumpAndSettle();
+    await tapNewTrack(tester);
     await tester.tap(find.text('Create track'));
     await tester.pumpAndSettle();
 
     expect(find.text('Give the track a name'), findsOneWidget);
   });
 
-  testWidgets('the Collections tab remembers the chip last picked',
+  testWidgets('the Collections view remembers the collection last picked',
       (tester) async {
     await pump(tester);
     await openCollection(tester, 'Saved');
@@ -358,7 +412,7 @@ void main() {
   });
 }
 
-// The tab bar scrolls sideways too, so pick the vertical list.
+// The track cards scroll sideways too, so pick the vertical list.
 final _verticalScrollable = find
     .byWidgetPredicate((widget) =>
         widget is Scrollable && widget.axisDirection == AxisDirection.down)
