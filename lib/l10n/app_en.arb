@@ -1434,6 +1434,7 @@
   "menuQuran": "Quran",
   "menuPlaylists": "Playlists",
   "menuMyStats": "My Stats",
+  "menuNews": "News",
   "menuCalendar": "Calendar",
   "audioTrackNumber": "Track {number}",
   "@audioTrackNumber": {
@@ -1445,7 +1446,6 @@
   },
   "audioPauseRecitation": "Pause recitation",
   "audioPlayRecitation": "Play recitation",
-  "audioList": "Audio list",
   "audioOfflineNotDownloaded": "You're offline and this recitation isn't downloaded",
   "audioLoadFailed": "This recitation couldn't be loaded",
   "audioClosePlayer": "Close player",
@@ -1698,7 +1698,6 @@
   "airportNoneFound": "No airports found",
   "counterTapAnywhere": "Tap anywhere to count",
   "counterHoldToMove": "Hold and drag to move",
-  "counterAddOne": "Add one",
   "azanPaused": "{prayer} Azan is paused",
   "@azanPaused": {
     "placeholders": {
@@ -1731,17 +1730,6 @@
     }
   },
   "quranUnitSurah": "surah",
-  "hadithNoResults": "No results found for \"{query}\"",
-  "@hadithNoResults": {
-    "placeholders": {
-      "query": {
-        "type": "String"
-      }
-    }
-  },
-  "hadithTitle": "Hadith",
-  "hadithSearchHint": "Search hadith...",
-  "hadithNone": "No hadith available",
   "favoritesReorder": "Reorder {title}",
   "@favoritesReorder": {
     "placeholders": {
@@ -1769,15 +1757,11 @@
   "todaysNone": "No recitations configured.",
   "scheduledFallbackTitle": "Scheduled notification",
   "scheduledNone": "No scheduled notifications.",
-  "newsLoadFailed": "Failed to load news: {error}",
-  "@newsLoadFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "newsNoBrowser": "No web browser found",
+  "newsSource": "Headlines from ABNA, the AhlulBayt News Agency",
+  "newsUnavailable": "Couldn't load the news",
+  "newsUnavailableBody": "Check your internet connection and try again.",
+  "newsNone": "No news right now",
   "actionSaved": "Saved",
   "actionBookmark": "Bookmark",
   "actionShare": "Share",
@@ -2845,6 +2829,18 @@
       "chapter": {
         "type": "String"
       },
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryPageOf": "Page {page} of {pages}",
+  "@libraryPageOf": {
+    "description": "The Library reader's sub-line: which page of the chapter is open.",
+    "placeholders": {
       "page": {
         "type": "int"
       },

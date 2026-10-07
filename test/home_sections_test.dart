@@ -352,7 +352,8 @@ void main() {
         home: const AllFeaturesPage(),
       ));
 
-      expect(find.text('All features'), findsOneWidget);
+      // The large title, and the bar it folds into on scrolling.
+      expect(find.text('All features'), findsWidgets);
       expect(find.bySemanticsLabel('Duas, on your Home'), findsOneWidget);
       expect(find.bySemanticsLabel('Library'), findsOneWidget);
       expect(find.text('Settings'), findsOneWidget);

@@ -15,6 +15,7 @@ import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
 import '../theme/shia_colors.dart';
 import '../widgets/audio_download_button.dart';
+import '../widgets/choice_sheet.dart';
 import '../widgets/find_field.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
@@ -38,34 +39,65 @@ Future<String?> _promptForName(
   String initial = '',
   required String action,
 }) {
-  final controller = TextEditingController(text: initial);
-  return showDialog<String>(
-    context: context,
-    builder: (dialogContext) {
-      void submit() {
-        final name = controller.text.trim();
-        if (name.isNotEmpty) Navigator.of(dialogContext).pop(name);
-      }
+  return showRevampSheet<String>(
+    context,
+    title: title,
+    closeLabel: context.l10n.commonCancel,
+    builder: (_) => _NameForm(initial: initial, action: action),
+  );
+}
 
-      return AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
+/// The name field of [_promptForName] and its button; pops the trimmed name.
+class _NameForm extends StatefulWidget {
+  const _NameForm({required this.initial, required this.action});
+
+  final String initial;
+  final String action;
+
+  @override
+  State<_NameForm> createState() => _NameFormState();
+}
+
+class _NameFormState extends State<_NameForm> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final name = _controller.text.trim();
+    if (name.isNotEmpty) Navigator.of(context).pop(name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _controller,
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,
-          decoration: InputDecoration(hintText: context.l10n.playlistNameHint),
-          onSubmitted: (_) => submit(),
+          style: ShiaText.body.copyWith(color: colors.text),
+          decoration: revampFieldDecoration(context,
+              hint: context.l10n.playlistNameHint),
+          onChanged: (_) => setState(() {}),
+          onSubmitted: (_) => _submit(),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(context.l10n.commonCancel),
-          ),
-          FilledButton(onPressed: submit, child: Text(action)),
-        ],
-      );
-    },
-  ).whenComplete(controller.dispose);
+        const SizedBox(height: 14),
+        PageButton(
+          label: widget.action,
+          filled: true,
+          onPressed: _controller.text.trim().isEmpty ? null : _submit,
+        ),
+      ],
+    );
+  }
 }
 
 Future<void> _startPlaylist(
@@ -111,66 +143,63 @@ Future<void> _chooseRecordings(
   final chosen = {
     for (final track in playlist.tracksFor(uid, available)) track.file,
   };
-  final picked = await showModalBottomSheet<List<String>>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
+  final picked = await showRevampSheet<List<String>>(
+    context,
+    title: _zikrTitle(uid),
+    closeLabel: context.l10n.commonCancel,
     builder: (sheetContext) => StatefulBuilder(
-      builder: (sheetContext, setSheetState) => SafeArea(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(sheetContext).size.height * 0.7,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-                child: Text(_zikrTitle(uid),
-                    style: Theme.of(sheetContext).textTheme.titleMedium),
+      builder: (sheetContext, setSheetState) {
+        final colors = ShiaColors.of(sheetContext);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                context.l10n.playlistChooseRecordingsHint,
+                style: ShiaText.secondary.copyWith(color: colors.textMuted),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: Text(context.l10n.playlistChooseRecordingsHint,
-                    style: Theme.of(sheetContext).textTheme.bodySmall),
-              ),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    for (var i = 0; i < available.length; i++)
-                      CheckboxListTile(
-                        value: chosen.contains(available[i].file),
-                        title: Text(_trackLabel(available[i], i)),
-                        subtitle: available[i].reciter == null
-                            ? null
-                            : Text(available[i].reciter!),
-                        // Unticking the last one would leave nothing to play.
-                        onChanged: chosen.length == 1 &&
-                                chosen.contains(available[i].file)
-                            ? null
-                            : (on) => setSheetState(() => on == true
-                                ? chosen.add(available[i].file)
-                                : chosen.remove(available[i].file)),
+            ),
+            const SizedBox(height: 10),
+            CardList(children: [
+              for (var i = 0; i < available.length; i++)
+                Builder(builder: (context) {
+                  final file = available[i].file;
+                  final on = chosen.contains(file);
+                  // Unticking the last one would leave nothing to play.
+                  final locked = on && chosen.length == 1;
+                  void toggle() => setSheetState(
+                      () => on ? chosen.remove(file) : chosen.add(file));
+                  return MergeSemantics(
+                    child: CardListRow(
+                      first: i == 0,
+                      last: i == available.length - 1,
+                      title: Text(_trackLabel(available[i], i)),
+                      subtitle: available[i].reciter == null
+                          ? null
+                          : Text(available[i].reciter!),
+                      trailing: Checkbox(
+                        value: on,
+                        activeColor: colors.accent,
+                        onChanged: locked ? null : (_) => toggle(),
                       ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: FilledButton(
-                  onPressed: () => Navigator.of(sheetContext).pop([
-                    for (final track in available)
-                      if (chosen.contains(track.file)) track.file,
-                  ]),
-                  child: Text(context.l10n.commonDone),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+                      onTap: locked ? null : toggle,
+                    ),
+                  );
+                }),
+            ]),
+            const SizedBox(height: 14),
+            PageButton(
+              label: context.l10n.commonDone,
+              filled: true,
+              onPressed: () => Navigator.of(sheetContext).pop([
+                for (final track in available)
+                  if (chosen.contains(track.file)) track.file,
+              ]),
+            ),
+          ],
+        );
+      },
     ),
   );
   if (picked == null || picked.isEmpty) return;
@@ -197,45 +226,52 @@ Future<void> showAddToPlaylistSheet(
   final store = ZikrPlaylistStore.instance;
   final messenger = ScaffoldMessenger.of(context);
 
-  final choice = await showModalBottomSheet<Object>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (sheetContext) => SafeArea(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(sheetContext).size.height * 0.7,
-        ),
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text(
-                context.l10n.playlistAddTo,
-                style: Theme.of(sheetContext).textTheme.titleMedium,
-              ),
+  final choice = await showRevampSheet<Object>(
+    context,
+    title: context.l10n.playlistAddTo,
+    builder: (sheetContext) {
+      final colors = ShiaColors.of(sheetContext);
+      final playlists = store.playlists;
+      Widget well(OutlineGlyph glyph) => Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: colors.well,
+              borderRadius: BorderRadius.circular(12),
             ),
-            ListTile(
-              leading: const Icon(Icons.add),
-              title: Text(context.l10n.playlistNew),
-              onTap: () => Navigator.of(sheetContext).pop(true),
-            ),
-            for (final playlist in store.playlists)
-              ListTile(
-                leading: const Icon(Icons.playlist_play_rounded),
-                title: Text(playlist.name),
-                subtitle: Text(_countLabel(playlist.zikrUids.length)),
-                trailing: _hasRecording(playlist, uid, track)
-                    ? Icon(Icons.check,
-                        color: Theme.of(sheetContext).colorScheme.primary)
-                    : null,
-                onTap: () => Navigator.of(sheetContext).pop(playlist),
-              ),
-          ],
+            child: OutlineIcon(glyph, size: 20, color: colors.accent),
+          );
+      return CardList(children: [
+        CardListRow(
+          first: true,
+          last: playlists.isEmpty,
+          leading: well(OutlineGlyph.plus),
+          title: Text(
+            context.l10n.playlistNew,
+            style: TextStyle(color: colors.accent, fontWeight: FontWeight.w600),
+          ),
+          onTap: () => Navigator.of(sheetContext).pop(true),
         ),
-      ),
-    ),
+        for (final (i, playlist) in playlists.indexed)
+          CardListRow(
+            last: i == playlists.length - 1,
+            leading: well(OutlineGlyph.playlist),
+            title: Text(playlist.name),
+            subtitle: Text(_countLabel(playlist.zikrUids.length)),
+            trailing: SizedBox.square(
+              dimension: 44,
+              child: _hasRecording(playlist, uid, track)
+                  ? Center(
+                      child: OutlineIcon(OutlineGlyph.check,
+                          size: 22, color: colors.accent, strokeWidth: 2.4),
+                    )
+                  : null,
+            ),
+            onTap: () => Navigator.of(sheetContext).pop(playlist),
+          ),
+      ]);
+    },
   );
   if (!context.mounted) return;
 

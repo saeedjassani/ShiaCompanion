@@ -11,6 +11,7 @@ import '../utils/zikr_occasions.dart';
 import '../utils/zikr_reminder_labels.dart';
 import '../widgets/home_glyph.dart';
 import '../widgets/outline_icon.dart';
+import '../widgets/choice_sheet.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/prayer_glyph.dart';
 import 'zikr_picker_page.dart';
@@ -127,27 +128,34 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
 
   Future<void> _pickPrayer() async {
     final colors = ShiaColors.of(context);
-    final picked = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            for (final name in getPrayerNotificationPrayerNames())
-              ListTile(
-                leading:
-                    PrayerGlyph(name: name, size: 22, color: colors.accent),
+    final names = getPrayerNotificationPrayerNames();
+    final picked = await showRevampSheet<String>(
+      context,
+      title: context.l10n.reminderPrayer,
+      builder: (sheetContext) => CardList(children: [
+        for (final (i, name) in names.indexed)
+          MergeSemantics(
+            child: Semantics(
+              selected: name == _prayerName,
+              child: CardListRow(
+                first: i == 0,
+                last: i == names.length - 1,
+                leading: PrayerGlyph(name: name, size: 24, color: colors.accent),
                 title: Text(localizedPrayerName(name, context.l10n)),
-                trailing: name == _prayerName
-                    ? OutlineIcon(OutlineGlyph.check,
-                        size: 20, color: colors.accent, strokeWidth: 2.4)
-                    : null,
+                trailing: SizedBox.square(
+                  dimension: 44,
+                  child: name == _prayerName
+                      ? Center(
+                          child: OutlineIcon(OutlineGlyph.check,
+                              size: 22, color: colors.accent, strokeWidth: 2.4),
+                        )
+                      : null,
+                ),
                 onTap: () => Navigator.pop(sheetContext, name),
               ),
-          ],
-        ),
-      ),
+            ),
+          ),
+      ]),
     );
     if (picked != null && mounted) setState(() => _prayerName = picked);
   }
@@ -329,12 +337,10 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
                 child: TextField(
                   controller: _titleController,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    labelText: l10n.reminderTitleLabel,
-                    hintText: l10n.reminderTitleHint,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  decoration: revampFieldDecoration(
+                    context,
+                    label: l10n.reminderTitleLabel,
+                    hint: l10n.reminderTitleHint,
                   ),
                 ),
               ),

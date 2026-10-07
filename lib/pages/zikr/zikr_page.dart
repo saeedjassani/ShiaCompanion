@@ -1244,6 +1244,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         onIncrement: () => _setCounterCount(count + 1),
         onDecrement: count > 0 ? () => _setCounterCount(count - 1) : () {},
         onReset: () => _setCounterCount(0),
+        onClose: () => _setCounterVisibility(false),
       ),
     );
   }
@@ -2456,39 +2457,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                         bodyConstraints,
                                         bottomInset: bottomInset,
                                       ),
-                                      child: Stack(
-                                        clipBehavior: Clip.none,
-                                        children: [
-                                          _buildCounterCard(),
-                                          Positioned(
-                                            right: 8,
-                                            top: 8,
-                                            child: Material(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerHighest,
-                                              shape: const CircleBorder(),
-                                              child: IconButton(
-                                                padding:
-                                                    const EdgeInsets.all(6),
-                                                constraints:
-                                                    const BoxConstraints(
-                                                  minWidth: 32,
-                                                  minHeight: 32,
-                                                ),
-                                                visualDensity:
-                                                    VisualDensity.compact,
-                                                icon: const Icon(Icons.close,
-                                                    size: 16),
-                                                tooltip: context.l10n.zikrHideCounter,
-                                                onPressed: () =>
-                                                    _setCounterVisibility(
-                                                        false),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      child: _buildCounterCard(),
                                     ),
                                   ),
                                 );

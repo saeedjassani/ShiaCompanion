@@ -11,6 +11,7 @@ import '../services/location_service.dart';
 import '../theme/shia_colors.dart';
 import '../utils/city_clock.dart';
 import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
 import 'city_prayer_times_page.dart';
 
 /// What the reader chose in the city picker.
@@ -94,10 +95,18 @@ Future<void> chooseCityFlow(BuildContext context) async {
   if (choice case ChosenCity(:final city)) {
     final difference = cityClockDifference(city);
     if (difference != null && difference != Duration.zero) {
-      final inCity = await showDialog<bool>(
-        context: context,
-        builder: (context) =>
-            _InCityQuestion(city: city, difference: difference),
+      final l10n = context.l10n;
+      final inCity = await showRevampDialog<bool>(
+        context,
+        title: l10n.cityInCityQuestion(city.name),
+        body: l10n.cityInCityBody(
+          city.name,
+          clockDifferenceLabel(difference, l10n) ?? '',
+        ),
+        answers: [
+          DialogAnswer(false, l10n.cityJustChecking, primary: true),
+          DialogAnswer(true, l10n.cityImInCity(city.name)),
+        ],
       );
       if (inCity == null || !context.mounted) return;
       if (!inCity) {
@@ -358,59 +367,6 @@ class _CityPickerState extends State<CityPicker> {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// "Are you in Karbala now?", asked when a city chosen as the location reads
-/// a different time from the phone. Pops true for "I'm in Karbala now",
-/// false for "Just checking times".
-class _InCityQuestion extends StatelessWidget {
-  const _InCityQuestion({required this.city, required this.difference});
-
-  final City city;
-  final Duration difference;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = ShiaColors.of(context);
-    return AlertDialog(
-      title: Text(context.l10n.cityInCityQuestion(city.name)),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            context.l10n.cityInCityBody(
-              city.name,
-              clockDifferenceLabel(difference, context.l10n) ?? '',
-            ),
-            style: ShiaText.body.copyWith(color: colors.textMuted),
-          ),
-          const SizedBox(height: 20),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            style: FilledButton.styleFrom(
-              backgroundColor: colors.accent,
-              foregroundColor: colors.onAccent,
-              minimumSize: const Size.fromHeight(48),
-              shape: const StadiumBorder(),
-              textStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w600),
-            ),
-            child: Text(context.l10n.cityJustChecking),
-          ),
-          const SizedBox(height: 4),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: colors.accent,
-              minimumSize: const Size.fromHeight(44),
-              textStyle: ShiaText.body,
-            ),
-            child: Text(context.l10n.cityImInCity(city.name)),
           ),
         ],
       ),

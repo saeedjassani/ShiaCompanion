@@ -82,7 +82,7 @@ void main() {
     await tester.tap(find.byTooltip('Recent sessions'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Recent sessions'), findsOneWidget);
+    expect(find.text('Recent sessions'), findsWidgets);
     expect(find.textContaining('No sessions yet'), findsOneWidget);
   });
 
@@ -341,7 +341,7 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('Edit Later track'));
     await tester.pumpAndSettle();
-    expect(find.text('Continue from'), findsOneWidget);
+    expect(find.text('CONTINUE FROM'), findsOneWidget);
     await tester.tap(find.text('Juz (Para)'));
     await tester.pumpAndSettle();
     expect(find.text('Juz 1'), findsOneWidget);

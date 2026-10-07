@@ -49,7 +49,7 @@ void main() {
 
     // There is no connectivity plugin under test, which reads as offline.
     await tester.runAsync(() async {
-      await tester.tap(find.byType(IconButton));
+      await tester.tap(find.byType(PlayerIconButton));
       await Future<void>.delayed(const Duration(milliseconds: 50));
     });
     await tester.pumpAndSettle();

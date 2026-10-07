@@ -50,9 +50,15 @@ ThemeData buildAppTheme(Brightness brightness) {
     ),
     dividerTheme: DividerThemeData(color: c.divider, thickness: 1),
     listTileTheme: ListTileThemeData(iconColor: c.accent),
+    // The revamp's dialog (RevampDialog): the ground, 24 px corners, the
+    // section title and muted body text, so the simple confirmations still
+    // built as an AlertDialog read the same.
     dialogTheme: DialogThemeData(
-      backgroundColor: c.surface,
+      backgroundColor: c.ground,
       surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      titleTextStyle: ShiaText.sectionTitle.copyWith(color: c.text),
+      contentTextStyle: ShiaText.body.copyWith(color: c.textMuted),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: c.surface,

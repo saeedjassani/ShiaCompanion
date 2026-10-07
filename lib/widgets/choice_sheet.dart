@@ -7,11 +7,13 @@ import 'page_chrome.dart';
 
 /// Opens a bottom sheet in the revamp's style (the reader's Text sheet):
 /// the ground colour, a drag handle, a section title with Done, then
-/// [builder]'s content, scrolling when it is long.
+/// [builder]'s content, scrolling when it is long. [closeLabel] renames
+/// Done.
 Future<T?> showRevampSheet<T>(
   BuildContext context, {
   required String title,
   required WidgetBuilder builder,
+  String? closeLabel,
 }) {
   final colors = ShiaColors.of(context);
   return showModalBottomSheet<T>(
@@ -20,16 +22,26 @@ Future<T?> showRevampSheet<T>(
     useSafeArea: true,
     backgroundColor: colors.ground,
     constraints: const BoxConstraints(maxWidth: 640),
-    builder: (context) => SheetFrame(title: title, child: builder(context)),
+    builder: (context) => SheetFrame(
+        title: title, closeLabel: closeLabel, child: builder(context)),
   );
 }
 
 /// What [showRevampSheet] draws around its content.
 class SheetFrame extends StatelessWidget {
-  const SheetFrame({super.key, required this.title, required this.child});
+  const SheetFrame({
+    super.key,
+    required this.title,
+    required this.child,
+    this.closeLabel,
+  });
 
   final String title;
   final Widget child;
+
+  /// What the button beside the title says; Done when null. "Cancel" on a
+  /// form, where closing sends nothing.
+  final String? closeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +81,7 @@ class SheetFrame extends StatelessWidget {
                 ),
               ),
               PageTextAction(
-                label: context.l10n.commonDone,
+                label: closeLabel ?? context.l10n.commonDone,
                 onPressed: () => Navigator.of(context).maybePop(),
               ),
             ],

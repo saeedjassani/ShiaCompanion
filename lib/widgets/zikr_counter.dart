@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
-import '../l10n/l10n.dart';
 
-class ZikrCounter extends StatelessWidget {
+import '../l10n/l10n.dart';
+import '../theme/shia_colors.dart';
+import 'outline_icon.dart';
+import 'page_chrome.dart';
+
+/// The reader's floating counter, a pocket Tasbeeh (docs/DESIGN_SPEC.md,
+/// "Tools"): the whole panel counts one, the count in large type, then −1
+/// and Reset, with Reset asking first as Tasbeeh's does. The grip and ×
+/// along the top; the page makes the panel draggable.
+class ZikrCounter extends StatefulWidget {
   static const double panelWidth = 236;
-  static const double panelHeight = 192;
+  static const double panelHeight = 204;
 
   final int count;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final VoidCallback onReset;
+
+  /// Hides the counter; the count is kept for when it comes back.
+  final VoidCallback? onClose;
 
   const ZikrCounter({
     super.key,
@@ -16,98 +27,231 @@ class ZikrCounter extends StatelessWidget {
     required this.onIncrement,
     required this.onDecrement,
     required this.onReset,
+    this.onClose,
   });
 
   @override
+  State<ZikrCounter> createState() => _ZikrCounterState();
+}
+
+class _ZikrCounterState extends State<ZikrCounter> {
+  bool _confirmingReset = false;
+
+  void _increment() {
+    if (_confirmingReset) setState(() => _confirmingReset = false);
+    widget.onIncrement();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    final count = widget.count;
+    final radius = BorderRadius.circular(24);
 
     return SizedBox(
-      width: panelWidth,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: onIncrement,
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              color: colorScheme.surface,
-              border: Border.all(
-                color: colorScheme.outlineVariant,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.12),
-                  blurRadius: 18,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+      width: ZikrCounter.panelWidth,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          boxShadow: [
+            BoxShadow(
+              color: colors.glassShadow,
+              blurRadius: 28,
+              offset: const Offset(0, 8),
             ),
+          ],
+        ),
+        child: Material(
+          color: colors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: radius,
+            side: BorderSide(color: colors.line),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: _increment,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: panelHeight),
+              constraints:
+                  const BoxConstraints(minHeight: ZikrCounter.panelHeight),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+                padding: const EdgeInsets.fromLTRB(14, 4, 4, 14),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.touch_app_outlined,
-                          color: colorScheme.primary,
+                        ExcludeSemantics(
+                          child: OutlineIcon(OutlineGlyph.dragHandle,
+                              size: 18, color: colors.chevron),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            context.l10n.counterTapAnywhere,
-                            style: Theme.of(context).textTheme.titleMedium,
+                            l10n.counterHoldToMove,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: ShiaText.caption
+                                .copyWith(color: colors.textMuted),
                           ),
                         ),
-                        Icon(
-                          Icons.drag_indicator,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                        if (widget.onClose != null)
+                          _CloseButton(onPressed: widget.onClose!),
                       ],
                     ),
-                    const SizedBox(height: 14),
-                    Text(
-                      '$count',
-                      style:
-                          Theme.of(context).textTheme.displayMedium?.copyWith(
+                    Semantics(
+                      button: true,
+                      label: l10n.tasbeehCountOne,
+                      value: '$count',
+                      excludeSemantics: true,
+                      onTap: _increment,
+                      child: Column(
+                        children: [
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              '$count',
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: 60,
+                                height: 1.05,
                                 fontWeight: FontWeight.w700,
+                                letterSpacing: -1.5,
+                                color: colors.text,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures()
+                                ],
                               ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      context.l10n.counterHoldToMove,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _confirmingReset
+                                ? l10n.tasbeehStartAgainQuestion
+                                : l10n.counterTapAnywhere,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: ShiaText.caption.copyWith(
+                              fontWeight: _confirmingReset
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                              color: _confirmingReset
+                                  ? colors.text
+                                  : colors.textMuted,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton.filledTonal(
-                          tooltip: context.l10n.tasbeehMinusOne,
-                          onPressed: count > 0 ? onDecrement : null,
-                          icon: const Icon(Icons.remove),
-                        ),
-                        FilledButton.tonalIcon(
-                          onPressed: onReset,
-                          icon: const Icon(Icons.refresh),
-                          label: Text(context.l10n.tasbeehReset),
-                        ),
-                        IconButton.filled(
-                          tooltip: context.l10n.counterAddOne,
-                          onPressed: onIncrement,
-                          icon: const Icon(Icons.add),
-                        ),
-                      ],
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 10),
+                      child: _confirmingReset
+                          ? Semantics(
+                              liveRegion: true,
+                              container: true,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: PillButton(
+                                      label: l10n.commonCancel,
+                                      height: 44,
+                                      onPressed: () => setState(
+                                          () => _confirmingReset = false),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: PillButton(
+                                      label: l10n.tasbeehReset,
+                                      height: 44,
+                                      filled: true,
+                                      onPressed: () {
+                                        setState(
+                                            () => _confirmingReset = false);
+                                        widget.onReset();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Row(
+                              children: [
+                                Semantics(
+                                  label: l10n.tasbeehMinusOne,
+                                  excludeSemantics: true,
+                                  button: true,
+                                  enabled: count > 0,
+                                  onTap: count > 0 ? widget.onDecrement : null,
+                                  child: PillButton(
+                                    label: '−1',
+                                    height: 44,
+                                    onPressed:
+                                        count > 0 ? widget.onDecrement : null,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: PillButton(
+                                    label: l10n.tasbeehReset,
+                                    glyph: OutlineGlyph.reset,
+                                    height: 44,
+                                    onPressed: count > 0
+                                        ? () => setState(
+                                            () => _confirmingReset = true)
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The × that hides the counter: a small glyph with a 44 px target.
+class _CloseButton extends StatelessWidget {
+  const _CloseButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final label = context.l10n.zikrHideCounter;
+    return Tooltip(
+      message: label,
+      excludeFromSemantics: true,
+      child: Semantics(
+        button: true,
+        label: label,
+        excludeSemantics: true,
+        onTap: onPressed,
+        child: InkResponse(
+          onTap: onPressed,
+          radius: 22,
+          child: SizedBox.square(
+            dimension: 44,
+            child: Center(
+              child: Container(
+                width: 28,
+                height: 28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: colors.well,
+                  shape: BoxShape.circle,
+                ),
+                child: OutlineIcon(OutlineGlyph.close,
+                    size: 14, color: colors.textMuted, strokeWidth: 2.2),
               ),
             ),
           ),

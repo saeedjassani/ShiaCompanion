@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import '../../models/recitation_tracker_state.dart';
 import '../../services/recitation_tracker_manager.dart';
 import '../../utils/quran_index.dart';
+import '../../theme/shia_colors.dart';
+import '../../widgets/choice_sheet.dart';
+import '../../widgets/outline_icon.dart';
+import '../../widgets/page_chrome.dart';
 import 'verse_position_picker.dart';
 import '../../l10n/l10n.dart';
 
@@ -41,13 +45,13 @@ String describeRecitationPosition(
 ///
 /// Both ask the same two things: read by surah or by juz, and where to start.
 /// Creating also asks for a name; editing shows where the track has got to
-/// as context.l10n.trackContinueFrom, so moving a khatm along after reading some of it away
+/// as "Continue from", so moving a khatm along after reading some of it away
 /// from the app is the same tap as choosing where a new one begins.
 Future<void> showRecitationTrackSheet(BuildContext context, {String? label}) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
+  return showRevampSheet<void>(
+    context,
+    title: label ?? context.l10n.trackNew,
+    closeLabel: context.l10n.commonCancel,
     builder: (context) => _RecitationTrackSheet(label: label),
   );
 }
@@ -168,103 +172,95 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
     final position = _position;
     final positionText = position == null
-        ? context.l10n.trackBeginning
+        ? l10n.trackBeginning
         : describeRecitationPosition(position, byJuz: _readByJuz);
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.viewInsetsOf(context).bottom,
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                _isEditing ? widget.label! : context.l10n.trackNew,
-                style: theme.textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              if (!_isEditing) ...[
-                TextField(
-                  controller: _nameController,
-                  autofocus: true,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    labelText: context.l10n.trackName,
-                    hintText: context.l10n.trackNameHint,
-                    errorText: _nameError,
-                    border: const OutlineInputBorder(),
-                  ),
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _save(),
-                  onChanged: (_) {
-                    if (_nameError != null) setState(() => _nameError = null);
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
-              Text(context.l10n.trackReadBy, style: theme.textTheme.labelLarge),
-              const SizedBox(height: 8),
-              SegmentedButton<bool>(
-                segments: [
-                  ButtonSegment(
-                    value: false,
-                    label: Text(context.l10n.trackBySurah),
-                    icon: Icon(Icons.menu_book_outlined),
-                  ),
-                  ButtonSegment(
-                    value: true,
-                    label: Text(context.l10n.trackByJuz),
-                    icon: Icon(Icons.auto_stories_outlined),
-                  ),
-                ],
-                selected: {_readByJuz},
-                onSelectionChanged: (selection) =>
-                    _setReadByJuz(selection.first),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                _isEditing ? context.l10n.trackContinueFrom : context.l10n.trackStartFrom,
-                style: theme.textTheme.labelLarge,
-              ),
-              const SizedBox(height: 8),
-              Material(
-                color: colorScheme.surfaceContainerHighest,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (!_isEditing) ...[
+          TextField(
+            controller: _nameController,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            style: ShiaText.body.copyWith(color: colors.text),
+            decoration: revampFieldDecoration(
+              context,
+              label: l10n.trackName,
+              hint: l10n.trackNameHint,
+              error: _nameError,
+            ),
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _save(),
+            onChanged: (_) {
+              if (_nameError != null) setState(() => _nameError = null);
+            },
+          ),
+          const SizedBox(height: 18),
+        ],
+        GroupLabel(l10n.trackReadBy),
+        const SizedBox(height: 8),
+        SegmentedSwitcher<bool>(
+          segments: [
+            Segment(false, l10n.trackBySurah),
+            Segment(true, l10n.trackByJuz),
+          ],
+          selected: _readByJuz,
+          onChanged: _setReadByJuz,
+        ),
+        const SizedBox(height: 18),
+        GroupLabel(_isEditing ? l10n.trackContinueFrom : l10n.trackStartFrom),
+        const SizedBox(height: 8),
+        CardList(children: [
+          CardListRow(
+            first: true,
+            last: true,
+            leading: Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: colors.well,
                 borderRadius: BorderRadius.circular(12),
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  leading: const Icon(Icons.flag_outlined),
-                  title: Text(positionText),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: _pickPosition,
-                ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                _isEditing
-                    ? context.l10n.trackEditNote
-                    : context.l10n.trackNewNote,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: colorScheme.onSurfaceVariant),
+              child: OutlineIcon(OutlineGlyph.bookmark,
+                  size: 20, color: colors.accent),
+            ),
+            title: Text(positionText),
+            titleStyle: ShiaText.cardTitle,
+            trailing: SizedBox.square(
+              dimension: 36,
+              child: Center(
+                child: OutlineIcon(OutlineGlyph.chevronRight,
+                    size: 18, color: colors.chevron, strokeWidth: 2),
               ),
-              const SizedBox(height: 20),
-              FilledButton(
-                onPressed: _save,
-                child: Text(_isEditing ? context.l10n.commonSave : context.l10n.trackCreate),
-              ),
-            ],
+            ),
+            onTap: _pickPosition,
+          ),
+        ]),
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            _isEditing ? l10n.trackEditNote : l10n.trackNewNote,
+            style: ShiaText.caption.copyWith(
+              height: 18 / 13,
+              color: colors.textMuted,
+            ),
           ),
         ),
-      ),
+        const SizedBox(height: 16),
+        PageButton(
+          label: _isEditing ? l10n.commonSave : l10n.trackCreate,
+          filled: true,
+          onPressed: _save,
+        ),
+      ],
     );
   }
 }

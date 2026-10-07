@@ -477,7 +477,7 @@ class _CounterControls extends StatelessWidget {
             button: true,
             enabled: onMinusOne != null,
             onTap: onMinusOne,
-            child: _PillButton(label: '−1', onPressed: onMinusOne),
+            child: PillButton(label: '−1', onPressed: onMinusOne),
           ),
         ),
         const SizedBox(width: 10),
@@ -489,7 +489,7 @@ class _CounterControls extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        _PillButton(
+        PillButton(
           label: l10n.tasbeehReset,
           glyph: OutlineGlyph.reset,
           onPressed: onReset,
@@ -525,69 +525,10 @@ class _ResetConfirmation extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          _PillButton(label: l10n.commonCancel, onPressed: onCancel),
+          PillButton(label: l10n.commonCancel, onPressed: onCancel),
           const SizedBox(width: 8),
-          _PillButton(
+          PillButton(
               label: l10n.tasbeehReset, onPressed: onReset, filled: true),
-        ],
-      ),
-    );
-  }
-}
-
-/// A 52 px fully rounded button: outlined on the surface, or [filled] in
-/// the accent.
-class _PillButton extends StatelessWidget {
-  const _PillButton({
-    required this.label,
-    required this.onPressed,
-    this.glyph,
-    this.filled = false,
-  });
-
-  final String label;
-  final VoidCallback? onPressed;
-  final OutlineGlyph? glyph;
-  final bool filled;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = ShiaColors.of(context);
-    final foreground = filled ? colors.onAccent : colors.text;
-    final glyph = this.glyph;
-    return FilledButton(
-      onPressed: onPressed,
-      style: FilledButton.styleFrom(
-        minimumSize: const Size(0, 52),
-        padding: const EdgeInsets.symmetric(horizontal: 18),
-        backgroundColor: filled ? colors.accent : colors.surface,
-        foregroundColor: foreground,
-        disabledBackgroundColor: colors.surface,
-        disabledForegroundColor: colors.text.withValues(alpha: 0.38),
-        elevation: 0,
-        shape: StadiumBorder(
-          side: filled
-              ? BorderSide.none
-              : BorderSide(
-                  color: Color.lerp(colors.line, colors.chevron, 0.35)!),
-        ),
-        textStyle: buttonTextStyle(context, ShiaText.body)
-            .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (glyph != null) ...[
-            OutlineIcon(glyph,
-                size: 18,
-                color: onPressed == null
-                    ? colors.text.withValues(alpha: 0.38)
-                    : foreground,
-                strokeWidth: 2),
-            const SizedBox(width: 6),
-          ],
-          Flexible(
-              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );
