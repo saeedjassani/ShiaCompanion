@@ -233,8 +233,9 @@ bar. Results scroll behind it under the same fade.
 
 ### Reading (zikr and Quran)
 - Top bar: round back button, one-line title, small sub-line ("12% read",
-  "Part 3 of 4", "Verse 255 of 286 · My reading"), favourite button, 3 px
-  progress line along the bottom edge.
+  "Part 3 of 4", "Verse 255 of 286 · My reading"), reminder bell (the
+  favourite heart on web, where reminders can't fire), 3 px progress line
+  along the bottom edge.
 - Multi-part zikrs: parts as chips under the title; swiping still changes
   part.
 - Content unchanged in behaviour: dividers between line groups, Merits
@@ -247,8 +248,7 @@ bar. Results scroll behind it under the same fade.
   sample, Arabic and English size, transliteration, translation, Arabic as
   one paragraph (disabled with the rule spelled out), keep screen on,
   focus mode, share as image; then the translation language (where more
-  than one is offered) and **Remind me to read this**, which moves here
-  from the old app bar's bell (not on web, where reminders can't fire).
+  than one is offered). Setting a reminder is the top bar's bell.
 - Focus mode hides both bars as today.
 
 ### First-run setup

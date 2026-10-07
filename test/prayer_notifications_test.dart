@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
@@ -55,6 +56,30 @@ void main() {
     test('silent is selectable per prayer', () async {
       await saveAzaanPreferenceForPrayer('Asr', 'silent');
       expect(getAzaanOptionForPrayer('Asr').id, 'silent');
+    });
+  });
+
+  group('a notification tap', () {
+    NotificationResponse tap(int id, String payload) => NotificationResponse(
+          notificationResponseType:
+              NotificationResponseType.selectedNotification,
+          id: id,
+          payload: payload,
+        );
+
+    test('is acted on once, however many times it is reported', () {
+      // The plugin's callback, then Home's check on resume, for one tap.
+      final first = tap(101, '2026-10-07T05:12:00.000');
+      expect(markNotificationTapHandled(first), isTrue);
+      expect(markNotificationTapHandled(tap(101, '2026-10-07T05:12:00.000')),
+          isFalse);
+    });
+
+    test('of the next day\'s notification for that prayer still counts', () {
+      expect(markNotificationTapHandled(tap(102, '2026-10-08T05:13:00.000')),
+          isTrue);
+      expect(markNotificationTapHandled(tap(102, '2026-10-09T05:14:00.000')),
+          isTrue);
     });
   });
 
