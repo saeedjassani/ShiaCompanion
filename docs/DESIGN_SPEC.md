@@ -248,8 +248,7 @@ bar. Results scroll behind it under the same fade.
   sample, Arabic and English size, transliteration, translation, Arabic as
   one paragraph (disabled with the rule spelled out), keep screen on,
   focus mode, share as image; then the translation language (where more
-  than one is offered) and **Remind me to read this**, as the top bar's
-  bell does (not on web, where reminders can't fire).
+  than one is offered). Setting a reminder is the top bar's bell.
 - Focus mode hides both bars as today.
 
 ### First-run setup

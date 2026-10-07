@@ -108,18 +108,5 @@ void main() {
       expect(SP.prefs.getBool('showTranslation'), isFalse);
       expect(paragraphSwitch().onChanged, isNotNull);
     });
-
-    testWidgets('offers a reminder row only when the page can set one',
-        (t) async {
-      await pumpSheet(t);
-      expect(find.text('Remind me to read this'), findsNothing);
-
-      var reminders = 0;
-      await t.pumpWidget(_host(ReaderTextSheet(
-        onChanged: () {},
-        onSetReminder: () => reminders++,
-      )));
-      expect(find.text('Remind me to read this'), findsOneWidget);
-    });
   });
 }

@@ -2232,8 +2232,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   /// The top bar's round action on the right: the reminder bell, which
   /// replaced the heart there (favourites are still kept from the lists'
-  /// own hearts). On web, where reminders can't fire (see [_openTextSheet]),
-  /// it stays the heart.
+  /// own hearts) and is the reader's one way to set a reminder.
+  ///
+  /// The heart on web: ZikrReminderService.rescheduleAll() no-ops under
+  /// kIsWeb (flutter_local_notifications has no web target), so a reminder
+  /// set there would silently never fire. Settings hides its whole "Zikr
+  /// Reminders" entry point on web for the same reason.
   Widget? _buildTopBarAction(BuildContext context) {
     if (kIsWeb) {
       final favorite = _favoriteData;
@@ -2249,20 +2253,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  /// The Text & reading sheet. Setting a reminder is also offered at its
-  /// foot, beside the top bar's bell.
-  ///
-  /// No reminder on web: ZikrReminderService.rescheduleAll() no-ops under
-  /// kIsWeb (flutter_local_notifications has no web target), so a reminder
-  /// set here would silently never fire. Settings hides its whole "Zikr
-  /// Reminders" entry point on web for the same reason.
+  /// The Text & reading sheet.
   void _openTextSheet() {
-    unawaited(showReaderTextSheet(
-      context,
-      onChanged: refreshState,
-      onSetReminder:
-          kIsWeb ? null : () => unawaited(_openReminderForm()),
-    ));
+    unawaited(showReaderTextSheet(context, onChanged: refreshState));
   }
 
   @override

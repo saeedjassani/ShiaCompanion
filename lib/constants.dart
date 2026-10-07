@@ -1342,19 +1342,24 @@ bool markNotificationTapHandled(NotificationResponse response) {
       .add('${response.id}|${response.payload}|${response.actionId}');
 }
 
-/// Acts on the notification tap that opened the app's Android screen, when
-/// it was never passed on to Dart.
+/// Acts on the notification tap that opened the app, when it was never
+/// passed on to Dart.
 ///
-/// MainActivity reuses the Flutter engine audio_service keeps alive
+/// Android: MainActivity reuses the Flutter engine audio_service keeps alive
 /// (AudioServiceActivity), so once Back has closed the screen the app itself
 /// can keep running without one. A notification tap then opens a new screen
 /// on that same running app: Home's start-up, which reads the tap that
 /// launched the app, ran long ago, and flutter_local_notifications passes a
 /// tap that opens a screen to neither of its callbacks - so the Azan never
-/// started, and a zikr reminder never opened its zikr. Home calls this on
-/// every resume; a tap already acted on is skipped.
+/// started, and a zikr reminder never opened its zikr.
+///
+/// iOS: the plugin keeps a tap that arrives before initialize() for the
+/// launch details only, and Home reads those before it initializes it.
+///
+/// Home calls this once the plugin is up and on every resume; a tap already
+/// acted on is skipped.
 Future<void> handleNotificationThatOpenedApp() async {
-  if (kIsWeb || !Platform.isAndroid) return;
+  if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return;
   final NotificationAppLaunchDetails? details;
   try {
     details = await FlutterLocalNotificationsPlugin()
