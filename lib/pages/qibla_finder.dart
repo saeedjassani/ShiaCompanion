@@ -19,7 +19,7 @@ import '../widgets/outline_icon.dart';
 import '../widgets/choice_sheet.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/qibla_compass_dial.dart';
-import '../widgets/responsive_content.dart' show compactContentWidth;
+import '../widgets/responsive_content.dart' show ScreenClass;
 import '../l10n/l10n.dart';
 import 'city_picker.dart';
 
@@ -274,16 +274,60 @@ class _QiblaFinderState extends State<QiblaFinder> {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    final gutter = pageGutter(context, maxWidth: compactContentWidth);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
 
-    Widget section(Widget child, {double bottom = 14}) => SliverPadding(
-          padding: gutter.copyWith(bottom: bottom),
-          sliver: SliverToBoxAdapter(child: child),
+    final target = _TargetCard(target: _target, onTap: _pickTarget);
+    // Permission and calibration come first: until they are sorted, the
+    // dial below cannot be trusted.
+    final notices = _notices();
+    final dial = ValueListenableBuilder<double>(
+      valueListenable: _heading,
+      builder: (context, heading, _) => QiblaCompassDial(
+        headingDegrees: _isLive ? heading : 0,
+        targetBearingDegrees: _targetBearing,
+        qiblaBearingDegrees: _qiblaBearing,
+        targetLabel: _target.city,
+        isAligned: _isLive && _isAlignedAt(heading),
+        isLive: _isLive,
+      ),
+    );
+    final instruction = ValueListenableBuilder<double>(
+      valueListenable: _heading,
+      builder: (context, heading, _) => _TurnInstruction(
+        target: _target,
+        targetBearing: _targetBearing,
+        headingDegrees: heading,
+        isLive: _isLive,
+        isAligned: _isAlignedAt(heading),
+      ),
+    );
+    final stats = ValueListenableBuilder<double>(
+      valueListenable: _heading,
+      builder: (context, heading, _) => _StatsRow(
+        distanceKm: _distanceKm,
+        targetBearing: _targetBearing,
+        headingDegrees: _isLive ? heading : null,
+      ),
+    );
+    final locationStrip = _LocationStrip(
+      location: _location,
+      here: _here,
+      onRefresh: _refreshLocation,
+    );
+
+    Widget column(List<Widget> children, {double spacing = 14}) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) SizedBox(height: spacing),
+              children[i],
+            ],
+          ],
         );
 
     return LargeTitlePage(
       title: context.l10n.qiblaPageTitle,
-      maxWidth: compactContentWidth,
+      maxWidth: widePageWidth,
       actions: [
         RoundIconButton(
           label: context.l10n.qiblaAboutCompass,
@@ -297,57 +341,51 @@ class _QiblaFinderState extends State<QiblaFinder> {
         ),
       ],
       slivers: [
-        section(_TargetCard(target: _target, onTap: _pickTarget)),
-        // Permission and calibration come first: until they are sorted, the
-        // dial below cannot be trusted.
-        for (final notice in _notices()) section(notice, bottom: 12),
-        section(
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 300),
-              child: ValueListenableBuilder<double>(
-                valueListenable: _heading,
-                builder: (context, heading, _) => QiblaCompassDial(
-                  headingDegrees: _isLive ? heading : 0,
-                  targetBearingDegrees: _targetBearing,
-                  qiblaBearingDegrees: _qiblaBearing,
-                  targetLabel: _target.city,
-                  isAligned: _isLive && _isAlignedAt(heading),
-                  isLive: _isLive,
+        SliverPadding(
+          padding: gutter,
+          sliver: SliverToBoxAdapter(
+            child: LayoutBuilder(builder: (context, constraints) {
+              // A desktop or a tablet on its side: the dial and what it
+              // says on the left, the rest beside it.
+              if (WideColumns.splits(constraints.maxWidth)) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: column([
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 380),
+                            child: dial,
+                          ),
+                        ),
+                        instruction,
+                      ]),
+                    ),
+                    const SizedBox(width: 32),
+                    Expanded(
+                      child: column([target, ...notices, stats, locationStrip]),
+                    ),
+                  ],
+                );
+              }
+              return column([
+                target,
+                ...notices,
+                Center(
+                  child: ConstrainedBox(
+                    // Bigger on a tablet, which has the room.
+                    constraints: BoxConstraints(
+                        maxWidth: ScreenClass.of(context).isPhone ? 300 : 380),
+                    child: dial,
+                  ),
                 ),
-              ),
-            ),
+                instruction,
+                stats,
+                locationStrip,
+              ]);
+            }),
           ),
-        ),
-        section(
-          ValueListenableBuilder<double>(
-            valueListenable: _heading,
-            builder: (context, heading, _) => _TurnInstruction(
-              target: _target,
-              targetBearing: _targetBearing,
-              headingDegrees: heading,
-              isLive: _isLive,
-              isAligned: _isAlignedAt(heading),
-            ),
-          ),
-        ),
-        section(
-          ValueListenableBuilder<double>(
-            valueListenable: _heading,
-            builder: (context, heading, _) => _StatsRow(
-              distanceKm: _distanceKm,
-              targetBearing: _targetBearing,
-              headingDegrees: _isLive ? heading : null,
-            ),
-          ),
-        ),
-        section(
-          _LocationStrip(
-            location: _location,
-            here: _here,
-            onRefresh: _refreshLocation,
-          ),
-          bottom: 0,
         ),
       ],
     );

@@ -249,7 +249,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final colors = ShiaColors.of(context);
-    final gutter = pageGutter(context);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
 
     return FutureBuilder<List<UidTitleData>>(
       future: _chaptersFuture,
@@ -379,6 +379,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
         }
 
         return LargeTitlePage(
+          maxWidth: widePageWidth,
           title: widget.title,
           subtitle: author != null && chapterCount != null
               ? l10n.libraryAuthorAndChapters(author, chapterCount)

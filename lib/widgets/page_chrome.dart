@@ -104,9 +104,14 @@ class BottomFade extends StatelessWidget {
 TextStyle buttonTextStyle(BuildContext context, TextStyle style) =>
     (Theme.of(context).textTheme.labelLarge ?? const TextStyle()).merge(style);
 
-/// The content width of a [LargeTitlePage] by default; the list width the
-/// pages it replaced used.
-const double largeTitlePageWidth = 900;
+/// The content width of a [LargeTitlePage] by default: one column, as wide
+/// as the reader's on a desktop, for forms, settings and short lists.
+const double largeTitlePageWidth = 720;
+
+/// The content width of a page that has more to show side by side on a
+/// desktop: a long list, whose [SliverCardList] goes two columns there, or
+/// a dashboard laid out with [WideColumns]. Home's width.
+const double widePageWidth = 1120;
 
 /// Horizontal padding that keeps a [LargeTitlePage]'s content in line with
 /// its title: the 16 px phone gutter (32 from tablet width up), widened to
@@ -118,6 +123,10 @@ EdgeInsets pageGutter(BuildContext context,
   final side = math.max(gutter, (width - maxWidth) / 2);
   return EdgeInsets.symmetric(horizontal: side);
 }
+
+/// The widest a control floating at the bottom of a page gets: a
+/// [FindField], the search field.
+const double floatingControlWidth = 640;
 
 /// The height of a [LargeTitlePage.bottom] control: a [FindField]'s.
 const double _bottomControlHeight = 62;
@@ -240,7 +249,15 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
               bottom: bottomOffset,
               child: Padding(
                 padding: gutter,
-                child: bottom,
+                // A field, not a toolbar: on a wide page it keeps a
+                // field's width, centred under the content.
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints:
+                        const BoxConstraints(maxWidth: floatingControlWidth),
+                    child: bottom,
+                  ),
+                ),
               ),
             ),
           ],
@@ -712,6 +729,12 @@ class ChoicePill extends StatelessWidget {
 
 /// A list drawn as one white card with a 1 px line (16 px corners), its
 /// rows built lazily; give each row a [CardListRow].
+///
+/// Given [twoColumnWidth] or more across (a wide page on a desktop or a
+/// tablet in landscape), the card holds its rows two to a line, in reading
+/// order, with a line between the columns: a long list a desktop window
+/// would otherwise draw as one tall strip with the hearts far from the
+/// titles (docs/DESIGN_SPEC.md, "Responsive behaviour").
 class SliverCardList extends StatelessWidget {
   const SliverCardList({
     super.key,
@@ -723,6 +746,9 @@ class SliverCardList extends StatelessWidget {
   final IndexedWidgetBuilder itemBuilder;
 
   static const double radius = 16;
+
+  /// The width from which the rows go two to a line.
+  static const double twoColumnWidth = 880;
 
   @override
   Widget build(BuildContext context) {
@@ -736,13 +762,115 @@ class SliverCardList extends StatelessWidget {
       sliver: SliverPadding(
         // Inside the 1 px line, so rows never paint over it.
         padding: const EdgeInsets.all(1),
-        sliver: SliverList.builder(
-          itemCount: itemCount,
-          itemBuilder: itemBuilder,
+        sliver: SliverLayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.crossAxisExtent < twoColumnWidth - 2 ||
+                itemCount < 2) {
+              return SliverList.builder(
+                itemCount: itemCount,
+                itemBuilder: itemBuilder,
+              );
+            }
+            final lines = (itemCount + 1) ~/ 2;
+            return SliverList.builder(
+              itemCount: lines,
+              itemBuilder: (context, line) => _CardListLine(
+                start: itemBuilder(context, line * 2),
+                end: line * 2 + 1 < itemCount
+                    ? itemBuilder(context, line * 2 + 1)
+                    : null,
+                first: line == 0,
+                last: line == lines - 1,
+              ),
+            );
+          },
         ),
       ),
     );
   }
+}
+
+/// One line of a two-column [SliverCardList]: two rows side by side, as
+/// tall as the taller, with a line between them.
+class _CardListLine extends StatelessWidget {
+  const _CardListLine({
+    required this.start,
+    required this.end,
+    required this.first,
+    required this.last,
+  });
+
+  final Widget start;
+  final Widget? end;
+  final bool first;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _CardListCell(
+              firstLine: first,
+              lastLine: last,
+              startColumn: true,
+              child: start,
+            ),
+          ),
+          if (end != null) ...[
+            ColoredBox(color: colors.divider, child: const SizedBox(width: 1)),
+            Expanded(
+              child: _CardListCell(
+                firstLine: first,
+                lastLine: last,
+                startColumn: false,
+                child: end!,
+              ),
+            ),
+          ] else
+            // The odd row out leaves its neighbour's place empty, without
+            // a line beside it.
+            const Expanded(child: SizedBox()),
+        ],
+      ),
+    );
+  }
+}
+
+/// Where a [CardListRow] sits in a two-column [SliverCardList], which it
+/// follows instead of its own first and last: which of its corners meet
+/// the card's, and whether a divider goes under it.
+class _CardListCell extends InheritedWidget {
+  const _CardListCell({
+    required this.firstLine,
+    required this.lastLine,
+    required this.startColumn,
+    required super.child,
+  });
+
+  final bool firstLine;
+  final bool lastLine;
+  final bool startColumn;
+
+  static _CardListCell? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_CardListCell>();
+
+  BorderRadiusDirectional inkRadius(Radius corner) =>
+      BorderRadiusDirectional.only(
+        topStart: firstLine && startColumn ? corner : Radius.zero,
+        topEnd: firstLine && !startColumn ? corner : Radius.zero,
+        bottomStart: lastLine && startColumn ? corner : Radius.zero,
+        bottomEnd: lastLine && !startColumn ? corner : Radius.zero,
+      );
+
+  @override
+  bool updateShouldNotify(_CardListCell oldWidget) =>
+      firstLine != oldWidget.firstLine ||
+      lastLine != oldWidget.lastLine ||
+      startColumn != oldWidget.startColumn;
 }
 
 /// [SliverCardList]'s box twin, for a short list inside other content.
@@ -804,15 +932,19 @@ class CardListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     const corner = Radius.circular(SliverCardList.radius - 1);
+    final cell = _CardListCell.maybeOf(context);
+    final last = cell?.lastLine ?? this.last;
 
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.vertical(
-          top: first ? corner : Radius.zero,
-          bottom: last ? corner : Radius.zero,
-        ),
+        borderRadius:
+            cell?.inkRadius(corner).resolve(Directionality.of(context)) ??
+                BorderRadius.vertical(
+                  top: first ? corner : Radius.zero,
+                  bottom: last ? corner : Radius.zero,
+                ),
         child: Container(
           constraints: BoxConstraints(minHeight: minHeight),
           decoration: last
@@ -1456,6 +1588,70 @@ class PillButton extends StatelessWidget {
               child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)),
         ],
       ),
+    );
+  }
+}
+
+/// A page's sections in two columns side by side once there is room
+/// ([SliverCardList.twoColumnWidth] across: a [widePageWidth] page on a
+/// desktop or a tablet in landscape), [start] on the left and [end] on the
+/// right; one column, [start] then [end], on anything narrower
+/// (docs/DESIGN_SPEC.md, "Responsive behaviour").
+///
+/// Each child is a section and brings no outer spacing of its own:
+/// [spacing] goes between them.
+class WideColumns extends StatelessWidget {
+  const WideColumns({
+    super.key,
+    required this.start,
+    required this.end,
+    this.spacing = 22,
+    this.gap = 32,
+    this.startFlex = 1,
+    this.endFlex = 1,
+  });
+
+  final List<Widget> start;
+  final List<Widget> end;
+
+  /// Between two sections, one above the other.
+  final double spacing;
+
+  /// Between the two columns.
+  final double gap;
+
+  final int startFlex;
+  final int endFlex;
+
+  /// Whether a [WideColumns] [width] across lays out in two columns.
+  static bool splits(double width) => width >= SliverCardList.twoColumnWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget column(List<Widget> children) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) SizedBox(height: spacing),
+              children[i],
+            ],
+          ],
+        );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (!splits(constraints.maxWidth) || end.isEmpty) {
+          return column([...start, ...end]);
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(flex: startFlex, child: column(start)),
+            SizedBox(width: gap),
+            Expanded(flex: endFlex, child: column(end)),
+          ],
+        );
+      },
     );
   }
 }

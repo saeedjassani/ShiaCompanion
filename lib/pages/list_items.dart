@@ -127,6 +127,7 @@ class _ItemListState extends State<ItemList> {
     final query = _find.text.trim();
 
     return LargeTitlePage(
+      maxWidth: widePageWidth,
       title: widget.title,
       subtitle: workingItems.isEmpty ? null : _countLabel(l10n),
       bottom: pushed && workingItems.isNotEmpty
@@ -134,7 +135,7 @@ class _ItemListState extends State<ItemList> {
           : null,
       slivers: [
         SliverPadding(
-          padding: pageGutter(context),
+          padding: pageGutter(context, maxWidth: widePageWidth),
           sliver: shown.isEmpty && query.isNotEmpty
               ? SliverToBoxAdapter(
                   child: EmptyStateCard(

@@ -7,7 +7,9 @@ import '../../navigation/home_menu.dart';
 import '../../services/analytics_service.dart';
 import '../../services/home_shortcuts_store.dart';
 import '../../theme/shia_colors.dart';
+import '../../widgets/choice_sheet.dart';
 import '../../widgets/outline_icon.dart';
+import '../../widgets/page_chrome.dart' show buttonTextStyle;
 import 'home_section.dart';
 
 /// Home's shortcuts: up to eleven features the reader picked, then All
@@ -189,12 +191,10 @@ class OnHomeBadge extends StatelessWidget {
 }
 
 /// Opens the shortcuts editor: remove, reorder and add, up to eleven.
+/// A bottom sheet on a phone, a centred dialog from tablet width up.
 Future<void> showShortcutsEditor(BuildContext context) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    backgroundColor: ShiaColors.of(context).ground,
+  return showAdaptiveSheet<void>(
+    context,
     builder: (_) => const ShortcutsEditorSheet(),
   );
 }
@@ -259,14 +259,7 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 8),
-          Container(
-            width: 40,
-            height: 5,
-            decoration: BoxDecoration(
-              color: colors.line,
-              borderRadius: BorderRadius.circular(3),
-            ),
-          ),
+          const SheetDragHandle(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
@@ -276,7 +269,7 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                   style: TextButton.styleFrom(
                     foregroundColor: colors.accent,
                     minimumSize: const Size(44, 44),
-                    textStyle: ShiaText.body,
+                    textStyle: buttonTextStyle(context, ShiaText.body),
                   ),
                   child: Text(context.l10n.commonCancel),
                 ),
@@ -295,8 +288,8 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                   style: TextButton.styleFrom(
                     foregroundColor: colors.accent,
                     minimumSize: const Size(44, 44),
-                    textStyle:
-                        ShiaText.body.copyWith(fontWeight: FontWeight.w700),
+                    textStyle: buttonTextStyle(context,
+                        ShiaText.body.copyWith(fontWeight: FontWeight.w700)),
                   ),
                   child: Text(context.l10n.commonDone),
                 ),

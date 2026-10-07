@@ -66,9 +66,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
         final view = showsVerses ? _view : _FavoritesView.zikr;
         // Nothing to edit once the last one is removed.
         final editing = _editing && favorites.isNotEmpty;
-        final gutter = pageGutter(context);
+        final gutter = pageGutter(context, maxWidth: widePageWidth);
 
         return LargeTitlePage(
+          maxWidth: widePageWidth,
           title: context.l10n.menuFavorites,
           actions: [
             if (view == _FavoritesView.zikr && favorites.isNotEmpty)

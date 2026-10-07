@@ -89,6 +89,7 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
     final query = _controller.text.trim();
 
     return LargeTitlePage(
+      maxWidth: widePageWidth,
       title: l10n.pickerChooseZikr,
       bottom: FindField(
         controller: _controller,
@@ -97,7 +98,7 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
       ),
       slivers: [
         SliverPadding(
-          padding: pageGutter(context),
+          padding: pageGutter(context, maxWidth: widePageWidth),
           sliver: results.isEmpty
               ? SliverToBoxAdapter(
                   child: EmptyStateCard(

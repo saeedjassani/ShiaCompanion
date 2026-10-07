@@ -23,6 +23,7 @@ import 'quran_navigation.dart';
 import 'recent_recitations_page.dart';
 import 'recitation_track_sheet.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/responsive_content.dart' show MouseDragScroll;
 
 /// The Quran screen: your recitation tracks, a way to jump to any verse, the
 /// two ways of browsing - by surah and by juz - and the collections (duas,
@@ -111,9 +112,10 @@ class _QuranPageState extends State<QuranPage> {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    final gutter = pageGutter(context);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
 
     return LargeTitlePage(
+      maxWidth: widePageWidth,
       title: context.l10n.quranTitle,
       actions: [
         // The sessions themselves stay here, beside the reading they
@@ -148,24 +150,37 @@ class _QuranPageState extends State<QuranPage> {
         // gutter rather than being cut off at it.
         SliverToBoxAdapter(child: _RecitationTrackCards(gutter: gutter)),
         SliverPadding(
-          padding: gutter.copyWith(top: 14),
-          sliver: SliverToBoxAdapter(
-            child: _GoToVerseButton(onPressed: _goToVerse),
-          ),
-        ),
-        SliverPadding(
           padding: gutter.copyWith(top: 14, bottom: 14),
           sliver: SliverToBoxAdapter(
-            child: SegmentedSwitcher<_QuranView>(
-              segments: [
-                Segment(_QuranView.surahs, context.l10n.quranTabSurahs),
-                Segment(_QuranView.juz, context.l10n.quranTabJuz),
-                Segment(
-                    _QuranView.collections, context.l10n.quranTabCollections),
-              ],
-              selected: _view,
-              onChanged: (view) => setState(() => _view = view),
-            ),
+            child: LayoutBuilder(builder: (context, constraints) {
+              final goToVerse = _GoToVerseButton(onPressed: _goToVerse);
+              final switcher = SegmentedSwitcher<_QuranView>(
+                segments: [
+                  Segment(_QuranView.surahs, context.l10n.quranTabSurahs),
+                  Segment(_QuranView.juz, context.l10n.quranTabJuz),
+                  Segment(
+                      _QuranView.collections, context.l10n.quranTabCollections),
+                ],
+                selected: _view,
+                onChanged: (view) => setState(() => _view = view),
+              );
+              // Where the list goes two columns, neither needs the whole
+              // width: they share a line, the switcher over the list's
+              // first column.
+              if (WideColumns.splits(constraints.maxWidth)) {
+                return Row(
+                  children: [
+                    Expanded(child: switcher),
+                    const SizedBox(width: 32),
+                    Expanded(child: goToVerse),
+                  ],
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [goToVerse, const SizedBox(height: 14), switcher],
+              );
+            }),
           ),
         ),
         SliverPadding(
@@ -218,20 +233,22 @@ class _RecitationTrackCards extends StatelessWidget {
         final state = RecitationTrackerManager.instance.state;
         final labels = [unlabeledRecitationLabel, ...state.labels];
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: gutter,
-          // Every card as tall as the tallest, whatever the text size.
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final label in labels) ...[
-                  _TrackCard(label: label, state: state),
-                  const SizedBox(width: 10),
+        return MouseDragScroll(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: gutter,
+            // Every card as tall as the tallest, whatever the text size.
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final label in labels) ...[
+                    _TrackCard(label: label, state: state),
+                    const SizedBox(width: 10),
+                  ],
+                  _AddTrackCard(onTap: () => showRecitationTrackSheet(context)),
                 ],
-                _AddTrackCard(onTap: () => showRecitationTrackSheet(context)),
-              ],
+              ),
             ),
           ),
         );

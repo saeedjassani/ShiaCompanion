@@ -17,6 +17,7 @@ import '../../widgets/reader_top_bar.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_reading_stats.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/responsive_content.dart' show MouseDragScroll;
 
 /// Where a reader is in the Quran, and whether they got there by reading.
 ///
@@ -2684,74 +2685,76 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             padding: const EdgeInsets.only(top: 2, bottom: 10),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: constraints.maxWidth - 24,
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(
-                          widget.tabContents.length,
-                          (index) {
-                            final isSelected = index == _selectedTabIndex;
-                            final label = _getTabHeader(
-                              widget.tabContents[index],
-                              index,
-                            );
-                            return Padding(
-                              key: _tabHeaderKeys[index],
-                              padding: EdgeInsetsDirectional.only(
-                                end: index == widget.tabContents.length - 1
-                                    ? 0
-                                    : 8,
-                              ),
-                              child: Semantics(
-                                button: true,
-                                selected: isSelected,
-                                child: Material(
-                                  color: isSelected
-                                      ? colors.accent
-                                      : colors.surface,
-                                  shape: StadiumBorder(
-                                    side: isSelected
-                                        ? BorderSide.none
-                                        : BorderSide(color: colors.line),
-                                  ),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: InkWell(
-                                    onTap: () => _animateToTab(index),
-                                    child: ConstrainedBox(
-                                      constraints:
-                                          const BoxConstraints(minHeight: 36),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 8,
-                                        ),
-                                        child: Text(
-                                          label,
-                                          style: ShiaText.caption.copyWith(
-                                            fontSize: 14,
-                                            height: 20 / 14,
-                                            fontWeight: isSelected
-                                                ? FontWeight.w600
-                                                : FontWeight.w500,
-                                            color: isSelected
-                                                ? colors.onAccent
-                                                : colors.text,
+                return MouseDragScroll(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth - 24,
+                      ),
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(
+                            widget.tabContents.length,
+                            (index) {
+                              final isSelected = index == _selectedTabIndex;
+                              final label = _getTabHeader(
+                                widget.tabContents[index],
+                                index,
+                              );
+                              return Padding(
+                                key: _tabHeaderKeys[index],
+                                padding: EdgeInsetsDirectional.only(
+                                  end: index == widget.tabContents.length - 1
+                                      ? 0
+                                      : 8,
+                                ),
+                                child: Semantics(
+                                  button: true,
+                                  selected: isSelected,
+                                  child: Material(
+                                    color: isSelected
+                                        ? colors.accent
+                                        : colors.surface,
+                                    shape: StadiumBorder(
+                                      side: isSelected
+                                          ? BorderSide.none
+                                          : BorderSide(color: colors.line),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: InkWell(
+                                      onTap: () => _animateToTab(index),
+                                      child: ConstrainedBox(
+                                        constraints:
+                                            const BoxConstraints(minHeight: 36),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 8,
+                                          ),
+                                          child: Text(
+                                            label,
+                                            style: ShiaText.caption.copyWith(
+                                              fontSize: 14,
+                                              height: 20 / 14,
+                                              fontWeight: isSelected
+                                                  ? FontWeight.w600
+                                                  : FontWeight.w500,
+                                              color: isSelected
+                                                  ? colors.onAccent
+                                                  : colors.text,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),

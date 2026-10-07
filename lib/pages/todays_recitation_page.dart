@@ -50,6 +50,7 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
             '${hijri.hYear}';
 
         return LargeTitlePage(
+          maxWidth: widePageWidth,
           title: context.l10n.menuTodaysRecitations,
           subtitle: dates,
           slivers: ready
@@ -72,7 +73,7 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
     ({LunarDay day, LunarDay? night}) today,
   ) {
     final l10n = context.l10n;
-    final gutter = pageGutter(context);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
     final groups = buildTodaysRecitationGroups();
 
     if (groups.isEmpty) {

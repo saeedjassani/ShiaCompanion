@@ -89,7 +89,7 @@ class _LibraryPageState extends State<LibraryPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final gutter = pageGutter(context);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
 
     return FutureBuilder<List<UidTitleData>>(
       future: _booksFuture,
@@ -204,6 +204,7 @@ class _LibraryPageState extends State<LibraryPage> {
         }
 
         return LargeTitlePage(
+          maxWidth: widePageWidth,
           title: l10n.libraryTitle,
           subtitle: books.isEmpty ? null : l10n.libraryCount(books.length),
           bottom: books.isEmpty

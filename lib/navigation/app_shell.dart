@@ -18,6 +18,7 @@ import '../widgets/home_glyph.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import 'home_menu.dart';
+import 'keyboard_shortcuts.dart';
 
 /// One tab of [AppShell].
 class AppShellTab {
@@ -175,31 +176,38 @@ class _AppShellState extends State<AppShell> {
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) _select(0);
         },
-        child: Scaffold(
-          // The tabs scroll under the floating bar; extendBody hands them
-          // its height as bottom padding so their ends can clear it.
-          extendBody: true,
-          bottomSheet: kIsWeb ? null : const AzanPlayingBanner(),
-          body: Theme(
-            data: _tabRootTheme(theme),
-            child: IndexedStack(
-              index: _index,
-              children: [
-                for (var i = 0; i < tabs.length; i++)
-                  _visited.contains(i)
-                      ? KeyedSubtree(
-                          key: ValueKey(tabs[i].contentKey ?? i),
-                          child: Builder(builder: tabs[i].builder),
-                        )
-                      : const SizedBox.shrink(),
-              ],
+        // Search from the keyboard, on the web or with a keyboard attached.
+        child: CallbackShortcuts(
+          bindings: searchShortcuts(_openSearch),
+          child: Focus(
+            autofocus: true,
+            child: Scaffold(
+              // The tabs scroll under the floating bar; extendBody hands them
+              // its height as bottom padding so their ends can clear it.
+              extendBody: true,
+              bottomSheet: kIsWeb ? null : const AzanPlayingBanner(),
+              body: Theme(
+                data: _tabRootTheme(theme),
+                child: IndexedStack(
+                  index: _index,
+                  children: [
+                    for (var i = 0; i < tabs.length; i++)
+                      _visited.contains(i)
+                          ? KeyedSubtree(
+                              key: ValueKey(tabs[i].contentKey ?? i),
+                              child: Builder(builder: tabs[i].builder),
+                            )
+                          : const SizedBox.shrink(),
+                  ],
+                ),
+              ),
+              bottomNavigationBar: AppTabBar(
+                tabs: tabs,
+                currentIndex: _index,
+                onSelect: _select,
+                onSearch: _openSearch,
+              ),
             ),
-          ),
-          bottomNavigationBar: AppTabBar(
-            tabs: tabs,
-            currentIndex: _index,
-            onSelect: _select,
-            onSearch: _openSearch,
           ),
         ),
       ),

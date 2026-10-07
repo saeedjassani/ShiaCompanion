@@ -328,9 +328,12 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final insets = MediaQuery.paddingOf(context);
-    final gutter = pageGutter(context);
-    final bottomOffset = floatingBottomOffset(context);
     final query = _query.text.trim();
+    // Results take a wide page's width, where their lists go two columns
+    // on a desktop; what comes before typing stays one column.
+    final gutter = pageGutter(context,
+        maxWidth: query.isEmpty ? largeTitlePageWidth : widePageWidth);
+    final bottomOffset = floatingBottomOffset(context);
 
     return Scaffold(
       backgroundColor: colors.ground,
@@ -361,22 +364,29 @@ class _SearchPageState extends State<SearchPage> {
             right: 0,
             bottom: bottomOffset,
             child: Padding(
-              padding: gutter,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FindField(
-                      controller: _query,
-                      autofocus: true,
-                      hint: isUserAdmin
-                          ? context.l10n.searchTitleOrUid
-                          : context.l10n.searchHint,
-                      onSubmitted: (_) => _recordSearch(),
-                    ),
+              padding: pageGutter(context),
+              child: Center(
+                child: ConstrainedBox(
+                  // A field's width, with the Close button beside it.
+                  constraints: const BoxConstraints(
+                      maxWidth: floatingControlWidth + 10 + FindField.height),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: FindField(
+                          controller: _query,
+                          autofocus: true,
+                          hint: isUserAdmin
+                              ? context.l10n.searchTitleOrUid
+                              : context.l10n.searchHint,
+                          onSubmitted: (_) => _recordSearch(),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const _CloseButton(),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  const _CloseButton(),
-                ],
+                ),
               ),
             ),
           ),

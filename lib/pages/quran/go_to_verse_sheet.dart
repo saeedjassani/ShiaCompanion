@@ -9,6 +9,7 @@ import '../../utils/quran_index.dart';
 import '../../utils/verse_query.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
+import '../../widgets/responsive_content.dart' show MouseDragScroll;
 
 /// "Go to a verse" (docs/DESIGN_SPEC.md, "Quran"; mockups `Verse-B-surah`
 /// and `Verse-B-verse`): step 1 picks a surah - by name or number, from four
@@ -228,18 +229,20 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
           const SizedBox(height: 6),
           SizedBox(
             height: 44,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: GoToVersePicker.quickPicks.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final surah = _surahs[GoToVersePicker.quickPicks[index] - 1];
-                return ChoicePill(
-                  label: '${surah.number} ${surah.englishName}',
-                  onTap: () => _openSurah(surah),
-                );
-              },
+            child: MouseDragScroll(
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: GoToVersePicker.quickPicks.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final surah = _surahs[GoToVersePicker.quickPicks[index] - 1];
+                  return ChoicePill(
+                    label: '${surah.number} ${surah.englishName}',
+                    onTap: () => _openSurah(surah),
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -342,21 +345,23 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
           const SizedBox(height: 14),
           SizedBox(
             height: 44,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: (count / _rangeSize).ceil(),
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final from = index * _rangeSize + 1;
-                final to = math.min(from + _rangeSize - 1, count);
-                return ChoicePill(
-                  label: '$from–$to',
-                  semanticsLabel: context.l10n.goToVerseRange(from, to),
-                  selected: from == _rangeStart,
-                  onTap: () => setState(() => _rangeStart = from),
-                );
-              },
+            child: MouseDragScroll(
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: (count / _rangeSize).ceil(),
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final from = index * _rangeSize + 1;
+                  final to = math.min(from + _rangeSize - 1, count);
+                  return ChoicePill(
+                    label: '$from–$to',
+                    semanticsLabel: context.l10n.goToVerseRange(from, to),
+                    selected: from == _rangeStart,
+                    onTap: () => setState(() => _rangeStart = from),
+                  );
+                },
+              ),
             ),
           ),
         ],

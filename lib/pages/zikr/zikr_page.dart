@@ -36,6 +36,7 @@ import 'package:shia_companion/utils/zikr_wakelock.dart';
 import 'package:shia_companion/models/zikr_audio_track.dart';
 import '../../constants.dart';
 import '../../theme/shia_colors.dart';
+import '../../widgets/choice_sheet.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/zikr_action_bar.dart';
 import '../../widgets/zikr_audio_player.dart';
@@ -736,14 +737,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           },
         );
 
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: colors.ground,
+    await showAdaptiveSheet<void>(
+      context,
       showDragHandle: true,
-      constraints: const BoxConstraints(maxWidth: 640),
       builder: (sheetContext) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          padding: EdgeInsets.fromLTRB(
+              16, SheetPresentation.inDialogOf(sheetContext) ? 20 : 0, 16, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1498,69 +1498,29 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         : TextDirection.ltr;
     if (merits.isEmpty) return;
 
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.55,
-        minChildSize: 0.35,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+    // The revamp's sheet on a phone, a centred dialog from tablet width up.
+    showRevampSheet<void>(
+      context,
+      title: context.l10n.zikrMerits,
+      builder: (context) {
+        final colors = ShiaColors.of(context);
+        final style = ShiaText.body.copyWith(height: 1.45, color: colors.text);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: SelectableText.rich(
+            textDirection: meritsDirection,
+            buildZikrTextSpanWithLinks(
+              rawLine: merits,
+              baseStyle: style,
+              linkStyle: style.copyWith(
+                color: colors.accent,
+                decoration: TextDecoration.underline,
+              ),
+              onLinkTap: (href) => _handleZikrLinkTap(href),
+            ),
           ),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 44,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-                child: Row(
-                  children: [
-                    Text(
-                      context.l10n.zikrMerits,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                  children: [
-                    SelectableText.rich(
-                      textDirection: meritsDirection,
-                      buildZikrTextSpanWithLinks(
-                        rawLine: merits,
-                        baseStyle: Theme.of(context).textTheme.bodyLarge ??
-                            const TextStyle(),
-                        linkStyle: (Theme.of(context).textTheme.bodyLarge ??
-                                const TextStyle())
-                            .copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          decoration: TextDecoration.underline,
-                        ),
-                        onLinkTap: (href) => _handleZikrLinkTap(href),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -2358,7 +2318,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   Center(child: Text(context.l10n.zikrComingSoon)),
                             )
                           : ResponsiveContent(
-                              maxWidth: readingContentWidth,
+                              maxWidth: readerColumnWidth(context),
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
                               child: ZikrContentViewerWidget(
