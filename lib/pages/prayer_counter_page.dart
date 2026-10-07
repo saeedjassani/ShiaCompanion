@@ -6,20 +6,35 @@ import 'package:flutter/services.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../constants.dart';
+import '../l10n/l10n.dart';
 import '../models/prayer_counter_state.dart';
 import '../services/analytics_service.dart';
 import '../services/proximity_sensor_service.dart';
+import '../theme/shia_colors.dart';
 import '../utils/shared_preferences.dart';
-import '../widgets/responsive_content.dart';
-import '../l10n/l10n.dart';
+import '../widgets/choice_sheet.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
 
+/// The Rakaat counter (docs/DESIGN_SPEC.md, "Tools"; mockups `Rakaat-A`
+/// and `Rakaat-B`): the prayer's length, the sensor's state, "Rakaat N of
+/// M" in large type with a bar per rakaat and a dot per sajdah, and Undo /
+/// Start over. The proximity sensor counts each sajdah where the phone has
+/// one; the panel is a button for any it misses.
+///
+/// While the sensor counts, a few seconds without a touch dims the page to
+/// the count alone on black ([dimAfter]); a tap brightens it again.
 class PrayerCounterPage extends StatefulWidget {
   const PrayerCounterPage({
     super.key,
     this.proximitySensorService = const ProximitySensorService(),
+    this.dimAfter = const Duration(seconds: 6),
   });
 
   final ProximitySensorService proximitySensorService;
+
+  /// How long the page waits without a touch before dimming.
+  final Duration dimAfter;
 
   @override
   State<PrayerCounterPage> createState() => _PrayerCounterPageState();
@@ -39,6 +54,9 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
   bool _sensorArmed = false;
   bool _resumeSensorWhenActive = false;
   DateTime? _lastSensorCountAt;
+
+  bool _dimmed = false;
+  Timer? _dimTimer;
 
   @override
   void initState() {
@@ -83,6 +101,39 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     return savedCounter;
   }
 
+  // ---------------------------------------------------------------------------
+  // Dim mode
+  // ---------------------------------------------------------------------------
+
+  /// Dims only while the sensor counts: counting by hand means touching the
+  /// panel after every sajdah, and a tap on the dimmed page only brightens
+  /// it. Never under a screen reader, which has no use for a black page.
+  bool get _canDim =>
+      _sensorEnabled &&
+      !_counter.isComplete &&
+      !(MediaQuery.maybeAccessibleNavigationOf(context) ?? false);
+
+  /// Starts the wait for dim mode over: on every touch, and whenever what
+  /// decides whether the page may dim changes.
+  void _restartDimTimer() {
+    _dimTimer?.cancel();
+    _dimTimer = null;
+    if (!mounted || _dimmed || !_canDim) return;
+    _dimTimer = Timer(widget.dimAfter, () {
+      if (!mounted || !_canDim) return;
+      setState(() => _dimmed = true);
+    });
+  }
+
+  void _brighten() {
+    if (_dimmed) setState(() => _dimmed = false);
+    _restartDimTimer();
+  }
+
+  // ---------------------------------------------------------------------------
+  // The sensor
+  // ---------------------------------------------------------------------------
+
   Future<void> _checkSensorAvailability() async {
     final available = await widget.proximitySensorService.isAvailable();
     if (!mounted) return;
@@ -103,7 +154,9 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
           _sensorEnabled = false;
           _sensorNear = false;
           _sensorArmed = false;
+          _dimmed = false;
         });
+        _restartDimTimer();
       }
       await subscription?.cancel();
       return;
@@ -116,6 +169,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
       _sensorNear = false;
       _sensorArmed = false;
     });
+    _restartDimTimer();
     _proximitySubscription =
         widget.proximitySensorService.proximityStates.listen(
       _handleProximityState,
@@ -123,11 +177,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
         if (!mounted) return;
         unawaited(_setSensorEnabled(false));
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.l10n.counterSensorStopped,
-            ),
-          ),
+          SnackBar(content: Text(context.l10n.counterSensorStopped)),
         );
       },
     );
@@ -152,6 +202,10 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     _recordSajdah();
   }
 
+  // ---------------------------------------------------------------------------
+  // Counting
+  // ---------------------------------------------------------------------------
+
   void _recordSajdah() {
     if (_counter.isComplete) return;
 
@@ -164,12 +218,15 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
         parameters: {'total_rakaat': _counter.totalRakaat},
       ));
       HapticFeedback.heavyImpact();
+      // Bright again for the end of the prayer, so "Prayer complete" and
+      // the salawat below can be read.
+      setState(() => _dimmed = false);
       unawaited(_setSensorEnabled(false));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           duration: Duration(seconds: 4),
           content: Text(
-            'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ وَعَجِّلْ فَرَجَهُمْ وَالْعَنْ أَعْدَاءَهُمْ أَجْمَعِينَ',
+            'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ وَعَجِّلْ فَرَجَهُمْ وَالْعَنْ أَعْدَاءَهُمْ أَجْمَعِينَ',
             textAlign: TextAlign.center,
             textDirection: TextDirection.rtl,
           ),
@@ -207,9 +264,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
             context: context,
             builder: (context) => AlertDialog(
               title: Text(context.l10n.counterStartOverTitle),
-              content: Text(
-                context.l10n.counterStartOverBody,
-              ),
+              content: Text(context.l10n.counterStartOverBody),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
@@ -241,506 +296,591 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        title: Text(context.l10n.counterTitle),
-        actions: [
-          IconButton(
-            tooltip: context.l10n.counterHowToPlace,
-            onPressed: _showPlacementGuide,
-            icon: const Icon(Icons.info_outline_rounded),
-          ),
-        ],
-      ),
-      body: ResponsiveScrollableContent(
-        maxWidth: compactContentWidth,
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Column(
+  void _showPlacementGuide() {
+    final l10n = context.l10n;
+    showRevampSheet<void>(
+      context,
+      title: l10n.counterPhonePlacement,
+      builder: (context) {
+        final colors = ShiaColors.of(context);
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildPlacementPrompt(context),
-            const SizedBox(height: 16),
-            _buildPrayerLengthSelector(context),
-            const SizedBox(height: 16),
-            _buildCounterCard(context),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _counter.hasStarted ? _undoSajdah : null,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(48),
-                    ),
-                    icon: const Icon(Icons.undo_rounded),
-                    label: Text(context.l10n.commonUndo),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.tonalIcon(
-                    onPressed: _counter.hasStarted ? _reset : null,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(48),
-                    ),
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(context.l10n.counterStartOver),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildSensorCard(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlacementPrompt(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: colorScheme.primary.withValues(alpha: 0.22),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: colorScheme.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.phone_iphone_rounded,
-              color: colorScheme.onPrimary,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.counterPlaceBelowTurbah,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  context.l10n.counterPlaceBelowTurbahBody,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPrayerLengthSelector(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.mosque_outlined,
-                  size: 21,
-                  color: colorScheme.primary,
-                ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                borderRadius: BorderRadius.circular(SliverCardList.radius),
+                border: Border.all(color: colors.line),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(context.l10n.counterPrayerLength, style: theme.textTheme.titleMedium),
-                    Text(
-                      context.l10n.counterSelectRakaat,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.counterPlacementBody,
+                    style: ShiaText.body.copyWith(color: colors.text),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.counterPlacementTest,
+                    style: ShiaText.secondary.copyWith(color: colors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+            if (_sensorAvailable == true) ...[
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  defaultTargetPlatform == TargetPlatform.iOS
+                      ? l10n.counterIphoneNote
+                      : l10n.counterAndroidNote,
+                  style: ShiaText.caption.copyWith(color: colors.textMuted),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<int>(
-              segments: const [
-                ButtonSegment(value: 2, label: Text('2')),
-                ButtonSegment(value: 3, label: Text('3')),
-                ButtonSegment(value: 4, label: Text('4')),
-              ],
-              selected: {_counter.totalRakaat},
-              showSelectedIcon: false,
-              onSelectionChanged: (selection) {
-                unawaited(_changeTotalRakaat(selection.first));
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCounterCard(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final status = _counter.isComplete
-        ? context.l10n.counterComplete
-        : _sensorEnabled && _sensorNear
-            ? context.l10n.counterSajdahDetected
-            : _sensorEnabled
-                ? context.l10n.counterSensorReady
-                : _sensorAvailable == null
-                    ? context.l10n.counterCheckingSensor
-                    : context.l10n.counterSensingOff;
-    final statusIcon = _counter.isComplete
-        ? Icons.check_circle_rounded
-        : _sensorEnabled
-            ? Icons.sensors_rounded
-            : _sensorAvailable == null
-                ? Icons.hourglass_top_rounded
-                : Icons.sensors_off_rounded;
-
-    return Semantics(
-      button: !_counter.isComplete,
-      label: context.l10n.counterSemanticsLabel,
-      value: _counter.displayValue,
-      hint: _counter.isComplete
-          ? null
-          : context.l10n.counterTapHint,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _counter.isComplete ? null : _recordSajdah,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(32),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                colorScheme.primaryContainer,
-                Color.lerp(
-                  colorScheme.primaryContainer,
-                  colorScheme.surfaceContainerHighest,
-                  0.55,
-                )!,
-              ],
-            ),
-            border: Border.all(
-              color: colorScheme.primary.withValues(alpha: 0.18),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 22, 24, 24),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 7,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface.withValues(alpha: 0.72),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          statusIcon,
-                          size: 17,
-                          color: colorScheme.primary,
-                        ),
-                        const SizedBox(width: 7),
-                        Text(
-                          status,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: colorScheme.onSurface,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 220),
-                  transitionBuilder: (child, animation) => ScaleTransition(
-                    scale: Tween<double>(begin: 0.88, end: 1).animate(
-                      CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOutBack,
-                      ),
-                    ),
-                    child: FadeTransition(opacity: animation, child: child),
-                  ),
-                  child: Text(
-                    _counter.displayValue,
-                    key: ValueKey(_counter.displayValue),
-                    style: theme.textTheme.displayLarge?.copyWith(
-                      color: colorScheme.onPrimaryContainer,
-                      fontSize: 100,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -4,
-                      height: 1,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _counter.isComplete
-                      ? context.l10n.counterRakaatCompleted(_counter.totalRakaat)
-                      : _counter.hasStarted
-                          ? context.l10n
-                                .counterPosition(_counter.rakaat, _counter.sajdah)
-                          : context.l10n.counterReady,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _buildProgressDots(context),
-                const SizedBox(height: 13),
-                Text(
-                  context.l10n.counterSajdahProgress(
-                      _counter.completedSajdahs, _counter.totalSajdahs),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onPrimaryContainer.withValues(
-                      alpha: 0.78,
-                    ),
-                  ),
-                ),
-                if (!_counter.isComplete) ...[
-                  const SizedBox(height: 22),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _sensorEnabled
-                            ? Icons.sensors_rounded
-                            : Icons.touch_app_outlined,
-                        size: 18,
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          _sensorEnabled
-                              ? context.l10n.counterAutomaticHint
-                              : context.l10n.counterManualHint,
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: colorScheme.onPrimaryContainer,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProgressDots(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Row(
-      children: List.generate(_counter.totalSajdahs, (index) {
-        final isComplete = index < _counter.completedSajdahs;
-        return Expanded(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            height: 7,
-            margin: EdgeInsets.only(
-              right: index == _counter.totalSajdahs - 1 ? 0 : 6,
-            ),
-            decoration: BoxDecoration(
-              color: isComplete
-                  ? colorScheme.primary
-                  : colorScheme.onPrimaryContainer.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
-  Widget _buildSensorCard(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final subtitle = switch (_sensorAvailable) {
-      null => context.l10n.counterCheckingDevice,
-      false => context.l10n.counterNotAvailable,
-      true when _sensorEnabled && _sensorNear =>
-        context.l10n.counterObjectDetected,
-      true when _sensorEnabled => context.l10n.counterSensorArmed,
-      true => context.l10n.counterSensorOffSubtitle,
-    };
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: _sensorEnabled
-              ? colorScheme.primary.withValues(alpha: 0.5)
-              : colorScheme.outlineVariant,
-        ),
-      ),
-      child: Column(
-        children: [
-          SwitchListTile(
-            contentPadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
-            value: _sensorEnabled,
-            onChanged: _sensorAvailable == true && !_counter.isComplete
-                ? (value) => unawaited(_setSensorEnabled(value))
-                : null,
-            secondary: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: _sensorAvailable == null
-                  ? const Padding(
-                      padding: EdgeInsets.all(11),
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Icon(
-                      _sensorNear ? Icons.sensors : Icons.sensors_outlined,
-                      color: colorScheme.primary,
-                    ),
-            ),
-            title: Text(context.l10n.counterAutomaticSensing),
-            subtitle: Text(subtitle),
-          ),
-          if (_sensorAvailable == true)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Text(
-                defaultTargetPlatform == TargetPlatform.iOS
-                    ? context.l10n.counterIphoneNote
-                    : context.l10n.counterAndroidNote,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  void _showPlacementGuide() {
-    final colorScheme = Theme.of(context).colorScheme;
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      useSafeArea: true,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: colorScheme.primary.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.phone_iphone_rounded,
-                    color: colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Text(
-                  context.l10n.counterPhonePlacement,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            Text(
-              context.l10n.counterPlacementBody,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              context.l10n.counterPlacementTest,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-            ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _dimTimer?.cancel();
     _proximitySubscription?.cancel();
     unawaited(WakelockPlus.disable());
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+    final page = Scaffold(
+      backgroundColor: colors.ground,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: FillOrScroll(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ToolHeader(title: l10n.counterTitle),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.counterRakaatInPrayer,
+                            style: ShiaText.body.copyWith(
+                              fontSize: 16,
+                              height: 20 / 16,
+                              fontWeight: FontWeight.w600,
+                              color: colors.text,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        SizedBox(
+                          width: 168,
+                          child: SegmentedSwitcher<int>(
+                            segments: const [
+                              Segment(2, '2'),
+                              Segment(3, '3'),
+                              Segment(4, '4'),
+                            ],
+                            selected: _counter.totalRakaat,
+                            onChanged: (total) =>
+                                unawaited(_changeTotalRakaat(total)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    // The link drops under the pill where the two don't fit
+                    // side by side (a large text size, a longer language).
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        _sensorPill(context),
+                        _PlacementLink(onTap: _showPlacementGuide),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Expanded(child: _counterPanel(context)),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: PageButton(
+                            label: l10n.commonUndo,
+                            glyph: OutlineGlyph.undo,
+                            onPressed: _counter.hasStarted ? _undoSajdah : null,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: PageButton(
+                            label: l10n.counterStartOver,
+                            glyph: OutlineGlyph.reset,
+                            onPressed: _counter.hasStarted ? _reset : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    return Listener(
+      // Every touch on the page puts dim mode off for another few seconds.
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (_) => _restartDimTimer(),
+      child: Stack(
+        children: [
+          ExcludeSemantics(excluding: _dimmed, child: page),
+          if (_dimmed)
+            Positioned.fill(
+              // Fades in; brightening is instant, as it should be for
+              // someone who has just touched the screen to see it.
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 400),
+                builder: (context, opacity, child) =>
+                    Opacity(opacity: opacity, child: child),
+                child: _DimView(counter: _counter, onBrighten: _brighten),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sensorPill(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    final (label, dot) = _counter.isComplete
+        ? (l10n.counterComplete, colors.success)
+        : _sensorAvailable == null
+            ? (l10n.counterCheckingSensor, colors.chevron)
+            : _sensorAvailable == false
+                ? (l10n.counterNoSensorPill, colors.chevron)
+                : _sensorEnabled && _sensorNear
+                    ? (l10n.counterSajdahDetected, colors.accent)
+                    : _sensorEnabled
+                        ? (l10n.counterSensorOnPill, colors.success)
+                        : (l10n.counterSensorOffPill, colors.chevron);
+    final toggleable = _sensorAvailable == true && !_counter.isComplete;
+    final onTap =
+        toggleable ? () => unawaited(_setSensorEnabled(!_sensorEnabled)) : null;
+
+    return Semantics(
+      button: toggleable,
+      toggled: toggleable ? _sensorEnabled : null,
+      label: toggleable ? l10n.counterAutomaticSensing : null,
+      value: label,
+      hint: toggleable ? l10n.counterSensorToggleHint : null,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Material(
+        color: colors.surface,
+        shape: StadiumBorder(side: BorderSide(color: colors.line)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            // 44 to tap, though it draws as the mockup's 34 px pill.
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 9,
+                    height: 9,
+                    decoration:
+                        BoxDecoration(color: dot, shape: BoxShape.circle),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: ShiaText.caption.copyWith(
+                        fontSize: 14,
+                        height: 18 / 14,
+                        fontWeight: FontWeight.w600,
+                        color: colors.text,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _counterPanel(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    final complete = _counter.isComplete;
+    final hint = complete
+        ? l10n.counterCompleteHint
+        : _sensorEnabled
+            ? l10n.counterMissedHint
+            : l10n.counterManualTapHint;
+
+    return Semantics(
+      button: !complete,
+      label: complete ? l10n.counterPrayerComplete : l10n.counterAddSajdah,
+      value: l10n.counterSemanticsValue(_counter.currentRakaat,
+          _counter.totalRakaat, _counter.sajdahsInCurrentRakaat),
+      hint: complete ? l10n.counterCompleteHint : null,
+      excludeSemantics: true,
+      onTap: complete ? null : _recordSajdah,
+      child: Material(
+        color: colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
+          side: BorderSide(color: colors.line),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: complete ? null : _recordSajdah,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    // Shrinks rather than overflows on a short screen or
+                    // at a large text size.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: _CountDisplay(
+                        counter: _counter,
+                        palette: _CountPalette.of(colors),
+                        numberSize: 160,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  hint,
+                  textAlign: TextAlign.center,
+                  style: ShiaText.secondary.copyWith(color: colors.textMuted),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Phone placement", a link to how to place the phone.
+class _PlacementLink extends StatelessWidget {
+  const _PlacementLink({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Semantics(
+      link: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Center(
+              widthFactor: 1,
+              child: Text(
+                context.l10n.counterPhonePlacement,
+                style: ShiaText.caption.copyWith(
+                  fontSize: 14,
+                  height: 18 / 14,
+                  fontWeight: FontWeight.w600,
+                  color: colors.accent,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The colours of a [_CountDisplay]: the theme's on the page, the fixed
+/// low-light browns of dim mode on black.
+class _CountPalette {
+  const _CountPalette({
+    required this.number,
+    required this.muted,
+    required this.done,
+    required this.now,
+    required this.ahead,
+    required this.dotOn,
+    required this.dotOff,
+    required this.label,
+  });
+
+  factory _CountPalette.of(ShiaColors colors) => _CountPalette(
+        number: colors.text,
+        muted: colors.textMuted,
+        done: colors.accent,
+        now: Color.lerp(colors.accent, colors.readerDivider, 0.5)!,
+        ahead: colors.readerDivider,
+        dotOn: colors.accent,
+        dotOff: Color.lerp(colors.line, colors.chevron, 0.5)!,
+        label: colors.text,
+      );
+
+  /// Mockup `Rakaat-B`: nothing brighter than a dim sand on black.
+  static const dim = _CountPalette(
+    number: Color(0xFFB8A48E),
+    muted: Color(0xFF8C7B6B),
+    done: Color(0xFF8C7B6B),
+    now: Color(0xFF5A4D41),
+    ahead: Color(0xFF241E19),
+    dotOn: Color(0xFFB8A48E),
+    dotOff: Color(0xFF5A4D41),
+    label: Color(0xFFB8A48E),
+  );
+
+  final Color number;
+  final Color muted;
+  final Color done;
+  final Color now;
+  final Color ahead;
+  final Color dotOn;
+  final Color dotOff;
+  final Color label;
+}
+
+/// "Rakaat / 3 of 4", a bar per rakaat and the sajdah dots.
+class _CountDisplay extends StatelessWidget {
+  const _CountDisplay({
+    required this.counter,
+    required this.palette,
+    required this.numberSize,
+  });
+
+  final PrayerCounterState counter;
+  final _CountPalette palette;
+  final double numberSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final complete = counter.isComplete;
+    final scale = numberSize / 160;
+    final sajdahs = counter.sajdahsInCurrentRakaat;
+
+    Widget dot(bool on) => Container(
+          width: 18 * scale,
+          height: 18 * scale,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: on ? palette.dotOn : null,
+            border: on ? null : Border.all(color: palette.dotOff, width: 2),
+          ),
+        );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          complete ? l10n.counterPrayerComplete : l10n.counterRakaatCaption,
+          style: TextStyle(
+            fontSize: 20 * scale,
+            height: 1.2,
+            fontWeight: FontWeight.w600,
+            color: palette.muted,
+          ),
+        ),
+        SizedBox(height: 10 * scale),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              '${counter.currentRakaat}',
+              style: TextStyle(
+                fontSize: numberSize,
+                height: 0.94,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -numberSize / 26,
+                color: palette.number,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+            SizedBox(width: 10 * scale),
+            Text(
+              l10n.counterOfTotal(counter.totalRakaat),
+              style: TextStyle(
+                fontSize: 28 * scale,
+                height: 1.2,
+                fontWeight: FontWeight.w600,
+                color: palette.muted,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 10 * scale),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 1; i <= counter.totalRakaat; i++) ...[
+              if (i > 1) SizedBox(width: 8 * scale),
+              Container(
+                width: 40 * scale,
+                height: 8 * scale,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4 * scale),
+                  color: complete || i < counter.currentRakaat
+                      ? palette.done
+                      : i == counter.currentRakaat
+                          ? palette.now
+                          : palette.ahead,
+                ),
+              ),
+            ],
+          ],
+        ),
+        SizedBox(height: 28 * scale),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            dot(sajdahs >= 1),
+            SizedBox(width: 12 * scale),
+            dot(sajdahs >= 2),
+            SizedBox(width: 12 * scale),
+            Text(
+              complete
+                  ? l10n.counterAllSajdahsDone
+                  : l10n.counterSajdahsOfTwo(sajdahs),
+              style: TextStyle(
+                fontSize: 22 * scale,
+                height: 1.27,
+                fontWeight: FontWeight.w600,
+                color: palette.label,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Dim mode (mockup `Rakaat-B`): the count alone, in dim browns on black.
+/// A tap anywhere, or the ×, brightens the page; nothing here counts.
+class _DimView extends StatelessWidget {
+  const _DimView({required this.counter, required this.onBrighten});
+
+  final PrayerCounterState counter;
+  final VoidCallback onBrighten;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    const palette = _CountPalette.dim;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Semantics(
+        button: true,
+        label: l10n.counterDimmedHint,
+        value: l10n.counterSemanticsValue(counter.currentRakaat,
+            counter.totalRakaat, counter.sajdahsInCurrentRakaat),
+        excludeSemantics: true,
+        onTap: onBrighten,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onBrighten,
+          child: Material(
+            color: Colors.black,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 6, 16, 24),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Tooltip(
+                        message: l10n.counterLeaveDim,
+                        child: Material(
+                          color: Colors.transparent,
+                          shape: const CircleBorder(
+                              side: BorderSide(color: Color(0xFF2A241E))),
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            onTap: onBrighten,
+                            child: const SizedBox.square(
+                              dimension: 44,
+                              child: Center(
+                                child: OutlineIcon(OutlineGlyph.close,
+                                    size: 20,
+                                    color: Color(0xFF8C7B6B),
+                                    strokeWidth: 2),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: _CountDisplay(
+                            counter: counter,
+                            palette: palette,
+                            numberSize: 200,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      l10n.counterDimmedHint,
+                      textAlign: TextAlign.center,
+                      style: ShiaText.secondary.copyWith(color: palette.muted),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

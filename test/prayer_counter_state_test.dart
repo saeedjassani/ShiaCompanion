@@ -42,4 +42,26 @@ void main() {
     expect(state.totalRakaat, 4);
     expect(state.completedSajdahs, 0);
   });
+
+  test('shows the rakaat being prayed: the next one once both sajdahs are done',
+      () {
+    var state = const PrayerCounterState(totalRakaat: 4);
+    final shown = <(int, int)>[];
+    for (var i = 0; i <= 8; i++) {
+      shown.add((state.currentRakaat, state.sajdahsInCurrentRakaat));
+      state = state.recordSajdah();
+    }
+    expect(shown, [
+      (1, 0),
+      (1, 1),
+      (2, 0),
+      (2, 1),
+      (3, 0),
+      (3, 1),
+      (4, 0),
+      (4, 1),
+      // Complete: the last rakaat, both sajdahs done.
+      (4, 2),
+    ]);
+  });
 }

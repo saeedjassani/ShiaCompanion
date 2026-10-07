@@ -94,7 +94,7 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
     final paragraphAvailable = arabicParagraphAvailable();
-    final showLanguage = TranslationLanguageTile.isOffered(context);
+    final showLanguage = translationLanguageOffered(context);
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
@@ -182,17 +182,17 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
           ),
           const SizedBox(height: 12),
           CardList(children: [
-            _SwitchRow(
+            CardSwitchRow(
               label: l10n.readerTransliteration,
               value: ReadingSwitch.transliteration.value,
               onChanged: (v) => _toggle(ReadingSwitch.transliteration, v),
             ),
-            _SwitchRow(
+            CardSwitchRow(
               label: l10n.readerTranslation,
               value: ReadingSwitch.translation.value,
               onChanged: (v) => _toggle(ReadingSwitch.translation, v),
             ),
-            _SwitchRow(
+            CardSwitchRow(
               label: l10n.readerArabicParagraph,
               hint: l10n.readerArabicParagraphHint,
               value: paragraphAvailable && ReadingSwitch.arabicParagraph.value,
@@ -200,18 +200,18 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
                   ? (v) => _toggle(ReadingSwitch.arabicParagraph, v)
                   : null,
             ),
-            _SwitchRow(
+            CardSwitchRow(
               label: l10n.readerKeepScreenOn,
               value: ReadingSwitch.keepScreenOn.value,
               onChanged: (v) => _toggle(ReadingSwitch.keepScreenOn, v),
             ),
-            _SwitchRow(
+            CardSwitchRow(
               label: l10n.readerFocusMode,
               hint: l10n.readerFocusModeHint,
               value: ReadingSwitch.focusMode.value,
               onChanged: (v) => _toggle(ReadingSwitch.focusMode, v),
             ),
-            _SwitchRow(
+            CardSwitchRow(
               label: l10n.readerShareAsImage,
               value: ReadingSwitch.shareAsImage.value,
               onChanged: (v) => _toggle(ReadingSwitch.shareAsImage, v),
@@ -222,9 +222,9 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
             const SizedBox(height: 12),
             CardList(children: [
               if (showLanguage)
-                Material(
-                  type: MaterialType.transparency,
-                  child: const TranslationLanguageTile(),
+                TranslationLanguageTile(
+                  first: true,
+                  last: widget.onSetReminder == null,
                 ),
               if (widget.onSetReminder != null)
                 CardListRow(
@@ -434,68 +434,6 @@ class _StepButton extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A labelled switch, with an optional hint under the label. Disabled (and
-/// dimmed) when [onChanged] is null.
-class _SwitchRow extends StatelessWidget {
-  const _SwitchRow({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    this.hint,
-    this.last = false,
-  });
-
-  final String label;
-  final String? hint;
-  final bool value;
-  final ValueChanged<bool>? onChanged;
-  final bool last;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = ShiaColors.of(context);
-    final enabled = onChanged != null;
-    return MergeSemantics(
-      child: Opacity(
-        opacity: enabled ? 1 : 0.55,
-        child: InkWell(
-          onTap: enabled ? () => onChanged!(!value) : null,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 54),
-            padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 10, 6),
-            decoration: BoxDecoration(
-              border: last
-                  ? null
-                  : Border(bottom: BorderSide(color: colors.divider)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(label,
-                          style: ShiaText.body.copyWith(color: colors.text)),
-                      if (hint != null)
-                        Text(
-                          hint!,
-                          style: ShiaText.caption
-                              .copyWith(color: colors.textMuted),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Switch(value: value, onChanged: onChanged),
-              ],
             ),
           ),
         ),

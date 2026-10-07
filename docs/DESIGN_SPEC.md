@@ -339,11 +339,19 @@ today's Quran progress, privacy note and community sections as cards.
 - **Tasbeeh:** segmented Tasbih al-Zahra / Free count; in Zahra mode the
   current phrase in Arabic + transliteration, "12 of 34", three phase bars
   (34/33/33). Whole panel is the tap target. −1, total, Reset with
-  confirmation. Beep/vibration/targets behind the settings button.
-- **Rakaat:** 2/3/4 switcher, sensor status pill, "Rakaat N of M" in large
-  type, rakaat bars, sajdah dots + "1 of 2 sajdahs"; Undo / Start over;
-  placement help as a link. **Dim mode** after a few seconds without
-  touches: numbers only on black, tap to brighten.
+  confirmation. Beep/vibration/targets behind the settings button. Each
+  mode keeps its own count; the free count keeps today's `count` pref, so
+  someone part-way through one opens on Free count. Zahra marks 34, 67 and
+  100; the targets in settings are the free count's.
+- **Rakaat:** 2/3/4 switcher, sensor status pill (tap it to turn automatic
+  counting off or on), "Rakaat N of M" in large type, rakaat bars, sajdah
+  dots + "1 of 2 sajdahs"; Undo / Start over; placement help as a link.
+  N is the rakaat being prayed: once both sajdahs of a rakaat are counted
+  the next one shows ("Rakaat 2 of 4, 0 of 2 sajdahs"). **Dim mode** after
+  6 seconds without touches: numbers only on black, tap to brighten. Only
+  while the sensor counts (counting by hand means a tap after every
+  sajdah, which the dim page would swallow), never under a screen reader,
+  and the page brightens by itself when the prayer is complete.
 - **Qibla:** "Pointing towards" as a labelled button (**Change** opens
   today's holy-sites sheet), the dial (today's `QiblaCompassDial`, round-3
   colours: Kaaba marker, the phone's forward line), the instruction in

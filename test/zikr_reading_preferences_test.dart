@@ -6,6 +6,8 @@ import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/zikr_wakelock.dart';
+import 'package:shia_companion/widgets/page_chrome.dart';
+import 'package:shia_companion/widgets/reader_text_sheet.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart' as wakelock;
 import 'package:wakelock_plus_platform_interface/wakelock_plus_platform_interface.dart';
@@ -61,12 +63,12 @@ void main() {
           syncZikrWakelockPreference(owner: wakelockOwner, isActive: true),
     );
 
-    await _tapPreference(tester, 'Keep screen on while reciting Zikr');
+    await _tapPreference(tester, 'Keep screen on');
     expect(SP.prefs.getBool('keep_awake'), isFalse);
     expect(fakeWakelock.isEnabled, isFalse);
     expect(fakeWakelock.toggles.last, isFalse);
 
-    await _tapPreference(tester, 'Keep screen on while reciting Zikr');
+    await _tapPreference(tester, 'Keep screen on');
     expect(SP.prefs.getBool('keep_awake'), isTrue);
     expect(fakeWakelock.isEnabled, isTrue);
     expect(fakeWakelock.toggles.last, isTrue);
@@ -84,14 +86,14 @@ void main() {
 
     await _pumpPreferences(tester);
 
-    await _tapPreference(tester, 'Share Zikr as Image');
+    await _tapPreference(tester, 'Share as image');
     expect(SP.prefs.getBool('share_zikr_image'), isTrue);
 
-    await _tapPreference(tester, 'Show Transliteration');
+    await _tapPreference(tester, 'Transliteration');
     expect(SP.prefs.getBool('showTransliteration'), isTrue);
     expect(showTransliteration, isTrue);
 
-    await _tapPreference(tester, 'Show Translation');
+    await _tapPreference(tester, 'Translation');
     expect(SP.prefs.getBool('showTranslation'), isTrue);
     expect(showTranslation, isTrue);
   });
@@ -101,19 +103,15 @@ void main() {
     await _initPrefs(<String, Object>{});
     await _pumpPreferences(tester);
 
-    tester.widget<Slider>(find.byType(Slider).at(0)).onChanged!(40);
-    await tester.pumpAndSettle();
-    expect(arabicFontSize, 40);
-    expect(SP.prefs.getDouble('ara_font_size'), 40);
+    await _tapPreference(tester, 'A+', occurrence: 0);
+    expect(arabicFontSize, 34);
+    expect(SP.prefs.getDouble('ara_font_size'), 34);
 
-    tester.widget<Slider>(find.byType(Slider).at(1)).onChanged!(22);
-    await tester.pumpAndSettle();
-    expect(englishFontSize, 22);
-    expect(SP.prefs.getDouble('eng_font_size'), 22);
+    await _tapPreference(tester, 'A+', occurrence: 1);
+    expect(englishFontSize, 17);
+    expect(SP.prefs.getDouble('eng_font_size'), 17);
 
-    await _tapPreference(tester, 'Arabic Font');
-    await tester.tap(find.text('Scheherazade').last);
-    await tester.pumpAndSettle();
+    await _tapPreference(tester, 'Scheherazade');
 
     expect(arabicFont, 'Scheherazade');
     expect(await FontPreferences.getSelectedFont(), 'Scheherazade');
@@ -145,7 +143,7 @@ void main() {
     await _initPrefs(<String, Object>{});
     await _pumpPreferences(tester);
 
-    expect(find.text('Show Reading Progress'), findsNothing);
+    expect(find.textContaining('Reading Progress'), findsNothing);
     expect(find.text('Focus mode'), findsOneWidget);
   });
 
@@ -156,9 +154,9 @@ void main() {
 
     expect(
       tester
-          .widget<SwitchListTile>(find.ancestor(
+          .widget<CardSwitchRow>(find.ancestor(
             of: find.text('Focus mode'),
-            matching: find.byType(SwitchListTile),
+            matching: find.byType(CardSwitchRow),
           ))
           .value,
       isFalse,
@@ -185,9 +183,9 @@ void main() {
 
     expect(
       tester
-          .widget<SwitchListTile>(find.ancestor(
+          .widget<CardSwitchRow>(find.ancestor(
             of: find.text('Focus mode'),
-            matching: find.byType(SwitchListTile),
+            matching: find.byType(CardSwitchRow),
           ))
           .value,
       isTrue,
@@ -200,34 +198,34 @@ void main() {
     await _initPrefs(<String, Object>{});
     await _pumpPreferences(tester);
 
-    SwitchListTile switchTile() => tester.widget<SwitchListTile>(
+    CardSwitchRow switchTile() => tester.widget<CardSwitchRow>(
           find.ancestor(
-            of: find.text('Show Arabic as Paragraph'),
-            matching: find.byType(SwitchListTile),
+            of: find.text('Arabic as one paragraph'),
+            matching: find.byType(CardSwitchRow),
           ),
         );
 
     expect(switchTile().onChanged, isNull);
 
-    await _tapPreference(tester, 'Show Arabic as Paragraph');
+    await _tapPreference(tester, 'Arabic as one paragraph');
     expect(SP.prefs.getBool('showArabicAsParagraph'), isNull,
         reason: 'a disabled switch must not respond to a tap');
 
-    await _tapPreference(tester, 'Show Transliteration');
+    await _tapPreference(tester, 'Transliteration');
     // Translation is still on, so the paragraph switch stays disabled.
     expect(switchTile().onChanged, isNull);
 
-    await _tapPreference(tester, 'Show Translation');
+    await _tapPreference(tester, 'Translation');
     // Now both aids are off, so the paragraph switch becomes usable.
     expect(switchTile().onChanged, isNotNull);
 
-    await _tapPreference(tester, 'Show Arabic as Paragraph');
+    await _tapPreference(tester, 'Arabic as one paragraph');
     expect(SP.prefs.getBool('showArabicAsParagraph'), isTrue);
     expect(showArabicAsParagraph, isTrue);
 
     // Turning either aid back on disables it again, without losing the
     // saved preference underneath.
-    await _tapPreference(tester, 'Show Translation');
+    await _tapPreference(tester, 'Translation');
     expect(switchTile().onChanged, isNull);
     expect(SP.prefs.getBool('showArabicAsParagraph'), isTrue);
   });
@@ -270,17 +268,18 @@ Future<void> _pumpPreferences(
   await tester.pumpWidget(
     MaterialApp(
       home: Scaffold(
-        body: SingleChildScrollView(
-          child: ZikrReadingPreferencesControls(onChanged: onChanged),
-        ),
+        body: ReaderTextSheet(onChanged: onChanged ?? () {}),
       ),
     ),
   );
   await tester.pumpAndSettle();
 }
 
-Future<void> _tapPreference(WidgetTester tester, String label) async {
-  final finder = find.text(label);
+Future<void> _tapPreference(WidgetTester tester, String label,
+    {int? occurrence}) async {
+  final finder = occurrence == null
+      ? find.text(label)
+      : find.text(label).at(occurrence);
   await tester.ensureVisible(finder);
   await tester.tap(finder);
   await tester.pumpAndSettle();

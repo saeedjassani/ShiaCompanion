@@ -87,7 +87,7 @@ count under their own keys (`azaan_opt_in`, `arabic_font_changed`,
 `theme_mode_changed`, `account_signed_in`, `city_chosen`,
 `device_location_chosen`),
 `flight_added` / `flight_edited`, `qaza_updated` (+`operation`),
-`tasbeeh_session` (+`count`).
+`tasbeeh_session` (+`count`, `mode`: `zahra` or `free`).
 
 **Search** — `search`, `search_opened`.
 
