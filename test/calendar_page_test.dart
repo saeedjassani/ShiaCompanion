@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/services/city_repository.dart';
+import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
-import 'package:shia_companion/widgets/prayer_times_card.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -14,76 +14,79 @@ void main() {
     lat = null;
     long = null;
     city = null;
+    CalendarPage.debugNow = () => DateTime(2026, 7, 1, 12);
   });
 
-  testWidgets('calendar does not overflow in dark theme on a phone viewport',
-      (tester) async {
-    await _pumpCalendar(
-      tester,
-      brightness: Brightness.dark,
-    );
+  tearDown(() => CalendarPage.debugNow = DateTime.now);
 
-    expect(tester.takeException(), isNull);
-  });
+  for (final brightness in Brightness.values) {
+    for (final size in const [
+      Size(393, 852),
+      Size(820, 1180),
+      Size(1440, 900),
+    ]) {
+      testWidgets(
+          'lays out without overflowing: ${brightness.name}, '
+          '${size.width.toInt()} wide', (tester) async {
+        lat = 51.5074;
+        long = -0.1278;
+        await _pumpCalendar(tester,
+            brightness: brightness,
+            size: size,
+            events: _markerTestEvents(0));
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
 
-  testWidgets('calendar does not overflow in light theme on a phone viewport',
-      (tester) async {
-    await _pumpCalendar(
-      tester,
-      brightness: Brightness.light,
-    );
-
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('calendar shows muted days from adjacent months', (tester) async {
-    await _pumpCalendar(
-      tester,
-      brightness: Brightness.dark,
-    );
+  testWidgets('shows muted days from the months either side', (tester) async {
+    await _pumpCalendar(tester);
 
     expect(find.text('28'), findsNWidgets(2));
-    expect(tester.takeException(), isNull);
   });
 
-  testWidgets('tapped calendar date stays local for prayer time calculation',
+  testWidgets('a tapped day becomes the day shown, prayer times and all',
       (tester) async {
-    await _pumpCalendar(
-      tester,
-      brightness: Brightness.dark,
-    );
+    lat = 21.4225;
+    long = 39.8262;
+    await _pumpCalendar(tester);
+
+    expect(find.text('Wednesday 1 July'), findsOneWidget);
+    expect(find.text('Today'), findsOneWidget);
 
     await tester.tap(find.text('10'));
     await tester.pumpAndSettle();
 
-    final prayerTimesCard =
-        tester.widget<PrayerTimesCard>(find.byType(PrayerTimesCard));
-    expect(prayerTimesCard.date.isUtc, isFalse);
-    expect(prayerTimesCard.date.year, 2026);
-    expect(prayerTimesCard.date.month, 7);
-    expect(prayerTimesCard.date.day, 10);
-    expect(tester.takeException(), isNull);
+    expect(find.text('Friday 10 July'), findsOneWidget);
+    expect(find.text('In 9 days'), findsOneWidget);
+    // Picked away from today, the Today button comes back.
+    expect(find.widgetWithText(OutlinedButton, 'Today'), findsOneWidget);
+    expect(find.text('Times for 10 July somewhere else, e.g. Karbala'),
+        findsOneWidget);
   });
 
-  testWidgets('calendar embeds prayer rows with widget prayer icons',
+  testWidgets('the arrows change month and Today comes back to it',
+      (tester) async {
+    await _pumpCalendar(tester);
+
+    await tester.tap(find.bySemanticsLabel('Next month'));
+    await tester.pumpAndSettle();
+    expect(find.text('August 2026'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Today'));
+    await tester.pumpAndSettle();
+    expect(find.text('July 2026'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Today'), findsNothing);
+  });
+
+  testWidgets('the phone card has a glyph for each of the eight times',
       (tester) async {
     lat = 21.4225;
     long = 39.8262;
+    await _pumpCalendar(tester);
 
-    await _pumpCalendar(
-      tester,
-      brightness: Brightness.dark,
-    );
-
-    expect(find.text('Prayer Times'), findsNothing);
-    expect(find.byType(PrayerTimesCard), findsOneWidget);
-    // Every entry (Fajr, Sunrise, Zuhr, Asr, Sunset, Maghrib, Isha, Midnight)
-    // resolves to its own glyph — see prayerGlyphTypeFor().
     final glyphs = tester.widgetList<PrayerGlyph>(find.byType(PrayerGlyph));
-    expect(glyphs.length, 8);
-    final types =
-        glyphs.map((glyph) => prayerGlyphTypeFor(glyph.name)).toSet();
-    expect(types, {
+    expect(glyphs.map((glyph) => prayerGlyphTypeFor(glyph.name)).toSet(), {
       PrayerGlyphType.fajr,
       PrayerGlyphType.sunrise,
       PrayerGlyphType.zuhr,
@@ -93,15 +96,24 @@ void main() {
       PrayerGlyphType.isha,
       PrayerGlyphType.midnight,
     });
-    expect(tester.takeException(), isNull);
+    expect(find.text('Times on Home'), findsOneWidget);
+    expect(find.text('5 shown'), findsOneWidget);
   });
 
-  testWidgets('offers another city\'s times for the date on show',
+  testWidgets('with no location the card offers a city instead',
+      (tester) async {
+    await _pumpCalendar(tester);
+
+    expect(find.text('Choose city'), findsOneWidget);
+    expect(find.byType(PrayerGlyph), findsNothing);
+  });
+
+  testWidgets("offers another city's times for the day picked",
       (tester) async {
     CityRepository.instance.seedForTesting(const []);
-    await _pumpCalendar(tester, brightness: Brightness.light);
+    await _pumpCalendar(tester);
 
-    final link = find.text('Another city');
+    final link = find.text('Prayer times in another city');
     await tester.scrollUntilVisible(link, 200,
         scrollable: find.byType(Scrollable).first);
     await tester.tap(link);
@@ -112,49 +124,54 @@ void main() {
     expect(find.text('Use my current location'), findsNothing);
   });
 
-  testWidgets('marks mourning days green and celebration days red',
+  testWidgets('colours mourning days green and days of joy red',
       (tester) async {
     // events.json numbers its two colours 0 and 1; the day cell has to keep
-    // reading them the way the data has always meant them.
-    await _pumpCalendar(
-      tester,
-      brightness: Brightness.dark,
-      initialDate: DateTime(2026, 6, 22),
-      events: _markerTestEvents(0),
-    );
-    expect(_markerColors(tester), [Colors.green.shade300]);
-
-    await _pumpCalendar(
-      tester,
-      brightness: Brightness.dark,
-      initialDate: DateTime(2026, 6, 22),
-      events: _markerTestEvents(1),
-    );
-    expect(_markerColors(tester), [Colors.red.shade400]);
+    // reading them the way the data has always meant them (H. Karmali's
+    // calendar: green for mourning, red for joy).
+    for (final (color, tint) in const [
+      (0, Color(0xFFE1EFE4)),
+      (1, Color(0xFFF9E2DE)),
+    ]) {
+      await _pumpCalendar(tester,
+          initialDate: DateTime(2026, 6, 22), events: _markerTestEvents(color));
+      expect(_cellColor(tester, DateTime(2026, 6, 24)), tint);
+      expect(_cellColor(tester, DateTime(2026, 6, 23)), Colors.transparent);
+    }
   });
 
-  testWidgets('selected event summary does not repeat the lunar date header',
-      (tester) async {
-    await _pumpCalendar(
-      tester,
-      brightness: Brightness.dark,
-      initialDate: DateTime(2026, 6, 22),
-      events: _eventSummaryTestEvents,
-    );
+  testWidgets('the picked day writes its event out in full', (tester) async {
+    await _pumpCalendar(tester,
+        initialDate: DateTime(2026, 6, 22), events: _eventSummaryTestEvents);
 
     expect(find.text('7th Moharram'), findsNothing);
     expect(find.textContaining('Access to water was blocked'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('wide layouts name each event in its day and list the times',
+      (tester) async {
+    lat = 51.5074;
+    long = -0.1278;
+    await _pumpCalendar(tester,
+        size: const Size(1440, 900),
+        initialDate: DateTime(2026, 6, 22),
+        events: _markerTestEvents(1));
+
+    expect(find.text('Shab e Ashoor'), findsOneWidget);
+    for (final name in ['Fajr', 'Sunrise', 'Midnight']) {
+      expect(find.text(name), findsOneWidget);
+    }
   });
 }
 
 Future<void> _pumpCalendar(
   WidgetTester tester, {
-  required Brightness brightness,
+  Brightness brightness = Brightness.light,
+  Size size = const Size(393, 852),
   DateTime? initialDate,
   Map<String, dynamic> events = const <String, dynamic>{},
 }) async {
-  tester.view.physicalSize = const Size(393, 852);
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -164,28 +181,17 @@ Future<void> _pumpCalendar(
 
   await tester.pumpWidget(
     MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.brown,
-          brightness: brightness,
-        ),
-      ),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Calendar')),
-        body: CalendarPage(
-          key: ValueKey(initialDate ?? _calendarTestDate),
-          initialDate: initialDate ?? _calendarTestDate,
-          initialEvents: events,
-          trackScreenOnInit: false,
-        ),
+      theme: buildAppTheme(brightness),
+      home: CalendarPage(
+        key: ValueKey((initialDate, events)),
+        initialDate: initialDate,
+        initialEvents: events,
+        trackScreenOnInit: false,
       ),
     ),
   );
   await tester.pumpAndSettle();
 }
-
-final _calendarTestDate = DateTime(2026, 7, 1);
 
 const _eventSummaryTestEvents = <String, dynamic>{
   '01-07': <String, dynamic>{
@@ -195,7 +201,7 @@ const _eventSummaryTestEvents = <String, dynamic>{
   },
 };
 
-/// A single event a couple of days after the selected one, so the day it
+/// A single event a couple of days after the picked one, so the day it
 /// lands on keeps its own colour instead of the selection's.
 Map<String, dynamic> _markerTestEvents(int color) => <String, dynamic>{
       '01-09': <String, dynamic>{
@@ -204,13 +210,7 @@ Map<String, dynamic> _markerTestEvents(int color) => <String, dynamic>{
       },
     };
 
-/// The colours of the small event dots currently painted on the grid.
-List<Color?> _markerColors(WidgetTester tester) {
-  return tester
-      .widgetList<Container>(find.byWidgetPredicate((widget) =>
-          widget is Container &&
-          widget.constraints?.maxWidth == 6.0 &&
-          widget.decoration is BoxDecoration))
-      .map((container) => (container.decoration as BoxDecoration).color)
-      .toList();
-}
+Color? _cellColor(WidgetTester tester, DateTime day) => tester
+    .widget<Material>(
+        find.byKey(ValueKey('calendar-day-${day.year}-${day.month}-${day.day}')))
+    .color;

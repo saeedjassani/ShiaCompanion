@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calendar &amp; Prayer Times, web</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#6D4C35}a:hover{color:#4A3426}
+button{font:inherit}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #F8F5F0; color: #2A1E16; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', sans-serif">
+  <div style="box-sizing: border-box; max-width: 1184px; margin: 0 auto; padding: 32px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px">
+      <button aria-label="Back" style="flex-shrink: 0; width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E8E0D5; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round"><path d="M15 5l-7 7 7 7"></path></svg>
+      </button>
+      <button style="flex-shrink: 0; display: flex; align-items: center; gap: 4px; height: 40px; padding: 0 12px 0 10px; border-radius: 20px; border: 1px solid #E8E0D5; background: #FFFFFF; color: #2A1E16; font-size: 15px; font-weight: 600; cursor: pointer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="flex-shrink: 0; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11zM14.3 10a2.3 2.3 0 1 1-4.6 0 2.3 2.3 0 0 1 4.6 0z"></path></svg>London<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6A5A4D" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round"><path d="M6 9l6 6 6-6"></path></svg>
+      </button>
+    </div>
+    <div style="display: flex; align-items: flex-start; gap: 40px">
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+          <h1 style="margin: 0; font-size: 34px; line-height: 41px; font-weight: 700; letter-spacing: -0.4px; white-space: nowrap">{{monthTitle}}</h1>
+          <div style="flex-shrink: 0; display: flex; align-items: center; gap: 8px">
+            <sc-if value="{{showTodayButton}}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{goToday}}" style="height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid #E8E0D5; background: #FFFFFF; color: #6D4C35; font-size: 15px; font-weight: 600; cursor: pointer">Today</button>
+            </sc-if>
+            <button aria-label="Previous month" onClick="{{prevMonth}}" style="flex-shrink: 0; width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E8E0D5; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round"><path d="M15 5l-7 7 7 7"></path></svg>
+            </button>
+            <button aria-label="Next month" onClick="{{nextMonth}}" style="flex-shrink: 0; width: 44px; height: 44px; border-radius: 22px; border: 1px solid #E8E0D5; background: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" aria-hidden="true" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round"><path d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </div>
+        </div>
+        <p style="margin: 0; font-size: 15px; line-height: 20px; color: #6A5A4D">{{hijriSpan}}</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+        <span style="text-align: center; font-size: 13px; line-height: 17px; font-weight: 600; color: #6A5A4D">Sun</span>
+        <span style="text-align: center; font-size: 13px; line-height: 17px; font-weight: 600; color: #6A5A4D">Mon</span>
+        <span style="text-align: center; font-size: 13px; line-height: 17px; font-weight: 600; color: #6A5A4D">Tue</span>
+        <span style="text-align: center; font-size: 13px; line-height: 17px; font-weight: 600; color: #6A5A4D">Wed</span>
+        <span style="text-align: center; font-size: 13px; line-height: 17px; font-weight: 600; color: #6A5A4D">Thu</span>
+        <span style="text-align: center; font-size: 13px; line-height: 17px; font-weight: 600; color: #6A5A4D">Fri</span>
+        <span style="text-align: center; font-size: 13px; line-height: 17px; font-weight: 600; color: #6A5A4D">Sat</span>
+        <sc-for list="{{cells}}" as="c" hint-placeholder-count="35">
+          <button aria-label="{{c.label}}" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}">
+            <span style="{{c.dayStyle}}">{{c.day}}</span>
+            <span style="{{c.hijriStyle}}">{{c.hijri}}</span>
+            <span aria-hidden="true" style="{{c.dotStyle}}"></span>
+            <sc-if value="{{c.evName}}" hint-placeholder-val="{{ false }}">
+              <span aria-hidden="true" style="{{c.evStyle}}">{{c.evName}}</span>
+            </sc-if>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <div aria-hidden="true" style="align-self: stretch; width: 1px; background: #E8E0D5"></div>
+    <div style="flex-shrink: 0; width: 360px; display: flex; flex-direction: column; gap: 14px; padding-top: 4px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h2 style="margin: 0; font-size: 24px; line-height: 30px; font-weight: 700">{{dayTitle}}</h2>
+        <span style="display: flex; align-items: center; gap: 8px; font-size: 15px; line-height: 20px; color: #6A5A4D">
+          <sc-if value="{{relLabel}}" hint-placeholder-val="{{ true }}">
+            <span style="flex-shrink: 0; height: 22px; padding: 0 8px; border-radius: 11px; background: {{relBg}}; color: {{relFg}}; font-size: 12px; line-height: 22px; font-weight: 700">{{relLabel}}</span>
+          </sc-if>{{dayHijri}}</span>
+      </div>
+      <sc-if value="{{event}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 16px; background: {{eventBg}}; border: 1px solid {{eventLine}}">
+          <span aria-hidden="true" style="flex-shrink: 0; width: 8px; height: 8px; margin-top: 7px; border-radius: 4px; background: {{eventDot}}"></span>
+          <span style="flex: 1; min-width: 0; font-size: 16px; line-height: 22px; white-space: pre-line">{{event}}</span>
+        </div>
+      </sc-if>
+      <section aria-label="Prayer times for {{dayTitle}}" style="display: flex; flex-direction: column; padding: 6px 18px 4px; border-radius: 22px; background: #4A3426; color: #FBF6EE">
+        <sc-for list="{{allTimes}}" as="t" hint-placeholder-count="8">
+          <sc-if value="{{t.divider}}" hint-placeholder-val="{{ true }}">
+            <div aria-hidden="true" style="height: 1px; background: rgba(251,246,238,0.12)"></div>
+          </sc-if>
+          <div style="display: flex; align-items: center; gap: 12px; min-height: 44px">
+            <span aria-hidden="true" style="flex-shrink: 0; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center">
+              <sc-if value="{{t.isPrayer}}" hint-placeholder-val="{{ true }}"><img src="{{t.glyph}}" alt="" style="width: 20px; height: 20px"></sc-if>
+              <sc-if value="{{t.iconSun}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D9CBB8" style="stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="{{t.sunPath}}"></path></svg></sc-if>
+              <sc-if value="{{t.iconMoon}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D9CBB8" style="stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"></path></svg></sc-if>
+            </span>
+            <span style="{{t.nameStyle}}">{{t.name}}</span>
+            <sc-if value="{{t.change}}" hint-placeholder-val="{{ false }}">
+              <span style="font-size: 13px; line-height: 17px; font-style: italic; color: #D9CBB8; font-variant-numeric: tabular-nums">{{t.change}}</span>
+            </sc-if>
+            <span style="{{t.timeStyle}}">{{t.time}}</span>
+          </div>
+        </sc-for>
+        <div aria-hidden="true" style="height: 1px; margin: 0 -18px; background: rgba(251,246,238,0.16)"></div>
+        <div style="display: flex; align-items: center; margin: 0 -10px">
+          <button style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; height: 52px; padding: 0 6px; border: none; border-radius: 12px; background: transparent; color: #FBF6EE; font-size: 14px; line-height: 18px; font-weight: 600; cursor: pointer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FBF6EE" aria-hidden="true" style="flex-shrink: 0; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"></path></svg><span style="display: flex; flex-direction: column; align-items: flex-start; text-align: left"><span>Azan</span><span style="font-size: 12px; line-height: 15px; font-weight: 400; color: #D9CBB8">On for 3 times</span></span>
+          </button><span aria-hidden="true" style="width: 1px; height: 22px; background: rgba(251,246,238,0.16)"></span>
+          <button style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; height: 52px; padding: 0 6px; border: none; border-radius: 12px; background: transparent; color: #FBF6EE; font-size: 14px; line-height: 18px; font-weight: 600; cursor: pointer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FBF6EE" aria-hidden="true" style="flex-shrink: 0; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M4 11l8-7 8 7v8.5a1.5 1.5 0 0 1-1.5 1.5H15v-6H9v6H5.5A1.5 1.5 0 0 1 4 19.5z"></path></svg><span style="display: flex; flex-direction: column; align-items: flex-start; text-align: left"><span>Times on Home</span><span style="font-size: 12px; line-height: 15px; font-weight: 400; color: #D9CBB8">5 shown</span></span>
+          </button>
+        </div>
+      </section>
+      <button style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 14px; box-sizing: border-box; border-radius: 16px; background: #FFFFFF; border: 1px solid #E8E0D5; color: #2A1E16; text-align: left; cursor: pointer">
+        <span aria-hidden="true" style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: #F2EBE1; display: flex; align-items: center; justify-content: center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6D4C35" style="stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"></path></svg>
+        </span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+          <span style="font-size: 17px; line-height: 22px">Prayer times in another city</span>
+          <span style="font-size: 14px; line-height: 18px; color: #6A5A4D">{{otherCitySub}}</span>
+        </span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A8A7C" aria-hidden="true" style="flex-shrink: 0; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round"><path d="M9 6l6 6-6 6"></path></svg>
+      </button>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"eventMark":{"editor":"enum","options":["tint","dot"],"default":"tint"},"compareToToday":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":900}}'>
+const LAYOUT = 'web';
+const EVENTS = {"01-01":["Beginning of Moharram\nIslamic New Year",0],"01-02":["Arrival of Imam Husain (a.s.) in Karbala",0],"01-07":["Access to water was blocked from the camp of Imam Hussain(a.s.) – the 3rd Holy Imam ‐ (61 A.H.)",0],"01-09":["Tasu'a\nImam Hussain(a.s.) and his companions besieged in Karbala ‐ (61 A.H.)",0],"01-10":["Ashoora ‐ Martyrdom of Imam Hussain(a.s.) and his companions ‐ (61 A.H.)",0],"01-11":["Prophet Mohammad(sawaw)’s family was shackled and taken away as prisoners",0],"01-16":["Change of direction of qibla from Bait‐al‐maqdas to Kaaba ‐ (2 A.H.)",0],"01-17":["Attack of Abraha’s army on Khana‐e‐Kaaba (1 Aamul Feel)",0],"01-25":["Martyrdom of Imam Ali Zain‐al‐Abideen(a.s.) – the 4th Holy Imam ‐ (95 A.H.)",0],"02-01":["Battle of Siffin started – (36‐37 A.H.)\n\nArrival of the captive family of Imam Hussain(a.s.) in Shaam ‐ (61 A.H.)",0],"02-07":["Birth of Imam Moosa al‐Kazim(a.s.) – the 7th Holy Imam ‐ (128 A.H.)",1],"02-10":["Martyrdom of Hazrat Sakina bint‐al‐Hussain(a.s.) – (61 A.H.)",0],"02-17":["Martyrdom of Imam Ali ibn‐e‐Moosa ar‐Riza(a.s.) – the 8th Holy Imam ‐ (203 A.H.)",0],"02-19":["Abraha attacked Khana‐e‐Kaaba – (1 Aamul Feel)",0],"02-20":["Arbaeen of martyrs of Karbala",0],"02-28":["Martyrdom of Holy Prophet (saww) ‐ (11 A.H.)\n\nMartyrdom of Imam Hasan(a.s.) – the 2nd Holy Imam ‐ (50 A.H.)",0],"02-29":["Martyrdom of Imam Ali ibn‐e‐Moosa ar‐Riza(a.s.) – the 8th Holy Imam ‐ (203 A.H.)",0],"03-01":["Shahadate Janabe Mohsin (a.s.)\nHijrat e Madina - Start of Islamic Hijri calender\nMay Allah (s.w.t.) curse the killers of Janabe Mohsin (a.s.) (and those who set fire on the door of Lady Zahra (s.a.)) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",0],"03-04":["Shahadat of Hazrat Fatima Masooma‐e‐Qum(a.s.) – (201 A.H.)",0],"03-08":["Martyrdom of Imam Hasan Askari(a.s.) – the 11th Holy Imam ‐ (260 A.H.)\n\nBeginning of Ghaibat‐e‐Sughra of Imam Mohammad Mehdi(atfs) ‐ the 12th Holy Imam",0],"03-09":["Eid‐e‐Zahra(s.a.)",1],"03-10":["Death of Hazrat Abdul Mutallib(a.s.) – grand father of Prophet Muhammad(sawaw)\n\nMarriage of Prophet Muhammad (s.a.w.a.) and Hazrat Khadija (s.a.)",null],"03-14":["Marg e Yazid (may Allah's curses be upon him) - 64 A.H.",1],"03-15":["Building of Masjid‐e‐Quba ‐ the first Masjid in Islam – (1 A.H.)",null],"03-17":["Birth of Prophet Muhammad(sawaw) – (53 years before Hijra)\n\nBirth of Imam Jafer Sadiq(a.s.) – the 6th Holy Imam ‐ (82 A.H.)",1],"03-25":["Death of Hazrat Abu Talib(a.s.)",0],"04-08":["Birth of Imam Hasan Askari(a.s.) – the 11th Holy Imam ‐ (232 A.H.)",1],"04-10":["Death of Hazrat Fatima Masooma‐e‐Qum(a.s.) – (201 A.H.)",0],"05-05":["Birth of Hazrat Zainab bint‐e‐Ali(a.s.) – (5 A.H.)",1],"05-13":["Death of Hazrat Fatima Zahra(s.a.) – (11 A.H.)",0],"05-15":["Birth of Imam Ali Zain‐al‐Abideen(a.s.) – the 4th Holy Imam ‐ (38 A.H.)",1],"05-17":["Battle of Jamal – (36 A.H.)",null],"06-03":["Death of Hazrat Fatima Zahra(s.a.) – (11 A.H.)",0],"06-10":["Battle of Mauta – (8 A.H.)\n\nMartyrdom of Hazrat Jafer Tayyar(a.s.)",0],"06-13":["Death of Hazrat Umm‐ul‐Baneen – Mother of Hazrat Abbas(a.s.)",0],"06-20":["Birth of Hazrat Fatima Zahra(s.a.)",1],"06-21":["Death of Hazrat Umme Kulsum (s.a.)",0],"07-01":["Birth of Imam Mohammad Baqir(a.s.) – the 5th Holy Imam ‐ (57 A.H.)",1],"07-02":["Birth of Imam Ali Naqi al‐Hadi(a.s.) – the 10th Holy Imam ‐ (214 A.H.)",1],"07-03":["Martyrdom of Imam Ali Naqi al‐Hadi(a.s.) – the 10th Holy Imam ‐ (254 A.H.)",0],"07-05":["Birth of Imam Ali Naqi al‐Hadi(a.s.) – the 10th Holy Imam ‐ (214 A.H.)",1],"07-10":["Birth of Imam Mohammad Taqi al‐Jawwad(a.s.) – the 9th Holy Imam ‐ (195 A.H.)",1],"07-12":["Death of Hazrat Abbas ibn‐e‐Abdul Muttalib(a.s.) – uncle of Prophet Mohammad(sawaw)",0],"07-13":["Birth of Imam Ali(a.s.) – the 1st Holy Imam ‐ (30 Aamul Feel)",1],"07-15":["Death of Hazrat Zainab bint‐e‐Ali(a.s.) – (62 A.H.)",0],"07-20":["Birth of Hazrat Sakina bint‐al‐Hussain(a.s.) – (57 A.H.)",1],"07-24":["Victory of Battle of Khaibar by Imam Ali(a.s.) – (7 A.H.)",1],"07-25":["Martyrdom of Imam Moosa‐e‐Kazim(a.s.) – the 7th Holy Imam ‐ (183 A.H.)",0],"07-26":["Death of Hazrat Abu Talib(a.s.)",0],"07-27":["Eid‐e‐Mab'ath\nBe'sat ‐ the declaration of prophethood of Prophet Muhammad(sawaw)",1],"07-28":["Start of journey of Imam Hussain(a.s.) towards Karbala – (60 A.H.)",0],"07-29":["Battle of Tabooq – (9 A.H.)",null],"08-01":["Birth of Hazrat Zainab bint‐e‐Ali(a.s.) ‐ (5 A.H.)",1],"08-03":["Birth of Imam Hussain(a.s.) ‐ the 3rd Holy Imam ‐ (4 A.H.)",1],"08-04":["Birth of Hazrat Abbas(a.s.) ‐ (26 A.H.)",1],"08-05":["Birth of Imam Ali Zain‐al‐Abideen(a.s.) ‐ the 4th Holy Imam ‐ (38 A.H.)",1],"08-07":["Birth of Hazrat Qasim ibn‐e‐Hasan(a.s.) ‐ (48 A.H.)",1],"08-11":["Birth of Hazrat Ali Akbar(a.s.) ‐ (44 A.H.)",1],"08-15":["Birth of Imam Mahdi(atfs), Wali‐e‐Asr ‐ the 12th Holy Imam ‐ (255 A.H.)",1],"09-01":["Beginning of the Holy Month of Ramazan",null],"09-07":["Death of Hazrat Abu Talib(a.s.)",0],"09-10":["Death of Hazrat Khadija(a.s.) ‐ wife of Prophet Mohammad (sawaw)",0],"09-11":["Moakhat ‐ Brotherhood among Ansar and Muhajireen ‐ (1 A.H.)",null],"09-15":["Birth of Imam Hasan(a.s.) ‐ the 2nd Holy Imam ‐ (2 A.H.)",1],"09-17":["Battle of Badr ‐ (2 A.H.)",null],"09-19":["Imam Ali(a.s.) injured by an attack by a munafiq ‐ (40 A.H.)\n\nShab‐e‐Qadr\nThe night before is the 1st Night of Qadr",0],"09-20":["Conquest of Makkah ‐ (8 A.H.)",null],"09-21":["Martyrdom of Imam Ali(a.s.) ‐ the 1st Holy Imam ‐ (40 A.H.)\n\nShab‐e‐Qadr\nThe night before is the 2nd Night of Qadr",0],"09-23":["Shab‐e‐Qadr\nThe night before is the 3rd Night of Qadr, the most probable Night of Power",null],"10-01":["Eid ul Fitr",1],"10-08":["Demolition of Jannatul Baqi by Aal e Saud.\nMay Allah (s.w.t.) curse those who harmed the Ahlul Bayt (a.s.).",0],"10-10":["Commencement of Ghaibat al-Kubra.\nMay Allah (s.w.t.) hasten the reappearance of Imam Mahdi (a.t.f.s.) and count us among his helpers and soldiers.",0],"10-17":["Battle of Uhud was fought.",null],"10-25":["Martyrdom of Imam Jafar Sadiq (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam Sadiq (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",0],"11-01":["Wiladat of Hazrat Fatima Masooma‐e‐Qum(a.s.) – (173 A.H.)",1],"11-11":["Wiladat of Imam Ali Raza (a.s.)",1],"11-23":["Shahadat of Imam Ali Raza (a.s.)",0],"11-25":["Dahwul Arz\n\nWiladat of Hazrat Ibrahim (a.s.) and Hazrat Isa (a.s.)",1],"11-29":["Martyrdom of Imam Mohammad Taqi (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",0],"12-01":["Wedding of Imam Ali (a.s.) and Janabe Fatema Zahra (s.a.)",1],"12-05":["Wafat of Hazrat Abu Zar e Gaffari (a.r.)",0],"12-07":["Martyrdom of Imam Mohammad Baqir (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",0],"12-08":["Imam Husain (a.s.) left Makkah towards karbala",0],"12-09":["Martyrdom of Hazrat Muslim Ibne Aqeel(a.s.)\n\nYaum‐e‐Arafa",0],"12-10":["Eid ul Azha",1],"12-14":["Bagh‐e‐Fadak gifted by the Holy Prophet(sawaw) to Hazrat Fatima Zahra(s.a.)",1],"12-15":["Wiladat e Imam Ali Naqi (a.s.)",1],"12-18":["Eid e Ghadeer\nThe greatest Eid of Islam. On this day the religion of Islam was completed by annoucing the Mastership of Ameerul Momineen Ali (as) by Prophet Mohammad (saww).",1],"12-23":["Martyrdom of Muhammad and Ibrahim, sons of Hazrat Muslim Ibne Aqeel(a.s.)",0],"12-24":["Eid e Mubahila - 9 A.H.",1],"12-25":["Revelation of Surah Hal Ata (al‐Insaan) in praise of the Ahlul Bayt(a.s.)",null]};
+const HIJRI_MONTHS = ['Muharram', 'Safar', "Rabi' al-Awwal", "Rabi' al-Thani", 'Jumada al-Awwal', 'Jumada al-Akhirah', 'Rajab', "Sha'ban", 'Ramazan', 'Shawwal', "Dhul Qa'dah", 'Dhul Hijjah'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const TODAY = { y: 2026, m: 10, d: 7 };
+const LAT = 51.5074, LNG = -0.1278;
+const GLYPHS = {
+  Fajr: '/_blob/f7e33b8d3068f8be2be64ed37ea8b04a',
+  Zuhr: '/_blob/510fca5e0fd2fab700ca71d8de1a8c64',
+  Asr: '/_blob/734b4b79afce34d8d72655910ba18df8',
+  Maghrib: '/_blob/6b4cfce23edf2c99dd5e34be11e98522',
+  Isha: '/_blob/71155b241202896075fb6fccc694781e'
+};
+// events.json: 0 green, 1 red, anything else neutral (as the app reads it today).
+const EVENT_COLORS = {
+  green: { tint: '#E1EFE4', line: '#BFDCC7', dot: '#2F7A4A', onBrown: '#9FD8B0' },
+  red: { tint: '#F9E2DE', line: '#EDC3BC', dot: '#B3261E', onBrown: '#F4B4AE' },
+  plain: { tint: '#F2EBE1', line: '#E3D7C7', dot: '#6D4C35', onBrown: '#FFFFFF' }
+};
+const PERSIAN = '۰۱۲۳۴۵۶۷۸۹';
+
+function hijriOf(y, m, d) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'UTC' })
+      .formatToParts(new Date(Date.UTC(y, m - 1, d, 12)));
+    const get = (t) => parseInt((parts.find((p) => p.type === t) || {}).value, 10);
+    return { d: get('day'), m: get('month'), y: get('year') || get('relatedYear') };
+  } catch (e) {
+    return { d: 1, m: 1, y: 1448 };
+  }
+}
+
+function prayerTimes(y, m, d) {
+  const R = Math.PI / 180;
+  const sin = (x) => Math.sin(x * R), cos = (x) => Math.cos(x * R), tan = (x) => Math.tan(x * R);
+  const asin = (x) => Math.asin(x) / R, acos = (x) => Math.acos(x) / R, atan2 = (a, b) => Math.atan2(a, b) / R, acot = (x) => Math.atan(1 / x) / R;
+  const fa = (a) => a - 360 * Math.floor(a / 360), fh = (a) => a - 24 * Math.floor(a / 24);
+  let Y = y, M = m;
+  if (M <= 2) { Y--; M += 12; }
+  const A = Math.floor(Y / 100), B = 2 - A + Math.floor(A / 4);
+  const jd0 = Math.floor(365.25 * (Y + 4716)) + Math.floor(30.6001 * (M + 1)) + d + B - 1524.5 - LNG / (15 * 24);
+  const sun = (jd) => {
+    const D = jd - 2451545, g = fa(357.529 + 0.98560028 * D), q = fa(280.459 + 0.98564736 * D);
+    const L = fa(q + 1.915 * sin(g) + 0.02 * sin(2 * g)), e = 23.439 - 0.00000036 * D;
+    return { decl: asin(sin(e) * sin(L)), eqt: q / 15 - fh(atan2(cos(e) * sin(L), cos(L)) / 15) };
+  };
+  const noon = (t) => fh(12 - sun(jd0 + t).eqt);
+  const at = (ang, t, ccw) => {
+    const s = sun(jd0 + t);
+    const T = acos((-sin(ang) - sin(s.decl) * sin(LAT)) / (cos(s.decl) * cos(LAT))) / 15;
+    return noon(t) + (ccw ? -T : T);
+  };
+  const asr = (t) => { const s = sun(jd0 + t); return at(-acot(1 + tan(Math.abs(LAT - s.decl))), t); };
+  const r = {
+    Fajr: at(16, 5 / 24, true), Sunrise: at(0.833, 6 / 24, true), Zuhr: noon(12 / 24), Asr: asr(13 / 24),
+    Sunset: at(0.833, 18 / 24), Maghrib: at(4, 18 / 24), Isha: at(14, 18 / 24)
+  };
+  const lastSun = (yy, mm) => { const t = new Date(Date.UTC(yy, mm + 1, 0)); return t.getUTCDate() - t.getUTCDay(); };
+  const day = Date.UTC(y, m - 1, d);
+  const tz = day >= Date.UTC(y, 2, lastSun(y, 2)) && day < Date.UTC(y, 9, lastSun(y, 9)) ? 1 : 0;
+  Object.keys(r).forEach((k) => { r[k] = r[k] + tz - LNG / 15; });
+  r.Midnight = r.Sunset + (r.Fajr + 24 - r.Sunset) / 2;
+  return r;
+}
+
+function fmt(h) {
+  const mins = Math.round((((h % 24) + 24) % 24) * 60);
+  let H = Math.floor(mins / 60) % 24;
+  const mm = mins % 60, ap = H >= 12 ? 'pm' : 'am';
+  H = H % 12 || 12;
+  return H + ':' + String(mm).padStart(2, '0') + ' ' + ap;
+}
+
+function persian(n) { return String(n).split('').map((c) => PERSIAN[+c]).join(''); }
+function key(o) { return o.y * 10000 + o.m * 100 + o.d; }
+function dayDiff(a, b) { return Math.round((Date.UTC(b.y, b.m - 1, b.d) - Date.UTC(a.y, a.m - 1, a.d)) / 86400000); }
+function eventFor(h) {
+  const e = EVENTS[String(h.m).padStart(2, '0') + '-' + String(h.d).padStart(2, '0')];
+  if (!e) return null;
+  const tone = e[1] === 0 ? 'green' : e[1] === 1 ? 'red' : 'plain';
+  return { text: e[0], short: e[0].split('\n')[0].replace(/\s*[‐–-]\s*\(\d+ A\.H\.\)\s*$/, '').replace(/\s*–\s*the \d+\w+ Holy Imam.*$/, ''), tone: tone };
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: TODAY, view: { y: TODAY.y, m: TODAY.m } };
+  }
+
+  pick(day) {
+    this.setState({ sel: day, view: { y: day.y, m: day.m } });
+  }
+
+  shiftMonth(n) {
+    const v = this.state.view;
+    const t = new Date(Date.UTC(v.y, v.m - 1 + n, 1));
+    this.setState({ view: { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1 } });
+  }
+
+  renderVals() {
+    const sel = this.state.sel, view = this.state.view;
+    const corners = (this.props.dateLayout ?? 'corners') === 'corners';
+    const tint = (this.props.eventMark ?? 'tint') === 'tint';
+    const wide = LAYOUT !== 'phone';
+    const cellH = LAYOUT === 'web' ? 88 : LAYOUT === 'tablet' ? 80 : 52;
+    const first = new Date(Date.UTC(view.y, view.m - 1, 1));
+    const daysIn = new Date(Date.UTC(view.y, view.m, 0)).getUTCDate();
+    const lead = first.getUTCDay();
+    const rows = Math.ceil((lead + daysIn) / 7);
+    const cells = [];
+    for (let i = 0; i < rows * 7; i++) {
+      const t = new Date(Date.UTC(view.y, view.m - 1, 1 - lead + i));
+      const day = { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() };
+      const h = hijriOf(day.y, day.m, day.d);
+      const inMonth = day.m === view.m;
+      const isSel = key(day) === key(sel), isToday = key(day) === key(TODAY);
+      const ev = inMonth ? eventFor(h) : null;
+      const tone = ev ? EVENT_COLORS[ev.tone] : null;
+      let bg = 'transparent', fg = inMonth ? '#2A1E16' : '#A2927F', sub = inMonth ? '#6A5A4D' : '#A2927F', border = 'transparent';
+      let dot = 'transparent';
+      if (ev && tint) { bg = tone.tint; border = tone.line; sub = '#4E4036'; }
+      if (ev && !tint) dot = tone.dot;
+      if (isToday) border = '#6D4C35';
+      if (isSel) { bg = '#6D4C35'; fg = '#FFFFFF'; sub = '#F2E6D8'; border = ev && tint ? tone.onBrown : '#6D4C35'; if (ev) dot = tone.onBrown; }
+      if (ev && tint && !isSel) dot = 'transparent';
+      const base = 'position: relative; height: ' + cellH + 'px; box-sizing: border-box; padding: 0; border-radius: ' + (wide ? 14 : 12) + 'px; border: ' + (isSel && ev && tint ? 2 : 1.5) + 'px solid ' + border + '; background: ' + bg + '; color: ' + fg + '; cursor: pointer; transition: background 0.15s; overflow: hidden; text-align: left';
+      const useCorners = corners || wide;
+      cells.push({
+        day: day.d,
+        hijri: persian(h.d),
+        label: day.d + ' ' + MONTHS[day.m - 1] + ', ' + h.d + ' ' + HIJRI_MONTHS[h.m - 1] + (ev ? ', ' + ev.short : '') + (isToday ? ', today' : ''),
+        pressed: isSel ? 'true' : 'false',
+        style: base + (useCorners ? '' : '; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px'),
+        dayStyle: useCorners
+          ? 'position: absolute; top: ' + (wide ? 8 : 5) + 'px; left: ' + (wide ? 10 : 7) + 'px; font-size: ' + (wide ? 18 : 16) + 'px; line-height: 20px; font-weight: ' + (isSel || isToday ? 700 : 600)
+          : 'font-size: 17px; line-height: 20px; font-weight: ' + (isSel || isToday ? 700 : 500),
+        hijriStyle: useCorners
+          ? 'position: absolute; ' + (wide ? 'top: 9px; right: 10px' : 'bottom: 4px; right: 6px') + '; font-size: ' + (wide ? 13 : 11) + 'px; line-height: 13px; color: ' + sub
+          : 'font-size: 11px; line-height: 13px; color: ' + sub,
+        dotStyle: useCorners
+          ? 'position: absolute; ' + (wide ? 'top: 13px; left: 36px' : 'top: 10px; right: 7px') + '; width: 6px; height: 6px; border-radius: 3px; background: ' + dot
+          : 'width: 5px; height: 5px; border-radius: 3px; background: ' + dot,
+        evName: wide && ev ? ev.short : '',
+        evStyle: 'position: absolute; left: 10px; right: 8px; bottom: 7px; font-size: 12px; line-height: 15px; font-weight: 500; color: ' + (isSel ? '#FBF6EE' : '#2A1E16') + '; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden',
+        pick: () => this.pick(day)
+      });
+    }
+
+    const hFirst = hijriOf(view.y, view.m, 1), hLast = hijriOf(view.y, view.m, daysIn);
+    const hijriSpan = hFirst.m === hLast.m
+      ? HIJRI_MONTHS[hFirst.m - 1] + ' ' + hFirst.y
+      : HIJRI_MONTHS[hFirst.m - 1] + (hFirst.y !== hLast.y ? ' ' + hFirst.y : '') + ' – ' + HIJRI_MONTHS[hLast.m - 1] + ' ' + hLast.y;
+
+    const selDate = new Date(Date.UTC(sel.y, sel.m - 1, sel.d));
+    const hs = hijriOf(sel.y, sel.m, sel.d);
+    const diff = dayDiff(TODAY, sel);
+    let relLabel = '';
+    if (diff === 0) relLabel = 'Today';
+    else if (diff === 1) relLabel = 'Tomorrow';
+    else if (diff === -1) relLabel = 'Yesterday';
+    else if (diff > 1) relLabel = 'In ' + diff + ' days';
+    else relLabel = -diff + ' days ago';
+
+    const pt = prayerTimes(sel.y, sel.m, sel.d);
+    const today = prayerTimes(TODAY.y, TODAY.m, TODAY.d);
+    const compare = (this.props.compareToToday ?? false) && diff !== 0;
+    const change = (n) => {
+      if (!compare) return '';
+      const delta = Math.round((pt[n] - today[n]) * 60);
+      return delta === 0 ? 'same' : (delta > 0 ? '+' : '−') + Math.abs(delta) + ' min';
+    };
+    const prayers = ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha'].map((n) => ({ name: n, glyph: GLYPHS[n], time: fmt(pt[n]), change: change(n) }));
+    // The wide layouts list every time in the day's order.
+    const allTimes = ['Fajr', 'Sunrise', 'Zuhr', 'Asr', 'Sunset', 'Maghrib', 'Isha', 'Midnight'].map((n) => ({
+      name: n,
+      time: fmt(pt[n]),
+      change: change(n),
+      isPrayer: !!GLYPHS[n],
+      glyph: GLYPHS[n] || '',
+      nameStyle: GLYPHS[n] ? 'flex: 1; font-size: 17px; line-height: 22px; font-weight: 600; color: #FBF6EE' : 'flex: 1; font-size: 15px; line-height: 20px; color: #D9CBB8',
+      timeStyle: GLYPHS[n] ? 'font-size: 17px; line-height: 22px; color: #FBF6EE; font-variant-numeric: tabular-nums' : 'font-size: 15px; line-height: 20px; color: #D9CBB8; font-variant-numeric: tabular-nums',
+      iconSun: n === 'Sunrise' || n === 'Sunset',
+      iconMoon: n === 'Midnight',
+      sunPath: n === 'Sunrise' ? 'M4 18h16M7.5 15a4.5 4.5 0 0 1 9 0M12 4v4M9.5 6.5L12 4l2.5 2.5M5.2 9.7l1.4 1.4M18.8 9.7l-1.4 1.4' : 'M4 18h16M7.5 15a4.5 4.5 0 0 1 9 0M12 4v4M9.5 5.5L12 8l2.5-2.5M5.2 9.7l1.4 1.4M18.8 9.7l-1.4 1.4',
+      divider: n !== 'Fajr'
+    }));
+
+    const ev = eventFor(hs);
+    const viewingTodayMonth = view.y === TODAY.y && view.m === TODAY.m;
+    return {
+      monthTitle: MONTHS[view.m - 1] + ' ' + view.y,
+      hijriSpan: hijriSpan,
+      cells: cells,
+      showTodayButton: diff !== 0 || !viewingTodayMonth,
+      goToday: () => this.pick(TODAY),
+      prevMonth: () => this.shiftMonth(-1),
+      nextMonth: () => this.shiftMonth(1),
+      dayTitle: WEEKDAYS[selDate.getUTCDay()] + ' ' + sel.d + ' ' + MONTHS[sel.m - 1],
+      dayHijri: hs.d + ' ' + HIJRI_MONTHS[hs.m - 1] + ' ' + hs.y,
+      relLabel: relLabel,
+      relBg: diff === 0 ? 'rgba(109,76,53,0.10)' : '#F2EBE1',
+      relFg: diff === 0 ? '#6D4C35' : '#6A5A4D',
+      event: ev ? ev.text : '',
+      eventDot: ev ? EVENT_COLORS[ev.tone].dot : 'transparent',
+      eventBg: ev ? EVENT_COLORS[ev.tone].tint : '#FFFFFF',
+      eventLine: ev ? EVENT_COLORS[ev.tone].line : '#E8E0D5',
+      prayers: prayers,
+      allTimes: allTimes,
+      sunrise: fmt(pt.Sunrise),
+      sunset: fmt(pt.Sunset),
+      midnight: fmt(pt.Midnight),
+      otherCitySub: 'Times for ' + sel.d + ' ' + MONTHS[sel.m - 1] + ' somewhere else, e.g. Karbala'
+    };
+  }
+}
+
+</script>
+</body>
+</html>

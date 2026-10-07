@@ -51,6 +51,7 @@ behaviour. They only render inside the canvas: `support.js` and the
 | `R3-My-stats.dc.html` | My Stats | My Stats |
 | `R3-Reminders.dc.html`, `R3-Reminder-form.dc.html` | Zikr reminders, and adding one | Zikr reminders |
 | `R3-Account.dc.html` | Account (from the signed-in card in Settings) | Settings |
+| `R5-Calendar.dc.html`, `T-Calendar-R5.dc.html`, `W-Calendar-R5.dc.html` | Calendar & Prayer Times on a phone, a tablet (820 × 1180) and the web (1440 × 900); interactive: tap a day | Calendar & Prayer Times |
 
 The round-1 files (everything not prefixed `R2-`, `T-` or `W-`) were drawn
 before the home and navigation were settled. Use them for their own screen
@@ -60,8 +61,7 @@ field, a "Today" heading and the old grid around the part that matters, and
 files and the spec are authoritative for everything around them.
 
 The round-3 files (`R3-`) cover every remaining screen that was still in
-the old design, except Calendar & Prayer Times, which is still being
-designed on the canvas and comes in its own PR. They are drawn in the
+the old design, except Calendar & Prayer Times (see round 5 below). They are drawn in the
 round-2 shell (tokens, round Back button, card lists), sit on the canvas
 page **Round 3 · Remaining screens**, and are static: no file in this round
 has a behaviour script. The canvas also keeps `R3-Search-results-B`, search
@@ -85,6 +85,13 @@ or `W-Home` still show the greeting, the date row or the "Shortcuts"
 heading, the round-4 files win. The canvas also keeps two comparisons that
 are not part of the agreed set: `R4-Home-B` (no title, app name on top) and
 `R4-Home-C-calendar-tab` (Calendar as a fourth tab).
+
+The round-5 files (canvas page **Round 5 · Calendar & Prayer Times**)
+replace the canvas's `R3-Calendar*` and `W-Calendar` drafts. They are
+interactive (press Play, tap a day): their script works out London's times
+for each day and reads the real `events.json`. Their tweaks `dateLayout`,
+`eventMark` and `compareToToday` are comparisons that were turned down,
+not options to build.
 
 Screens with no mockup on purpose, and what to follow instead:
 

@@ -295,9 +295,47 @@ One-line banner where synced data is created — Favorites, bookmarks, Quran
 tracks, My Stats — only while signed out; "Not now" hides it for a week.
 
 ### Calendar & Prayer Times
-Not settled yet: the redesign is still being worked out on the canvas
-(Round 3) and comes in its own PR. Until then this page keeps today's
-layout.
+**One page, no tabs**: tap a day and everything under the month follows
+it, its prayer times included (mockups `R5-Calendar`, `T-Calendar-R5`,
+`W-Calendar-R5`).
+- **Top:** the round Back button, and the city button on the right (as on
+  Home, left out until there is a location).
+- **Month:** the month as the large title ("October 2026"), the Hijri
+  months it spans under it ("Rabi' al-Thani – Jumada al-Awwal 1448"), and
+  round ‹ › buttons beside it. A **Today** button joins them whenever the
+  picked day or the month on show is not today's. A sideways swipe on the
+  grid also changes month.
+- **Grid:** Sunday first, the days either side of the month muted (and
+  tappable). The date sits top-left, the Hijri day bottom-right in
+  Persian digits. Today has a 1.5 px accent ring; the picked day fills
+  with the accent.
+- **Event colours** — the whole cell is tinted, not a dot. `events.json`
+  marks each event 0 (green) or 1 (red), the way the H. Karmali calendar
+  of Mumbai does: **red for joy** (births, Eids), **green for mourning**
+  (martyrdoms, deaths). Keep that reading; it has been swapped by mistake
+  once. Light: green `#E1EFE4` / line `#BFDCC7`, red `#F9E2DE` /
+  `#EDC3BC`; dark: green `#1E3325` / `#2F5A3C`, red `#3B201C` / `#6A302A`.
+  An event with neither gets `well`. Hue is never the only signal: the
+  event is written out below and read out by screen readers.
+- **The picked day:** "Saturday 24 October", then a pill — Today,
+  Tomorrow, Yesterday, "In 17 days", "3 days ago" — and its Hijri date.
+  Today after Maghrib adds "Eve of …" (see Home). Its event follows in
+  full in a card of its own colour.
+- **Prayer card:** Home's brown card with the picked day's times: the
+  five prayers across, then Sunrise, Sunset and Midnight. No "next"
+  highlight here. Along its bottom edge two buttons that say what they
+  hold: **Azan** · "On for 3 times" (or "Off"; not on the web) opens the
+  Azan page, and **Times on Home** · "5 shown" (house icon) opens the
+  "Prayer times shown" picker. No location: the card says so and offers
+  **Choose city**.
+- **Prayer times in another city** · "Times for 24 October somewhere
+  else, e.g. Karbala": a card row opening the look-up city picker on that
+  date. No footnote under it.
+- **Tablet:** the month full width (80 px cells that also name each
+  event), then the day, its event and the city row on the left and the
+  card on the right (340 px), listing all eight times top to bottom.
+  **Desktop and web:** the month on the left (88 px cells), the day in a
+  360 px column on the right with the same vertical card.
 
 ### Azan
 Today's prayer notifications page, from Settings → Prayer times → Azan:
@@ -483,7 +521,8 @@ shadow, a light 12 % scrim) beside the reading column.
   chips, quick picks) as a finger does; everywhere else a mouse drag
   still selects text.
 
-Calendar & Prayer Times keeps its own wide layout until its redesign.
+Calendar & Prayer Times puts the day beside the month from tablet width
+up; see its section.
 
 ## Accessibility
 
@@ -513,5 +552,6 @@ Calendar & Prayer Times keeps its own wide layout until its redesign.
 11. Azan.
 12. Library, Playlists, Downloads, My Stats, Zikr reminders.
 13. Qibla, Qaza, Prayer times in flight, Account.
+14. Calendar & Prayer Times.
 
 Each PR ships with before/after screenshots in `docs/pr-screenshots/`.

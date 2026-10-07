@@ -116,10 +116,7 @@ final HomeMenuItem calendarMenuItem = HomeMenuItem(
   shortLabel: 'Calendar',
   outlineGlyph: OutlineGlyph.calendar,
   icon: Icons.calendar_month_rounded,
-  pageBuilder: () => Scaffold(
-    appBar: AppBar(title: Text(L10n.current.menuCalendar)),
-    body: CalendarPage(),
-  ),
+  pageBuilder: () => const CalendarPage(),
 );
 
 final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
