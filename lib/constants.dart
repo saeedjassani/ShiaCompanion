@@ -478,37 +478,25 @@ Future<void> handleUniversalDataClick(
   }
 }
 
+/// Whether the phone already lets the app read its location, without ever
+/// asking: an automatic refresh may fetch only then, since the permission
+/// prompt follows an explicit tap (docs/DESIGN_SPEC.md, "First-run setup").
+Future<bool> hasLocationPermission() async {
+  try {
+    final status = await Geolocator.checkPermission();
+    return status == LocationPermission.whileInUse ||
+        status == LocationPermission.always;
+  } catch (e) {
+    debugPrint('Could not read the location permission: $e');
+    return false;
+  }
+}
+
 Future<bool> initializeLocation(
     {bool force = false, BuildContext? context}) async {
   // If we are not forcing a refresh and we already have lat/long, just return.
   if (!force && lat != null && long != null) {
     return true;
-  }
-
-  // Show explanation dialog on first setup
-  if (!force && context != null && lat == null && long == null) {
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text(L10n.current.locationEnableTitle),
-          content: Text(
-            L10n.current.locationEnableBody,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(L10n.current.commonCancel),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(L10n.current.commonContinue),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   try {
@@ -1530,12 +1518,48 @@ Future<void> saveAzaanPreferenceForPrayer(
   }
 }
 
+Future<FlutterLocalNotificationsPlugin>? _notificationsPluginSetup;
+
+/// Creates and initializes [flutterLocalNotificationsPlugin], once: Home's
+/// start-up and first-run setup's Azan step (which runs before Home) both
+/// need it. Null on the web.
+///
+/// Asks for no permission: on iOS the plugin would otherwise put the
+/// notification prompt up the moment it starts. [requestNotificationPermissions]
+/// asks, and only for someone who has turned on azan or a reminder.
+Future<FlutterLocalNotificationsPlugin?> ensureNotificationsPlugin() async {
+  if (kIsWeb) return null;
+  return _notificationsPluginSetup ??= () async {
+    final plugin = FlutterLocalNotificationsPlugin();
+    await plugin.initialize(
+      settings: const InitializationSettings(
+        android: AndroidInitializationSettings('ic_notification'),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        ),
+      ),
+      onDidReceiveNotificationResponse: handlePrayerNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse:
+          handlePrayerNotificationResponseBackground,
+    );
+    flutterLocalNotificationsPlugin = plugin;
+    return plugin;
+  }()
+      // A failed start is tried again by the next caller, not remembered.
+      .catchError((Object error) {
+    _notificationsPluginSetup = null;
+    throw error;
+  });
+}
+
 /// Asks the OS for permission to post notifications.
 ///
-/// Prayer reminders are the only thing the app notifies about, so this is
-/// deliberately not called at start-up for a user who has never opted into
-/// azan — see [AzaanOptInService]. Both the first-run opt-in and the Settings
-/// switch come through here when azan is turned on.
+/// Only for someone with something to be notified about - azan or a zikr
+/// reminder - so never on a bare launch: see [AzaanOptInService]. Setup's
+/// Azan step and the Settings switch come through here when azan is turned
+/// on, as do [setUpNotifications] and the reminders' rescheduling.
 Future<void> requestNotificationPermissions() async {
   if (flutterLocalNotificationsPlugin == null) return;
 

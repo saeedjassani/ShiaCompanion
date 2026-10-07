@@ -61,6 +61,7 @@ void main() {
       'home_menu_all_features',
       'zikr_source_${ZikrOpenSource.homeContinue}',
       'feedback_email_opened',
+      'first_run_setup',
     ];
 
     for (final key in newKeys) {

@@ -255,9 +255,11 @@ bar. Results scroll behind it under the same fade.
 Welcome → 1 Prayer times (location or city) → 2 Azan (per-prayer toggles,
 sample) → 3 Arabic style (font cards + size) → 4 Light / Dark / Same as
 phone → 5 Back up (Google, Apple on iOS, Maybe later). "Skip" on every
-step; defaults apply when skipped. Replaces the location explainer and azan
+step; defaults apply when skipped (Skip puts back whatever that step
+changed; the Azan step's Skip is "Not now"). Replaces the location explainer and azan
 dialogs; the OS prompts only follow an explicit tap. No setup checklist on
-Home. Existing users get a short "What's new" built from steps 3–5 plus the
+Home. Fresh installs on Android and iOS only: an install that has run an
+earlier build skips it, and the web keeps its quiet first load. Existing users get a short "What's new" built from steps 3–5 plus the
 Quran and My Stats introduction.
 
 ### Settings

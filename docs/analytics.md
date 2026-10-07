@@ -81,6 +81,11 @@ matches the chosen city's.
 `theme_mode_changed` (+`theme_mode`: `light`, `dark` or `system`; replaced
 `dark_mode_toggled` along with the Dark mode switch),
 `home_shortcuts_changed` (+`count`, `shortcuts`: the chosen ids in order),
+`first_run_setup` (+`outcome`: `finished`, or `skipped` from Skip setup;
++`step`: 0 for the welcome, 5 for Back up), once when setup ends; its steps
+count under their own keys (`azaan_opt_in`, `arabic_font_changed`,
+`theme_mode_changed`, `account_signed_in`, `city_chosen`,
+`device_location_chosen`),
 `flight_added` / `flight_edited`, `qaza_updated` (+`operation`),
 `tasbeeh_session` (+`count`).
 

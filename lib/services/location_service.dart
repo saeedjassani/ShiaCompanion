@@ -172,6 +172,19 @@ class LocationService extends ChangeNotifier {
     return refresh(context: context);
   }
 
+  /// The launch-time refresh: [refreshIfStale] once there is a location, and
+  /// before that only if the phone already allows the app its location. The
+  /// permission prompt and the dialogs follow an explicit tap - "Use my
+  /// location" in setup or on the prayer card - never a launch; until then
+  /// the card offers both ways to set one.
+  Future<bool> refreshIfAllowed({
+    Future<bool> Function() permitted = hasLocationPermission,
+  }) async {
+    if (hasLocation) return refreshIfStale();
+    if (!await permitted()) return false;
+    return refreshIfStale();
+  }
+
   /// Fetches a new position.
   ///
   /// Concurrent callers share one fetch: app open, resume and a button tap can
@@ -198,14 +211,10 @@ class LocationService extends ChangeNotifier {
   }
 
   Future<bool> _run({BuildContext? context}) async {
-    // First run has no stored location and no explainer shown yet, so let
-    // initializeLocation walk the user through it rather than forcing.
-    final isFirstEverFetch = !hasLocation;
-
     bool success;
     try {
       success = await initializeLocation(
-        force: !isFirstEverFetch,
+        force: true,
         context: context,
       );
     } catch (e) {
