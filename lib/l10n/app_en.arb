@@ -467,8 +467,6 @@
       }
     }
   },
-  "locationEnableTitle": "Enable Location for Prayer Times",
-  "locationEnableBody": "Prayer times are unique to your location. We use your location while you are using the app so we can provide accurate prayer times for your area.",
   "commonContinue": "Continue",
   "locationServicesDisabledTitle": "Location Services Disabled",
   "locationServicesDisabledBody": "Location services are turned off. Please enable location services in your device settings to get accurate prayer times for your area.",
@@ -1739,12 +1737,6 @@
   "ratingSorryBody": "Would you mind telling us what's not working? It helps us improve the app.",
   "ratingNoThanks": "No thanks",
   "ratingSendFeedback": "Send feedback",
-  "azaanOptInIntro": "Shia Companion can send you a notification at Fajr, Zuhr and Maghrib and play the azan.",
-  "azaanOptInIosNote": "On iPhone the notification plays a short takbir. Choose Full Azan in Settings to hear the whole azan when you tap it.",
-  "azaanOptInChangeLater": "You can change which prayers notify you, pick a different sound, or turn this off again at any time in Settings.",
-  "azaanOptInTitle": "Play the azan at prayer times?",
-  "azaanOptInNotNow": "Not now",
-  "azaanOptInEnable": "Enable azan",
   "reminderRemoveBody": "This removes the reminder for \"{title}\". You can add it again any time.",
   "@reminderRemoveBody": {
     "placeholders": {
@@ -3683,5 +3675,73 @@
   "accountLogOut": "Log out",
   "accountDelete": "Delete account…",
   "accountDeleteNote": "Deleting removes your account and its backup for good. You will be asked to confirm.",
-  "deleteAccountAppStepsAccount": "Open Settings in the app, tap your account, then Delete account…"
+  "deleteAccountAppStepsAccount": "Open Settings in the app, tap your account, then Delete account…",
+  "setupWelcomeTitle": "Assalamu alaykum",
+  "@setupWelcomeTitle": {
+    "description": "First-run setup's welcome screen: the greeting."
+  },
+  "setupWelcomeBody": "Duas, ziyarat, the Quran and prayer times, all in one place.",
+  "setupWelcomeHint": "Let's set it up for you. It takes about a minute.",
+  "setupGetStarted": "Get started",
+  "setupSkipAll": "Skip setup",
+  "setupStepOf": "Step {step} of {total}",
+  "@setupStepOf": {
+    "description": "Above each first-run setup step.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "setupSkip": "Skip",
+  "@setupSkip": {
+    "description": "Top right of a setup step: go on without changing anything."
+  },
+  "setupLocationTitle": "Prayer times for your city",
+  "setupLocationBody": "Prayer times change with where you are. We use your location to work out prayer times and the Qibla direction.",
+  "setupLocationAlternative": "Rather not share it? Choose your city instead. You can change this any time.",
+  "setupUseMyLocation": "Use my location",
+  "setupChooseCity": "Choose my city",
+  "setupAzanTitle": "Hear the azan at prayer time?",
+  "setupAzanBody": "We'll send a notification and play the azan for the prayers you pick.",
+  "setupAzanFor": "Azan for {prayer}",
+  "@setupAzanFor": {
+    "description": "Screen-reader label of one prayer's switch in setup.",
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "setupPlaySample": "Play a sample",
+  "setupStopSample": "Stop the sample",
+  "setupAzanIosNote": "On iPhone the notification itself plays a short takbir.",
+  "setupTurnOnAzan": "Turn on azan",
+  "setupNotNow": "Not now",
+  "setupFontTitle": "How should Arabic look?",
+  "setupFontBody": "Tap the one you find easier to read. Same words, two styles.",
+  "setupFontQalamHint": "Indo-Pak style, like most South Asian dua books",
+  "@setupFontQalamHint": {
+    "description": "Under the Qalam font's name in setup."
+  },
+  "setupFontScheherazadeHint": "Naskh style, like most Arab prints",
+  "@setupFontScheherazadeHint": {
+    "description": "Under the Scheherazade font's name in setup."
+  },
+  "setupTextSize": "Text size",
+  "setupThemeTitle": "Light or dark?",
+  "setupThemeBody": "Dark is gentler on the eyes at night, for Namaz-e-Shab and late duas.",
+  "setupThemeSameAsPhone": "Same as my phone",
+  "setupThemeSameAsPhoneHint": "Switches by itself when your phone goes dark",
+  "setupBackupTitle": "Keep everything safe",
+  "setupBackupBody": "Sign in once, and if you change or lose your phone, it all comes back.",
+  "setupBackupFavorites": "Favorites and bookmarks",
+  "setupBackupQuran": "Quran progress and My Stats",
+  "setupBackupQaza": "Qaza tracker and your settings",
+  "setupContinueWithGoogle": "Continue with Google",
+  "setupContinueWithApple": "Continue with Apple",
+  "setupMaybeLater": "Maybe later"
 }

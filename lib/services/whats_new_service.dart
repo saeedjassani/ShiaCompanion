@@ -16,16 +16,17 @@ import 'azaan_opt_in_service.dart';
 /// [markSeen] records that they have now been shown up to the current build.
 ///
 /// Deliberately silent for a brand new install: nobody who has never used the
-/// old behavior needs it explained to them, and a dialog piling on top of the
-/// location and azan opt-in prompts a first run already shows would be one
-/// too many. [priorInstallMarkerKeys] — the same signal
+/// old behavior needs it explained to them, and a dialog piling on top of
+/// first-run setup would be one too many. [priorInstallMarkerKeys] — the same signal
 /// [AzaanOptInService.adoptChoiceFromExistingInstall] already uses to tell a
 /// genuinely new install apart from one that merely predates a given
 /// preference — is what keeps it that way.
 class WhatsNewService {
   const WhatsNewService._();
 
-  static const String _lastSeenBuildKey = 'whats_new_last_seen_build';
+  /// Public because FirstRunSetup reads it as a sign that this install has
+  /// already run an earlier build.
+  static const String lastSeenBuildKey = 'whats_new_last_seen_build';
 
   static Future<int> _currentBuildNumber() async {
     final info = await PackageInfo.fromPlatform();
@@ -47,7 +48,7 @@ class WhatsNewService {
     final currentBuild = await _currentBuildNumber();
     if (currentBuild <= 0) return const [];
 
-    final lastSeenBuild = SP.prefs.getInt(_lastSeenBuildKey);
+    final lastSeenBuild = SP.prefs.getInt(lastSeenBuildKey);
     if (lastSeenBuild == null) {
       final isExistingInstall =
           AzaanOptInService.priorInstallMarkerKeys.any(SP.prefs.containsKey);
@@ -75,6 +76,6 @@ class WhatsNewService {
     if (!SP.isInitialized) return;
     final currentBuild = await _currentBuildNumber();
     if (currentBuild <= 0) return;
-    await SP.prefs.setInt(_lastSeenBuildKey, currentBuild);
+    await SP.prefs.setInt(lastSeenBuildKey, currentBuild);
   }
 }

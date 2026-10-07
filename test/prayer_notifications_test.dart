@@ -287,10 +287,9 @@ void main() {
       await tester.tap(find.byType(Switch).at(0));
       await tester.pumpAndSettle();
 
-      // Otherwise the first-run dialog could still ambush someone who has
-      // already configured their notifications by hand.
+      // So nothing treats someone who has already configured their
+      // notifications by hand as never having answered.
       expect(AzaanOptInService.hasBeenAsked, isTrue);
-      expect(AzaanOptInService.shouldAsk(hasLocation: true), isFalse);
     });
   });
 }

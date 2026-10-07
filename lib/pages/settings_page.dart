@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../constants.dart';
 import '../services/activity_stats_store.dart';
 import '../services/account_service.dart';
@@ -27,6 +23,7 @@ import '../services/zikr_bookmarks_manager.dart';
 import '../utils/app_text_scale.dart';
 import '../utils/external_launch.dart';
 import '../utils/shared_preferences.dart';
+import '../utils/sign_in_flow.dart';
 import '../utils/theme_mode.dart';
 import '../utils/widget_prayer_time_selection.dart';
 import 'prayer_notifications_page.dart';
@@ -542,12 +539,9 @@ class _SettingsPageState extends State<SettingsPage> {
         leading: Image.asset('assets/images/google_logo.png', height: 24.0),
         title: Text(context.l10n.settingsSignInGoogle),
         subtitle: Text(context.l10n.settingsSignInGoogleSubtitle),
-        onTap: () async {
-          await _signInWithGoogle();
-          await _refreshAfterAuthChange();
-        },
+        onTap: () => _signIn(SignInProvider.google),
       ),
-      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS)
+      if (appleSignInOffered)
         ListTile(
           // A flat black silhouette, so it has to be tinted rather than drawn
           // as-is: untinted it was black-on-dark and all but invisible in dark
@@ -561,10 +555,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           title: Text(context.l10n.settingsSignInApple),
           subtitle: Text(context.l10n.settingsSignInAppleSubtitle),
-          onTap: () async {
-            await _signInWithApple();
-            await _refreshAfterAuthChange();
-          },
+          onTap: () => _signIn(SignInProvider.apple),
         ),
     ];
   }
@@ -847,112 +838,10 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  Future<void> _signInWithGoogle() async {
-    try {
-      User? firebaseUser = _auth.currentUser;
-      if (firebaseUser == null) {
-        final authResult = await AccountService.signInWithGoogle();
-
-        unawaited(AnalyticsService.feature(
-          'account_signed_in',
-          label: 'Signed in',
-          parameters: {'method': 'google'},
-        ));
-        ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-          content: new Text(context.l10n.settingsLoginSuccessful),
-        ));
-        user = authResult.user;
-        await _refreshAfterAuthChange();
-      } else {
-        logOff();
-      }
-    } on GoogleSignInException catch (error) {
-      if (error.code == GoogleSignInExceptionCode.canceled) {
-        debugPrint('User cancelled google sign-in');
-        return;
-      }
-      debugPrint("Google sign-in failed: $error");
-      _showGoogleSignInError(
-          error.code == GoogleSignInExceptionCode.uiUnavailable
-              ? context.l10n.settingsGoogleUnavailable
-              : null);
-    } on FirebaseAuthException catch (error) {
-      // Web popup closed/replaced by the user - also a cancel, not a failure.
-      if (error.code == 'popup-closed-by-user' ||
-          error.code == 'cancelled-popup-request') {
-        return;
-      }
-      debugPrint("Google sign-in failed: ${error.code} ${error.message}");
-      _showGoogleSignInError(error.code == 'network-request-failed'
-          ? context.l10n.commonNetworkError
-          : null);
-    } catch (error) {
-      debugPrint("Google sign-in failed: $error");
-      _showGoogleSignInError(null);
-    }
-  }
-
-  void _showGoogleSignInError(String? message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message ??
-          context.l10n.settingsGoogleFailed),
-    ));
-  }
-
-  Future<void> _signInWithApple() async {
-    try {
-      User? firebaseUser = _auth.currentUser;
-      if (firebaseUser == null) {
-        final rawNonce = generateNonce();
-        final nonce = sha256.convert(utf8.encode(rawNonce)).toString();
-        final appleCredential = await SignInWithApple.getAppleIDCredential(
-          scopes: [],
-          nonce: nonce,
-        );
-        final identityToken = appleCredential.identityToken;
-        if (identityToken == null) {
-          throw FirebaseAuthException(
-            code: 'missing-apple-id-token',
-            message: 'Apple did not return an identity token.',
-          );
-        }
-
-        final credential = OAuthProvider('apple.com').credential(
-          idToken: identityToken,
-          rawNonce: rawNonce,
-        );
-        final authResult = await _auth.signInWithCredential(credential);
-        unawaited(AnalyticsService.feature(
-          'account_signed_in',
-          label: 'Signed in',
-          parameters: {'method': 'apple'},
-        ));
-        ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-          content: new Text(context.l10n.settingsLoginSuccessful),
-        ));
-        user = authResult.user;
-        await _refreshAfterAuthChange();
-      } else {
-        logOff();
-      }
-    } on SignInWithAppleAuthorizationException catch (error) {
-      if (error.code == AuthorizationErrorCode.canceled) {
-        debugPrint('User cancelled apple sign-in');
-        return;
-      }
-      debugPrint("Apple sign-in failed: ${error.message}");
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-        content: new Text(context.l10n.settingsAppleFailed),
-      ));
-    } catch (error) {
-      debugPrint(error.toString());
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-        content: new Text(context.l10n.settingsAppleFailed),
-      ));
-    }
+  Future<void> _signIn(SignInProvider provider) async {
+    final signedIn = await signInFromButton(context, provider);
+    if (signedIn != null) user = signedIn;
+    await _refreshAfterAuthChange();
   }
 
   // Logging out and deleting the account live on AccountPage; deleting

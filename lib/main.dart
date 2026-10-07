@@ -9,8 +9,10 @@ import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
+import 'package:shia_companion/pages/setup/first_run_setup_page.dart';
 import 'package:shia_companion/services/audio_download_store.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
+import 'package:shia_companion/services/first_run_setup.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
@@ -19,6 +21,7 @@ import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/services.dart' show BrowserContextMenu;
 import 'package:shia_companion/utils/crash_reporting.dart';
 import 'package:shia_companion/utils/network_utils.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/webview_registry.dart'
     if (dart.library.js_interop) 'package:shia_companion/utils/webview_registry_web.dart';
 
@@ -115,7 +118,12 @@ void main() async {
   // A finished offline download says so wherever the reader has got to.
   AudioDownloadStore.instance.results.listen(showAudioDownloadResult);
 
-  runApp(const MyApp());
+  // Decided before the first frame, so a fresh install opens straight on
+  // setup rather than on Home with setup sliding over it.
+  await SP.init();
+  final showFirstRunSetup = await FirstRunSetup.resolveOnLaunch();
+
+  runApp(MyApp(showFirstRunSetup: showFirstRunSetup));
 }
 
 enum _AppLaunchDestination {
@@ -143,12 +151,18 @@ final ThemeData _lightTheme = buildAppTheme(Brightness.light);
 final ThemeData _darkTheme = buildAppTheme(Brightness.dark);
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key, this.showFirstRunSetup = false}) : super(key: key);
+
+  /// Open on first-run setup, then on the tabs (see FirstRunGate).
+  final bool showFirstRunSetup;
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    Widget buildHomePage() => const AppShell();
+    Widget buildHomePage() => FirstRunGate(
+          showSetup: showFirstRunSetup,
+          child: const AppShell(),
+        );
 
     return MultiProvider(
       providers: [

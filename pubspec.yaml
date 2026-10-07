@@ -96,6 +96,7 @@ flutter:
     # to ship inside the app. assets/hadith/ and assets/zikr/ hold hundreds of
     # generated files and have to stay directory entries, so
     # test/bundled_assets_test.dart guards those instead.
+    - assets/logo.png
     - assets/images/google_logo.png
     - assets/images/apple_logo.png
     - assets/images/ali_watermark.png

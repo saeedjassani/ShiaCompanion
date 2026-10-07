@@ -502,10 +502,9 @@ class _MyHomePageState extends State<MyHomePage>
     // up and locked the phone had the Azan start by itself whenever the app
     // next came to the foreground, however much later that was.
     //
-    // Reading launch details needs no initialize() call, so this also
-    // doesn't move the notification permission prompt that initialize()
-    // triggers on iOS. Zikr reminder taps still wait for the zikr index
-    // (loaded by _refreshHomeSessionState) further down.
+    // Reading launch details needs no initialize() call. Zikr reminder taps
+    // still wait for the zikr index (loaded by _refreshHomeSessionState)
+    // further down.
     NotificationResponse? launchResponse;
     if (!kIsWeb) {
       final launchDetails = await FlutterLocalNotificationsPlugin()
@@ -537,56 +536,34 @@ class _MyHomePageState extends State<MyHomePage>
     // On web, keep first load quiet and let the prayer card request location
     // only after the user taps it.
     if (!kIsWeb) {
-      // Pass context only when there is nothing stored yet: that first fetch
-      // needs the explainer and the permission prompt. Once a location exists,
-      // an automatic refresh must never interrupt the user with a dialog — the
-      // card shows the outcome instead.
-      await LocationService.instance.refreshIfStale(
-        context: LocationService.instance.hasLocation ? null : context,
-      );
+      // Never with context: an automatic refresh must not interrupt with a
+      // dialog or a permission prompt - those follow "Use my location" in
+      // setup or on the prayer card. Without a location yet this fetches
+      // only if the phone already allows it; the card offers the rest.
+      await LocationService.instance.refreshIfAllowed();
     }
 
     if (!kIsWeb) {
       await initializeNotificationTimeZone();
-
-      flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      AndroidInitializationSettings initializationSettingsAndroid =
-          AndroidInitializationSettings('ic_notification');
-
-      DarwinInitializationSettings initializationSettingsIOS =
-          DarwinInitializationSettings();
-      InitializationSettings initializationSettings = InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsIOS);
-      await flutterLocalNotificationsPlugin?.initialize(
-        settings: initializationSettings,
-        onDidReceiveNotificationResponse: handlePrayerNotificationResponse,
-        onDidReceiveBackgroundNotificationResponse:
-            handlePrayerNotificationResponseBackground,
-      );
+      await ensureNotificationsPlugin();
       // A zikr reminder tap that launched the app from fully terminated
       // (prayer taps were already handled at the top of this method).
       if (launchResponse != null) {
         await handlePrayerNotificationResponse(launchResponse);
       }
-      // Two prompts back to back is one too many, so the OS permission dialog
-      // is skipped on the launch we ask our own question; the opt-in requests
-      // it itself, and only if the user actually wants azan.
-      final askingAboutAzaan = AzaanOptInService.shouldAsk(
-        hasLocation: LocationService.instance.hasLocation,
-      );
-      if (!askingAboutAzaan) {
+      // Only for someone with something to be notified about: the prompt
+      // follows "Turn on azan" or adding a reminder, never a bare launch
+      // (setup's Azan step is where a new install is asked). Costs nothing
+      // once permission is settled - neither OS re-prompts.
+      await ZikrReminderService.instance.load();
+      if (AzaanOptInService.isEnabled ||
+          ZikrReminderService.instance.reminders.isNotEmpty) {
         await requestNotificationPermissions();
       }
       await refreshExactPrayerAlarmPermissionStatus();
-      if (askingAboutAzaan && mounted) {
-        await _askAboutAzaan();
-      }
 
-      // Never fires alongside the two prompts above: a fresh install has
-      // nothing to catch up on (see WhatsNewService), and an install that has
-      // already answered the opt-in question is exactly the "existing
-      // install" this is for.
+      // A fresh install has nothing to catch up on (see WhatsNewService);
+      // it has just been through setup instead.
       final whatsNew = await WhatsNewService.pending();
       await WhatsNewService.markSeen();
       if (whatsNew.isNotEmpty && mounted) {
@@ -676,20 +653,6 @@ class _MyHomePageState extends State<MyHomePage>
     appVersion = packageInfo.version;
 
     initializeData();
-  }
-
-  /// Puts the first-run azan question to the user and records the answer.
-  ///
-  /// The schedule is not rebuilt here: the caller does that a few lines later
-  /// for every launch, and the answer has already changed the fingerprint it
-  /// checks.
-  Future<void> _askAboutAzaan() async {
-    final enabled = await AzaanOptInService.ask(context);
-    unawaited(AnalyticsService.feature(
-      'azaan_opt_in',
-      label: 'Azan opt-in',
-      parameters: {'choice': enabled ? 'enabled' : 'declined'},
-    ));
   }
 
   @override

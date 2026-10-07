@@ -117,6 +117,53 @@ void main() {
     });
   });
 
+  group('the launch refresh', () {
+    // The permission prompt follows "Use my location", never a launch.
+    test('never asks for permission without a location yet', () async {
+      final geolocator = _CountingGeolocator(
+        currentPosition: _pos(32.6, 44.0),
+        permission: LocationPermission.denied,
+      );
+      GeolocatorPlatform.instance = geolocator;
+
+      expect(await service.refreshIfAllowed(), isFalse);
+
+      expect(geolocator.requestPermissionCalls, 0);
+      expect(geolocator.currentPositionCalls, 0);
+      expect(service.hasLocation, isFalse);
+    });
+
+    test('fetches one the phone already allows', () async {
+      final geolocator = _CountingGeolocator(currentPosition: _pos(32.6, 44.0));
+      GeolocatorPlatform.instance = geolocator;
+
+      await withGeocode(() async {
+        expect(await service.refreshIfAllowed(), isTrue);
+      });
+
+      expect(geolocator.currentPositionCalls, 1);
+      expect(service.hasLocation, isTrue);
+    });
+
+    test('refreshes a stored location as before', () async {
+      final geolocator = _CountingGeolocator(currentPosition: _pos(32.6, 44.0));
+      GeolocatorPlatform.instance = geolocator;
+      lat = 24.8;
+      long = 67.0;
+
+      var asked = 0;
+      await withGeocode(() async {
+        await service.refreshIfAllowed(permitted: () async {
+          asked++;
+          return false;
+        });
+      });
+
+      expect(asked, 0);
+      expect(geolocator.currentPositionCalls, 1);
+    });
+  });
+
   group('stale fixes and retry cooldown', () {
     test('ages a last-known fallback from when it was measured', () async {
       final old = DateTime.now().subtract(const Duration(hours: 20));
@@ -473,8 +520,13 @@ class _CountingGeolocator extends GeolocatorPlatform {
   @override
   Future<LocationPermission> checkPermission() => Future.value(permission);
 
+  int requestPermissionCalls = 0;
+
   @override
-  Future<LocationPermission> requestPermission() => Future.value(permission);
+  Future<LocationPermission> requestPermission() {
+    requestPermissionCalls++;
+    return Future.value(permission);
+  }
 
   @override
   Future<Position> getCurrentPosition({LocationSettings? locationSettings}) {

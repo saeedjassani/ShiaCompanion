@@ -302,6 +302,7 @@ const Set<String> _personalizationAndAccountFeatureKeys = {
   'theme_mode_changed',
   'home_shortcuts_changed',
   'app_text_scale_changed',
+  'first_run_setup',
 };
 
 const Set<String> _feedbackAndRatingsFeatureKeys = {
