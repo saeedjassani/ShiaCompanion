@@ -380,13 +380,95 @@ today's Quran progress, privacy note and community sections as cards.
 
 ## Responsive behaviour
 
-| Width | Layout |
-|---|---|
-| < 600 | Phone: single column, pickers as bottom sheets |
-| 600–1023 | Tablet: Home in two columns (prayer card, Continue, Coming up · Shortcuts, hadith); readers in a 640 px column; pickers and city search as centred dialogs |
-| ≥ 1024 | Web/desktop and tablet landscape: same two columns inside 1120 px; readers in a 720 px column; slimmer top bars |
+One design at every width: the same tokens, cards, chrome and tab bar.
+What changes is how much sits side by side. Three screen classes
+(`ScreenClass` in `lib/widgets/responsive_content.dart`):
 
-The tab bar stays bottom-centre at every width.
+| Width | Class | Covers |
+|---|---|---|
+| < 600 | Phone | Phones, any orientation |
+| 600–1023 | Tablet | Tablets in portrait, small browser windows |
+| ≥ 1024 | Desktop | Web and desktop, tablets in landscape |
+
+**Gutters and columns.** 16 px page gutter on a phone, 32 from tablet up.
+Content is centred in one of three widths, so a page never stretches to
+the window:
+
+- **720 — one column** (`largeTitlePageWidth`, the default): forms,
+  settings-like lists and tools — Azan, Zikr reminders and their form,
+  Playlists, Downloads, Flights, About, News, Account, All features,
+  Tasbeeh, Rakaat. Lines stay readable and a row's switch stays near its
+  label.
+- **1120 — wide** (`widePageWidth`, Home's width): pages with more to show
+  at once — Home, the zikr lists, Favorites, Quran, Library and a book's
+  chapters, Today's Recitations, Search results, Recent sessions, the zikr
+  picker, Settings, My Stats, Qaza and Qibla.
+- **Readers**: a 640 px column on a tablet, 720 from desktop up
+  (`readerColumnWidth`), with the top bar running the full width — Back
+  at the window's edge, the title centred — as in `W-Reader`.
+
+The large title, Back button and actions line up with the content column
+they head, at every width.
+
+**Long lists go two to a line** where the column is 880 px or more (a
+wide page on a desktop or a landscape tablet): one card, rows in reading
+order left to right, a 1 px line between the columns, each pair as tall
+as its taller row (`SliverCardList`). Below 880 the same card is one
+column. Applies to every list built on `SliverCardList` (zikr lists,
+surahs and juz, Favorites, books, chapters, search results, Today's
+Recitations' groups).
+
+**Dashboards go two columns** at the same 880 (`WideColumns`), most-used
+on the left:
+
+- **Home** — prayer card, Continue, Coming up · Shortcuts, hadith (from
+  600 already; see Home).
+- **Settings** — the sign-in card, Appearance, Prayer times · Notifications,
+  Reading, Offline audio, Support. The version line stays centred under
+  both.
+- **My Stats** — streak, history · most recited, Quran progress with the
+  privacy note, community.
+- **Qaza** — the summary card (or "Missed prayers for a while?") · the
+  prayer rows and Fasts.
+- **Qibla** — the dial (up to 380 px) and the turn instruction · Pointing
+  towards, notices, the Distance / Direction / You face tiles and the
+  location line. On a tablet in portrait the one column keeps its phone
+  order with a 380 px dial; a phone keeps 300.
+- **Quran** — the Surahs / Juz / Collections switcher and **Go to a verse**
+  share a line, each over one of the list's columns, instead of two
+  full-width bars.
+
+**Floating fields keep a field's width.** A list's **Find** field and the
+Search field stay centred and at most 640 px wide (Search's plus its
+Close button), over whatever width the page has. The tab bar stays
+bottom-centre at every width, 290 px from tablet up.
+
+**Pickers are dialogs from tablet up.** Everything opened with
+`showAdaptiveSheet` — theme, font, text size, Hijri adjustment and every
+other choice sheet, Edit shortcuts, the verse menu, Merits, the reading
+position picker — is a bottom sheet on a phone and a centred dialog
+(560 px, 20 px corners, ground colour, no drag handle, at most 88 % of the
+height) from 600 up; as are the city picker and Go to a verse. A sheet
+stretched along the bottom of a wide window reads as a banner rather than
+a question.
+
+**Text & reading** stays a bottom sheet on phones and tablets, so the text
+it changes is still in view above it, and from desktop up is a 400 px
+panel down the window's end edge (16 px inset, 20 px corners, the glass
+shadow, a light 12 % scrim) beside the reading column.
+
+**Keyboard and mouse** (web, desktop, a tablet with a keyboard):
+
+- **Esc** goes back a page, as Back does; it closes a dialog, sheet or
+  menu first, never leaves the first page, and leaves a dialog that has
+  to be answered alone.
+- **/** and **Ctrl+K** (**⌘K** on Apple keyboards) open Search from the
+  tab roots.
+- A mouse can drag the sideways strips (Continue, reading tracks, part
+  chips, quick picks) as a finger does; everywhere else a mouse drag
+  still selects text.
+
+Calendar & Prayer Times keeps its own wide layout until its redesign.
 
 ## Accessibility
 

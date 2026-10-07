@@ -62,7 +62,7 @@ class _MyStatsPageState extends State<MyStatsPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final gutter = pageGutter(context);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
 
     return ListenableBuilder(
       listenable: Listenable.merge([
@@ -74,42 +74,59 @@ class _MyStatsPageState extends State<MyStatsPage> {
         final recitation = RecitationTrackerManager.instance.state;
         final community = _community;
 
-        Widget section(Widget child, {double bottom = 18}) => SliverPadding(
-              padding: gutter.copyWith(bottom: bottom),
-              sliver: SliverToBoxAdapter(child: child),
-            );
-
+        // The streak and its history on the left; what was recited, the
+        // Quran and the community on the right, once a desktop has room.
         return LargeTitlePage(
+          maxWidth: widePageWidth,
           title: l10n.statsTitle,
           slivers: [
-            section(_StreakCard(summary: summary)),
-            section(StatsHistoryCard(summary: summary)),
-            if (summary.zikrCounts.isNotEmpty) ...[
-              section(GroupLabel(l10n.statsYourMostRecited), bottom: 8),
-              section(
-                _RankedZikrList(entries: [
-                  for (final entry in summary.topZikrs(5))
-                    (entry.key, _titleFor(entry.key), entry.value),
-                ]),
-              ),
-            ],
-            section(QuranProgressSection(state: recitation), bottom: 6),
-            section(_PrivacyNote(isSignedIn: _isSignedIn)),
-            if (community != null)
-              section(
-                _CommunitySection(
-                  stats: community,
-                  format: _count,
-                  top: [
-                    for (final zikr in community.top)
-                      (
-                        zikr.uid,
-                        _titleFor(zikr.uid, zikr.title),
-                        zikr.recitations
+            SliverPadding(
+              padding: gutter,
+              sliver: SliverToBoxAdapter(
+                child: WideColumns(
+                  spacing: 18,
+                  start: [
+                    _StreakCard(summary: summary),
+                    StatsHistoryCard(summary: summary),
+                  ],
+                  end: [
+                    if (summary.zikrCounts.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          GroupLabel(l10n.statsYourMostRecited),
+                          const SizedBox(height: 8),
+                          _RankedZikrList(entries: [
+                            for (final entry in summary.topZikrs(5))
+                              (entry.key, _titleFor(entry.key), entry.value),
+                          ]),
+                        ],
+                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        QuranProgressSection(state: recitation),
+                        const SizedBox(height: 6),
+                        _PrivacyNote(isSignedIn: _isSignedIn),
+                      ],
+                    ),
+                    if (community != null)
+                      _CommunitySection(
+                        stats: community,
+                        format: _count,
+                        top: [
+                          for (final zikr in community.top)
+                            (
+                              zikr.uid,
+                              _titleFor(zikr.uid, zikr.title),
+                              zikr.recitations
+                            ),
+                        ],
                       ),
                   ],
                 ),
               ),
+            ),
           ],
         );
       },

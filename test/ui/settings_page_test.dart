@@ -128,7 +128,8 @@ void main() {
       (tester) async {
     await _pump(tester, const SettingsPage());
 
-    await tester.scrollUntilVisible(find.text('Text & reading'), 200);
+    await tester.ensureVisible(find.text('Text & reading'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Text & reading'));
     await tester.pumpAndSettle();
     expect(find.text('Arabic size'), findsOneWidget);

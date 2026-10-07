@@ -28,6 +28,7 @@ import 'package:shia_companion/utils/webview_registry.dart'
 import 'constants.dart';
 import 'l10n/l10n.dart';
 import 'navigation/app_shell.dart';
+import 'navigation/keyboard_shortcuts.dart';
 import 'pages/widget_preview_page.dart';
 import 'utils/deep_links.dart';
 import 'widgets/audio_download_button.dart';
@@ -191,8 +192,9 @@ class MyApp extends StatelessWidget {
           ],
           // The in-app Text size setting, layered over the system's own
           // text scale for every route, dialog and sheet under the navigator.
-          builder: (context, child) =>
-              textScaleProvider.apply(context, child ?? const SizedBox()),
+          builder: (context, child) => BackOnEscape(
+            child: textScaleProvider.apply(context, child ?? const SizedBox()),
+          ),
           theme: _lightTheme,
           darkTheme: _darkTheme,
           themeMode: themeModeProvider.themeMode,

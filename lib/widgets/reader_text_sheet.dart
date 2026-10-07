@@ -5,7 +5,9 @@ import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
 import '../utils/font_preferences.dart';
 import 'language_settings.dart';
+import 'choice_sheet.dart';
 import 'page_chrome.dart';
+import 'responsive_content.dart';
 import 'zikr_reading_preferences.dart';
 
 /// Opens the reader's one sheet of reading settings (docs/DESIGN_SPEC.md,
@@ -20,13 +22,78 @@ Future<void> showReaderTextSheet(
   required VoidCallback onChanged,
 }) {
   final colors = ShiaColors.of(context);
+  final sheet = ReaderTextSheet(onChanged: onChanged);
+  // On a desktop, a panel down the side rather than a dialog in the middle:
+  // the reading column stays in view, following each change.
+  if (ScreenClass.of(context).isDesktop) {
+    return showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withValues(alpha: 0.12),
+      transitionDuration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 220),
+      pageBuilder: (context, _, __) => SafeArea(
+        child: Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: DecoratedBox(
+              // The glass surfaces' shadow (docs/DESIGN_SPEC.md, colour
+              // tokens), so the panel lifts off the page without a scrim.
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.black.withValues(alpha: 0.45)
+                        : const Color(0x242A1E16),
+                    blurRadius: 28,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: colors.ground,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: colors.line),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: SizedBox(
+                  width: 400,
+                  height: double.infinity,
+                  child: SheetPresentation(inDialog: true, child: sheet),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      transitionBuilder: (context, animation, _, child) {
+        final curved =
+            CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+        final from = Directionality.of(context) == TextDirection.rtl
+            ? const Offset(-0.08, 0)
+            : const Offset(0.08, 0);
+        return FadeTransition(
+          opacity: curved,
+          child: SlideTransition(
+            position: Tween(begin: from, end: Offset.zero).animate(curved),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: colors.ground,
     constraints: const BoxConstraints(maxWidth: 640),
-    builder: (context) => ReaderTextSheet(onChanged: onChanged),
+    builder: (context) => sheet,
   );
 }
 
@@ -89,23 +156,20 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
     final paragraphAvailable = arabicParagraphAvailable();
     final showLanguage = translationLanguageOffered(context);
 
+    final inPanel = SheetPresentation.inDialogOf(context);
+
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-          16, 8, 16, 16 + MediaQuery.paddingOf(context).bottom),
+      padding: inPanel
+          ? const EdgeInsets.fromLTRB(20, 14, 16, 20)
+          : EdgeInsets.fromLTRB(
+              16, 8, 16, 16 + MediaQuery.paddingOf(context).bottom),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 5,
-              decoration: BoxDecoration(
-                color: colors.line,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
+          if (!inPanel) ...[
+            const SheetDragHandle(),
+            const SizedBox(height: 6),
+          ],
           Row(
             children: [
               Expanded(

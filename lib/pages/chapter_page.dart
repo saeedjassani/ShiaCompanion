@@ -1040,7 +1040,7 @@ class _ChapterPageState extends State<ChapterPage>
                       );
                     }
                     return ResponsiveContent(
-                      maxWidth: readingContentWidth,
+                      maxWidth: readerColumnWidth(context),
                       padding: EdgeInsets.zero,
                       child: _buildPagedReader(snapshot.data ?? ''),
                     );

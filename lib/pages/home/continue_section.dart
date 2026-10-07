@@ -18,6 +18,7 @@ import '../library_page.dart';
 import '../quran/quran_navigation.dart';
 import '../zikr/zikr_page.dart';
 import 'home_section.dart';
+import '../../widgets/responsive_content.dart' show MouseDragScroll;
 
 enum ContinueKind { quran, bookmark, library }
 
@@ -264,24 +265,26 @@ class ContinueSection extends StatelessWidget {
                 ),
               )
             else
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: gutter,
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (var i = 0; i < entries.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 10),
-                        SizedBox(
-                          width: 228,
-                          child: _ContinueCard(
-                            entry: entries[i],
-                            onTap: () => _open(context, entries[i]),
+              MouseDragScroll(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: gutter,
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var i = 0; i < entries.length; i++) ...[
+                          if (i > 0) const SizedBox(width: 10),
+                          SizedBox(
+                            width: 228,
+                            child: _ContinueCard(
+                              entry: entries[i],
+                              onTap: () => _open(context, entries[i]),
+                            ),
                           ),
-                        ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),

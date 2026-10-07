@@ -10,7 +10,6 @@ import '../theme/shia_colors.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/choice_sheet.dart';
 import '../widgets/page_chrome.dart';
-import '../widgets/responsive_content.dart' show compactContentWidth;
 import 'stats/stats_widgets.dart';
 import '../l10n/l10n.dart';
 
@@ -37,7 +36,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final manager = QazaTrackerManager.instance;
-    final gutter = pageGutter(context, maxWidth: compactContentWidth);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
 
     return ListenableBuilder(
       listenable: manager,
@@ -45,11 +44,6 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
         final state = manager.state;
         final shouldShowLoading =
             manager.isLoading && !manager.hasLoadedQaza && state.isEmpty;
-
-        Widget section(Widget child, {double bottom = 18}) => SliverPadding(
-              padding: gutter.copyWith(bottom: bottom),
-              sliver: SliverToBoxAdapter(child: child),
-            );
 
         bool used(QazaEntryType type) {
           final count = state.countFor(type);
@@ -66,7 +60,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
         return LargeTitlePage(
           title: l10n.qazaPageTitle,
           subtitle: l10n.qazaSubtitle,
-          maxWidth: compactContentWidth,
+          maxWidth: widePageWidth,
           slivers: shouldShowLoading
               ? const [
                   SliverToBoxAdapter(
@@ -77,31 +71,56 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                   ),
                 ]
               : [
-                  section(state.isEmpty
-                      ? _buildBulkPrompt(context)
-                      : _buildSummary(context, state)),
-                  section(
-                    Row(
-                      children: [
-                        Expanded(child: GroupLabel(l10n.qazaPrayers)),
-                        if (!showExtras)
-                          Flexible(
-                            flex: 2,
-                            child: PageTextAction(
-                              label: l10n.qazaShowExtras,
-                              onPressed: () =>
-                                  setState(() => _showExtras = true),
-                            ),
+                  // The summary on the left and the prayers on the right,
+                  // once a desktop has room for both.
+                  SliverPadding(
+                    padding: gutter,
+                    sliver: SliverToBoxAdapter(
+                      child: WideColumns(
+                        spacing: 18,
+                        start: [
+                          state.isEmpty
+                              ? _buildBulkPrompt(context)
+                              : _buildSummary(context, state),
+                        ],
+                        end: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(child: GroupLabel(l10n.qazaPrayers)),
+                                  if (!showExtras)
+                                    Flexible(
+                                      flex: 2,
+                                      child: Align(
+                                        alignment:
+                                            AlignmentDirectional.centerEnd,
+                                        child: PageTextAction(
+                                          label: l10n.qazaShowExtras,
+                                          onPressed: () => setState(
+                                              () => _showExtras = true),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              _buildCard(context, prayers, state),
+                            ],
                           ),
-                      ],
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              GroupLabel(l10n.qazaFasts),
+                              const SizedBox(height: 8),
+                              _buildCard(
+                                  context, const [QazaEntryType.fast], state),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    bottom: 8,
-                  ),
-                  section(_buildCard(context, prayers, state)),
-                  section(GroupLabel(l10n.qazaFasts), bottom: 8),
-                  section(
-                    _buildCard(context, const [QazaEntryType.fast], state),
-                    bottom: 0,
                   ),
                 ],
         );

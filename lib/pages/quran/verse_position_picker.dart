@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/quran_index.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/choice_sheet.dart';
 
 /// Picks one verse of the Quran - where a recitation track starts, or where
 /// it carries on from.
@@ -21,11 +22,9 @@ Future<VerseKey?> showVersePositionPicker(
   required String Function(VerseKey verse) describe,
   required String confirmVerb,
 }) {
-  return showModalBottomSheet<VerseKey>(
-    context: context,
-    isScrollControlled: true,
+  return showAdaptiveSheet<VerseKey>(
+    context,
     showDragHandle: true,
-    useSafeArea: true,
     builder: (context) => _VersePositionPicker(
       initial: initial,
       browseByJuz: browseByJuz,

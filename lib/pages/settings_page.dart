@@ -36,7 +36,6 @@ import '../widgets/language_settings.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/reader_text_sheet.dart';
-import '../widgets/responsive_content.dart' show compactContentWidth;
 import '../widgets/theme_mode_picker.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
@@ -147,226 +146,238 @@ class _SettingsPageState extends State<SettingsPage> {
     final currentUser = _currentUser;
     final profile = widget.profile ??
         (currentUser == null ? null : AccountProfile.of(currentUser, l10n));
-    final gutter = pageGutter(context, maxWidth: compactContentWidth);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
 
-    Widget section(Widget child, {double bottom = 22}) => SliverPadding(
-          padding: gutter.copyWith(bottom: bottom),
-          sliver: SliverToBoxAdapter(child: child),
-        );
-
+    // Account and the settings people come for first on the left, the
+    // rest on the right, once a desktop has room for both.
     return LargeTitlePage(
       title: l10n.actionSettings,
-      maxWidth: compactContentWidth,
+      maxWidth: widePageWidth,
       slivers: [
-        section(
-          profile == null
-              ? _SignInCard(signingIn: _signingIn, onSignIn: _signIn)
-              : _SignedInCard(
-                  profile: profile,
-                  backedUp: _backedUp,
-                  onTap: _openAccountPage,
+        SliverPadding(
+          padding: gutter.copyWith(bottom: 22),
+          sliver: SliverToBoxAdapter(
+            child: WideColumns(
+              start: [
+                profile == null
+                    ? _SignInCard(signingIn: _signingIn, onSignIn: _signIn)
+                    : _SignedInCard(
+                        profile: profile,
+                        backedUp: _backedUp,
+                        onTap: _openAccountPage,
+                      ),
+                _SettingsGroup(
+                  label: l10n.settingsSectionAppearance,
+                  rows: [
+                    if (appLanguageOffered())
+                      _SettingsRow(
+                        icon: const _RowGlyph(OutlineGlyph.globe),
+                        title: l10n.settingsAppLanguage,
+                        value: appLanguageValue(context),
+                        onTap: () => pickAppLanguage(context),
+                      ),
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.moon),
+                      title: l10n.settingsTheme,
+                      value: ThemeModeProvider.label(themeMode, l10n),
+                      onTap: () => showThemeModePicker(context),
+                    ),
+                    _SettingsRow(
+                      icon: const _RowLetters('ع', fontSize: 15),
+                      title: l10n.settingsArabicFont,
+                      subtitle: Text(
+                        _bismillah,
+                        textDirection: TextDirection.rtl,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: arabicFont,
+                          fontSize: 20,
+                          height: 1.8,
+                          color: ShiaColors.of(context).translation,
+                        ),
+                      ),
+                      value: arabicFont,
+                      onTap: _pickArabicFont,
+                    ),
+                    _SettingsRow(
+                      icon: const _RowLetters('Aa', fontSize: 14),
+                      title: l10n.settingsAppTextSize,
+                      value: AppTextScaleProvider.label(textScale),
+                      onTap: () => showAppTextSizeSheet(context),
+                    ),
+                  ],
                 ),
-        ),
-        section(_SettingsGroup(
-          label: l10n.settingsSectionAppearance,
-          rows: [
-            if (appLanguageOffered())
-              _SettingsRow(
-                icon: const _RowGlyph(OutlineGlyph.globe),
-                title: l10n.settingsAppLanguage,
-                value: appLanguageValue(context),
-                onTap: () => pickAppLanguage(context),
-              ),
-            _SettingsRow(
-              icon: const _RowGlyph(OutlineGlyph.moon),
-              title: l10n.settingsTheme,
-              value: ThemeModeProvider.label(themeMode, l10n),
-              onTap: () => showThemeModePicker(context),
-            ),
-            _SettingsRow(
-              icon: const _RowLetters('ع', fontSize: 15),
-              title: l10n.settingsArabicFont,
-              subtitle: Text(
-                _bismillah,
-                textDirection: TextDirection.rtl,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: arabicFont,
-                  fontSize: 20,
-                  height: 1.8,
-                  color: ShiaColors.of(context).translation,
+                _SettingsGroup(
+                  label: l10n.settingsSectionPrayerTimes,
+                  rows: [
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.pin),
+                      title: l10n.settingsLocation,
+                      value: _locationValue(),
+                      subtitle: _locationNote(),
+                      busy: LocationService.instance.isRefreshing,
+                      onTap: _chooseLocation,
+                    ),
+                    // Prayer notifications can't fire on the web.
+                    if (!kIsWeb)
+                      _SettingsRow(
+                        icon: const _RowGlyph(OutlineGlyph.bell),
+                        title: l10n.settingsAzan,
+                        value: l10n.settingsAzanValue(
+                            enabledPrayerNotificationNames(
+                                    kPrayerNotificationList)
+                                .length),
+                        onTap: () async {
+                          await showPrayerNotificationsPage(context);
+                          if (mounted) setState(() {});
+                        },
+                      ),
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.calendar),
+                      title: l10n.settingsAdjustHijriDate,
+                      value: _hijriAdjustmentLabel(_savedHijriAdjustment()),
+                      onTap: _pickHijriAdjustment,
+                    ),
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.eye),
+                      title: l10n.settingsPrayerTimesShown,
+                      value: l10n.settingsPrayerTimesShownValue(
+                          selectedWidgetPrayerTimes().length),
+                      onTap: () async {
+                        final changed =
+                            await showWidgetPrayerTimesDialog(context);
+                        if (changed && mounted) setState(() {});
+                      },
+                    ),
+                  ],
                 ),
-              ),
-              value: arabicFont,
-              onTap: _pickArabicFont,
-            ),
-            _SettingsRow(
-              icon: const _RowLetters('Aa', fontSize: 14),
-              title: l10n.settingsAppTextSize,
-              value: AppTextScaleProvider.label(textScale),
-              onTap: () => showAppTextSizeSheet(context),
-            ),
-          ],
-        )),
-        section(_SettingsGroup(
-          label: l10n.settingsSectionPrayerTimes,
-          rows: [
-            _SettingsRow(
-              icon: const _RowGlyph(OutlineGlyph.pin),
-              title: l10n.settingsLocation,
-              value: _locationValue(),
-              subtitle: _locationNote(),
-              busy: LocationService.instance.isRefreshing,
-              onTap: _chooseLocation,
-            ),
-            // Prayer notifications can't fire on the web.
-            if (!kIsWeb)
-              _SettingsRow(
-                icon: const _RowGlyph(OutlineGlyph.bell),
-                title: l10n.settingsAzan,
-                value: l10n.settingsAzanValue(
-                    enabledPrayerNotificationNames(kPrayerNotificationList)
-                        .length),
-                onTap: () async {
-                  await showPrayerNotificationsPage(context);
-                  if (mounted) setState(() {});
-                },
-              ),
-            _SettingsRow(
-              icon: const _RowGlyph(OutlineGlyph.calendar),
-              title: l10n.settingsAdjustHijriDate,
-              value: _hijriAdjustmentLabel(_savedHijriAdjustment()),
-              onTap: _pickHijriAdjustment,
-            ),
-            _SettingsRow(
-              icon: const _RowGlyph(OutlineGlyph.eye),
-              title: l10n.settingsPrayerTimesShown,
-              value: l10n.settingsPrayerTimesShownValue(
-                  selectedWidgetPrayerTimes().length),
-              onTap: () async {
-                final changed = await showWidgetPrayerTimesDialog(context);
-                if (changed && mounted) setState(() {});
-              },
-            ),
-          ],
-        )),
-        if (!kIsWeb)
-          section(_SettingsGroup(
-            label: l10n.settingsSectionNotifications,
-            rows: [
-              _SettingsRow(
-                icon: const _RowGlyph(OutlineGlyph.clock),
-                title: l10n.settingsZikrReminders,
-                onTap: () => pushPageRoute(context, const ZikrRemindersPage()),
-              ),
-              if (_showPrecisePrayerAlarmSetting)
-                _SettingsRow(
-                  icon: const _RowGlyph(OutlineGlyph.alarm),
-                  title: l10n.settingsPrecisePrayerAlarms,
-                  value: canScheduleExactPrayerNotifications
-                      ? l10n.settingsOn
-                      : l10n.settingsOff,
-                  subtitle: canScheduleExactPrayerNotifications
-                      ? null
-                      : Text(l10n.settingsPreciseAlarmsOff),
-                  onTap: _requestPrecisePrayerAlarms,
+              ],
+              end: [
+                if (!kIsWeb)
+                  _SettingsGroup(
+                    label: l10n.settingsSectionNotifications,
+                    rows: [
+                      _SettingsRow(
+                        icon: const _RowGlyph(OutlineGlyph.clock),
+                        title: l10n.settingsZikrReminders,
+                        onTap: () =>
+                            pushPageRoute(context, const ZikrRemindersPage()),
+                      ),
+                      if (_showPrecisePrayerAlarmSetting)
+                        _SettingsRow(
+                          icon: const _RowGlyph(OutlineGlyph.alarm),
+                          title: l10n.settingsPrecisePrayerAlarms,
+                          value: canScheduleExactPrayerNotifications
+                              ? l10n.settingsOn
+                              : l10n.settingsOff,
+                          subtitle: canScheduleExactPrayerNotifications
+                              ? null
+                              : Text(l10n.settingsPreciseAlarmsOff),
+                          onTap: _requestPrecisePrayerAlarms,
+                        ),
+                      if (isUserAdmin)
+                        _SettingsRow(
+                          icon: const _RowGlyph(OutlineGlyph.bell),
+                          title: l10n.settingsScheduledNotifications,
+                          onTap: () => pushPageRoute(
+                              context, ScheduledNotificationsPage()),
+                        ),
+                    ],
+                  ),
+                _SettingsGroup(
+                  label: l10n.settingsSectionReading,
+                  rows: [
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.lines),
+                      title: l10n.readerTextSheetTitle,
+                      subtitle: Text(_readingSummary(l10n)),
+                      onTap: () => showReaderTextSheet(
+                        context,
+                        onChanged: () {
+                          if (mounted) setState(() {});
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              if (isUserAdmin)
-                _SettingsRow(
-                  icon: const _RowGlyph(OutlineGlyph.bell),
-                  title: l10n.settingsScheduledNotifications,
-                  onTap: () =>
-                      pushPageRoute(context, ScheduledNotificationsPage()),
+                if (AudioDownloadStore.isSupported)
+                  _SettingsGroup(
+                    label: l10n.settingsSectionOfflineAudio,
+                    rows: [
+                      _SettingsRow(
+                        icon: const _RowGlyph(OutlineGlyph.download),
+                        title: l10n.settingsDownloadedRecitations,
+                        valueListenable: AudioDownloadStore.instance,
+                        valueBuilder: () {
+                          final bytes =
+                              AudioDownloadStore.instance.totalSavedBytes;
+                          return bytes > 0 ? formatAudioBytes(bytes) : null;
+                        },
+                        onTap: () =>
+                            pushPageRoute(context, const DownloadedAudioPage()),
+                      ),
+                    ],
+                  ),
+                _SettingsGroup(
+                  label: l10n.settingsSectionSupport,
+                  rows: [
+                    // Not gated behind RatingPromptService.shouldAsk() at all -
+                    // that cooldown is for the automatic pre-screen dialog on
+                    // launch. This is the always-available door to the store,
+                    // which openStoreListing() itself needs no quota for.
+                    if (!kIsWeb)
+                      _SettingsRow(
+                        icon: const _RowGlyph(OutlineGlyph.star),
+                        title: l10n.settingsRateApp,
+                        onTap: () {
+                          unawaited(RatingPromptService.openStoreListing());
+                          unawaited(AnalyticsService.feature(
+                            'rate_us_settings',
+                            label: 'Rate us opened from Settings',
+                          ));
+                        },
+                      ),
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.plus),
+                      title: l10n.settingsRequestContent,
+                      onTap: () => showContentRequestDialog(
+                        context,
+                        initialType: ContentRequestType.zikr,
+                        source: 'settings',
+                      ),
+                    ),
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.mail),
+                      title: l10n.settingsFeedback,
+                      onTap: _sendFeedback,
+                    ),
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.code),
+                      title: l10n.settingsGithub,
+                      onTap: _openGithub,
+                    ),
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.info),
+                      title: l10n.settingsAboutUs,
+                      onTap: () => pushPageRoute(context, AboutPage()),
+                    ),
+                  ],
                 ),
-            ],
-          )),
-        section(_SettingsGroup(
-          label: l10n.settingsSectionReading,
-          rows: [
-            _SettingsRow(
-              icon: const _RowGlyph(OutlineGlyph.lines),
-              title: l10n.readerTextSheetTitle,
-              subtitle: Text(_readingSummary(l10n)),
-              onTap: () => showReaderTextSheet(
-                context,
-                onChanged: () {
-                  if (mounted) setState(() {});
-                },
-              ),
+              ],
             ),
-          ],
-        )),
-        if (AudioDownloadStore.isSupported)
-          section(_SettingsGroup(
-            label: l10n.settingsSectionOfflineAudio,
-            rows: [
-              _SettingsRow(
-                icon: const _RowGlyph(OutlineGlyph.download),
-                title: l10n.settingsDownloadedRecitations,
-                valueListenable: AudioDownloadStore.instance,
-                valueBuilder: () {
-                  final bytes = AudioDownloadStore.instance.totalSavedBytes;
-                  return bytes > 0 ? formatAudioBytes(bytes) : null;
-                },
-                onTap: () =>
-                    pushPageRoute(context, const DownloadedAudioPage()),
-              ),
-            ],
-          )),
-        section(_SettingsGroup(
-          label: l10n.settingsSectionSupport,
-          rows: [
-            // Not gated behind RatingPromptService.shouldAsk() at all -
-            // that cooldown is for the automatic pre-screen dialog on
-            // launch. This is the always-available door to the store,
-            // which openStoreListing() itself needs no quota for.
-            if (!kIsWeb)
-              _SettingsRow(
-                icon: const _RowGlyph(OutlineGlyph.star),
-                title: l10n.settingsRateApp,
-                onTap: () {
-                  unawaited(RatingPromptService.openStoreListing());
-                  unawaited(AnalyticsService.feature(
-                    'rate_us_settings',
-                    label: 'Rate us opened from Settings',
-                  ));
-                },
-              ),
-            _SettingsRow(
-              icon: const _RowGlyph(OutlineGlyph.plus),
-              title: l10n.settingsRequestContent,
-              onTap: () => showContentRequestDialog(
-                context,
-                initialType: ContentRequestType.zikr,
-                source: 'settings',
-              ),
-            ),
-            _SettingsRow(
-              icon: const _RowGlyph(OutlineGlyph.mail),
-              title: l10n.settingsFeedback,
-              onTap: _sendFeedback,
-            ),
-            _SettingsRow(
-              icon: const _RowGlyph(OutlineGlyph.code),
-              title: l10n.settingsGithub,
-              onTap: _openGithub,
-            ),
-            _SettingsRow(
-              icon: const _RowGlyph(OutlineGlyph.info),
-              title: l10n.settingsAboutUs,
-              onTap: () => pushPageRoute(context, AboutPage()),
-            ),
-          ],
-        )),
-        section(
-          Text(
-            '$appName $appVersion',
-            textAlign: TextAlign.center,
-            style: ShiaText.caption
-                .copyWith(color: ShiaColors.of(context).textMuted),
           ),
-          bottom: 0,
+        ),
+        SliverPadding(
+          padding: gutter,
+          sliver: SliverToBoxAdapter(
+            child: Text(
+              '$appName $appVersion',
+              textAlign: TextAlign.center,
+              style: ShiaText.caption
+                  .copyWith(color: ShiaColors.of(context).textMuted),
+            ),
+          ),
         ),
       ],
     );

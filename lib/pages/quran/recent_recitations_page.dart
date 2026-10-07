@@ -27,13 +27,14 @@ class RecentRecitationsPage extends StatelessWidget {
     final l10n = context.l10n;
     final colors = ShiaColors.of(context);
     final manager = RecitationTrackerManager.instance;
-    final gutter = pageGutter(context);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
     return ListenableBuilder(
       listenable: manager,
       builder: (context, _) {
         final state = manager.state;
         final entries = state.mostRecentFirst;
         return LargeTitlePage(
+          maxWidth: widePageWidth,
           title: l10n.quranRecentSessions,
           slivers: [
             if (entries.isEmpty)
