@@ -85,6 +85,10 @@ class _MyHomePageState extends State<MyHomePage>
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
 
+  /// Set once start-up has acted on the notification tap that launched the
+  /// app, if any; resumes check for a later one only from then on.
+  bool _launchNotificationHandled = false;
+
   void _openHomeMenuItem(HomeMenuItem item) {
     final page = item.buildPage();
     pushPageRoute(context, page);
@@ -551,6 +555,7 @@ class _MyHomePageState extends State<MyHomePage>
       if (launchResponse != null) {
         await handlePrayerNotificationResponse(launchResponse);
       }
+      _launchNotificationHandled = true;
       // Only for someone with something to be notified about: the prompt
       // follows "Turn on azan" or adding a reminder, never a bare launch
       // (setup's Azan step is where a new install is asked). Costs nothing
@@ -675,6 +680,13 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      // A tap that opened a new screen on the still-running app (see
+      // handleNotificationThatOpenedApp). Not before start-up has handled
+      // the tap that launched it. Unawaited: playback's future only
+      // completes when the Azan ends.
+      if (_launchNotificationHandled) {
+        unawaited(handleNotificationThatOpenedApp());
+      }
       _refreshLocationOnResume();
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden) {

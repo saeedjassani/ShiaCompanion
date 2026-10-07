@@ -1289,6 +1289,11 @@ bool isZikrReminderNotificationResponse(NotificationResponse response) =>
 /// invokes whichever one matches where the tap arrived.
 Future<void> handlePrayerNotificationResponse(
     NotificationResponse response) async {
+  // The same tap can arrive twice: from the plugin's callback and from the
+  // check Home runs on every resume (see handleNotificationThatOpenedApp).
+  // Once is enough - and a later resume must not replay an Azan the reader
+  // has already stopped.
+  if (!markNotificationTapHandled(response)) return;
   if (isZikrReminderNotificationResponse(response)) {
     await _openZikrReminderNotification(
       response.payload!.substring(ZikrReminderService.payloadPrefix.length),
@@ -1323,6 +1328,44 @@ Future<void> handlePrayerNotificationResponse(
         ? _customAudioPathForPlayback(prayerName)
         : null,
   );
+}
+
+/// Notification taps this isolate has acted on, by id and payload: a prayer
+/// notification's payload is its own date and time, a reminder's its id.
+final Set<String> _handledNotificationTaps = {};
+
+/// Records [response] as acted on, and says whether it is the first time.
+@visibleForTesting
+bool markNotificationTapHandled(NotificationResponse response) {
+  if (response.id == null) return true;
+  return _handledNotificationTaps
+      .add('${response.id}|${response.payload}|${response.actionId}');
+}
+
+/// Acts on the notification tap that opened the app's Android screen, when
+/// it was never passed on to Dart.
+///
+/// MainActivity reuses the Flutter engine audio_service keeps alive
+/// (AudioServiceActivity), so once Back has closed the screen the app itself
+/// can keep running without one. A notification tap then opens a new screen
+/// on that same running app: Home's start-up, which reads the tap that
+/// launched the app, ran long ago, and flutter_local_notifications passes a
+/// tap that opens a screen to neither of its callbacks - so the Azan never
+/// started, and a zikr reminder never opened its zikr. Home calls this on
+/// every resume; a tap already acted on is skipped.
+Future<void> handleNotificationThatOpenedApp() async {
+  if (kIsWeb || !Platform.isAndroid) return;
+  final NotificationAppLaunchDetails? details;
+  try {
+    details = await FlutterLocalNotificationsPlugin()
+        .getNotificationAppLaunchDetails();
+  } catch (e) {
+    debugPrint('Could not read the notification that opened the app: $e');
+    return;
+  }
+  final response = details?.notificationResponse;
+  if (details?.didNotificationLaunchApp != true || response == null) return;
+  await handlePrayerNotificationResponse(response);
 }
 
 /// Opens what a tapped zikr reminder notification was for: the linked zikr

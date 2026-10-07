@@ -2223,15 +2223,34 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  /// What the top bar's heart keeps: the zikr or surah as the lists name
-  /// it. None for a juz, which is not one entry of any list.
+  /// What the top bar's heart keeps on web: the zikr or surah as the lists
+  /// name it. None for a juz, which is not one entry of any list.
   UniversalData? get _favoriteData {
     if (widget.portion != null) return null;
     return UniversalData(widget.item.uid, widget.item.title, 0);
   }
 
-  /// The Text & reading sheet. Setting a reminder sits at its foot rather
-  /// than in the top bar, which keeps to Back, the title and the heart.
+  /// The top bar's round action on the right: the reminder bell, which
+  /// replaced the heart there (favourites are still kept from the lists'
+  /// own hearts). On web, where reminders can't fire (see [_openTextSheet]),
+  /// it stays the heart.
+  Widget? _buildTopBarAction(BuildContext context) {
+    if (kIsWeb) {
+      final favorite = _favoriteData;
+      return favorite == null
+          ? null
+          : FavoriteHeartButton(favorite: favorite, round: true);
+    }
+    return RoundIconButton(
+      label: context.l10n.readerSetReminder,
+      icon: OutlineIcon(OutlineGlyph.bell,
+          size: 20, color: ShiaColors.of(context).accent),
+      onPressed: () => unawaited(_openReminderForm()),
+    );
+  }
+
+  /// The Text & reading sheet. Setting a reminder is also offered at its
+  /// foot, beside the top bar's bell.
   ///
   /// No reminder on web: ZikrReminderService.rescheduleAll() no-ops under
   /// kIsWeb (flutter_local_notifications has no web target), so a reminder
@@ -2282,7 +2301,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final topChromeExtent = statusBarHeight + ReaderTopBar.barHeight;
     final bottomChromeExtent =
         showActionBar ? bottomOffset + ZikrActionBar.barHeight : mediaPadding.bottom;
-    final favorite = _favoriteData;
 
     return SelectionArea(
       focusNode: _selectionFocusNode,
@@ -2581,9 +2599,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                               selectedTabIndex: selectedTabIndex,
                               readingTimeLabel: readingTimeLabel,
                             ),
-                      trailing: favorite == null
-                          ? null
-                          : FavoriteHeartButton(favorite: favorite, round: true),
+                      trailing: _buildTopBarAction(context),
                       // With parts, the line runs under their chips instead.
                       progress: showProgressBar && !hasTabs
                           ? _readingProgress
