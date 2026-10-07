@@ -9,7 +9,10 @@ import '../services/airport_repository.dart';
 import '../services/flight_store.dart';
 import '../utils/flight_formatting.dart';
 import '../utils/timezone_database.dart';
-import '../widgets/responsive_content.dart';
+import '../theme/shia_colors.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
+import '../widgets/responsive_content.dart' show compactContentWidth;
 import 'airport_picker_page.dart';
 import '../l10n/l10n.dart';
 
@@ -191,142 +194,197 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? context.l10n.flightEdit : context.l10n.flightAdd),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ResponsiveScrollableContent(
-              maxWidth: compactContentWidth,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _AirportField(
-                    label: context.l10n.flightFrom,
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context, maxWidth: compactContentWidth);
+
+    Widget section(Widget child, {double bottom = 14}) => SliverPadding(
+          padding: gutter.copyWith(bottom: bottom),
+          sliver: SliverToBoxAdapter(child: child),
+        );
+
+    return LargeTitlePage(
+      title: _isEditing ? l10n.flightEdit : l10n.flightAdd,
+      maxWidth: compactContentWidth,
+      slivers: _isLoading
+          ? [
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+            ]
+          : [
+              section(
+                CardList(children: [
+                  _AirportRow(
+                    label: l10n.flightFrom,
                     airport: _origin,
-                    icon: Icons.flight_takeoff,
+                    first: true,
                     onTap: () => _pickAirport(isOrigin: true),
                   ),
-                  const SizedBox(height: 12),
-                  _AirportField(
-                    label: context.l10n.flightTo,
+                  _AirportRow(
+                    label: l10n.flightTo,
                     airport: _destination,
-                    icon: Icons.flight_land,
+                    last: true,
                     onTap: () => _pickAirport(isOrigin: false),
                   ),
-                  const SizedBox(height: 20),
-                  _DateTimeField(
-                    label: context.l10n.flightDeparts,
-                    hint: context.l10n.flightDepartsHint,
+                ]),
+              ),
+              section(
+                CardList(children: [
+                  _DateTimeRow(
+                    label: l10n.flightDeparts,
+                    hint: l10n.flightDepartsHint,
                     value: _departureLocal,
                     airport: _origin,
+                    first: true,
                     onTap: () => _pickDateTime(isDeparture: true),
                   ),
-                  const SizedBox(height: 12),
-                  _DateTimeField(
-                    label: context.l10n.flightArrives,
-                    hint: context.l10n.flightArrivesHint,
+                  _DateTimeRow(
+                    label: l10n.flightArrives,
+                    hint: l10n.flightArrivesHint,
                     value: _arrivalLocal,
                     airport: _destination,
+                    last: true,
                     onTap: () => _pickDateTime(isDeparture: false),
                   ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _flightNumberController,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: InputDecoration(
-                      labelText: context.l10n.flightNumberLabel,
-                      hintText: 'e.g. TK 80',
-                      border: OutlineInputBorder(),
+                ]),
+              ),
+              section(
+                TextField(
+                  controller: _flightNumberController,
+                  textCapitalization: TextCapitalization.characters,
+                  style: ShiaText.body.copyWith(color: colors.text),
+                  decoration: revampFieldDecoration(
+                    context,
+                    label: l10n.flightNumberLabel,
+                    hint: 'e.g. TK 80',
+                  ),
+                ),
+              ),
+              if (_errorText != null) section(_ErrorBanner(message: _errorText!)),
+              section(
+                PageButton(
+                  label: _isEditing ? l10n.flightSaveChanges : l10n.flightSave,
+                  glyph: OutlineGlyph.check,
+                  filled: true,
+                  busy: _isSaving,
+                  onPressed: _save,
+                ),
+                bottom: 10,
+              ),
+              section(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    l10n.flightTicketNote,
+                    style: ShiaText.caption.copyWith(
+                      height: 18 / 13,
+                      color: colors.textMuted,
                     ),
                   ),
-                  if (_errorText != null) ...[
-                    const SizedBox(height: 16),
-                    _ErrorBanner(message: _errorText!),
-                  ],
-                  const SizedBox(height: 24),
-                  FilledButton.icon(
-                    onPressed: _isSaving ? null : _save,
-                    icon: const Icon(Icons.check),
-                    label: Text(_isEditing ? context.l10n.flightSaveChanges : context.l10n.flightSave),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    context.l10n.flightTicketNote,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
     );
   }
 }
 
-class _AirportField extends StatelessWidget {
-  const _AirportField({
+/// A 40 px well holding a row's glyph.
+class _GlyphWell extends StatelessWidget {
+  const _GlyphWell(this.glyph);
+
+  final OutlineGlyph glyph;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Container(
+      width: 40,
+      height: 40,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: colors.well,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: OutlineIcon(glyph, size: 20, color: colors.accent),
+    );
+  }
+}
+
+class _RowChevron extends StatelessWidget {
+  const _RowChevron();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: 36,
+      child: Center(
+        child: OutlineIcon(OutlineGlyph.chevronRight,
+            size: 18, color: ShiaColors.of(context).chevron, strokeWidth: 2),
+      ),
+    );
+  }
+}
+
+/// "From" or "To": the airport chosen, or a prompt to choose one.
+class _AirportRow extends StatelessWidget {
+  const _AirportRow({
     required this.label,
     required this.airport,
-    required this.icon,
     required this.onTap,
+    this.first = false,
+    this.last = false,
   });
 
   final String label;
   final Airport? airport;
-  final IconData icon;
   final VoidCallback onTap;
+  final bool first;
+  final bool last;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: const OutlineInputBorder(),
+    final colors = ShiaColors.of(context);
+    final airport = this.airport;
+    return CardListRow(
+      first: first,
+      last: last,
+      minHeight: 64,
+      leading: const _GlyphWell(OutlineGlyph.plane),
+      title: Text.rich(TextSpan(children: [
+        TextSpan(
+          text: '$label  ',
+          style: ShiaText.secondary.copyWith(color: colors.textMuted),
         ),
-        child: airport == null
-            ? Text(
-                context.l10n.flightChooseAirport,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${airport!.iata} · ${airport!.locationLabel}',
-                    style: theme.textTheme.bodyLarge
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    airport!.name,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-      ),
+        TextSpan(
+          text: airport == null
+              ? context.l10n.flightChooseAirport
+              : '${airport.iata} · ${airport.locationLabel}',
+          style: airport == null
+              ? TextStyle(color: colors.accent, fontWeight: FontWeight.w600)
+              : const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ])),
+      subtitle: airport == null ? null : Text(airport.name),
+      trailing: const _RowChevron(),
+      onTap: onTap,
     );
   }
 }
 
-class _DateTimeField extends StatelessWidget {
-  const _DateTimeField({
+/// "Departs" or "Arrives": the local date and time, or a prompt to set it.
+class _DateTimeRow extends StatelessWidget {
+  const _DateTimeRow({
     required this.label,
     required this.hint,
     required this.value,
     required this.airport,
     required this.onTap,
+    this.first = false,
+    this.last = false,
   });
 
   final String label;
@@ -334,31 +392,38 @@ class _DateTimeField extends StatelessWidget {
   final DateTime? value;
   final Airport? airport;
   final VoidCallback onTap;
+  final bool first;
+  final bool last;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final suffix = airport == null ? '' : ' at ${airport!.iata}';
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          helperText: '$hint$suffix',
-          prefixIcon: const Icon(Icons.schedule),
-          border: const OutlineInputBorder(),
+    final colors = ShiaColors.of(context);
+    final value = this.value;
+    final airport = this.airport;
+    return CardListRow(
+      first: first,
+      last: last,
+      minHeight: 64,
+      leading: const _GlyphWell(OutlineGlyph.clock),
+      title: Text.rich(TextSpan(children: [
+        TextSpan(
+          text: '$label  ',
+          style: ShiaText.secondary.copyWith(color: colors.textMuted),
         ),
-        child: Text(
-          value == null ? context.l10n.flightChooseDateTime : formatWallClock(value!),
+        TextSpan(
+          text: value == null
+              ? context.l10n.flightChooseDateTime
+              : formatWallClock(value),
           style: value == null
-              ? theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant)
-              : theme.textTheme.bodyLarge
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              ? TextStyle(color: colors.accent, fontWeight: FontWeight.w600)
+              : const TextStyle(fontWeight: FontWeight.w600),
         ),
-      ),
+      ])),
+      subtitle: Text(airport == null
+          ? hint
+          : '$hint · ${context.l10n.flightAirportTime(airport.iata)}'),
+      trailing: const _RowChevron(),
+      onTap: onTap,
     );
   }
 }
@@ -370,27 +435,29 @@ class _ErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.error_outline,
-              size: 20, color: theme.colorScheme.onErrorContainer),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message,
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onErrorContainer),
+    final colors = ShiaColors.of(context);
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: colors.danger),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            OutlineIcon(OutlineGlyph.alert, size: 20, color: colors.danger),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: ShiaText.secondary.copyWith(color: colors.text),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -13,6 +13,7 @@ import '../pages/library_page.dart';
 import '../pages/playlists_page.dart';
 import '../pages/list_items.dart';
 import '../pages/my_stats_page.dart';
+import '../pages/news_page.dart';
 import '../pages/prayer_counter_page.dart';
 import '../pages/qaza_tracker_page.dart';
 import '../pages/qibla_finder.dart';
@@ -227,6 +228,13 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     icon: Icons.flight_takeoff_rounded,
     pageBuilder: () => const FlightsPage(),
   ),
+  HomeMenuItem(
+    label: 'News',
+    analyticsId: 'news',
+    outlineGlyph: OutlineGlyph.globe,
+    icon: Icons.newspaper_rounded,
+    pageBuilder: () => const NewsPage(),
+  ),
   settingsMenuItem,
 ]);
 
@@ -424,6 +432,7 @@ String homeMenuDisplayLabel(String label) {
     'Quran' => L10n.current.menuQuran,
     'Playlists' => L10n.current.menuPlaylists,
     'My Stats' => L10n.current.menuMyStats,
+    'News' => L10n.current.menuNews,
     _ => label,
   };
 }

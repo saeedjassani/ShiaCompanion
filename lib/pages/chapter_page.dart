@@ -16,7 +16,11 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
 import '../constants.dart';
+import '../theme/shia_colors.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
 import '../widgets/reader_content.dart';
+import '../widgets/reader_top_bar.dart';
 import '../widgets/responsive_content.dart';
 import '../services/analytics_service.dart';
 import '../l10n/l10n.dart';
@@ -856,7 +860,10 @@ class _ChapterPageState extends State<ChapterPage>
         tooltip: forward
             ? context.l10n.libraryNextPage
             : context.l10n.libraryPreviousPage,
-        icon: Icon(forward ? Icons.chevron_right : Icons.chevron_left),
+        icon: _barGlyph(
+          forward ? OutlineGlyph.chevronRight : OutlineGlyph.chevronLeft,
+          enabled: onPressed != null,
+        ),
         onPressed: onPressed,
       );
     }
@@ -871,9 +878,10 @@ class _ChapterPageState extends State<ChapterPage>
           : context.l10n.libraryPreviousChapterNamed(chapterTitle),
         child: TextButton.icon(
           onPressed: onPressed,
-          icon: Icon(
-            forward ? Icons.chevron_right : Icons.chevron_left,
-            size: 20,
+          icon: _barGlyph(
+            forward ? OutlineGlyph.chevronRight : OutlineGlyph.chevronLeft,
+            enabled: onPressed != null,
+            size: 18,
           ),
           iconAlignment: forward ? IconAlignment.end : IconAlignment.start,
           style: TextButton.styleFrom(
@@ -894,30 +902,49 @@ class _ChapterPageState extends State<ChapterPage>
     );
   }
 
+  /// A bottom-bar glyph in the accent, faded while its button is disabled.
+  Widget _barGlyph(OutlineGlyph glyph, {required bool enabled, double size = 22}) {
+    final accent = ShiaColors.of(context).accent;
+    return OutlineIcon(glyph,
+        size: size,
+        color: enabled ? accent : accent.withValues(alpha: 0.38),
+        strokeWidth: 2);
+  }
+
+  /// "A−" / "A+": a glyph, so it reads the same in any language.
+  Widget _textSizeGlyph(String label, {required bool enabled}) {
+    final accent = ShiaColors.of(context).accent;
+    return Text(
+      label,
+      textScaler: TextScaler.noScaling,
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: enabled ? accent : accent.withValues(alpha: 0.38),
+      ),
+    );
+  }
+
   Widget _buildMessage({
-    required IconData icon,
+    required OutlineGlyph glyph,
     required String title,
     required String message,
     String? actionLabel,
     VoidCallback? onAction,
   }) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 40),
-          const SizedBox(height: 12),
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 4),
-          Text(message, textAlign: TextAlign.center),
-          if (actionLabel != null && onAction != null) ...[
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: onAction,
-              child: Text(actionLabel),
-            ),
-          ],
-        ],
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: EmptyStateCard(
+            glyph: glyph,
+            title: title,
+            body: message,
+            actionLabel: actionLabel,
+            onAction: onAction,
+          ),
+        ),
       ),
     );
   }
@@ -925,139 +952,171 @@ class _ChapterPageState extends State<ChapterPage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
     final bookSlug = widget.bookSlug;
+    final bookTitle = widget.bookTitle;
     final pageCount = _pagination?.pageCount ?? 1;
-    final progress =
-        pageCount <= 1 ? 1.0 : (_currentPageIndex + 1) / pageCount;
+    final progress = pageCount <= 1 ? 1.0 : (_currentPageIndex + 1) / pageCount;
+    final hasBook = bookSlug != null && bookSlug.trim().isNotEmpty;
+
+    Widget spinner() => SizedBox.square(
+          dimension: 20,
+          child:
+              CircularProgressIndicator(strokeWidth: 2, color: colors.accent),
+        );
+
+    final topBar = ReaderTopBar(
+      title: _title,
+      subtitle: !_paginationReady
+          ? (bookTitle == null ? null : Text(bookTitle))
+          : Text(bookTitle == null
+              ? l10n.libraryPageOf(_currentPageIndex + 1, pageCount)
+              : l10n.libraryChapterPage(
+                  bookTitle, _currentPageIndex + 1, pageCount)),
+      trailing: hasBook
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RoundIconButton(
+                  label: _isSaved
+                      ? l10n.libraryRemoveOffline
+                      : l10n.librarySaveOffline,
+                  icon: _isSaving
+                      ? spinner()
+                      : OutlineIcon(
+                          _isSaved ? OutlineGlyph.check : OutlineGlyph.download,
+                          size: 20,
+                          color: colors.accent,
+                          strokeWidth: 2,
+                        ),
+                  onPressed: _toggleSave,
+                ),
+                const SizedBox(width: 6),
+                RoundIconButton(
+                  label: l10n.libraryShareChapter,
+                  icon: _isSharing
+                      ? spinner()
+                      : OutlineIcon(OutlineGlyph.share,
+                          size: 20, color: colors.accent),
+                  onPressed: _isSharing ? null : _shareChapter,
+                ),
+              ],
+            )
+          : null,
+      progress:
+          _paginationReady ? AlwaysStoppedAnimation<double>(progress) : null,
+    );
 
     return Focus(
       focusNode: _keyboardFocusNode,
       autofocus: true,
       onKeyEvent: _onKeyEvent,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(_title),
-          actions: [
-            if (bookSlug != null && bookSlug.trim().isNotEmpty) ...[
-              IconButton(
-                icon: _isSharing
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        // Primary would vanish against the brown app bar.
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Theme.of(context).appBarTheme.foregroundColor,
-                        ),
-                      )
-                    : const Icon(Icons.share),
-                tooltip: context.l10n.libraryShareChapter,
-                onPressed: _isSharing ? null : _shareChapter,
-              ),
-              IconButton(
-                icon: _isSaving
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        // Primary would vanish against the brown app bar.
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Theme.of(context).appBarTheme.foregroundColor,
-                        ),
-                      )
-                    : Icon(_isSaved ? Icons.download_done : Icons.download),
-                tooltip: _isSaved ? context.l10n.libraryRemoveOffline : context.l10n.librarySaveOffline,
-                onPressed: _toggleSave,
-              ),
-            ],
-          ],
-        ),
-        body: FutureBuilder<String>(
-          future: _chapterFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return _buildMessage(
-                icon: Icons.cloud_off,
-                title: context.l10n.libraryChapterUnavailable,
-                message: context.l10n.audioDownloadCheckConnection,
-                actionLabel: context.l10n.commonRetry,
-                onAction: _retry,
-              );
-            }
-            return ResponsiveContent(
-              maxWidth: readingContentWidth,
-              padding: EdgeInsets.zero,
-              child: _buildPagedReader(snapshot.data ?? ''),
-            );
-          },
-        ),
-        bottomNavigationBar: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LinearProgressIndicator(
-                value: _paginationReady ? progress : null,
-                minHeight: 2,
-                backgroundColor: theme.dividerColor.withValues(alpha: 0.3),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
-                child: Row(
-                  children: [
-                    // The navigation controls take whatever room is left over
-                    // once the font controls have theirs: on an edge page they
-                    // grow into a labelled button, and the label is the part
-                    // that needs the space.
-                    Expanded(
-                      child: Row(
-                        children: [
-                          _buildPageNavControl(
-                            forward: false,
-                            pageCount: pageCount,
-                          ),
-                          if (_paginationReady)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: Text(
-                                '${_currentPageIndex + 1} / $pageCount',
-                                style: theme.textTheme.bodyMedium,
-                              ),
-                            )
-                          else
-                            const SizedBox(width: 48),
-                          _buildPageNavControl(
-                            forward: true,
-                            pageCount: pageCount,
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: context.l10n.libraryDecreaseFont,
-                      icon: const Icon(Icons.text_decrease),
-                      onPressed: _readerFontSize <= _minFontSize
-                          ? null
-                          : () => _changeFontSize(-1),
-                    ),
-                    Text(
-                      '${_readerFontSize.round()}',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    IconButton(
-                      tooltip: context.l10n.libraryIncreaseFont,
-                      icon: const Icon(Icons.text_increase),
-                      onPressed: _readerFontSize >= _maxFontSize
-                          ? null
-                          : () => _changeFontSize(1),
-                    ),
-                  ],
+        backgroundColor: colors.readerGround,
+        body: Column(
+          children: [
+            ReaderGlassBand(
+              child: SizedBox(height: MediaQuery.paddingOf(context).top),
+            ),
+            topBar,
+            Expanded(
+              child: MediaQuery.removePadding(
+                context: context,
+                removeTop: true,
+                child: FutureBuilder<String>(
+                  future: _chapterFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return _buildMessage(
+                        glyph: OutlineGlyph.cloud,
+                        title: context.l10n.libraryChapterUnavailable,
+                        message: context.l10n.audioDownloadCheckConnection,
+                        actionLabel: context.l10n.commonRetry,
+                        onAction: _retry,
+                      );
+                    }
+                    return ResponsiveContent(
+                      maxWidth: readingContentWidth,
+                      padding: EdgeInsets.zero,
+                      child: _buildPagedReader(snapshot.data ?? ''),
+                    );
+                  },
                 ),
               ),
-            ],
+            ),
+          ],
+        ),
+        bottomNavigationBar: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.readerGround,
+            border: Border(top: BorderSide(color: colors.divider)),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
+                  child: Row(
+                    children: [
+                      // The navigation controls take whatever room is left over
+                      // once the font controls have theirs: on an edge page they
+                      // grow into a labelled button, and the label is the part
+                      // that needs the space.
+                      Expanded(
+                        child: Row(
+                          children: [
+                            _buildPageNavControl(
+                              forward: false,
+                              pageCount: pageCount,
+                            ),
+                            if (_paginationReady)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: Text(
+                                  '${_currentPageIndex + 1} / $pageCount',
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                              )
+                            else
+                              const SizedBox(width: 48),
+                            _buildPageNavControl(
+                              forward: true,
+                              pageCount: pageCount,
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: context.l10n.libraryDecreaseFont,
+                        icon: _textSizeGlyph('A−',
+                            enabled: _readerFontSize > _minFontSize),
+                        onPressed: _readerFontSize <= _minFontSize
+                            ? null
+                            : () => _changeFontSize(-1),
+                      ),
+                      Text(
+                        '${_readerFontSize.round()}',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      IconButton(
+                        tooltip: context.l10n.libraryIncreaseFont,
+                        icon: _textSizeGlyph('A+',
+                            enabled: _readerFontSize < _maxFontSize),
+                        onPressed: _readerFontSize >= _maxFontSize
+                            ? null
+                            : () => _changeFontSize(1),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

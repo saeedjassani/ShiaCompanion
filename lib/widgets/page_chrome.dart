@@ -1250,3 +1250,212 @@ class CardSwitchRow extends StatelessWidget {
     );
   }
 }
+
+/// A text field's decoration in the revamp's style: filled with the
+/// surface, 12 px corners, a 1 px line, and the accent while focused.
+InputDecoration revampFieldDecoration(
+  BuildContext context, {
+  String? label,
+  String? hint,
+  String? helper,
+  String? error,
+  Widget? suffixIcon,
+}) {
+  final colors = ShiaColors.of(context);
+  OutlineInputBorder border(Color color, [double width = 1]) =>
+      OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: color, width: width),
+      );
+  return InputDecoration(
+    labelText: label,
+    hintText: hint,
+    helperText: helper,
+    helperMaxLines: 3,
+    errorText: error,
+    errorMaxLines: 3,
+    suffixIcon: suffixIcon,
+    filled: true,
+    fillColor: colors.surface,
+    labelStyle: ShiaText.body.copyWith(color: colors.textMuted),
+    floatingLabelStyle: ShiaText.body.copyWith(color: colors.accent),
+    hintStyle: ShiaText.body.copyWith(color: colors.textMuted),
+    border: border(colors.line),
+    enabledBorder: border(colors.line),
+    focusedBorder: border(colors.accent, 2),
+    errorBorder: border(colors.danger),
+    focusedErrorBorder: border(colors.danger, 2),
+  );
+}
+
+/// A short question in a dialog, in the revamp's style: the title, a line of
+/// [body], then the answers as full-width rounded buttons, the [primary]
+/// one filled. Resolves to the answer's value, or null when dismissed.
+///
+/// For a simple confirmation (docs/DESIGN_SPEC.md: "the confirmation stays
+/// a dialog"); anything longer belongs in a [showRevampSheet].
+Future<T?> showRevampDialog<T>(
+  BuildContext context, {
+  required String title,
+  String? body,
+  Widget? content,
+  required List<DialogAnswer<T>> answers,
+  bool barrierDismissible = true,
+}) {
+  return showDialog<T>(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    builder: (dialogContext) => RevampDialog<T>(
+      title: title,
+      body: body,
+      content: content,
+      answers: answers,
+    ),
+  );
+}
+
+/// One answer of a [showRevampDialog].
+class DialogAnswer<T> {
+  const DialogAnswer(this.value, this.label,
+      {this.primary = false, this.danger = false});
+
+  final T value;
+  final String label;
+
+  /// Filled in the accent: the answer the dialog leans towards.
+  final bool primary;
+
+  /// In the danger colour: an answer that removes something.
+  final bool danger;
+}
+
+/// What [showRevampDialog] shows.
+class RevampDialog<T> extends StatelessWidget {
+  const RevampDialog({
+    super.key,
+    required this.title,
+    this.body,
+    this.content,
+    required this.answers,
+  });
+
+  final String title;
+  final String? body;
+
+  /// Shown under [body]: anything more than a line of text.
+  final Widget? content;
+  final List<DialogAnswer<T>> answers;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Dialog(
+      backgroundColor: colors.ground,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  style: ShiaText.sectionTitle.copyWith(color: colors.text),
+                ),
+              ),
+              if (body != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  body!,
+                  style: ShiaText.body.copyWith(color: colors.textMuted),
+                ),
+              ],
+              if (content != null) ...[
+                const SizedBox(height: 12),
+                content!,
+              ],
+              const SizedBox(height: 18),
+              for (final (i, answer) in answers.indexed) ...[
+                if (i > 0) const SizedBox(height: 8),
+                PageButton(
+                  label: answer.label,
+                  filled: answer.primary,
+                  danger: answer.danger,
+                  onPressed: () => Navigator.of(context).pop(answer.value),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A 52 px fully rounded button: outlined on the surface, or [filled] in
+/// the accent. Tasbeeh's −1, Reset and its confirmation; [height] smaller
+/// where it sits in a smaller panel (the reader's counter).
+class PillButton extends StatelessWidget {
+  const PillButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.glyph,
+    this.filled = false,
+    this.height = 52,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final OutlineGlyph? glyph;
+  final bool filled;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final foreground = filled ? colors.onAccent : colors.text;
+    final glyph = this.glyph;
+    return FilledButton(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        minimumSize: Size(0, height),
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        backgroundColor: filled ? colors.accent : colors.surface,
+        foregroundColor: foreground,
+        disabledBackgroundColor: colors.surface,
+        disabledForegroundColor: colors.text.withValues(alpha: 0.38),
+        elevation: 0,
+        shape: StadiumBorder(
+          side: filled
+              ? BorderSide.none
+              : BorderSide(
+                  color: Color.lerp(colors.line, colors.chevron, 0.35)!),
+        ),
+        textStyle: buttonTextStyle(context, ShiaText.body)
+            .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (glyph != null) ...[
+            OutlineIcon(glyph,
+                size: 18,
+                color: onPressed == null
+                    ? colors.text.withValues(alpha: 0.38)
+                    : foreground,
+                strokeWidth: 2),
+            const SizedBox(width: 6),
+          ],
+          Flexible(
+              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+    );
+  }
+}

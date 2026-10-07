@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/utils/external_launch.dart';
-import 'package:shia_companion/widgets/responsive_content.dart';
-import '../l10n/l10n.dart';
+import 'package:shia_companion/widgets/responsive_content.dart'
+    show compactContentWidth;
 
+import '../l10n/l10n.dart';
+import '../theme/shia_colors.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
+
+/// About: the app and its version, the dedication, the support address, and
+/// the credits the content's licences ask for.
 class AboutPage extends StatefulWidget {
+  const AboutPage({super.key});
+
   @override
-  _AboutPageState createState() => new _AboutPageState();
+  State<AboutPage> createState() => _AboutPageState();
 }
 
 class _AboutPageState extends State<AboutPage> {
@@ -18,141 +27,140 @@ class _AboutPageState extends State<AboutPage> {
     trackScreen('About Page');
   }
 
+  Future<void> _email() async {
+    final launched = await launchSupportEmail();
+    if (!launched && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.aboutNoEmailApp)),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: getAppBar(),
-      body: ResponsiveScrollableContent(
-        maxWidth: compactContentWidth,
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            ListTile(
-              title: Image.asset(
-                'assets/logo.png',
-                width: 150.0,
-                height: 150.0,
-              ),
-            ),
-            ListTile(
-              title: Text(
-                appName,
-                textAlign: TextAlign.center,
-              ),
-              subtitle: Text(
-                context.l10n.aboutVersion(appVersion),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            ListTile(
-              title: Text(
-                "﷽",
-                textAlign: TextAlign.center,
-              ),
-            ),
-            ListTile(
-              title: Text(
-                context.l10n.aboutDedication,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Center(
-              child: FilledButton.icon(
-                onPressed: () async {
-                  final launched = await launchSupportEmail();
-                  if (!launched && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(context.l10n.aboutNoEmailApp)),
-                    );
-                  }
-                },
-                icon: const Icon(Icons.mail_outline),
-                label: const Text(_supportEmail),
-              ),
-            ),
-            const Divider(height: 40),
-            // duas.org permit use of their recitations on condition of
-            // credit - this is that acknowledgement.
-            ListTile(
-              title: Text(context.l10n.aboutCredits, textAlign: TextAlign.center),
-              subtitle: Column(
-                children: [
-                  Text(
-                    context.l10n.aboutCreditAudio,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () =>
-                        launchExternalUri(Uri.parse('https://www.duas.org')),
-                    child: const Text('duas.org'),
-                  ),
-                  const SizedBox(height: 12),
-                  // Scheherazade New ships under the SIL Open Font License,
-                  // which asks that the font be acknowledged where it is used.
-                  Text(
-                    context.l10n.aboutCreditScheherazade,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () => launchExternalUri(
-                        Uri.parse('https://software.sil.org/scheherazade/')),
-                    child: const Text('software.sil.org/scheherazade'),
-                  ),
-                  const SizedBox(height: 12),
-                  // Tanzil's terms (CC BY 3.0) require the source to be named
-                  // and linked wherever its text is shown.
-                  Text(
-                    context.l10n.aboutCreditTanzil,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () =>
-                        launchExternalUri(Uri.parse('https://tanzil.net')),
-                    child: const Text('tanzil.net'),
-                  ),
-                  const SizedBox(height: 12),
-                  // QuranWBW's licence asks for the font's own credits and
-                  // for the licence itself to be stated. See
-                  // assets/fonts/QuranWBW-IndoPak-NOTICE.txt.
-                  Text(
-                    context.l10n.aboutCreditQuranWbw,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    context.l10n.aboutCreditIndoPakFont,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () =>
-                        launchExternalUri(Uri.parse('https://quranwbw.com')),
-                    child: const Text('quranwbw.com'),
-                  ),
-                  const SizedBox(height: 12),
-                  // GeoNames data is CC BY 4.0: credit and link wherever it is
-                  // used. The city picker names it too.
-                  Text(
-                    context.l10n.aboutCityListCredit,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () => launchExternalUri(
-                        Uri.parse('https://www.geonames.org')),
-                    child: const Text('geonames.org'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context, maxWidth: compactContentWidth);
+
+    Widget section(Widget child, {double bottom = 14}) => SliverPadding(
+          padding: gutter.copyWith(bottom: bottom),
+          sliver: SliverToBoxAdapter(child: child),
+        );
+
+    final credits = <(String, String, String)>[
+      // duas.org permit use of their recitations on condition of credit -
+      // this is that acknowledgement.
+      (l10n.aboutCreditAudio, 'duas.org', 'https://www.duas.org'),
+      // Scheherazade New ships under the SIL Open Font License, which asks
+      // that the font be acknowledged where it is used.
+      (
+        l10n.aboutCreditScheherazade,
+        'software.sil.org/scheherazade',
+        'https://software.sil.org/scheherazade/'
       ),
+      // Tanzil's terms (CC BY 3.0) require the source to be named and linked
+      // wherever its text is shown.
+      (l10n.aboutCreditTanzil, 'tanzil.net', 'https://tanzil.net'),
+      // QuranWBW's licence asks for the font's own credits and for the
+      // licence itself to be stated. See
+      // assets/fonts/QuranWBW-IndoPak-NOTICE.txt.
+      (
+        '${l10n.aboutCreditQuranWbw}\n\n${l10n.aboutCreditIndoPakFont}',
+        'quranwbw.com',
+        'https://quranwbw.com'
+      ),
+      // GeoNames data is CC BY 4.0: credit and link wherever it is used. The
+      // city picker names it too.
+      (l10n.aboutCityListCredit, 'geonames.org', 'https://www.geonames.org'),
+    ];
+
+    return LargeTitlePage(
+      title: l10n.settingsAboutUs,
+      subtitle: l10n.aboutVersion(appVersion),
+      maxWidth: compactContentWidth,
+      slivers: [
+        section(
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: colors.line),
+            ),
+            child: Column(
+              children: [
+                Image.asset('assets/logo.png', width: 96, height: 96),
+                const SizedBox(height: 12),
+                Text(
+                  appName,
+                  textAlign: TextAlign.center,
+                  style: ShiaText.sectionTitle.copyWith(color: colors.text),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  '﷽',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: arabicFont,
+                    fontSize: 32,
+                    height: 1.6,
+                    color: colors.text,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  l10n.aboutDedication,
+                  textAlign: TextAlign.center,
+                  style: ShiaText.secondary.copyWith(color: colors.textMuted),
+                ),
+                const SizedBox(height: 16),
+                PageButton(
+                  label: _supportEmail,
+                  glyph: OutlineGlyph.mail,
+                  filled: true,
+                  onPressed: _email,
+                ),
+              ],
+            ),
+          ),
+          bottom: 20,
+        ),
+        section(GroupLabel(l10n.aboutCredits), bottom: 8),
+        section(
+          CardList(
+            children: [
+              for (final (i, (credit, site, url)) in credits.indexed)
+                CardListRow(
+                  first: i == 0,
+                  last: i == credits.length - 1,
+                  titleStyle: ShiaText.secondary,
+                  title: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(credit),
+                  ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 4),
+                    child: Text(
+                      site,
+                      style: ShiaText.secondary.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colors.accent,
+                      ),
+                    ),
+                  ),
+                  trailing: SizedBox.square(
+                    dimension: 44,
+                    child: Center(
+                      child: OutlineIcon(OutlineGlyph.link,
+                          size: 20, color: colors.accent),
+                    ),
+                  ),
+                  onTap: () => launchExternalUri(Uri.parse(url)),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

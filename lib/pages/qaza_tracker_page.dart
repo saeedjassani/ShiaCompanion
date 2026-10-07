@@ -8,6 +8,7 @@ import '../models/qaza_tracker_state.dart';
 import '../services/qaza_tracker_manager.dart';
 import '../theme/shia_colors.dart';
 import '../widgets/outline_icon.dart';
+import '../widgets/choice_sheet.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/responsive_content.dart' show compactContentWidth;
 import 'stats/stats_widgets.dart';
@@ -335,10 +336,10 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
   }
 
   Future<void> _showEstimateSheet() async {
-    final result = await showModalBottomSheet<_QazaEstimate>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
+    final result = await showRevampSheet<_QazaEstimate>(
+      context,
+      title: context.l10n.qazaCalculate,
+      closeLabel: context.l10n.commonCancel,
       builder: (context) => const _QazaEstimateSheet(),
     );
     if (result == null || result.isEmpty) return;
@@ -547,128 +548,107 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       onChanged: (_) => setState(() {}),
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: '0',
-        border: const OutlineInputBorder(),
-      ),
+      style: ShiaText.body.copyWith(color: ShiaColors.of(context).text),
+      decoration: revampFieldDecoration(context, label: label, hint: '0'),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
     final estimate = _estimate;
 
     final summaryLines = [
       if (estimate.prayerDays > 0)
-        context.l10n.qazaEstimatePrayers(_formatCount(estimate.prayerDays),
+        l10n.qazaEstimatePrayers(_formatCount(estimate.prayerDays),
             _formatCount(estimate.prayerDays * qazaDailyPrayers.length)),
       if (estimate.fasts > 0)
-        context.l10n
-            .qazaEstimateFasts(estimate.fasts, _formatCount(estimate.fasts)),
+        l10n.qazaEstimateFasts(estimate.fasts, _formatCount(estimate.fasts)),
     ];
+    Widget note(String text) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            text,
+            style: ShiaText.caption.copyWith(
+              height: 18 / 13,
+              color: colors.textMuted,
+            ),
+          ),
+        );
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.viewInsetsOf(context).bottom,
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                context.l10n.qazaCalculate,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                context.l10n.qazaCalculateBody,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(context.l10n.qazaPrayersMissedFor,
-                  style: theme.textTheme.titleSmall),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                      child: _numberField(
-                          _yearsController, context.l10n.qazaYears)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                      child: _numberField(
-                          _monthsController, context.l10n.qazaMonths)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                      child:
-                          _numberField(_daysController, context.l10n.qazaDays)),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                context.l10n
-                    .qazaLunarNote(qazaDaysPerLunarYear, qazaDaysPerMonth),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(context.l10n.qazaFastsMissed,
-                  style: theme.textTheme.titleSmall),
-              const SizedBox(height: 10),
-              _numberField(_fastsController, context.l10n.qazaNumberOfFasts),
-              const SizedBox(height: 20),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 150),
-                child: summaryLines.isEmpty
-                    ? const SizedBox(width: double.infinity)
-                    : Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.l10n.qazaThisAdds,
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                color: colorScheme.onSecondaryContainer,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            for (final line in summaryLines)
-                              Text(
-                                '• $line',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onSecondaryContainer,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: estimate.isEmpty
-                    ? null
-                    : () => Navigator.pop(context, estimate),
-                child: Text(context.l10n.qazaAddToList),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            l10n.qazaCalculateBody,
+            style: ShiaText.secondary.copyWith(color: colors.textMuted),
           ),
         ),
-      ),
+        const SizedBox(height: 18),
+        GroupLabel(l10n.qazaPrayersMissedFor),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(child: _numberField(_yearsController, l10n.qazaYears)),
+            const SizedBox(width: 10),
+            Expanded(child: _numberField(_monthsController, l10n.qazaMonths)),
+            const SizedBox(width: 10),
+            Expanded(child: _numberField(_daysController, l10n.qazaDays)),
+          ],
+        ),
+        const SizedBox(height: 6),
+        note(l10n.qazaLunarNote(qazaDaysPerLunarYear, qazaDaysPerMonth)),
+        const SizedBox(height: 18),
+        GroupLabel(l10n.qazaFastsMissed),
+        const SizedBox(height: 8),
+        _numberField(_fastsController, l10n.qazaNumberOfFasts),
+        const SizedBox(height: 18),
+        AnimatedSize(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 150),
+          child: summaryLines.isEmpty
+              ? const SizedBox(width: double.infinity)
+              : Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: colors.tintedNotice,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.qazaThisAdds,
+                        style: ShiaText.secondary.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: colors.text,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      for (final line in summaryLines)
+                        Text(
+                          '• $line',
+                          style: ShiaText.secondary.copyWith(color: colors.text),
+                        ),
+                    ],
+                  ),
+                ),
+        ),
+        PageButton(
+          label: l10n.qazaAddToList,
+          glyph: OutlineGlyph.plus,
+          filled: true,
+          onPressed: estimate.isEmpty
+              ? null
+              : () => Navigator.pop(context, estimate),
+        ),
+      ],
     );
   }
 }

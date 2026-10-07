@@ -63,6 +63,7 @@ void main() {
         if (supportsPrayerCounterOnCurrentPlatform)
           'Rakaat Counter': 'rakaat_counter',
         'Prayer Times in Flight': 'prayer_times_in_flight',
+        'News': 'news',
         // Relabelled from Preferences; the id stays.
         'Settings': 'preferences',
         'Quran': 'quran',

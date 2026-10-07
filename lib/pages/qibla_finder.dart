@@ -16,6 +16,7 @@ import '../utils/geomagnetism.dart';
 import '../utils/shared_preferences.dart';
 import '../theme/shia_colors.dart';
 import '../widgets/outline_icon.dart';
+import '../widgets/choice_sheet.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/qibla_compass_dial.dart';
 import '../widgets/responsive_content.dart' show compactContentWidth;
@@ -236,10 +237,9 @@ class _QiblaFinderState extends State<QiblaFinder> {
   bool get _isLive => _status == _CompassStatus.live;
 
   Future<void> _pickTarget() async {
-    final chosen = await showModalBottomSheet<HolySite>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
+    final chosen = await showRevampSheet<HolySite>(
+      context,
+      title: context.l10n.qiblaPointTowards,
       builder: (context) => _HolySitePicker(selected: _target, from: _here),
     );
     if (chosen == null || !mounted) return;
@@ -769,49 +769,29 @@ class _HolySitePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return SafeArea(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.75,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-              child: Text(
-                context.l10n.qiblaPointTowards,
-                style: theme.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
+    final others = otherHolySites;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CardList(children: [
+          _SiteTile(
+              site: kaaba, selected: selected, from: from, first: true,
+              last: true),
+        ]),
+        const SizedBox(height: 18),
+        GroupLabel(context.l10n.menuZiyarats),
+        const SizedBox(height: 8),
+        CardList(children: [
+          for (final (i, site) in others.indexed)
+            _SiteTile(
+              site: site,
+              selected: selected,
+              from: from,
+              first: i == 0,
+              last: i == others.length - 1,
             ),
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                padding: const EdgeInsets.only(bottom: 12),
-                children: [
-                  _SiteTile(site: kaaba, selected: selected, from: from),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                    child: Text(
-                      'ZIYARAT',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ),
-                  for (final site in otherHolySites)
-                    _SiteTile(site: site, selected: selected, from: from),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+        ]),
+      ],
     );
   }
 }
@@ -821,60 +801,76 @@ class _SiteTile extends StatelessWidget {
     required this.site,
     required this.selected,
     required this.from,
+    this.first = false,
+    this.last = false,
   });
 
   final HolySite site;
   final HolySite selected;
   final GeoPoint? from;
+  final bool first;
+  final bool last;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = ShiaColors.of(context);
     final isSelected = site.id == selected.id;
     final origin = from;
 
-    return ListTile(
-      onTap: () => Navigator.of(context).pop(site),
-      selected: isSelected,
-      leading: CircleAvatar(
-        backgroundColor: isSelected
-            ? theme.colorScheme.primary
-            : theme.colorScheme.surfaceContainerHighest,
-        child: Icon(
-          isSelected ? Icons.check : Icons.mosque_outlined,
-          size: 20,
-          color: isSelected
-              ? theme.colorScheme.onPrimary
-              : theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
-      title: Text(
-        site.name,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-        ),
-      ),
-      subtitle: Text(site.place),
-      trailing: origin == null
-          ? null
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  formatDistanceKm(
-                      greatCircleDistanceKm(origin, site.location)),
-                  style: theme.textTheme.labelMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  compassLabel(initialBearingDegrees(origin, site.location)),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+    return MergeSemantics(
+      child: Semantics(
+        selected: isSelected,
+        child: CardListRow(
+          first: first,
+          last: last,
+          onTap: () => Navigator.of(context).pop(site),
+          leading: Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: isSelected ? colors.accent : colors.well,
+              shape: BoxShape.circle,
+            ),
+            child: isSelected
+                ? OutlineIcon(OutlineGlyph.check,
+                    size: 20, color: colors.onAccent, strokeWidth: 2.4)
+                : OutlineIcon(OutlineGlyph.pin, size: 20, color: colors.accent),
+          ),
+          title: Text(
+            site.name,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+          subtitle: Text(site.place),
+          trailing: origin == null
+              ? null
+              : Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        formatDistanceKm(
+                            greatCircleDistanceKm(origin, site.location)),
+                        style: ShiaText.caption.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colors.text,
+                        ),
+                      ),
+                      Text(
+                        compassLabel(
+                            initialBearingDegrees(origin, site.location)),
+                        style:
+                            ShiaText.caption.copyWith(color: colors.textMuted),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+        ),
+      ),
     );
   }
 }

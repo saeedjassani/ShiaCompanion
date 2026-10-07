@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/services/content_request_service.dart';
+import 'package:shia_companion/widgets/choice_sheet.dart';
 import 'package:shia_companion/widgets/content_request_dialog.dart';
 
 void main() {
@@ -40,8 +41,8 @@ void main() {
     });
   });
 
-  group('ContentRequestDialog', () {
-    /// Opens the dialog from a button and reports what it popped with.
+  group('ContentRequestForm', () {
+    /// Opens the form from a button and reports what it popped with.
     Future<void> openDialog(
       WidgetTester tester, {
       String initialTitle = '',
@@ -51,10 +52,10 @@ void main() {
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () async {
-              final result = await showDialog<ContentRequestDraft>(
-                context: context,
-                builder: (_) =>
-                    ContentRequestDialog(initialTitle: initialTitle),
+              final result = await showRevampSheet<ContentRequestDraft>(
+                context,
+                title: 'Request',
+                builder: (_) => ContentRequestForm(initialTitle: initialTitle),
               );
               onClosed?.call(result);
             },

@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/responsive_content.dart'
+    show compactContentWidth;
 
 import '../constants.dart';
 import '../l10n/l10n.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
 
 class DeepLinkNotFoundPage extends StatefulWidget {
   final String? target;
@@ -29,47 +32,39 @@ class _DeepLinkNotFoundPageState extends State<DeepLinkNotFoundPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final gutter = pageGutter(context, maxWidth: compactContentWidth);
+    final target = this.target;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.linkNotFoundTitle),
-      ),
-      body: ResponsiveContent(
-        maxWidth: compactContentWidth,
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.link_off,
-                size: 56,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                context.l10n.linkNotFoundBody,
-                style: theme.textTheme.titleLarge,
-                textAlign: TextAlign.center,
-              ),
-              if (target != null && target!.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Text(
-                  context.l10n.linkNotFoundRequested('$target'),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium,
+    return LargeTitlePage(
+      title: l10n.linkNotFoundTitle,
+      maxWidth: compactContentWidth,
+      slivers: [
+        SliverPadding(
+          padding: gutter,
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                EmptyStateCard(
+                  glyph: OutlineGlyph.link,
+                  title: l10n.linkNotFoundBody,
+                  body: target == null || target.isEmpty
+                      ? null
+                      : l10n.linkNotFoundRequested(target),
+                ),
+                const SizedBox(height: 14),
+                PageButton(
+                  label: l10n.linkNotFoundGoHome,
+                  glyph: OutlineGlyph.home,
+                  filled: true,
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.l10n.linkNotFoundGoHome),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

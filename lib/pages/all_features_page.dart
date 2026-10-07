@@ -7,6 +7,7 @@ import '../l10n/l10n.dart';
 import '../navigation/home_menu.dart';
 import '../services/home_shortcuts_store.dart';
 import '../theme/shia_colors.dart';
+import '../widgets/page_chrome.dart';
 import 'home/shortcuts_section.dart';
 
 /// Every feature in one grid, in the order the old home grid had them (less
@@ -30,86 +31,68 @@ class _AllFeaturesPageState extends State<AllFeaturesPage> {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          TextButton(
-            onPressed: () => showShortcutsEditor(context),
-            style: TextButton.styleFrom(
-              foregroundColor: colors.accent,
-              textStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w600),
-            ),
-            child: Text(context.l10n.homeEditShortcuts),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: ListenableBuilder(
-        listenable: HomeShortcutsStore.instance,
-        builder: (context, _) {
-          final onHome = {
-            for (final item
-                in homeShortcutMenuItems(HomeShortcutsStore.instance.ids))
-              item.analyticsId,
-          };
-          final features = allFeaturesMenuItems;
+    return ListenableBuilder(
+      listenable: HomeShortcutsStore.instance,
+      builder: (context, _) {
+        final onHome = {
+          for (final item
+              in homeShortcutMenuItems(HomeShortcutsStore.instance.ids))
+            item.analyticsId,
+        };
+        final features = allFeaturesMenuItems;
 
-          return ListView(
-            padding: EdgeInsets.fromLTRB(
-                16, 0, 16, 24 + MediaQuery.paddingOf(context).bottom),
-            children: [
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 720),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          context.l10n.homeAllFeatures,
-                          style: ShiaText.largeTitle.copyWith(
-                            color: colors.text,
+        return LargeTitlePage(
+          title: context.l10n.homeAllFeatures,
+          maxWidth: 720,
+          actions: [
+            PageTextAction(
+              label: context.l10n.homeEditShortcuts,
+              onPressed: () => showShortcutsEditor(context),
+            ),
+          ],
+          slivers: [
+            SliverPadding(
+              padding: pageGutter(context, maxWidth: 720),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 4),
+                    _FeatureGrid(
+                      features: features,
+                      onHome: onHome,
+                      onOpen: (item) =>
+                          pushPageRoute(context, item.buildPage()),
+                    ),
+                    const SizedBox(height: 18),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Row(
+                        children: [
+                          const ExcludeSemantics(
+                            child: OnHomeBadge(size: 16),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      _FeatureGrid(
-                        features: features,
-                        onHome: onHome,
-                        onOpen: (item) =>
-                            pushPageRoute(context, item.buildPage()),
-                      ),
-                      const SizedBox(height: 18),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Row(
-                          children: [
-                            const ExcludeSemantics(
-                              child: OnHomeBadge(size: 16),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                context.l10n.homeAlreadyShortcut,
-                                style: ShiaText.caption.copyWith(
-                                  fontSize: 14,
-                                  height: 20 / 14,
-                                  color: colors.textMuted,
-                                ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              context.l10n.homeAlreadyShortcut,
+                              style: ShiaText.caption.copyWith(
+                                fontSize: 14,
+                                height: 20 / 14,
+                                color: colors.textMuted,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
