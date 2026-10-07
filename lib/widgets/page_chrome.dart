@@ -69,11 +69,15 @@ double floatingBottomOffset(BuildContext context) {
 /// The fade over content scrolling beneath a floating bottom control, so
 /// rows do not show through below and beside it. Taps pass through.
 class BottomFade extends StatelessWidget {
-  const BottomFade({super.key});
+  const BottomFade({super.key, this.readerGround = false});
+
+  /// Fades to [ShiaColors.readerGround], under the reader's tools.
+  final bool readerGround;
 
   @override
   Widget build(BuildContext context) {
-    final ground = ShiaColors.of(context).ground;
+    final colors = ShiaColors.of(context);
+    final ground = readerGround ? colors.readerGround : colors.ground;
     return IgnorePointer(
       child: DecoratedBox(
         decoration: BoxDecoration(

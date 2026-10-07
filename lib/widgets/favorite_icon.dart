@@ -30,9 +30,17 @@ class FavoriteIcon extends StatelessWidget {
 /// The revamp's favourite toggle: a heart, filled once [favorite] is kept,
 /// with a 44 px tap target.
 class FavoriteHeartButton extends StatelessWidget {
-  const FavoriteHeartButton({super.key, required this.favorite});
+  const FavoriteHeartButton({
+    super.key,
+    required this.favorite,
+    this.round = false,
+  });
 
   final UniversalData favorite;
+
+  /// Drawn as a round button on the surface with a 1 px line, like the
+  /// page's Back button beside it (the reader's top bar).
+  final bool round;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +51,17 @@ class FavoriteHeartButton extends StatelessWidget {
       builder: (context, _) {
         final kept = manager.isFavorite(favorite);
         void toggle() => manager.toggleFavorite(favorite);
+        final heart = SizedBox.square(
+          dimension: 44,
+          child: Center(
+            child: OutlineIcon(
+              OutlineGlyph.heart,
+              size: round ? 20 : 22,
+              color: colors.accent,
+              filled: kept,
+            ),
+          ),
+        );
         // Its own node, apart from the row it sits in.
         return Semantics(
           container: true,
@@ -51,21 +70,14 @@ class FavoriteHeartButton extends StatelessWidget {
           label: context.l10n.favoriteToggleLabel(favorite.displayTitle),
           excludeSemantics: true,
           onTap: toggle,
-          child: InkResponse(
-            onTap: toggle,
-            radius: 22,
-            child: SizedBox.square(
-              dimension: 44,
-              child: Center(
-                child: OutlineIcon(
-                  OutlineGlyph.heart,
-                  size: 22,
-                  color: colors.accent,
-                  filled: kept,
-                ),
-              ),
-            ),
-          ),
+          child: round
+              ? Material(
+                  color: colors.surface,
+                  shape: CircleBorder(side: BorderSide(color: colors.line)),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(onTap: toggle, child: heart),
+                )
+              : InkResponse(onTap: toggle, radius: 22, child: heart),
         );
       },
     );
