@@ -114,6 +114,13 @@ final _aliWatermark = find.byWidgetPredicate((widget) =>
     (widget.image as AssetImage).assetName ==
         'assets/images/ali_watermark.png');
 
+/// The Imam al-Mahdi (atfs) watermark, likewise.
+final _mahdiWatermark = find.byWidgetPredicate((widget) =>
+    widget is Image &&
+    widget.image is AssetImage &&
+    (widget.image as AssetImage).assetName ==
+        'assets/images/mahdi_watermark.png');
+
 void main() {
   group('a juz portion', () {
     setUp(() {
@@ -327,6 +334,22 @@ void main() {
         surahNumber: 1,
       );
 
+      expect(_aliWatermark, findsNothing);
+      expect(_mahdiWatermark, findsNothing);
+    });
+  });
+
+  group('Imam al-Mahdi (atfs) watermark', () {
+    testWidgets('marks a verse in his collection', (tester) async {
+      // 81:15 is in the collection; at-Takwir has 29 ayahs.
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 29),
+        surahNumber: 81,
+      );
+
+      await _scrollTo(tester, find.text('Translation of ayah 15'));
+      expect(_mahdiWatermark, findsOneWidget);
       expect(_aliWatermark, findsNothing);
     });
   });

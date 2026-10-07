@@ -92,4 +92,10 @@ void main() {
     final height = ByteData.sublistView(bytes, 20, 24).getUint32(0);
     expect(height, lessThanOrEqualTo(4 * 170));
   });
+
+  test('the Imam al-Mahdi (atfs) watermark is sized for its 165dp', () {
+    final bytes = File('assets/images/mahdi_watermark.png').readAsBytesSync();
+    final height = ByteData.sublistView(bytes, 20, 24).getUint32(0);
+    expect(height, lessThanOrEqualTo(4 * 165));
+  });
 }

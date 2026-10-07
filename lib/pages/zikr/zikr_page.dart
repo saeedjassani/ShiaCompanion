@@ -792,12 +792,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 ),
               ),
               // In paragraph mode there is no per-verse seal to long-press,
-              // so the menu is where a verse's Imam Ali (as) note is shown.
-              if (request.aliNote != null)
+              // so the menu is where a verse's Imam Ali (as) or Imam
+              // al-Mahdi (atfs) note is shown.
+              if ((request.aliNote ?? request.mahdiNote) case final note?)
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
-                    request.aliNote!,
+                    note,
                     style: ShiaText.caption
                         .copyWith(fontSize: 14, color: colors.textMuted),
                   ),
