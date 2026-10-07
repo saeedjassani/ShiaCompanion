@@ -27,6 +27,15 @@ class PrayerCounterState {
     return ((completedSajdahs - 1) % 2) + 1;
   }
 
+  /// The rakaat being prayed, as the counter shows it: once both sajdahs of
+  /// a rakaat are done the next one has begun ("Rakaat 2 of 4, 0 of 2
+  /// sajdahs"); the last one once complete.
+  int get currentRakaat =>
+      isComplete ? totalRakaat : (completedSajdahs ~/ 2) + 1;
+
+  /// Sajdahs done in [currentRakaat]: 0 or 1, and 2 once complete.
+  int get sajdahsInCurrentRakaat => isComplete ? 2 : completedSajdahs % 2;
+
   String get displayValue => '$rakaat.${sajdah == 0 ? '–' : sajdah}';
 
   PrayerCounterState recordSajdah() {

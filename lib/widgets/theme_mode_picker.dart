@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../l10n/l10n.dart';
 import '../services/analytics_service.dart';
 import '../utils/theme_mode.dart';
+import 'choice_sheet.dart';
 
 /// The Theme choices, in the order the sheet lists them.
 const List<ThemeMode> themeModeChoices = [
@@ -18,42 +19,20 @@ const List<ThemeMode> themeModeChoices = [
 Future<void> showThemeModePicker(BuildContext context) async {
   final provider = context.read<ThemeModeProvider>();
   final current = provider.themeMode;
-  final theme = Theme.of(context);
+  final l10n = context.l10n;
 
-  final selected = await showModalBottomSheet<ThemeMode>(
-    context: context,
-    showDragHandle: true,
-    builder: (sheetContext) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(context.l10n.settingsTheme,
-                  style: theme.textTheme.titleMedium),
-            ),
-          ),
-          // A trailing check rather than RadioListTile, as in the audio
-          // track picker: choosing closes the sheet.
-          for (final mode in themeModeChoices)
-            ListTile(
-              leading: Icon(_iconFor(mode)),
-              title: Text(ThemeModeProvider.label(mode, context.l10n)),
-              subtitle: mode == ThemeMode.system
-                  ? Text(context.l10n.themeSameAsPhoneSubtitle)
-                  : null,
-              trailing: mode == current
-                  ? Icon(Icons.check, color: theme.colorScheme.primary)
-                  : null,
-              selected: mode == current,
-              onTap: () => Navigator.of(sheetContext).pop(mode),
-            ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    ),
+  final selected = await showChoiceSheet<ThemeMode>(
+    context,
+    title: l10n.settingsTheme,
+    current: current,
+    choices: [
+      for (final mode in themeModeChoices)
+        Choice(
+          mode,
+          ThemeModeProvider.label(mode, l10n),
+          hint: mode == ThemeMode.system ? l10n.themeSameAsPhoneSubtitle : null,
+        ),
+    ],
   );
 
   if (selected == null || selected == current) return;
@@ -64,9 +43,3 @@ Future<void> showThemeModePicker(BuildContext context) async {
     parameters: {'theme_mode': selected.name},
   ));
 }
-
-IconData _iconFor(ThemeMode mode) => switch (mode) {
-      ThemeMode.light => Icons.light_mode_outlined,
-      ThemeMode.dark => Icons.dark_mode_outlined,
-      ThemeMode.system => Icons.brightness_auto_outlined,
-    };

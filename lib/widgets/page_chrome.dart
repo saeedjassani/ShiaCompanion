@@ -341,6 +341,79 @@ class _CompactTitleBar extends StatelessWidget {
   }
 }
 
+/// A tool page's [Column] that fills the screen, its [Expanded] child
+/// taking whatever room is left; on a screen too short for everything at
+/// its natural size (a small phone at a large text size) it scrolls
+/// instead of overflowing.
+class FillOrScroll extends StatelessWidget {
+  const FillOrScroll({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: IntrinsicHeight(child: child),
+        ),
+      ),
+    );
+  }
+}
+
+/// The top of a tool page (Tasbeeh, Rakaat): the round Back button, the
+/// page's name centred, and an optional action on the right.
+class ToolHeader extends StatelessWidget {
+  const ToolHeader({
+    super.key,
+    required this.title,
+    this.action,
+    this.foreground,
+  });
+
+  final String title;
+  final Widget? action;
+
+  /// The title's colour; the theme's text colour when null.
+  final Color? foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final canPop = ModalRoute.of(context)?.impliesAppBarDismissal ?? false;
+    return SizedBox(
+      height: 44,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 52),
+            child: Semantics(
+              header: true,
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: ShiaText.cardTitle
+                    .copyWith(color: foreground ?? colors.text),
+              ),
+            ),
+          ),
+          if (canPop)
+            const Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: PageBackButton(),
+            ),
+          if (action != null)
+            Align(alignment: AlignmentDirectional.centerEnd, child: action),
+        ],
+      ),
+    );
+  }
+}
+
 /// A 44 px round button on the page's surface with a 1 px line: the
 /// revamp's icon-only page actions (Back, Recent sessions, My Stats).
 class RoundIconButton extends StatelessWidget {
@@ -1113,4 +1186,67 @@ Future<T?> showMenuAt<T>(BuildContext anchor, List<PopupMenuEntry<T>> items) {
     Offset.zero & overlay.size,
   );
   return showMenu<T>(context: anchor, position: position, items: items);
+}
+
+/// A labelled switch in a card list, with an optional hint under the
+/// label. Disabled (and dimmed) when [onChanged] is null.
+class CardSwitchRow extends StatelessWidget {
+  const CardSwitchRow({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    this.hint,
+    this.last = false,
+  });
+
+  final String label;
+  final String? hint;
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final enabled = onChanged != null;
+    return MergeSemantics(
+      child: Opacity(
+        opacity: enabled ? 1 : 0.55,
+        child: InkWell(
+          onTap: enabled ? () => onChanged!(!value) : null,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 54),
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 10, 6),
+            decoration: BoxDecoration(
+              border: last
+                  ? null
+                  : Border(bottom: BorderSide(color: colors.divider)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(label,
+                          style: ShiaText.body.copyWith(color: colors.text)),
+                      if (hint != null)
+                        Text(
+                          hint!,
+                          style: ShiaText.caption
+                              .copyWith(color: colors.textMuted),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Switch(value: value, onChanged: onChanged),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

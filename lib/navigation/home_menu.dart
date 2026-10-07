@@ -18,10 +18,10 @@ import '../pages/qaza_tracker_page.dart';
 import '../pages/qibla_finder.dart';
 import '../pages/quran/quran_page.dart';
 import '../pages/settings_page.dart';
+import '../pages/tasbeeh_page.dart';
 import '../pages/todays_recitation_page.dart';
 import '../widgets/home_glyph.dart';
 import '../widgets/outline_icon.dart';
-import '../widgets/tasbeeh_widget.dart';
 import '../l10n/l10n.dart';
 
 typedef HomeMenuPageBuilder = Widget Function();
@@ -203,7 +203,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     shortLabel: 'Tasbeeh',
     glyphType: HomeGlyphType.tasbeeh,
     icon: Icons.adjust_rounded,
-    pageBuilder: () => TasbeehWidget(),
+    pageBuilder: () => const TasbeehPage(),
   ),
   HomeMenuItem(
     label: 'Qaza Tracker',
@@ -252,10 +252,7 @@ final HomeMenuItem settingsMenuItem = HomeMenuItem(
   analyticsId: 'preferences',
   icon: Icons.settings_rounded,
   outlineGlyph: OutlineGlyph.sliders,
-  pageBuilder: () => Scaffold(
-    appBar: AppBar(title: Text(L10n.current.actionSettings)),
-    body: SettingsPage(),
-  ),
+  pageBuilder: () => const SettingsPage(),
 );
 
 /// The Quran revamp's entry point (ayah browsing, juz reading, saved verses,

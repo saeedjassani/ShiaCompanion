@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
 /// The revamp's line icons for everything that is not content: drawn on a
@@ -48,6 +50,16 @@ enum OutlineGlyph {
   copy,
   link,
   bell,
+  moon,
+  globe,
+  lines,
+  star,
+  mail,
+  code,
+  undo,
+  reset,
+  alarm,
+  eye,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -465,6 +477,84 @@ class _OutlinePainter extends CustomPainter {
           ..lineTo(4.5, 18)
           ..close()
           ..addPath(_line(10.5, 20.5, 13.5, 20.5), Offset.zero);
+      case OutlineGlyph.moon:
+        return Path()
+          ..moveTo(19, 14.5)
+          ..arcToPoint(const Offset(9.5, 5), radius: const Radius.circular(7.5))
+          ..arcToPoint(const Offset(19, 14.5),
+              radius: const Radius.circular(7.5),
+              largeArc: true,
+              clockwise: false);
+      case OutlineGlyph.globe:
+        return _circle(12, 12, 8.5)
+          ..addPath(_line(3.5, 12, 20.5, 12), Offset.zero)
+          ..addOval(Rect.fromCenter(
+              center: const Offset(12, 12), width: 8, height: 17));
+      case OutlineGlyph.lines:
+        return _line(4, 6, 20, 6)
+          ..addPath(_line(4, 11, 20, 11), Offset.zero)
+          ..addPath(_line(4, 16, 14, 16), Offset.zero);
+      case OutlineGlyph.star:
+        final star = Path();
+        for (var i = 0; i < 10; i++) {
+          final r = i.isEven ? 8.5 : 3.8;
+          final a = -math.pi / 2 + i * math.pi / 5;
+          final point = Offset(12 + r * math.cos(a), 12.6 + r * math.sin(a));
+          i == 0
+              ? star.moveTo(point.dx, point.dy)
+              : star.lineTo(point.dx, point.dy);
+        }
+        return star..close();
+      case OutlineGlyph.mail:
+        return Path()
+          ..addRRect(
+              RRect.fromLTRBR(3.5, 5.5, 20.5, 18.5, const Radius.circular(2)))
+          ..moveTo(4, 7)
+          ..lineTo(12, 13)
+          ..lineTo(20, 7);
+      case OutlineGlyph.code:
+        return Path()
+          ..moveTo(8.5, 7)
+          ..lineTo(3.5, 12)
+          ..lineTo(8.5, 17)
+          ..moveTo(15.5, 7)
+          ..lineTo(20.5, 12)
+          ..lineTo(15.5, 17)
+          ..addPath(_line(13.5, 5, 10.5, 19), Offset.zero);
+      case OutlineGlyph.undo:
+        return Path()
+          ..moveTo(9, 7)
+          ..lineTo(5, 11)
+          ..lineTo(9, 15)
+          ..moveTo(5, 11)
+          ..lineTo(14, 11)
+          ..arcToPoint(const Offset(14, 21), radius: const Radius.circular(5))
+          ..lineTo(12, 21);
+      case OutlineGlyph.reset:
+        // "M5 12a7 7 0 1 0 2.1-5" and "M5 4v4h4", as in the mockups.
+        return Path()
+          ..moveTo(5, 12)
+          ..arcToPoint(const Offset(7.1, 7),
+              radius: const Radius.circular(7),
+              largeArc: true,
+              clockwise: false)
+          ..moveTo(5, 4)
+          ..lineTo(5, 8)
+          ..lineTo(9, 8);
+      case OutlineGlyph.alarm:
+        return _circle(12, 13, 7)
+          ..moveTo(12, 9.5)
+          ..lineTo(12, 13)
+          ..lineTo(14.5, 14.5)
+          ..addPath(_line(4, 6.5, 6.5, 4), Offset.zero)
+          ..addPath(_line(20, 6.5, 17.5, 4), Offset.zero);
+      case OutlineGlyph.eye:
+        return Path()
+          ..moveTo(3, 12)
+          ..quadraticBezierTo(12, 3.5, 21, 12)
+          ..quadraticBezierTo(12, 20.5, 3, 12)
+          ..close()
+          ..addPath(_circle(12, 12, 2.8), Offset.zero);
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)

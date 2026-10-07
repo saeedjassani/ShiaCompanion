@@ -29,15 +29,6 @@
       }
     }
   },
-  "settingsDownloadedRecitationsUsed": "{size} used on this device",
-  "@settingsDownloadedRecitationsUsed": {
-    "placeholders": {
-      "size": {
-        "type": "String",
-        "example": "12.3 MB"
-      }
-    }
-  },
   "settingsHijriAhead": "{days, plural, =1{1 day ahead} other{{days} days ahead}}",
   "@settingsHijriAhead": {
     "placeholders": {
@@ -63,42 +54,6 @@
       }
     }
   },
-  "settingsLocationSaved": "{city} · from your phone's location.",
-  "@settingsLocationSaved": {
-    "placeholders": {
-      "city": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsLocationManual": "{city} · chosen by you. Tap to change.",
-  "@settingsLocationManual": {
-    "placeholders": {
-      "city": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsLocationUpdated": "{city} · updated {age}. Refreshes on its own as you move.",
-  "@settingsLocationUpdated": {
-    "description": "{age} is a relative time such as 'just now' or '5m ago'.",
-    "placeholders": {
-      "city": {
-        "type": "String"
-      },
-      "age": {
-        "type": "String"
-      }
-    }
-  },
-  "timeMinutesAgo": "{minutes}m ago",
-  "@timeMinutesAgo": {
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
   "timeHoursAgo": "{hours}h ago",
   "@timeHoursAgo": {
     "placeholders": {
@@ -115,90 +70,31 @@
       }
     }
   },
-  "settingsAdjustHijriBy": "Adjust Hijri Date by {days} days",
-  "@settingsAdjustHijriBy": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsPrayerTimesShownSubtitle": "Shown on the home page and home screen widgets: {names}.",
-  "@settingsPrayerTimesShownSubtitle": {
-    "description": "{names} is a comma-separated list of prayer names.",
-    "placeholders": {
-      "names": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsPrayerNotificationsAllOn": "On for all {count} times.",
-  "@settingsPrayerNotificationsAllOn": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsPrayerNotificationsSomeOn": "{names} · {enabled} of {total} on",
-  "@settingsPrayerNotificationsSomeOn": {
-    "placeholders": {
-      "names": {
-        "type": "String"
-      },
-      "enabled": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsSectionPrayerLocation": "Prayer & Location",
-  "settingsAdjustHijriDate": "Adjust Hijri Date",
-  "settingsPrayerTimesShown": "Prayer Times Shown",
+  "settingsAdjustHijriDate": "Adjust Hijri date",
+  "settingsPrayerTimesShown": "Prayer times shown",
   "settingsLocation": "Location",
   "settingsSectionNotifications": "Notifications",
   "settingsPrayerNotifications": "Prayer notifications",
-  "settingsZikrReminders": "Zikr Reminders",
-  "settingsZikrRemindersSubtitle": "Get reminded about a zikr on the days you choose.",
-  "settingsPrecisePrayerAlarms": "Precise Prayer Alarms",
-  "settingsScheduledNotifications": "Scheduled Notifications",
-  "settingsScheduledNotificationsSubtitle": "Review pending prayer notifications.",
+  "settingsZikrReminders": "Zikr reminders",
+  "settingsPrecisePrayerAlarms": "Precise prayer alarms",
+  "settingsScheduledNotifications": "Scheduled notifications",
   "settingsSectionAppearance": "Appearance",
   "settingsAppTextSize": "App text size",
   "settingsAppTextSizeSubtitle": "Makes all text bigger or smaller, including zikr.",
-  "settingsSectionZikrReading": "Zikr Reading & Sharing",
-  "settingsSectionOfflineAudio": "Offline Audio",
+  "settingsSectionOfflineAudio": "Offline audio",
   "settingsDownloadedRecitations": "Downloaded recitations",
-  "settingsDownloadedRecitationsEmpty": "Listen without a connection",
   "settingsSectionSupport": "Support",
   "settingsRateApp": "Rate Shia Companion",
-  "settingsRateAppSubtitle": "Enjoying the app? Leave us a rating.",
-  "settingsRequestContent": "Request a Zikr or Book",
-  "settingsRequestContentSubtitle": "Can't find a dua, ziyarat or book? Ask us to add it.",
+  "settingsRequestContent": "Request a zikr or book",
   "settingsFeedback": "Feedback",
-  "settingsFeedbackSubtitle": "Send questions, issues, or suggestions.",
   "settingsGithub": "Contribute on GitHub",
-  "settingsGithubSubtitle": "Shia Companion is open source. Report issues or help improve it.",
   "settingsGithubOpenFailed": "Could not open GitHub",
-  "settingsAboutUs": "About Us",
-  "settingsSectionAccount": "Account",
-  "settingsNotSignedIn": "Not signed in",
-  "settingsSignInPrompt": "Sign in to sync favorites across devices.",
+  "settingsAboutUs": "About",
   "settingsSignInGoogle": "Sign in with Google",
-  "settingsSignInGoogleSubtitle": "Sync favorites and account data.",
-  "settingsSignInApple": "Sign in with Apple",
-  "settingsSignInAppleSubtitle": "Use your Apple ID to sign in.",
   "settingsSignedIn": "Signed in",
-  "settingsSyncing": "Favorites and account data are syncing.",
-  "settingsHijriNoAdjustment": "No adjustment",
   "settingsLocationUpdating": "Updating your location…",
   "settingsLocationUpdatePrompt": "Choose a city, or use your phone's location.",
-  "timeJustNow": "just now",
-  "settingsPrayerNotificationsOff": "Off. Turn on to be notified at prayer times.",
-  "settingsPreciseAlarmsOn": "Enabled for exact Azan timing.",
-  "settingsPreciseAlarmsOff": "Off. Android may deliver prayer notifications a bit late.",
+  "settingsPreciseAlarmsOff": "Without it, Android may deliver prayer notifications a bit late.",
   "settingsNotificationsUnavailable": "Notification system not initialized",
   "settingsPreciseAlarmsAlreadyOn": "Precise prayer alarms are already enabled.",
   "settingsPreciseAlarmsDialogTitle": "Enable Precise Prayer Alarms?",
@@ -758,61 +654,14 @@
   "audioRetryDownload": "Retry download",
   "audioDownloadFailedTooltip": "Download didn't finish. Tap to retry.",
   "audioDownloadRestTooltip": "Download the rest for offline listening",
-  "counterSemanticsLabel": "Current rakaat and sajdah",
-  "counterRakaatCompleted": "{count} rakaat completed",
-  "@counterRakaatCompleted": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "counterPosition": "Rakaat {rakaat}  ·  Sajdah {sajdah}",
-  "@counterPosition": {
-    "placeholders": {
-      "rakaat": {
-        "type": "int"
-      },
-      "sajdah": {
-        "type": "int"
-      }
-    }
-  },
-  "counterSajdahProgress": "{done} of {total} sajdahs",
-  "@counterSajdahProgress": {
-    "placeholders": {
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "counterSensorStopped": "The proximity sensor stopped responding. Check the phone position and turn automatic sensing on again.",
   "counterStartOverTitle": "Start over?",
   "counterStartOverBody": "Changing the number of rakaat will reset the current prayer count.",
   "counterStartOver": "Start over",
   "counterTitle": "Rakaat Counter",
-  "counterHowToPlace": "How to place your phone",
-  "counterPlaceBelowTurbah": "Place phone below the turbah",
-  "counterPlaceBelowTurbahBody": "Lay it flat below the turbah, with the top edge pointing toward it. Keep your forehead’s path clear.",
-  "counterPrayerLength": "Prayer length",
-  "counterSelectRakaat": "Select the number of rakaat",
   "counterComplete": "Complete",
   "counterSajdahDetected": "Sajdah detected",
-  "counterSensorReady": "Sensor ready",
   "counterCheckingSensor": "Checking sensor",
-  "counterSensingOff": "Automatic sensing off",
-  "counterTapHint": "Tap only if a sajdah was not detected automatically",
-  "counterReady": "Ready for the first sajdah",
-  "counterAutomaticHint": "Automatic counting · tap only if one is missed",
-  "counterManualHint": "Tap card to add a sajdah manually",
-  "counterCheckingDevice": "Checking this device…",
-  "counterNotAvailable": "Automatic counting is not available on this device.",
-  "counterObjectDetected": "Object detected. Move away to arm the next count.",
-  "counterSensorArmed": "Ready — each detected sajdah counts once.",
-  "counterSensorOffSubtitle": "Off — turn this on to count sajdahs automatically.",
   "counterAutomaticSensing": "Automatic sensing",
   "counterIphoneNote": "On iPhone, the display may turn off briefly while the sensor is covered. Sensor position and range vary by model.",
   "counterAndroidNote": "Sensor position and range vary by phone. Some Android phones use a less reliable virtual proximity sensor.",
@@ -1308,19 +1157,6 @@
     }
   },
   "readingFineTune": "Fine-tune zikr text. Applied on top of App text size in Settings.",
-  "readingArabicFontSize": "Arabic Font Size",
-  "readingEnglishFontSize": "English Font Size",
-  "readingArabicFont": "Arabic Font",
-  "readingKeepScreenOn": "Keep screen on while reciting Zikr",
-  "readingFocusMode": "Focus mode",
-  "readingFocusModeSubtitle": "Hide the progress bar and action bar while reading. Scroll up or tap to bring them back.",
-  "readingShareAsImage": "Share Zikr as Image",
-  "readingShareAsImageSubtitle": "Create a formatted image when sharing.",
-  "readingShowTransliteration": "Show Transliteration",
-  "readingShowTranslation": "Show Translation",
-  "readingArabicParagraph": "Show Arabic as Paragraph",
-  "readingArabicParagraphOn": "Flow the Arabic verses together as one paragraph instead of separate lines.",
-  "readingArabicParagraphOff": "Turn off Transliteration and Translation above to use this.",
   "pickerJuzRange": "{start} – {end}",
   "@pickerJuzRange": {
     "description": "The verses a juz runs between, e.g. 'Al-Baqarah 142 – Al-Baqarah 252'.",
@@ -1748,17 +1584,6 @@
   "reminderRemoveTitle": "Remove reminder?",
   "reminderNone": "No reminders yet",
   "reminderNoneBody": "Add one to be reminded about a zikr or dua on the days you choose - like Tawassul every Tuesday, or Dua Kumail after Maghrib on Thursday.",
-  "tasbeehBeepNumber": "Beep {number}",
-  "@tasbeehBeepNumber": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "tasbeehHelp": "Tap the counter circle to count. The beep will play at the milestones below.",
-  "tasbeehEnableBeep": "Enable beep",
-  "tasbeehTapToCount": "Tap to count",
   "tasbeehMinusOne": "Minus one",
   "tasbeehReset": "Reset",
   "requestThanks": "Thanks - we've received your request.",
@@ -3743,5 +3568,204 @@
   "setupBackupQaza": "Qaza tracker and your settings",
   "setupContinueWithGoogle": "Continue with Google",
   "setupContinueWithApple": "Continue with Apple",
-  "setupMaybeLater": "Maybe later"
+  "setupMaybeLater": "Maybe later",
+  "settingsBackupTitle": "Keep your favorites safe",
+  "@settingsBackupTitle": {
+    "description": "Settings, signed out: the heading of the card with the sign-in buttons."
+  },
+  "settingsBackupBody": "Sign in to back up your favorites, bookmarks, Quran progress and stats, and get them back on any phone.",
+  "settingsBackupFree": "Free. Takes a few seconds.",
+  "settingsArabicFont": "Arabic font",
+  "settingsSectionPrayerTimes": "Prayer times",
+  "settingsSectionReading": "Reading",
+  "settingsAzan": "Azan",
+  "@settingsAzan": {
+    "description": "Settings row opening the prayer notifications page."
+  },
+  "settingsAzanValue": "{count, plural, =0{Off} =1{1 time} other{{count} times}}",
+  "@settingsAzanValue": {
+    "description": "Beside the Azan row in Settings: how many of the prayer times (Fajr, Sunrise, Zuhr...) notify.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsHijriNone": "None",
+  "@settingsHijriNone": {
+    "description": "Beside Adjust Hijri date when the date is not moved."
+  },
+  "settingsHijriBody": "Moon sightings differ from place to place. If the Hijri date is a day off where you live, move it here.",
+  "settingsPrayerTimesShownValue": "{count, plural, =1{1 time} other{{count} times}}",
+  "@settingsPrayerTimesShownValue": {
+    "description": "Beside Prayer times shown in Settings: how many times the home page and widgets show.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsOn": "On",
+  "settingsOff": "Off",
+  "settingsReadingSummary": "Arabic {arabic} · English {english} · {aids}",
+  "@settingsReadingSummary": {
+    "description": "Under 'Text & reading' in Settings: the reader's Arabic and English sizes, then which English aids show, e.g. 'Arabic 32 · English 16 · Transliteration, Translation'.",
+    "placeholders": {
+      "arabic": {
+        "type": "int"
+      },
+      "english": {
+        "type": "int"
+      },
+      "aids": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsReadingArabicOnly": "Arabic only",
+  "tasbeehTitle": "Tasbeeh",
+  "@tasbeehTitle": {
+    "description": "Title of the Tasbeeh counter page; shorter than its menu label."
+  },
+  "tasbeehModeZahra": "Tasbih al-Zahra",
+  "tasbeehModeFree": "Free count",
+  "tasbeehAllahuAkbar": "Allahu Akbar",
+  "@tasbeehAllahuAkbar": {
+    "description": "Transliteration of the first phrase of Tasbih al-Zahra, said 34 times."
+  },
+  "tasbeehAlhamdulillah": "Alhamdulillah",
+  "@tasbeehAlhamdulillah": {
+    "description": "Transliteration of the second phrase of Tasbih al-Zahra, said 33 times."
+  },
+  "tasbeehSubhanAllah": "SubhanAllah",
+  "@tasbeehSubhanAllah": {
+    "description": "Transliteration of the third phrase of Tasbih al-Zahra, said 33 times."
+  },
+  "tasbeehPhaseLabel": "{phrase} · {count}",
+  "@tasbeehPhaseLabel": {
+    "description": "Under each of Tasbih al-Zahra's progress bars: 'Allahu Akbar · 34'.",
+    "placeholders": {
+      "phrase": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbeehOf": "of {count}",
+  "@tasbeehOf": {
+    "description": "Under the big number while counting one phrase: '12' then 'of 34'.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbeehNoLimit": "No limit",
+  "@tasbeehNoLimit": {
+    "description": "Under the big number of a free count with no target left."
+  },
+  "tasbeehNextTarget": "Next target {target}",
+  "@tasbeehNextTarget": {
+    "description": "Under the big number of a free count: the next count that beeps or vibrates.",
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbeehComplete": "Tasbih al-Zahra complete",
+  "tasbeehCompleteHint": "100 of 100 · tap to start again",
+  "tasbeehTapHint": "Tap anywhere in this box",
+  "tasbeehTotal": "Total {count} of {total}",
+  "@tasbeehTotal": {
+    "description": "Between −1 and Reset in Tasbih al-Zahra: 'Total 12 of 100'.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbeehStartAgainQuestion": "Start again from 0?",
+  "tasbeehCountOne": "Count one",
+  "@tasbeehCountOne": {
+    "description": "Screen-reader label of the Tasbeeh counter's big tap panel."
+  },
+  "tasbeehSettings": "Counter settings",
+  "@tasbeehSettings": {
+    "description": "The Tasbeeh settings button's label, and the title of the sheet it opens (beep, vibration, targets)."
+  },
+  "tasbeehBeepAtTargets": "Beep at each target",
+  "tasbeehVibrateAtTargets": "Vibrate at each target",
+  "tasbeehTargetsLabel": "Free count targets",
+  "tasbeehTargetNumber": "Target {number}",
+  "@tasbeehTargetNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "tasbeehZahraTargetsNote": "Tasbih al-Zahra always marks 34, 67 and 100.",
+  "counterRakaatInPrayer": "Rakaat in this prayer",
+  "counterSensorOnPill": "Sensor on · auto-counting",
+  "@counterSensorOnPill": {
+    "description": "Rakaat counter status pill while the proximity sensor counts sajdahs."
+  },
+  "counterSensorOffPill": "Sensor off · tap to count",
+  "counterNoSensorPill": "No sensor · tap to count",
+  "counterSensorToggleHint": "Turns automatic counting on or off",
+  "counterRakaatCaption": "Rakaat",
+  "@counterRakaatCaption": {
+    "description": "Over the big rakaat number: 'Rakaat' / '3' / 'of 4'."
+  },
+  "counterOfTotal": "of {total}",
+  "@counterOfTotal": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "counterPrayerComplete": "Prayer complete",
+  "counterSajdahsOfTwo": "{count} of 2 sajdahs",
+  "@counterSajdahsOfTwo": {
+    "description": "Sajdahs done in the current rakaat.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "counterAllSajdahsDone": "All sajdahs done",
+  "counterMissedHint": "Missed one? Tap anywhere here to add a sajdah.",
+  "counterManualTapHint": "Tap anywhere here after each sajdah.",
+  "counterCompleteHint": "Tap Start over for your next prayer.",
+  "counterDimmedHint": "Dimmed for prayer · tap to brighten",
+  "@counterDimmedHint": {
+    "description": "At the bottom of the Rakaat counter's dim mode, which turns the screen black but for the count after a few seconds without touches."
+  },
+  "counterLeaveDim": "Leave dim mode",
+  "counterAddSajdah": "Add a sajdah",
+  "@counterAddSajdah": {
+    "description": "Screen-reader label of the Rakaat counter's big panel."
+  },
+  "counterSemanticsValue": "Rakaat {rakaat} of {total}, {sajdahs} of 2 sajdahs",
+  "@counterSemanticsValue": {
+    "placeholders": {
+      "rakaat": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "sajdahs": {
+        "type": "int"
+      }
+    }
+  }
 }

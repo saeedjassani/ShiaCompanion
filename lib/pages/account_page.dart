@@ -85,6 +85,20 @@ class AccountPage extends StatefulWidget {
   /// false while it cannot (offline). Asks Firestore when null.
   final Future<bool> Function()? checkBackup;
 
+  /// Whether everything written so far has reached the backup: false while
+  /// offline, or when Firestore can't confirm it within ten seconds.
+  static Future<bool> firestoreBackedUp() async {
+    if (!await NetworkUtils().isDeviceOnline()) return false;
+    try {
+      await FirebaseFirestore.instance
+          .waitForPendingWrites()
+          .timeout(const Duration(seconds: 10));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   State<AccountPage> createState() => _AccountPageState();
 }
@@ -115,20 +129,9 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _check() async {
-    final backedUp = await (widget.checkBackup ?? _firestoreBackedUp)();
+    final backedUp =
+        await (widget.checkBackup ?? AccountPage.firestoreBackedUp)();
     if (mounted) setState(() => _backedUp = backedUp);
-  }
-
-  static Future<bool> _firestoreBackedUp() async {
-    if (!await NetworkUtils().isDeviceOnline()) return false;
-    try {
-      await FirebaseFirestore.instance
-          .waitForPendingWrites()
-          .timeout(const Duration(seconds: 10));
-      return true;
-    } catch (_) {
-      return false;
-    }
   }
 
   Future<void> _logOut() async {
