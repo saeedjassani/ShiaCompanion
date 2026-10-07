@@ -1236,6 +1236,79 @@
   },
   "calendarNoEvent": "No event listed for this date.",
   "calendarNotificationsAllOff": "Off for every prayer",
+  "readerPartOf": "Part {part} of {count}",
+  "@readerPartOf": {
+    "placeholders": {
+      "part": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readerPercentRead": "{percent}% read",
+  "@readerPercentRead": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "readerVerseOf": "Verse {ayah} of {count}",
+  "@readerVerseOf": {
+    "placeholders": {
+      "ayah": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readerVerse": "Verse {verse}",
+  "@readerVerse": {
+    "placeholders": {
+      "verse": {
+        "type": "String"
+      }
+    }
+  },
+  "readerSubtitleWithTrack": "{position} · {track}",
+  "@readerSubtitleWithTrack": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      },
+      "track": {
+        "type": "String"
+      }
+    }
+  },
+  "readerTextSheetTitle": "Text & reading",
+  "readerArabicSize": "Arabic size",
+  "readerEnglishSize": "English size",
+  "readerArabicSmaller": "Smaller Arabic",
+  "readerArabicBigger": "Bigger Arabic",
+  "readerEnglishSmaller": "Smaller English",
+  "readerEnglishBigger": "Bigger English",
+  "readerTransliteration": "Transliteration",
+  "readerTranslation": "Translation",
+  "readerArabicParagraph": "Arabic as one paragraph",
+  "readerArabicParagraphHint": "Turn off both above to use this",
+  "readerKeepScreenOn": "Keep screen on",
+  "readerFocusMode": "Focus mode",
+  "readerFocusModeHint": "Bars slide away while you read",
+  "readerShareAsImage": "Share as image",
+  "readerSetReminder": "Remind me to read this",
+  "readerArabicFontLabel": "{font}, Arabic font",
+  "@readerArabicFontLabel": {
+    "placeholders": {
+      "font": {
+        "type": "String"
+      }
+    }
+  },
   "readingFineTune": "Fine-tune zikr text. Applied on top of App text size in Settings.",
   "readingArabicFontSize": "Arabic Font Size",
   "readingEnglishFontSize": "English Font Size",
@@ -1893,6 +1966,7 @@
   "actionShare": "Share",
   "actionListen": "Listen",
   "actionSettings": "Settings",
+  "actionText": "Text",
   "actionCounter": "Counter",
   "prayerEnableLocationBody": "Enable location to display accurate prayer times for your area.",
   "qiblaDistance": "Distance",

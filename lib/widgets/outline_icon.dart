@@ -44,6 +44,10 @@ enum OutlineGlyph {
   cloud,
   cloudCheck,
   logOut,
+  bookmark,
+  copy,
+  link,
+  bell,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -413,6 +417,54 @@ class _OutlinePainter extends CustomPainter {
                 ..lineTo(20, 12)
                 ..lineTo(16.5, 15.5),
               Offset.zero);
+      case OutlineGlyph.bookmark:
+        return Path()
+          ..moveTo(6, 4)
+          ..lineTo(18, 4)
+          ..lineTo(18, 20)
+          ..lineTo(12, 16)
+          ..lineTo(6, 20)
+          ..close();
+      case OutlineGlyph.copy:
+        return Path()
+          ..addRRect(RRect.fromLTRBR(8, 8, 20, 20, const Radius.circular(2)))
+          ..moveTo(16, 8)
+          ..lineTo(16, 5)
+          ..arcToPoint(const Offset(15, 4), radius: const Radius.circular(1),
+              clockwise: false)
+          ..lineTo(5, 4)
+          ..arcToPoint(const Offset(4, 5), radius: const Radius.circular(1),
+              clockwise: false)
+          ..lineTo(4, 15)
+          ..arcToPoint(const Offset(5, 16), radius: const Radius.circular(1),
+              clockwise: false)
+          ..lineTo(8, 16);
+      case OutlineGlyph.link:
+        return Path()
+          ..moveTo(10, 14)
+          ..arcToPoint(const Offset(15.7, 14), radius: const Radius.circular(4),
+              clockwise: false)
+          ..lineTo(18.7, 11)
+          ..arcToPoint(const Offset(13, 5.3), radius: const Radius.circular(4),
+              clockwise: false)
+          ..lineTo(12, 6.3)
+          ..moveTo(14, 10)
+          ..arcToPoint(const Offset(8.3, 10), radius: const Radius.circular(4),
+              clockwise: false)
+          ..lineTo(5.3, 13)
+          ..arcToPoint(const Offset(11, 18.7), radius: const Radius.circular(4),
+              clockwise: false)
+          ..lineTo(12, 17.7);
+      case OutlineGlyph.bell:
+        return Path()
+          ..moveTo(6, 16.5)
+          ..lineTo(6, 11)
+          ..arcToPoint(const Offset(18, 11), radius: const Radius.circular(6))
+          ..lineTo(18, 16.5)
+          ..lineTo(19.5, 18)
+          ..lineTo(4.5, 18)
+          ..close()
+          ..addPath(_line(10.5, 20.5, 13.5, 20.5), Offset.zero);
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)

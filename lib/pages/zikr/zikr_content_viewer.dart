@@ -11,6 +11,9 @@ import '../../data/quran_ali_verses.dart';
 import '../../utils/quran_index.dart';
 import '../../services/zikr_translations.dart';
 import '../../utils/quran_indopak.dart';
+import '../../theme/shia_colors.dart';
+import '../../widgets/outline_icon.dart';
+import '../../widgets/reader_top_bar.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_reading_stats.dart';
 import '../../l10n/l10n.dart';
@@ -533,6 +536,11 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// tabs meanwhile. Null keeps the strip pinned.
   final ValueListenable<bool>? chromeVisible;
 
+  /// Drawn along the bottom of the part chips - the reader's progress line,
+  /// which runs under the chips rather than under the top bar when there
+  /// are parts.
+  final Widget? tabStripFooter;
+
   /// The reader's translation of this zikr, laid over its English lines.
   /// Null in English, or when nothing of this zikr has been translated.
   final ZikrDocumentTranslation? translation;
@@ -563,6 +571,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.tabStripTop = 0,
     this.collapsedTopInset = 0,
     this.chromeVisible,
+    this.tabStripFooter,
     this.translation,
   }) : super(key: key);
 
@@ -2050,8 +2059,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       fontSize: arabicFontSize,
       letterSpacing: 0,
     );
-    final transliStyle =
-        TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
+    final transliStyle = TextStyle(
+      fontWeight: FontWeight.w600,
+      fontSize: englishFontSize,
+      letterSpacing: 0.2,
+    );
 
     final leadingItems = showMeritsButton ? 1 : 0;
     final footer =
@@ -2150,21 +2162,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                     // Show merits button at the top of first tab
                     if (showMeritsButton && index == 0) {
                       return Padding(
-                        padding: const EdgeInsets.only(
-                          left: 16.0,
-                          top: 12.0,
-                          right: 16.0,
-                          bottom: 12.0,
-                        ),
-                        child: InkWell(
-                          onTap: widget.onShowMerits,
-                          child: Text(
-                            context.l10n.zikrMerits,
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              fontSize: 14,
-                            ),
-                          ),
+                        padding: const EdgeInsets.only(top: 4, bottom: 8),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: _MeritsButton(onTap: widget.onShowMerits),
                         ),
                       );
                     }
@@ -2320,10 +2321,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         content,
         Divider(
           height: 20,
-          color: Theme.of(context)
-              .colorScheme
-              .outlineVariant
-              .withValues(alpha: 0.5),
+          color: ShiaColors.of(context).readerDivider,
         ),
       ],
     );
@@ -2376,7 +2374,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
               child: Text.rich(
                 _buildTextSpanForLine(
                   shown,
-                  TextStyle(fontSize: englishFontSize),
+                  TextStyle(
+                    fontSize: englishFontSize,
+                    color: ShiaColors.of(context).translation,
+                  ),
                 ),
                 textAlign: TextAlign.center,
                 textDirection: direction,
@@ -2644,7 +2645,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           ruled,
           Divider(
             height: 20,
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            color: ShiaColors.of(context).readerDivider,
           ),
         ],
       ),
@@ -2668,85 +2669,99 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return parts.join('\n');
   }
 
-  /// The row of tab chips. Opaque, since the reading text scrolls on
-  /// underneath it.
+  /// The row of part chips under the reader's top bar, on the same frosted
+  /// ground, since the reading text scrolls on underneath it. The open part
+  /// is filled with the accent.
   Widget _buildTabStrip(BuildContext context) {
-    return ColoredBox(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 4),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: constraints.maxWidth,
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(
-                      widget.tabContents.length,
-                      (index) {
-                        final isSelected = index == _selectedTabIndex;
-                        return Padding(
-                          key: _tabHeaderKeys[index],
-                          padding: EdgeInsets.only(
-                            right:
-                                index == widget.tabContents.length - 1 ? 0 : 12,
-                          ),
-                          child: Material(
-                            color: isSelected
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest
-                                    .withValues(alpha: 0.45),
-                            borderRadius: BorderRadius.circular(18),
-                            elevation: isSelected ? 2 : 0,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(18),
-                              onTap: () => _animateToTab(index),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 10,
-                                ),
-                                child: Text(
-                                  _getTabHeader(
-                                    widget.tabContents[index],
-                                    index,
+    final colors = ShiaColors.of(context);
+    final footer = widget.tabStripFooter;
+    return ReaderGlassBand(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2, bottom: 10),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: constraints.maxWidth - 24,
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(
+                          widget.tabContents.length,
+                          (index) {
+                            final isSelected = index == _selectedTabIndex;
+                            final label = _getTabHeader(
+                              widget.tabContents[index],
+                              index,
+                            );
+                            return Padding(
+                              key: _tabHeaderKeys[index],
+                              padding: EdgeInsetsDirectional.only(
+                                end: index == widget.tabContents.length - 1
+                                    ? 0
+                                    : 8,
+                              ),
+                              child: Semantics(
+                                button: true,
+                                selected: isSelected,
+                                child: Material(
+                                  color: isSelected
+                                      ? colors.accent
+                                      : colors.surface,
+                                  shape: StadiumBorder(
+                                    side: isSelected
+                                        ? BorderSide.none
+                                        : BorderSide(color: colors.line),
                                   ),
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: isSelected
-                                        ? FontWeight.w600
-                                        : FontWeight.w500,
-                                    color: isSelected
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .onSecondaryContainer
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withValues(alpha: 0.78),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: InkWell(
+                                    onTap: () => _animateToTab(index),
+                                    child: ConstrainedBox(
+                                      constraints:
+                                          const BoxConstraints(minHeight: 36),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 8,
+                                        ),
+                                        child: Text(
+                                          label,
+                                          style: ShiaText.caption.copyWith(
+                                            fontSize: 14,
+                                            height: 20 / 14,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.w500,
+                                            color: isSelected
+                                                ? colors.onAccent
+                                                : colors.text,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      },
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
+          ),
+          if (footer != null) footer,
+        ],
       ),
     );
   }
@@ -2823,6 +2838,61 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
             child: strip,
           ),
       ],
+    );
+  }
+}
+
+/// The "Merits" pill at the top of a zikr's first part: an outlined capsule
+/// with an ⓘ, opening the merits sheet. 36 px tall, inside a 44 px target.
+class _MeritsButton extends StatelessWidget {
+  const _MeritsButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return SelectionContainer.disabled(
+      child: Semantics(
+        button: true,
+        child: SizedBox(
+          height: 44,
+          child: Center(
+            widthFactor: 1,
+            child: Material(
+              color: colors.surface,
+              shape: StadiumBorder(side: BorderSide(color: colors.line)),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: onTap,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: SizedBox(
+                    height: 36,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        OutlineIcon(OutlineGlyph.info,
+                            size: 16, color: colors.accent, strokeWidth: 2),
+                        const SizedBox(width: 6),
+                        Text(
+                          context.l10n.zikrMerits,
+                          style: ShiaText.caption.copyWith(
+                            fontSize: 14,
+                            height: 1,
+                            fontWeight: FontWeight.w600,
+                            color: colors.accent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -3022,7 +3092,7 @@ class _AyahBlock extends StatelessWidget {
           ...children,
           Divider(
             height: 20,
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            color: ShiaColors.of(context).readerDivider,
           ),
         ],
       ),
@@ -3189,7 +3259,7 @@ class _RuledArabicParagraph extends StatelessWidget {
     // whole paragraphs, so a row rule and a paragraph divider read as the
     // one kind of mark instead of two different-looking ones.
     final ruleColor =
-        Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5);
+        ShiaColors.of(context).readerDivider;
     final textScaler = MediaQuery.textScalerOf(context);
 
     return LayoutBuilder(

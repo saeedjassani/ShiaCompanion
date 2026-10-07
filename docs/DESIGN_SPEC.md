@@ -246,7 +246,9 @@ bar. Results scroll behind it under the same fade.
 - **Text** opens one sheet with every reading setting: font cards with live
   sample, Arabic and English size, transliteration, translation, Arabic as
   one paragraph (disabled with the rule spelled out), keep screen on,
-  focus mode, share as image.
+  focus mode, share as image; then the translation language (where more
+  than one is offered) and **Remind me to read this**, which moves here
+  from the old app bar's bell (not on web, where reminders can't fire).
 - Focus mode hides both bars as today.
 
 ### First-run setup

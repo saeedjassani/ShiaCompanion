@@ -72,6 +72,127 @@ Future<void> migrateZikrFocusModePreference() async {
   await SP.prefs.remove(legacyShowZikrProgressKey);
 }
 
+/// One of the reader's on/off settings: where it is stored, its default,
+/// the global the reader reads it through (if any), and the analytics event
+/// a change is counted as. Shared by the Text & reading sheet and Settings,
+/// so the two can never write a setting differently.
+class ReadingSwitch {
+  const ReadingSwitch._(
+    this.key,
+    this.defaultValue,
+    this.feature,
+    this.label, [
+    this.apply,
+  ]);
+
+  final String key;
+  final bool defaultValue;
+  final String feature;
+  final String label;
+  final void Function(bool value)? apply;
+
+  static final transliteration = ReadingSwitch._(
+    'showTransliteration',
+    true,
+    'zikr_show_transliteration_toggled',
+    'Show transliteration toggled',
+    (v) => showTransliteration = v,
+  );
+  static final translation = ReadingSwitch._(
+    'showTranslation',
+    true,
+    'zikr_show_translation_toggled',
+    'Show translation toggled',
+    (v) => showTranslation = v,
+  );
+  static final arabicParagraph = ReadingSwitch._(
+    'showArabicAsParagraph',
+    false,
+    'zikr_show_arabic_as_paragraph_toggled',
+    'Show Arabic as paragraph toggled',
+    (v) => showArabicAsParagraph = v,
+  );
+  static const keepScreenOn = ReadingSwitch._(
+    'keep_awake',
+    true,
+    'zikr_keep_awake_toggled',
+    'Keep screen on toggled',
+  );
+  static const shareAsImage = ReadingSwitch._(
+    'share_zikr_image',
+    false,
+    'zikr_share_as_image_toggled',
+    'Share as image toggled',
+  );
+  static const focusMode = ReadingSwitch._(
+    zikrFocusModeKey,
+    zikrFocusModeDefault,
+    'zikr_focus_mode_toggled',
+    'Focus mode toggled',
+  );
+
+  /// The stored value; Focus mode also honours its legacy key.
+  bool get value {
+    if (identical(this, focusMode)) return zikrFocusModeEnabled();
+    return SP.prefs.getBool(key) ?? defaultValue;
+  }
+
+  Future<void> save(bool value) async {
+    apply?.call(value);
+    await SP.prefs.setBool(key, value);
+    unawaited(AnalyticsService.feature(
+      feature,
+      label: label,
+      parameters: {'enabled': value ? 'on' : 'off'},
+    ));
+  }
+}
+
+/// Whether "Arabic as one paragraph" can be turned on: only with both
+/// English aids hidden - see isArabicOnlyReadingView.
+bool arabicParagraphAvailable() =>
+    !ReadingSwitch.transliteration.value && !ReadingSwitch.translation.value;
+
+const double minArabicFontSize = 20;
+const double maxArabicFontSize = 44;
+const double minEnglishFontSize = 10;
+const double maxEnglishFontSize = 24;
+
+/// Sets the Arabic size for this device right away; [commitArabicFontSize]
+/// syncs and counts it once the reader has settled on one.
+void setArabicFontSizePref(double size) {
+  arabicFontSize = size;
+  unawaited(SP.prefs.setDouble('ara_font_size', size));
+}
+
+void setEnglishFontSizePref(double size) {
+  englishFontSize = size;
+  unawaited(SP.prefs.setDouble('eng_font_size', size));
+}
+
+void commitArabicFontSize() {
+  unawaited(AnalyticsService.feature('arabic_font_size_changed',
+      label: 'Arabic font size changed'));
+  unawaited(PreferencesSyncService.instance.pushArabicFontSize());
+}
+
+void commitEnglishFontSize() {
+  unawaited(AnalyticsService.feature('english_font_size_changed',
+      label: 'English font size changed'));
+  unawaited(PreferencesSyncService.instance.pushEnglishFontSize());
+}
+
+Future<void> saveArabicFontChoice(String font) async {
+  arabicFont = font;
+  await FontPreferences.setSelectedFont(font);
+  unawaited(AnalyticsService.feature(
+    'arabic_font_changed',
+    label: 'Arabic font changed',
+    parameters: {'font': font},
+  ));
+  unawaited(PreferencesSyncService.instance.pushArabicFont());
+}
+
 class ZikrReadingPreferencesControls extends StatefulWidget {
   const ZikrReadingPreferencesControls({
     Key? key,
@@ -95,8 +216,7 @@ class _ZikrReadingPreferencesControlsState
     // hidden - see isArabicOnlyReadingView - so the switch is disabled until
     // then rather than letting the reader turn it on with nothing to show
     // for it.
-    final bothAidsOff = !(SP.prefs.getBool('showTransliteration') ?? true) &&
-        !(SP.prefs.getBool('showTranslation') ?? true);
+    final bothAidsOff = arabicParagraphAvailable();
 
     return Column(
       children: _withDividers([
@@ -119,23 +239,19 @@ class _ZikrReadingPreferencesControlsState
           title: Text(context.l10n.readingArabicFontSize),
           subtitle: Slider(
             activeColor: Theme.of(context).colorScheme.secondary,
-            min: 20.0,
-            max: 44.0,
+            min: minArabicFontSize,
+            max: maxArabicFontSize,
             divisions: 12,
             onChanged: (newRating) {
               setState(() {
-                arabicFontSize = newRating.toInt().toDouble();
+                setArabicFontSizePref(newRating.toInt().toDouble());
               });
-              _saveDoublePref('ara_font_size', arabicFontSize);
+              widget.onChanged?.call();
             },
             // Not onChanged: that fires on every pixel of the drag, which is
             // fine for the local write but would spam the analytics counter
             // and the synced document with dozens of writes for one gesture.
-            onChangeEnd: (_) => _onFontSizeChangeEnd(
-              feature: 'arabic_font_size_changed',
-              label: 'Arabic font size changed',
-              push: PreferencesSyncService.instance.pushArabicFontSize,
-            ),
+            onChangeEnd: (_) => commitArabicFontSize(),
             value: arabicFontSize,
           ),
           trailing: Text(arabicFontSize.toInt().toString()),
@@ -145,20 +261,16 @@ class _ZikrReadingPreferencesControlsState
           title: Text(context.l10n.readingEnglishFontSize),
           subtitle: Slider(
             activeColor: Theme.of(context).colorScheme.secondary,
-            min: 10.0,
-            max: 24.0,
+            min: minEnglishFontSize,
+            max: maxEnglishFontSize,
             divisions: 14,
             onChanged: (val) {
               setState(() {
-                englishFontSize = val.toInt().toDouble();
+                setEnglishFontSizePref(val.toInt().toDouble());
               });
-              _saveDoublePref('eng_font_size', englishFontSize);
+              widget.onChanged?.call();
             },
-            onChangeEnd: (_) => _onFontSizeChangeEnd(
-              feature: 'english_font_size_changed',
-              label: 'English font size changed',
-              push: PreferencesSyncService.instance.pushEnglishFontSize,
-            ),
+            onChangeEnd: (_) => commitEnglishFontSize(),
             value: englishFontSize,
           ),
           trailing: Text(englishFontSize.toInt().toString()),
@@ -175,98 +287,30 @@ class _ZikrReadingPreferencesControlsState
           trailing: Text(arabicFont),
           onTap: _showFontSelectionDialog,
         ),
-        SwitchListTile(
-          secondary: _leading(Icons.screen_lock_portrait),
-          value: SP.prefs.getBool('keep_awake') ?? true,
-          onChanged: (v) async {
-            await _saveBooleanPref(
-              "keep_awake",
-              v,
-              feature: 'zikr_keep_awake_toggled',
-              label: 'Keep screen on toggled',
-            );
-          },
-          title: Text(context.l10n.readingKeepScreenOn),
-        ),
-        SwitchListTile(
-          secondary: _leading(Icons.center_focus_strong),
-          value: resolveZikrFocusMode(
-            focusMode: SP.prefs.getBool(zikrFocusModeKey),
-            legacyShowProgress: SP.prefs.getBool(legacyShowZikrProgressKey),
-          ),
-          onChanged: (v) async {
-            await _saveBooleanPref(
-              zikrFocusModeKey,
-              v,
-              feature: 'zikr_focus_mode_toggled',
-              label: 'Focus mode toggled',
-            );
-          },
-          title: Text(context.l10n.readingFocusMode),
-          subtitle:
-              Text(context.l10n.readingFocusModeSubtitle),
-        ),
-        SwitchListTile(
-          secondary: _leading(Icons.ios_share),
-          value: SP.prefs.getBool('share_zikr_image') ?? false,
-          onChanged: (v) async {
-            await _saveBooleanPref(
-              'share_zikr_image',
-              v,
-              feature: 'zikr_share_as_image_toggled',
-              label: 'Share as image toggled',
-            );
-          },
-          title: Text(context.l10n.readingShareAsImage),
-          subtitle: Text(context.l10n.readingShareAsImageSubtitle),
-        ),
-        SwitchListTile(
-          secondary: _leading(Icons.notes),
-          value: SP.prefs.getBool('showTransliteration') ?? true,
-          onChanged: (v) async {
-            showTransliteration = v;
-            await _saveBooleanPref(
-              "showTransliteration",
-              v,
-              feature: 'zikr_show_transliteration_toggled',
-              label: 'Show transliteration toggled',
-            );
-          },
-          title: Text(context.l10n.readingShowTransliteration),
-        ),
-        SwitchListTile(
-          secondary: _leading(Icons.translate),
-          value: SP.prefs.getBool('showTranslation') ?? true,
-          onChanged: (v) async {
-            showTranslation = v;
-            await _saveBooleanPref(
-              "showTranslation",
-              v,
-              feature: 'zikr_show_translation_toggled',
-              label: 'Show translation toggled',
-            );
-          },
-          title: Text(context.l10n.readingShowTranslation),
-        ),
-        SwitchListTile(
-          secondary: _leading(Icons.wrap_text),
-          value: SP.prefs.getBool('showArabicAsParagraph') ?? false,
-          onChanged: !bothAidsOff
-              ? null
-              : (v) async {
-                  showArabicAsParagraph = v;
-                  await _saveBooleanPref(
-                    "showArabicAsParagraph",
-                    v,
-                    feature: 'zikr_show_arabic_as_paragraph_toggled',
-                    label: 'Show Arabic as paragraph toggled',
-                  );
-                },
-          title: Text(context.l10n.readingArabicParagraph),
-          subtitle: Text(bothAidsOff
-              ? context.l10n.readingArabicParagraphOn
-              : context.l10n.readingArabicParagraphOff),
-        ),
+        _switchTile(ReadingSwitch.keepScreenOn,
+            icon: Icons.screen_lock_portrait,
+            title: context.l10n.readingKeepScreenOn),
+        _switchTile(ReadingSwitch.focusMode,
+            icon: Icons.center_focus_strong,
+            title: context.l10n.readingFocusMode,
+            subtitle: context.l10n.readingFocusModeSubtitle),
+        _switchTile(ReadingSwitch.shareAsImage,
+            icon: Icons.ios_share,
+            title: context.l10n.readingShareAsImage,
+            subtitle: context.l10n.readingShareAsImageSubtitle),
+        _switchTile(ReadingSwitch.transliteration,
+            icon: Icons.notes,
+            title: context.l10n.readingShowTransliteration),
+        _switchTile(ReadingSwitch.translation,
+            icon: Icons.translate,
+            title: context.l10n.readingShowTranslation),
+        _switchTile(ReadingSwitch.arabicParagraph,
+            icon: Icons.wrap_text,
+            title: context.l10n.readingArabicParagraph,
+            subtitle: bothAidsOff
+                ? context.l10n.readingArabicParagraphOn
+                : context.l10n.readingArabicParagraphOff,
+            enabled: bothAidsOff),
       ]),
     );
   }
@@ -288,50 +332,35 @@ class _ZikrReadingPreferencesControlsState
     return dividedChildren;
   }
 
-  void _saveDoublePref(String key, double value) {
-    unawaited(SP.prefs.setDouble(key, value));
-    widget.onChanged?.call();
-  }
-
-  void _onFontSizeChangeEnd({
-    required String feature,
-    required String label,
-    required Future<void> Function() push,
+  Widget _switchTile(
+    ReadingSwitch setting, {
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    bool enabled = true,
   }) {
-    unawaited(AnalyticsService.feature(feature, label: label));
-    unawaited(push());
-  }
-
-  Future<void> _saveBooleanPref(
-    String key,
-    bool value, {
-    required String feature,
-    required String label,
-  }) async {
-    await SP.prefs.setBool(key, value);
-    unawaited(AnalyticsService.feature(
-      feature,
-      label: label,
-      parameters: {'enabled': value ? 'on' : 'off'},
-    ));
-    widget.onChanged?.call();
-    if (!mounted) return;
-    setState(() {});
+    return SwitchListTile(
+      secondary: _leading(icon),
+      value: setting.value,
+      onChanged: !enabled
+          ? null
+          : (v) async {
+              await setting.save(v);
+              widget.onChanged?.call();
+              if (!mounted) return;
+              setState(() {});
+            },
+      title: Text(title),
+      subtitle: subtitle == null ? null : Text(subtitle),
+    );
   }
 
   void _onFontChanged(String? font) async {
     if (font == null) return;
-
     setState(() {
       arabicFont = font;
     });
-    await FontPreferences.setSelectedFont(font);
-    unawaited(AnalyticsService.feature(
-      'arabic_font_changed',
-      label: 'Arabic font changed',
-      parameters: {'font': font},
-    ));
-    unawaited(PreferencesSyncService.instance.pushArabicFont());
+    await saveArabicFontChoice(font);
     widget.onChanged?.call();
   }
 
