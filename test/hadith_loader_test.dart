@@ -9,8 +9,8 @@ import 'package:shia_companion/utils/hadith_loader.dart';
 void main() {
   const manifest = HadithManifest(
     shardSize: 128,
-    totalQuotes: 2315,
-    muharramStart: 2280,
+    totalQuotes: 2302,
+    muharramStart: 2267,
   );
 
   test('maps quote indexes to fixed-size shard assets', () {
@@ -18,19 +18,19 @@ void main() {
     expect(locateHadithAsset(127, 128).itemIndex, 127);
     expect(locateHadithAsset(128, 128).path, 'assets/hadith/001.json');
     expect(locateHadithAsset(128, 128).itemIndex, 0);
-    expect(locateHadithAsset(2314, 128).path, 'assets/hadith/018.json');
-    expect(locateHadithAsset(2314, 128).itemIndex, 10);
+    expect(locateHadithAsset(2301, 128).path, 'assets/hadith/017.json');
+    expect(locateHadithAsset(2301, 128).itemIndex, 125);
   });
 
   test('selects general and Muharram quotes from their own ranges', () {
     for (var day = 20000; day < 20400; day++) {
       expect(
         selectHadithIndex(manifest, useMuharramQuotes: false, day: day),
-        inInclusiveRange(0, 2279),
+        inInclusiveRange(0, 2266),
       );
       expect(
         selectHadithIndex(manifest, useMuharramQuotes: true, day: day),
-        inInclusiveRange(2280, 2314),
+        inInclusiveRange(2267, 2301),
       );
     }
   });
@@ -96,5 +96,11 @@ void main() {
         quotes.where((quote) => splitHadith(quote).source == null).toList();
     // Three sayings were bundled without any reference.
     expect(unsourced, hasLength(3));
+    // The hadith of the day is hadith only, not Qur'an verses.
+    expect(quotes.where((quote) => quote.endsWith('[Holy Qur’an]')), isEmpty);
+    expect(
+      quotes.where((quote) => quote.contains('\n[Holy Qur’an ')),
+      isEmpty,
+    );
   });
 }
