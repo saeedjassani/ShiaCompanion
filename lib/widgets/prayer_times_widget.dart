@@ -14,15 +14,21 @@ import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 import '../l10n/l10n.dart';
 
-/// Home's prayer card: the prayer times the reader picked, starting with the
-/// next one (the Hijri date and the city sit in Home's header above it). Tap
-/// for Calendar & Prayer Times; long-press to choose which times are shown.
+/// Home's prayer card: the next of the times the reader picked, large and
+/// counting down to the second, then the ones after it in order (the Hijri
+/// date and the city sit in Home's header above it). "Up next" reads
+/// "Tomorrow" once every time shown is tomorrow's. Tap for Calendar & Prayer
+/// Times; long-press to choose which times are shown.
 ///
-/// With no location yet it asks "Which city are you in?" instead.
+/// With no location yet it asks "Which city are you in?" instead. [footer],
+/// the next event, closes either.
 class HomePrayerTimesCard extends StatefulWidget {
-  const HomePrayerTimesCard({super.key, this.onTap});
+  const HomePrayerTimesCard({super.key, this.onTap, this.footer});
 
   final VoidCallback? onTap;
+
+  /// Drawn edge to edge under the times: Home's next-event row.
+  final Widget? footer;
 
   @override
   PrayerTimesState createState() => PrayerTimesState();
@@ -155,15 +161,17 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
           onUseLocation: _refreshLocation,
           onChooseCity: _chooseCity,
           onAcceptGuess: _acceptGuess,
+          footer: widget.footer,
         ),
       );
     }
 
-    // Where "tomorrow" starts, if at all — the row is chronological, so once
-    // one time crosses midnight every time after it has too. Only that first
-    // one is marked.
-    final firstTomorrowIndex =
-        readings.indexWhere((r) => !_isSameDate(r.dateTime, now));
+    // The row after the next time is in order, so it needs no "next day"
+    // marks: what follows is later. Only once *everything* shown is
+    // tomorrow's does the label say so.
+    final allTomorrow = readings.every((r) => !_isSameDate(r.dateTime, now));
+    final next = readings.first;
+    final later = readings.skip(1).toList(growable: false);
     final failed = _location.status == LocationRefreshStatus.failed;
     final showUpdated = !failed && city != null && _location.shouldDiscloseAge;
     // A chosen city whose clock no longer matches the phone's: most likely
@@ -185,44 +193,63 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
           // Long-press is the second way into the picker, after Settings,
           // for people who prod at a thing before hunting for its setting.
           onLongPress: _editTimesShown,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (failed || showUpdated)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Text(
-                      failed
-                          ? _location.failureMessage
-                          : context.l10n.prayerUpdatedAgo(
-                              _ageLabel(_location.updatedAt!)),
-                      style: ShiaText.caption.copyWith(
-                        color: colors.onPrayerCardMuted,
-                      ),
-                    ),
-                  ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (var i = 0; i < readings.length; i++)
-                      Expanded(
-                        child: _PrayerTimeColumn(
-                          reading: readings[i],
-                          startsNextDay: i == firstTomorrowIndex,
+                    if (failed || showUpdated)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
+                        child: Text(
+                          failed
+                              ? _location.failureMessage
+                              : context.l10n.prayerUpdatedAgo(
+                                  _ageLabel(_location.updatedAt!)),
+                          style: ShiaText.caption.copyWith(
+                            color: colors.onPrayerCardMuted,
+                          ),
+                        ),
+                      ),
+                    _NextPrayer(
+                      reading: next,
+                      label: allTomorrow
+                          ? context.l10n.commonTomorrow
+                          : context.l10n.prayerUpNext,
+                      now: debugNow,
+                      // The moment it arrives the next time is a different one.
+                      onArrived: () {
+                        if (mounted) setState(() {});
+                      },
+                    ),
+                    if (later.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final reading in later)
+                            Expanded(
+                                child: _PrayerTimeColumn(reading: reading)),
+                        ],
+                      ),
+                    ],
+                    if (askStillInCity)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: _StillInCityNudge(
+                          city: city ?? context.l10n.prayerTheCityYouChose,
+                          onStillThere: _stillInCity,
+                          onChangeCity: _changeCityFromNudge,
                         ),
                       ),
                   ],
                 ),
-                if (askStillInCity)
-                  _StillInCityNudge(
-                    city: city ?? context.l10n.prayerTheCityYouChose,
-                    onStillThere: _stillInCity,
-                    onChangeCity: _changeCityFromNudge,
-                  ),
-              ],
-            ),
+              ),
+              if (widget.footer != null) widget.footer!,
+            ],
           ),
         ),
       ),
@@ -403,16 +430,11 @@ class CityButton extends StatelessWidget {
   }
 }
 
-/// One prayer: glyph, name and time, all at equal weight — order alone says
-/// what's next. The first time that falls tomorrow says "next day" under it.
+/// One of the times after the next: glyph, name and time, at equal weight.
 class _PrayerTimeColumn extends StatelessWidget {
-  const _PrayerTimeColumn({
-    required this.reading,
-    required this.startsNextDay,
-  });
+  const _PrayerTimeColumn({required this.reading});
 
   final WidgetPrayerTimeReading reading;
-  final bool startsNextDay;
 
   @override
   Widget build(BuildContext context) {
@@ -442,25 +464,180 @@ class _PrayerTimeColumn extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           Text(
-            // "6:56 pm", not the widgets' zero-padded "06:56 pm".
-            reading.displayTime.replaceFirst(RegExp(r'^0(?=\d)'), ''),
+            _clockLabel(reading),
             textAlign: TextAlign.center,
             maxLines: 1,
             style: textStyle.copyWith(color: colors.onPrayerCardMuted),
           ),
-          if (startsNextDay) ...[
-            const SizedBox(height: 3),
-            Text(
-              context.l10n.prayerNextDay,
-              textAlign: TextAlign.center,
-              style: ShiaText.tabLabel.copyWith(
-                fontWeight: FontWeight.w400,
-                fontStyle: FontStyle.italic,
-                color: colors.onPrayerCardMuted,
+        ],
+      ),
+    );
+  }
+}
+
+/// "6:56 pm", not the widgets' zero-padded "06:56 pm".
+String _clockLabel(WidgetPrayerTimeReading reading) =>
+    reading.displayTime.replaceFirst(RegExp(r'^0(?=\d)'), '');
+
+/// The next time, large: its glyph, "Up next" (or "Tomorrow") over its name,
+/// and its time over a countdown that ticks every second.
+class _NextPrayer extends StatelessWidget {
+  const _NextPrayer({
+    required this.reading,
+    required this.label,
+    required this.now,
+    required this.onArrived,
+  });
+
+  final WidgetPrayerTimeReading reading;
+  final String label;
+  final DateTime Function() now;
+  final VoidCallback onArrived;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final name = localizedPrayerName(reading.time.name, context.l10n);
+    final time = _clockLabel(reading);
+
+    return Semantics(
+      container: true,
+      // The countdown is left out: read aloud, it would change every second.
+      label: context.l10n.prayerNextSemantics(label, name, time),
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
+        decoration: BoxDecoration(
+          color: colors.onPrayerCard.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: colors.gold.withValues(alpha: 0.18),
+                shape: BoxShape.circle,
+              ),
+              child: PrayerGlyph(
+                name: reading.time.name,
+                size: 22,
+                color: colors.gold,
               ),
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: ShiaText.caption.copyWith(
+                      fontSize: 12,
+                      height: 15 / 12,
+                      color: colors.onPrayerCardMuted,
+                    ),
+                  ),
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 20,
+                      height: 24 / 20,
+                      fontWeight: FontWeight.w700,
+                      color: colors.onPrayerCard,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  time,
+                  style: TextStyle(
+                    fontSize: 24,
+                    height: 28 / 24,
+                    fontWeight: FontWeight.w700,
+                    color: colors.onPrayerCard,
+                  ),
+                ),
+                _Countdown(
+                  target: reading.dateTime,
+                  now: now,
+                  onArrived: onArrived,
+                ),
+              ],
+            ),
           ],
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "in 3h 05m 09s", redrawn every second on its own so the rest of the card
+/// is left alone. Tells the card when the time arrives.
+class _Countdown extends StatefulWidget {
+  const _Countdown({
+    required this.target,
+    required this.now,
+    required this.onArrived,
+  });
+
+  final DateTime target;
+  final DateTime Function() now;
+  final VoidCallback onArrived;
+
+  @override
+  State<_Countdown> createState() => _CountdownState();
+}
+
+class _CountdownState extends State<_Countdown> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      if (!widget.now().isBefore(widget.target)) {
+        widget.onArrived();
+      } else {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    var left = widget.target.difference(widget.now());
+    if (left.isNegative) left = Duration.zero;
+    final seconds = (left.inSeconds % 60).toString().padLeft(2, '0');
+    final minutes = left.inMinutes % 60;
+    final text = left.inHours > 0
+        ? context.l10n.prayerCountdownHours(
+            left.inHours, minutes.toString().padLeft(2, '0'), seconds)
+        : context.l10n.prayerCountdownMinutes(minutes, seconds);
+    return Text(
+      text,
+      style: ShiaText.caption.copyWith(
+        height: 16 / 13,
+        fontWeight: FontWeight.w600,
+        color: colors.gold,
+        fontFeatures: const [FontFeature.tabularFigures()],
       ),
     );
   }
@@ -477,6 +654,7 @@ class _ChooseLocationCard extends StatelessWidget {
     required this.onUseLocation,
     required this.onChooseCity,
     required this.onAcceptGuess,
+    this.footer,
   });
 
   final LocationService location;
@@ -484,6 +662,7 @@ class _ChooseLocationCard extends StatelessWidget {
   final VoidCallback onUseLocation;
   final VoidCallback onChooseCity;
   final ValueChanged<City> onAcceptGuess;
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -527,7 +706,7 @@ class _ChooseLocationCard extends StatelessWidget {
       container: true,
       label: context.l10n.prayerTimesTitle,
       child: Container(
-        padding: const EdgeInsets.all(18),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: colors.prayerCard,
           borderRadius: BorderRadius.circular(24),
@@ -536,71 +715,80 @@ class _ChooseLocationCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              context.l10n.prayerTimesTitle,
-              style: ShiaText.caption.copyWith(
-                fontSize: 14,
-                height: 18 / 14,
-                color: colors.onPrayerCardMuted,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              context.l10n.prayerWhichCity,
-              style: TextStyle(
-                fontSize: 23,
-                height: 28 / 23,
-                fontWeight: FontWeight.w700,
-                color: colors.onPrayerCard,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              failed
-                  ? location.failureMessage
-                  : context.l10n.prayerWhichCityBody,
-              style: muted,
-            ),
-            const SizedBox(height: 14),
-            if (guess != null) ...[
-              Text(
-                context.l10n.prayerZoneSuggests(guess.name),
-                style: ShiaText.caption.copyWith(
-                  fontSize: 14,
-                  height: 18 / 14,
-                  color: colors.onPrayerCardMuted,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _GoldButton(
-                label: context.l10n.prayerYesImIn(guess.name),
-                onPressed: () => onAcceptGuess(guess),
-              ),
-              const SizedBox(height: 8),
-              Row(
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: _OutlineCardButton(
-                      icon: useLocationIcon,
-                      label: refreshing
-                          ? context.l10n.prayerLocating
-                          : useLocationLabel,
-                      onPressed: onUseLocation,
+                  Text(
+                    context.l10n.prayerTimesTitle,
+                    style: ShiaText.caption.copyWith(
+                      fontSize: 14,
+                      height: 18 / 14,
+                      color: colors.onPrayerCardMuted,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(child: chooseCity),
+                  const SizedBox(height: 4),
+                  Text(
+                    context.l10n.prayerWhichCity,
+                    style: TextStyle(
+                      fontSize: 23,
+                      height: 28 / 23,
+                      fontWeight: FontWeight.w700,
+                      color: colors.onPrayerCard,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    failed
+                        ? location.failureMessage
+                        : context.l10n.prayerWhichCityBody,
+                    style: muted,
+                  ),
+                  const SizedBox(height: 14),
+                  if (guess != null) ...[
+                    Text(
+                      context.l10n.prayerZoneSuggests(guess.name),
+                      style: ShiaText.caption.copyWith(
+                        fontSize: 14,
+                        height: 18 / 14,
+                        color: colors.onPrayerCardMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _GoldButton(
+                      label: context.l10n.prayerYesImIn(guess.name),
+                      onPressed: () => onAcceptGuess(guess),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _OutlineCardButton(
+                            icon: useLocationIcon,
+                            label: refreshing
+                                ? context.l10n.prayerLocating
+                                : useLocationLabel,
+                            onPressed: onUseLocation,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(child: chooseCity),
+                      ],
+                    ),
+                  ] else ...[
+                    _GoldButton(
+                      icon: useLocationIcon,
+                      label: useLocationLabel,
+                      onPressed: onUseLocation,
+                    ),
+                    const SizedBox(height: 8),
+                    chooseCity,
+                  ],
                 ],
               ),
-            ] else ...[
-              _GoldButton(
-                icon: useLocationIcon,
-                label: useLocationLabel,
-                onPressed: onUseLocation,
-              ),
-              const SizedBox(height: 8),
-              chooseCity,
-            ],
+            ),
+            if (footer != null) footer!,
           ],
         ),
       ),

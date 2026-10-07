@@ -1924,6 +1924,51 @@
       }
     }
   },
+  "homeEveOf": "Eve of",
+  "@homeEveOf": {
+    "description": "Small label above Home's Hijri date from Maghrib until Fajr, when the Islamic day shown has already begun: 'Eve of' / '5 Jumada al-Awwal'."
+  },
+  "hijriEveOfDate": "Eve of {date}",
+  "@hijriEveOfDate": {
+    "description": "A Hijri date whose Islamic day has begun at Maghrib, but whose civil day has not, e.g. 'Eve of 5 Jumada al-Awwal 1448'. On the Calendar and a city's prayer times.",
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "homeEventTonight": "Tonight",
+  "@homeEventTonight": {
+    "description": "On the prayer card's event row, from Maghrib until Fajr, when the event's Islamic day has begun (its eve)."
+  },
+  "prayerUpNext": "Up next",
+  "@prayerUpNext": {
+    "description": "Label over the next prayer time on Home's prayer card."
+  },
+  "prayerCountdownHours": "in {hours}h {minutes}m {seconds}s",
+  "@prayerCountdownHours": {
+    "description": "Time left until the next prayer, ticking every second. Minutes and seconds are two digits, e.g. 'in 3h 05m 09s'.",
+    "placeholders": {
+      "hours": {"type": "int"},
+      "minutes": {"type": "String"},
+      "seconds": {"type": "String"}
+    }
+  },
+  "prayerCountdownMinutes": "in {minutes}m {seconds}s",
+  "@prayerCountdownMinutes": {
+    "description": "Time left until the next prayer, under an hour, e.g. 'in 12m 05s'. Seconds are two digits.",
+    "placeholders": {
+      "minutes": {"type": "int"},
+      "seconds": {"type": "String"}
+    }
+  },
+  "prayerNextSemantics": "{label}: {prayer}, {time}",
+  "@prayerNextSemantics": {
+    "description": "Screen reader label for the next prayer on Home, e.g. 'Up next: Sunset, 6:30 pm'. The ticking countdown is not read.",
+    "placeholders": {
+      "label": {"type": "String"},
+      "prayer": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
   "homeComingUpTitle": "Coming up",
   "@homeComingUpTitle": {
     "description": "Heading of Home's section of upcoming Islamic calendar events."

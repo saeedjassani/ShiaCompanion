@@ -214,7 +214,9 @@ class _HomeSections extends StatelessWidget {
               children: [
                 HomeHeader(onOpenSettings: () {}),
                 const SizedBox(height: 18),
-                const HomePrayerTimesCard(),
+                HomePrayerTimesCard(
+                  footer: ComingUpRow(onOpenCalendar: () {}),
+                ),
               ],
             ),
           ),
@@ -225,7 +227,6 @@ class _HomeSections extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {}),
-                ComingUpSection(topSpacing: 18, onOpenCalendar: () {}),
                 const SizedBox(height: 18),
                 const HadithOfTheDayCard(
                   hadith: "Imam Ali (a.s.) said: 'Increase your silence and "

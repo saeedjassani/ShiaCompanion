@@ -20,7 +20,7 @@ void main() {
     expect(formatPrayerDateTime12(DateTime(2024, 1, 1, 23, 9)), '11:09 pm');
   });
 
-  test('readWidgetPrayerTimes returns the default five prayers in order', () {
+  test('readWidgetPrayerTimes returns the default times in order', () {
     final prayerTime = getPrayerTimeObject();
     final originalFormat = prayerTime.getTimeFormat();
 
@@ -35,7 +35,7 @@ void main() {
 
     expect(
       readings.map((reading) => reading.time.name).toList(),
-      ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha'],
+      ['Fajr', 'Sunrise', 'Zuhr', 'Sunset', 'Maghrib'],
     );
     expect(
       readings.map((reading) => reading.dateTime).toList(),

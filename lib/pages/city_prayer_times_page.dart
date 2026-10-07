@@ -12,6 +12,7 @@ import '../models/city.dart';
 import '../services/analytics_service.dart';
 import '../theme/shia_colors.dart';
 import '../utils/city_clock.dart';
+import '../utils/islamic_day.dart';
 import '../utils/prayer_time_entries.dart';
 import '../utils/timezone_database.dart';
 import '../utils/widget_prayer_time_selection.dart';
@@ -92,9 +93,22 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
     final isToday = _day.year == today.year &&
         _day.month == today.month &&
         _day.day == today.day;
-    final hijri = HijriCalendar.fromDate(
-      DateTime(_day.year, _day.month, _day.day + hijriDate),
-    );
+    // Today, after Maghrib in the city, is already the next Islamic day's
+    // eve - as on Home. Only with the city's own clock to place Maghrib by.
+    final islamicDay = isToday && zone != null
+        ? islamicDayAt(
+            tz.TZDateTime.now(zone),
+            latitude: city.latitude,
+            longitude: city.longitude,
+          )
+        : null;
+    final hijri = islamicDay?.day.hijri ??
+        HijriCalendar.fromDate(
+          DateTime(_day.year, _day.month, _day.day + hijriDate),
+        );
+    final hijriLabel = '${hijri.hDay} '
+        '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
+        '${hijri.hYear}';
     // Midday, so a day the clocks change on compares the hours that count.
     final difference = zone == null
         ? null
@@ -159,9 +173,9 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${hijri.hDay} '
-                                '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
-                                '${hijri.hYear}',
+                                islamicDay?.isEve == true
+                                    ? context.l10n.hijriEveOfDate(hijriLabel)
+                                    : hijriLabel,
                                 textAlign: TextAlign.center,
                                 style: ShiaText.secondary
                                     .copyWith(color: colors.textMuted),

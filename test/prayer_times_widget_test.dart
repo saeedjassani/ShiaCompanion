@@ -186,22 +186,21 @@ void main() {
     expect(find.text('Baghdad'), findsOneWidget);
   });
 
-  testWidgets('says "next day" under the first time that falls tomorrow',
+  testWidgets('puts the next time up front, counting down, then the rest',
       (tester) async {
     lat = 32.02;
     long = 44.34;
     city = 'Najaf';
     GeolocatorPlatform.instance = _FakeGeolocator();
-    final now = DateTime(2024, 6, 16, 23, 30);
+    final now = DateTime(2024, 6, 16, 13, 0);
     PrayerTimesState.debugNow = () => now;
-    // A small phone, where five columns leave the note the least room.
+    // A small phone, where the row after the next time has the least room.
     tester.view.physicalSize = const Size(320, 720);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
     await pumpCard(tester);
 
-    // Which time is the first one tomorrow, worked out as the card does.
     final readings = nextWidgetPrayerTimeReadings(
       prayerTime: getPrayerTimeObject(),
       latitude: lat!,
@@ -210,23 +209,66 @@ void main() {
       now: now,
       times: selectedWidgetPrayerTimes(),
     );
-    final tagged = readings.indexWhere((r) =>
-        r.dateTime.year != now.year ||
-        r.dateTime.month != now.month ||
-        r.dateTime.day != now.day);
-    expect(tagged, greaterThanOrEqualTo(0),
-        reason: 'this time of day must roll into tomorrow');
+    // 1 pm in Najaf: Sunset is next, and the row runs on into tomorrow.
+    expect(readings.first.time.name, 'Sunset');
+    expect(find.text('Up next'), findsOneWidget);
+    expect(find.text('Tomorrow'), findsNothing);
+    expect(find.text('next day'), findsNothing);
+    expect(find.textContaining(RegExp(r'^in \d+h \d\dm \d\ds$')),
+        findsOneWidget);
 
-    // Once only, and under that time's own name.
-    final note = find.text('next day');
-    expect(note, findsOneWidget);
-    final name = find.text(readings[tagged].time.name);
+    // The next time sits above the ones after it, in order.
+    final next = tester.getRect(find.text('Sunset'));
+    for (final reading in readings.skip(1)) {
+      expect(tester.getRect(find.text(reading.time.name)).top,
+          greaterThan(next.bottom));
+    }
     expect(
-      (tester.getRect(note).center.dx - tester.getRect(name).center.dx).abs(),
-      lessThan(1.0),
+      tester.getRect(find.text('Maghrib')).left,
+      lessThan(tester.getRect(find.text('Fajr')).left),
     );
-    expect(tester.getRect(note).top, greaterThan(tester.getRect(name).bottom));
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('says Tomorrow once every time shown is tomorrow\'s',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    // Past Maghrib, the last of the default times.
+    PrayerTimesState.debugNow = () => DateTime(2024, 6, 16, 22, 0);
+
+    await pumpCard(tester);
+
+    expect(find.text('Tomorrow'), findsOneWidget);
+    expect(find.text('Up next'), findsNothing);
+  });
+
+  testWidgets('the countdown ticks by the second, and is not read aloud',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    var now = DateTime(2024, 6, 16, 13, 0, 0);
+    PrayerTimesState.debugNow = () => now;
+    final semantics = tester.ensureSemantics();
+
+    await pumpCard(tester);
+    String countdown() => tester
+        .widget<Text>(find.textContaining(RegExp(r'^in \d')))
+        .data!;
+    final before = countdown();
+
+    now = now.add(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(countdown(), isNot(before));
+
+    expect(find.bySemanticsLabel(RegExp(r'^Up next: Sunset, ')),
+        findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^in \d')), findsNothing);
+    semantics.dispose();
   });
 
   testWidgets('the header shows the Hijri date and the city, no greeting',
@@ -236,17 +278,46 @@ void main() {
     city = 'Najaf';
     hijriDate = 0;
     GeolocatorPlatform.instance = _FakeGeolocator();
-    HomeHeader.debugNow = () => DateTime(2024, 6, 16);
+    HomeHeader.debugNow = () => DateTime(2024, 6, 16, 12);
     addTearDown(() => HomeHeader.debugNow = DateTime.now);
 
     await pumpCard(tester);
 
     // 16 June 2024 is 10 Dhul Hijjah 1445.
     expect(find.textContaining(RegExp(r'^10 Dh')), findsOneWidget);
+    expect(find.text('EVE OF'), findsNothing);
     expect(find.text('1445 AH'), findsOneWidget);
     expect(find.text('Najaf'), findsOneWidget);
     expect(find.text('Assalamu alaykum'), findsNothing);
     expect(find.byTooltip('Settings and account'), findsOneWidget);
+  });
+
+  testWidgets('after Maghrib the header shows the eve of the next day',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    hijriDate = 0;
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    HomeHeader.debugNow = () => DateTime(2024, 6, 16, 21);
+    addTearDown(() => HomeHeader.debugNow = DateTime.now);
+
+    await pumpCard(tester);
+
+    expect(find.text('EVE OF'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'^11 Dh')), findsOneWidget);
+  });
+
+  testWidgets('with no location the date turns at midnight, not Maghrib',
+      (tester) async {
+    hijriDate = 0;
+    HomeHeader.debugNow = () => DateTime(2024, 6, 16, 21);
+    addTearDown(() => HomeHeader.debugNow = DateTime.now);
+
+    await pumpCard(tester);
+
+    expect(find.text('EVE OF'), findsNothing);
+    expect(find.textContaining(RegExp(r'^10 Dh')), findsOneWidget);
   });
 
   testWidgets('discloses the age of a stale reading', (tester) async {
