@@ -15,7 +15,6 @@ import '../../theme/shia_colors.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
-import '../my_stats_page.dart';
 import 'go_to_verse_sheet.dart';
 import 'listen_and_follow_sheet.dart';
 import 'quran_collections_tab.dart';
@@ -118,9 +117,6 @@ class _QuranPageState extends State<QuranPage> {
       maxWidth: widePageWidth,
       title: context.l10n.quranTitle,
       actions: [
-        // The sessions themselves stay here, beside the reading they
-        // record; the stats built from them live on My Stats with the rest
-        // of the reader's stats.
         RoundIconButton(
           label: context.l10n.quranRecentSessions,
           icon: OutlineIcon(OutlineGlyph.history,
@@ -128,16 +124,8 @@ class _QuranPageState extends State<QuranPage> {
           onPressed: () =>
               pushPageRoute(context, const RecentRecitationsPage()),
         ),
-        RoundIconButton(
-          label: context.l10n.statsTitle,
-          icon:
-              OutlineIcon(OutlineGlyph.stats, size: 22, color: colors.accent),
-          onPressed: () => pushPageRoute(context, const MyStatsPage()),
-        ),
-        // Dark-launched alongside the rest of the Quran reading experience
-        // (see zikr_page.dart's _surahNumber and home_menu.dart), so the
-        // microphone prompt reaches nobody until the matching is known to be
-        // worth the interruption.
+        // Still dark-launched to admins, so the microphone prompt reaches
+        // nobody until the matching is known to be worth the interruption.
         if (isUserAdmin)
           RoundIconButton(
             label: context.l10n.listenTitle,

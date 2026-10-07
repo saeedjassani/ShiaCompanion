@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import '../constants.dart';
 import '../l10n/l10n.dart';
 import '../pages/home_page.dart';
-import '../pages/list_items.dart';
 import '../theme/app_theme.dart';
 import '../theme/shia_colors.dart';
 import '../pages/search_page.dart';
@@ -44,8 +43,7 @@ class AppShellTab {
   final VoidCallback? onSelected;
 
   /// Identifies what [builder] currently builds; a change replaces the tab's
-  /// page rather than updating it. The Quran tab uses this to swap between
-  /// the surah list and the admin-only Quran screen when admin state lands.
+  /// page rather than updating it.
   final Object? contentKey;
 }
 
@@ -83,8 +81,8 @@ class _AppShellState extends State<AppShell> {
   @override
   void initState() {
     super.initState();
-    // The admin claim lands after the shell is built; rebuilding then lets
-    // the Quran tab's contentKey swap the surah list for the Quran screen.
+    // The admin claim lands after the shell is built; a tab whose content
+    // depends on it is rebuilt then, under a new contentKey.
     adminState.addListener(_handleAdminChanged);
   }
 
@@ -111,10 +109,7 @@ class _AppShellState extends State<AppShell> {
         label: l10n.shellTabQuran,
         icon: (color) =>
             HomeGlyph(type: HomeGlyphType.surahs, size: 24, color: color),
-        builder: (_) => quranItem == surahsMenuItem
-            // Titled after the tab rather than the old grid entry.
-            ? ItemList('A', l10n.shellTabQuran)
-            : quranItem.pageBuilder(),
+        builder: (_) => quranItem.pageBuilder(),
         onSelected: quranItem.recordOpen,
         contentKey: quranItem.analyticsId,
       ),

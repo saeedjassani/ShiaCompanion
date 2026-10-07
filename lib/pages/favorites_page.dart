@@ -49,12 +49,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
     }
   }
 
-  /// Saved verses come from the Quran screen, which is dark-launched to
-  /// admins (see quranMenuItem); everyone else only ever has the one list,
-  /// so the switcher would be a choice of one.
-  bool get _showsVerses =>
-      isUserAdmin || SavedVersesManager.instance.state.verses.isNotEmpty;
-
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -62,8 +56,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           [FavoritesManager.instance, SavedVersesManager.instance]),
       builder: (context, _) {
         final favorites = FavoritesManager.instance.favorites;
-        final showsVerses = _showsVerses;
-        final view = showsVerses ? _view : _FavoritesView.zikr;
+        final view = _view;
         // Nothing to edit once the last one is removed.
         final editing = _editing && favorites.isNotEmpty;
         final gutter = pageGutter(context, maxWidth: widePageWidth);
@@ -81,25 +74,23 @@ class _FavoritesPageState extends State<FavoritesPage> {
               ),
           ],
           slivers: [
-            if (showsVerses)
-              SliverPadding(
-                padding: gutter.copyWith(bottom: 14),
-                sliver: SliverToBoxAdapter(
-                  child: SegmentedSwitcher<_FavoritesView>(
-                    segments: [
-                      Segment(
-                          _FavoritesView.zikr, context.l10n.favoritesTabZikr),
-                      Segment(_FavoritesView.verses,
-                          context.l10n.favoritesTabVerses),
-                    ],
-                    selected: view,
-                    onChanged: (next) => setState(() {
-                      _view = next;
-                      _editing = false;
-                    }),
-                  ),
+            SliverPadding(
+              padding: gutter.copyWith(bottom: 14),
+              sliver: SliverToBoxAdapter(
+                child: SegmentedSwitcher<_FavoritesView>(
+                  segments: [
+                    Segment(_FavoritesView.zikr, context.l10n.favoritesTabZikr),
+                    Segment(
+                        _FavoritesView.verses, context.l10n.favoritesTabVerses),
+                  ],
+                  selected: view,
+                  onChanged: (next) => setState(() {
+                    _view = next;
+                    _editing = false;
+                  }),
                 ),
               ),
+            ),
             SliverPadding(
               padding: gutter,
               sliver: view == _FavoritesView.zikr

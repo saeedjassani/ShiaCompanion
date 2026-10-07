@@ -8,6 +8,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
+import '../../data/quran_mahdi_verses.dart';
 import '../../utils/quran_index.dart';
 import '../../services/zikr_translations.dart';
 import '../../utils/quran_indopak.dart';
@@ -51,6 +52,7 @@ class AyahActionRequest {
     required this.text,
     required this.lineIndex,
     this.aliNote,
+    this.mahdiNote,
   });
 
   /// Which verse was tapped, surah included - in a juz the surah is not the
@@ -68,6 +70,10 @@ class AyahActionRequest {
   /// the per-verse menu can say it: in paragraph mode there is no per-verse
   /// badge to long-press for it.
   final String? aliNote;
+
+  /// Likewise for a verse read as being about Imam al-Mahdi (atfs) - see
+  /// [mahdiRelatedNoteFor].
+  final String? mahdiNote;
 }
 
 class ZikrContentScrollPosition {
@@ -2514,6 +2520,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       isBookmarked:
           bookmarkedRange != null && span.contains(bookmarkedRange.start),
       aliNote: verse == null ? null : aliRelatedNoteFor(verse),
+      mahdiNote: verse == null ? null : mahdiRelatedNoteFor(verse),
       onAction: verse == null || widget.onAyahAction == null
           ? null
           : () => _requestAyahAction(parsedContent, span),
@@ -2532,6 +2539,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         text: _ayahPlainText(parsedContent, span),
         lineIndex: span.start,
         aliNote: aliRelatedNoteFor(verse),
+        mahdiNote: mahdiRelatedNoteFor(verse),
       ),
     );
   }
@@ -3034,6 +3042,7 @@ class _AyahBlock extends StatelessWidget {
     required this.isSaved,
     required this.isBookmarked,
     required this.aliNote,
+    required this.mahdiNote,
     required this.onAction,
     required this.children,
   });
@@ -3058,6 +3067,10 @@ class _AyahBlock extends StatelessWidget {
   /// for every other verse, which is most of them, so the watermark stays rare
   /// enough to mean something when it appears.
   final String? aliNote;
+
+  /// The same for a verse read as being about Imam al-Mahdi (atfs), marked
+  /// by his name instead. A verse in both lists shows the Imam Ali mark.
+  final String? mahdiNote;
 
   final VoidCallback? onAction;
   final List<Widget> children;
@@ -3101,11 +3114,16 @@ class _AyahBlock extends StatelessWidget {
       ),
     );
 
-    final marked = aliNote == null
+    final watermark = aliNote != null
+        ? _VerseWatermark.ali(note: aliNote!)
+        : mahdiNote != null
+            ? _VerseWatermark.mahdi(note: mahdiNote!)
+            : null;
+    final marked = watermark == null
         ? block
         : Stack(
             children: [
-              Positioned.fill(child: _AliWatermark(note: aliNote!)),
+              Positioned.fill(child: watermark),
               block,
             ],
           );
@@ -3133,8 +3151,9 @@ class _AyahBlock extends StatelessWidget {
 }
 
 /// The mark behind a verse Shia tafsir cites as being about Imam Ali (as) -
-/// see [quranAliVerses]. The "علي" from the app icon, drawn faintly behind the
-/// verse like a watermark, rather than a badge in a row of its own: the name
+/// see [quranAliVerses] - or one the hadith read as being about Imam
+/// al-Mahdi (atfs) - see [quranMahdiVerses]. The "علي" from the app icon, or
+/// the teardrop "المهدي", drawn faintly behind the verse like a watermark, rather than a badge in a row of its own: the name
 /// itself is the point, and behind the text it marks the verse without
 /// pushing it down or competing with it.
 ///
@@ -3145,12 +3164,23 @@ class _AyahBlock extends StatelessWidget {
 /// Gold, like the icon, in both reading modes rather than the theme's primary
 /// color: the icon's own pale gold on the dark page, and a deeper gold on the
 /// light one, where the pale gold would all but vanish.
-class _AliWatermark extends StatelessWidget {
-  const _AliWatermark({required this.note});
+class _VerseWatermark extends StatelessWidget {
+  const _VerseWatermark.ali({required this.note})
+      : asset = aliAsset,
+        height = 170;
+
+  /// A little shorter than the Ali mark: the teardrop is taller for its
+  /// width, and most of these verses are two lines, so less of it is cut.
+  const _VerseWatermark.mahdi({required this.note})
+      : asset = mahdiAsset,
+        height = 165;
 
   final String note;
+  final String asset;
+  final double height;
 
-  static const asset = 'assets/images/ali_watermark.png';
+  static const aliAsset = 'assets/images/ali_watermark.png';
+  static const mahdiAsset = 'assets/images/mahdi_watermark.png';
 
   static const _iconGold = Color(0xFFF3E6A0);
   static const _deepGold = Color(0xFFB08A2E);
@@ -3171,7 +3201,7 @@ class _AliWatermark extends StatelessWidget {
           child: Center(
             child: Image.asset(
               asset,
-              height: 170,
+              height: height,
               color: color,
               colorBlendMode: BlendMode.srcIn,
               filterQuality: FilterQuality.high,

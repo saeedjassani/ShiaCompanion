@@ -89,13 +89,13 @@ void main() {
         ['Ziyarat Ashura']);
   });
 
-  testWidgets('has one list until there are Quran verses to show',
+  testWidgets('offers Quran verses beside the duas before any is saved',
       (tester) async {
     await keep(tester, ['Dua Kumayl']);
     await pump(tester);
 
-    expect(find.text('Duas & more'), findsNothing);
-    expect(find.text('Quran verses'), findsNothing);
+    expect(find.text('Duas & more'), findsOneWidget);
+    expect(find.text('Quran verses'), findsOneWidget);
   });
 
   testWidgets('shows saved Quran verses beside the duas', (tester) async {

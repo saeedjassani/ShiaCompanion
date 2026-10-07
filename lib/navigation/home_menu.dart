@@ -263,13 +263,9 @@ final HomeMenuItem settingsMenuItem = HomeMenuItem(
   pageBuilder: () => const SettingsPage(),
 );
 
-/// The Quran revamp's entry point (ayah browsing, juz reading, saved verses,
-/// resume). Dark-launched: for now this *replaces* 'Surahs' in
-/// [visibleHomeMenuItems], but only for an admin, rather than shipping to
-/// every user the moment this lands on master. Once it is ready for
-/// everyone, fold it into [homeMenuItems] in place of 'Surahs' directly (see
-/// ZikrPage._surahNumber and DeepLinkResolver.resolveQuranDestination for the
-/// other two gates that need lifting alongside it).
+/// The Quran screen (ayah browsing, juz reading, saved verses, resume). It
+/// takes the place of 'Surahs' in [visibleHomeMenuItems]; 'Surahs' stays in
+/// [homeMenuItems] so the lookups by its label keep working.
 final HomeMenuItem quranMenuItem = HomeMenuItem(
   label: 'Quran',
   analyticsId: 'quran',
@@ -287,10 +283,8 @@ final HomeMenuItem playlistsMenuItem = HomeMenuItem(
   pageBuilder: () => const PlaylistsPage(),
 );
 
-/// Personal stats and community totals. Dark-launched to admins alongside
-/// [quranMenuItem], and ships with it: "Verses recited" comes from the Quran
-/// screen's recitation tracker, so the two go out together - move this into
-/// [homeMenuItems] then. Recording already runs for everyone, locally, so
+/// Personal stats and community totals. Still dark-launched to admins -
+/// move this into [homeMenuItems] when it ships. Recording already runs for everyone, locally, so
 /// readers have their history on launch day; see ActivityStatsStore for the
 /// sync, which is gated the same way until then.
 final HomeMenuItem myStatsMenuItem = HomeMenuItem(
@@ -338,23 +332,19 @@ final List<HomeMenuItem> allHomeMenuItems = List.unmodifiable(
   [...homeMenuItems, quranMenuItem, ...adminHomeMenuItems],
 );
 
-/// What the home grid shows right now, which depends on who is signed in.
-/// An admin sees 'Surahs' replaced by the dark-launched Quran screen, plus
-/// admin-only tools appended after; everyone else gets the plain grid.
+/// What the home grid shows right now, which depends on who is signed in:
+/// 'Surahs' replaced by the Quran screen, plus admin-only tools appended
+/// after for an admin.
 List<HomeMenuItem> get visibleHomeMenuItems {
-  if (!isUserAdmin) return homeMenuItems;
   return List.unmodifiable([
     for (final item in homeMenuItems)
       if (item.label == 'Surahs') quranMenuItem else item,
-    ...adminHomeMenuItems,
+    if (isUserAdmin) ...adminHomeMenuItems,
   ]);
 }
 
-/// What the Quran tab holds. The new Quran screen is still dark-launched to
-/// admins (see [quranMenuItem]); everyone else gets the surah list the home
-/// grid's 'Surahs' entry used to open.
-HomeMenuItem get quranTabMenuItem =>
-    isUserAdmin ? quranMenuItem : surahsMenuItem;
+/// What the Quran tab holds.
+HomeMenuItem get quranTabMenuItem => quranMenuItem;
 
 /// The All features page: everything in [visibleHomeMenuItems], in the same
 /// order, except what has a tab of its own.

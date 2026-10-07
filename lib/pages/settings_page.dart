@@ -30,6 +30,7 @@ import '../utils/shared_preferences.dart';
 import '../utils/sign_in_flow.dart';
 import '../utils/theme_mode.dart';
 import '../utils/widget_prayer_time_selection.dart';
+import '../widgets/arabic_runs.dart';
 import '../widgets/choice_sheet.dart';
 import '../widgets/content_request_dialog.dart';
 import '../widgets/language_settings.dart';
@@ -926,7 +927,9 @@ class _RowLetters extends StatelessWidget {
             height: 1,
             fontWeight: FontWeight.w700,
             color: colors.onAccent,
-            fontFamilyFallback: const ['Qalam'],
+            // Qalam has Latin letters, so it would draw "Aa" as well.
+            fontFamilyFallback:
+                arabicRunSpans(letters) == null ? null : const ['Qalam'],
           ),
         ),
       ),
