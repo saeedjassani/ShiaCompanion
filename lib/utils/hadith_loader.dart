@@ -33,10 +33,10 @@ class HadithAssetLocation {
   final int itemIndex;
 }
 
-/// A seed that is stable for an entire UTC calendar day, so every user sees
-/// the same "hadith of the day" instead of a new random quote on every app
-/// launch. Pass [now] in tests to control which day is used.
-int dailyHadithSeed([DateTime? now]) {
+/// The day number, counted in whole UTC days since 1970, that picks the
+/// "hadith of the day": it is the same for everyone all day and moves on by
+/// one at midnight UTC. Pass [now] in tests to control which day is used.
+int hadithDayNumber([DateTime? now]) {
   final utcNow = (now ?? DateTime.now()).toUtc();
   final dayStart = DateTime.utc(utcNow.year, utcNow.month, utcNow.day);
   return dayStart.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
@@ -50,20 +50,40 @@ HadithAssetLocation locateHadithAsset(int quoteIndex, int shardSize) {
   );
 }
 
+/// Picks the hadith for [day] (see [hadithDayNumber]) from the general or the
+/// Muharram range.
+///
+/// Each day steps a fixed stride through the range rather than moving to the
+/// next row, because the CSV is grouped by topic and consecutive rows would
+/// show the same subject for weeks. The stride shares no factor with the
+/// range's size, so no hadith comes back until every other one in the range
+/// has been shown - more than six years for the general range.
 int selectHadithIndex(
   HadithManifest manifest, {
   required bool useMuharramQuotes,
-  Random? random,
+  required int day,
 }) {
-  final min = useMuharramQuotes ? manifest.muharramStart : 0;
-  final max = useMuharramQuotes ? manifest.totalQuotes : manifest.muharramStart;
-  return min + (random ?? Random()).nextInt(max - min);
+  final start = useMuharramQuotes ? manifest.muharramStart : 0;
+  final end = useMuharramQuotes ? manifest.totalQuotes : manifest.muharramStart;
+  final count = end - start;
+  return start + (day * _hadithStride(count)) % count;
 }
 
-Future<String> loadRandomHadith(
+/// The first number from about 0.618 of [count] up that is coprime with it.
+int _hadithStride(int count) {
+  var stride = max(1, (count * 0.618).round());
+  while (_gcd(stride, count) != 1) {
+    stride++;
+  }
+  return stride;
+}
+
+int _gcd(int a, int b) => b == 0 ? a : _gcd(b, a % b);
+
+Future<String> loadDailyHadith(
   AssetBundle bundle, {
   required bool useMuharramQuotes,
-  Random? random,
+  required int day,
 }) async {
   final manifestJson = jsonDecode(
     await bundle.loadString('assets/hadith/manifest.json'),
@@ -72,7 +92,7 @@ Future<String> loadRandomHadith(
   final quoteIndex = selectHadithIndex(
     manifest,
     useMuharramQuotes: useMuharramQuotes,
-    random: random,
+    day: day,
   );
   final location = locateHadithAsset(quoteIndex, manifest.shardSize);
   final shard = jsonDecode(await bundle.loadString(location.path)) as List;
