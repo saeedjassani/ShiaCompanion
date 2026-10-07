@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
@@ -633,10 +632,10 @@ class _MyHomePageState extends State<MyHomePage>
         HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
     final useMuharramQuotes =
         today.hMonth < 2 || (today.hMonth == 2 && today.hDay < 9);
-    hadith = await loadRandomHadith(
+    hadith = await loadDailyHadith(
       DefaultAssetBundle.of(context),
       useMuharramQuotes: useMuharramQuotes,
-      random: Random(dailyHadithSeed()),
+      day: hadithDayNumber(),
     );
     if (!mounted) return;
     setState(() {});

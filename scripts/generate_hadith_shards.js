@@ -7,7 +7,8 @@ const REPO_ROOT = path.join(__dirname, '..');
 const SOURCE_PATH = path.join(REPO_ROOT, 'assets', 'hadith.csv');
 const OUTPUT_DIR = path.join(REPO_ROOT, 'assets', 'hadith');
 const SHARD_SIZE = 128;
-const MUHARRAM_START = 2341;
+// The Muharram hadith are the last rows of the CSV.
+const MUHARRAM_COUNT = 35;
 
 function readQuotes() {
   return new Promise((resolve, reject) => {
@@ -36,9 +37,9 @@ function resetGeneratedFiles() {
 
 async function main() {
   const quotes = await readQuotes();
-  if (quotes.length <= MUHARRAM_START) {
+  if (quotes.length <= MUHARRAM_COUNT) {
     throw new Error(
-      `Expected more than ${MUHARRAM_START} hadiths, found ${quotes.length}`,
+      `Expected more than ${MUHARRAM_COUNT} hadiths, found ${quotes.length}`,
     );
   }
 
@@ -58,7 +59,7 @@ async function main() {
     version: 1,
     shardSize: SHARD_SIZE,
     totalQuotes: quotes.length,
-    muharramStart: MUHARRAM_START,
+    muharramStart: quotes.length - MUHARRAM_COUNT,
   };
   fs.writeFileSync(
     path.join(OUTPUT_DIR, 'manifest.json'),
