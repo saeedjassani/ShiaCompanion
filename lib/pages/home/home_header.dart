@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:hijri/hijri_calendar.dart';
 
 import '../../constants.dart';
 import '../../l10n/hijri_l10n.dart';
 import '../../l10n/l10n.dart';
 import '../../services/location_service.dart';
 import '../../theme/shia_colors.dart';
+import '../../utils/islamic_day.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/prayer_times_widget.dart';
 import '../city_picker.dart';
@@ -15,7 +15,9 @@ import 'home_section.dart';
 
 /// Today's Hijri date as Home's title, the year and the city under it, and
 /// the profile button that opens Settings (docs/DESIGN_SPEC.md, Home
-/// section 1).
+/// section 1). From Maghrib until Fajr the date is the next Islamic day's,
+/// under a small "Eve of" - but only where Maghrib is known (see
+/// [IslamicDay]).
 class HomeHeader extends StatefulWidget {
   const HomeHeader({super.key, required this.onOpenSettings});
 
@@ -61,8 +63,8 @@ class _HomeHeaderState extends State<HomeHeader> {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final wide = isHomeWide(context);
-    final hijri = HijriCalendar.fromDate(
-        HomeHeader.debugNow().add(Duration(days: hijriDate)));
+    final islamicDay = islamicDayAt(HomeHeader.debugNow());
+    final hijri = islamicDay.day.hijri;
     final dayAndMonth = '${hijri.hDay} '
         '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')}';
 
@@ -73,8 +75,26 @@ class _HomeHeaderState extends State<HomeHeader> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (islamicDay.isEve)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: ExcludeSemantics(
+                    child: Text(
+                      context.l10n.homeEveOf.toUpperCase(),
+                      style: ShiaText.caption.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
+                        color: colors.accent,
+                      ),
+                    ),
+                  ),
+                ),
               Semantics(
                 header: true,
+                label: islamicDay.isEve
+                    ? '${context.l10n.homeEveOf} $dayAndMonth'
+                    : null,
+                excludeSemantics: islamicDay.isEve,
                 child: Text(
                   dayAndMonth,
                   style: (wide ? ShiaText.homeTitleWide : ShiaText.homeTitle)

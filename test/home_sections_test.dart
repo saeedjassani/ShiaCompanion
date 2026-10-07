@@ -6,6 +6,8 @@ import 'package:shia_companion/models/recitation_tracker_state.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/all_features_page.dart';
 import 'package:shia_companion/pages/home/coming_up_section.dart';
+import 'package:shia_companion/utils/islamic_day.dart';
+import 'package:shia_companion/utils/lunar_date_matcher.dart';
 import 'package:shia_companion/pages/home/continue_section.dart';
 import 'package:shia_companion/pages/home/hadith_card.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
@@ -113,7 +115,22 @@ void main() {
       expect(on(DateTime(2026, 10, 17)).whenFrom(now), 'In 13 days');
     });
 
-    test('lists the next two events, saying what happened', () {
+    test('says Tonight once the event\'s eve has begun at Maghrib', () {
+      // Thursday 8 pm, after Maghrib: Friday's Islamic day has begun.
+      final now = DateTime(2026, 10, 15, 20);
+      final eve = IslamicDay(day: LunarDay(DateTime(2026, 10, 16)), isEve: true);
+      final day = IslamicDay(day: LunarDay(DateTime(2026, 10, 16)), isEve: false);
+      ComingUpEvent on(DateTime date) =>
+          ComingUpEvent(date: date, title: '', hijri: '');
+      expect(on(DateTime(2026, 10, 16)).whenFrom(now, null, eve), 'Tonight');
+      expect(on(DateTime(2026, 10, 16)).isCurrent(eve), isTrue);
+      expect(on(DateTime(2026, 10, 16)).whenFrom(now, null, day), 'Today');
+      // Saturday still counts in civil days from Thursday.
+      expect(on(DateTime(2026, 10, 17)).whenFrom(now, null, eve), 'In 2 days');
+      expect(on(DateTime(2026, 10, 17)).isCurrent(eve), isFalse);
+    });
+
+    test('shows the next event, saying what happened', () {
       // 1 Muharram 1448 falls on 16 June 2026.
       final events = upcomingEvents(
         now: DateTime(2026, 6, 10),
@@ -121,13 +138,28 @@ void main() {
         events: {
           '01-01': {'content': 'Beginning of Moharram', 'color': 0},
           '01-03': {'content': 'Birth of Imam Someone (a.s.)', 'color': 0},
-          '01-05': {'content': 'Later event', 'color': 0},
         },
       );
-      expect(events, hasLength(2));
-      expect(events.first.title, 'Beginning of Moharram');
-      expect(events.last.title, 'Birth of Imam Someone (a.s.)');
-      expect(events.last.hijri, startsWith('3 '));
+      expect(events, hasLength(1));
+      expect(events.single.title, 'Beginning of Moharram');
+      expect(events.single.hijri, startsWith('1 '));
+    });
+
+    test('joins two events on one day into one title', () {
+      // 17 Rabi' al-Awwal 1448 falls in late August 2026.
+      final events = upcomingEvents(
+        now: DateTime(2026, 8, 20),
+        offsetDays: 0,
+        events: {
+          '03-17': {
+            'content': 'Birth of Prophet Muhammad(sawaw)\n\n'
+                'Birth of Imam Jafer Sadiq(a.s.)',
+            'color': 1,
+          },
+        },
+      );
+      expect(events.single.title,
+          'Birth of Prophet Muhammad (sawaw) · Imam Jafer Sadiq (a.s.)');
     });
   });
 

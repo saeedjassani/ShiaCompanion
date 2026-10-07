@@ -16,6 +16,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../constants.dart';
 import '../l10n/l10n.dart';
 import '../l10n/hijri_l10n.dart';
+import '../utils/islamic_day.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({
@@ -150,10 +151,24 @@ class _CalendarPageState extends State<CalendarPage> {
       ),
     );
 
+    final selectedHijri = _hijriDateFor(selectedDate);
+    // From Maghrib the Islamic day has moved on while the calendar's has not
+    // (see IslamicDay); say so under today, as Home's header does.
+    HijriCalendar? eveOf;
+    if (isToday(selectedDate)) {
+      final islamicDay = islamicDayAt(DateTime.now());
+      final hijri = islamicDay.day.hijri;
+      if (islamicDay.isEve &&
+          (hijri.hDay != selectedHijri.hDay ||
+              hijri.hMonth != selectedHijri.hMonth)) {
+        eveOf = hijri;
+      }
+    }
     final selectedSummary = _SelectedDateSummary(
       key: ValueKey("cal-key"),
       gregorianDate: selectedDate,
-      hijriDate: _hijriDateFor(selectedDate),
+      hijriDate: selectedHijri,
+      eveOf: eveOf,
       event: _eventForDay(selectedDate),
     );
 
@@ -427,12 +442,16 @@ class _CalendarHeaderTitle extends StatelessWidget {
 class _SelectedDateSummary extends StatelessWidget {
   final DateTime gregorianDate;
   final HijriCalendar hijriDate;
+
+  /// The Islamic date whose eve tonight is, once Maghrib has passed today.
+  final HijriCalendar? eveOf;
   final Map<String, dynamic>? event;
 
   const _SelectedDateSummary({
     super.key,
     required this.gregorianDate,
     required this.hijriDate,
+    this.eveOf,
     required this.event,
   });
 
@@ -467,6 +486,18 @@ class _SelectedDateSummary extends StatelessWidget {
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
+                    if (eveOf != null) ...[
+                      const SizedBox(height: 4.0),
+                      Text(
+                        context.l10n.hijriEveOfDate(
+                          formatHijri(eveOf!, "dd MMMM, yyyy", context.l10n),
+                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

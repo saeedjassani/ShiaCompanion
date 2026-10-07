@@ -37,34 +37,78 @@ LunarDay? resolveNightLunarDay({
   double? longitude,
   int hijriDateOffsetDays = 0,
 }) {
-  final todayDateOnly = now.isUtc
-      ? DateTime.utc(now.year, now.month, now.day)
-      : DateTime(now.year, now.month, now.day);
+  final todayDateOnly = civilDateOf(now);
+  final bounds = fajrAndMaghribOn(
+        todayDateOnly,
+        prayerTime: prayerTime,
+        latitude: latitude,
+        longitude: longitude,
+      ) ??
+      (
+        fajr: todayDateOnly.add(const Duration(hours: fallbackFajrHour)),
+        maghrib: todayDateOnly.add(const Duration(hours: fallbackMaghribHour)),
+      );
+  return _nightLunarDay(now, todayDateOnly, bounds, hijriDateOffsetDays);
+}
 
-  DateTime? todayFajr;
-  DateTime? todayMaghrib;
-  if (latitude != null && longitude != null) {
-    final timeZone = now.timeZoneOffset.inMinutes / 60.0;
-    final todayTimes =
-        prayerTime.getPrayerTimes(todayDateOnly, latitude, longitude, timeZone);
-    todayFajr = dateTimeForTime24(todayDateOnly, todayTimes[prayerIndexFajr]);
-    todayMaghrib =
-        dateTimeForTime24(todayDateOnly, todayTimes[prayerIndexMaghrib]);
-  }
-  if (todayFajr == null || todayMaghrib == null) {
-    todayFajr = todayDateOnly.add(const Duration(hours: fallbackFajrHour));
-    todayMaghrib =
-        todayDateOnly.add(const Duration(hours: fallbackMaghribHour));
-  }
+/// Like [resolveNightLunarDay], but only where Fajr and Maghrib are actually
+/// known: with no location this is always `null`, never the generous clock
+/// fallback. For what is *shown* as the date ("Eve of 5 Jumada al-Awwal"),
+/// where a guessed 4 pm Maghrib would put the wrong date on screen.
+LunarDay? resolveKnownNightLunarDay({
+  required DateTime now,
+  required PrayerTime prayerTime,
+  double? latitude,
+  double? longitude,
+  int hijriDateOffsetDays = 0,
+}) {
+  final todayDateOnly = civilDateOf(now);
+  final bounds = fajrAndMaghribOn(
+    todayDateOnly,
+    prayerTime: prayerTime,
+    latitude: latitude,
+    longitude: longitude,
+  );
+  if (bounds == null) return null;
+  return _nightLunarDay(now, todayDateOnly, bounds, hijriDateOffsetDays);
+}
 
-  if (now.isBefore(todayFajr)) {
+LunarDay? _nightLunarDay(
+  DateTime now,
+  DateTime todayDateOnly,
+  ({DateTime fajr, DateTime maghrib}) bounds,
+  int hijriDateOffsetDays,
+) {
+  if (now.isBefore(bounds.fajr)) {
     return LunarDay(todayDateOnly, hijriOffsetDays: hijriDateOffsetDays);
   }
-  if (!now.isBefore(todayMaghrib)) {
+  if (!now.isBefore(bounds.maghrib)) {
     return LunarDay(
       todayDateOnly.add(const Duration(days: 1)),
       hijriOffsetDays: hijriDateOffsetDays,
     );
   }
   return null;
+}
+
+/// [now]'s calendar date at midnight, on the same clock (UTC, a city's or
+/// the phone's).
+DateTime civilDateOf(DateTime now) =>
+    dateTimeOnClockOf(now, now.year, now.month, now.day);
+
+/// Fajr and Maghrib on [day] at the given coordinates, or `null` with no
+/// location or when the engine can't produce them (polar days).
+({DateTime fajr, DateTime maghrib})? fajrAndMaghribOn(
+  DateTime day, {
+  required PrayerTime prayerTime,
+  double? latitude,
+  double? longitude,
+}) {
+  if (latitude == null || longitude == null) return null;
+  final timeZone = day.timeZoneOffset.inMinutes / 60.0;
+  final times = prayerTime.getPrayerTimes(day, latitude, longitude, timeZone);
+  final fajr = dateTimeForTime24(day, times[prayerIndexFajr]);
+  final maghrib = dateTimeForTime24(day, times[prayerIndexMaghrib]);
+  if (fajr == null || maghrib == null) return null;
+  return (fajr: fajr, maghrib: maghrib);
 }

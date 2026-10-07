@@ -52,13 +52,13 @@ void main() {
     );
   });
 
-  test('an unset selection falls back to the five prayers', () {
+  test('an unset selection falls back to the default times', () {
     final snapshot = HomeScreenWidgetService.instance
         .buildDailyPrayerTimesSnapshot(now: DateTime(2024, 6, 16));
 
     expect(
       namesFrom(snapshot).toSet(),
-      {'Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha'},
+      {'Fajr', 'Sunrise', 'Zuhr', 'Sunset', 'Maghrib'},
     );
   });
 
@@ -74,7 +74,7 @@ void main() {
 
   test('a prayer still names its deadline when that marker is hidden',
       () async {
-    await saveWidgetPrayerTimes(defaultWidgetPrayerTimeIds);
+    await saveWidgetPrayerTimes(['fajr', 'zuhr', 'asr', 'maghrib', 'isha']);
 
     final schedule = (HomeScreenWidgetService.instance
                 .buildUpcomingPrayerSnapshot()[
@@ -143,7 +143,7 @@ void main() {
 
       expect(
         readings.map((r) => r.time.name),
-        ['Fajr', 'Zuhr', 'Asr', 'Maghrib', 'Isha'],
+        ['Fajr', 'Sunrise', 'Zuhr', 'Sunset', 'Maghrib'],
       );
       expect(readings.every((r) => r.dateTime.day == date.day), isTrue);
     });
@@ -189,14 +189,14 @@ void main() {
 
       expect(
         readings.map((r) => r.time.name),
-        ['Asr', 'Maghrib', 'Isha', 'Fajr', 'Zuhr'],
+        ['Sunset', 'Maghrib', 'Fajr', 'Sunrise', 'Zuhr'],
       );
       expect(
-        readings.take(3).every((r) => r.dateTime.day == date.day),
+        readings.take(2).every((r) => r.dateTime.day == date.day),
         isTrue,
       );
       expect(
-        readings.skip(3).every((r) => r.dateTime.day == date.day + 1),
+        readings.skip(2).every((r) => r.dateTime.day == date.day + 1),
         isTrue,
       );
     });

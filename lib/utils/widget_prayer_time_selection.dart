@@ -6,9 +6,10 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 /// Settings and shared by the home card, the prayer times list widget and the
 /// Up Next countdown, so all three agree on what "next" means.
 ///
-/// The five prayers are the default, but a prayer offered before it becomes
-/// qaza is bounded by Sunrise, Sunset or Midnight rather than by the next
-/// prayer, so those markers are selectable too.
+/// A prayer offered before it becomes qaza is bounded by Sunrise, Sunset or
+/// Midnight rather than by the next prayer, so those markers are selectable
+/// too - and two of them are in the default, see
+/// [defaultWidgetPrayerTimeIds].
 const String widgetPrayerTimesKey = 'widget_prayer_times';
 
 /// Fewer than three leaves the list widget looking broken; more than five
@@ -81,12 +82,14 @@ const List<WidgetPrayerTime> widgetPrayerTimes = <WidgetPrayerTime>[
   WidgetPrayerTime(id: 'midnight', name: 'Midnight'),
 ];
 
+/// Fajr, Zuhr and Maghrib with the two limits that matter for them: Sunrise,
+/// the end of Fajr, and Sunset, the end of Zuhr and Asr.
 const List<String> defaultWidgetPrayerTimeIds = <String>[
   'fajr',
+  'sunrise',
   'zuhr',
-  'asr',
+  'sunset',
   'maghrib',
-  'isha',
 ];
 
 /// A selected time resolved against the prayer engine for one day.
@@ -107,7 +110,7 @@ class WidgetPrayerTimeReading {
 }
 
 /// The stored selection, de-duplicated and back in chronological order. Falls
-/// back to the five prayers whenever what is stored no longer resolves to a
+/// back to the default whenever what is stored no longer resolves to a
 /// usable selection, so a widget never renders empty.
 List<WidgetPrayerTime> selectedWidgetPrayerTimes() {
   final stored = SP.isInitialized
@@ -249,7 +252,8 @@ List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
       timeZone: date.timeZoneOffset.inMinutes / 60.0,
       times: selected,
     );
-    upcoming.addAll(readings.where((reading) => reading.dateTime.isAfter(moment)));
+    upcoming
+        .addAll(readings.where((reading) => reading.dateTime.isAfter(moment)));
   }
 
   upcoming.sort((a, b) => a.dateTime.compareTo(b.dateTime));

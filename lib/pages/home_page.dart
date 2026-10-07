@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
@@ -38,6 +37,7 @@ import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/hadith_loader.dart';
+import 'package:shia_companion/utils/islamic_day.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
@@ -394,14 +394,13 @@ class _MyHomePageState extends State<MyHomePage>
     );
     final prayerCard = HomePrayerTimesCard(
       onTap: () => _openHomeMenuItem(calendarMenuItem),
+      footer: ComingUpRow(
+        onOpenCalendar: () => _openHomeMenuItem(calendarMenuItem),
+      ),
     );
     final shortcuts = ShortcutsSection(
       onOpen: _openHomeMenuItem,
       onOpenAllFeatures: _openAllFeatures,
-    );
-    final comingUp = ComingUpSection(
-      topSpacing: gap,
-      onOpenCalendar: () => _openHomeMenuItem(calendarMenuItem),
     );
     final hadithCard = hadith.isEmpty
         ? const SizedBox.shrink()
@@ -412,8 +411,8 @@ class _MyHomePageState extends State<MyHomePage>
 
     final Widget content;
     if (wide) {
-      // Tablet and up: prayer card, Continue and Coming up on the left;
-      // Shortcuts and the hadith on the right.
+      // Tablet and up: prayer card and Continue on the left; Shortcuts and
+      // the hadith on the right.
       content = Padding(
         padding: EdgeInsets.symmetric(horizontal: gutter),
         child: Column(
@@ -431,7 +430,6 @@ class _MyHomePageState extends State<MyHomePage>
                     children: [
                       prayerCard,
                       ContinueSection(topSpacing: gap, horizontalPadding: 0),
-                      comingUp,
                     ],
                   ),
                 ),
@@ -460,7 +458,6 @@ class _MyHomePageState extends State<MyHomePage>
           ContinueSection(topSpacing: gap, horizontalPadding: gutter),
           SizedBox(height: gap),
           Padding(padding: pad, child: shortcuts),
-          Padding(padding: pad, child: comingUp),
           Padding(padding: pad, child: hadithCard),
         ],
       );
@@ -492,7 +489,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   final ScrollController _scrollController = ScrollController();
 
-  /// Whether the greeting has scrolled away, so the small "Home" bar shows.
+  /// Whether the header has scrolled away, so the small title bar shows.
   final ValueNotifier<bool> _showCompactTitle = ValueNotifier(false);
 
   void _onScroll() {
@@ -628,8 +625,9 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future<void> getHadith() async {
-    final today =
-        HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
+    // The Islamic day: from Maghrib on 8 Rabi' al-Awwal it is already the
+    // 9th's eve, so the Muharram quotes end with the day the header shows.
+    final today = islamicDayAt(DateTime.now()).day.hijri;
     final useMuharramQuotes =
         today.hMonth < 2 || (today.hMonth == 2 && today.hDay < 9);
     hadith = await loadDailyHadith(
@@ -719,8 +717,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 }
 
-/// The small "Home" title over a frosted strip, once the greeting has
-/// scrolled out of view. Decorative: the greeting already headed the page.
+/// The app's name over a frosted strip, once the header has scrolled out of
+/// view. Decorative: the date already headed the page.
 class _CompactTitleBar extends StatelessWidget {
   const _CompactTitleBar({required this.visible, required this.topInset});
 
@@ -742,7 +740,7 @@ class _CompactTitleBar extends StatelessWidget {
         color: solid ? colors.ground : colors.ground.withValues(alpha: 0.88),
         border: Border(bottom: BorderSide(color: colors.line)),
       ),
-      child: Text(context.l10n.shellTabHome,
+      child: Text(context.l10n.appTitle,
           style: ShiaText.cardTitle.copyWith(color: colors.text)),
     );
     if (!solid) {

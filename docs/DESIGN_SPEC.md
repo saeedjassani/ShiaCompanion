@@ -140,13 +140,23 @@ Top to bottom, each section hidden when it has nothing to show:
    al-Thani"), then the year ("1448 AH") and the city button (opens the
    city picker) under it, and the profile button. No greeting and no
    Gregorian date. The city button is left out until there is a location;
-   the prayer card asks for one instead.
-2. **Prayer card** — the times only: the 3–5 the user picked, starting
-   with the upcoming one, "next day" under the first time that's tomorrow,
-   with no divider before it. No "next prayer" headline. Tap → Calendar & Prayer Times; long-press →
-   "Prayer times shown" picker (as today). No-location state = the
-   round-1 "Which city are you in?" card (time-zone guess, Use my location,
-   Choose city).
+   the prayer card asks for one instead. The Islamic day begins at
+   Maghrib: from Maghrib until Fajr the title is the next Hijri day under
+   a small **EVE OF** label (`islamicDayAt`, the same Maghrib/Fajr window
+   as the "N" zikr patterns). Only with a location: without one, Maghrib
+   is unknown and the date turns at midnight. The Calendar and a city's
+   prayer times say "Eve of …" for today the same way. The compact bar
+   that replaces the header on scroll reads "Shia Companion".
+2. **Prayer card** — the 3–5 times the user picked (default Fajr,
+   Sunrise, Zuhr, Sunset, Maghrib). The next one is large in its own
+   panel: glyph, "Up next" over its name, its time over a countdown to the
+   second ("in 3h 05m 09s"; not read by screen readers). The rest follow
+   in one row, in order, with no "next day" marks: what follows is later.
+   Once every time shown is tomorrow's, "Up next" reads "Tomorrow". The
+   card's last row is the **next event** (see 5). Tap → Calendar & Prayer
+   Times; long-press → "Prayer times shown" picker (as today). No-location
+   state = the round-1 "Which city are you in?" card (time-zone guess, Use
+   my location, Choose city), with the event row under it too.
 3. **Continue** — up to 3 cards, newest first: Quran track
    (`RecitationTrackerManager`), dua bookmark (`ZikrBookmarksManager`),
    library chapter (`LibraryProgressStore`). Horizontal scroll on phone.
@@ -157,8 +167,13 @@ Top to bottom, each section hidden when it has nothing to show:
    (remove/drag/add, max 11). Stored in prefs
    and synced via `PreferencesSyncService`. Defaults: Duas, Ziyarats,
    Today's Recitations, Munajaat, Calendar, Tasbeeh, Qibla.
-5. **Coming up** — next 2 events from `buildUpcomingCalendarWidgetEvents`;
-   a row says "Today" only when the event is today.
+5. **Next event** — the prayer card's last row, not a section: the next
+   event from `buildUpcomingCalendarWidgetEvents`, counted from the Islamic
+   day in effect. Date box, "In 9 days · 5 Jumada al-Awwal" (or
+   "Tomorrow · …"), the title; two events on one day come joined in one
+   title. While the event's day is the one in effect the row turns gold
+   and says **TODAY**, or **TONIGHT** from Maghrib on its eve. Tap →
+   Calendar.
 6. **Hadith of the day** — full text, source, Share button.
 
 ### All features
@@ -421,7 +436,7 @@ Recitations' groups).
 **Dashboards go two columns** at the same 880 (`WideColumns`), most-used
 on the left:
 
-- **Home** — prayer card, Continue, Coming up · Shortcuts, hadith (from
+- **Home** — prayer card, Continue · Shortcuts, hadith (from
   600 already; see Home).
 - **Settings** — the sign-in card, Appearance, Prayer times · Notifications,
   Reading, Offline audio, Support. The version line stays centred under
@@ -484,7 +499,7 @@ Calendar & Prayer Times keeps its own wide layout until its redesign.
 
 1. Theme tokens + `ThemeMode.system` + three-tab shell with glass bar and
    search button.
-2. Home sections (prayer card, Continue, Shortcuts + editor, Coming up,
+2. Home sections (prayer card, Continue, Shortcuts + editor, next event,
    hadith) and All features.
 3. City fallback and bundled city list.
 4. Verse search parsing and the Go-to-verse picker.
