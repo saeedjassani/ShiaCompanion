@@ -122,11 +122,13 @@ void main() {
       );
     });
 
-    test('the Quran tab keeps the Quran screen dark-launched to admins', () {
-      isUserAdmin = false;
-      expect(quranTabMenuItem, same(surahsMenuItem));
-      isUserAdmin = true;
-      expect(quranTabMenuItem, same(quranMenuItem));
+    test('everyone gets the Quran screen in place of Surahs', () {
+      for (final admin in [false, true]) {
+        isUserAdmin = admin;
+        expect(quranTabMenuItem, same(quranMenuItem));
+        expect(visibleHomeMenuItems, contains(quranMenuItem));
+        expect(visibleHomeMenuItems, isNot(contains(surahsMenuItem)));
+      }
     });
   });
 

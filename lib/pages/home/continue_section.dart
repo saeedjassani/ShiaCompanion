@@ -81,7 +81,7 @@ List<ContinueEntry> continueEntries({
   required RecitationTrackerState recitations,
   required Iterable<ZikrBookmark> bookmarks,
   required List<LibraryProgress> library,
-  required bool includeQuran,
+  bool includeQuran = true,
   Map<dynamic, dynamic> titles = const {},
   AppLocalizations? l10n,
 }) {
@@ -209,9 +209,6 @@ class ContinueSection extends StatelessWidget {
           recitations: RecitationTrackerManager.instance.state,
           bookmarks: ZikrBookmarksManager.instance.state.bookmarks.values,
           library: LibraryProgressStore.instance.readAll(),
-          // Resuming a surah at a verse is part of the dark-launched Quran
-          // reading (see quranMenuItem), so only admins see a track here.
-          includeQuran: isUserAdmin,
           titles: items,
           l10n: context.l10n,
         );

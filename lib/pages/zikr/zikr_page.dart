@@ -4,7 +4,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kIsWeb, setEquals;
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart' show kTouchSlop;
+import 'package:flutter/gestures.dart' show PointerDeviceKind, kTouchSlop;
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/scheduler.dart' show SchedulerBinding, SchedulerPhase;
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
@@ -344,13 +344,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void initState() {
     super.initState();
     // A portion spans surahs, so it has no single surah of its own; its index
-    // carries one per verse instead. The Quran revamp (ayah-grouped reading,
-    // verse links, resume) is dark-launched behind the admin flag: everyone
-    // else keeps the flat, line-per-row rendering every zikr — surahs
-    // included — has always had. See home_menu.dart's visibleHomeMenuItems
-    // and DeepLinkResolver.resolveQuranDestination for the other two gates
-    // this one is paired with.
-    _surahNumber = (!isUserAdmin || widget.portion != null)
+    // carries one per verse instead.
+    _surahNumber = widget.portion != null
         ? null
         : surahForUid(widget.item.getFirstUId());
     _counterSessionId = widget.item.getFirstUId();
@@ -699,6 +694,47 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       replace: true,
       returnBrowserUri: returnUri,
     );
+  }
+
+  /// A sideways swipe across a surah or a juz steps to the next one (a swipe
+  /// towards the start of the line) or the previous one, as the footer's
+  /// buttons do. Touch only: a mouse dragging sideways is selecting text.
+  /// Left alone where there are tabs, whose pager the swipe already turns.
+  Widget _withQuranSwipe({required bool hasTabs, required Widget child}) {
+    if (!_isQuran || hasTabs) return child;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      supportedDevices: const {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.stylus,
+      },
+      onHorizontalDragEnd: (details) {
+        final velocity = details.primaryVelocity ?? 0;
+        if (velocity.abs() < _quranSwipeMinVelocity) return;
+        final towardsStart = Directionality.of(context) == TextDirection.ltr
+            ? velocity < 0
+            : velocity > 0;
+        final delta = towardsStart ? 1 : -1;
+        if (!_hasQuranSequenceStep(delta)) return;
+        _clearTextSelection();
+        unawaited(_openQuranSequenceStep(delta));
+      },
+      child: child,
+    );
+  }
+
+  /// How fast a sideways swipe has to end to turn the surah, so a slow,
+  /// slightly diagonal scroll never does.
+  static const double _quranSwipeMinVelocity = 350;
+
+  bool _hasQuranSequenceStep(int delta) {
+    final juz = widget.portion?.juz;
+    if (juz != null) {
+      final next = juz + delta;
+      return next >= 1 && next <= allJuz().length;
+    }
+    final surah = _surahNumber;
+    return surah != null && surahInfoFor(surah + delta) != null;
   }
 
   /// The per-ayah menu: what you can do with one verse rather than the whole
@@ -2328,64 +2364,67 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                               child:
                                   Center(child: Text(context.l10n.zikrComingSoon)),
                             )
-                          : ResponsiveContent(
-                              maxWidth: readerColumnWidth(context),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child: ZikrContentViewerWidget(
-                                translation: _translation,
-                                tabContents: tabContents,
-                                selectedTabIndex: selectedTabIndex,
-                                onTabChanged: (index) {
-                                  // A swiped tab change is already
-                                  // covered by the scroll handler; this
-                                  // is the tab header being tapped,
-                                  // which animates the pager without
-                                  // ever reporting a user scroll.
-                                  _clearTextSelection();
-                                  _startTabDwell(index);
-                                  setState(() {
-                                    _selectedZikrTabIndex = index;
-                                  });
-                                  _updateReadingProgress();
-                                  _maybeRecordCompletion();
-                                },
-                                hasMerits: hasMerits,
-                                onShowMerits: _showMeritsSheet,
-                                onLinkTap: _handleZikrLinkTap,
-                                initialBookmarkTabIndex:
-                                    _savedBookmark?.tabIndex,
-                                initialBookmarkScrollOffset:
-                                    _savedBookmark?.scrollOffset,
-                                initialBookmarkLineIndex:
-                                    _savedBookmark?.lineIndex,
-                                savedVerses: _savedVerses,
-                                onScrollPositionChanged:
-                                    _handleContentScrollPositionChanged,
-                                surahNumber: _surahNumber,
-                                initialVerse: _initialVerse,
-                                ayahIndex: widget.portion?.index,
-                                onAyahPositionChanged:
-                                    _handleAyahPositionChanged,
-                                onAyahAction:
-                                    _isQuran ? _showAyahActions : null,
-                                arabicFontFamily: arabicFontFamilyOf(zikrData),
-                                onBookmarkLineResolved:
-                                    _handleBookmarkLineResolved,
-                                onBookmarkMoved:
-                                    _isQuran ? null : _handleBookmarkMoved,
-                                footer: _buildQuranSequenceFooter(),
-                                listPadding: EdgeInsets.only(
-                                  top: topChromeExtent + 16,
-                                  bottom: bottomChromeExtent + 16,
+                          : _withQuranSwipe(
+                              hasTabs: tabContents.length > 1,
+                              child: ResponsiveContent(
+                                maxWidth: readerColumnWidth(context),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                child: ZikrContentViewerWidget(
+                                  translation: _translation,
+                                  tabContents: tabContents,
+                                  selectedTabIndex: selectedTabIndex,
+                                  onTabChanged: (index) {
+                                    // A swiped tab change is already
+                                    // covered by the scroll handler; this
+                                    // is the tab header being tapped,
+                                    // which animates the pager without
+                                    // ever reporting a user scroll.
+                                    _clearTextSelection();
+                                    _startTabDwell(index);
+                                    setState(() {
+                                      _selectedZikrTabIndex = index;
+                                    });
+                                    _updateReadingProgress();
+                                    _maybeRecordCompletion();
+                                  },
+                                  hasMerits: hasMerits,
+                                  onShowMerits: _showMeritsSheet,
+                                  onLinkTap: _handleZikrLinkTap,
+                                  initialBookmarkTabIndex:
+                                      _savedBookmark?.tabIndex,
+                                  initialBookmarkScrollOffset:
+                                      _savedBookmark?.scrollOffset,
+                                  initialBookmarkLineIndex:
+                                      _savedBookmark?.lineIndex,
+                                  savedVerses: _savedVerses,
+                                  onScrollPositionChanged:
+                                      _handleContentScrollPositionChanged,
+                                  surahNumber: _surahNumber,
+                                  initialVerse: _initialVerse,
+                                  ayahIndex: widget.portion?.index,
+                                  onAyahPositionChanged:
+                                      _handleAyahPositionChanged,
+                                  onAyahAction:
+                                      _isQuran ? _showAyahActions : null,
+                                  arabicFontFamily: arabicFontFamilyOf(zikrData),
+                                  onBookmarkLineResolved:
+                                      _handleBookmarkLineResolved,
+                                  onBookmarkMoved:
+                                      _isQuran ? null : _handleBookmarkMoved,
+                                  footer: _buildQuranSequenceFooter(),
+                                  listPadding: EdgeInsets.only(
+                                    top: topChromeExtent + 16,
+                                    bottom: bottomChromeExtent + 16,
+                                  ),
+                                  tabStripTop: topChromeExtent,
+                                  collapsedTopInset: statusBarHeight,
+                                  chromeVisible: _chromeVisible,
+                                  tabStripFooter: hasTabs && showProgressBar
+                                      ? ReaderProgressLine(
+                                          progress: _readingProgress)
+                                      : null,
                                 ),
-                                tabStripTop: topChromeExtent,
-                                collapsedTopInset: statusBarHeight,
-                                chromeVisible: _chromeVisible,
-                                tabStripFooter: hasTabs && showProgressBar
-                                    ? ReaderProgressLine(
-                                        progress: _readingProgress)
-                                    : null,
                               ),
                             ),
                 ),

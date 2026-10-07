@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/shia_colors.dart';
+import 'arabic_runs.dart';
 import 'glass_surface.dart';
 import 'page_chrome.dart';
 import 'zikr_list_row.dart' show splitTrailingArabic;
@@ -100,15 +101,20 @@ class ReaderTopBar extends StatelessWidget {
                       children: [
                         Semantics(
                           header: true,
-                          child: Text(
-                            shownTitle,
+                          // Qalam only on Arabic runs: in the whole line's
+                          // fallback it drew the English ("2: Al-Baqarah")
+                          // too wherever the UI font is not registered.
+                          child: Text.rich(
+                            TextSpan(
+                              children: arabicRunSpans(shownTitle) ??
+                                  [TextSpan(text: shownTitle)],
+                            ),
                             semanticsLabel: title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
                             style: ShiaText.cardTitle.copyWith(
                               color: colors.text,
-                              fontFamilyFallback: const ['Qalam'],
                             ),
                           ),
                         ),
