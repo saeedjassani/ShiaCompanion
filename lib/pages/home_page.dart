@@ -85,6 +85,10 @@ class _MyHomePageState extends State<MyHomePage>
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
 
+  /// Set once start-up has acted on the notification tap that launched the
+  /// app, if any; resumes check for a later one only from then on.
+  bool _launchNotificationHandled = false;
+
   void _openHomeMenuItem(HomeMenuItem item) {
     final page = item.buildPage();
     pushPageRoute(context, page);
@@ -136,6 +140,19 @@ class _MyHomePageState extends State<MyHomePage>
       _queueDeepLink(parseDeepLinkUri(Uri.parse(url)));
     });
 
+    await _takePendingWidgetUrl();
+  }
+
+  /// Opens the link a home screen widget tap left with MainActivity, if any.
+  ///
+  /// Run at start-up and on every resume: after Back closes the screen the
+  /// app can keep running without one (MainActivity reuses audio_service's
+  /// engine), and a widget tap then opens a new screen whose link only
+  /// waits here - Home's start-up, the only other reader, ran long ago.
+  /// MainActivity hands each link out once, so asking again is harmless.
+  Future<void> _takePendingWidgetUrl() async {
+    final channel = _widgetLinkChannel;
+    if (channel == null) return;
     try {
       final url = await channel.invokeMethod<String>('takeWidgetUrl');
       if (url != null && url.isNotEmpty) {
@@ -551,6 +568,12 @@ class _MyHomePageState extends State<MyHomePage>
       if (launchResponse != null) {
         await handlePrayerNotificationResponse(launchResponse);
       }
+      _launchNotificationHandled = true;
+      // On iOS a launching tap can reach the plugin after the read at the
+      // top of this method, yet before initialize() - then it is passed to
+      // neither callback and waits only in the launch details. A tap
+      // already handled is skipped.
+      unawaited(handleNotificationThatOpenedApp());
       // Only for someone with something to be notified about: the prompt
       // follows "Turn on azan" or adding a reminder, never a bare launch
       // (setup's Azan step is where a new install is asked). Costs nothing
@@ -675,6 +698,14 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      // A tap that reached Dart by neither of the plugin's callbacks (see
+      // handleNotificationThatOpenedApp). Not before start-up has handled
+      // the tap that launched it. Unawaited: playback's future only
+      // completes when the Azan ends.
+      if (_launchNotificationHandled) {
+        unawaited(handleNotificationThatOpenedApp());
+      }
+      unawaited(_takePendingWidgetUrl());
       _refreshLocationOnResume();
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden) {

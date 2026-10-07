@@ -5,7 +5,6 @@ import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
 import '../utils/font_preferences.dart';
 import 'language_settings.dart';
-import 'outline_icon.dart';
 import 'page_chrome.dart';
 import 'zikr_reading_preferences.dart';
 
@@ -14,12 +13,11 @@ import 'zikr_reading_preferences.dart';
 /// live sample, Arabic and English size, then the switches.
 ///
 /// [onChanged] runs after every change, so the text behind the sheet
-/// follows along. [onSetReminder], when given, adds a row for setting a
-/// reminder to read this zikr.
+/// follows along. Setting a reminder is the reader top bar's bell, not a
+/// row here.
 Future<void> showReaderTextSheet(
   BuildContext context, {
   required VoidCallback onChanged,
-  VoidCallback? onSetReminder,
 }) {
   final colors = ShiaColors.of(context);
   return showModalBottomSheet<void>(
@@ -28,10 +26,7 @@ Future<void> showReaderTextSheet(
     useSafeArea: true,
     backgroundColor: colors.ground,
     constraints: const BoxConstraints(maxWidth: 640),
-    builder: (context) => ReaderTextSheet(
-      onChanged: onChanged,
-      onSetReminder: onSetReminder,
-    ),
+    builder: (context) => ReaderTextSheet(onChanged: onChanged),
   );
 }
 
@@ -39,11 +34,9 @@ class ReaderTextSheet extends StatefulWidget {
   const ReaderTextSheet({
     super.key,
     required this.onChanged,
-    this.onSetReminder,
   });
 
   final VoidCallback onChanged;
-  final VoidCallback? onSetReminder;
 
   @override
   State<ReaderTextSheet> createState() => _ReaderTextSheetState();
@@ -218,28 +211,10 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
               last: true,
             ),
           ]),
-          if (showLanguage || widget.onSetReminder != null) ...[
+          if (showLanguage) ...[
             const SizedBox(height: 12),
-            CardList(children: [
-              if (showLanguage)
-                TranslationLanguageTile(
-                  first: true,
-                  last: widget.onSetReminder == null,
-                ),
-              if (widget.onSetReminder != null)
-                CardListRow(
-                  first: !showLanguage,
-                  last: true,
-                  leading: OutlineIcon(OutlineGlyph.bell,
-                      size: 22, color: colors.accent),
-                  title: Text(l10n.readerSetReminder),
-                  trailing: OutlineIcon(OutlineGlyph.chevronRight,
-                      size: 18, color: colors.chevron),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    widget.onSetReminder!();
-                  },
-                ),
+            const CardList(children: [
+              TranslationLanguageTile(first: true, last: true),
             ]),
           ],
         ],

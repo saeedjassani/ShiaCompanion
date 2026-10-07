@@ -11,6 +11,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/l10n.dart';
+import 'exclusive_audio.dart';
 
 /// Plays the full Azan - or, on Android, a user's Custom Audio choice - as
 /// real, app-controlled audio rather than a plain notification sound.
@@ -166,6 +167,13 @@ class AzanPlaybackService {
   }
 
   static AudioPlayer? _activePlayer;
+
+  /// Set while [_startPlayback] waits for another player to let go, so a
+  /// second request in that gap cannot start a second Azan.
+  static bool _starting = false;
+
+  /// What [ExclusiveAudio] knows the Azan's claim by.
+  static final Object _audioOwner = Object();
   static ReceivePort? _stopPort;
   static StreamSubscription<PlayerState>? _completionSub;
 
@@ -179,6 +187,7 @@ class AzanPlaybackService {
     // Azan cut short by the app being killed (swiped away, or reclaimed by
     // iOS) left it stuck at true and every later tap on a prayer
     // notification silently did nothing.
+    if (_starting) return;
     final existing = _activePlayer;
     if (existing != null) {
       // One this isolate started but that is now paused (e.g. from the
@@ -202,6 +211,22 @@ class AzanPlaybackService {
     // runApp(). The alarm-callback isolate is the one place that genuinely
     // needs its own call - see [alarmCallback], Android-only and always a
     // fresh isolate.
+    //
+    // The same single player slot is why this claims the audio first: a
+    // recitation player that is still alive - a playlist that finished or
+    // was paused, a zikr with Listen open - made the Azan's player throw
+    // "supports only a single player instance" on load, so a tap on the
+    // prayer notification played nothing. On iOS, where the app is
+    // suspended rather than closed, such a player can sit there for hours.
+    // The Azan is what the reader asked for, so the recitation stops.
+    _starting = true;
+    try {
+      await ExclusiveAudio.claim(_audioOwner, _stopPlayback);
+    } catch (e) {
+      debugPrint('Could not stop the other player for the Azan: $e');
+    } finally {
+      _starting = false;
+    }
     final player = AudioPlayer();
     _activePlayer = player;
     _registerStopPort();
@@ -278,6 +303,7 @@ class AzanPlaybackService {
     _completionSub = null;
     final player = _activePlayer;
     _activePlayer = null;
+    ExclusiveAudio.relinquish(_audioOwner);
     // The shared state goes first: when the notification already stopped
     // the native player, tearing down this wrapper is best-effort and must
     // not be able to leave the UI showing a Stop control.

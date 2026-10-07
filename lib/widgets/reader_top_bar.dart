@@ -41,7 +41,7 @@ class ReaderGlassBand extends StatelessWidget {
 /// The reader's top bar (docs/DESIGN_SPEC.md, "Reading"): the round Back
 /// button, a one-line title with a small sub-line under it ("12% read",
 /// "Part 3 of 4", "Verse 255 of 286 · My reading"), an optional round action
-/// on the right (the favourite), and a 3 px progress line along its bottom
+/// on the right (the reminder bell), and a 3 px progress line along its bottom
 /// edge.
 ///
 /// Excludes the status bar: the page paints that band itself, so the bar can
