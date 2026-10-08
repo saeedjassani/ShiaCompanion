@@ -67,6 +67,37 @@ void main() {
     expect(find.text('Ayat al Kursi'), findsNothing);
   });
 
+  group('the tracking hint', () {
+    const hint = 'Your place is saved as you read. Add a track to keep a '
+        'separate place, like reading with family.';
+    const viewsKey = 'quran_tracking_hint_views';
+
+    testWidgets('shows on the first open and counts it', (tester) async {
+      await pump(tester);
+
+      expect(find.text(hint), findsOneWidget);
+      expect(SP.prefs.getInt(viewsKey), 1);
+    });
+
+    testWidgets('closing it keeps it closed', (tester) async {
+      await pump(tester);
+      await tester.tap(find.byTooltip('Close'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(hint), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+      await pump(tester);
+      expect(find.text(hint), findsNothing);
+    });
+
+    testWidgets('stops after the first few opens', (tester) async {
+      await SP.prefs.setInt(viewsKey, 5);
+      await pump(tester);
+
+      expect(find.text(hint), findsNothing);
+    });
+  });
+
   testWidgets('the juz tab lists all thirty with their ranges', (tester) async {
     await pump(tester);
     await tester.tap(find.text('Juz'));

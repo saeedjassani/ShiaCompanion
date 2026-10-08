@@ -1020,8 +1020,31 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   ///
   /// Only reached on a plain open. Opened for a specific verse, the bookmark
   /// would be neither landed on nor noticed, so it is kept for a later visit.
+  ///
+  /// A note says why: without one the bookmark simply never comes back, and
+  /// the reader goes looking for the button that made it. Shown for every
+  /// bookmark retired, since each is a separate "where did it go".
   void _consumeLegacyQuranBookmark() {
     unawaited(ZikrBookmarksManager.instance.remove(_bookmarkUid));
+    unawaited(AnalyticsService.feature(
+      'quran_legacy_bookmark_retired',
+      label: 'Quran legacy bookmark retired',
+      parameters: {'zikr_uid': _bookmarkUid},
+    ));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.quranBookmarkRetired),
+          // Long enough to read while the page settles at the bookmark.
+          duration: const Duration(seconds: 10),
+          action: SnackBarAction(
+            label: MaterialLocalizations.of(context).okButtonLabel,
+            onPressed: () {},
+          ),
+        ),
+      );
+    });
   }
 
   /// Follows the bookmark when it changes from outside this page - moved,

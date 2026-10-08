@@ -2350,6 +2350,14 @@
   "@quranMyReading": {
     "description": "The default Quran reading track's card on the Quran screen."
   },
+  "quranTrackingHint": "Your place is saved as you read. Add a track to keep a separate place, like reading with family.",
+  "@quranTrackingHint": {
+    "description": "Dismissible note under the reading track cards on the Quran screen, shown the first few times it opens."
+  },
+  "quranBookmarkRetired": "Surah bookmarks are retired: the Quran now saves your place as you read. Pick up again from My reading on the Quran screen.",
+  "@quranBookmarkRetired": {
+    "description": "Shown once a surah opens at a bookmark made in an older version, which is then removed. 'My reading' is the quranMyReading track card."
+  },
   "favoriteToggleLabel": "Favorite {title}",
   "@favoriteToggleLabel": {
     "description": "Screen-reader label of a heart button; read with its on/off state.",

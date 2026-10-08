@@ -10,6 +10,7 @@ import '../../services/recitation_tracker_manager.dart';
 import '../../services/saved_verses_manager.dart';
 import '../../models/saved_verse.dart';
 import '../../utils/quran_index.dart';
+import '../../utils/shared_preferences.dart';
 import '../../utils/quran_text_index.dart';
 import '../../theme/shia_colors.dart';
 import '../../widgets/favorite_icon.dart';
@@ -137,6 +138,7 @@ class _QuranPageState extends State<QuranPage> {
         // Runs to the screen's edge, so the cards scroll out from under the
         // gutter rather than being cut off at it.
         SliverToBoxAdapter(child: _RecitationTrackCards(gutter: gutter)),
+        const SliverToBoxAdapter(child: _TrackingHint()),
         SliverPadding(
           padding: gutter.copyWith(top: 14, bottom: 14),
           sliver: SliverToBoxAdapter(
@@ -369,6 +371,87 @@ class _TrackCard extends StatelessWidget {
       target.verse,
       source: ZikrOpenSource.quranResume,
       recitationLabel: label,
+    );
+  }
+}
+
+/// A short note under the track cards that the place is kept on its own.
+///
+/// The surah reader used to have a bookmark button, and the Quran reader has
+/// none - so someone used to bookmarking needs telling, once or twice, that
+/// there is nothing to do. Shown the first [_maxViews] times the screen
+/// opens, or until closed, then never again.
+class _TrackingHint extends StatefulWidget {
+  const _TrackingHint();
+
+  static const String viewsKey = 'quran_tracking_hint_views';
+  static const int _maxViews = 5;
+
+  @override
+  State<_TrackingHint> createState() => _TrackingHintState();
+}
+
+class _TrackingHintState extends State<_TrackingHint> {
+  bool _visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!SP.isInitialized) return;
+    final views = SP.prefs.getInt(_TrackingHint.viewsKey) ?? 0;
+    if (views >= _TrackingHint._maxViews) return;
+    _visible = true;
+    unawaited(SP.prefs.setInt(_TrackingHint.viewsKey, views + 1));
+  }
+
+  void _dismiss() {
+    setState(() => _visible = false);
+    unawaited(AnalyticsService.feature(
+      'quran_tracking_hint_dismissed',
+      label: 'Quran tracking hint dismissed',
+    ));
+    unawaited(SP.prefs.setInt(_TrackingHint.viewsKey, _TrackingHint._maxViews));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_visible) return const SizedBox.shrink();
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
+
+    return Padding(
+      padding: gutter.copyWith(top: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child:
+                OutlineIcon(OutlineGlyph.info, size: 16, color: colors.accent),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              context.l10n.quranTrackingHint,
+              style: ShiaText.caption.copyWith(color: colors.textMuted),
+            ),
+          ),
+          Tooltip(
+            message: context.l10n.commonClose,
+            child: InkResponse(
+              onTap: _dismiss,
+              radius: 20,
+              child: SizedBox.square(
+                dimension: 40,
+                child: Center(
+                  child: OutlineIcon(OutlineGlyph.close,
+                      size: 16, color: colors.textMuted),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
