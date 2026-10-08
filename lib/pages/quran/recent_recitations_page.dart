@@ -61,7 +61,7 @@ class RecentRecitationsPage extends StatelessWidget {
                       last: index == entries.length - 1,
                       title: Text(range),
                       subtitle: Text(
-                        '${entry.label} · '
+                        '${recitationTrackName(entry.label, l10n)} · '
                         '${_dayTimeFormat.format(entry.recitedAt.toLocal())}',
                       ),
                       trailing: Builder(
@@ -120,7 +120,13 @@ class RecentRecitationsPage extends StatelessWidget {
       builder: (_) => _RelabelForm(choices: choices),
     );
 
-    final trimmed = newLabel?.trim() ?? '';
+    var trimmed = newLabel?.trim() ?? '';
+    // Typing the default track's name means the default track, not a new
+    // track that happens to share its name.
+    if (context.mounted &&
+        isDefaultRecitationTrackName(trimmed, context.l10n)) {
+      trimmed = unlabeledRecitationLabel;
+    }
     if (trimmed.isEmpty || trimmed == entry.label) return;
     await RecitationTrackerManager.instance.logRecitation(
       id: entry.id,
@@ -177,7 +183,7 @@ class _RelabelFormState extends State<_RelabelForm> {
             children: [
               for (final label in widget.choices)
                 ChoicePill(
-                  label: label,
+                  label: recitationTrackName(label, l10n),
                   onTap: () => Navigator.pop(context, label),
                 ),
             ],

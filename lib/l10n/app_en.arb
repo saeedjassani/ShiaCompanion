@@ -948,7 +948,7 @@
       }
     }
   },
-  "trackNameTaken": "There is already a track called \"{name}\"",
+  "trackNameTaken": "There is already a Khatm called \"{name}\"",
   "@trackNameTaken": {
     "placeholders": {
       "name": {
@@ -956,20 +956,20 @@
       }
     }
   },
-  "trackNameRequired": "Give the track a name",
+  "trackNameRequired": "Give the Khatm a name",
   "trackBeginning": "The beginning",
-  "trackNew": "New recitation track",
+  "trackNew": "New Khatm",
   "trackName": "Name",
-  "trackNameHint": "e.g. Family, Tahajjud",
+  "trackNameHint": "e.g. Family, Ramazan",
   "trackReadBy": "Read by",
   "trackBySurah": "Surah",
   "trackByJuz": "Juz (Para)",
   "trackContinueFrom": "Continue from",
   "trackStartFrom": "Start from",
   "trackStartAt": "Start at",
-  "trackEditNote": "Your track moves on by itself as you read. Change this only to pick up somewhere else.",
-  "trackNewNote": "You can change these anytime from the track card.",
-  "trackCreate": "Create track",
+  "trackEditNote": "This Khatm moves on by itself as you read. Change this only to pick up somewhere else.",
+  "trackNewNote": "You can change these anytime from the Khatm's card.",
+  "trackCreate": "Start Khatm",
   "notifCustomSound": "Custom: {file}",
   "@notifCustomSound": {
     "description": "{file} is an audio file name.",
@@ -1276,7 +1276,7 @@
       }
     }
   },
-  "quranEditTrack": "Edit {track} track",
+  "quranEditTrack": "Edit {track}",
   "@quranEditTrack": {
     "placeholders": {
       "track": {
@@ -1290,7 +1290,7 @@
   "quranTabJuz": "Juz",
   "quranTabCollections": "Collections",
   "quranStartReading": "Start reading",
-  "quranNewTrack": "New track",
+  "quranNewTrack": "New Khatm",
   "statsMetricVerses": "Verses",
   "statsMetricZikrs": "Zikrs",
   "statsMetricQaza": "Qaza",
@@ -1539,8 +1539,8 @@
     }
   },
   "quranNoSessions": "No sessions yet. Open a surah and start reading - the verses you recite are logged here automatically.",
-  "quranMoveToLabel": "Move to another label",
-  "quranNewLabel": "Or a new label",
+  "quranMoveToLabel": "Move to another Khatm",
+  "quranNewLabel": "Or a new Khatm",
   "quranMove": "Move",
   "quranCollectionDuas": "Duas",
   "quranCollectionImamAli": "Imam Ali (a.s.)",
@@ -2381,6 +2381,14 @@
   "quranMyReading": "My reading",
   "@quranMyReading": {
     "description": "The default Quran reading track's card on the Quran screen."
+  },
+  "quranTrackingHint": "Everything you read in the Quran is saved to My reading. To keep a separate Khatm, like one with family, add a new Khatm and tap its card to carry on where it left off.",
+  "@quranTrackingHint": {
+    "description": "Dismissible note under the reading track cards on the Quran screen, shown the first few times it opens."
+  },
+  "quranBookmarkRetired": "Surah bookmarks are retired: the Quran now saves your place as you read. Pick up again from My reading on the Quran screen.",
+  "@quranBookmarkRetired": {
+    "description": "Shown once a surah opens at a bookmark made in an older version, which is then removed. 'My reading' is the quranMyReading track card."
   },
   "favoriteToggleLabel": "Favorite {title}",
   "@favoriteToggleLabel": {
@@ -3552,7 +3560,7 @@
   "accountItemSavedVerses": "Saved verses",
   "accountItemQaza": "Qaza tracker",
   "accountItemStats": "My Stats and shortcuts",
-  "accountTracks": "{count, plural, =1{1 track} other{{count} tracks}}",
+  "accountTracks": "{count, plural, =1{1 Khatm} other{{count} Khatms}}",
   "@accountTracks": {
     "description": "How many Quran recitation tracks are backed up.",
     "placeholders": {

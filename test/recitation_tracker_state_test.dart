@@ -613,4 +613,18 @@ void main() {
       expect(state.lastRecitedVerseFor('Personal'), isNull);
     });
   });
+
+  group('the default track\'s name', () {
+    test('shows as My reading; other tracks keep their own name', () {
+      expect(recitationTrackName(unlabeledRecitationLabel), 'My reading');
+      expect(recitationTrackName('Family'), 'Family');
+    });
+
+    test('is taken by both of its names, in any case', () {
+      expect(isDefaultRecitationTrackName('My reading'), isTrue);
+      expect(isDefaultRecitationTrackName('  my READING '), isTrue);
+      expect(isDefaultRecitationTrackName('unlabeled'), isTrue);
+      expect(isDefaultRecitationTrackName('My reading list'), isFalse);
+    });
+  });
 }

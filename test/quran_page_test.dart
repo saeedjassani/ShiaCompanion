@@ -53,7 +53,7 @@ void main() {
     // and leave the card under the folded title bar.)
     await tester.drag(find.text('My reading'), const Offset(-600, 0));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('New track'));
+    await tester.tap(find.text('New Khatm'));
     await tester.pumpAndSettle();
   }
 
@@ -65,6 +65,38 @@ void main() {
     expect(find.text('7 verses'), findsOneWidget);
     // Ayat al Kursi is not a surah and must not appear among the 114.
     expect(find.text('Ayat al Kursi'), findsNothing);
+  });
+
+  group('the tracking hint', () {
+    const hint = 'Everything you read in the Quran is saved to My reading. '
+        'To keep a separate Khatm, like one with family, add a new Khatm and '
+        'tap its card to carry on where it left off.';
+    const viewsKey = 'quran_tracking_hint_views';
+
+    testWidgets('shows on the first open and counts it', (tester) async {
+      await pump(tester);
+
+      expect(find.text(hint), findsOneWidget);
+      expect(SP.prefs.getInt(viewsKey), 1);
+    });
+
+    testWidgets('closing it keeps it closed', (tester) async {
+      await pump(tester);
+      await tester.tap(find.byTooltip('Close'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(hint), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+      await pump(tester);
+      expect(find.text(hint), findsNothing);
+    });
+
+    testWidgets('stops after the first few opens', (tester) async {
+      await SP.prefs.setInt(viewsKey, 5);
+      await pump(tester);
+
+      expect(find.text(hint), findsNothing);
+    });
   });
 
   testWidgets('the juz tab lists all thirty with their ranges', (tester) async {
@@ -323,11 +355,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Juz 12'), findsOneWidget);
 
-    await tester.tap(find.text('Create track'));
+    await tester.tap(find.text('Start Khatm'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Create track'), findsNothing);
-    expect(find.bySemanticsLabel('Edit Khatm track'), findsOneWidget);
+    expect(find.text('Start Khatm'), findsNothing);
+    expect(find.bySemanticsLabel('Edit Khatm'), findsOneWidget);
     expect(find.text('Juz 12'), findsOneWidget);
   });
 
@@ -336,10 +368,10 @@ void main() {
 
     await tapNewTrack(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Later');
-    await tester.tap(find.text('Create track'));
+    await tester.tap(find.text('Start Khatm'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.bySemanticsLabel('Edit Later track'));
+    await tester.tap(find.bySemanticsLabel('Edit Later'));
     await tester.pumpAndSettle();
     expect(find.text('CONTINUE FROM'), findsOneWidget);
     await tester.tap(find.text('Juz (Para)'));
@@ -378,7 +410,7 @@ void main() {
 
     await tester.tap(find.text('Choose'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Create track'));
+    await tester.tap(find.text('Start Khatm'));
     await tester.pumpAndSettle();
 
     expect(find.text('Juz 22 · 33:35'), findsOneWidget);
@@ -392,10 +424,23 @@ void main() {
     await pump(tester);
 
     await tapNewTrack(tester);
-    await tester.tap(find.text('Create track'));
+    await tester.tap(find.text('Start Khatm'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Give the track a name'), findsOneWidget);
+    expect(find.text('Give the Khatm a name'), findsOneWidget);
+  });
+
+  testWidgets('a new track cannot take the default track\'s name',
+      (tester) async {
+    await pump(tester);
+
+    await tapNewTrack(tester);
+    await tester.enterText(find.byType(TextField).first, 'my reading');
+    await tester.tap(find.text('Start Khatm'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('There is already a Khatm called "my reading"'),
+        findsOneWidget);
   });
 
   testWidgets('the Collections view remembers the collection last picked',
