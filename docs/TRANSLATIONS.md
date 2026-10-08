@@ -253,10 +253,13 @@ Ziyarat Ashura (`G4.json` - 124 verses and 4 instructions such as "Then say
 that go with it (its title, alias title, recording label and reciter).
 
 Fill in the empty strings and copy the files into `assets/zikr_i18n/<code>/`,
-then run `rebase` to pin the new zikrs. Keys starting with `_` in a template
-(`_reference`, `_englishMerits`, `_englishTitles`) are reference only and
-ignored by the app; empty values are ignored too, so a partly translated
-file is safe to ship.
+then run `rebase`. Keys starting with `_` in a template (`_reference` - each
+segment's Arabic and English - `_englishMerits`, `_englishTitles`) are there
+to translate from, and never ship: every file under `assets/zikr_i18n/` is
+bundled into the app, and the reference would copy the zikr into it a second
+time. `rebase` strips them, along with the empty strings of anything left
+untranslated, so a partly translated file is safe to ship; `check` and
+`test/zikr_translations_test.dart` fail on any left behind.
 
 ### Shipping a language's zikr translations
 

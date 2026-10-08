@@ -50,8 +50,11 @@ and the language's index.json:
      "audio": {"labels": {"<zikr_audio.json file>": "..."},
                "reciters": {"<reciter>": "..."}}}
 
-Empty values are ignored by the app, and keys starting with "_" (the
-template's English and Arabic for reference) are too.
+A template carries the English and Arabic of each segment under keys
+starting with "_", for reference. They never ship: `rebase` strips them
+(and empty values) from everything under assets/zikr_i18n/, and `check`
+and the test fail on any left behind - every shipped file is bundled into
+the app, and the reference would copy each zikr into it a second time.
 """
 import argparse
 import difflib
@@ -392,9 +395,9 @@ def cmd_template(args):
         write_json(os.path.join(out, f'{uid}.json'), template)
         written += 1
     print(f'Wrote {written} zikr template(s) and index.json to {out}')
-    print('Keys starting with "_" are reference only; the app ignores them.')
-    print('Drop the "_" keys (or not) and copy into assets/zikr_i18n/'
-          f'{lang}/, then run `rebase` to pin the new zikrs.')
+    print('Keys starting with "_" are reference only. Fill in the empty '
+          f'strings, copy the files into assets/zikr_i18n/{lang}/ and run '
+          '`rebase`: it strips the reference and pins the new zikrs.')
 
 
 # ---------------------------------------------------------------------------
@@ -457,6 +460,9 @@ def cmd_check(args):
             except ValueError as e:
                 error(f'index.json: invalid JSON: {e}')
                 index = {}
+            if has_reference(index):
+                error('index.json: "_" reference keys must not ship - run '
+                      '`zikr_i18n.py rebase`')
             if 'lines' in index:
                 error('index.json: "lines" is the old English-keyed format - '
                       'run `zikr_i18n.py migrate`')
@@ -503,6 +509,9 @@ def cmd_check(args):
             except ValueError as e:
                 error(f'{name}: invalid JSON: {e}')
                 continue
+            if has_reference(translation):
+                error(f'{name}: "_" reference keys must not ship - run '
+                      '`zikr_i18n.py rebase`')
             if 'lines' in translation:
                 error(f'{name}: "lines" is the old English-keyed format - '
                       'run `zikr_i18n.py migrate`')
@@ -558,7 +567,41 @@ def _renumbering(old, new):
     return mapping, changed
 
 
+def strip_reference(value):
+    """[value] without its "_" reference keys or empty strings, at any
+    depth."""
+    if not isinstance(value, dict):
+        return value
+    return {
+        key: strip_reference(item)
+        for key, item in value.items()
+        if not key.startswith('_') and not (isinstance(item, str) and not item.strip())
+    }
+
+
+def has_reference(value):
+    return isinstance(value, dict) and any(
+        key.startswith('_') or has_reference(item) for key, item in value.items())
+
+
+def strip_shipped():
+    """Strips the template reference from every shipped file."""
+    for lang in shipped_languages():
+        paths = list(translation_files(lang).values())
+        index_path = os.path.join(I18N_DIR, lang, 'index.json')
+        if os.path.exists(index_path):
+            paths.append(index_path)
+        for path in paths:
+            data = load_json(path)
+            stripped = strip_reference(data)
+            if stripped != data:
+                write_json(path, stripped)
+                print(f'{os.path.relpath(path, ROOT)}: stripped the reference '
+                      'and empty values')
+
+
 def cmd_rebase(args):
+    strip_shipped()
     docs = corpus()
     pinned = load_anchors()
     uids = translated_uids()

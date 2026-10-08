@@ -450,6 +450,20 @@ void main() {
           }
           final decoded = jsonDecode(file.readAsStringSync());
           expect(decoded, isA<Map>(), reason: file.path);
+          // A template's "_" reference (each segment's Arabic and English)
+          // would bundle the zikr into the app a second time.
+          void expectNoReference(Object? value) {
+            if (value is! Map) return;
+            for (final entry in value.entries) {
+              expect((entry.key as String).startsWith('_'), isFalse,
+                  reason: '${file.path}: "${entry.key}" is template '
+                      'reference; run python3 scripts/zikr_i18n/zikr_i18n.py '
+                      'rebase to strip it');
+              expectNoReference(entry.value);
+            }
+          }
+
+          expectNoReference(decoded);
           expect((decoded as Map).containsKey('lines'), isFalse,
               reason: '${file.path}: "lines" is the old English-keyed format; '
                   'run python3 scripts/zikr_i18n/zikr_i18n.py migrate');
