@@ -47,6 +47,7 @@ import 'downloaded_audio_page.dart';
 import 'prayer_notifications_page.dart';
 import 'scheduled_notifications_page.dart';
 import 'zikr_reminders_page.dart';
+import '../widgets/app_toast.dart';
 
 /// Settings (docs/DESIGN_SPEC.md, "Settings"; mockups `Settings-A` and
 /// `Settings-A-signedin`): the sign-in card first (what is at stake and the
@@ -449,9 +450,7 @@ class _SettingsPageState extends State<SettingsPage> {
     // failure would otherwise look like a dead tap.
     if (kIsWeb &&
         LocationService.instance.status == LocationRefreshStatus.failed) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(LocationService.instance.failureMessage),
-      ));
+      showToast(LocationService.instance.failureMessage);
     }
   }
 
@@ -519,9 +518,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _requestPrecisePrayerAlarms() async {
     if (flutterLocalNotificationsPlugin == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.settingsNotificationsUnavailable)),
-      );
+      showToast(context.l10n.settingsNotificationsUnavailable);
       return;
     }
 
@@ -529,9 +526,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (!mounted) return;
     if (alreadyEnabled) {
       setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.settingsPreciseAlarmsAlreadyOn)),
-      );
+      showToast(context.l10n.settingsPreciseAlarmsAlreadyOn);
       return;
     }
 
@@ -563,15 +558,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (!mounted) return;
     setState(() {});
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          granted || canScheduleExactPrayerNotifications
-              ? context.l10n.settingsPreciseAlarmsEnabled
-              : context.l10n.settingsPreciseAlarmsNotEnabled,
-        ),
-      ),
-    );
+    showToast(granted || canScheduleExactPrayerNotifications
+        ? context.l10n.settingsPreciseAlarmsEnabled
+        : context.l10n.settingsPreciseAlarmsNotEnabled);
   }
 
   Future<void> _sendFeedback() async {
@@ -585,9 +574,7 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     }
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.settingsNoEmailApp)),
-      );
+      showToast(context.l10n.settingsNoEmailApp);
     }
   }
 
@@ -598,9 +585,7 @@ class _SettingsPageState extends State<SettingsPage> {
     ));
     final launched = await launchExternalUri(githubRepoUri);
     if (!launched && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.settingsGithubOpenFailed)),
-      );
+      showToast(context.l10n.settingsGithubOpenFailed);
     }
   }
 

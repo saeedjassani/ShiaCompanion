@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../constants.dart' show appScaffoldMessengerKey;
 import '../models/zikr_audio_track.dart';
 import '../services/audio_download_store.dart';
 import '../utils/network_utils.dart';
 import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
+import 'app_toast.dart';
 import 'outline_icon.dart';
 import 'page_chrome.dart';
 
@@ -35,14 +35,9 @@ Future<bool> startAudioDownload(
   String? label,
 }) async {
   final store = AudioDownloadStore.instance;
-  final messenger = ScaffoldMessenger.maybeOf(context);
   final network = NetworkUtils();
   if (!await network.isDeviceOnline()) {
-    messenger
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Text(context.l10n.audioOfflineCannotDownload),
-      ));
+    showToast(L10n.current.audioOfflineCannotDownload);
     return false;
   }
   if (await network.isOnMobileDataOnly()) {
@@ -118,13 +113,11 @@ Future<void> confirmRemoveAudioDownload(
 /// The app-wide message when a download finishes, shown wherever the reader
 /// has got to by then. Registered once in main().
 void showAudioDownloadResult(AudioDownloadResult result) {
-  final messenger = appScaffoldMessengerKey.currentState;
-  if (messenger == null) return;
   final name = result.label;
   final total = result.saved + result.failed;
 
   final String message;
-  SnackBarAction? action;
+  VoidCallback? retry;
   if (result.succeeded) {
     final l10n = L10n.current;
     message = name == null
@@ -146,16 +139,15 @@ void showAudioDownloadResult(AudioDownloadResult result) {
     };
     message = '$partial $reason';
     if (result.failure != AudioDownloadFailure.unavailable) {
-      action = SnackBarAction(
-        label: l10n.commonRetry,
-        onPressed: () => unawaited(AudioDownloadStore.instance
-            .download(result.tracks, label: result.label)),
-      );
+      retry = () => unawaited(AudioDownloadStore.instance
+          .download(result.tracks, label: result.label));
     }
   }
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message), action: action));
+  showToast(
+    message,
+    actionLabel: retry == null ? null : L10n.current.commonRetry,
+    onAction: retry,
+  );
 }
 
 /// Saves [tracks] for offline listening, shows how far along that is, and
@@ -280,8 +272,8 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
             label = context.l10n.audioDownloaded;
             tooltip = context.l10n.audioDownloadedTooltip;
           case AudioDownloadState.failed:
-            icon = OutlineIcon(OutlineGlyph.alert,
-                size: 22, color: colors.danger);
+            icon =
+                OutlineIcon(OutlineGlyph.alert, size: 22, color: colors.danger);
             label = context.l10n.audioRetryDownload;
             tooltip = context.l10n.audioDownloadFailedTooltip;
           case AudioDownloadState.partial:

@@ -31,6 +31,7 @@ import 'navigation/app_shell.dart';
 import 'navigation/keyboard_shortcuts.dart';
 import 'pages/widget_preview_page.dart';
 import 'utils/deep_links.dart';
+import 'widgets/app_toast.dart';
 import 'widgets/audio_download_button.dart';
 
 void main() async {
@@ -171,13 +172,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => AppTextScaleProvider()),
         ChangeNotifierProvider(create: (context) => LanguageProvider()),
       ],
-      child: Consumer3<ThemeModeProvider, AppTextScaleProvider,
-              LanguageProvider>(
-          builder: (context, themeModeProvider, textScaleProvider,
-              languageProvider, _) {
+      child:
+          Consumer3<ThemeModeProvider, AppTextScaleProvider, LanguageProvider>(
+              builder: (context, themeModeProvider, textScaleProvider,
+                  languageProvider, _) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
-          scaffoldMessengerKey: appScaffoldMessengerKey,
           title: appName,
           // Always explicit, rather than left to Flutter's own resolution, so
           // the language the UI is in is the one LanguageProvider reports
@@ -248,6 +248,7 @@ class MyApp extends StatelessWidget {
             // every screen that also calls trackScreen. AnalyticsService.screen
             // is the single source of screen views, on every platform.
             routeObserver,
+            toastRouteObserver,
           ],
         );
       }),

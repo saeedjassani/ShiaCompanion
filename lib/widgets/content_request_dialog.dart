@@ -9,6 +9,7 @@ import '../theme/shia_colors.dart';
 import 'choice_sheet.dart';
 import 'outline_icon.dart';
 import 'page_chrome.dart';
+import 'app_toast.dart';
 
 /// What the reader filled in, before it is sent anywhere.
 class ContentRequestDraft {
@@ -34,7 +35,6 @@ Future<void> showContentRequestDialog(
   String initialTitle = '',
   required String source,
 }) async {
-  final messenger = ScaffoldMessenger.maybeOf(context);
   final draft = await showRevampSheet<ContentRequestDraft>(
     context,
     title: context.l10n.settingsRequestContent,
@@ -58,13 +58,8 @@ Future<void> showContentRequestDialog(
     details: draft.details,
   );
 
-  messenger?.showSnackBar(
-    SnackBar(
-      content: Text(submitted
-          ? context.l10n.requestThanks
-          : context.l10n.requestFailed),
-    ),
-  );
+  showToast(
+      submitted ? L10n.current.requestThanks : L10n.current.requestFailed);
 }
 
 /// The request form [showContentRequestDialog] opens in a sheet: zikr or

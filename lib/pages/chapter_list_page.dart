@@ -15,6 +15,7 @@ import '../constants.dart';
 import '../services/analytics_service.dart';
 import 'chapter_page.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 class ChapterListPage extends StatefulWidget {
   final String slug;
@@ -171,9 +172,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
           parameters: {'book_uid': widget.slug},
         ));
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.libraryOfflineRemoved)),
-          );
+          showToast(context.l10n.libraryOfflineRemoved);
         }
       } else {
         await LibraryService.saveBookForOffline(widget.slug, widget.title);
@@ -183,19 +182,13 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
           parameters: {'book_uid': widget.slug},
         ));
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content:
-                    Text(context.l10n.librarySavedForOffline(widget.title))),
-          );
+          showToast(context.l10n.librarySavedForOffline(widget.title));
         }
       }
       await _checkSaved();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.librarySaveFailedShort('$e'))),
-        );
+        showToast(context.l10n.librarySaveFailedShort('$e'));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);

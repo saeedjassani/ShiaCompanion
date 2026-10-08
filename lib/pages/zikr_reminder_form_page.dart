@@ -16,6 +16,7 @@ import '../widgets/page_chrome.dart';
 import '../widgets/prayer_glyph.dart';
 import 'zikr_picker_page.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 /// Add/edit form for a single [ZikrReminder].
 ///
@@ -140,7 +141,8 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
               child: CardListRow(
                 first: i == 0,
                 last: i == names.length - 1,
-                leading: PrayerGlyph(name: name, size: 24, color: colors.accent),
+                leading:
+                    PrayerGlyph(name: name, size: 24, color: colors.accent),
                 title: Text(localizedPrayerName(name, context.l10n)),
                 trailing: SizedBox.square(
                   dimension: 44,
@@ -235,23 +237,19 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
       }
 
       if (!mounted) return;
-      if (_mode == ZikrReminderTimeMode.relativeToPrayer &&
-          (lat == null || long == null)) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-            context.l10n.reminderSavedPendingLocation,
-          ),
-        ));
-      }
+      final pendingLocation = _mode == ZikrReminderTimeMode.relativeToPrayer &&
+          (lat == null || long == null);
+      final message = context.l10n.reminderSavedPendingLocation;
       Navigator.pop(context);
+      // After the pop, so it shows on the list the reminder was saved to.
+      if (pendingLocation) showToast(message);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    showToast(message);
   }
 
   @override

@@ -8,6 +8,7 @@ import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
+import '../widgets/app_toast.dart';
 
 /// About: the app and its version, the dedication, the support address, and
 /// the credits the content's licences ask for.
@@ -30,9 +31,7 @@ class _AboutPageState extends State<AboutPage> {
   Future<void> _email() async {
     final launched = await launchSupportEmail();
     if (!launched && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.aboutNoEmailApp)),
-      );
+      showToast(context.l10n.aboutNoEmailApp);
     }
   }
 
