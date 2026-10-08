@@ -9,6 +9,7 @@ import 'package:shia_companion/pages/home/coming_up_section.dart';
 import 'package:shia_companion/utils/islamic_day.dart';
 import 'package:shia_companion/utils/lunar_date_matcher.dart';
 import 'package:shia_companion/pages/home/continue_section.dart';
+import 'package:shia_companion/pages/home/get_app_card.dart';
 import 'package:shia_companion/pages/home/hadith_card.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
 import 'package:shia_companion/services/home_shortcuts_store.dart';
@@ -434,6 +435,26 @@ void main() {
       for (final item in allFeaturesMenuItems) {
         expect(find.text(item.label), findsOneWidget, reason: item.label);
       }
+    });
+  });
+
+  group('Get the app', () {
+    testWidgets('offers both stores, each read out as a link', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(_app(const GetAppCard()));
+
+      expect(find.text('Get the app'), findsOneWidget);
+      expect(
+          find.bySemanticsLabel('Download on the App Store'), findsOneWidget);
+      expect(find.bySemanticsLabel('Get it on Google Play'), findsOneWidget);
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel('Get it on Google Play'))
+            .flagsCollection
+            .isLink,
+        isTrue,
+      );
+      semantics.dispose();
     });
   });
 }

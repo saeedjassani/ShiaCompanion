@@ -179,6 +179,9 @@ Top to bottom, each section hidden when it has nothing to show:
    and says **TODAY**, or **TONIGHT** from Maghrib on its eve. Tap →
    Calendar.
 6. **Hadith of the day** — full text, source, Share button.
+7. **Get the app** — web only: a card with the official App Store and
+   Google Play badges (both, whatever the browser), under the prayer card
+   and Continue from the tablet breakpoint up, last on a phone.
 
 ### All features
 One 3-column grid in today's home order (minus Quran and Favorites, which
