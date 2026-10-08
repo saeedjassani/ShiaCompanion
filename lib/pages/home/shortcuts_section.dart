@@ -14,6 +14,7 @@ import 'home_section.dart';
 
 /// Home's shortcuts: up to eleven features the reader picked, then All
 /// features, four to a row - two rows, or three once there are eight or more.
+/// Untouched, a phone shows two rows and a tablet or desktop three.
 class ShortcutsSection extends StatelessWidget {
   const ShortcutsSection({
     super.key,
@@ -29,8 +30,8 @@ class ShortcutsSection extends StatelessWidget {
     return ListenableBuilder(
       listenable: HomeShortcutsStore.instance,
       builder: (context, _) {
-        final shortcuts =
-            homeShortcutMenuItems(HomeShortcutsStore.instance.ids);
+        final shortcuts = homeShortcutMenuItems(
+            HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context)));
         final tiles = <Widget>[
           for (final item in shortcuts)
             ShortcutTile(
@@ -209,14 +210,21 @@ class ShortcutsEditorSheet extends StatefulWidget {
 }
 
 class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
-  late List<HomeMenuItem> _onHome;
+  late final List<HomeMenuItem> _onHome;
+  bool _started = false;
 
   bool get _isFull => _onHome.length >= HomeShortcutsStore.maxShortcuts;
 
   @override
-  void initState() {
-    super.initState();
-    _onHome = homeShortcutMenuItems(HomeShortcutsStore.instance.ids).toList();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Starts from what Home shows on this screen, so a tablet's editor
+    // opens on the tablet's defaults.
+    if (_started) return;
+    _started = true;
+    _onHome = homeShortcutMenuItems(
+            HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context)))
+        .toList();
   }
 
   List<HomeMenuItem> get _more => [

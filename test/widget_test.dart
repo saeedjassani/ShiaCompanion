@@ -101,6 +101,14 @@ void main() {
       expect(items.map((item) => item.analyticsId), ['qibla_finder', 'duas']);
     });
 
+    test('every wide default shortcut is a real feature', () {
+      expect(
+        homeShortcutMenuItems(HomeShortcutsStore.wideDefaultIds)
+            .map((item) => item.analyticsId),
+        HomeShortcutsStore.wideDefaultIds,
+      );
+    });
+
     test('every default shortcut is a real feature', () {
       expect(
         homeShortcutMenuItems(HomeShortcutsStore.defaultIds)
@@ -114,7 +122,7 @@ void main() {
           'Duas',
           'Ziyarats',
           "Today's Recitations",
-          'Munajaat',
+          'Taqeebat e Namaz',
           'Calendar',
           'Tasbeeh',
           'Qibla',
