@@ -170,7 +170,10 @@ Top to bottom, each section hidden when it has nothing to show:
    Taqibaat, Calendar, Tasbeeh, Qibla (two rows). From the tablet
    breakpoint up, Qaza Tracker, Playlists, Library and Namaz are added
    (three rows). Defaults are never synced; the first save replaces them
-   on every device.
+   on every device. A wide screen at least 900 tall (portrait tablets,
+   1080p desktops) has room to spare, so it shows every feature instead:
+   the reader's picks first in their order, then the rest in All features
+   order, no All features tile, and **Edit shortcuts** under the grid.
 5. **Next event** — the prayer card's last row, not a section: the next
    event from `buildUpcomingCalendarWidgetEvents`, counted from the Islamic
    day in effect. Date box, "In 9 days · 5 Jumada al-Awwal" (or

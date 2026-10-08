@@ -311,7 +311,7 @@ void main() {
 
     testWidgets('a wide screen starts with eleven, in three rows',
         (tester) async {
-      tester.view.physicalSize = const Size(1024, 1600);
+      tester.view.physicalSize = const Size(1366, 768);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(_app(ShortcutsSection(
@@ -332,6 +332,35 @@ void main() {
       expect(playlists.dx, closeTo(duas.dx, 1));
       expect(allFeatures.dy, closeTo(playlists.dy, 1));
       expect(HomeShortcutsStore.instance.isCustomized, isFalse);
+    });
+
+    testWidgets(
+        'a wide screen with room shows every feature, the picks first in '
+        'their order', (tester) async {
+      tester.view.physicalSize = const Size(820, 1180);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await HomeShortcutsStore.instance.save(['qibla_finder', 'news', 'duas']);
+      await tester.pumpWidget(_app(ShortcutsSection(
+        onOpen: (_) {},
+        onOpenAllFeatures: () {},
+      )));
+
+      for (final item in shortcutCandidateMenuItems) {
+        expect(find.text(item.displayShortLabel), findsOneWidget,
+            reason: item.analyticsId);
+      }
+      expect(find.text('All features'), findsNothing);
+      expect(find.text('Edit shortcuts'), findsOneWidget);
+
+      // Qibla, News, Duas lead the first row, in the reader's order.
+      final qibla = tester.getCenter(find.text('Qibla'));
+      final news = tester.getCenter(find.text('News'));
+      final duas = tester.getCenter(find.text('Duas'));
+      expect(news.dy, closeTo(qibla.dy, 1));
+      expect(duas.dy, closeTo(qibla.dy, 1));
+      expect(qibla.dx, lessThan(news.dx));
+      expect(news.dx, lessThan(duas.dx));
     });
 
     Future<void> pumpEditor(WidgetTester tester) async {

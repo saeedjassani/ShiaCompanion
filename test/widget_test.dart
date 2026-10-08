@@ -101,6 +101,13 @@ void main() {
       expect(items.map((item) => item.analyticsId), ['qibla_finder', 'duas']);
     });
 
+    test('every feature follows the picks, each once', () {
+      final items = allShortcutMenuItems(['qibla_finder', 'not_a_feature']);
+      expect(items.first.analyticsId, 'qibla_finder');
+      expect(items.toSet(), shortcutCandidateMenuItems.toSet());
+      expect(items, hasLength(shortcutCandidateMenuItems.length));
+    });
+
     test('every wide default shortcut is a real feature', () {
       expect(
         homeShortcutMenuItems(HomeShortcutsStore.wideDefaultIds)
