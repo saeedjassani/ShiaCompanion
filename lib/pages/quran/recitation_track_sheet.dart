@@ -76,7 +76,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
 
   /// Whether a new track starting part-way counts what comes before its
   /// start as already read - see [RecitationTrackSettings.readBefore].
-  bool _markEarlierRead = false;
+  bool _markEarlierRead = true;
   String? _nameError;
 
   bool get _isEditing => widget.label != null;
@@ -275,7 +275,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     );
   }
 
-  /// "Already read up to here", under a new track's start: counts what comes
+  /// "Count earlier verses towards progress", under a new track's start: counts what comes
   /// before it towards the Khatm without logging it as recited.
   Widget _buildMarkEarlierReadRow(ShiaColors colors, AppLocalizations l10n) {
     void toggle() => setState(() => _markEarlierRead = !_markEarlierRead);

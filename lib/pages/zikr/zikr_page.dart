@@ -283,11 +283,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   final Map<int, int> _currentTabTopLineIndexes = {};
   final ValueNotifier<double> _readingProgress = ValueNotifier<double>(0);
 
-  /// The verse at the top of the reading, for the top bar's "Verse 255 of
-  /// 286". Follows every report, not just the reader's own scrolling, so it
-  /// is right from the moment the page opens at a verse.
-  late final ValueNotifier<VerseKey?> _currentVerse =
-      ValueNotifier(widget.initialVerse);
   bool _hasRecordedCompletion = false;
   bool _isDisposing = false;
   DateTime? _openedAt;
@@ -493,7 +488,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// reached. Scrolling on from there does count, which is what makes a lookup
   /// that turns into real reading become the new place on its own.
   void _handleAyahPositionChanged(QuranReadingPosition position) {
-    if (position.verse.ayah != null) _currentVerse.value = position.verse;
     if (!position.fromUserScroll) return;
     final ayah = position.verse.ayah;
     if (ayah == null) return;
@@ -948,7 +942,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.removeListener(_maybeMarkQuranEndReached);
     _readingProgress.dispose();
-    _currentVerse.dispose();
     syncZikrWakelockPreference(owner: this, isActive: false);
     // After _maybeRecordCompletion above, so a completion recorded on the way
     // out is already pending when leaving the reader puts it to the user.
@@ -2200,55 +2193,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  /// What the top bar's sub-line says: where the reader is in a surah, how
-  /// far through it they are and which reading track it counts towards
-  /// ("Verse 255 of 286 · 89% · My reading"), which part of a multi-part
-  /// zikr is open ("Part 3 of 4"), or
-  /// how far through a zikr they are ("12% read" - before they start, how
-  /// long it takes).
+  /// What the top bar's sub-line says: which part of a multi-part zikr is
+  /// open ("Part 3 of 4"), or how far through a zikr or surah the reader is
+  /// ("12% read" - before they start, how long it takes).
   Widget _buildSubtitle({
     required int tabCount,
     required int selectedTabIndex,
     required String readingTimeLabel,
   }) {
     final l10n = context.l10n;
-    if (_isQuran) {
-      final label = widget.recitationLabel?.trim();
-      final track = recitationTrackName(
-          label == null || label.isEmpty ? unlabeledRecitationLabel : label,
-          l10n);
-      return ListenableBuilder(
-        listenable: Listenable.merge([_currentVerse, _readingProgress]),
-        builder: (context, _) {
-          final progress = _readingProgress.value.clamp(0.0, 1.0);
-          // The verse reported is the one at the top of the screen, so at
-          // the end - the closing verses on screen below it - it would still
-          // say a verse or two were left. The end counts as recited (see
-          // [_maybeMarkQuranEndReached]), so it reads as reached.
-          final atEnd = progress >= _quranEndProgress;
-          final verse = atEnd
-              ? (_quranEndVerse ?? _currentVerse.value)
-              : _currentVerse.value;
-          final ayah = verse?.ayah;
-          final count = _surahNumber == null ? null : ayahCountOf(_surahNumber!);
-          String position;
-          if (ayah != null && widget.portion == null && count != null) {
-            position = l10n.readerVerseOf(ayah, count);
-          } else if (ayah != null) {
-            position = l10n.readerVerse('$verse');
-          } else if (count != null) {
-            position = l10n.quranVerseCount(count);
-          } else {
-            return Text(track);
-          }
-          final percent = atEnd ? 100 : (progress * 100).floor();
-          if (percent > 0) {
-            position = l10n.readerPositionWithPercent(position, percent);
-          }
-          return Text(l10n.readerSubtitleWithTrack(position, track));
-        },
-      );
-    }
     if (tabCount > 1) {
       return Text(l10n.readerPartOf(selectedTabIndex + 1, tabCount));
     }

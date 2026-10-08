@@ -969,8 +969,8 @@
   "trackStartAt": "Start at",
   "trackEditNote": "This Khatm moves on by itself as you read. Change this only to pick up somewhere else.",
   "trackNewNote": "You can change these anytime from the Khatm's card.",
-  "trackMarkEarlierRead": "Already read up to here",
-  "trackMarkEarlierReadHint": "Counts towards this Khatm, not your stats",
+  "trackMarkEarlierRead": "Count earlier verses towards progress",
+  "trackMarkEarlierReadHint": "Everything before this counts as read for this Khatm. Your stats only count what you read in the app.",
   "trackCreate": "Start Khatm",
   "notifCustomSound": "Custom: {file}",
   "@notifCustomSound": {
@@ -1137,48 +1137,6 @@
     "placeholders": {
       "percent": {
         "type": "int"
-      }
-    }
-  },
-  "readerVerseOf": "Verse {ayah} of {count}",
-  "@readerVerseOf": {
-    "placeholders": {
-      "ayah": {
-        "type": "int"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "readerPositionWithPercent": "{position} · {percent}%",
-  "@readerPositionWithPercent": {
-    "description": "The Quran reader's place and how much of the surah or juz is read: 'Verse 255 of 286 · 89%'.",
-    "placeholders": {
-      "position": {
-        "type": "String"
-      },
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
-  "readerVerse": "Verse {verse}",
-  "@readerVerse": {
-    "placeholders": {
-      "verse": {
-        "type": "String"
-      }
-    }
-  },
-  "readerSubtitleWithTrack": "{position} · {track}",
-  "@readerSubtitleWithTrack": {
-    "placeholders": {
-      "position": {
-        "type": "String"
-      },
-      "track": {
-        "type": "String"
       }
     }
   },
