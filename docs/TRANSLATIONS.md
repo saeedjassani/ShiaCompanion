@@ -247,6 +247,11 @@ python3 scripts/zikr_i18n/zikr_i18n.py rebase
 python3 scripts/zikr_i18n/zikr_i18n.py migrate ur fa
 ```
 
+A worked example is in `docs/zikr_i18n_template/ur/`: the template for
+Ziyarat Ashura (`G4.json` - 124 verses and 4 instructions such as "Then say
+100 times:", each a numbered segment, plus the merits) and the index entries
+that go with it (its title, alias title, recording label and reciter).
+
 Fill in the empty strings and copy the files into `assets/zikr_i18n/<code>/`,
 then run `rebase` to pin the new zikrs. Keys starting with `_` in a template
 (`_reference`, `_englishMerits`, `_englishTitles`) are reference only and
