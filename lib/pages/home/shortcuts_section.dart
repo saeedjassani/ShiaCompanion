@@ -14,7 +14,8 @@ import 'home_section.dart';
 
 /// Home's shortcuts: up to eleven features the reader picked, then All
 /// features, four to a row - two rows, or three once there are eight or more.
-/// Untouched, a phone shows two rows and a tablet or desktop three.
+/// Untouched, a phone shows two rows and a tablet or desktop three. A wide
+/// screen with room to spare shows every feature instead, the picks first.
 class ShortcutsSection extends StatelessWidget {
   const ShortcutsSection({
     super.key,
@@ -30,8 +31,11 @@ class ShortcutsSection extends StatelessWidget {
     return ListenableBuilder(
       listenable: HomeShortcutsStore.instance,
       builder: (context, _) {
-        final shortcuts = homeShortcutMenuItems(
-            HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context)));
+        final showAll = homeShowsAllFeatures(context);
+        final ids =
+            HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context));
+        final shortcuts =
+            showAll ? allShortcutMenuItems(ids) : homeShortcutMenuItems(ids);
         final tiles = <Widget>[
           for (final item in shortcuts)
             ShortcutTile(
@@ -39,17 +43,20 @@ class ShortcutsSection extends StatelessWidget {
               icon: (color) => item.buildIcon(size: 30, color: color),
               onTap: () => onOpen(item),
             ),
-          ShortcutTile(
-            label: context.l10n.homeAllFeatures,
-            filled: true,
-            icon: (color) =>
-                OutlineIcon(OutlineGlyph.grid, size: 26, color: color),
-            onTap: onOpenAllFeatures,
-          ),
+          if (!showAll)
+            ShortcutTile(
+              label: context.l10n.homeAllFeatures,
+              filled: true,
+              icon: (color) =>
+                  OutlineIcon(OutlineGlyph.grid, size: 26, color: color),
+              onTap: onOpenAllFeatures,
+            ),
         ];
 
         // No heading: the tiles say what they are. They are edited from
-        // All features, the last tile.
+        // All features, the last tile; with every feature already here
+        // there is nothing to pick, and the order is the one saved on a
+        // phone or a smaller window.
         return HomeCard(
           radius: 20,
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),

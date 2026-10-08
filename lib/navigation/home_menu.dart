@@ -372,6 +372,17 @@ List<HomeMenuItem> homeShortcutMenuItems(Iterable<String> ids) {
   ]);
 }
 
+/// Every feature that can be a shortcut: the ones [ids] name first, in
+/// their order, then the rest in All features order.
+List<HomeMenuItem> allShortcutMenuItems(Iterable<String> ids) {
+  final picked = homeShortcutMenuItems(ids);
+  return List.unmodifiable([
+    ...picked,
+    for (final item in shortcutCandidateMenuItems)
+      if (!picked.contains(item)) item,
+  ]);
+}
+
 HomeMenuItem? getHomeMenuItem(String label) {
   for (final item in homeMenuItems) {
     if (item.label == label) return item;
