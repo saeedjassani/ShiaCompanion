@@ -227,7 +227,7 @@ class Component extends DCLogic {
     const corners = (this.props.dateLayout ?? 'corners') === 'corners';
     const tint = (this.props.eventMark ?? 'tint') === 'tint';
     const wide = LAYOUT !== 'phone';
-    const cellH = LAYOUT === 'web' ? 88 : LAYOUT === 'tablet' ? 80 : 52;
+    const cellH = wide ? 64 : 52;
     const first = new Date(Date.UTC(view.y, view.m - 1, 1));
     const daysIn = new Date(Date.UTC(view.y, view.m, 0)).getUTCDate();
     const lead = first.getUTCDay();
@@ -250,6 +250,7 @@ class Component extends DCLogic {
       if (ev && tint && !isSel) dot = 'transparent';
       const base = 'position: relative; height: ' + cellH + 'px; box-sizing: border-box; padding: 0; border-radius: ' + (wide ? 14 : 12) + 'px; border: ' + (isSel && ev && tint ? 2 : 1.5) + 'px solid ' + border + '; background: ' + bg + '; color: ' + fg + '; cursor: pointer; transition: background 0.15s; overflow: hidden; text-align: left';
       const useCorners = corners || wide;
+      const big = false; // wide cells match the phone's
       cells.push({
         day: day.d,
         hijri: persian(h.d),
@@ -260,12 +261,12 @@ class Component extends DCLogic {
           ? 'position: absolute; top: ' + (wide ? 8 : 5) + 'px; left: ' + (wide ? 10 : 7) + 'px; font-size: ' + (wide ? 18 : 16) + 'px; line-height: 20px; font-weight: ' + (isSel || isToday ? 700 : 600)
           : 'font-size: 17px; line-height: 20px; font-weight: ' + (isSel || isToday ? 700 : 500),
         hijriStyle: useCorners
-          ? 'position: absolute; ' + (wide ? 'top: 9px; right: 10px' : 'bottom: 4px; right: 6px') + '; font-size: ' + (wide ? 13 : 11) + 'px; line-height: 13px; color: ' + sub
+          ? 'position: absolute; ' + 'bottom: ' + (wide ? 6 : 4) + 'px; right: ' + (wide ? 9 : 6) + 'px' + '; font-size: ' + (wide ? 13 : 11) + 'px; line-height: 13px; color: ' + sub
           : 'font-size: 11px; line-height: 13px; color: ' + sub,
         dotStyle: useCorners
-          ? 'position: absolute; ' + (wide ? 'top: 13px; left: 36px' : 'top: 10px; right: 7px') + '; width: 6px; height: 6px; border-radius: 3px; background: ' + dot
+          ? 'position: absolute; ' + 'top: 10px; right: 7px' + '; width: 6px; height: 6px; border-radius: 3px; background: ' + dot
           : 'width: 5px; height: 5px; border-radius: 3px; background: ' + dot,
-        evName: wide && ev ? ev.short : '',
+        evName: '',
         evStyle: 'position: absolute; left: 10px; right: 8px; bottom: 7px; font-size: 12px; line-height: 15px; font-weight: 500; color: ' + (isSel ? '#FBF6EE' : '#2A1E16') + '; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden',
         pick: () => this.pick(day)
       });

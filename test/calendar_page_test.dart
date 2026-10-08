@@ -148,7 +148,7 @@ void main() {
     expect(find.textContaining('Access to water was blocked'), findsOneWidget);
   });
 
-  testWidgets('wide layouts name each event in its day and list the times',
+  testWidgets('wide layouts keep cells as on a phone and list the times',
       (tester) async {
     lat = 51.5074;
     long = -0.1278;
@@ -157,7 +157,9 @@ void main() {
         initialDate: DateTime(2026, 6, 22),
         events: _markerTestEvents(1));
 
-    expect(find.text('Shab e Ashoor'), findsOneWidget);
+    // The colour marks the event; its words are only in the day's card.
+    expect(find.text('Shab e Ashoor'), findsNothing);
+    expect(_cellColor(tester, DateTime(2026, 6, 24)), const Color(0xFFF9E2DE));
     for (final name in ['Fajr', 'Sunrise', 'Midnight']) {
       expect(find.text(name), findsOneWidget);
     }

@@ -331,11 +331,11 @@ it, its prayer times included (mockups `R5-Calendar`, `T-Calendar-R5`,
 - **Prayer times in another city** · "Times for 24 October somewhere
   else, e.g. Karbala": a card row opening the look-up city picker on that
   date. No footnote under it.
-- **Tablet:** the month full width (80 px cells that also name each
-  event), then the day, its event and the city row on the left and the
-  card on the right (340 px), listing all eight times top to bottom.
-  **Desktop and web:** the month on the left (88 px cells), the day in a
-  360 px column on the right with the same vertical card.
+- **Tablet:** the month full width, then the day, its event and the city
+  row on the left and the card on the right (340 px), listing all eight
+  times top to bottom. **Desktop and web:** the month on the left, the day
+  in a 360 px column on the right with the same vertical card. The cells
+  are the phone's, 64 px tall: no event names in them on any screen.
 
 ### Azan
 Today's prayer notifications page, from Settings → Prayer times → Azan:

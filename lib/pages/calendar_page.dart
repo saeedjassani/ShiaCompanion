@@ -31,8 +31,7 @@ import '../utils/islamic_day.dart';
 /// On a phone everything is one column. On a tablet the month runs full
 /// width with the day and its times side by side under it; from desktop
 /// width the month sits on the left and the day in a column on the right.
-/// The wider layouts list the day's eight times top to bottom and name each
-/// event in its cell.
+/// The wider layouts list the day's eight times top to bottom.
 class CalendarPage extends StatefulWidget {
   const CalendarPage({
     super.key,
@@ -157,10 +156,10 @@ class _CalendarPageState extends State<CalendarPage> {
       today: today,
       cellHeight: switch (screen) {
         ScreenClass.phone => 52,
-        ScreenClass.tablet => 80,
-        ScreenClass.desktop => 88,
+        ScreenClass.tablet => 64,
+        ScreenClass.desktop => 64,
       },
-      namesEvents: !screen.isPhone,
+      wide: !screen.isPhone,
       hijriFor: _hijriFor,
       eventFor: _eventFor,
       onPick: _pick,
@@ -441,7 +440,7 @@ class _MonthGrid extends StatelessWidget {
     required this.selected,
     required this.today,
     required this.cellHeight,
-    required this.namesEvents,
+    required this.wide,
     required this.hijriFor,
     required this.eventFor,
     required this.onPick,
@@ -453,9 +452,8 @@ class _MonthGrid extends StatelessWidget {
   final DateTime today;
   final double cellHeight;
 
-  /// Writes each event's name in its cell, where there is room (tablet and
-  /// up).
-  final bool namesEvents;
+  /// Tablet and up: a little more room around the same cells.
+  final bool wide;
   final HijriCalendar Function(DateTime) hijriFor;
   final Map<String, dynamic>? Function(DateTime) eventFor;
   final ValueChanged<DateTime> onPick;
@@ -467,7 +465,7 @@ class _MonthGrid extends StatelessWidget {
     final lead = month.weekday % 7; // Sunday first
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
     final weeks = ((lead + daysInMonth) / 7).ceil();
-    final gap = namesEvents ? 6.0 : 3.0;
+    final gap = wide ? 6.0 : 3.0;
 
     Widget row(List<Widget> cells) => Row(
           children: [
@@ -519,7 +517,7 @@ class _MonthGrid extends StatelessWidget {
                     hijri: hijriFor(day),
                     event: inMonth ? eventFor(day) : null,
                     height: cellHeight,
-                    wide: namesEvents,
+                    wide: wide,
                     inMonth: inMonth,
                     isSelected: _isSameDay(day, selected),
                     isToday: _isSameDay(day, today),
@@ -576,7 +574,6 @@ class _DayCell extends StatelessWidget {
     final strong = isSelected || isToday;
     final eventName =
         event == null ? '' : widgetEventText('${event!['content'] ?? ''}').name;
-    final name = wide ? eventName : '';
 
     final label = [
       DateFormat('d MMMM').format(day),
@@ -610,8 +607,8 @@ class _DayCell extends StatelessWidget {
             child: Stack(
               children: [
                 PositionedDirectional(
-                  top: wide ? 8 : 5,
-                  start: wide ? 10 : 7,
+                  top: wide ? 7 : 5,
+                  start: wide ? 9 : 7,
                   child: Text(
                     '${day.day}',
                     style: ShiaText.body.copyWith(
@@ -623,35 +620,17 @@ class _DayCell extends StatelessWidget {
                   ),
                 ),
                 PositionedDirectional(
-                  top: wide ? 9 : null,
-                  bottom: wide ? null : 4,
-                  end: wide ? 10 : 6,
+                  bottom: wide ? 6 : 4,
+                  end: wide ? 9 : 6,
                   child: Text(
                     convertNumberToUrdu('${hijri.hDay}'),
                     style: ShiaText.caption.copyWith(
-                      fontSize: wide ? 13 : 11,
-                      height: 13 / (wide ? 13 : 11),
+                      fontSize: wide ? 12 : 11,
+                      height: 13 / (wide ? 12 : 11),
                       color: muted,
                     ),
                   ),
                 ),
-                if (name.isNotEmpty)
-                  PositionedDirectional(
-                    start: 10,
-                    end: 8,
-                    bottom: 7,
-                    child: Text(
-                      name,
-                      maxLines: height >= 80 ? 2 : 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: ShiaText.caption.copyWith(
-                        fontSize: 12,
-                        height: 15 / 12,
-                        fontWeight: FontWeight.w500,
-                        color: isSelected ? colors.onAccent : colors.text,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
