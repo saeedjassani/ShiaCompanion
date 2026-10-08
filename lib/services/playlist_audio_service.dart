@@ -12,6 +12,7 @@ import 'analytics_service.dart';
 import 'audio_download_store.dart';
 import 'exclusive_audio.dart';
 import 'zikr_audio_index.dart';
+import 'zikr_translations.dart';
 
 /// One recording in a playing queue, with the zikr it belongs to.
 @immutable
@@ -28,7 +29,7 @@ class PlaylistQueueEntry {
 
   /// What the lock screen and the now-playing bar call this recording: the
   /// track's own label when the zikr has several, otherwise the zikr title.
-  String get title => track.label ?? zikrTitle;
+  String get title => track.displayLabel ?? zikrTitle;
 }
 
 /// How [PlaylistAudioService.play] went, so the page can say why nothing
@@ -141,9 +142,10 @@ class PlaylistAudioService extends ChangeNotifier {
     return (kept, newStart < 0 ? 0 : newStart);
   }
 
+  /// The lock screen's title for zikr [uid], in the reader's zikr language.
   static String _indexTitle(String uid) {
     final title = items[uid]?.toString().trim() ?? '';
-    return title.isEmpty ? uid : title;
+    return title.isEmpty ? uid : zikrDisplayTitle(uid, title);
   }
 
   /// Starts [playlist] from its [startZikrIndex]th zikr, leaving any current

@@ -163,7 +163,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           // Unique per zikr+track, not just the URL, so the notification
           // updates correctly if two zikrs ever happened to share a file.
           id: '${widget.zikrUid}#$_trackIndex',
-          title: track.label ?? widget.zikrTitle,
+          title: track.displayLabel ?? widget.zikrTitle,
           album: widget.zikrTitle,
           artist: track.artist,
         ),
@@ -241,7 +241,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
         for (var i = 0; i < widget.tracks.length; i++)
           Choice(
             i,
-            widget.tracks[i].label ?? context.l10n.audioTrackNumber(i + 1),
+            widget.tracks[i].displayLabel ?? context.l10n.audioTrackNumber(i + 1),
             hint: store.isDownloaded(widget.tracks[i])
                 ? context.l10n.audioDownloaded
                 : widget.tracks[i].artist,
@@ -400,7 +400,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     final track = _currentTrack;
     final several = widget.tracks.length > 1;
     final label = several
-        ? (track?.label ?? context.l10n.audioRecitation)
+        ? (track?.displayLabel ?? context.l10n.audioRecitation)
         : context.l10n.audioRecitationAudio;
     final style = ShiaText.caption.copyWith(
       fontSize: 12,

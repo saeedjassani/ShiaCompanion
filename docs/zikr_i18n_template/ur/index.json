@@ -1,0 +1,21 @@
+{
+  "_englishTitles": {
+    "G4": "Ziyarat Ashura",
+    "R11|G4": "Ziyarat Ashura"
+  },
+  "titles": {
+    "G4": "",
+    "R11|G4": ""
+  },
+  "audio": {
+    "_englishLabels": {
+      "ziyarat_ashura_ali_fani_96k.mp3": "Ziyarat Ashura"
+    },
+    "labels": {
+      "ziyarat_ashura_ali_fani_96k.mp3": ""
+    },
+    "reciters": {
+      "Ali Fani": ""
+    }
+  }
+}

@@ -255,10 +255,16 @@ python3 scripts/zikr_arabic/batch.py plan <uid…>  # report + write .patch.json
 node    scripts/zikr_arabic/backup.js           # REQUIRED before any write
 node    scripts/zikr_arabic/apply_patch.js scripts/zikr_arabic/.patch.json --dry-run
 node    scripts/zikr_arabic/apply_patch.js scripts/zikr_arabic/.patch.json
-flutter test test/zikr_content_parser_test.dart
+flutter test test/zikr_content_parser_test.dart test/zikr_translations_test.dart
 python3 scripts/zikr_arabic/batch.py done <uid…>
 git add assets/zikr && git commit
 ```
+
+Proofreading never moves a line, so translated zikrs' segment numbering (see
+"Zikr content" in docs/TRANSLATIONS.md) is untouched. If
+`zikr_translations_test.dart` fails on a zikr anyway, a line was split,
+merged or reclassified: run `python3 scripts/zikr_i18n/zikr_i18n.py rebase`
+and commit what it renumbers under `assets/zikr_i18n/` with the batch.
 
 `normalize.py` and `silah.py` can be run standalone on named zikr for a closer
 look; both take `--out`/`--json` to dump a patch.

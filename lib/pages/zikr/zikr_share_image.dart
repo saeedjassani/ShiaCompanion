@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../constants.dart';
+import '../../l10n/app_language.dart';
 import '../../services/zikr_translations.dart';
 import 'zikr_content_parser.dart';
 
@@ -18,9 +19,15 @@ class ZikrShareImageRequest {
   /// The font the Arabic is drawn in; defaults to [arabicFont].
   final String? arabicFontFamily;
 
-  /// The reader's translation, drawn in place of the English it covers, as
-  /// in the reader itself.
+  /// The language the reader reads zikrs in, and its translation of this
+  /// zikr: drawn in place of the English it covers, as in the reader itself,
+  /// with the English it does not cover left out outside English.
+  final AppLanguage language;
   final ZikrDocumentTranslation? translation;
+
+  /// The number of [content]'s first segment within the whole zikr - see
+  /// [ZikrContentParser.segmentOffsets].
+  final int firstSegment;
 
   /// Which way [title] reads: right-to-left once it is translated into Urdu,
   /// Persian or Arabic.
@@ -33,7 +40,9 @@ class ZikrShareImageRequest {
     required this.hideHeaderLine,
     required this.colorScheme,
     this.arabicFontFamily,
+    this.language = englishLanguage,
     this.translation,
+    this.firstSegment = 0,
     this.titleDirection = TextDirection.ltr,
   });
 }
@@ -89,13 +98,24 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
     y += 22;
   }
 
+  // Parsed as the reader parses it, so the segments a translation is keyed
+  // by line up; a first line that only repeats the title is skipped below.
   final parsed = ZikrContentParser.parseContent(
     request.content,
-    hideHeaderLine: request.hideHeaderLine || _startsWithVisibleHeader(request),
-  ).translatedWith(request.translation);
+    hideHeaderLine: request.hideHeaderLine,
+  ).localizedTo(
+    request.language,
+    request.translation,
+    firstSegment: request.firstSegment,
+  );
+  final repeatedHeaderLine =
+      !request.hideHeaderLine && _startsWithVisibleHeader(request)
+          ? parsed.lines.indexWhere((line) => line.isNotEmpty)
+          : -1;
   final shareLines = <_ShareImageLine>[];
 
   for (var i = 0; i < parsed.lines.length; i++) {
+    if (i == repeatedHeaderLine || parsed.isHiddenEnglish(i)) continue;
     var line = _plainText(parsed.displayLine(i).trim());
     if (line.isEmpty) {
       continue;
@@ -124,7 +144,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
       topPadding = 10;
       bottomPadding = 6;
     } else if (parsed.transliCodes.contains(i)) {
-      if (!showTransliteration) continue;
+      if (!transliterationShown) continue;
       line = line.toUpperCase();
       style = TextStyle(
         color: colors.primaryText,

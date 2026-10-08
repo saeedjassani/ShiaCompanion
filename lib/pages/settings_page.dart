@@ -33,6 +33,7 @@ import '../utils/widget_prayer_time_selection.dart';
 import '../widgets/arabic_runs.dart';
 import '../widgets/choice_sheet.dart';
 import '../widgets/content_request_dialog.dart';
+import '../services/zikr_translations.dart';
 import '../widgets/language_settings.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
@@ -430,7 +431,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   String _readingSummary(AppLocalizations l10n) {
     final aids = [
-      if (ReadingSwitch.transliteration.value) l10n.readerTransliteration,
+      if (ReadingSwitch.transliteration.value &&
+          ZikrTranslations.instance.isEnglish)
+        l10n.readerTransliteration,
       if (ReadingSwitch.translation.value) l10n.readerTranslation,
     ];
     return l10n.settingsReadingSummary(

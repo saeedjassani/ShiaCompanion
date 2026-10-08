@@ -109,9 +109,14 @@ Design/feature PRs touch only `app_en.arb`; translation PRs touch only
 catch-up PR (see "Keeping translations in step" in `docs/TRANSLATIONS.md`).
 Analytics labels, `trackScreen` names, preference keys and `debugPrint` text
 stay English literals. Zikr translations are overlays in
-`assets/zikr_i18n/<code>/` keyed by the English line they translate - so
-editing a zikr's English line orphans its translations (they fall back to
-English); `python3 scripts/zikr_i18n/zikr_i18n.py check -v` lists them.
+`assets/zikr_i18n/<code>/` keyed by **segment number** (each verse, standalone
+line and tab label of a zikr, numbered 0, 1, 2...), never by English text -
+see "Zikr content" in `docs/TRANSLATIONS.md`. **Outside English the reader
+sees no English at all**: untranslated lines, merits and labels are hidden
+(the Arabic alone shows), and transliteration is off. If you change the
+content of a translated zikr (one with a file under `assets/zikr_i18n/`),
+run `python3 scripts/zikr_i18n/zikr_i18n.py rebase` and commit what it
+renumbers; `test/zikr_translations_test.dart` fails until you do.
 
 ## Zikr title conventions
 
