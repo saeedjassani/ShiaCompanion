@@ -73,9 +73,16 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
   /// already is. Null on a new track means the beginning.
   VerseKey? _position;
   bool _positionChanged = false;
+
+  /// Whether a new track starting part-way counts what comes before its
+  /// start as already read - see [RecitationTrackSettings.readBefore].
+  bool _markEarlierRead = true;
   String? _nameError;
 
   bool get _isEditing => widget.label != null;
+
+  bool get _startsAtBeginning =>
+      _position == null || _position == const VerseKey(1, 1);
 
   @override
   void initState() {
@@ -133,11 +140,13 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
                 readByJuz: _readByJuz,
                 startAt: position,
                 startSetAt: DateTime.now(),
+                readBefore: current.readBefore,
               )
             : RecitationTrackSettings(
                 readByJuz: _readByJuz,
                 startAt: current.startAt,
                 startSetAt: current.startSetAt,
+                readBefore: current.readBefore,
               ),
       ));
       Navigator.pop(context);
@@ -157,14 +166,14 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     }
 
     final position = _position;
-    final startsAtBeginning =
-        position == null || position == const VerseKey(1, 1);
+    final startsAtBeginning = _startsAtBeginning;
     unawaited(manager.addLabel(
       name,
       settings: RecitationTrackSettings(
         readByJuz: _readByJuz,
         startAt: startsAtBeginning ? null : position,
         startSetAt: startsAtBeginning ? null : DateTime.now(),
+        readBefore: !startsAtBeginning && _markEarlierRead ? position : null,
       ),
     ));
     Navigator.pop(context);
@@ -178,6 +187,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     final positionText = position == null
         ? l10n.trackBeginning
         : describeRecitationPosition(position, byJuz: _readByJuz);
+    final canMarkEarlierRead = !_isEditing && !_startsAtBeginning;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -219,7 +229,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
         CardList(children: [
           CardListRow(
             first: true,
-            last: true,
+            last: !canMarkEarlierRead,
             leading: Container(
               width: 40,
               height: 40,
@@ -242,6 +252,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
             ),
             onTap: _pickPosition,
           ),
+          if (canMarkEarlierRead) _buildMarkEarlierReadRow(colors, l10n),
         ]),
         const SizedBox(height: 10),
         Padding(
@@ -261,6 +272,25 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
           onPressed: _save,
         ),
       ],
+    );
+  }
+
+  /// "Count earlier verses towards progress", under a new track's start: counts what comes
+  /// before it towards the Khatm without logging it as recited.
+  Widget _buildMarkEarlierReadRow(ShiaColors colors, AppLocalizations l10n) {
+    void toggle() => setState(() => _markEarlierRead = !_markEarlierRead);
+    return MergeSemantics(
+      child: CardListRow(
+        last: true,
+        title: Text(l10n.trackMarkEarlierRead),
+        subtitle: Text(l10n.trackMarkEarlierReadHint),
+        trailing: Checkbox(
+          value: _markEarlierRead,
+          activeColor: colors.accent,
+          onChanged: (_) => toggle(),
+        ),
+        onTap: toggle,
+      ),
     );
   }
 }

@@ -89,7 +89,7 @@ class ReadingSwitch {
 
   static final transliteration = ReadingSwitch._(
     'showTransliteration',
-    true,
+    false,
     'zikr_show_transliteration_toggled',
     'Show transliteration toggled',
     (v) => showTransliteration = v,

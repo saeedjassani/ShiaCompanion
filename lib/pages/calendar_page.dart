@@ -818,7 +818,7 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
             date: widget.date,
             latitude: lat!,
             longitude: long!,
-            timeZone: widget.date.timeZoneOffset.inMinutes / 60.0,
+            timeZone: prayerTimeZoneFor(widget.date),
           )
         : null;
     final times = {

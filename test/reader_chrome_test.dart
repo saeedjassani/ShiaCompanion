@@ -21,11 +21,11 @@ void main() {
         (t) async {
       await t.pumpWidget(_host(const ReaderTopBar(
         title: '2: Al-Baqarah البقرة',
-        subtitle: Text('Verse 255 of 286 · My reading'),
+        subtitle: Text('12% read'),
       )));
 
       expect(find.text('2: Al-Baqarah'), findsOneWidget);
-      expect(find.text('Verse 255 of 286 · My reading'), findsOneWidget);
+      expect(find.text('12% read'), findsOneWidget);
       expect(t.takeException(), isNull);
     });
 
@@ -51,7 +51,7 @@ void main() {
 
   group('ReaderTextSheet', () {
     setUp(() async {
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({'showTransliteration': true});
       await SP.init();
       arabicFontSize = 32;
       englishFontSize = 16;

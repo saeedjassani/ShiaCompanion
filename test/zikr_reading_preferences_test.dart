@@ -211,8 +211,9 @@ void main() {
     expect(SP.prefs.getBool('showArabicAsParagraph'), isNull,
         reason: 'a disabled switch must not respond to a tap');
 
-    await _tapPreference(tester, 'Transliteration');
-    // Translation is still on, so the paragraph switch stays disabled.
+    // Transliteration starts off, but Translation is still on, so the
+    // paragraph switch stays disabled.
+    expect(SP.prefs.getBool('showTransliteration'), isNull);
     expect(switchTile().onChanged, isNull);
 
     await _tapPreference(tester, 'Translation');

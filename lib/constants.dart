@@ -64,7 +64,9 @@ TextStyle smallText = TextStyle(fontSize: 14);
 TextStyle boldText = TextStyle(fontWeight: FontWeight.bold);
 String appVersion = '1.0';
 
-bool showTranslation = true, showTransliteration = true;
+/// Transliteration is off until the reader turns it on; an install from
+/// before that keeps it on (see [FirstRunSetup.resolveOnLaunch]).
+bool showTranslation = true, showTransliteration = false;
 
 /// Whether, in [isArabicOnlyReadingView](in zikr_content_viewer.dart) - both
 /// English aids switched off - consecutive Arabic verses flow together as one
@@ -383,7 +385,7 @@ List<PrayerNotificationScheduleEntry> buildPrayerNotificationEntriesForDay({
       date,
       latitude,
       longitude,
-      date.timeZoneOffset.inMinutes / 60.0,
+      prayerTimeZoneFor(date),
     );
     final entries = <PrayerNotificationScheduleEntry>[];
     for (var index = 0; index < names.length; index++) {
