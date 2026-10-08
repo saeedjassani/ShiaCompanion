@@ -525,19 +525,6 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                       },
                     ),
             ),
-            SliverPadding(
-              padding: gutter,
-              sliver: SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    l10n.playlistsFootnote,
-                    style: ShiaText.caption
-                        .copyWith(height: 18 / 13, color: colors.textMuted),
-                  ),
-                ),
-              ),
-            ),
           ],
         );
       },
