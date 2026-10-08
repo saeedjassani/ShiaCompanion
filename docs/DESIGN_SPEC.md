@@ -165,8 +165,12 @@ Top to bottom, each section hidden when it has nothing to show:
    (no rows setting; the grid grows with the picks). Edited from **Edit
    shortcuts** on All features, which opens the editor sheet
    (remove/drag/add, max 11). Stored in prefs
-   and synced via `PreferencesSyncService`. Defaults: Duas, Ziyarats,
-   Today's Recitations, Munajaat, Calendar, Tasbeeh, Qibla.
+   and synced via `PreferencesSyncService` as one list for every screen
+   size. Defaults on a phone: Duas, Ziyarats, Today's Recitations,
+   Taqibaat, Calendar, Tasbeeh, Qibla (two rows). From the tablet
+   breakpoint up, Qaza Tracker, Playlists, Library and Namaz are added
+   (three rows). Defaults are never synced; the first save replaces them
+   on every device.
 5. **Next event** — the prayer card's last row, not a section: the next
    event from `buildUpcomingCalendarWidgetEvents`, counted from the Islamic
    day in effect. Date box, "In 9 days · 5 Jumada al-Awwal" (or
@@ -175,6 +179,9 @@ Top to bottom, each section hidden when it has nothing to show:
    and says **TODAY**, or **TONIGHT** from Maghrib on its eve. Tap →
    Calendar.
 6. **Hadith of the day** — full text, source, Share button.
+7. **Get the app** — web only: a card with the official App Store and
+   Google Play badges (both, whatever the browser), under the prayer card
+   and Continue from the tablet breakpoint up, last on a phone.
 
 ### All features
 One 3-column grid in today's home order (minus Quran and Favorites, which

@@ -98,6 +98,8 @@ flutter:
     - assets/logo.png
     - assets/images/google_logo.png
     - assets/images/apple_logo.png
+    - assets/images/app_store_badge.png
+    - assets/images/google_play_badge.png
     - assets/images/ali_watermark.png
     - assets/images/mahdi_watermark.png
     - assets/sounds/full_azan.mp3

@@ -2014,6 +2014,22 @@
     "description": "Screen-reader label of the Calendar link beside the Coming up heading."
   },
   "homeHadithOfTheDay": "Hadith of the day",
+  "homeGetAppTitle": "Get the app",
+  "@homeGetAppTitle": {
+    "description": "Heading of the card on the web version's Home that links to the mobile app in the App Store and Google Play."
+  },
+  "homeGetAppBody": "The Azan at prayer time, home screen widgets, and everything on hand offline.",
+  "@homeGetAppBody": {
+    "description": "What the mobile app adds over the website, under homeGetAppTitle."
+  },
+  "homeGetAppAppStore": "Download on the App Store",
+  "@homeGetAppAppStore": {
+    "description": "Screen-reader label of Apple's App Store badge. Use Apple's official wording for the badge in your language if it has one."
+  },
+  "homeGetAppGooglePlay": "Get it on Google Play",
+  "@homeGetAppGooglePlay": {
+    "description": "Screen-reader label of the Google Play badge. Use Google's official wording for the badge in your language if it has one."
+  },
   "homeContinueTitle": "Continue",
   "@homeContinueTitle": {
     "description": "Heading of Home's section that picks up the latest Quran track, bookmark or book."

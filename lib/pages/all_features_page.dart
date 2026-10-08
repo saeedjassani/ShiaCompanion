@@ -8,6 +8,7 @@ import '../navigation/home_menu.dart';
 import '../services/home_shortcuts_store.dart';
 import '../theme/shia_colors.dart';
 import '../widgets/page_chrome.dart';
+import 'home/home_section.dart';
 import 'home/shortcuts_section.dart';
 
 /// Every feature in one grid, in the order the old home grid had them (less
@@ -35,8 +36,8 @@ class _AllFeaturesPageState extends State<AllFeaturesPage> {
       listenable: HomeShortcutsStore.instance,
       builder: (context, _) {
         final onHome = {
-          for (final item
-              in homeShortcutMenuItems(HomeShortcutsStore.instance.ids))
+          for (final item in homeShortcutMenuItems(
+              HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context))))
             item.analyticsId,
         };
         final features = allFeaturesMenuItems;

@@ -45,6 +45,7 @@ import 'package:shia_companion/pages/all_features_page.dart';
 import 'package:shia_companion/pages/home/coming_up_section.dart';
 import 'package:shia_companion/pages/home/continue_section.dart';
 import 'package:shia_companion/pages/home/hadith_card.dart';
+import 'package:shia_companion/pages/home/get_app_card.dart';
 import 'package:shia_companion/pages/home/home_header.dart';
 import 'package:shia_companion/pages/home/home_section.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
@@ -408,11 +409,14 @@ class _MyHomePageState extends State<MyHomePage>
             padding: EdgeInsets.only(top: gap),
             child: HadithOfTheDayCard(hadith: hadith),
           );
+    final getApp = kIsWeb
+        ? Padding(padding: EdgeInsets.only(top: gap), child: const GetAppCard())
+        : const SizedBox.shrink();
 
     final Widget content;
     if (wide) {
-      // Tablet and up: prayer card and Continue on the left; Shortcuts and
-      // the hadith on the right.
+      // Tablet and up: prayer card, Continue and (on the web) Get the app
+      // on the left; Shortcuts and the hadith on the right.
       content = Padding(
         padding: EdgeInsets.symmetric(horizontal: gutter),
         child: Column(
@@ -430,6 +434,7 @@ class _MyHomePageState extends State<MyHomePage>
                     children: [
                       prayerCard,
                       ContinueSection(topSpacing: gap, horizontalPadding: 0),
+                      getApp,
                     ],
                   ),
                 ),
@@ -459,6 +464,7 @@ class _MyHomePageState extends State<MyHomePage>
           SizedBox(height: gap),
           Padding(padding: pad, child: shortcuts),
           Padding(padding: pad, child: hadithCard),
+          Padding(padding: pad, child: getApp),
         ],
       );
     }
