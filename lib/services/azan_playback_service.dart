@@ -83,6 +83,15 @@ class AzanPlaybackService {
       // that - so this always stays a real degrade-gracefully choice, never
       // hardcoded true.
       exact: exact,
+      // An exact alarm alone rang the paired notification on time but left
+      // the Azan minutes late: this plugin hands each alarm to a
+      // JobIntentService, i.e. a JobScheduler job, and in Doze the job waits
+      // for the next maintenance window - and a second allow-while-idle alarm
+      // right after the notification's own is rate-limited on top. An alarm
+      // clock brings the phone out of Doze before it fires, so the job runs
+      // at once; the price is the system's alarm icon and "next alarm" line.
+      // It needs the same exact-alarm access, so it follows [exact].
+      alarmClock: exact,
       allowWhileIdle: true,
       wakeup: true,
       rescheduleOnReboot: false,
