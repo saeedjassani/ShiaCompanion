@@ -762,7 +762,7 @@ class _AzanStepState extends State<_AzanStep> {
           longitude: longitude,
           timeZone: prayerTimeZoneFor(now),
         ))
-          entry.name: entry.time,
+          entry.name: localizeDigits(entry.time),
       };
     } catch (e) {
       debugPrint('Setup could not work out prayer times: $e');

@@ -695,7 +695,7 @@ class _VerseCell extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                '$number',
+                localizeDigits('$number', context.l10n),
                 style: TextStyle(
                   fontSize: 17,
                   fontFeatures: const [FontFeature.tabularFigures()],

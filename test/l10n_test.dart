@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/l10n/app_language.dart';
 import 'package:shia_companion/l10n/hijri_l10n.dart';
 import 'package:shia_companion/l10n/l10n.dart';
@@ -79,6 +81,34 @@ void main() {
         {for (var month = 1; month <= 12; month++) hijriMonthShortName(month)},
         hasLength(12),
       );
+    });
+  });
+
+  group('digits', () {
+    test('English keeps 0-9', () {
+      expect(localizeDigits('5:25 am', lookupAppLocalizations(const Locale('en'))), '5:25 am');
+    });
+
+    testWidgets('Arabic writes numbers in Arabic-Indic digits',
+        (tester) async {
+      SharedPreferences.setMockInitialValues(
+          {LanguageProvider.appLanguagePrefsKey: 'ar'});
+      final provider = LanguageProvider();
+      addTearDown(() async {
+        await provider.setAppLanguage(englishLanguageCode);
+        provider.dispose();
+      });
+      await tester.runAsync(() async {
+        while (provider.appLanguage.code != 'ar') {
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+        }
+      });
+
+      // Hand-built strings, int placeholders, and intl dates and numbers.
+      expect(localizeDigits('5:25 am'), '٥:٢٥ am');
+      expect(L10n.current.calendarDaysAgo(5), contains('٥'));
+      expect(DateFormat('d').format(DateTime(2026, 10, 18)), '١٨');
+      expect(NumberFormat.decimalPattern().format(1448), '١٬٤٤٨');
     });
   });
 

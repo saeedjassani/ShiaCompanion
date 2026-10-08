@@ -213,7 +213,7 @@ class _EventRow extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '${event.date.day}',
+                        localizeDigits('${event.date.day}', context.l10n),
                         style: TextStyle(
                           fontSize: 16,
                           height: 19 / 16,

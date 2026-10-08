@@ -1034,7 +1034,7 @@ class NumberWell extends StatelessWidget {
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(
-          '$number',
+          localizeDigits('$number', context.l10n),
           maxLines: 1,
           style: TextStyle(
             fontSize: 14,

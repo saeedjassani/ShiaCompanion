@@ -167,7 +167,7 @@ class _RankedZikrList extends StatelessWidget {
             minHeight: 48,
             leading: SizedBox(
               width: 20,
-              child: Text('${i + 1}',
+              child: Text(localizeDigits('${i + 1}', context.l10n),
                   style: muted.copyWith(fontWeight: FontWeight.w700)),
             ),
             title: Text(entries[i].$2,

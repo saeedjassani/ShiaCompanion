@@ -33,7 +33,8 @@
   "@settingsHijriAhead": {
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -41,7 +42,8 @@
   "@settingsHijriBehind": {
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -58,7 +60,8 @@
   "@timeHoursAgo": {
     "placeholders": {
       "hours": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -66,7 +69,8 @@
   "@timeDaysAgo": {
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -113,7 +117,8 @@
   "@audioRecordingNumber": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -138,7 +143,8 @@
     "description": "A number of zikr. 'Zikr' is its own plural in English.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -157,10 +163,12 @@
   "@audioRecordingsChosen": {
     "placeholders": {
       "chosen": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -168,7 +176,8 @@
   "@audioDownloadingPercent": {
     "placeholders": {
       "percent": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -176,7 +185,8 @@
   "@audioRecordingsCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -187,10 +197,12 @@
         "type": "String"
       },
       "position": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -256,7 +268,8 @@
   "@flightHorizonLater": {
     "placeholders": {
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -264,7 +277,8 @@
   "@flightHorizonEarlier": {
     "placeholders": {
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -332,7 +346,8 @@
   "@notificationReopenAppBody": {
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -386,7 +401,8 @@
   "@qiblaNeedsCalibratingBody": {
     "placeholders": {
       "degrees": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -414,7 +430,8 @@
   "@qiblaTurnRight": {
     "placeholders": {
       "degrees": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -422,7 +439,8 @@
   "@qiblaTurnLeft": {
     "placeholders": {
       "degrees": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -515,6 +533,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -522,10 +543,12 @@
   "@qazaLunarNote": {
     "placeholders": {
       "yearDays": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "monthDays": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -606,10 +629,12 @@
   "@audioDownloadPartial": {
     "placeholders": {
       "saved": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -630,7 +655,8 @@
   "@commonPercent": {
     "placeholders": {
       "percent": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -638,7 +664,8 @@
   "@audioDownloadMore": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -672,7 +699,8 @@
   "@quranJuzNumber": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -707,7 +735,8 @@
   "@zikrPartNumber": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -792,7 +821,8 @@
   "@statsUpdatedHoursAgo": {
     "placeholders": {
       "hours": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -837,7 +867,8 @@
   "@quranSurahNumber": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -944,7 +975,8 @@
         "type": "String"
       },
       "ayah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1079,7 +1111,8 @@
   "@calendarDaysAgo": {
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     },
     "description": "How long ago the day picked on the Calendar was. Today, tomorrow and yesterday have their own words."
@@ -1092,7 +1125,8 @@
   "@calendarAzanOnFor": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     },
     "description": "Under the Azan button on the Calendar's prayer card: how many prayer times play an Azan."
@@ -1105,7 +1139,8 @@
   "@calendarTimesShown": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     },
     "description": "Under the Times on Home button: how many prayer times Home's card shows."
@@ -1125,10 +1160,12 @@
   "@readerPartOf": {
     "placeholders": {
       "part": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1136,7 +1173,8 @@
   "@readerPercentRead": {
     "placeholders": {
       "percent": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1193,7 +1231,8 @@
   "@quranAyahCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1209,7 +1248,8 @@
   "@pickerAyahSingle": {
     "placeholders": {
       "ayah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1217,10 +1257,12 @@
   "@pickerAyahRange": {
     "placeholders": {
       "from": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "to": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1274,6 +1316,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1282,6 +1327,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1290,6 +1338,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1326,6 +1377,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1334,6 +1388,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1357,10 +1414,12 @@
   "@statsJuzCoverage": {
     "placeholders": {
       "juz": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "percent": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1368,7 +1427,8 @@
   "@statsJuzComplete": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1390,7 +1450,8 @@
   "@reminderMinutesAfter": {
     "placeholders": {
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "prayer": {
         "type": "String"
@@ -1401,7 +1462,8 @@
   "@reminderMinutesBefore": {
     "placeholders": {
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "prayer": {
         "type": "String"
@@ -1448,7 +1510,8 @@
   "@audioTrackNumber": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1613,7 +1676,8 @@
   "@searchMatches": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "source": {
         "type": "String"
@@ -1629,10 +1693,12 @@
   "@widgetPrayerTimesHelp": {
     "placeholders": {
       "min": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "max": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1645,7 +1711,8 @@
   "@zikrTabNumber": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1657,7 +1724,8 @@
   "@durationMinutes": {
     "placeholders": {
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1665,7 +1733,8 @@
   "@durationHours": {
     "placeholders": {
       "hours": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1677,7 +1746,8 @@
         "type": "String"
       },
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1785,7 +1855,8 @@
   "@pickerAyahLabel": {
     "placeholders": {
       "ayah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1820,10 +1891,12 @@
         "type": "String"
       },
       "position": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1858,10 +1931,12 @@
     "description": "Heading over the shortcuts already on Home in the editor, e.g. 'On your Home · 5 of 11'. Shown in capitals.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "max": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -1915,7 +1990,8 @@
   "@homeEventInDays": {
     "placeholders": {
       "days": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     },
     "description": "How far off a Coming up event on Home is. Today and tomorrow have their own words."
@@ -1955,7 +2031,7 @@
   "@prayerCountdownHours": {
     "description": "Time left until the next prayer, ticking every second. Minutes and seconds are two digits, e.g. 'in 3h 05m 09s'.",
     "placeholders": {
-      "hours": {"type": "int"},
+      "hours": {"type": "int", "format": "decimalPattern"},
       "minutes": {"type": "String"},
       "seconds": {"type": "String"}
     }
@@ -1964,7 +2040,7 @@
   "@prayerCountdownMinutes": {
     "description": "Time left until the next prayer, under an hour, e.g. 'in 12m 05s'. Seconds are two digits.",
     "placeholders": {
-      "minutes": {"type": "int"},
+      "minutes": {"type": "int", "format": "decimalPattern"},
       "seconds": {"type": "String"}
     }
   },
@@ -2051,10 +2127,12 @@
   "@homeContinueVerseOf": {
     "placeholders": {
       "ayah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2087,7 +2165,8 @@
     "description": "Part of a clock difference, e.g. '2 hr' in '2 hr 30 min ahead of your phone'.",
     "placeholders": {
       "hours": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2096,7 +2175,8 @@
     "description": "Part of a clock difference, e.g. '30 min' in '2 hr 30 min ahead of your phone'.",
     "placeholders": {
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2299,7 +2379,8 @@
   "@goToVerseStepVerse": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2343,7 +2424,8 @@
   "@goToVerseVerseLabel": {
     "placeholders": {
       "verse": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2351,10 +2433,12 @@
   "@goToVerseRange": {
     "placeholders": {
       "from": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "to": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2362,7 +2446,8 @@
   "@quranVerseCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2587,7 +2672,8 @@
   "@listCountSurahs": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2595,7 +2681,8 @@
   "@listCountDuas": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2603,7 +2690,8 @@
   "@listCountZiyarats": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2611,7 +2699,8 @@
   "@listCountPrayers": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2619,7 +2708,8 @@
   "@listCountMunajat": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2628,7 +2718,8 @@
     "description": "How many rows a list of zikr has, where they are not all one kind; also what a group row holds.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2664,7 +2755,8 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2743,7 +2835,8 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2811,10 +2904,12 @@
   "@searchVerseOf": {
     "placeholders": {
       "ayah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2822,7 +2917,8 @@
   "@searchOpenVerse": {
     "placeholders": {
       "ayah": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2849,7 +2945,8 @@
     "description": "Heading over the notification times: how many are switched on.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2902,10 +2999,12 @@
         "type": "String"
       },
       "page": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "pages": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2914,10 +3013,12 @@
     "description": "The Library reader's sub-line: which page of the chapter is open.",
     "placeholders": {
       "page": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "pages": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2925,7 +3026,8 @@
   "@libraryChapterCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2945,10 +3047,12 @@
   "@libraryContinueAt": {
     "placeholders": {
       "chapter": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "page": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2959,10 +3063,12 @@
   "@libraryReadingAt": {
     "placeholders": {
       "page": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "pages": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -2993,10 +3099,12 @@
         "type": "String"
       },
       "position": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3016,7 +3124,8 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3027,7 +3136,8 @@
         "type": "String"
       },
       "percent": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3035,7 +3145,8 @@
   "@playlistDownloadedCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3092,7 +3203,8 @@
   "@downloadsOlderCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3110,7 +3222,8 @@
     "description": "The streak, in large type: how many days in a row.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3119,7 +3232,8 @@
   "@statsStreakInARowBest": {
     "placeholders": {
       "best": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3224,7 +3338,8 @@
   "@reminderMinutesAfterLong": {
     "placeholders": {
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "prayer": {
         "type": "String"
@@ -3235,7 +3350,8 @@
   "@reminderMinutesBeforeLong": {
     "placeholders": {
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "prayer": {
         "type": "String"
@@ -3450,7 +3566,8 @@
     "description": "'Qibla 100° · about 50° to your left': the bearing from north, then where that is from a seat facing the front of the aircraft.",
     "placeholders": {
       "bearing": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "relative": {
         "type": "String"
@@ -3461,7 +3578,8 @@
   "@flightAboutToLeft": {
     "placeholders": {
       "degrees": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3469,7 +3587,8 @@
   "@flightAboutToRight": {
     "placeholders": {
       "degrees": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3504,10 +3623,12 @@
     "description": "A flight time: '6 h 5 min'.",
     "placeholders": {
       "hours": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "minutes": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3516,7 +3637,8 @@
     "description": "A flight time in whole hours: '7 h'.",
     "placeholders": {
       "hours": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3552,7 +3674,8 @@
     "description": "How many Quran recitation tracks are backed up.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3582,10 +3705,12 @@
     "description": "Above each first-run setup step.",
     "placeholders": {
       "step": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3655,7 +3780,8 @@
     "description": "Beside the Azan row in Settings: how many of the prayer times (Fajr, Sunrise, Zuhr...) notify.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3669,7 +3795,8 @@
     "description": "Beside Prayer times shown in Settings: how many times the home page and widgets show.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3680,10 +3807,12 @@
     "description": "Under 'Text & reading' in Settings: the reader's Arabic and English sizes, then which English aids show, e.g. 'Arabic 32 · English 16 · Transliteration, Translation'.",
     "placeholders": {
       "arabic": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "english": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "aids": {
         "type": "String"
@@ -3717,7 +3846,8 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3726,7 +3856,8 @@
     "description": "Under the big number while counting one phrase: '12' then 'of 34'.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3739,7 +3870,8 @@
     "description": "Under the big number of a free count: the next count that beeps or vibrates.",
     "placeholders": {
       "target": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3751,10 +3883,12 @@
     "description": "Between −1 and Reset in Tasbih al-Zahra: 'Total 12 of 100'.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3774,7 +3908,8 @@
   "@tasbeehTargetNumber": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3795,7 +3930,8 @@
   "@counterOfTotal": {
     "placeholders": {
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3805,7 +3941,8 @@
     "description": "Sajdahs done in the current rakaat.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -3826,13 +3963,16 @@
   "@counterSemanticsValue": {
     "placeholders": {
       "rakaat": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "total": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "sajdahs": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   }

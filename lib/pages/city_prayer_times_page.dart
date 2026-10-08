@@ -106,9 +106,11 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
         HijriCalendar.fromDate(
           DateTime(_day.year, _day.month, _day.day + hijriDate),
         );
-    final hijriLabel = '${hijri.hDay} '
+    final hijriLabel = localizeDigits(
+        '${hijri.hDay} '
         '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
-        '${hijri.hYear}';
+        '${hijri.hYear}',
+        context.l10n);
     // Midday, so a day the clocks change on compares the hours that count.
     final difference = zone == null
         ? null

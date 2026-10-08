@@ -1081,7 +1081,9 @@ class _ChapterPageState extends State<ChapterPage>
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 4),
                                 child: Text(
-                                  '${_currentPageIndex + 1} / $pageCount',
+                                  localizeDigits(
+                                      '${_currentPageIndex + 1} / $pageCount',
+                                      context.l10n),
                                   style: theme.textTheme.bodyMedium,
                                 ),
                               )
@@ -1103,7 +1105,8 @@ class _ChapterPageState extends State<ChapterPage>
                             : () => _changeFontSize(-1),
                       ),
                       Text(
-                        '${_readerFontSize.round()}',
+                        localizeDigits(
+                            '${_readerFontSize.round()}', context.l10n),
                         style: theme.textTheme.bodyMedium,
                       ),
                       IconButton(

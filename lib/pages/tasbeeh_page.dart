@@ -387,7 +387,7 @@ class _CountPanel extends StatelessWidget {
             const SizedBox(height: 8),
           ],
           Text(
-            '$shown',
+            localizeDigits('$shown', context.l10n),
             style: TextStyle(
               fontSize: 112,
               height: 1,

@@ -15,7 +15,8 @@ class AppLanguage {
     required this.englishName,
     required this.nativeName,
     this.isRtl = false,
-  });
+    String? formattingLocale,
+  }) : _formattingLocale = formattingLocale;
 
   /// ISO 639-1 code, as used in ARB file names, asset folders and [Locale].
   final String code;
@@ -27,6 +28,13 @@ class AppLanguage {
   final String nativeName;
 
   final bool isRtl;
+
+  final String? _formattingLocale;
+
+  /// The intl locale dates and numbers are written in - [code] unless the
+  /// language's everyday digits need another one: intl's plain `ar` writes
+  /// 0-9, `ar_EG` the Arabic-Indic ٠-٩ Arabic readers expect.
+  String get formattingLocale => _formattingLocale ?? code;
 
   Locale get locale => Locale(code);
 
@@ -62,6 +70,7 @@ const List<AppLanguage> appLanguages = [
     englishName: 'Arabic',
     nativeName: 'العربية',
     isRtl: true,
+    formattingLocale: 'ar_EG',
   ),
   AppLanguage(
     code: 'gu',
