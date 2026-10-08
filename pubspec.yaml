@@ -104,6 +104,7 @@ flutter:
     - assets/images/mahdi_watermark.png
     - assets/sounds/full_azan.mp3
     - assets/zikr/
+    - assets/zikr_i18n/gu/
 
   fonts:
     - family: Qalam
