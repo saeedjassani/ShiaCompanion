@@ -270,7 +270,7 @@ class _TrackCard extends StatelessWidget {
         : target.isStart
             ? context.l10n.quranStartReading
             : null;
-    final name = isDefault ? context.l10n.quranMyReading : label;
+    final name = recitationTrackName(label, context.l10n);
 
     // The default track is the one most people only ever use, so it is the
     // dark card; the rest sit on the surface.

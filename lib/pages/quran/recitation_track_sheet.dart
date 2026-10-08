@@ -147,7 +147,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     final name = _nameController.text.trim();
     final error = name.isEmpty
         ? context.l10n.trackNameRequired
-        : name == unlabeledRecitationLabel ||
+        : isDefaultRecitationTrackName(name, context.l10n) ||
                 manager.state.customLabels.contains(name)
             ? context.l10n.trackNameTaken(name)
             : null;

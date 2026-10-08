@@ -2350,7 +2350,7 @@
   "@quranMyReading": {
     "description": "The default Quran reading track's card on the Quran screen."
   },
-  "quranTrackingHint": "Your place is saved as you read. Add a track to keep a separate place, like reading with family.",
+  "quranTrackingHint": "Whatever you read is saved to My reading as you scroll. To keep a separate place, like reading with family, add a track and open it from its card.",
   "@quranTrackingHint": {
     "description": "Dismissible note under the reading track cards on the Quran screen, shown the first few times it opens."
   },

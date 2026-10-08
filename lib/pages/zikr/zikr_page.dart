@@ -2204,11 +2204,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final l10n = context.l10n;
     if (_isQuran) {
       final label = widget.recitationLabel?.trim();
-      final track = label == null ||
-              label.isEmpty ||
-              label == unlabeledRecitationLabel
-          ? l10n.quranMyReading
-          : label;
+      final track = recitationTrackName(
+          label == null || label.isEmpty ? unlabeledRecitationLabel : label,
+          l10n);
       return ValueListenableBuilder<VerseKey?>(
         valueListenable: _currentVerse,
         builder: (context, verse, _) {

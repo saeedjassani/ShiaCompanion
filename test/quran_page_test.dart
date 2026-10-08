@@ -68,8 +68,9 @@ void main() {
   });
 
   group('the tracking hint', () {
-    const hint = 'Your place is saved as you read. Add a track to keep a '
-        'separate place, like reading with family.';
+    const hint = 'Whatever you read is saved to My reading as you scroll. '
+        'To keep a separate place, like reading with family, add a track and '
+        'open it from its card.';
     const viewsKey = 'quran_tracking_hint_views';
 
     testWidgets('shows on the first open and counts it', (tester) async {
@@ -427,6 +428,19 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Give the track a name'), findsOneWidget);
+  });
+
+  testWidgets('a new track cannot take the default track\'s name',
+      (tester) async {
+    await pump(tester);
+
+    await tapNewTrack(tester);
+    await tester.enterText(find.byType(TextField).first, 'my reading');
+    await tester.tap(find.text('Create track'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('There is already a track called "my reading"'),
+        findsOneWidget);
   });
 
   testWidgets('the Collections view remembers the collection last picked',

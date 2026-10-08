@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../l10n/l10n.dart';
 import '../utils/quran_index.dart';
 
 /// The reserved label for reading that was not opened through a recitation
@@ -11,6 +12,25 @@ import '../utils/quran_index.dart';
 /// rather than user-created, so it can never be renamed or removed out from
 /// under the reader.
 const String unlabeledRecitationLabel = 'Unlabeled';
+
+/// [label] as a track is called on screen: [unlabeledRecitationLabel] is
+/// "My reading", every other label is its own name.
+///
+/// The stored key stays 'Unlabeled' - it is in every reader's history and
+/// sync - so this is the one place the two names meet.
+String recitationTrackName(String label, [AppLocalizations? l10n]) =>
+    label == unlabeledRecitationLabel
+        ? (l10n ?? L10n.current).quranMyReading
+        : label;
+
+/// Whether [name], as someone typed it, means the default track - its stored
+/// key or the name it is shown under, in any case. Such a name cannot be
+/// given to a track of its own: there would be two "My reading"s.
+bool isDefaultRecitationTrackName(String name, [AppLocalizations? l10n]) {
+  final typed = name.trim().toLowerCase();
+  return typed == unlabeledRecitationLabel.toLowerCase() ||
+      typed == (l10n ?? L10n.current).quranMyReading.toLowerCase();
+}
 
 /// Total ayahs in the Quran, the denominator for "% of the Quran completed".
 final int quranTotalAyahCount =
