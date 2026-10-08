@@ -21,7 +21,6 @@ dependencies:
   hijri: ^3.0.0
   share_plus: ^13.1.0
   shared_preferences: ^2.1.1
-  table_calendar: ^3.0.9
   url_launcher: ^6.1.11
   wakelock_plus: ^1.4.0
   webfeed_revised: ^0.9.0

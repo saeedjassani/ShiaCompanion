@@ -1070,19 +1070,55 @@
   "prayerLocating": "Locating…",
   "prayerFindingLocation": "Finding your location…",
   "prayerLocationUnavailable": "Location not available",
-  "calendarNotificationsSomeOn": "{enabled} of {total} on",
-  "@calendarNotificationsSomeOn": {
+  "calendarPreviousMonth": "Previous month",
+  "calendarNextMonth": "Next month",
+  "calendarYesterday": "Yesterday",
+  "calendarDaysAgo": "{days, plural, =1{1 day ago} other{{days} days ago}}",
+  "@calendarDaysAgo": {
     "placeholders": {
-      "enabled": {
-        "type": "int"
-      },
-      "total": {
+      "days": {
         "type": "int"
       }
-    }
+    },
+    "description": "How long ago the day picked on the Calendar was. Today, tomorrow and yesterday have their own words."
   },
-  "calendarNoEvent": "No event listed for this date.",
-  "calendarNotificationsAllOff": "Off for every prayer",
+  "calendarHasEvent": "has an event",
+  "@calendarHasEvent": {
+    "description": "Read out by screen readers after a calendar day whose cell is coloured for an event."
+  },
+  "calendarAzanOnFor": "{count, plural, =1{On for 1 time} other{On for {count} times}}",
+  "@calendarAzanOnFor": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Under the Azan button on the Calendar's prayer card: how many prayer times play an Azan."
+  },
+  "calendarTimesOnHome": "Times on Home",
+  "@calendarTimesOnHome": {
+    "description": "Button on the Calendar's prayer card that picks which prayer times Home's card shows."
+  },
+  "calendarTimesShown": "{count} shown",
+  "@calendarTimesShown": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Under the Times on Home button: how many prayer times Home's card shows."
+  },
+  "calendarOtherCity": "Prayer times in another city",
+  "calendarOtherCityFor": "Times for {date} somewhere else, e.g. Karbala",
+  "@calendarOtherCityFor": {
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "24 October"
+      }
+    },
+    "description": "Under 'Prayer times in another city' on the Calendar. {date} is the day picked, day and month."
+  },
   "readerPartOf": "Part {part} of {count}",
   "@readerPartOf": {
     "placeholders": {
@@ -2197,10 +2233,6 @@
     }
   },
   "cityJustLookingNote": "Just for looking: your own prayer times and notifications stay as they are.",
-  "cityAnotherCitySubtitle": "See its prayer times for this date",
-  "@cityAnotherCitySubtitle": {
-    "description": "Under 'Another city' on the calendar."
-  },
   "aboutCityListCredit": "The city list is from GeoNames, used under Creative Commons Attribution 4.0.",
   "@aboutCityListCredit": {
     "description": "Attribution required by the city list's licence. Keep 'GeoNames' as it is."
