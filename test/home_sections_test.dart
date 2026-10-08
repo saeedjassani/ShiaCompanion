@@ -351,7 +351,7 @@ void main() {
             reason: item.analyticsId);
       }
       expect(find.text('All features'), findsNothing);
-      expect(find.text('Edit shortcuts'), findsOneWidget);
+      expect(find.text('Edit shortcuts'), findsNothing);
 
       // Qibla, News, Duas lead the first row, in the reader's order.
       final qibla = tester.getCenter(find.text('Qibla'));

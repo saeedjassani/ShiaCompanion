@@ -173,7 +173,8 @@ Top to bottom, each section hidden when it has nothing to show:
    on every device. A wide screen at least 900 tall (portrait tablets,
    1080p desktops) has room to spare, so it shows every feature instead:
    the reader's picks first in their order, then the rest in All features
-   order, no All features tile, and **Edit shortcuts** under the grid.
+   order, and no All features tile (nothing is left to pick; the order is
+   the one saved on a phone or a smaller window).
 5. **Next event** — the prayer card's last row, not a section: the next
    event from `buildUpcomingCalendarWidgetEvents`, counted from the Islamic
    day in effect. Date box, "In 9 days · 5 Jumada al-Awwal" (or

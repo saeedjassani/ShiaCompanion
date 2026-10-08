@@ -9,7 +9,7 @@ import '../../services/home_shortcuts_store.dart';
 import '../../theme/shia_colors.dart';
 import '../../widgets/choice_sheet.dart';
 import '../../widgets/outline_icon.dart';
-import '../../widgets/page_chrome.dart' show PageTextAction, buttonTextStyle;
+import '../../widgets/page_chrome.dart' show buttonTextStyle;
 import 'home_section.dart';
 
 /// Home's shortcuts: up to eleven features the reader picked, then All
@@ -54,9 +54,10 @@ class ShortcutsSection extends StatelessWidget {
         ];
 
         // No heading: the tiles say what they are. They are edited from
-        // All features, the last tile - or, with every feature already
-        // here, from Edit shortcuts under the grid.
-        final grid = HomeCard(
+        // All features, the last tile; with every feature already here
+        // there is nothing to pick, and the order is the one saved on a
+        // phone or a smaller window.
+        return HomeCard(
           radius: 20,
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           child: Column(
@@ -79,17 +80,6 @@ class ShortcutsSection extends StatelessWidget {
                 ),
             ],
           ),
-        );
-        if (!showAll) return grid;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            grid,
-            PageTextAction(
-              label: context.l10n.homeEditShortcuts,
-              onPressed: () => showShortcutsEditor(context),
-            ),
-          ],
         );
       },
     );
