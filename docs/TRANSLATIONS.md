@@ -10,14 +10,14 @@ There are two independent things to translate, each with its own files:
 | What | Where | Picked in Settings as |
 | --- | --- | --- |
 | **App text** - menus, buttons, settings, dialogs, notifications | `lib/l10n/app_<code>.arb` | App language |
-| **Zikr content** - each dua's translation lines, instructions, merits and title | `assets/zikr_i18n/<code>/` | Translation language |
+| **Zikr content** - each dua's translation, instructions, tab labels, merits and title, and recording labels | `assets/zikr_i18n/<code>/` | Translation language |
 
 They are separate because readers need them separately: many want English
 menus but a dua's meaning in Urdu. The translation language follows the app
 language until the reader picks one of their own. Either side can ship
 without the other, and a language is offered in a picker only once its files
-exist. Anything not translated - a missing ARB key, a zikr line nobody has
-done yet - simply shows in English.
+exist. A missing ARB key shows in English; zikr content works differently -
+see "No English outside English" below.
 
 With no choice made, the app language follows the phone's: once
 `app_ur.arb` ships, a phone set to Urdu opens the app in Urdu (the reader can
@@ -95,13 +95,42 @@ about to be redesigned - its strings are likely to change.
 
 ## Zikr content (`assets/zikr_i18n/<code>/`)
 
-A language's zikr translations are laid **over** the English corpus at render
-time. They never copy the Arabic or the transliteration, so the Arabic
-proofreading pass and the restored-zikr work keep going in one place.
+### No English outside English
+
+**Someone reading zikrs in Urdu (or Persian, Arabic, Gujarati) never sees
+English.** They see the Arabic, and whatever of the zikr has been translated
+into their language. Everything else that is English is hidden, not shown in
+its place:
+
+| Not yet translated | What the reader sees |
+| --- | --- |
+| A verse's translation | The Arabic alone |
+| An instruction, heading or citation | Nothing |
+| A tab's label | The localized "Part 2" (an Arabic label stays as it is) |
+| The merits note | No merits button |
+| A recording's label | The zikr's (translated) title, or "Recording 2" |
+| A reciter's name | The app's name on the lock screen, nothing in the list |
+| Transliteration | Never shown outside English (and its switch is hidden) |
+
+So translating is never all-or-nothing: Dua Ahad can ship with no Urdu at
+all and be read in Arabic, and its Urdu added later. Titles are the one
+exception - a title has to show something, so an untranslated one stays
+English; translate all of a language's titles before shipping it.
+
+Transliteration is the Arabic spelled out in English letters, an aid for
+English readers; it is off whenever the translation language is not English,
+whatever the reader's own setting (`transliterationShown` in
+`lib/services/zikr_translations.dart`).
+
+### Files
+
+A language's zikr translations are laid **over** the corpus at render time.
+They never copy the Arabic, so the Arabic proofreading pass and the
+restored-zikr work keep going in one place.
 
 ```
 assets/zikr_i18n/ur/
-  index.json      titles, and lines shared across the corpus
+  index.json      titles, recording labels and reciters
   E1.json         one file per translated zikr, named by its content uid
   A2.json
   ...
@@ -115,18 +144,21 @@ assets/zikr_i18n/ur/
     "E1": "دعائے کمیل",
     "G17|L4": "..."
   },
-  "lines": {
-    "In the Name of Allah, the All-beneficent, the All-merciful": "..."
+  "audio": {
+    "labels": {"quran/shakernejad/surah-001.mp3": "سورہ فاتحہ"},
+    "reciters": {"Hamed Shakernejad": "حامد شاکرنژاد"}
   }
 }
 ```
 
 - `titles` is keyed by the `assets/zikr.json` key, alias keys
   (`"<uid>|<targetUid>"`) included, since an alias's title often differs
-  from its canonical's. Translated titles show in lists, search, favorites
-  and the reader; search still matches the English title and slugs too.
-- `lines` translates a line once for every zikr it appears in (the
-  Bismillah, the salawat).
+  from its canonical's. Translated titles show in lists, search, favorites,
+  playlists and the reader; search still matches the English title and
+  slugs too.
+- `audio.labels` is keyed by a recording's `file` in
+  `assets/zikr_audio.json`; `audio.reciters` by the reciter's name as that
+  file spells it.
 
 `<uid>.json`, for the uid whose `assets/zikr/<uid>` file holds the content
 (an alias's target, a retired uid's redirect target):
@@ -134,65 +166,110 @@ assets/zikr_i18n/ur/
 ```json
 {
   "merits": "...the whole merits note, translated as one piece...",
-  "lines": {
-    "O Allah, bless Muhammad and his Household": "...",
-    "Recite the following three times:": "..."
+  "segments": {
+    "0": "...",
+    "1": "...",
+    "3": "..."
   }
 }
 ```
 
-**Lines are matched by their English text, not by position.** Each key is
-an English line exactly as it appears in the zikr's `data` or `tabs`
-(trimmed): a translation line under an Arabic verse, a standalone line
-(instruction, heading, citation), or a tab's header line. The corpus is
-still being edited, and an inserted verse would shift every positional
-translation after it onto the wrong line; matched by text, an English line
-that later changes just shows in English until its translation is updated.
-A zikr's own `lines` win over the shared ones. Keep `[label](href)` link
-markup in a translated line if the English has it.
+### Segments
 
-Lines are matched against the English *after* the app has sorted them into
-Arabic / transliteration / translation, so an Urdu, Persian or Arabic
+**A zikr's translation is keyed by segment number, not by its English.** The
+reader reads a zikr as a run of segments, numbered `0, 1, 2...` through the
+whole zikr, tab after tab:
+
+- each **tab's label**, when the zikr has more than one tab (first in its
+  tab);
+- each **Arabic verse** - its Arabic line together with the transliteration
+  and English translation under it. The verse's translation is drawn where
+  its English translation is;
+- each **line that stands on its own** - an instruction, a heading, a
+  citation. Its translation is drawn in its place.
+
+Keying a verse to the verse, not to its English line, is deliberate: an Urdu
+translation translates the Arabic, so correcting the English never orphans
+it, and two verses with the same English can be translated differently.
+Keep `[label](href)` link markup in a translated line if the English has it.
+
+Lines are classified into Arabic / transliteration / translation from the
+corpus, never from translated text, so an Urdu, Persian or Arabic
 translation - all in Arabic script - is never mistaken for a verse. Each
-translated line is drawn in its language's direction; untranslated English
-stays left-to-right even when the app itself is right-to-left.
+translated line is drawn in its language's direction.
+
+### Editing a translated zikr
+
+Numbers shift when a zikr's content changes shape - a restored verse, a
+split line, a new instruction. So every translated zikr's segments are
+pinned in `scripts/zikr_i18n/segment_anchors.json` (a short fingerprint of
+each segment, shared by every language), and `test/zikr_translations_test.dart`
+fails when a translated zikr no longer matches. Then run
+
+```sh
+python3 scripts/zikr_i18n/zikr_i18n.py rebase
+```
+
+which follows the edit - a translation moves with its verse, one whose verse
+was removed is dropped (and reported) - in every language, and re-pins the
+zikr. Commit the renumbered files and anchors with the content edit. The
+fingerprint ignores diacritics and Arabic spelling variants (hamza seats,
+Persian/Arabic ya and kaf), so the Arabic proofreading pass does not trip it;
+an English instruction that is reworded does, and `rebase` carries its
+translation over and asks you to check it.
 
 ### Producing and checking zikr translations
 
-`scripts/zikr_i18n/zikr_i18n.py` knows exactly which lines the app will
-look up (it ports the reader's own line classification, and agrees with it
-on all 683 zikrs):
+`scripts/zikr_i18n/zikr_i18n.py` numbers segments exactly as the app does
+(it ports the reader's own line classification; the test checks the two
+agree on every translated zikr):
 
 ```sh
-# One template per zikr - the English lines to translate, plus merits -
-# merged with anything already translated. Written to
-# build/zikr_i18n_templates/ur/ unless --out is given.
+# One template per zikr - every segment there is somewhere to translate,
+# with its Arabic and English for reference, plus merits - merged with
+# anything already translated. A verse already translated in another zikr
+# (the Bismillah, the salawat) is filled in. Written to
+# build/zikr_i18n_templates/ur/ unless --out is given; index.json carries
+# titles and recording labels.
 python3 scripts/zikr_i18n/zikr_i18n.py template ur
 python3 scripts/zikr_i18n/zikr_i18n.py template ur --uids E1 E5 A2
 
-# Coverage, stale keys (English that has since changed) and structural
-# errors in what has shipped. Non-zero exit on errors; --strict also fails
-# on stale or untranslated lines.
+# Coverage and errors in what has shipped: unknown zikrs, segments that do
+# not exist or have nothing to translate, zikrs not pinned or changed since.
+# Non-zero exit on errors; --strict also fails on untranslated segments.
 python3 scripts/zikr_i18n/zikr_i18n.py check -v
+
+# Pin newly translated zikrs, or renumber after a content edit.
+python3 scripts/zikr_i18n/zikr_i18n.py rebase
+
+# One-off: convert files in the old English-keyed format
+# ({"lines": {"<English line>": "..."}}, and index.json "lines") to segments.
+python3 scripts/zikr_i18n/zikr_i18n.py migrate ur fa
 ```
 
-Fill in the empty strings and copy the files into `assets/zikr_i18n/<code>/`.
-Keys starting with `_` in a template (`_english`, `_englishMerits`) are
-reference only and ignored by the app; empty values are ignored too, so a
-partly translated file is safe to ship.
+Fill in the empty strings and copy the files into `assets/zikr_i18n/<code>/`,
+then run `rebase` to pin the new zikrs. Keys starting with `_` in a template
+(`_reference`, `_englishMerits`, `_englishTitles`) are reference only and
+ignored by the app; empty values are ignored too, so a partly translated
+file is safe to ship.
 
 ### Shipping a language's zikr translations
 
 1. Put the files in `assets/zikr_i18n/<code>/`, including `index.json` -
-   its presence is what makes the app offer the language.
+   its presence is what makes the app offer the language. Translate every
+   title first (see "No English outside English").
 2. Add `- assets/zikr_i18n/<code>/` to the `assets:` list in
    `pubspec.yaml` (asset folders are not recursive).
    `test/zikr_translations_test.dart` fails if you forget, and also checks
-   every file is well-formed and names a real zikr.
-3. Run `python3 scripts/zikr_i18n/zikr_i18n.py check <code>`.
+   every file is well-formed, names a real zikr and is pinned.
+3. Run `python3 scripts/zikr_i18n/zikr_i18n.py rebase` and then
+   `check <code>`.
 
 ## Not covered yet
 
+- **A juz** (the Quran read by juz rather than by surah) is assembled from
+  the surahs and has no content file of its own, so it has no translation:
+  outside English it shows the Arabic alone.
 - **Other content**: hadith (`assets/hadith/`), library books, calendar
   events (`assets/events.json`), the Quran collections in `lib/data/`
   (`quran_duas.dart`, prophet stories, verses about Imam Ali and Imam

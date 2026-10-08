@@ -240,6 +240,12 @@ node -e "const d=JSON.parse(require('fs').readFileSync('assets/zikr/<UID>','utf8
 Line count should be a multiple of 3 (plus however many trailing plain-text
 lines you appended, e.g. a closing "you may then mention your needs" note).
 
+If you edited a zikr that already has translations (a file under
+`assets/zikr_i18n/<lang>/`), its segment numbering may have shifted: run
+`python3 scripts/zikr_i18n/zikr_i18n.py rebase` and commit what it
+renumbers - `test/zikr_translations_test.dart` fails until you do. See
+"Editing a translated zikr" in `docs/TRANSLATIONS.md`.
+
 ## Prioritizing: which missing UIDs are actually favorited by users
 
 Not all missing UIDs are equally worth the effort. Cross-referencing against

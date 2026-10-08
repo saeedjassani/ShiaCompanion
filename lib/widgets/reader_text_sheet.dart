@@ -4,6 +4,7 @@ import '../constants.dart';
 import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
 import '../utils/font_preferences.dart';
+import '../services/zikr_translations.dart';
 import 'language_settings.dart';
 import 'choice_sheet.dart';
 import 'page_chrome.dart';
@@ -239,11 +240,14 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
           ),
           const SizedBox(height: 12),
           CardList(children: [
-            CardSwitchRow(
-              label: l10n.readerTransliteration,
-              value: ReadingSwitch.transliteration.value,
-              onChanged: (v) => _toggle(ReadingSwitch.transliteration, v),
-            ),
+            // Transliteration is only ever shown with English - see
+            // transliterationShown - so there is nothing to switch otherwise.
+            if (ZikrTranslations.instance.isEnglish)
+              CardSwitchRow(
+                label: l10n.readerTransliteration,
+                value: ReadingSwitch.transliteration.value,
+                onChanged: (v) => _toggle(ReadingSwitch.transliteration, v),
+              ),
             CardSwitchRow(
               label: l10n.readerTranslation,
               value: ReadingSwitch.translation.value,
@@ -383,15 +387,13 @@ class _SizeRow extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 54),
       padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 10, 4),
       decoration: BoxDecoration(
-        border: last
-            ? null
-            : Border(bottom: BorderSide(color: colors.divider)),
+        border: last ? null : Border(bottom: BorderSide(color: colors.divider)),
       ),
       child: Row(
         children: [
           Expanded(
-            child: Text(label,
-                style: ShiaText.body.copyWith(color: colors.text)),
+            child:
+                Text(label, style: ShiaText.body.copyWith(color: colors.text)),
           ),
           _StepButton(
             text: 'A−',

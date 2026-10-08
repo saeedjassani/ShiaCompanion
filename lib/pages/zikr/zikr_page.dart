@@ -1514,11 +1514,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return savedTitle.isNotEmpty ? savedTitle : widget.item.title;
   }
 
-  /// The merits note, in the reader's translation language when it has been
-  /// translated.
+  /// The merits note, in the reader's translation language. Outside English
+  /// an untranslated note is not shown at all (nor is the button for it):
+  /// someone reading in Urdu should not be handed English.
   String _merits() {
     final translated = _translation?.merits?.trim();
     if (translated != null && translated.isNotEmpty) return translated;
+    if (!ZikrTranslations.instance.isEnglish) return '';
     return zikrData?['merits']?.toString().trim() ?? '';
   }
 
@@ -1588,13 +1590,28 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return _selectedZikrTabIndex.clamp(0, tabContents.length - 1);
   }
 
-  String _tabHeaderForContent(String content, int index) {
-    final lines = content
-        .split('\n')
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty);
-    if (lines.isNotEmpty) {
-      final header = _translation?.lineFor(lines.first) ?? lines.first;
+  /// Where each tab's segments start - see
+  /// [ZikrContentParser.segmentOffsets]. Only a translation needs them, so in
+  /// English there is nothing to work out.
+  List<int> _segmentOffsetsFor(List<String> tabContents) =>
+      ZikrTranslations.instance.isEnglish
+          ? const []
+          : ZikrContentParser.segmentOffsets(tabContents);
+
+  String _tabHeaderForContent(
+    String content,
+    int index,
+    List<int> segmentOffsets,
+  ) {
+    final translations = ZikrTranslations.instance;
+    final header = ZikrContentParser.localizedTabHeader(
+      content,
+      index,
+      offsets: segmentOffsets,
+      language: translations.language,
+      translation: _translation,
+    );
+    if (header != null) {
       return ZikrContentParser.parseLineSegments(header)
           .map((segment) => segment.text)
           .join()
@@ -1636,9 +1653,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   Future<void> _shareCurrentZikr() async {
     if (_isSharingZikr) return;
 
-    final title = zikrData?['title']?.toString().trim().isNotEmpty == true
-        ? zikrData!['title'].toString().trim()
-        : widget.item.title;
+    final title = _currentDisplayTitle();
     final deepLink = buildZikrDeepLinkUrl(
       uid: widget.item.uid,
       slug: _currentShareSlug(),
@@ -1679,17 +1694,23 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       }
 
       final showTabHeaders = tabContents.length > 1;
+      final segmentOffsets = _segmentOffsetsFor(tabContents);
       final imageBytes = await buildZikrShareImage(
         ZikrShareImageRequest(
           title: title,
           tabTitle: showTabHeaders
-              ? _tabHeaderForContent(selectedContent, selectedIndex)
+              ? _tabHeaderForContent(
+                  selectedContent, selectedIndex, segmentOffsets)
               : '',
           content: selectedContent,
           hideHeaderLine: showTabHeaders,
           colorScheme: Theme.of(context).colorScheme,
           arabicFontFamily: arabicFontFamilyOf(zikrData),
+          language: ZikrTranslations.instance.language,
           translation: _translation,
+          firstSegment: selectedIndex < segmentOffsets.length
+              ? segmentOffsets[selectedIndex] + (showTabHeaders ? 1 : 0)
+              : 0,
           titleDirection:
               ZikrTranslations.instance.titleFor(widget.item.uid) == null
                   ? TextDirection.ltr
@@ -1918,7 +1939,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       title: pageTitle,
       tabIndex: selectedTabIndex,
       tabTitle: tabContents.length > 1
-          ? _tabHeaderForContent(selectedContent, selectedTabIndex)
+          ? _tabHeaderForContent(selectedContent, selectedTabIndex,
+              _segmentOffsetsFor(tabContents))
           : null,
       scrollOffset: _currentTabScrollOffsets[selectedTabIndex] ?? 0,
       lineIndex: _currentTabTopLineIndexes[selectedTabIndex],

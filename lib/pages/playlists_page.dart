@@ -128,7 +128,7 @@ List<ZikrAudioTrack> _tracksOf(ZikrPlaylist playlist) => [
     ];
 
 String _trackLabel(ZikrAudioTrack track, int index) =>
-    track.label ?? L10n.current.audioRecordingNumber(index + 1);
+    track.displayLabel ?? L10n.current.audioRecordingNumber(index + 1);
 
 /// Lets the reader pick which of [uid]'s recordings [playlist] plays - at
 /// least one, since a zikr with none picked would silently drop out.
@@ -837,8 +837,9 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     // of its several recordings goes by that recording's label alone - the
     // labels name the zikr too ("Ziyarat Aal e Yasin with Dua"). Playing
     // more than one, it keeps its title and says how many.
-    final single =
-        available.length > 1 && tracks.length == 1 ? tracks.single.label : null;
+    final single = available.length > 1 && tracks.length == 1
+        ? tracks.single.displayLabel
+        : null;
     final recordings = available.length < 2 || single != null
         ? null
         : l10n.audioRecordingsChosen(tracks.length, available.length);
@@ -1089,8 +1090,11 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
             if (_zikrTitle(uid).toLowerCase().contains(query)) return true;
             // Recording labels name what they are ("Dua after Ziyarat
             // Warith"), so they are worth finding by too.
-            return ZikrAudioIndex.instance.tracksFor(uid).any(
-                (track) => track.label?.toLowerCase().contains(query) ?? false);
+            return ZikrAudioIndex.instance.tracksFor(uid).any((track) =>
+                (track.displayLabel ?? track.label)
+                    ?.toLowerCase()
+                    .contains(query) ??
+                false);
           }).toList();
 
     return ListenableBuilder(

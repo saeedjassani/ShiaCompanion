@@ -90,8 +90,9 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   Locale get locale => appLanguage.locale;
 
-  /// The language zikr translations are wanted in. Lines nobody has
-  /// translated into it yet still show in English.
+  /// The language zikrs are read in. Outside English, what nobody has
+  /// translated into it yet is left out rather than shown in English - the
+  /// reader sees the Arabic alone.
   AppLanguage get translationLanguage {
     final code = _translationLanguageChoice ?? appLanguage.code;
     return _translationLanguageCodes.contains(code)

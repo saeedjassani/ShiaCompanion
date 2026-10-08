@@ -10,6 +10,7 @@ import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
 import '../../data/quran_mahdi_verses.dart';
 import '../../utils/quran_index.dart';
+import '../../l10n/app_language.dart';
 import '../../services/zikr_translations.dart';
 import '../../utils/quran_indopak.dart';
 import '../../theme/shia_colors.dart';
@@ -130,18 +131,20 @@ const double _lineEdgeTolerance = 0.5;
 /// consecutive Arabic verses can flow together as one prose paragraph instead
 /// of stacking as separate centered lines with a gap between each.
 bool get isArabicOnlyReadingView =>
-    !showTransliteration && !showTranslation && showArabicAsParagraph;
+    !transliterationShown && !showTranslation && showArabicAsParagraph;
 
 /// Whether line [index] draws anything at all under the current reading
 /// settings. A transliteration or translation line the reader has switched
 /// off renders as an empty, zero-height box, so the bookmark tint has to skip
 /// it - tinting it would paint a stray sliver of border and padding for a line
-/// that is not there.
+/// that is not there. So does English a reader in another language is not
+/// shown ([ParsedZikrContent.isHiddenEnglish]).
 bool isZikrLineVisible(ParsedZikrContent content, int index) {
   if (index < 0 || index >= content.lines.length) return false;
   // Mirrors the renderer's own order: Arabic wins over either English set.
   if (content.arabicCodes.contains(index)) return true;
-  if (content.transliCodes.contains(index)) return showTransliteration;
+  if (content.isHiddenEnglish(index)) return false;
+  if (content.transliCodes.contains(index)) return transliterationShown;
   if (content.translaCodes.contains(index)) return showTranslation;
   return true;
 }
@@ -237,10 +240,13 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
   final total = content.lines.length;
   final items = <_ReadingListItem>[];
 
+  // A hidden English line is left out of a run - it stays an item of its
+  // own, which draws nothing.
   bool isStandalone(int i) =>
       !content.arabicCodes.contains(i) &&
       !content.transliCodes.contains(i) &&
-      !content.translaCodes.contains(i);
+      !content.translaCodes.contains(i) &&
+      !content.isHiddenEnglish(i);
 
   var i = 0;
   while (i < total) {
@@ -264,9 +270,11 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
           verses.add(j);
           j++;
         } else if (content.transliCodes.contains(j) ||
-            content.translaCodes.contains(j)) {
-          // Switched off in this view - draws nothing, but does not break
-          // the paragraph the Arabic verses around it are flowing into.
+            content.translaCodes.contains(j) ||
+            content.isHiddenEnglish(j)) {
+          // Switched off in this view, or English the reader is not shown -
+          // draws nothing, but does not break the paragraph the Arabic
+          // verses around it are flowing into.
           j++;
         } else {
           break;
@@ -549,7 +557,8 @@ class ZikrContentViewerWidget extends StatefulWidget {
   final Widget? tabStripFooter;
 
   /// The reader's translation of this zikr, laid over its English lines.
-  /// Null in English, or when nothing of this zikr has been translated.
+  /// Null in English, or when nothing of this zikr has been translated - in
+  /// which case a reader in another language sees the Arabic alone.
   final ZikrDocumentTranslation? translation;
 
   const ZikrContentViewerWidget({
@@ -1896,14 +1905,29 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   }
 
   String _getTabHeader(String content, int index) {
-    final lines = content
-        .split('\n')
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty);
-    if (lines.isNotEmpty) {
-      return widget.translation?.lineFor(lines.first) ?? lines.first;
+    final translations = ZikrTranslations.instance;
+    return ZikrContentParser.localizedTabHeader(
+          content,
+          index,
+          offsets: translations.isEnglish ? const [] : _segmentOffsets,
+          language: translations.language,
+          translation: widget.translation,
+        ) ??
+        context.l10n.zikrTabNumber(index + 1);
+  }
+
+  List<String>? _segmentOffsetsTabs;
+  List<int> _segmentOffsetsCache = const [];
+
+  /// [ZikrContentParser.segmentOffsets] of the tabs, worked out again only
+  /// when their text changes. Needed only outside English.
+  List<int> get _segmentOffsets {
+    final tabs = widget.tabContents;
+    if (_segmentOffsetsTabs == null || !listEquals(_segmentOffsetsTabs, tabs)) {
+      _segmentOffsetsTabs = List.of(tabs);
+      _segmentOffsetsCache = ZikrContentParser.segmentOffsets(tabs);
     }
-    return context.l10n.zikrTabNumber(index + 1);
+    return _segmentOffsetsCache;
   }
 
   /// The parsed content and ayah index for a tab, reparsed only when the tab's
@@ -1913,18 +1937,29 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     String rawContent, {
     required bool hideHeaderLine,
   }) {
+    final language = ZikrTranslations.instance.language;
     final cached = _contentCaches[tabIndex];
     if (cached != null &&
         cached.rawContent == rawContent &&
         cached.hideHeaderLine == hideHeaderLine &&
+        cached.languageCode == language.code &&
         identical(cached.translation, widget.translation)) {
       return cached;
     }
 
-    final parsed = ZikrContentParser.parseContent(
+    final english = ZikrContentParser.parseContent(
       rawContent,
       hideHeaderLine: hideHeaderLine,
-    ).translatedWith(widget.translation);
+    );
+    final parsed = language.code == englishLanguageCode
+        ? english
+        : english.localizedTo(
+            language,
+            widget.translation,
+            firstSegment: tabIndex < _segmentOffsets.length
+                ? _segmentOffsets[tabIndex] + (hideHeaderLine ? 1 : 0)
+                : 0,
+          );
 
     // Only the first tab is Quran text. Surah documents are single-tab today,
     // but guarding on the index means a tabbed one would degrade to line
@@ -1940,6 +1975,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final cache = _TabContentCache(
       rawContent: rawContent,
       hideHeaderLine: hideHeaderLine,
+      languageCode: language.code,
       translation: widget.translation,
       parsed: parsed,
       ayahIndex: ayahIndex != null && !ayahIndex.isEmpty ? ayahIndex : null,
@@ -2361,8 +2397,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       );
     }
 
+    if (parsedContent.isHiddenEnglish(contentIndex)) return Container();
+
     if (parsedContent.transliCodes.contains(contentIndex)) {
-      return showTransliteration
+      return transliterationShown
           ? Text.rich(
               _buildTextSpanForLine(str.toUpperCase(), transliStyle),
               textAlign: TextAlign.center,
@@ -2947,6 +2985,7 @@ class _TabContentCache {
   _TabContentCache({
     required this.rawContent,
     required this.hideHeaderLine,
+    required this.languageCode,
     required this.translation,
     required this.parsed,
     required this.ayahIndex,
@@ -2954,6 +2993,7 @@ class _TabContentCache {
 
   final String rawContent;
   final bool hideHeaderLine;
+  final String languageCode;
   final ZikrDocumentTranslation? translation;
   final ParsedZikrContent parsed;
 
@@ -3291,8 +3331,7 @@ class _RuledArabicParagraph extends StatelessWidget {
     // Same color and weight _withParagraphDivider already draws between
     // whole paragraphs, so a row rule and a paragraph divider read as the
     // one kind of mark instead of two different-looking ones.
-    final ruleColor =
-        ShiaColors.of(context).readerDivider;
+    final ruleColor = ShiaColors.of(context).readerDivider;
     final textScaler = MediaQuery.textScalerOf(context);
 
     return LayoutBuilder(
