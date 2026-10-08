@@ -267,9 +267,7 @@ class _EventRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 OutlineIcon(
-                  Directionality.of(context) == TextDirection.rtl
-                      ? OutlineGlyph.chevronLeft
-                      : OutlineGlyph.chevronRight,
+                  OutlineGlyph.chevronRight,
                   size: 16,
                   strokeWidth: 2,
                   color: colors.onPrayerCardMuted,

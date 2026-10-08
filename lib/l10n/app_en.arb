@@ -515,6 +515,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1274,6 +1277,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1282,6 +1288,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1290,6 +1299,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1326,6 +1338,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
@@ -1334,6 +1349,9 @@
     "placeholders": {
       "count": {
         "type": "int"
+      },
+      "formatted": {
+        "type": "String"
       }
     }
   },
