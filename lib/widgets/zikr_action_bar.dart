@@ -136,8 +136,8 @@ class ZikrActionBar extends StatelessWidget {
               height: 22,
               child: Center(
                 child: Text(
-                  'Aa',
-                  // A glyph, not a word: it reads the same in any language.
+                  // A glyph, not a word - but in the reader's own letters.
+                  context.l10n.textSizeGlyph,
                   textScaler: TextScaler.noScaling,
                   style: TextStyle(
                     fontSize: 17,

@@ -1680,8 +1680,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colorScheme.primary.withValues(alpha: 0.08),
-        border: Border(
-          left: BorderSide(
+        border: BorderDirectional(
+          start: BorderSide(
             color: colorScheme.primary.withValues(alpha: 0.5),
             width: 3,
           ),
@@ -3172,8 +3172,8 @@ class _AyahBlock extends StatelessWidget {
         ? Container(
             decoration: BoxDecoration(
               color: colorScheme.primaryContainer.withValues(alpha: 0.4),
-              border: Border(
-                left: BorderSide(color: colorScheme.primary, width: 3),
+              border: BorderDirectional(
+                start: BorderSide(color: colorScheme.primary, width: 3),
               ),
             ),
             child: marked,
@@ -3285,8 +3285,8 @@ class _BookmarkedLine extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.4),
-        border: Border(
-          left: BorderSide(color: colorScheme.primary, width: 3),
+        border: BorderDirectional(
+          start: BorderSide(color: colorScheme.primary, width: 3),
         ),
       ),
       child: Column(

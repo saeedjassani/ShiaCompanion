@@ -204,7 +204,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       onTap: _pickArabicFont,
                     ),
                     _SettingsRow(
-                      icon: const _RowLetters('Aa', fontSize: 14),
+                      icon: _RowLetters(l10n.textSizeGlyph, fontSize: 14),
                       title: l10n.settingsAppTextSize,
                       value: AppTextScaleProvider.label(textScale),
                       onTap: () => showAppTextSizeSheet(context),
@@ -642,7 +642,7 @@ Future<void> showAppTextSizeSheet(BuildContext context) {
                 Row(
                   children: [
                     ExcludeSemantics(
-                      child: Text('A',
+                      child: Text(l10n.textSizeLetter,
                           textScaler: TextScaler.noScaling,
                           style: TextStyle(
                               fontSize: 14,
@@ -673,7 +673,7 @@ Future<void> showAppTextSizeSheet(BuildContext context) {
                       ),
                     ),
                     ExcludeSemantics(
-                      child: Text('A',
+                      child: Text(l10n.textSizeLetter,
                           textScaler: TextScaler.noScaling,
                           style: TextStyle(
                               fontSize: 22,
@@ -895,7 +895,7 @@ class _RowGlyph extends StatelessWidget {
 }
 
 /// A settings row's tile with letters in it: "ع" for the Arabic font, "Aa"
-/// for text size.
+/// (in the app language's own letters) for text size.
 class _RowLetters extends StatelessWidget {
   const _RowLetters(this.letters, {required this.fontSize});
 
