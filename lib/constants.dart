@@ -308,12 +308,12 @@ Future<bool> arePrayerAzanAlarmsMissing(
   // azanPlaysAutomatically), so there is nothing to have lost.
   if (pending == null || !azanPlaysAutomatically()) return false;
 
-  final playsAzan = enabledPrayerNotificationNames(
-          getPrayerNotificationPrayerNames())
-      .map(getAzaanOptionForPrayer)
-      .any((azaan) =>
-          azaan.id == AzaanOptions.azaan.id ||
-          azaan.id == AzaanOptions.custom.id);
+  final playsAzan =
+      enabledPrayerNotificationNames(getPrayerNotificationPrayerNames())
+          .map(getAzaanOptionForPrayer)
+          .any((azaan) =>
+              azaan.id == AzaanOptions.azaan.id ||
+              azaan.id == AzaanOptions.custom.id);
   if (!playsAzan) return false;
 
   // Azan alarms reuse their notification's id (see schedulePrayerTimeNotification).
@@ -425,11 +425,6 @@ final ValueNotifier<bool> zikrIndexReady = ValueNotifier<bool>(false);
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
-/// The app-wide snackbar host, for messages that outlive the page that
-/// caused them - an offline download finishing after the reader has moved on.
-final GlobalKey<ScaffoldMessengerState> appScaffoldMessengerKey =
-    GlobalKey<ScaffoldMessengerState>();
-
 double getItemOrderValue(String uid) {
   final custom = itemOrder[uid];
   if (custom != null) return custom;
@@ -521,10 +516,9 @@ Future<bool> initializeLocation(
         permissionStatus == LocationPermission.deniedForever ||
         permissionStatus == LocationPermission.unableToDetermine) {
       debugPrint("Location permission not granted: $permissionStatus");
-      lastLocationFailure =
-          permissionStatus == LocationPermission.deniedForever
-              ? LocationFailure.permissionDeniedForever
-              : LocationFailure.permissionDenied;
+      lastLocationFailure = permissionStatus == LocationPermission.deniedForever
+          ? LocationFailure.permissionDeniedForever
+          : LocationFailure.permissionDenied;
       if (context != null && !kIsWeb) {
         _showPermissionDeniedDialog(context, permissionStatus);
       }
@@ -539,9 +533,8 @@ Future<bool> initializeLocation(
     // Use a time limit so we don't hang indefinitely on a cold/failing fetch,
     // and keep a last-known fix as a fallback when a fresh one can't be obtained.
     // getLastKnownPosition is unsupported on web, so skip it there.
-    final Position? lastKnownPosition = kIsWeb
-        ? null
-        : await Geolocator.getLastKnownPosition();
+    final Position? lastKnownPosition =
+        kIsWeb ? null : await Geolocator.getLastKnownPosition();
 
     Position currentLocation;
     try {
@@ -748,14 +741,11 @@ void _showPermissionDeniedDialog(
     BuildContext context, LocationPermission status) {
   String message;
   if (status == LocationPermission.deniedForever) {
-    message =
-        L10n.current.locationPermissionDeniedForever;
+    message = L10n.current.locationPermissionDeniedForever;
   } else if (status == LocationPermission.unableToDetermine) {
-    message =
-        L10n.current.locationPermissionUnknown;
+    message = L10n.current.locationPermissionUnknown;
   } else {
-    message =
-        L10n.current.locationPermissionNeeded;
+    message = L10n.current.locationPermissionNeeded;
   }
 
   showDialog(
@@ -811,7 +801,7 @@ void _showLocationErrorDialog(BuildContext context, dynamic error) {
     builder: (BuildContext dialogContext) {
       return AlertDialog(
         title: Text(L10n.current.locationErrorTitle),
-                  content: Text(L10n.current.locationErrorBody(error.toString())),
+        content: Text(L10n.current.locationErrorBody(error.toString())),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -942,7 +932,8 @@ Future<void> setUpNotifications() async {
   }
   await Future.wait(schedulingTasks);
   AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails("general", L10n.current.notificationChannelGeneral);
+      AndroidNotificationDetails(
+          "general", L10n.current.notificationChannelGeneral);
   DarwinNotificationDetails iOSPlatformChannelSpecifics =
       DarwinNotificationDetails();
   NotificationDetails platformChannelSpecifics = NotificationDetails(
@@ -951,8 +942,7 @@ Future<void> setUpNotifications() async {
   await plugin.zonedSchedule(
       id: 786,
       title: L10n.current.notificationReopenAppTitle,
-      body:
-                      L10n.current.notificationReopenAppBody(scheduleDays),
+      body: L10n.current.notificationReopenAppBody(scheduleDays),
       scheduledDate:
           tz.TZDateTime.now(tz.local).add(Duration(days: scheduleDays - 1)),
       notificationDetails: platformChannelSpecifics,
@@ -1150,8 +1140,8 @@ Future<NotificationDetails> prayerNotificationDetails(
 /// it, so the banner has to say so - nothing else on it does.
 String prayerNotificationBody(String prayerName, AzaanOption azaan,
     {bool? isIOS, bool? playsAutomatically}) {
-  final body = L10n.current.notificationPrayerTime(
-      localizedPrayerName(prayerName).toLowerCase());
+  final body = L10n.current
+      .notificationPrayerTime(localizedPrayerName(prayerName).toLowerCase());
   final onIOS = isIOS ?? (!kIsWeb && Platform.isIOS);
   final autoplays = playsAutomatically ?? (!onIOS && azanPlaysAutomatically());
   if (autoplays || !azanUsesPlaybackService(azaan)) return body;
@@ -1411,8 +1401,7 @@ Future<void> _openZikrReminderNotification(String reminderId) async {
 /// flutter_local_notifications requires this to be a distinct top-level
 /// function carrying this pragma.
 @pragma('vm:entry-point')
-void handlePrayerNotificationResponseBackground(
-    NotificationResponse response) {
+void handlePrayerNotificationResponseBackground(NotificationResponse response) {
   handlePrayerNotificationResponse(response);
 }
 
@@ -1708,8 +1697,8 @@ Future<String> keepCustomAudioFile(File picked, {required String scope}) async {
     '${(await getApplicationSupportDirectory()).path}/custom_azan/'
     '${scope.replaceAll(RegExp(r'[^A-Za-z0-9]'), '_')}',
   );
-  final pickDir = Directory(
-      '${scopeDir.path}/${DateTime.now().millisecondsSinceEpoch}');
+  final pickDir =
+      Directory('${scopeDir.path}/${DateTime.now().millisecondsSinceEpoch}');
   await pickDir.create(recursive: true);
   final kept =
       await picked.copy('${pickDir.path}/${picked.path.split('/').last}');

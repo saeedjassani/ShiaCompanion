@@ -20,6 +20,7 @@ import '../widgets/page_chrome.dart';
 import '../widgets/responsive_content.dart' show compactContentWidth;
 import 'delete_account_page.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 /// Who is signed in, as the Account page and the Settings card show them.
 class AccountProfile {
@@ -140,12 +141,14 @@ class _AccountPageState extends State<AccountPage> {
       await AccountService.signOut();
       user = null;
       if (!mounted) return;
-      _showSnackBar(context.l10n.deleteAccountSignedOut);
+      final message = context.l10n.deleteAccountSignedOut;
+      // After the pop, so it shows on the page they go back to.
       Navigator.of(context).pop();
+      _showToast(message);
     } catch (error) {
       if (!mounted) return;
       setState(() => _isBusy = false);
-      _showSnackBar(context.l10n.deleteAccountSignOutFailed('$error'));
+      _showToast(context.l10n.deleteAccountSignOutFailed('$error'));
     }
   }
 
@@ -156,17 +159,17 @@ class _AccountPageState extends State<AccountPage> {
     if (!mounted) return;
     if (error != null) {
       setState(() => _isBusy = false);
-      _showSnackBar(error);
+      _showToast(error);
       return;
     }
-    _showSnackBar(context.l10n.deleteAccountDone);
+    final message = context.l10n.deleteAccountDone;
+    // After the pop, so it shows on the page they go back to.
     Navigator.of(context).pop();
+    _showToast(message);
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+  void _showToast(String message) {
+    showToast(message);
   }
 
   @override

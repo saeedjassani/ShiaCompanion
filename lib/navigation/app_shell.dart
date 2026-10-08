@@ -11,6 +11,7 @@ import '../pages/home_page.dart';
 import '../theme/app_theme.dart';
 import '../theme/shia_colors.dart';
 import '../pages/search_page.dart';
+import '../widgets/app_toast.dart';
 import '../widgets/azan_playing_banner.dart';
 import '../widgets/glass_surface.dart';
 import '../widgets/home_glyph.dart';
@@ -124,6 +125,8 @@ class _AppShellState extends State<AppShell> {
 
   void _select(int index) {
     if (index == _index) return;
+    // A message belongs to the tab that raised it.
+    hideToast();
     setState(() {
       _index = index;
       _visited.add(index);

@@ -9,6 +9,7 @@ import 'package:shia_companion/pages/home/coming_up_section.dart';
 import 'package:shia_companion/utils/islamic_day.dart';
 import 'package:shia_companion/utils/lunar_date_matcher.dart';
 import 'package:shia_companion/pages/home/continue_section.dart';
+import 'package:shia_companion/pages/home/get_app_card.dart';
 import 'package:shia_companion/pages/home/hadith_card.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
 import 'package:shia_companion/services/home_shortcuts_store.dart';
@@ -34,7 +35,17 @@ void main() {
 
     test('starts with the agreed defaults', () {
       expect(HomeShortcutsStore.instance.ids, HomeShortcutsStore.defaultIds);
+      expect(HomeShortcutsStore.instance.idsFor(wide: true),
+          HomeShortcutsStore.wideDefaultIds);
+      expect(HomeShortcutsStore.wideDefaultIds,
+          hasLength(HomeShortcutsStore.maxShortcuts));
       expect(HomeShortcutsStore.instance.isCustomized, isFalse);
+    });
+
+    test('a saved choice wins over both sets of defaults', () async {
+      await HomeShortcutsStore.instance.save(['duas']);
+      expect(HomeShortcutsStore.instance.idsFor(wide: true), ['duas']);
+      expect(HomeShortcutsStore.instance.idsFor(wide: false), ['duas']);
     });
 
     test('saves a choice, without repeats and at most eleven', () async {
@@ -118,8 +129,10 @@ void main() {
     test('says Tonight once the event\'s eve has begun at Maghrib', () {
       // Thursday 8 pm, after Maghrib: Friday's Islamic day has begun.
       final now = DateTime(2026, 10, 15, 20);
-      final eve = IslamicDay(day: LunarDay(DateTime(2026, 10, 16)), isEve: true);
-      final day = IslamicDay(day: LunarDay(DateTime(2026, 10, 16)), isEve: false);
+      final eve =
+          IslamicDay(day: LunarDay(DateTime(2026, 10, 16)), isEve: true);
+      final day =
+          IslamicDay(day: LunarDay(DateTime(2026, 10, 16)), isEve: false);
       ComingUpEvent on(DateTime date) =>
           ComingUpEvent(date: date, title: '', hijri: '');
       expect(on(DateTime(2026, 10, 16)).whenFrom(now, null, eve), 'Tonight');
@@ -243,6 +256,9 @@ void main() {
     setUp(() => _prefs());
 
     testWidgets('shows the seven shortcuts, then All features', (tester) async {
+      tester.view.physicalSize = const Size(390, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       var allFeatures = 0;
       await tester.pumpWidget(_app(ShortcutsSection(
         onOpen: (_) {},
@@ -253,7 +269,7 @@ void main() {
         'Duas',
         'Ziyarats',
         "Today's Recitations",
-        'Munajaat',
+        'Taqeebat e Namaz',
         'Calendar',
         'Tasbeeh',
         'Qibla',
@@ -291,6 +307,31 @@ void main() {
       expect(library.dy, greaterThan(duas.dy));
       expect(allFeatures.dy, greaterThan(library.dy));
       expect(allFeatures.dx, closeTo(duas.dx, 1));
+    });
+
+    testWidgets('a wide screen starts with eleven, in three rows',
+        (tester) async {
+      tester.view.physicalSize = const Size(1024, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(ShortcutsSection(
+        onOpen: (_) {},
+        onOpenAllFeatures: () {},
+      )));
+
+      for (final label in ['Qaza Tracker', 'Playlists', 'Library', 'Namaz']) {
+        expect(find.text(label), findsOneWidget, reason: label);
+      }
+      // Qaza ends the second row; Namaz and All features end the third.
+      final duas = tester.getCenter(find.text('Duas'));
+      final calendar = tester.getCenter(find.text('Calendar'));
+      final playlists = tester.getCenter(find.text('Playlists'));
+      final allFeatures = tester.getCenter(find.text('All features'));
+      expect(calendar.dy, greaterThan(duas.dy));
+      expect(playlists.dy, greaterThan(calendar.dy));
+      expect(playlists.dx, closeTo(duas.dx, 1));
+      expect(allFeatures.dy, closeTo(playlists.dy, 1));
+      expect(HomeShortcutsStore.instance.isCustomized, isFalse);
     });
 
     Future<void> pumpEditor(WidgetTester tester) async {
@@ -333,7 +374,7 @@ void main() {
         'duas',
         'ziyarats',
         'today_s_recitations',
-        'munajaat',
+        'taqeebat_e_namaz',
         'calendar_prayer_times',
         'tasbeeh_counter',
         'library',
@@ -394,6 +435,26 @@ void main() {
       for (final item in allFeaturesMenuItems) {
         expect(find.text(item.label), findsOneWidget, reason: item.label);
       }
+    });
+  });
+
+  group('Get the app', () {
+    testWidgets('offers both stores, each read out as a link', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(_app(const GetAppCard()));
+
+      expect(find.text('Get the app'), findsOneWidget);
+      expect(
+          find.bySemanticsLabel('Download on the App Store'), findsOneWidget);
+      expect(find.bySemanticsLabel('Get it on Google Play'), findsOneWidget);
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel('Get it on Google Play'))
+            .flagsCollection
+            .isLink,
+        isTrue,
+      );
+      semantics.dispose();
     });
   });
 }

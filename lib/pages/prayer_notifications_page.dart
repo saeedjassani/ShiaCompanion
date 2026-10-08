@@ -16,6 +16,7 @@ import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/page_chrome.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 /// Every time the app can notify on, in the order the rest of the app shows
 /// them.
@@ -558,9 +559,7 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       final pickedFile = File(pickedPath);
       if (!await pickedFile.exists()) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.notifAudioUnreadable)),
-          );
+          showToast(context.l10n.notifAudioUnreadable);
         }
         return false;
       }
@@ -585,9 +584,7 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
     } catch (e) {
       debugPrint('Custom audio pick failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.notifPickFailed)),
-        );
+        showToast(context.l10n.notifPickFailed);
       }
       return false;
     } finally {
@@ -598,11 +595,9 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
   Future<void> _preview(String soundId) async {
     final plugin = flutterLocalNotificationsPlugin;
     if (plugin == null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.l10n.notifPlayingSample),
-        duration: Duration(seconds: 2),
-      ),
+    showToast(
+      context.l10n.notifPlayingSample,
+      duration: const Duration(seconds: 2),
     );
     // Previews what this prayer will really sound like, override included —
     // the old global-only test button could never do that.

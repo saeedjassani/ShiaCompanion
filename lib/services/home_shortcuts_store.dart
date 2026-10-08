@@ -20,24 +20,42 @@ class HomeShortcutsStore extends ChangeNotifier {
   static const String prefsKey = 'home_shortcuts';
   static const int maxShortcuts = 11;
 
-  /// What a fresh install, or one that never opened the editor, shows.
+  /// What a phone shows before anyone opens the editor: two rows with
+  /// All features.
   static const List<String> defaultIds = [
     'duas',
     'ziyarats',
     'today_s_recitations',
-    'munajaat',
+    'taqeebat_e_namaz',
     'calendar_prayer_times',
     'tasbeeh_counter',
     'qibla_finder',
   ];
 
-  /// The chosen ids, or [defaultIds] when nothing has been chosen. Ids the
+  /// What a tablet or desktop shows before anyone opens the editor: the
+  /// phone's defaults and four more, filling three rows with All features.
+  static const List<String> wideDefaultIds = [
+    ...defaultIds,
+    'qaza_tracker',
+    'playlists',
+    'library',
+    'namaz',
+  ];
+
+  /// The chosen ids, or the phone's [defaultIds] when nothing has been
+  /// chosen; see [idsFor] for what a given screen shows.
+  List<String> get ids => idsFor(wide: false);
+
+  /// The chosen ids, or the defaults for a [wide] screen or a phone when
+  /// nothing has been chosen. A choice is one list for every screen size:
+  /// saving one, on any device, replaces both sets of defaults. Ids the
   /// current build does not know (an item only on Android, one from a newer
   /// version) are kept here and simply skipped when the grid resolves them.
-  List<String> get ids {
-    if (!SP.isInitialized) return defaultIds;
+  List<String> idsFor({required bool wide}) {
+    final defaults = wide ? wideDefaultIds : defaultIds;
+    if (!SP.isInitialized) return defaults;
     final stored = SP.prefs.getStringList(prefsKey);
-    return stored == null ? defaultIds : List.unmodifiable(stored);
+    return stored == null ? defaults : List.unmodifiable(stored);
   }
 
   /// Whether the reader has ever saved their own choice.

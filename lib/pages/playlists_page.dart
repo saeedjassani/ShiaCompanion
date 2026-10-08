@@ -22,6 +22,7 @@ import '../widgets/page_chrome.dart';
 import 'downloaded_audio_page.dart';
 import 'zikr/zikr_page.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 /// The zikr's title as the index knows it, falling back to its uid while the
 /// index is still loading.
@@ -105,7 +106,6 @@ Future<void> _startPlaylist(
   ZikrPlaylist playlist, {
   int startZikrIndex = 0,
 }) async {
-  final messenger = ScaffoldMessenger.of(context);
   final result = await PlaylistAudioService.instance
       .play(playlist, startZikrIndex: startZikrIndex);
   final message = switch (result) {
@@ -118,9 +118,7 @@ Future<void> _startPlaylist(
     PlaylistStartResult.failed => context.l10n.playlistStartFailed,
   };
   if (message == null) return;
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+  showToast(message);
 }
 
 /// The recordings [playlist] plays, in order: the chosen ones of each zikr.
@@ -224,7 +222,6 @@ Future<void> showAddToPlaylistSheet(
 }) async {
   final uid = _contentUid(zikrUid);
   final store = ZikrPlaylistStore.instance;
-  final messenger = ScaffoldMessenger.of(context);
 
   final choice = await showRevampSheet<Object>(
     context,
@@ -291,12 +288,10 @@ Future<void> showAddToPlaylistSheet(
               uid: [track.file]
             },
     );
-    messenger.showSnackBar(
-        SnackBar(content: Text(L10n.current.playlistAddedTo(name))));
+    showToast(L10n.current.playlistAddedTo(name));
   } else if (choice is ZikrPlaylist) {
     if (_hasRecording(choice, uid, track)) {
-      messenger.showSnackBar(
-          SnackBar(content: Text(L10n.current.playlistAlreadyIn(choice.name))));
+      showToast(L10n.current.playlistAlreadyIn(choice.name));
       return;
     }
     if (choice.zikrUids.contains(uid) && track != null) {
@@ -313,8 +308,7 @@ Future<void> showAddToPlaylistSheet(
     } else {
       await store.addZikr(choice.id, uid, trackFile: track?.file);
     }
-    messenger.showSnackBar(
-        SnackBar(content: Text(L10n.current.playlistAddedTo(choice.name))));
+    showToast(L10n.current.playlistAddedTo(choice.name));
   }
 }
 

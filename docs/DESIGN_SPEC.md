@@ -165,8 +165,12 @@ Top to bottom, each section hidden when it has nothing to show:
    (no rows setting; the grid grows with the picks). Edited from **Edit
    shortcuts** on All features, which opens the editor sheet
    (remove/drag/add, max 11). Stored in prefs
-   and synced via `PreferencesSyncService`. Defaults: Duas, Ziyarats,
-   Today's Recitations, Munajaat, Calendar, Tasbeeh, Qibla.
+   and synced via `PreferencesSyncService` as one list for every screen
+   size. Defaults on a phone: Duas, Ziyarats, Today's Recitations,
+   Taqibaat, Calendar, Tasbeeh, Qibla (two rows). From the tablet
+   breakpoint up, Qaza Tracker, Playlists, Library and Namaz are added
+   (three rows). Defaults are never synced; the first save replaces them
+   on every device.
 5. **Next event** — the prayer card's last row, not a section: the next
    event from `buildUpcomingCalendarWidgetEvents`, counted from the Islamic
    day in effect. Date box, "In 9 days · 5 Jumada al-Awwal" (or
@@ -175,6 +179,9 @@ Top to bottom, each section hidden when it has nothing to show:
    and says **TODAY**, or **TONIGHT** from Maghrib on its eve. Tap →
    Calendar.
 6. **Hadith of the day** — full text, source, Share button.
+7. **Get the app** — web only: a card with the official App Store and
+   Google Play badges (both, whatever the browser), under the prayer card
+   and Continue from the tablet breakpoint up, last on a phone.
 
 ### All features
 One 3-column grid in today's home order (minus Quran and Favorites, which
@@ -187,6 +194,16 @@ Large title + Recent sessions and My Stats buttons; reading-track cards
 two-step picker: surah list with quick picks → verse number grid in
 groups of 50); Surahs / Juz / Collections as a segmented switcher; surah
 list.
+
+- **Messages** ("Saved for offline", "Copied", Undo) are a **toast**, not
+  a Material snack bar: a glass capsule (52 px min, 26 px corners), 16 px
+  from the sides and at most 640 px wide, floating 12 px above where the
+  tab bar and find fields sit, with at most one action in accent text. One
+  at a time; swipe down to dismiss; fades without sliding under reduce
+  motion. It belongs to the page that raised it and goes when that page is
+  covered, popped or swapped for another tab (a sheet or dialog over it
+  doesn't count); a message about where the user lands ("Signed out") is
+  shown after the pop (`showToast` in `lib/widgets/app_toast.dart`).
 
 ### Favorites (tab 3)
 Large title + Edit; segmented **Duas & more / Quran verses**; back-up

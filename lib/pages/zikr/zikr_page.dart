@@ -56,6 +56,7 @@ import 'zikr_reading_stats.dart';
 import 'zikr_share_image.dart';
 import '../../services/zikr_translations.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/app_toast.dart';
 
 /// How far the text has to actually travel in one direction before the
 /// reading chrome reacts.
@@ -349,9 +350,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     super.initState();
     // A portion spans surahs, so it has no single surah of its own; its index
     // carries one per verse instead.
-    _surahNumber = widget.portion != null
-        ? null
-        : surahForUid(widget.item.getFirstUId());
+    _surahNumber =
+        widget.portion != null ? null : surahForUid(widget.item.getFirstUId());
     _counterSessionId = widget.item.getFirstUId();
     final counterState =
         ZikrCounterSessionStore.instance.read(_counterSessionId);
@@ -825,11 +825,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                   onTap: () async {
                     await Clipboard.setData(ClipboardData(text: text));
                     if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content:
-                              Text(context.l10n.quranCopiedVerse('$verse'))),
-                    );
+                    showToast(context.l10n.quranCopiedVerse('$verse'));
                   },
                 ),
                 action(
@@ -839,9 +835,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                   onTap: () async {
                     await Clipboard.setData(ClipboardData(text: link));
                     if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(context.l10n.quranLinkCopied)),
-                    );
+                    showToast(context.l10n.quranLinkCopied);
                   },
                 ),
                 action(
@@ -902,12 +896,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ));
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(wasSaved
-              ? context.l10n.quranRemovedVerse('$verse')
-              : context.l10n.quranSavedVerse('$verse'))),
-    );
+    showToast(wasSaved
+        ? context.l10n.quranRemovedVerse('$verse')
+        : context.l10n.quranSavedVerse('$verse'));
   }
 
   /// The opening of a verse, for the saved list.
@@ -1035,16 +1026,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.quranBookmarkRetired),
-          // Long enough to read while the page settles at the bookmark.
-          duration: const Duration(seconds: 10),
-          action: SnackBarAction(
-            label: MaterialLocalizations.of(context).okButtonLabel,
-            onPressed: () {},
-          ),
-        ),
+      showToast(
+        context.l10n.quranBookmarkRetired,
+        // Long enough to read while the page settles at the bookmark.
+        duration: const Duration(seconds: 10),
+        actionLabel: MaterialLocalizations.of(context).okButtonLabel,
       );
     });
   }
@@ -1622,10 +1608,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// Copy, for a surah in QuranWBW's script: its pause marks and medallions
   /// are private-use glyphs that paste as boxes anywhere but the reader.
   void _copyQuranWbwSelection(SelectableRegionState selectableRegionState) {
-    final text = (_lastSelectedText ?? '')
-        .split('\n')
-        .map(indoPakPlainText)
-        .join('\n');
+    final text =
+        (_lastSelectedText ?? '').split('\n').map(indoPakPlainText).join('\n');
     unawaited(Clipboard.setData(ClipboardData(text: text)));
     selectableRegionState.hideToolbar();
   }
@@ -1708,10 +1692,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           colorScheme: Theme.of(context).colorScheme,
           arabicFontFamily: arabicFontFamilyOf(zikrData),
           translation: _translation,
-          titleDirection: ZikrTranslations.instance.titleFor(widget.item.uid) ==
-                  null
-              ? TextDirection.ltr
-              : ZikrTranslations.instance.language.textDirection,
+          titleDirection:
+              ZikrTranslations.instance.titleFor(widget.item.uid) == null
+                  ? TextDirection.ltr
+                  : ZikrTranslations.instance.language.textDirection,
         ),
       );
       if (imageBytes == null) {
@@ -1888,26 +1872,25 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (isArabicOnlyReadingView) return;
     if (!await ZikrBookmarkStore.instance.claimMoveHint()) return;
     if (!mounted) return;
-    final color = Theme.of(context).colorScheme.onInverseSurface;
+    final color = ShiaColors.of(context).accent;
     // The drag-handle icon sits mid-sentence, wherever a translation puts it.
     const iconMarker = '\u0000';
-    final hint = context.l10n.zikrBookmarkMoveHint(iconMarker).split(iconMarker);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(text: hint.first),
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Icon(Icons.drag_indicator, size: 18, color: color),
-              ),
-              if (hint.length > 1) TextSpan(text: hint.sublist(1).join()),
-            ],
-          ),
+    final hint =
+        context.l10n.zikrBookmarkMoveHint(iconMarker).split(iconMarker);
+    showToastContent(
+      Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(text: hint.first),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Icon(Icons.drag_indicator, size: 18, color: color),
+            ),
+            if (hint.length > 1) TextSpan(text: hint.sublist(1).join()),
+          ],
         ),
-        duration: const Duration(seconds: 6),
       ),
+      duration: const Duration(seconds: 6),
     );
   }
 
@@ -2065,13 +2048,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(submitted
-            ? context.l10n.zikrReportThanks
-            : context.l10n.zikrReportFailed),
-      ),
-    );
+    showToast(submitted
+        ? context.l10n.zikrReportThanks
+        : context.l10n.zikrReportFailed);
   }
 
   /// The dialog itself: shows what was selected, if anything, and a box for
@@ -2287,8 +2266,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final bottomOffset = floatingBottomOffset(context);
     // How far the chrome reaches in from each edge while it is showing.
     final topChromeExtent = statusBarHeight + ReaderTopBar.barHeight;
-    final bottomChromeExtent =
-        showActionBar ? bottomOffset + ZikrActionBar.barHeight : mediaPadding.bottom;
+    final bottomChromeExtent = showActionBar
+        ? bottomOffset + ZikrActionBar.barHeight
+        : mediaPadding.bottom;
 
     return SelectionArea(
       focusNode: _selectionFocusNode,
@@ -2359,8 +2339,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                       : !hasAnyContent
                           ? Padding(
                               padding: EdgeInsets.only(top: topChromeExtent),
-                              child:
-                                  Center(child: Text(context.l10n.zikrComingSoon)),
+                              child: Center(
+                                  child: Text(context.l10n.zikrComingSoon)),
                             )
                           : _withQuranSwipe(
                               hasTabs: tabContents.length > 1,
@@ -2405,7 +2385,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                       _handleAyahPositionChanged,
                                   onAyahAction:
                                       _isQuran ? _showAyahActions : null,
-                                  arabicFontFamily: arabicFontFamilyOf(zikrData),
+                                  arabicFontFamily:
+                                      arabicFontFamilyOf(zikrData),
                                   onBookmarkLineResolved:
                                       _handleBookmarkLineResolved,
                                   onBookmarkMoved:
@@ -2535,15 +2516,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   onListen: _openAudioPlayer,
                                   onText: _openTextSheet,
                                   onCounter: _toggleCounterFromActionBar,
-                                  player: _showAudioPlayer &&
-                                          audioTracks.isNotEmpty
-                                      ? ZikrAudioPlayer(
-                                          tracks: audioTracks,
-                                          zikrUid: widget.item.getUId(),
-                                          zikrTitle: pageTitle,
-                                          onClose: _closeAudioPlayer,
-                                        )
-                                      : null,
+                                  player:
+                                      _showAudioPlayer && audioTracks.isNotEmpty
+                                          ? ZikrAudioPlayer(
+                                              tracks: audioTracks,
+                                              zikrUid: widget.item.getUId(),
+                                              zikrTitle: pageTitle,
+                                              onClose: _closeAudioPlayer,
+                                            )
+                                          : null,
                                 ),
                               ),
                             ),
@@ -2568,9 +2549,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                             ),
                       trailing: _buildTopBarAction(context),
                       // With parts, the line runs under their chips instead.
-                      progress: showProgressBar && !hasTabs
-                          ? _readingProgress
-                          : null,
+                      progress:
+                          showProgressBar && !hasTabs ? _readingProgress : null,
                     ),
                   ),
                 ),

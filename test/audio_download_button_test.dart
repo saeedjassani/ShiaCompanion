@@ -28,7 +28,7 @@ void main() {
   }
 
   Widget host(Widget child) => MaterialApp(
-        scaffoldMessengerKey: appScaffoldMessengerKey,
+        navigatorKey: appNavigatorKey,
         home: Scaffold(body: Center(child: child)),
       );
 

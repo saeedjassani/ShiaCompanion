@@ -15,6 +15,7 @@ import '../utils/shared_preferences.dart';
 import '../widgets/choice_sheet.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
+import '../widgets/app_toast.dart';
 
 /// The Rakaat counter (docs/DESIGN_SPEC.md, "Tools"; mockups `Rakaat-A`
 /// and `Rakaat-B`): the prayer's length, the sensor's state, "Rakaat N of
@@ -176,9 +177,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
       onError: (_) {
         if (!mounted) return;
         unawaited(_setSensorEnabled(false));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.counterSensorStopped)),
-        );
+        showToast(context.l10n.counterSensorStopped);
       },
     );
   }
@@ -222,14 +221,11 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
       // the salawat below can be read.
       setState(() => _dimmed = false);
       unawaited(_setSensorEnabled(false));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 4),
-          content: Text(
-            'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ وَعَجِّلْ فَرَجَهُمْ وَالْعَنْ أَعْدَاءَهُمْ أَجْمَعِينَ',
-            textAlign: TextAlign.center,
-            textDirection: TextDirection.rtl,
-          ),
+      showToastContent(
+        const Text(
+          'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَآلِ مُحَمَّدٍ وَعَجِّلْ فَرَجَهُمْ وَالْعَنْ أَعْدَاءَهُمْ أَجْمَعِينَ',
+          textAlign: TextAlign.center,
+          textDirection: TextDirection.rtl,
         ),
       );
     } else {
