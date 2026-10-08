@@ -13,6 +13,7 @@ import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/responsive_content.dart' show compactContentWidth;
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 /// Asks before an account is deleted; true to go ahead. Shared by the
 /// Account page and [DeleteAccountPage], so both ask the same way.
@@ -78,13 +79,11 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
       user = authResult.user;
       if (!mounted) return;
       setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.deleteAccountSignedIn)),
-      );
+      showToast(context.l10n.deleteAccountSignedIn);
     } on AccountActionException catch (error) {
-      _showSnackBar(error.message);
+      _showToast(error.message);
     } catch (error) {
-      _showSnackBar(context.l10n.deleteAccountSignInFailed('$error'));
+      _showToast(context.l10n.deleteAccountSignInFailed('$error'));
     } finally {
       if (!mounted) return;
       setState(() {
@@ -103,9 +102,9 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
       user = null;
       if (!mounted) return;
       setState(() {});
-      _showSnackBar(context.l10n.deleteAccountSignedOut);
+      _showToast(context.l10n.deleteAccountSignedOut);
     } catch (error) {
-      _showSnackBar(context.l10n.deleteAccountSignOutFailed('$error'));
+      _showToast(context.l10n.deleteAccountSignOutFailed('$error'));
     } finally {
       if (!mounted) return;
       setState(() {
@@ -129,14 +128,12 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
       _isBusy = false;
       _isDeleted = error == null;
     });
-    _showSnackBar(error ?? context.l10n.deleteAccountDone);
+    _showToast(error ?? context.l10n.deleteAccountDone);
   }
 
-  void _showSnackBar(String message) {
+  void _showToast(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    showToast(message);
   }
 
   // This page doubles as the public `/delete-account` web route Google Play
@@ -197,8 +194,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                   : l10n.deleteAccountSignedInAs(currentUser.email ??
                       currentUser.displayName ??
                       currentUser.uid))),
-              section(GroupLabel(l10n.deleteAccountWhatGetsDeleted),
-                  bottom: 8),
+              section(GroupLabel(l10n.deleteAccountWhatGetsDeleted), bottom: 8),
               section(
                 CardList(children: [
                   for (final (i, item) in deleted.indexed)

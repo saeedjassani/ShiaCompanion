@@ -12,6 +12,7 @@ import '../widgets/choice_sheet.dart';
 import '../widgets/page_chrome.dart';
 import 'stats/stats_widgets.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 class QazaTrackerPage extends StatefulWidget {
   const QazaTrackerPage({super.key});
@@ -339,18 +340,10 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
     final marked = manager.markCompletedEach(qazaDailyPrayers);
     if (marked.isEmpty) return;
 
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(
-          context.l10n.qazaLoggedFullDay,
-        ),
-        action: SnackBarAction(
-          label: context.l10n.commonUndo,
-          onPressed: () => manager.undoCompletedEach(marked),
-        ),
-      ),
+    showToast(
+      context.l10n.qazaLoggedFullDay,
+      actionLabel: context.l10n.commonUndo,
+      onAction: () => manager.undoCompletedEach(marked),
     );
   }
 
@@ -368,9 +361,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
       QazaEntryType.fast: result.fasts,
     });
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.qazaAddedToList)),
-    );
+    showToast(context.l10n.qazaAddedToList);
   }
 
   Future<void> _showEditDialog(
@@ -653,7 +644,8 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
                       for (final line in summaryLines)
                         Text(
                           '• $line',
-                          style: ShiaText.secondary.copyWith(color: colors.text),
+                          style:
+                              ShiaText.secondary.copyWith(color: colors.text),
                         ),
                     ],
                   ),
@@ -663,9 +655,8 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
           label: l10n.qazaAddToList,
           glyph: OutlineGlyph.plus,
           filled: true,
-          onPressed: estimate.isEmpty
-              ? null
-              : () => Navigator.pop(context, estimate),
+          onPressed:
+              estimate.isEmpty ? null : () => Navigator.pop(context, estimate),
         ),
       ],
     );

@@ -13,6 +13,7 @@ import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/page_chrome.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 /// The Favorites tab (docs/DESIGN_SPEC.md, "Favorites"; mockup
 /// `R2-Favorites`): what the reader has kept, in their own order, with
@@ -43,9 +44,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
       await FavoritesManager.instance.moveFavorite(oldIndex, newIndex);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.favoritesReorderFailed)),
-      );
+      showToast(context.l10n.favoritesReorderFailed);
     }
   }
 

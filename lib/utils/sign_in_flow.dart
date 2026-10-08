@@ -9,6 +9,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../l10n/l10n.dart';
 import '../services/account_service.dart';
 import '../services/analytics_service.dart';
+import '../widgets/app_toast.dart';
 
 enum SignInProvider { google, apple }
 
@@ -41,9 +42,7 @@ Future<User?> signInFromButton(
       parameters: {'method': provider.name},
     ));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(context.l10n.settingsLoginSuccessful),
-      ));
+      showToast(context.l10n.settingsLoginSuccessful);
     }
     return result.user;
   } on GoogleSignInException catch (error) {
@@ -93,11 +92,9 @@ void _showFailure(
   String? message,
 ) {
   final l10n = context.l10n;
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(message ??
-        switch (provider) {
-          SignInProvider.google => l10n.settingsGoogleFailed,
-          SignInProvider.apple => l10n.settingsAppleFailed,
-        }),
-  ));
+  showToast(message ??
+      switch (provider) {
+        SignInProvider.google => l10n.settingsGoogleFailed,
+        SignInProvider.apple => l10n.settingsAppleFailed,
+      });
 }

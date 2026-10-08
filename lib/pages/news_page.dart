@@ -14,6 +14,7 @@ import '../theme/shia_colors.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/responsive_content.dart' show compactContentWidth;
+import '../widgets/app_toast.dart';
 
 /// The latest headlines from ABNA (AhlulBayt News Agency), each opening the
 /// full story in the browser.
@@ -79,11 +80,10 @@ class _NewsPageState extends State<NewsPage> {
   Future<void> _open(RssItem item) async {
     final link = item.link?.trim() ?? '';
     final uri = Uri.tryParse(link);
-    final opened = uri != null && link.isNotEmpty && await launchExternalUri(uri);
+    final opened =
+        uri != null && link.isNotEmpty && await launchExternalUri(uri);
     if (!opened && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.newsNoBrowser)),
-      );
+      showToast(context.l10n.newsNoBrowser);
     }
   }
 

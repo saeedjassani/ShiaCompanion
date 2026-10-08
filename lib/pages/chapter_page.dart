@@ -24,6 +24,7 @@ import '../widgets/reader_top_bar.dart';
 import '../widgets/responsive_content.dart';
 import '../services/analytics_service.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 class ChapterPage extends StatefulWidget {
   final String slug;
@@ -306,25 +307,19 @@ class _ChapterPageState extends State<ChapterPage>
       if (_isSaved) {
         await LibraryService.removeSavedBook(bookSlug);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.libraryOfflineRemoved)),
-          );
+          showToast(context.l10n.libraryOfflineRemoved);
         }
       } else {
         final title = widget.bookTitle ?? _title;
         await LibraryService.saveBookForOffline(bookSlug, title);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.librarySavedForOffline(title))),
-          );
+          showToast(context.l10n.librarySavedForOffline(title));
         }
       }
       await _checkSaved();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.librarySaveFailedShort('$e'))),
-        );
+        showToast(context.l10n.librarySaveFailedShort('$e'));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -339,8 +334,7 @@ class _ChapterPageState extends State<ChapterPage>
   }
 
   void _changeFontSize(double delta) {
-    final newSize =
-        (_readerFontSize + delta).clamp(_minFontSize, _maxFontSize);
+    final newSize = (_readerFontSize + delta).clamp(_minFontSize, _maxFontSize);
     if (newSize == _readerFontSize) return;
 
     setState(() {
@@ -549,7 +543,9 @@ class _ChapterPageState extends State<ChapterPage>
     if (_measureColumnKey == null) {
       _blocks = MarkdownBlockParser.parse(chapterMarkdown);
       _measureColumnKey = GlobalKey();
-      _measureBlockKeys = [for (var i = 0; i < _blocks.length; i++) GlobalKey()];
+      _measureBlockKeys = [
+        for (var i = 0; i < _blocks.length; i++) GlobalKey()
+      ];
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final columnKey = _measureColumnKey;
@@ -598,7 +594,8 @@ class _ChapterPageState extends State<ChapterPage>
                   columnKey: _measureColumnKey!,
                   blocks: _blocks,
                   blockKeys: _measureBlockKeys,
-                  styleSheet: readerStyleSheet(context, fontSize: _readerFontSize),
+                  styleSheet:
+                      readerStyleSheet(context, fontSize: _readerFontSize),
                 ),
               ),
             ),
@@ -772,7 +769,8 @@ class _ChapterPageState extends State<ChapterPage>
 
   bool get _canGoForward =>
       _paginationReady &&
-      (_currentPageIndex < (_pagination?.pageCount ?? 1) - 1 || _hasNextChapter);
+      (_currentPageIndex < (_pagination?.pageCount ?? 1) - 1 ||
+          _hasNextChapter);
 
   void _goToPreviousPage() {
     if (!_paginationReady) return;
@@ -846,9 +844,7 @@ class _ChapterPageState extends State<ChapterPage>
     required int pageCount,
   }) {
     final atEdge = _paginationReady &&
-        (forward
-            ? _currentPageIndex >= pageCount - 1
-            : _currentPageIndex == 0);
+        (forward ? _currentPageIndex >= pageCount - 1 : _currentPageIndex == 0);
     final chapterTitle =
         atEdge ? _adjacentChapterTitle(forward: forward) : null;
     final onPressed = forward
@@ -874,8 +870,8 @@ class _ChapterPageState extends State<ChapterPage>
     return Flexible(
       child: Tooltip(
         message: forward
-                      ? context.l10n.libraryNextChapterNamed(chapterTitle)
-          : context.l10n.libraryPreviousChapterNamed(chapterTitle),
+            ? context.l10n.libraryNextChapterNamed(chapterTitle)
+            : context.l10n.libraryPreviousChapterNamed(chapterTitle),
         child: TextButton.icon(
           onPressed: onPressed,
           icon: _barGlyph(
@@ -890,8 +886,8 @@ class _ChapterPageState extends State<ChapterPage>
           ),
           label: Text(
             forward
-              ? context.l10n.libraryNextShort(chapterTitle)
-              : context.l10n.libraryPreviousShort(chapterTitle),
+                ? context.l10n.libraryNextShort(chapterTitle)
+                : context.l10n.libraryPreviousShort(chapterTitle),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: forward ? TextAlign.end : TextAlign.start,
@@ -903,7 +899,8 @@ class _ChapterPageState extends State<ChapterPage>
   }
 
   /// A bottom-bar glyph in the accent, faded while its button is disabled.
-  Widget _barGlyph(OutlineGlyph glyph, {required bool enabled, double size = 22}) {
+  Widget _barGlyph(OutlineGlyph glyph,
+      {required bool enabled, double size = 22}) {
     final accent = ShiaColors.of(context).accent;
     return OutlineIcon(glyph,
         size: size,

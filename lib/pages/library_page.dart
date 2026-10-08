@@ -18,6 +18,7 @@ import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/content_request_service.dart';
 import 'package:shia_companion/widgets/content_request_dialog.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 /// The Library (docs/DESIGN_SPEC.md, "Library"; mockup `R3-Library`): the
 /// title with how many books there are, where the reader left off, then
@@ -352,9 +353,7 @@ Future<void> resumeLibraryReading(
     );
   }
   if (chapterIndex < 0 || chapterIndex >= chapters.length) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.librarySavedChapterGone)),
-    );
+    showToast(context.l10n.librarySavedChapterGone);
     await LibraryProgressStore.instance.remove(progress.bookSlug);
     return;
   }

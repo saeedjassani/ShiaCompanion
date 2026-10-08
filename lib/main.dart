@@ -171,13 +171,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => AppTextScaleProvider()),
         ChangeNotifierProvider(create: (context) => LanguageProvider()),
       ],
-      child: Consumer3<ThemeModeProvider, AppTextScaleProvider,
-              LanguageProvider>(
-          builder: (context, themeModeProvider, textScaleProvider,
-              languageProvider, _) {
+      child:
+          Consumer3<ThemeModeProvider, AppTextScaleProvider, LanguageProvider>(
+              builder: (context, themeModeProvider, textScaleProvider,
+                  languageProvider, _) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
-          scaffoldMessengerKey: appScaffoldMessengerKey,
           title: appName,
           // Always explicit, rather than left to Flutter's own resolution, so
           // the language the UI is in is the one LanguageProvider reports
