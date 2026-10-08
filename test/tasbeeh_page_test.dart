@@ -38,8 +38,9 @@ void main() {
 
     test('a free count looks ahead to its next target', () {
       expect(nextFreeTarget(0, [100, 34, 67]), 34);
-      expect(nextFreeTarget(34, defaultFreeTargets), 67);
-      expect(nextFreeTarget(100, defaultFreeTargets), isNull);
+      expect(nextFreeTarget(34, defaultFreeTargets), 100);
+      expect(nextFreeTarget(100, defaultFreeTargets), 200);
+      expect(nextFreeTarget(300, defaultFreeTargets), isNull);
       expect(nextFreeTarget(5, const []), isNull);
     });
   });
@@ -112,7 +113,7 @@ void main() {
       await _pump(tester, {TasbeehPage.freeCountKey: 250});
 
       expect(find.text('250'), findsOneWidget);
-      expect(find.text('No limit'), findsOneWidget);
+      expect(find.text('Next target 300'), findsOneWidget);
       expect(find.text('Allahu Akbar · 34'), findsNothing);
     });
 
@@ -123,7 +124,7 @@ void main() {
       await tester.tap(find.text('Free count'));
       await tester.pump();
       expect(find.text('0'), findsOneWidget);
-      expect(find.text('Next target 34'), findsOneWidget);
+      expect(find.text('Next target 100'), findsOneWidget);
 
       await _tapPanel(tester, 5);
       expect(find.text('5'), findsOneWidget);
@@ -150,7 +151,7 @@ void main() {
       await tester.enterText(find.byType(TextField).first, '33');
       await tester.pump();
       expect(SP.prefs.getStringList(TasbeehPage.targetsKey),
-          ['33', '67', '100']);
+          ['33', '200', '300']);
 
       await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
@@ -181,7 +182,7 @@ Future<void> _pump(WidgetTester tester, Map<String, Object> prefs) async {
 }
 
 Future<void> _tapPanel(WidgetTester tester, int times) async {
-  final panel = find.text('Tap anywhere in this box');
+  final panel = find.text('Tap anywhere');
   for (var i = 0; i < times; i++) {
     await tester.tap(panel);
     await tester.pump();

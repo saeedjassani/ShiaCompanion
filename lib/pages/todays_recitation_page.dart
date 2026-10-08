@@ -5,7 +5,6 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/l10n/hijri_l10n.dart';
-import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/utils/lunar_date_matcher.dart';
 import 'package:shia_companion/pages/list_items.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
@@ -90,10 +89,6 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
       ];
     }
 
-    final special = groups.any((g) =>
-        g.kind == TodaysRecitationKind.night ||
-        g.kind == TodaysRecitationKind.date);
-
     return [
       for (final group in groups) ...[
         SliverPadding(
@@ -115,24 +110,6 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
           ),
         ),
       ],
-      // Nothing special today, so say that a special day would change the
-      // list - otherwise it looks the same every week.
-      if (!special)
-        SliverPadding(
-          padding: gutter.copyWith(top: 2),
-          sliver: SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                l10n.todaysSpecialDatesNote,
-                style: ShiaText.caption.copyWith(
-                  height: 18 / 13,
-                  color: ShiaColors.of(context).textMuted,
-                ),
-              ),
-            ),
-          ),
-        ),
     ];
   }
 

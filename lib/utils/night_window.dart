@@ -105,7 +105,7 @@ DateTime civilDateOf(DateTime now) =>
   double? longitude,
 }) {
   if (latitude == null || longitude == null) return null;
-  final timeZone = day.timeZoneOffset.inMinutes / 60.0;
+  final timeZone = prayerTimeZoneFor(day);
   final times = prayerTime.getPrayerTimes(day, latitude, longitude, timeZone);
   final fajr = dateTimeForTime24(day, times[prayerIndexFajr]);
   final maghrib = dateTimeForTime24(day, times[prayerIndexMaghrib]);

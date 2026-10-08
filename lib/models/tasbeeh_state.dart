@@ -67,8 +67,8 @@ class ZahraProgress {
       zahraPhases.any((phase) => phase.end == count);
 }
 
-/// The default targets of a free count, as the old counter's three beeps.
-const List<int> defaultFreeTargets = [34, 67, 100];
+/// The default targets of a free count: every hundred, up to three hundred.
+const List<int> defaultFreeTargets = [100, 200, 300];
 
 /// The next of [targets] a free count of [count] has still to reach, or
 /// null when it has passed them all.

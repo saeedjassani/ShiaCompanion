@@ -206,7 +206,6 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
     List<UidTitleData> chapters,
     int chapterIndex, {
     int pageIndex = 0,
-    double? fontSize,
   }) async {
     final chapter = chapters[chapterIndex];
     await Navigator.push(
@@ -220,7 +219,6 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
           chapterIndex: chapterIndex,
           bookSlug: widget.slug,
           initialPageIndex: pageIndex,
-          initialFontSize: fontSize,
         ),
       ),
     );
@@ -310,8 +308,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                           : l10n.libraryStartReading,
                       onPressed: () => current != null && progress != null
                           ? _openChapter(chapters, current,
-                              pageIndex: progress.pageIndex,
-                              fontSize: progress.fontSize)
+                              pageIndex: progress.pageIndex)
                           : _openChapter(chapters, 0),
                     ),
                     const SizedBox(height: 8),
@@ -368,8 +365,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                     ),
                     onTap: reading
                         ? () => _openChapter(chapters, index,
-                            pageIndex: progress.pageIndex,
-                            fontSize: progress.fontSize)
+                            pageIndex: progress.pageIndex)
                         : () => _openChapter(chapters, index),
                   );
                 },

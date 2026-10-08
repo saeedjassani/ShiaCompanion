@@ -380,7 +380,6 @@ Future<void> resumeLibraryReading(
         chapterIndex: chapterIndex,
         bookSlug: progress.bookSlug,
         initialPageIndex: progress.pageIndex,
-        initialFontSize: progress.fontSize,
       ),
     ),
   );

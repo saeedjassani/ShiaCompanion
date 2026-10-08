@@ -90,7 +90,7 @@ void main() {
       expect(find.text('Share'), findsOneWidget);
       expect(find.text('Listen'), findsOneWidget);
       expect(find.text('Text'), findsOneWidget);
-      expect(find.text('Counter'), findsOneWidget);
+      expect(find.text('Tasbeeh'), findsOneWidget);
       // A RenderFlex overflow is reported as a thrown exception, so this is
       // what catches the bar being too cramped for icon-plus-label.
       expect(t.takeException(), isNull);
@@ -241,7 +241,7 @@ void main() {
       await t.pumpWidget(_host(_bar()));
 
       final xs = [
-        for (final label in ['Bookmark', 'Listen', 'Text', 'Counter', 'Share'])
+        for (final label in ['Bookmark', 'Listen', 'Text', 'Tasbeeh', 'Share'])
           t.getCenter(find.text(label)).dx,
       ];
       expect(xs, orderedEquals([...xs]..sort()));

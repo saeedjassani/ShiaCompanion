@@ -969,6 +969,8 @@
   "trackStartAt": "Start at",
   "trackEditNote": "This Khatm moves on by itself as you read. Change this only to pick up somewhere else.",
   "trackNewNote": "You can change these anytime from the Khatm's card.",
+  "trackMarkEarlierRead": "Already read up to here",
+  "trackMarkEarlierReadHint": "Counts towards this Khatm, not your stats",
   "trackCreate": "Start Khatm",
   "notifCustomSound": "Custom: {file}",
   "@notifCustomSound": {
@@ -1145,6 +1147,18 @@
         "type": "int"
       },
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readerPositionWithPercent": "{position} · {percent}%",
+  "@readerPositionWithPercent": {
+    "description": "The Quran reader's place and how much of the surah or juz is read: 'Verse 255 of 286 · 89%'.",
+    "placeholders": {
+      "position": {
+        "type": "String"
+      },
+      "percent": {
         "type": "int"
       }
     }
@@ -1804,7 +1818,7 @@
   "actionListen": "Listen",
   "actionSettings": "Settings",
   "actionText": "Text",
-  "actionCounter": "Counter",
+  "actionCounter": "Tasbeeh",
   "prayerEnableLocationBody": "Enable location to display accurate prayer times for your area.",
   "qiblaDistance": "Distance",
   "qiblaDirection": "Direction",
@@ -2698,7 +2712,6 @@
       }
     }
   },
-  "todaysSpecialDatesNote": "On a special date - Ashura, the 15th of Shaban, a night of Qadr - its recitations come first, above these.",
   "occasionWeeklyNightInMonth": "{weekday} nights in {month}",
   "@occasionWeeklyNightInMonth": {
     "description": "Every night after {weekday} in one Hijri month: 'Thursday nights in Rajab' are the nights leading into its Fridays.",
@@ -3758,7 +3771,7 @@
   },
   "tasbeehComplete": "Tasbih al-Zahra complete",
   "tasbeehCompleteHint": "100 of 100 · tap to start again",
-  "tasbeehTapHint": "Tap anywhere in this box",
+  "tasbeehTapHint": "Tap anywhere",
   "tasbeehTotal": "Total {count} of {total}",
   "@tasbeehTotal": {
     "description": "Between −1 and Reset in Tasbih al-Zahra: 'Total 12 of 100'.",

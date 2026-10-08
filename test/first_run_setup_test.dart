@@ -58,6 +58,22 @@ void main() {
       });
     }
 
+    test(
+        'an earlier install keeps transliteration on, a new one starts without',
+        () async {
+      await _prefs({'lat': 24.8});
+      await FirstRunSetup.resolveOnLaunch(isWeb: false);
+      expect(SP.prefs.getBool(FirstRunSetup.transliterationKey), isTrue);
+
+      await _prefs({'lat': 24.8, FirstRunSetup.transliterationKey: false});
+      await FirstRunSetup.resolveOnLaunch(isWeb: false);
+      expect(SP.prefs.getBool(FirstRunSetup.transliterationKey), isFalse);
+
+      await _prefs({});
+      await FirstRunSetup.resolveOnLaunch(isWeb: false);
+      expect(SP.prefs.containsKey(FirstRunSetup.transliterationKey), isFalse);
+    });
+
     test('never on the web', () async {
       await _prefs({});
       expect(await FirstRunSetup.resolveOnLaunch(isWeb: true), isFalse);

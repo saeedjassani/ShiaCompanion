@@ -404,6 +404,8 @@ void main() {
     });
 
     testWidgets('a verse and its translation are one item', (tester) async {
+      showTransliteration = true;
+      addTearDown(() => showTransliteration = false);
       await _pump(
         tester,
         content: _surahContent(),

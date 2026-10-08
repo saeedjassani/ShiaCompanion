@@ -51,7 +51,7 @@ void main() {
 
   group('ReaderTextSheet', () {
     setUp(() async {
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({'showTransliteration': true});
       await SP.init();
       arabicFontSize = 32;
       englishFontSize = 16;

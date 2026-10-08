@@ -22,6 +22,7 @@ import '../widgets/page_chrome.dart';
 import '../widgets/reader_content.dart';
 import '../widgets/reader_top_bar.dart';
 import '../widgets/responsive_content.dart';
+import '../widgets/zikr_reading_preferences.dart';
 import '../services/analytics_service.dart';
 import '../l10n/l10n.dart';
 
@@ -33,6 +34,10 @@ class ChapterPage extends StatefulWidget {
   final List<UidTitleData> chapters;
   final int chapterIndex;
   final int initialPageIndex;
+
+  /// A text size to open at instead of the app's English size, for tests.
+  /// The reader otherwise always follows the app's setting, so a book reads
+  /// at the same size as a zikr, and changing it here changes it there too.
   final double? initialFontSize;
 
   const ChapterPage(
@@ -343,12 +348,12 @@ class _ChapterPageState extends State<ChapterPage>
         (_readerFontSize + delta).clamp(_minFontSize, _maxFontSize);
     if (newSize == _readerFontSize) return;
 
-    setState(() {
-      _readerFontSize = newSize;
-      englishFontSize = _readerFontSize;
-    });
+    setState(() => _readerFontSize = newSize);
     if (SP.isInitialized) {
-      SP.prefs.setDouble('eng_font_size', _readerFontSize);
+      setEnglishFontSizePref(_readerFontSize);
+      commitEnglishFontSize();
+    } else {
+      englishFontSize = _readerFontSize;
     }
 
     _remeasure();

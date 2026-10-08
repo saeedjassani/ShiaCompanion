@@ -760,7 +760,7 @@ class _AzanStepState extends State<_AzanStep> {
           date: now,
           latitude: latitude,
           longitude: longitude,
-          timeZone: now.timeZoneOffset.inMinutes / 60.0,
+          timeZone: prayerTimeZoneFor(now),
         ))
           entry.name: entry.time,
       };

@@ -12,6 +12,7 @@ import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
+import 'package:shia_companion/utils/prayer_time_entries.dart';
 import '../l10n/l10n.dart';
 
 class HomeScreenWidgetService {
@@ -430,7 +431,7 @@ class HomeScreenWidgetService {
       date: date,
       latitude: lat!,
       longitude: long!,
-      timeZone: date.timeZoneOffset.inMinutes / 60.0,
+      timeZone: prayerTimeZoneFor(date),
       times: times ?? widgetPrayerTimes,
     );
   }

@@ -56,9 +56,22 @@ class FirstRunSetup {
         return true;
     }
     final existingInstall = priorInstallMarkerKeys.any(SP.prefs.containsKey);
+    if (existingInstall) await _keepEarlierReadingDefaults();
     await SP.prefs.setString(stateKey, existingInstall ? done : pending);
     return !existingInstall;
   }
+
+  /// Transliteration used to be on by default and now is off. Someone who
+  /// never touched the switch has been reading with it, so an install from
+  /// before the change keeps it rather than losing it overnight.
+  static Future<void> _keepEarlierReadingDefaults() async {
+    if (!SP.prefs.containsKey(transliterationKey)) {
+      await SP.prefs.setBool(transliterationKey, true);
+    }
+  }
+
+  @visibleForTesting
+  static const String transliterationKey = 'showTransliteration';
 
   /// Records setup as over, whether finished or skipped: it is offered once.
   static Future<void> markDone() async {

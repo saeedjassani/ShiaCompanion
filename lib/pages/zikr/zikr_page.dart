@@ -67,6 +67,15 @@ import '../../l10n/l10n.dart';
 /// wobble inside one never does.
 const double kZikrChromeScrollThreshold = 36.0;
 
+/// How far above the bottom action bar its [BottomFade] reaches - and so how
+/// much room the text keeps below its last line, to finish clear of the fade.
+const double _actionBarFadeExtent = 62.0;
+
+/// The share of a surah or juz scrolled through that counts as having reached
+/// its end: the last verses are on screen below the top one, so the top
+/// verse alone never gets there.
+const double _quranEndProgress = 0.98;
+
 /// Turns the reading area's stream of scroll deltas into hide/show decisions
 /// for the reading chrome - the progress strip and the bottom action bar,
 /// which move together. [update] returns true to show, false to hide, and
@@ -557,7 +566,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// text takes to recite, so a glance at a short surah is not a recitation.
   void _maybeMarkQuranEndReached() {
     if (_hasMarkedQuranEnd || !_isQuran || !mounted) return;
-    if (_readingProgress.value < 0.98) {
+    if (_readingProgress.value < _quranEndProgress) {
       _quranEndTimer?.cancel();
       _quranEndTimer = null;
       return;
@@ -2191,9 +2200,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  /// What the top bar's sub-line says: where the reader is in a surah and
-  /// which reading track it counts towards ("Verse 255 of 286 · My
-  /// reading"), which part of a multi-part zikr is open ("Part 3 of 4"), or
+  /// What the top bar's sub-line says: where the reader is in a surah, how
+  /// far through it they are and which reading track it counts towards
+  /// ("Verse 255 of 286 · 89% · My reading"), which part of a multi-part
+  /// zikr is open ("Part 3 of 4"), or
   /// how far through a zikr they are ("12% read" - before they start, how
   /// long it takes).
   Widget _buildSubtitle({
@@ -2207,12 +2217,21 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       final track = recitationTrackName(
           label == null || label.isEmpty ? unlabeledRecitationLabel : label,
           l10n);
-      return ValueListenableBuilder<VerseKey?>(
-        valueListenable: _currentVerse,
-        builder: (context, verse, _) {
+      return ListenableBuilder(
+        listenable: Listenable.merge([_currentVerse, _readingProgress]),
+        builder: (context, _) {
+          final progress = _readingProgress.value.clamp(0.0, 1.0);
+          // The verse reported is the one at the top of the screen, so at
+          // the end - the closing verses on screen below it - it would still
+          // say a verse or two were left. The end counts as recited (see
+          // [_maybeMarkQuranEndReached]), so it reads as reached.
+          final atEnd = progress >= _quranEndProgress;
+          final verse = atEnd
+              ? (_quranEndVerse ?? _currentVerse.value)
+              : _currentVerse.value;
           final ayah = verse?.ayah;
           final count = _surahNumber == null ? null : ayahCountOf(_surahNumber!);
-          final String position;
+          String position;
           if (ayah != null && widget.portion == null && count != null) {
             position = l10n.readerVerseOf(ayah, count);
           } else if (ayah != null) {
@@ -2221,6 +2240,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             position = l10n.quranVerseCount(count);
           } else {
             return Text(track);
+          }
+          final percent = atEnd ? 100 : (progress * 100).floor();
+          if (percent > 0) {
+            position = l10n.readerPositionWithPercent(position, percent);
           }
           return Text(l10n.readerSubtitleWithTrack(position, track));
         },
@@ -2435,9 +2458,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   onBookmarkMoved:
                                       _isQuran ? null : _handleBookmarkMoved,
                                   footer: _buildQuranSequenceFooter(),
+                                  // Under the action bar the text ends clear
+                                  // of the fade above it too, so the last
+                                  // line can be read at full strength.
                                   listPadding: EdgeInsets.only(
                                     top: topChromeExtent + 16,
-                                    bottom: bottomChromeExtent + 16,
+                                    bottom: bottomChromeExtent +
+                                        (showActionBar
+                                            ? _actionBarFadeExtent
+                                            : 16),
                                   ),
                                   tabStripTop: topChromeExtent,
                                   collapsedTopInset: statusBarHeight,
@@ -2518,7 +2547,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                         child: child,
                       ),
                       child: SizedBox(
-                        height: bottomOffset + ZikrActionBar.barHeight + 62,
+                        height: bottomOffset +
+                            ZikrActionBar.barHeight +
+                            _actionBarFadeExtent,
                         child: Stack(
                           children: [
                             const Positioned.fill(

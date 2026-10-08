@@ -223,9 +223,12 @@ class _TasbeehPageState extends State<TasbeehPage> {
                             onReset: _reset,
                           )
                         : _CounterControls(
+                            // A free count's mode is already named in the
+                            // switcher above; only Tasbih al-Zahra has a
+                            // total to show here.
                             total: zahra
                                 ? l10n.tasbeehTotal(_zahraCount, zahraTotal)
-                                : l10n.tasbeehModeFree,
+                                : null,
                             onMinusOne: _count > 0 ? _minusOne : null,
                             onReset: _count > 0
                                 ? () => setState(() => _confirmingReset = true)
@@ -459,7 +462,7 @@ class _CounterControls extends StatelessWidget {
     required this.onReset,
   });
 
-  final String total;
+  final String? total;
   final VoidCallback? onMinusOne;
   final VoidCallback? onReset;
 
@@ -483,7 +486,7 @@ class _CounterControls extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Text(
-            total,
+            total ?? '',
             textAlign: TextAlign.center,
             style: ShiaText.secondary.copyWith(color: colors.textMuted),
           ),

@@ -249,7 +249,7 @@ List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
       date: date,
       latitude: latitude,
       longitude: longitude,
-      timeZone: date.timeZoneOffset.inMinutes / 60.0,
+      timeZone: prayerTimeZoneFor(date),
       times: selected,
     );
     upcoming
