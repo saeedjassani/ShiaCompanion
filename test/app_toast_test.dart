@@ -7,6 +7,7 @@ import 'package:shia_companion/widgets/app_toast.dart';
 void main() {
   Future<void> host(WidgetTester tester) => tester.pumpWidget(MaterialApp(
         navigatorKey: appNavigatorKey,
+        navigatorObservers: [toastRouteObserver],
         theme: buildAppTheme(Brightness.light),
         home: const Scaffold(body: SizedBox()),
       ));
@@ -48,15 +49,54 @@ void main() {
     expect(find.text('Logged a full day'), findsNothing);
   });
 
-  testWidgets('stays over a route pushed after it', (tester) async {
+  Future<void> push(WidgetTester tester, String text) async {
+    appNavigatorKey.currentState!.push(
+        MaterialPageRoute<void>(builder: (_) => Scaffold(body: Text(text))));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('goes when another page opens over its own', (tester) async {
+    await host(tester);
+    showToast('Logged a full day');
+    await tester.pump();
+    await push(tester, 'Duas');
+    expect(find.text('Duas'), findsOneWidget);
+    expect(find.text('Logged a full day'), findsNothing);
+  });
+
+  testWidgets(
+      'goes when its page is popped, and one shown after the pop '
+      'stays on the page underneath', (tester) async {
+    await host(tester);
+    await push(tester, 'Account');
+    showToast('Account toast');
+    await tester.pump();
+    appNavigatorKey.currentState!.pop();
+    showToast('Signed out');
+    await tester.pumpAndSettle();
+    expect(find.text('Account toast'), findsNothing);
+    expect(find.text('Signed out'), findsOneWidget);
+  });
+
+  testWidgets('stays while a sheet opens over its page', (tester) async {
     await host(tester);
     showToast('Copied');
     await tester.pump();
-    appNavigatorKey.currentState!.push(MaterialPageRoute<void>(
-        builder: (_) => const Scaffold(body: Text('Next page'))));
+    showModalBottomSheet<void>(
+      context: appNavigatorKey.currentContext!,
+      builder: (_) => const Text('Verse menu'),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Verse menu'), findsOneWidget);
+    expect(find.text('Copied'), findsOneWidget);
+  });
+
+  testWidgets('hideToast takes it down (as a tab switch does)', (tester) async {
+    await host(tester);
+    showToast('Reorder failed');
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('Next page'), findsOneWidget);
-    expect(find.text('Copied').hitTestable(), findsOneWidget);
+    hideToast();
+    await tester.pumpAndSettle();
+    expect(find.text('Reorder failed'), findsNothing);
   });
 }

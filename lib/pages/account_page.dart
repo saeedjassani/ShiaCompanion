@@ -141,8 +141,10 @@ class _AccountPageState extends State<AccountPage> {
       await AccountService.signOut();
       user = null;
       if (!mounted) return;
-      _showToast(context.l10n.deleteAccountSignedOut);
+      final message = context.l10n.deleteAccountSignedOut;
+      // After the pop, so it shows on the page they go back to.
       Navigator.of(context).pop();
+      _showToast(message);
     } catch (error) {
       if (!mounted) return;
       setState(() => _isBusy = false);
@@ -160,8 +162,10 @@ class _AccountPageState extends State<AccountPage> {
       _showToast(error);
       return;
     }
-    _showToast(context.l10n.deleteAccountDone);
+    final message = context.l10n.deleteAccountDone;
+    // After the pop, so it shows on the page they go back to.
     Navigator.of(context).pop();
+    _showToast(message);
   }
 
   void _showToast(String message) {

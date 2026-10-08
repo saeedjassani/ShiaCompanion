@@ -237,11 +237,12 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
       }
 
       if (!mounted) return;
-      if (_mode == ZikrReminderTimeMode.relativeToPrayer &&
-          (lat == null || long == null)) {
-        showToast(context.l10n.reminderSavedPendingLocation);
-      }
+      final pendingLocation = _mode == ZikrReminderTimeMode.relativeToPrayer &&
+          (lat == null || long == null);
+      final message = context.l10n.reminderSavedPendingLocation;
       Navigator.pop(context);
+      // After the pop, so it shows on the list the reminder was saved to.
+      if (pendingLocation) showToast(message);
     } finally {
       if (mounted) setState(() => _saving = false);
     }

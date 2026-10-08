@@ -193,7 +193,10 @@ list.
   from the sides and at most 640 px wide, floating 12 px above where the
   tab bar and find fields sit, with at most one action in accent text. One
   at a time; swipe down to dismiss; fades without sliding under reduce
-  motion (`showToast` in `lib/widgets/app_toast.dart`).
+  motion. It belongs to the page that raised it and goes when that page is
+  covered, popped or swapped for another tab (a sheet or dialog over it
+  doesn't count); a message about where the user lands ("Signed out") is
+  shown after the pop (`showToast` in `lib/widgets/app_toast.dart`).
 
 ### Favorites (tab 3)
 Large title + Edit; segmented **Duas & more / Quran verses**; back-up

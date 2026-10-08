@@ -22,9 +22,14 @@ const Duration toastDuration = Duration(seconds: 4);
 /// bar, one with an action while a screen reader is navigating, which waits
 /// for the action or a swipe.
 ///
-/// Needs no [BuildContext]: it is shown over every route on the root
-/// navigator's overlay, so it is safe to call after an async gap and from
-/// outside the widget tree.
+/// It belongs to the page on screen when it is shown, and goes as soon as
+/// that page does: covered by another page, popped, or swapped for another
+/// tab ([toastRouteObserver], [hideToast]). A sheet or dialog opening over
+/// the page does not count. A message about where the user is going
+/// ("Signed out" as Account closes) is shown after the pop, not before.
+///
+/// Needs no [BuildContext]: it is shown on the root navigator's overlay, so
+/// it is safe to call after an async gap and from outside the widget tree.
 void showToast(
   String message, {
   String? actionLabel,
@@ -49,7 +54,7 @@ void showToastContent(
   final overlay = appNavigatorKey.currentState?.overlay;
   if (overlay == null) return;
   _ToastHandle.current?.remove();
-  final handle = _ToastHandle();
+  final handle = _ToastHandle(toastRouteObserver.topPage);
   handle.entry = OverlayEntry(
     builder: (context) => _ToastView(
       key: handle.viewKey,
@@ -67,8 +72,62 @@ void showToastContent(
 /// Takes down the toast on screen, if any.
 void hideToast() => _ToastHandle.current?.dismiss();
 
+/// Follows the root navigator's pages so a toast goes with the page it was
+/// shown on. Registered in the app's `navigatorObservers`.
+final ToastRouteObserver toastRouteObserver = ToastRouteObserver();
+
+/// Keeps the root navigator's stack of pages - [PageRoute]s, leaving out
+/// the sheets, dialogs and menus that open over them - and takes the toast
+/// down whenever the top page changes.
+class ToastRouteObserver extends NavigatorObserver {
+  final List<Route<dynamic>> _pages = [];
+
+  /// The page on screen, under any sheet or dialog.
+  Route<dynamic>? get topPage => _pages.isEmpty ? null : _pages.last;
+
+  void _changed(void Function() change) {
+    final before = topPage;
+    change();
+    if (topPage != before) {
+      final toast = _ToastHandle.current;
+      if (toast != null && toast.page != topPage) toast.dismiss();
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (route is PageRoute) _changed(() => _pages.add(route));
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _changed(() => _pages.remove(route));
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _changed(() => _pages.remove(route));
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    _changed(() {
+      final at = oldRoute == null ? -1 : _pages.indexOf(oldRoute);
+      if (at >= 0) _pages.removeAt(at);
+      if (newRoute is PageRoute) {
+        _pages.insert(at >= 0 ? at : _pages.length, newRoute);
+      }
+    });
+  }
+}
+
 class _ToastHandle {
+  _ToastHandle(this.page);
+
   static _ToastHandle? current;
+
+  /// The page the toast was shown on; it goes when that page does.
+  final Route<dynamic>? page;
 
   late final OverlayEntry entry;
   final GlobalKey<_ToastViewState> viewKey = GlobalKey<_ToastViewState>();
