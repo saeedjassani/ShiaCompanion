@@ -1142,7 +1142,7 @@
   },
   "readerTextSheetTitle": "النص والقراءة",
   "readerArabicSize": "حجم العربية",
-  "readerEnglishSize": "حجم الإنجليزية",
+  "readerEnglishSize": "حجم الترجمة",
   "readerArabicSmaller": "عربية أصغر",
   "readerArabicBigger": "عربية أكبر",
   "readerEnglishSmaller": "إنجليزية أصغر",
@@ -3693,7 +3693,7 @@
   },
   "settingsOn": "تشغيل",
   "settingsOff": "إيقاف",
-  "settingsReadingSummary": "العربية {arabic} · الإنجليزية {english} · {aids}",
+  "settingsReadingSummary": "العربية {arabic} · الترجمة {english} · {aids}",
   "@settingsReadingSummary": {
     "description": "Under 'Text & reading' in Settings: the reader's Arabic and English sizes, then which English aids show, e.g. 'Arabic 32 · English 16 · Transliteration, Translation'.",
     "placeholders": {
