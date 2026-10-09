@@ -303,12 +303,32 @@ file stays English, and `color` always comes from events.json.
 day with matching paragraphs and no English left. If you edit events.json,
 edit each translation's `content` and `title` for that day too.
 
+## Hadith of the day (`assets/hadith_i18n/hadith.json`)
+
+English keeps its own collection (`assets/hadith/`). In Arabic, Urdu and
+Persian the Home card draws from a separate, smaller collection of hadith
+carried in their **Arabic original**, each with a **published** Urdu and
+Persian translation where one exists (Nahj al-Balagha: Mufti Jafar Husain's
+Urdu, Mohammad Dashti's Persian). Arabic readers see the Arabic alone, Urdu
+and Persian readers the Arabic and then its translation, each with the
+reference in their language. Which language follows the app language; a
+language the collection lacks (English, Gujarati) gets the English one.
+
+Each entry has `id`, `speaker` (a key of `speakers`, whose attribution -
+"قال أمير المؤمنين (ع)", "امیر المومنین (ع) نے فرمایا" - the app puts in
+front, so it is never part of the text), `ar`, `ur`, `fa` and `source`
+(per language). Where each text was taken from is recorded per id in
+`scripts/hadith_i18n/provenance.json`, which is not bundled. An entry may
+set `"muharram": true` to be shown from 1 Muharram to 8 Rabi' al-Awwal
+instead (none do yet; without them, those days show the general ones).
+Copy Arabic verbatim from a reliable text, never retype it.
+
 ## Not covered yet
 
 - **A juz** (the Quran read by juz rather than by surah) is assembled from
   the surahs and has no content file of its own, so it has no translation:
   outside English it shows the Arabic alone.
-- **Other content**: hadith (`assets/hadith/`), library books, the Quran
+- **Other content**: library books, the Quran
   collections in `lib/data/` (`quran_duas.dart`, prophet stories, verses about Imam Ali and Imam
   al-Mahdi, holy sites) and the What's New notes are English content, not
   UI text, and would each need a translation overlay of their own.

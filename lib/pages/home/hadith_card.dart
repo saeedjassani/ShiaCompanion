@@ -3,7 +3,9 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../l10n/l10n.dart';
 import '../../services/rating_prompt_service.dart';
+import '../../constants.dart' show arabicFont;
 import '../../theme/shia_colors.dart';
+import '../../utils/localized_hadith.dart';
 import '../../widgets/outline_icon.dart';
 import 'home_section.dart';
 
@@ -40,16 +42,21 @@ HadithParts splitHadith(String hadith) {
 }
 
 /// Hadith of the day: the full text, its source, and a Share button.
+///
+/// [hadith] is the English collection's; [localized], when there is one, is
+/// shown instead: the Arabic, then (outside Arabic) its translation.
 class HadithOfTheDayCard extends StatelessWidget {
-  const HadithOfTheDayCard({super.key, required this.hadith});
+  const HadithOfTheDayCard({super.key, this.hadith = '', this.localized});
 
   final String hadith;
+  final LocalizedHadith? localized;
 
   Future<void> _share(BuildContext context) async {
     final size = MediaQuery.sizeOf(context);
+    final text = localized?.shareText ?? hadith;
     final result = await SharePlus.instance.share(ShareParams(
       text:
-          '$hadith\n\n${context.l10n.hadithSharedVia('https://shia-companion.web.app/')}',
+          '$text\n\n${context.l10n.hadithSharedVia('https://shia-companion.web.app/')}',
       sharePositionOrigin: Rect.fromLTWH(size.width / 2, 0, 2, 2),
     ));
     if (result.status == ShareResultStatus.success) {
@@ -60,7 +67,10 @@ class HadithOfTheDayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    final parts = splitHadith(hadith);
+    final localized = this.localized;
+    final parts = localized == null
+        ? splitHadith(hadith)
+        : HadithParts('', localized.source);
 
     return Semantics(
       container: true,
@@ -81,24 +91,27 @@ class HadithOfTheDayCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            // The one serif in the app: the platform's own (New York on
-            // Apple platforms, Noto Serif on Android).
-            Text(
-              parts.text,
-              style: TextStyle(
-                fontFamily: 'serif',
-                fontFamilyFallback: const [
-                  '.New York',
-                  'New York',
-                  'Georgia',
-                  'Noto Serif',
-                  'Times New Roman',
-                ],
-                fontSize: 18,
-                height: 26 / 18,
-                color: colors.text,
+            if (localized != null)
+              _LocalizedHadithText(hadith: localized)
+            else
+              // The one serif in the app: the platform's own (New York on
+              // Apple platforms, Noto Serif on Android).
+              Text(
+                parts.text,
+                style: TextStyle(
+                  fontFamily: 'serif',
+                  fontFamilyFallback: const [
+                    '.New York',
+                    'New York',
+                    'Georgia',
+                    'Noto Serif',
+                    'Times New Roman',
+                  ],
+                  fontSize: 18,
+                  height: 26 / 18,
+                  color: colors.text,
+                ),
               ),
-            ),
             if (parts.source != null) ...[
               const SizedBox(height: 10),
               Text(
@@ -133,6 +146,61 @@ class HadithOfTheDayCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// An Arabic, Urdu or Persian hadith: in Arabic, who said it over what they
+/// said; otherwise the Arabic in the reader's Arabic font, then who said it
+/// and what it means in the reader's language.
+class _LocalizedHadithText extends StatelessWidget {
+  const _LocalizedHadithText({required this.hadith});
+
+  final LocalizedHadith hadith;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final arabic = Text(
+      hadith.arabic,
+      textDirection: TextDirection.rtl,
+      style: TextStyle(
+        fontFamily: arabicFont,
+        fontSize: 22,
+        height: 1.8,
+        color: colors.text,
+      ),
+    );
+    final translation = hadith.translation;
+    if (translation == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${hadith.attribution}:',
+            style: ShiaText.secondary.copyWith(color: colors.textMuted),
+          ),
+          const SizedBox(height: 4),
+          arabic,
+        ],
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        arabic,
+        const SizedBox(height: 10),
+        Text.rich(
+          TextSpan(children: [
+            TextSpan(
+              text: '${hadith.attribution}: ',
+              style: TextStyle(color: colors.textMuted),
+            ),
+            TextSpan(text: translation),
+          ]),
+          style: TextStyle(fontSize: 17, height: 1.7, color: colors.text),
+        ),
+      ],
     );
   }
 }
