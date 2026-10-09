@@ -398,5 +398,197 @@
   "ur_from": "https://balagha.app/Sayings/461",
   "ur_translator": "Mufti Jafar Husain",
   "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْعَاجزِ->الْعَاجِزِ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "kafi-2-364-2": {
+  "ar_from": "https://thaqalayn.net/hadith/2/1/154/2",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/200256",
+  "fa_translator": "hadithlib.com — آينه يادها",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, Book 1, ch. \"Breach of Promise\", h. 2). Persian: hadithlib (Ayineh-ye Yadha, cites al-Kafi 2/364)."
+ },
+ "kafi-6-49-3": {
+  "ar_from": "https://thaqalayn.net/hadith/6/1/35/3",
+  "fa_from": "https://hadithlib.com/hadithtxts/chel/6126",
+  "fa_translator": "hadithlib.com — چهل حدیث « محبّت و مهرورزى »",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 6, ch. \"Kindness to Children\", h. 3). Persian: hadithlib (cites Kafi 6/49 h3); only spacing typos fixed (و به، وفا کنید، آنها شما)."
+ },
+ "kafi-2-163-1": {
+  "ar_from": "https://thaqalayn.net/hadith/2/1/70/1",
+  "fa_from": "https://hadithlib.com/hadithtxts/chel/5507",
+  "fa_translator": "hadithlib.com — چهل حدیث « کارگشایی »",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, ch. \"Concern for the Affairs of the Muslims\", h. 1). Persian: hadithlib entry citing Bihar 74/337 for the identical wording."
+ },
+ "khisal-34": {
+  "ar_from": "https://hadithlib.com/hadithtxts/view/200208",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/200208",
+  "fa_translator": "hadithlib.com — آينه يادها",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic+Persian: hadithlib (Ayineh-ye Yadha, al-Khisal p. 34). Cross-checked against thaqalayn al-Khisal (https://thaqalayn.net/hadith/10/3/5/1): same matn."
+ },
+ "bihar-43-82": {
+  "ar_from": "https://hadithlib.com/hadithtxts/chel/327",
+  "fa_from": "https://hadithlib.com/hadithtxts/chel/327",
+  "fa_translator": "hadithlib.com — چهل حديث « گهرهاى فاطمى » عليها السلام",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Said to Imam al-Hasan (a.s.), who asked why she prayed all night for neighbours and believers but not for herself. Arabic+Persian: hadithlib (Chehel hadith \"Gohar-ha-ye Fatemi\", Bihar 43/82; originally Ilal al-Shara'i 1/181-183 depending on edition). Some editions vowel it الجارَ ثُمَّ الدّارَ (accusative). Persian: commas added only. Arabic: initial \"اَل\" written plain \"ال\"."
+ },
+ "tuhaf-233": {
+  "ar_from": "https://hadithlib.com/hadithtxts/view/23010019",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/23010019",
+  "fa_translator": "hadithlib.com — میزان الحکمه ج6",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic+Persian: hadithlib (Mizan al-Hikmah, Tuhaf al-Uqul p. 233)."
+ },
+ "amali-saduq-268": {
+  "ar_from": "https://hadithlib.com/hadithtxts/view/1202633",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/1202633",
+  "fa_translator": "hadithlib.com — منتخب میزان الحکمه",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Excerpt: the body of a letter the Imam wrote to a man who asked him for \"the best of this world and the next\" (opening basmala/amma ba'd and closing salam omitted). Arabic+Persian: hadithlib (Muntakhab Mizan al-Hikmah). Matn verified against thaqalayn al-Amali, majlis 36 h. 14 (https://thaqalayn.net/hadith/29/1/36/14); page/no. per hadithlib's Dunya wa Akhirat (Amali p. 268 h. 293)."
+ },
+ "tuhaf-248": {
+  "ar_from": "https://hadithlib.com/hadithtxts/view/1204041",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/1204041",
+  "fa_translator": "hadithlib.com — منتخب میزان الحکمه",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic+Persian: hadithlib (Muntakhab Mizan al-Hikmah, Tuhaf al-Uqul p. 248; another hadithlib entry gives p. 177 of a different edition)."
+ },
+ "kafi-2-602-13": {
+  "ar_from": "https://thaqalayn.net/hadith/2/3/1/13",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/1205162",
+  "fa_translator": "hadithlib.com — منتخب میزان الحکمه",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, Book of the Merit of the Quran, h. 13). Persian: hadithlib (Muntakhab Mizan al-Hikmah, Kafi 2/602/13)."
+ },
+ "kafi-2-81-1": {
+  "ar_from": "https://thaqalayn.net/hadith/2/1/40/1",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/1204994",
+  "fa_translator": "hadithlib.com — منتخب میزان الحکمه",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, ch. \"Fulfilling Obligations\", h. 1). Persian: hadithlib (Muntakhab Mizan al-Hikmah, Kafi 2/81/1)."
+ },
+ "kafi-2-150-4": {
+  "ar_from": "https://thaqalayn.net/hadith/2/1/68/4",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/1202535",
+  "fa_translator": "hadithlib.com — منتخب میزان الحکمه",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, ch. \"Good Relation with Relatives\", h. 4). Persian: hadithlib (Muntakhab Mizan al-Hikmah, Kafi 2/150/4); spacing fixed (دارایی‌ها)."
+ },
+ "kafi-2-79-1": {
+  "ar_from": "https://thaqalayn.net/hadith/2/1/38/1",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/24011812",
+  "fa_translator": "hadithlib.com — میزان الحکمه ج7",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, ch. \"Chastity\", h. 1; graded hasan ka-l-sahih by Majlisi). Persian: hadithlib (Mizan al-Hikmah, Kafi 2/79/1)."
+ },
+ "kafi-2-507-1": {
+  "ar_from": "https://thaqalayn.net/hadith/2/2/30/1",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/21005954",
+  "fa_translator": "hadithlib.com — میزان الحکمه ج4",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, ch. \"Praying for Brothers in Their Absence\", h. 1). Persian: hadithlib (Mizan al-Hikmah, Kafi 2/507/1)."
+ },
+ "kafi-2-78-14": {
+  "ar_from": "https://thaqalayn.net/hadith/2/1/37/14",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/301465",
+  "fa_translator": "hadithlib.com — چهل چلچراغ (چهل چهل حديث)",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, ch. on wara', h. 14; graded sahih). Persian: hadithlib (Chehel Chelcheragh series; no source printed there, matn identical). Page 78 is the standard citation (al-Kafi 2/78/14)."
+ },
+ "kafi-2-639-5": {
+  "ar_from": "https://thaqalayn.net/hadith/2/4/3/5",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/200632",
+  "fa_translator": "hadithlib.com — آينه يادها",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, Book of Social Relations, ch. \"People Whose Friendship is Necessary\", h. 5). Persian: hadithlib (Ayineh-ye Yadha, which cites the same words from Tuhaf al-Uqul p. 366). Page 639 is the standard citation."
+ },
+ "amali-saduq-73-10": {
+  "ar_from": "https://thaqalayn.net/hadith/29/1/73/10",
+  "fa_from": "https://hadithlib.com/hadithtxts/chel/4927",
+  "fa_translator": "hadithlib.com — چهل حدیث « نماز »",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Said by Imam al-Sadiq (a.s.) at the time of his death, as narrated by Umm Hamidah. Arabic: thaqalayn al-Amali (unvowelled; editor's footnote marker removed). Persian: hadithlib Chehel hadith \"Namaz\", whose Arabic reads بصلاته (\"his prayer\") instead of بالصلاة - same meaning; the same saying is also in al-Kafi 3/270 via Imam al-Kazim (a.s.)."
+ },
+ "kafi-2-453-2": {
+  "ar_from": "https://thaqalayn.net/hadith/2/1/203/2",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/1202658",
+  "fa_translator": "hadithlib.com — منتخب میزان الحکمه",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, ch. \"Evaluation of Deeds\", h. 2; from Abu l-Hasan al-Madi = al-Kazim). Persian: hadithlib (Muntakhab Mizan al-Hikmah, Kafi 2/453/2)."
+ },
+ "kafi-2-120-11": {
+  "ar_from": "https://thaqalayn.net/hadith/2/1/58/11",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/1202641",
+  "fa_translator": "hadithlib.com — منتخب میزان الحکمه",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 2, ch. \"Friendliness\", h. 11). Persian: hadithlib (Muntakhab Mizan al-Hikmah, Kafi 2/120/11)."
+ },
+ "kafi-1-11-4": {
+  "ar_from": "https://thaqalayn.net/hadith/1/1/0/4",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/1204375",
+  "fa_translator": "hadithlib.com — منتخب میزان الحکمه",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic: thaqalayn (Kafi 1, Book of Intellect and Ignorance, h. 4). Persian: hadithlib (Muntakhab Mizan al-Hikmah, Kafi 1/11/4)."
+ },
+ "uyun-2-24-2": {
+  "ar_from": "https://hadithlib.com/hadithtxts/view/1203344",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/1203344",
+  "fa_translator": "hadithlib.com — منتخب میزان الحکمه",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic+Persian: hadithlib (Muntakhab Mizan al-Hikmah, Uyun 2/24/2). Cross-checked against thaqalayn Uyun vol. 2 (same matn, narrated by Abd al-Azim al-Hasani from Mahmud b. Abi l-Bilad)."
+ },
+ "tuhaf-457": {
+  "ar_from": "https://hadithlib.com/hadithtxts/view/30022138",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/30022138",
+  "fa_translator": "hadithlib.com — میزان الحکمه ج13",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic+Persian: hadithlib (Mizan al-Hikmah, Tuhaf al-Uqul p. 457). Urdu says \"three things\", which the Arabic lists (other narrations add ثلاث خصال explicitly). Urdu edited by reviewer: removed \"three things\", not in this Arabic."
+ },
+ "tuhaf-483": {
+  "ar_from": "https://hadithlib.com/hadithtxts/view/900180",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/900180",
+  "fa_translator": "hadithlib.com — دنيا و آخرت ج1",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic+Persian: hadithlib (Dar al-Hadith \"Dunya wa Akhirat\", Tuhaf al-Uqul p. 483 = Bihar 78/366 h. 6). Persian: leading attribution label removed."
+ },
+ "tuhaf-489": {
+  "ar_from": "https://hadithlib.com/hadithtxts/view/30022153",
+  "fa_from": "https://hadithlib.com/hadithtxts/view/30022153",
+  "fa_translator": "hadithlib.com — میزان الحکمه ج13",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Arabic+Persian: hadithlib (Mizan al-Hikmah, Tuhaf al-Uqul p. 489)."
+ },
+ "kamal-485": {
+  "ar_from": "https://hadithlib.com/hadithtxts/view/200860",
+  "fa_from": "https://hadithlib.com/hadithtxts/chel/4033",
+  "fa_translator": "hadithlib.com — چهل حدیث « انتظار »",
+  "ur_from": "own",
+  "ur_translator": "own",
+  "note": "Excerpt from the tawqi' (signed letter) to Ishaq b. Ya'qub, Kamal al-Din ch. 45 (thaqalayn's Kamal al-Din file was empty, so not cross-checked there). Arabic: hadithlib Ayineh-ye Yadha (Kamal al-Din p. 485). Persian: from another hadithlib entry of the same words (Chehel hadith \"Entezar\") because the Ayineh translation adds \"فرج من\" not in the Arabic; that Persian renders the end as \"this very prayer is the cause of your relief\" - an accepted reading."
  }
 }
