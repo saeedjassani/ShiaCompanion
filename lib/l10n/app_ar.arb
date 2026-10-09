@@ -45,7 +45,7 @@
       }
     }
   },
-  "settingsLocationFailed": "{message}. اضغط للمحاولة مرة أخرى.",
+  "settingsLocationFailed": "{message}. اضغط لاختيار مدينة أو حاول مرة أخرى.",
   "@settingsLocationFailed": {
     "description": "{message} explains why the location refresh failed.",
     "placeholders": {
@@ -93,7 +93,7 @@
   "settingsSignInGoogle": "تسجيل الدخول باستخدام Google",
   "settingsSignedIn": "تم تسجيل الدخول",
   "settingsLocationUpdating": "جارٍ تحديث موقعك…",
-  "settingsLocationUpdatePrompt": "تحديث موقع أوقات الصلاة المحفوظ.",
+  "settingsLocationUpdatePrompt": "اختر مدينة، أو استخدم موقع هاتفك.",
   "settingsPreciseAlarmsOff": "متوقفة. قد يسلّم أندرويد إشعارات الصلاة متأخرة قليلًا.",
   "settingsNotificationsUnavailable": "لم تتم تهيئة نظام الإشعارات",
   "settingsPreciseAlarmsAlreadyOn": "منبّهات الصلاة الدقيقة مفعّلة بالفعل.",
@@ -510,7 +510,7 @@
       }
     }
   },
-  "qazaEstimateFasts": "{count, plural, zero{لا صيام} one{{count} صيام} two{{count} صيامان} few{{count} أيام صيام} many{{count} يوم صيام} other{{count} صيام}}",
+  "qazaEstimateFasts": "{count, plural, zero{لا صيام} one{يوم صيام واحد} two{يوما صيام} few{{count} أيام صيام} many{{count} يوم صيام} other{{count} يوم صيام}}",
   "@qazaEstimateFasts": {
     "placeholders": {
       "count": {
@@ -948,7 +948,7 @@
       }
     }
   },
-  "trackNameTaken": "يوجد بالفعل مسار باسم \"{name}\"",
+  "trackNameTaken": "يوجد بالفعل ختمة باسم \"{name}\"",
   "@trackNameTaken": {
     "placeholders": {
       "name": {
@@ -956,22 +956,22 @@
       }
     }
   },
-  "trackNameRequired": "أعطِ المسار اسمًا",
+  "trackNameRequired": "أعطِ الختمة اسمًا",
   "trackBeginning": "البداية",
-  "trackNew": "مسار تلاوة جديد",
+  "trackNew": "ختمة جديدة",
   "trackName": "الاسم",
-  "trackNameHint": "مثال: العائلة، التهجّد",
+  "trackNameHint": "مثال: العائلة، رمضان",
   "trackReadBy": "يقرأه",
   "trackBySurah": "سورة",
   "trackByJuz": "جزء",
   "trackContinueFrom": "المتابعة من",
   "trackStartFrom": "البدء من",
   "trackStartAt": "البدء عند",
-  "trackEditNote": "يتقدم مسارك من تلقاء نفسه أثناء قراءتك. غيّر هذا فقط للمتابعة من مكان آخر.",
-  "trackNewNote": "يمكنك تغيير هذه في أي وقت من بطاقة المسار.",
+  "trackEditNote": "تتقدم ختمتك من تلقاء نفسها أثناء قراءتك. غيّر هذا فقط للمتابعة من مكان آخر.",
+  "trackNewNote": "يمكنك تغيير هذه في أي وقت من بطاقة الختمة.",
   "trackMarkEarlierRead": "احتساب الآيات السابقة ضمن التقدم",
   "trackMarkEarlierReadHint": "كل ما قبل هذا يُحتسب مقروءًا لهذه الختمة. إحصاءاتك تحتسب فقط ما تقرؤه داخل التطبيق.",
-  "trackCreate": "إنشاء المسار",
+  "trackCreate": "بدء ختمة",
   "notifCustomSound": "مخصص: {file}",
   "@notifCustomSound": {
     "description": "{file} is an audio file name.",
@@ -1075,7 +1075,7 @@
   "calendarPreviousMonth": "الشهر السابق",
   "calendarNextMonth": "الشهر التالي",
   "calendarYesterday": "أمس",
-  "calendarDaysAgo": "{days, plural, =1{قبل يوم واحد} other{قبل {days} أيام}}",
+  "calendarDaysAgo": "{days, plural, zero{اليوم} one{قبل يوم واحد} two{قبل يومين} few{قبل {days} أيام} many{قبل {days} يوم} other{قبل {days} يوم}}",
   "@calendarDaysAgo": {
     "placeholders": {
       "days": {
@@ -1088,7 +1088,7 @@
   "@calendarHasEvent": {
     "description": "Read out by screen readers after a calendar day whose cell is coloured for an event."
   },
-  "calendarAzanOnFor": "{count, plural, =1{مُفعَّل لوقت واحد} other{مُفعَّل لـ{count} أوقات}}",
+  "calendarAzanOnFor": "{count, plural, zero{غير مُفعَّل} one{مُفعَّل لوقت واحد} two{مُفعَّل لوقتين} few{مُفعَّل لـ{count} أوقات} many{مُفعَّل لـ{count} وقت} other{مُفعَّل لـ{count} وقت}}",
   "@calendarAzanOnFor": {
     "placeholders": {
       "count": {
@@ -1248,7 +1248,7 @@
       }
     }
   },
-  "quranEditTrack": "تعديل مسار {track}",
+  "quranEditTrack": "تعديل ختمة {track}",
   "@quranEditTrack": {
     "placeholders": {
       "track": {
@@ -1262,14 +1262,14 @@
   "quranTabJuz": "الأجزاء",
   "quranTabCollections": "المجموعات",
   "quranStartReading": "ابدأ القراءة",
-  "quranNewTrack": "مسار جديد",
+  "quranNewTrack": "ختمة جديدة",
   "statsMetricVerses": "الآيات",
   "statsMetricZikrs": "الأذكار",
   "statsMetricQaza": "القضاء",
   "statsMetricVersesLower": "آيات",
   "statsMetricZikrsLower": "أذكار",
   "statsMetricQazaLower": "قضاء",
-  "statsVerseCount": "{count, plural, zero{لا آيات} one{{count} آية} two{{count} آيتان} few{{count} آيات} many{{count} آية} other{{count} آية}}",
+  "statsVerseCount": "{count, plural, zero{لا آيات} one{آية واحدة} two{آيتان} few{{count} آيات} many{{count} آية} other{{count} آية}}",
   "@statsVerseCount": {
     "placeholders": {
       "count": {
@@ -1277,7 +1277,7 @@
       }
     }
   },
-  "statsZikrCount": "{count, plural, zero{لا أذكار} one{{count} ذكر} two{{count} ذكران} few{{count} أذكار} many{{count} ذكرًا} other{{count} ذكر}}",
+  "statsZikrCount": "{count, plural, zero{لا أذكار} one{ذكر واحد} two{ذكران} few{{count} أذكار} many{{count} ذكرًا} other{{count} ذكر}}",
   "@statsZikrCount": {
     "placeholders": {
       "count": {
@@ -1285,7 +1285,7 @@
       }
     }
   },
-  "statsQazaCount": "{count, plural, zero{لا قضاء} one{{count} قضاء} two{{count} قضاءان} few{{count} قضاء} many{{count} قضاء} other{{count} قضاء}}",
+  "statsQazaCount": "{count, plural, zero{لا قضاء} one{قضاء واحد} two{قضاءان} few{{count} قضاء} many{{count} قضاء} other{{count} قضاء}}",
   "@statsQazaCount": {
     "placeholders": {
       "count": {
@@ -1321,7 +1321,7 @@
     }
   },
   "statsHistory": "السجلّ",
-  "statsSessionCount": "{count, plural, zero{لا جلسات} one{{count} جلسة} two{{count} جلستان} few{{count} جلسات} many{{count} جلسة} other{{count} جلسة}}",
+  "statsSessionCount": "{count, plural, zero{لا جلسات} one{جلسة واحدة} two{جلستان} few{{count} جلسات} many{{count} جلسة} other{{count} جلسة}}",
   "@statsSessionCount": {
     "placeholders": {
       "count": {
@@ -1329,7 +1329,7 @@
       }
     }
   },
-  "statsVersesRecited": "{count, plural, zero{لا آيات تُليت} one{{count} آية تُليت} two{{count} آيتان تُليتا} few{{count} آيات تُليت} many{{count} آية تُليت} other{{count} آية تُليت}}",
+  "statsVersesRecited": "{count, plural, zero{لا آيات تُليت} one{آية واحدة تُليت} two{آيتان تُليتا} few{{count} آيات تُليت} many{{count} آية تُليت} other{{count} آية تُليت}}",
   "@statsVersesRecited": {
     "placeholders": {
       "count": {
@@ -1511,8 +1511,8 @@
     }
   },
   "quranNoSessions": "لا جلسات بعد. افتح سورة وابدأ القراءة - تُسجَّل الآيات التي تتلوها هنا تلقائيًا.",
-  "quranMoveToLabel": "نقل إلى تصنيف آخر",
-  "quranNewLabel": "أو تصنيف جديد",
+  "quranMoveToLabel": "نقل إلى ختمة أخرى",
+  "quranNewLabel": "أو ختمة جديدة",
   "quranMove": "نقل",
   "quranCollectionDuas": "الأدعية",
   "quranCollectionImamAli": "الإمام علي (ع)",
@@ -1911,7 +1911,7 @@
   "@homeSettingsAndAccount": {
     "description": "Tooltip and screen-reader label of the profile button on Home."
   },
-  "homeEventInDays": "{days, plural, =1{بعد يوم واحد} other{بعد {days} أيام}}",
+  "homeEventInDays": "{days, plural, zero{اليوم} one{بعد يوم واحد} two{بعد يومين} few{بعد {days} أيام} many{بعد {days} يوم} other{بعد {days} يوم}}",
   "@homeEventInDays": {
     "placeholders": {
       "days": {
@@ -2376,7 +2376,7 @@
       }
     }
   },
-  "quranVerseCount": "{count, plural, =1{آية واحدة} other{{count} آية}}",
+  "quranVerseCount": "{count, plural, zero{لا آيات} one{آية واحدة} two{آيتان} few{{count} آيات} many{{count} آية} other{{count} آية}}",
   "@quranVerseCount": {
     "placeholders": {
       "count": {
@@ -2550,7 +2550,7 @@
       }
     }
   },
-  "occasionNightsOf": "{count, plural, =1{ليلة {dates}} other{ليالي {dates}}}",
+  "occasionNightsOf": "{count, plural, zero{لا ليالي {dates}} one{ليلة {dates}} two{ليلتان {dates}} few{{count} ليالي {dates}} many{{count} ليلة {dates}} other{{count} ليلة {dates}}}",
   "@occasionNightsOf": {
     "description": "The night leading into each of {dates}: 'Night of 15 Shaban', 'Nights of 19, 21 and 23 Ramazan'. {count} is how many dates.",
     "placeholders": {
@@ -2562,7 +2562,7 @@
       }
     }
   },
-  "occasionNightAndDayOf": "{count, plural, =1{ليلة ويوم {dates}} other{ليالي وأيام {dates}}}",
+  "occasionNightAndDayOf": "{count, plural, zero{لا ليالي وأيام {dates}} one{ليلة ويوم {dates}} two{ليلتان ويومان {dates}} few{{count} ليالي وأيام {dates}} many{{count} ليلة ويوم {dates}} other{{count} ليلة ويوم {dates}}}",
   "@occasionNightAndDayOf": {
     "placeholders": {
       "count": {
@@ -2601,7 +2601,7 @@
   "@listSeparator": {
     "description": "Goes between the items of a list, before listAnd joins the last one."
   },
-  "listCountSurahs": "{count, plural, =1{سورة واحدة} other{{count} سورة}}",
+  "listCountSurahs": "{count, plural, zero{لا سور} one{سورة واحدة} two{سورتان} few{{count} سور} many{{count} سورة} other{{count} سورة}}",
   "@listCountSurahs": {
     "placeholders": {
       "count": {
@@ -2609,7 +2609,7 @@
       }
     }
   },
-  "listCountDuas": "{count, plural, =1{دعاء واحد} other{{count} دعاء}}",
+  "listCountDuas": "{count, plural, zero{لا أدعية} one{دعاء واحد} two{دعاءان} few{{count} أدعية} many{{count} دعاء} other{{count} دعاء}}",
   "@listCountDuas": {
     "placeholders": {
       "count": {
@@ -2617,7 +2617,7 @@
       }
     }
   },
-  "listCountZiyarats": "{count, plural, =1{زيارة واحدة} other{{count} زيارة}}",
+  "listCountZiyarats": "{count, plural, zero{لا زيارات} one{زيارة واحدة} two{زيارتان} few{{count} زيارات} many{{count} زيارة} other{{count} زيارة}}",
   "@listCountZiyarats": {
     "placeholders": {
       "count": {
@@ -2625,7 +2625,7 @@
       }
     }
   },
-  "listCountPrayers": "{count, plural, =1{صلاة واحدة} other{{count} صلاة}}",
+  "listCountPrayers": "{count, plural, zero{لا صلوات} one{صلاة واحدة} two{صلاتان} few{{count} صلوات} many{{count} صلاة} other{{count} صلاة}}",
   "@listCountPrayers": {
     "placeholders": {
       "count": {
@@ -2633,7 +2633,7 @@
       }
     }
   },
-  "listCountMunajat": "{count, plural, =1{مناجاة واحدة} other{{count} مناجاة}}",
+  "listCountMunajat": "{count, plural, zero{لا مناجيات} one{مناجاة واحدة} two{مناجاتان} few{{count} مناجيات} many{{count} مناجاة} other{{count} مناجاة}}",
   "@listCountMunajat": {
     "placeholders": {
       "count": {
@@ -2641,7 +2641,7 @@
       }
     }
   },
-  "listCountSections": "{count, plural, =1{قسم واحد} other{{count} قسم}}",
+  "listCountSections": "{count, plural, zero{لا أقسام} one{قسم واحد} two{قسمان} few{{count} أقسام} many{{count} قسم} other{{count} قسم}}",
   "@listCountSections": {
     "description": "How many rows a list of zikr has, where they are not all one kind; also what a group row holds.",
     "placeholders": {
@@ -2674,7 +2674,7 @@
   },
   "listFindNoneBody": "جرّب كلمة واحدة، أو تهجئة أخرى - أو ابحث في التطبيق كله.",
   "listSearchEverywhere": "ابحث في كل شيء",
-  "listGroupContents": "{names} · {count, plural, =1{قسم واحد} other{{count} قسم}}",
+  "listGroupContents": "{names} · {count, plural, zero{لا أقسام} one{قسم واحد} two{قسمان} few{{count} أقسام} many{{count} قسم} other{{count} قسم}}",
   "@listGroupContents": {
     "description": "Sub-line of a row that opens a group: what is inside it ('Iran, Iraq') and how many rows.",
     "placeholders": {
@@ -2893,7 +2893,7 @@
   "azanFootnote": "انقر على أحد الأوقات لتعيين صوت خاص له.",
   "azanFootnoteIos": "على آيفون يُشغِّل الإشعار نفسه تكبيرة قصيرة.",
   "libraryTitle": "المكتبة",
-  "libraryCount": "{count, plural, =1{كتاب واحد} other{{count} كتاب}}",
+  "libraryCount": "{count, plural, zero{لا كتب} one{كتاب واحد} two{كتابان} few{{count} كتب} many{{count} كتاب} other{{count} كتاب}}",
   "@libraryCount": {
     "placeholders": {
       "count": {
@@ -2939,7 +2939,7 @@
       }
     }
   },
-  "libraryChapterCount": "{count, plural, =1{فصل واحد} other{{count} فصل}}",
+  "libraryChapterCount": "{count, plural, zero{لا فصول} one{فصل واحد} two{فصلان} few{{count} فصول} many{{count} فصل} other{{count} فصل}}",
   "@libraryChapterCount": {
     "placeholders": {
       "count": {
@@ -3106,7 +3106,7 @@
       }
     }
   },
-  "downloadsOlderCount": "{count, plural, =1{تسجيل واحد أقدم} other{{count} تسجيلات أقدم}}",
+  "downloadsOlderCount": "{count, plural, zero{لا تسجيلات أقدم} one{تسجيل واحد أقدم} two{تسجيلان أقدم} few{{count} تسجيلات أقدم} many{{count} تسجيل أقدم} other{{count} تسجيل أقدم}}",
   "@downloadsOlderCount": {
     "placeholders": {
       "count": {
@@ -3123,7 +3123,7 @@
     }
   },
   "downloadsRemoveAllButton": "إزالة جميع التنزيلات",
-  "statsStreakDays": "{count, plural, =1{يوم واحد} other{{count} أيام}}",
+  "statsStreakDays": "{count, plural, zero{لا أيام} one{يوم واحد} two{يومان} few{{count} أيام} many{{count} يوم} other{{count} يوم}}",
   "@statsStreakDays": {
     "description": "The streak, in large type: how many days in a row.",
     "placeholders": {
@@ -3179,7 +3179,7 @@
       }
     }
   },
-  "statsTimes": "{count, plural, =1{مرة واحدة} other{{formatted} مرات}}",
+  "statsTimes": "{count, plural, zero{لا مرات} one{مرة واحدة} two{مرتان} few{{formatted} مرات} many{{formatted} مرة} other{{formatted} مرة}}",
   "@statsTimes": {
     "description": "How often a zikr was recited: '41 times'.",
     "placeholders": {
@@ -3238,7 +3238,7 @@
       }
     }
   },
-  "reminderMinutesAfterLong": "{minutes, plural, =1{دقيقة واحدة بعد {prayer}} other{{minutes} دقائق بعد {prayer}}}",
+  "reminderMinutesAfterLong": "{minutes, plural, zero{عند {prayer} مباشرة} one{دقيقة واحدة بعد {prayer}} two{دقيقتان بعد {prayer}} few{{minutes} دقائق بعد {prayer}} many{{minutes} دقيقة بعد {prayer}} other{{minutes} دقيقة بعد {prayer}}}",
   "@reminderMinutesAfterLong": {
     "placeholders": {
       "minutes": {
@@ -3249,7 +3249,7 @@
       }
     }
   },
-  "reminderMinutesBeforeLong": "{minutes, plural, =1{دقيقة واحدة قبل {prayer}} other{{minutes} دقائق قبل {prayer}}}",
+  "reminderMinutesBeforeLong": "{minutes, plural, zero{عند {prayer} مباشرة} one{دقيقة واحدة قبل {prayer}} two{دقيقتان قبل {prayer}} few{{minutes} دقائق قبل {prayer}} many{{minutes} دقيقة قبل {prayer}} other{{minutes} دقيقة قبل {prayer}}}",
   "@reminderMinutesBeforeLong": {
     "placeholders": {
       "minutes": {
@@ -3565,7 +3565,7 @@
   "accountItemSavedVerses": "الآيات المحفوظة",
   "accountItemQaza": "متتبع القضاء",
   "accountItemStats": "إحصاءاتي والاختصارات",
-  "accountTracks": "{count, plural, =1{ختمة واحدة} other{{count} ختمات}}",
+  "accountTracks": "{count, plural, zero{لا ختمات} one{ختمة واحدة} two{ختمتان} few{{count} ختمات} many{{count} ختمة} other{{count} ختمة}}",
   "@accountTracks": {
     "description": "How many Quran recitation tracks are backed up.",
     "placeholders": {
@@ -3668,7 +3668,7 @@
   "@settingsAzan": {
     "description": "Settings row opening the prayer notifications page."
   },
-  "settingsAzanValue": "{count, plural, =0{إيقاف} =1{مرة واحدة} other{{count} مرات}}",
+  "settingsAzanValue": "{count, plural, zero{إيقاف} one{مرة واحدة} two{مرتان} few{{count} مرات} many{{count} مرة} other{{count} مرة}}",
   "@settingsAzanValue": {
     "description": "Beside the Azan row in Settings: how many of the prayer times (Fajr, Sunrise, Zuhr...) notify.",
     "placeholders": {
@@ -3682,7 +3682,7 @@
     "description": "Beside Adjust Hijri date when the date is not moved."
   },
   "settingsHijriBody": "تختلف رؤية الهلال من مكان إلى آخر. إذا كان التاريخ الهجري متقدّمًا أو متأخرًا بيوم في منطقتك، عدّله هنا.",
-  "settingsPrayerTimesShownValue": "{count, plural, =1{مرة واحدة} other{{count} مرات}}",
+  "settingsPrayerTimesShownValue": "{count, plural, zero{لا مرات} one{مرة واحدة} two{مرتان} few{{count} مرات} many{{count} مرة} other{{count} مرة}}",
   "@settingsPrayerTimesShownValue": {
     "description": "Beside Prayer times shown in Settings: how many times the home page and widgets show.",
     "placeholders": {
