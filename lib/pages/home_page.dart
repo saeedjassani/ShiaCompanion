@@ -90,8 +90,7 @@ class _MyHomePageState extends State<MyHomePage>
   bool _launchNotificationHandled = false;
 
   void _openHomeMenuItem(HomeMenuItem item) {
-    final page = item.buildPage();
-    pushPageRoute(context, page);
+    item.open(context);
   }
 
   Future<void> _refreshHomeSessionState() async {
