@@ -431,8 +431,19 @@ class _MyHomePageState extends State<MyHomePage>
 
     final Widget content;
     if (wide) {
-      // Tablet and up: prayer card, Continue, Today and (on the web) Get the
-      // app on the left; Shortcuts and the hadith on the right.
+      // Tablet and up, in three bands: the prayer card and Continue beside
+      // Shortcuts; Today across both columns, as it runs long; then (on
+      // the web) Get the app beside the hadith, or the hadith alone.
+      final leftFlex = desktop ? 115 : 100;
+      final columnGap = desktop ? 32.0 : 24.0;
+      Widget columns(Widget left, Widget right) => Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: leftFlex, child: left),
+              SizedBox(width: columnGap),
+              Expanded(flex: 100, child: right),
+            ],
+          );
       content = Padding(
         padding: EdgeInsets.symmetric(horizontal: gutter),
         child: Column(
@@ -440,31 +451,18 @@ class _MyHomePageState extends State<MyHomePage>
           children: [
             header,
             SizedBox(height: gap),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: desktop ? 115 : 100,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      prayerCard,
-                      ContinueSection(topSpacing: gap, horizontalPadding: 0),
-                      today(horizontalPadding: 0),
-                      getApp,
-                    ],
-                  ),
-                ),
-                SizedBox(width: desktop ? 32 : 24),
-                Expanded(
-                  flex: 100,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [shortcuts, hadithCard],
-                  ),
-                ),
-              ],
+            columns(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  prayerCard,
+                  ContinueSection(topSpacing: gap, horizontalPadding: 0),
+                ],
+              ),
+              shortcuts,
             ),
+            today(horizontalPadding: 0),
+            if (kIsWeb) columns(getApp, hadithCard) else hadithCard,
           ],
         ),
       );

@@ -171,8 +171,9 @@ Top to bottom, each section hidden when it has nothing to show:
    rites only to make six cards. Within an occasion the Duas, Ziyarats and
    Munajat categories come before entries known by title alone. **See
    all** → Today's Recitations. Moves on by itself at Maghrib and
-   midnight; hidden when nothing is for today. Under Continue, in the left
-   column from the tablet breakpoint up.
+   midnight; hidden when nothing is for today. Under Continue on a phone;
+   from the tablet breakpoint up it runs across both columns, under the
+   prayer card, Continue and Shortcuts, as the list is long.
 5. **Shortcuts** — no heading. Up to 11 user-picked + fixed **All
    features**, four to a row: two rows for up to 7 picks, a third from 8
    (no rows setting; the grid grows with the picks). Edited from **Edit
@@ -198,8 +199,8 @@ Top to bottom, each section hidden when it has nothing to show:
    Calendar.
 7. **Hadith of the day** — full text, source, Share button.
 8. **Get the app** — web only: a card with the official App Store and
-   Google Play badges (both, whatever the browser), under the prayer card,
-   Continue and Today from the tablet breakpoint up, last on a phone.
+   Google Play badges (both, whatever the browser), beside the hadith
+   under Today from the tablet breakpoint up, last on a phone.
 
 ### All features
 One 3-column grid in today's home order (minus Quran and Favorites, which
@@ -516,8 +517,9 @@ Recitations' groups).
 **Dashboards go two columns** at the same 880 (`WideColumns`), most-used
 on the left:
 
-- **Home** — prayer card, Continue, Today · Shortcuts, hadith (from
-  600 already; see Home).
+- **Home** — in bands (from 600 already; see Home): prayer card,
+  Continue · Shortcuts; Today across both columns; Get the app (web) ·
+  hadith, or the hadith alone.
 - **Settings** — the sign-in card, Appearance, Prayer times · Notifications,
   Reading, Offline audio, Support. The version line stays centred under
   both.
