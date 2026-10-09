@@ -167,6 +167,7 @@ class TodaysRecitationRow extends StatelessWidget {
     final title = isUserAdmin
         ? '${itemData.uid} ${itemData.displayTitle}'
         : itemData.displayTitle;
+    void open() => openTodaysRecitation(context, entry, source: source);
 
     if (isZikrGroup(entry)) {
       return ZikrGroupRow(
@@ -174,8 +175,7 @@ class TodaysRecitationRow extends StatelessWidget {
         last: last,
         title: title,
         subtitle: subtitle,
-        onTap: () => pushPageRoute(context,
-            ItemList(entry.getUId().split("~")[1], itemData.displayTitle)),
+        onTap: open,
       );
     }
 
@@ -185,7 +185,23 @@ class TodaysRecitationRow extends StatelessWidget {
       subtitle: subtitle,
       first: first,
       last: last,
-      onTap: () => handleUniversalDataClick(context, itemData, source: source),
+      onTap: open,
     );
   }
+}
+
+/// Opens one of today's recitations: the zikr, or a group's list (a
+/// month's aamal).
+void openTodaysRecitation(
+  BuildContext context,
+  UidTitleData entry, {
+  String source = ZikrOpenSource.todaysRecitation,
+}) {
+  final itemData = UniversalData(entry.uid, entry.title, 0);
+  if (isZikrGroup(entry)) {
+    pushPageRoute(
+        context, ItemList(entry.getUId().split("~")[1], itemData.displayTitle));
+    return;
+  }
+  handleUniversalDataClick(context, itemData, source: source);
 }

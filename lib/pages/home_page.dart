@@ -411,10 +411,11 @@ class _MyHomePageState extends State<MyHomePage>
       onOpen: _openHomeMenuItem,
       onOpenAllFeatures: _openAllFeatures,
     );
-    final today = TodaySection(
-      topSpacing: gap,
-      onSeeAll: () => _openHomeMenuItem(todaysRecitationsMenuItem),
-    );
+    TodaySection today({required double horizontalPadding}) => TodaySection(
+          topSpacing: gap,
+          horizontalPadding: horizontalPadding,
+          onSeeAll: () => _openHomeMenuItem(todaysRecitationsMenuItem),
+        );
     final hadithCard = hadith.isEmpty && localizedHadith == null
         ? const SizedBox.shrink()
         : Padding(
@@ -449,7 +450,7 @@ class _MyHomePageState extends State<MyHomePage>
                     children: [
                       prayerCard,
                       ContinueSection(topSpacing: gap, horizontalPadding: 0),
-                      today,
+                      today(horizontalPadding: 0),
                       getApp,
                     ],
                   ),
@@ -475,9 +476,10 @@ class _MyHomePageState extends State<MyHomePage>
           Padding(padding: pad, child: header),
           SizedBox(height: gap),
           Padding(padding: pad, child: prayerCard),
-          // Draws its own gutter: its cards scroll to the screen's edge.
+          // These two draw their own gutter: their cards scroll to the
+          // screen's edge.
           ContinueSection(topSpacing: gap, horizontalPadding: gutter),
-          Padding(padding: pad, child: today),
+          today(horizontalPadding: gutter),
           SizedBox(height: gap),
           Padding(padding: pad, child: shortcuts),
           Padding(padding: pad, child: hadithCard),

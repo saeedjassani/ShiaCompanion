@@ -160,15 +160,19 @@ Top to bottom, each section hidden when it has nothing to show:
 3. **Continue** — up to 3 cards, newest first: Quran track
    (`RecitationTrackerManager`), dua bookmark (`ZikrBookmarksManager`),
    library chapter (`LibraryProgressStore`). Horizontal scroll on phone.
-4. **Today** — up to 4 of today's recitations (`buildTodaysRecitationGroups`),
-   one card, most specific occasion first, each with what it is for under
-   its title ("Night of 15 Shaban", "In Rajab", "For Thursday", "Every
-   day"). Each occasion gets up to two rows before any gets more, so a
-   month full of aamal cannot hide the weekday's duas; every-day
-   recitations only fill what is left (`todayPicks`). **See all** →
-   Today's Recitations. Moves on by itself at Maghrib and midnight;
-   hidden when nothing is for today. Phone: under Continue; from the
-   tablet breakpoint up, under Continue in the left column.
+4. **Today** — today's recitations (`buildTodaysRecitationGroups`) as a
+   sideways strip of cards, 164 wide so a phone shows two and the edge of
+   a third: the dua, ziyarat, munajat or aamal glyph, the title, and at
+   the foot what it is for ("Night of 15 Shaban", "For Thursday", "Every
+   day"; bold accent for tonight's or today's occasion). Order (`todayPicks`): all of tonight's and
+   today's occasion; then every dua, ziyarat and munajat of the month,
+   the weekday and every day - what centres recite (Kumayl, Nudba,
+   Ziyarat Warith and Ashura) is never left off; then other aamal and
+   rites only to make six cards. Within an occasion the Duas, Ziyarats and
+   Munajat categories come before entries known by title alone. **See
+   all** → Today's Recitations. Moves on by itself at Maghrib and
+   midnight; hidden when nothing is for today. Under Continue, in the left
+   column from the tablet breakpoint up.
 5. **Shortcuts** — no heading. Up to 11 user-picked + fixed **All
    features**, four to a row: two rows for up to 7 picks, a third from 8
    (no rows setting; the grid grows with the picks). Edited from **Edit
