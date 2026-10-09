@@ -86,18 +86,37 @@
   in `lib/utils/slug_registry.dart`), or make it a habit: same title ->
   copy the canonical's slug verbatim; different title -> give it its own.
 
+- **Name a GPS fix offline from the bundled city list.** The place name on
+  the prayer card comes from an online reverse-geocode (bigdatacloud, in
+  `initializeLocation` in `lib/constants.dart`). Offline, prayer times are
+  still right - they are worked out from the coordinates - but the card
+  keeps the last name it had, or says "Your location" on a first run. When
+  the lookup can't be reached, fall back to the nearest city in
+  `assets/cities.tsv` (`CityRepository`). Caveat: that list only has
+  cities of 100,000+ people and capitals, so someone in a small town would
+  see the nearest big city's name; their times stay their own.
+
 ## Translations
 
 The app is set up for Urdu, Persian, Arabic and Gujarati; see
 `docs/TRANSLATIONS.md`. **Never hardcode user-facing English in Dart**: add
 it to `lib/l10n/app_en.arb` and read it with `context.l10n.key` (or
 `L10n.current.key` where there is no `BuildContext`), then run
-`flutter gen-l10n` and commit the regenerated `lib/l10n/app_localizations*.dart`.
+`flutter gen-l10n` (`flutter pub get` does it too). The generated
+`lib/l10n/app_localizations*.dart` are gitignored - never commit them.
+Design/feature PRs touch only `app_en.arb`; translation PRs touch only
+`app_<code>.arb`, and new English keys are translated afterwards in a
+catch-up PR (see "Keeping translations in step" in `docs/TRANSLATIONS.md`).
 Analytics labels, `trackScreen` names, preference keys and `debugPrint` text
 stay English literals. Zikr translations are overlays in
-`assets/zikr_i18n/<code>/` keyed by the English line they translate - so
-editing a zikr's English line orphans its translations (they fall back to
-English); `python3 scripts/zikr_i18n/zikr_i18n.py check -v` lists them.
+`assets/zikr_i18n/<code>/` keyed by **segment number** (each verse, standalone
+line and tab label of a zikr, numbered 0, 1, 2...), never by English text -
+see "Zikr content" in `docs/TRANSLATIONS.md`. **Outside English the reader
+sees no English at all**: untranslated lines, merits and labels are hidden
+(the Arabic alone shows), and transliteration is off. If you change the
+content of a translated zikr (one with a file under `assets/zikr_i18n/`),
+run `python3 scripts/zikr_i18n/zikr_i18n.py rebase` and commit what it
+renumbers; `test/zikr_translations_test.dart` fails until you do.
 
 ## Zikr title conventions
 

@@ -21,7 +21,6 @@ dependencies:
   hijri: ^3.0.0
   share_plus: ^13.1.0
   shared_preferences: ^2.1.1
-  table_calendar: ^3.0.9
   url_launcher: ^6.1.11
   wakelock_plus: ^1.4.0
   webfeed_revised: ^0.9.0
@@ -78,13 +77,19 @@ flutter:
 
   assets:
     - assets/airports.tsv
+    - assets/cities.tsv
     - assets/books.json
     - assets/events.json
+    - assets/events_i18n/
     - assets/logo.png
     - assets/retired_slugs.json
     - assets/zikr.json
     - assets/zikr_audio.json
+    - assets/zikr_i18n/ar/
+    - assets/zikr_i18n/fa/
+    - assets/zikr_i18n/ur/
     - assets/hadith/
+    - assets/hadith_i18n/hadith.json
     # Tanzil Uthmani text (CC BY 3.0, verbatim - see the notice at its end),
     # shown in place of the corpus surah text when Scheherazade is selected;
     # QuranWBW's IndoPak text (verbatim, used with permission - see
@@ -95,9 +100,13 @@ flutter:
     # to ship inside the app. assets/hadith/ and assets/zikr/ hold hundreds of
     # generated files and have to stay directory entries, so
     # test/bundled_assets_test.dart guards those instead.
+    - assets/logo.png
     - assets/images/google_logo.png
     - assets/images/apple_logo.png
+    - assets/images/app_store_badge.png
+    - assets/images/google_play_badge.png
     - assets/images/ali_watermark.png
+    - assets/images/mahdi_watermark.png
     - assets/sounds/full_azan.mp3
     - assets/zikr/
 

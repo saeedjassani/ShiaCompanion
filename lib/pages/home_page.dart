@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
@@ -36,27 +34,39 @@ import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
-import 'package:shia_companion/utils/data_search.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/hadith_loader.dart';
+import 'package:shia_companion/utils/localized_hadith.dart';
+import 'package:shia_companion/utils/islamic_day.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
-import 'package:shia_companion/widgets/azan_playing_banner.dart';
-import 'package:shia_companion/widgets/prayer_times_widget.dart';
+import 'package:shia_companion/pages/all_features_page.dart';
+import 'package:shia_companion/pages/home/coming_up_section.dart';
+import 'package:shia_companion/pages/home/continue_section.dart';
+import 'package:shia_companion/pages/home/hadith_card.dart';
+import 'package:shia_companion/pages/home/get_app_card.dart';
+import 'package:shia_companion/pages/home/home_header.dart';
+import 'package:shia_companion/pages/home/home_section.dart';
+import 'package:shia_companion/pages/home/shortcuts_section.dart';
+import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/widgets/glass_surface.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/whats_new_dialog.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import '../l10n/l10n.dart';
 
+/// The Home tab: everything that used to be the home screen, under a
+/// greeting with the profile button (Settings) in place of the old app bar.
+/// Search moved to the round button beside the tab bar (see AppShell).
+///
+/// Also where start-up work runs - deep links, notifications, the sync
+/// managers - since Home is the tab every launch opens on.
 class MyHomePage extends StatefulWidget {
-  MyHomePage({
-    required this.title,
-  });
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -65,6 +75,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with WidgetsBindingObserver, RouteAware {
   String hadith = '';
+
+  /// Today's hadith in Arabic, Urdu or Persian; null in English.
+  LocalizedHadith? localizedHadith;
+
+  /// The app language [getHadith] last loaded for, so a change of language
+  /// loads the hadith again.
+  String? _hadithLanguage;
   DateTime today = DateTime.now();
 
   List<LiveStreamingData>? holyShrine, liveChannel;
@@ -75,6 +92,10 @@ class _MyHomePageState extends State<MyHomePage>
   bool _itemsLoaded = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
+
+  /// Set once start-up has acted on the notification tap that launched the
+  /// app, if any; resumes check for a later one only from then on.
+  bool _launchNotificationHandled = false;
 
   void _openHomeMenuItem(HomeMenuItem item) {
     final page = item.buildPage();
@@ -95,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage>
     _setupDeepLinks();
     _setupAndroidWidgetLinks();
     setupPreferences();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+    _scrollController.addListener(_onScroll);
   }
 
   Future<void> _setupDeepLinks() async {
@@ -127,6 +148,19 @@ class _MyHomePageState extends State<MyHomePage>
       _queueDeepLink(parseDeepLinkUri(Uri.parse(url)));
     });
 
+    await _takePendingWidgetUrl();
+  }
+
+  /// Opens the link a home screen widget tap left with MainActivity, if any.
+  ///
+  /// Run at start-up and on every resume: after Back closes the screen the
+  /// app can keep running without one (MainActivity reuses audio_service's
+  /// engine), and a widget tap then opens a new screen whose link only
+  /// waits here - Home's start-up, the only other reader, ran long ago.
+  /// MainActivity hands each link out once, so asking again is harmless.
+  Future<void> _takePendingWidgetUrl() async {
+    final channel = _widgetLinkChannel;
+    if (channel == null) return;
     try {
       final url = await channel.invokeMethod<String>('takeWidgetUrl');
       if (url != null && url.isNotEmpty) {
@@ -357,161 +391,134 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
-    final menuItems = visibleHomeMenuItems;
+    final insets = MediaQuery.paddingOf(context);
+    final width = MediaQuery.sizeOf(context).width;
+    final wide = width >= homeWideBreakpoint;
+    final desktop = width >= 1024;
+    final gutter = wide ? 32.0 : 16.0;
+    final gap = wide ? 24.0 : 18.0;
 
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: _openSearch,
-            )
+    final header = HomeHeader(
+      onOpenSettings: () => _openHomeMenuItem(settingsMenuItem),
+    );
+    final prayerCard = HomePrayerTimesCard(
+      onTap: () => _openHomeMenuItem(calendarMenuItem),
+      footer: ComingUpRow(
+        onOpenCalendar: () => _openHomeMenuItem(calendarMenuItem),
+      ),
+    );
+    final shortcuts = ShortcutsSection(
+      onOpen: _openHomeMenuItem,
+      onOpenAllFeatures: _openAllFeatures,
+    );
+    final hadithCard = hadith.isEmpty && localizedHadith == null
+        ? const SizedBox.shrink()
+        : Padding(
+            padding: EdgeInsets.only(top: gap),
+            child: HadithOfTheDayCard(
+              hadith: hadith,
+              localized: localizedHadith,
+            ),
+          );
+    final getApp = kIsWeb
+        ? Padding(padding: EdgeInsets.only(top: gap), child: const GetAppCard())
+        : const SizedBox.shrink();
+
+    final Widget content;
+    if (wide) {
+      // Tablet and up: prayer card, Continue and (on the web) Get the app
+      // on the left; Shortcuts and the hadith on the right.
+      content = Padding(
+        padding: EdgeInsets.symmetric(horizontal: gutter),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            SizedBox(height: gap),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: desktop ? 115 : 100,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      prayerCard,
+                      ContinueSection(topSpacing: gap, horizontalPadding: 0),
+                      getApp,
+                    ],
+                  ),
+                ),
+                SizedBox(width: desktop ? 32 : 24),
+                Expanded(
+                  flex: 100,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [shortcuts, hadithCard],
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
-        bottomSheet: kIsWeb ? null : const AzanPlayingBanner(),
-        body: ResponsiveScrollableContent(
-          maxWidth: wideContentWidth,
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 22.0, horizontal: 16.0),
-                  child: InkWell(
-                    onTap: () async {
-                      final result = await SharePlus.instance.share(ShareParams(
-                        text:
-                            '$hadith\n\n${context.l10n.hadithSharedVia('https://shia-companion.web.app/')}',
-                        sharePositionOrigin: Rect.fromLTWH(
-                            MediaQuery.of(context).size.width / 2, 0, 2, 2),
-                      ));
-                      if (result.status == ShareResultStatus.success) {
-                        RatingPromptService.recordPositiveAction(
-                            'share_hadith');
-                      }
-                    },
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 760),
-                      child: Text(
-                        '$hadith',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 760),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        textButtonTheme: TextButtonThemeData(
-                          style: TextButton.styleFrom(
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      child: HomePrayerTimesCard(
-                        onTap: () => _openHomeMenuItem(calendarMenuItem),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: LayoutBuilder(builder: (context, constraints) {
-                  // Use maxCrossAxisExtent so grid adapts to available width
-                  // Make the tiles smaller on narrow screens so more columns can fit
-                  double maxExtent;
-                  double spacing = 8.0;
-                  if (constraints.maxWidth < 360) {
-                    maxExtent = 140;
-                    spacing = 6.0;
-                  } else if (constraints.maxWidth < 600) {
-                    maxExtent = 160;
-                    spacing = 8.0;
-                  } else if (constraints.maxWidth < 900) {
-                    maxExtent = 190;
-                    spacing = 10.0;
-                  } else {
-                    maxExtent = 210;
-                    spacing = 12.0;
-                  }
-                  return GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: maxExtent,
-                      mainAxisSpacing: spacing,
-                      crossAxisSpacing: spacing,
-                      childAspectRatio:
-                          constraints.maxWidth >= 900 ? 1.05 : 0.95,
-                    ),
-                    itemCount: menuItems.length,
-                    itemBuilder: (BuildContext c, int i) {
-                      final menuItem = menuItems[i];
-                      return Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Card(
-                          child: InkWell(
-                            onTap: () => _openHomeMenuItem(menuItem),
-                            child: LayoutBuilder(
-                                builder: (context, tileConstraints) {
-                              final double tileWidth = tileConstraints.maxWidth;
-                              final double avatarRadius =
-                                  (tileWidth * 0.18).clamp(18.0, 40.0);
-                              final double iconSize = avatarRadius * 0.9;
-                              final double fontSize = tileWidth > 140 ? 14 : 12;
-                              final double verticalPadding =
-                                  tileWidth > 140 ? 12 : 8;
+      );
+    } else {
+      final pad = EdgeInsets.symmetric(horizontal: gutter);
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(padding: pad, child: header),
+          SizedBox(height: gap),
+          Padding(padding: pad, child: prayerCard),
+          // Draws its own gutter: its cards scroll to the screen's edge.
+          ContinueSection(topSpacing: gap, horizontalPadding: gutter),
+          SizedBox(height: gap),
+          Padding(padding: pad, child: shortcuts),
+          Padding(padding: pad, child: hadithCard),
+          Padding(padding: pad, child: getApp),
+        ],
+      );
+    }
 
-                              return Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: verticalPadding, horizontal: 8.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    CircleAvatar(
-                                      radius: avatarRadius,
-                                      backgroundColor:
-                                          Theme.of(context).primaryColor,
-                                      child: menuItem.buildIcon(
-                                        size: iconSize,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: tileWidth > 140 ? 10 : 6),
-                                    Text(
-                                      menuItem.displayLabel,
-                                      textAlign: TextAlign.center,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(fontSize: fontSize),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }),
+    return Scaffold(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            controller: _scrollController,
+            // The bottom inset includes the floating tab bar, so the last
+            // section can scroll clear of it.
+            padding: EdgeInsets.only(
+              top: insets.top + (wide ? 24 : 12),
+              bottom: insets.bottom + 24,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: wideContentWidth),
+                child: content,
               ),
-            ],
+            ),
           ),
-        ));
+          _CompactTitleBar(visible: _showCompactTitle, topInset: insets.top),
+        ],
+      ),
+    );
+  }
+
+  final ScrollController _scrollController = ScrollController();
+
+  /// Whether the header has scrolled away, so the small title bar shows.
+  final ValueNotifier<bool> _showCompactTitle = ValueNotifier(false);
+
+  void _onScroll() {
+    _showCompactTitle.value = _scrollController.offset > 56;
+  }
+
+  void _openAllFeatures() {
+    unawaited(AnalyticsService.feature(
+      'home_menu_all_features',
+      label: 'All features',
+    ));
+    pushPageRoute(context, const AllFeaturesPage());
   }
 
   void initializeData() async {
@@ -525,10 +532,9 @@ class _MyHomePageState extends State<MyHomePage>
     // up and locked the phone had the Azan start by itself whenever the app
     // next came to the foreground, however much later that was.
     //
-    // Reading launch details needs no initialize() call, so this also
-    // doesn't move the notification permission prompt that initialize()
-    // triggers on iOS. Zikr reminder taps still wait for the zikr index
-    // (loaded by _refreshHomeSessionState) further down.
+    // Reading launch details needs no initialize() call. Zikr reminder taps
+    // still wait for the zikr index (loaded by _refreshHomeSessionState)
+    // further down.
     NotificationResponse? launchResponse;
     if (!kIsWeb) {
       final launchDetails = await FlutterLocalNotificationsPlugin()
@@ -560,56 +566,40 @@ class _MyHomePageState extends State<MyHomePage>
     // On web, keep first load quiet and let the prayer card request location
     // only after the user taps it.
     if (!kIsWeb) {
-      // Pass context only when there is nothing stored yet: that first fetch
-      // needs the explainer and the permission prompt. Once a location exists,
-      // an automatic refresh must never interrupt the user with a dialog — the
-      // card shows the outcome instead.
-      await LocationService.instance.refreshIfStale(
-        context: LocationService.instance.hasLocation ? null : context,
-      );
+      // Never with context: an automatic refresh must not interrupt with a
+      // dialog or a permission prompt - those follow "Use my location" in
+      // setup or on the prayer card. Without a location yet this fetches
+      // only if the phone already allows it; the card offers the rest.
+      await LocationService.instance.refreshIfAllowed();
     }
 
     if (!kIsWeb) {
       await initializeNotificationTimeZone();
-
-      flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      AndroidInitializationSettings initializationSettingsAndroid =
-          AndroidInitializationSettings('ic_notification');
-
-      DarwinInitializationSettings initializationSettingsIOS =
-          DarwinInitializationSettings();
-      InitializationSettings initializationSettings = InitializationSettings(
-          android: initializationSettingsAndroid,
-          iOS: initializationSettingsIOS);
-      await flutterLocalNotificationsPlugin?.initialize(
-        settings: initializationSettings,
-        onDidReceiveNotificationResponse: handlePrayerNotificationResponse,
-        onDidReceiveBackgroundNotificationResponse:
-            handlePrayerNotificationResponseBackground,
-      );
+      await ensureNotificationsPlugin();
       // A zikr reminder tap that launched the app from fully terminated
       // (prayer taps were already handled at the top of this method).
       if (launchResponse != null) {
         await handlePrayerNotificationResponse(launchResponse);
       }
-      // Two prompts back to back is one too many, so the OS permission dialog
-      // is skipped on the launch we ask our own question; the opt-in requests
-      // it itself, and only if the user actually wants azan.
-      final askingAboutAzaan = AzaanOptInService.shouldAsk(
-        hasLocation: LocationService.instance.hasLocation,
-      );
-      if (!askingAboutAzaan) {
+      _launchNotificationHandled = true;
+      // On iOS a launching tap can reach the plugin after the read at the
+      // top of this method, yet before initialize() - then it is passed to
+      // neither callback and waits only in the launch details. A tap
+      // already handled is skipped.
+      unawaited(handleNotificationThatOpenedApp());
+      // Only for someone with something to be notified about: the prompt
+      // follows "Turn on azan" or adding a reminder, never a bare launch
+      // (setup's Azan step is where a new install is asked). Costs nothing
+      // once permission is settled - neither OS re-prompts.
+      await ZikrReminderService.instance.load();
+      if (AzaanOptInService.isEnabled ||
+          ZikrReminderService.instance.reminders.isNotEmpty) {
         await requestNotificationPermissions();
       }
       await refreshExactPrayerAlarmPermissionStatus();
-      if (askingAboutAzaan && mounted) {
-        await _askAboutAzaan();
-      }
 
-      // Never fires alongside the two prompts above: a fresh install has
-      // nothing to catch up on (see WhatsNewService), and an install that has
-      // already answered the opt-in question is exactly the "existing
-      // install" this is for.
+      // A fresh install has nothing to catch up on (see WhatsNewService);
+      // it has just been through setup instead.
       final whatsNew = await WhatsNewService.pending();
       await WhatsNewService.markSeen();
       if (whatsNew.isNotEmpty && mounted) {
@@ -651,58 +641,33 @@ class _MyHomePageState extends State<MyHomePage>
     await LocationService.instance.refreshIfStale();
   }
 
-  Future<void> _openSearch() async {
-    final books = await LibraryService.loadBooks();
-    if (!mounted) return;
-
-    // Ties in search rank keep this order, so give it the one the lists use:
-    // by category, then as each category's list shows it. Plain key order put
-    // A117 (Al-Falaq) ahead of A5 (Al-Fatihah).
-    final zikrEntries = items.entries
-        .map((entry) => UidTitleData(entry.key, entry.value))
-        .toList()
-      ..sort(_compareSearchOrder);
-
-    unawaited(AnalyticsService.searchOpened());
-    showSearch(
-      context: context,
-      delegate: DataSearch(
-        [
-          ...zikrEntries,
-          ...books,
-        ],
-        libraryUids: books.map((book) => book.uid).toSet(),
-      ),
-    );
-  }
-
-  static final RegExp _categoryPattern = RegExp(r'^[A-Za-z]*');
-
-  static int _compareSearchOrder(UidTitleData a, UidTitleData b) {
-    final byCategory = _categoryPattern
-        .stringMatch(a.uid)!
-        .compareTo(_categoryPattern.stringMatch(b.uid)!);
-    if (byCategory != 0) return byCategory;
-    final byOrder =
-        getItemOrderValue(a.uid).compareTo(getItemOrderValue(b.uid));
-    if (byOrder != 0) return byOrder;
-    final byId = a.getId().compareTo(b.getId());
-    if (byId != 0) return byId;
-    return a.uid.compareTo(b.uid);
-  }
-
   Future<void> getHadith() async {
-    final today =
-        HijriCalendar.fromDate(DateTime.now().add(Duration(days: hijriDate)));
+    // The Islamic day: from Maghrib on 8 Rabi' al-Awwal it is already the
+    // 9th's eve, so the Muharram quotes end with the day the header shows.
+    final today = islamicDayAt(DateTime.now()).day.hijri;
     final useMuharramQuotes =
         today.hMonth < 2 || (today.hMonth == 2 && today.hDay < 9);
-    hadith = await loadRandomHadith(
-      DefaultAssetBundle.of(context),
+    final bundle = DefaultAssetBundle.of(context);
+    final language = L10n.current.localeName;
+    _hadithLanguage = language;
+    final localized = await loadLocalizedHadith(
+      bundle,
+      languageCode: language,
       useMuharramQuotes: useMuharramQuotes,
-      random: Random(dailyHadithSeed()),
+      day: hadithDayNumber(),
     );
-    if (!mounted) return;
-    setState(() {});
+    final english = localized != null
+        ? ''
+        : await loadDailyHadith(
+            bundle,
+            useMuharramQuotes: useMuharramQuotes,
+            day: hadithDayNumber(),
+          );
+    if (!mounted || language != _hadithLanguage) return;
+    setState(() {
+      localizedHadith = localized;
+      hadith = english;
+    });
   }
 
   setupPreferences() async {
@@ -741,65 +706,10 @@ class _MyHomePageState extends State<MyHomePage>
     initializeData();
   }
 
-  /// Puts the first-run azan question to the user and records the answer.
-  ///
-  /// The schedule is not rebuilt here: the caller does that a few lines later
-  /// for every launch, and the answer has already changed the fingerprint it
-  /// checks.
-  Future<void> _askAboutAzaan() async {
-    final enabled = await AzaanOptInService.ask(context);
-    unawaited(AnalyticsService.feature(
-      'azaan_opt_in',
-      label: 'Azan opt-in',
-      parameters: {'choice': enabled ? 'enabled' : 'declined'},
-    ));
-  }
-
-  buildBody(BuildContext c, int i) {
-    final menuItem = visibleHomeMenuItems[i];
-    return InkWell(
-      onTap: () => _openHomeMenuItem(menuItem),
-      child: Container(
-        margin: EdgeInsets.all(6.0),
-        padding: EdgeInsets.only(
-          left: 2.0,
-        ),
-        constraints: BoxConstraints.expand(height: 150.0, width: 150.0),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(6.0),
-            boxShadow: [
-              BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.05),
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              )
-            ]),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            menuItem.buildIcon(
-              size: 48,
-              color: Theme.of(context).primaryColor,
-            ),
-            SizedBox(height: 8),
-            Text(
-              menuItem.displayLabel,
-              style: TextStyle(fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Shader l = LinearGradient(colors: <Color>[Colors.black, Colors.white])
-      .createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
-
   @override
   void dispose() async {
+    _scrollController.dispose();
+    _showCompactTitle.dispose();
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
@@ -811,11 +721,23 @@ class _MyHomePageState extends State<MyHomePage>
   void didChangeDependencies() {
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+    if (_hadithLanguage != null &&
+        _hadithLanguage != context.l10n.localeName) {
+      getHadith();
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      // A tap that reached Dart by neither of the plugin's callbacks (see
+      // handleNotificationThatOpenedApp). Not before start-up has handled
+      // the tap that launched it. Unawaited: playback's future only
+      // completes when the Azan ends.
+      if (_launchNotificationHandled) {
+        unawaited(handleNotificationThatOpenedApp());
+      }
+      unawaited(_takePendingWidgetUrl());
       _refreshLocationOnResume();
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden) {
@@ -827,5 +749,62 @@ class _MyHomePageState extends State<MyHomePage>
   void didPopNext() {
     syncWebRoutePath('/', replace: true);
     setState(() {});
+  }
+}
+
+/// The app's name over a frosted strip, once the header has scrolled out of
+/// view. Decorative: the date already headed the page.
+class _CompactTitleBar extends StatelessWidget {
+  const _CompactTitleBar({required this.visible, required this.topInset});
+
+  final ValueListenable<bool> visible;
+  final double topInset;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final solid =
+        !GlassSurface.blurEnabled || MediaQuery.highContrastOf(context);
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+    Widget bar = Container(
+      height: topInset + 44,
+      padding: EdgeInsets.only(top: topInset),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: solid ? colors.ground : colors.ground.withValues(alpha: 0.88),
+        border: Border(bottom: BorderSide(color: colors.line)),
+      ),
+      child: Text(context.l10n.appTitle,
+          style: ShiaText.cardTitle.copyWith(color: colors.text)),
+    );
+    if (!solid) {
+      bar = ClipRect(
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: bar,
+        ),
+      );
+    }
+
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: visible,
+        builder: (context, show, child) => IgnorePointer(
+          ignoring: !show,
+          child: AnimatedOpacity(
+            opacity: show ? 1 : 0,
+            duration: reduceMotion
+                ? Duration.zero
+                : const Duration(milliseconds: 150),
+            child: child,
+          ),
+        ),
+        child: ExcludeSemantics(child: bar),
+      ),
+    );
   }
 }

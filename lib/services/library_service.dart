@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -83,6 +84,13 @@ class LibraryService {
     await _loadRetiredSlugs();
     return _retiredSlugs?[bookSlug] ?? bookSlug;
   }
+
+  /// Makes [loadChapters] answer [chapters] for [bookSlug] without the
+  /// network, for tests.
+  @visibleForTesting
+  static void seedChaptersForTesting(
+          String bookSlug, List<UidTitleData> chapters) =>
+      _chapterCache[bookSlug] = chapters;
 
   static Future<List<UidTitleData>> loadChapters(String bookSlug) async {
     final cached = _chapterCache[bookSlug];

@@ -422,6 +422,40 @@ void main() {
           const VerseKey(1, 1));
     });
 
+    test('a khatm started part-way counts what came before as progress only',
+        () {
+      final state = RecitationTrackerState(
+        {
+          'a': _entry(
+            id: 'a',
+            label: 'Khatm',
+            recitedAt: DateTime.utc(2026, 1, 1),
+            surah: 2,
+            fromAyah: 10,
+            toAyah: 20,
+          ),
+        },
+        {'Khatm'},
+        {
+          'Khatm': RecitationTrackSettings(
+            startAt: const VerseKey(2, 10),
+            startSetAt: DateTime.utc(2025, 12, 31),
+            readBefore: const VerseKey(2, 10),
+          ),
+        },
+      );
+
+      // Al-Fatihah's 7 and al-Baqarah 1-9 marked, 10-20 read.
+      expect(state.distinctVersesRecitedFor('Khatm'), 7 + 9 + 11);
+      expect(state.juzCoverageFor('Khatm').first, greaterThan(0));
+      // The stats only see what was read.
+      expect(state.versesByLabel['Khatm'], 11);
+      expect(state.totalVersesRecited, 11);
+
+      final restored = RecitationTrackerState.fromJson(state.toJson());
+      expect(restored.settingsFor('Khatm').readBefore, const VerseKey(2, 10));
+    });
+
     test('track settings survive a JSON round trip', () {
       final state = RecitationTrackerState(
         const {},
@@ -611,6 +645,20 @@ void main() {
 
       expect(state.lastRecitedVerseFor('Family'), const VerseKey(77, 50));
       expect(state.lastRecitedVerseFor('Personal'), isNull);
+    });
+  });
+
+  group('the default track\'s name', () {
+    test('shows as My reading; other tracks keep their own name', () {
+      expect(recitationTrackName(unlabeledRecitationLabel), 'My reading');
+      expect(recitationTrackName('Family'), 'Family');
+    });
+
+    test('is taken by both of its names, in any case', () {
+      expect(isDefaultRecitationTrackName('My reading'), isTrue);
+      expect(isDefaultRecitationTrackName('  my READING '), isTrue);
+      expect(isDefaultRecitationTrackName('unlabeled'), isTrue);
+      expect(isDefaultRecitationTrackName('My reading list'), isFalse);
     });
   });
 }

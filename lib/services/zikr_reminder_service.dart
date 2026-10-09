@@ -220,6 +220,14 @@ class ZikrReminderService extends ChangeNotifier {
     await load();
     if (_reminders.isEmpty) return;
 
+    // As setUpNotifications does for azan: the one place every reminder
+    // passes through on its way to the OS, so none is scheduled for a
+    // notification it would silently drop. Neither OS re-prompts once
+    // permission is settled.
+    if (_reminders.any((r) => r.enabled && r.daysOfWeek.isNotEmpty)) {
+      await requestNotificationPermissions();
+    }
+
     await initializeNotificationTimeZone();
     await Future.wait(
       _reminders.map((reminder) => _scheduleReminder(plugin, reminder)),

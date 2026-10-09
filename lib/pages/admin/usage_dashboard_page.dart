@@ -277,6 +277,12 @@ const Set<String> _prayerAndWorshipFeatureKeys = {
   'prayer_sound_set',
   'rakaat_prayer_completed',
   'prayer_times_selection_changed',
+  // Choosing a city by name, and going back to the phone's location.
+  'city_chosen',
+  'device_location_chosen',
+  // Looking up another city's times, and the Home card's "Still in X?".
+  'city_times_viewed',
+  'city_nudge_answered',
   'qibla_target_changed',
   'qaza_updated',
   'tasbeeh_session',
@@ -290,8 +296,13 @@ const Set<String> _personalizationAndAccountFeatureKeys = {
   'favorite_added',
   'favorite_removed',
   'favorite_reordered',
+  // The old Dark mode switch, kept for its history; replaced by the
+  // three-way Theme setting.
   'dark_mode_toggled',
+  'theme_mode_changed',
+  'home_shortcuts_changed',
   'app_text_scale_changed',
+  'first_run_setup',
 };
 
 const Set<String> _feedbackAndRatingsFeatureKeys = {

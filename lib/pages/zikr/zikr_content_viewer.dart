@@ -8,12 +8,18 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
+import '../../data/quran_mahdi_verses.dart';
 import '../../utils/quran_index.dart';
+import '../../l10n/app_language.dart';
 import '../../services/zikr_translations.dart';
 import '../../utils/quran_indopak.dart';
+import '../../theme/shia_colors.dart';
+import '../../widgets/outline_icon.dart';
+import '../../widgets/reader_top_bar.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_reading_stats.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/responsive_content.dart' show MouseDragScroll;
 
 /// Where a reader is in the Quran, and whether they got there by reading.
 ///
@@ -47,6 +53,7 @@ class AyahActionRequest {
     required this.text,
     required this.lineIndex,
     this.aliNote,
+    this.mahdiNote,
   });
 
   /// Which verse was tapped, surah included - in a juz the surah is not the
@@ -64,6 +71,10 @@ class AyahActionRequest {
   /// the per-verse menu can say it: in paragraph mode there is no per-verse
   /// badge to long-press for it.
   final String? aliNote;
+
+  /// Likewise for a verse read as being about Imam al-Mahdi (atfs) - see
+  /// [mahdiRelatedNoteFor].
+  final String? mahdiNote;
 }
 
 class ZikrContentScrollPosition {
@@ -120,18 +131,20 @@ const double _lineEdgeTolerance = 0.5;
 /// consecutive Arabic verses can flow together as one prose paragraph instead
 /// of stacking as separate centered lines with a gap between each.
 bool get isArabicOnlyReadingView =>
-    !showTransliteration && !showTranslation && showArabicAsParagraph;
+    !transliterationShown && !showTranslation && showArabicAsParagraph;
 
 /// Whether line [index] draws anything at all under the current reading
 /// settings. A transliteration or translation line the reader has switched
 /// off renders as an empty, zero-height box, so the bookmark tint has to skip
 /// it - tinting it would paint a stray sliver of border and padding for a line
-/// that is not there.
+/// that is not there. So does English a reader in another language is not
+/// shown ([ParsedZikrContent.isHiddenEnglish]).
 bool isZikrLineVisible(ParsedZikrContent content, int index) {
   if (index < 0 || index >= content.lines.length) return false;
   // Mirrors the renderer's own order: Arabic wins over either English set.
   if (content.arabicCodes.contains(index)) return true;
-  if (content.transliCodes.contains(index)) return showTransliteration;
+  if (content.isHiddenEnglish(index)) return false;
+  if (content.transliCodes.contains(index)) return transliterationShown;
   if (content.translaCodes.contains(index)) return showTranslation;
   return true;
 }
@@ -227,10 +240,13 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
   final total = content.lines.length;
   final items = <_ReadingListItem>[];
 
+  // A hidden English line is left out of a run - it stays an item of its
+  // own, which draws nothing.
   bool isStandalone(int i) =>
       !content.arabicCodes.contains(i) &&
       !content.transliCodes.contains(i) &&
-      !content.translaCodes.contains(i);
+      !content.translaCodes.contains(i) &&
+      !content.isHiddenEnglish(i);
 
   var i = 0;
   while (i < total) {
@@ -254,9 +270,11 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
           verses.add(j);
           j++;
         } else if (content.transliCodes.contains(j) ||
-            content.translaCodes.contains(j)) {
-          // Switched off in this view - draws nothing, but does not break
-          // the paragraph the Arabic verses around it are flowing into.
+            content.translaCodes.contains(j) ||
+            content.isHiddenEnglish(j)) {
+          // Switched off in this view, or English the reader is not shown -
+          // draws nothing, but does not break the paragraph the Arabic
+          // verses around it are flowing into.
           j++;
         } else {
           break;
@@ -533,8 +551,14 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// tabs meanwhile. Null keeps the strip pinned.
   final ValueListenable<bool>? chromeVisible;
 
+  /// Drawn along the bottom of the part chips - the reader's progress line,
+  /// which runs under the chips rather than under the top bar when there
+  /// are parts.
+  final Widget? tabStripFooter;
+
   /// The reader's translation of this zikr, laid over its English lines.
-  /// Null in English, or when nothing of this zikr has been translated.
+  /// Null in English, or when nothing of this zikr has been translated - in
+  /// which case a reader in another language sees the Arabic alone.
   final ZikrDocumentTranslation? translation;
 
   const ZikrContentViewerWidget({
@@ -563,6 +587,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.tabStripTop = 0,
     this.collapsedTopInset = 0,
     this.chromeVisible,
+    this.tabStripFooter,
     this.translation,
   }) : super(key: key);
 
@@ -1655,8 +1680,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colorScheme.primary.withValues(alpha: 0.08),
-        border: Border(
-          left: BorderSide(
+        border: BorderDirectional(
+          start: BorderSide(
             color: colorScheme.primary.withValues(alpha: 0.5),
             width: 3,
           ),
@@ -1880,14 +1905,29 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   }
 
   String _getTabHeader(String content, int index) {
-    final lines = content
-        .split('\n')
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty);
-    if (lines.isNotEmpty) {
-      return widget.translation?.lineFor(lines.first) ?? lines.first;
+    final translations = ZikrTranslations.instance;
+    return ZikrContentParser.localizedTabHeader(
+          content,
+          index,
+          offsets: translations.isEnglish ? const [] : _segmentOffsets,
+          language: translations.language,
+          translation: widget.translation,
+        ) ??
+        context.l10n.zikrTabNumber(index + 1);
+  }
+
+  List<String>? _segmentOffsetsTabs;
+  List<int> _segmentOffsetsCache = const [];
+
+  /// [ZikrContentParser.segmentOffsets] of the tabs, worked out again only
+  /// when their text changes. Needed only outside English.
+  List<int> get _segmentOffsets {
+    final tabs = widget.tabContents;
+    if (_segmentOffsetsTabs == null || !listEquals(_segmentOffsetsTabs, tabs)) {
+      _segmentOffsetsTabs = List.of(tabs);
+      _segmentOffsetsCache = ZikrContentParser.segmentOffsets(tabs);
     }
-    return context.l10n.zikrTabNumber(index + 1);
+    return _segmentOffsetsCache;
   }
 
   /// The parsed content and ayah index for a tab, reparsed only when the tab's
@@ -1897,18 +1937,29 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     String rawContent, {
     required bool hideHeaderLine,
   }) {
+    final language = ZikrTranslations.instance.language;
     final cached = _contentCaches[tabIndex];
     if (cached != null &&
         cached.rawContent == rawContent &&
         cached.hideHeaderLine == hideHeaderLine &&
+        cached.languageCode == language.code &&
         identical(cached.translation, widget.translation)) {
       return cached;
     }
 
-    final parsed = ZikrContentParser.parseContent(
+    final english = ZikrContentParser.parseContent(
       rawContent,
       hideHeaderLine: hideHeaderLine,
-    ).translatedWith(widget.translation);
+    );
+    final parsed = language.code == englishLanguageCode
+        ? english
+        : english.localizedTo(
+            language,
+            widget.translation,
+            firstSegment: tabIndex < _segmentOffsets.length
+                ? _segmentOffsets[tabIndex] + (hideHeaderLine ? 1 : 0)
+                : 0,
+          );
 
     // Only the first tab is Quran text. Surah documents are single-tab today,
     // but guarding on the index means a tabbed one would degrade to line
@@ -1924,6 +1975,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     final cache = _TabContentCache(
       rawContent: rawContent,
       hideHeaderLine: hideHeaderLine,
+      languageCode: language.code,
       translation: widget.translation,
       parsed: parsed,
       ayahIndex: ayahIndex != null && !ayahIndex.isEmpty ? ayahIndex : null,
@@ -2050,8 +2102,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       fontSize: arabicFontSize,
       letterSpacing: 0,
     );
-    final transliStyle =
-        TextStyle(fontWeight: FontWeight.bold, fontSize: englishFontSize);
+    final transliStyle = TextStyle(
+      fontWeight: FontWeight.w600,
+      fontSize: englishFontSize,
+      letterSpacing: 0.2,
+    );
 
     final leadingItems = showMeritsButton ? 1 : 0;
     final footer =
@@ -2150,21 +2205,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
                     // Show merits button at the top of first tab
                     if (showMeritsButton && index == 0) {
                       return Padding(
-                        padding: const EdgeInsets.only(
-                          left: 16.0,
-                          top: 12.0,
-                          right: 16.0,
-                          bottom: 12.0,
-                        ),
-                        child: InkWell(
-                          onTap: widget.onShowMerits,
-                          child: Text(
-                            context.l10n.zikrMerits,
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              fontSize: 14,
-                            ),
-                          ),
+                        padding: const EdgeInsets.only(top: 4, bottom: 8),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: _MeritsButton(onTap: widget.onShowMerits),
                         ),
                       );
                     }
@@ -2320,10 +2364,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         content,
         Divider(
           height: 20,
-          color: Theme.of(context)
-              .colorScheme
-              .outlineVariant
-              .withValues(alpha: 0.5),
+          color: ShiaColors.of(context).readerDivider,
         ),
       ],
     );
@@ -2356,8 +2397,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       );
     }
 
+    if (parsedContent.isHiddenEnglish(contentIndex)) return Container();
+
     if (parsedContent.transliCodes.contains(contentIndex)) {
-      return showTransliteration
+      return transliterationShown
           ? Text.rich(
               _buildTextSpanForLine(str.toUpperCase(), transliStyle),
               textAlign: TextAlign.center,
@@ -2376,7 +2419,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
               child: Text.rich(
                 _buildTextSpanForLine(
                   shown,
-                  TextStyle(fontSize: englishFontSize),
+                  TextStyle(
+                    fontSize: englishFontSize,
+                    color: ShiaColors.of(context).translation,
+                  ),
                 ),
                 textAlign: TextAlign.center,
                 textDirection: direction,
@@ -2512,6 +2558,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
       isBookmarked:
           bookmarkedRange != null && span.contains(bookmarkedRange.start),
       aliNote: verse == null ? null : aliRelatedNoteFor(verse),
+      mahdiNote: verse == null ? null : mahdiRelatedNoteFor(verse),
       onAction: verse == null || widget.onAyahAction == null
           ? null
           : () => _requestAyahAction(parsedContent, span),
@@ -2530,6 +2577,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         text: _ayahPlainText(parsedContent, span),
         lineIndex: span.start,
         aliNote: aliRelatedNoteFor(verse),
+        mahdiNote: mahdiRelatedNoteFor(verse),
       ),
     );
   }
@@ -2644,7 +2692,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
           ruled,
           Divider(
             height: 20,
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            color: ShiaColors.of(context).readerDivider,
           ),
         ],
       ),
@@ -2668,85 +2716,101 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     return parts.join('\n');
   }
 
-  /// The row of tab chips. Opaque, since the reading text scrolls on
-  /// underneath it.
+  /// The row of part chips under the reader's top bar, on the same frosted
+  /// ground, since the reading text scrolls on underneath it. The open part
+  /// is filled with the accent.
   Widget _buildTabStrip(BuildContext context) {
-    return ColoredBox(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 4),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: constraints.maxWidth,
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(
-                      widget.tabContents.length,
-                      (index) {
-                        final isSelected = index == _selectedTabIndex;
-                        return Padding(
-                          key: _tabHeaderKeys[index],
-                          padding: EdgeInsets.only(
-                            right:
-                                index == widget.tabContents.length - 1 ? 0 : 12,
-                          ),
-                          child: Material(
-                            color: isSelected
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest
-                                    .withValues(alpha: 0.45),
-                            borderRadius: BorderRadius.circular(18),
-                            elevation: isSelected ? 2 : 0,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(18),
-                              onTap: () => _animateToTab(index),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 10,
+    final colors = ShiaColors.of(context);
+    final footer = widget.tabStripFooter;
+    return ReaderGlassBand(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2, bottom: 10),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return MouseDragScroll(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth - 24,
+                      ),
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(
+                            widget.tabContents.length,
+                            (index) {
+                              final isSelected = index == _selectedTabIndex;
+                              final label = _getTabHeader(
+                                widget.tabContents[index],
+                                index,
+                              );
+                              return Padding(
+                                key: _tabHeaderKeys[index],
+                                padding: EdgeInsetsDirectional.only(
+                                  end: index == widget.tabContents.length - 1
+                                      ? 0
+                                      : 8,
                                 ),
-                                child: Text(
-                                  _getTabHeader(
-                                    widget.tabContents[index],
-                                    index,
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: isSelected
-                                        ? FontWeight.w600
-                                        : FontWeight.w500,
+                                child: Semantics(
+                                  button: true,
+                                  selected: isSelected,
+                                  child: Material(
                                     color: isSelected
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .onSecondaryContainer
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withValues(alpha: 0.78),
+                                        ? colors.accent
+                                        : colors.surface,
+                                    shape: StadiumBorder(
+                                      side: isSelected
+                                          ? BorderSide.none
+                                          : BorderSide(color: colors.line),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: InkWell(
+                                      onTap: () => _animateToTab(index),
+                                      child: ConstrainedBox(
+                                        constraints:
+                                            const BoxConstraints(minHeight: 36),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 8,
+                                          ),
+                                          child: Text(
+                                            label,
+                                            style: ShiaText.caption.copyWith(
+                                              fontSize: 14,
+                                              height: 20 / 14,
+                                              fontWeight: isSelected
+                                                  ? FontWeight.w600
+                                                  : FontWeight.w500,
+                                              color: isSelected
+                                                  ? colors.onAccent
+                                                  : colors.text,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
+                              );
+                            },
                           ),
-                        );
-                      },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
+          ),
+          if (footer != null) footer,
+        ],
       ),
     );
   }
@@ -2827,6 +2891,61 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
   }
 }
 
+/// The "Merits" pill at the top of a zikr's first part: an outlined capsule
+/// with an ⓘ, opening the merits sheet. 36 px tall, inside a 44 px target.
+class _MeritsButton extends StatelessWidget {
+  const _MeritsButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return SelectionContainer.disabled(
+      child: Semantics(
+        button: true,
+        child: SizedBox(
+          height: 44,
+          child: Center(
+            widthFactor: 1,
+            child: Material(
+              color: colors.surface,
+              shape: StadiumBorder(side: BorderSide(color: colors.line)),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: onTap,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: SizedBox(
+                    height: 36,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        OutlineIcon(OutlineGlyph.info,
+                            size: 16, color: colors.accent, strokeWidth: 2),
+                        const SizedBox(width: 6),
+                        Text(
+                          context.l10n.zikrMerits,
+                          style: ShiaText.caption.copyWith(
+                            fontSize: 14,
+                            height: 1,
+                            fontWeight: FontWeight.w600,
+                            color: colors.accent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Reports its child's size after every layout that changes it.
 class _MeasureSize extends SingleChildRenderObjectWidget {
   const _MeasureSize({required this.onChange, required Widget child})
@@ -2866,6 +2985,7 @@ class _TabContentCache {
   _TabContentCache({
     required this.rawContent,
     required this.hideHeaderLine,
+    required this.languageCode,
     required this.translation,
     required this.parsed,
     required this.ayahIndex,
@@ -2873,6 +2993,7 @@ class _TabContentCache {
 
   final String rawContent;
   final bool hideHeaderLine;
+  final String languageCode;
   final ZikrDocumentTranslation? translation;
   final ParsedZikrContent parsed;
 
@@ -2919,7 +3040,7 @@ class _SurahHeading extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            '${surah.number}. ${surah.englishName}',
+            '${surah.number}. ${surah.displayName}',
             textAlign: TextAlign.center,
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.primary,
@@ -2961,6 +3082,7 @@ class _AyahBlock extends StatelessWidget {
     required this.isSaved,
     required this.isBookmarked,
     required this.aliNote,
+    required this.mahdiNote,
     required this.onAction,
     required this.children,
   });
@@ -2985,6 +3107,10 @@ class _AyahBlock extends StatelessWidget {
   /// for every other verse, which is most of them, so the watermark stays rare
   /// enough to mean something when it appears.
   final String? aliNote;
+
+  /// The same for a verse read as being about Imam al-Mahdi (atfs), marked
+  /// by his name instead. A verse in both lists shows the Imam Ali mark.
+  final String? mahdiNote;
 
   final VoidCallback? onAction;
   final List<Widget> children;
@@ -3022,17 +3148,22 @@ class _AyahBlock extends StatelessWidget {
           ...children,
           Divider(
             height: 20,
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            color: ShiaColors.of(context).readerDivider,
           ),
         ],
       ),
     );
 
-    final marked = aliNote == null
+    final watermark = aliNote != null
+        ? _VerseWatermark.ali(note: aliNote!)
+        : mahdiNote != null
+            ? _VerseWatermark.mahdi(note: mahdiNote!)
+            : null;
+    final marked = watermark == null
         ? block
         : Stack(
             children: [
-              Positioned.fill(child: _AliWatermark(note: aliNote!)),
+              Positioned.fill(child: watermark),
               block,
             ],
           );
@@ -3041,8 +3172,8 @@ class _AyahBlock extends StatelessWidget {
         ? Container(
             decoration: BoxDecoration(
               color: colorScheme.primaryContainer.withValues(alpha: 0.4),
-              border: Border(
-                left: BorderSide(color: colorScheme.primary, width: 3),
+              border: BorderDirectional(
+                start: BorderSide(color: colorScheme.primary, width: 3),
               ),
             ),
             child: marked,
@@ -3060,8 +3191,9 @@ class _AyahBlock extends StatelessWidget {
 }
 
 /// The mark behind a verse Shia tafsir cites as being about Imam Ali (as) -
-/// see [quranAliVerses]. The "علي" from the app icon, drawn faintly behind the
-/// verse like a watermark, rather than a badge in a row of its own: the name
+/// see [quranAliVerses] - or one the hadith read as being about Imam
+/// al-Mahdi (atfs) - see [quranMahdiVerses]. The "علي" from the app icon, or
+/// the teardrop "المهدي", drawn faintly behind the verse like a watermark, rather than a badge in a row of its own: the name
 /// itself is the point, and behind the text it marks the verse without
 /// pushing it down or competing with it.
 ///
@@ -3072,12 +3204,23 @@ class _AyahBlock extends StatelessWidget {
 /// Gold, like the icon, in both reading modes rather than the theme's primary
 /// color: the icon's own pale gold on the dark page, and a deeper gold on the
 /// light one, where the pale gold would all but vanish.
-class _AliWatermark extends StatelessWidget {
-  const _AliWatermark({required this.note});
+class _VerseWatermark extends StatelessWidget {
+  const _VerseWatermark.ali({required this.note})
+      : asset = aliAsset,
+        height = 170;
+
+  /// A little shorter than the Ali mark: the teardrop is taller for its
+  /// width, and most of these verses are two lines, so less of it is cut.
+  const _VerseWatermark.mahdi({required this.note})
+      : asset = mahdiAsset,
+        height = 165;
 
   final String note;
+  final String asset;
+  final double height;
 
-  static const asset = 'assets/images/ali_watermark.png';
+  static const aliAsset = 'assets/images/ali_watermark.png';
+  static const mahdiAsset = 'assets/images/mahdi_watermark.png';
 
   static const _iconGold = Color(0xFFF3E6A0);
   static const _deepGold = Color(0xFFB08A2E);
@@ -3098,7 +3241,7 @@ class _AliWatermark extends StatelessWidget {
           child: Center(
             child: Image.asset(
               asset,
-              height: 170,
+              height: height,
               color: color,
               colorBlendMode: BlendMode.srcIn,
               filterQuality: FilterQuality.high,
@@ -3142,8 +3285,8 @@ class _BookmarkedLine extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.4),
-        border: Border(
-          left: BorderSide(color: colorScheme.primary, width: 3),
+        border: BorderDirectional(
+          start: BorderSide(color: colorScheme.primary, width: 3),
         ),
       ),
       child: Column(
@@ -3188,8 +3331,7 @@ class _RuledArabicParagraph extends StatelessWidget {
     // Same color and weight _withParagraphDivider already draws between
     // whole paragraphs, so a row rule and a paragraph divider read as the
     // one kind of mark instead of two different-looking ones.
-    final ruleColor =
-        Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5);
+    final ruleColor = ShiaColors.of(context).readerDivider;
     final textScaler = MediaQuery.textScalerOf(context);
 
     return LayoutBuilder(

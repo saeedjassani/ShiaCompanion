@@ -406,7 +406,7 @@ class _CandidateRow extends StatelessWidget {
     final theme = Theme.of(context);
     final info = surahInfoFor(match.verse.surah);
     final name =
-        info?.englishName ?? context.l10n.quranSurahNumber(match.verse.surah);
+        info?.displayName ?? context.l10n.quranSurahNumber(match.verse.surah);
 
     return ListTile(
       contentPadding: EdgeInsets.zero,

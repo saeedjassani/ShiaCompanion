@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../l10n/l10n.dart';
 import '../utils/quran_index.dart';
 
 /// The reserved label for reading that was not opened through a recitation
@@ -11,6 +12,25 @@ import '../utils/quran_index.dart';
 /// rather than user-created, so it can never be renamed or removed out from
 /// under the reader.
 const String unlabeledRecitationLabel = 'Unlabeled';
+
+/// [label] as a track is called on screen: [unlabeledRecitationLabel] is
+/// "My reading", every other label is its own name.
+///
+/// The stored key stays 'Unlabeled' - it is in every reader's history and
+/// sync - so this is the one place the two names meet.
+String recitationTrackName(String label, [AppLocalizations? l10n]) =>
+    label == unlabeledRecitationLabel
+        ? (l10n ?? L10n.current).quranMyReading
+        : label;
+
+/// Whether [name], as someone typed it, means the default track - its stored
+/// key or the name it is shown under, in any case. Such a name cannot be
+/// given to a track of its own: there would be two "My reading"s.
+bool isDefaultRecitationTrackName(String name, [AppLocalizations? l10n]) {
+  final typed = name.trim().toLowerCase();
+  return typed == unlabeledRecitationLabel.toLowerCase() ||
+      typed == (l10n ?? L10n.current).quranMyReading.toLowerCase();
+}
 
 /// Total ayahs in the Quran, the denominator for "% of the Quran completed".
 final int quranTotalAyahCount =
@@ -116,12 +136,18 @@ class RecitationEntry {
 /// only honoured over the track's own history while it is the newer of the
 /// two, which is what [startSetAt] is for: reading on from there moves the
 /// track along as usual, and setting it again moves the track again.
+///
+/// [readBefore] is for a khatm begun part-way through that was already read
+/// up to there: every verse before it counts towards the track's progress -
+/// its percentage and juz map - without ever being logged as recited, so the
+/// stats (verses, sessions, streaks) only hold what was read in the app.
 @immutable
 class RecitationTrackSettings {
   const RecitationTrackSettings({
     this.readByJuz = false,
     this.startAt,
     this.startSetAt,
+    this.readBefore,
   });
 
   static RecitationTrackSettings? fromJson(dynamic value) {
@@ -138,10 +164,23 @@ class RecitationTrackSettings {
         ayah <= surahAyahCounts[surah - 1] &&
         setAt != null;
 
+    final readBeforeSurah =
+        int.tryParse(value['readBeforeSurah']?.toString() ?? '');
+    final readBeforeAyah =
+        int.tryParse(value['readBeforeAyah']?.toString() ?? '');
+    final isValidReadBefore = readBeforeSurah != null &&
+        readBeforeSurah >= 1 &&
+        readBeforeSurah <= surahAyahCounts.length &&
+        readBeforeAyah != null &&
+        readBeforeAyah >= 1 &&
+        readBeforeAyah <= surahAyahCounts[readBeforeSurah - 1];
+
     return RecitationTrackSettings(
       readByJuz: value['readByJuz'] == true,
       startAt: isValidStart ? VerseKey(surah, ayah) : null,
       startSetAt: isValidStart ? setAt : null,
+      readBefore:
+          isValidReadBefore ? VerseKey(readBeforeSurah, readBeforeAyah) : null,
     );
   }
 
@@ -151,12 +190,31 @@ class RecitationTrackSettings {
   final VerseKey? startAt;
   final DateTime? startSetAt;
 
+  /// Always carries an ayah. Exclusive: this verse itself is still to read.
+  final VerseKey? readBefore;
+
+  /// Merged ayah ranges, by surah, that [readBefore] marks as read.
+  Map<int, (int, int)> get readBeforeRanges {
+    final before = readBefore;
+    if (before == null) return const {};
+    final ayah = before.ayah ?? 1;
+    return {
+      for (var surah = 1; surah < before.surah; surah++)
+        surah: (1, surahAyahCounts[surah - 1]),
+      if (ayah > 1) before.surah: (1, ayah - 1),
+    };
+  }
+
   Map<String, Object> toJson() => {
         'readByJuz': readByJuz,
         if (startAt != null && startSetAt != null) ...{
           'startSurah': startAt!.surah,
           'startAyah': startAt!.ayah ?? 1,
           'startSetAt': startSetAt!.toUtc().toIso8601String(),
+        },
+        if (readBefore != null) ...{
+          'readBeforeSurah': readBefore!.surah,
+          'readBeforeAyah': readBefore!.ayah ?? 1,
         },
       };
 
@@ -165,10 +223,11 @@ class RecitationTrackSettings {
       other is RecitationTrackSettings &&
       other.readByJuz == readByJuz &&
       other.startAt == startAt &&
-      other.startSetAt == startSetAt;
+      other.startSetAt == startSetAt &&
+      other.readBefore == readBefore;
 
   @override
-  int get hashCode => Object.hash(readByJuz, startAt, startSetAt);
+  int get hashCode => Object.hash(readByJuz, startAt, startSetAt, readBefore);
 }
 
 /// Where a track's resume card opens: a verse, and whether in its juz.
@@ -483,11 +542,20 @@ class RecitationTrackerState {
   /// Merged, non-overlapping ayah ranges ever recited under [label], by
   /// surah — the union of every session's range, so re-reading the same
   /// verses repeatedly does not inflate how much of the Quran is "done".
+  ///
+  /// Includes what the track was set up as already having read
+  /// ([RecitationTrackSettings.readBefore]): this is its progress, not a log.
   Map<int, List<(int, int)>> _mergedRangesForLabel(String label) {
     final bySurah = <int, List<(int, int)>>{};
     for (final entry in entries.values) {
       if (entry.label != label) continue;
       (bySurah[entry.surah] ??= []).add((entry.fromAyah, entry.toAyah));
+    }
+    if (label != unlabeledRecitationLabel) {
+      final readBefore = trackSettings[label]?.readBeforeRanges ?? const {};
+      for (final range in readBefore.entries) {
+        (bySurah[range.key] ??= []).add(range.value);
+      }
     }
 
     final merged = <int, List<(int, int)>>{};

@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../constants.dart';
 import '../l10n/app_language.dart';
 
 /// Where a language's zikr translations live: `<root>/<code>/index.json` for
-/// the titles and the lines shared across the corpus, and
-/// `<root>/<code>/<uid>.json` for each translated zikr. See
-/// docs/TRANSLATIONS.md for the format.
+/// the titles and audio labels, and `<root>/<code>/<uid>.json` for each
+/// translated zikr. See docs/TRANSLATIONS.md for the format.
 const String zikrTranslationsRoot = 'assets/zikr_i18n';
 
 String zikrTranslationIndexPath(String languageCode) =>
@@ -17,59 +17,73 @@ String zikrTranslationIndexPath(String languageCode) =>
 String zikrTranslationDocumentPath(String languageCode, String uid) =>
     '$zikrTranslationsRoot/$languageCode/$uid.json';
 
-/// The translation of one zikr's English into another language.
+/// The translation of one zikr into another language.
 ///
-/// Lines are matched by their English text, not by position: the corpus is
-/// still being edited (restored zikrs, Arabic proofreading), and an inserted
-/// verse would shift every positional translation after it onto the wrong
-/// line. Matched by text, an English line that changes simply shows in
-/// English until its translation is updated - see
-/// scripts/zikr_i18n/zikr_i18n.py, which reports those.
+/// A zikr is read as a run of numbered *segments* - see
+/// [ParsedZikrContent.segments]: each Arabic verse is one, each line that
+/// stands on its own (an instruction, a heading, a citation) is one, and so
+/// is each tab's label. They are numbered 0, 1, 2... through the whole zikr,
+/// tab after tab, and a translation is keyed by that number.
+///
+/// A verse's translation translates the Arabic, so it is keyed to the verse
+/// and not to the English line it replaces: fixing the English never
+/// orphans it. The numbering is pinned for every translated zikr in
+/// scripts/zikr_i18n/segment_anchors.json, and test/zikr_translations_test.dart
+/// fails when a corpus edit shifts it - `zikr_i18n.py rebase` renumbers the
+/// translations to follow.
 @immutable
 class ZikrDocumentTranslation {
   const ZikrDocumentTranslation({
     required this.language,
-    this.lines = const {},
-    this.sharedLines = const {},
+    this.segments = const {},
     this.merits,
   });
 
   final AppLanguage language;
 
-  /// English line (trimmed, exactly as in the zikr's `data` or `tabs`) ->
-  /// its translation, for this zikr alone.
-  final Map<String, String> lines;
-
-  /// Lines translated once for the whole corpus - the Bismillah, the salawat -
-  /// consulted when [lines] has no entry of its own.
-  final Map<String, String> sharedLines;
+  /// Segment number -> its translation.
+  final Map<int, String> segments;
 
   /// The whole merits text, translated as one piece of prose.
   final String? merits;
 
-  /// The translation of [englishLine], or null to keep the English.
-  String? lineFor(String englishLine) {
-    final key = englishLine.trim();
-    if (key.isEmpty) return null;
-    final translated = lines[key] ?? sharedLines[key];
-    if (translated == null || translated.trim().isEmpty) return null;
-    return translated.trim();
+  /// The translation of segment [number], or null when it has none.
+  String? segment(int number) {
+    final translated = segments[number]?.trim();
+    return translated == null || translated.isEmpty ? null : translated;
   }
 
   bool get isEmpty =>
-      lines.isEmpty &&
-      sharedLines.isEmpty &&
-      (merits == null || merits!.trim().isEmpty);
+      segments.isEmpty && (merits == null || merits!.trim().isEmpty);
+
+  factory ZikrDocumentTranslation.fromJson(
+    AppLanguage language,
+    Map<String, dynamic> json,
+  ) {
+    final segments = <int, String>{};
+    _stringMap(json['segments']).forEach((key, value) {
+      final number = int.tryParse(key);
+      if (number != null && number >= 0) segments[number] = value;
+    });
+    final rawMerits = json['merits'];
+    return ZikrDocumentTranslation(
+      language: language,
+      segments: segments,
+      merits:
+          rawMerits is String && rawMerits.trim().isNotEmpty ? rawMerits : null,
+    );
+  }
 }
 
-/// One language's corpus-wide translation data: zikr titles and the lines
-/// many zikrs share.
+/// One language's corpus-wide translation data: zikr titles, and the labels
+/// and reciters of the recordings in assets/zikr_audio.json.
 @immutable
 class ZikrTranslationIndex {
   const ZikrTranslationIndex({
     required this.language,
     this.titles = const {},
-    this.sharedLines = const {},
+    this.audioLabels = const {},
+    this.reciters = const {},
   });
 
   final AppLanguage language;
@@ -79,16 +93,23 @@ class ZikrTranslationIndex {
   /// differs from its canonical's.
   final Map<String, String> titles;
 
-  final Map<String, String> sharedLines;
+  /// A recording's `file` in assets/zikr_audio.json -> its translated label.
+  final Map<String, String> audioLabels;
+
+  /// A reciter's name as assets/zikr_audio.json spells it -> that name in
+  /// this language's script.
+  final Map<String, String> reciters;
 
   factory ZikrTranslationIndex.fromJson(
     AppLanguage language,
     Map<String, dynamic> json,
   ) {
+    final audio = json['audio'];
     return ZikrTranslationIndex(
       language: language,
       titles: _stringMap(json['titles']),
-      sharedLines: _stringMap(json['lines']),
+      audioLabels: audio is Map ? _stringMap(audio['labels']) : const {},
+      reciters: audio is Map ? _stringMap(audio['reciters']) : const {},
     );
   }
 }
@@ -145,6 +166,10 @@ class ZikrTranslations extends ChangeNotifier {
 
   /// Switches to [code], loading its index. A language with no translations
   /// shipped (or an unknown code) leaves the reader in English.
+  ///
+  /// In any other language the reader sees no English at all: a zikr shows
+  /// its Arabic and whatever of it has been translated, and the English of
+  /// everything else is hidden rather than shown in its place.
   Future<void> setLanguage(String code, AssetBundle bundle) async {
     final language = appLanguageFor(code) ?? englishLanguage;
     if (language.code == _language.code && (_index != null || isEnglish)) {
@@ -159,6 +184,10 @@ class ZikrTranslations extends ChangeNotifier {
       // Another switch may have landed while this one was loading.
       if (_language.code != language.code) return;
       _index = index;
+      // A language with nothing shipped is not one zikrs can be read in:
+      // reading in it would hide all the English and leave nothing in its
+      // place.
+      if (index == null) _language = englishLanguage;
     }
     notifyListeners();
   }
@@ -197,7 +226,7 @@ class ZikrTranslations extends ChangeNotifier {
 
   /// The translation of zikr [uid] (the uid whose content file is read, i.e.
   /// an alias's target), or null when the reader is in English or nothing of
-  /// this zikr has been translated - not even a line the corpus shares.
+  /// this zikr has been translated.
   Future<ZikrDocumentTranslation?> documentFor(
     String uid,
     AssetBundle bundle,
@@ -212,34 +241,41 @@ class ZikrTranslations extends ChangeNotifier {
     String uid,
     AssetBundle bundle,
   ) async {
-    var lines = const <String, String>{};
-    String? merits;
     final path = zikrTranslationDocumentPath(index.language.code, uid);
     try {
-      // No file for this zikr means it is untranslated, apart from whatever
-      // shared lines it happens to contain.
-      if ((await _bundledTranslations(bundle)).contains(path)) {
-        final decoded = json.decode(await bundle.loadString(path));
-        if (decoded is Map) {
-          lines = _stringMap(decoded['lines']);
-          final rawMerits = decoded['merits'];
-          if (rawMerits is String && rawMerits.trim().isNotEmpty) {
-            merits = rawMerits;
-          }
-        }
-      }
+      // No file for this zikr means it is untranslated.
+      if (!(await _bundledTranslations(bundle)).contains(path)) return null;
+      final decoded = json.decode(await bundle.loadString(path));
+      if (decoded is! Map) return null;
+      final translation = ZikrDocumentTranslation.fromJson(
+        index.language,
+        Map<String, dynamic>.from(decoded),
+      );
+      return translation.isEmpty ? null : translation;
     } catch (error) {
       debugPrint('Unable to load ${index.language.code} translation of '
           '$uid: $error');
+      return null;
     }
+  }
 
-    final translation = ZikrDocumentTranslation(
-      language: index.language,
-      lines: lines,
-      sharedLines: index.sharedLines,
-      merits: merits,
-    );
-    return translation.isEmpty ? null : translation;
+  /// The label of recording [file] as the reader is shown it: in English,
+  /// [englishLabel]; in another language, its translation, or null while it
+  /// has none - the caller then names the recording some other way (the
+  /// zikr's title, "Recording 2"), never in English.
+  String? audioLabelFor(String file, String? englishLabel) {
+    if (englishLabel == null || isEnglish) return englishLabel;
+    final label = _index?.audioLabels[file]?.trim();
+    return label == null || label.isEmpty ? null : label;
+  }
+
+  /// Reciter [englishName] as the reader is shown it: in English, as is; in
+  /// another language, written in that language's script, or null while
+  /// nobody has.
+  String? reciterName(String englishName) {
+    if (isEnglish) return englishName;
+    final name = _index?.reciters[englishName]?.trim();
+    return name == null || name.isEmpty ? null : name;
   }
 
   @visibleForTesting
@@ -270,3 +306,10 @@ Map<String, String> _stringMap(Object? raw) {
 /// number, a deep link's slug), and must keep seeing them.
 String zikrDisplayTitle(String uid, String englishTitle) =>
     ZikrTranslations.instance.displayTitle(uid, englishTitle);
+
+/// Whether the reader shows transliteration lines: the reader's own setting,
+/// and only while zikrs are read in English. Transliteration is the Arabic
+/// spelled out in English letters - an aid for English readers that someone
+/// reading in Urdu, Persian, Arabic or Gujarati has no use for.
+bool get transliterationShown =>
+    showTransliteration && ZikrTranslations.instance.isEnglish;

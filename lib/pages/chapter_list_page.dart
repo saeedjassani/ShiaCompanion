@@ -3,15 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/services/library_progress_store.dart';
 import 'package:shia_companion/services/library_service.dart';
+import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
-import 'package:shia_companion/widgets/responsive_content.dart';
+import 'package:shia_companion/widgets/outline_icon.dart';
+import 'package:shia_companion/widgets/page_chrome.dart';
 
 import '../constants.dart';
 import '../services/analytics_service.dart';
 import 'chapter_page.dart';
 import '../l10n/l10n.dart';
+import '../widgets/app_toast.dart';
 
 class ChapterListPage extends StatefulWidget {
   final String slug;
@@ -32,12 +36,39 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
   PageRoute? _pageRoute;
   Uri? _previousBrowserUri;
 
+  /// Who wrote the book, from the library's list; null until that loads,
+  /// and for a book that names nobody.
+  String? _author;
+
+  /// Where the reader left this book, if they have started it.
+  LibraryProgress? _progress;
+
   @override
   void initState() {
     super.initState();
     trackScreen('Chapter List Page');
     _chaptersFuture = LibraryService.loadChapters(widget.slug);
     _checkSaved();
+    _loadProgress();
+    unawaited(_loadAuthor());
+  }
+
+  void _loadProgress() {
+    _progress = LibraryProgressStore.instance
+        .readAll()
+        .where((progress) => progress.bookSlug == widget.slug)
+        .firstOrNull;
+  }
+
+  Future<void> _loadAuthor() async {
+    try {
+      final books = await LibraryService.loadBooks();
+      final author =
+          books.where((book) => book.uid == widget.slug).firstOrNull?.author;
+      if (mounted && author != null) setState(() => _author = author);
+    } catch (_) {
+      // The author is a nicety; the chapters are what the page is for.
+    }
   }
 
   @override
@@ -141,9 +172,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
           parameters: {'book_uid': widget.slug},
         ));
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.libraryOfflineRemoved)),
-          );
+          showToast(context.l10n.libraryOfflineRemoved);
         }
       } else {
         await LibraryService.saveBookForOffline(widget.slug, widget.title);
@@ -153,27 +182,26 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
           parameters: {'book_uid': widget.slug},
         ));
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(context.l10n.librarySavedForOffline(widget.title))),
-          );
+          showToast(context.l10n.librarySavedForOffline(widget.title));
         }
       }
       await _checkSaved();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.librarySaveFailedShort('$e'))),
-        );
+        showToast(context.l10n.librarySaveFailedShort('$e'));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
   }
 
-  void _openChapter(List<UidTitleData> chapters, UidTitleData chapter) {
-    final chapterIndex = chapters.indexOf(chapter);
-    Navigator.push(
+  Future<void> _openChapter(
+    List<UidTitleData> chapters,
+    int chapterIndex, {
+    int pageIndex = 0,
+  }) async {
+    final chapter = chapters[chapterIndex];
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ChapterPage(
@@ -183,133 +211,179 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
           chapters: chapters,
           chapterIndex: chapterIndex,
           bookSlug: widget.slug,
+          initialPageIndex: pageIndex,
         ),
       ),
     );
+    // Reading moves where the reader left off.
+    if (mounted) setState(_loadProgress);
+  }
+
+  /// The chapter [_progress] is in, found by its slug in case chapters were
+  /// added or reordered since; null when the reader has not started the
+  /// book, or the chapter is gone.
+  int? _currentChapter(List<UidTitleData> chapters) {
+    final progress = _progress;
+    if (progress == null) return null;
+    final index = progress.chapterIndex;
+    if (index >= 0 &&
+        index < chapters.length &&
+        chapters[index].uid == progress.chapterSlug) {
+      return index;
+    }
+    final found =
+        chapters.indexWhere((chapter) => chapter.uid == progress.chapterSlug);
+    return found < 0 ? null : found;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-            icon: _isSharing
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    // Primary would vanish against the brown app bar.
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Theme.of(context).appBarTheme.foregroundColor,
-                    ),
-                  )
-                : const Icon(Icons.share),
-            tooltip: context.l10n.libraryShareBook,
-            onPressed: _isSharing ? null : _shareBook,
-          ),
-          IconButton(
-            icon: _isSaving
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    // Primary would vanish against the brown app bar.
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Theme.of(context).appBarTheme.foregroundColor,
-                    ),
-                  )
-                : Icon(_isSaved ? Icons.download_done : Icons.download),
-            tooltip: _isSaved ? context.l10n.libraryRemoveOffline : context.l10n.librarySaveOffline,
-            onPressed: _toggleSave,
-          ),
-        ],
-      ),
-      body: FutureBuilder<List<UidTitleData>>(
-        future: _chaptersFuture,
-        builder: (context, snapshot) {
-          final chapters = snapshot.data ?? const <UidTitleData>[];
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context, maxWidth: widePageWidth);
 
-          return ResponsiveContent(
-            maxWidth: listContentWidth,
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            child: switch (snapshot.connectionState) {
-              ConnectionState.waiting => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              _ when snapshot.hasError => _ChapterMessage(
-                  icon: Icons.cloud_off,
-                  title: context.l10n.libraryChaptersUnavailable,
-                  message: context.l10n.audioDownloadCheckConnection,
-                  actionLabel: context.l10n.commonRetry,
-                  onAction: _retry,
-                ),
-              _ when chapters.isEmpty => _ChapterMessage(
-                  icon: Icons.menu_book,
-                  title: context.l10n.libraryNoChapters,
-                  message: context.l10n.libraryNoChaptersBody,
-                ),
-              _ => ListView.separated(
-                  padding: EdgeInsets.zero,
-                  itemBuilder: (context, index) {
-                    final chapter = chapters[index];
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 6,
+    return FutureBuilder<List<UidTitleData>>(
+      future: _chaptersFuture,
+      builder: (context, snapshot) {
+        final chapters = snapshot.data ?? const <UidTitleData>[];
+        final loaded = snapshot.connectionState != ConnectionState.waiting;
+        final current = _currentChapter(chapters);
+        final chapterCount =
+            chapters.isEmpty ? null : l10n.libraryChapterCount(chapters.length);
+        final author = _author;
+
+        final List<Widget> content;
+        if (!loaded) {
+          content = const [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(top: 48),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ),
+          ];
+        } else if (snapshot.hasError || chapters.isEmpty) {
+          content = [
+            SliverPadding(
+              padding: gutter,
+              sliver: SliverToBoxAdapter(
+                child: snapshot.hasError
+                    ? EmptyStateCard(
+                        glyph: OutlineGlyph.search,
+                        title: l10n.libraryChaptersUnavailable,
+                        body: l10n.audioDownloadCheckConnection,
+                        actionLabel: l10n.commonRetry,
+                        onAction: _retry,
+                      )
+                    : EmptyStateCard(
+                        glyph: OutlineGlyph.search,
+                        title: l10n.libraryNoChapters,
+                        body: l10n.libraryNoChaptersBody,
                       ),
-                      title: Text(chapter.title),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _openChapter(chapters, chapter),
-                    );
-                  },
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemCount: chapters.length,
+              ),
+            ),
+          ];
+        } else {
+          final progress = _progress;
+          content = [
+            SliverPadding(
+              padding: gutter.copyWith(bottom: 14),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    PageButton(
+                      filled: true,
+                      glyph: OutlineGlyph.play,
+                      label: current != null && progress != null
+                          ? l10n.libraryContinueAt(
+                              current + 1, progress.pageIndex + 1)
+                          : l10n.libraryStartReading,
+                      onPressed: () => current != null && progress != null
+                          ? _openChapter(chapters, current,
+                              pageIndex: progress.pageIndex)
+                          : _openChapter(chapters, 0),
+                    ),
+                    const SizedBox(height: 8),
+                    PageButton(
+                      glyph:
+                          _isSaved ? OutlineGlyph.trash : OutlineGlyph.download,
+                      label: _isSaved
+                          ? l10n.libraryRemoveOffline
+                          : l10n.librarySaveForOffline,
+                      busy: _isSaving,
+                      onPressed: _toggleSave,
+                    ),
+                  ],
                 ),
-            },
-          );
-        },
-      ),
-    );
-  }
-}
+              ),
+            ),
+            SliverPadding(
+              padding: gutter.copyWith(bottom: 8),
+              sliver:
+                  SliverToBoxAdapter(child: GroupLabel(l10n.libraryChapters)),
+            ),
+            SliverPadding(
+              padding: gutter,
+              sliver: SliverCardList(
+                itemCount: chapters.length,
+                itemBuilder: (context, index) {
+                  final reading = index == current && progress != null;
+                  final pageCount = progress == null || progress.pageCount <= 0
+                      ? 1
+                      : progress.pageCount;
+                  return CardListRow(
+                    first: index == 0,
+                    last: index == chapters.length - 1,
+                    leading: NumberWell(index + 1, selected: reading, size: 32),
+                    title: Text(chapters[index].title),
+                    titleStyle: ShiaText.body.copyWith(
+                        fontWeight:
+                            reading ? FontWeight.w600 : FontWeight.w400),
+                    subtitle: reading
+                        ? Text(
+                            l10n.libraryReadingAt(
+                                progress.pageIndex.clamp(0, pageCount - 1) + 1,
+                                pageCount),
+                            style: ShiaText.caption.copyWith(
+                                color: colors.accent,
+                                fontWeight: FontWeight.w600),
+                          )
+                        : null,
+                    trailing: Padding(
+                      padding:
+                          const EdgeInsetsDirectional.only(start: 8, end: 8),
+                      child: OutlineIcon(OutlineGlyph.chevronRight,
+                          size: 16, color: colors.chevron, strokeWidth: 2.4),
+                    ),
+                    onTap: reading
+                        ? () => _openChapter(chapters, index,
+                            pageIndex: progress.pageIndex)
+                        : () => _openChapter(chapters, index),
+                  );
+                },
+              ),
+            ),
+          ];
+        }
 
-class _ChapterMessage extends StatelessWidget {
-  const _ChapterMessage({
-    required this.icon,
-    required this.title,
-    required this.message,
-    this.actionLabel,
-    this.onAction,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 40),
-          const SizedBox(height: 12),
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 4),
-          Text(message, textAlign: TextAlign.center),
-          if (actionLabel != null && onAction != null) ...[
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: onAction,
-              child: Text(actionLabel!),
+        return LargeTitlePage(
+          maxWidth: widePageWidth,
+          title: widget.title,
+          subtitle: author != null && chapterCount != null
+              ? l10n.libraryAuthorAndChapters(author, chapterCount)
+              : author ?? chapterCount,
+          actions: [
+            RoundIconButton(
+              label: l10n.libraryShareBook,
+              icon: OutlineIcon(OutlineGlyph.share,
+                  size: 20, color: colors.accent),
+              onPressed: _isSharing ? null : _shareBook,
             ),
           ],
-        ],
-      ),
+          slivers: content,
+        );
+      },
     );
   }
 }

@@ -1,3 +1,5 @@
+import '../services/zikr_translations.dart';
+
 /// Where every zikr recording is hosted: the app's own Cloudflare R2 bucket.
 ///
 /// assets/zikr_audio.json names each track by its path inside the bucket, so
@@ -22,8 +24,27 @@ class ZikrAudioTrack {
   /// recording by, since it survives the bucket moving where [url] would not.
   String get file => Uri.decodeComponent(url.split('/').last);
 
-  /// The lock screen's second line: the reciter, or the app when unknown.
-  String get artist => reciter ?? 'Shia Companion';
+  /// The recording's path inside the bucket - its `file` in
+  /// assets/zikr_audio.json, which is what translations key its label by.
+  String get path => url.startsWith(zikrAudioBaseUrl)
+      ? Uri.decodeComponent(url.substring(zikrAudioBaseUrl.length))
+      : file;
+
+  /// [label] in the reader's zikr language - null where that language has
+  /// no translation of it yet. What every screen shows; [label] itself is
+  /// the English from assets/zikr_audio.json.
+  String? get displayLabel =>
+      ZikrTranslations.instance.audioLabelFor(path, label);
+
+  /// The lock screen's second line: the reciter, in the reader's zikr
+  /// language, or the app when unknown.
+  String get artist {
+    final name = reciter;
+    return (name == null
+            ? null
+            : ZikrTranslations.instance.reciterName(name)) ??
+        'Shia Companion';
+  }
 
   /// Parses one zikr's entry in assets/zikr_audio.json - a list of
   /// `{"file": ..., "label": ..., "reciter": ...}` - tolerating anything that is not the

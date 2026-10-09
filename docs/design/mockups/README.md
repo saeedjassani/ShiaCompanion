@@ -16,8 +16,10 @@ behaviour. They only render inside the canvas: `support.js` and the
 
 | File | Screen | Spec section |
 |---|---|---|
-| `R2-Home.dc.html`, `R2-Home-scrolled.dc.html`, `R2-Home-dark.dc.html` | Home (top, scrolled, dark) | Home |
-| `R2-Shortcuts-edit.dc.html` | Edit shortcuts sheet | Home → Shortcuts |
+| `R4-Home.dc.html` | Home (top): Hijri date as the title, times-only prayer card, Shortcuts without a heading | Home |
+| `R2-Home-scrolled.dc.html`, `R2-Home-dark.dc.html` | Home (scrolled, dark) | Home |
+| `R4-Shortcuts-edit.dc.html` | Edit shortcuts sheet, up to 11 (opened from All features) | Home → Shortcuts |
+| `R2-Home.dc.html`, `R2-Shortcuts-edit.dc.html` | Superseded by the `R4-` files above; kept for history | — |
 | `R2-All-features.dc.html` | All features grid | All features |
 | `R2-Quran.dc.html` | Quran tab | Quran |
 | `R2-Favorites.dc.html` | Favorites tab | Favorites |
@@ -36,6 +38,20 @@ behaviour. They only render inside the canvas: `support.js` and the
 | `Rakaat-A.dc.html`, `Rakaat-B.dc.html` | Rakaat counter and dim mode | Tools |
 | `Settings-A.dc.html`, `Settings-A-signedin.dc.html` | Settings signed out / in | Settings |
 | `Nudge-C.dc.html` | Back-up banner (shown on Favorites) | Back-up nudges |
+| `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing (keyboard up), with results (sources as sections, Library folded), with none; the field at the bottom is the only control | Navigation → Search |
+| `R3-List.dc.html`, `R3-List-group.dc.html` | A zikr list (Duas), and one with a group row (Ziyarats); the find field at the bottom | Lists |
+| `R3-Todays-recitations.dc.html` | Today's Recitations | Lists |
+| `R3-Azan.dc.html` | Azan (prayer notifications) | Azan |
+| `R3-Library.dc.html`, `R3-Library-book.dc.html` | Library, and one book's chapters | Library |
+| `R3-Qibla.dc.html` | Qibla | Tools |
+| `R3-Qaza.dc.html` | Qaza tracker | Tools |
+| `R3-Playlists.dc.html`, `R3-Playlist.dc.html` | Playlists, and one playlist playing | Playlists and downloads |
+| `R3-Downloads.dc.html` | Downloads | Playlists and downloads |
+| `R3-Flights.dc.html`, `R3-Flight-times.dc.html` | Prayer times in flight: saved flights, one flight | Tools |
+| `R3-My-stats.dc.html` | My Stats | My Stats |
+| `R3-Reminders.dc.html`, `R3-Reminder-form.dc.html` | Zikr reminders, and adding one | Zikr reminders |
+| `R3-Account.dc.html` | Account (from the signed-in card in Settings) | Settings |
+| `R5-Calendar.dc.html`, `T-Calendar-R5.dc.html`, `W-Calendar-R5.dc.html` | Calendar & Prayer Times on a phone, a tablet (820 × 1180) and the web (1440 × 900); interactive: tap a day | Calendar & Prayer Times |
 
 The round-1 files (everything not prefixed `R2-`, `T-` or `W-`) were drawn
 before the home and navigation were settled. Use them for their own screen
@@ -43,6 +59,48 @@ only: `Loc-A-card` and `Verse-A-search` still show the old bottom search
 field, a "Today" heading and the old grid around the part that matters, and
 `Nudge-C` shows Favorites as a plain page rather than the tab. The `R2-`
 files and the spec are authoritative for everything around them.
+
+The round-3 files (`R3-`) cover every remaining screen that was still in
+the old design, except Calendar & Prayer Times (see round 5 below). They are drawn in the
+round-2 shell (tokens, round Back button, card lists), sit on the canvas
+page **Round 3 · Remaining screens**, and are static: no file in this round
+has a behaviour script. The canvas also keeps `R3-Search-results-B`, search
+chips sitting on the field instead of sections, for comparison; it is not
+part of the agreed set. Two things in them stand in for app parts the
+canvas has no render of:
+
+- **Sunrise, Sunset and Midnight icons** are outline stand-ins. The app's
+  `PrayerGlyph` already paints all three; use it, as for the five prayers.
+- **The Qibla dial** is a flat drawing of today's `QiblaCompassDial` with
+  the round-3 colours. Keep the painter; only its colours and the words
+  around it change.
+
+The round-4 files (`R4-`, canvas page **Round 4 · Home feedback**) change
+the top of Home only: the greeting and the Gregorian date are gone, the
+Hijri day and month are the title with the year and city under it, the
+prayer card holds just the times (no divider before "next day"), the
+Shortcuts heading and its Edit are gone (edit from All features), and up to
+11 shortcuts grow the grid to a third row. Where `R2-Home-dark`, `T-Home`
+or `W-Home` still show the greeting, the date row or the "Shortcuts"
+heading, the round-4 files win. The canvas also keeps two comparisons that
+are not part of the agreed set: `R4-Home-B` (no title, app name on top) and
+`R4-Home-C-calendar-tab` (Calendar as a fourth tab).
+
+The round-5 files (canvas page **Round 5 · Calendar & Prayer Times**)
+replace the canvas's `R3-Calendar*` and `W-Calendar` drafts. They are
+interactive (press Play, tap a day): their script works out London's times
+for each day and reads the real `events.json`. Their tweaks `dateLayout`,
+`eventMark` and `compareToToday` are comparisons that were turned down,
+not options to build.
+
+Screens with no mockup on purpose, and what to follow instead:
+
+| Screen | Follow |
+|---|---|
+| Quran → Recent sessions, Settings → Scheduled notifications, About | Pushed-page chrome plus card lists, as in `R3-Downloads` |
+| Zikr picker (from a reminder's "What" row) | `R3-Search` scoped to zikr: the same bottom field, only the Duas & more section |
+| Delete account confirmation | A plain confirm dialog over `R3-Account` |
+| Admin pages (Usage, Mistake reports, Content requests), widget preview | Unchanged: admin and developer only |
 
 ## Images referenced as `/_blob/<id>`
 

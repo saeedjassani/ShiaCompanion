@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/pages/home/home_header.dart';
+import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
@@ -25,6 +27,9 @@ void main() {
     city = null;
     lastLocationFailure = null;
     service.resetForTest();
+    // No time-zone guess unless a test asks for one.
+    PrayerTimesState.timeZoneSource = () async => null;
+    PrayerTimesState.debugResetTimeZoneGuess();
     // Midnight, so every default-selection prayer is still ahead of "now" and
     // the card's "next 5" is deterministic regardless of when the suite runs.
     PrayerTimesState.debugNow = () => DateTime(2024, 6, 16);
@@ -32,6 +37,8 @@ void main() {
 
   tearDown(() {
     PrayerTimesState.debugNow = DateTime.now;
+    PrayerTimesState.timeZoneSource = () async => null;
+    PrayerTimesState.debugResetTimeZoneGuess();
   });
 
   Position _pos(double latitude, double longitude) => Position(
@@ -47,9 +54,18 @@ void main() {
         speedAccuracy: 1,
       );
 
+  /// The top of Home: the header, which holds the city button, over the
+  /// card.
   Future<void> pumpCard(WidgetTester tester) {
     return tester.pumpWidget(MaterialApp(
-      home: Scaffold(body: HomePrayerTimesCard()),
+      home: Scaffold(
+        body: Column(
+          children: [
+            HomeHeader(onOpenSettings: () {}),
+            HomePrayerTimesCard(),
+          ],
+        ),
+      ),
     ));
   }
 
@@ -91,7 +107,7 @@ void main() {
     });
 
     expect(find.byType(CircularProgressIndicator), findsNothing);
-    expect(find.byIcon(Icons.refresh), findsOneWidget);
+    expect(find.byTooltip('Change city'), findsOneWidget);
   });
 
   testWidgets('keeps the times and offers a retry when a refresh fails',
@@ -107,84 +123,84 @@ void main() {
 
     expect(find.text('Fajr'), findsOneWidget);
     expect(find.textContaining('Location services are off'), findsOneWidget);
-    expect(find.byIcon(Icons.refresh), findsOneWidget);
+    expect(find.byTooltip('Change city'), findsOneWidget);
   });
 
-  testWidgets('offers a refresh even when the location has never resolved',
+  testWidgets('asks which city when the location has never resolved',
       (tester) async {
     GeolocatorPlatform.instance = _FakeGeolocator(serviceEnabled: false);
 
     await pumpCard(tester);
-    expect(find.text('Location not available'), findsOneWidget);
-    expect(find.text('Tap here to enable location'), findsOneWidget);
+    expect(find.text('Which city are you in?'), findsOneWidget);
+    expect(find.text('Use my location'), findsOneWidget);
 
-    // Must not become an untappable spinner: the empty state is the only way
-    // back once a location fetch has failed.
+    // Must not become an untappable spinner: this card is the only way back
+    // once a location fetch has failed.
     await withGeocode(() => service.refresh());
     await tester.pump();
 
     expect(find.text('Location services are off'), findsOneWidget);
-    expect(find.text('Tap to try again'), findsOneWidget);
+    expect(find.text('Try again'), findsOneWidget);
 
     // And the retry is genuinely wired, not just a label.
     expect(
-      tester.widget<InkWell>(find.ancestor(
-        of: find.text('Tap to try again'),
-        matching: find.byType(InkWell),
-      )).onTap,
+      tester
+          .widget<FilledButton>(find.ancestor(
+            of: find.text('Try again'),
+            matching: find.byType(FilledButton),
+          ))
+          .onPressed,
       isNotNull,
     );
   });
 
-  testWidgets('keeps the "(next day)" note on one line and inside the card',
+  testWidgets('suggests the city the phone\'s time zone points at',
+      (tester) async {
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    PrayerTimesState.timeZoneSource = () async => 'Asia/Baghdad';
+
+    await tester.runAsync(() async {
+      await pumpCard(tester);
+      // The city list loads off the test's fake clock.
+      await CityRepository.instance.load();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    });
+    await tester.pump();
+
+    expect(
+        find.text("Your phone's time zone suggests Baghdad."), findsOneWidget);
+    expect(find.text('Use my location'), findsOneWidget);
+    expect(find.text('Choose city'), findsOneWidget);
+
+    await tester.runAsync(() async {
+      await tester.tap(find.text("Yes, I'm in Baghdad"));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    });
+    await tester.pump();
+
+    expect(service.isManual, isTrue);
+    expect(city, 'Baghdad');
+    // A city is all the card needs to show the times.
+    expect(find.text('Fajr'), findsOneWidget);
+    expect(find.byTooltip('Change city'), findsOneWidget);
+    expect(find.text('Baghdad'), findsOneWidget);
+  });
+
+  testWidgets('puts the next time up front, counting down, then the rest',
       (tester) async {
     lat = 32.02;
     long = 44.34;
     city = 'Najaf';
     GeolocatorPlatform.instance = _FakeGeolocator();
-    // Late enough that the tail of the row has rolled over into tomorrow, so
-    // one column actually carries the note.
-    PrayerTimesState.debugNow = () => DateTime(2024, 6, 16, 23, 30);
-    // A small phone, where five columns leave the note barely any room.
+    final now = DateTime(2024, 6, 16, 13, 0);
+    PrayerTimesState.debugNow = () => now;
+    // A small phone, where the row after the next time has the least room.
     tester.view.physicalSize = const Size(320, 720);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
     await pumpCard(tester);
 
-    final note = find.text('(next day)');
-    expect(note, findsOneWidget);
-
-    // One line at full size, wider than the fifth of the row it belongs to —
-    // it is allowed to spill into the neighbouring columns, which are the
-    // next day as well.
-    final noteRect = tester.getRect(note);
-    final columnWidth = tester.getSize(find.byType(Expanded).first).width;
-    expect(noteRect.width, greaterThan(columnWidth));
-
-    // What it must never do is run off the card.
-    final cardRect = tester.getRect(find.byType(Card));
-    expect(noteRect.left, greaterThanOrEqualTo(cardRect.left));
-    expect(noteRect.right, lessThanOrEqualTo(cardRect.right));
-  });
-
-  testWidgets('centres the "(next day)" note on the column it tags',
-      (tester) async {
-    lat = 32.02;
-    long = 44.34;
-    city = 'Najaf';
-    GeolocatorPlatform.instance = _FakeGeolocator();
-    final now = DateTime(2024, 6, 16, 23, 30);
-    PrayerTimesState.debugNow = () => now;
-    // Wide enough that the note fits over its column without being pushed back
-    // inside the card, so this measures the aim rather than the clamp.
-    tester.view.physicalSize = const Size(1200, 800);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.reset);
-
-    await pumpCard(tester);
-
-    // Which column carries the note, worked out the same way the card does.
     final readings = nextWidgetPrayerTimeReadings(
       prayerTime: getPrayerTimeObject(),
       latitude: lat!,
@@ -193,23 +209,115 @@ void main() {
       now: now,
       times: selectedWidgetPrayerTimes(),
     );
-    final tagged = readings.indexWhere((r) =>
-        r.dateTime.year != now.year ||
-        r.dateTime.month != now.month ||
-        r.dateTime.day != now.day);
-    expect(tagged, greaterThanOrEqualTo(0),
-        reason: 'this time of day must roll into tomorrow');
+    // 1 pm in Najaf: Sunset is next, and the row runs on into tomorrow.
+    expect(readings.first.time.name, 'Sunset');
+    expect(find.text('Up next'), findsOneWidget);
+    expect(find.text('Tomorrow'), findsNothing);
+    expect(find.text('next day'), findsNothing);
+    expect(find.textContaining(RegExp(r'^in \d+h \d\dm \d\ds$')),
+        findsOneWidget);
 
-    final columns = find.byType(Expanded);
-    expect(tester.widgetList(columns).length, readings.length);
+    // The next time sits above the ones after it, in order.
+    final next = tester.getRect(find.text('Sunset'));
+    for (final reading in readings.skip(1)) {
+      expect(tester.getRect(find.text(reading.time.name)).top,
+          greaterThan(next.bottom));
+    }
+    expect(
+      tester.getRect(find.text('Maghrib')).left,
+      lessThan(tester.getRect(find.text('Fajr')).left),
+    );
+    expect(tester.takeException(), isNull);
+  });
 
-    final noteCentre = tester.getRect(find.text('(next day)')).center.dx;
-    final columnCentre = tester.getRect(columns.at(tagged)).center.dx;
+  testWidgets('says Tomorrow once every time shown is tomorrow\'s',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    // Past Maghrib, the last of the default times.
+    PrayerTimesState.debugNow = () => DateTime(2024, 6, 16, 22, 0);
 
-    // Align distributes leftover space rather than placing the centre, so the
-    // uncorrected version drifts by up to half the note's width — tens of
-    // logical pixels here. One pixel of tolerance is for rounding.
-    expect((noteCentre - columnCentre).abs(), lessThan(1.0));
+    await pumpCard(tester);
+
+    expect(find.text('Tomorrow'), findsOneWidget);
+    expect(find.text('Up next'), findsNothing);
+  });
+
+  testWidgets('the countdown ticks by the second, and is not read aloud',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    var now = DateTime(2024, 6, 16, 13, 0, 0);
+    PrayerTimesState.debugNow = () => now;
+    final semantics = tester.ensureSemantics();
+
+    await pumpCard(tester);
+    String countdown() => tester
+        .widget<Text>(find.textContaining(RegExp(r'^in \d')))
+        .data!;
+    final before = countdown();
+
+    now = now.add(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(countdown(), isNot(before));
+
+    expect(find.bySemanticsLabel(RegExp(r'^Up next: Sunset, ')),
+        findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^in \d')), findsNothing);
+    semantics.dispose();
+  });
+
+  testWidgets('the header shows the Hijri date and the city, no greeting',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    hijriDate = 0;
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    HomeHeader.debugNow = () => DateTime(2024, 6, 16, 12);
+    addTearDown(() => HomeHeader.debugNow = DateTime.now);
+
+    await pumpCard(tester);
+
+    // 16 June 2024 is 10 Dhul Hijjah 1445.
+    expect(find.textContaining(RegExp(r'^10 Dh')), findsOneWidget);
+    expect(find.text('EVE OF'), findsNothing);
+    expect(find.text('1445 AH'), findsOneWidget);
+    expect(find.text('Najaf'), findsOneWidget);
+    expect(find.text('Assalamu alaykum'), findsNothing);
+    expect(find.byTooltip('Settings and account'), findsOneWidget);
+  });
+
+  testWidgets('after Maghrib the header shows the eve of the next day',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    hijriDate = 0;
+    GeolocatorPlatform.instance = _FakeGeolocator();
+    HomeHeader.debugNow = () => DateTime(2024, 6, 16, 21);
+    addTearDown(() => HomeHeader.debugNow = DateTime.now);
+
+    await pumpCard(tester);
+
+    expect(find.text('EVE OF'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'^11 Dh')), findsOneWidget);
+  });
+
+  testWidgets('with no location the date turns at midnight, not Maghrib',
+      (tester) async {
+    hijriDate = 0;
+    HomeHeader.debugNow = () => DateTime(2024, 6, 16, 21);
+    addTearDown(() => HomeHeader.debugNow = DateTime.now);
+
+    await pumpCard(tester);
+
+    expect(find.text('EVE OF'), findsNothing);
+    expect(find.textContaining(RegExp(r'^10 Dh')), findsOneWidget);
   });
 
   testWidgets('discloses the age of a stale reading', (tester) async {

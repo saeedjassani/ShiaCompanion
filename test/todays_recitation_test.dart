@@ -55,6 +55,55 @@ void main() {
     );
   });
 
+  test('groups the recitations by occasion, tonight first', () {
+    // The evening before the 15th of Shaban.
+    final eve = HijriCalendar().hijriToGregorian(1446, 8, 14);
+    final originalLat = lat;
+    final originalLong = long;
+    addTearDown(() {
+      lat = originalLat;
+      long = originalLong;
+    });
+    lat = null; // the night window falls back to 16:00 - 08:00
+    long = null;
+    final weekday = eve.weekday % 7;
+
+    items = {
+      'Y9': 'Fifteenth Night of Shaban',
+      'Y7': 'Fourteenth of Shaban',
+      'Y2': 'General Aamal in Shaban',
+      'Q1': 'The Supplication of the Day',
+      'G4': 'Ziyarat Ashura',
+      'E31': 'Dua Kumayl',
+    };
+    itemOrder = {};
+    itemMetadata = {
+      'Y9': {'day': 'N08-15'},
+      'Y7': {'day': '08-14'},
+      'Y2': {'day': '08-*'},
+      'Q1': {'day': '*-*-$weekday'},
+      'G4': {'day': '*-*'},
+      // Listed once, for its most specific occasion.
+      'E31': {'day': 'N08-15, *-*-$weekday'},
+    };
+    hijriDate = 0;
+
+    final groups = buildTodaysRecitationGroups(
+      now: DateTime(eve.year, eve.month, eve.day, 21),
+    );
+
+    expect(
+      [for (final g in groups) '${g.kind.name}: ${g.items.map((i) => i.uid)}'],
+      [
+        'night: (Y9, E31)',
+        'date: (Y7)',
+        'month: (Y2)',
+        'weekday: (Q1)',
+        'everyDay: (G4)',
+      ],
+    );
+  });
+
   test(
       'a recurring weekday match (e.g. Dua Simat on Friday) survives a '
       "moon-sighting hijri date adjustment", () {

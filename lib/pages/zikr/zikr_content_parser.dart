@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show TextDirection;
 
 import '../../constants.dart';
+import '../../l10n/app_language.dart';
 import '../../services/zikr_translations.dart';
 
 class ZikrLineSegment {
@@ -27,6 +28,22 @@ class ZikrLineGroup {
   bool contains(int lineIndex) => lineIndex >= start && lineIndex < end;
 }
 
+/// One numbered unit a translation is keyed by - see
+/// [ZikrDocumentTranslation]. A verse (an Arabic line, with the
+/// transliteration and translation that belong to it) or a line that stands
+/// on its own: an instruction, a heading, a citation.
+class ZikrSegment {
+  const ZikrSegment({required this.anchorLine, this.slotLine});
+
+  /// The line the segment is: the Arabic of a verse, or the standalone line.
+  final int anchorLine;
+
+  /// The line a translation is drawn in place of: the verse's translation
+  /// line, or the standalone line itself. Null for a verse that carries no
+  /// translation line at all, which has nowhere to show one.
+  final int? slotLine;
+}
+
 class ParsedZikrContent {
   final List<String> lines;
   final Set<int> arabicCodes;
@@ -38,6 +55,9 @@ class ParsedZikrContent {
   /// transliteration or its translation alike. Lines that stand on their own
   /// - headings, instructions, blank lines - are simply absent.
   final Map<int, ZikrLineGroup> groupForLine;
+
+  /// This content's segments, in reading order.
+  final List<ZikrSegment> segments;
 
   /// Line index -> the text to show in place of that line, for the
   /// translation lines and standalone English lines (instructions, headings,
@@ -53,14 +73,21 @@ class ParsedZikrContent {
   /// Which way [translatedLines] read.
   final TextDirection translationDirection;
 
+  /// Whether the reader is reading in a language other than English, so
+  /// every English line [translatedLines] does not cover is left out rather
+  /// than shown - see [isHiddenEnglish].
+  final bool hidesEnglish;
+
   const ParsedZikrContent({
     required this.lines,
     required this.arabicCodes,
     required this.transliCodes,
     required this.translaCodes,
     this.groupForLine = const {},
+    this.segments = const [],
     this.translatedLines = const {},
     this.translationDirection = TextDirection.ltr,
+    this.hidesEnglish = false,
   });
 
   /// The triplet [lineIndex] belongs to, or null when it stands alone.
@@ -72,31 +99,41 @@ class ParsedZikrContent {
       translatedLines[lineIndex] ?? lines[lineIndex];
 
   /// The direction line [lineIndex] reads in. Every untranslated line other
-  /// than the Arabic is English, and is set left-to-right explicitly so it
-  /// still reads correctly when the app itself is in a right-to-left
-  /// language.
+  /// than the Arabic is English (and only shown in English), and is set
+  /// left-to-right explicitly so it still reads correctly when the app itself
+  /// is in a right-to-left language.
   TextDirection directionOf(int lineIndex) {
     if (arabicCodes.contains(lineIndex)) return TextDirection.rtl;
     if (translatedLines.containsKey(lineIndex)) return translationDirection;
     return TextDirection.ltr;
   }
 
-  /// Whether line [lineIndex] is one a translation may replace: a
-  /// translation line, or a standalone line of English.
-  bool isTranslatable(int lineIndex) =>
+  /// Whether line [lineIndex] is English the reader is not shown: someone
+  /// reading in Urdu, say, sees a zikr's Arabic and whatever of it has been
+  /// translated into Urdu, never the English of a line nobody has
+  /// translated yet. Blank lines stay - they space the text.
+  bool isHiddenEnglish(int lineIndex) =>
+      hidesEnglish &&
       !arabicCodes.contains(lineIndex) &&
-      !transliCodes.contains(lineIndex) &&
+      !translatedLines.containsKey(lineIndex) &&
       lines[lineIndex].trim().isNotEmpty;
 
-  /// This content with [translation]'s lines laid over it, or unchanged when
-  /// there is no translation.
-  ParsedZikrContent translatedWith(ZikrDocumentTranslation? translation) {
-    if (translation == null) return this;
+  /// This content as read in [language]: unchanged in English, and otherwise
+  /// with [translation] (if any) laid over it and the English it does not
+  /// cover hidden. [firstSegment] is the number of this content's first
+  /// segment within the whole zikr - see [ZikrContentParser.segmentOffsets].
+  ParsedZikrContent localizedTo(
+    AppLanguage language,
+    ZikrDocumentTranslation? translation, {
+    required int firstSegment,
+  }) {
+    if (language.code == englishLanguageCode) return this;
     final translated = <int, String>{};
-    for (var i = 0; i < lines.length; i++) {
-      if (!isTranslatable(i)) continue;
-      final line = translation.lineFor(lines[i]);
-      if (line != null) translated[i] = line;
+    for (var i = 0; i < segments.length; i++) {
+      final slot = segments[i].slotLine;
+      if (slot == null) continue;
+      final line = translation?.segment(firstSegment + i);
+      if (line != null) translated[slot] = line;
     }
     return ParsedZikrContent(
       lines: lines,
@@ -104,8 +141,10 @@ class ParsedZikrContent {
       transliCodes: transliCodes,
       translaCodes: translaCodes,
       groupForLine: groupForLine,
+      segments: segments,
       translatedLines: translated,
-      translationDirection: translation.language.textDirection,
+      translationDirection: language.textDirection,
+      hidesEnglish: true,
     );
   }
 }
@@ -132,6 +171,7 @@ class ZikrContentParser {
     final transliCodes = <int>{};
     final translaCodes = <int>{};
     final groupForLine = <int, ZikrLineGroup>{};
+    final translationLineOf = <int, int>{};
     final hasTransliteration = _hasTransliteration(arabicCodes);
 
     for (final arabicIndex in arabicCodes) {
@@ -152,6 +192,7 @@ class ZikrContentParser {
       if (translaIndex < split.length && !arabicCodes.contains(translaIndex)) {
         translaCodes.add(translaIndex);
         members.add(translaIndex);
+        translationLineOf[arabicIndex] = translaIndex;
       }
 
       final group = ZikrLineGroup(
@@ -163,13 +204,77 @@ class ZikrContentParser {
       }
     }
 
+    final segments = <ZikrSegment>[];
+    for (var i = 0; i < split.length; i++) {
+      if (split[i].isEmpty ||
+          transliCodes.contains(i) ||
+          translaCodes.contains(i)) {
+        continue;
+      }
+      if (arabicCodes.contains(i)) {
+        segments
+            .add(ZikrSegment(anchorLine: i, slotLine: translationLineOf[i]));
+      } else {
+        segments.add(ZikrSegment(anchorLine: i, slotLine: i));
+      }
+    }
+
     return ParsedZikrContent(
       lines: split,
       arabicCodes: arabicCodes,
       transliCodes: transliCodes,
       translaCodes: translaCodes,
       groupForLine: groupForLine,
+      segments: segments,
     );
+  }
+
+  /// The tab label of [content] - its first non-empty line - as a tabbed
+  /// zikr shows it, or null when the tab has none.
+  static String? tabHeaderLine(String content) {
+    for (final line in content.split('\n')) {
+      final trimmed = line.trim();
+      if (trimmed.isNotEmpty) return trimmed;
+    }
+    return null;
+  }
+
+  /// The number of the first segment of each of [tabContents] - the tabs a
+  /// zikr shows, in order - within the whole zikr. Where there is more than
+  /// one tab, each tab's label is a segment of its own and comes first.
+  static List<int> segmentOffsets(List<String> tabContents) {
+    final hasHeaders = tabContents.length > 1;
+    final offsets = <int>[];
+    var next = 0;
+    for (final content in tabContents) {
+      offsets.add(next);
+      if (hasHeaders) next++;
+      next += parseContent(content, hideHeaderLine: hasHeaders).segments.length;
+    }
+    return offsets;
+  }
+
+  /// The label of tab [tabIndex] (whose text is [content]) as read in
+  /// [language], or null when it has none to show - the caller numbers the
+  /// tab instead. [offsets] are the zikr's [segmentOffsets].
+  ///
+  /// In English the label is the tab's first line. In another language it is
+  /// that line's translation, or the line itself when it is Arabic; an
+  /// untranslated English label is not shown.
+  static String? localizedTabHeader(
+    String content,
+    int tabIndex, {
+    required List<int> offsets,
+    required AppLanguage language,
+    ZikrDocumentTranslation? translation,
+  }) {
+    final header = tabHeaderLine(content);
+    if (header == null || language.code == englishLanguageCode) return header;
+    final translated = tabIndex < offsets.length
+        ? translation?.segment(offsets[tabIndex])
+        : null;
+    if (translated != null) return translated;
+    return isArabic(header) ? header : null;
   }
 
   static bool isArabic(String s) {

@@ -8,10 +8,12 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/utils/calendar_events.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
+import 'package:shia_companion/utils/prayer_time_entries.dart';
 import '../l10n/l10n.dart';
 
 class HomeScreenWidgetService {
@@ -177,15 +179,11 @@ class HomeScreenWidgetService {
     };
   }
 
+  /// In the app language, so a translated day reaches the widgets as its
+  /// one-line `title` (see `eventHeadline`).
   Future<void> _loadCalendarEvents() async {
-    if (_calendarEvents != null) return;
-    try {
-      final decoded =
-          json.decode(await rootBundle.loadString('assets/events.json'));
-      if (decoded is Map<String, dynamic>) _calendarEvents = decoded;
-    } catch (e) {
-      debugPrint('Unable to load calendar events for widgets: $e');
-    }
+    final events = await CalendarEvents.load();
+    if (events.isNotEmpty) _calendarEvents = events;
   }
 
   Map<String, String> buildFavoritesSnapshot({
@@ -282,8 +280,10 @@ class HomeScreenWidgetService {
 
     if (lat == null || long == null) {
       for (var index = 0; index < dailyPrayerTimesItemCount; index++) {
-        snapshot[dailyPrayerNameKeys[index]] = index == 0 ? L10n.current.widgetSetLocation : '';
-        snapshot[dailyPrayerTimeKeys[index]] = index == 0 ? L10n.current.widgetOpenApp : '';
+        snapshot[dailyPrayerNameKeys[index]] =
+            index == 0 ? L10n.current.widgetSetLocation : '';
+        snapshot[dailyPrayerTimeKeys[index]] =
+            index == 0 ? L10n.current.widgetOpenApp : '';
       }
       return snapshot;
     }
@@ -430,7 +430,7 @@ class HomeScreenWidgetService {
       date: date,
       latitude: lat!,
       longitude: long!,
-      timeZone: date.timeZoneOffset.inMinutes / 60.0,
+      timeZone: prayerTimeZoneFor(date),
       times: times ?? widgetPrayerTimes,
     );
   }

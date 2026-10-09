@@ -306,3 +306,9 @@ __pycache__/
 # Firestore holds the applied result.
 scripts/.cache/
 scripts/duas_audio_map.json
+
+# Generated from lib/l10n/*.arb by `flutter gen-l10n`, which `flutter pub get`,
+# `run`, `build` and `test` all do. Not committed: every new string or
+# language rewrote these, so design and translation PRs conflicted here even
+# when their ARB edits did not overlap. See docs/TRANSLATIONS.md.
+lib/l10n/app_localizations*.dart

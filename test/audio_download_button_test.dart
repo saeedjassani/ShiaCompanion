@@ -28,7 +28,7 @@ void main() {
   }
 
   Widget host(Widget child) => MaterialApp(
-        scaffoldMessengerKey: appScaffoldMessengerKey,
+        navigatorKey: appNavigatorKey,
         home: Scaffold(body: Center(child: child)),
       );
 
@@ -49,7 +49,7 @@ void main() {
 
     // There is no connectivity plugin under test, which reads as offline.
     await tester.runAsync(() async {
-      await tester.tap(find.byType(IconButton));
+      await tester.tap(find.byType(PlayerIconButton));
       await Future<void>.delayed(const Duration(milliseconds: 50));
     });
     await tester.pumpAndSettle();
@@ -131,9 +131,10 @@ void main() {
       expect(find.text('Dua e Ahad'), findsNothing,
           reason: 'not downloaded, so not listed');
       expect(find.text('2 KB'), findsOneWidget);
-      expect(find.text('Older recordings'), findsOneWidget);
-      expect(find.text('4 KB used on this device'), findsOneWidget);
-      expect(find.text('Remove all'), findsOneWidget);
+      expect(find.text('1 older recording'), findsOneWidget);
+      expect(find.text('Recitations saved on this phone · 4 KB'),
+          findsOneWidget);
+      expect(find.text('Remove all downloads'), findsOneWidget);
     });
   });
 

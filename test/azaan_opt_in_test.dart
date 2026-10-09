@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
-import 'package:shia_companion/widgets/azaan_opt_in_dialog.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 
 /// Azan used to switch itself on the first time the app ran. These pin the
@@ -43,62 +41,33 @@ void main() {
         isFalse,
       );
     });
-
-    test('is asked once there is a location to compute times from', () async {
-      await withPrefs({});
-      expect(AzaanOptInService.shouldAsk(hasLocation: true), isTrue);
-    });
-
-    test('is not asked before a location is known', () async {
-      await withPrefs({});
-      expect(AzaanOptInService.shouldAsk(hasLocation: false), isFalse);
-    });
   });
 
   group('answering the question', () {
-    testWidgets('accepting turns on the default prayers', (tester) async {
+    test('turning azan on in setup enables exactly the prayers picked',
+        () async {
       await withPrefs({});
-      late BuildContext context;
-      await tester.pumpWidget(MaterialApp(home: Builder(builder: (c) {
-        context = c;
-        return const SizedBox();
-      })));
 
-      final enabled = await AzaanOptInService.ask(
-        context,
-        prompt: (_) async => true,
-      );
+      await AzaanOptInService.answer(
+          const ['fajr_notification', 'asr_notification']);
 
-      expect(enabled, isTrue);
       expect(AzaanOptInService.isEnabled, isTrue);
       expect(
         AzaanOptInService.allPrayerKeys
             .where((k) => SP.prefs.getBool(k) == true)
             .toSet(),
-        AzaanOptInService.defaultEnabledPrayerKeys.toSet(),
+        {'fajr_notification', 'asr_notification'},
       );
       expect(AzaanOptInService.hasBeenAsked, isTrue);
-      expect(AzaanOptInService.shouldAsk(hasLocation: true), isFalse);
     });
 
-    testWidgets('declining leaves azan off and is not asked again',
-        (tester) async {
+    test('"Not now" leaves azan off and counts as answered', () async {
       await withPrefs({});
-      late BuildContext context;
-      await tester.pumpWidget(MaterialApp(home: Builder(builder: (c) {
-        context = c;
-        return const SizedBox();
-      })));
 
-      final enabled = await AzaanOptInService.ask(
-        context,
-        prompt: (_) async => false,
-      );
+      await AzaanOptInService.answer(const []);
 
-      expect(enabled, isFalse);
       expect(AzaanOptInService.isEnabled, isFalse);
       expect(AzaanOptInService.hasBeenAsked, isTrue);
-      expect(AzaanOptInService.shouldAsk(hasLocation: true), isFalse);
     });
 
     test('Settings is the way back for anyone who declined', () async {
@@ -126,7 +95,6 @@ void main() {
       await AzaanOptInService.adoptChoiceFromExistingInstall();
 
       expect(AzaanOptInService.hasBeenAsked, isTrue);
-      expect(AzaanOptInService.shouldAsk(hasLocation: true), isFalse);
       expect(AzaanOptInService.isEnabled, isTrue);
       // The exact selection survives — including the prayer this user had
       // deliberately muted.
@@ -144,7 +112,6 @@ void main() {
 
       expect(AzaanOptInService.hasBeenAsked, isTrue);
       expect(AzaanOptInService.isEnabled, isFalse);
-      expect(AzaanOptInService.shouldAsk(hasLocation: true), isFalse);
     });
 
     test('is recognised by a sound chosen in Settings', () async {
@@ -153,29 +120,20 @@ void main() {
       await AzaanOptInService.adoptChoiceFromExistingInstall();
 
       expect(AzaanOptInService.hasBeenAsked, isTrue);
-      expect(AzaanOptInService.shouldAsk(hasLocation: true), isFalse);
     });
 
     test('a second launch is not mistaken for an upgrade', () async {
-      // buildNumber is written on a fresh install's own first launch. Someone
-      // whose first launch had no location fix, and so was never asked, must
-      // still get the question on the launch that finally has one.
+      // buildNumber is written on a fresh install's own first launch, before
+      // its setup may have got as far as the Azan step.
       await withPrefs({'buildNumber': 100});
 
       await AzaanOptInService.adoptChoiceFromExistingInstall();
 
       expect(AzaanOptInService.hasBeenAsked, isFalse);
-      expect(AzaanOptInService.shouldAsk(hasLocation: true), isTrue);
     });
   });
 
   group('what iOS users are told', () {
-    test('the opt-in dialog explains the takbir-then-tap behaviour on iOS only',
-        () {
-      expect(azaanOptInMessage(isIOS: true), contains('tap'));
-      expect(azaanOptInMessage(isIOS: false), isNot(contains('iPhone')));
-    });
-
     test('a Full Azan banner on iOS says to tap; nothing else does', () {
       const tapHint = 'Tap to hear the full azan';
       expect(

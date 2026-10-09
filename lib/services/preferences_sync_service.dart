@@ -5,10 +5,12 @@ import 'package:firebase_core/firebase_core.dart';
 import '../constants.dart';
 import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
+import 'home_shortcuts_store.dart';
 
 /// Syncs the reading preferences that used to live only in SharedPreferences
-/// — Hijri date adjustment, Arabic/English font size, Arabic font, and the
-/// recording chosen on each zikr page that has several — to the
+/// — Hijri date adjustment, Arabic/English font size, Arabic font, the
+/// recording chosen on each zikr page that has several, and Home's
+/// shortcuts — to the
 /// signed-in account, the same way [FavoritesManager] and
 /// [QazaTrackerManager] already sync favorites and qaza.
 ///
@@ -32,6 +34,11 @@ class PreferencesSyncService {
 
   /// Content uid -> the [ZikrAudioTrack.file] chosen in that zikr's player.
   static const String _audioTracksField = 'audioTracks';
+
+  /// [HomeShortcutsStore.ids], in order. Absent until the reader first
+  /// edits their shortcuts, so an untouched device never overwrites a choice
+  /// made on another.
+  static const String _homeShortcutsField = 'homeShortcuts';
 
   static const String _audioTrackPrefPrefix = 'zikr_audio_track_';
 
@@ -89,6 +96,9 @@ class PreferencesSyncService {
   Future<void> pushArabicFont() =>
       _pushIfSignedIn({_arabicFontField: arabicFont});
 
+  Future<void> pushHomeShortcuts(List<String> ids) =>
+      _pushIfSignedIn({_homeShortcutsField: ids});
+
   /// Remembers [file] as the recording to open zikr [contentUid] on, here
   /// and on the reader's other devices.
   Future<void> setAudioTrack(String contentUid, String file) async {
@@ -125,6 +135,8 @@ class PreferencesSyncService {
               key.substring(_audioTrackPrefPrefix.length):
                   SP.prefs.getString(key),
         },
+        if (HomeShortcutsStore.instance.isCustomized)
+          _homeShortcutsField: HomeShortcutsStore.instance.ids,
       };
 
   Future<void> _applyRemote(Map<String, dynamic> data) async {
@@ -159,6 +171,15 @@ class PreferencesSyncService {
         if (file is! String || file.isEmpty) continue;
         await SP.prefs.setString(audioTrackPrefKey('${entry.key}'), file);
       }
+    }
+
+    final shortcuts = data[_homeShortcutsField];
+    if (shortcuts is List) {
+      await HomeShortcutsStore.instance
+          .applySynced(shortcuts.whereType<String>().toList());
+    } else if (HomeShortcutsStore.instance.isCustomized) {
+      // Chosen on this device before shortcuts synced at all: share it.
+      await pushHomeShortcuts(HomeShortcutsStore.instance.ids);
     }
   }
 

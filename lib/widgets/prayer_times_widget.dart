@@ -1,20 +1,34 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:hijri/hijri_calendar.dart';
+import 'package:shia_companion/models/city.dart';
+import 'package:shia_companion/pages/city_picker.dart';
+import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
-import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
+import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 import '../l10n/l10n.dart';
-import '../l10n/hijri_l10n.dart';
 
+/// Home's prayer card: the next of the times the reader picked, large and
+/// counting down to the second, then the ones after it in order (the Hijri
+/// date and the city sit in Home's header above it). "Up next" reads
+/// "Tomorrow" once every time shown is tomorrow's. Tap for Calendar & Prayer
+/// Times; long-press to choose which times are shown.
+///
+/// With no location yet it asks "Which city are you in?" instead. [footer],
+/// the next event, closes either.
 class HomePrayerTimesCard extends StatefulWidget {
-  const HomePrayerTimesCard({super.key, this.onTap});
+  const HomePrayerTimesCard({super.key, this.onTap, this.footer});
 
   final VoidCallback? onTap;
+
+  /// Drawn edge to edge under the times: Home's next-event row.
+  final Widget? footer;
 
   @override
   PrayerTimesState createState() => PrayerTimesState();
@@ -36,7 +50,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   void initState() {
     super.initState();
     _location.addListener(_onLocationChanged);
-    // The highlighted "next" prayer, and near midnight the list itself, move
+    // The order of the times, and near midnight the list itself, move
     // forward on their own even when nothing else changes. Without a tick the
     // card would only catch up the next time something else rebuilt it.
     _ticker = Timer.periodic(const Duration(minutes: 1), (_) {
@@ -62,8 +76,58 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     if (mounted) setState(() {});
   }
 
-  /// The same picker Settings offers, reachable from the card it changes —
-  /// otherwise nobody discovers the setting without going looking for it.
+  /// The city picker: a city by name, or back to the phone's location.
+  Future<void> _chooseCity() async {
+    await chooseCityFlow(context);
+    if (mounted) setState(() {});
+  }
+
+  /// The nudge's "Yes, still here": it stops asking until the city changes.
+  Future<void> _stillInCity() async {
+    unawaited(AnalyticsService.feature(
+      'city_nudge_answered',
+      label: 'City nudge answered',
+      parameters: {'answer': 'still_there'},
+    ));
+    await _location.dismissZoneNudge();
+  }
+
+  Future<void> _changeCityFromNudge() async {
+    unawaited(AnalyticsService.feature(
+      'city_nudge_answered',
+      label: 'City nudge answered',
+      parameters: {'answer': 'change_city'},
+    ));
+    await _chooseCity();
+  }
+
+  Future<void> _acceptGuess(City guess) async {
+    await applyCityChoice(context, ChosenCity(guess), source: 'time_zone');
+    if (mounted) setState(() {});
+  }
+
+  /// The city the phone's time zone points at, worked out once per run and
+  /// only when the card has no location to show - so the city list is only
+  /// read for someone who needs it.
+  static Future<City?>? _timeZoneGuess;
+
+  /// Where the phone's time zone is read from; tests pin it.
+  @visibleForTesting
+  static Future<String?> Function() timeZoneSource = deviceTimeZone;
+
+  @visibleForTesting
+  static void debugResetTimeZoneGuess() => _timeZoneGuess = null;
+
+  static Future<City?> _guessCity() async {
+    final zone = await timeZoneSource();
+    if (zone == null || !zone.contains('/') || zone.startsWith('Etc/')) {
+      return null;
+    }
+    await CityRepository.instance.load();
+    return CityRepository.instance.guessForTimeZone(zone);
+  }
+
+  /// The same picker Settings offers, reachable from the card it changes.
   Future<void> _editTimesShown() async {
     final changed = await showWidgetPrayerTimesDialog(context);
     if (changed && mounted) setState(() {});
@@ -71,88 +135,124 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime now = debugNow();
-    HijriCalendar _today =
-        HijriCalendar.fromDate(now.add(Duration(days: hijriDate)));
-    PrayerTime prayerTime = getPrayerTimeObject();
+    final colors = ShiaColors.of(context);
+    final now = debugNow();
     final selected = selectedWidgetPrayerTimes();
-    final dateText = formatHijri(_today, "dd MMMM yyyy", context.l10n);
 
     // Always render from the last known fix. A refresh in flight, or one that
     // just failed, never blanks times the user could still be relying on.
-    List<WidgetPrayerTimeReading>? _readings = lat != null
+    final readings = lat != null
         ? nextWidgetPrayerTimeReadings(
-            prayerTime: prayerTime,
+            prayerTime: getPrayerTimeObject(),
             latitude: lat!,
             longitude: long!,
             count: selected.length,
             now: now,
             times: selected,
           )
-        : null;
-    final hasReadings = _readings != null && _readings.isNotEmpty;
-    // Where "tomorrow" starts, if at all — the row is chronological, so once
-    // one column crosses midnight every column after it has too. Tagging only
-    // that one column (instead of every rolled-over one) reads like a date
-    // divider in a list, rather than repeating the note three times.
-    final firstTomorrowIndex = _readings == null
-        ? -1
-        : _readings.indexWhere((r) => !_isSameDate(r.dateTime, now));
+        : const <WidgetPrayerTimeReading>[];
 
-    final content = Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          hasReadings
-              ? _CardHeader(
-                  dateText: dateText,
-                  location: _location,
-                  onRefresh: _refreshLocation,
-                  onEditTimesShown: _editTimesShown,
-                )
-              // No coordinates yet: nothing to name the location with, so
-              // just the date — _LocationEmptyState below explains why.
-              : Text(dateText, style: boldText),
-          const SizedBox(height: 6),
-          hasReadings
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
+    if (readings.isEmpty) {
+      return FutureBuilder<City?>(
+        future: _timeZoneGuess ??= _guessCity().catchError((_) => null),
+        builder: (context, snapshot) => _ChooseLocationCard(
+          location: _location,
+          guess: snapshot.data,
+          onUseLocation: _refreshLocation,
+          onChooseCity: _chooseCity,
+          onAcceptGuess: _acceptGuess,
+          footer: widget.footer,
+        ),
+      );
+    }
+
+    // The row after the next time is in order, so it needs no "next day"
+    // marks: what follows is later. Only once *everything* shown is
+    // tomorrow's does the label say so.
+    final allTomorrow = readings.every((r) => !_isSameDate(r.dateTime, now));
+    final next = readings.first;
+    final later = readings.skip(1).toList(growable: false);
+    final failed = _location.status == LocationRefreshStatus.failed;
+    final showUpdated = !failed && city != null && _location.shouldDiscloseAge;
+    // A chosen city whose clock no longer matches the phone's: most likely
+    // one picked on a trip, still set after the flight home.
+    final askStillInCity = _location.chosenCityClockDifference != null;
+
+    return Semantics(
+      container: true,
+      label: context.l10n.prayerTimesTitle,
+      child: Material(
+        color: colors.prayerCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+          side: BorderSide(color: colors.prayerCardBorder),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: widget.onTap,
+          // Long-press is the second way into the picker, after Settings,
+          // for people who prod at a thing before hunting for its setting.
+          onLongPress: _editTimesShown,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (final reading in _readings)
-                          Expanded(child: _PrayerTimeColumn(reading: reading)),
-                      ],
+                    if (failed || showUpdated)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
+                        child: Text(
+                          failed
+                              ? _location.failureMessage
+                              : context.l10n.prayerUpdatedAgo(
+                                  _ageLabel(_location.updatedAt!)),
+                          style: ShiaText.caption.copyWith(
+                            color: colors.onPrayerCardMuted,
+                          ),
+                        ),
+                      ),
+                    _NextPrayer(
+                      reading: next,
+                      label: allTomorrow
+                          ? context.l10n.commonTomorrow
+                          : context.l10n.prayerUpNext,
+                      now: debugNow,
+                      // The moment it arrives the next time is a different one.
+                      onArrived: () {
+                        if (mounted) setState(() {});
+                      },
                     ),
-                    if (firstTomorrowIndex >= 0)
-                      _NextDayNote(
-                        index: firstTomorrowIndex,
-                        count: _readings.length,
+                    if (later.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final reading in later)
+                            Expanded(
+                                child: _PrayerTimeColumn(reading: reading)),
+                        ],
+                      ),
+                    ],
+                    if (askStillInCity)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: _StillInCityNudge(
+                          city: city ?? context.l10n.prayerTheCityYouChose,
+                          onStillThere: _stillInCity,
+                          onChangeCity: _changeCityFromNudge,
+                        ),
                       ),
                   ],
-                )
-              : _LocationEmptyState(
-                  location: _location,
-                  onRefresh: _refreshLocation,
                 ),
-        ],
+              ),
+              if (widget.footer != null) widget.footer!,
+            ],
+          ),
+        ),
       ),
-    );
-
-    return Card(
-      // Long-press anywhere on the card is the second way into the picker, for
-      // people who prod at a thing before hunting for its button. Only once
-      // there are times to customise — the empty state owns its own tap.
-      child: hasReadings
-          ? InkWell(
-              onTap: widget.onTap,
-              onLongPress: _editTimesShown,
-              child: content,
-            )
-          : content,
     );
   }
 }
@@ -161,169 +261,78 @@ bool _isSameDate(DateTime a, DateTime b) {
   return a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-/// The single line above the times: the Hijri date, the location (or
-/// whatever explains its absence), and the refresh affordance, all together
-/// — location no longer gets a line of its own. A stale reading adds one
-/// small caption underneath; nothing else grows the header.
-class _CardHeader extends StatelessWidget {
-  const _CardHeader({
-    required this.dateText,
-    required this.location,
-    required this.onRefresh,
-    required this.onEditTimesShown,
+/// "Still in Karbala?", under the times when the chosen city's clock no
+/// longer matches the phone's.
+class _StillInCityNudge extends StatelessWidget {
+  const _StillInCityNudge({
+    required this.city,
+    required this.onStillThere,
+    required this.onChangeCity,
   });
 
-  final String dateText;
-  final LocationService location;
-  final VoidCallback onRefresh;
-  final VoidCallback onEditTimesShown;
+  final String city;
+  final VoidCallback onStillThere;
+  final VoidCallback onChangeCity;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final failed = location.status == LocationRefreshStatus.failed;
-    final label = city;
-
-    final String suffix;
-    if (failed) {
-      suffix = label == null
-          ? location.failureMessage
-          : "$label · ${location.failureMessage}";
-    } else if (label != null) {
-      suffix = label;
-    } else {
-      // A missing label does not mean a missing location: this header only
-      // renders once there are coordinates, and the geocode that names them
-      // is allowed to fail or still be running on its own.
-      suffix = location.isRefreshing
-          ? context.l10n.prayerLocating
-          : context.l10n.prayerForYourLocation;
-    }
-
-    // Only once there's a named location worth dating, and only when that
-    // reading is actually old — this is the one thing about the header that
-    // still changes on its own, so it stays a separate, smaller line.
-    final showUpdated = !failed && label != null && location.shouldDiscloseAge;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // The date alone on this row, so a long city or "· Location
-            // services are off" never fights it for space or gets truncated
-            // — the location gets its own line underneath instead.
-            Flexible(
-              child: Text(
-                dateText,
-                style: boldText,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            // The refresh affordance is always present, whatever the state —
-            // a failed location must never be a dead end.
-            location.isRefreshing
-                ? const Padding(
-                    padding: EdgeInsets.all(4.0),
-                    child: SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  )
-                : InkWell(
-                    onTap: onRefresh,
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Icon(
-                        Icons.refresh,
-                        size: 16,
-                        color: failed
-                            ? colorScheme.error
-                            : colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-            // Permanently visible rather than a one-time hint: this is the
-            // only place the "which times are shown" setting announces itself
-            // outside the Settings list.
-            InkWell(
-              onTap: onEditTimesShown,
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Icon(
-                  Icons.tune,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
-        ),
-        Text(
-          suffix,
-          style: failed ? boldText.copyWith(color: colorScheme.error) : boldText,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        if (showUpdated)
-          Text(
-            context.l10n.prayerUpdatedAgo(_ageLabel(location.updatedAt!)),
-            style: theme.textTheme.labelSmall
-                ?.copyWith(color: colorScheme.onSurfaceVariant),
-          ),
-      ],
-    );
-  }
-}
-
-/// One prayer in the row: icon, name and time, all at equal weight — order
-/// alone already says what's next, so nothing here is bolded or boxed to
-/// repeat that.
-class _PrayerTimeColumn extends StatelessWidget {
-  const _PrayerTimeColumn({
-    required this.reading,
-  });
-
-  final WidgetPrayerTimeReading reading;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final nameStyle =
-        theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+    final colors = ShiaColors.of(context);
+    final buttonText = ShiaText.secondary.copyWith(fontWeight: FontWeight.w600);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 10, 4, 4),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          PrayerGlyph(
-            name: reading.time.name,
-            size: 16,
-            color: colorScheme.primary,
+          Divider(
+            height: 1,
+            color: colors.onPrayerCard.withValues(alpha: 0.15),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 10),
           Text(
-            localizedPrayerName(reading.time.name, context.l10n),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: nameStyle,
+            context.l10n.prayerStillInCity(city),
+            style: ShiaText.secondary.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colors.onPrayerCard,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
-            reading.displayTime,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: colorScheme.onSurfaceVariant),
+            context.l10n.prayerPhoneZoneDiffers,
+            style: ShiaText.caption.copyWith(color: colors.onPrayerCardMuted),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton(
+                  onPressed: onChangeCity,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colors.gold,
+                    foregroundColor: colors.onGold,
+                    minimumSize: const Size.fromHeight(40),
+                    shape: const StadiumBorder(),
+                    textStyle: buttonText,
+                  ),
+                  child: Text(context.l10n.cityChangeCity),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onStillThere,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: colors.onPrayerCard,
+                    minimumSize: const Size.fromHeight(40),
+                    side: BorderSide(
+                      color: colors.onPrayerCard.withValues(alpha: 0.4),
+                    ),
+                    shape: const StadiumBorder(),
+                    textStyle: buttonText,
+                  ),
+                  child: Text(context.l10n.prayerYesStillHere),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -331,149 +340,526 @@ class _PrayerTimeColumn extends StatelessWidget {
   }
 }
 
-/// Marks the one column where the row crosses into tomorrow; everything after
-/// it is understood to be tomorrow too, the same way a date divider works in a
-/// list. It sits under the row rather than inside that column because at full
-/// size it is wider than a fifth of a phone — and spilling into the columns
-/// beside it costs nothing, since those are the next day as well.
-class _NextDayNote extends StatelessWidget {
-  const _NextDayNote({
-    required this.index,
-    required this.count,
-  });
+/// The city, as a button: tap to choose another, or to go back to the
+/// phone's own location. Sits under Home's title.
+class CityButton extends StatelessWidget {
+  const CityButton({super.key, required this.location, required this.onTap});
 
-  final int index;
-  final int count;
-
+  final LocationService location;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.labelSmall?.copyWith(
-      fontStyle: FontStyle.italic,
-      color: theme.colorScheme.onSurfaceVariant,
-    );
+    final colors = ShiaColors.of(context);
+    final foreground = colors.accent;
+    final refreshing = location.isRefreshing;
+    // A missing name does not mean a missing location: this only shows once
+    // there are coordinates, and the geocode that names them can fail or
+    // still be running on its own.
+    // A refresh only swaps the pin for a spinner; the name stays put.
+    final label = city ??
+        (refreshing
+            ? context.l10n.prayerLocating
+            : context.l10n.prayerYourLocation);
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6.0),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final painter = TextPainter(
-            text: TextSpan(text: context.l10n.prayerNextDay, style: style),
-            textDirection: Directionality.of(context),
-            maxLines: 1,
-          )..layout();
-
-          return Align(
-            alignment: Alignment(_horizontalAlignment(width, painter.width), 0),
-            child: Text(
-              context.l10n.prayerNextDay,
-              maxLines: 1,
-              softWrap: false,
-              style: style,
+    return Tooltip(
+      message: context.l10n.cityChangeCity,
+      excludeFromSemantics: true,
+      child: Semantics(
+        button: true,
+        label: context.l10n.prayerCityButtonSemantics(label),
+        excludeSemantics: true,
+        onTap: onTap,
+        child: Material(
+          color: colors.surface,
+          shape: StadiumBorder(side: BorderSide(color: colors.line)),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: ConstrainedBox(
+              // 34 px drawn, as in the mockup; what is around it takes the
+              // tap when it lands just outside.
+              constraints: const BoxConstraints(minHeight: 34),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(8, 4, 10, 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    refreshing
+                        ? SizedBox.square(
+                            dimension: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: foreground,
+                            ),
+                          )
+                        : OutlineIcon(
+                            OutlineGlyph.pin,
+                            size: 16,
+                            color: foreground,
+                          ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: ShiaText.secondary.copyWith(
+                          fontSize: 14,
+                          height: 18 / 14,
+                          fontWeight: FontWeight.w600,
+                          color: foreground,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    OutlineIcon(
+                      OutlineGlyph.chevronDown,
+                      size: 14,
+                      color: foreground,
+                      strokeWidth: 2.2,
+                    ),
+                  ],
+                ),
+              ),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
-
-  /// The [Alignment] x that puts the middle of a [noteWidth]-wide note over the
-  /// middle of the tagged column, within a row [width] across.
-  ///
-  /// Align does not place the child's centre at the fraction it is given: it
-  /// distributes the *leftover* space, so the child's centre lands at
-  /// `width * f + noteWidth * (0.5 - f)`. Passing the column's fraction
-  /// straight in therefore only aims true for the middle column and misses by
-  /// up to half the note's width at either end — which is most of the note,
-  /// since it is wider than a column by design. Solving that expression for the
-  /// x that yields the column's centre corrects it.
-  double _horizontalAlignment(double width, double noteWidth) {
-    final columnCentre = width * (index + 0.5) / count;
-    final freeSpace = width - noteWidth;
-    // Wider than the row it is tagging: there is nothing left to position it
-    // with, so centre it and let it be the whole line.
-    if (freeSpace <= 0) return 0;
-
-    // Clamping is what keeps the note inside the card when the column it tags
-    // is the first or the last one, and it is now the only thing that moves it
-    // off that column.
-    return (2 * (columnCentre - noteWidth / 2) / freeSpace - 1).clamp(-1.0, 1.0);
-  }
 }
 
-/// Shown only when no location has ever been resolved, so there are no times to
-/// protect. Always tappable — including while a fetch is running, because a
-/// fetch that silently died must not strand the user on a spinner.
-class _LocationEmptyState extends StatelessWidget {
-  const _LocationEmptyState({
-    required this.location,
-    required this.onRefresh,
-  });
+/// One of the times after the next: glyph, name and time, at equal weight.
+class _PrayerTimeColumn extends StatelessWidget {
+  const _PrayerTimeColumn({required this.reading});
 
-  final LocationService location;
-  final VoidCallback onRefresh;
+  final WidgetPrayerTimeReading reading;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final refreshing = location.isRefreshing;
-    final failed = location.status == LocationRefreshStatus.failed;
+    final colors = ShiaColors.of(context);
+    final textStyle = ShiaText.caption.copyWith(height: 16 / 13);
 
-    final String title;
-    final String subtitle;
-    if (refreshing) {
-      title = context.l10n.prayerFindingLocation;
-      subtitle = context.l10n.prayerAppearSoon;
-    } else if (failed) {
-      title = location.failureMessage;
-      subtitle = context.l10n.prayerTapToRetry;
-    } else {
-      title = context.l10n.prayerLocationUnavailable;
-      subtitle = context.l10n.prayerTapToEnableLocation;
-    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PrayerGlyph(
+            name: reading.time.name,
+            size: 18,
+            color: colors.onPrayerCard,
+          ),
+          const SizedBox(height: 3),
+          Text(
+            localizedPrayerName(reading.time.name, context.l10n),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: textStyle.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colors.onPrayerCard,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            _clockLabel(reading),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: textStyle.copyWith(color: colors.onPrayerCardMuted),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-    return InkWell(
-      onTap: onRefresh,
+/// "6:56 pm", not the widgets' zero-padded "06:56 pm".
+String _clockLabel(WidgetPrayerTimeReading reading) =>
+    reading.displayTime.replaceFirst(RegExp(r'^0(?=\d)'), '');
+
+/// The next time, large: its glyph, "Up next" (or "Tomorrow") over its name,
+/// and its time over a countdown that ticks every second.
+class _NextPrayer extends StatelessWidget {
+  const _NextPrayer({
+    required this.reading,
+    required this.label,
+    required this.now,
+    required this.onArrived,
+  });
+
+  final WidgetPrayerTimeReading reading;
+  final String label;
+  final DateTime Function() now;
+  final VoidCallback onArrived;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final name = localizedPrayerName(reading.time.name, context.l10n);
+    final time = _clockLabel(reading);
+
+    return Semantics(
+      container: true,
+      // The countdown is left out: read aloud, it would change every second.
+      label: context.l10n.prayerNextSemantics(label, name, time),
+      excludeSemantics: true,
       child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
+        decoration: BoxDecoration(
+          color: colors.onPrayerCard.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
           children: [
-            refreshing
-                ? const SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: Padding(
-                      padding: EdgeInsets.all(4.0),
-                      child: CircularProgressIndicator(strokeWidth: 3),
-                    ),
-                  )
-                : Icon(
-                    failed ? Icons.location_disabled : Icons.location_off,
-                    size: 40,
-                    color: failed
-                        ? theme.colorScheme.error
-                        : theme.colorScheme.primary,
-                  ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: failed ? theme.colorScheme.error : null,
+            Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: colors.gold.withValues(alpha: 0.18),
+                shape: BoxShape.circle,
+              ),
+              child: PrayerGlyph(
+                name: reading.time.name,
+                size: 22,
+                color: colors.gold,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: ShiaText.caption.copyWith(
+                      fontSize: 12,
+                      height: 15 / 12,
+                      color: colors.onPrayerCardMuted,
+                    ),
+                  ),
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 20,
+                      height: 24 / 20,
+                      fontWeight: FontWeight.w700,
+                      color: colors.onPrayerCard,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  time,
+                  style: TextStyle(
+                    fontSize: 24,
+                    height: 28 / 24,
+                    fontWeight: FontWeight.w700,
+                    color: colors.onPrayerCard,
+                  ),
+                ),
+                _Countdown(
+                  target: reading.dateTime,
+                  now: now,
+                  onArrived: onArrived,
+                ),
+              ],
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// "in 3h 05m 09s", redrawn every second on its own so the rest of the card
+/// is left alone. Tells the card when the time arrives.
+class _Countdown extends StatefulWidget {
+  const _Countdown({
+    required this.target,
+    required this.now,
+    required this.onArrived,
+  });
+
+  final DateTime target;
+  final DateTime Function() now;
+  final VoidCallback onArrived;
+
+  @override
+  State<_Countdown> createState() => _CountdownState();
+}
+
+class _CountdownState extends State<_Countdown> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      if (!widget.now().isBefore(widget.target)) {
+        widget.onArrived();
+      } else {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    var left = widget.target.difference(widget.now());
+    if (left.isNegative) left = Duration.zero;
+    final seconds = (left.inSeconds % 60).toString().padLeft(2, '0');
+    final minutes = left.inMinutes % 60;
+    final text = left.inHours > 0
+        ? context.l10n.prayerCountdownHours(
+            left.inHours, minutes.toString().padLeft(2, '0'), seconds)
+        : context.l10n.prayerCountdownMinutes(minutes, seconds);
+    return Text(
+      text,
+      style: ShiaText.caption.copyWith(
+        height: 16 / 13,
+        fontWeight: FontWeight.w600,
+        color: colors.gold,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+    );
+  }
+}
+
+/// No location has ever been resolved, so there are no times to show: ask
+/// which city the reader is in, suggesting the one their phone's time zone
+/// points at. Never a dead end — "Use my location" stays live while a fetch
+/// runs, since one that silently died must not strand anyone on a spinner.
+class _ChooseLocationCard extends StatelessWidget {
+  const _ChooseLocationCard({
+    required this.location,
+    required this.guess,
+    required this.onUseLocation,
+    required this.onChooseCity,
+    required this.onAcceptGuess,
+    this.footer,
+  });
+
+  final LocationService location;
+  final City? guess;
+  final VoidCallback onUseLocation;
+  final VoidCallback onChooseCity;
+  final ValueChanged<City> onAcceptGuess;
+  final Widget? footer;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final refreshing = location.isRefreshing;
+    final failed = location.status == LocationRefreshStatus.failed;
+    final muted = ShiaText.secondary.copyWith(color: colors.onPrayerCardMuted);
+    final guess = this.guess;
+
+    final useLocationLabel = refreshing
+        ? context.l10n.prayerFindingLocation
+        : failed
+            ? context.l10n.commonTryAgain
+            : context.l10n.qiblaUseMyLocation;
+    final useLocationIcon = refreshing
+        ? SizedBox.square(
+            dimension: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: guess == null ? colors.onGold : colors.onPrayerCard,
+            ),
+          )
+        : OutlineIcon(
+            OutlineGlyph.pin,
+            size: 18,
+            color: guess == null ? colors.onGold : colors.onPrayerCard,
+            strokeWidth: 2,
+          );
+    final chooseCity = _OutlineCardButton(
+      icon: OutlineIcon(
+        OutlineGlyph.search,
+        size: 18,
+        color: colors.onPrayerCard,
+        strokeWidth: 2,
+      ),
+      label: context.l10n.prayerChooseCity,
+      onPressed: onChooseCity,
+    );
+
+    return Semantics(
+      container: true,
+      label: context.l10n.prayerTimesTitle,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: colors.prayerCard,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: colors.prayerCardBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    context.l10n.prayerTimesTitle,
+                    style: ShiaText.caption.copyWith(
+                      fontSize: 14,
+                      height: 18 / 14,
+                      color: colors.onPrayerCardMuted,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    context.l10n.prayerWhichCity,
+                    style: TextStyle(
+                      fontSize: 23,
+                      height: 28 / 23,
+                      fontWeight: FontWeight.w700,
+                      color: colors.onPrayerCard,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    failed
+                        ? location.failureMessage
+                        : context.l10n.prayerWhichCityBody,
+                    style: muted,
+                  ),
+                  const SizedBox(height: 14),
+                  if (guess != null) ...[
+                    Text(
+                      context.l10n.prayerZoneSuggests(guess.name),
+                      style: ShiaText.caption.copyWith(
+                        fontSize: 14,
+                        height: 18 / 14,
+                        color: colors.onPrayerCardMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _GoldButton(
+                      label: context.l10n.prayerYesImIn(guess.name),
+                      onPressed: () => onAcceptGuess(guess),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _OutlineCardButton(
+                            icon: useLocationIcon,
+                            label: refreshing
+                                ? context.l10n.prayerLocating
+                                : useLocationLabel,
+                            onPressed: onUseLocation,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(child: chooseCity),
+                      ],
+                    ),
+                  ] else ...[
+                    _GoldButton(
+                      icon: useLocationIcon,
+                      label: useLocationLabel,
+                      onPressed: onUseLocation,
+                    ),
+                    const SizedBox(height: 8),
+                    chooseCity,
+                  ],
+                ],
+              ),
+            ),
+            if (footer != null) footer!,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The one primary button on the prayer card, in gold.
+class _GoldButton extends StatelessWidget {
+  const _GoldButton({required this.label, required this.onPressed, this.icon});
+
+  final String label;
+  final VoidCallback onPressed;
+  final Widget? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return FilledButton(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        backgroundColor: colors.gold,
+        foregroundColor: colors.onGold,
+        minimumSize: const Size.fromHeight(50),
+        shape: const StadiumBorder(),
+        textStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w700),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[icon!, const SizedBox(width: 8)],
+          Flexible(child: Text(label, textAlign: TextAlign.center)),
+        ],
+      ),
+    );
+  }
+}
+
+/// A secondary button on the prayer card: outlined in the card's own text
+/// colour.
+class _OutlineCardButton extends StatelessWidget {
+  const _OutlineCardButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final Widget icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: colors.onPrayerCard,
+        minimumSize: const Size.fromHeight(46),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        side: BorderSide(color: colors.onPrayerCard.withValues(alpha: 0.4)),
+        shape: const StadiumBorder(),
+        textStyle: ShiaText.secondary.copyWith(fontWeight: FontWeight.w600),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          icon,
+          const SizedBox(width: 6),
+          Flexible(child: Text(label, textAlign: TextAlign.center)),
+        ],
       ),
     );
   }

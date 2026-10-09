@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import '../models/airport.dart';
 import '../services/airport_repository.dart';
 import '../utils/timezone_database.dart';
-import '../widgets/responsive_content.dart';
+import '../theme/shia_colors.dart';
+import '../widgets/find_field.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
+import '../widgets/responsive_content.dart' show compactContentWidth;
 import '../l10n/l10n.dart';
 
 /// Full-screen airport search. Pops with the chosen [Airport], or null.
@@ -26,10 +30,13 @@ class _AirportPickerPageState extends State<AirportPickerPage> {
   @override
   void initState() {
     super.initState();
+    _controller.addListener(_onQueryChanged);
     _isLoading = !_repository.isLoaded;
     if (_isLoading) {
       _repository.load().then((_) {
-        if (mounted) setState(() => _isLoading = false);
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        _onQueryChanged();
       });
     }
   }
@@ -40,85 +47,66 @@ class _AirportPickerPageState extends State<AirportPickerPage> {
     super.dispose();
   }
 
-  void _onQueryChanged(String query) {
-    setState(() => _results = _repository.search(query));
+  void _onQueryChanged() {
+    setState(() => _results = _repository.search(_controller.text));
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final l10n = context.l10n;
     final query = _controller.text.trim();
+    final gutter = pageGutter(context, maxWidth: compactContentWidth);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: ResponsiveContent(
-        maxWidth: compactContentWidth,
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                labelText: context.l10n.airportSearchLabel,
-                hintText: context.l10n.airportSearchHint,
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
-              ),
-              onChanged: _onQueryChanged,
-            ),
-            const SizedBox(height: 12),
-            Expanded(child: _buildResults(theme, query)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildResults(ThemeData theme, String query) {
+    final Widget body;
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (query.isEmpty) {
-      return _Message(
-        icon: Icons.flight_takeoff,
-        title: context.l10n.airportSearchTitle,
-        detail: context.l10n.airportSearchDetail,
+      body = const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    } else if (query.isEmpty) {
+      body = SliverToBoxAdapter(
+        child: EmptyStateCard(
+          glyph: OutlineGlyph.plane,
+          title: l10n.airportSearchTitle,
+          body: '${l10n.airportSearchDetail}\n${l10n.airportSearchHint}',
+        ),
+      );
+    } else if (_results.isEmpty) {
+      body = SliverToBoxAdapter(
+        child: EmptyStateCard(
+          glyph: OutlineGlyph.search,
+          title: l10n.airportNoneFound,
+          body: l10n.airportNothingMatched(query),
+        ),
+      );
+    } else {
+      body = SliverCardList(
+        itemCount: _results.length,
+        itemBuilder: (context, index) {
+          final airport = _results[index];
+          return CardListRow(
+            first: index == 0,
+            last: index == _results.length - 1,
+            leading: _CodeWell(airport.iata),
+            title: Text(airport.name),
+            subtitle: Text(_subtitleFor(airport)),
+            onTap: () => Navigator.pop(context, airport),
+          );
+        },
       );
     }
 
-    if (_results.isEmpty) {
-      return _Message(
-        icon: Icons.search_off,
-        title: context.l10n.airportNoneFound,
-        detail: context.l10n.airportNothingMatched(query),
-      );
-    }
-
-    return ListView.separated(
-      itemCount: _results.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        final airport = _results[index];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
-            child: Text(
-              airport.iata,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          title: Text(airport.name),
-          subtitle: Text(_subtitleFor(airport)),
-          onTap: () => Navigator.pop(context, airport),
-        );
-      },
+    return LargeTitlePage(
+      title: widget.title,
+      maxWidth: compactContentWidth,
+      bottom: FindField(
+        controller: _controller,
+        hint: l10n.airportSearchLabel,
+        autofocus: true,
+      ),
+      slivers: [SliverPadding(padding: gutter, sliver: body)],
     );
   }
 
@@ -133,38 +121,34 @@ class _AirportPickerPageState extends State<AirportPickerPage> {
   }
 }
 
-class _Message extends StatelessWidget {
-  const _Message({
-    required this.icon,
-    required this.title,
-    required this.detail,
-  });
+/// The airport's three-letter code in a well, at the start of its row.
+class _CodeWell extends StatelessWidget {
+  const _CodeWell(this.code);
 
-  final IconData icon;
-  final String title;
-  final String detail;
+  final String code;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 40, color: theme.colorScheme.onSurfaceVariant),
-            const SizedBox(height: 12),
-            Text(title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(
-              detail,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+    final colors = ShiaColors.of(context);
+    return Container(
+      width: 48,
+      height: 40,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: colors.well,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          code,
+          maxLines: 1,
+          style: ShiaText.secondary.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
+            color: colors.accent,
+          ),
         ),
       ),
     );

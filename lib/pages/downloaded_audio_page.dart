@@ -9,8 +9,10 @@ import '../services/analytics_service.dart';
 import '../services/zikr_translations.dart';
 import '../services/audio_download_store.dart';
 import '../services/zikr_audio_index.dart';
+import '../theme/shia_colors.dart';
 import '../widgets/audio_download_button.dart';
-import '../widgets/responsive_content.dart';
+import '../widgets/outline_icon.dart';
+import '../widgets/page_chrome.dart';
 import 'zikr/zikr_page.dart';
 import '../l10n/l10n.dart';
 
@@ -79,19 +81,29 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
   @override
   Widget build(BuildContext context) {
     final store = AudioDownloadStore.instance;
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.playlistDownloads)),
-      body: !_ready
-          ? const Center(child: CircularProgressIndicator())
-          : ListenableBuilder(
-              listenable: store,
-              builder: (context, _) => _buildBody(context, store),
+    if (!_ready) {
+      return LargeTitlePage(
+        title: context.l10n.playlistDownloads,
+        slivers: const [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(top: 48),
+              child: Center(child: CircularProgressIndicator()),
             ),
+          ),
+        ],
+      );
+    }
+    return ListenableBuilder(
+      listenable: store,
+      builder: (context, _) => _buildPage(context, store),
     );
   }
 
-  Widget _buildBody(BuildContext context, AudioDownloadStore store) {
-    final theme = Theme.of(context);
+  Widget _buildPage(BuildContext context, AudioDownloadStore store) {
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    final gutter = pageGutter(context);
     final index = ZikrAudioIndex.instance;
 
     // Each zikr with anything saved or on its way, and which saved files
@@ -112,84 +124,68 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
     final orphans =
         store.savedFileNames.where((name) => !claimed.contains(name)).toList();
     final totalBytes = store.totalSavedBytes;
+    final empty = entries.isEmpty && orphans.isEmpty;
 
-    if (entries.isEmpty && orphans.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.download_for_offline_outlined,
-                  size: 48, color: theme.colorScheme.outline),
-              const SizedBox(height: 16),
-              Text(
-                context.l10n.downloadsEmpty,
-                style: theme.textTheme.titleMedium,
+    return LargeTitlePage(
+      title: l10n.playlistDownloads,
+      subtitle:
+          empty ? null : l10n.downloadsSubtitle(formatAudioBytes(totalBytes)),
+      slivers: [
+        if (empty)
+          SliverPadding(
+            padding: gutter,
+            sliver: SliverToBoxAdapter(
+              child: EmptyStateCard(
+                glyph: OutlineGlyph.download,
+                title: l10n.downloadsEmpty,
+                body: l10n.downloadsEmptyBody,
               ),
-              const SizedBox(height: 8),
-              Text(
-                context.l10n.downloadsEmptyBody,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return ResponsiveContent(
-      child: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
-            child: Row(
-              children: [
-                Icon(Icons.sd_storage_outlined,
-                    color: theme.colorScheme.onSurfaceVariant),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    context.l10n.settingsDownloadedRecitationsUsed(formatAudioBytes(totalBytes)),
-                    style: theme.textTheme.titleSmall,
-                  ),
-                ),
-                if (totalBytes > 0)
-                  TextButton(
-                    onPressed: () => _removeAll(context, totalBytes),
-                    child: Text(context.l10n.downloadsRemoveAll),
-                  ),
-              ],
             ),
           ),
-          const Divider(height: 1),
-          for (final (uid, tracks) in entries)
-            _DownloadedZikrTile(
-              title: _zikrTitle(uid),
-              tracks: tracks,
-              onOpen: () => _open(context, uid),
-            ),
-          if (orphans.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.audio_file_outlined),
-              title: Text(context.l10n.downloadsOlder),
-              subtitle: Text(
-                context.l10n.downloadsOlderSubtitle(orphans.length,
-                    formatAudioBytes(_orphanBytes(store, orphans))),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
-                tooltip: context.l10n.downloadsRemoveOlder,
-                onPressed: () =>
-                    unawaited(store.remove(_orphanTracks(orphans))),
+        if (entries.isNotEmpty)
+          SliverPadding(
+            padding: gutter.copyWith(bottom: 14),
+            sliver: SliverCardList(
+              itemCount: entries.length,
+              itemBuilder: (context, i) => _DownloadedZikrRow(
+                title: _zikrTitle(entries[i].$1),
+                tracks: entries[i].$2,
+                first: i == 0,
+                last: i == entries.length - 1,
+                onOpen: () => _open(context, entries[i].$1),
               ),
             ),
-        ],
-      ),
+          ),
+        if (orphans.isNotEmpty)
+          SliverPadding(
+            padding: gutter.copyWith(bottom: 14),
+            sliver: SliverToBoxAdapter(
+              child: _OlderRecordingsCard(
+                count: orphans.length,
+                size: formatAudioBytes(_orphanBytes(store, orphans)),
+                onRemove: () => unawaited(store.remove(_orphanTracks(orphans))),
+              ),
+            ),
+          ),
+        if (totalBytes > 0)
+          SliverPadding(
+            padding: gutter,
+            sliver: SliverToBoxAdapter(
+              child: Center(
+                child: TextButton(
+                  onPressed: () => _removeAll(context, totalBytes),
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(44, 44),
+                    foregroundColor: colors.danger,
+                    textStyle: buttonTextStyle(context, ShiaText.body)
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  child: Text(l10n.downloadsRemoveAllButton),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -202,59 +198,192 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
       store.savedBytesOf(_orphanTracks(names));
 }
 
-class _DownloadedZikrTile extends StatelessWidget {
-  const _DownloadedZikrTile({
+/// One downloaded zikr: what is saved and how big it is, with a remove
+/// button; while it is downloading, how far along it is, and Stop.
+class _DownloadedZikrRow extends StatelessWidget {
+  const _DownloadedZikrRow({
     required this.title,
     required this.tracks,
+    required this.first,
+    required this.last,
     required this.onOpen,
   });
 
   final String title;
   final List<ZikrAudioTrack> tracks;
+  final bool first;
+  final bool last;
   final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
     final store = AudioDownloadStore.instance;
     final saved = tracks.where(store.isDownloaded).length;
     final downloading = store.anyDownloading(tracks);
 
-    final String subtitle;
     if (downloading) {
-      final percent = (store.overallProgress(tracks) * 100).floor();
-      subtitle = context.l10n.audioDownloadingPercent(percent);
-    } else {
-      final count = tracks.length > 1
-          ? (saved == tracks.length
-              ? context.l10n.audioRecordingsCount(tracks.length)
-              : context.l10n.audioRecordingsChosen(saved, tracks.length))
-          : null;
-      subtitle = [
-        if (count != null) count,
-        formatAudioBytes(store.savedBytesOf(tracks)),
-      ].join(' · ');
+      final progress = store.overallProgress(tracks);
+      return CardListRow(
+        first: first,
+        last: last,
+        minHeight: 58,
+        title: Text(title),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.audioDownloadingPercent((progress * 100).floor()),
+              style: TextStyle(color: colors.accent),
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                // Indeterminate until the first bytes give it a size.
+                value: progress > 0 ? progress : null,
+                minHeight: 4,
+                color: colors.accent,
+                backgroundColor: colors.divider,
+              ),
+            ),
+          ],
+        ),
+        trailing: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+          child: OutlinedButton(
+            onPressed: () => store.cancel(tracks),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(44, 36),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              foregroundColor: colors.accent,
+              side: BorderSide(
+                  color: Color.lerp(colors.line, colors.chevron, 0.25)!),
+              shape: const StadiumBorder(),
+              textStyle: buttonTextStyle(context, ShiaText.secondary)
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+            child: Text(l10n.commonStop),
+          ),
+        ),
+        onTap: onOpen,
+      );
     }
 
-    return ListTile(
-      leading: Icon(
-        downloading ? Icons.downloading_rounded : Icons.offline_pin_rounded,
-        color: Theme.of(context).colorScheme.primary,
-      ),
+    final count = tracks.length > 1
+        ? (saved == tracks.length
+            ? l10n.audioRecordingsCount(tracks.length)
+            : l10n.audioRecordingsChosen(saved, tracks.length))
+        : null;
+    final subtitle = [
+      if (count != null) count,
+      formatAudioBytes(store.savedBytesOf(tracks)),
+    ].join(' · ');
+
+    void remove() => confirmRemoveAudioDownload(context, tracks, label: title);
+
+    return CardListRow(
+      first: first,
+      last: last,
+      minHeight: 58,
       title: Text(title),
       subtitle: Text(subtitle),
-      onTap: onOpen,
-      trailing: downloading
-          ? IconButton(
-              icon: const Icon(Icons.close),
-              tooltip: context.l10n.audioStopDownloading,
-              onPressed: () => store.cancel(tracks),
-            )
-          : IconButton(
-              icon: const Icon(Icons.delete_outline),
-              tooltip: context.l10n.audioRemoveDownload,
-              onPressed: () =>
-                  confirmRemoveAudioDownload(context, tracks, label: title),
+      trailing: Tooltip(
+        message: l10n.audioRemoveDownload,
+        excludeFromSemantics: true,
+        child: Semantics(
+          container: true,
+          button: true,
+          label: l10n.downloadsRemoveNamed(title),
+          excludeSemantics: true,
+          onTap: remove,
+          child: InkResponse(
+            onTap: remove,
+            radius: 22,
+            child: SizedBox.square(
+              dimension: 44,
+              child: Center(
+                child: OutlineIcon(OutlineGlyph.trash,
+                    size: 22, color: colors.accent),
+              ),
             ),
+          ),
+        ),
+      ),
+      onTap: onOpen,
+    );
+  }
+}
+
+/// Saved recordings no dua plays any more - replaced by newer ones - and
+/// the button that clears them.
+class _OlderRecordingsCard extends StatelessWidget {
+  const _OlderRecordingsCard({
+    required this.count,
+    required this.size,
+    required this.onRemove,
+  });
+
+  final int count;
+  final String size;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
+    return Material(
+      color: colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SliverCardList.radius),
+        side: BorderSide(color: colors.line),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: colors.well,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: OutlineIcon(OutlineGlyph.repeat,
+                      size: 20, color: colors.accent),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.downloadsOlderCount(count),
+                        style: ShiaText.cardTitle.copyWith(color: colors.text),
+                      ),
+                      Text(
+                        l10n.downloadsOlderBody(size),
+                        style:
+                            ShiaText.caption.copyWith(color: colors.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            PageButton(
+              label: l10n.downloadsRemoveOlder,
+              onPressed: onRemove,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
 
-import '../constants.dart';
+import '../theme/shia_colors.dart';
+import 'glass_surface.dart';
 import 'home_glyph.dart';
-import 'responsive_content.dart';
+import 'outline_icon.dart';
 import '../l10n/l10n.dart';
 
-/// The docked bar along the bottom of a zikr.
+/// The reader's tools capsule (docs/DESIGN_SPEC.md, "Reading"): a floating
+/// glass capsule in the tab bar's style holding Bookmark · Listen · Text ·
+/// Counter · Share as labelled targets in the thumb zone.
 ///
-/// It holds the actions that apply to the whole zikr — bookmark, share,
-/// listen, reading settings, counter — as labelled targets in the thumb
-/// zone. Bookmark in particular was previously an unlabelled ribbon icon
-/// sharing a crowded app bar, which is a poor affordance for the app's
-/// single most useful action.
+/// When a recitation is playing the same capsule hosts the player instead of
+/// the tools. Both are [barHeight] tall, so swapping between them never
+/// changes its size and the text behind it never reflows.
 ///
-/// When a recitation is playing the same bar hosts the player instead of the
-/// action row. Both are [barHeight] tall, so swapping between them never
-/// changes the bar's size and the text behind it never reflows.
+/// The capsule only draws itself; the page places it ([floatingBottomOffset]
+/// from the bottom, 16 from the sides) over a [BottomFade].
 class ZikrActionBar extends StatelessWidget {
-  /// Height of the bar's content, excluding the bottom safe area. Callers pad
-  /// the scroll view by this much so the last line clears the bar.
+  /// Height of the capsule. Callers pad the scroll view by this much plus
+  /// its offset from the bottom, so the last line clears it.
   static const double barHeight = 62;
 
-  /// Shown in place of the action row — the recitation player.
+  /// The capsule's width from tablet width up, centred, like the web
+  /// mockup's; on a phone it runs between the 16 px gutters.
+  static const double maxToolsWidth = 440;
+
+  /// Wider while the player is in it: a title, a seek bar and its buttons
+  /// need more room than five tools do.
+  static const double maxPlayerWidth = 560;
+
+  /// Shown in place of the tools - the recitation player.
   final Widget? player;
 
   final bool hasAudio;
@@ -37,7 +45,9 @@ class ZikrActionBar extends StatelessWidget {
   final VoidCallback onBookmark;
   final VoidCallback onShare;
   final VoidCallback onListen;
-  final VoidCallback onSettings;
+
+  /// Opens the Text & reading sheet.
+  final VoidCallback onText;
   final VoidCallback onCounter;
 
   const ZikrActionBar({
@@ -52,36 +62,36 @@ class ZikrActionBar extends StatelessWidget {
     required this.onBookmark,
     required this.onShare,
     required this.onListen,
-    required this.onSettings,
+    required this.onText,
     required this.onCounter,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Material(
-      color: colorScheme.surfaceContainer,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Divider(height: 1, thickness: 1, color: colorScheme.outlineVariant),
-          SizedBox(
+    final radius = BorderRadius.circular(barHeight / 2);
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: player != null ? maxPlayerWidth : maxToolsWidth,
+        ),
+        child: GlassSurface(
+          borderRadius: radius,
+          child: SizedBox(
             height: barHeight,
-            // The reading column is centred on wide screens, so the bar's
-            // contents follow it rather than stretching the full width.
-            child: Center(
-              child: ConstrainedBox(
-                constraints:
-                    const BoxConstraints(maxWidth: readingContentWidth),
-                child: player ?? _buildActions(context),
-              ),
+            child: Material(
+              type: MaterialType.transparency,
+              child: player != null
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: player,
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: _buildActions(context),
+                    ),
             ),
           ),
-          // Painted background continues under the home indicator; the
-          // controls themselves stay above it.
-          SizedBox(height: MediaQuery.of(context).padding.bottom),
-        ],
+        ),
       ),
     );
   }
@@ -92,43 +102,78 @@ class ZikrActionBar extends StatelessWidget {
         if (showBookmark)
           Expanded(
             child: _ZikrAction(
-              icon: isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+              icon: (color) => OutlineIcon(
+                OutlineGlyph.bookmark,
+                size: 22,
+                color: color,
+                strokeWidth: 1.9,
+                filled: isBookmarked,
+              ),
               label: isBookmarked
-                    ? context.l10n.actionSaved
-                    : context.l10n.actionBookmark,
+                  ? context.l10n.actionSaved
+                  : context.l10n.actionBookmark,
               isActive: isBookmarked,
               onTap: canBookmark ? onBookmark : null,
             ),
           ),
-        Expanded(
-          child: _ZikrAction(
-            icon: Icons.share,
-            label: context.l10n.actionShare,
-            onTap: canShare ? onShare : null,
-          ),
-        ),
         if (hasAudio)
           Expanded(
             child: _ZikrAction(
-              icon: Icons.headphones,
+              icon: (color) => OutlineIcon(
+                OutlineGlyph.play,
+                size: 22,
+                color: color,
+                strokeWidth: 1.6,
+                filled: true,
+              ),
               label: context.l10n.actionListen,
               onTap: onListen,
             ),
           ),
         Expanded(
           child: _ZikrAction(
-            icon: Icons.tune,
-            label: context.l10n.actionSettings,
-            onTap: onSettings,
+            icon: (color) => SizedBox(
+              height: 22,
+              child: Center(
+                child: Text(
+                  // A glyph, not a word - but in the reader's own letters.
+                  context.l10n.textSizeGlyph,
+                  textScaler: TextScaler.noScaling,
+                  style: TextStyle(
+                    fontSize: 17,
+                    height: 1,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+              ),
+            ),
+            label: context.l10n.actionText,
+            onTap: onText,
           ),
         ),
         Expanded(
           child: _ZikrAction(
-            icon: tasbeehCounterIcon,
-            glyphType: HomeGlyphType.tasbeeh,
+            icon: (color) => HomeGlyph(
+              type: HomeGlyphType.tasbeeh,
+              size: 22,
+              color: color,
+            ),
             label: context.l10n.actionCounter,
             isActive: isCounterVisible,
             onTap: onCounter,
+          ),
+        ),
+        Expanded(
+          child: _ZikrAction(
+            icon: (color) => OutlineIcon(
+              OutlineGlyph.share,
+              size: 22,
+              color: color,
+              strokeWidth: 1.9,
+            ),
+            label: context.l10n.actionShare,
+            onTap: canShare ? onShare : null,
           ),
         ),
       ],
@@ -136,21 +181,17 @@ class ZikrActionBar extends StatelessWidget {
   }
 }
 
-/// One action in the bar. Toggle-style actions (bookmark, counter) render
-/// their active state as a filled pill behind the icon rather than just a
-/// tint — a reader glancing down should see at once whether the zikr is
-/// bookmarked, not have to notice a subtler color/weight change on text
-/// that scrolled away with the rest of the bar a moment ago.
+/// One tool in the capsule. Toggle-style tools (bookmark, counter) show
+/// their on state as a tinted pill behind the whole tool, like the selected
+/// tab in the tab bar, so a glance down says whether the zikr is bookmarked.
 class _ZikrAction extends StatefulWidget {
-  final IconData icon;
-  final HomeGlyphType? glyphType;
+  final Widget Function(Color color) icon;
   final String label;
   final bool isActive;
   final VoidCallback? onTap;
 
   const _ZikrAction({
     required this.icon,
-    this.glyphType,
     required this.label,
     this.isActive = false,
     required this.onTap,
@@ -183,7 +224,10 @@ class _ZikrActionState extends State<_ZikrAction>
     super.didUpdateWidget(oldWidget);
     // Bookmarking is worth a little celebration; un-bookmarking is not - a
     // bounce on the way out would read as an error shake rather than an undo.
-    if (widget.isActive && !oldWidget.isActive) {
+    // Nothing that moves on its own for someone who asked for less motion.
+    if (widget.isActive &&
+        !oldWidget.isActive &&
+        !MediaQuery.disableAnimationsOf(context)) {
       _popController.forward(from: 0);
     }
   }
@@ -196,64 +240,58 @@ class _ZikrActionState extends State<_ZikrAction>
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colors = ShiaColors.of(context);
     final isEnabled = widget.onTap != null;
+    final iconColor =
+        isEnabled ? colors.accent : colors.accent.withValues(alpha: 0.38);
+    final labelColor =
+        isEnabled ? colors.text : colors.text.withValues(alpha: 0.38);
+    final radius = BorderRadius.circular(27);
 
-    final iconColor = !isEnabled
-        ? colorScheme.onSurfaceVariant.withValues(alpha: 0.38)
-        : widget.isActive
-            ? colorScheme.onPrimaryContainer
-            : colorScheme.onSurfaceVariant;
-    final labelColor = !isEnabled
-        ? colorScheme.onSurfaceVariant.withValues(alpha: 0.38)
-        : widget.isActive
-            ? colorScheme.primary
-            : colorScheme.onSurfaceVariant;
-
-    return InkWell(
-      onTap: widget.onTap,
-      child: Padding(
-        // The pill's own padding already pushes the icon outward, so this
-        // outer padding is tighter than a plain icon+label would need - at
-        // 320px wide (5 actions, the real squeeze case) the two together
-        // were 1px from overflowing the bar's fixed height.
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ScaleTransition(
-              scale: _popScale,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                decoration: BoxDecoration(
-                  color: widget.isActive
-                      ? colorScheme.primaryContainer
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(14),
+    return Semantics(
+      button: true,
+      enabled: isEnabled,
+      toggled: widget.isActive ? true : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        decoration: BoxDecoration(
+          color: widget.isActive ? colors.selectedTint : Colors.transparent,
+          borderRadius: radius,
+        ),
+        child: InkWell(
+          onTap: widget.onTap,
+          borderRadius: radius,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ScaleTransition(
+                  scale: _popScale,
+                  child: ExcludeSemantics(child: widget.icon(iconColor)),
                 ),
-                child: widget.glyphType != null
-                    ? HomeGlyph(
-                        type: widget.glyphType!,
-                        size: 22,
-                        color: iconColor,
-                      )
-                    : Icon(widget.icon, size: 22, color: iconColor),
-              ),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              widget.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: labelColor,
-                    fontWeight: widget.isActive ? FontWeight.w600 : null,
+                const SizedBox(height: 2),
+                Text(
+                  widget.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  // The capsule is a fixed 62 px; its labels stay at the
+                  // tab bar's size however large the system text is, as
+                  // the tab bar's do.
+                  textScaler: MediaQuery.textScalerOf(context)
+                      .clamp(maxScaleFactor: 1.3),
+                  style: (widget.isActive
+                          ? ShiaText.tabLabelSelected
+                          : ShiaText.tabLabel)
+                      .copyWith(
+                    color: widget.isActive && isEnabled
+                        ? colors.accent
+                        : labelColor,
                   ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -14,6 +14,7 @@ import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'data/live_streaming_data.dart';
@@ -35,7 +36,15 @@ double screenWidth = 0;
 double screenHeight = 0;
 
 User? user;
-bool isUserAdmin = false;
+
+/// Whether the signed-in user holds the admin claim, as something to listen
+/// to. The claim is read a few seconds into start-up (SessionRefreshService),
+/// after the tab shell is already up, so the shell listens to this to swap
+/// its Quran tab over to the dark-launched Quran screen when the claim lands.
+final ValueNotifier<bool> adminState = ValueNotifier(false);
+
+bool get isUserAdmin => adminState.value;
+set isUserAdmin(bool value) => adminState.value = value;
 
 final String appName = "Shia Companion";
 final Color appColor = Colors.brown;
@@ -56,7 +65,9 @@ TextStyle smallText = TextStyle(fontSize: 14);
 TextStyle boldText = TextStyle(fontWeight: FontWeight.bold);
 String appVersion = '1.0';
 
-bool showTranslation = true, showTransliteration = true;
+/// Transliteration is off until the reader turns it on; an install from
+/// before that keeps it on (see [FirstRunSetup.resolveOnLaunch]).
+bool showTranslation = true, showTransliteration = false;
 
 /// Whether, in [isArabicOnlyReadingView](in zikr_content_viewer.dart) - both
 /// English aids switched off - consecutive Arabic verses flow together as one
@@ -298,12 +309,12 @@ Future<bool> arePrayerAzanAlarmsMissing(
   // azanPlaysAutomatically), so there is nothing to have lost.
   if (pending == null || !azanPlaysAutomatically()) return false;
 
-  final playsAzan = enabledPrayerNotificationNames(
-          getPrayerNotificationPrayerNames())
-      .map(getAzaanOptionForPrayer)
-      .any((azaan) =>
-          azaan.id == AzaanOptions.azaan.id ||
-          azaan.id == AzaanOptions.custom.id);
+  final playsAzan =
+      enabledPrayerNotificationNames(getPrayerNotificationPrayerNames())
+          .map(getAzaanOptionForPrayer)
+          .any((azaan) =>
+              azaan.id == AzaanOptions.azaan.id ||
+              azaan.id == AzaanOptions.custom.id);
   if (!playsAzan) return false;
 
   // Azan alarms reuse their notification's id (see schedulePrayerTimeNotification).
@@ -375,7 +386,7 @@ List<PrayerNotificationScheduleEntry> buildPrayerNotificationEntriesForDay({
       date,
       latitude,
       longitude,
-      date.timeZoneOffset.inMinutes / 60.0,
+      prayerTimeZoneFor(date),
     );
     final entries = <PrayerNotificationScheduleEntry>[];
     for (var index = 0; index < names.length; index++) {
@@ -414,11 +425,6 @@ Map<String, dynamic> itemMetadata = {};
 final ValueNotifier<bool> zikrIndexReady = ValueNotifier<bool>(false);
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
-
-/// The app-wide snackbar host, for messages that outlive the page that
-/// caused them - an offline download finishing after the reader has moved on.
-final GlobalKey<ScaffoldMessengerState> appScaffoldMessengerKey =
-    GlobalKey<ScaffoldMessengerState>();
 
 double getItemOrderValue(String uid) {
   final custom = itemOrder[uid];
@@ -470,37 +476,25 @@ Future<void> handleUniversalDataClick(
   }
 }
 
+/// Whether the phone already lets the app read its location, without ever
+/// asking: an automatic refresh may fetch only then, since the permission
+/// prompt follows an explicit tap (docs/DESIGN_SPEC.md, "First-run setup").
+Future<bool> hasLocationPermission() async {
+  try {
+    final status = await Geolocator.checkPermission();
+    return status == LocationPermission.whileInUse ||
+        status == LocationPermission.always;
+  } catch (e) {
+    debugPrint('Could not read the location permission: $e');
+    return false;
+  }
+}
+
 Future<bool> initializeLocation(
     {bool force = false, BuildContext? context}) async {
   // If we are not forcing a refresh and we already have lat/long, just return.
   if (!force && lat != null && long != null) {
     return true;
-  }
-
-  // Show explanation dialog on first setup
-  if (!force && context != null && lat == null && long == null) {
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text(L10n.current.locationEnableTitle),
-          content: Text(
-            L10n.current.locationEnableBody,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(L10n.current.commonCancel),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(L10n.current.commonContinue),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   try {
@@ -523,10 +517,9 @@ Future<bool> initializeLocation(
         permissionStatus == LocationPermission.deniedForever ||
         permissionStatus == LocationPermission.unableToDetermine) {
       debugPrint("Location permission not granted: $permissionStatus");
-      lastLocationFailure =
-          permissionStatus == LocationPermission.deniedForever
-              ? LocationFailure.permissionDeniedForever
-              : LocationFailure.permissionDenied;
+      lastLocationFailure = permissionStatus == LocationPermission.deniedForever
+          ? LocationFailure.permissionDeniedForever
+          : LocationFailure.permissionDenied;
       if (context != null && !kIsWeb) {
         _showPermissionDeniedDialog(context, permissionStatus);
       }
@@ -541,9 +534,8 @@ Future<bool> initializeLocation(
     // Use a time limit so we don't hang indefinitely on a cold/failing fetch,
     // and keep a last-known fix as a fallback when a fresh one can't be obtained.
     // getLastKnownPosition is unsupported on web, so skip it there.
-    final Position? lastKnownPosition = kIsWeb
-        ? null
-        : await Geolocator.getLastKnownPosition();
+    final Position? lastKnownPosition =
+        kIsWeb ? null : await Geolocator.getLastKnownPosition();
 
     Position currentLocation;
     try {
@@ -646,6 +638,33 @@ Future<bool> initializeLocation(
   }
 }
 
+/// Makes [latitude], [longitude] the prayer-times location, named [label],
+/// with the same consequences a GPS fix has in [initializeLocation]: stored,
+/// and the notification schedule and prayer-relative reminders rebuilt if the
+/// place moved. Used for a city the reader chose by name.
+Future<void> applyChosenPrayerLocation({
+  required double latitude,
+  required double longitude,
+  required String label,
+}) async {
+  lat = latitude;
+  long = longitude;
+  lastLocationFailure = null;
+  lastLocationFixAt = DateTime.now();
+  final locationChanged = hasPrayerScheduleLocationMoved();
+  if (locationChanged || city != label) needToSchedule = true;
+  city = label;
+  if (SP.isInitialized) {
+    await SP.prefs.setDouble("lat", latitude);
+    await SP.prefs.setDouble("long", longitude);
+    await SP.prefs.setString("city", label);
+  }
+  if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
+    await setUpNotifications();
+    await ZikrReminderService.instance.rescheduleAll();
+  }
+}
+
 /// Sanity-checks a reverse-geocode label before we show it.
 ///
 /// The city name is display-only — prayer times are computed from lat/long, so
@@ -723,14 +742,11 @@ void _showPermissionDeniedDialog(
     BuildContext context, LocationPermission status) {
   String message;
   if (status == LocationPermission.deniedForever) {
-    message =
-        L10n.current.locationPermissionDeniedForever;
+    message = L10n.current.locationPermissionDeniedForever;
   } else if (status == LocationPermission.unableToDetermine) {
-    message =
-        L10n.current.locationPermissionUnknown;
+    message = L10n.current.locationPermissionUnknown;
   } else {
-    message =
-        L10n.current.locationPermissionNeeded;
+    message = L10n.current.locationPermissionNeeded;
   }
 
   showDialog(
@@ -771,7 +787,7 @@ void _showLocationTimeoutDialog(BuildContext context) {
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('OK'),
+            child: Text(MaterialLocalizations.of(dialogContext).okButtonLabel),
           ),
         ],
       );
@@ -786,7 +802,7 @@ void _showLocationErrorDialog(BuildContext context, dynamic error) {
     builder: (BuildContext dialogContext) {
       return AlertDialog(
         title: Text(L10n.current.locationErrorTitle),
-                  content: Text(L10n.current.locationErrorBody(error.toString())),
+        content: Text(L10n.current.locationErrorBody(error.toString())),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -917,7 +933,8 @@ Future<void> setUpNotifications() async {
   }
   await Future.wait(schedulingTasks);
   AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails("general", L10n.current.notificationChannelGeneral);
+      AndroidNotificationDetails(
+          "general", L10n.current.notificationChannelGeneral);
   DarwinNotificationDetails iOSPlatformChannelSpecifics =
       DarwinNotificationDetails();
   NotificationDetails platformChannelSpecifics = NotificationDetails(
@@ -926,8 +943,7 @@ Future<void> setUpNotifications() async {
   await plugin.zonedSchedule(
       id: 786,
       title: L10n.current.notificationReopenAppTitle,
-      body:
-                      L10n.current.notificationReopenAppBody(scheduleDays),
+      body: L10n.current.notificationReopenAppBody(scheduleDays),
       scheduledDate:
           tz.TZDateTime.now(tz.local).add(Duration(days: scheduleDays - 1)),
       notificationDetails: platformChannelSpecifics,
@@ -1123,10 +1139,16 @@ Future<NotificationDetails> prayerNotificationDetails(
 /// On iOS the Full Azan notification only carries the short Takbir clip (see
 /// _iosPrayerNotificationDetails) and the full recording starts from a tap on
 /// it, so the banner has to say so - nothing else on it does.
+/// "05:12 AM : Fajr", in the app language: the time as intl writes it there
+/// and the prayer's translated name.
+String prayerNotificationTitle(DateTime dateTime, String prayerName) =>
+    '${DateFormat('hh:mm a').format(dateTime)} : '
+    '${localizedPrayerName(prayerName)}';
+
 String prayerNotificationBody(String prayerName, AzaanOption azaan,
     {bool? isIOS, bool? playsAutomatically}) {
-  final body = L10n.current.notificationPrayerTime(
-      localizedPrayerName(prayerName).toLowerCase());
+  final body = L10n.current
+      .notificationPrayerTime(localizedPrayerName(prayerName).toLowerCase());
   final onIOS = isIOS ?? (!kIsWeb && Platform.isIOS);
   final autoplays = playsAutomatically ?? (!onIOS && azanPlaysAutomatically());
   if (autoplays || !azanUsesPlaybackService(azaan)) return body;
@@ -1180,8 +1202,7 @@ Future<void> schedulePrayerTimeNotification(
         androidScheduleMode: canScheduleExactPrayerNotifications
             ? AndroidScheduleMode.exactAllowWhileIdle
             : AndroidScheduleMode.inexactAllowWhileIdle,
-        title:
-            formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
+        title: prayerNotificationTitle(dateTime, prayerName),
         body: prayerNotificationBody(prayerName, azaan),
         payload: dateTime.toIso8601String());
 
@@ -1266,6 +1287,11 @@ bool isZikrReminderNotificationResponse(NotificationResponse response) =>
 /// invokes whichever one matches where the tap arrived.
 Future<void> handlePrayerNotificationResponse(
     NotificationResponse response) async {
+  // The same tap can arrive twice: from the plugin's callback and from the
+  // check Home runs on every resume (see handleNotificationThatOpenedApp).
+  // Once is enough - and a later resume must not replay an Azan the reader
+  // has already stopped.
+  if (!markNotificationTapHandled(response)) return;
   if (isZikrReminderNotificationResponse(response)) {
     await _openZikrReminderNotification(
       response.payload!.substring(ZikrReminderService.payloadPrefix.length),
@@ -1300,6 +1326,49 @@ Future<void> handlePrayerNotificationResponse(
         ? _customAudioPathForPlayback(prayerName)
         : null,
   );
+}
+
+/// Notification taps this isolate has acted on, by id and payload: a prayer
+/// notification's payload is its own date and time, a reminder's its id.
+final Set<String> _handledNotificationTaps = {};
+
+/// Records [response] as acted on, and says whether it is the first time.
+@visibleForTesting
+bool markNotificationTapHandled(NotificationResponse response) {
+  if (response.id == null) return true;
+  return _handledNotificationTaps
+      .add('${response.id}|${response.payload}|${response.actionId}');
+}
+
+/// Acts on the notification tap that opened the app, when it was never
+/// passed on to Dart.
+///
+/// Android: MainActivity reuses the Flutter engine audio_service keeps alive
+/// (AudioServiceActivity), so once Back has closed the screen the app itself
+/// can keep running without one. A notification tap then opens a new screen
+/// on that same running app: Home's start-up, which reads the tap that
+/// launched the app, ran long ago, and flutter_local_notifications passes a
+/// tap that opens a screen to neither of its callbacks - so the Azan never
+/// started, and a zikr reminder never opened its zikr.
+///
+/// iOS: the plugin keeps a tap that arrives before initialize() for the
+/// launch details only, and Home reads those before it initializes it.
+///
+/// Home calls this once the plugin is up and on every resume; a tap already
+/// acted on is skipped.
+Future<void> handleNotificationThatOpenedApp() async {
+  if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return;
+  final NotificationAppLaunchDetails? details;
+  try {
+    details = await FlutterLocalNotificationsPlugin()
+        .getNotificationAppLaunchDetails();
+  } catch (e) {
+    debugPrint('Could not read the notification that opened the app: $e');
+    return;
+  }
+  final response = details?.notificationResponse;
+  if (details?.didNotificationLaunchApp != true || response == null) return;
+  await handlePrayerNotificationResponse(response);
 }
 
 /// Opens what a tapped zikr reminder notification was for: the linked zikr
@@ -1338,8 +1407,7 @@ Future<void> _openZikrReminderNotification(String reminderId) async {
 /// flutter_local_notifications requires this to be a distinct top-level
 /// function carrying this pragma.
 @pragma('vm:entry-point')
-void handlePrayerNotificationResponseBackground(
-    NotificationResponse response) {
+void handlePrayerNotificationResponseBackground(NotificationResponse response) {
   handlePrayerNotificationResponse(response);
 }
 
@@ -1398,8 +1466,8 @@ Future<void> testNotification(
       androidScheduleMode: canScheduleExactPrayerNotifications
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle,
-      title: "Test",
-      body: "Test notification");
+      title: L10n.current.notificationTestTitle,
+      body: L10n.current.notificationTestBody);
 }
 
 /// The one spelling every per-prayer preference key is built from.
@@ -1495,12 +1563,48 @@ Future<void> saveAzaanPreferenceForPrayer(
   }
 }
 
+Future<FlutterLocalNotificationsPlugin>? _notificationsPluginSetup;
+
+/// Creates and initializes [flutterLocalNotificationsPlugin], once: Home's
+/// start-up and first-run setup's Azan step (which runs before Home) both
+/// need it. Null on the web.
+///
+/// Asks for no permission: on iOS the plugin would otherwise put the
+/// notification prompt up the moment it starts. [requestNotificationPermissions]
+/// asks, and only for someone who has turned on azan or a reminder.
+Future<FlutterLocalNotificationsPlugin?> ensureNotificationsPlugin() async {
+  if (kIsWeb) return null;
+  return _notificationsPluginSetup ??= () async {
+    final plugin = FlutterLocalNotificationsPlugin();
+    await plugin.initialize(
+      settings: const InitializationSettings(
+        android: AndroidInitializationSettings('ic_notification'),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        ),
+      ),
+      onDidReceiveNotificationResponse: handlePrayerNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse:
+          handlePrayerNotificationResponseBackground,
+    );
+    flutterLocalNotificationsPlugin = plugin;
+    return plugin;
+  }()
+      // A failed start is tried again by the next caller, not remembered.
+      .catchError((Object error) {
+    _notificationsPluginSetup = null;
+    throw error;
+  });
+}
+
 /// Asks the OS for permission to post notifications.
 ///
-/// Prayer reminders are the only thing the app notifies about, so this is
-/// deliberately not called at start-up for a user who has never opted into
-/// azan — see [AzaanOptInService]. Both the first-run opt-in and the Settings
-/// switch come through here when azan is turned on.
+/// Only for someone with something to be notified about - azan or a zikr
+/// reminder - so never on a bare launch: see [AzaanOptInService]. Setup's
+/// Azan step and the Settings switch come through here when azan is turned
+/// on, as do [setUpNotifications] and the reminders' rescheduling.
 Future<void> requestNotificationPermissions() async {
   if (flutterLocalNotificationsPlugin == null) return;
 
@@ -1599,8 +1703,8 @@ Future<String> keepCustomAudioFile(File picked, {required String scope}) async {
     '${(await getApplicationSupportDirectory()).path}/custom_azan/'
     '${scope.replaceAll(RegExp(r'[^A-Za-z0-9]'), '_')}',
   );
-  final pickDir = Directory(
-      '${scopeDir.path}/${DateTime.now().millisecondsSinceEpoch}');
+  final pickDir =
+      Directory('${scopeDir.path}/${DateTime.now().millisecondsSinceEpoch}');
   await pickDir.create(recursive: true);
   final kept =
       await picked.copy('${pickDir.path}/${picked.path.split('/').last}');

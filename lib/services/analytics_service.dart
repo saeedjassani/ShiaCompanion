@@ -138,6 +138,7 @@ class AnalyticsService {
         "Zikr opened from the Today's Recitation home screen widget",
     ZikrOpenSource.reminder: 'Zikr opened from a reminder notification',
     ZikrOpenSource.myStats: 'Zikr opened from My Stats',
+    ZikrOpenSource.homeContinue: 'Zikr resumed from Continue on Home',
     ZikrOpenSource.unknown: 'Zikr opened from an untagged entry point',
   };
 
@@ -385,4 +386,8 @@ class ZikrOpenSource {
   /// Tapped an item in the Today's Recitation home screen widget. See
   /// [homeWidgetFavorites].
   static const String homeWidgetRecitation = 'home_widget_recitation';
+
+  /// Resumed at its bookmark from a Continue card on Home. (A Quran track
+  /// resumed there counts as [quranResume], as from the Quran screen.)
+  static const String homeContinue = 'home_continue';
 }

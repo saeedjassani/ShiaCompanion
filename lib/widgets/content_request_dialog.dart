@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import '../services/analytics_service.dart';
 import '../services/content_request_service.dart';
 import '../l10n/l10n.dart';
+import '../theme/shia_colors.dart';
+import 'choice_sheet.dart';
+import 'outline_icon.dart';
+import 'page_chrome.dart';
+import 'app_toast.dart';
 
 /// What the reader filled in, before it is sent anywhere.
 class ContentRequestDraft {
@@ -30,10 +35,11 @@ Future<void> showContentRequestDialog(
   String initialTitle = '',
   required String source,
 }) async {
-  final messenger = ScaffoldMessenger.maybeOf(context);
-  final draft = await showDialog<ContentRequestDraft>(
-    context: context,
-    builder: (_) => ContentRequestDialog(
+  final draft = await showRevampSheet<ContentRequestDraft>(
+    context,
+    title: context.l10n.settingsRequestContent,
+    closeLabel: context.l10n.commonCancel,
+    builder: (_) => ContentRequestForm(
       initialType: initialType,
       initialTitle: initialTitle,
     ),
@@ -52,17 +58,15 @@ Future<void> showContentRequestDialog(
     details: draft.details,
   );
 
-  messenger?.showSnackBar(
-    SnackBar(
-      content: Text(submitted
-          ? context.l10n.requestThanks
-          : context.l10n.requestFailed),
-    ),
-  );
+  showToast(
+      submitted ? L10n.current.requestThanks : L10n.current.requestFailed);
 }
 
-class ContentRequestDialog extends StatefulWidget {
-  const ContentRequestDialog({
+/// The request form [showContentRequestDialog] opens in a sheet: zikr or
+/// book, its name, and anything else that helps find it. Pops the draft on
+/// Send.
+class ContentRequestForm extends StatefulWidget {
+  const ContentRequestForm({
     super.key,
     this.initialType = ContentRequestType.zikr,
     this.initialTitle = '',
@@ -72,10 +76,10 @@ class ContentRequestDialog extends StatefulWidget {
   final String initialTitle;
 
   @override
-  State<ContentRequestDialog> createState() => _ContentRequestDialogState();
+  State<ContentRequestForm> createState() => _ContentRequestFormState();
 }
 
-class _ContentRequestDialogState extends State<ContentRequestDialog> {
+class _ContentRequestFormState extends State<ContentRequestForm> {
   late ContentRequestType _type = widget.initialType;
   late final TextEditingController _title =
       TextEditingController(text: widget.initialTitle);
@@ -101,62 +105,56 @@ class _ContentRequestDialogState extends State<ContentRequestDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = ShiaColors.of(context);
     final isBook = _type == ContentRequestType.book;
-    return AlertDialog(
-      title: Text(context.l10n.settingsRequestContent),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SegmentedButton<ContentRequestType>(
-              segments: [
-                for (final type in ContentRequestType.values)
-                  ButtonSegment(
-                    value: type,
-                    label: Text(type == ContentRequestType.book
-                        ? context.l10n.requestTypeBook
-                        : context.l10n.requestTypeZikr)),
-              ],
-              selected: {_type},
-              onSelectionChanged: (selection) =>
-                  setState(() => _type = selection.first),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _title,
-              autofocus: widget.initialTitle.isEmpty,
-              maxLength: 200,
-              textInputAction: TextInputAction.next,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                labelText: isBook ? context.l10n.requestBookTitle : context.l10n.requestZikrName,
-                border: const OutlineInputBorder(),
+    final fieldStyle = ShiaText.body.copyWith(color: colors.text);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SegmentedSwitcher<ContentRequestType>(
+          segments: [
+            for (final type in ContentRequestType.values)
+              Segment(
+                type,
+                type == ContentRequestType.book
+                    ? l10n.requestTypeBook
+                    : l10n.requestTypeZikr,
               ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _details,
-              maxLength: 1000,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: isBook
-                    ? context.l10n.requestBookDetails
-                    : context.l10n.requestZikrDetails,
-                border: const OutlineInputBorder(),
-              ),
-            ),
           ],
+          selected: _type,
+          onChanged: (type) => setState(() => _type = type),
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(context.l10n.commonCancel),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _title,
+          autofocus: widget.initialTitle.isEmpty,
+          maxLength: 200,
+          textInputAction: TextInputAction.next,
+          style: fieldStyle,
+          onChanged: (_) => setState(() {}),
+          decoration: revampFieldDecoration(
+            context,
+            label: isBook ? l10n.requestBookTitle : l10n.requestZikrName,
+          ),
         ),
-        FilledButton(
+        const SizedBox(height: 8),
+        TextField(
+          controller: _details,
+          maxLength: 1000,
+          maxLines: 3,
+          style: fieldStyle,
+          decoration: revampFieldDecoration(
+            context,
+            label: isBook ? l10n.requestBookDetails : l10n.requestZikrDetails,
+          ),
+        ),
+        const SizedBox(height: 12),
+        PageButton(
+          label: l10n.commonSend,
+          glyph: OutlineGlyph.mail,
+          filled: true,
           onPressed: _canSubmit ? _submit : null,
-          child: Text(context.l10n.commonSend),
         ),
       ],
     );

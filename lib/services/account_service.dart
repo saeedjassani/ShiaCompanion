@@ -1,6 +1,10 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../firebase_auth_config.dart';
 import '../firebase_options.dart';
@@ -44,6 +48,28 @@ class AccountService {
     final googleAuth = await googleUser.authentication;
     final credential = GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
+    );
+    return _auth.signInWithCredential(credential);
+  }
+
+  static Future<UserCredential> signInWithApple() async {
+    final rawNonce = generateNonce();
+    final nonce = sha256.convert(utf8.encode(rawNonce)).toString();
+    final appleCredential = await SignInWithApple.getAppleIDCredential(
+      scopes: [],
+      nonce: nonce,
+    );
+    final identityToken = appleCredential.identityToken;
+    if (identityToken == null) {
+      throw FirebaseAuthException(
+        code: 'missing-apple-id-token',
+        message: 'Apple did not return an identity token.',
+      );
+    }
+
+    final credential = OAuthProvider('apple.com').credential(
+      idToken: identityToken,
+      rawNonce: rawNonce,
     );
     return _auth.signInWithCredential(credential);
   }

@@ -31,14 +31,16 @@ void main() {
   testWidgets('adding a reminder shows it in the list', (tester) async {
     await pump(tester);
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.text('Add a reminder'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField).first, 'Dua Tawassul');
-    await tester.tap(find.text('Tue'));
+    await tester.tap(find.bySemanticsLabel('Tuesday'));
     await tester.pumpAndSettle();
+    // What it will do, in words, above the button.
+    expect(find.text('Tuesdays, at 9:00 pm'), findsOneWidget);
 
-    await tester.tap(find.text('Add Reminder'));
+    await tester.tap(find.text('Add reminder'));
     await tester.pumpAndSettle();
 
     expect(find.text('No reminders yet'), findsNothing);
@@ -79,7 +81,12 @@ void main() {
     await pump(tester);
     expect(find.text('Dua Tawassul'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.delete_outline));
+    // Removing is on the reminder's own page.
+    await tester.tap(find.text('Dua Tawassul'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Remove reminder'), 200,
+        scrollable: find.byType(Scrollable).first);
+    await tester.tap(find.text('Remove reminder'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Remove'));
     await tester.pumpAndSettle();
@@ -92,7 +99,7 @@ void main() {
       (tester) async {
     await pump(tester);
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.text('Add a reminder'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Choose from the zikr library'));

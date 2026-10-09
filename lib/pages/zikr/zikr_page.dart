@@ -4,13 +4,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kIsWeb, setEquals;
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart' show kTouchSlop;
+import 'package:flutter/gestures.dart' show PointerDeviceKind, kTouchSlop;
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/scheduler.dart' show SchedulerBinding, SchedulerPhase;
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:share_plus/share_plus.dart';
 import 'package:shia_companion/data/retired_zikr_redirects.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/activity_stats_store.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/mistake_report_service.dart';
@@ -34,12 +35,17 @@ import 'package:shia_companion/utils/web_route_sync.dart';
 import 'package:shia_companion/utils/zikr_wakelock.dart';
 import 'package:shia_companion/models/zikr_audio_track.dart';
 import '../../constants.dart';
+import '../../theme/shia_colors.dart';
+import '../../widgets/choice_sheet.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/zikr_action_bar.dart';
 import '../../widgets/zikr_audio_player.dart';
 import '../../widgets/zikr_reading_preferences.dart';
-import '../../widgets/zikr_reading_progress_bar.dart';
-import '../../widgets/zikr_settings.dart';
+import '../../widgets/favorite_icon.dart';
+import '../../widgets/outline_icon.dart';
+import '../../widgets/page_chrome.dart';
+import '../../widgets/reader_text_sheet.dart';
+import '../../widgets/reader_top_bar.dart';
 import '../../widgets/zikr_counter.dart';
 import '../quran/quran_navigation.dart';
 import '../zikr_reminder_form_page.dart';
@@ -50,6 +56,7 @@ import 'zikr_reading_stats.dart';
 import 'zikr_share_image.dart';
 import '../../services/zikr_translations.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/app_toast.dart';
 
 /// How far the text has to actually travel in one direction before the
 /// reading chrome reacts.
@@ -60,6 +67,15 @@ import '../../l10n/l10n.dart';
 /// times a gesture. A deliberate scroll crosses this in a frame or two; the
 /// wobble inside one never does.
 const double kZikrChromeScrollThreshold = 36.0;
+
+/// How far above the bottom action bar its [BottomFade] reaches - and so how
+/// much room the text keeps below its last line, to finish clear of the fade.
+const double _actionBarFadeExtent = 62.0;
+
+/// The share of a surah or juz scrolled through that counts as having reached
+/// its end: the last verses are on screen below the top one, so the top
+/// verse alone never gets there.
+const double _quranEndProgress = 0.98;
 
 /// Turns the reading area's stream of scroll deltas into hide/show decisions
 /// for the reading chrome - the progress strip and the bottom action bar,
@@ -267,6 +283,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// marker lands on the first whole verse, not one cut off at the top.
   final Map<int, int> _currentTabTopLineIndexes = {};
   final ValueNotifier<double> _readingProgress = ValueNotifier<double>(0);
+
   bool _hasRecordedCompletion = false;
   bool _isDisposing = false;
   DateTime? _openedAt;
@@ -332,15 +349,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void initState() {
     super.initState();
     // A portion spans surahs, so it has no single surah of its own; its index
-    // carries one per verse instead. The Quran revamp (ayah-grouped reading,
-    // verse links, resume) is dark-launched behind the admin flag: everyone
-    // else keeps the flat, line-per-row rendering every zikr — surahs
-    // included — has always had. See home_menu.dart's visibleHomeMenuItems
-    // and DeepLinkResolver.resolveQuranDestination for the other two gates
-    // this one is paired with.
-    _surahNumber = (!isUserAdmin || widget.portion != null)
-        ? null
-        : surahForUid(widget.item.getFirstUId());
+    // carries one per verse instead.
+    _surahNumber =
+        widget.portion != null ? null : surahForUid(widget.item.getFirstUId());
     _counterSessionId = widget.item.getFirstUId();
     final counterState =
         ZikrCounterSessionStore.instance.read(_counterSessionId);
@@ -549,7 +560,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// text takes to recite, so a glance at a short surah is not a recitation.
   void _maybeMarkQuranEndReached() {
     if (_hasMarkedQuranEnd || !_isQuran || !mounted) return;
-    if (_readingProgress.value < 0.98) {
+    if (_readingProgress.value < _quranEndProgress) {
       _quranEndTimer?.cancel();
       _quranEndTimer = null;
       return;
@@ -653,7 +664,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   String? _surahSequenceLabel(int surah) {
     final info = surahInfoFor(surah);
-    return info?.englishName;
+    return info?.displayName;
   }
 
   Future<void> _openQuranSequenceStep(int delta) async {
@@ -688,6 +699,47 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
+  /// A sideways swipe across a surah or a juz steps to the next one (a swipe
+  /// towards the start of the line) or the previous one, as the footer's
+  /// buttons do. Touch only: a mouse dragging sideways is selecting text.
+  /// Left alone where there are tabs, whose pager the swipe already turns.
+  Widget _withQuranSwipe({required bool hasTabs, required Widget child}) {
+    if (!_isQuran || hasTabs) return child;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      supportedDevices: const {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.stylus,
+      },
+      onHorizontalDragEnd: (details) {
+        final velocity = details.primaryVelocity ?? 0;
+        if (velocity.abs() < _quranSwipeMinVelocity) return;
+        final towardsStart = Directionality.of(context) == TextDirection.ltr
+            ? velocity < 0
+            : velocity > 0;
+        final delta = towardsStart ? 1 : -1;
+        if (!_hasQuranSequenceStep(delta)) return;
+        _clearTextSelection();
+        unawaited(_openQuranSequenceStep(delta));
+      },
+      child: child,
+    );
+  }
+
+  /// How fast a sideways swipe has to end to turn the surah, so a slow,
+  /// slightly diagonal scroll never does.
+  static const double _quranSwipeMinVelocity = 350;
+
+  bool _hasQuranSequenceStep(int delta) {
+    final juz = widget.portion?.juz;
+    if (juz != null) {
+      final next = juz + delta;
+      return next >= 1 && next <= allJuz().length;
+    }
+    final surah = _surahNumber;
+    return surah != null && surahInfoFor(surah + delta) != null;
+  }
+
   /// The per-ayah menu: what you can do with one verse rather than the whole
   /// surah, which is all the action bar has ever offered.
   Future<void> _showAyahActions(AyahActionRequest request) async {
@@ -702,72 +754,104 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final link = buildQuranDeepLinkUrl(surah: surah, ayah: ayah);
     final isSaved = _savedVerses.contains(verse);
 
-    await showModalBottomSheet<void>(
-      context: context,
+    final colors = ShiaColors.of(context);
+    Widget action(
+      BuildContext sheetContext, {
+      required OutlineGlyph glyph,
+      required String label,
+      required VoidCallback onTap,
+      bool filled = false,
+      bool first = false,
+      bool last = false,
+    }) =>
+        CardListRow(
+          first: first,
+          last: last,
+          leading: OutlineIcon(glyph,
+              size: 22, color: colors.accent, strokeWidth: 1.9, filled: filled),
+          title: Text(label),
+          onTap: () {
+            Navigator.pop(sheetContext);
+            onTap();
+          },
+        );
+
+    await showAdaptiveSheet<void>(
+      context,
+      showDragHandle: true,
       builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              dense: true,
-              title: Text(
-                '$surahTitle · $verse',
-                style: Theme.of(sheetContext).textTheme.labelLarge,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+              16, SheetPresentation.inDialogOf(sheetContext) ? 20 : 0, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  '${surahInfoFor(surah)?.displayName ?? surahTitle} $verse',
+                  style: ShiaText.sectionTitle.copyWith(color: colors.text),
+                ),
               ),
               // In paragraph mode there is no per-verse seal to long-press,
-              // so the menu is where a verse's Imam Ali (as) note is shown.
-              subtitle: request.aliNote == null ? null : Text(request.aliNote!),
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.copy),
-              title: Text(context.l10n.quranCopyVerse),
-              onTap: () async {
-                Navigator.pop(sheetContext);
-                await Clipboard.setData(ClipboardData(text: text));
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.l10n.quranCopiedVerse('$verse'))),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.link),
-              title: Text(context.l10n.quranCopyLink),
-              onTap: () async {
-                Navigator.pop(sheetContext);
-                await Clipboard.setData(ClipboardData(text: link));
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.l10n.quranLinkCopied)),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.share),
-              title: Text(context.l10n.quranShareVerse),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                unawaited(
-                  SharePlus.instance
-                      .share(ShareParams(text: '$text\n\n$link'))
-                      .then((result) => _recordShareResult(result, 'verse')),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                isSaved ? Icons.bookmark : Icons.bookmark_outline,
-              ),
-              title: Text(isSaved
-                  ? context.l10n.quranRemoveFromSaved
-                  : context.l10n.quranSaveVerse),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                unawaited(_toggleSavedVerse(verse, text));
-              },
-            ),
-          ],
+              // so the menu is where a verse's Imam Ali (as) or Imam
+              // al-Mahdi (atfs) note is shown.
+              if ((request.aliNote ?? request.mahdiNote) case final note?)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    note,
+                    style: ShiaText.caption
+                        .copyWith(fontSize: 14, color: colors.textMuted),
+                  ),
+                ),
+              const SizedBox(height: 10),
+              CardList(children: [
+                action(
+                  sheetContext,
+                  first: true,
+                  glyph: OutlineGlyph.bookmark,
+                  filled: isSaved,
+                  label: isSaved
+                      ? context.l10n.quranRemoveFromSaved
+                      : context.l10n.quranSaveVerse,
+                  onTap: () => unawaited(_toggleSavedVerse(verse, text)),
+                ),
+                action(
+                  sheetContext,
+                  glyph: OutlineGlyph.copy,
+                  label: context.l10n.quranCopyVerse,
+                  onTap: () async {
+                    await Clipboard.setData(ClipboardData(text: text));
+                    if (!mounted) return;
+                    showToast(context.l10n.quranCopiedVerse('$verse'));
+                  },
+                ),
+                action(
+                  sheetContext,
+                  glyph: OutlineGlyph.link,
+                  label: context.l10n.quranCopyLink,
+                  onTap: () async {
+                    await Clipboard.setData(ClipboardData(text: link));
+                    if (!mounted) return;
+                    showToast(context.l10n.quranLinkCopied);
+                  },
+                ),
+                action(
+                  sheetContext,
+                  last: true,
+                  glyph: OutlineGlyph.share,
+                  label: context.l10n.quranShareVerse,
+                  onTap: () => unawaited(
+                    SharePlus.instance
+                        .share(ShareParams(text: '$text\n\n$link'))
+                        .then((result) => _recordShareResult(result, 'verse')),
+                  ),
+                ),
+              ]),
+            ],
+          ),
         ),
       ),
     );
@@ -793,7 +877,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         SavedVerse(
           surah: verse.surah,
           ayah: ayah,
-          surahName: surahInfoFor(verse.surah)?.englishName ?? '',
+          surahName: surahInfoFor(verse.surah)?.displayName ?? '',
           // The first line of the verse as the reader sees it, kept so the
           // saved list can be read without loading a surah document per row.
           excerpt: _excerptOf(text),
@@ -812,12 +896,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ));
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(wasSaved
-              ? context.l10n.quranRemovedVerse('$verse')
-              : context.l10n.quranSavedVerse('$verse'))),
-    );
+    showToast(wasSaved
+        ? context.l10n.quranRemovedVerse('$verse')
+        : context.l10n.quranSavedVerse('$verse'));
   }
 
   /// The opening of a verse, for the saved list.
@@ -932,8 +1013,26 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   ///
   /// Only reached on a plain open. Opened for a specific verse, the bookmark
   /// would be neither landed on nor noticed, so it is kept for a later visit.
+  ///
+  /// A note says why: without one the bookmark simply never comes back, and
+  /// the reader goes looking for the button that made it. Shown for every
+  /// bookmark retired, since each is a separate "where did it go".
   void _consumeLegacyQuranBookmark() {
     unawaited(ZikrBookmarksManager.instance.remove(_bookmarkUid));
+    unawaited(AnalyticsService.feature(
+      'quran_legacy_bookmark_retired',
+      label: 'Quran legacy bookmark retired',
+      parameters: {'zikr_uid': _bookmarkUid},
+    ));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      showToast(
+        context.l10n.quranBookmarkRetired,
+        // Long enough to read while the page settles at the bookmark.
+        duration: const Duration(seconds: 10),
+        actionLabel: MaterialLocalizations.of(context).okButtonLabel,
+      );
+    });
   }
 
   /// Follows the bookmark when it changes from outside this page - moved,
@@ -1193,6 +1292,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         onIncrement: () => _setCounterCount(count + 1),
         onDecrement: count > 0 ? () => _setCounterCount(count - 1) : () {},
         onReset: () => _setCounterCount(0),
+        onClose: () => _setCounterVisibility(false),
       ),
     );
   }
@@ -1288,12 +1388,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  /// Vertical space the bottom action bar reserves, when it exists at all -
-  /// its own height plus the device's bottom safe area, plus a small gap so
-  /// the counter panel does not sit flush against it.
+  /// Vertical space the tools capsule reserves, when it exists at all - its
+  /// own height and its offset from the bottom, plus a small gap so the
+  /// counter panel does not sit flush against it.
   double _counterBottomInset(BuildContext context, bool showActionBar) {
     if (!showActionBar) return 0;
-    return ZikrActionBar.barHeight + MediaQuery.of(context).padding.bottom + 8;
+    return floatingBottomOffset(context) + ZikrActionBar.barHeight + 8;
   }
 
   Future<void> _initializePageData() async {
@@ -1416,11 +1516,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return savedTitle.isNotEmpty ? savedTitle : widget.item.title;
   }
 
-  /// The merits note, in the reader's translation language when it has been
-  /// translated.
+  /// The merits note, in the reader's translation language. Outside English
+  /// an untranslated note is not shown at all (nor is the button for it):
+  /// someone reading in Urdu should not be handed English.
   String _merits() {
     final translated = _translation?.merits?.trim();
     if (translated != null && translated.isNotEmpty) return translated;
+    if (!ZikrTranslations.instance.isEnglish) return '';
     return zikrData?['merits']?.toString().trim() ?? '';
   }
 
@@ -1446,69 +1548,29 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         : TextDirection.ltr;
     if (merits.isEmpty) return;
 
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.55,
-        minChildSize: 0.35,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+    // The revamp's sheet on a phone, a centred dialog from tablet width up.
+    showRevampSheet<void>(
+      context,
+      title: context.l10n.zikrMerits,
+      builder: (context) {
+        final colors = ShiaColors.of(context);
+        final style = ShiaText.body.copyWith(height: 1.45, color: colors.text);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: SelectableText.rich(
+            textDirection: meritsDirection,
+            buildZikrTextSpanWithLinks(
+              rawLine: merits,
+              baseStyle: style,
+              linkStyle: style.copyWith(
+                color: colors.accent,
+                decoration: TextDecoration.underline,
+              ),
+              onLinkTap: (href) => _handleZikrLinkTap(href),
+            ),
           ),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 44,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-                child: Row(
-                  children: [
-                    Text(
-                      context.l10n.zikrMerits,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                  children: [
-                    SelectableText.rich(
-                      textDirection: meritsDirection,
-                      buildZikrTextSpanWithLinks(
-                        rawLine: merits,
-                        baseStyle: Theme.of(context).textTheme.bodyLarge ??
-                            const TextStyle(),
-                        linkStyle: (Theme.of(context).textTheme.bodyLarge ??
-                                const TextStyle())
-                            .copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          decoration: TextDecoration.underline,
-                        ),
-                        onLinkTap: (href) => _handleZikrLinkTap(href),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -1530,13 +1592,28 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return _selectedZikrTabIndex.clamp(0, tabContents.length - 1);
   }
 
-  String _tabHeaderForContent(String content, int index) {
-    final lines = content
-        .split('\n')
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty);
-    if (lines.isNotEmpty) {
-      final header = _translation?.lineFor(lines.first) ?? lines.first;
+  /// Where each tab's segments start - see
+  /// [ZikrContentParser.segmentOffsets]. Only a translation needs them, so in
+  /// English there is nothing to work out.
+  List<int> _segmentOffsetsFor(List<String> tabContents) =>
+      ZikrTranslations.instance.isEnglish
+          ? const []
+          : ZikrContentParser.segmentOffsets(tabContents);
+
+  String _tabHeaderForContent(
+    String content,
+    int index,
+    List<int> segmentOffsets,
+  ) {
+    final translations = ZikrTranslations.instance;
+    final header = ZikrContentParser.localizedTabHeader(
+      content,
+      index,
+      offsets: segmentOffsets,
+      language: translations.language,
+      translation: _translation,
+    );
+    if (header != null) {
       return ZikrContentParser.parseLineSegments(header)
           .map((segment) => segment.text)
           .join()
@@ -1548,10 +1625,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// Copy, for a surah in QuranWBW's script: its pause marks and medallions
   /// are private-use glyphs that paste as boxes anywhere but the reader.
   void _copyQuranWbwSelection(SelectableRegionState selectableRegionState) {
-    final text = (_lastSelectedText ?? '')
-        .split('\n')
-        .map(indoPakPlainText)
-        .join('\n');
+    final text =
+        (_lastSelectedText ?? '').split('\n').map(indoPakPlainText).join('\n');
     unawaited(Clipboard.setData(ClipboardData(text: text)));
     selectableRegionState.hideToolbar();
   }
@@ -1580,9 +1655,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   Future<void> _shareCurrentZikr() async {
     if (_isSharingZikr) return;
 
-    final title = zikrData?['title']?.toString().trim().isNotEmpty == true
-        ? zikrData!['title'].toString().trim()
-        : widget.item.title;
+    final title = _currentDisplayTitle();
     final deepLink = buildZikrDeepLinkUrl(
       uid: widget.item.uid,
       slug: _currentShareSlug(),
@@ -1623,21 +1696,27 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       }
 
       final showTabHeaders = tabContents.length > 1;
+      final segmentOffsets = _segmentOffsetsFor(tabContents);
       final imageBytes = await buildZikrShareImage(
         ZikrShareImageRequest(
           title: title,
           tabTitle: showTabHeaders
-              ? _tabHeaderForContent(selectedContent, selectedIndex)
+              ? _tabHeaderForContent(
+                  selectedContent, selectedIndex, segmentOffsets)
               : '',
           content: selectedContent,
           hideHeaderLine: showTabHeaders,
           colorScheme: Theme.of(context).colorScheme,
           arabicFontFamily: arabicFontFamilyOf(zikrData),
+          language: ZikrTranslations.instance.language,
           translation: _translation,
-          titleDirection: ZikrTranslations.instance.titleFor(widget.item.uid) ==
-                  null
-              ? TextDirection.ltr
-              : ZikrTranslations.instance.language.textDirection,
+          firstSegment: selectedIndex < segmentOffsets.length
+              ? segmentOffsets[selectedIndex] + (showTabHeaders ? 1 : 0)
+              : 0,
+          titleDirection:
+              ZikrTranslations.instance.titleFor(widget.item.uid) == null
+                  ? TextDirection.ltr
+                  : ZikrTranslations.instance.language.textDirection,
         ),
       );
       if (imageBytes == null) {
@@ -1814,26 +1893,25 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (isArabicOnlyReadingView) return;
     if (!await ZikrBookmarkStore.instance.claimMoveHint()) return;
     if (!mounted) return;
-    final color = Theme.of(context).colorScheme.onInverseSurface;
+    final color = ShiaColors.of(context).accent;
     // The drag-handle icon sits mid-sentence, wherever a translation puts it.
     const iconMarker = '\u0000';
-    final hint = context.l10n.zikrBookmarkMoveHint(iconMarker).split(iconMarker);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(text: hint.first),
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Icon(Icons.drag_indicator, size: 18, color: color),
-              ),
-              if (hint.length > 1) TextSpan(text: hint.sublist(1).join()),
-            ],
-          ),
+    final hint =
+        context.l10n.zikrBookmarkMoveHint(iconMarker).split(iconMarker);
+    showToastContent(
+      Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(text: hint.first),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Icon(Icons.drag_indicator, size: 18, color: color),
+            ),
+            if (hint.length > 1) TextSpan(text: hint.sublist(1).join()),
+          ],
         ),
-        duration: const Duration(seconds: 6),
       ),
+      duration: const Duration(seconds: 6),
     );
   }
 
@@ -1863,7 +1941,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       title: pageTitle,
       tabIndex: selectedTabIndex,
       tabTitle: tabContents.length > 1
-          ? _tabHeaderForContent(selectedContent, selectedTabIndex)
+          ? _tabHeaderForContent(selectedContent, selectedTabIndex,
+              _segmentOffsetsFor(tabContents))
           : null,
       scrollOffset: _currentTabScrollOffsets[selectedTabIndex] ?? 0,
       lineIndex: _currentTabTopLineIndexes[selectedTabIndex],
@@ -1991,13 +2070,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(submitted
-            ? context.l10n.zikrReportThanks
-            : context.l10n.zikrReportFailed),
-      ),
-    );
+    showToast(submitted
+        ? context.l10n.zikrReportThanks
+        : context.l10n.zikrReportFailed);
   }
 
   /// The dialog itself: shows what was selected, if anything, and a box for
@@ -2067,17 +2142,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  Widget _buildAppBarTitle(String title) {
-    // Long titles wrap onto a second, smaller line instead of being clipped.
-    final useTwoLines = title.trim().length > 24;
-    return Text(
-      title,
-      maxLines: useTwoLines ? 2 : 1,
-      overflow: TextOverflow.ellipsis,
-      style: useTwoLines ? const TextStyle(fontSize: 16, height: 1.2) : null,
-    );
-  }
-
   void _shareFromActionBar() {
     if (_isSharingZikr) return;
     unawaited(AnalyticsService.feature(
@@ -2088,33 +2152,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _shareCurrentZikr();
   }
 
-  // Bookmark, share and reading settings live in the bottom action bar, where
-  // they are labelled and within thumb reach - that bar is already at its
-  // five-action width limit (see zikr_action_bar.dart). Reading settings is
-  // also just a right-edge swipe away, since it's the endDrawer. That leaves
-  // the app bar with just the drawer opener plus the one other action
-  // frequent enough to earn a permanent spot: setting a reminder for the
-  // zikr being read.
-  //
-  // Hidden on web: ZikrReminderService.rescheduleAll() no-ops under kIsWeb
-  // (flutter_local_notifications has no web target), so a reminder set here
-  // would silently never fire. Settings hides its whole "Zikr Reminders"
-  // entry point on web for the same reason.
-  /// The app bar and the progress strip under it, sliding up as one with
-  /// the rest of the reading chrome whenever [_chromeVisible] hides it. Like
-  /// every other bar it floats over the reading list, so hiding it only
-  /// uncovers text.
+  /// The top bar, sliding up as one with the rest of the reading chrome
+  /// whenever [_chromeVisible] hides it. Like every other bar it floats over
+  /// the reading list, so hiding it only uncovers text.
   ///
-  /// The status bar band stays put and keeps the app bar's colour, so the
-  /// system icons never end up over the reading text; the bars slide up
-  /// beneath it.
-  Widget _buildTopChrome({required AppBar appBar, Widget? progressBar}) {
+  /// The status bar band stays put on the reader's ground, so the system
+  /// icons never end up over the reading text; the bar slides up beneath it.
+  Widget _buildTopChrome(Widget bar) {
     final statusBarHeight = MediaQuery.paddingOf(context).top;
-    final slideExtent = appBar.preferredSize.height +
-        (progressBar == null ? 0.0 : ZikrReadingProgressBar.barHeight);
-    final theme = Theme.of(context);
-    final statusBarColor =
-        theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface;
+    const slideExtent = ReaderTopBar.barHeight;
     return ValueListenableBuilder<bool>(
       valueListenable: _chromeVisible,
       builder: (context, visible, child) => TweenAnimationBuilder<double>(
@@ -2128,9 +2174,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               Positioned(
                 left: 0,
                 right: 0,
-                top: -slideExtent * (1 - shown),
-                // Fully hidden, the bars must not take taps meant for the
-                // text now showing where they were.
+                top: statusBarHeight - slideExtent * (1 - shown),
+                // Fully hidden, the bar must not take taps meant for the
+                // text now showing where it was.
                 child: IgnorePointer(ignoring: shown == 0, child: child),
               ),
               Positioned(
@@ -2138,28 +2184,74 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 right: 0,
                 top: 0,
                 height: statusBarHeight,
-                child: ColoredBox(color: statusBarColor),
+                child: const ReaderGlassBand(child: SizedBox.expand()),
               ),
             ],
           ),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [appBar, if (progressBar != null) progressBar],
-      ),
+      child: bar,
     );
   }
 
-  List<Widget> _buildAppBarActions() {
-    return [
-      if (!kIsWeb)
-        IconButton(
-          icon: const Icon(Icons.notifications_active_outlined),
-          tooltip: context.l10n.zikrSetReminder,
-          onPressed: () => unawaited(_openReminderForm()),
-        ),
-    ];
+  /// What the top bar's sub-line says: which part of a multi-part zikr is
+  /// open ("Part 3 of 4"), or how far through a zikr or surah the reader is
+  /// ("12% read" - before they start, how long it takes).
+  Widget _buildSubtitle({
+    required int tabCount,
+    required int selectedTabIndex,
+    required String readingTimeLabel,
+  }) {
+    final l10n = context.l10n;
+    if (tabCount > 1) {
+      return Text(l10n.readerPartOf(selectedTabIndex + 1, tabCount));
+    }
+    return ValueListenableBuilder<double>(
+      valueListenable: _readingProgress,
+      builder: (context, progress, _) {
+        if (_completedTabs.contains(selectedTabIndex)) {
+          return Text(l10n.zikrProgressCompleted);
+        }
+        final percent = (progress.clamp(0.0, 1.0) * 100).floor();
+        return Text(
+            percent == 0 ? readingTimeLabel : l10n.readerPercentRead(percent));
+      },
+    );
+  }
+
+  /// What the top bar's heart keeps on web: the zikr or surah as the lists
+  /// name it. None for a juz, which is not one entry of any list.
+  UniversalData? get _favoriteData {
+    if (widget.portion != null) return null;
+    return UniversalData(widget.item.uid, widget.item.title, 0);
+  }
+
+  /// The top bar's round action on the right: the reminder bell, which
+  /// replaced the heart there (favourites are still kept from the lists'
+  /// own hearts) and is the reader's one way to set a reminder.
+  ///
+  /// The heart on web: ZikrReminderService.rescheduleAll() no-ops under
+  /// kIsWeb (flutter_local_notifications has no web target), so a reminder
+  /// set there would silently never fire. Settings hides its whole "Zikr
+  /// Reminders" entry point on web for the same reason.
+  Widget? _buildTopBarAction(BuildContext context) {
+    if (kIsWeb) {
+      final favorite = _favoriteData;
+      return favorite == null
+          ? null
+          : FavoriteHeartButton(favorite: favorite, round: true);
+    }
+    return RoundIconButton(
+      label: context.l10n.readerSetReminder,
+      icon: OutlineIcon(OutlineGlyph.bell,
+          size: 20, color: ShiaColors.of(context).accent),
+      onPressed: () => unawaited(_openReminderForm()),
+    );
+  }
+
+  /// The Text & reading sheet.
+  void _openTextSheet() {
+    unawaited(showReaderTextSheet(context, onChanged: refreshState));
   }
 
   @override
@@ -2178,6 +2270,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         ? const <ZikrAudioTrack>[]
         : ZikrAudioIndex.instance.tracksFor(_contentUid);
     final showActionBar = zikrData != null;
+    final hasTabs = tabContents.length > 1;
     // Independent of showActionBar - a zikr with no estimable reading time
     // (still loading) can lack one while the other still applies.
     final showProgressBar = _readingStats.hasContent;
@@ -2189,14 +2282,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           ? _readingStats.tabs[selectedTabIndex].duration
           : _readingStats.duration,
     );
+    final colors = ShiaColors.of(context);
     final mediaPadding = MediaQuery.paddingOf(context);
     final statusBarHeight = mediaPadding.top;
+    final bottomOffset = floatingBottomOffset(context);
     // How far the chrome reaches in from each edge while it is showing.
-    final topChromeExtent = statusBarHeight +
-        kToolbarHeight +
-        (showProgressBar ? ZikrReadingProgressBar.barHeight : 0.0);
-    final bottomChromeExtent = mediaPadding.bottom +
-        (showActionBar ? ZikrActionBar.barHeight + 1 : 0.0);
+    final topChromeExtent = statusBarHeight + ReaderTopBar.barHeight;
+    final bottomChromeExtent = showActionBar
+        ? bottomOffset + ZikrActionBar.barHeight
+        : mediaPadding.bottom;
 
     return SelectionArea(
       focusNode: _selectionFocusNode,
@@ -2226,7 +2320,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       },
       child: Scaffold(
         key: _scaffoldKey,
-        endDrawer: ZikrSettingsPage(refreshState),
+        backgroundColor: colors.readerGround,
         body: Listener(
           // Covers the whole reading area, not just either bar: after the
           // idle timeout has hidden the chrome, the reader should not have to
@@ -2267,73 +2361,88 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                       : !hasAnyContent
                           ? Padding(
                               padding: EdgeInsets.only(top: topChromeExtent),
-                              child:
-                                  Center(child: Text(context.l10n.zikrComingSoon)),
+                              child: Center(
+                                  child: Text(context.l10n.zikrComingSoon)),
                             )
-                          : ResponsiveContent(
-                              maxWidth: readingContentWidth,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child: ZikrContentViewerWidget(
-                                translation: _translation,
-                                tabContents: tabContents,
-                                selectedTabIndex: selectedTabIndex,
-                                onTabChanged: (index) {
-                                  // A swiped tab change is already
-                                  // covered by the scroll handler; this
-                                  // is the tab header being tapped,
-                                  // which animates the pager without
-                                  // ever reporting a user scroll.
-                                  _clearTextSelection();
-                                  _startTabDwell(index);
-                                  setState(() {
-                                    _selectedZikrTabIndex = index;
-                                  });
-                                  _updateReadingProgress();
-                                  _maybeRecordCompletion();
-                                },
-                                hasMerits: hasMerits,
-                                onShowMerits: _showMeritsSheet,
-                                onLinkTap: _handleZikrLinkTap,
-                                initialBookmarkTabIndex:
-                                    _savedBookmark?.tabIndex,
-                                initialBookmarkScrollOffset:
-                                    _savedBookmark?.scrollOffset,
-                                initialBookmarkLineIndex:
-                                    _savedBookmark?.lineIndex,
-                                savedVerses: _savedVerses,
-                                onScrollPositionChanged:
-                                    _handleContentScrollPositionChanged,
-                                surahNumber: _surahNumber,
-                                initialVerse: _initialVerse,
-                                ayahIndex: widget.portion?.index,
-                                onAyahPositionChanged:
-                                    _handleAyahPositionChanged,
-                                onAyahAction:
-                                    _isQuran ? _showAyahActions : null,
-                                arabicFontFamily: arabicFontFamilyOf(zikrData),
-                                onBookmarkLineResolved:
-                                    _handleBookmarkLineResolved,
-                                onBookmarkMoved:
-                                    _isQuran ? null : _handleBookmarkMoved,
-                                footer: _buildQuranSequenceFooter(),
-                                listPadding: EdgeInsets.only(
-                                  top: topChromeExtent + 16,
-                                  bottom: bottomChromeExtent + 16,
+                          : _withQuranSwipe(
+                              hasTabs: tabContents.length > 1,
+                              child: ResponsiveContent(
+                                maxWidth: readerColumnWidth(context),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                child: ZikrContentViewerWidget(
+                                  translation: _translation,
+                                  tabContents: tabContents,
+                                  selectedTabIndex: selectedTabIndex,
+                                  onTabChanged: (index) {
+                                    // A swiped tab change is already
+                                    // covered by the scroll handler; this
+                                    // is the tab header being tapped,
+                                    // which animates the pager without
+                                    // ever reporting a user scroll.
+                                    _clearTextSelection();
+                                    _startTabDwell(index);
+                                    setState(() {
+                                      _selectedZikrTabIndex = index;
+                                    });
+                                    _updateReadingProgress();
+                                    _maybeRecordCompletion();
+                                  },
+                                  hasMerits: hasMerits,
+                                  onShowMerits: _showMeritsSheet,
+                                  onLinkTap: _handleZikrLinkTap,
+                                  initialBookmarkTabIndex:
+                                      _savedBookmark?.tabIndex,
+                                  initialBookmarkScrollOffset:
+                                      _savedBookmark?.scrollOffset,
+                                  initialBookmarkLineIndex:
+                                      _savedBookmark?.lineIndex,
+                                  savedVerses: _savedVerses,
+                                  onScrollPositionChanged:
+                                      _handleContentScrollPositionChanged,
+                                  surahNumber: _surahNumber,
+                                  initialVerse: _initialVerse,
+                                  ayahIndex: widget.portion?.index,
+                                  onAyahPositionChanged:
+                                      _handleAyahPositionChanged,
+                                  onAyahAction:
+                                      _isQuran ? _showAyahActions : null,
+                                  arabicFontFamily:
+                                      arabicFontFamilyOf(zikrData),
+                                  onBookmarkLineResolved:
+                                      _handleBookmarkLineResolved,
+                                  onBookmarkMoved:
+                                      _isQuran ? null : _handleBookmarkMoved,
+                                  footer: _buildQuranSequenceFooter(),
+                                  // Under the action bar the text ends clear
+                                  // of the fade above it too, so the last
+                                  // line can be read at full strength.
+                                  listPadding: EdgeInsets.only(
+                                    top: topChromeExtent + 16,
+                                    bottom: bottomChromeExtent +
+                                        (showActionBar
+                                            ? _actionBarFadeExtent
+                                            : 16),
+                                  ),
+                                  tabStripTop: topChromeExtent,
+                                  collapsedTopInset: statusBarHeight,
+                                  chromeVisible: _chromeVisible,
+                                  tabStripFooter: hasTabs && showProgressBar
+                                      ? ReaderProgressLine(
+                                          progress: _readingProgress)
+                                      : null,
                                 ),
-                                tabStripTop: topChromeExtent,
-                                collapsedTopInset: statusBarHeight,
-                                chromeVisible: _chromeVisible,
                               ),
                             ),
                 ),
-                // The counter keeps the area below the app bar as its frame,
-                // as it had when the app bar sat above the body, so a
-                // position saved before still means the same place.
+                // The counter keeps the area below the top bar as its frame,
+                // as it had when an app bar of the same height sat above the
+                // body, so a position saved before still means the same
+                // place.
                 Positioned(
                   left: 0,
                   right: 0,
-                  top: statusBarHeight + kToolbarHeight,
+                  top: topChromeExtent,
                   bottom: 0,
                   child: LayoutBuilder(
                     builder: (context, bodyConstraints) => Stack(
@@ -2365,39 +2474,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                         bodyConstraints,
                                         bottomInset: bottomInset,
                                       ),
-                                      child: Stack(
-                                        clipBehavior: Clip.none,
-                                        children: [
-                                          _buildCounterCard(),
-                                          Positioned(
-                                            right: 8,
-                                            top: 8,
-                                            child: Material(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerHighest,
-                                              shape: const CircleBorder(),
-                                              child: IconButton(
-                                                padding:
-                                                    const EdgeInsets.all(6),
-                                                constraints:
-                                                    const BoxConstraints(
-                                                  minWidth: 32,
-                                                  minHeight: 32,
-                                                ),
-                                                visualDensity:
-                                                    VisualDensity.compact,
-                                                icon: const Icon(Icons.close,
-                                                    size: 16),
-                                                tooltip: context.l10n.zikrHideCounter,
-                                                onPressed: () =>
-                                                    _setCounterVisibility(
-                                                        false),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      child: _buildCounterCard(),
                                     ),
                                   ),
                                 );
@@ -2417,44 +2494,63 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _chromeVisible,
                       builder: (context, visible, child) => AnimatedSlide(
-                        // Slides out of frame rather than collapsing: the bar
-                        // sits over the reading area, so its size never
-                        // affects the text's layout either way.
+                        // Slides out of frame rather than collapsing: the
+                        // capsule floats over the reading area, so its size
+                        // never affects the text's layout either way.
                         offset: visible ? Offset.zero : const Offset(0, 1),
                         duration: const Duration(milliseconds: 220),
                         curve: Curves.easeOutCubic,
                         child: child,
                       ),
-                      child: ValueListenableBuilder<bool>(
-                        valueListenable: _showCounter,
-                        builder: (context, counterVisible, _) => ZikrActionBar(
-                          hasAudio: audioTracks.isNotEmpty,
-                          // Reading Quran there is no place to mark: a
-                          // recitation track resumes on its own, and keeping
-                          // a verse is the per-verse menu's job.
-                          showBookmark: !_isQuran,
-                          canBookmark: hasAnyContent,
-                          isBookmarked: _savedBookmark != null,
-                          canShare: !_isSharingZikr,
-                          isCounterVisible: counterVisible,
-                          onBookmark: () => _toggleBookmark(
-                            pageTitle: pageTitle,
-                            tabContents: tabContents,
-                            selectedTabIndex: selectedTabIndex,
-                          ),
-                          onShare: _shareFromActionBar,
-                          onListen: _openAudioPlayer,
-                          onSettings: () =>
-                              _scaffoldKey.currentState?.openEndDrawer(),
-                          onCounter: _toggleCounterFromActionBar,
-                          player: _showAudioPlayer && audioTracks.isNotEmpty
-                              ? ZikrAudioPlayer(
-                                  tracks: audioTracks,
-                                  zikrUid: widget.item.getUId(),
-                                  zikrTitle: pageTitle,
-                                  onClose: _closeAudioPlayer,
-                                )
-                              : null,
+                      child: SizedBox(
+                        height: bottomOffset +
+                            ZikrActionBar.barHeight +
+                            _actionBarFadeExtent,
+                        child: Stack(
+                          children: [
+                            const Positioned.fill(
+                              child: BottomFade(readerGround: true),
+                            ),
+                            Positioned(
+                              left: 16,
+                              right: 16,
+                              bottom: bottomOffset,
+                              child: ValueListenableBuilder<bool>(
+                                valueListenable: _showCounter,
+                                builder: (context, counterVisible, _) =>
+                                    ZikrActionBar(
+                                  hasAudio: audioTracks.isNotEmpty,
+                                  // Reading Quran there is no place to mark:
+                                  // a recitation track resumes on its own,
+                                  // and keeping a verse is the per-verse
+                                  // menu's job.
+                                  showBookmark: !_isQuran,
+                                  canBookmark: hasAnyContent,
+                                  isBookmarked: _savedBookmark != null,
+                                  canShare: !_isSharingZikr,
+                                  isCounterVisible: counterVisible,
+                                  onBookmark: () => _toggleBookmark(
+                                    pageTitle: pageTitle,
+                                    tabContents: tabContents,
+                                    selectedTabIndex: selectedTabIndex,
+                                  ),
+                                  onShare: _shareFromActionBar,
+                                  onListen: _openAudioPlayer,
+                                  onText: _openTextSheet,
+                                  onCounter: _toggleCounterFromActionBar,
+                                  player:
+                                      _showAudioPlayer && audioTracks.isNotEmpty
+                                          ? ZikrAudioPlayer(
+                                              tracks: audioTracks,
+                                              zikrUid: widget.item.getUId(),
+                                              zikrTitle: pageTitle,
+                                              onClose: _closeAudioPlayer,
+                                            )
+                                          : null,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -2464,36 +2560,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                   right: 0,
                   top: 0,
                   child: _buildTopChrome(
-                    appBar: AppBar(
-                      title: _buildAppBarTitle(pageTitle),
-                      // Reading settings opens this same endDrawer from the
-                      // bottom bar now. Without this, an AppBar with an
-                      // endDrawer set auto-fills its own "Open navigation
-                      // menu" button whenever actions is empty, duplicating
-                      // that entry point.
-                      automaticallyImplyActions: false,
-                      actions: _buildAppBarActions(),
-                    ),
-                    progressBar: showProgressBar
-                        // Purely informational and sits over selectable
-                        // text - taps and drags must keep reaching the
-                        // reading column underneath.
-                        ? IgnorePointer(
-                            child: ValueListenableBuilder<double>(
-                              valueListenable: _readingProgress,
-                              builder: (context, progress, _) =>
-                                  ZikrReadingProgressBar(
-                                progress: progress,
-                                readingTimeLabel: readingTimeLabel,
-                                progressLabel: zikrProgressLabel(
-                                  progress,
-                                  completed:
-                                      _completedTabs.contains(selectedTabIndex),
-                                ),
-                              ),
+                    ReaderTopBar(
+                      title: pageTitle,
+                      subtitle: zikrData == null
+                          ? null
+                          : _buildSubtitle(
+                              tabCount: tabContents.length,
+                              selectedTabIndex: selectedTabIndex,
+                              readingTimeLabel: readingTimeLabel,
                             ),
-                          )
-                        : null,
+                      trailing: _buildTopBarAction(context),
+                      // With parts, the line runs under their chips instead.
+                      progress:
+                          showProgressBar && !hasTabs ? _readingProgress : null,
+                    ),
                   ),
                 ),
               ],

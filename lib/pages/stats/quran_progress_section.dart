@@ -9,7 +9,7 @@ import '../../l10n/l10n.dart';
 final NumberFormat _count = NumberFormat.decimalPattern();
 
 String _surahName(int surah) =>
-    surahInfoFor(surah)?.englishName ?? L10n.current.quranSurahNumber(surah);
+    surahInfoFor(surah)?.displayName ?? L10n.current.quranSurahNumber(surah);
 
 String _percentText(double percent) =>
     '${percent.toStringAsFixed(percent > 0 && percent < 10 ? 1 : 0)}%';
@@ -113,7 +113,7 @@ class QuranTrackCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  label,
+                  recitationTrackName(label, context.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleMedium

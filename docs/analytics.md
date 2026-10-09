@@ -39,7 +39,7 @@ Flip `AnalyticsService.recordUsageInDebug` to exercise the pipeline locally.
 | `library_view` | `ChapterPage`, book taps | `book_uid`, `book_title`, `chapter_uid` |
 | `stream_view` | live streaming taps | `stream_title`, `link` |
 | `feature_use` | everywhere below | `feature`, plus per-feature extras |
-| `search` | `DataSearch`, once per settled query | `search_term` |
+| `search` | `SearchPage`, once per settled query | `search_term` |
 
 ### `feature_use` values
 
@@ -57,32 +57,51 @@ before ranking them; the grouping below mirrors that.
 `zikr_source_*`.
 
 **Home menu** — `home_menu_*`, one per home menu item (Qibla, Tasbeeh, Qaza,
-Calendar, Flights, Library, Favorites, …) (+`menu_item`).
+Calendar, Flights, Library, Favorites, …) (+`menu_item`). Choosing the Quran or
+Favorites tab counts under the same key its old grid tile used
+(`home_menu_favorites`, and `home_menu_surahs` or `home_menu_quran` for the
+Quran tab depending on which screen it shows); the profile button on Home
+counts as `home_menu_preferences`, and Home's shortcuts count under the
+feature they open. `home_menu_all_features` is the All features page itself.
 
 **Prayer & azaan** — `azaan_selected` (+`azaan_id`),
 `azaan_notifications_toggled` (+`enabled`), `azaan_opt_in` (+`choice`),
 `rakaat_prayer_completed` (+`total_rakaat`), `prayer_times_selection_changed`
-(+`prayer_times`), `qibla_target_changed` (+`target`).
+(+`prayer_times`), `qibla_target_changed` (+`target`), `city_chosen`
+(+`source`: `picker` or `time_zone`, the prayer card's guess; +`country`) and
+`device_location_chosen` (+`source`), for the city picker;
+`city_times_viewed` (+`source`: `picker`, from "Just checking times", or
+`calendar`; +`country`) for looking up another city's times without moving
+there, and `city_nudge_answered` (+`answer`: `still_there` or `change_city`)
+for the Home card's "Still in X?" when the phone's time zone no longer
+matches the chosen city's.
 
 **Account & tools** — `account_deleted`, `account_signed_in` (+`method`),
 `favorite_added` / `favorite_removed` (+`content_type`), `favorite_reordered`,
+`theme_mode_changed` (+`theme_mode`: `light`, `dark` or `system`; replaced
+`dark_mode_toggled` along with the Dark mode switch),
+`home_shortcuts_changed` (+`count`, `shortcuts`: the chosen ids in order),
+`first_run_setup` (+`outcome`: `finished`, or `skipped` from Skip setup;
++`step`: 0 for the welcome, 5 for Back up), once when setup ends; its steps
+count under their own keys (`azaan_opt_in`, `arabic_font_changed`,
+`theme_mode_changed`, `account_signed_in`, `city_chosen`,
+`device_location_chosen`),
 `flight_added` / `flight_edited`, `qaza_updated` (+`operation`),
-`tasbeeh_session` (+`count`).
+`tasbeeh_session` (+`count`, `mode`: `zahra` or `free`).
 
 **Search** — `search`, `search_opened`.
 
-**Other** — `dark_mode_toggled` (+`enabled`), `feedback_email_opened`. Neither
-fits a domain group (dark mode and feedback aren't zikr-, prayer- or
-account-specific), so both fall to `FeatureGroup.other` on purpose rather than
-being force-fit into one that would misdescribe them.
+**Feedback** — `feedback_email_opened`.
 
 A key nothing above recognises still shows up on the dashboard, just under an
 "Other" heading instead of a named group — see `FeatureGroup.other` in
 `usage_dashboard_page.dart`.
 
-The home menu's ids come from the tile labels, so a genuine rename forks the
-counter by design. `home_menu_surahs` stopped accumulating when that tile became
-`home_menu_quran`; the old key keeps its history and is not merged in.
+Each home menu item names its id explicitly (`HomeMenuItem.analyticsId`), set
+to what the old label-derived ids were, so a label can be reworded without
+forking its counter. A genuinely new feature gets a new id:
+`home_menu_surahs` and `home_menu_quran` are separate keys for separate
+screens, and neither is merged into the other.
 
 ### `source` values
 
@@ -103,6 +122,7 @@ them do not explain themselves.
 | `admin` | Opened from the admin zikr list |
 | `home_widget_favorites` | Tapped an item in the Favorites home screen widget |
 | `home_widget_recitation` | Tapped an item in the Today's Recitation home screen widget |
+| `home_continue` | Resumed at its bookmark from a Continue card on Home (a Quran track resumed there is `quran_resume`) |
 | `unknown` | Default — an entry point that forgot to pass a source |
 
 The two link sources are worth keeping apart: `deep_link` measures sharing and
@@ -171,7 +191,7 @@ be its only caller — runs only when the query is *submitted*. Nobody submits:
 normal path is type → tap → gone, and `buildResults` never builds. The counter
 read one search against every zikr opened with `source: search`.
 
-`DataSearch` now records a search when the query settles (900 ms), and
+`SearchPage` records a search when the query settles (900 ms), and
 immediately when the user acts on it — taps a result, submits, or closes the
 search. `isNewSearchTerm` keeps one refined query as one search: a term that
 extends, or is extended by, the one already recorded does not count again, so

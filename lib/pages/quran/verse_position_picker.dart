@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/quran_index.dart';
 import '../../l10n/l10n.dart';
+import '../../widgets/choice_sheet.dart';
 
 /// Picks one verse of the Quran - where a recitation track starts, or where
 /// it carries on from.
@@ -21,11 +22,9 @@ Future<VerseKey?> showVersePositionPicker(
   required String Function(VerseKey verse) describe,
   required String confirmVerb,
 }) {
-  return showModalBottomSheet<VerseKey>(
-    context: context,
-    isScrollControlled: true,
+  return showAdaptiveSheet<VerseKey>(
+    context,
     showDragHandle: true,
-    useSafeArea: true,
     builder: (context) => _VersePositionPicker(
       initial: initial,
       browseByJuz: browseByJuz,
@@ -280,7 +279,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
               _surahName(juz.end.surah), juz.end.ayah ?? 1));
     } else {
       final info = _surahs[unit.number - 1];
-      title = '${info.number}. ${info.englishName}';
+      title = '${info.number}. ${info.displayName}';
       final firstJuz = juzOf(info.number, 1);
       final lastJuz = juzOf(info.number, info.ayahCount);
       subtitle = context.l10n.pickerSurahDetails(
@@ -366,7 +365,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
 }
 
 String _surahNameOf(int surah) =>
-    surahInfoFor(surah)?.englishName ?? L10n.current.quranSurahNumber(surah);
+    surahInfoFor(surah)?.displayName ?? L10n.current.quranSurahNumber(surah);
 
 /// Every surah or every juz, opening onto the one [selected] falls in.
 class _UnitList extends StatefulWidget {
@@ -428,7 +427,7 @@ class _UnitListState extends State<_UnitList> {
               .quranSurahAyah(_surahNameOf(juz.start.surah), juz.start.ayah ?? 1));
         } else {
           final surah = _surahs[index];
-          title = surah.englishName;
+          title = surah.displayName;
           subtitle = context.l10n.quranAyahCount(surah.ayahCount);
           if (surah.arabicName.isNotEmpty) arabicName = surah.arabicName;
         }

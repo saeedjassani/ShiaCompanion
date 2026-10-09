@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import 'page_chrome.dart';
 
 /// Asks whether the app is working out before ever showing the OS review
 /// sheet - a "yes" here is what earns the native prompt, a "no" is routed to
@@ -11,50 +12,32 @@ import '../l10n/l10n.dart';
 /// needs a real answer. A dismissal comes back as `null` and is treated the
 /// same as "not now".
 Future<bool?> showRatingPromptDialog(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(context.l10n.ratingEnjoying),
-      content: Text(
-        context.l10n.ratingEnjoyingBody,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext, false),
-          child: Text(context.l10n.ratingNotReally),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(dialogContext, true),
-          child: Text(context.l10n.ratingYes),
-        ),
-      ],
-    ),
+  final l10n = context.l10n;
+  return showRevampDialog<bool>(
+    context,
+    title: l10n.ratingEnjoying,
+    body: l10n.ratingEnjoyingBody,
+    answers: [
+      DialogAnswer(true, l10n.ratingYes, primary: true),
+      DialogAnswer(false, l10n.ratingNotReally),
+    ],
   );
 }
 
-/// Shown after a context.l10n.ratingNotReally - asks before jumping straight to the mail app,
+/// Shown after a "Not really" - asks before jumping straight to the mail app,
 /// since that would otherwise fire the moment someone admits they aren't
 /// enjoying the app, whether or not they actually wanted to write anything.
 /// Returns whether to open the feedback email.
 Future<bool> showRatingFeedbackDialog(BuildContext context) async {
-  final sendFeedback = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(context.l10n.ratingSorry),
-      content: Text(
-        context.l10n.ratingSorryBody,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext, false),
-          child: Text(context.l10n.ratingNoThanks),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(dialogContext, true),
-          child: Text(context.l10n.ratingSendFeedback),
-        ),
-      ],
-    ),
+  final l10n = context.l10n;
+  final sendFeedback = await showRevampDialog<bool>(
+    context,
+    title: l10n.ratingSorry,
+    body: l10n.ratingSorryBody,
+    answers: [
+      DialogAnswer(true, l10n.ratingSendFeedback, primary: true),
+      DialogAnswer(false, l10n.ratingNoThanks),
+    ],
   );
   return sendFeedback ?? false;
 }

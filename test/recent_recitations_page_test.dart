@@ -38,7 +38,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Surah1 1–7 · 7 verses'), findsOneWidget);
-    await tester.tap(find.byTooltip('Remove'));
+    await tester.tap(find.bySemanticsLabel('Surah1 1–7 · 7 verses'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Remove'));
     await tester.pumpAndSettle();
     expect(find.text('Surah1 1–7 · 7 verses'), findsNothing);
     expect(find.textContaining('No sessions yet'), findsOneWidget);

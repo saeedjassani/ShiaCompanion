@@ -1,17 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
-import 'package:shia_companion/widgets/azaan_opt_in_dialog.dart';
 
-/// How the question gets put to the user. Injectable so tests can answer it
-/// without pumping a dialog.
-typedef AzaanOptInPrompt = Future<bool> Function(BuildContext context);
-
-/// Owns the one-time "may we play the azan at prayer times?" question.
+/// Owns the one-time "may we play the azan at prayer times?" question, which
+/// first-run setup's Azan step puts (see FirstRunSetupPage).
 ///
 /// Azan used to switch itself on the first time the app ran: the per-prayer
 /// preferences were written with Fajr, Zuhr and Maghrib already true, and the
@@ -107,34 +102,27 @@ class AzaanOptInService {
     await SP.prefs.setBool(askedKey, true);
   }
 
-  /// Whether this launch should put the question to the user.
+  /// Records the answer to the question: azan for exactly [prayerKeys]
+  /// (from [allPrayerKeys]), or none at all when it is empty - "Not now", or
+  /// setup skipped.
   ///
-  /// [hasLocation] gates it because the question is only meaningful once we can
-  /// actually compute prayer times; without a fix we stay quiet and ask on a
-  /// later launch rather than burning the one chance we get.
-  static bool shouldAsk({required bool hasLocation}) {
-    if (kIsWeb || !SP.isInitialized) return false;
-    return !hasBeenAsked && hasLocation;
-  }
-
-  /// Asks the question and records the answer. Returns what the user chose.
-  ///
-  /// Scheduling is left to the caller: on first run the startup path reschedules
-  /// straight after this anyway, once it knows whether exact alarms are allowed.
-  static Future<bool> ask(
-    BuildContext context, {
-    AzaanOptInPrompt prompt = showAzaanOptInDialog,
-  }) async {
-    final enabled = await prompt(context);
-    await _apply(enabled, reschedule: false);
-    return enabled;
-  }
+  /// Scheduling is left to the caller: setup runs before Home, whose start-up
+  /// rebuilds the schedule anyway once it knows whether exact alarms are
+  /// allowed, and the answer has already changed the fingerprint it checks.
+  static Future<void> answer(Iterable<String> prayerKeys) =>
+      _apply(prayerKeys.isNotEmpty,
+          reschedule: false, prayerKeys: prayerKeys.toSet());
 
   /// Turns azan on or off from Settings, and reschedules to match.
   static Future<void> setEnabled(bool enabled) =>
       _apply(enabled, reschedule: true);
 
-  static Future<void> _apply(bool enabled, {required bool reschedule}) async {
+  /// [prayerKeys], when given, is exactly what to enable.
+  static Future<void> _apply(
+    bool enabled, {
+    required bool reschedule,
+    Set<String>? prayerKeys,
+  }) async {
     await SP.prefs.setBool(askedKey, true);
 
     if (enabled) {
@@ -142,9 +130,10 @@ class AzaanOptInService {
       // Overwriting with the defaults is what used to destroy a hand-picked
       // set the moment someone toggled the switch off and on again.
       final remembered = SP.prefs.getStringList(_restoreSetKey);
-      final toEnable = (remembered == null || remembered.isEmpty)
-          ? defaultEnabledPrayerKeys
-          : remembered;
+      final toEnable = prayerKeys ??
+          ((remembered == null || remembered.isEmpty)
+              ? defaultEnabledPrayerKeys
+              : remembered);
       for (final key in allPrayerKeys) {
         await SP.prefs.setBool(key, toEnable.contains(key));
       }

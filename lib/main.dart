@@ -9,23 +9,29 @@ import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
+import 'package:shia_companion/pages/setup/first_run_setup_page.dart';
 import 'package:shia_companion/services/audio_download_store.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
+import 'package:shia_companion/services/first_run_setup.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
-import 'package:shia_companion/utils/dark_mode.dart';
 import 'package:shia_companion/utils/language_provider.dart';
+import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/theme/app_theme.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/services.dart' show BrowserContextMenu;
 import 'package:shia_companion/utils/crash_reporting.dart';
 import 'package:shia_companion/utils/network_utils.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/webview_registry.dart'
     if (dart.library.js_interop) 'package:shia_companion/utils/webview_registry_web.dart';
 
 import 'constants.dart';
 import 'l10n/l10n.dart';
-import 'pages/home_page.dart';
+import 'navigation/app_shell.dart';
+import 'navigation/keyboard_shortcuts.dart';
 import 'pages/widget_preview_page.dart';
 import 'utils/deep_links.dart';
+import 'widgets/app_toast.dart';
 import 'widgets/audio_download_button.dart';
 
 void main() async {
@@ -114,7 +120,12 @@ void main() async {
   // A finished offline download says so wherever the reader has got to.
   AudioDownloadStore.instance.results.listen(showAudioDownloadResult);
 
-  runApp(const MyApp());
+  // Decided before the first frame, so a fresh install opens straight on
+  // setup rather than on Home with setup sliding over it.
+  await SP.init();
+  final showFirstRunSetup = await FirstRunSetup.resolveOnLaunch();
+
+  runApp(MyApp(showFirstRunSetup: showFirstRunSetup));
 }
 
 enum _AppLaunchDestination {
@@ -137,29 +148,36 @@ _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
   return _AppLaunchDestination.home;
 }
 
+// Built once: MyApp rebuilds on every frame of a text size slider drag.
+final ThemeData _lightTheme = buildAppTheme(Brightness.light);
+final ThemeData _darkTheme = buildAppTheme(Brightness.dark);
+
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key, this.showFirstRunSetup = false}) : super(key: key);
+
+  /// Open on first-run setup, then on the tabs (see FirstRunGate).
+  final bool showFirstRunSetup;
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    Widget buildHomePage() => MyHomePage(
-          title: appName,
+    Widget buildHomePage() => FirstRunGate(
+          showSetup: showFirstRunSetup,
+          child: const AppShell(),
         );
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => DarkModeProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeModeProvider()),
         ChangeNotifierProvider(create: (context) => AppTextScaleProvider()),
         ChangeNotifierProvider(create: (context) => LanguageProvider()),
       ],
-      child: Consumer3<DarkModeProvider, AppTextScaleProvider,
-              LanguageProvider>(
-          builder: (context, darkModeProvider, textScaleProvider,
-              languageProvider, _) {
+      child:
+          Consumer3<ThemeModeProvider, AppTextScaleProvider, LanguageProvider>(
+              builder: (context, themeModeProvider, textScaleProvider,
+                  languageProvider, _) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
-          scaffoldMessengerKey: appScaffoldMessengerKey,
           title: appName,
           // Always explicit, rather than left to Flutter's own resolution, so
           // the language the UI is in is the one LanguageProvider reports
@@ -174,35 +192,12 @@ class MyApp extends StatelessWidget {
           ],
           // The in-app Text size setting, layered over the system's own
           // text scale for every route, dialog and sheet under the navigator.
-          builder: (context, child) =>
-              textScaleProvider.apply(context, child ?? const SizedBox()),
-          theme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
-            appBarTheme: AppBarTheme(
-              backgroundColor: Colors.brown,
-              foregroundColor: Colors.white,
-            ),
-            // Tab bars sit inside the brown app bar, so Material's defaults
-            // (primary/onSurfaceVariant labels) would vanish against it.
-            tabBarTheme: TabBarThemeData(
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
-              indicatorColor: Colors.white,
-              dividerColor: Colors.transparent,
-            ),
-            bottomNavigationBarTheme:
-                BottomNavigationBarThemeData(backgroundColor: Colors.brown),
+          builder: (context, child) => BackOnEscape(
+            child: textScaleProvider.apply(context, child ?? const SizedBox()),
           ),
-          darkTheme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.brown,
-              brightness: Brightness.dark,
-            ),
-          ),
-          themeMode:
-              darkModeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          theme: _lightTheme,
+          darkTheme: _darkTheme,
+          themeMode: themeModeProvider.themeMode,
           home: switch (_resolveLaunchDestination(Uri.base)) {
             _AppLaunchDestination.deleteAccount => const DeleteAccountPage(),
             _AppLaunchDestination.widgetPreview => const WidgetPreviewPage(),
@@ -253,6 +248,7 @@ class MyApp extends StatelessWidget {
             // every screen that also calls trackScreen. AnalyticsService.screen
             // is the single source of screen views, on every platform.
             routeObserver,
+            toastRouteObserver,
           ],
         );
       }),

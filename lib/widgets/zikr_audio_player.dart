@@ -13,7 +13,10 @@ import '../services/preferences_sync_service.dart';
 import '../utils/network_utils.dart';
 import '../utils/shared_preferences.dart';
 import '../pages/playlists_page.dart';
+import '../theme/shia_colors.dart';
 import 'audio_download_button.dart';
+import 'choice_sheet.dart';
+import 'outline_icon.dart';
 import '../l10n/l10n.dart';
 
 /// Recitation player hosted inside [ZikrActionBar], in place of its action
@@ -160,7 +163,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           // Unique per zikr+track, not just the URL, so the notification
           // updates correctly if two zikrs ever happened to share a file.
           id: '${widget.zikrUid}#$_trackIndex',
-          title: track.label ?? widget.zikrTitle,
+          title: track.displayLabel ?? widget.zikrTitle,
           album: widget.zikrTitle,
           artist: track.artist,
         ),
@@ -229,43 +232,21 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   }
 
   Future<void> _showTrackPicker() async {
-    final theme = Theme.of(context);
-    final selected = await showModalBottomSheet<int>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(context.l10n.audioList, style: theme.textTheme.titleMedium),
-              ),
-            ),
-            // A ListTile with a trailing check rather than RadioListTile:
-            // the radio's groupValue/onChanged pair is deprecated in favour
-            // of a RadioGroup ancestor, and picking a track is a one-shot
-            // choice that closes the sheet, not a form control to be read
-            // back later.
-            for (var i = 0; i < widget.tracks.length; i++)
-              ListTile(
-                title: Text(widget.tracks[i].label ??
-                      context.l10n.audioTrackNumber(i + 1)),
-                subtitle:
-                    AudioDownloadStore.instance.isDownloaded(widget.tracks[i])
-                        ? Text(context.l10n.audioDownloaded)
-                        : null,
-                trailing: i == _trackIndex
-                    ? Icon(Icons.check, color: theme.colorScheme.primary)
-                    : null,
-                selected: i == _trackIndex,
-                onTap: () => Navigator.of(sheetContext).pop(i),
-              ),
-          ],
-        ),
-      ),
+    final store = AudioDownloadStore.instance;
+    final selected = await showChoiceSheet<int>(
+      context,
+      title: context.l10n.audioChooseRecording,
+      current: _trackIndex,
+      choices: [
+        for (var i = 0; i < widget.tracks.length; i++)
+          Choice(
+            i,
+            widget.tracks[i].displayLabel ?? context.l10n.audioTrackNumber(i + 1),
+            hint: store.isDownloaded(widget.tracks[i])
+                ? context.l10n.audioDownloaded
+                : widget.tracks[i].artist,
+          ),
+      ],
     );
     if (selected != null) await _selectTrack(selected);
   }
@@ -286,8 +267,14 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
       return const SizedBox.shrink();
     }
 
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    final close = PlayerIconButton(
+      label: l10n.audioClosePlayer,
+      icon: OutlineIcon(OutlineGlyph.close,
+          size: 20, color: colors.textMuted, strokeWidth: 2),
+      onPressed: widget.onClose,
+    );
 
     // A track that will not load leaves the bar in place but says so, rather
     // than vanishing: the reader asked for audio and deserves an answer.
@@ -300,136 +287,185 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           track != null &&
           !AudioDownloadStore.instance.isDownloaded(track);
       return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
+        padding: const EdgeInsetsDirectional.only(start: 12),
         child: Row(
           children: [
-            Icon(offline ? Icons.cloud_off_rounded : Icons.error_outline,
-                size: 20, color: colorScheme.error),
+            OutlineIcon(offline ? OutlineGlyph.cloud : OutlineGlyph.alert,
+                size: 22, color: colors.danger),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                offline
-                    ? context.l10n.audioOfflineNotDownloaded
-                    : context.l10n.audioLoadFailed,
-                style: theme.textTheme.bodySmall,
+                offline ? l10n.audioOfflineNotDownloaded : l10n.audioLoadFailed,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: ShiaText.caption.copyWith(color: colors.text),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: context.l10n.commonTryAgain,
+            PlayerIconButton(
+              label: l10n.commonTryAgain,
+              icon: OutlineIcon(OutlineGlyph.reset,
+                  size: 20, color: colors.accent, strokeWidth: 2),
               onPressed: _retry,
             ),
-            IconButton(
-              icon: const Icon(Icons.close),
-              tooltip: context.l10n.audioClosePlayer,
-              onPressed: widget.onClose,
-            ),
+            close,
           ],
         ),
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 0, 4, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildPlayButton(player, colorScheme),
-          const SizedBox(width: 4),
-          Expanded(child: _buildBody(player, theme)),
-          IconButton(
-            icon: const Icon(Icons.playlist_add),
-            tooltip: context.l10n.playlistAddTo,
-            onPressed: () => showAddToPlaylistSheet(
-              context,
-              zikrUid: widget.zikrUid,
-              zikrTitle: widget.zikrTitle,
-              track: widget.tracks.length > 1 ? _currentTrack : null,
-            ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _buildPlayButton(player),
+        const SizedBox(width: 8),
+        Expanded(child: _buildBody(player)),
+        PlayerIconButton(
+          label: l10n.playlistAddTo,
+          icon: OutlineIcon(OutlineGlyph.playlistAdd,
+              size: 22, color: colors.accent),
+          onPressed: () => showAddToPlaylistSheet(
+            context,
+            zikrUid: widget.zikrUid,
+            zikrTitle: widget.zikrTitle,
+            track: widget.tracks.length > 1 ? _currentTrack : null,
           ),
-          if (AudioDownloadStore.isSupported)
-            AudioDownloadButton(
-              tracks: widget.tracks,
-              label: widget.zikrTitle,
-            ),
-          if (widget.tracks.length > 1)
-            IconButton(
-              icon: const Icon(Icons.playlist_play),
-              tooltip: context.l10n.audioChooseRecording,
-              onPressed: _showTrackPicker,
-            ),
-          IconButton(
-            icon: const Icon(Icons.close),
-            tooltip: context.l10n.audioClosePlayer,
-            onPressed: widget.onClose,
+        ),
+        if (AudioDownloadStore.isSupported)
+          AudioDownloadButton(
+            tracks: widget.tracks,
+            label: widget.zikrTitle,
           ),
-        ],
-      ),
+        close,
+      ],
     );
   }
 
-  Widget _buildPlayButton(AudioPlayer player, ColorScheme colorScheme) {
+  /// The 48 px accent play/pause button, a spinner while it loads.
+  Widget _buildPlayButton(AudioPlayer player) {
+    final colors = ShiaColors.of(context);
     return StreamBuilder<PlayerState>(
       stream: player.playerStateStream,
       builder: (context, snapshot) {
         final state = snapshot.data;
         final waiting = state?.processingState == ProcessingState.loading ||
             state?.processingState == ProcessingState.buffering;
-        if (waiting) {
-          return const Padding(
-            padding: EdgeInsets.all(12),
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2.5),
-            ),
-          );
-        }
         final playing = state?.playing ?? false;
-        return IconButton.filled(
-          style: IconButton.styleFrom(
-            backgroundColor: colorScheme.primaryContainer,
-            foregroundColor: colorScheme.onPrimaryContainer,
-            padding: const EdgeInsets.all(10),
+        final label = playing
+            ? context.l10n.audioPauseRecitation
+            : context.l10n.audioPlayRecitation;
+        return Tooltip(
+          message: label,
+          excludeFromSemantics: true,
+          child: Semantics(
+            button: true,
+            label: label,
+            excludeSemantics: true,
+            onTap: _togglePlay,
+            child: Material(
+              color: colors.accent,
+              shape: const CircleBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: _togglePlay,
+                child: SizedBox.square(
+                  dimension: 48,
+                  child: Center(
+                    child: waiting
+                        ? SizedBox.square(
+                            dimension: 22,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.5, color: colors.onAccent),
+                          )
+                        : OutlineIcon(
+                            playing ? OutlineGlyph.pause : OutlineGlyph.play,
+                            size: 22,
+                            color: colors.onAccent,
+                            strokeWidth: 2,
+                            filled: true,
+                          ),
+                  ),
+                ),
+              ),
+            ),
           ),
-          icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-              size: 28),
-          tooltip: playing
-              ? context.l10n.audioPauseRecitation
-              : context.l10n.audioPlayRecitation,
-          onPressed: _togglePlay,
         );
       },
     );
   }
 
-  Widget _buildBody(AudioPlayer player, ThemeData theme) {
+  /// What is playing - the recording's name, which opens the other
+  /// recordings when there are some - over the seek bar.
+  Widget _buildBody(AudioPlayer player) {
+    final colors = ShiaColors.of(context);
     final track = _currentTrack;
-    final label = widget.tracks.length > 1
-        ? (track?.label ?? context.l10n.audioRecitation)
+    final several = widget.tracks.length > 1;
+    final label = several
+        ? (track?.displayLabel ?? context.l10n.audioRecitation)
         : context.l10n.audioRecitationAudio;
+    final style = ShiaText.caption.copyWith(
+      fontSize: 12,
+      height: 16 / 12,
+      fontWeight: FontWeight.w600,
+      color: several ? colors.accent : colors.text,
+    );
+
+    final title = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: style,
+          ),
+        ),
+        if (several) ...[
+          const SizedBox(width: 2),
+          OutlineIcon(OutlineGlyph.chevronDown,
+              size: 14, color: colors.accent, strokeWidth: 2.2),
+        ],
+      ],
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+        if (several)
+          Semantics(
+            button: true,
+            label: '${context.l10n.audioChooseRecording}: $label',
+            excludeSemantics: true,
+            onTap: _showTrackPicker,
+            child: InkWell(
+              onTap: _showTrackPicker,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: title,
+              ),
             ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: title,
           ),
-        ),
-        _buildProgress(player, theme),
+        _buildProgress(player),
       ],
     );
   }
 
-  Widget _buildProgress(AudioPlayer player, ThemeData theme) {
+  Widget _buildProgress(AudioPlayer player) {
+    final colors = ShiaColors.of(context);
+    final timeStyle = ShiaText.caption.copyWith(
+      fontSize: 11,
+      height: 13 / 11,
+      color: colors.textMuted,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
     return StreamBuilder<Duration>(
       stream: player.positionStream,
       builder: (context, snapshot) {
@@ -442,15 +478,22 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
 
         return Row(
           children: [
-            Text(
-              _formatDuration(
-                  Duration(milliseconds: (_dragValue ?? positionMs).round())),
-              style: theme.textTheme.bodySmall,
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 4),
+              child: Text(
+                _formatDuration(
+                    Duration(milliseconds: (_dragValue ?? positionMs).round())),
+                style: timeStyle,
+              ),
             ),
             Expanded(
               child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   trackHeight: 3,
+                  activeTrackColor: colors.accent,
+                  inactiveTrackColor: colors.divider,
+                  thumbColor: colors.accent,
+                  overlayColor: colors.accent.withValues(alpha: 0.12),
                   thumbShape:
                       const RoundSliderThumbShape(enabledThumbRadius: 6),
                   overlayShape:
@@ -474,7 +517,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
                 ),
               ),
             ),
-            Text(_formatDuration(duration), style: theme.textTheme.bodySmall),
+            Text(_formatDuration(duration), style: timeStyle),
           ],
         );
       },

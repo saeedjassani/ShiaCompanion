@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../constants.dart' show appScaffoldMessengerKey;
 import '../models/zikr_audio_track.dart';
 import '../services/audio_download_store.dart';
 import '../utils/network_utils.dart';
 import '../l10n/l10n.dart';
+import '../theme/shia_colors.dart';
+import 'app_toast.dart';
+import 'outline_icon.dart';
+import 'page_chrome.dart';
 
 /// Where an [AudioDownloadButton] stands, worked out once per build so the
 /// icon and the labelled forms can never disagree.
@@ -32,14 +35,9 @@ Future<bool> startAudioDownload(
   String? label,
 }) async {
   final store = AudioDownloadStore.instance;
-  final messenger = ScaffoldMessenger.maybeOf(context);
   final network = NetworkUtils();
   if (!await network.isDeviceOnline()) {
-    messenger
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Text(context.l10n.audioOfflineCannotDownload),
-      ));
+    showToast(L10n.current.audioOfflineCannotDownload);
     return false;
   }
   if (await network.isOnMobileDataOnly()) {
@@ -115,13 +113,11 @@ Future<void> confirmRemoveAudioDownload(
 /// The app-wide message when a download finishes, shown wherever the reader
 /// has got to by then. Registered once in main().
 void showAudioDownloadResult(AudioDownloadResult result) {
-  final messenger = appScaffoldMessengerKey.currentState;
-  if (messenger == null) return;
   final name = result.label;
   final total = result.saved + result.failed;
 
   final String message;
-  SnackBarAction? action;
+  VoidCallback? retry;
   if (result.succeeded) {
     final l10n = L10n.current;
     message = name == null
@@ -143,16 +139,15 @@ void showAudioDownloadResult(AudioDownloadResult result) {
     };
     message = '$partial $reason';
     if (result.failure != AudioDownloadFailure.unavailable) {
-      action = SnackBarAction(
-        label: l10n.commonRetry,
-        onPressed: () => unawaited(AudioDownloadStore.instance
-            .download(result.tracks, label: result.label)),
-      );
+      retry = () => unawaited(AudioDownloadStore.instance
+          .download(result.tracks, label: result.label));
     }
   }
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message), action: action));
+  showToast(
+    message,
+    actionLabel: retry == null ? null : L10n.current.commonRetry,
+    onAction: retry,
+  );
 }
 
 /// Saves [tracks] for offline listening, shows how far along that is, and
@@ -227,7 +222,6 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
       listenable: _store,
       builder: (context, _) {
         final tracks = widget.tracks;
-        final colorScheme = Theme.of(context).colorScheme;
         final state = audioDownloadStateOf(_store, tracks);
         final progress = _store.overallProgress(tracks);
         final percent = (progress * 100).floor();
@@ -236,6 +230,7 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
             toDownload == null ? '' : ' · ${formatAudioBytes(toDownload)}';
         final remaining = tracks.where((t) => !_store.isDownloaded(t)).length;
 
+        final colors = ShiaColors.of(context);
         final Widget icon;
         final String label;
         final String tooltip;
@@ -249,12 +244,21 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
                 children: [
                   CircularProgressIndicator(
                     strokeWidth: 2.5,
+                    color: colors.accent,
+                    backgroundColor: colors.divider,
                     // Indeterminate until the first bytes give it a size.
                     value: progress > 0 ? progress : null,
                     semanticsLabel: context.l10n.audioDownloading,
                     semanticsValue: context.l10n.commonPercent(percent),
                   ),
-                  const Icon(Icons.stop_rounded, size: 14),
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: BoxDecoration(
+                      color: colors.accent,
+                      borderRadius: BorderRadius.circular(1.5),
+                    ),
+                  ),
                 ],
               ),
             );
@@ -263,19 +267,23 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
                 : context.l10n.audioDownloadingEllipsis;
             tooltip = context.l10n.audioStopDownloading;
           case AudioDownloadState.done:
-            icon = Icon(Icons.offline_pin_rounded, color: colorScheme.primary);
+            icon = OutlineIcon(OutlineGlyph.check,
+                size: 22, color: colors.success, strokeWidth: 2.2);
             label = context.l10n.audioDownloaded;
             tooltip = context.l10n.audioDownloadedTooltip;
           case AudioDownloadState.failed:
-            icon = Icon(Icons.sync_problem_rounded, color: colorScheme.error);
+            icon =
+                OutlineIcon(OutlineGlyph.alert, size: 22, color: colors.danger);
             label = context.l10n.audioRetryDownload;
             tooltip = context.l10n.audioDownloadFailedTooltip;
           case AudioDownloadState.partial:
-            icon = const Icon(Icons.download_for_offline_outlined);
+            icon = OutlineIcon(OutlineGlyph.download,
+                size: 22, color: colors.accent);
             label = context.l10n.audioDownloadMore(remaining) + sizeSuffix;
             tooltip = context.l10n.audioDownloadRestTooltip;
           case AudioDownloadState.idle:
-            icon = const Icon(Icons.download_for_offline_outlined);
+            icon = OutlineIcon(OutlineGlyph.download,
+                size: 22, color: colors.accent);
             label = (tracks.length > 1
                     ? context.l10n.audioDownloadAll
                     : context.l10n.audioDownload) +
@@ -284,25 +292,68 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
         }
 
         if (!widget.labelled) {
-          return IconButton(
+          return PlayerIconButton(
+            label: tooltip,
             icon: icon,
-            tooltip: tooltip,
             onPressed: () => _onPressed(state),
           );
         }
         return Tooltip(
           message: tooltip,
-          child: OutlinedButton.icon(
+          child: PageButton(
             onPressed: () => _onPressed(state),
-            icon: icon,
-            label: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            // The revamp's outline glyphs, where the icon button keeps
+            // Material's.
+            icon: state == AudioDownloadState.downloading ? icon : null,
+            glyph: switch (state) {
+              AudioDownloadState.done => OutlineGlyph.check,
+              AudioDownloadState.failed => OutlineGlyph.repeat,
+              _ => OutlineGlyph.download,
+            },
+            danger: state == AudioDownloadState.failed,
+            label: label,
           ),
         );
       },
+    );
+  }
+}
+
+/// A 44 px round, borderless icon button: the tools in the reader's audio
+/// player, which sit inside its glass capsule rather than on a page.
+class PlayerIconButton extends StatelessWidget {
+  const PlayerIconButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  /// Read out and shown as the tooltip.
+  final String label;
+  final Widget icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: label,
+      excludeFromSemantics: true,
+      child: Semantics(
+        button: true,
+        enabled: onPressed != null,
+        label: label,
+        excludeSemantics: true,
+        onTap: onPressed,
+        child: InkResponse(
+          onTap: onPressed,
+          radius: 22,
+          child: SizedBox.square(
+            dimension: 44,
+            child: Center(child: icon),
+          ),
+        ),
+      ),
     );
   }
 }

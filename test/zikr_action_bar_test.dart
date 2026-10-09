@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/zikr_action_bar.dart';
 
 /// Narrow enough to be the real squeeze case: five icon-and-label targets on
@@ -29,7 +30,7 @@ ZikrActionBar _bar({
   bool isCounterVisible = false,
   VoidCallback? onBookmark,
   VoidCallback? onListen,
-  VoidCallback? onSettings,
+  VoidCallback? onText,
 }) {
   return ZikrActionBar(
     player: player,
@@ -42,44 +43,40 @@ ZikrActionBar _bar({
     onBookmark: onBookmark ?? () {},
     onShare: () {},
     onListen: onListen ?? () {},
-    onSettings: onSettings ?? () {},
+    onText: onText ?? () {},
     onCounter: () {},
   );
 }
 
-/// The active-state pill's fill color; [Colors.transparent] when inactive.
-/// Scoped to the action's own InkWell rather than a Column - the bar itself
-/// is one too, so a Column-based search would match twice.
-Color? _pillColor(WidgetTester t, String label) {
-  final container = t.widget<AnimatedContainer>(
-    find.descendant(
-      of: find.ancestor(
-        of: find.text(label),
-        matching: find.byType(InkWell),
-      ),
-      matching: find.byType(AnimatedContainer),
-    ),
-  );
-  return (container.decoration as BoxDecoration?)?.color;
-}
+/// The tool's tint; [Colors.transparent] when it is off.
+AnimatedContainer _tool(WidgetTester t, String label) =>
+    t.widget<AnimatedContainer>(find
+        .ancestor(of: find.text(label), matching: find.byType(AnimatedContainer))
+        .first);
 
-/// The pop animation's current scale for the action labelled [label]. Scoped
-/// the same way as [_pillColor]: every action has its own ScaleTransition, so
-/// an unscoped [find.byType] would match all five.
+Color? _pillColor(WidgetTester t, String label) =>
+    (_tool(t, label).decoration as BoxDecoration?)?.color;
+
+/// The pop animation's current scale for the tool labelled [label]. Scoped
+/// to that tool: every tool has its own ScaleTransition.
 double _popScale(WidgetTester t, String label) {
   return t
       .widget<ScaleTransition>(
         find.descendant(
-          of: find.ancestor(
-            of: find.text(label),
-            matching: find.byType(InkWell),
-          ),
+          of: find
+              .ancestor(
+                  of: find.text(label),
+                  matching: find.byType(AnimatedContainer))
+              .first,
           matching: find.byType(ScaleTransition),
         ),
       )
       .scale
       .value;
 }
+
+Finder _bookmarkIcon({required bool filled}) => find.byWidgetPredicate((w) =>
+    w is OutlineIcon && w.glyph == OutlineGlyph.bookmark && w.filled == filled);
 
 void main() {
   group('ZikrActionBar', () {
@@ -92,8 +89,8 @@ void main() {
       expect(find.text('Bookmark'), findsOneWidget);
       expect(find.text('Share'), findsOneWidget);
       expect(find.text('Listen'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
-      expect(find.text('Counter'), findsOneWidget);
+      expect(find.text('Text'), findsOneWidget);
+      expect(find.text('Tasbeeh'), findsOneWidget);
       // A RenderFlex overflow is reported as a thrown exception, so this is
       // what catches the bar being too cramped for icon-plus-label.
       expect(t.takeException(), isNull);
@@ -117,7 +114,7 @@ void main() {
 
       expect(find.text('Bookmark'), findsNothing);
       expect(find.text('Saved'), findsNothing);
-      expect(find.byIcon(Icons.bookmark_border), findsNothing);
+      expect(_bookmarkIcon(filled: false), findsNothing);
       expect(find.text('Share'), findsOneWidget);
       expect(t.takeException(), isNull);
     });
@@ -127,7 +124,7 @@ void main() {
 
       expect(find.text('Saved'), findsOneWidget);
       expect(find.text('Bookmark'), findsNothing);
-      expect(find.byIcon(Icons.bookmark), findsOneWidget);
+      expect(_bookmarkIcon(filled: true), findsOneWidget);
     });
 
     testWidgets('a bookmarked action shows a filled pill, not just tinted text',
@@ -185,11 +182,11 @@ void main() {
       expect(taps, 1);
     });
 
-    testWidgets('tapping Settings calls through', (t) async {
+    testWidgets('tapping Text calls through', (t) async {
       var taps = 0;
-      await t.pumpWidget(_host(_bar(onSettings: () => taps++)));
+      await t.pumpWidget(_host(_bar(onText: () => taps++)));
 
-      await t.tap(find.text('Settings'));
+      await t.tap(find.text('Text'));
       await t.pump();
 
       expect(taps, 1);
@@ -218,36 +215,36 @@ void main() {
       )));
       final playerHeight = t.getSize(find.byType(ZikrActionBar)).height;
 
-      // The bar sits over the reading area, and the text is padded to clear
-      // exactly this height — if the two modes differed, opening the player
-      // would either hide a line or leave a gap.
+      // The capsule floats over the reading area, and the text is padded to
+      // clear exactly this height — if the two modes differed, opening the
+      // player would either hide a line or leave a gap.
       expect(playerHeight, actionsHeight);
-      expect(actionsHeight, ZikrActionBar.barHeight + 1); // + divider
+      expect(actionsHeight, ZikrActionBar.barHeight);
     });
 
-    testWidgets('reserves the bottom safe area below the controls', (t) async {
-      await t.pumpWidget(_host(
-        _bar(),
-        size: _smallPhone,
-      ));
-      final withoutInset = t.getSize(find.byType(ZikrActionBar)).height;
+    testWidgets('keeps the tools to a capsule width on a wide screen',
+        (t) async {
+      const tablet = Size(1024, 768);
+      await t.binding.setSurfaceSize(tablet);
+      addTearDown(() => t.binding.setSurfaceSize(null));
 
-      await t.pumpWidget(MediaQuery(
-        data: const MediaQueryData(
-          size: _smallPhone,
-          padding: EdgeInsets.only(bottom: 34),
-        ),
-        child: MaterialApp(
-          home: Scaffold(
-            body: Stack(children: [
-              Positioned(left: 0, right: 0, bottom: 0, child: _bar()),
-            ]),
-          ),
-        ),
-      ));
-      final withInset = t.getSize(find.byType(ZikrActionBar)).height;
+      await t.pumpWidget(_host(_bar(), size: tablet));
 
-      expect(withInset, withoutInset + 34);
+      final capsule = find.descendant(
+        of: find.byType(ZikrActionBar),
+        matching: find.byType(SizedBox),
+      );
+      expect(t.getSize(capsule.first).width, ZikrActionBar.maxToolsWidth);
+    });
+
+    testWidgets('lists the tools in the agreed order', (t) async {
+      await t.pumpWidget(_host(_bar()));
+
+      final xs = [
+        for (final label in ['Bookmark', 'Listen', 'Text', 'Tasbeeh', 'Share'])
+          t.getCenter(find.text(label)).dx,
+      ];
+      expect(xs, orderedEquals([...xs]..sort()));
     });
   });
 }

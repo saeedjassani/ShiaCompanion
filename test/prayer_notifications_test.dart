@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
@@ -55,6 +56,30 @@ void main() {
     test('silent is selectable per prayer', () async {
       await saveAzaanPreferenceForPrayer('Asr', 'silent');
       expect(getAzaanOptionForPrayer('Asr').id, 'silent');
+    });
+  });
+
+  group('a notification tap', () {
+    NotificationResponse tap(int id, String payload) => NotificationResponse(
+          notificationResponseType:
+              NotificationResponseType.selectedNotification,
+          id: id,
+          payload: payload,
+        );
+
+    test('is acted on once, however many times it is reported', () {
+      // The plugin's callback, then Home's check on resume, for one tap.
+      final first = tap(101, '2026-10-07T05:12:00.000');
+      expect(markNotificationTapHandled(first), isTrue);
+      expect(markNotificationTapHandled(tap(101, '2026-10-07T05:12:00.000')),
+          isFalse);
+    });
+
+    test('of the next day\'s notification for that prayer still counts', () {
+      expect(markNotificationTapHandled(tap(102, '2026-10-08T05:13:00.000')),
+          isTrue);
+      expect(markNotificationTapHandled(tap(102, '2026-10-09T05:14:00.000')),
+          isTrue);
     });
   });
 
@@ -254,6 +279,31 @@ void main() {
       );
     });
 
+    testWidgets('heads the times with how many are on', (tester) async {
+      await pumpPage(tester);
+      expect(find.text('TIMES · 0 ON'), findsOneWidget);
+
+      await tester.tap(find.byType(Switch).at(0));
+      await tester.pumpAndSettle();
+      expect(find.text('TIMES · 1 ON'), findsOneWidget);
+    });
+
+    testWidgets('an on time names its sound, and says when it is its own',
+        (tester) async {
+      await SP.prefs.setBool(notificationPreferenceKeyForPrayer('Fajr'), true);
+      await SP.prefs.setBool(notificationPreferenceKeyForPrayer('Isha'), true);
+      await saveAzaanPreferenceForPrayer('Isha', 'takbir');
+      await pumpPage(tester);
+
+      expect(find.text(getSelectedAzaan().name), findsWidgets);
+      expect(
+        find.text('${getAzaanOptionForPrayer('Isha').name} · its own sound'),
+        findsOneWidget,
+      );
+      // The six times left off say so.
+      expect(find.text('Off'), findsNWidgets(6));
+    });
+
     testWidgets('an explicit change counts as answering the opt-in question',
         (tester) async {
       expect(AzaanOptInService.hasBeenAsked, isFalse);
@@ -262,10 +312,9 @@ void main() {
       await tester.tap(find.byType(Switch).at(0));
       await tester.pumpAndSettle();
 
-      // Otherwise the first-run dialog could still ambush someone who has
-      // already configured their notifications by hand.
+      // So nothing treats someone who has already configured their
+      // notifications by hand as never having answered.
       expect(AzaanOptInService.hasBeenAsked, isTrue);
-      expect(AzaanOptInService.shouldAsk(hasLocation: true), isFalse);
     });
   });
 }

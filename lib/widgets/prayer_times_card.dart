@@ -13,25 +13,36 @@ import '../l10n/l10n.dart';
 /// date read as "notify me on this date", which it never was. The calendar now
 /// links to the prayer notifications screen instead.
 class PrayerTimesCard extends StatelessWidget {
+  /// Times are written on this date's clock: the phone's for a plain
+  /// DateTime, a city's for a TZDateTime in its zone.
   final DateTime date;
   final bool compact;
+
+  /// Somewhere other than the reader's own location, for looking up another
+  /// city's times. Both or neither.
+  final double? latitude;
+  final double? longitude;
 
   const PrayerTimesCard({
     super.key,
     required this.date,
     this.compact = false,
+    this.latitude,
+    this.longitude,
   });
 
   @override
   Widget build(BuildContext context) {
     PrayerTime prayerTime = getPrayerTimeObject();
-    final prayerEntries = lat != null && long != null
+    final latitude = this.latitude ?? lat;
+    final longitude = this.longitude ?? long;
+    final prayerEntries = latitude != null && longitude != null
         ? buildExtendedPrayerTimeEntries(
             prayerTime: prayerTime,
             date: date,
-            latitude: lat!,
-            longitude: long!,
-            timeZone: date.timeZoneOffset.inMinutes / 60.0,
+            latitude: latitude,
+            longitude: longitude,
+            timeZone: prayerTimeZoneFor(date),
           )
         : null;
     if (prayerEntries == null) {
