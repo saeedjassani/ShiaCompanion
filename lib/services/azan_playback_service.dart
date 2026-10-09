@@ -312,6 +312,7 @@ class AzanPlaybackService {
     port.listen((message) {
       if (message == 'stop') unawaited(_stopPlayback());
       if (message == 'resume') _resumeActive();
+      if (message == 'pause') unawaited(_activePlayer?.pause());
     });
   }
 
@@ -365,6 +366,16 @@ class AzanPlaybackService {
     } else {
       await _clearPlaying();
     }
+  }
+
+  /// Pauses the Azan, in whichever isolate is holding it.
+  static Future<void> pauseIfPlaying() async {
+    final port = _playingPort();
+    if (port != null) {
+      port.send('pause');
+      return;
+    }
+    await _activePlayer?.pause();
   }
 
   /// Resumes an Azan paused from its notification, in whichever isolate is
