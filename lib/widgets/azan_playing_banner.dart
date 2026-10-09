@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../services/azan_playback_service.dart';
@@ -32,10 +31,8 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
   @override
   void initState() {
     super.initState();
-    if (!kIsWeb) {
-      unawaited(_check());
-      _poll = Timer.periodic(const Duration(seconds: 2), (_) => _check());
-    }
+    unawaited(_check());
+    _poll = Timer.periodic(const Duration(seconds: 2), (_) => _check());
   }
 
   @override

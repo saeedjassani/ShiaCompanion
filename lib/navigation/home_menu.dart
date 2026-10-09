@@ -251,19 +251,17 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     icon: Icons.newspaper_rounded,
     pageBuilder: () => const NewsPage(),
   ),
-  // Background audio is not set up on web.
-  if (!kIsWeb)
-    HomeMenuItem(
-      label: 'Play Azan',
-      analyticsId: 'play_azan',
-      outlineGlyph: OutlineGlyph.speaker,
-      icon: Icons.volume_up_rounded,
-      pageBuilder: () => const SizedBox.shrink(),
-      // The pinned banner in the app shell shows it playing, with Stop.
-      action: () => AzanPlaybackService.playNow(
-        prayerName: L10n.current.azanPrayerFallback,
-      ),
+  HomeMenuItem(
+    label: 'Play Azan',
+    analyticsId: 'play_azan',
+    outlineGlyph: OutlineGlyph.speaker,
+    icon: Icons.volume_up_rounded,
+    pageBuilder: () => const SizedBox.shrink(),
+    // The pinned banner in the app shell shows it playing, with Stop.
+    action: () => AzanPlaybackService.playNow(
+      prayerName: L10n.current.azanPrayerFallback,
     ),
+  ),
   settingsMenuItem,
 ]);
 

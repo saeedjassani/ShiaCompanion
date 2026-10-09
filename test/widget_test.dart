@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart';
@@ -65,8 +64,7 @@ void main() {
           'Rakaat Counter': 'rakaat_counter',
         'Prayer Times in Flight': 'prayer_times_in_flight',
         'News': 'news',
-        // Not on web.
-        if (!kIsWeb) 'Play Azan': 'play_azan',
+        'Play Azan': 'play_azan',
         // Relabelled from Preferences; the id stays.
         'Settings': 'preferences',
         'Quran': 'quran',
