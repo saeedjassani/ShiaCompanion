@@ -2399,22 +2399,6 @@
   "@prayerSetCityHint": {
     "description": "Home's prayer card shrunk to one row after 'Not now': tapping it opens the city picker."
   },
-  "prayerZoneSuggests": "Your phone's time zone suggests {city}.",
-  "@prayerZoneSuggests": {
-    "placeholders": {
-      "city": {
-        "type": "String"
-      }
-    }
-  },
-  "prayerYesImIn": "Yes, I'm in {city}",
-  "@prayerYesImIn": {
-    "placeholders": {
-      "city": {
-        "type": "String"
-      }
-    }
-  },
   "goToVerseTitle": "Go to a verse",
   "goToVerseStepSurah": "Step 1 of 2 · Choose a surah",
   "goToVerseStepVerse": "Step 2 of 2 · Choose a verse (1 to {count})",

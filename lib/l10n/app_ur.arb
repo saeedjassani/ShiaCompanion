@@ -874,8 +874,6 @@
   "prayerWhichCity": "آپ کس شہر میں ہیں؟",
   "prayerWhichCityBody": "ہم آج کے نماز کے اوقات اور اگلی اذان کا وقت دکھائیں گے۔",
   "prayerSetCityHint": "آج کے اوقات دیکھنے کے لیے شہر منتخب کریں۔",
-  "prayerZoneSuggests": "آپ کے فون کے ٹائم زون کے مطابق آپ شاید {city} میں ہیں۔",
-  "prayerYesImIn": "جی ہاں، میں {city} میں ہوں",
   "goToVerseTitle": "آیت پر جائیں",
   "goToVerseStepSurah": "مرحلہ 1 از 2 · سورہ منتخب کریں",
   "goToVerseStepVerse": "مرحلہ 2 از 2 · آیت منتخب کریں (1 سے {count})",
