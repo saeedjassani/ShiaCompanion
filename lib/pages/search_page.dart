@@ -900,7 +900,7 @@ class _GoToVerseCard extends StatelessWidget {
     final l10n = context.l10n;
     final colors = ShiaColors.of(context);
     final surah = surahInfoFor(verse.surah);
-    final name = surah?.englishName ?? l10n.quranSurahNumber(verse.surah);
+    final name = surah?.displayName ?? l10n.quranSurahNumber(verse.surah);
     final ayah = verse.ayah ?? 1;
 
     return Column(

@@ -25,7 +25,7 @@ String describeRecitationPosition(
 }) {
   final ayah = verse.ayah ?? 1;
   final surahName =
-      surahInfoFor(verse.surah)?.englishName ??
+      surahInfoFor(verse.surah)?.displayName ??
           L10n.current.quranSurahNumber(verse.surah);
   if (!byJuz) {
     return ayah == 1 ? surahName : L10n.current.quranSurahAyah(surahName, ayah);

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/utils/slug_registry.dart';
 
@@ -26,7 +28,7 @@ List<UidTitleData> filterDataSearchResults(
   Iterable<String> Function(String uid)? slugsFor,
   String? Function(String uid)? translatedTitleFor,
 }) {
-  final normalizedQuery = query.trim().toLowerCase();
+  final normalizedQuery = foldSearchText(query);
   if (normalizedQuery.isEmpty) {
     return const [];
   }
@@ -37,11 +39,13 @@ List<UidTitleData> filterDataSearchResults(
       slugQuery.isNotEmpty &&
       slugsFor(entry.uid).any((slug) => slug.contains(slugQuery));
 
+  String? foldedTranslatedTitle(UidTitleData entry) {
+    final title = translatedTitleFor?.call(entry.uid);
+    return title == null ? null : foldSearchText(title);
+  }
+
   bool matchesTranslatedTitle(UidTitleData entry) =>
-      translatedTitleFor?.call(entry.uid)?.toLowerCase().contains(
-            normalizedQuery,
-          ) ??
-      false;
+      foldedTranslatedTitle(entry)?.contains(normalizedQuery) ?? false;
 
   final matches = entries
       .where(
@@ -56,14 +60,69 @@ List<UidTitleData> filterDataSearchResults(
                     entry.uid.toLowerCase().contains(normalizedQuery))),
       )
       .toList();
+  int rankOf(UidTitleData entry) {
+    final english = searchMatchRank(entry.title, normalizedQuery);
+    final translated = foldedTranslatedTitle(entry);
+    if (translated == null) return english;
+    return min(english, searchMatchRank(translated, normalizedQuery));
+  }
+
   final ranked = [
     for (var i = 0; i < matches.length; i++)
-      (rank: searchMatchRank(matches[i].title, normalizedQuery), index: i),
+      (rank: rankOf(matches[i]), index: i),
   ];
   // List.sort is not stable, so ties fall back to position explicitly.
   ranked.sort((a, b) => a.rank != b.rank ? a.rank - b.rank : a.index - b.index);
   return [for (final r in ranked) matches[r.index]];
 }
+
+/// [text] as search compares it: lowercased, and - for Arabic, Urdu and
+/// Persian - without what people type one way or another: harakat and
+/// Quranic marks, tatweel, hamza seats (أ إ آ -> ا), the Arabic, Persian and
+/// Urdu forms of ya, kaf and ha (ي ى ئ ے -> ی, ك -> ک, ة ۀ ہ ھ -> ه), and
+/// Arabic-Indic and Persian digits. A zero-width non-joiner (Persian
+/// half-space) counts as a space, so "نمازها" and "نماز‌ها" find each other
+/// only where the reader typed the space too - as they would see it.
+String foldSearchText(String text) {
+  final buffer = StringBuffer();
+  for (final rune in text.trim().toLowerCase().runes) {
+    if ((rune >= 0x064B && rune <= 0x065F) ||
+        rune == 0x0670 ||
+        (rune >= 0x06D6 && rune <= 0x06ED) ||
+        rune == 0x0640 ||
+        rune == 0x200E ||
+        rune == 0x200F) {
+      continue;
+    }
+    if (rune >= 0x0660 && rune <= 0x0669) {
+      buffer.writeCharCode(0x30 + rune - 0x0660);
+    } else if (rune >= 0x06F0 && rune <= 0x06F9) {
+      buffer.writeCharCode(0x30 + rune - 0x06F0);
+    } else {
+      buffer.writeCharCode(_searchFolds[rune] ?? rune);
+    }
+  }
+  return buffer.toString().replaceAll(RegExp(r'\s+'), ' ');
+}
+
+const Map<int, int> _searchFolds = {
+  0x0623: 0x0627, // أ
+  0x0625: 0x0627, // إ
+  0x0622: 0x0627, // آ
+  0x0671: 0x0627, // ٱ
+  0x064A: 0x06CC, // ي
+  0x0649: 0x06CC, // ى
+  0x0626: 0x06CC, // ئ
+  0x06D2: 0x06CC, // ے
+  0x0643: 0x06A9, // ك
+  0x0629: 0x0647, // ة
+  0x06C0: 0x0647, // ۀ
+  0x06C1: 0x0647, // ہ
+  0x06C3: 0x0647, // ۃ
+  0x06BE: 0x0647, // ھ
+  0x0624: 0x0648, // ؤ
+  0x200C: 0x0020, // zero-width non-joiner
+};
 
 /// Leading surah number and Arabic article: the "1: Al-" of "1: Al-Fatihah".
 final RegExp _titleLeadPattern = RegExp(r'^(\d+:\s*)?(a[a-z]{1,2}-)?');

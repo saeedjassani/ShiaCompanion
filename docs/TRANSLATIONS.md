@@ -151,6 +151,12 @@ assets/zikr_i18n/ur/
 }
 ```
 
+- Search folds what people type one way or another in Arabic script
+  (harakat, hamza seats, Arabic/Persian/Urdu ya, kaf and ha, Arabic-Indic
+  and Persian digits - `foldSearchText`), so write titles in correct
+  orthography; don't strip letters to make them searchable. A surah's
+  translated title (`"N: <name>"`) is also the name the Quran screens show
+  for it (`SurahInfo.displayName`), without its number.
 - `titles` is keyed by the `assets/zikr.json` key, alias keys
   (`"<uid>|<targetUid>"`) included, since an alias's title often differs
   from its canonical's. Translated titles show in lists, search, favorites,

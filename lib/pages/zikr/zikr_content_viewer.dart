@@ -3040,7 +3040,7 @@ class _SurahHeading extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            '${surah.number}. ${surah.englishName}',
+            '${surah.number}. ${surah.displayName}',
             textAlign: TextAlign.center,
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.primary,
