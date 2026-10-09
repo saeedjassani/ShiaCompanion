@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart' show Ticker;
 import 'package:flutter/services.dart';
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
@@ -16,6 +18,7 @@ import '../../utils/quran_indopak.dart';
 import '../../theme/shia_colors.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/reader_top_bar.dart';
+import '../../widgets/zikr_auto_scroll.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_reading_stats.dart';
 import '../../l10n/l10n.dart';
@@ -561,6 +564,10 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// which case a reader in another language sees the Arabic alone.
   final ZikrDocumentTranslation? translation;
 
+  /// Moves the open tab's text while it is running. Null, or not running,
+  /// leaves the text where the reader puts it.
+  final ZikrAutoScrollController? autoScroll;
+
   const ZikrContentViewerWidget({
     Key? key,
     required this.tabContents,
@@ -589,6 +596,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.chromeVisible,
     this.tabStripFooter,
     this.translation,
+    this.autoScroll,
   }) : super(key: key);
 
   @override
@@ -596,8 +604,19 @@ class ZikrContentViewerWidget extends StatefulWidget {
       _ZikrContentViewerWidgetState();
 }
 
-class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
+class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
+    with SingleTickerProviderStateMixin {
   late PageController _pageController;
+
+  /// Drives auto-scroll, a frame at a time. Muted with the route, so it
+  /// stops on its own while another page covers the reader.
+  late final Ticker _autoScrollTicker;
+  Duration? _lastAutoScrollTick;
+
+  /// While a finger (or the mouse button) is down on the text, auto-scroll
+  /// holds still, so the reader can stop it on a line or drag it back and
+  /// let it carry on from there.
+  final Set<int> _autoScrollHolds = {};
   late List<ScrollController> _tabScrollControllers;
   late List<GlobalKey> _tabHeaderKeys;
   late List<GlobalKey> _tabListKeys;
@@ -781,10 +800,71 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
     _tabHeaderKeys = [];
     _tabListKeys = [];
     _syncTabState(widget.tabContents.length);
+    _autoScrollTicker = createTicker(_handleAutoScrollTick);
+    widget.autoScroll?.addListener(_syncAutoScrollTicker);
+    _syncAutoScrollTicker();
+  }
+
+  @override
+  void didUpdateWidget(covariant ZikrContentViewerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.autoScroll != widget.autoScroll) {
+      oldWidget.autoScroll?.removeListener(_syncAutoScrollTicker);
+      widget.autoScroll?.addListener(_syncAutoScrollTicker);
+      _syncAutoScrollTicker();
+    }
+  }
+
+  void _syncAutoScrollTicker() {
+    final run = widget.autoScroll?.running ?? false;
+    if (run && !_autoScrollTicker.isActive) {
+      _lastAutoScrollTick = null;
+      // A press whose release never reached the list - it was swiped away
+      // under the finger - must not hold the text still for good.
+      _autoScrollHolds.clear();
+      _autoScrollTicker.start();
+    } else if (!run && _autoScrollTicker.isActive) {
+      _autoScrollTicker.stop();
+    }
+  }
+
+  void _handleAutoScrollTick(Duration elapsed) {
+    final autoScroll = widget.autoScroll;
+    final last = _lastAutoScrollTick;
+    _lastAutoScrollTick = elapsed;
+    if (autoScroll == null || !autoScroll.running || last == null) return;
+    if (_autoScrollHolds.isNotEmpty || _bookmarkDragTab != null) return;
+    if (_selectedTabIndex >= _tabScrollControllers.length) return;
+    final controller = _tabScrollControllers[_selectedTabIndex];
+    if (!controller.hasClients) return;
+    final position = controller.position;
+    // A drag or a fling of the reader's own, or a tab still sliding in:
+    // theirs to finish. A jump from here would cut a fling dead.
+    if (position.isScrollingNotifier.value) return;
+    if (_pageController.hasClients &&
+        _pageController.position.isScrollingNotifier.value) {
+      return;
+    }
+    if (position.pixels >= position.maxScrollExtent) {
+      autoScroll.pauseAtEnd();
+      return;
+    }
+    // Capped, so a dropped frame or a hitch never jumps a line.
+    final seconds =
+        math.min((elapsed - last).inMicroseconds / 1e6, 0.1).toDouble();
+    // Reading along is reading: the verse it passes counts as the reader's
+    // place, as a drag would.
+    _sawUserScrollInput = true;
+    position.jumpTo(math.min(
+      position.pixels + autoScroll.pixelsPerSecond * seconds,
+      position.maxScrollExtent,
+    ));
   }
 
   @override
   void dispose() {
+    widget.autoScroll?.removeListener(_syncAutoScrollTicker);
+    _autoScrollTicker.dispose();
     _bookmarkAutoScrollTimer?.cancel();
     _pageController.dispose();
     for (final controller in _tabScrollControllers) {
@@ -2141,6 +2221,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         if (event is PointerScrollEvent) _sawUserScrollInput = true;
       },
       onPointerPanZoomStart: (event) => _sawUserScrollInput = true,
+      onPointerDown: (event) => _autoScrollHolds.add(event.pointer),
       // A bookmark being carried is also followed from here, not just from
       // its [Draggable]: auto-scrolling takes the label off screen, the list
       // then disposes it, and a disposed Draggable reports nothing more - so
@@ -2151,12 +2232,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget> {
         }
       },
       onPointerUp: (event) {
+        _autoScrollHolds.remove(event.pointer);
         if (_bookmarkDragTab == tabIndex) {
           _bookmarkDragPointer = event.position;
           _handleBookmarkDragEnded();
         }
       },
       onPointerCancel: (event) {
+        _autoScrollHolds.remove(event.pointer);
         if (_bookmarkDragTab == tabIndex) _cancelBookmarkDrag();
       },
       child: NotificationListener<ScrollNotification>(

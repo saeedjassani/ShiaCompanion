@@ -40,6 +40,7 @@ import '../../widgets/choice_sheet.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/zikr_action_bar.dart';
 import '../../widgets/zikr_audio_player.dart';
+import '../../widgets/zikr_auto_scroll.dart';
 import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/outline_icon.dart';
@@ -314,6 +315,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// it — and closing it stops playback.
   bool _showAudioPlayer = false;
 
+  /// Auto-scroll, started from the Text & reading sheet. While it is on its
+  /// controls take the action capsule's place, as the player does, and the
+  /// chrome holds still - see [_handleAutoScrollChanged].
+  final ZikrAutoScrollController _autoScroll = ZikrAutoScrollController();
+  bool _autoScrollWasActive = false;
+
   /// Which surah this is, or null when the zikr is not one of the 114. Null is
   /// the ordinary case and keeps this page on its existing behaviour
   /// throughout — nothing below it does anything at all for a non-surah.
@@ -348,6 +355,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void initState() {
     super.initState();
+    _autoScroll.addListener(_handleAutoScrollChanged);
     // A portion spans surahs, so it has no single surah of its own; its index
     // carries one per verse instead.
     _surahNumber =
@@ -935,6 +943,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _readingProgress.removeListener(_maybeRecordCompletion);
     _readingProgress.removeListener(_maybeMarkQuranEndReached);
     _readingProgress.dispose();
+    _autoScroll.removeListener(_handleAutoScrollChanged);
+    _autoScroll.dispose();
     syncZikrWakelockPreference(owner: this, isActive: false);
     // After _maybeRecordCompletion above, so a completion recorded on the way
     // out is already pending when leaving the reader puts it to the user.
@@ -1105,6 +1115,38 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _scheduleChromeIdleHide();
   }
 
+  void _syncWakelock() {
+    syncZikrWakelockPreference(
+      owner: this,
+      isActive: _isCurrentRoute,
+      forceAwake: _autoScroll.running,
+    );
+  }
+
+  void _startAutoScroll() {
+    _clearTextSelection();
+    _autoScroll.start();
+  }
+
+  /// Swaps the capsule between the tools and the auto-scroll controls, and
+  /// keeps the screen on while the text is moving. While auto-scroll is on
+  /// the chrome stays put, as it does for the player: its own movement must
+  /// not slide its controls away.
+  void _handleAutoScrollChanged() {
+    if (!mounted) return;
+    _syncWakelock();
+    final active = _autoScroll.active;
+    if (active == _autoScrollWasActive) return;
+    _autoScrollWasActive = active;
+    setState(() {});
+    if (active) {
+      _chromeVisible.value = true;
+      _chromeIdleTimer?.cancel();
+    } else {
+      _scheduleChromeIdleHide();
+    }
+  }
+
   /// Whether Focus mode is on - the reading chrome is only ever eligible to
   /// hide when it is. Read live rather than cached: it is an in-memory prefs
   /// read, and a cached copy would need re-syncing from the drawer, the
@@ -1155,7 +1197,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       return false;
     }
     if (notification is! ScrollUpdateNotification) return false;
-    if (_showAudioPlayer || !_focusModeEnabled) return false;
+    if (_showAudioPlayer || _autoScroll.active || !_focusModeEnabled) {
+      return false;
+    }
 
     final delta = notification.scrollDelta;
     if (delta == null) return false;
@@ -1256,7 +1300,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _chromeIdleTimer = Timer(_chromeIdleDuration, () {
       // Re-checked here, not just at scheduling time: the setting can change
       // while this timer is already in flight.
-      if (mounted && !_showAudioPlayer && _focusModeEnabled) {
+      if (mounted &&
+          !_showAudioPlayer &&
+          !_autoScroll.active &&
+          _focusModeEnabled) {
         _setChromeVisible(false);
       }
     });
@@ -2013,7 +2060,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void didPush() {
     _isCurrentRoute = true;
-    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
+    _syncWakelock();
     _previousBrowserUri ??= widget.returnBrowserUri ?? Uri.base;
     _scheduleCurrentWebRouteSync();
   }
@@ -2021,7 +2068,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void didPopNext() {
     _isCurrentRoute = true;
-    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
+    _syncWakelock();
     // Covers Focus mode being flipped from the global settings page while
     // this route sat underneath it - refreshState only runs from this
     // page's own drawer.
@@ -2032,16 +2079,18 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   @override
   void didPushNext() {
     _isCurrentRoute = false;
+    // Comes back paused rather than already somewhere further down.
+    _autoScroll.pause();
     // The selection toolbar lives in the enclosing Overlay, so it would
     // otherwise float over the route that just covered this one.
     _clearTextSelection();
-    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
+    _syncWakelock();
   }
 
   @override
   void didPop() {
     _isCurrentRoute = false;
-    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
+    _syncWakelock();
     final previousBrowserUri = _previousBrowserUri;
     if (previousBrowserUri != null) {
       syncWebRouteUri(previousBrowserUri, replace: true);
@@ -2253,7 +2302,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   /// The Text & reading sheet.
   void _openTextSheet() {
-    unawaited(showReaderTextSheet(context, onChanged: refreshState));
+    unawaited(showReaderTextSheet(
+      context,
+      onChanged: refreshState,
+      onStartAutoScroll: _startAutoScroll,
+    ));
   }
 
   @override
@@ -2374,6 +2427,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                     const EdgeInsets.symmetric(horizontal: 16),
                                 child: ZikrContentViewerWidget(
                                   translation: _translation,
+                                  autoScroll: _autoScroll,
                                   tabContents: tabContents,
                                   selectedTabIndex: selectedTabIndex,
                                   onTabChanged: (index) {
@@ -2540,6 +2594,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   onListen: _openAudioPlayer,
                                   onText: _openTextSheet,
                                   onCounter: _toggleCounterFromActionBar,
+                                  controls: _autoScroll.active
+                                      ? ZikrAutoScrollControls(
+                                          controller: _autoScroll)
+                                      : null,
                                   player:
                                       _showAudioPlayer && audioTracks.isNotEmpty
                                           ? ZikrAudioPlayer(
@@ -2590,7 +2648,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // Reading settings - font, size, transliteration - relay every line of the
     // column out from under whatever was selected in it.
     _clearTextSelection();
-    syncZikrWakelockPreference(owner: this, isActive: _isCurrentRoute);
+    _syncWakelock();
     _applyFocusModePreference();
     setState(() {});
     unawaited(_reloadQuranScriptIfStale());

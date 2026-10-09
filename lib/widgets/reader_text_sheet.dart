@@ -6,6 +6,7 @@ import '../theme/shia_colors.dart';
 import '../utils/font_preferences.dart';
 import '../services/zikr_translations.dart';
 import 'language_settings.dart';
+import 'outline_icon.dart';
 import 'choice_sheet.dart';
 import 'page_chrome.dart';
 import 'responsive_content.dart';
@@ -18,12 +19,19 @@ import 'zikr_reading_preferences.dart';
 /// [onChanged] runs after every change, so the text behind the sheet
 /// follows along. Setting a reminder is the reader top bar's bell, not a
 /// row here.
+///
+/// [onStartAutoScroll] adds the Auto-scroll row - only from the reader
+/// itself, since there is no text to scroll from Settings.
 Future<void> showReaderTextSheet(
   BuildContext context, {
   required VoidCallback onChanged,
+  VoidCallback? onStartAutoScroll,
 }) {
   final colors = ShiaColors.of(context);
-  final sheet = ReaderTextSheet(onChanged: onChanged);
+  final sheet = ReaderTextSheet(
+    onChanged: onChanged,
+    onStartAutoScroll: onStartAutoScroll,
+  );
   // On a desktop, a panel down the side rather than a dialog in the middle:
   // the reading column stays in view, following each change.
   if (ScreenClass.of(context).isDesktop) {
@@ -102,9 +110,13 @@ class ReaderTextSheet extends StatefulWidget {
   const ReaderTextSheet({
     super.key,
     required this.onChanged,
+    this.onStartAutoScroll,
   });
 
   final VoidCallback onChanged;
+
+  /// Closes the sheet and starts the text scrolling. Null hides the row.
+  final VoidCallback? onStartAutoScroll;
 
   @override
   State<ReaderTextSheet> createState() => _ReaderTextSheetState();
@@ -238,6 +250,15 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
               style: ShiaText.caption.copyWith(color: colors.textMuted),
             ),
           ),
+          if (widget.onStartAutoScroll != null) ...[
+            const SizedBox(height: 12),
+            CardList(children: [
+              _AutoScrollRow(onStart: () {
+                Navigator.of(context).maybePop();
+                widget.onStartAutoScroll!();
+              }),
+            ]),
+          ],
           const SizedBox(height: 12),
           CardList(children: [
             // Transliteration is only ever shown with English - see
@@ -286,6 +307,55 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
             ]),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// "Auto-scroll  [Start]": an action rather than a switch - it runs for
+/// this reading only, and its controls take over the action capsule until
+/// it is closed.
+class _AutoScrollRow extends StatelessWidget {
+  const _AutoScrollRow({required this.onStart});
+
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    return MergeSemantics(
+      child: InkWell(
+        onTap: onStart,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 54),
+          padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 10, 6),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.readerAutoScroll,
+                        style: ShiaText.body.copyWith(color: colors.text)),
+                    Text(
+                      l10n.readerAutoScrollHint,
+                      style: ShiaText.caption.copyWith(color: colors.textMuted),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              PillButton(
+                label: l10n.readerAutoScrollStart,
+                glyph: OutlineGlyph.play,
+                filled: true,
+                height: 40,
+                onPressed: onStart,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
