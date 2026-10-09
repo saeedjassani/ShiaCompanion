@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../services/account_service.dart';
 import '../services/analytics_service.dart';
+import '../utils/sign_in_flow.dart' show SignInProvider;
 import '../navigation/app_shell.dart';
 import '../theme/shia_colors.dart';
 import '../widgets/outline_icon.dart';
@@ -62,6 +63,7 @@ class DeleteAccountPage extends StatefulWidget {
 class _DeleteAccountPageState extends State<DeleteAccountPage> {
   bool _isBusy = false;
   bool _isDeleted = false;
+  SignInProvider? _signingIn;
 
   @override
   void initState() {
@@ -69,13 +71,17 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
     trackScreen('Delete Account Page');
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signIn(SignInProvider provider) async {
     setState(() {
       _isBusy = true;
+      _signingIn = provider;
     });
 
     try {
-      final authResult = await AccountService.signInWithGoogle();
+      final authResult = switch (provider) {
+        SignInProvider.google => await AccountService.signInWithGoogle(),
+        SignInProvider.apple => await AccountService.signInWithApple(),
+      };
       user = authResult.user;
       if (!mounted) return;
       setState(() {});
@@ -85,10 +91,12 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
     } catch (error) {
       _showToast(context.l10n.deleteAccountSignInFailed('$error'));
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isBusy = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isBusy = false;
+          _signingIn = null;
+        });
+      }
     }
   }
 
@@ -219,18 +227,36 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                 section(note(kIsWeb
                     ? l10n.deleteAccountWebSteps
                     : l10n.deleteAccountAppStepsAccount)),
-                if (kIsWeb)
+                if (kIsWeb) ...[
                   section(
                     PageButton(
-                      label: _isBusy
+                      label: _signingIn == SignInProvider.google
                           ? l10n.deleteAccountSigningIn
                           : l10n.settingsSignInGoogle,
-                      busy: _isBusy,
+                      busy: _signingIn == SignInProvider.google,
                       icon: Image.asset('assets/images/google_logo.png',
                           width: 20, height: 20, excludeFromSemantics: true),
-                      onPressed: _signInWithGoogle,
+                      onPressed:
+                          _isBusy ? null : () => _signIn(SignInProvider.google),
+                    ),
+                    bottom: 10,
+                  ),
+                  section(
+                    PageButton(
+                      label: _signingIn == SignInProvider.apple
+                          ? l10n.deleteAccountSigningIn
+                          : l10n.settingsSignInApple,
+                      busy: _signingIn == SignInProvider.apple,
+                      icon: Image.asset('assets/images/apple_logo.png',
+                          width: 20,
+                          height: 20,
+                          color: colors.text,
+                          excludeFromSemantics: true),
+                      onPressed:
+                          _isBusy ? null : () => _signIn(SignInProvider.apple),
                     ),
                   ),
+                ],
               ] else ...[
                 section(
                   PageButton(
