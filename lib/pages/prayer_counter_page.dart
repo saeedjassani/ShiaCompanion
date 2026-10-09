@@ -729,7 +729,7 @@ class _CountDisplay extends StatelessWidget {
           textBaseline: TextBaseline.alphabetic,
           children: [
             Text(
-              '${counter.currentRakaat}',
+              localizeDigits('${counter.currentRakaat}', context.l10n),
               style: TextStyle(
                 fontSize: numberSize,
                 height: 0.94,

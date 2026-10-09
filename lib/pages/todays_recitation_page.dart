@@ -44,9 +44,9 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
         final today = todaysLunarDays();
         final hijri = today.day.hijri;
         final dates = '${DateFormat('EEEE d MMMM').format(today.day.civilDate)}'
-            ' · ${hijri.hDay} '
+            ' · ${localizeDigits('${hijri.hDay}', context.l10n)} '
             '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
-            '${hijri.hYear}';
+            '${localizeDigits('${hijri.hYear}', context.l10n)}';
 
         return LargeTitlePage(
           maxWidth: widePageWidth,
@@ -119,7 +119,7 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
     AppLocalizations l10n,
   ) {
     String date(LunarDay lunarDay) => l10n.occasionDaysOfMonth(
-          '${lunarDay.hijri.hDay}',
+          localizeDigits('${lunarDay.hijri.hDay}', l10n),
           zikrMonthName(lunarDay.hijri.hMonth, l10n),
         );
     return switch (kind) {

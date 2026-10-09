@@ -110,7 +110,7 @@ class _ZikrCounterState extends State<ZikrCounter> {
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              '$count',
+                              localizeDigits('$count', context.l10n),
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 60,

@@ -790,7 +790,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               Semantics(
                 header: true,
                 child: Text(
-                  '${surahInfoFor(surah)?.displayName ?? surahTitle} $verse',
+                  localizeDigits(
+                      '${surahInfoFor(surah)?.displayName ?? surahTitle} $verse',
+                      context.l10n),
                   style: ShiaText.sectionTitle.copyWith(color: colors.text),
                 ),
               ),

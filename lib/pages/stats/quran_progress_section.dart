@@ -287,7 +287,7 @@ class _JuzMap extends StatelessWidget {
                             ),
                             child: FittedBox(
                               child: Text(
-                                '${i + 1}',
+                                localizeDigits('${i + 1}', context.l10n),
                                 style: theme.textTheme.labelSmall?.copyWith(
                                   fontSize: 9,
                                   color: coverage[i] >= 1

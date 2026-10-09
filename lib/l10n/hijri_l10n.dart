@@ -43,18 +43,20 @@ String hijriMonthShortName(int month, [AppLocalizations? l10n]) {
   };
 }
 
-/// [HijriCalendar.toFormat] with the month name (`MMMM`) in the app
-/// language.
+/// [HijriCalendar.toFormat] with the month name (`MMMM`) and the digits in
+/// the app language.
 String formatHijri(
   HijriCalendar date,
   String pattern, [
   AppLocalizations? l10n,
 ]) {
-  if (!pattern.contains('MMMM')) return date.toFormat(pattern);
+  if (!pattern.contains('MMMM')) {
+    return localizeDigits(date.toFormat(pattern), l10n);
+  }
   // A marker no format letter can match stands in for the month while the
   // package formats the rest.
   const marker = '\u0000';
-  return date
-      .toFormat(pattern.replaceFirst('MMMM', marker))
+  return localizeDigits(
+          date.toFormat(pattern.replaceFirst('MMMM', marker)), l10n)
       .replaceFirst(marker, hijriMonthName(date.hMonth, l10n));
 }

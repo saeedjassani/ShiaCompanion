@@ -517,7 +517,7 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
               SizedBox(
                 width: 48,
                 child: Text(
-                  '$_offsetMagnitude',
+                  localizeDigits('$_offsetMagnitude', context.l10n),
                   textAlign: TextAlign.center,
                   style: ShiaText.sectionTitle.copyWith(color: colors.text),
                 ),

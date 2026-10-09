@@ -176,8 +176,8 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
           latitude: latitude,
           longitude: longitude,
         ))
-          entry.name: formatPrayerDateTime12(entry.dateTime)
-              .replaceFirst(RegExp(r'^0(?=\d)'), ''),
+          entry.name: localizeDigits(formatPrayerDateTime12(entry.dateTime)
+              .replaceFirst(RegExp(r'^0(?=\d)'), '')),
       };
     } catch (_) {
       return const {};

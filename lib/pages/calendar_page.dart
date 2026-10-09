@@ -262,8 +262,9 @@ String _hijriMonth(BuildContext context, int month) =>
     hijriMonthName(month, context.l10n).replaceAll(' Al-', ' al-');
 
 /// "26 Rabi' al-Thani 1448".
-String _hijriLabel(BuildContext context, HijriCalendar hijri) =>
-    '${hijri.hDay} ${_hijriMonth(context, hijri.hMonth)} ${hijri.hYear}';
+String _hijriLabel(BuildContext context, HijriCalendar hijri) => localizeDigits(
+    '${hijri.hDay} ${_hijriMonth(context, hijri.hMonth)} ${hijri.hYear}',
+    context.l10n);
 
 /// The Hijri months a Gregorian month runs across: "Rabi' al-Thani –
 /// Jumada al-Awwal 1448", with both years when it crosses into a new one.
@@ -606,7 +607,7 @@ class _DayCell extends StatelessWidget {
                   top: wide ? 7 : 5,
                   start: wide ? 9 : 7,
                   child: Text(
-                    '${day.day}',
+                    localizeDigits('${day.day}', context.l10n),
                     style: ShiaText.body.copyWith(
                       fontSize: wide ? 18 : 16,
                       height: 20 / (wide ? 18 : 16),
@@ -819,7 +820,8 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
         : null;
     final times = {
       for (final entry in entries ?? const <PrayerTimeDisplayEntry>[])
-        entry.name: entry.time.replaceFirst(RegExp(r'^0(?=\d)'), ''),
+        entry.name: localizeDigits(
+            entry.time.replaceFirst(RegExp(r'^0(?=\d)'), ''), context.l10n),
     };
 
     final Widget content;

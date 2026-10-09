@@ -442,7 +442,8 @@ class _UnitListState extends State<_UnitList> {
                 : colorScheme.surfaceContainerHighest,
             foregroundColor:
                 isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
-            child: Text('${index + 1}', style: const TextStyle(fontSize: 13)),
+            child: Text(localizeDigits('${index + 1}', context.l10n),
+                style: const TextStyle(fontSize: 13)),
           ),
           title: Text(title),
           subtitle: Text(subtitle, maxLines: 1),
@@ -644,7 +645,7 @@ class _AyahCell extends StatelessWidget {
           onTap: onTap,
           child: Center(
             child: Text(
-              '$ayah',
+              localizeDigits('$ayah', context.l10n),
               style: theme.textTheme.labelLarge?.copyWith(
                 color:
                     isSelected ? colorScheme.onPrimary : colorScheme.onSurface,

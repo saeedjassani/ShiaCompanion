@@ -477,7 +477,7 @@ class _PrayerTimeColumn extends StatelessWidget {
 
 /// "6:56 pm", not the widgets' zero-padded "06:56 pm".
 String _clockLabel(WidgetPrayerTimeReading reading) =>
-    reading.displayTime.replaceFirst(RegExp(r'^0(?=\d)'), '');
+    localizeDigits(reading.displayTime.replaceFirst(RegExp(r'^0(?=\d)'), ''));
 
 /// The next time, large: its glyph, "Up next" (or "Tomorrow") over its name,
 /// and its time over a countdown that ticks every second.
@@ -632,7 +632,7 @@ class _CountdownState extends State<_Countdown> {
             left.inHours, minutes.toString().padLeft(2, '0'), seconds)
         : context.l10n.prayerCountdownMinutes(minutes, seconds);
     return Text(
-      text,
+      localizeDigits(text, context.l10n),
       style: ShiaText.caption.copyWith(
         height: 16 / 13,
         fontWeight: FontWeight.w600,

@@ -76,6 +76,14 @@ notifications), home menu labels (analytics ids), Azan option ids - so each
 has a display mapping instead: `localizedPrayerName`, `homeMenuDisplayLabel`,
 `AzaanOption.name`. Analytics labels and `debugPrint` messages stay English.
 
+Numbers are written in the app language's own digits (٠-٩ in Arabic). Give
+`int` placeholders `"format": "decimalPattern"` when the message shows the
+number, format dates and numbers with intl's `DateFormat`/`NumberFormat`,
+and pass any number put together by hand (`'$count'`, `'$hour:$minute'`)
+through `localizeDigits` before it reaches the screen. Arabic formats with
+intl's `ar_EG` locale, since plain `ar` writes 0-9 (`formattingLocale` in
+`lib/l10n/app_language.dart`).
+
 ### Keeping translations in step
 
 UI work and translation work touch different files, so they never conflict:

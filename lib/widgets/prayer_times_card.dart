@@ -107,7 +107,7 @@ class _PrayerTimeRow extends StatelessWidget {
             ),
           ),
           Text(
-            prayerEntry.time,
+            localizeDigits(prayerEntry.time, context.l10n),
             textAlign: TextAlign.end,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurface,

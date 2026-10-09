@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/number_symbols_data.dart';
 
 import '../l10n/app_language.dart';
 import '../l10n/l10n.dart';
@@ -142,8 +143,16 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
     if (language.code == englishLanguageCode) {
       Intl.defaultLocale = null;
     } else {
-      unawaited(initializeDateFormatting(language.code));
-      Intl.defaultLocale = language.code;
+      final formatting = language.formattingLocale;
+      unawaited(initializeDateFormatting(formatting));
+      Intl.defaultLocale = formatting;
+      // The generated strings and Material format their numbers with the
+      // plain language code (`ar`), not the default locale, so that code
+      // gets the formatting locale's digits too.
+      final symbols = numberFormatSymbols[formatting];
+      if (formatting != language.code && symbols != null) {
+        numberFormatSymbols[language.code] = symbols;
+      }
     }
   }
 

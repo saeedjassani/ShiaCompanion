@@ -411,7 +411,7 @@ class _CandidateRow extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(
-        '$name ${match.verse.ayah}',
+        localizeDigits('$name ${match.verse.ayah}', context.l10n),
         style: theme.textTheme.labelLarge,
       ),
       subtitle: Column(
