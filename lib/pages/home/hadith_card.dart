@@ -150,9 +150,9 @@ class HadithOfTheDayCard extends StatelessWidget {
   }
 }
 
-/// An Arabic, Urdu or Persian hadith: in Arabic, who said it over what they
-/// said; otherwise the Arabic in the reader's Arabic font, then who said it
-/// and what it means in the reader's language.
+/// A hadith outside English: in Arabic, who said it over what they said;
+/// otherwise the Arabic in the reader's Arabic font, then who said it and
+/// what it means in the reader's language.
 class _LocalizedHadithText extends StatelessWidget {
   const _LocalizedHadithText({required this.hadith});
 
@@ -161,14 +161,19 @@ class _LocalizedHadithText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    final arabic = Text(
-      hadith.arabic,
-      textDirection: TextDirection.rtl,
-      style: TextStyle(
-        fontFamily: arabicFont,
-        fontSize: 22,
-        height: 1.8,
-        color: colors.text,
+    // Full width, so the Arabic starts at the right even in a left-to-right
+    // language such as Gujarati.
+    final arabic = SizedBox(
+      width: double.infinity,
+      child: Text(
+        hadith.arabic,
+        textDirection: TextDirection.rtl,
+        style: TextStyle(
+          fontFamily: arabicFont,
+          fontSize: 22,
+          height: 1.8,
+          color: colors.text,
+        ),
       ),
     );
     final translation = hadith.translation;

@@ -313,19 +313,24 @@ edit each translation's `content` and `title` for that day too.
 
 ## Hadith of the day (`assets/hadith_i18n/hadith.json`)
 
-English keeps its own collection (`assets/hadith/`). In Arabic, Urdu and
-Persian the Home card draws from a separate, smaller collection of hadith
-carried in their **Arabic original**, each with a **published** Urdu and
-Persian translation where one exists (Nahj al-Balagha: Mufti Jafar Husain's
-Urdu, Mohammad Dashti's Persian). Arabic readers see the Arabic alone, Urdu
-and Persian readers the Arabic and then its translation, each with the
-reference in their language. Which language follows the app language; a
-language the collection lacks (English, Gujarati) gets the English one.
+English keeps its own collection (`assets/hadith/`). In Arabic, Urdu,
+Persian and Gujarati the Home card draws from a separate, smaller collection
+of hadith carried in their **Arabic original**, each with a **published**
+translation where one exists (Nahj al-Balagha: Mufti Jafar Husain's Urdu,
+Mohammad Dashti's Persian, the Haji Naji Trust's Gujarati). Arabic readers
+see the Arabic alone, everyone else the Arabic and then its translation,
+each with the reference in their language. Which language follows the app
+language. **Only English readers ever see the English collection**: if the
+collection cannot be read, the card is hidden rather than shown in English.
 
 Each entry has `id`, `speaker` (a key of `speakers`, whose attribution -
 "قال أمير المؤمنين (ع)", "امیر المومنین (ع) نے فرمایا" - the app puts in
-front, so it is never part of the text), `ar`, `ur`, `fa` and `source`
-(per language). Where each text was taken from is recorded per id in
+front, so it is never part of the text), `ar`, `ur`, `fa`, optionally `gu`,
+and `source` (per language). Every entry has Urdu and Persian. Gujarati has
+only the hadith its published translation covers (so far the 50 from Nahj
+al-Balagha), and a Gujarati reader is only shown those; never fill a gap
+with a translation of our own. Its `source` gives the Gujarati edition's
+own saying number, which can differ from the Arabic's (the `id`). Where each text was taken from is recorded per id in
 `scripts/hadith_i18n/provenance.json`, which is not bundled. An entry may
 set `"muharram": true` to be shown from 1 Muharram to 8 Rabi' al-Awwal
 instead (none do yet; without them, those days show the general ones).
