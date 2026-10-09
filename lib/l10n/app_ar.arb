@@ -979,6 +979,7 @@
   "searchOpenVerse": "فتح الآية {ayah}",
   "searchVerseTitle": "{surah} {reference}",
   "azanTitle": "الأذان",
+  "azanNeedsCity": "يبدأ الأذان بعد أن تختار مدينتك.",
   "azanSubtitle": "اختر الأوقات التي تُنبّهك، والصوت الذي يُشغّله كلٌّ منها.",
   "azanDefaultSoundBody": "يُستخدَم ما لم يكن للوقت صوته الخاص",
   "azanTimesOn": "الأوقات · {count} مفعّلة",

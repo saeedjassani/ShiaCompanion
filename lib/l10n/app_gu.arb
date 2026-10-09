@@ -979,6 +979,7 @@
   "searchOpenVerse": "આયત {ayah} ખોલો",
   "searchVerseTitle": "{surah} {reference}",
   "azanTitle": "અઝાન",
+  "azanNeedsCity": "શહેર પસંદ કર્યા પછી અઝાન શરૂ થશે.",
   "azanSubtitle": "કયા સમયે સૂચના આવે અને દરેક કયો અવાજ વગાડે તે પસંદ કરો.",
   "azanDefaultSoundBody": "જે સમયનો પોતાનો અવાજ ન હોય તેના માટે વપરાય છે",
   "azanTimesOn": "સમય · {count} ચાલુ",

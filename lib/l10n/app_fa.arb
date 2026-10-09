@@ -979,6 +979,7 @@
   "searchOpenVerse": "باز کردن آیهٔ {ayah}",
   "searchVerseTitle": "{surah} {reference}",
   "azanTitle": "اذان",
+  "azanNeedsCity": "اذان پس از انتخاب شهر آغاز می‌شود.",
   "azanSubtitle": "اوقاتی را که می‌خواهید اعلان داشته باشند و صدای هر کدام را انتخاب کنید.",
   "azanDefaultSoundBody": "برای همهٔ اوقات، مگر وقتی که صدای جداگانه دارد",
   "azanTimesOn": "اوقات · {count} روشن",

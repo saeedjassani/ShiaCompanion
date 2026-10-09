@@ -262,6 +262,22 @@ void main() {
       expect(find.text('Other times'), findsNothing);
     });
 
+    testWidgets('says Azan waits for a city only while there is none',
+        (tester) async {
+      await pumpPage(tester);
+      expect(find.text('Azan starts once you choose a city.'), findsOneWidget);
+
+      lat = 21.4225;
+      long = 39.8262;
+      addTearDown(() {
+        lat = null;
+        long = null;
+      });
+      await tester.pumpWidget(const SizedBox());
+      await pumpPage(tester);
+      expect(find.text('Azan starts once you choose a city.'), findsNothing);
+    });
+
     testWidgets('a switch writes immediately, with no Done button',
         (tester) async {
       await pumpPage(tester);

@@ -979,6 +979,7 @@
   "searchOpenVerse": "آیت {ayah} کھولیں",
   "searchVerseTitle": "{surah} {reference}",
   "azanTitle": "اذان",
+  "azanNeedsCity": "شہر منتخب کرنے کے بعد اذان شروع ہوگی۔",
   "azanSubtitle": "وہ اوقات منتخب کریں جن پر آپ کو اطلاع ملے، اور ہر وقت پر چلنے والی آواز بھی۔",
   "azanDefaultSoundBody": "جب تک کسی وقت کی اپنی آواز نہ ہو، یہی چلتی ہے",
   "azanTimesOn": "اوقات · {count} آن",

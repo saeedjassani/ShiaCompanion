@@ -2961,6 +2961,10 @@
     }
   },
   "azanTitle": "Azan",
+  "azanNeedsCity": "Azan starts once you choose a city.",
+  "@azanNeedsCity": {
+    "description": "Top of the Azan page when no location is set; tapping it opens the city picker."
+  },
   "@azanTitle": {
     "description": "Title of the prayer notifications page."
   },
