@@ -5,4 +5,6 @@
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="en" />
     <locale android:name="ar" />
+    <locale android:name="fa" />
+    <locale android:name="ur" />
 </locale-config>
