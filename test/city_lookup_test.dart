@@ -70,8 +70,6 @@ void main() {
     service.resetForTest();
     CityRepository.instance.seedForTesting([karbala, hometown]);
     PrayerTimesState.debugNow = DateTime.now;
-    PrayerTimesState.timeZoneSource = () async => null;
-    PrayerTimesState.debugResetTimeZoneGuess();
   });
 
   /// A button that runs [flow], to start it from a real context.

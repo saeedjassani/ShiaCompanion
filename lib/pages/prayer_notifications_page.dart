@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/models/azaan_option.dart';
+import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
@@ -188,6 +189,11 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
       SP.isInitialized &&
       (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayer)) ?? false);
 
+  Future<void> _chooseCity() async {
+    await chooseCityFlow(context);
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -201,6 +207,29 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
       title: l10n.azanTitle,
       subtitle: l10n.azanSubtitle,
       slivers: [
+        // Choices made here are kept, but nothing can sound until there is a
+        // location to work the times out from: say so, one tap from a city.
+        if (lat == null || long == null)
+          SliverPadding(
+            padding: gutter.copyWith(bottom: 14),
+            sliver: SliverToBoxAdapter(
+              child: CardList(
+                children: [
+                  CardListRow(
+                    first: true,
+                    last: true,
+                    leading: _IconTile(
+                      child: OutlineIcon(OutlineGlyph.pin,
+                          size: 20, color: colors.accent),
+                    ),
+                    title: Text(l10n.azanNeedsCity),
+                    trailing: const _Chevron(),
+                    onTap: _chooseCity,
+                  ),
+                ],
+              ),
+            ),
+          ),
         SliverPadding(
           padding: gutter.copyWith(bottom: 14),
           sliver: SliverToBoxAdapter(

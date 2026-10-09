@@ -8,7 +8,6 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/home/home_header.dart';
-import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
@@ -27,9 +26,6 @@ void main() {
     city = null;
     lastLocationFailure = null;
     service.resetForTest();
-    // No time-zone guess unless a test asks for one.
-    PrayerTimesState.timeZoneSource = () async => null;
-    PrayerTimesState.debugResetTimeZoneGuess();
     // Midnight, so every default-selection prayer is still ahead of "now" and
     // the card's "next 5" is deterministic regardless of when the suite runs.
     PrayerTimesState.debugNow = () => DateTime(2024, 6, 16);
@@ -37,8 +33,6 @@ void main() {
 
   tearDown(() {
     PrayerTimesState.debugNow = DateTime.now;
-    PrayerTimesState.timeZoneSource = () async => null;
-    PrayerTimesState.debugResetTimeZoneGuess();
   });
 
   Position _pos(double latitude, double longitude) => Position(
@@ -154,36 +148,38 @@ void main() {
     );
   });
 
-  testWidgets('suggests the city the phone\'s time zone points at',
+  testWidgets('"Not now" shrinks the city question to one row, remembered',
+      (tester) async {
+    GeolocatorPlatform.instance = _FakeGeolocator(serviceEnabled: false);
+
+    await pumpCard(tester);
+    expect(find.text('Which city are you in?'), findsOneWidget);
+
+    await tester.tap(find.text('Not now'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Which city are you in?'), findsNothing);
+    expect(find.text('Use my location'), findsNothing);
+    expect(find.text("Choose a city to see today's times."), findsOneWidget);
+    expect(SP.prefs.getBool(PrayerTimesState.cityPromptDismissedKey), isTrue);
+
+    // Next launch keeps it small.
+    await tester.pumpWidget(const SizedBox());
+    await pumpCard(tester);
+    expect(find.text('Which city are you in?'), findsNothing);
+    expect(find.text("Choose a city to see today's times."), findsOneWidget);
+  });
+
+  testWidgets('asks with three answers: location, a city, or not now',
       (tester) async {
     GeolocatorPlatform.instance = _FakeGeolocator();
-    PrayerTimesState.timeZoneSource = () async => 'Asia/Baghdad';
 
-    await tester.runAsync(() async {
-      await pumpCard(tester);
-      // The city list loads off the test's fake clock.
-      await CityRepository.instance.load();
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-    });
-    await tester.pump();
+    await pumpCard(tester);
 
-    expect(
-        find.text("Your phone's time zone suggests Baghdad."), findsOneWidget);
+    expect(find.byType(FilledButton), findsOneWidget);
     expect(find.text('Use my location'), findsOneWidget);
     expect(find.text('Choose city'), findsOneWidget);
-
-    await tester.runAsync(() async {
-      await tester.tap(find.text("Yes, I'm in Baghdad"));
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-    });
-    await tester.pump();
-
-    expect(service.isManual, isTrue);
-    expect(city, 'Baghdad');
-    // A city is all the card needs to show the times.
-    expect(find.text('Fajr'), findsOneWidget);
-    expect(find.byTooltip('Change city'), findsOneWidget);
-    expect(find.text('Baghdad'), findsOneWidget);
+    expect(find.text('Not now'), findsOneWidget);
   });
 
   testWidgets('puts the next time up front, counting down, then the rest',
@@ -214,8 +210,8 @@ void main() {
     expect(find.text('Up next'), findsOneWidget);
     expect(find.text('Tomorrow'), findsNothing);
     expect(find.text('next day'), findsNothing);
-    expect(find.textContaining(RegExp(r'^in \d+h \d\dm \d\ds$')),
-        findsOneWidget);
+    expect(
+        find.textContaining(RegExp(r'^in \d+h \d\dm \d\ds$')), findsOneWidget);
 
     // The next time sits above the ones after it, in order.
     final next = tester.getRect(find.text('Sunset'));
@@ -256,17 +252,16 @@ void main() {
     final semantics = tester.ensureSemantics();
 
     await pumpCard(tester);
-    String countdown() => tester
-        .widget<Text>(find.textContaining(RegExp(r'^in \d')))
-        .data!;
+    String countdown() =>
+        tester.widget<Text>(find.textContaining(RegExp(r'^in \d'))).data!;
     final before = countdown();
 
     now = now.add(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
     expect(countdown(), isNot(before));
 
-    expect(find.bySemanticsLabel(RegExp(r'^Up next: Sunset, ')),
-        findsOneWidget);
+    expect(
+        find.bySemanticsLabel(RegExp(r'^Up next: Sunset, ')), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp(r'^in \d')), findsNothing);
     semantics.dispose();
   });

@@ -2395,21 +2395,9 @@
     "description": "Title of the prayer card before any location is known."
   },
   "prayerWhichCityBody": "We'll show today's prayer times and the next azan.",
-  "prayerZoneSuggests": "Your phone's time zone suggests {city}.",
-  "@prayerZoneSuggests": {
-    "placeholders": {
-      "city": {
-        "type": "String"
-      }
-    }
-  },
-  "prayerYesImIn": "Yes, I'm in {city}",
-  "@prayerYesImIn": {
-    "placeholders": {
-      "city": {
-        "type": "String"
-      }
-    }
+  "prayerSetCityHint": "Choose a city to see today's times.",
+  "@prayerSetCityHint": {
+    "description": "Home's prayer card shrunk to one row after 'Not now': tapping it opens the city picker."
   },
   "goToVerseTitle": "Go to a verse",
   "goToVerseStepSurah": "Step 1 of 2 · Choose a surah",
@@ -2973,6 +2961,10 @@
     }
   },
   "azanTitle": "Azan",
+  "azanNeedsCity": "Azan starts once you choose a city.",
+  "@azanNeedsCity": {
+    "description": "Top of the Azan page when no location is set; tapping it opens the city picker."
+  },
   "@azanTitle": {
     "description": "Title of the prayer notifications page."
   },
