@@ -1,5 +1,6 @@
 import '../constants.dart';
 import '../pages/zikr/zikr_content_parser.dart';
+import '../services/zikr_translations.dart';
 
 /// Everything the app knows about the Quran's structure.
 ///
@@ -90,6 +91,9 @@ List<String> quranCompanionZikrUids() {
 /// separator is matched loosely rather than assumed.
 final RegExp _surahTitlePattern = RegExp(r'^\s*(\d+)\s*:\s*(.*)$');
 
+/// "2: " or "۲: " at the start of a translated surah title.
+final RegExp _surahNumberLead = RegExp(r'^\s*[0-9٠-٩۰-۹]+\s*:\s*');
+
 /// One surah, as the Quran screen needs to show it.
 class SurahInfo {
   const SurahInfo({
@@ -107,6 +111,16 @@ class SurahInfo {
   final String uid;
   final int ayahCount;
   final String? slug;
+
+  /// The surah's name as the reader sees it: its title in the translation
+  /// language ("سورة البقرة", "سورۃ البقرہ") without the leading number, or
+  /// [englishName] in English and where no title has been translated.
+  String get displayName {
+    final translated = ZikrTranslations.instance.titleFor(uid);
+    if (translated == null) return englishName;
+    final name = translated.replaceFirst(_surahNumberLead, '').trim();
+    return name.isEmpty ? englishName : name;
+  }
 
   /// The title as the rest of the app knows it, for anything that still keys
   /// off the raw zikr title (sharing, favourites, analytics labels).

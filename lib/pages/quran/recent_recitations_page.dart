@@ -11,7 +11,7 @@ import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
 
 String _surahName(int surah) =>
-    surahInfoFor(surah)?.englishName ?? L10n.current.quranSurahNumber(surah);
+    surahInfoFor(surah)?.displayName ?? L10n.current.quranSurahNumber(surah);
 
 /// Every logged recitation session, newest first, each one movable to
 /// another track or removable - opened from the Quran screen's app bar,

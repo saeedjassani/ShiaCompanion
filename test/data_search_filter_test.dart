@@ -131,4 +131,60 @@ void main() {
           ['A5', 'AA47', 'D3', 'A12']);
     });
   });
+
+  group('Arabic, Urdu and Persian titles', () {
+    test('foldSearchText drops harakat and folds letter variants', () {
+      expect(foldSearchText('دُعَاءُ كُمَيْل'), foldSearchText('دعاء کمیل'));
+      expect(foldSearchText('أبي حمزة'), foldSearchText('ابی حمزه'));
+      expect(foldSearchText('سورۃ البقرہ'), foldSearchText('سورة البقرة'));
+      expect(foldSearchText('موسیٰ'), foldSearchText('موسی'));
+      expect(foldSearchText('۳۶: سوره یس'), '36: سوره یس');
+      expect(foldSearchText('نماز\u200cها'), 'نماز ها');
+    });
+
+    test('a translated title matches however it is typed', () {
+      const translated = {'E1': 'دعاء كميل', 'G4': 'زيارة عاشوراء'};
+      final results = filterDataSearchResults(
+        [
+          UidTitleData('E1', 'Dua Kumayl'),
+          UidTitleData('G4', 'Ziyarat Ashura')
+        ],
+        'دعای کمیل',
+        translatedTitleFor: (uid) => translated[uid],
+      );
+      expect(results.map((e) => e.uid), isEmpty);
+      expect(
+        filterDataSearchResults(
+          [UidTitleData('E1', 'Dua Kumayl')],
+          'کمیل',
+          translatedTitleFor: (uid) => translated[uid],
+        ).map((e) => e.uid),
+        ['E1'],
+      );
+    });
+
+    test('ranks by the translated title too', () {
+      const translated = {'A1': '1: سورة الفاتحة', 'A2': 'دعاء الافتتاح'};
+      final results = filterDataSearchResults(
+        [
+          UidTitleData('A2', 'Dua Iftitah'),
+          UidTitleData('A1', '1: Al-Fatihah')
+        ],
+        'سورة',
+        translatedTitleFor: (uid) => translated[uid],
+      );
+      expect(results.map((e) => e.uid), ['A1']);
+      // Starting the translated title beats appearing in the middle of it.
+      final ranked = filterDataSearchResults(
+        [
+          UidTitleData('A2', 'Dua Iftitah'),
+          UidTitleData('E1', 'Dua for the Opening'),
+        ],
+        'دعاء',
+        translatedTitleFor: (uid) =>
+            {'A2': 'من دعاء الافتتاح', 'E1': 'دعاء الافتتاح'}[uid],
+      );
+      expect(ranked.map((e) => e.uid), ['E1', 'A2']);
+    });
+  });
 }
