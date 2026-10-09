@@ -23,8 +23,7 @@ const int calendarWidgetEventLimit = 30;
 String _monthName(HijriCalendar date) =>
     hijriMonthName(date.hMonth).replaceAll(' Al-', ' al-');
 
-String _monthShort(HijriCalendar date) =>
-    hijriMonthShortName(date.hMonth);
+String _monthShort(HijriCalendar date) => hijriMonthShortName(date.hMonth);
 
 /// The hijri date the Calendar page shows for [day], moon-sighting
 /// adjustment included. Built the same way as `_hijriDateFor` there so the
@@ -63,6 +62,19 @@ class WidgetEventText {
   final String kind;
 
   bool get isEmpty => name.isEmpty;
+}
+
+/// An events.json day as one line. A translated day (see `CalendarEvents`)
+/// carries its own `title`, which already says what happened, so it has no
+/// separate [WidgetEventText.kind]; an English one is cut out of its
+/// `content` by [widgetEventText].
+WidgetEventText eventHeadline(Map<dynamic, dynamic> event) {
+  final title = event['title'];
+  if (title is String && title.trim().isNotEmpty) {
+    final name = title.trim();
+    return WidgetEventText(name: name, shortName: name, kind: '');
+  }
+  return widgetEventText(event['content']?.toString() ?? '');
 }
 
 /// Splits an events.json `content` into a [WidgetEventText].
@@ -173,7 +185,7 @@ Map<String, Object>? _eventFor(
 ) {
   final event = events[hijriEventKey(date)];
   if (event is! Map) return null;
-  final text = widgetEventText(event['content']?.toString() ?? '');
+  final text = eventHeadline(event);
   if (text.isEmpty) return null;
   return {
     'title': text.name,

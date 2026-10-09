@@ -221,14 +221,19 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
                       ConstrainedBox(
                         constraints: BoxConstraints(
                             maxWidth: MediaQuery.sizeOf(context).width * 0.35),
-                        child: Text(
-                          _defaultSoundName(),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.end,
-                          style:
-                              ShiaText.body.copyWith(color: colors.textMuted),
-                        ),
+                        child: Builder(builder: (context) {
+                          final name = _defaultSoundName();
+                          return Text(
+                            name,
+                            // A file name is one long word: cut it short
+                            // rather than split it across lines.
+                            maxLines: name.contains(' ') ? 2 : 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.end,
+                            style:
+                                ShiaText.body.copyWith(color: colors.textMuted),
+                          );
+                        }),
                       ),
                       const _Chevron(),
                     ],

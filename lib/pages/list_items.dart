@@ -251,7 +251,7 @@ class _SurahRow extends StatelessWidget {
       minHeight: 60,
       leading: NumberWell(surah.number),
       title: Text(
-          isUserAdmin ? '${item.uid} ${surah.englishName}' : surah.englishName),
+          isUserAdmin ? '${item.uid} ${surah.displayName}' : surah.displayName),
       subtitle: Text(context.l10n.quranVerseCount(surah.ayahCount)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

@@ -553,7 +553,7 @@ class _SurahList extends StatelessWidget {
           last: index == surahs.length - 1,
           minHeight: 60,
           leading: NumberWell(surah.number),
-          title: Text(surah.englishName),
+          title: Text(surah.displayName),
           subtitle: Text(context.l10n.quranVerseCount(surah.ayahCount)),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -603,7 +603,7 @@ class _JuzList extends StatelessWidget {
   }
 
   String _verseLabel(VerseKey verse) {
-    final name = surahInfoFor(verse.surah)?.englishName ??
+    final name = surahInfoFor(verse.surah)?.displayName ??
         L10n.current.quranSurahNumber(verse.surah);
     return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
   }

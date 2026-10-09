@@ -805,22 +805,40 @@ class _SettingsRow extends StatelessWidget {
                   icon,
                   const SizedBox(width: 12),
                   Expanded(
-                    // The value takes the room it needs, up to half the
-                    // row, and the title the rest: titles wrap only beside
-                    // a long value.
+                    // The value keeps to one line whenever the title leaves
+                    // it room, and is never squeezed below half the row;
+                    // the title takes the rest and wraps only beside a long
+                    // value.
                     child: LayoutBuilder(builder: (context, constraints) {
                       double valueWidth = 0;
                       if (value != null) {
-                        final painter = TextPainter(
-                          text: TextSpan(text: value, style: valueStyle),
-                          textDirection: Directionality.of(context),
-                          textScaler: MediaQuery.textScalerOf(context),
-                          maxLines: 1,
-                        )..layout();
-                        valueWidth = (painter.width + 1)
-                            .clamp(0, constraints.maxWidth / 2)
+                        // Measured in the styles the Text widgets end up
+                        // with - merged over the inherited DefaultTextStyle,
+                        // whose letter spacing ShiaText leaves alone - or the
+                        // value comes out a hair too narrow and breaks
+                        // mid-word ("Ligh/t").
+                        final inherited = DefaultTextStyle.of(context).style;
+                        double natural(String text, TextStyle style) {
+                          final painter = TextPainter(
+                            text: TextSpan(
+                                text: text, style: inherited.merge(style)),
+                            textDirection: Directionality.of(context),
+                            textScaler: MediaQuery.textScalerOf(context),
+                            locale: Localizations.maybeLocaleOf(context),
+                            maxLines: 1,
+                          )..layout();
+                          final width = painter.width.ceilToDouble() + 1;
+                          painter.dispose();
+                          return width;
+                        }
+
+                        final full = constraints.maxWidth;
+                        final titleWidth = natural(title, ShiaText.body);
+                        final room = full - 8 - titleWidth;
+                        valueWidth = natural(value, valueStyle)
+                            .clamp(0, room > full / 2 ? room : full / 2)
+                            .clamp(0, full - 8)
                             .toDouble();
-                        painter.dispose();
                       }
                       return Row(
                         children: [
@@ -848,7 +866,9 @@ class _SettingsRow extends StatelessWidget {
                               child: Text(
                                 value,
                                 textAlign: TextAlign.end,
-                                maxLines: 2,
+                                // One word too long for its room is cut
+                                // short rather than split across lines.
+                                maxLines: value.contains(' ') ? 2 : 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: valueStyle,
                               ),

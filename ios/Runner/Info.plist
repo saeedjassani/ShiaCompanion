@@ -10,6 +10,8 @@
 	<array>
 		<string>en</string>
 		<string>ar</string>
+		<string>fa</string>
+		<string>ur</string>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
