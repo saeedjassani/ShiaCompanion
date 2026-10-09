@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,7 +11,6 @@ import '../theme/app_theme.dart';
 import '../theme/shia_colors.dart';
 import '../pages/search_page.dart';
 import '../widgets/app_toast.dart';
-import '../widgets/azan_playing_banner.dart';
 import '../widgets/glass_surface.dart';
 import '../widgets/home_glyph.dart';
 import '../widgets/outline_icon.dart';
@@ -183,7 +181,6 @@ class _AppShellState extends State<AppShell> {
               // The tabs scroll under the floating bar; extendBody hands them
               // its height as bottom padding so their ends can clear it.
               extendBody: true,
-              bottomSheet: kIsWeb ? null : const AzanPlayingBanner(),
               body: Theme(
                 data: _tabRootTheme(theme),
                 child: IndexedStack(

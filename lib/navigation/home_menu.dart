@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
 import '../services/analytics_service.dart';
+import '../services/azan_playback_service.dart';
 import '../pages/admin/content_requests_page.dart';
 import '../pages/admin/mistake_reports_page.dart';
 import '../pages/admin/usage_dashboard_page.dart';
@@ -38,6 +41,7 @@ class HomeMenuItem {
     required this.analyticsId,
     required this.icon,
     required this.pageBuilder,
+    this.action,
     this.glyphType,
     this.outlineGlyph,
     String? shortLabel,
@@ -83,6 +87,21 @@ class HomeMenuItem {
   /// feature ranking it exists to display, and every visit to check the numbers
   /// would change them.
   final bool countsAsFeatureUse;
+
+  /// Runs in place of opening [pageBuilder]'s page, for a tile that does one
+  /// thing (Play Azan) rather than lead to a screen.
+  final Future<void> Function()? action;
+
+  /// Opens the feature: runs its [action], or pushes its page.
+  void open(BuildContext context) {
+    final action = this.action;
+    if (action == null) {
+      pushPageRoute(context, buildPage());
+      return;
+    }
+    recordOpen();
+    unawaited(action());
+  }
 
   Widget buildPage() {
     recordOpen();
@@ -231,6 +250,17 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     outlineGlyph: OutlineGlyph.globe,
     icon: Icons.newspaper_rounded,
     pageBuilder: () => const NewsPage(),
+  ),
+  HomeMenuItem(
+    label: 'Play Azan',
+    analyticsId: 'play_azan',
+    outlineGlyph: OutlineGlyph.speaker,
+    icon: Icons.volume_up_rounded,
+    pageBuilder: () => const SizedBox.shrink(),
+    // The pinned banner in the app shell shows it playing, with Stop.
+    action: () => AzanPlaybackService.playNow(
+      prayerName: L10n.current.azanPrayerFallback,
+    ),
   ),
   settingsMenuItem,
 ]);
@@ -431,6 +461,7 @@ String homeMenuDisplayLabel(String label) {
     'Playlists' => L10n.current.menuPlaylists,
     'My Stats' => L10n.current.menuMyStats,
     'News' => L10n.current.menuNews,
+    'Play Azan' => L10n.current.menuPlayAzan,
     _ => label,
   };
 }

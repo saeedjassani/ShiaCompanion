@@ -64,6 +64,7 @@ void main() {
           'Rakaat Counter': 'rakaat_counter',
         'Prayer Times in Flight': 'prayer_times_in_flight',
         'News': 'news',
+        'Play Azan': 'play_azan',
         // Relabelled from Preferences; the id stays.
         'Settings': 'preferences',
         'Quran': 'quran',

@@ -119,7 +119,8 @@ class AzanPlaybackService {
   static Future<bool> isAnyScheduled(List<int> alarmIds) async {
     if (kIsWeb || !Platform.isAndroid || alarmIds.isEmpty) return true;
     try {
-      return await _alarmsChannel.invokeMethod<bool>('anyScheduled', alarmIds) ??
+      return await _alarmsChannel.invokeMethod<bool>(
+              'anyScheduled', alarmIds) ??
           true;
     } catch (e) {
       debugPrint('Could not check Azan alarms: $e');
@@ -207,7 +208,7 @@ class AzanPlaybackService {
         return;
       }
       await _stopPlayback();
-    } else if (IsolateNameServer.lookupPortByName(_stopPortName) != null) {
+    } else if (_playingPort() != null) {
       // Another isolate (Android's alarm callback) is playing right now.
       return;
     }
@@ -296,7 +297,14 @@ class AzanPlaybackService {
     }
   }
 
+  /// The port of whichever isolate is playing, or null when none is. Web has
+  /// a single isolate and no [IsolateNameServer], so there it is always null
+  /// and callers fall back to this isolate's own player.
+  static SendPort? _playingPort() =>
+      kIsWeb ? null : IsolateNameServer.lookupPortByName(_stopPortName);
+
   static void _registerStopPort() {
+    if (kIsWeb) return;
     IsolateNameServer.removePortNameMapping(_stopPortName);
     final port = ReceivePort();
     _stopPort = port;
@@ -304,6 +312,7 @@ class AzanPlaybackService {
     port.listen((message) {
       if (message == 'stop') unawaited(_stopPlayback());
       if (message == 'resume') _resumeActive();
+      if (message == 'pause') unawaited(_activePlayer?.pause());
     });
   }
 
@@ -318,7 +327,7 @@ class AzanPlaybackService {
     // not be able to leave the UI showing a Stop control.
     _stopPort?.close();
     _stopPort = null;
-    IsolateNameServer.removePortNameMapping(_stopPortName);
+    if (!kIsWeb) IsolateNameServer.removePortNameMapping(_stopPortName);
     await _clearPlaying();
     try {
       // dispose() also releases just_audio_background's single player slot,
@@ -343,7 +352,7 @@ class AzanPlaybackService {
   /// playing" flag if that isolate is already gone, so the UI never gets
   /// stuck showing a stop control for audio that in fact stopped on its own.
   static Future<void> stopIfPlaying() async {
-    final port = IsolateNameServer.lookupPortByName(_stopPortName);
+    final port = _playingPort();
     if (port != null) {
       port.send('stop');
       // The stop lands in the playing isolate asynchronously; clear the flag
@@ -359,10 +368,20 @@ class AzanPlaybackService {
     }
   }
 
+  /// Pauses the Azan, in whichever isolate is holding it.
+  static Future<void> pauseIfPlaying() async {
+    final port = _playingPort();
+    if (port != null) {
+      port.send('pause');
+      return;
+    }
+    await _activePlayer?.pause();
+  }
+
   /// Resumes an Azan paused from its notification, in whichever isolate is
   /// holding it - see [stopIfPlaying] for why this goes over a named port.
   static Future<void> resumeIfPaused() async {
-    final port = IsolateNameServer.lookupPortByName(_stopPortName);
+    final port = _playingPort();
     if (port != null) {
       port.send('resume');
       return;
@@ -393,7 +412,7 @@ class AzanPlaybackService {
     await prefs.reload();
     final flagged = prefs.getBool(_playingPrefKey) ?? false;
     if (!flagged) return false;
-    if (IsolateNameServer.lookupPortByName(_stopPortName) == null) {
+    if (_playingPort() == null && _activePlayer == null) {
       await _clearPlaying();
       return false;
     }

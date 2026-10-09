@@ -62,8 +62,7 @@ class _AllFeaturesPageState extends State<AllFeaturesPage> {
                     _FeatureGrid(
                       features: features,
                       onHome: onHome,
-                      onOpen: (item) =>
-                          pushPageRoute(context, item.buildPage()),
+                      onOpen: (item) => item.open(context),
                     ),
                     const SizedBox(height: 18),
                     Padding(
