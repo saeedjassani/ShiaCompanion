@@ -151,6 +151,12 @@ assets/zikr_i18n/ur/
 }
 ```
 
+- Search folds what people type one way or another in Arabic script
+  (harakat, hamza seats, Arabic/Persian/Urdu ya, kaf and ha, Arabic-Indic
+  and Persian digits - `foldSearchText`), so write titles in correct
+  orthography; don't strip letters to make them searchable. A surah's
+  translated title (`"N: <name>"`) is also the name the Quran screens show
+  for it (`SurahInfo.displayName`), without its number.
 - `titles` is keyed by the `assets/zikr.json` key, alias keys
   (`"<uid>|<targetUid>"`) included, since an alias's title often differs
   from its canonical's. Translated titles show in lists, search, favorites,
@@ -273,6 +279,30 @@ untranslated, so a partly translated file is safe to ship; `check` and
 3. Run `python3 scripts/zikr_i18n/zikr_i18n.py rebase` and then
    `check <code>`.
 
+## Calendar events (`assets/events_i18n/<code>.json`)
+
+The Islamic calendar's events (`assets/events.json`) are translated per app
+language in `assets/events_i18n/<code>.json`, keyed like events.json by
+hijri `"MM-DD"`:
+
+```json
+{"02-07": {"content": "...", "title": "..."}}
+```
+
+- `content` replaces the English text the Calendar page shows for the day,
+  with the same paragraphs (`\n\n`) and lines (`\n`).
+- `title` is the day's event(s) as one short line - no year, no epithet -
+  for Home's Coming up row, the calendar's screen-reader labels and the
+  home screen widgets. English cuts that line out of `content` with regexes
+  that only read English (`widgetEventText`), so every translated day needs
+  its own.
+
+They follow the app language (`CalendarEvents.load`); a day missing from the
+file stays English, and `color` always comes from events.json.
+`test/calendar_events_test.dart` checks each shipped language covers every
+day with matching paragraphs and no English left. If you edit events.json,
+edit each translation's `content` and `title` for that day too.
+
 ## Hadith of the day (`assets/hadith_i18n/hadith.json`)
 
 English keeps its own collection (`assets/hadith/`). In Arabic, Urdu and
@@ -298,9 +328,8 @@ Copy Arabic verbatim from a reliable text, never retype it.
 - **A juz** (the Quran read by juz rather than by surah) is assembled from
   the surahs and has no content file of its own, so it has no translation:
   outside English it shows the Arabic alone.
-- **Other content**: library books, calendar
-  events (`assets/events.json`), the Quran collections in `lib/data/`
-  (`quran_duas.dart`, prophet stories, verses about Imam Ali and Imam
+- **Other content**: library books, the Quran
+  collections in `lib/data/` (`quran_duas.dart`, prophet stories, verses about Imam Ali and Imam
   al-Mahdi, holy sites) and the What's New notes are English content, not
   UI text, and would each need a translation overlay of their own.
 - **Fonts**: Urdu, Persian, Arabic and Gujarati translation text uses the

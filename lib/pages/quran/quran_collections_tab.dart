@@ -124,7 +124,7 @@ class QuranCollectionsSliver extends StatelessWidget {
 }
 
 String _verseTitle(VerseKey verse) {
-  final name = surahInfoFor(verse.surah)?.englishName ??
+  final name = surahInfoFor(verse.surah)?.displayName ??
       L10n.current.quranSurahNumber(verse.surah);
   return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
 }

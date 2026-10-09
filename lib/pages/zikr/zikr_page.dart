@@ -664,7 +664,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   String? _surahSequenceLabel(int surah) {
     final info = surahInfoFor(surah);
-    return info?.englishName;
+    return info?.displayName;
   }
 
   Future<void> _openQuranSequenceStep(int delta) async {
@@ -790,7 +790,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               Semantics(
                 header: true,
                 child: Text(
-                  '${surahInfoFor(surah)?.englishName ?? surahTitle} $verse',
+                  '${surahInfoFor(surah)?.displayName ?? surahTitle} $verse',
                   style: ShiaText.sectionTitle.copyWith(color: colors.text),
                 ),
               ),
@@ -877,7 +877,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         SavedVerse(
           surah: verse.surah,
           ayah: ayah,
-          surahName: surahInfoFor(verse.surah)?.englishName ?? '',
+          surahName: surahInfoFor(verse.surah)?.displayName ?? '',
           // The first line of the verse as the reader sees it, kept so the
           // saved list can be read without loading a surah document per row.
           excerpt: _excerptOf(text),

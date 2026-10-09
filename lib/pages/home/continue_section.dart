@@ -102,7 +102,7 @@ List<ContinueEntry> continueEntries({
             ? s.homeCategoryQuran
             : s.homeContinueQuranTrack(label),
         glyph: HomeGlyphType.surahs,
-        title: info.englishName,
+        title: info.displayName,
         subtitle: s.homeContinueVerseOf(ayah, info.ayahCount),
         progress: ayah / info.ayahCount,
         updatedAt: latestRecitation.recitedAt,

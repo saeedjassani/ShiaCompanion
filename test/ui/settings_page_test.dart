@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -82,8 +83,7 @@ void main() {
     expect(find.text('5 times'), findsOneWidget);
   });
 
-  testWidgets('Theme opens the three choices and applies one',
-      (tester) async {
+  testWidgets('Theme opens the three choices and applies one', (tester) async {
     late ThemeModeProvider themes;
     await _pump(tester, const SettingsPage(),
         onThemes: (provider) => themes = provider);
@@ -97,6 +97,31 @@ void main() {
     await tester.pumpAndSettle();
     expect(themes.themeMode, ThemeMode.dark);
     expect(find.text('Dark'), findsOneWidget, reason: 'the row shows it');
+  });
+
+  testWidgets('a short value stays on one line, never broken mid-word',
+      (tester) async {
+    await _pump(tester, const SettingsPage());
+
+    await tester.tap(find.text('Theme'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Light'));
+    await tester.pumpAndSettle();
+
+    for (final value in ['Light', '100%']) {
+      final text = find.text(value);
+      await tester.ensureVisible(text);
+      final paragraph = tester.renderObject<RenderParagraph>(text);
+      expect(
+        paragraph
+            .getBoxesForSelection(
+                TextSelection(baseOffset: 0, extentOffset: value.length))
+            .map((box) => box.top)
+            .toSet(),
+        hasLength(1),
+        reason: '"$value" fits on one line',
+      );
+    }
   });
 
   testWidgets('Adjust Hijri date moves the date and shows by how much',
