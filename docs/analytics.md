@@ -123,6 +123,7 @@ them do not explain themselves.
 | `home_widget_favorites` | Tapped an item in the Favorites home screen widget |
 | `home_widget_recitation` | Tapped an item in the Today's Recitation home screen widget |
 | `home_continue` | Resumed at its bookmark from a Continue card on Home (a Quran track resumed there is `quran_resume`) |
+| `home_today` | Tapped in the Today section on Home (the full Today's Recitations page is `todays_recitation`) |
 | `unknown` | Default — an entry point that forgot to pass a source |
 
 The two link sources are worth keeping apart: `deep_link` measures sharing and

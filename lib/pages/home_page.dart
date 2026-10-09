@@ -50,6 +50,7 @@ import 'package:shia_companion/pages/home/get_app_card.dart';
 import 'package:shia_companion/pages/home/home_header.dart';
 import 'package:shia_companion/pages/home/home_section.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
+import 'package:shia_companion/pages/home/today_section.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/widgets/glass_surface.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
@@ -410,6 +411,10 @@ class _MyHomePageState extends State<MyHomePage>
       onOpen: _openHomeMenuItem,
       onOpenAllFeatures: _openAllFeatures,
     );
+    final today = TodaySection(
+      topSpacing: gap,
+      onSeeAll: () => _openHomeMenuItem(todaysRecitationsMenuItem),
+    );
     final hadithCard = hadith.isEmpty && localizedHadith == null
         ? const SizedBox.shrink()
         : Padding(
@@ -425,8 +430,8 @@ class _MyHomePageState extends State<MyHomePage>
 
     final Widget content;
     if (wide) {
-      // Tablet and up: prayer card, Continue and (on the web) Get the app
-      // on the left; Shortcuts and the hadith on the right.
+      // Tablet and up: prayer card, Continue, Today and (on the web) Get the
+      // app on the left; Shortcuts and the hadith on the right.
       content = Padding(
         padding: EdgeInsets.symmetric(horizontal: gutter),
         child: Column(
@@ -444,6 +449,7 @@ class _MyHomePageState extends State<MyHomePage>
                     children: [
                       prayerCard,
                       ContinueSection(topSpacing: gap, horizontalPadding: 0),
+                      today,
                       getApp,
                     ],
                   ),
@@ -471,6 +477,7 @@ class _MyHomePageState extends State<MyHomePage>
           Padding(padding: pad, child: prayerCard),
           // Draws its own gutter: its cards scroll to the screen's edge.
           ContinueSection(topSpacing: gap, horizontalPadding: gutter),
+          Padding(padding: pad, child: today),
           SizedBox(height: gap),
           Padding(padding: pad, child: shortcuts),
           Padding(padding: pad, child: hadithCard),
@@ -722,8 +729,7 @@ class _MyHomePageState extends State<MyHomePage>
   void didChangeDependencies() {
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
-    if (_hadithLanguage != null &&
-        _hadithLanguage != context.l10n.localeName) {
+    if (_hadithLanguage != null && _hadithLanguage != context.l10n.localeName) {
       getHadith();
     }
   }

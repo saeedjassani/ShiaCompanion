@@ -2117,6 +2117,18 @@
   "@homeContinueTitle": {
     "description": "Heading of Home's section that picks up the latest Quran track, bookmark or book."
   },
+  "homeTodayTitle": "Today",
+  "@homeTodayTitle": {
+    "description": "Heading of Home's section listing a few of today's recitations (the occasion's duas, the weekday's, the month's)."
+  },
+  "homeTodaySeeAll": "See all",
+  "@homeTodaySeeAll": {
+    "description": "Text button beside Home's Today heading that opens the full Today's Recitations page. Keep it short."
+  },
+  "homeTodaySeeAllSemantics": "See all of today's recitations",
+  "@homeTodaySeeAllSemantics": {
+    "description": "What a screen reader says for the See all button beside Home's Today heading."
+  },
   "homeCategoryQuran": "Quran",
   "@homeCategoryQuran": {
     "description": "What a zikr category is called on a Continue card on Home, before ' · bookmark'."

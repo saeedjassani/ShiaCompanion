@@ -138,15 +138,19 @@ final HomeMenuItem calendarMenuItem = HomeMenuItem(
   pageBuilder: () => const CalendarPage(),
 );
 
+/// Today's Recitations: a shortcut, and where Home's Today section's
+/// See all leads.
+final HomeMenuItem todaysRecitationsMenuItem = HomeMenuItem(
+  label: "Today's Recitations",
+  analyticsId: 'today_s_recitations',
+  glyphType: HomeGlyphType.todaysRecitations,
+  icon: Icons.auto_stories_rounded,
+  pageBuilder: () => TodaysRecitationPage(),
+);
+
 final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   favoritesMenuItem,
-  HomeMenuItem(
-    label: "Today's Recitations",
-    analyticsId: 'today_s_recitations',
-    glyphType: HomeGlyphType.todaysRecitations,
-    icon: Icons.auto_stories_rounded,
-    pageBuilder: () => TodaysRecitationPage(),
-  ),
+  todaysRecitationsMenuItem,
   HomeMenuItem(
     label: 'Taqeebat e Namaz',
     analyticsId: 'taqeebat_e_namaz',

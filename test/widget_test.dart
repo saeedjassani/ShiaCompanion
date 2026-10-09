@@ -129,8 +129,8 @@ void main() {
         [
           'Duas',
           'Ziyarats',
-          "Today's Recitations",
           'Taqeebat e Namaz',
+          'Namaz',
           'Calendar',
           'Tasbeeh',
           'Qibla',

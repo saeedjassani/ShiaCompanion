@@ -153,39 +153,49 @@ Top to bottom, each section hidden when it has nothing to show:
    second ("in 3h 05m 09s"; not read by screen readers). The rest follow
    in one row, in order, with no "next day" marks: what follows is later.
    Once every time shown is tomorrow's, "Up next" reads "Tomorrow". The
-   card's last row is the **next event** (see 5). Tap → Calendar & Prayer
+   card's last row is the **next event** (see 6). Tap → Calendar & Prayer
    Times; long-press → "Prayer times shown" picker (as today). No-location
    state = the round-1 "Which city are you in?" card (time-zone guess, Use
    my location, Choose city), with the event row under it too.
 3. **Continue** — up to 3 cards, newest first: Quran track
    (`RecitationTrackerManager`), dua bookmark (`ZikrBookmarksManager`),
    library chapter (`LibraryProgressStore`). Horizontal scroll on phone.
-4. **Shortcuts** — no heading. Up to 11 user-picked + fixed **All
+4. **Today** — up to 4 of today's recitations (`buildTodaysRecitationGroups`),
+   one card, most specific occasion first, each with what it is for under
+   its title ("Night of 15 Shaban", "In Rajab", "For Thursday", "Every
+   day"). Each occasion gets up to two rows before any gets more, so a
+   month full of aamal cannot hide the weekday's duas; every-day
+   recitations only fill what is left (`todayPicks`). **See all** →
+   Today's Recitations. Moves on by itself at Maghrib and midnight;
+   hidden when nothing is for today. Phone: under Continue; from the
+   tablet breakpoint up, under Continue in the left column.
+5. **Shortcuts** — no heading. Up to 11 user-picked + fixed **All
    features**, four to a row: two rows for up to 7 picks, a third from 8
    (no rows setting; the grid grows with the picks). Edited from **Edit
    shortcuts** on All features, which opens the editor sheet
    (remove/drag/add, max 11). Stored in prefs
    and synced via `PreferencesSyncService` as one list for every screen
-   size. Defaults on a phone: Duas, Ziyarats, Today's Recitations,
-   Taqibaat, Calendar, Tasbeeh, Qibla (two rows). From the tablet
-   breakpoint up, Qaza Tracker, Playlists, Library and Namaz are added
+   size. Defaults on a phone: Duas, Ziyarats, Taqibaat, Namaz,
+   Calendar, Tasbeeh, Qibla (two rows; Today's Recitations is left to
+   Today's See all). From the tablet
+   breakpoint up, Qaza Tracker, Playlists, Library and Aamal are added
    (three rows). Defaults are never synced; the first save replaces them
    on every device. A wide screen at least 900 tall (portrait tablets,
    1080p desktops) has room to spare, so it shows every feature instead:
    the reader's picks first in their order, then the rest in All features
    order, and no All features tile (nothing is left to pick; the order is
    the one saved on a phone or a smaller window).
-5. **Next event** — the prayer card's last row, not a section: the next
+6. **Next event** — the prayer card's last row, not a section: the next
    event from `buildUpcomingCalendarWidgetEvents`, counted from the Islamic
    day in effect. Date box, "In 9 days · 5 Jumada al-Awwal" (or
    "Tomorrow · …"), the title; two events on one day come joined in one
    title. While the event's day is the one in effect the row turns gold
    and says **TODAY**, or **TONIGHT** from Maghrib on its eve. Tap →
    Calendar.
-6. **Hadith of the day** — full text, source, Share button.
-7. **Get the app** — web only: a card with the official App Store and
-   Google Play badges (both, whatever the browser), under the prayer card
-   and Continue from the tablet breakpoint up, last on a phone.
+7. **Hadith of the day** — full text, source, Share button.
+8. **Get the app** — web only: a card with the official App Store and
+   Google Play badges (both, whatever the browser), under the prayer card,
+   Continue and Today from the tablet breakpoint up, last on a phone.
 
 ### All features
 One 3-column grid in today's home order (minus Quran and Favorites, which
@@ -502,7 +512,7 @@ Recitations' groups).
 **Dashboards go two columns** at the same 880 (`WideColumns`), most-used
 on the left:
 
-- **Home** — prayer card, Continue · Shortcuts, hadith (from
+- **Home** — prayer card, Continue, Today · Shortcuts, hadith (from
   600 already; see Home).
 - **Settings** — the sign-in card, Appearance, Prayer times · Notifications,
   Reading, Offline audio, Support. The version line stays centred under
