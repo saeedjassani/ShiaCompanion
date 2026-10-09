@@ -81,9 +81,9 @@
 
        Positioned absolutely so it never adds to the document flow: the app is
        full-viewport and this must not give the page a scrollbar. It stays in
-       the DOM once Flutter boots — painted over, not removed — and becomes
-       visible if the engine never produces a frame, which makes it a usable
-       fallback rather than only a crawler affordance. */
+       the DOM once Flutter boots, so crawlers still find the links, and shows
+       if the engine never produces a frame, which makes it a usable fallback
+       rather than only a crawler affordance. */
     .seo-site-nav {
       position: absolute;
       top: 0;
@@ -123,6 +123,15 @@
 
     .seo-site-nav a {
       color: #5d4037;
+    }
+
+    /* Once Flutter has painted, take the crawler HTML out of layout. Left in,
+       it is taller and wider than the app on many screens, so it peeked out
+       around the app wherever the browser showed more than the app's view:
+       zoomed out, in a full-page screenshot, or past the end of the page. */
+    html.flutter-ready .seo-site-nav,
+    html.flutter-ready .seo-zikr-content {
+      display: none;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -212,7 +221,10 @@
 
       window.addEventListener(
         'flutter-first-frame',
-        removeLoadingShell,
+        function () {
+          document.documentElement.classList.add('flutter-ready');
+          removeLoadingShell();
+        },
         { once: true }
       );
 
