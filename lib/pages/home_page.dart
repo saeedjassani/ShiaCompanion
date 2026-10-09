@@ -52,6 +52,7 @@ import 'package:shia_companion/pages/home/home_section.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
 import 'package:shia_companion/pages/home/today_section.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/widgets/balanced_columns.dart';
 import 'package:shia_companion/widgets/glass_surface.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
@@ -411,9 +412,14 @@ class _MyHomePageState extends State<MyHomePage>
       onOpen: _openHomeMenuItem,
       onOpenAllFeatures: _openAllFeatures,
     );
-    TodaySection today({required double horizontalPadding}) => TodaySection(
+    TodaySection today({
+      required double horizontalPadding,
+      bool grid = false,
+    }) =>
+        TodaySection(
           topSpacing: gap,
           horizontalPadding: horizontalPadding,
+          grid: grid,
           onSeeAll: () => _openHomeMenuItem(todaysRecitationsMenuItem),
         );
     final hadithCard = hadith.isEmpty && localizedHadith == null
@@ -431,19 +437,10 @@ class _MyHomePageState extends State<MyHomePage>
 
     final Widget content;
     if (wide) {
-      // Tablet and up, in three bands: the prayer card and Continue beside
-      // Shortcuts; Today across both columns, as it runs long; then (on
-      // the web) Get the app beside the hadith, or the hadith alone.
-      final leftFlex = desktop ? 115 : 100;
-      final columnGap = desktop ? 32.0 : 24.0;
-      Widget columns(Widget left, Widget right) => Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: leftFlex, child: left),
-              SizedBox(width: columnGap),
-              Expanded(flex: 100, child: right),
-            ],
-          );
+      // Tablet and up, two columns: the prayer card, Continue and Today
+      // on the left, Shortcuts on the right; the hadith and (on the web)
+      // Get the app each go under whichever column is shorter, so the two
+      // end level rather than one leaving a gap.
       content = Padding(
         padding: EdgeInsets.symmetric(horizontal: gutter),
         child: Column(
@@ -451,18 +448,18 @@ class _MyHomePageState extends State<MyHomePage>
           children: [
             header,
             SizedBox(height: gap),
-            columns(
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  prayerCard,
-                  ContinueSection(topSpacing: gap, horizontalPadding: 0),
-                ],
-              ),
-              shortcuts,
+            BalancedColumns(
+              startFlex: desktop ? 115 : 100,
+              endFlex: 100,
+              gap: desktop ? 32 : 24,
+              start: [
+                prayerCard,
+                ContinueSection(topSpacing: gap, horizontalPadding: 0),
+                today(horizontalPadding: 0, grid: true),
+              ],
+              end: [shortcuts],
+              floating: [hadithCard, getApp],
             ),
-            today(horizontalPadding: 0),
-            if (kIsWeb) columns(getApp, hadithCard) else hadithCard,
           ],
         ),
       );
@@ -690,11 +687,7 @@ class _MyHomePageState extends State<MyHomePage>
     showArabicAsParagraph =
         SP.prefs.getBool('showArabicAsParagraph') ?? showArabicAsParagraph;
 
-    hijriDate = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
-
-    city = SP.prefs.getString("city");
-    lat = SP.prefs.getDouble("lat");
-    long = SP.prefs.getDouble("long");
+    restoreDayPreferences();
     LocationService.instance.restore();
     arabicFont = await FontPreferences.getSelectedFont() ?? "Qalam";
 

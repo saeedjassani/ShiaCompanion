@@ -205,4 +205,12 @@ void main() {
       expect(find.text('See all'), findsNothing);
     });
   });
+
+  test('shares cards out so no row of the grid has empty slots', () {
+    expect(todayGridRowSizes(10, 4), [3, 3, 2, 2]);
+    expect(todayGridRowSizes(6, 2), [3, 3]);
+    expect(todayGridRowSizes(7, 3), [3, 2, 2]);
+    expect(todayGridRowSizes(1, 1), [1]);
+    expect(todayGridRowSizes(0, 0), isEmpty);
+  });
 }

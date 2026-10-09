@@ -388,10 +388,11 @@ List<HomeMenuItem> get allFeaturesMenuItems => List.unmodifiable([
     ]);
 
 /// What can be one of Home's shortcuts: All features less Settings, which
-/// already has the profile button on Home.
+/// already has the profile button on Home, and Today's Recitations, which
+/// Home shows as its Today section.
 List<HomeMenuItem> get shortcutCandidateMenuItems => List.unmodifiable([
       for (final item in allFeaturesMenuItems)
-        if (item != settingsMenuItem) item,
+        if (item != settingsMenuItem && item != todaysRecitationsMenuItem) item,
     ]);
 
 /// The shortcuts [ids] name, in order, skipping any this build or this user

@@ -171,9 +171,13 @@ Top to bottom, each section hidden when it has nothing to show:
    rites only to make six cards. Within an occasion the Duas, Ziyarats and
    Munajat categories come before entries known by title alone. **See
    all** → Today's Recitations. Moves on by itself at Maghrib and
-   midnight; hidden when nothing is for today. Under Continue on a phone;
-   from the tablet breakpoint up it runs across both columns, under the
-   prayer card, Continue and Shortcuts, as the list is long.
+   midnight; hidden when nothing is for today. Under Continue. On a phone
+   the strip scrolls sideways; from the tablet breakpoint up every card
+   shows at once, in rows as even as can be (ten three to a row are 3, 3,
+   2, 2, so no row has empty slots). Drawn on the first frame: main()
+   loads the zikr index alongside Firebase start-up and restores the Hijri
+   adjustment and location before `runApp`, and the index is loaded once
+   per run, never reset.
 5. **Shortcuts** — no heading. Up to 11 user-picked + fixed **All
    features**, four to a row: two rows for up to 7 picks, a third from 8
    (no rows setting; the grid grows with the picks). Edited from **Edit
@@ -181,8 +185,8 @@ Top to bottom, each section hidden when it has nothing to show:
    (remove/drag/add, max 11). Stored in prefs
    and synced via `PreferencesSyncService` as one list for every screen
    size. Defaults on a phone: Duas, Ziyarats, Taqibaat, Namaz,
-   Calendar, Tasbeeh, Qibla (two rows; Today's Recitations is left to
-   Today's See all). From the tablet
+   Calendar, Tasbeeh, Qibla (two rows). Today's Recitations is never a
+   shortcut, Home having Today (a saved pick of it is skipped). From the tablet
    breakpoint up, Qaza Tracker, Playlists, Library and Aamal are added
    (three rows). Defaults are never synced; the first save replaces them
    on every device. A wide screen at least 900 tall (portrait tablets,
@@ -199,8 +203,9 @@ Top to bottom, each section hidden when it has nothing to show:
    Calendar.
 7. **Hadith of the day** — full text, source, Share button.
 8. **Get the app** — web only: a card with the official App Store and
-   Google Play badges (both, whatever the browser), beside the hadith
-   under Today from the tablet breakpoint up, last on a phone.
+   Google Play badges (both, whatever the browser), last on a phone;
+   from the tablet breakpoint up it and the hadith each go under whichever
+   column is shorter (`BalancedColumns`).
 
 ### All features
 One 3-column grid in today's home order (minus Quran and Favorites, which
@@ -517,9 +522,9 @@ Recitations' groups).
 **Dashboards go two columns** at the same 880 (`WideColumns`), most-used
 on the left:
 
-- **Home** — in bands (from 600 already; see Home): prayer card,
-  Continue · Shortcuts; Today across both columns; Get the app (web) ·
-  hadith, or the hadith alone.
+- **Home** — prayer card, Continue, Today · Shortcuts, with the hadith
+  and Get the app (web) each under the shorter column so the two end
+  level (from 600 already; see Home).
 - **Settings** — the sign-in card, Appearance, Prayer times · Notifications,
   Reading, Offline audio, Support. The version line stays centred under
   both.

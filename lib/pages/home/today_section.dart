@@ -7,6 +7,7 @@ import '../../data/uid_title_data.dart';
 import '../../data/universal_data.dart';
 import '../../l10n/l10n.dart';
 import '../../services/analytics_service.dart';
+import '../../services/location_service.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/todays_recitation.dart';
 import '../../widgets/home_glyph.dart';
@@ -109,7 +110,12 @@ class TodaySection extends StatefulWidget {
     required this.onSeeAll,
     this.topSpacing = 0,
     this.horizontalPadding = 16,
+    this.grid = false,
   });
+
+  /// Every card at once, in rows, instead of a sideways strip: for wide
+  /// screens, where there is room and a mouse scrolls sideways badly.
+  final bool grid;
 
   final VoidCallback onSeeAll;
 
@@ -173,9 +179,10 @@ class _TodaySectionState extends State<TodaySection> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: zikrIndexReady,
-      builder: (context, _, __) {
+    // The location moves when the night begins.
+    return ListenableBuilder(
+      listenable: Listenable.merge([zikrIndexReady, LocationService.instance]),
+      builder: (context, _) {
         final l10n = context.l10n;
         final rows = _rows(l10n);
         _shown = _signature(rows);
@@ -197,31 +204,97 @@ class _TodaySectionState extends State<TodaySection> {
               ),
             ),
             const SizedBox(height: 10),
-            MouseDragScroll(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: gutter,
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (var i = 0; i < rows.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 10),
-                        SizedBox(
-                          width: TodaySection.cardWidth,
-                          child: _TodayCard(pick: rows[i].$1, when: rows[i].$2),
-                        ),
+            if (widget.grid)
+              Padding(padding: gutter, child: _TodayGrid(rows: rows))
+            else
+              MouseDragScroll(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: gutter,
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var i = 0; i < rows.length; i++) ...[
+                          if (i > 0) const SizedBox(width: _spacing),
+                          SizedBox(
+                            width: TodaySection.cardWidth,
+                            child:
+                                _TodayCard(pick: rows[i].$1, when: rows[i].$2),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         );
       },
     );
   }
+}
+
+const double _spacing = 10;
+
+/// Today's cards in rows as even as they can be: as many to a row as fit at
+/// [TodaySection.cardWidth] or wider, and the cards shared out so no row is
+/// left with empty slots - ten cards three to a row are rows of 3, 3, 2 and
+/// 2, each card as wide as its row allows.
+class _TodayGrid extends StatelessWidget {
+  const _TodayGrid({required this.rows});
+
+  final List<(TodayPick, String)> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final fit = ((constraints.maxWidth + _spacing) /
+              (TodaySection.cardWidth + _spacing))
+          .floor()
+          .clamp(1, rows.length);
+      final rowCount = (rows.length / fit).ceil();
+      final sizes = todayGridRowSizes(rows.length, rowCount);
+      final starts = [0];
+      for (final size in sizes) {
+        starts.add(starts.last + size);
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var r = 0; r < sizes.length; r++) ...[
+            if (r > 0) const SizedBox(height: _spacing),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < sizes[r]; i++) ...[
+                    if (i > 0) const SizedBox(width: _spacing),
+                    Expanded(
+                      child: _TodayCard(
+                        pick: rows[starts[r] + i].$1,
+                        when: rows[starts[r] + i].$2,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ],
+      );
+    });
+  }
+}
+
+/// How many of [count] cards go in each of [rowCount] rows: as even as
+/// can be, the fuller rows first.
+@visibleForTesting
+List<int> todayGridRowSizes(int count, int rowCount) {
+  if (count <= 0 || rowCount <= 0) return const [];
+  final base = count ~/ rowCount;
+  final extra = count % rowCount;
+  return [for (var r = 0; r < rowCount; r++) base + (r < extra ? 1 : 0)];
 }
 
 class _TodayCard extends StatelessWidget {

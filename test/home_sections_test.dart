@@ -286,7 +286,7 @@ void main() {
       await HomeShortcutsStore.instance.save([
         'duas',
         'ziyarats',
-        'today_s_recitations',
+        'namaz',
         'munajaat',
         'calendar_prayer_times',
         'tasbeeh_counter',
