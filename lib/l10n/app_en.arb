@@ -111,6 +111,7 @@
   "settingsGithubOpenFailed": "Could not open GitHub",
   "settingsAboutUs": "About",
   "settingsSignInGoogle": "Sign in with Google",
+  "settingsSignInApple": "Sign in with Apple",
   "settingsSignedIn": "Signed in",
   "settingsLocationUpdating": "Updating your location…",
   "settingsLocationUpdatePrompt": "Choose a city, or use your phone's location.",
@@ -129,6 +130,7 @@
   "commonNetworkError": "Couldn't connect. Check your internet connection and try again.",
   "settingsGoogleFailed": "Google Sign-In didn't work. Please try again in a moment.",
   "settingsAppleFailed": "Apple Sign-In Failed",
+  "settingsAccountExistsOtherProvider": "This email already has an account with a different sign-in. Use the button you signed in with before.",
   "audioRecordingNumber": "Recording {number}",
   "@audioRecordingNumber": {
     "placeholders": {
@@ -827,7 +829,7 @@
   "deleteAccountItemAnalytics": "Anonymous analytics or crash reports already collected may remain in aggregate form.",
   "deleteAccountCompleted": "Your account deletion request has completed.",
   "deleteAccountCompletedNote": "If you sign in again later, a brand new account will be created.",
-  "deleteAccountWebSteps": "Use the Google sign-in button below, then confirm deletion.",
+  "deleteAccountWebSteps": "Sign in below with the account you want to delete, then confirm deletion.",
   "deleteAccountSigningIn": "Signing in...",
   "deleteAccountDeleting": "Deleting...",
   "deleteAccountButton": "Delete my account",
@@ -1740,6 +1742,7 @@
   "accountSessionExpired": "Your session expired. Please sign in again and retry deletion.",
   "accountReauthenticate": "For security, please sign in again and then retry deleting your account.",
   "accountPopupClosed": "Sign-in window closed before the action finished.",
+  "accountUserMismatch": "That's a different account from the one being deleted. Sign in with the same account and try again.",
   "accountNetworkError": "Network error. Please check your connection and try again.",
   "commonSomethingWentWrong": "Something went wrong. Please try again.",
   "zikrTabNumber": "Tab {number}",
