@@ -14,6 +14,7 @@ import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'data/live_streaming_data.dart';
@@ -786,7 +787,7 @@ void _showLocationTimeoutDialog(BuildContext context) {
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('OK'),
+            child: Text(MaterialLocalizations.of(dialogContext).okButtonLabel),
           ),
         ],
       );
@@ -1138,6 +1139,12 @@ Future<NotificationDetails> prayerNotificationDetails(
 /// On iOS the Full Azan notification only carries the short Takbir clip (see
 /// _iosPrayerNotificationDetails) and the full recording starts from a tap on
 /// it, so the banner has to say so - nothing else on it does.
+/// "05:12 AM : Fajr", in the app language: the time as intl writes it there
+/// and the prayer's translated name.
+String prayerNotificationTitle(DateTime dateTime, String prayerName) =>
+    '${DateFormat('hh:mm a').format(dateTime)} : '
+    '${localizedPrayerName(prayerName)}';
+
 String prayerNotificationBody(String prayerName, AzaanOption azaan,
     {bool? isIOS, bool? playsAutomatically}) {
   final body = L10n.current
@@ -1195,8 +1202,7 @@ Future<void> schedulePrayerTimeNotification(
         androidScheduleMode: canScheduleExactPrayerNotifications
             ? AndroidScheduleMode.exactAllowWhileIdle
             : AndroidScheduleMode.inexactAllowWhileIdle,
-        title:
-            formatDate(dateTime, [hh, ":", nn, " ", am]) + " : " + prayerName,
+        title: prayerNotificationTitle(dateTime, prayerName),
         body: prayerNotificationBody(prayerName, azaan),
         payload: dateTime.toIso8601String());
 
@@ -1460,8 +1466,8 @@ Future<void> testNotification(
       androidScheduleMode: canScheduleExactPrayerNotifications
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle,
-      title: "Test",
-      body: "Test notification");
+      title: L10n.current.notificationTestTitle,
+      body: L10n.current.notificationTestBody);
 }
 
 /// The one spelling every per-prayer preference key is built from.

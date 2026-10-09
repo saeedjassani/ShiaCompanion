@@ -396,7 +396,7 @@ class _SizeRow extends StatelessWidget {
                 Text(label, style: ShiaText.body.copyWith(color: colors.text)),
           ),
           _StepButton(
-            text: 'A−',
+            text: '${context.l10n.textSizeLetter}−',
             fontSize: 14,
             label: smallerLabel,
             onPressed: onSmaller,
@@ -410,7 +410,7 @@ class _SizeRow extends StatelessWidget {
             ),
           ),
           _StepButton(
-            text: 'A+',
+            text: '${context.l10n.textSizeLetter}+',
             fontSize: 17,
             label: biggerLabel,
             onPressed: onBigger,
