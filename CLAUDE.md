@@ -104,9 +104,11 @@ it to `lib/l10n/app_en.arb` and read it with `context.l10n.key` (or
 `L10n.current.key` where there is no `BuildContext`), then run
 `flutter gen-l10n` (`flutter pub get` does it too). The generated
 `lib/l10n/app_localizations*.dart` are gitignored - never commit them.
-Design/feature PRs touch only `app_en.arb`; translation PRs touch only
-`app_<code>.arb`, and new English keys are translated afterwards in a
-catch-up PR (see "Keeping translations in step" in `docs/TRANSLATIONS.md`).
+**A PR that adds or changes a key adds it to every `app_<code>.arb` too**
+(Urdu, Persian, Arabic, Gujarati), in the same PR, using the wording those
+files already use for the same ideas; `build/untranslated_messages.json`
+(written by `flutter gen-l10n`) should list none of the new keys. See
+"Keeping translations in step" in `docs/TRANSLATIONS.md`.
 Analytics labels, `trackScreen` names, preference keys and `debugPrint` text
 stay English literals. Zikr translations are overlays in
 `assets/zikr_i18n/<code>/` keyed by **segment number** (each verse, standalone

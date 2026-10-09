@@ -32,6 +32,10 @@ class ZikrActionBar extends StatelessWidget {
   /// Shown in place of the tools - the recitation player.
   final Widget? player;
 
+  /// Shown in place of the tools at the tools' own width - the auto-scroll
+  /// controls. Ignored while [player] is set.
+  final Widget? controls;
+
   final bool hasAudio;
 
   /// False drops the bookmark action altogether, as for Quran, where a
@@ -53,6 +57,7 @@ class ZikrActionBar extends StatelessWidget {
   const ZikrActionBar({
     Key? key,
     this.player,
+    this.controls,
     required this.hasAudio,
     this.showBookmark = true,
     required this.canBookmark,
@@ -69,6 +74,7 @@ class ZikrActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(barHeight / 2);
+    final takeover = player ?? controls;
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -80,10 +86,10 @@ class ZikrActionBar extends StatelessWidget {
             height: barHeight,
             child: Material(
               type: MaterialType.transparency,
-              child: player != null
+              child: takeover != null
                   ? Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6),
-                      child: player,
+                      child: takeover,
                     )
                   : Padding(
                       padding: const EdgeInsets.all(4),

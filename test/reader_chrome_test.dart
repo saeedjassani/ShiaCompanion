@@ -68,6 +68,22 @@ void main() {
       return changes;
     }
 
+    testWidgets('offers Auto-scroll only from the reader', (t) async {
+      await pumpSheet(t);
+      expect(find.text('Auto-scroll'), findsNothing);
+
+      var started = 0;
+      await t.pumpWidget(_host(ReaderTextSheet(
+        onChanged: () {},
+        onStartAutoScroll: () => started++,
+      )));
+      expect(find.text('Auto-scroll'), findsOneWidget);
+
+      await t.tap(find.text('Start'));
+      await t.pump();
+      expect(started, 1);
+    });
+
     testWidgets('A+ and A− step the Arabic size by 2 and save it', (t) async {
       var changes = 0;
       await t.binding.setSurfaceSize(const Size(390, 1200));

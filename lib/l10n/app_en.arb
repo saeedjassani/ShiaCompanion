@@ -1209,6 +1209,24 @@
   "readerFocusMode": "Focus mode",
   "readerFocusModeHint": "Bars slide away while you read",
   "readerShareAsImage": "Share as image",
+  "readerAutoScroll": "Auto-scroll",
+  "readerAutoScrollHint": "Scrolls the text for you. Touch it to hold.",
+  "readerAutoScrollStart": "Start",
+  "autoScrollSpeed": "Speed {speed}",
+  "@autoScrollSpeed": {
+    "placeholders": {
+      "speed": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "autoScrollPaused": "Paused",
+  "autoScrollPause": "Pause auto-scroll",
+  "autoScrollResume": "Resume auto-scroll",
+  "autoScrollSlower": "Slower",
+  "autoScrollFaster": "Faster",
+  "autoScrollStop": "Stop auto-scroll",
   "readerSetReminder": "Remind me to read this",
   "readerArabicFontLabel": "{font}, Arabic font",
   "@readerArabicFontLabel": {

@@ -281,10 +281,17 @@ bar. Results scroll behind it under the same fade.
   audio exists) · Text · Counter · Share. Quran: tapping a verse opens Save
   verse / Copy verse / Copy link / Share verse.
 - **Text** opens one sheet with every reading setting: font cards with live
-  sample, Arabic and English size, transliteration, translation, Arabic as
+  sample, Arabic and English size, an Auto-scroll row with a Start button
+  (reader only, not from Settings), transliteration, translation, Arabic as
   one paragraph (disabled with the rule spelled out), keep screen on,
   focus mode, share as image; then the translation language (where more
   than one is offered). Setting a reminder is the top bar's bell.
+- Auto-scroll adds no permanent control: once started, its controls take
+  the tools capsule's place the way the player does - play/pause, "Speed
+  N" with − and +, close. A finger on the text holds it; it pauses at the
+  end of the text and when another page is opened over the reader. The
+  speed is remembered and scales with the Arabic size; the screen stays on
+  while it runs, and the bars stay put (even in Focus mode).
 - Focus mode hides both bars as today.
 
 ### First-run setup
