@@ -14,6 +14,7 @@ import '../pages/playlists_page.dart';
 import '../pages/list_items.dart';
 import '../pages/my_stats_page.dart';
 import '../pages/news_page.dart';
+import '../pages/play_azan_page.dart';
 import '../pages/prayer_counter_page.dart';
 import '../pages/qaza_tracker_page.dart';
 import '../pages/qibla_finder.dart';
@@ -232,6 +233,15 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     icon: Icons.newspaper_rounded,
     pageBuilder: () => const NewsPage(),
   ),
+  // Background audio is not set up on web.
+  if (!kIsWeb)
+    HomeMenuItem(
+      label: 'Play Azan',
+      analyticsId: 'play_azan',
+      outlineGlyph: OutlineGlyph.speaker,
+      icon: Icons.volume_up_rounded,
+      pageBuilder: () => const PlayAzanPage(),
+    ),
   settingsMenuItem,
 ]);
 
@@ -431,6 +441,7 @@ String homeMenuDisplayLabel(String label) {
     'Playlists' => L10n.current.menuPlaylists,
     'My Stats' => L10n.current.menuMyStats,
     'News' => L10n.current.menuNews,
+    'Play Azan' => L10n.current.menuPlayAzan,
     _ => label,
   };
 }

@@ -1443,6 +1443,7 @@
   "menuPlaylists": "Playlists",
   "menuMyStats": "My Stats",
   "menuNews": "News",
+  "menuPlayAzan": "Play Azan",
   "menuCalendar": "Calendar",
   "audioTrackNumber": "Track {number}",
   "@audioTrackNumber": {
