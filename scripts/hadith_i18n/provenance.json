@@ -5,7 +5,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/4",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1022,
+  "gu_number": 4,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-5": {
   "ar_from": "https://balagha.app/Sayings/5",
@@ -13,7 +18,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/5",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1023,
+  "gu_number": 5,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-10": {
   "ar_from": "https://balagha.app/Sayings/10",
@@ -21,7 +31,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/10",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1024,
+  "gu_number": 10,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-11": {
   "ar_from": "https://balagha.app/Sayings/11",
@@ -29,7 +44,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/11",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1024,
+  "gu_number": 11,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-21": {
   "ar_from": "https://balagha.app/Sayings/21",
@@ -37,7 +57,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/21",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1026,
+  "gu_number": 21,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out. Dropped the translator's bracketed second rendering after the saying: \"(હયબતને નિષ્ફળતા સાથે ... નેકીઓની તકને ગનીમત જાણો.)\""
  },
  "nb-h-24": {
   "ar_from": "https://balagha.app/Sayings/24",
@@ -45,7 +70,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/24",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْمكْرُوبِ->الْمَكْرُوبِ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْمكْرُوبِ->الْمَكْرُوبِ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1027,
+  "gu_number": 24,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-25": {
   "ar_from": "https://balagha.app/Sayings/25",
@@ -53,7 +83,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/25",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Source spells the vocative يَابْنَ (with elided alif). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Source spells the vocative يَابْنَ (with elided alif). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1027,
+  "gu_number": 25,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-28": {
   "ar_from": "https://balagha.app/Sayings/28",
@@ -61,7 +96,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/28",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1027,
+  "gu_number": 28,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-36": {
   "ar_from": "https://balagha.app/Sayings/36",
@@ -69,7 +109,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/36",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1032,
+  "gu_number": 36,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-39": {
   "ar_from": "https://balagha.app/Sayings/39",
@@ -77,7 +122,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/39",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1033,
+  "gu_number": 39,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-40": {
   "ar_from": "https://balagha.app/Sayings/40",
@@ -85,7 +135,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/40",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Sayyid al-Radi's explanatory note after the saying is omitted (it is not part of the Imam's words). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Sayyid al-Radi's explanatory note after the saying is omitted (it is not part of the Imam's words). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1034,
+  "gu_number": 40,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-44": {
   "ar_from": "https://balagha.app/Sayings/44",
@@ -93,7 +148,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/44",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1035,
+  "gu_number": 44,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-46": {
   "ar_from": "https://balagha.app/Sayings/46",
@@ -101,7 +161,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/46",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1036,
+  "gu_number": 46,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-52": {
   "ar_from": "https://balagha.app/Sayings/52",
@@ -109,7 +174,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/52",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1037,
+  "gu_number": 52,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-54": {
   "ar_from": "https://balagha.app/Sayings/54",
@@ -117,7 +187,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/54",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1037,
+  "gu_number": 54,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-55": {
   "ar_from": "https://balagha.app/Sayings/55",
@@ -125,7 +200,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/55",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1037,
+  "gu_number": 55,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-57": {
   "ar_from": "https://balagha.app/Sayings/57",
@@ -133,7 +213,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/57",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Sayyid al-Radi's note ('this is also narrated from the Prophet') is omitted. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Sayyid al-Radi's note ('this is also narrated from the Prophet') is omitted. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1038,
+  "gu_number": 57,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-67": {
   "ar_from": "https://balagha.app/Sayings/67",
@@ -141,7 +226,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/67",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1039,
+  "gu_number": 67,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-71": {
   "ar_from": "https://balagha.app/Sayings/71",
@@ -149,7 +239,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/71",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1040,
+  "gu_number": 71,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out. Dropped the translator's bracketed explanation: \"(કેમકે બુધ્ધિવાન દરેક વાત તોળીને કહે છે)\""
  },
  "nb-h-81": {
   "ar_from": "https://balagha.app/Sayings/81",
@@ -157,7 +252,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/81",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Dashti's Persian renders ma yuhsinuhu as knowledge and expertise (an interpretive reading). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Dashti's Persian renders ma yuhsinuhu as knowledge and expertise (an interpretive reading). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1044,
+  "gu_number": 81,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-85": {
   "ar_from": "https://balagha.app/Sayings/85",
@@ -165,7 +265,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/85",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Dashti paraphrases 'his vital points are struck' as 'he reaches ruin'. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Dashti paraphrases 'his vital points are struck' as 'he reaches ruin'. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1045,
+  "gu_number": 85,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-87": {
   "ar_from": "https://balagha.app/Sayings/87",
@@ -173,7 +278,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/87",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1046,
+  "gu_number": 87,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-95": {
   "ar_from": "https://balagha.app/Sayings/95",
@@ -181,7 +291,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/95",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1049,
+  "gu_number": 95,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-121": {
   "ar_from": "https://balagha.app/Sayings/121",
@@ -189,7 +304,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/121",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1060,
+  "gu_number": 121,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-129": {
   "ar_from": "https://balagha.app/Sayings/129",
@@ -197,7 +317,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/129",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): فِى->فِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): فِى->فِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1063,
+  "gu_number": 129,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-134": {
   "ar_from": "https://balagha.app/Sayings/134",
@@ -205,7 +330,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/134",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): فِى->فِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): فِى->فِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1067,
+  "gu_number": 134,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-137": {
   "ar_from": "https://balagha.app/Sayings/137",
@@ -213,7 +343,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/137",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1069,
+  "gu_number": 136,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out. The Gujarati edition numbers this saying 136."
  },
  "nb-h-142": {
   "ar_from": "https://balagha.app/Sayings/142",
@@ -221,7 +356,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/142",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْت->الت, الْعَقْل.->الْعَقْلِ.. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْت->الت, الْعَقْل.->الْعَقْلِ.. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1070,
+  "gu_number": 142,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-148": {
   "ar_from": "https://balagha.app/Sayings/148",
@@ -229,7 +369,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/148",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1074,
+  "gu_number": 148,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-153": {
   "ar_from": "https://balagha.app/Sayings/153",
@@ -237,7 +382,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/153",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1078,
+  "gu_number": 153,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-158": {
   "ar_from": "https://balagha.app/Sayings/158",
@@ -245,7 +395,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/158",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1080,
+  "gu_number": 158,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-161": {
   "ar_from": "https://balagha.app/Sayings/161",
@@ -253,7 +408,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/161",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1080,
+  "gu_number": 161,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-165": {
   "ar_from": "https://balagha.app/Sayings/165",
@@ -261,7 +421,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/165",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): لِمخْلُوقٍ->لِمَخْلُوقٍ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): لِمخْلُوقٍ->لِمَخْلُوقٍ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1081,
+  "gu_number": 165,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-172": {
   "ar_from": "https://balagha.app/Sayings/172",
@@ -269,7 +434,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/172",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1082,
+  "gu_number": 172,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-205": {
   "ar_from": "https://balagha.app/Sayings/205",
@@ -277,7 +447,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/205",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1090,
+  "gu_number": 205,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-223": {
   "ar_from": "https://balagha.app/Sayings/223",
@@ -285,7 +460,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/223",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1094,
+  "gu_number": 223,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-241": {
   "ar_from": "https://balagha.app/Sayings/241",
@@ -293,7 +473,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/241",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): أَشدُّ->أَشَدُّ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): أَشدُّ->أَشَدُّ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1099,
+  "gu_number": 241,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-251": {
   "ar_from": "https://balagha.app/Sayings/251",
@@ -301,7 +486,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/251",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Dashti adds 'حرام' (the forbidden pleasures of this world) as an interpretive gloss. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Dashti adds 'حرام' (the forbidden pleasures of this world) as an interpretive gloss. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1101,
+  "gu_number": 251,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-254": {
   "ar_from": "https://balagha.app/Sayings/254",
@@ -309,7 +499,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/254",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): فِى->فِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): فِى->فِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1102,
+  "gu_number": 254,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-256": {
   "ar_from": "https://balagha.app/Sayings/256",
@@ -317,7 +512,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/256",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1103,
+  "gu_number": 256,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-297": {
   "ar_from": "https://balagha.app/Sayings/297",
@@ -325,7 +525,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/297",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): وأَقَلَّ->وَأَقَلَّ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): وأَقَلَّ->وَأَقَلَّ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1119,
+  "gu_number": 297,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-324": {
   "ar_from": "https://balagha.app/Sayings/324",
@@ -333,7 +538,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/324",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1127,
+  "gu_number": 324,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-342": {
   "ar_from": "https://balagha.app/Sayings/342",
@@ -341,7 +551,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/342",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): أَيْدِى->أَيْدِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): أَيْدِى->أَيْدِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1131,
+  "gu_number": 342,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out. Dropped the translator's bracketed explanation: \"(કે ઇન્સાન માત્ર ખુદાનું ધ્યાન ધરે.)\""
  },
  "nb-h-348": {
   "ar_from": "https://balagha.app/Sayings/348",
@@ -349,7 +564,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/348",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): أَشدُّ->أَشَدُّ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): أَشدُّ->أَشَدُّ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1134,
+  "gu_number": 348,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-360": {
   "ar_from": "https://balagha.app/Sayings/360",
@@ -357,7 +577,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/360",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): سَوءاً->سُوءاً. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): سَوءاً->سُوءاً. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1139,
+  "gu_number": 360,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-398": {
   "ar_from": "https://balagha.app/Sayings/398",
@@ -365,7 +590,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/398",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Dashti renders 'remember your grave' as 'remember death' (به یاد مرگ باش). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Dashti renders 'remember your grave' as 'remember death' (به یاد مرگ باش). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1155,
+  "gu_number": 398,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-412": {
   "ar_from": "https://balagha.app/Sayings/412",
@@ -373,7 +603,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/412",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1158,
+  "gu_number": 412,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-454": {
   "ar_from": "https://balagha.app/Sayings/454",
@@ -381,7 +616,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/454",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ). Also fixed missing sukun: يدفع -> يَدْفَعُ (matches ds_h.json)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ). Also fixed missing sukun: يدفع -> يَدْفَعُ (matches ds_h.json).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1172,
+  "gu_number": 454,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "nb-h-457": {
   "ar_from": "https://balagha.app/Sayings/457",
@@ -389,7 +629,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/457",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1173,
+  "gu_number": 457,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out. Full stop added at the end; the print has none."
  },
  "nb-h-461": {
   "ar_from": "https://balagha.app/Sayings/461",
@@ -397,7 +642,12 @@
   "fa_translator": "Mohammad Dashti",
   "ur_from": "https://balagha.app/Sayings/461",
   "ur_translator": "Mufti Jafar Husain",
-  "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْعَاجزِ->الْعَاجِزِ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْعَاجزِ->الْعَاجِزِ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ).",
+  "gu_from": "https://downloadshiabooks.com/wp-content/uploads/2022/10/Nahajul-Balagha-Gujarati.pdf",
+  "gu_translator": "Haji Naji Trust, Bhavnagar - નહજુલ બલાગાહ (ભાગ ત્રીજો)",
+  "gu_page": 1174,
+  "gu_number": 461,
+  "gu_note": "Transcribed from the page image, checked against Tesseract OCR and the PDF text layer; the translator's topic heading before the saying is left out."
  },
  "kafi-2-364-2": {
   "ar_from": "https://thaqalayn.net/hadith/2/1/154/2",

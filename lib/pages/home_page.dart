@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage>
     with WidgetsBindingObserver, RouteAware {
   String hadith = '';
 
-  /// Today's hadith in Arabic, Urdu or Persian; null in English.
+  /// Today's hadith outside English; null in English.
   LocalizedHadith? localizedHadith;
 
   /// The app language [getHadith] last loaded for, so a change of language
@@ -655,7 +655,9 @@ class _MyHomePageState extends State<MyHomePage>
       useMuharramQuotes: useMuharramQuotes,
       day: hadithDayNumber(),
     );
-    final english = localized != null
+    // Only English readers get the English collection: anyone else sees
+    // their own language or, if it cannot be read, no hadith at all.
+    final english = language != 'en'
         ? ''
         : await loadDailyHadith(
             bundle,

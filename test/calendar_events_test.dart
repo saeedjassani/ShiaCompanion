@@ -69,7 +69,7 @@ void main() {
     });
   });
 
-  for (final code in ['ar', 'ur', 'fa']) {
+  for (final code in ['ar', 'ur', 'fa', 'gu']) {
     test('$code translates every day of events.json, line for line', () async {
       final translations =
           json.decode(File('assets/events_i18n/$code.json').readAsStringSync())

@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 
 import 'hadith_loader.dart';
 
-/// Where the Arabic, Urdu and Persian hadith of the day come from. English
-/// keeps its own, larger collection (assets/hadith/); these readers get the
-/// Arabic itself, with a published (or carefully made) translation under it.
+/// Where the hadith of the day comes from outside English. English keeps its
+/// own, larger collection (assets/hadith/); these readers get the Arabic
+/// itself, with a published (or carefully made) translation under it.
 const String localizedHadithAsset = 'assets/hadith_i18n/hadith.json';
 
 /// A hadith of the day in [languageCode]: the Arabic as narrated, and - for a
@@ -52,11 +52,15 @@ class LocalizedHadith {
 ///   "speakers": {"ali": {"ar": "قال أمير المؤمنين (ع)", "ur": "...", "fa": "..."}},
 ///   "hadith": [
 ///     {"id": "nb-h-147", "muharram": false, "speaker": "ali",
-///      "ar": "...", "ur": "...", "fa": "...",
-///      "source": {"ar": "...", "ur": "...", "fa": "..."}}
+///      "ar": "...", "ur": "...", "fa": "...", "gu": "...",
+///      "source": {"ar": "...", "ur": "...", "fa": "...", "gu": "..."}}
 ///   ]
 /// }
 /// ```
+///
+/// Every hadith has Urdu and Persian; Gujarati only has the ones a
+/// published Gujarati translation covers, so a Gujarati reader is only ever
+/// shown those.
 @immutable
 class LocalizedHadithCollection {
   const LocalizedHadithCollection({
@@ -88,19 +92,39 @@ class LocalizedHadithCollection {
   final List<Map<String, dynamic>> general;
   final List<Map<String, dynamic>> muharram;
 
-  /// Whether [languageCode] has a translation here: Arabic always does.
+  /// Whether [item] can be shown in [languageCode]: Arabic always, any
+  /// other language only with its translation and reference.
+  static bool _has(Map<String, dynamic> item, String languageCode) {
+    if (languageCode == 'ar') return true;
+    final text = item[languageCode];
+    final source = item['source'];
+    return text is String &&
+        text.trim().isNotEmpty &&
+        source is Map &&
+        source[languageCode] is String;
+  }
+
+  /// Whether [languageCode] has any hadith here.
   bool covers(String languageCode) =>
-      languageCode == 'ar' ||
-      (general.isNotEmpty && general.first[languageCode] is String);
+      general.any((item) => _has(item, languageCode));
 
   /// The hadith for [day] (see [hadithDayNumber]), stepped through each
-  /// range the same way as the English collection.
+  /// range the same way as the English collection, among those translated
+  /// into [languageCode].
   LocalizedHadith? pick(
     String languageCode, {
     required bool useMuharramQuotes,
     required int day,
   }) {
-    if (!covers(languageCode) || general.isEmpty) return null;
+    final general = [
+      for (final item in this.general)
+        if (_has(item, languageCode)) item,
+    ];
+    final muharram = [
+      for (final item in this.muharram)
+        if (_has(item, languageCode)) item,
+    ];
+    if (general.isEmpty) return null;
     final all = [...general, ...muharram];
     final index = selectHadithIndex(
       HadithManifest(
@@ -118,13 +142,13 @@ class LocalizedHadithCollection {
       arabic: item['ar'] as String,
       attribution: speakers[item['speaker']]?[languageCode] ?? '',
       translation: languageCode == 'ar' ? null : item[languageCode] as String?,
-      source: source[languageCode] ?? source['ar'] ?? '',
+      source: source[languageCode] ?? '',
     );
   }
 }
 
-/// Today's hadith in [languageCode], or null when the collection has no
-/// translation into it (English, Gujarati), so the caller shows English.
+/// Today's hadith in [languageCode], or null in English (which has its own
+/// collection) or when the collection cannot be read.
 Future<LocalizedHadith?> loadLocalizedHadith(
   AssetBundle bundle, {
   required String languageCode,

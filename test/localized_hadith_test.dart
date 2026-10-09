@@ -22,16 +22,32 @@ void main() {
         expect((item['source'][code] as String).trim(), isNotEmpty,
             reason: '$id source $code');
       }
+      // Gujarati covers only some: where it does, with its reference too.
+      expect(item['gu'] == null, item['source']['gu'] == null, reason: id);
+      if (item['gu'] != null) {
+        expect((item['gu'] as String).trim(), isNotEmpty, reason: '$id gu');
+        expect((item['source']['gu'] as String).trim(), isNotEmpty,
+            reason: '$id source gu');
+        expect(RegExp('[A-Za-z]').hasMatch(item['gu'] + item['source']['gu']),
+            isFalse,
+            reason: '$id gu has no English');
+      }
       // The attribution is drawn from the speaker, never repeated in the text.
       expect(item['ar'], isNot(startsWith('قال')), reason: id);
     }
     expect(collection.general, isNotEmpty);
   });
 
-  test('every speaker is attributed in every language', () {
+  test('every speaker is attributed in every language they are read in', () {
     for (final entry in collection.speakers.entries) {
       for (final code in ['ar', 'ur', 'fa']) {
         expect(entry.value[code], isNotEmpty, reason: '${entry.key} $code');
+      }
+    }
+    for (final item in json['hadith'] as List) {
+      if (item['gu'] != null) {
+        expect(collection.speakers[item['speaker']]!['gu'], isNotEmpty,
+            reason: '${item['speaker']} gu');
       }
     }
   });
@@ -52,9 +68,30 @@ void main() {
     }
   });
 
-  test('English and Gujarati have no translation, so keep their own', () {
+  test('English has no translation here, so keeps its own', () {
     expect(collection.pick('en', useMuharramQuotes: false, day: 1), isNull);
-    expect(collection.pick('gu', useMuharramQuotes: false, day: 1), isNull);
+  });
+
+  test('Gujarati is only ever shown the hadith translated into it', () {
+    final translated = {
+      for (final item in json['hadith'] as List)
+        if (item['gu'] != null) item['gu'] as String,
+    };
+    expect(translated, isNotEmpty);
+    expect(collection.covers('gu'), isTrue);
+    final seen = <String>{};
+    for (var day = 20000; day < 20000 + translated.length; day++) {
+      for (final muharram in [false, true]) {
+        final hadith =
+            collection.pick('gu', useMuharramQuotes: muharram, day: day)!;
+        expect(translated, contains(hadith.translation));
+        expect(hadith.attribution, isNotEmpty);
+        expect(hadith.source, isNotEmpty);
+        expect(RegExp('[A-Za-z]').hasMatch(hadith.shareText), isFalse);
+        if (!muharram) seen.add(hadith.translation!);
+      }
+    }
+    expect(seen, translated, reason: 'each shown once before any repeats');
   });
 
   test('without Muharram hadith, Muharram days show the general ones', () {
