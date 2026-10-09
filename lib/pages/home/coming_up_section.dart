@@ -1,12 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../constants.dart';
 import '../../l10n/l10n.dart';
 import '../../theme/shia_colors.dart';
+import '../../utils/calendar_events.dart';
 import '../../utils/islamic_calendar_widget_data.dart';
 import '../../utils/islamic_day.dart';
 import '../../widgets/outline_icon.dart';
@@ -120,18 +118,7 @@ class _ComingUpRowState extends State<ComingUpRow> {
   @override
   void initState() {
     super.initState();
-    _events ??= _loadEvents();
-  }
-
-  static Future<Map<String, dynamic>> _loadEvents() async {
-    try {
-      final decoded =
-          json.decode(await rootBundle.loadString('assets/events.json'));
-      if (decoded is Map<String, dynamic>) return decoded;
-    } catch (e) {
-      debugPrint('Unable to load events for Coming up: $e');
-    }
-    return const {};
+    _events ??= CalendarEvents.load();
   }
 
   @override
