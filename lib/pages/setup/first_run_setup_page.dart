@@ -1089,7 +1089,7 @@ class _FontStepState extends State<_FontStep> {
                   style: ShiaText.cardTitle.copyWith(color: colors.text)),
             ),
             _SizeButton(
-              text: 'A−',
+              text: '${l10n.textSizeLetter}−',
               fontSize: 15,
               label: l10n.readerArabicSmaller,
               onPressed:
@@ -1104,7 +1104,7 @@ class _FontStepState extends State<_FontStep> {
               ),
             ),
             _SizeButton(
-              text: 'A+',
+              text: '${l10n.textSizeLetter}+',
               fontSize: 19,
               label: l10n.readerArabicBigger,
               onPressed:

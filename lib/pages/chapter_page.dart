@@ -913,7 +913,7 @@ class _ChapterPageState extends State<ChapterPage>
         strokeWidth: 2);
   }
 
-  /// "A−" / "A+": a glyph, so it reads the same in any language.
+  /// "A−" / "A+", in the app language's own letters.
   Widget _textSizeGlyph(String label, {required bool enabled}) {
     final accent = ShiaColors.of(context).accent;
     return Text(
@@ -1098,7 +1098,7 @@ class _ChapterPageState extends State<ChapterPage>
                       ),
                       IconButton(
                         tooltip: context.l10n.libraryDecreaseFont,
-                        icon: _textSizeGlyph('A−',
+                        icon: _textSizeGlyph('${context.l10n.textSizeLetter}−',
                             enabled: _readerFontSize > _minFontSize),
                         onPressed: _readerFontSize <= _minFontSize
                             ? null
@@ -1111,7 +1111,7 @@ class _ChapterPageState extends State<ChapterPage>
                       ),
                       IconButton(
                         tooltip: context.l10n.libraryIncreaseFont,
-                        icon: _textSizeGlyph('A+',
+                        icon: _textSizeGlyph('${context.l10n.textSizeLetter}+',
                             enabled: _readerFontSize < _maxFontSize),
                         onPressed: _readerFontSize >= _maxFontSize
                             ? null

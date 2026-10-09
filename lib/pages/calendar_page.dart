@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/pages/city_picker.dart';
@@ -22,6 +19,7 @@ import '../constants.dart';
 import '../l10n/hijri_l10n.dart';
 import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
+import '../utils/calendar_events.dart';
 import '../utils/islamic_day.dart';
 
 /// Calendar & Prayer Times (docs/DESIGN_SPEC.md, "Calendar & Prayer Times"):
@@ -90,8 +88,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Future<void> _loadEvents() async {
-    final events = await rootBundle.loadString('assets/events.json');
-    _events = json.decode(events) as Map<String, dynamic>;
+    _events = await CalendarEvents.load();
     if (mounted) setState(() {});
   }
 
@@ -573,8 +570,7 @@ class _DayCell extends StatelessWidget {
       muted = colors.onAccent.withValues(alpha: 0.85);
     }
     final strong = isSelected || isToday;
-    final eventName =
-        event == null ? '' : widgetEventText('${event!['content'] ?? ''}').name;
+    final eventName = event == null ? '' : eventHeadline(event!).name;
 
     final label = [
       DateFormat('d MMMM').format(day),

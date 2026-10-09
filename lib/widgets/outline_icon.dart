@@ -82,12 +82,26 @@ class OutlineIcon extends StatelessWidget {
   /// Fills the shape as well as outlining it (a favourite's heart).
   final bool filled;
 
+  /// Glyphs that point along the reading direction (forward/back). In a
+  /// right-to-left layout they are mirrored, the way Material's directional
+  /// icons are; callers always pass the left-to-right meaning.
+  static const _directional = {
+    OutlineGlyph.chevronLeft,
+    OutlineGlyph.chevronRight,
+    OutlineGlyph.arrowRight,
+  };
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: CustomPaint(
-        painter: _OutlinePainter(glyph, color, strokeWidth, filled),
+    final flip = _directional.contains(glyph) &&
+        Directionality.of(context) == TextDirection.rtl;
+    return Transform.flip(
+      flipX: flip,
+      child: SizedBox.square(
+        dimension: size,
+        child: CustomPaint(
+          painter: _OutlinePainter(glyph, color, strokeWidth, filled),
+        ),
       ),
     );
   }

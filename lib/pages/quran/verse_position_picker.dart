@@ -279,7 +279,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
               _surahName(juz.end.surah), juz.end.ayah ?? 1));
     } else {
       final info = _surahs[unit.number - 1];
-      title = '${info.number}. ${info.englishName}';
+      title = '${info.number}. ${info.displayName}';
       final firstJuz = juzOf(info.number, 1);
       final lastJuz = juzOf(info.number, info.ayahCount);
       subtitle = context.l10n.pickerSurahDetails(
@@ -365,7 +365,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
 }
 
 String _surahNameOf(int surah) =>
-    surahInfoFor(surah)?.englishName ?? L10n.current.quranSurahNumber(surah);
+    surahInfoFor(surah)?.displayName ?? L10n.current.quranSurahNumber(surah);
 
 /// Every surah or every juz, opening onto the one [selected] falls in.
 class _UnitList extends StatefulWidget {
@@ -427,7 +427,7 @@ class _UnitListState extends State<_UnitList> {
               .quranSurahAyah(_surahNameOf(juz.start.surah), juz.start.ayah ?? 1));
         } else {
           final surah = _surahs[index];
-          title = surah.englishName;
+          title = surah.displayName;
           subtitle = context.l10n.quranAyahCount(surah.ayahCount);
           if (surah.arabicName.isNotEmpty) arabicName = surah.arabicName;
         }

@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../constants.dart' show setUpNotifications;
 import '../l10n/app_language.dart';
 import '../l10n/l10n.dart';
 import '../services/analytics_service.dart';
+import '../services/home_screen_widget_service.dart';
+import '../services/zikr_reminder_service.dart';
 import '../theme/shia_colors.dart';
 import '../utils/language_provider.dart';
 import 'choice_sheet.dart';
@@ -54,6 +57,11 @@ Future<void> pickAppLanguage(BuildContext context) async {
   );
   if (picked == null) return;
   await provider.setAppLanguage(picked.code);
+  // The home screen widgets, scheduled prayer notifications and zikr
+  // reminders were written out in the old language: write them again.
+  unawaited(HomeScreenWidgetService.instance.publishAll());
+  unawaited(setUpNotifications());
+  unawaited(ZikrReminderService.instance.rescheduleAll());
   unawaited(AnalyticsService.feature(
     'app_language_changed',
     label: 'App language changed',

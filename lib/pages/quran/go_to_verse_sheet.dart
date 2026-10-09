@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../constants.dart';
 import '../../l10n/l10n.dart';
 import '../../theme/shia_colors.dart';
+import '../../utils/data_search_filter.dart' show foldSearchText;
 import '../../utils/quran_index.dart';
 import '../../utils/verse_query.dart';
 import '../../widgets/outline_icon.dart';
@@ -238,7 +239,7 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
                 itemBuilder: (context, index) {
                   final surah = _surahs[GoToVersePicker.quickPicks[index] - 1];
                   return ChoicePill(
-                    label: '${surah.number} ${surah.englishName}',
+                    label: '${surah.number} ${surah.displayName}',
                     onTap: () => _openSurah(surah),
                   );
                 },
@@ -303,6 +304,7 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
       for (final surah in _surahs)
         if (loose.contains(surah) ||
             surah.englishName.toLowerCase().contains(needle) ||
+            foldSearchText(surah.displayName).contains(foldSearchText(query)) ||
             (surah.arabicName.isNotEmpty && surah.arabicName.contains(query)))
           surah,
     ];
@@ -321,7 +323,7 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _header(
-          title: surah.englishName,
+          title: surah.displayName,
           subtitle: context.l10n.goToVerseStepVerse(count),
           onBack: _backToSurahs,
         ),
@@ -411,7 +413,7 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
               verse == null
                   ? context.l10n.pickerChooseVerse
                   : context.l10n.goToVerseOpen(
-                      surah.englishName, '${surah.number}:$verse'),
+                      surah.displayName, '${surah.number}:$verse'),
               textAlign: TextAlign.center,
             ),
           ),
@@ -560,7 +562,7 @@ class _SurahRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      surah.englishName,
+                      surah.displayName,
                       style: ShiaText.body.copyWith(
                         color: colors.text,
                         fontWeight:
@@ -650,7 +652,7 @@ class _TypedVerseRow extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                context.l10n.goToVerseJump(surah.englishName, '$verse'),
+                context.l10n.goToVerseJump(surah.displayName, '$verse'),
                 style: ShiaText.body.copyWith(
                     color: colors.accent, fontWeight: FontWeight.w600),
               ),

@@ -83,6 +83,22 @@
   "settingsPrecisePrayerAlarms": "Precise prayer alarms",
   "settingsScheduledNotifications": "Scheduled notifications",
   "settingsSectionAppearance": "Appearance",
+  "textSizeGlyph": "Aa",
+  "@textSizeGlyph": {
+    "description": "Drawn as the icon of the text-size settings and of the reader's Text button: a capital and a small letter in English. Use one or two letters of your own alphabet so the icon reads in your script (e.g. Arabic: أب). Not a word."
+  },
+  "textSizeLetter": "A",
+  "@textSizeLetter": {
+    "description": "One letter drawn at the small and large ends of the text-size slider and on the smaller/larger buttons ('A−', 'A+'). Use the first letter of your alphabet (e.g. Arabic: أ)."
+  },
+  "notificationTestTitle": "Test",
+  "@notificationTestTitle": {
+    "description": "Title of the sample notification fired when someone tries a prayer notification sound."
+  },
+  "notificationTestBody": "Test notification",
+  "@notificationTestBody": {
+    "description": "Body of the sample notification fired when someone tries a prayer notification sound."
+  },
   "settingsAppTextSize": "App text size",
   "settingsAppTextSizeSubtitle": "Makes all text bigger or smaller, including zikr.",
   "settingsSectionOfflineAudio": "Offline audio",

@@ -9,6 +9,17 @@ const double homeWideBreakpoint = 600;
 bool isHomeWide(BuildContext context) =>
     MediaQuery.sizeOf(context).width >= homeWideBreakpoint;
 
+/// How tall a wide screen must be for Shortcuts to show every feature: the
+/// extra row fits in the room a portrait tablet or a 1080p desktop leaves
+/// under the hadith, where a laptop or a landscape tablet already scrolls.
+const double homeAllFeaturesMinHeight = 900;
+
+/// Whether Home's Shortcuts show every feature instead of the reader's picks
+/// and an All features tile.
+bool homeShowsAllFeatures(BuildContext context) =>
+    isHomeWide(context) &&
+    MediaQuery.sizeOf(context).height >= homeAllFeaturesMinHeight;
+
 /// A section's title, with an optional text action on the right ("Edit",
 /// "Calendar").
 class HomeSectionHeader extends StatelessWidget {
