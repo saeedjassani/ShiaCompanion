@@ -106,6 +106,9 @@ void main() {
 
     expect(find.text('Choose city'), findsOneWidget);
     expect(find.byType(PrayerGlyph), findsNothing);
+    // Nothing to set Azan or Home's times for until there is a location.
+    expect(find.text('Times on Home'), findsNothing);
+    expect(find.text('Azan'), findsNothing);
   });
 
   testWidgets("offers another city's times for the day picked",

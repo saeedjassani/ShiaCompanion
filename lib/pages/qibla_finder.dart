@@ -260,6 +260,11 @@ class _QiblaFinderState extends State<QiblaFinder> {
     ));
   }
 
+  Future<void> _chooseCity() async {
+    await chooseCityFlow(context);
+    if (mounted) setState(() {});
+  }
+
   Future<void> _refreshLocation() async {
     // A chosen city is never refreshed by GPS, so for one the button changes
     // the city instead of doing nothing.
@@ -410,6 +415,9 @@ class _QiblaFinderState extends State<QiblaFinder> {
           action:
               _location.isRefreshing ? null : context.l10n.qiblaUseMyLocation,
           onAction: _refreshLocation,
+          // For someone who would rather not share their location at all.
+          secondaryAction: context.l10n.prayerChooseCity,
+          onSecondaryAction: _chooseCity,
         ),
       );
     }
@@ -736,6 +744,8 @@ class _NoticeCard extends StatelessWidget {
     required this.body,
     this.action,
     this.onAction,
+    this.secondaryAction,
+    this.onSecondaryAction,
   });
 
   final IconData icon;
@@ -743,6 +753,10 @@ class _NoticeCard extends StatelessWidget {
   final String body;
   final String? action;
   final Future<void> Function()? onAction;
+
+  /// A quieter second answer beside [action].
+  final String? secondaryAction;
+  final Future<void> Function()? onSecondaryAction;
 
   @override
   Widget build(BuildContext context) {
@@ -782,11 +796,27 @@ class _NoticeCard extends StatelessWidget {
                   body,
                   style: ShiaText.secondary.copyWith(color: colors.textMuted),
                 ),
-                if (action != null) ...[
+                if (action != null || secondaryAction != null) ...[
                   const SizedBox(height: 10),
-                  PageButton(
-                    label: action!,
-                    onPressed: onAction == null ? null : () => onAction!(),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (action != null)
+                        PageButton(
+                          label: action!,
+                          onPressed:
+                              onAction == null ? null : () => onAction!(),
+                        ),
+                      if (secondaryAction != null)
+                        TextButton(
+                          onPressed: onSecondaryAction == null
+                              ? null
+                              : () => onSecondaryAction!(),
+                          child: Text(secondaryAction!),
+                        ),
+                    ],
                   ),
                 ],
               ],
@@ -813,7 +843,10 @@ class _HolySitePicker extends StatelessWidget {
       children: [
         CardList(children: [
           _SiteTile(
-              site: kaaba, selected: selected, from: from, first: true,
+              site: kaaba,
+              selected: selected,
+              from: from,
+              first: true,
               last: true),
         ]),
         const SizedBox(height: 18),
