@@ -873,6 +873,7 @@
   "prayerChooseCity": "اختر المدينة",
   "prayerWhichCity": "في أي مدينة أنت؟",
   "prayerWhichCityBody": "سنعرض مواقيت الصلاة لليوم والأذان التالي.",
+  "prayerSetCityHint": "اختر المدينة لعرض مواقيت اليوم.",
   "prayerZoneSuggests": "تشير المنطقة الزمنية لهاتفك إلى {city}.",
   "prayerYesImIn": "نعم، أنا في {city}",
   "goToVerseTitle": "الانتقال إلى آية",

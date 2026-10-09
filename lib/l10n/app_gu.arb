@@ -873,6 +873,7 @@
   "prayerChooseCity": "શહેર પસંદ કરો",
   "prayerWhichCity": "તમે કયા શહેરમાં છો?",
   "prayerWhichCityBody": "અમે આજના નમાઝના સમય અને આગલી અઝાન બતાવીશું.",
+  "prayerSetCityHint": "આજના સમય જોવા માટે શહેર પસંદ કરો.",
   "prayerZoneSuggests": "તમારા ફોનનો સમય ઝોન {city} સૂચવે છે.",
   "prayerYesImIn": "હા, હું {city}માં છું",
   "goToVerseTitle": "આયત પર જાઓ",

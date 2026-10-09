@@ -7,6 +7,7 @@ import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
@@ -20,8 +21,9 @@ import '../l10n/l10n.dart';
 /// "Tomorrow" once every time shown is tomorrow's. Tap for Calendar & Prayer
 /// Times; long-press to choose which times are shown.
 ///
-/// With no location yet it asks "Which city are you in?" instead. [footer],
-/// the next event, closes either.
+/// With no location yet it asks "Which city are you in?" instead, until the
+/// reader says "Not now": then a single slim row stands in for it, one tap
+/// from the city picker. [footer], the next event, closes all three.
 class HomePrayerTimesCard extends StatefulWidget {
   const HomePrayerTimesCard({super.key, this.onTap, this.footer});
 
@@ -39,6 +41,27 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
 
   final LocationService _location = LocationService.instance;
   Timer? _ticker;
+
+  /// Set once the reader answers "Which city are you in?" with "Not now":
+  /// from then on the question shrinks to one row instead of taking over the
+  /// top of Home. Nothing clears it - once a location is known the card shows
+  /// times and the flag no longer matters.
+  static const String cityPromptDismissedKey =
+      'prayer_card_city_prompt_dismissed';
+
+  bool get _cityPromptDismissed =>
+      SP.isInitialized && (SP.prefs.getBool(cityPromptDismissedKey) ?? false);
+
+  Future<void> _dismissCityPrompt() async {
+    unawaited(AnalyticsService.feature(
+      'city_prompt_dismissed',
+      label: 'City prompt dismissed',
+    ));
+    if (SP.isInitialized) {
+      await SP.prefs.setBool(cityPromptDismissedKey, true);
+    }
+    if (mounted) setState(() {});
+  }
 
   /// Lets tests pin "now" instead of racing the wall clock: which prayers
   /// count as "next" — and whether they belong to today or tomorrow — depends
@@ -153,6 +176,9 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         : const <WidgetPrayerTimeReading>[];
 
     if (readings.isEmpty) {
+      if (_cityPromptDismissed) {
+        return _SetCityRow(onTap: _chooseCity, footer: widget.footer);
+      }
       return FutureBuilder<City?>(
         future: _timeZoneGuess ??= _guessCity().catchError((_) => null),
         builder: (context, snapshot) => _ChooseLocationCard(
@@ -161,6 +187,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
           onUseLocation: _refreshLocation,
           onChooseCity: _chooseCity,
           onAcceptGuess: _acceptGuess,
+          onNotNow: _dismissCityPrompt,
           footer: widget.footer,
         ),
       );
@@ -654,6 +681,7 @@ class _ChooseLocationCard extends StatelessWidget {
     required this.onUseLocation,
     required this.onChooseCity,
     required this.onAcceptGuess,
+    required this.onNotNow,
     this.footer,
   });
 
@@ -662,6 +690,10 @@ class _ChooseLocationCard extends StatelessWidget {
   final VoidCallback onUseLocation;
   final VoidCallback onChooseCity;
   final ValueChanged<City> onAcceptGuess;
+
+  /// Shrinks the card to [_SetCityRow], for someone who would rather neither
+  /// share their location nor name a city.
+  final VoidCallback onNotNow;
   final Widget? footer;
 
   @override
@@ -785,12 +817,93 @@ class _ChooseLocationCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     chooseCity,
                   ],
+                  const SizedBox(height: 2),
+                  TextButton(
+                    onPressed: onNotNow,
+                    style: TextButton.styleFrom(
+                      foregroundColor: colors.onPrayerCardMuted,
+                      textStyle: ShiaText.secondary
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    child: Text(context.l10n.setupNotNow),
+                  ),
                 ],
               ),
             ),
             if (footer != null) footer!,
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// What "Which city are you in?" shrinks to after "Not now": one row that
+/// still says why the times are missing and opens the city picker on tap.
+class _SetCityRow extends StatelessWidget {
+  const _SetCityRow({required this.onTap, this.footer});
+
+  final VoidCallback onTap;
+  final Widget? footer;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Material(
+      color: colors.prayerCard,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: BorderSide(color: colors.prayerCardBorder),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+              child: Row(
+                children: [
+                  OutlineIcon(
+                    OutlineGlyph.pin,
+                    size: 20,
+                    color: colors.gold,
+                    strokeWidth: 2,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.l10n.prayerTimesTitle,
+                          style: ShiaText.body.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: colors.onPrayerCard,
+                          ),
+                        ),
+                        Text(
+                          context.l10n.prayerSetCityHint,
+                          style: ShiaText.secondary
+                              .copyWith(color: colors.onPrayerCardMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlineIcon(
+                    OutlineGlyph.chevronRight,
+                    size: 18,
+                    color: colors.onPrayerCardMuted,
+                    strokeWidth: 2,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (footer != null) footer!,
+        ],
       ),
     );
   }

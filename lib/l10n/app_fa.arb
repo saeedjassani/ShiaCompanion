@@ -873,6 +873,7 @@
   "prayerChooseCity": "انتخاب شهر",
   "prayerWhichCity": "در کدام شهر هستید؟",
   "prayerWhichCityBody": "اوقات شرعی امروز و اذان بعدی را نشان می‌دهیم.",
+  "prayerSetCityHint": "برای دیدن اوقات امروز، شهر را انتخاب کنید.",
   "prayerZoneSuggests": "طبق منطقهٔ زمانی گوشی، احتمالاً در {city} هستید.",
   "prayerYesImIn": "بله، در {city} هستم",
   "goToVerseTitle": "رفتن به آیه",

@@ -154,6 +154,28 @@ void main() {
     );
   });
 
+  testWidgets('"Not now" shrinks the city question to one row, remembered',
+      (tester) async {
+    GeolocatorPlatform.instance = _FakeGeolocator(serviceEnabled: false);
+
+    await pumpCard(tester);
+    expect(find.text('Which city are you in?'), findsOneWidget);
+
+    await tester.tap(find.text('Not now'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Which city are you in?'), findsNothing);
+    expect(find.text('Use my location'), findsNothing);
+    expect(find.text("Choose a city to see today's times."), findsOneWidget);
+    expect(SP.prefs.getBool(PrayerTimesState.cityPromptDismissedKey), isTrue);
+
+    // Next launch keeps it small.
+    await tester.pumpWidget(const SizedBox());
+    await pumpCard(tester);
+    expect(find.text('Which city are you in?'), findsNothing);
+    expect(find.text("Choose a city to see today's times."), findsOneWidget);
+  });
+
   testWidgets('suggests the city the phone\'s time zone points at',
       (tester) async {
     GeolocatorPlatform.instance = _FakeGeolocator();
@@ -214,8 +236,8 @@ void main() {
     expect(find.text('Up next'), findsOneWidget);
     expect(find.text('Tomorrow'), findsNothing);
     expect(find.text('next day'), findsNothing);
-    expect(find.textContaining(RegExp(r'^in \d+h \d\dm \d\ds$')),
-        findsOneWidget);
+    expect(
+        find.textContaining(RegExp(r'^in \d+h \d\dm \d\ds$')), findsOneWidget);
 
     // The next time sits above the ones after it, in order.
     final next = tester.getRect(find.text('Sunset'));
@@ -256,17 +278,16 @@ void main() {
     final semantics = tester.ensureSemantics();
 
     await pumpCard(tester);
-    String countdown() => tester
-        .widget<Text>(find.textContaining(RegExp(r'^in \d')))
-        .data!;
+    String countdown() =>
+        tester.widget<Text>(find.textContaining(RegExp(r'^in \d'))).data!;
     final before = countdown();
 
     now = now.add(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
     expect(countdown(), isNot(before));
 
-    expect(find.bySemanticsLabel(RegExp(r'^Up next: Sunset, ')),
-        findsOneWidget);
+    expect(
+        find.bySemanticsLabel(RegExp(r'^Up next: Sunset, ')), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp(r'^in \d')), findsNothing);
     semantics.dispose();
   });

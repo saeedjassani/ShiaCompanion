@@ -2395,6 +2395,10 @@
     "description": "Title of the prayer card before any location is known."
   },
   "prayerWhichCityBody": "We'll show today's prayer times and the next azan.",
+  "prayerSetCityHint": "Choose a city to see today's times.",
+  "@prayerSetCityHint": {
+    "description": "Home's prayer card shrunk to one row after 'Not now': tapping it opens the city picker."
+  },
   "prayerZoneSuggests": "Your phone's time zone suggests {city}.",
   "@prayerZoneSuggests": {
     "placeholders": {
