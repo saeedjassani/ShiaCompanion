@@ -305,8 +305,8 @@ hijri `"MM-DD"`:
   that only read English (`widgetEventText`), so every translated day needs
   its own.
 
-They follow the app language (`CalendarEvents.load`); a day missing from the
-file stays English, and `color` always comes from events.json.
+Arabic, Urdu, Persian and Gujarati ship a file. They follow the app
+language (`CalendarEvents.load`); a day missing from the file stays English, and `color` always comes from events.json.
 `test/calendar_events_test.dart` checks each shipped language covers every
 day with matching paragraphs and no English left. If you edit events.json,
 edit each translation's `content` and `title` for that day too.
