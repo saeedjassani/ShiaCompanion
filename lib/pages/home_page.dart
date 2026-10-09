@@ -37,6 +37,7 @@ import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/hadith_loader.dart';
+import 'package:shia_companion/utils/localized_hadith.dart';
 import 'package:shia_companion/utils/islamic_day.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
@@ -74,6 +75,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with WidgetsBindingObserver, RouteAware {
   String hadith = '';
+
+  /// Today's hadith in Arabic, Urdu or Persian; null in English.
+  LocalizedHadith? localizedHadith;
+
+  /// The app language [getHadith] last loaded for, so a change of language
+  /// loads the hadith again.
+  String? _hadithLanguage;
   DateTime today = DateTime.now();
 
   List<LiveStreamingData>? holyShrine, liveChannel;
@@ -403,11 +411,14 @@ class _MyHomePageState extends State<MyHomePage>
       onOpen: _openHomeMenuItem,
       onOpenAllFeatures: _openAllFeatures,
     );
-    final hadithCard = hadith.isEmpty
+    final hadithCard = hadith.isEmpty && localizedHadith == null
         ? const SizedBox.shrink()
         : Padding(
             padding: EdgeInsets.only(top: gap),
-            child: HadithOfTheDayCard(hadith: hadith),
+            child: HadithOfTheDayCard(
+              hadith: hadith,
+              localized: localizedHadith,
+            ),
           );
     final getApp = kIsWeb
         ? Padding(padding: EdgeInsets.only(top: gap), child: const GetAppCard())
@@ -636,13 +647,27 @@ class _MyHomePageState extends State<MyHomePage>
     final today = islamicDayAt(DateTime.now()).day.hijri;
     final useMuharramQuotes =
         today.hMonth < 2 || (today.hMonth == 2 && today.hDay < 9);
-    hadith = await loadDailyHadith(
-      DefaultAssetBundle.of(context),
+    final bundle = DefaultAssetBundle.of(context);
+    final language = L10n.current.localeName;
+    _hadithLanguage = language;
+    final localized = await loadLocalizedHadith(
+      bundle,
+      languageCode: language,
       useMuharramQuotes: useMuharramQuotes,
       day: hadithDayNumber(),
     );
-    if (!mounted) return;
-    setState(() {});
+    final english = localized != null
+        ? ''
+        : await loadDailyHadith(
+            bundle,
+            useMuharramQuotes: useMuharramQuotes,
+            day: hadithDayNumber(),
+          );
+    if (!mounted || language != _hadithLanguage) return;
+    setState(() {
+      localizedHadith = localized;
+      hadith = english;
+    });
   }
 
   setupPreferences() async {
@@ -696,6 +721,10 @@ class _MyHomePageState extends State<MyHomePage>
   void didChangeDependencies() {
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+    if (_hadithLanguage != null &&
+        _hadithLanguage != context.l10n.localeName) {
+      getHadith();
+    }
   }
 
   @override

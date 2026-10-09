@@ -1,0 +1,402 @@
+{
+ "nb-h-4": {
+  "ar_from": "https://balagha.app/Sayings/4",
+  "fa_from": "https://balagha.app/Sayings/4",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/4",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-5": {
+  "ar_from": "https://balagha.app/Sayings/5",
+  "fa_from": "https://balagha.app/Sayings/5",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/5",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-10": {
+  "ar_from": "https://balagha.app/Sayings/10",
+  "fa_from": "https://balagha.app/Sayings/10",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/10",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-11": {
+  "ar_from": "https://balagha.app/Sayings/11",
+  "fa_from": "https://balagha.app/Sayings/11",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/11",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-21": {
+  "ar_from": "https://balagha.app/Sayings/21",
+  "fa_from": "https://balagha.app/Sayings/21",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/21",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-24": {
+  "ar_from": "https://balagha.app/Sayings/24",
+  "fa_from": "https://balagha.app/Sayings/24",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/24",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْمكْرُوبِ->الْمَكْرُوبِ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-25": {
+  "ar_from": "https://balagha.app/Sayings/25",
+  "fa_from": "https://balagha.app/Sayings/25",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/25",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Source spells the vocative يَابْنَ (with elided alif). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-28": {
+  "ar_from": "https://balagha.app/Sayings/28",
+  "fa_from": "https://balagha.app/Sayings/28",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/28",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-36": {
+  "ar_from": "https://balagha.app/Sayings/36",
+  "fa_from": "https://balagha.app/Sayings/36",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/36",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-39": {
+  "ar_from": "https://balagha.app/Sayings/39",
+  "fa_from": "https://balagha.app/Sayings/39",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/39",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-40": {
+  "ar_from": "https://balagha.app/Sayings/40",
+  "fa_from": "https://balagha.app/Sayings/40",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/40",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Sayyid al-Radi's explanatory note after the saying is omitted (it is not part of the Imam's words). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-44": {
+  "ar_from": "https://balagha.app/Sayings/44",
+  "fa_from": "https://balagha.app/Sayings/44",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/44",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-46": {
+  "ar_from": "https://balagha.app/Sayings/46",
+  "fa_from": "https://balagha.app/Sayings/46",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/46",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-52": {
+  "ar_from": "https://balagha.app/Sayings/52",
+  "fa_from": "https://balagha.app/Sayings/52",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/52",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-54": {
+  "ar_from": "https://balagha.app/Sayings/54",
+  "fa_from": "https://balagha.app/Sayings/54",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/54",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-55": {
+  "ar_from": "https://balagha.app/Sayings/55",
+  "fa_from": "https://balagha.app/Sayings/55",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/55",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-57": {
+  "ar_from": "https://balagha.app/Sayings/57",
+  "fa_from": "https://balagha.app/Sayings/57",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/57",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Sayyid al-Radi's note ('this is also narrated from the Prophet') is omitted. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-67": {
+  "ar_from": "https://balagha.app/Sayings/67",
+  "fa_from": "https://balagha.app/Sayings/67",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/67",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-71": {
+  "ar_from": "https://balagha.app/Sayings/71",
+  "fa_from": "https://balagha.app/Sayings/71",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/71",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-81": {
+  "ar_from": "https://balagha.app/Sayings/81",
+  "fa_from": "https://balagha.app/Sayings/81",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/81",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Dashti's Persian renders ma yuhsinuhu as knowledge and expertise (an interpretive reading). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-85": {
+  "ar_from": "https://balagha.app/Sayings/85",
+  "fa_from": "https://balagha.app/Sayings/85",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/85",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Dashti paraphrases 'his vital points are struck' as 'he reaches ruin'. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-87": {
+  "ar_from": "https://balagha.app/Sayings/87",
+  "fa_from": "https://balagha.app/Sayings/87",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/87",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-95": {
+  "ar_from": "https://balagha.app/Sayings/95",
+  "fa_from": "https://balagha.app/Sayings/95",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/95",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-121": {
+  "ar_from": "https://balagha.app/Sayings/121",
+  "fa_from": "https://balagha.app/Sayings/121",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/121",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-129": {
+  "ar_from": "https://balagha.app/Sayings/129",
+  "fa_from": "https://balagha.app/Sayings/129",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/129",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): فِى->فِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-134": {
+  "ar_from": "https://balagha.app/Sayings/134",
+  "fa_from": "https://balagha.app/Sayings/134",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/134",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): فِى->فِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-137": {
+  "ar_from": "https://balagha.app/Sayings/137",
+  "fa_from": "https://balagha.app/Sayings/137",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/137",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-142": {
+  "ar_from": "https://balagha.app/Sayings/142",
+  "fa_from": "https://balagha.app/Sayings/142",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/142",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْت->الت, الْعَقْل.->الْعَقْلِ.. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-148": {
+  "ar_from": "https://balagha.app/Sayings/148",
+  "fa_from": "https://balagha.app/Sayings/148",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/148",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-153": {
+  "ar_from": "https://balagha.app/Sayings/153",
+  "fa_from": "https://balagha.app/Sayings/153",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/153",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-158": {
+  "ar_from": "https://balagha.app/Sayings/158",
+  "fa_from": "https://balagha.app/Sayings/158",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/158",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-161": {
+  "ar_from": "https://balagha.app/Sayings/161",
+  "fa_from": "https://balagha.app/Sayings/161",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/161",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-165": {
+  "ar_from": "https://balagha.app/Sayings/165",
+  "fa_from": "https://balagha.app/Sayings/165",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/165",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): لِمخْلُوقٍ->لِمَخْلُوقٍ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-172": {
+  "ar_from": "https://balagha.app/Sayings/172",
+  "fa_from": "https://balagha.app/Sayings/172",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/172",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-205": {
+  "ar_from": "https://balagha.app/Sayings/205",
+  "fa_from": "https://balagha.app/Sayings/205",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/205",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-223": {
+  "ar_from": "https://balagha.app/Sayings/223",
+  "fa_from": "https://balagha.app/Sayings/223",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/223",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-241": {
+  "ar_from": "https://balagha.app/Sayings/241",
+  "fa_from": "https://balagha.app/Sayings/241",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/241",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): أَشدُّ->أَشَدُّ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-251": {
+  "ar_from": "https://balagha.app/Sayings/251",
+  "fa_from": "https://balagha.app/Sayings/251",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/251",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Dashti adds 'حرام' (the forbidden pleasures of this world) as an interpretive gloss. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-254": {
+  "ar_from": "https://balagha.app/Sayings/254",
+  "fa_from": "https://balagha.app/Sayings/254",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/254",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): فِى->فِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-256": {
+  "ar_from": "https://balagha.app/Sayings/256",
+  "fa_from": "https://balagha.app/Sayings/256",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/256",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-297": {
+  "ar_from": "https://balagha.app/Sayings/297",
+  "fa_from": "https://balagha.app/Sayings/297",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/297",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): وأَقَلَّ->وَأَقَلَّ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-324": {
+  "ar_from": "https://balagha.app/Sayings/324",
+  "fa_from": "https://balagha.app/Sayings/324",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/324",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-342": {
+  "ar_from": "https://balagha.app/Sayings/342",
+  "fa_from": "https://balagha.app/Sayings/342",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/342",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): أَيْدِى->أَيْدِي. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-348": {
+  "ar_from": "https://balagha.app/Sayings/348",
+  "fa_from": "https://balagha.app/Sayings/348",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/348",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): أَشدُّ->أَشَدُّ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-360": {
+  "ar_from": "https://balagha.app/Sayings/360",
+  "fa_from": "https://balagha.app/Sayings/360",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/360",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): سَوءاً->سُوءاً. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-398": {
+  "ar_from": "https://balagha.app/Sayings/398",
+  "fa_from": "https://balagha.app/Sayings/398",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/398",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Dashti renders 'remember your grave' as 'remember death' (به یاد مرگ باش). Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-412": {
+  "ar_from": "https://balagha.app/Sayings/412",
+  "fa_from": "https://balagha.app/Sayings/412",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/412",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-454": {
+  "ar_from": "https://balagha.app/Sayings/454",
+  "fa_from": "https://balagha.app/Sayings/454",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/454",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ). Also fixed missing sukun: يدفع -> يَدْفَعُ (matches ds_h.json)."
+ },
+ "nb-h-457": {
+  "ar_from": "https://balagha.app/Sayings/457",
+  "fa_from": "https://balagha.app/Sayings/457",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/457",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ },
+ "nb-h-461": {
+  "ar_from": "https://balagha.app/Sayings/461",
+  "fa_from": "https://balagha.app/Sayings/461",
+  "fa_translator": "Mohammad Dashti",
+  "ur_from": "https://balagha.app/Sayings/461",
+  "ur_translator": "Mufti Jafar Husain",
+  "note": "Arabic typo fixed against a second digitized text (ds_h.json): الْعَاجزِ->الْعَاجِزِ. Arabic letters checked against a second digitized Nahj text (consonants match; only punctuation/harakat differ). Persian normalized (ي/ك to ی/ک, ZWNJ)."
+ }
+}
