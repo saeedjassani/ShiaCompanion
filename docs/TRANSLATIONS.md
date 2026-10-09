@@ -86,19 +86,19 @@ intl's `ar_EG` locale, since plain `ar` writes 0-9 (`formattingLocale` in
 
 ### Keeping translations in step
 
-UI work and translation work touch different files, so they never conflict:
-
-- **Feature and design PRs** add, change or remove keys in `app_en.arb`
-  only. They never edit an `app_<code>.arb`.
+- **Feature and design PRs** that add or change a key in `app_en.arb` add
+  it to every `app_<code>.arb` in the same PR, so a new screen never
+  ships half in English. Reuse the terms each file already uses for the
+  same idea (the reader's settings, the player's buttons) rather than
+  coining new ones. After `flutter gen-l10n`,
+  `build/untranslated_messages.json` should not list any key the PR added.
 - **Translation PRs** edit `app_<code>.arb` only, one language per PR,
-  each based on `master`.
+  each based on `master` - for improving existing translations, or filling
+  any gaps left from before this rule.
 
-A new English key simply shows in English in every other language until it
-is translated, and a key removed from `app_en.arb` but still in an
-`app_<code>.arb` is ignored, so either kind of PR can merge first. After a
-feature lands, a catch-up PR per language fills in what is missing:
-`flutter gen-l10n` lists it, per language, in
-`build/untranslated_messages.json`. Hold off translating a screen that is
+A key still missing from a language shows in English there, and a key
+removed from `app_en.arb` but still in an `app_<code>.arb` is ignored, so
+nothing breaks if one slips through. Hold off translating a screen that is
 about to be redesigned - its strings are likely to change.
 
 ## Zikr content (`assets/zikr_i18n/<code>/`)
