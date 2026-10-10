@@ -33,7 +33,7 @@ String appLanguageValue(BuildContext context) {
   final provider = context.watch<LanguageProvider>();
   final choice = appLanguageFor(provider.appLanguageChoice);
   return choice?.nativeName ??
-      context.l10n.languageFollowDevice(provider.appLanguage.nativeName);
+      context.l10n.languageFollowDevice(provider.deviceLanguage.nativeName);
 }
 
 /// The translation language as its row shows it.
@@ -41,7 +41,8 @@ String translationLanguageValue(BuildContext context) {
   final provider = context.watch<LanguageProvider>();
   final choice = appLanguageFor(provider.translationLanguageChoice);
   return choice?.nativeName ??
-      context.l10n.languageFollowApp(provider.translationLanguage.nativeName);
+      context.l10n.languageFollowApp(
+          provider.appFollowingTranslationLanguage.nativeName);
 }
 
 /// Asks which language the app's own text is in, and applies the answer.
@@ -51,7 +52,7 @@ Future<void> pickAppLanguage(BuildContext context) async {
   final picked = await _pickLanguage(
     context,
     title: l10n.settingsAppLanguage,
-    defaultLabel: l10n.languageFollowDevice(provider.appLanguage.nativeName),
+    defaultLabel: l10n.languageFollowDevice(provider.deviceLanguage.nativeName),
     languages: LanguageProvider.appTextLanguages,
     current: provider.appLanguageChoice,
   );
@@ -78,7 +79,8 @@ Future<void> pickTranslationLanguage(BuildContext context) async {
     context,
     title: l10n.settingsTranslationLanguage,
     defaultLabel:
-        l10n.languageFollowApp(provider.translationLanguage.nativeName),
+        l10n.languageFollowApp(
+            provider.appFollowingTranslationLanguage.nativeName),
     languages: provider.translationLanguages,
     current: provider.translationLanguageChoice,
   );

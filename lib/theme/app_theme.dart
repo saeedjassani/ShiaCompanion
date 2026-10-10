@@ -17,6 +17,11 @@ ThemeData buildAppTheme(Brightness brightness) {
   return ThemeData(
     useMaterial3: true,
     brightness: brightness,
+    // Arabic-script letters the default font lacks (Urdu, Persian and Arabic
+    // app text) are drawn in Scheherazade. Left alone, Flutter tries the
+    // bundled fonts before the system's for such a glyph and lands on Qalam,
+    // the Indo-Pak Quran font, for menus and buttons.
+    fontFamilyFallback: const ['Scheherazade'],
     colorScheme: scheme,
     scaffoldBackgroundColor: c.ground,
     canvasColor: c.ground,

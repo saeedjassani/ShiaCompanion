@@ -119,7 +119,7 @@ class SheetFrame extends StatelessWidget {
     return SingleChildScrollView(
       // Clear of the keyboard while a field in the sheet has it up.
       padding: inDialog
-          ? const EdgeInsets.fromLTRB(20, 14, 16, 20)
+          ? const EdgeInsetsDirectional.fromSTEB(20, 14, 16, 20)
           : EdgeInsets.fromLTRB(
               16,
               8,

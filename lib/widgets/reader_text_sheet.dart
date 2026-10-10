@@ -173,7 +173,7 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
 
     return SingleChildScrollView(
       padding: inPanel
-          ? const EdgeInsets.fromLTRB(20, 14, 16, 20)
+          ? const EdgeInsetsDirectional.fromSTEB(20, 14, 16, 20)
           : EdgeInsets.fromLTRB(
               16, 8, 16, 16 + MediaQuery.paddingOf(context).bottom),
       child: Column(
