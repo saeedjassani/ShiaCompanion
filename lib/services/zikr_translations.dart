@@ -61,7 +61,7 @@ class ZikrDocumentTranslation {
     Map<String, dynamic> json,
   ) {
     final segments = <int, String>{};
-    _stringMap(json['segments']).forEach((key, value) {
+    _stringMap(json['segments'], language).forEach((key, value) {
       final number = int.tryParse(key);
       if (number != null && number >= 0) segments[number] = value;
     });
@@ -69,8 +69,9 @@ class ZikrDocumentTranslation {
     return ZikrDocumentTranslation(
       language: language,
       segments: segments,
-      merits:
-          rawMerits is String && rawMerits.trim().isNotEmpty ? rawMerits : null,
+      merits: rawMerits is String && rawMerits.trim().isNotEmpty
+          ? language.nativeDigits(rawMerits)
+          : null,
     );
   }
 }
@@ -107,8 +108,9 @@ class ZikrTranslationIndex {
     final audio = json['audio'];
     return ZikrTranslationIndex(
       language: language,
-      titles: _stringMap(json['titles']),
-      audioLabels: audio is Map ? _stringMap(audio['labels']) : const {},
+      titles: _stringMap(json['titles'], language),
+      audioLabels:
+          audio is Map ? _stringMap(audio['labels'], language) : const {},
       reciters: audio is Map ? _stringMap(audio['reciters']) : const {},
     );
   }
@@ -287,12 +289,14 @@ class ZikrTranslations extends ChangeNotifier {
   }
 }
 
-Map<String, String> _stringMap(Object? raw) {
+/// [raw]'s string entries; with a [language], their values in its digits
+/// (a translator's "رمضان کی 13ویں رات" reads "۱۳" in Urdu).
+Map<String, String> _stringMap(Object? raw, [AppLanguage? language]) {
   if (raw is! Map) return const {};
   final result = <String, String>{};
   raw.forEach((key, value) {
     if (key is String && value is String && value.trim().isNotEmpty) {
-      result[key.trim()] = value;
+      result[key.trim()] = language?.nativeDigits(value) ?? value;
     }
   });
   return result;

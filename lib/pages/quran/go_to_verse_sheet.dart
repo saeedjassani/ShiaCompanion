@@ -195,7 +195,7 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
 
   Widget _buildSurahStep() {
     final colors = ShiaColors.of(context);
-    final query = _query.text.trim();
+    final query = asciiDigits(_query.text.trim());
     final typedVerse = parseVerseQuery(query, surahs: _surahs);
     final matches = _filter(query);
 
@@ -239,7 +239,8 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
                 itemBuilder: (context, index) {
                   final surah = _surahs[GoToVersePicker.quickPicks[index] - 1];
                   return ChoicePill(
-                    label: '${surah.number} ${surah.displayName}',
+                    label: '${localizeDigits('${surah.number}')} '
+                        '${surah.displayName}',
                     onTap: () => _openSurah(surah),
                   );
                 },
@@ -412,8 +413,8 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
             child: Text(
               verse == null
                   ? context.l10n.pickerChooseVerse
-                  : context.l10n.goToVerseOpen(
-                      surah.displayName, '${surah.number}:$verse'),
+                  : context.l10n.goToVerseOpen(surah.displayName,
+                      localizeDigits('${surah.number}:$verse')),
               textAlign: TextAlign.center,
             ),
           ),
@@ -652,7 +653,8 @@ class _TypedVerseRow extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                context.l10n.goToVerseJump(surah.displayName, '$verse'),
+                context.l10n
+                    .goToVerseJump(surah.displayName, localizeDigits('$verse')),
                 style: ShiaText.body.copyWith(
                     color: colors.accent, fontWeight: FontWeight.w600),
               ),

@@ -92,5 +92,13 @@ void main() {
       expect(splitTrailingArabic('Dua Kumayl'),
           (text: 'Dua Kumayl', arabic: null));
     });
+
+    test('keeps a title written wholly in Arabic script whole', () {
+      // A translated title: splitting it would leave only "5:".
+      expect(splitTrailingArabic('5: سورۃ المائدہ'),
+          (text: '5: سورۃ المائدہ', arabic: null));
+      expect(splitTrailingArabic('دعائے کمیل'),
+          (text: 'دعائے کمیل', arabic: null));
+    });
   });
 }

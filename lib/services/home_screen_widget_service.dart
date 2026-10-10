@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
@@ -499,7 +500,7 @@ class HomeScreenWidgetService {
   String _dateLabelForDay(DateTime date, int dayOffset) {
     if (dayOffset == 0) return L10n.current.commonToday;
     if (dayOffset == 1) return L10n.current.commonTomorrow;
-    return '${date.month}/${date.day}';
+    return DateFormat.Md().format(date);
   }
 
   String? _widgetTitleForUniversalData(UniversalData? item) {

@@ -117,7 +117,7 @@ class _AirportPickerPageState extends State<AirportPickerPage> {
     final location = tryGetLocation(airport.timeZoneId);
     if (location == null) return airport.locationLabel;
     return '${airport.locationLabel} · '
-        '${utcOffsetLabel(location, DateTime.now())}';
+        '${localizeDigits(utcOffsetLabel(location, DateTime.now()))}';
   }
 }
 

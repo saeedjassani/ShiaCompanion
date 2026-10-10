@@ -470,8 +470,8 @@ class _PrayerTimeColumn extends StatelessWidget {
 }
 
 /// "6:56 pm", not the widgets' zero-padded "06:56 pm".
-String _clockLabel(WidgetPrayerTimeReading reading) =>
-    localizeDigits(reading.displayTime.replaceFirst(RegExp(r'^0(?=\d)'), ''));
+String _clockLabel(WidgetPrayerTimeReading reading) => localizeClockTime(
+    reading.displayTime.replaceFirst(RegExp(r'^0(?=\d)'), ''));
 
 /// The next time, large: its glyph, "Up next" (or "Tomorrow") over its name,
 /// and its time over a countdown that ticks every second.

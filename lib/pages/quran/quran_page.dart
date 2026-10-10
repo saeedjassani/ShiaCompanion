@@ -52,8 +52,8 @@ class _QuranPageState extends State<QuranPage> {
     trackScreen('Quran Page');
     _surahs = allSurahs();
     _juz = allJuz();
-    _view = _QuranView.values[
-        widget.initialTabIndex.clamp(0, _QuranView.values.length - 1)];
+    _view = _QuranView
+        .values[widget.initialTabIndex.clamp(0, _QuranView.values.length - 1)];
     unawaited(RecitationTrackerManager.instance.loadRecitations());
     unawaited(SavedVersesManager.instance.loadSavedVerses());
   }
@@ -120,8 +120,8 @@ class _QuranPageState extends State<QuranPage> {
       actions: [
         RoundIconButton(
           label: context.l10n.quranRecentSessions,
-          icon: OutlineIcon(OutlineGlyph.history,
-              size: 22, color: colors.accent),
+          icon:
+              OutlineIcon(OutlineGlyph.history, size: 22, color: colors.accent),
           onPressed: () =>
               pushPageRoute(context, const RecentRecitationsPage()),
         ),
@@ -265,8 +265,8 @@ class _TrackCard extends StatelessWidget {
       compact: true,
     );
     final progress = percent > 0
-        ? context.l10n
-            .quranPercentRead(percent.toStringAsFixed(percent < 10 ? 1 : 0))
+        ? context.l10n.quranPercentRead(localizeDigits(
+            percent.toStringAsFixed(percent < 10 ? 1 : 0), context.l10n))
         : target.isStart
             ? context.l10n.quranStartReading
             : null;
@@ -276,8 +276,7 @@ class _TrackCard extends StatelessWidget {
     // dark card; the rest sit on the surface.
     final fill = isDefault ? colors.prayerCard : colors.surface;
     final border = isDefault ? colors.prayerCardBorder : colors.line;
-    final labelColor =
-        isDefault ? colors.onPrayerCardMuted : colors.textMuted;
+    final labelColor = isDefault ? colors.onPrayerCardMuted : colors.textMuted;
     final titleColor = isDefault ? colors.onPrayerCard : colors.text;
     final progressColor = isDefault ? colors.gold : colors.textMuted;
 

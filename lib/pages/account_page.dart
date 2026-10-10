@@ -384,16 +384,18 @@ class _BackupContents extends StatelessWidget {
     final rows = <(String, String?)>[
       (
         l10n.accountItemFavorites,
-        '${FavoritesManager.instance.favorites.length}'
+        localizeDigits('${FavoritesManager.instance.favorites.length}', l10n)
       ),
       (
         l10n.accountItemBookmarks,
-        '${ZikrBookmarksManager.instance.state.bookmarks.length}'
+        localizeDigits(
+            '${ZikrBookmarksManager.instance.state.bookmarks.length}', l10n)
       ),
       (l10n.accountItemQuranProgress, l10n.accountTracks(tracks)),
       (
         l10n.accountItemSavedVerses,
-        '${SavedVersesManager.instance.state.verses.length}'
+        localizeDigits(
+            '${SavedVersesManager.instance.state.verses.length}', l10n)
       ),
       (
         l10n.accountItemQaza,

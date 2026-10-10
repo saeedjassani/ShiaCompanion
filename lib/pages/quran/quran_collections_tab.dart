@@ -171,7 +171,7 @@ List<Widget> _quranDuaSlivers(
         final dua = quranDuas[index];
         final reference = dua.endAyah == null
             ? _verseTitle(dua.verse)
-            : '${_verseTitle(dua.verse)}-${dua.endAyah}';
+            : '${_verseTitle(dua.verse)}-${localizeDigits('${dua.endAyah}')}';
         return CardListRow(
           first: index == 0,
           last: index == quranDuas.length - 1,
@@ -233,7 +233,7 @@ List<Widget> _prophetStorySlivers(void Function(VerseKey verse) onOpen) {
           final start = _verseTitle(story.verse);
           final reference = story.endAyah == story.verse.ayah
               ? start
-              : '$start-${story.endAyah}';
+              : '$start-${localizeDigits('${story.endAyah}')}';
           return CardListRow(
             first: index == 0,
             last: index == entry.value.length - 1,
@@ -292,7 +292,7 @@ class SavedVerseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final title = verse.surahName.isNotEmpty
-        ? '${verse.surahName} ${verse.ayah}'
+        ? '${verse.surahName} ${localizeDigits('${verse.ayah}')}'
         : _verseTitle(verse.verse);
 
     return CardListRow(

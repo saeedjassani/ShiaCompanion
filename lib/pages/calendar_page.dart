@@ -268,7 +268,10 @@ String _hijriLabel(BuildContext context, HijriCalendar hijri) => localizeDigits(
 
 /// The Hijri months a Gregorian month runs across: "Rabi' al-Thani –
 /// Jumada al-Awwal 1448", with both years when it crosses into a new one.
-String _hijriSpan(BuildContext context, DateTime month) {
+String _hijriSpan(BuildContext context, DateTime month) =>
+    localizeDigits(_hijriSpanText(context, month), context.l10n);
+
+String _hijriSpanText(BuildContext context, DateTime month) {
   final first = _hijriFor(month);
   final last = _hijriFor(DateTime(month.year, month.month + 1, 0));
   if (first.hMonth == last.hMonth) {
@@ -620,7 +623,11 @@ class _DayCell extends StatelessWidget {
                   bottom: wide ? 6 : 4,
                   end: wide ? 9 : 6,
                   child: Text(
-                    convertNumberToUrdu('${hijri.hDay}'),
+                    // Eastern digits even in English, to set the Hijri
+                    // day apart; otherwise the app language's own.
+                    context.l10n.localeName == 'en'
+                        ? convertNumberToUrdu('${hijri.hDay}')
+                        : localizeDigits('${hijri.hDay}', context.l10n),
                     style: ShiaText.caption.copyWith(
                       fontSize: wide ? 12 : 11,
                       height: 13 / (wide ? 12 : 11),
@@ -820,7 +827,7 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
         : null;
     final times = {
       for (final entry in entries ?? const <PrayerTimeDisplayEntry>[])
-        entry.name: localizeDigits(
+        entry.name: localizeClockTime(
             entry.time.replaceFirst(RegExp(r'^0(?=\d)'), ''), context.l10n),
     };
 

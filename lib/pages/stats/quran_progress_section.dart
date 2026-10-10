@@ -11,8 +11,8 @@ final NumberFormat _count = NumberFormat.decimalPattern();
 String _surahName(int surah) =>
     surahInfoFor(surah)?.displayName ?? L10n.current.quranSurahNumber(surah);
 
-String _percentText(double percent) =>
-    '${percent.toStringAsFixed(percent > 0 && percent < 10 ? 1 : 0)}%';
+String _percentText(double percent) => localizeDigits(
+    '${percent.toStringAsFixed(percent > 0 && percent < 10 ? 1 : 0)}%');
 
 /// Quran recitation as one card per track - how much of the Quran it has
 /// covered, where it was left, and which juz are done. The sessions behind
@@ -142,16 +142,18 @@ class QuranTrackCard extends StatelessWidget {
                     lines: last == null
                         ? [context.l10n.statsNotStarted]
                         : [
-                            '${_surahName(last.surah)}: ${last.ayah}',
-                            context.l10n.quranJuzNumber(juzOf(last.surah, last.ayah!)),
+                            '${_surahName(last.surah)}: '
+                                '${localizeDigits('${last.ayah}')}',
+                            context.l10n
+                                .quranJuzNumber(juzOf(last.surah, last.ayah!)),
                           ],
                   ),
                 ),
                 const SizedBox(width: 8),
                 _InfoPanel(
                   title: context.l10n.statsJuzDone,
-                  big: '$juzDone',
-                  lines: const ['of 30'],
+                  big: localizeDigits('$juzDone', context.l10n),
+                  lines: [context.l10n.tasbeehOf(30)],
                 ),
               ],
             ),
@@ -164,8 +166,8 @@ class QuranTrackCard extends StatelessWidget {
               context.l10n.statsSessionCount(sessions, _count.format(sessions)),
               context.l10n.statsVersesRecited(verses, _count.format(verses)),
               if (lastAt != null)
-                context.l10n.statsLastOn(
-                    DateFormat('MMM d').format(lastAt.toLocal())),
+                context.l10n
+                    .statsLastOn(DateFormat('MMM d').format(lastAt.toLocal())),
             ].join(' · '),
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: colorScheme.onSurfaceVariant),
@@ -254,8 +256,8 @@ class _JuzMap extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Semantics(
-      label: context.l10n
-          .statsJuzComplete(coverage.where((f) => f >= 1).length),
+      label:
+          context.l10n.statsJuzComplete(coverage.where((f) => f >= 1).length),
       excludeSemantics: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

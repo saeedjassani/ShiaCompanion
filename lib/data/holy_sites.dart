@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import '../utils/geo_utils.dart';
 
 /// A place the compass can point at.
@@ -28,6 +29,63 @@ class HolySite {
 
   /// `Najaf, Iraq`, for the one-line subtitle under the name.
   String get place => '$city, $country';
+
+  /// [name] in the app language.
+  String displayName([AppLocalizations? l10n]) {
+    final s = l10n ?? L10n.current;
+    return switch (id) {
+      'kaaba' => s.holySiteKaaba,
+      'masjid_an_nabawi' => s.holySiteMasjidAnNabawi,
+      'jannat_al_baqi' => s.holySiteJannatAlBaqi,
+      'imam_ali_najaf' => s.holySiteImamAli,
+      'imam_husayn_karbala' => s.holySiteImamHusayn,
+      'abbas_karbala' => s.holySiteAbbas,
+      'kadhimiya' => s.holySiteKadhimiya,
+      'imam_reza_mashhad' => s.holySiteImamReza,
+      'al_askari_samarra' => s.holySiteAskari,
+      'fatima_masuma_qum' => s.holySiteFatimaMasuma,
+      'jamkaran' => s.holySiteJamkaran,
+      'sayyida_zaynab' => s.holySiteSayyidaZaynab,
+      'sayyida_ruqayya' => s.holySiteSayyidaRuqayya,
+      'masjid_al_aqsa' => s.holySiteMasjidAlAqsa,
+      'masjid_al_kufa' => s.holySiteMasjidAlKufa,
+      'sahla' => s.holySiteMasjidAlSahla,
+      _ => name,
+    };
+  }
+
+  /// [city] in the app language.
+  String displayCity([AppLocalizations? l10n]) {
+    final s = l10n ?? L10n.current;
+    return switch (city) {
+      'Makkah' => s.placeMakkah,
+      'Madinah' => s.placeMadinah,
+      'Najaf' => s.placeNajaf,
+      'Karbala' => s.placeKarbala,
+      'Baghdad' => s.placeBaghdad,
+      'Mashhad' => s.placeMashhad,
+      'Samarra' => s.placeSamarra,
+      'Qum' => s.placeQum,
+      'Damascus' => s.placeDamascus,
+      'Jerusalem' => s.placeJerusalem,
+      'Kufa' => s.placeKufa,
+      _ => city,
+    };
+  }
+
+  /// [place] in the app language.
+  String displayPlace([AppLocalizations? l10n]) {
+    final s = l10n ?? L10n.current;
+    final shownCountry = switch (country) {
+      'Saudi Arabia' => s.countrySaudiArabia,
+      'Iraq' => s.countryIraq,
+      'Iran' => s.countryIran,
+      'Syria' => s.countrySyria,
+      'Palestine' => s.countryPalestine,
+      _ => country,
+    };
+    return s.holySitePlace(displayCity(s), shownCountry);
+  }
 }
 
 /// The Kaaba — the qibla itself, and the default target.

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import '../l10n/l10n.dart';
+
 /// Mean earth radius in kilometres.
 const double earthRadiusKm = 6371.0088;
 
@@ -118,8 +120,20 @@ double relativeBearingDegrees(double reference, double target) {
   return difference > 180 ? difference - 360 : difference;
 }
 
-/// A 16-point compass label such as `NNE` for a bearing in degrees.
-String compassLabel(double bearingDegrees) {
+/// A 16-point compass label such as `NNE` for a bearing in degrees. Other
+/// languages get the nearest of the eight named directions ("شمال مشرق"),
+/// which is what they write - "north-north-east" has no everyday word.
+String compassLabel(double bearingDegrees, [AppLocalizations? l10n]) {
+  final strings = l10n ?? L10n.current;
+  if (strings.localeName != 'en') {
+    final names = [
+      strings.compassNorth, strings.compassNorthEast, //
+      strings.compassEast, strings.compassSouthEast,
+      strings.compassSouth, strings.compassSouthWest,
+      strings.compassWest, strings.compassNorthWest,
+    ];
+    return names[((normalizeBearing(bearingDegrees) / 45) + 0.5).floor() % 8];
+  }
   const points = [
     'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', //
     'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
@@ -128,10 +142,17 @@ String compassLabel(double bearingDegrees) {
   return points[index];
 }
 
-/// Formats coordinates as `37.6°N 122.4°W`.
-String formatCoordinates(GeoPoint point) {
-  final latHemisphere = point.latitude >= 0 ? 'N' : 'S';
-  final lonHemisphere = point.longitude >= 0 ? 'E' : 'W';
-  return '${point.latitude.abs().toStringAsFixed(1)}°$latHemisphere '
-      '${point.longitude.abs().toStringAsFixed(1)}°$lonHemisphere';
+/// Formats coordinates as `37.6°N 122.4°W` (`۳۷.۶° شمال ...` in Urdu).
+String formatCoordinates(GeoPoint point, [AppLocalizations? l10n]) {
+  final strings = l10n ?? L10n.current;
+  final english = strings.localeName == 'en';
+  final latHemisphere =
+      point.latitude >= 0 ? strings.compassNorth : strings.compassSouth;
+  final lonHemisphere =
+      point.longitude >= 0 ? strings.compassEast : strings.compassWest;
+  final gap = english ? '' : ' ';
+  return localizeDigits(
+      '${point.latitude.abs().toStringAsFixed(1)}°$gap$latHemisphere '
+      '${point.longitude.abs().toStringAsFixed(1)}°$gap$lonHemisphere',
+      strings);
 }

@@ -131,7 +131,7 @@ class AccountService {
   static Future<void> deleteCurrentAccountAndData() async {
     final currentUser = _auth.currentUser;
     if (currentUser == null) {
-      throw const AccountActionException('User is not signed in.');
+      throw AccountActionException(L10n.current.accountNotSignedIn);
     }
 
     try {
@@ -162,7 +162,8 @@ class AccountService {
     } on FirebaseAuthException catch (error) {
       throw AccountActionException(_messageForAuthError(error));
     } catch (error) {
-      throw AccountActionException('Error deleting account: $error');
+      debugPrint('Error deleting account: $error');
+      throw AccountActionException(L10n.current.commonSomethingWentWrong);
     }
   }
 

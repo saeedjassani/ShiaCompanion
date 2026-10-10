@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import '../l10n/l10n.dart';
 
 /// The in-app "Text size" preference: a multiplier applied on top of
 /// whatever text scale the operating system already asks for, so someone who
@@ -54,7 +55,8 @@ class AppTextScaleProvider extends ChangeNotifier {
     await SP.prefs.setDouble(prefsKey, _scale);
   }
 
-  static String label(double scale) => '${(scale * 100).round()}%';
+  static String label(double scale) =>
+      L10n.current.commonPercent((scale * 100).round());
 
   /// Wraps [child] so every descendant's text is scaled by [scale] on top of
   /// the system text scale already in [context]'s MediaQuery.

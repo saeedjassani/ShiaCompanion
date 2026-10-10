@@ -415,8 +415,9 @@ class _CountPanel extends StatelessWidget {
       value: done
           ? l10n.tasbeehComplete
           : zahra
-              ? '$phrase, $shown ${l10n.tasbeehOf(progress.phase.size)}'
-              : '$shown',
+              ? '$phrase, ${localizeDigits('$shown', l10n)} '
+                  '${l10n.tasbeehOf(progress.phase.size)}'
+              : localizeDigits('$shown', l10n),
       excludeSemantics: true,
       onTap: onTap,
       child: Material(

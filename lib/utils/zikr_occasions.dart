@@ -167,13 +167,13 @@ String _dates(Map<int, Set<int>> dates, AppLocalizations s) {
   return [
     for (final month in months)
       s.occasionDaysOfMonth(
-        joinList(_runs(dates[month]!.toList()..sort()), s),
+        joinList(_runs(dates[month]!.toList()..sort(), s), s),
         zikrMonthName(month, s),
       ),
   ].join(s.listSeparator);
 }
 
-List<String> _runs(List<int> days) {
+List<String> _runs(List<int> days, AppLocalizations s) {
   final parts = <String>[];
   var start = 0;
   while (start < days.length) {
@@ -182,10 +182,10 @@ List<String> _runs(List<int> days) {
       end++;
     }
     if (end - start >= 2) {
-      parts.add('${days[start]}–${days[end]}');
+      parts.add(localizeDigits('${days[start]}–${days[end]}', s));
     } else {
       for (var i = start; i <= end; i++) {
-        parts.add('${days[i]}');
+        parts.add(localizeDigits('${days[i]}', s));
       }
     }
     start = end + 1;

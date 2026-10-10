@@ -254,7 +254,7 @@ Future<void> showAddToPlaylistSheet(
           CardListRow(
             last: i == playlists.length - 1,
             leading: well(OutlineGlyph.playlist),
-            title: Text(playlist.name),
+            title: Text(playlist.displayName),
             subtitle: Text(_countLabel(playlist.zikrUids.length)),
             trailing: SizedBox.square(
               dimension: 44,
@@ -291,7 +291,7 @@ Future<void> showAddToPlaylistSheet(
     showToast(L10n.current.playlistAddedTo(name));
   } else if (choice is ZikrPlaylist) {
     if (_hasRecording(choice, uid, track)) {
-      showToast(L10n.current.playlistAlreadyIn(choice.name));
+      showToast(L10n.current.playlistAlreadyIn(choice.displayName));
       return;
     }
     if (choice.zikrUids.contains(uid) && track != null) {
@@ -308,7 +308,7 @@ Future<void> showAddToPlaylistSheet(
     } else {
       await store.addZikr(choice.id, uid, trackFile: track?.file);
     }
-    showToast(L10n.current.playlistAddedTo(choice.name));
+    showToast(L10n.current.playlistAddedTo(choice.displayName));
   }
 }
 
@@ -487,15 +487,15 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                           leading: _PlayButton(
                             playing: playing,
                             label: playing
-                                ? l10n.playlistPauseNamed(playlist.name)
-                                : l10n.playlistPlayNamed(playlist.name),
+                                ? l10n.playlistPauseNamed(playlist.displayName)
+                                : l10n.playlistPlayNamed(playlist.displayName),
                             onPressed: playlist.zikrUids.isEmpty
                                 ? null
                                 : () => isCurrent
                                     ? audio.togglePlay()
                                     : _startPlaylist(context, playlist),
                           ),
-                          title: Text(playlist.name),
+                          title: Text(playlist.displayName),
                           titleStyle: ShiaText.cardTitle,
                           subtitle: nowPlaying != null
                               ? Text(
@@ -599,7 +599,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     final name = await _promptForName(
       context,
       title: context.l10n.playlistRename,
-      initial: playlist.name,
+      initial: playlist.displayName,
       action: context.l10n.commonSave,
     );
     if (name == null) return;
@@ -614,7 +614,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(context.l10n.playlistDeleteConfirm(playlist.name)),
+        title: Text(context.l10n.playlistDeleteConfirm(playlist.displayName)),
         content: Text(hasDownloads
             ? context.l10n.playlistDeleteKeepsDuasAndAudio
             : context.l10n.playlistDeleteKeepsDuas),
@@ -677,7 +677,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
         await _delete(context, playlist);
       case 'remove-downloads':
         await confirmRemoveAudioDownload(context, allTracks,
-            label: playlist.name);
+            label: playlist.displayName);
       case 'downloads':
         _openDownloads(context);
     }
@@ -727,7 +727,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
         final count = _countLabel(playlist.zikrUids.length);
 
         return LargeTitlePage(
-          title: playlist.name,
+          title: playlist.displayName,
           subtitle: downloadedCount > 0
               ? '$count · ${l10n.playlistDownloadedCount(downloadedCount)}'
               : count,
@@ -806,7 +806,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                 sliver: SliverToBoxAdapter(
                   child: AudioDownloadButton(
                     tracks: allTracks,
-                    label: playlist.name,
+                    label: playlist.displayName,
                     labelled: true,
                   ),
                 ),
@@ -1103,7 +1103,7 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
         final playlist = store.byId(widget.playlistId);
         return LargeTitlePage(
           title: l10n.playlistAddZikr,
-          subtitle: playlist?.name,
+          subtitle: playlist?.displayName,
           actions: [done],
           bottom: FindField(controller: _find, hint: l10n.listFindDua),
           slivers: [
@@ -1303,7 +1303,7 @@ class NowPlayingBar extends StatelessWidget {
                             ),
                             Text(
                               context.l10n.playlistNowPlayingPosition(
-                                  audio.playlist?.name ?? '',
+                                  audio.playlist?.displayName ?? '',
                                   audio.zikrPosition ?? 1,
                                   audio.zikrCount),
                               maxLines: 1,

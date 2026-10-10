@@ -835,7 +835,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                   onTap: () async {
                     await Clipboard.setData(ClipboardData(text: text));
                     if (!mounted) return;
-                    showToast(context.l10n.quranCopiedVerse('$verse'));
+                    showToast(context.l10n
+                        .quranCopiedVerse(localizeDigits('$verse')));
                   },
                 ),
                 action(
@@ -907,8 +908,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
     if (!mounted) return;
     showToast(wasSaved
-        ? context.l10n.quranRemovedVerse('$verse')
-        : context.l10n.quranSavedVerse('$verse'));
+        ? context.l10n.quranRemovedVerse(localizeDigits('$verse'))
+        : context.l10n.quranSavedVerse(localizeDigits('$verse')));
   }
 
   /// The opening of a verse, for the saved list.

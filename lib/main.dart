@@ -190,6 +190,8 @@ class MyApp extends StatelessWidget {
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
+            // After Material's, whose first load resets intl's date symbols.
+            IntlSymbolsDelegate(),
           ],
           // The in-app Text size setting, layered over the system's own
           // text scale for every route, dialog and sheet under the navigator.

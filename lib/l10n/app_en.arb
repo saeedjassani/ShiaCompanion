@@ -352,6 +352,14 @@
   "@prayerMidnight": {
     "description": "Islamic midnight, the end of the Isha window."
   },
+  "timeAm": "AM",
+  "@timeAm": {
+    "description": "Marks a 12-hour clock time as before noon (\"5:12 AM\"). Short: it follows every prayer time."
+  },
+  "timePm": "PM",
+  "@timePm": {
+    "description": "Marks a 12-hour clock time as after noon (\"7:45 PM\"). Short: it follows every prayer time."
+  },
   "locationErrorBody": "An error occurred while getting your location: {error}\n\nPlease check that location services are enabled and try again.",
   "@locationErrorBody": {
     "placeholders": {
@@ -4005,5 +4013,134 @@
         "format": "decimalPattern"
       }
     }
+  },
+  "distanceKm": "{distance} km",
+  "@distanceKm": {
+    "description": "A distance in kilometres; {distance} is already formatted, e.g. '10,766'.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "dayOffsetLater": "{count, plural, =1{+1 day} other{+{count} days}}",
+  "@dayOffsetLater": {
+    "description": "Next to a flight time that falls on a later calendar day than departure.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "dayOffsetEarlier": "{count, plural, =1{-1 day} other{-{count} days}}",
+  "@dayOffsetEarlier": {
+    "description": "Next to a flight time that falls on an earlier calendar day than departure.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "compassNorth": "N",
+  "@compassNorth": {
+    "description": "A compass direction, after a bearing ('293° NW') or a coordinate ('37.6° N'). English keeps its letter abbreviation; other languages may write the word."
+  },
+  "compassNorthEast": "NE",
+  "compassEast": "E",
+  "compassSouthEast": "SE",
+  "compassSouth": "S",
+  "compassSouthWest": "SW",
+  "compassWest": "W",
+  "compassNorthWest": "NW",
+  "flightNumberHint": "e.g. TK 80",
+  "@flightNumberHint": {
+    "description": "Hint in the flight number field. Keep the flight number itself as is."
+  },
+  "sizeGigabytes": "{size} GB",
+  "@sizeGigabytes": {
+    "description": "A download size; {size} is already formatted.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "sizeMegabytes": "{size} MB",
+  "@sizeMegabytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "sizeKilobytes": "{size} KB",
+  "@sizeKilobytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "holySiteKaaba": "Kaaba",
+  "@holySiteKaaba": {
+    "description": "A place the Qibla compass can point at."
+  },
+  "holySiteMasjidAnNabawi": "Masjid an-Nabawi",
+  "holySiteJannatAlBaqi": "Jannat al-Baqi",
+  "holySiteImamAli": "Shrine of Imam Ali",
+  "holySiteImamHusayn": "Shrine of Imam Husayn",
+  "holySiteAbbas": "Shrine of Abbas",
+  "holySiteKadhimiya": "Kadhimiya Shrine",
+  "holySiteImamReza": "Shrine of Imam Reza",
+  "holySiteAskari": "Al-Askari Shrine",
+  "holySiteFatimaMasuma": "Shrine of Fatima Masuma",
+  "holySiteJamkaran": "Jamkaran Mosque",
+  "holySiteSayyidaZaynab": "Shrine of Sayyida Zaynab",
+  "holySiteSayyidaRuqayya": "Shrine of Sayyida Ruqayya",
+  "holySiteMasjidAlAqsa": "Masjid al-Aqsa",
+  "holySiteMasjidAlKufa": "Masjid al-Kufa",
+  "holySiteMasjidAlSahla": "Masjid al-Sahla",
+  "placeMakkah": "Makkah",
+  "@placeMakkah": {
+    "description": "A city or country, under a holy site's name in the Qibla compass."
+  },
+  "placeMadinah": "Madinah",
+  "placeNajaf": "Najaf",
+  "placeKarbala": "Karbala",
+  "placeBaghdad": "Baghdad",
+  "placeMashhad": "Mashhad",
+  "placeSamarra": "Samarra",
+  "placeQum": "Qum",
+  "placeDamascus": "Damascus",
+  "placeJerusalem": "Jerusalem",
+  "placeKufa": "Kufa",
+  "countrySaudiArabia": "Saudi Arabia",
+  "countryIraq": "Iraq",
+  "countryIran": "Iran",
+  "countrySyria": "Syria",
+  "countryPalestine": "Palestine",
+  "holySitePlace": "{city}, {country}",
+  "@holySitePlace": {
+    "description": "Where a holy site is: 'Najaf, Iraq'.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "country": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistDefaultMorning": "Morning",
+  "@playlistDefaultMorning": {
+    "description": "Name of a starter playlist every reader gets; shown until they rename it."
+  },
+  "playlistDefaultThursday": "Thursday",
+  "playlistDefaultFriday": "Friday",
+  "accountNotSignedIn": "You are not signed in.",
+  "@accountNotSignedIn": {
+    "description": "Shown when deleting an account while no one is signed in."
   }
 }

@@ -6,7 +6,7 @@ import 'zikr_occasions.dart';
 
 /// A clock time the way the prayer card shows one: "7:00 am".
 String clockLabel(int hour, int minute) =>
-    localizeDigits(formatPrayerDateTime12(DateTime(2000, 1, 1, hour, minute))
+    localizeClockTime(formatPrayerDateTime12(DateTime(2000, 1, 1, hour, minute))
         .replaceFirst(RegExp(r'^0(?=\d)'), ''));
 
 /// [days] (`DateTime.monday` 1 ... `DateTime.sunday` 7) starting from

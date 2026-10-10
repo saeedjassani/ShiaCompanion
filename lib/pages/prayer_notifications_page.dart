@@ -177,7 +177,7 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
           latitude: latitude,
           longitude: longitude,
         ))
-          entry.name: localizeDigits(formatPrayerDateTime12(entry.dateTime)
+          entry.name: localizeClockTime(formatPrayerDateTime12(entry.dateTime)
               .replaceFirst(RegExp(r'^0(?=\d)'), '')),
       };
     } catch (_) {

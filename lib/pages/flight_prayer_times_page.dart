@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 
 import '../constants.dart';
 import '../models/flight.dart';
@@ -266,8 +267,8 @@ class _FlightPrayerTimesPageState extends State<FlightPrayerTimesPage> {
               body: plan.usesAircraftHorizon
                   ? l10n.flightAltitudeHorizonBody(
                       _cruiseLabel(plan.cruiseAltitudeFeet),
-                      horizonDipDegrees(plan.cruiseAltitudeFeet)
-                          .toStringAsFixed(1))
+                      localizeDigits(horizonDipDegrees(plan.cruiseAltitudeFeet)
+                          .toStringAsFixed(1)))
                   : l10n.flightGroundHorizonBody,
             ),
           ],
@@ -639,15 +640,8 @@ class _TimeCell extends StatelessWidget {
 }
 
 /// `38,000 ft`
-String _cruiseLabel(double feet) {
-  final rounded = feet.round().toString();
-  final buffer = StringBuffer();
-  for (var index = 0; index < rounded.length; index++) {
-    if (index > 0 && (rounded.length - index) % 3 == 0) buffer.write(',');
-    buffer.write(rounded[index]);
-  }
-  return L10n.current.flightAltitudeFeet(buffer.toString());
-}
+String _cruiseLabel(double feet) => L10n.current
+    .flightAltitudeFeet(NumberFormat.decimalPattern().format(feet.round()));
 
 /// A note on how to read the times, or a warning about them: a glyph in a
 /// well, a title and a paragraph.

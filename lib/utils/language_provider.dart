@@ -148,11 +148,14 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
       Intl.defaultLocale = formatting;
       // The generated strings and Material format their numbers with the
       // plain language code (`ar`), not the default locale, so that code
-      // gets the formatting locale's digits too.
+      // gets the formatting locale's symbols too.
       final symbols = numberFormatSymbols[formatting];
       if (formatting != language.code && symbols != null) {
         numberFormatSymbols[language.code] = symbols;
       }
+      // And both get the language's own digits and am/pm, which intl's data
+      // lacks for Urdu and Gujarati.
+      applyIntlSymbols(language, L10n.current);
     }
   }
 
