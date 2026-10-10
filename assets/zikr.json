@@ -905,7 +905,7 @@
     "slug": "merits-of-visiting-imam-al-husayn-a-s"
   },
   "AG14": {
-    "title": "Seventh Ziyarat — Ziyarat Warith — Karbala",
+    "title": "Ziyarat Warith — Karbala",
     "slug": "ziyarah-warith-karbala"
   },
   "AG18": {
@@ -1079,7 +1079,7 @@
     ]
   },
   "B6": {
-    "title": "Another Izn-e-Dukhool (Permission to Enter)",
+    "title": "Izn-e-Dukhool (Permission to Enter)",
     "slug": "another-izn-dukhool"
   },
   "B~AE7": {
@@ -1931,7 +1931,7 @@
     "slug": "namaz-to-dispel-fear-of-oppressors"
   },
   "F43": {
-    "title": "Namaz on Seeing a Non-Muslim",
+    "title": "Dua on Seeing a Non-Muslim",
     "slug": "namaz-at-seeing-a-non-muslims"
   },
   "F44": {
@@ -1992,16 +1992,12 @@
     "slug": "namaz-for-the-removal-of-difficulties"
   },
   "F57": {
-    "title": "Namaz of Imam al-Kazim (a.s.) to Ward Off Evil",
-    "slug": "namaz-of-imam-kazim-a-to-ward-of-evil"
-  },
-  "F58": {
-    "title": "Namaz of Imam Muhammad al-Taqi (a.s.) to Ward Off Evil",
-    "slug": "namaz-of-imam-muhammad-taqi-a-to-ward-of-evil"
-  },
-  "F59": {
-    "title": "Namaz of Imam al-Sadiq (a.s.) to Ward Off Evil",
-    "slug": "namaz-of-imam-sadiq-a-to-ward-off-evil"
+    "title": "Duas of the Imams (a.s.) to Ward Off Evil",
+    "slug": "namaz-of-imam-kazim-a-to-ward-of-evil",
+    "slugAliases": [
+      "namaz-of-imam-muhammad-taqi-a-to-ward-of-evil",
+      "namaz-of-imam-sadiq-a-to-ward-off-evil"
+    ]
   },
   "F6": {
     "title": "Namaz-e-Kamila",
