@@ -2378,7 +2378,10 @@
   "G83": {
     "title": "Ziyarat Ashura Ghair Maroofa",
     "slug": "ziyaarat-e-aashoora-gair-ma-roofah",
-    "day": "01-10"
+    "day": "01-10",
+    "slugAliases": [
+      "second-ziyarah-on-day-of-ashura-lesser-known-version"
+    ]
   },
   "G84|AL17": {
     "title": "Ziyarat of Imam al-Mahdi (a.t.f.s.) after the Fajr Prayer (Allahumma Balligh)",
@@ -3026,11 +3029,6 @@
   "R12|E8": {
     "title": "Dua Alqama",
     "slug": "dua-alqamah"
-  },
-  "R15": {
-    "title": "Second Ziyarat on the Day of Ashura; Lesser Known Version",
-    "slug": "second-ziyarah-on-day-of-ashura-lesser-known-version",
-    "day": "01-10"
   },
   "R15|G83": {
     "title": "Ziyarat Ashura Ghair Maroofa",

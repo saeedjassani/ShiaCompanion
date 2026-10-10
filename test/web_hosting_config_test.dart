@@ -55,6 +55,11 @@ void main() {
 
     expect(indexHtml, contains("'flutter-first-frame'"));
     expect(indexHtml, contains('seoFallbackTimer'));
+    // After the first frame the crawler HTML leaves layout, or it shows
+    // around and under the app wherever it is bigger than the app's view.
+    expect(indexHtml, contains("classList.add('flutter-ready')"));
+    expect(indexHtml, contains('html.flutter-ready .seo-site-nav'));
+    expect(indexHtml, contains('html.flutter-ready .seo-zikr-content'));
     expect(
       indexHtml,
       isNot(contains(
