@@ -61,6 +61,7 @@ ACT = re.compile(
     r'give alms|sadaqah)',
     re.I,
 )
+BARE_INSTRUCTION = re.compile(r'^(recite|say|read|then recite|then say|recite this|say this)\s*:?$', re.I)
 LINK = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
 BAD_LABEL = re.compile(
     r'^(\(?\d+\)?\.?|\d+(st|nd|rd|th)|dua \d+|part \d+|tab \d+|'
@@ -138,6 +139,25 @@ def lint_entry(uid, entry, index, redirects, live):
             if n > MAX_RUN:
                 add('review', 'LONG_PROSE', where,
                     f'{n} chars of standalone prose: {run[0][:70]}...')
+
+    first_notes = {}
+    for p_i, part in enumerate(parts):
+        where = f'tab {p_i + 1}' if multi else 'body'
+        notes = part.notes()
+        for i, line in notes:
+            if BARE_INSTRUCTION.match(line):
+                add('error', 'BARE_INSTRUCTION', f'{where} line {i + 1}',
+                    f'{line!r} says nothing the Arabic below does not')
+        if notes and notes[0][1].startswith('Then ') and part.kind.index('note') <= min(
+                [j for j, k in enumerate(part.kind) if k == 'arabic'] or [len(part.kind)]):
+            add('error', 'UNEARNED_THEN', f'{where} line {notes[0][0] + 1}',
+                f'opens with "Then" but follows nothing: {notes[0][1][:70]}')
+        if multi and notes:
+            first_notes.setdefault(notes[0][1], []).append(p_i + 1)
+    for line, tabs in first_notes.items():
+        if len(tabs) > 1:
+            add('error', 'REPEATED_NOTE', f'tabs {tabs}',
+                f'same opening line in {len(tabs)} tabs - say it once: {line[:70]}')
 
     merits = entry.get('merits') or ''
     for line in merits.split('\n'):

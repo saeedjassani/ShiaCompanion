@@ -60,6 +60,12 @@ is the working procedure for applying them batch by batch.
 - One or two sentences, directly above the Arabic they introduce, with the
   count and timing up front: `Recite 100 times:`, `After the Asr prayer,
   recite 70 times:`.
+- An instruction line has to add something the reader doesn't already
+  know. No bare `Recite:` / `Say:` above the Arabic - the Arabic itself says
+  "recite this".
+- `Then` only where the source fixes the order - the steps of a namaz, the
+  34-33-33 of the Tasbih of Lady Fatimah when written as one step. Separate
+  recommended acts are not a sequence; don't join them with "Then".
 - No paragraph over ~300 characters in the body. Split long ones at
   sentence boundaries; whatever is narration or merit moves to merits.
 - Prose-only entries (how to pray a namaz, etiquettes) are written as one
@@ -86,8 +92,10 @@ prayer in Ramazan).
   tabs) shifts every `RetiredZikrRedirect(uid, tabIndex: n)` into that
   entry - `grep "RetiredZikrRedirect('<uid>'" lib/data/retired_zikr_redirects.dart`
   and update each `tabIndex` so it still lands on the same text.
-- Each tab opens with its own instruction line - someone can land on it
-  straight from a bookmark.
+- A tab opens with an instruction line only when it has something of its
+  own to say (a count, a time, a condition). Context the title or the whole
+  entry already gives - "after every obligatory prayer in Ramazan" - is
+  said once, in the first part, not repeated at the top of every tab.
 - Do not split one continuous dua into tabs; scrolling is fine.
 - **Merits are never a tab.** A tab called "Merits of ..." moves to
   `merits`.

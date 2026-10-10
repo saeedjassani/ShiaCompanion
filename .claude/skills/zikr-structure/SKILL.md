@@ -61,8 +61,13 @@ follows:
 
 - `After the Asr prayer on Friday, recite 100 times:`
 - `In each unit, after Surah al-Fatihah, recite [Surah al-Qadr](A101) 3 times.`
-- `Then recite [Dua Simat](E26).`
+- `Recite [Dua Simat](E26).`
 - `Al-Kafi records it in this form:` (introducing a variant)
+
+Leave a line out when it would say nothing new: no bare `Recite:`, no
+copy of the same line at the top of every tab (say the shared context once,
+in the first part), no `Then` joining acts the source doesn't put in order
+(owner feedback on the pilot).
 
 A body line may keep a brief *why* when the reader needs it to act (the
 time window, a condition) - not the reward.
@@ -83,7 +88,7 @@ After (`git show` the commit that introduced this skill for the full file):
 | 1 | `Salawat ×100` | `After the Asr prayer on Friday, recite 100 times:` + salawat; `Shaykh al-Tusi also recommends reciting this 100 times at the same time:` + his form |
 | 2 | `Salawat of the Awsiya` | `After the Asr prayer on Friday, recite 7 times (or 10):` + Ibn Idris's form; `Al-Kafi records it in this form:` + al-Kafi's |
 | 3 | `Istighfar, al-Qadr & Asharat` | `After the Asr prayer, recite 70 times:` + istighfar; `Recite [Surah al-Qadr](A101) 100 times.`; `Recite [Dua Asharat](E10).` |
-| 4 | `Last Hour before Sunset` | one line on the hour of answered prayer + `Recite this litany...:` + litany; `Then recite [Dua Simat](E26).` |
+| 4 | `Last Hour before Sunset` | one line on the hour of answered prayer + `Recite this litany...:` + litany; `Recite [Dua Simat](E26).` |
 
 Merits: the "best hours" line, then one paragraph each for the Awsiya
 salawat (Ibn Idris/al-Bazanti narration, the 7-or-10 times narration,
