@@ -255,12 +255,14 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'AG4': RetiredZikrRedirect('AG5', tabIndex: 1),
 
   /// Third through Sixth forms of the Ziyarat of Imam Ali, plus AK14 (Imam
-  /// Zayn al-Abidin's visitation, from Farhat al-Ghari), now AK5's tabs.
+  /// Zayn al-Abidin's visitation, from Farhat al-Ghari), now AK5's tabs. AK14
+  /// is AK5's last tab, "Imam Zayn al-Abidin's Visit", split out of the
+  /// Seventh Ziyarat's tab.
   'AK9': RetiredZikrRedirect('AK5', tabIndex: 1),
   'AK10': RetiredZikrRedirect('AK5', tabIndex: 2),
   'AK11': RetiredZikrRedirect('AK5', tabIndex: 3),
   'AK12': RetiredZikrRedirect('AK5', tabIndex: 4),
-  'AK14': RetiredZikrRedirect('AK5', tabIndex: 5),
+  'AK14': RetiredZikrRedirect('AK5', tabIndex: 6),
 
   /// The Masjid al-Kufah column/station acts, now AI3's tabs. AI8 (the
   /// third column / seat of Imam Zayn al-Abidin) runs on into AI3's next
