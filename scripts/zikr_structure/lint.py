@@ -44,10 +44,11 @@ OCCASION = re.compile(
 BACKREF = re.compile(
     r'\b(as (?:was |has been |we have |I have )?(?:mentioned|said|stated|cited|'
     r'noted|explained|discussed|indicated) (?:above|before|earlier|previously)'
-    r'|aforementioned|above-?mentioned|the previous (?:section|chapter|item|one|night|day|part)'
+    r'|aforementioned|aforesaid|above-?mentioned|the previous (?:section|chapter|item|one|night|day|part)'
     r'|(?:mentioned|cited|discussed) (?:above|earlier|before|previously)'
     r'|see (?:above|below)'
     r'|already (?:been )?(?:mentioned|cited|discussed)'
+    r'|(?:has been|was) (?:previously|earlier) (?:explained|mentioned|cited)'
     r'|(?:later on|hereinafter),? we (?:will|shall) (?:mention|cite|discuss)'
     r'|will be (?:mentioned|cited|discussed) (?:later|below|in (?:the|its) (?:place|section|chapter))'
     r'|we will mention'
@@ -69,6 +70,12 @@ BAD_LABEL = re.compile(
     r'various .*)$',
     re.I,
 )
+
+def unquoted(line):
+    """[line] with quoted speech blanked out: a narration quoting someone
+    who says "as already cited" is not a pointer to text in the book."""
+    return re.sub(r'“[^”]*”|"[^"]*"', '""', line)
+
 
 MAX_NOTE = 400        # one standalone line in the body
 MAX_INTRO = 600       # standalone text before the first Arabic line of part 1
@@ -120,7 +127,7 @@ def lint_entry(uid, entry, index, redirects, live):
                 add('error', 'LONG_LINE', f'{where} line {i + 1}',
                     f'{len(line)} chars: {line[:70]}...')
         for line in part.lines:
-            m = BACKREF.search(line)
+            m = BACKREF.search(unquoted(line))
             if m:
                 add('error', 'BACKREF', where, f'"{m.group(0)}" in: {line[:90]}')
         if p_i == 0 and not (entry.get('merits') or '').strip():
@@ -163,7 +170,7 @@ def lint_entry(uid, entry, index, redirects, live):
     for line in merits.split('\n'):
         if ORDINAL.match(line):
             add('error', 'ORDINAL', 'merits', line[:90])
-        m = BACKREF.search(line)
+        m = BACKREF.search(unquoted(line))
         if m:
             add('error', 'BACKREF', 'merits', f'"{m.group(0)}" in: {line[:90]}')
 
