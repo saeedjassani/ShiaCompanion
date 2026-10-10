@@ -355,4 +355,12 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// I108 (Prohibition on Shaving Beard) was a ruling, not a zikr; trimming the
   /// mustache is in J6's 'Ghusl & Grooming' tab.
   'I108': RetiredZikrRedirect('J6', tabIndex: 0),
+
+  /// F58 (Imam al-Taqi's evil-averting dua) is now the third tab of F57, Duas
+  /// of the Imams (a.s.) to Ward Off Evil.
+  'F58': RetiredZikrRedirect('F57', tabIndex: 1),
+
+  /// F59 (Imam al-Sadiq's evil-averting dua) is now the first tab of F57, Duas
+  /// of the Imams (a.s.) to Ward Off Evil.
+  'F59': RetiredZikrRedirect('F57'),
 };
