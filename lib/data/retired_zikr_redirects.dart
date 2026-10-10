@@ -36,9 +36,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'E48': RetiredZikrRedirect('I20', tabIndex: 0),
   'I25': RetiredZikrRedirect('I24', tabIndex: 0),
   'E56': RetiredZikrRedirect('I17', tabIndex: 1),
-  'E106': RetiredZikrRedirect('I9', tabIndex: 2),
+  'E106': RetiredZikrRedirect('I9', tabIndex: 7),
   'E151': RetiredZikrRedirect('I21', tabIndex: 1),
-  'I16': RetiredZikrRedirect('I14', tabIndex: 0),
+  'I16': RetiredZikrRedirect('I14', tabIndex: 6),
 
   /// Found during the top-20 favorited-missing-zikr restoration pass: E53's
   /// old content ("Ya 'Imada man la 'Imada lahu...", from al-Khisal, taught
@@ -69,14 +69,15 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// closer title match and carries the exact phrase E148 leads with.
   'E148': RetiredZikrRedirect('I19'),
 
-  /// Found during the 2026-09-14 restoration pass: I15's old content ("Twelfth"
-  /// through "Sixteenth" - the ten-times tahlil statement, Prophet Joseph's
-  /// dua, the "Your forgiveness is more hopeful than my deeds" dua, etc.) is
-  /// word-for-word already live inside I14 ("General Ta'qeebaat-2"), under
-  /// its own inline heading "Virtues of the 'Effective Veneration'" - I15's
-  /// exact title. Restoring it standalone would just duplicate that section
-  /// of I14's main data.
-  'I15': RetiredZikrRedirect('I14'),
+  /// Found during the 2026-09-14 restoration pass: I15's old content (the
+  /// ten-times tahlil statement, Prophet Joseph's dua, the "Your forgiveness
+  /// is more hopeful than my deeds" dua, etc.) is word-for-word already live
+  /// inside I14 ("General Ta'qeebaat-2"), where it opened under the inline
+  /// heading "Virtues of the 'Effective Veneration'" - I15's exact title.
+  /// Restoring it standalone would just duplicate those tabs; the redirect
+  /// lands on I14's "Tahleel x10 (Effective Veneration)" tab, where that
+  /// run of duas begins.
+  'I15': RetiredZikrRedirect('I14', tabIndex: 1),
 
   /// Caught in review of the 2026-09-14 sixth restoration pass: I10's title
   /// ("General Ta'qeebaat - 1") is the same entry as the already-live I9's
@@ -121,28 +122,29 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
 
   /// I12 ("Merits of reciting Ayah Kursi, Ayah Al Shahadah, Ayah Al Mulk
   /// after every Namaz") is a reworded/retranslated duplicate of I9's
-  /// second tab, which carries the identical Imam al-Sadiq hadith and the
-  /// same four-verse list (al-Faatehah, Ayat al-Kursi, Ayah al-Shahadah,
-  /// Ayah al-Mulk) under its own "Eighth:" numbered section - the same
+  /// "Fatihah, Kursi, Shahadah & Mulk" tab, which carries the identical Imam
+  /// al-Sadiq hadith (in its merits) and the same four-verse list
+  /// (al-Faatehah, Ayat al-Kursi, Ayah al-Shahadah, Ayah al-Mulk) - the same
   /// reworded-duplicate shape as the already-retired I10/I9 pair. Restored
   /// standalone in "batch 3 of top-20" (commit d72bc84) without the
   /// duplicate being caught.
-  'I12': RetiredZikrRedirect('I9', tabIndex: 1),
+  'I12': RetiredZikrRedirect('I9', tabIndex: 6),
 
   /// E49 ("Dua for Pardoning of sins") is the bare "Ya man laa
   /// yashghaluhu sam'un..." supplication with none of its narrative frame.
-  /// I14's second tab carries the same dua in full context (Imam Ali's
-  /// encounter with Prophet Khizr at the Ka'bah, per Muhammad ibn
-  /// al-Hanafiyyah, also reported by al-Kaf'ami in al-Balad al-Ameen).
-  'E49': RetiredZikrRedirect('I14', tabIndex: 1),
+  /// I14's "Dua Ya Man La Yashghaluhu" tab carries the same dua, with the
+  /// full context in its merits (Imam Ali's encounter with Prophet Khizr at
+  /// the Ka'bah, per Muhammad ibn al-Hanafiyyah, also reported by al-Kaf'ami
+  /// in al-Balad al-Ameen).
+  'E49': RetiredZikrRedirect('I14', tabIndex: 8),
 
   /// E47 ("Dua for Longevity") is the bare "Allaahumma salli ala
-  /// Muhammadin..." supplication with no narrative. I14's second tab
-  /// carries the same dua under its own "Twenty-first:" numbered section,
-  /// with the full frame it's missing: an old, lonely man asking Imam
-  /// al-Sadiq for a way to live longer (Jameel ibn Darraaj, via Sayyid Ibn
-  /// Tawus) - matching E47's own title exactly.
-  'E47': RetiredZikrRedirect('I14', tabIndex: 1),
+  /// Muhammadin..." supplication with no narrative. I14's "Dua for a Long
+  /// Life" tab carries the same dua, with the full frame it's missing in its
+  /// merits: an old, lonely man asking Imam al-Sadiq for a way to live longer
+  /// (Jameel ibn Darraaj, via Sayyid Ibn Tawus) - matching E47's own title
+  /// exactly.
+  'E47': RetiredZikrRedirect('I14', tabIndex: 10),
 
   /// E50 ("Dua for Protection of the house from damage & theft") is
   /// verbatim I24's tabs[2] ("Fear of House Collapse") *and* tabs[3]
