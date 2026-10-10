@@ -167,7 +167,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     final next = readings.first;
     final later = readings.skip(1).toList(growable: false);
     final failed = _location.status == LocationRefreshStatus.failed;
-    final showUpdated = !failed && city != null && _location.shouldDiscloseAge;
     // A chosen city whose clock no longer matches the phone's: most likely
     // one picked on a trip, still set after the flight home.
     final askStillInCity = _location.chosenCityClockDifference != null;
@@ -195,14 +194,11 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (failed || showUpdated)
+                    if (failed)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
                         child: Text(
-                          failed
-                              ? _location.failureMessage
-                              : context.l10n.prayerUpdatedAgo(
-                                  _ageLabel(_location.updatedAt!)),
+                          _location.failureMessage,
                           style: ShiaText.caption.copyWith(
                             color: colors.onPrayerCardMuted,
                           ),
@@ -329,6 +325,33 @@ class _StillInCityNudge extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// "Updated 44d ago", under the city button, once the location has gone
+/// stale. Empty while it is fresh, failed (the card says so) or unnamed.
+class LocationAgeNote extends StatelessWidget {
+  const LocationAgeNote({super.key, required this.location});
+
+  final LocationService location;
+
+  @override
+  Widget build(BuildContext context) {
+    final updatedAt = location.updatedAt;
+    if (location.status == LocationRefreshStatus.failed ||
+        city == null ||
+        updatedAt == null ||
+        !location.shouldDiscloseAge) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Text(
+        context.l10n.prayerUpdatedAgo(_ageLabel(updatedAt)),
+        style:
+            ShiaText.caption.copyWith(color: ShiaColors.of(context).textMuted),
       ),
     );
   }

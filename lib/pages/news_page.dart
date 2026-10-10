@@ -184,53 +184,60 @@ class _NewsCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(14),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (date != null) ...[
-                      Text(
-                        dateFormat.format(date.toLocal()),
-                        style: ShiaText.caption.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colors.textMuted,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (date != null) ...[
+                          Text(
+                            dateFormat.format(date.toLocal()),
+                            style: ShiaText.caption.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: colors.textMuted,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                        ],
+                        Text(
+                          newsPlainText(item.title ?? ''),
+                          style:
+                              ShiaText.cardTitle.copyWith(color: colors.text),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                    ],
-                    Text(
-                      newsPlainText(item.title ?? ''),
-                      style: ShiaText.cardTitle.copyWith(color: colors.text),
+                      ],
                     ),
-                    if (summary.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        summary,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: ShiaText.secondary
-                            .copyWith(color: colors.textMuted),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (image != null) ...[
-                const SizedBox(width: 12),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    image,
-                    width: 84,
-                    height: 84,
-                    fit: BoxFit.cover,
-                    excludeFromSemantics: true,
-                    // A picture that will not load just leaves the text.
-                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                   ),
+                  if (image != null) ...[
+                    const SizedBox(width: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        image,
+                        width: 84,
+                        height: 84,
+                        fit: BoxFit.cover,
+                        excludeFromSemantics: true,
+                        // A picture that will not load just leaves the text.
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              // Full width, under the title and picture rather than squeezed
+              // beside the picture.
+              if (summary.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  summary,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: ShiaText.secondary.copyWith(color: colors.textMuted),
                 ),
               ],
             ],

@@ -122,6 +122,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                   ],
                 ],
               ),
+              if (lat != null) LocationAgeNote(location: _location),
             ],
           ),
         ),
