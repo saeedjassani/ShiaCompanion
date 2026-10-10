@@ -16,6 +16,7 @@ Exit status is 1 when any listed uid has an error.
 import argparse
 import collections
 import json
+import os
 import re
 import sys
 
@@ -166,15 +167,29 @@ def lint_entry(uid, entry, index, redirects, live):
     return out
 
 
+def merged_web_slugs():
+    """MERGED_ZIKR_SLUGS from the web build: same-content slug pairs that
+    already collapse to one indexable page, so an alias keeping its own
+    slug there is deliberate."""
+    path = os.path.join(corpus.ROOT, 'scripts', 'generate_zikr_seo_pages.js')
+    with open(path, encoding='utf-8') as f:
+        src = f.read()
+    block = src[src.index('MERGED_ZIKR_SLUGS = {'):]
+    block = block[:block.index('};')]
+    return {frozenset(p) for p in re.findall(r"'([^']+)':\s*'([^']+)'", block)}
+
+
 def lint_index(index, redirects, live):
     out = []
+    merged = merged_web_slugs()
     for key, meta in index.items():
         if '|' in key:
             alias, target = key.split('|', 1)
             tmeta = index.get(target)
             if tmeta is None:
                 out.append(Finding(alias, 'error', 'ALIAS_TARGET', 'zikr.json', f'{key}: no {target}'))
-            elif tmeta['title'] == meta['title'] and tmeta.get('slug') != meta.get('slug'):
+            elif (tmeta['title'] == meta['title'] and tmeta.get('slug') != meta.get('slug')
+                  and frozenset((tmeta.get('slug'), meta.get('slug'))) not in merged):
                 out.append(Finding(alias, 'error', 'ALIAS_SLUG', 'zikr.json',
                                    f"same title as {target} but slug {meta.get('slug')!r} != {tmeta.get('slug')!r}"))
     bases = collections.Counter(k.split('|')[0] for k in index)

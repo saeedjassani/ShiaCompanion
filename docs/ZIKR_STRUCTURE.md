@@ -79,6 +79,13 @@ prayer in Ramazan).
   `Salawat ×100`, `Istighfar ×70`, `Dua Ya Aliyyu Ya Azim`. Never Arabic,
   never just a number (`(1)`, `Dua 2`, `1st`), never `Miscellaneous` /
   `More` / `Other`, never empty.
+- Name a dua the way people know it - `Dua Ya Malik al-Riqab`, `Dua
+  Asbahtu Allahumma` - and anything without such a name by what it is -
+  `Forgiveness for Believers ×25`, `Ghusl & Grooming`.
+- **Changing tab order or count** (adding, removing, splitting, merging
+  tabs) shifts every `RetiredZikrRedirect(uid, tabIndex: n)` into that
+  entry - `grep "RetiredZikrRedirect('<uid>'" lib/data/retired_zikr_redirects.dart`
+  and update each `tabIndex` so it still lands on the same text.
 - Each tab opens with its own instruction line - someone can land on it
   straight from a bookmark.
 - Do not split one continuous dua into tabs; scrolling is fine.

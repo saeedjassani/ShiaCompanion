@@ -29,7 +29,7 @@ No Arabic. Some carry an act (fast, give alms, a prayer) and stay; the ones that
 | W2 | 20th Jumada al-Akhirah (Birthday of Lady Fatimah al-Zahra (s.a.)) | body | no Arabic, reports an occasion (541 chars) - check rule 6: On the twentieth of Jamadi al-Akhirah, Lady Fatimah al-Zahra’(a.s.) was born fiv |
 | X11 | (e) Thirteenth of Rajab | body | no Arabic, reports an occasion (1336 chars) - check rule 6: It is recommended to offer a certain prayer on each of the White Nights (i.e. th |
 
-## Long instructions that may not belong in the app (50)
+## Long instructions that may not belong in the app (49)
 
 Long runs of standalone English in the body - rulings, histories, long how-tos. Keep, trim, or drop?
 
@@ -80,8 +80,6 @@ Long runs of standalone English in the body - rulings, histories, long how-tos. 
 | I8 | Etiquettes of Taqibaat | body | 1789 chars of standalone prose: Allamah al-Majlisi, may Allah have mercy upon him, says:... |
 | I9 | General Taqibaat - 1 | tab 1 | 1656 chars of standalone prose: Through a valid chain of authority (i.e. sanad), Imam al-Baqir (a.s.) ... |
 | J1 | Merits & Rituals of Friday Night & Day | body | 6241 chars of standalone prose: MERITS OF FRIDAYS... |
-| J6 | Recommended Rites of Friday | body | 2578 chars of standalone prose: In addition, it has been narrated that one who repeats the aforesaid i... |
-| J6 | Recommended Rites of Friday | body | 2896 chars of standalone prose: It is also recommended, on cutting the nails, to start with the little... |
 | J7 | Aamal of Zuhr Prayer on Friday | body | 2099 chars of standalone prose: Twenty-Second: It is recommended to recite [Surah al-Jumu’ah](A66) (No... |
 | P1 | Recommended Rites of Friday Night (Shab-e-Jumu'ah) | tab 2 | 2776 chars of standalone prose: Second: On Friday nights it is recommended to recite the following cha... |
 | P1 | Recommended Rites of Friday Night (Shab-e-Jumu'ah) | tab 3 | 2224 chars of standalone prose: It is highly recommended to offer many supererogatory prayers on Frida... |

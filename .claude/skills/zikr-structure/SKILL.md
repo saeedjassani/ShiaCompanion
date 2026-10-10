@@ -50,6 +50,9 @@ file is the procedure. Arabic orthography is a different job (the
    sync with the file - see CLAUDE.md "Zikr title conventions"), audio,
    Arabic. Don't remove, merge or alias entries yourself - list what you
    would do in your report (below), the owner decides.
+7. If you changed the tab order or count, fix every redirect into the
+   entry: `grep "RetiredZikrRedirect('<uid>'" lib/data/retired_zikr_redirects.dart`
+   (the pilot moved four into I17, not one), and update their comments.
 
 ### Instruction lines
 
