@@ -50,7 +50,9 @@ import 'package:shia_companion/pages/home/get_app_card.dart';
 import 'package:shia_companion/pages/home/home_header.dart';
 import 'package:shia_companion/pages/home/home_section.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
+import 'package:shia_companion/pages/home/today_section.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/widgets/balanced_columns.dart';
 import 'package:shia_companion/widgets/glass_surface.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
@@ -410,6 +412,16 @@ class _MyHomePageState extends State<MyHomePage>
       onOpen: _openHomeMenuItem,
       onOpenAllFeatures: _openAllFeatures,
     );
+    TodaySection today({
+      required double horizontalPadding,
+      bool grid = false,
+    }) =>
+        TodaySection(
+          topSpacing: gap,
+          horizontalPadding: horizontalPadding,
+          grid: grid,
+          onSeeAll: () => _openHomeMenuItem(todaysRecitationsMenuItem),
+        );
     final hadithCard = hadith.isEmpty && localizedHadith == null
         ? const SizedBox.shrink()
         : Padding(
@@ -425,8 +437,10 @@ class _MyHomePageState extends State<MyHomePage>
 
     final Widget content;
     if (wide) {
-      // Tablet and up: prayer card, Continue and (on the web) Get the app
-      // on the left; Shortcuts and the hadith on the right.
+      // Tablet and up, two columns: the prayer card, Continue and Today
+      // on the left, Shortcuts on the right; the hadith and (on the web)
+      // Get the app each go under whichever column is shorter, so the two
+      // end level rather than one leaving a gap.
       content = Padding(
         padding: EdgeInsets.symmetric(horizontal: gutter),
         child: Column(
@@ -434,29 +448,17 @@ class _MyHomePageState extends State<MyHomePage>
           children: [
             header,
             SizedBox(height: gap),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: desktop ? 115 : 100,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      prayerCard,
-                      ContinueSection(topSpacing: gap, horizontalPadding: 0),
-                      getApp,
-                    ],
-                  ),
-                ),
-                SizedBox(width: desktop ? 32 : 24),
-                Expanded(
-                  flex: 100,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [shortcuts, hadithCard],
-                  ),
-                ),
+            BalancedColumns(
+              startFlex: desktop ? 115 : 100,
+              endFlex: 100,
+              gap: desktop ? 32 : 24,
+              start: [
+                prayerCard,
+                ContinueSection(topSpacing: gap, horizontalPadding: 0),
+                today(horizontalPadding: 0, grid: true),
               ],
+              end: [shortcuts],
+              floating: [hadithCard, getApp],
             ),
           ],
         ),
@@ -469,8 +471,10 @@ class _MyHomePageState extends State<MyHomePage>
           Padding(padding: pad, child: header),
           SizedBox(height: gap),
           Padding(padding: pad, child: prayerCard),
-          // Draws its own gutter: its cards scroll to the screen's edge.
+          // These two draw their own gutter: their cards scroll to the
+          // screen's edge.
           ContinueSection(topSpacing: gap, horizontalPadding: gutter),
+          today(horizontalPadding: gutter),
           SizedBox(height: gap),
           Padding(padding: pad, child: shortcuts),
           Padding(padding: pad, child: hadithCard),
@@ -683,11 +687,7 @@ class _MyHomePageState extends State<MyHomePage>
     showArabicAsParagraph =
         SP.prefs.getBool('showArabicAsParagraph') ?? showArabicAsParagraph;
 
-    hijriDate = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
-
-    city = SP.prefs.getString("city");
-    lat = SP.prefs.getDouble("lat");
-    long = SP.prefs.getDouble("long");
+    restoreDayPreferences();
     LocationService.instance.restore();
     arabicFont = await FontPreferences.getSelectedFont() ?? "Qalam";
 
@@ -722,8 +722,7 @@ class _MyHomePageState extends State<MyHomePage>
   void didChangeDependencies() {
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
-    if (_hadithLanguage != null &&
-        _hadithLanguage != context.l10n.localeName) {
+    if (_hadithLanguage != null && _hadithLanguage != context.l10n.localeName) {
       getHadith();
     }
   }

@@ -138,15 +138,19 @@ final HomeMenuItem calendarMenuItem = HomeMenuItem(
   pageBuilder: () => const CalendarPage(),
 );
 
+/// Today's Recitations: a shortcut, and where Home's Today section's
+/// See all leads.
+final HomeMenuItem todaysRecitationsMenuItem = HomeMenuItem(
+  label: "Today's Recitations",
+  analyticsId: 'today_s_recitations',
+  glyphType: HomeGlyphType.todaysRecitations,
+  icon: Icons.auto_stories_rounded,
+  pageBuilder: () => TodaysRecitationPage(),
+);
+
 final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   favoritesMenuItem,
-  HomeMenuItem(
-    label: "Today's Recitations",
-    analyticsId: 'today_s_recitations',
-    glyphType: HomeGlyphType.todaysRecitations,
-    icon: Icons.auto_stories_rounded,
-    pageBuilder: () => TodaysRecitationPage(),
-  ),
+  todaysRecitationsMenuItem,
   HomeMenuItem(
     label: 'Taqeebat e Namaz',
     analyticsId: 'taqeebat_e_namaz',
@@ -384,10 +388,11 @@ List<HomeMenuItem> get allFeaturesMenuItems => List.unmodifiable([
     ]);
 
 /// What can be one of Home's shortcuts: All features less Settings, which
-/// already has the profile button on Home.
+/// already has the profile button on Home, and Today's Recitations, which
+/// Home shows as its Today section.
 List<HomeMenuItem> get shortcutCandidateMenuItems => List.unmodifiable([
       for (final item in allFeaturesMenuItems)
-        if (item != settingsMenuItem) item,
+        if (item != settingsMenuItem && item != todaysRecitationsMenuItem) item,
     ]);
 
 /// The shortcuts [ids] name, in order, skipping any this build or this user

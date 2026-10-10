@@ -139,6 +139,7 @@ class AnalyticsService {
     ZikrOpenSource.reminder: 'Zikr opened from a reminder notification',
     ZikrOpenSource.myStats: 'Zikr opened from My Stats',
     ZikrOpenSource.homeContinue: 'Zikr resumed from Continue on Home',
+    ZikrOpenSource.homeToday: 'Zikr opened from Today on Home',
     ZikrOpenSource.unknown: 'Zikr opened from an untagged entry point',
   };
 
@@ -390,4 +391,8 @@ class ZikrOpenSource {
   /// Resumed at its bookmark from a Continue card on Home. (A Quran track
   /// resumed there counts as [quranResume], as from the Quran screen.)
   static const String homeContinue = 'home_continue';
+
+  /// Tapped in the Today section on Home. Apart from [todaysRecitation] so
+  /// the section can be weighed against the full page it leads to.
+  static const String homeToday = 'home_today';
 }

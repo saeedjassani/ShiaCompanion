@@ -426,6 +426,16 @@ final ValueNotifier<bool> zikrIndexReady = ValueNotifier<bool>(false);
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Restores what decides which day it is and when its night begins - the
+/// Hijri adjustment and the stored location - so what the first frame draws
+/// (Home's header and Today) already has them.
+void restoreDayPreferences() {
+  hijriDate = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
+  city = SP.prefs.getString('city');
+  lat = SP.prefs.getDouble('lat');
+  long = SP.prefs.getDouble('long');
+}
+
 double getItemOrderValue(String uid) {
   final custom = itemOrder[uid];
   if (custom != null) return custom;

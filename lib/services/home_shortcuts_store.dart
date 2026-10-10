@@ -21,12 +21,13 @@ class HomeShortcutsStore extends ChangeNotifier {
   static const int maxShortcuts = 11;
 
   /// What a phone shows before anyone opens the editor: two rows with
-  /// All features.
+  /// All features. Today's Recitations is not among them: Home's Today
+  /// section leads to it.
   static const List<String> defaultIds = [
     'duas',
     'ziyarats',
-    'today_s_recitations',
     'taqeebat_e_namaz',
+    'namaz',
     'calendar_prayer_times',
     'tasbeeh_counter',
     'qibla_finder',
@@ -39,7 +40,7 @@ class HomeShortcutsStore extends ChangeNotifier {
     'qaza_tracker',
     'playlists',
     'library',
-    'namaz',
+    'aamaal',
   ];
 
   /// The chosen ids, or the phone's [defaultIds] when nothing has been

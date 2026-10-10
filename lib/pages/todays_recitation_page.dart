@@ -94,16 +94,16 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
         SliverPadding(
           padding: gutter.copyWith(bottom: 8),
           sliver: SliverToBoxAdapter(
-            child: GroupLabel(_label(group.kind, today, l10n)),
+            child:
+                GroupLabel(todaysRecitationGroupLabel(group.kind, today, l10n)),
           ),
         ),
         SliverPadding(
           padding: gutter.copyWith(bottom: 14),
           sliver: SliverCardList(
             itemCount: group.items.length,
-            itemBuilder: (context, i) => _buildRow(
-              context,
-              group.items[i],
+            itemBuilder: (context, i) => TodaysRecitationRow(
+              entry: group.items[i],
               first: i == 0,
               last: i == group.items.length - 1,
             ),
@@ -112,56 +112,96 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
       ],
     ];
   }
+}
 
-  String _label(
-    TodaysRecitationKind kind,
-    ({LunarDay day, LunarDay? night}) today,
-    AppLocalizations l10n,
-  ) {
-    String date(LunarDay lunarDay) => l10n.occasionDaysOfMonth(
-          localizeDigits('${lunarDay.hijri.hDay}', l10n),
-          zikrMonthName(lunarDay.hijri.hMonth, l10n),
-        );
-    return switch (kind) {
-      TodaysRecitationKind.night =>
-        l10n.occasionNightsOf(1, date(today.night ?? today.day)),
-      TodaysRecitationKind.date => date(today.day),
-      TodaysRecitationKind.month =>
-        l10n.todaysGroupMonth(zikrMonthName(today.day.hijri.hMonth, l10n)),
-      TodaysRecitationKind.weekday =>
-        l10n.todaysGroupWeekday(weekdayName(today.day.weekday)),
-      TodaysRecitationKind.everyDay => l10n.occasionEveryDay,
-    };
-  }
+/// What Today's Recitations heads a group of [kind] with, and what Home's
+/// Today section says under each row: "Night of 15 Shaban", "In Rajab",
+/// "For Thursday", "Every day".
+String todaysRecitationGroupLabel(
+  TodaysRecitationKind kind,
+  ({LunarDay day, LunarDay? night}) today,
+  AppLocalizations l10n,
+) {
+  String date(LunarDay lunarDay) => l10n.occasionDaysOfMonth(
+        localizeDigits('${lunarDay.hijri.hDay}', l10n),
+        zikrMonthName(lunarDay.hijri.hMonth, l10n),
+      );
+  return switch (kind) {
+    TodaysRecitationKind.night =>
+      l10n.occasionNightsOf(1, date(today.night ?? today.day)),
+    TodaysRecitationKind.date => date(today.day),
+    TodaysRecitationKind.month =>
+      l10n.todaysGroupMonth(zikrMonthName(today.day.hijri.hMonth, l10n)),
+    TodaysRecitationKind.weekday =>
+      l10n.todaysGroupWeekday(weekdayName(today.day.weekday)),
+    TodaysRecitationKind.everyDay => l10n.occasionEveryDay,
+  };
+}
 
-  Widget _buildRow(
-    BuildContext context,
-    UidTitleData entry, {
-    required bool first,
-    required bool last,
-  }) {
+/// One of today's recitations in a card list: a zikr's row, or a group's
+/// (a month's aamal) that opens its list.
+class TodaysRecitationRow extends StatelessWidget {
+  const TodaysRecitationRow({
+    super.key,
+    required this.entry,
+    this.subtitle,
+    this.source = ZikrOpenSource.todaysRecitation,
+    this.first = false,
+    this.last = false,
+  });
+
+  final UidTitleData entry;
+
+  /// Which occasion it is for, where no group label above says so.
+  final String? subtitle;
+
+  /// The [ZikrOpenSource] a tap is counted under.
+  final String source;
+
+  final bool first;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
     final itemData = UniversalData(entry.uid, entry.title, 0);
     final title = isUserAdmin
         ? '${itemData.uid} ${itemData.displayTitle}'
         : itemData.displayTitle;
+    void open() => openTodaysRecitation(context, entry, source: source);
 
     if (isZikrGroup(entry)) {
       return ZikrGroupRow(
         first: first,
         last: last,
         title: title,
-        onTap: () => pushPageRoute(context,
-            ItemList(entry.getUId().split("~")[1], itemData.displayTitle)),
+        subtitle: subtitle,
+        onTap: open,
       );
     }
 
     return ZikrListRow(
       item: itemData,
       title: title,
+      subtitle: subtitle,
       first: first,
       last: last,
-      onTap: () => handleUniversalDataClick(context, itemData,
-          source: ZikrOpenSource.todaysRecitation),
+      onTap: open,
     );
   }
+}
+
+/// Opens one of today's recitations: the zikr, or a group's list (a
+/// month's aamal).
+void openTodaysRecitation(
+  BuildContext context,
+  UidTitleData entry, {
+  String source = ZikrOpenSource.todaysRecitation,
+}) {
+  final itemData = UniversalData(entry.uid, entry.title, 0);
+  if (isZikrGroup(entry)) {
+    pushPageRoute(
+        context, ItemList(entry.getUId().split("~")[1], itemData.displayTitle));
+    return;
+  }
+  handleUniversalDataClick(context, itemData, source: source);
 }

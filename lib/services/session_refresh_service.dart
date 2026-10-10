@@ -61,8 +61,17 @@ class SessionRefreshService {
     }
   }
 
-  static Future<void> loadItemsFromAssets() async {
-    zikrIndexReady.value = false;
+  /// The one load of the bundled zikr index, started by main() before the
+  /// first frame so Home's Today shows on it. The asset never changes under
+  /// a running build, so later session refreshes reuse it rather than
+  /// reload it - and never flip [zikrIndexReady] back to false, which hid
+  /// everything waiting on it for a moment.
+  static Future<void>? _itemsLoad;
+
+  static Future<void> loadItemsFromAssets() =>
+      _itemsLoad ??= _loadItemsFromAssets();
+
+  static Future<void> _loadItemsFromAssets() async {
     try {
       String data = await rootBundle.loadString("assets/zikr.json");
       final decoded = json.decode(data);
@@ -95,6 +104,8 @@ class SessionRefreshService {
       });
     } catch (e) {
       debugPrint("Error loading zikr index from assets: $e");
+      // Tried again on the next session refresh.
+      _itemsLoad = null;
     } finally {
       // Flip even on failure: a page waiting on this must stop spinning
       // (and fall back to whatever's currently in `items`, even if empty)
