@@ -35,10 +35,10 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'I26': RetiredZikrRedirect('I24', tabIndex: 1),
   'E48': RetiredZikrRedirect('I20', tabIndex: 0),
   'I25': RetiredZikrRedirect('I24', tabIndex: 0),
-  'E56': RetiredZikrRedirect('I17', tabIndex: 2),
-  'E106': RetiredZikrRedirect('I9', tabIndex: 2),
+  'E56': RetiredZikrRedirect('I17', tabIndex: 1),
+  'E106': RetiredZikrRedirect('I9', tabIndex: 7),
   'E151': RetiredZikrRedirect('I21', tabIndex: 1),
-  'I16': RetiredZikrRedirect('I14', tabIndex: 0),
+  'I16': RetiredZikrRedirect('I14', tabIndex: 6),
 
   /// Found during the top-20 favorited-missing-zikr restoration pass: E53's
   /// old content ("Ya 'Imada man la 'Imada lahu...", from al-Khisal, taught
@@ -69,14 +69,15 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// closer title match and carries the exact phrase E148 leads with.
   'E148': RetiredZikrRedirect('I19'),
 
-  /// Found during the 2026-09-14 restoration pass: I15's old content ("Twelfth"
-  /// through "Sixteenth" - the ten-times tahlil statement, Prophet Joseph's
-  /// dua, the "Your forgiveness is more hopeful than my deeds" dua, etc.) is
-  /// word-for-word already live inside I14 ("General Ta'qeebaat-2"), under
-  /// its own inline heading "Virtues of the 'Effective Veneration'" - I15's
-  /// exact title. Restoring it standalone would just duplicate that section
-  /// of I14's main data.
-  'I15': RetiredZikrRedirect('I14'),
+  /// Found during the 2026-09-14 restoration pass: I15's old content (the
+  /// ten-times tahlil statement, Prophet Joseph's dua, the "Your forgiveness
+  /// is more hopeful than my deeds" dua, etc.) is word-for-word already live
+  /// inside I14 ("General Ta'qeebaat-2"), where it opened under the inline
+  /// heading "Virtues of the 'Effective Veneration'" - I15's exact title.
+  /// Restoring it standalone would just duplicate those tabs; the redirect
+  /// lands on I14's "Tahleel x10 (Effective Veneration)" tab, where that
+  /// run of duas begins.
+  'I15': RetiredZikrRedirect('I14', tabIndex: 1),
 
   /// Caught in review of the 2026-09-14 sixth restoration pass: I10's title
   /// ("General Ta'qeebaat - 1") is the same entry as the already-live I9's
@@ -89,24 +90,23 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// Caught in the same review sweep: I18's entire content ("Merit of
   /// reciting Bismillah along with La Haula Wa La Quwwata") is word-for-word
   /// already live inside I17 ("Ta'qeebaat of the Dawn (Fajr) Prayers")'s
-  /// second tab, under I17's own "Seventh:" numbered section (Sayyid Ibn
-  /// Tawus / Imam al-Rida narration on the Bismillah+la-hawla doxology).
-  'I18': RetiredZikrRedirect('I17', tabIndex: 1),
+  /// "Tasbih & La Hawla" tab (the Bismillah+la-hawla doxology; the Sayyid
+  /// Ibn Tawus / Imam al-Rida narration is in I17's merits).
+  'I18': RetiredZikrRedirect('I17', tabIndex: 0),
 
   /// E99's entire content ("Dua of Covenant with Almighty Allah") is
-  /// word-for-word already live inside I17's fourth tab, spanning I17's own
-  /// "Eleventh:" and "Twelfth:" numbered sections (the Prophet's morning/
-  /// evening covenant and the post-fajr salutation formula).
-  'E99': RetiredZikrRedirect('I17', tabIndex: 3),
+  /// word-for-word already live inside I17: the Prophet's morning/evening
+  /// covenant is I17's "Dua of the Covenant" tab, and the post-fajr
+  /// salutation formula is the next tab, "Salawat after Fajr".
+  'E99': RetiredZikrRedirect('I17', tabIndex: 2),
 
   /// E40's entire content ("Dua for delaying death (Ajal)") is the same
   /// Prophetic hadith and the same "Subhaanallaahi mil'al meezaan..."
-  /// glorification as I17's second tab, under I17's own "Sixth:" numbered
-  /// section - I17 additionally carries a "wa sa'atal kursiyy" tail and a
-  /// follow-on Alhamdulillah variant that E40 lacks, but it's the same
-  /// narration and the same core dhikr, just under a different numbering
-  /// scheme.
-  'E40': RetiredZikrRedirect('I17', tabIndex: 1),
+  /// glorification as in I17's "Tasbih & La Hawla" tab - I17 additionally
+  /// carries a "wa sa'atal kursiyy" tail and a follow-on Alhamdulillah
+  /// variant that E40 lacks, but it's the same narration and the same core
+  /// dhikr.
+  'E40': RetiredZikrRedirect('I17', tabIndex: 0),
 
   /// Found in a full-corpus duplicate sweep (2026-09-17), unrelated to the
   /// missing-zikr restoration project - these are old, previously-live
@@ -122,28 +122,29 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
 
   /// I12 ("Merits of reciting Ayah Kursi, Ayah Al Shahadah, Ayah Al Mulk
   /// after every Namaz") is a reworded/retranslated duplicate of I9's
-  /// second tab, which carries the identical Imam al-Sadiq hadith and the
-  /// same four-verse list (al-Faatehah, Ayat al-Kursi, Ayah al-Shahadah,
-  /// Ayah al-Mulk) under its own "Eighth:" numbered section - the same
+  /// "Fatihah, Kursi, Shahadah & Mulk" tab, which carries the identical Imam
+  /// al-Sadiq hadith (in its merits) and the same four-verse list
+  /// (al-Faatehah, Ayat al-Kursi, Ayah al-Shahadah, Ayah al-Mulk) - the same
   /// reworded-duplicate shape as the already-retired I10/I9 pair. Restored
   /// standalone in "batch 3 of top-20" (commit d72bc84) without the
   /// duplicate being caught.
-  'I12': RetiredZikrRedirect('I9', tabIndex: 1),
+  'I12': RetiredZikrRedirect('I9', tabIndex: 6),
 
   /// E49 ("Dua for Pardoning of sins") is the bare "Ya man laa
   /// yashghaluhu sam'un..." supplication with none of its narrative frame.
-  /// I14's second tab carries the same dua in full context (Imam Ali's
-  /// encounter with Prophet Khizr at the Ka'bah, per Muhammad ibn
-  /// al-Hanafiyyah, also reported by al-Kaf'ami in al-Balad al-Ameen).
-  'E49': RetiredZikrRedirect('I14', tabIndex: 1),
+  /// I14's "Dua Ya Man La Yashghaluhu" tab carries the same dua, with the
+  /// full context in its merits (Imam Ali's encounter with Prophet Khizr at
+  /// the Ka'bah, per Muhammad ibn al-Hanafiyyah, also reported by al-Kaf'ami
+  /// in al-Balad al-Ameen).
+  'E49': RetiredZikrRedirect('I14', tabIndex: 8),
 
   /// E47 ("Dua for Longevity") is the bare "Allaahumma salli ala
-  /// Muhammadin..." supplication with no narrative. I14's second tab
-  /// carries the same dua under its own "Twenty-first:" numbered section,
-  /// with the full frame it's missing: an old, lonely man asking Imam
-  /// al-Sadiq for a way to live longer (Jameel ibn Darraaj, via Sayyid Ibn
-  /// Tawus) - matching E47's own title exactly.
-  'E47': RetiredZikrRedirect('I14', tabIndex: 1),
+  /// Muhammadin..." supplication with no narrative. I14's "Dua for a Long
+  /// Life" tab carries the same dua, with the full frame it's missing in its
+  /// merits: an old, lonely man asking Imam al-Sadiq for a way to live longer
+  /// (Jameel ibn Darraaj, via Sayyid Ibn Tawus) - matching E47's own title
+  /// exactly.
+  'E47': RetiredZikrRedirect('I14', tabIndex: 10),
 
   /// E50 ("Dua for Protection of the house from damage & theft") is
   /// verbatim I24's tabs[2] ("Fear of House Collapse") *and* tabs[3]
@@ -244,22 +245,24 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'M4': RetiredZikrRedirect('M3', tabIndex: 0),
 
   /// Second through Sixth forms of the general Ziyarat of Imam Husayn,
-  /// now AG8's tabs. AG4 (salawat on Imam Husayn, "Fourteenth:") is a
-  /// section of AG5's main data.
+  /// now AG8's tabs. AG4 (salawat on Imam Husayn, "Fourteenth:") is
+  /// AG5's second tab ("Salawat on Imam Husayn (a.s.)").
   'AG9': RetiredZikrRedirect('AG8', tabIndex: 0),
   'AG10': RetiredZikrRedirect('AG8', tabIndex: 1),
   'AG11': RetiredZikrRedirect('AG8', tabIndex: 2),
   'AG12': RetiredZikrRedirect('AG8', tabIndex: 3),
   'AG13': RetiredZikrRedirect('AG8', tabIndex: 4),
-  'AG4': RetiredZikrRedirect('AG5'),
+  'AG4': RetiredZikrRedirect('AG5', tabIndex: 1),
 
   /// Third through Sixth forms of the Ziyarat of Imam Ali, plus AK14 (Imam
-  /// Zayn al-Abidin's visitation, from Farhat al-Ghari), now AK5's tabs.
+  /// Zayn al-Abidin's visitation, from Farhat al-Ghari), now AK5's tabs. AK14
+  /// is AK5's last tab, "Imam Zayn al-Abidin's Visit", split out of the
+  /// Seventh Ziyarat's tab.
   'AK9': RetiredZikrRedirect('AK5', tabIndex: 1),
   'AK10': RetiredZikrRedirect('AK5', tabIndex: 2),
   'AK11': RetiredZikrRedirect('AK5', tabIndex: 3),
   'AK12': RetiredZikrRedirect('AK5', tabIndex: 4),
-  'AK14': RetiredZikrRedirect('AK5', tabIndex: 5),
+  'AK14': RetiredZikrRedirect('AK5', tabIndex: 6),
 
   /// The Masjid al-Kufah column/station acts, now AI3's tabs. AI8 (the
   /// third column / seat of Imam Zayn al-Abidin) runs on into AI3's next
@@ -312,4 +315,22 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'P14': RetiredZikrRedirect('P1', tabIndex: 8),
   'P15': RetiredZikrRedirect('P1', tabIndex: 8),
   'P16': RetiredZikrRedirect('P1', tabIndex: 9),
+
+  /// AC16 only reported Imam al-Hadi's (a.s.) birth on 15 Dhul Hijjah, with
+  /// nothing to recite or do (docs/ZIKR_STRUCTURE.md rule 6).
+  'AC16': RetiredZikrRedirect('AC5'),
+
+  /// AB4 only recounted Imam al-Jawad's (a.s.) martyrdom on the last day of
+  /// Dhul Qa'dah, with nothing to recite or do (rule 6).
+  'AB4': RetiredZikrRedirect('AB1'),
+
+  /// R5 only narrated the siege of Imam Husayn (a.s.) on 9 Muharram (Tasua),
+  /// with nothing to recite or do (rule 6).
+  'R5': RetiredZikrRedirect('R6'),
+
+  /// R15 carried Ziyarat Ashura Ghair Maroofa (the lesser-known second form of
+  /// ziyarat on the day of Ashura) in the old paragraph mode, with its Arabic
+  /// run together in a few long lines - G83 is the same ziyarat line by line.
+  /// The 'R15|G83' alias keeps it listed under Muharram.
+  'R15': RetiredZikrRedirect('G83'),
 };

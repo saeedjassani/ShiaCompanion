@@ -1,12 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/services/analytics_service.dart';
-import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
@@ -20,8 +19,9 @@ import '../l10n/l10n.dart';
 /// "Tomorrow" once every time shown is tomorrow's. Tap for Calendar & Prayer
 /// Times; long-press to choose which times are shown.
 ///
-/// With no location yet it asks "Which city are you in?" instead. [footer],
-/// the next event, closes either.
+/// With no location yet it asks "Which city are you in?" instead, until the
+/// reader says "Not now": then a single slim row stands in for it, one tap
+/// from the city picker. [footer], the next event, closes all three.
 class HomePrayerTimesCard extends StatefulWidget {
   const HomePrayerTimesCard({super.key, this.onTap, this.footer});
 
@@ -39,6 +39,27 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
 
   final LocationService _location = LocationService.instance;
   Timer? _ticker;
+
+  /// Set once the reader answers "Which city are you in?" with "Not now":
+  /// from then on the question shrinks to one row instead of taking over the
+  /// top of Home. Nothing clears it - once a location is known the card shows
+  /// times and the flag no longer matters.
+  static const String cityPromptDismissedKey =
+      'prayer_card_city_prompt_dismissed';
+
+  bool get _cityPromptDismissed =>
+      SP.isInitialized && (SP.prefs.getBool(cityPromptDismissedKey) ?? false);
+
+  Future<void> _dismissCityPrompt() async {
+    unawaited(AnalyticsService.feature(
+      'city_prompt_dismissed',
+      label: 'City prompt dismissed',
+    ));
+    if (SP.isInitialized) {
+      await SP.prefs.setBool(cityPromptDismissedKey, true);
+    }
+    if (mounted) setState(() {});
+  }
 
   /// Lets tests pin "now" instead of racing the wall clock: which prayers
   /// count as "next" — and whether they belong to today or tomorrow — depends
@@ -101,32 +122,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     await _chooseCity();
   }
 
-  Future<void> _acceptGuess(City guess) async {
-    await applyCityChoice(context, ChosenCity(guess), source: 'time_zone');
-    if (mounted) setState(() {});
-  }
-
-  /// The city the phone's time zone points at, worked out once per run and
-  /// only when the card has no location to show - so the city list is only
-  /// read for someone who needs it.
-  static Future<City?>? _timeZoneGuess;
-
-  /// Where the phone's time zone is read from; tests pin it.
-  @visibleForTesting
-  static Future<String?> Function() timeZoneSource = deviceTimeZone;
-
-  @visibleForTesting
-  static void debugResetTimeZoneGuess() => _timeZoneGuess = null;
-
-  static Future<City?> _guessCity() async {
-    final zone = await timeZoneSource();
-    if (zone == null || !zone.contains('/') || zone.startsWith('Etc/')) {
-      return null;
-    }
-    await CityRepository.instance.load();
-    return CityRepository.instance.guessForTimeZone(zone);
-  }
-
   /// The same picker Settings offers, reachable from the card it changes.
   Future<void> _editTimesShown() async {
     final changed = await showWidgetPrayerTimesDialog(context);
@@ -153,16 +148,15 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         : const <WidgetPrayerTimeReading>[];
 
     if (readings.isEmpty) {
-      return FutureBuilder<City?>(
-        future: _timeZoneGuess ??= _guessCity().catchError((_) => null),
-        builder: (context, snapshot) => _ChooseLocationCard(
-          location: _location,
-          guess: snapshot.data,
-          onUseLocation: _refreshLocation,
-          onChooseCity: _chooseCity,
-          onAcceptGuess: _acceptGuess,
-          footer: widget.footer,
-        ),
+      if (_cityPromptDismissed) {
+        return _SetCityRow(onTap: _chooseCity, footer: widget.footer);
+      }
+      return _ChooseLocationCard(
+        location: _location,
+        onUseLocation: _refreshLocation,
+        onChooseCity: _chooseCity,
+        onNotNow: _dismissCityPrompt,
+        footer: widget.footer,
       );
     }
 
@@ -644,24 +638,26 @@ class _CountdownState extends State<_Countdown> {
 }
 
 /// No location has ever been resolved, so there are no times to show: ask
-/// which city the reader is in, suggesting the one their phone's time zone
-/// points at. Never a dead end — "Use my location" stays live while a fetch
+/// which city the reader is in. Three answers, one of each weight: share the
+/// location, name a city (the picker opens on the cities of the phone's time
+/// zone, so the likely one is a tap away), or not now. Never a dead end — "Use my location" stays live while a fetch
 /// runs, since one that silently died must not strand anyone on a spinner.
 class _ChooseLocationCard extends StatelessWidget {
   const _ChooseLocationCard({
     required this.location,
-    required this.guess,
     required this.onUseLocation,
     required this.onChooseCity,
-    required this.onAcceptGuess,
+    required this.onNotNow,
     this.footer,
   });
 
   final LocationService location;
-  final City? guess;
   final VoidCallback onUseLocation;
   final VoidCallback onChooseCity;
-  final ValueChanged<City> onAcceptGuess;
+
+  /// Shrinks the card to [_SetCityRow], for someone who would rather neither
+  /// share their location nor name a city.
+  final VoidCallback onNotNow;
   final Widget? footer;
 
   @override
@@ -670,7 +666,6 @@ class _ChooseLocationCard extends StatelessWidget {
     final refreshing = location.isRefreshing;
     final failed = location.status == LocationRefreshStatus.failed;
     final muted = ShiaText.secondary.copyWith(color: colors.onPrayerCardMuted);
-    final guess = this.guess;
 
     final useLocationLabel = refreshing
         ? context.l10n.prayerFindingLocation
@@ -682,13 +677,13 @@ class _ChooseLocationCard extends StatelessWidget {
             dimension: 16,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: guess == null ? colors.onGold : colors.onPrayerCard,
+              color: colors.onGold,
             ),
           )
         : OutlineIcon(
             OutlineGlyph.pin,
             size: 18,
-            color: guess == null ? colors.onGold : colors.onPrayerCard,
+            color: colors.onGold,
             strokeWidth: 2,
           );
     final chooseCity = _OutlineCardButton(
@@ -746,51 +741,100 @@ class _ChooseLocationCard extends StatelessWidget {
                     style: muted,
                   ),
                   const SizedBox(height: 14),
-                  if (guess != null) ...[
-                    Text(
-                      context.l10n.prayerZoneSuggests(guess.name),
-                      style: ShiaText.caption.copyWith(
-                        fontSize: 14,
-                        height: 18 / 14,
-                        color: colors.onPrayerCardMuted,
-                      ),
+                  _GoldButton(
+                    icon: useLocationIcon,
+                    label: useLocationLabel,
+                    onPressed: onUseLocation,
+                  ),
+                  const SizedBox(height: 8),
+                  chooseCity,
+                  const SizedBox(height: 2),
+                  TextButton(
+                    onPressed: onNotNow,
+                    style: TextButton.styleFrom(
+                      foregroundColor: colors.onPrayerCardMuted,
+                      textStyle: ShiaText.secondary
+                          .copyWith(fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(height: 8),
-                    _GoldButton(
-                      label: context.l10n.prayerYesImIn(guess.name),
-                      onPressed: () => onAcceptGuess(guess),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _OutlineCardButton(
-                            icon: useLocationIcon,
-                            label: refreshing
-                                ? context.l10n.prayerLocating
-                                : useLocationLabel,
-                            onPressed: onUseLocation,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(child: chooseCity),
-                      ],
-                    ),
-                  ] else ...[
-                    _GoldButton(
-                      icon: useLocationIcon,
-                      label: useLocationLabel,
-                      onPressed: onUseLocation,
-                    ),
-                    const SizedBox(height: 8),
-                    chooseCity,
-                  ],
+                    child: Text(context.l10n.setupNotNow),
+                  ),
                 ],
               ),
             ),
             if (footer != null) footer!,
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// What "Which city are you in?" shrinks to after "Not now": one row that
+/// still says why the times are missing and opens the city picker on tap.
+class _SetCityRow extends StatelessWidget {
+  const _SetCityRow({required this.onTap, this.footer});
+
+  final VoidCallback onTap;
+  final Widget? footer;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Material(
+      color: colors.prayerCard,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: BorderSide(color: colors.prayerCardBorder),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+              child: Row(
+                children: [
+                  OutlineIcon(
+                    OutlineGlyph.pin,
+                    size: 20,
+                    color: colors.gold,
+                    strokeWidth: 2,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.l10n.prayerTimesTitle,
+                          style: ShiaText.body.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: colors.onPrayerCard,
+                          ),
+                        ),
+                        Text(
+                          context.l10n.prayerSetCityHint,
+                          style: ShiaText.secondary
+                              .copyWith(color: colors.onPrayerCardMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlineIcon(
+                    OutlineGlyph.chevronRight,
+                    size: 18,
+                    color: colors.onPrayerCardMuted,
+                    strokeWidth: 2,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (footer != null) footer!,
+        ],
       ),
     );
   }

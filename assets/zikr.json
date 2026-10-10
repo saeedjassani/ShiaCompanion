@@ -678,7 +678,10 @@
   "AB1": {
     "title": "Dhul Qa'dah - Sunday Namaz",
     "slug": "zilqad-sunday-namaz",
-    "day": "11-*-0"
+    "day": "11-*-0",
+    "slugAliases": [
+      "the-last-day-of-zilqad"
+    ]
   },
   "AB2": {
     "title": "11th, 15th & 23rd of Dhul Qa'dah",
@@ -695,14 +698,6 @@
     "day": [
       "N11-25",
       "11-25"
-    ]
-  },
-  "AB4": {
-    "title": "The Last Day of Dhul Qa'dah",
-    "slug": "the-last-day-of-zilqad",
-    "day": [
-      "11-29",
-      "11-30"
     ]
   },
   "AC1": {
@@ -746,12 +741,6 @@
     "order": 15,
     "slug": "the-day-of-eid-al-adha-qurban",
     "day": "12-10"
-  },
-  "AC16": {
-    "title": "The Fifteenth of Dhul Hijjah",
-    "order": 16,
-    "slug": "the-fifteenth-of-zilhajj",
-    "day": "12-15"
   },
   "AC17": {
     "title": "Aamal of the Night of Eid al-Ghadir",
@@ -822,7 +811,8 @@
     "order": 1,
     "slug": "first-ten-days-of-zilhajj",
     "slugAliases": [
-      "zilhajj"
+      "zilhajj",
+      "the-fifteenth-of-zilhajj"
     ],
     "day": [
       "12-01",
@@ -2388,7 +2378,10 @@
   "G83": {
     "title": "Ziyarat Ashura Ghair Maroofa",
     "slug": "ziyaarat-e-aashoora-gair-ma-roofah",
-    "day": "01-10"
+    "day": "01-10",
+    "slugAliases": [
+      "second-ziyarah-on-day-of-ashura-lesser-known-version"
+    ]
   },
   "G84|AL17": {
     "title": "Ziyarat of Imam al-Mahdi (a.t.f.s.) after the Fajr Prayer (Allahumma Balligh)",
@@ -2439,11 +2432,11 @@
     ]
   },
   "H18": {
-    "title": "(1) Munajat for Istikhara",
+    "title": "Munajat for Istikhara",
     "slug": "1-munajaat-for-guidance-to-the-best"
   },
   "H19": {
-    "title": "(2) Munajat for True Repentance",
+    "title": "Munajat for True Repentance",
     "slug": "2-munajaat-for-true-repentance"
   },
   "H2": {
@@ -2451,35 +2444,35 @@
     "slug": "2nd-whispered-prayer-of-the-complainers-munajaat-al-shakeen"
   },
   "H20": {
-    "title": "(3) Munajat for Help in Travel",
+    "title": "Munajat for Help in Travel",
     "slug": "3-munajaat-for-help-in-travel"
   },
   "H21": {
-    "title": "(4) Munajat for Sustenance",
+    "title": "Munajat for Sustenance",
     "slug": "4-munajaat-for-sustenance"
   },
   "H22": {
-    "title": "(5) Munajat for Seeking Protection",
+    "title": "Munajat for Seeking Protection",
     "slug": "5-munajaat-for-seeking-protection"
   },
   "H23": {
-    "title": "(6) Munajat for Acceptance of Repentance",
+    "title": "Munajat for Acceptance of Repentance",
     "slug": "6-munajaat-for-acceptance-of-repentance"
   },
   "H24": {
-    "title": "(7) Munajat for Hajj",
+    "title": "Munajat for Hajj",
     "slug": "7-munajaat-for-hajj"
   },
   "H25": {
-    "title": "(8) Munajat for Safety from Persecution",
+    "title": "Munajat for Safety from Persecution",
     "slug": "8-munajaat-for-safety-from-persecution"
   },
   "H26": {
-    "title": "(9) Munajat for Thanksgiving",
+    "title": "Munajat for Thanksgiving",
     "slug": "9-munajaat-for-thanksgiving"
   },
   "H27": {
-    "title": "(10) Munajat for Granting of Requests",
+    "title": "Munajat for Granting of Requests",
     "slug": "10-munajaat-for-granting-of-requests"
   },
   "H3": {
@@ -3037,11 +3030,6 @@
     "title": "Dua Alqama",
     "slug": "dua-alqamah"
   },
-  "R15": {
-    "title": "Second Ziyarat on the Day of Ashura; Lesser Known Version",
-    "slug": "second-ziyarah-on-day-of-ashura-lesser-known-version",
-    "day": "01-10"
-  },
   "R15|G83": {
     "title": "Ziyarat Ashura Ghair Maroofa",
     "slug": "ziyaarat-e-ashoora-ghair-ma-roofah"
@@ -3051,15 +3039,13 @@
     "slug": "the-third-of-moharram",
     "day": "01-03"
   },
-  "R5": {
-    "title": "The Ninth of Muharram",
-    "slug": "the-ninth-of-muharram",
-    "day": "01-09"
-  },
   "R6": {
     "title": "The 10th Night of Muharram",
     "slug": "the-10th-night-of-moharram-shabe-ashura",
-    "day": "N01-10"
+    "day": "N01-10",
+    "slugAliases": [
+      "the-ninth-of-muharram"
+    ]
   },
   "R7": {
     "title": "The 10th of Muharram",
@@ -3128,7 +3114,7 @@
     "day": "07-*"
   },
   "X10": {
-    "title": "(d) Fifteenth of Rajab (Namaz-e-Salman)",
+    "title": "Fifteenth of Rajab (Namaz-e-Salman)",
     "slug": "d-fifteenth-of-rajab-namaz-e-salman",
     "day": [
       "07-01",
@@ -3136,7 +3122,7 @@
     ]
   },
   "X11": {
-    "title": "(e) Thirteenth of Rajab",
+    "title": "Thirteenth of Rajab",
     "slug": "e-thirteenth-of-rajab",
     "day": [
       "N07-13",
@@ -3151,12 +3137,12 @@
     "day": "07-15"
   },
   "X14": {
-    "title": "(g) Aamal & Dua of Umm Dawood",
+    "title": "Aamal & Dua of Umm Dawood",
     "slug": "g-aamal-dua-of-umme-dawood",
     "day": "07-15"
   },
   "X15": {
-    "title": "(h) Aamal of Laylat al-Mab'ath (27th Night)",
+    "title": "Aamal of Laylat al-Mab'ath (27th Night)",
     "slug": "h-aamal-of-laylat-al-mab-as-27th-night",
     "day": "N07-27"
   },
@@ -3181,7 +3167,7 @@
     "day": "07-*"
   },
   "X6": {
-    "title": "(a) First Night of Friday (Laylat al-Raghaib)",
+    "title": "First Night of Friday (Laylat al-Raghaib)",
     "slug": "a-first-night-of-friday-laylat-al-raghaaeb",
     "day": [
       "07-*-4#1",
@@ -3189,7 +3175,7 @@
     ]
   },
   "X7": {
-    "title": "(b) First Night of Rajab",
+    "title": "First Night of Rajab",
     "slug": "b-first-night-of-rajab",
     "day": "N07-01"
   },

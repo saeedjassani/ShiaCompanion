@@ -974,39 +974,43 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             content,
-            const _CardDivider(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                children: [
-                  if (showAzan) ...[
+            // Azan and the times on Home have nothing to work from until
+            // there is a location, so they wait for one.
+            if (entries != null) ...[
+              const _CardDivider(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Row(
+                  children: [
+                    if (showAzan) ...[
+                      Expanded(
+                        child: _CardButton(
+                          glyph: OutlineGlyph.bell,
+                          label: context.l10n.azanTitle,
+                          value: azanOn > 0
+                              ? context.l10n.calendarAzanOnFor(azanOn)
+                              : context.l10n.azanOff,
+                          onTap: _openAzan,
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 22,
+                        color: colors.onPrayerCard.withValues(alpha: 0.16),
+                      ),
+                    ],
                     Expanded(
                       child: _CardButton(
-                        glyph: OutlineGlyph.bell,
-                        label: context.l10n.azanTitle,
-                        value: azanOn > 0
-                            ? context.l10n.calendarAzanOnFor(azanOn)
-                            : context.l10n.azanOff,
-                        onTap: _openAzan,
+                        glyph: OutlineGlyph.home,
+                        label: context.l10n.calendarTimesOnHome,
+                        value: context.l10n.calendarTimesShown(shownOnHome),
+                        onTap: _editTimesOnHome,
                       ),
                     ),
-                    Container(
-                      width: 1,
-                      height: 22,
-                      color: colors.onPrayerCard.withValues(alpha: 0.16),
-                    ),
                   ],
-                  Expanded(
-                    child: _CardButton(
-                      glyph: OutlineGlyph.home,
-                      label: context.l10n.calendarTimesOnHome,
-                      value: context.l10n.calendarTimesShown(shownOnHome),
-                      onTap: _editTimesOnHome,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -1174,7 +1178,8 @@ class _NoLocation extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            context.l10n.prayerEnableLocationBody,
+            // The picker offers the phone's location too, so this names both.
+            context.l10n.settingsLocationUpdatePrompt,
             style: ShiaText.secondary.copyWith(color: colors.onPrayerCardMuted),
           ),
           const SizedBox(height: 12),

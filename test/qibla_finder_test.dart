@@ -236,5 +236,8 @@ void main() {
 
     expect(find.text('Location needed'), findsOneWidget);
     expect(find.text('Waiting for your location'), findsOneWidget);
+    // Sharing the location is not the only way out: a city works too, even
+    // while a fetch is running.
+    expect(find.text('Choose city'), findsOneWidget);
   });
 }

@@ -45,6 +45,9 @@ const MERGED_ZIKR_SLUGS = {
   'friday-ziyarah-of-imam-al-mahdi-a-t-f-s': 'ziyarat-on-friday',
   'ziyarah-on-the-day-of-arafat': 'ziyarat-e-imam-husain-a-s-on-the-day-of-arafah',
   'ziyarah-on-the-day-of-arbaeen-the-twentieth-of-safar': 'ziyarat-e-arbaeen-the-20th-of-safar',
+  'ziyaarat-e-aal-e-yaaseen': 'ziyarat-e-aale-yaseen',
+  'ziyarah-on-saturday': 'ziyarat-of-saturday',
+  'salawaat-abul-hasan-al-zarraab-al-isfahani': 'salawat-abul-hasan-al-zarrab-al-isfahani',
 };
 
 // Hand-written pages that ship from web/ rather than being generated here.

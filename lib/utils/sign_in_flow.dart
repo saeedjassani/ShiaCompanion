@@ -13,9 +13,13 @@ import '../widgets/app_toast.dart';
 
 enum SignInProvider { google, apple }
 
-/// Sign in with Apple is offered on iOS only, as it always has been.
+/// Sign in with Apple is offered wherever Google is - iOS, Android and the
+/// web - so an account made with Apple on an iPhone can be reached from any
+/// device, not just iOS.
 bool get appleSignInOffered =>
-    !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+    kIsWeb ||
+    defaultTargetPlatform == TargetPlatform.iOS ||
+    defaultTargetPlatform == TargetPlatform.android;
 
 /// Signs in with [provider] from a button tap, for Settings and first-run
 /// setup alike: counts it, says so in a snackbar, and turns every failure
@@ -66,9 +70,11 @@ Future<User?> signInFromButton(
     debugPrint('Apple sign-in failed: ${error.message}');
     if (context.mounted) _showFailure(context, provider, null);
   } on FirebaseAuthException catch (error) {
-    // Web popup closed/replaced by the user - also a cancel, not a failure.
+    // Web popup or Android browser tab closed by the user - also a cancel,
+    // not a failure.
     if (error.code == 'popup-closed-by-user' ||
-        error.code == 'cancelled-popup-request') {
+        error.code == 'cancelled-popup-request' ||
+        error.code == 'web-context-canceled') {
       return null;
     }
     debugPrint('Sign-in failed: ${error.code} ${error.message}');
@@ -76,9 +82,13 @@ Future<User?> signInFromButton(
     _showFailure(
         context,
         provider,
-        error.code == 'network-request-failed'
-            ? context.l10n.commonNetworkError
-            : null);
+        switch (error.code) {
+          'network-request-failed' => context.l10n.commonNetworkError,
+          // The email is already on an account made with the other provider.
+          'account-exists-with-different-credential' =>
+            context.l10n.settingsAccountExistsOtherProvider,
+          _ => null,
+        });
   } catch (error) {
     debugPrint('Sign-in failed: $error');
     if (context.mounted) _showFailure(context, provider, null);
