@@ -1,5 +1,26 @@
 # Project notes for Claude
 
+## Subagents: pick the cheapest model and effort that will do the job
+
+- **Do it inline when you already hold the context** or it is a handful of
+  commands (a script run, a few greps, a small edit). A subagent starts cold
+  and re-reads what you already know, so spawning for small work costs more.
+- **Delegate large, separable work**, and on every `Agent` call set `model`
+  and `effort` explicitly to the cheapest pair that will do it reliably:
+  - broad read-only searches, counting, listing -> `Explore` on `haiku`,
+    `low` effort;
+  - mechanical bulk work with a clear spec (renames across files, batch
+    edits, filling templates, first-draft titles) -> `sonnet`, `medium`;
+  - judgement-heavy work (Arabic proofreading, zikr translation quality,
+    religious-content accuracy, architecture, tricky debugging) -> `opus`,
+    `high`.
+- Give each agent a self-contained prompt: the files, the exact task, the
+  conventions it must follow (point it at this file and
+  `docs/TRANSLATIONS.md`), and the output you want back - conclusions or a
+  summary, not file dumps.
+- Split big jobs into independent batches and run them in parallel; review
+  what comes back before committing it.
+
 ## TODO / follow-ups
 
 - **Missing-zikr restoration is mid-way.** 137 unfavorited uids are still
