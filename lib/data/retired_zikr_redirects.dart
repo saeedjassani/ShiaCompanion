@@ -312,4 +312,16 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'P14': RetiredZikrRedirect('P1', tabIndex: 8),
   'P15': RetiredZikrRedirect('P1', tabIndex: 8),
   'P16': RetiredZikrRedirect('P1', tabIndex: 9),
+
+  /// AC16 only reported Imam al-Hadi's (a.s.) birth on 15 Dhul Hijjah, with
+  /// nothing to recite or do (docs/ZIKR_STRUCTURE.md rule 6).
+  'AC16': RetiredZikrRedirect('AC5'),
+
+  /// AB4 only recounted Imam al-Jawad's (a.s.) martyrdom on the last day of
+  /// Dhul Qa'dah, with nothing to recite or do (rule 6).
+  'AB4': RetiredZikrRedirect('AB1'),
+
+  /// R5 only narrated the siege of Imam Husayn (a.s.) on 9 Muharram (Tasua),
+  /// with nothing to recite or do (rule 6).
+  'R5': RetiredZikrRedirect('R6'),
 };
