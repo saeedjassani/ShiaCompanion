@@ -1034,11 +1034,11 @@
   },
   "AL12|G1": {
     "title": "Ziyarat Aal-e-Yasin",
-    "slug": "ziyaarat-e-aal-e-yaaseen"
+    "slug": "ziyarat-e-aale-yaseen"
   },
   "AL14|G5": {
     "title": "Ziyarat al-Haqq al-Jadid",
-    "slug": "ziyaarat-al-haqq-al-jadeed"
+    "slug": "ziyarat-al-haqq-al-jadeed"
   },
   "AL15": {
     "title": "Salawat upon Imam al-Mahdi (a.t.f.s.) — Sardab, Samarra",
@@ -1374,10 +1374,7 @@
   "E144": {
     "title": "Salawat of Abul Hasan al-Zarrab al-Isfahani",
     "slug": "salawat-abul-hasan-al-zarrab-al-isfahani",
-    "day": "*-*-5",
-    "slugAliases": [
-      "salawaat-abul-hasan-al-zarraab-al-isfahani"
-    ]
+    "day": "*-*-5"
   },
   "E146": {
     "title": "Supplications at Sunrise & Sunset",
@@ -1722,10 +1719,7 @@
   "E8": {
     "title": "Dua Alqama",
     "slug": "dua-alqama",
-    "day": "01-10",
-    "slugAliases": [
-      "dua-alqamah"
-    ]
+    "day": "01-10"
   },
   "E80": {
     "title": "Comprehensive Dua for this World & the Hereafter",
@@ -1811,10 +1805,7 @@
   "F11": {
     "title": "Namaz of Jafar Tayyar",
     "slug": "namaz-of-jafar-e-tayyaar",
-    "day": "*-*-5",
-    "slugAliases": [
-      "namaz-of-jafar-e-tayyar"
-    ]
+    "day": "*-*-5"
   },
   "F12": {
     "title": "Namaz-e-Hadiya for the Masumeen (a.s.)",
@@ -2074,10 +2065,7 @@
   },
   "G1": {
     "title": "Ziyarat Aal-e-Yasin",
-    "slug": "ziyaarat-e-aal-e-yaaseen",
-    "slugAliases": [
-      "ziyarat-e-aale-yaseen"
-    ]
+    "slug": "ziyaarat-e-aal-e-yaaseen"
   },
   "G10": {
     "title": "Ziyarat Taziyah - Condolence to the Holy Prophet (s.a.w.a.) and His Immaculate Progeny",
@@ -2107,7 +2095,7 @@
   },
   "G15|K3": {
     "title": "Ziyarat on Saturday",
-    "slug": "ziyarah-on-saturday"
+    "slug": "ziyarat-of-saturday"
   },
   "G16|L3": {
     "title": "Sunday - Ziyarat of Amir al-Mu'minin (a.s.)",
@@ -2158,17 +2146,11 @@
     "title": "Ziyarat Ashura",
     "order": 0,
     "slug": "ziyarat-e-ashura",
-    "day": "*-*",
-    "slugAliases": [
-      "ziyaarat-e-ashoora"
-    ]
+    "day": "*-*"
   },
   "G5": {
     "title": "Ziyarat al-Haqq al-Jadid",
-    "slug": "ziyaarat-al-haqq-al-jadeed",
-    "slugAliases": [
-      "ziyarat-al-haqq-al-jadeed"
-    ]
+    "slug": "ziyaarat-al-haqq-al-jadeed"
   },
   "G50": {
     "title": "Ziyarat of the Holy Prophet (s.a.w.a.)",
@@ -2408,8 +2390,7 @@
     "slug": "ziyaarat-e-aashoora-gair-ma-roofah",
     "day": "01-10",
     "slugAliases": [
-      "second-ziyarah-on-day-of-ashura-lesser-known-version",
-      "ziyaarat-e-ashoora-ghair-ma-roofah"
+      "second-ziyarah-on-day-of-ashura-lesser-known-version"
     ]
   },
   "G84|AL17": {
@@ -2863,7 +2844,7 @@
   },
   "J11|F11": {
     "title": "Namaz of Jafar Tayyar",
-    "slug": "namaz-of-jafar-e-tayyaar"
+    "slug": "namaz-of-jafar-e-tayyar"
   },
   "J2|E34": {
     "title": "Dua Nudba",
@@ -2881,7 +2862,7 @@
   },
   "J5|E144": {
     "title": "Salawat of Abul Hasan al-Zarrab al-Isfahani",
-    "slug": "salawat-abul-hasan-al-zarrab-al-isfahani"
+    "slug": "salawaat-abul-hasan-al-zarraab-al-isfahani"
   },
   "J6": {
     "title": "Recommended Rites of Friday",
@@ -2922,10 +2903,7 @@
   "K3": {
     "title": "Ziyarat on Saturday",
     "slug": "ziyarah-on-saturday",
-    "day": "*-*-6",
-    "slugAliases": [
-      "ziyarat-of-saturday"
-    ]
+    "day": "*-*-6"
   },
   "L1": {
     "title": "The Supplication of Sunday",
@@ -3056,15 +3034,15 @@
   },
   "R11|G4": {
     "title": "Ziyarat Ashura",
-    "slug": "ziyarat-e-ashura"
+    "slug": "ziyaarat-e-ashoora"
   },
   "R12|E8": {
     "title": "Dua Alqama",
-    "slug": "dua-alqama"
+    "slug": "dua-alqamah"
   },
   "R15|G83": {
     "title": "Ziyarat Ashura Ghair Maroofa",
-    "slug": "ziyaarat-e-aashoora-gair-ma-roofah"
+    "slug": "ziyaarat-e-ashoora-ghair-ma-roofah"
   },
   "R4": {
     "title": "The Third of Muharram",
