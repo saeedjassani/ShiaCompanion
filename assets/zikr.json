@@ -3114,7 +3114,7 @@
     "day": "07-*"
   },
   "X10": {
-    "title": "(d) Fifteenth of Rajab (Namaz-e-Salman)",
+    "title": "Fifteenth of Rajab (Namaz-e-Salman)",
     "slug": "d-fifteenth-of-rajab-namaz-e-salman",
     "day": [
       "07-01",
@@ -3122,7 +3122,7 @@
     ]
   },
   "X11": {
-    "title": "(e) Thirteenth of Rajab",
+    "title": "Thirteenth of Rajab",
     "slug": "e-thirteenth-of-rajab",
     "day": [
       "N07-13",
@@ -3137,12 +3137,12 @@
     "day": "07-15"
   },
   "X14": {
-    "title": "(g) Aamal & Dua of Umm Dawood",
+    "title": "Aamal & Dua of Umm Dawood",
     "slug": "g-aamal-dua-of-umme-dawood",
     "day": "07-15"
   },
   "X15": {
-    "title": "(h) Aamal of Laylat al-Mab'ath (27th Night)",
+    "title": "Aamal of Laylat al-Mab'ath (27th Night)",
     "slug": "h-aamal-of-laylat-al-mab-as-27th-night",
     "day": "N07-27"
   },
@@ -3167,7 +3167,7 @@
     "day": "07-*"
   },
   "X6": {
-    "title": "(a) First Night of Friday (Laylat al-Raghaib)",
+    "title": "First Night of Friday (Laylat al-Raghaib)",
     "slug": "a-first-night-of-friday-laylat-al-raghaaeb",
     "day": [
       "07-*-4#1",
@@ -3175,7 +3175,7 @@
     ]
   },
   "X7": {
-    "title": "(b) First Night of Rajab",
+    "title": "First Night of Rajab",
     "slug": "b-first-night-of-rajab",
     "day": "N07-01"
   },
