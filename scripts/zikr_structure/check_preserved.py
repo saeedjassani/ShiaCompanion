@@ -157,7 +157,7 @@ def main():
     ap.add_argument('uids', nargs='*')
     ap.add_argument('--base', default='master')
     ap.add_argument('--html', metavar='PATH')
-    ap.add_argument('--title', default='Zikr restructuring review')
+    ap.add_argument('--title', default='Zikr Structure Review')
     args = ap.parse_args()
 
     redirects = corpus.load_redirects()
@@ -208,7 +208,7 @@ def main():
                 cols += f'<div class="col"><h3>After</h3>{entry_html(new)}</div>'
             body.append(f'<div class="entry">{head}<ul class="diff">{"".join(diff)}</ul><div class="cols">{cols}</div></div>')
         page = (f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-                f'<title>Zikr Structure Review</title><style>{CSS}</style></head><body><main>{"".join(body)}</main></body></html>')
+                f'<title>{html.escape(args.title)}</title><style>{CSS}</style></head><body><main>{"".join(body)}</main></body></html>')
         with open(args.html, 'w', encoding='utf-8') as f:
             f.write(page)
         print(f'wrote {args.html}')
