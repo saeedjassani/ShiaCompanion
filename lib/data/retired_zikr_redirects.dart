@@ -243,14 +243,14 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'M4': RetiredZikrRedirect('M3', tabIndex: 0),
 
   /// Second through Sixth forms of the general Ziyarat of Imam Husayn,
-  /// now AG8's tabs. AG4 (salawat on Imam Husayn, "Fourteenth:") is a
-  /// section of AG5's main data.
+  /// now AG8's tabs. AG4 (salawat on Imam Husayn, "Fourteenth:") is
+  /// AG5's second tab ("Salawat on Imam Husayn (a.s.)").
   'AG9': RetiredZikrRedirect('AG8', tabIndex: 0),
   'AG10': RetiredZikrRedirect('AG8', tabIndex: 1),
   'AG11': RetiredZikrRedirect('AG8', tabIndex: 2),
   'AG12': RetiredZikrRedirect('AG8', tabIndex: 3),
   'AG13': RetiredZikrRedirect('AG8', tabIndex: 4),
-  'AG4': RetiredZikrRedirect('AG5'),
+  'AG4': RetiredZikrRedirect('AG5', tabIndex: 1),
 
   /// Third through Sixth forms of the Ziyarat of Imam Ali, plus AK14 (Imam
   /// Zayn al-Abidin's visitation, from Farhat al-Ghari), now AK5's tabs.
