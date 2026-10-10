@@ -179,7 +179,9 @@ def lint_index(index, redirects, live):
                                    f"same title as {target} but slug {meta.get('slug')!r} != {tmeta.get('slug')!r}"))
     bases = collections.Counter(k.split('|')[0] for k in index)
     for base, n in bases.items():
-        if n > 1:
+        # Two aliases sharing a listing number only tie in sort order; a
+        # plain uid that is also an alias's listing uid is a real duplicate.
+        if n > 1 and base in index:
             out.append(Finding(base, 'error', 'DUP_UID', 'zikr.json',
                                f'{base} is the listing uid of {n} keys: '
                                + ', '.join(k for k in index if k.split('|')[0] == base)))
@@ -196,7 +198,9 @@ def lint_index(index, redirects, live):
         if target not in live:
             out.append(Finding(uid, 'error', 'REDIRECT_TARGET', 'retired_zikr_redirects.dart',
                                f'{uid} -> {target}, which is not live'))
-        if uid in live:
+        # 'G20|N3' alongside G20 -> N3 is fine: the redirect catches favorites
+        # saved under the bare uid, the alias lists the same target.
+        if uid in live and f'{uid}|{target}' not in index:
             out.append(Finding(uid, 'error', 'REDIRECT_LIVE', 'retired_zikr_redirects.dart',
                                f'{uid} is retired but still has a live entry'))
     return out
