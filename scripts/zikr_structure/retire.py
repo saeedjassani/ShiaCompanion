@@ -73,14 +73,17 @@ def main():
         if not os.path.exists(path):
             continue
         with open(path, encoding='utf-8') as f:
-            data = json.load(f)
+            raw = f.read()
+        data = json.loads(raw)
+        # Keep each file's own indentation (gu/index.json uses one space).
+        indent = len(re.match(r'\{\n( *)', raw).group(1)) if raw.startswith('{\n') else 2
         changed = False
         for section in data.values():
             if isinstance(section, dict) and a.uid in section:
                 del section[a.uid]
                 changed = True
         if changed:
-            dump_json(path, data, 2)
+            dump_json(path, data, indent)
 
     link = re.compile(r'\]\(' + re.escape(a.uid) + r'(#[^)]*)?\)')
     for uid in sorted(os.listdir(corpus.ZIKR_DIR)):

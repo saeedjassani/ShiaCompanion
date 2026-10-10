@@ -752,12 +752,10 @@
     "title": "Aamal of the Day of Eid al-Ghadir",
     "order": 18,
     "slug": "aamal-of-the-day-of-eid-e-ghadeer",
-    "day": "12-18"
-  },
-  "AC19": {
-    "title": "Namaz on the Day of Ghadir",
-    "slug": "namaz-on-the-day-of-ghadeer",
-    "day": "12-18"
+    "day": "12-18",
+    "slugAliases": [
+      "namaz-on-the-day-of-ghadeer"
+    ]
   },
   "AC2": {
     "title": "Another Ziyarat on the Day of Ghadir",
@@ -1075,11 +1073,10 @@
   },
   "B3": {
     "title": "Etiquettes of Ziyarat",
-    "slug": "etiquettes-of-ziyarah"
-  },
-  "B4": {
-    "title": "Verbal Harassment of a Female Pilgrim Talking with a Na-Mahram",
-    "slug": "verbal-harassment-to-a-female-pilgrim-talking-with-na-mahram"
+    "slug": "etiquettes-of-ziyarah",
+    "slugAliases": [
+      "verbal-harassment-to-a-female-pilgrim-talking-with-na-mahram"
+    ]
   },
   "B6": {
     "title": "Another Izn-e-Dukhool (Permission to Enter)",
@@ -2047,7 +2044,10 @@
   },
   "F9": {
     "title": "Namaz-e-Wahshat (Namaz for the Night of Burial)",
-    "slug": "namaz-e-wahshat-namaz-for-the-night-of-burial"
+    "slug": "namaz-e-wahshat-namaz-for-the-night-of-burial",
+    "slugAliases": [
+      "dedication-to-the-dead"
+    ]
   },
   "G0~B": {
     "title": "Ziyarat of Hijaz, Iran & Iraq",
@@ -2515,14 +2515,6 @@
     "title": "Numerical Istikhara",
     "slug": "numerical-istekhaarah"
   },
-  "I106": {
-    "title": "Istikhara on Behalf of Others",
-    "slug": "appearing-istekhaarah-for-others"
-  },
-  "I108": {
-    "title": "Prohibition on Shaving Beard",
-    "slug": "prohibition-on-shaving-beard"
-  },
   "I109": {
     "title": "Prohibition on Inclining towards the Wrongdoers",
     "slug": "prohibition-on-inclination-towards-the-wrongdoers"
@@ -2607,10 +2599,6 @@
     "title": "Cleansing the Teeth",
     "slug": "cleansing-the-teeth"
   },
-  "I30": {
-    "title": "Dedication to the Dead",
-    "slug": "dedication-to-the-dead"
-  },
   "I31": {
     "title": "Recitations for Fending Off Evil Self Inspirations",
     "slug": "recitations-for-fending-off-evil-self-inspirations"
@@ -2621,7 +2609,10 @@
   },
   "I33": {
     "title": "Istikhara",
-    "slug": "istekhaarah"
+    "slug": "istekhaarah",
+    "slugAliases": [
+      "appearing-istekhaarah-for-others"
+    ]
   },
   "I34": {
     "title": "Istikhara with a Rosary (Tasbeeh)",
@@ -2857,7 +2848,10 @@
   "J6": {
     "title": "Recommended Rites of Friday",
     "slug": "recommended-rites-of-friday",
-    "day": "*-*-5"
+    "day": "*-*-5",
+    "slugAliases": [
+      "prohibition-on-shaving-beard"
+    ]
   },
   "J7": {
     "title": "Aamal of Zuhr Prayer on Friday",

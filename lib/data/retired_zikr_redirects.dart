@@ -333,4 +333,26 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// run together in a few long lines - G83 is the same ziyarat line by line.
   /// The 'R15|G83' alias keeps it listed under Muharram.
   'R15': RetiredZikrRedirect('G83'),
+
+  /// AC19 (Namaz on the Day of Ghadir) repeated AC18's tabs 2-6 almost word for
+  /// word; AC18 carries the full aamal of the day.
+  'AC19': RetiredZikrRedirect('AC18', tabIndex: 0),
+
+  /// I30 (Dedication to the Dead) had no Arabic and nothing to recite of its
+  /// own; its narrations on gifting deeds to the dead are now in F9's (Namaz-e-
+  /// Wahshat) merits.
+  'I30': RetiredZikrRedirect('F9'),
+
+  /// I106 (Istikhara on Behalf of Others) was a scholarly discussion with
+  /// nothing to recite; it is now in I33's (Istikhara) merits.
+  'I106': RetiredZikrRedirect('I33'),
+
+  /// B4 was the last of the etiquettes of ziyarat (giving way at crowded tombs,
+  /// women's ziyarah); it is now part of B3's 'Ziyarah Prayer & Conduct' tab
+  /// and merits.
+  'B4': RetiredZikrRedirect('B3', tabIndex: 2),
+
+  /// I108 (Prohibition on Shaving Beard) was a ruling, not a zikr; trimming the
+  /// mustache is in J6's 'Ghusl & Grooming' tab.
+  'I108': RetiredZikrRedirect('J6', tabIndex: 0),
 };
