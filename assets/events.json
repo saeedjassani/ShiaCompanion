@@ -72,15 +72,11 @@
     "color": 0
   },
   "03-09": {
-    "content": "Eid‐e‐Zahra(s.a.)\n\nBeginning of the Imamat of Imam Mohammad Mehdi(atfs) ‐ the 12th Holy Imam ‐ (260 A.H.)",
+    "content": "Eid‐e‐Zahra(s.a.)",
     "color": 1
   },
   "03-10": {
     "content": "Death of Hazrat Abdul Mutallib(a.s.) – grand father of Prophet Muhammad(sawaw)\n\nMarriage of Prophet Muhammad (s.a.w.a.) and Hazrat Khadija (s.a.)",
-    "color": null
-  },
-  "03-12": {
-    "content": "Arrival of Prophet Muhammad(sawaw) in Quba after the Hijrat ‐ (1 A.H.)",
     "color": null
   },
   "03-14": {
@@ -95,10 +91,6 @@
     "content": "Birth of Prophet Muhammad(sawaw) – (53 years before Hijra)\n\nBirth of Imam Jafer Sadiq(a.s.) – the 6th Holy Imam ‐ (83 A.H.)",
     "color": 1
   },
-  "03-25": {
-    "content": "Death of Hazrat Abu Talib(a.s.)",
-    "color": 0
-  },
   "04-08": {
     "content": "Birth of Imam Hasan Askari(a.s.) – the 11th Holy Imam ‐ (232 A.H.)",
     "color": 1
@@ -110,6 +102,10 @@
   "05-05": {
     "content": "Birth of Hazrat Zainab bint‐e‐Ali(a.s.) – (5 A.H.)",
     "color": 1
+  },
+  "05-06": {
+    "content": "Battle of Mauta – (8 A.H.)\n\nMartyrdom of Hazrat Jafer Tayyar(a.s.)",
+    "color": 0
   },
   "05-10": {
     "content": "Battle of Jamal – (36 A.H.)",
@@ -125,10 +121,6 @@
   },
   "06-03": {
     "content": "Death of Hazrat Fatima Zahra(s.a.) – (11 A.H.)",
-    "color": 0
-  },
-  "06-10": {
-    "content": "Battle of Mauta – (8 A.H.)\n\nMartyrdom of Hazrat Jafer Tayyar(a.s.)",
     "color": 0
   },
   "06-13": {
@@ -163,17 +155,21 @@
     "content": "Birth of Imam Mohammad Taqi al‐Jawwad(a.s.) – the 9th Holy Imam ‐ (195 A.H.)",
     "color": 1
   },
-  "07-12": {
-    "content": "Death of Hazrat Abbas ibn‐e‐Abdul Muttalib(a.s.) – uncle of Prophet Mohammad(sawaw)",
-    "color": 0
-  },
   "07-13": {
     "content": "Birth of Imam Ali(a.s.) – the 1st Holy Imam ‐ (30 Aamul Feel)",
     "color": 1
   },
+  "07-14": {
+    "content": "Death of Hazrat Abbas ibn‐e‐Abdul Muttalib(a.s.) – uncle of Prophet Mohammad(sawaw)",
+    "color": 0
+  },
   "07-15": {
     "content": "Death of Hazrat Zainab bint‐e‐Ali(a.s.) – (62 A.H.)\n\nChange of qibla from Bait‐al‐maqdas to Kaaba ‐ (2 A.H.)",
     "color": 0
+  },
+  "07-19": {
+    "content": "Battle of Tabooq – (9 A.H.)",
+    "color": null
   },
   "07-20": {
     "content": "Birth of Hazrat Sakina bint‐al‐Hussain(a.s.) – (57 A.H.)",
@@ -199,10 +195,6 @@
     "content": "Imam Hussain(a.s.) left Madina for Makkah on the journey to Karbala ‐ (60 A.H.)",
     "color": 0
   },
-  "07-29": {
-    "content": "Battle of Tabooq – (9 A.H.)",
-    "color": null
-  },
   "08-01": {
     "content": "Birth of Hazrat Zainab bint‐e‐Ali(a.s.) ‐ (5 A.H.)",
     "color": 1
@@ -224,11 +216,11 @@
     "color": 1
   },
   "08-11": {
-    "content": "Birth of Hazrat Ali Akbar(a.s.) ‐ (44 A.H.)",
+    "content": "Birth of Hazrat Ali Akbar(a.s.) ‐ (33 A.H.)",
     "color": 1
   },
   "08-15": {
-    "content": "Birth of Imam Mahdi(atfs), Wali‐e‐Asr ‐ the 12th Holy Imam ‐ (255 A.H.)\nThe night before is Shab‐e‐Barat\n\nCommencement of Ghaibat al‐Kubra ‐ (329 A.H.)\nAli ibn Mohammad as‐Samari, the 4th special deputy of Imam Mahdi(atfs), passed away on this day\nMay Allah (s.w.t.) hasten the reappearance of Imam Mahdi (a.t.f.s.) and count us among his helpers and soldiers.",
+    "content": "Birth of Imam Mahdi(atfs), Wali‐e‐Asr ‐ the 12th Holy Imam ‐ (255 A.H.)\n\nCommencement of Ghaibat al‐Kubra ‐ (329 A.H.)\nAli ibn Mohammad as‐Samari, the 4th special deputy of Imam Mahdi(atfs), passed away on this day\nMay Allah (s.w.t.) hasten the reappearance of Imam Mahdi (a.t.f.s.) and count us among his helpers and soldiers.",
     "color": 1
   },
   "09-01": {
@@ -310,10 +302,6 @@
   "12-01": {
     "content": "Wedding of Imam Ali (a.s.) and Janabe Fatema Zahra (s.a.)",
     "color": 1
-  },
-  "12-05": {
-    "content": "Wafat of Hazrat Abu Zar e Gaffari (a.r.)",
-    "color": 0
   },
   "12-07": {
     "content": "Martyrdom of Imam Mohammad Baqir (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",

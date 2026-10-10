@@ -26,9 +26,18 @@ Shaykh Abbas Qummi, read through WikiShia (en/fa) and al-islam.org.
 | 28 Rajab: journey "towards Karbala" | left Madina for Makkah | He left Makkah for Iraq on 8 Dhul Hijjah, which is a separate entry. |
 | 1 Rabi' I: "start of the Hijri calendar" | Laylat al-Mabit and the Hijrah | The Hijri era counts from 1 Muharram of that year, not from this day. |
 
-Added: 9 Rabi' I, the beginning of Imam al-Mahdi's Imamate (260 AH); 12 Rabi' I,
-the Prophet's arrival at Quba; Shab-e-Barat on 15 Sha'ban; 24 Dhul Hijjah,
-the ring given in ruku and the Verse of Wilayah (5:55).
+Added: 24 Dhul Hijjah, the ring given in ruku and the Verse of Wilayah (5:55).
+
+Also corrected after a second pass:
+
+| Was | Now | Why |
+| --- | --- | --- |
+| 10 Jumada II: Battle of Mu'tah, Ja'far al-Tayyar | 6 Jumada I (8 AH) | The sources put Mu'tah in Jumada I, and WikiShia's calendar gives the 6th. |
+| 12 Rajab: death of Abbas ibn Abd al-Muttalib | 14 Rajab (32 AH) | WikiShia: Friday 14 Rajab 32. |
+| 29 Rajab: Tabuk | 19 Rajab (9 AH) | WikiShia's 9 AH page. The expedition ran through Rajab and Sha'ban. |
+| 11 Sha'ban: Ali Akbar born 44 AH | 33 AH | WikiShia. |
+| 25 Rabi' I: death of Abu Talib | removed | No source. The reported dates are 26 Rajab and Ramazan, both kept. |
+| 5 Dhul Hijjah: death of Abu Dharr | removed | No source gives a day. Reports say Dhul Hijjah 32 with no day, 27 Dhul Qa'dah, or 3 Rabi' II. |
 
 ## Days marked on more than one date (left as they are)
 
@@ -51,14 +60,14 @@ observes:
 - **Lady Masuma's death**: 10 (or 12) Rabi' II, and 4 Rabi' I in
   South Asian calendars.
 - **Hazrat Abu Talib's death**: 26 Rajab (al-Tusi) and Ramazan (al-Ya'qubi,
-  three days after Lady Khadija). 25 Rabi' I has no source found yet.
+  three days after Lady Khadija). 25 Rabi' I had no source and was removed.
 
-## Unverified, to check against the printed calendar
+## Kept on a single, weaker source
 
-10 Safar (Sakina; Arab and Iranian calendars give the child who died in
-Damascus as Ruqayya, and the historical Sakina died in 117 AH), 20 Rajab
-(Sakina's birth), 10 Jumada II (Mu'tah: the sources say Jumada I, 8 AH),
-12 Rajab (Abbas ibn Abd al-Muttalib: WikiShia gives 14 Rajab 32 AH),
-21 Jumada II (Umm Kulthum), 5 Dhul Hijjah (Abu Dharr), 23 Dhul Hijjah
-(the sons of Muslim), 7 Sha'ban (Qasim), 11 Sha'ban 44 AH (Ali Akbar:
-WikiShia gives 33 AH), 29 Rajab (Tabuk) and 25 Rabi' I (Abu Talib).
+10 Safar (the child of Imam Husain who died in Damascus: Sakina in South
+Asia, Ruqayya in Arab and Iranian calendars, which also give 5 or 13 Safar),
+20 Rajab (Sakina's birth), 21 Jumada II (Umm Kulthum, 61 AH: Arabic
+WikiShia, "according to a report"), 23 Dhul Hijjah (the sons of Muslim:
+observed at the Abbas shrine), 7 Sha'ban (Qasim: Wikipedia), and
+10 Rabi' I (the Prophet's marriage to Lady Khadija: WikiShia, "according to
+some reports").
