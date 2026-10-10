@@ -92,7 +92,7 @@ List<String> quranCompanionZikrUids() {
 final RegExp _surahTitlePattern = RegExp(r'^\s*(\d+)\s*:\s*(.*)$');
 
 /// "2: " or "۲: " at the start of a translated surah title.
-final RegExp _surahNumberLead = RegExp(r'^\s*[0-9٠-٩۰-۹]+\s*:\s*');
+final RegExp _surahNumberLead = RegExp(r'^\s*[0-9٠-٩۰-۹૦-૯]+\s*:\s*');
 
 /// One surah, as the Quran screen needs to show it.
 class SurahInfo {
